@@ -1,0 +1,801 @@
+{
+  "environment": {
+    "page": "/bezeg-2.0/learn/convexity-hulls",
+    "commit": "692a50a1",
+    "browser": "Chromium 156.0.8078.4 (Playwright 1.64.0, headless)",
+    "cpu": "AMD Ryzen 5 7600 6-Core Processor (12 logical)",
+    "os": "Windows_NT 10.0.26200",
+    "buildCopy": "C:\\Users\\1337HA~1\\AppData\\Local\\Temp\\collision-cp7-build-39272",
+    "buildIndexMtime": "2026-11-08T04:17:31.246Z",
+    "note": "CDP CPU throttling applies to the page main thread only, not to the dedicated simulation worker (CP3 finding), so the throttled profile loads the main thread but not the worker."
+  },
+  "profiles": [
+    {
+      "profile": "desktop",
+      "throttle": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "containment": {
+        "objectsShown": "4500",
+        "windowMs": 10000,
+        "snapshotsInWindow": 146,
+        "loaf": {
+          "framesOver50ms": 103,
+          "anyPlaygroundAttributable": true,
+          "longestMs": 85.4,
+          "frames": [
+            {
+              "start": 2330.4,
+              "duration": 69.9,
+              "blocking": 19,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68.1,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2408.4,
+              "duration": 68.3,
+              "blocking": 18.3,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 67.4,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2487.8,
+              "duration": 68.9,
+              "blocking": 18.9,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68.9,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2563.1,
+              "duration": 72.5,
+              "blocking": 22.4,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 72.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2645.2,
+              "duration": 67,
+              "blocking": 17,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 66.7,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2718.5,
+              "duration": 73.9,
+              "blocking": 18.6,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 67.3,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2802.7,
+              "duration": 68.8,
+              "blocking": 18.7,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68.5,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2880.5,
+              "duration": 78.8,
+              "blocking": 18.4,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 2967.5,
+              "duration": 69,
+              "blocking": 18.8,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 67.8,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3047.4,
+              "duration": 68.9,
+              "blocking": 18.8,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68.3,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3125.6,
+              "duration": 65.5,
+              "blocking": 15.4,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 65.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3199.2,
+              "duration": 69,
+              "blocking": 18.9,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3279.7,
+              "duration": 67.8,
+              "blocking": 17.8,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 67.5,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3355.6,
+              "duration": 72.2,
+              "blocking": 21.9,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 70.7,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3438.2,
+              "duration": 66.8,
+              "blocking": 16.7,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 66.3,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3515.1,
+              "duration": 76.8,
+              "blocking": 17.7,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 66.7,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3602,
+              "duration": 68.7,
+              "blocking": 18.7,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 68.5,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3676.8,
+              "duration": 80.7,
+              "blocking": 16.7,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 65.7,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3764.9,
+              "duration": 72.5,
+              "blocking": 22.2,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 71.7,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 3843.2,
+              "duration": 66.7,
+              "blocking": 16.5,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 66.3,
+                  "playground": true
+                }
+              ]
+            }
+          ]
+        },
+        "loafError": null,
+        "scroll": {
+          "inputs": 20,
+          "kind": "wheel",
+          "p50Ms": 283,
+          "p95Ms": 309.1,
+          "maxMs": 310.7,
+          "targetMs": 100
+        },
+        "linkClick": {
+          "clicks": 20,
+          "eventTimingEntriesOver16ms": 19,
+          "p95DurationMsUpperBound": 16,
+          "maxMs": 16,
+          "targetMs": 100,
+          "note": null,
+          "eventError": null
+        }
+      },
+      "switchLatency": {
+        "switches": 5,
+        "snapshotDomMs": {
+          "median": 77.5,
+          "max": 82.5
+        },
+        "firstFrameMs": {
+          "median": 146.3,
+          "max": 154.5
+        },
+        "targetMs": null,
+        "perSwitch": [
+          {
+            "domMs": 77.5,
+            "frameMs": 146.3
+          },
+          {
+            "domMs": 5.1,
+            "frameMs": 89.1
+          },
+          {
+            "domMs": 4.1,
+            "frameMs": 72.5
+          },
+          {
+            "domMs": 80.5,
+            "frameMs": 146.6
+          },
+          {
+            "domMs": 82.5,
+            "frameMs": 154.5
+          }
+        ]
+      },
+      "smoothness": {
+        "objectsShown": "5000",
+        "method": "sweep",
+        "allAnimationFrames": {
+          "frames": 104,
+          "medianMs": 85,
+          "p95Ms": 88.2,
+          "maxMs": 90.4
+        },
+        "playgroundAnimationFrames": {
+          "frames": 104,
+          "medianMs": 85,
+          "p95Ms": 88.2,
+          "maxMs": 90.4
+        },
+        "targetMedianMs": 16.7,
+        "meetsMedianTarget": false
+      },
+      "lifecycle": {
+        "headed": false,
+        "playingControl": 127,
+        "offscreenSnapshots2s": 0,
+        "canvasInViewAfterScrollBack": true,
+        "resumedAfterScrollBack": 66,
+        "hiddenMethod": "not measured: document.hidden stayed false (headless keeps every page visible; tried second tab bringToFront + window minimised; minimise had no effect)",
+        "hiddenAfterBringToFront": false,
+        "hiddenSnapshots2s": null,
+        "targetsDrainedBeforeNavigation": true,
+        "workerTargetsBefore": [
+          "collisionWorker-CmcsyyYj.js"
+        ],
+        "pageWorkersCreated": [
+          "collisionWorker-CmcsyyYj.js"
+        ],
+        "clientSideNavigation": true,
+        "workerTargetsAfter": [],
+        "pageWorkersTerminated": 1,
+        "trafficAfterNavigation2s": 0,
+        "navigatedTo": "/bezeg-2.0"
+      }
+    },
+    {
+      "profile": "mobile-4x",
+      "throttle": 4,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "containment": {
+        "objectsShown": "4500",
+        "windowMs": 10000,
+        "snapshotsInWindow": 688,
+        "loaf": {
+          "framesOver50ms": 88,
+          "anyPlaygroundAttributable": true,
+          "longestMs": 364.2,
+          "frames": [
+            {
+              "start": 6342.9,
+              "duration": 305.2,
+              "blocking": 252.1,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 296.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 6725,
+              "duration": 310.4,
+              "blocking": 257,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 301,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 7117.4,
+              "duration": 316,
+              "blocking": 253.8,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 300.4,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 7503.6,
+              "duration": 328.4,
+              "blocking": 270.2,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 313.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 7902.9,
+              "duration": 312.5,
+              "blocking": 253.3,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 296.8,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 8300.2,
+              "duration": 328.3,
+              "blocking": 266.3,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 312.4,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 8705.8,
+              "duration": 323.6,
+              "blocking": 267.5,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 311.9,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 9100.8,
+              "duration": 321.4,
+              "blocking": 259.4,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 304.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 9493.6,
+              "duration": 319.7,
+              "blocking": 267.7,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 312.4,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 9916.2,
+              "duration": 317,
+              "blocking": 255.3,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 300.3,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 10309.3,
+              "duration": 309.7,
+              "blocking": 257.3,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 301,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 10693.8,
+              "duration": 309.9,
+              "blocking": 258.5,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 301.1,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 11080.7,
+              "duration": 347.8,
+              "blocking": 284.5,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 326.9,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 11500.6,
+              "duration": 323.5,
+              "blocking": 262.1,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 308.2,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 11902.8,
+              "duration": 316,
+              "blocking": 259.8,
+              "scripts": [
+                {
+                  "invoker": "MessagePort.onmessage",
+                  "url": "react-dom-DPNmf2_n.js",
+                  "fn": "se",
+                  "duration": 5,
+                  "playground": false
+                },
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 299.9,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 12290.2,
+              "duration": 318.2,
+              "blocking": 262.5,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 307.1,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 12678.8,
+              "duration": 303.8,
+              "blocking": 252.8,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 296.9,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 13067.1,
+              "duration": 318.4,
+              "blocking": 256.9,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 303,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 13460,
+              "duration": 304.3,
+              "blocking": 252.1,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 296.1,
+                  "playground": true
+                }
+              ]
+            },
+            {
+              "start": 13834.6,
+              "duration": 321.5,
+              "blocking": 261.8,
+              "scripts": [
+                {
+                  "invoker": "FrameRequestCallback",
+                  "url": "CollisionPlayground-DP091qfh.js",
+                  "fn": "r",
+                  "duration": 305,
+                  "playground": true
+                }
+              ]
+            }
+          ]
+        },
+        "loafError": null,
+        "scroll": {
+          "inputs": 40,
+          "kind": "touchstart",
+          "p50Ms": 111.2,
+          "p95Ms": 152.5,
+          "maxMs": 1179.9,
+          "targetMs": 100
+        },
+        "linkClick": {
+          "clicks": 20,
+          "eventTimingEntriesOver16ms": 20,
+          "p95DurationMsUpperBound": 32,
+          "maxMs": 1176,
+          "targetMs": 100,
+          "note": null,
+          "eventError": null
+        }
+      },
+      "switchLatency": {
+        "switches": 5,
+        "snapshotDomMs": {
+          "median": 411,
+          "max": 413.3
+        },
+        "firstFrameMs": {
+          "median": 715.9,
+          "max": 809.1
+        },
+        "targetMs": 250,
+        "perSwitch": [
+          {
+            "domMs": 413.3,
+            "frameMs": 809.1
+          },
+          {
+            "domMs": 392.8,
+            "frameMs": 701
+          },
+          {
+            "domMs": 412.6,
+            "frameMs": 734.7
+          },
+          {
+            "domMs": 403.3,
+            "frameMs": 698.9
+          },
+          {
+            "domMs": 411,
+            "frameMs": 715.9
+          }
+        ]
+      },
+      "smoothness": {
+        "objectsShown": "5000",
+        "method": "sweep",
+        "allAnimationFrames": {
+          "frames": 21,
+          "medianMs": 365.1,
+          "p95Ms": 386.3,
+          "maxMs": 391.2
+        },
+        "playgroundAnimationFrames": {
+          "frames": 21,
+          "medianMs": 365.1,
+          "p95Ms": 386.3,
+          "maxMs": 391.2
+        },
+        "targetMedianMs": 33.3,
+        "meetsMedianTarget": false
+      },
+      "lifecycle": {
+        "headed": false,
+        "playingControl": 147,
+        "offscreenSnapshots2s": 65,
+        "canvasInViewAfterScrollBack": true,
+        "resumedAfterScrollBack": 87,
+        "hiddenMethod": "not measured: document.hidden stayed false (headless keeps every page visible; tried second tab bringToFront + window minimised; minimise had no effect)",
+        "hiddenAfterBringToFront": false,
+        "hiddenSnapshots2s": null,
+        "targetsDrainedBeforeNavigation": true,
+        "workerTargetsBefore": [
+          "collisionWorker-CmcsyyYj.js"
+        ],
+        "pageWorkersCreated": [
+          "collisionWorker-CmcsyyYj.js"
+        ],
+        "navigationNote": "locator.tap: Timeout 3000ms exceeded."
+      }
+    }
+  ]
+}

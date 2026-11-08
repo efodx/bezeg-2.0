@@ -1,0 +1,236 @@
+{
+  "environment": {
+    "page": "/bezeg-2.0/learn/convexity-hulls",
+    "commit": "692a50a1 (src dirty)",
+    "browser": "Chromium 156.0.8078.4 (Playwright 1.64.0, headless)",
+    "cpu": "AMD Ryzen 5 7600 6-Core Processor (12 logical)",
+    "os": "Windows_NT 10.0.26200",
+    "buildCopy": "C:\\Users\\1337HA~1\\AppData\\Local\\Temp\\collision-cp7-build-42288",
+    "buildIndexMtime": "2026-11-08T05:27:14.235Z",
+    "note": "CDP CPU throttling applies to the page main thread only, not to the dedicated simulation worker (CP3 finding), so the throttled profile loads the main thread but not the worker."
+  },
+  "profiles": [
+    {
+      "profile": "desktop",
+      "throttle": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "containment": {
+        "objectsShown": "3000",
+        "windowMs": 10000,
+        "snapshotsInWindow": 224,
+        "loaf": {
+          "framesOver50ms": 0,
+          "anyPlaygroundAttributable": false,
+          "longestMs": 0,
+          "frames": []
+        },
+        "loafError": null,
+        "scroll": {
+          "inputs": 20,
+          "kind": "wheel",
+          "p50Ms": 32.6,
+          "p95Ms": 41.1,
+          "maxMs": 45.6,
+          "targetMs": 100
+        },
+        "linkClick": {
+          "clicks": 20,
+          "eventTimingEntriesOver16ms": 19,
+          "p95DurationMsUpperBound": 16,
+          "maxMs": 24,
+          "targetMs": 100,
+          "note": null,
+          "eventError": null
+        }
+      },
+      "switchLatency": {
+        "switches": 5,
+        "snapshotDomMs": {
+          "median": 22.7,
+          "max": 29.4
+        },
+        "firstFrameMs": {
+          "median": 35.2,
+          "max": 39.2
+        },
+        "targetMs": null,
+        "perSwitch": [
+          {
+            "domMs": 29.4,
+            "frameMs": 39.2
+          },
+          {
+            "domMs": 23.5,
+            "frameMs": 35.2
+          },
+          {
+            "domMs": 10.9,
+            "frameMs": 28.1
+          },
+          {
+            "domMs": 22.7,
+            "frameMs": 37.7
+          },
+          {
+            "domMs": 0.9,
+            "frameMs": 8.4
+          }
+        ]
+      },
+      "smoothness": {
+        "objectsShown": "3500",
+        "method": "sweep",
+        "allAnimationFrames": {
+          "frames": 596,
+          "medianMs": 2.8,
+          "p95Ms": 4.4,
+          "maxMs": 5.3
+        },
+        "playgroundAnimationFrames": {
+          "frames": 596,
+          "medianMs": 2.8,
+          "p95Ms": 4.4,
+          "maxMs": 5.3
+        },
+        "targetMedianMs": 16.7,
+        "meetsMedianTarget": true
+      },
+      "lifecycle": {
+        "headed": false,
+        "playingControl": 120,
+        "offscreenSnapshots2s": 0,
+        "canvasInViewAfterScrollBack": true,
+        "resumedAfterScrollBack": 60,
+        "hiddenMethod": "not measured: document.hidden stayed false (headless keeps every page visible; tried second tab bringToFront + window minimised; minimise had no effect)",
+        "hiddenAfterBringToFront": false,
+        "hiddenSnapshots2s": null,
+        "targetsDrainedBeforeNavigation": true,
+        "workerTargetsBefore": [
+          "collisionWorker-BOd582R-.js"
+        ],
+        "pageWorkersCreated": [
+          "collisionWorker-BOd582R-.js"
+        ],
+        "clientSideNavigation": true,
+        "workerTargetsAfter": [],
+        "pageWorkersTerminated": 1,
+        "trafficAfterNavigation2s": 0,
+        "navigatedTo": "/bezeg-2.0"
+      }
+    },
+    {
+      "profile": "mobile-4x",
+      "throttle": 4,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "containment": {
+        "objectsShown": "3000",
+        "windowMs": 10000,
+        "snapshotsInWindow": 468,
+        "loaf": {
+          "framesOver50ms": 0,
+          "anyPlaygroundAttributable": false,
+          "longestMs": 0,
+          "frames": []
+        },
+        "loafError": null,
+        "scroll": {
+          "inputs": 40,
+          "kind": "touchstart",
+          "p50Ms": 29.2,
+          "p95Ms": 72.5,
+          "maxMs": 174.3,
+          "targetMs": 100
+        },
+        "linkClick": {
+          "clicks": 20,
+          "eventTimingEntriesOver16ms": 20,
+          "p95DurationMsUpperBound": 32,
+          "maxMs": 168,
+          "targetMs": 100,
+          "note": null,
+          "eventError": null
+        }
+      },
+      "switchLatency": {
+        "switches": 5,
+        "snapshotDomMs": {
+          "median": 89.7,
+          "max": 94.4
+        },
+        "firstFrameMs": {
+          "median": 123.2,
+          "max": 140
+        },
+        "targetMs": 250,
+        "perSwitch": [
+          {
+            "domMs": 89.7,
+            "frameMs": 140
+          },
+          {
+            "domMs": 4.6,
+            "frameMs": 88.9
+          },
+          {
+            "domMs": 94.4,
+            "frameMs": 128.2
+          },
+          {
+            "domMs": 91.3,
+            "frameMs": 123.2
+          },
+          {
+            "domMs": 81.3,
+            "frameMs": 96.5
+          }
+        ]
+      },
+      "smoothness": {
+        "objectsShown": "3500",
+        "method": "sweep",
+        "allAnimationFrames": {
+          "frames": 182,
+          "medianMs": 15.7,
+          "p95Ms": 21.2,
+          "maxMs": 23.9
+        },
+        "playgroundAnimationFrames": {
+          "frames": 182,
+          "medianMs": 15.7,
+          "p95Ms": 21.2,
+          "maxMs": 23.9
+        },
+        "targetMedianMs": 33.3,
+        "meetsMedianTarget": true
+      },
+      "lifecycle": {
+        "headed": false,
+        "playingControl": 124,
+        "offscreenSnapshots2s": 0,
+        "canvasInViewAfterScrollBack": true,
+        "resumedAfterScrollBack": 60,
+        "hiddenMethod": "not measured: document.hidden stayed false (headless keeps every page visible; tried second tab bringToFront + window minimised; minimise had no effect)",
+        "hiddenAfterBringToFront": false,
+        "hiddenSnapshots2s": null,
+        "targetsDrainedBeforeNavigation": true,
+        "workerTargetsBefore": [
+          "collisionWorker-BOd582R-.js"
+        ],
+        "pageWorkersCreated": [
+          "collisionWorker-BOd582R-.js"
+        ],
+        "clientSideNavigation": true,
+        "workerTargetsAfter": [],
+        "pageWorkersTerminated": 1,
+        "trafficAfterNavigation2s": 0,
+        "navigatedTo": "/bezeg-2.0"
+      }
+    }
+  ]
+}

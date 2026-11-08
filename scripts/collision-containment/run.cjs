@@ -14,6 +14,9 @@ const REPO = path.resolve(__dirname, '../..');
 const COPY = path.join(os.tmpdir(), 'collision-cp7-build-' + process.pid);
 // COLLISION_CP7_MODE: playing (default, everything) | lifecycle (only the lifecycle section) | paused | none: baseline scroll and link measurements only.
 const MODE = process.env.COLLISION_CP7_MODE || 'playing';
+// Polygon blocks only: the overlay stage to draw (boxes, hulls or pieces); unset keeps the block's default.
+const STAGE = process.env.COLLISION_CP7_STAGE || '';
+const STAGE_LABEL = {boxes: 'Očrtani pravokotniki', hulls: 'Konveksne ovojnice', pieces: 'Konveksni deli'};
 // COLLISION_CP7_HEADED=1: the first lifecycle phase (scroll away, hidden tab) runs in a headed Chromium, where the window can be minimised.
 const HEADED = process.env.COLLISION_CP7_HEADED === '1';
 const PLAY_MS = 10000, SCROLLS = 20, CLICKS = 20, SWITCHES = 5, IDLE_MS = 2000;
@@ -66,6 +69,7 @@ async function setup(page, method) {
     if (MODE === 'none') return 'no playground';
     const s = section(page);
     await s.getByRole('radio', {name: method === 'naive' ? 'Preizkus vseh parov' : 'Pometanje in obrezovanje'}).check();
+    if (STAGE) await s.getByRole('radio', {name: STAGE_LABEL[STAGE]}).check();
     const slider = s.getByRole('slider').first();
     await slider.focus();
     await slider.press('End');

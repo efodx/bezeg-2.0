@@ -488,7 +488,7 @@ Decision: limits 4 000 (naive) and 5 000 (sweep); reasons in the [collision play
 | 4× throttle 390×844, main thread | circle sweep | 0.005 | 0.02 | 0.03 | 0.23 | 0.64 | 1.2 | 2.3 |
 | 4× throttle 390×844, main thread | polygon sweep | 0.005 | 0.03 | 0.20 | 0.40 | 1.0 | 2.0 | 3.7 |
 
-The polygon pipeline adds little to naive (the box stage dominates: 12.5 million box tests at n = 5 000 against 229 candidates, 179 hull passes, 169 touching pairs and 590 piece tests); sweep costs about 1.6 times the circle sweep at n = 5 000 because of the hull and piece tests of 229 candidates. Decision by the CP3 rule: naive 275 ms at 5 000 exceeds 250 ms, and the quadratic fit puts 250 ms at about n = 4 960, so the limit is 4 500 (rounded down to a 500 step); sweep 3.7 ms at the 5 000 cap is under 8 ms, so the cap applies. Limits: polygon naive 4 500, sweep 5 000. The 4 500 cell itself was not run; interpolation gives about 205 ms.
+The polygon pipeline adds little to naive (the box stage dominates: 12.5 million box tests at n = 5 000 against 229 candidates, 179 hull passes, 169 touching pairs and 590 piece tests); sweep costs about 1.6 times the circle sweep at n = 5 000 because of the hull and piece tests of 229 candidates. Decision by the CP3 rule: naive 275 ms at 5 000 exceeds 250 ms, and the quadratic fit puts 250 ms at about n = 4 960, so the limit is 4 500 (rounded down to a 500 step); sweep 3.7 ms at the 5 000 cap is under 8 ms, so the cap applies. Limits: polygon naive 4 500, sweep 5 000 (by step cost; CP10 lowered them to 3 000 and 3 500 for drawing cost, see [polygon containment](#collision-playground-polygon-containment-and-sprite-drawing--2026-11-08)). The 4 500 cell itself was not run; interpolation gives about 205 ms.
 
 ## Collision playground containment and draw pacing — 2026-11-07
 
@@ -505,3 +505,21 @@ The polygon pipeline adds little to naive (the box stage dominates: 12.5 million
 - **Change kept.** Adaptive draw pacing (`drawPacing.ts`; [spec decision](specs/collision-playground.md#containment)). When the smoothed rAF interval is above 20 ms, the canvas draws at most every 33 ms. Unloaded displays still draw every frame. Throttled draws fell to about 17 per second, while the simulation and readout were unchanged.
 - **Other rows with pacing.** No long animation frame over 50 ms in either profile. Naive-to-sweep switch: mobile median 45 to 52 ms, desktop 21 ms. Sweep-limit draw callback median: 1 ms desktop, 4.7 ms mobile (p95 6.5 to 6.9). Desktop scroll p95: 38 to 40 ms; link: 16 ms.
 - **Limits.** Headless Chromium uses the software compositor, so a phone's GPU compositing may differ. No physical phone was measured.
+
+## Collision playground polygon containment and sprite drawing — 2026-11-08
+
+`just collision-containment /bezeg-2.0/learn/convexity-hulls` ([script](../scripts/collision-containment/README.md)) on the production build of the convexity chapter's polygon block, same machine, Chromium and profiles as the circle run above. `COLLISION_CP7_STAGE` selects the overlay: boxes (the default) and pieces (the heaviest). Raw JSON and tables: `docs/reviews/collision-playground/cp10/`.
+
+| Run (limits naive / sweep) | Overlay | Naive: frames > 50 ms (desktop / mobile 4×) | Scroll p95 ms | Switch median ms, mobile 4× | Sweep draw median ms (desktop / mobile 4×) | Off-screen snapshots |
+|---|---|---|---|---|---|---|
+| Path2D, 4 500 / 5 000 (CP9 as pushed) | boxes | 103 / 88 | 309 / 153 | 411 | 85 / 365 | 0 / 65 |
+| Path2D, 4 500 / 5 000 | pieces | 47 / 52 | 983 / 1 719 | 1 992 | 496 / 2 144 | 49 / 221 |
+| Sprites, 4 000 / 4 500 | boxes | 0 / 8 | 39 / 62 | 77 | 6.0 / 30.7 | 0 / 0 |
+| Sprites, 4 000 / 4 500 | pieces | 0 / 39 | 40 / 77 | 73 | 6.0 / 38.7 | 0 / 0 |
+| **Sprites, 3 000 / 3 500 (kept)** | boxes | 0 / 0 | 39 / 66 | 79 | 2.6 / 15.9 | 0 / 0 |
+| **Sprites, 3 000 / 3 500 (kept)** | pieces | 0 / 0 | 41 / 73 | 90 | 2.8 / 15.7 | 0 / 0 |
+
+- **Cause.** Polygon mode built a Path2D of every vertex of every body, and of every hull or piece outline with dashes, in each frame. Circles at the same counts had met every target. All long frames were the playground's `requestAnimationFrame` callback.
+- **Change kept.** `polygonSprites.ts` rasterises each template once per scale, DPR, overlay and colours; a body is one `drawImage` ([spec](specs/collision-playground.md#containment)). The throttled draw still grew with the body count, and naive at 4 000 left frames over 50 ms, so the polygon limits were lowered for drawing cost to 3 000 (naive) and 3 500 (sweep). This supersedes the limits in the polygon step-cost section above.
+- **Other rows (kept run).** Link-click p95 16 ms desktop, 32 ms mobile 4×. Lifecycle: off-screen 0 snapshots in 2 s and resumes when scrolled back; after client-side navigation 0 worker targets and 0 messages in 2 s. The hidden tab was not measurable headless (unit evidence only, as for circles).
+- **Noise.** Repeated runs at the same limits varied by about ±15 % in the throttled draw median; the kept run's margin to 33.3 ms is about half.

@@ -8,6 +8,8 @@ import {clampCount, MAX_COUNT} from './collisionProtocol'
 import type {BroadPhaseMethod, CollisionOverlay, CollisionSnapshot, WorldShape} from './collisionProtocol'
 import {useCollisionWorker} from './useCollisionWorker'
 import {createDrawPacer} from './drawPacing'
+import {createPolygonSpriteCache, renderSpriteToCanvas} from './polygonSprites'
+import type {PolygonSpriteCache, SpriteParams} from './polygonSprites'
 import './CollisionPlayground.css'
 
 /** The shortest time between readout updates (ms): at most 4 updates per second. */
@@ -48,10 +50,6 @@ interface Colours {
 const STAGES = ['boxes', 'hulls', 'pieces'] as const
 type Stage = (typeof STAGES)[number]
 const STAGE_LABEL = {boxes: 'collision_overlay_boxes', hulls: 'collision_overlay_hulls', pieces: 'collision_overlay_pieces'} as const
-/** Dash pattern per stage in CSS pixels, so the stages differ by more than colour: dashed, dotted, solid. */
-const STAGE_DASH: Readonly<Record<Stage, readonly number[]>> = {boxes: [6, 4], hulls: [2, 4], pieces: []}
-/** Outline width per stage in CSS pixels: the dots of the hull stage need two pixels to read as dots. */
-const STAGE_WIDTH: Readonly<Record<Stage, number>> = {boxes: 1, hulls: 2, pieces: 1}
 
 const toReadout = (s: CollisionSnapshot): Readout => ({
   count: s.count,
@@ -87,11 +85,11 @@ function readColours(el: Element): Colours {
 }
 
 /** Draws one snapshot: plain bodies in one fill path, touching bodies in a second path plus a ring path. */
-function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: Colours, stage: Stage): void {
+function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: Colours, stage: Stage, sprites: PolygonSpriteCache): void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   if (s.shape === 'polygon') {
-    drawPolygons(canvas, ctx, s, colours, stage)
+    drawPolygons(canvas, ctx, s, colours, stage, sprites)
     return
   }
   const dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width)
@@ -127,64 +125,38 @@ function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: 
 }
 
 /**
- * Draws a polygon snapshot: the outlines of the bodies, then the selected stage's outlines (boxes dashed, hulls dotted,
- * convex pieces solid) in one stroked path, and a ring round every touching body. Template geometry comes from the
- * pure polygonTemplates module and the snapshot's template indices, so no outline crosses the worker boundary.
+ * Draws a polygon snapshot from per-template sprites (fill and stage outline in one image) and a ring path round
+ * every touching body. Each template is rasterised once per (unit, dpr, stage, colours) in the component-owned
+ * sprite cache; a body costs one drawImage at a whole-pixel position, so the frame cost no longer grows with vertex counts.
  */
-/** Template outlines as coordinate arrays, built once so drawing allocates nothing per body. */
-const TEMPLATE_OUTLINES = POLYGON_TEMPLATES.map((shape) => ({
-  xs: Float64Array.from(shape.vertices, (p) => p.x),
-  ys: Float64Array.from(shape.vertices, (p) => p.y),
-}))
-
-function drawPolygons(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, s: CollisionSnapshot, colours: Colours, stage: Stage): void {
+function drawPolygons(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, s: CollisionSnapshot, colours: Colours, stage: Stage, cache: PolygonSpriteCache): void {
   const dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width)
   const k = canvas.width / WORLD_WIDTH
   const unit = s.scale * k
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  const plain = new Path2D()
-  const hit = new Path2D()
-  const outlines = new Path2D()
+  ctx.imageSmoothingEnabled = false // whole-pixel blits: no resampling
+  const params: SpriteParams = {unit, dpr, stage, body: colours.body, touching: colours.touching, outline: colours.outline}
+  // Per-frame allocations are O(1): this params object and one rings path, nothing per body.
   const rings = new Path2D()
-  const loop = (path: Path2D, xs: ArrayLike<number>, ys: ArrayLike<number>, size: number, x: number, y: number): void => {
-    for (let v = 0; v < size; v++) {
-      if (v === 0) path.moveTo(x + unit * xs[v], y + unit * ys[v])
-      else path.lineTo(x + unit * xs[v], y + unit * ys[v])
-    }
-    path.closePath()
-  }
   for (let i = 0; i < s.count; i++) {
     const shape = POLYGON_TEMPLATES[s.templates[i]]
     if (!shape) continue
+    const touching = s.touching[i] === 1
+    const sprite = cache.get(s.templates[i], touching ? 'hit' : 'plain', params)
     const x = s.positions[2 * i] * k
     const y = s.positions[2 * i + 1] * k
-    const touching = s.touching[i] === 1
-    const outline = TEMPLATE_OUTLINES[s.templates[i]]
-    loop(touching ? hit : plain, outline.xs, outline.ys, outline.xs.length, x, y)
-    if (stage === 'boxes') {
-      outlines.rect(x - unit * shape.hx, y - unit * shape.hy, 2 * unit * shape.hx, 2 * unit * shape.hy)
-    } else if (stage === 'hulls') {
-      loop(outlines, shape.hull.px, shape.hull.py, shape.hull.size, x, y)
-    } else {
-      for (const piece of shape.pieces) loop(outlines, piece.px, piece.py, piece.size, x, y)
-    }
+    const left = Math.round(x - sprite.cx)
+    const top = Math.round(y - sprite.cy)
+    ctx.drawImage(sprite.image, left, top)
     if (touching) {
+      // Centred on the snapped sprite centre (cx, cy are whole pixels), so ring and body share a centre.
+      const sx = left + sprite.cx
+      const sy = top + sprite.cy
       const ring = unit * Math.hypot(shape.hx, shape.hy) + 2 * dpr
-      rings.moveTo(x + ring, y)
-      rings.arc(x, y, ring, 0, 2 * Math.PI)
+      rings.moveTo(sx + ring, sy)
+      rings.arc(sx, sy, ring, 0, 2 * Math.PI)
     }
   }
-  ctx.fillStyle = colours.body
-  ctx.globalAlpha = 0.85
-  ctx.fill(plain)
-  ctx.globalAlpha = 1
-  ctx.fillStyle = colours.touching
-  ctx.fill(hit)
-  ctx.strokeStyle = colours.outline
-  ctx.lineWidth = STAGE_WIDTH[stage] * dpr
-  ctx.setLineDash(STAGE_DASH[stage].map((d) => d * dpr))
-  ctx.stroke(outlines)
-  ctx.setLineDash([])
   ctx.strokeStyle = colours.touching
   ctx.lineWidth = 1.5 * dpr
   ctx.stroke(rings)
@@ -214,6 +186,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
   const pendingAnnounce = useRef<{method?: BroadPhaseMethod; count?: number} | null>(null)
   const announceToggle = useRef(false)
   const coloursRef = useRef<Colours>({body: '#587445', touching: '#bf8542', outline: '#33402b'})
+  const [sprites] = useState(() => createPolygonSpriteCache(renderSpriteToCanvas))
   const rafRef = useRef(0)
 
   // Declared after the hook call: the hook's dispose clears its subscribers, so a later effect subscribes afresh.
@@ -240,7 +213,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
         request()
         return
       }
-      drawSnapshot(canvas, s, coloursRef.current, stageRef.current)
+      drawSnapshot(canvas, s, coloursRef.current, stageRef.current, sprites)
     }
     function request(): void {
       if (rafRef.current === 0) rafRef.current = requestAnimationFrame(frame)
@@ -317,8 +290,9 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       rafRef.current = 0
       observer?.disconnect()
       redrawRef.current = () => undefined
+      sprites.reset()
     }
-  }, [status, snapshotRef, subscribe, t])
+  }, [status, snapshotRef, subscribe, t, sprites])
 
   const onCount = (position: number): void => {
     // At low counts one log step rounds to the same integer, so step the count itself by one in the slider's direction.

@@ -52,7 +52,7 @@ These are experiments in increasing scope, not a commitment to every optimizatio
 
 ## Report template
 
-The collision playground's containment on a throttled phone profile and its adaptive draw pacing are in [Collision playground containment and draw pacing](bezier-performance-results.md#collision-playground-containment-and-draw-pacing--2026-11-07); its step costs are in [Collision playground step cost](bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
+The collision playground's containment on a throttled phone profile and its adaptive draw pacing are in [Collision playground containment and draw pacing](bezier-performance-results.md#collision-playground-containment-and-draw-pacing--2026-11-07); its step costs are in [Collision playground step cost](bezier-performance-results.md#collision-playground-step-cost--2026-11-07). Polygon mode's containment, its sprite drawing and the lowered polygon limits are in [Collision playground polygon containment and sprite drawing](bezier-performance-results.md#collision-playground-polygon-containment-and-sprite-drawing--2026-11-08).
 
 The function drag and slider baseline (integral, area-between, accumulation, darboux, bisection; desktop and 390×844 at 4× CPU) is in [Live function model in the store](bezier-performance-results.md#live-function-model-in-the-store--2026-11-07).
 

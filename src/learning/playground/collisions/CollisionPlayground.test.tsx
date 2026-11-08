@@ -6,6 +6,7 @@ import CollisionPlayground, {READOUT_INTERVAL_MS} from './CollisionPlayground'
 import {POLYGON_TEMPLATES} from '../../../compgeo/collisions/polygonTemplates'
 import {WORLD_WIDTH} from '../../../compgeo/collisions/world'
 import {MAX_COUNT} from './collisionProtocol'
+import {spriteGeometry} from './polygonSprites'
 import type {CollisionSnapshot} from './collisionProtocol'
 import {createWorkerLoop} from './collisionLoop'
 import type {CollisionWorkerApi} from './useCollisionWorker'
@@ -505,100 +506,156 @@ describe('polygon mode', () => {
   })
 
   describe('drawing', () => {
-    const calls = {closePath: 0, rect: 0, dashes: [] as number[][], widths: [] as number[], paths: [] as RecordingPath2D[]}
-    class RecordingPath2D {
-      outlines: [number, number][][] = []
-      moveTo = (x: number, y: number): void => { this.outlines.push([[x, y]]) }
-      arc = vi.fn()
-      lineTo = (x: number, y: number): void => { this.outlines.at(-1)!.push([x, y]) }
-      closePath = (): void => { calls.closePath++ }
-      rect = (): void => { calls.rect++ }
-      constructor() { calls.paths.push(this) }
+    // Polygon bodies are drawn from per-template sprites; one shared recording context sees both the sprite canvases and the main canvas.
+    interface Recorded {loops: [number, number][][]; rects: number; width: number; dash: number[]}
+    const rec = {
+      current: {loops: [], rects: 0} as {loops: [number, number][][]; rects: number},
+      strokes: [] as Recorded[],
+      fills: 0,
+      fillLog: [] as {style: string; alpha: number}[],
+      images: [] as [number, number][],
+      dash: [] as number[],
+    }
+    const ctx = {
+      clearRect,
+      beginPath: () => { rec.current = {loops: [], rects: 0} },
+      moveTo: (x: number, y: number) => { rec.current.loops.push([[x, y]]) },
+      lineTo: (x: number, y: number) => { rec.current.loops.at(-1)!.push([x, y]) },
+      closePath: () => undefined,
+      rect: () => { rec.current.rects++ },
+      fill: () => { rec.fills++; rec.fillLog.push({style: ctx.fillStyle, alpha: ctx.globalAlpha}) },
+      stroke: (path?: unknown) => {
+        if (path === undefined) rec.strokes.push({...rec.current, width: ctx.lineWidth, dash: rec.dash})
+      },
+      setLineDash: (d: number[]) => { rec.dash = d },
+      drawImage: (_img: unknown, x: number, y: number) => { rec.images.push([x, y]) },
+      fillStyle: '',
+      strokeStyle: '',
+      lineWidth: 1,
+      globalAlpha: 1,
     }
     beforeEach(() => {
-      calls.closePath = 0
-      calls.rect = 0
-      calls.dashes = []
-      calls.paths = []
-      vi.stubGlobal('Path2D', RecordingPath2D)
-      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
-        () =>
-          ({
-            clearRect,
-            fill: vi.fn(),
-            stroke: vi.fn(function (this: {lineWidth: number}) { calls.widths.push(this.lineWidth) }),
-            setLineDash: (d: number[]) => { calls.dashes.push(d) },
-            fillStyle: '',
-            strokeStyle: '',
-            lineWidth: 1,
-            globalAlpha: 1,
-          }) as unknown as CanvasRenderingContext2D,
-      )
+      rec.strokes = []
+      rec.fills = 0
+      rec.fillLog = []
+      rec.images = []
+      rec.dash = []
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => ctx as unknown as CanvasRenderingContext2D)
     })
 
     const seven = (): CollisionSnapshot =>
       polySnap({count: 7, positions: new Float32Array(14).fill(500), radii: new Float32Array(7).fill(5), touching: new Uint8Array(7), templates: new Uint8Array([0, 1, 2, 3, 4, 5, 6])})
-    const reset = (): void => { act(() => { vi.advanceTimersByTime(40) }); calls.rect = 0; calls.closePath = 0; calls.dashes = []; calls.widths = []; calls.paths = [] }
     const frame = (): void => { act(() => { vi.advanceTimersByTime(40) }) }
-
-    it('draws one dashed box per body in the box stage', () => {
+    const clear = (): void => { rec.strokes = []; rec.fills = 0; rec.fillLog = []; rec.images = [] }
+    const drawStage = (name: string | null): void => {
       render(<CollisionPlayground shape="polygon"/>)
-      reset()
+      if (name) fireEvent.click(screen.getByRole('radio', {name}))
+      frame()
+      clear()
       emit(seven())
       frame()
-      expect(calls.rect).toBe(7)
-      expect(calls.dashes[0]).toEqual([6, 4])
+    }
+
+    it('draws one dashed box per template in the box stage and one sprite per body', () => {
+      drawStage(null)
+      expect(rec.strokes).toHaveLength(7)
+      expect(rec.strokes.every((st) => st.rects === 1 && st.loops.length === 0)).toBe(true)
+      expect(rec.strokes[0].dash).toEqual([6, 4])
+      expect(rec.images).toHaveLength(7)
     })
 
-    it('draws the hull of each body, dotted, in the hull stage', () => {
-      render(<CollisionPlayground shape="polygon"/>)
-      emit(seven())
-      fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
-      reset()
+    it('rasterises each template once and reuses the sprites on the next frame', () => {
+      drawStage(null)
+      clear()
       emit(seven())
       frame()
-      expect(calls.rect).toBe(0)
-      expect(calls.closePath).toBe(14) // 7 body outlines + 7 hulls
-      expect(calls.dashes[0]).toEqual([2, 4])
+      expect(rec.strokes).toHaveLength(0)
+      expect(rec.fills).toBe(0)
+      expect(rec.images).toHaveLength(7)
+    })
+
+    it('draws the hull of each template, dotted, in the hull stage', () => {
+      drawStage('Konveksne ovojnice')
+      expect(rec.strokes).toHaveLength(7)
+      rec.strokes.forEach((st, i) => {
+        expect(st.rects).toBe(0)
+        expect(st.loops).toHaveLength(1)
+        expect(st.loops[0]).toHaveLength(POLYGON_TEMPLATES[i].hull.size)
+      })
+      expect(rec.strokes[0].dash).toEqual([2, 4])
       // The outline stroke is two CSS pixels wide, so the dots read as dots (the test devicePixelRatio is 1).
-      expect(calls.widths[0]).toBe(2)
+      expect(rec.strokes[0].width).toBe(2)
     })
 
-    it('draws the exact hull outline of a known template at its scaled position', () => {
+    it('draws the exact hull outline of a known template and places its sprite at the scaled body position', () => {
       const {container} = render(<CollisionPlayground shape="polygon"/>)
-      const one = (): CollisionSnapshot =>
-        polySnap({count: 1, positions: new Float32Array([500, 300]), radii: new Float32Array([5]), touching: new Uint8Array(1), templates: new Uint8Array([2]), scale: 4})
-      emit(one())
       fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
-      reset()
-      emit(one())
+      frame()
+      clear()
+      emit(polySnap({count: 1, positions: new Float32Array([500, 300]), radii: new Float32Array([5]), touching: new Uint8Array(1), templates: new Uint8Array([2]), scale: 4}))
       frame()
       const shape = POLYGON_TEMPLATES[2]
       const k = container.querySelector('canvas')!.width / WORLD_WIDTH
       const unit = 4 * k
-      // Paths are created in the order plain, hit, outlines, rings; the hull stage's outlines hold exactly one loop.
-      const drawn = calls.paths[2].outlines
-      expect(drawn).toHaveLength(1)
-      expect(shape.hull.size).toBeGreaterThanOrEqual(3)
-      expect(drawn[0]).toHaveLength(shape.hull.size)
-      drawn[0].forEach(([px, py], v) => {
-        expect(px).toBeCloseTo(500 * k + unit * shape.hull.px[v], 6)
-        expect(py).toBeCloseTo(300 * k + unit * shape.hull.py[v], 6)
+      const g = spriteGeometry(shape.hx, shape.hy, unit, 1, 'hulls')
+      const drawn = rec.strokes[0].loops[0]
+      expect(drawn).toHaveLength(shape.hull.size)
+      drawn.forEach(([px, py], v) => {
+        expect(px).toBeCloseTo(g.cx + unit * shape.hull.px[v], 6)
+        expect(py).toBeCloseTo(g.cy + unit * shape.hull.py[v], 6)
       })
-      // The body outline itself has all of the template's vertices (the plain path is the first one).
-      expect(calls.paths[0].outlines[0]).toHaveLength(shape.vertices.length)
+      expect(rec.images).toHaveLength(1)
+      rec.images.forEach(([x, y]) => {
+        expect(x).toBe(Math.round(500 * k - g.cx))
+        expect(y).toBe(Math.round(300 * k - g.cy))
+      })
+    })
+
+    it('draws a touching body from the hit sprite and a plain one from the plain sprite', () => {
+      render(<CollisionPlayground shape="polygon"/>)
+      frame()
+      clear()
+      emit(polySnap({count: 2, positions: new Float32Array([300, 300, 600, 300]), radii: new Float32Array([5, 5]), touching: new Uint8Array([1, 0]), templates: new Uint8Array([0, 0])}))
+      frame()
+      // Sprites are rendered in body order: the touching body first, at full alpha in the touching colour, then the plain one.
+      expect(rec.fillLog).toHaveLength(2)
+      expect(rec.fillLog[0].alpha).toBe(1)
+      expect(rec.fillLog[1].alpha).toBe(0.85)
+      expect(rec.fillLog[0].style).not.toBe(rec.fillLog[1].style)
+      expect(rec.images).toHaveLength(2)
+    })
+
+    it('rebuilds the sprites in a remounted playground instead of reusing the old instance cache', () => {
+      drawStage(null)
+      expect(rec.fills).toBe(7)
+      cleanup()
+      snapshotRef.current = null // the mocked hook keeps the last snapshot; a real remount starts empty
+      clear()
+      drawStage(null)
+      expect(rec.fills).toBe(7)
+    })
+
+    it('keeps every template vertex, hull and piece vertex inside its half extents', () => {
+      for (const shape of POLYGON_TEMPLATES) {
+        for (const v of shape.vertices) {
+          expect(Math.abs(v.x)).toBeLessThanOrEqual(shape.hx)
+          expect(Math.abs(v.y)).toBeLessThanOrEqual(shape.hy)
+        }
+        for (const part of [shape.hull, ...shape.pieces]) {
+          for (let v = 0; v < part.size; v++) {
+            expect(Math.abs(part.px[v])).toBeLessThanOrEqual(shape.hx)
+            expect(Math.abs(part.py[v])).toBeLessThanOrEqual(shape.hy)
+          }
+        }
+      }
     })
 
     it('draws every convex piece, solid, in the piece stage', () => {
-      render(<CollisionPlayground shape="polygon"/>)
-      emit(seven())
-      fireEvent.click(screen.getByRole('radio', {name: 'Konveksni deli'}))
-      reset()
-      emit(seven())
-      frame()
+      drawStage('Konveksni deli')
+      expect(rec.strokes).toHaveLength(7)
       const pieces = POLYGON_TEMPLATES.reduce((sum, shape) => sum + shape.pieces.length, 0)
-      expect(calls.closePath).toBe(7 + pieces)
-      expect(calls.dashes[0]).toEqual([])
+      expect(rec.strokes.reduce((sum, st) => sum + st.loops.length, 0)).toBe(pieces)
+      expect(rec.strokes[0].dash).toEqual([])
     })
   })
 })
