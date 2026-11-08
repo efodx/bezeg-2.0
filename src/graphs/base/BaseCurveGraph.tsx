@@ -1,4 +1,4 @@
-import {t} from "../../localization";
+import {message, t} from "../../localization";
 import React from 'react';
 
 
@@ -20,10 +20,12 @@ import {AbstractJXGBezierCurve} from "../curves/object/AbstractJXGBezierCurve";
 import {JXGPointWrapper} from "../curves/object/JXGPointWrapper";
 import {CurveWorkspaceOperations} from "./CurveWorkspaceControls";
 import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
-import {PointCoordinateEditor} from "./PointCoordinateEditor";
+import {CURVE_POINTS_MIN, CurvePointControls} from "./CurvePointControls";
+import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {placeNewPoint, refitWhenOutside} from "./points";
 import {CurveDisplayControls} from "./controls/CurveDisplayControls";
 import {selectedCurveControls} from "./controls/SelectedCurveControls";
-import {CurveEditingFeature, SelectedCurveOption} from "./CurveEditingFeature";
+import {CurveEditingFeature, EditableCurve, SelectedCurveOption} from "./CurveEditingFeature";
 import {LessonActionRegistry} from "./lesson/LessonActionRegistry";
 import type {LessonCurveFixture} from "../../learning/model";
 import {curveVisibilityActions} from "./lesson/curveLessonActions";
@@ -67,6 +69,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     protected inputsDisabled: boolean = false;
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
     protected graphJXGPoints: JXG.Point[] = [];
+    /** The reason a point edit was refused (a board Delete click on the last point), shown in the Edit panel until the next accepted edit. */
+    protected readonly pointRefusals = new RefusalChannel(() => this.requestRender());
     protected refreshWorkspace() {
         if (!this.graphSession?.isAlive) return;
         this.workspaceRevision++;
@@ -89,6 +93,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         selectCurve: curve => this.selectCurve(curve),
         unsuspendBoardUpdate: () => this.unsuspendBoardUpdate(),
         refreshWorkspace: () => this.refreshWorkspace(),
+        refuseLastPointRemoval: () => this.pointRefusals.refuse(message('count_at_minimum', {value0: '1'}), true),
+        acceptPointEdit: () => this.pointRefusals.clear(),
     });
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
@@ -167,6 +173,36 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         </div>;
     }
 
+    /** Adds a point to `curve` from the count control: without coordinates one unit right of the last (decision 1), else exactly there. */
+    private addTypedPoint(curve: EditableCurve, at?: readonly number[]): void {
+        const [x, y] = placeNewPoint(curve.getCurve().getPoints().map(point => [point.X(), point.Y()] as const), at ? {at: [at[0], at[1]]} : {});
+        curve.addPoint(x, y);
+        this.pointRefusals.clear();
+        this.afterTypedPointEdit([x, y]);
+        this.refreshWorkspace();
+    }
+
+    /** Removes point `index` of `curve` (-1 is the last); the last remaining point stays, with the stated reason. */
+    private removePointAt(curve: EditableCurve, index: number): void {
+        const count = curve.getCurve().getPoints().length;
+        if (count <= CURVE_POINTS_MIN) { this.pointRefusals.refuse(message('count_at_minimum', {value0: String(CURVE_POINTS_MIN)}), true); return; }
+        curve.removePoint(index < 0 ? count - 1 : index);
+        this.pointRefusals.clear();
+        this.boardUpdate();
+        this.refreshWorkspace();
+    }
+
+    /** A typed add or edit redraws, clears a refusal, and refits the view only when the point lies outside it (decision 6); a board click or drag never does. */
+    private afterTypedPointEdit(to: readonly number[]): void {
+        this.pointRefusals.clear();
+        this.boardUpdate();
+        if (this.hasBoard) {
+            const [left, top, right, bottom] = this.board.getBoundingBox();
+            refitWhenOutside([left, top, right, bottom], [[to[0], to[1]]], () => this.fitToVisiblePoints([[to[0], to[1]]]));
+        }
+        this.requestRender();
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         if (!this.workspaceUsesStructuredEditing()) {
             return <>{this.workspaceCurveSelection()}{super.workspaceEdit()}</>;
@@ -178,10 +214,12 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         return <>
             {this.workspaceCurveSelection()}
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
-            {selected && this.workspacePointEditing() && <PointCoordinateEditor key={`points-${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`}
-                points={() => selected.getCurve().getPoints()} board={this.board}
-                onChange={() => {this.boardUpdate(); this.requestRender();}}
-                onAdd={(x, y) => selected.addPoint(x, y)} onDelete={i => selected.removePoint(i)}/>}
+            {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`}
+                points={() => selected.getCurve().getPoints()} boards={() => [this.board]}
+                onEdit={(_, to) => this.afterTypedPointEdit(to)}
+                collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(selected, at), onRemove: () => this.removePointAt(selected, -1),
+                    onRemoveAt: index => this.removePointAt(selected, index)}}/>}
+            {selected && this.workspacePointEditing() && <RefusalNotice channel={this.pointRefusals}/>}
             <details className="inspector-group editing-mode"><summary>{t("editing_mode")}: {this.workspacePointEditing() ? [t('move'), t('add_point'), t('delete_point')][mode] : t('hodograph')}</summary>
                 {this.workspacePointEditing() ? <><div className="workspace-modes">
                     {[t("move"), t("add_point"), t("delete_point")].map((label, i) =>

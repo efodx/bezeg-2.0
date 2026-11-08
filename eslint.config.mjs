@@ -13,7 +13,7 @@ const sharedControlMessage = 'Use the shared controls in src/inputs/ (NumberInpu
 // (Likely exceptions). "unmigrated" entries go when their family sweep (task 3) lands.
 const controlExemptions = [
     {files: ['src/graphs/base/PresetImportDialog.tsx', 'src/graphs/base/PresetSelector.tsx'], reason: 'host chrome, not a graph control'},
-    {files: ['src/graphs/base/AxisSelector.tsx', 'src/graphs/base/PointCoordinateEditor.tsx'], reason: 'unmigrated: curves sweep (task 3)'},
+    {files: ['src/graphs/base/AxisSelector.tsx'], reason: 'unmigrated: curves sweep (task 3)'},
     {
         files: [
             'src/graphs/compgeo/BezierClippingControls.tsx', 'src/graphs/compgeo/EulerLinePanel.tsx', 'src/graphs/compgeo/InscribedAnglePanel.tsx',

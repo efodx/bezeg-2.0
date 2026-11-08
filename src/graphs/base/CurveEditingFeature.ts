@@ -36,6 +36,10 @@ export interface CurveEditingHost {
     selectCurve(curve: EditableCurve): void;
     unsuspendBoardUpdate(): void;
     refreshWorkspace(): void;
+    /** A board Delete click on the last remaining point: the graph states why the point stays. */
+    refuseLastPointRemoval(): void;
+    /** A board add or delete went through: the graph drops an earlier refusal. */
+    acceptPointEdit(): void;
 }
 
 /**
@@ -114,11 +118,13 @@ export class CurveEditingFeature {
         const selected = this.getSelectedCurve();
         if (canCreate && mode === SelectedCurveOption.ADD_POINTS && selected) {
             selected.addPoint(coords.usrCoords[1], coords.usrCoords[2]);
+            this.host.acceptPointEdit();
         }
         if (!canCreate && mode === SelectedCurveOption.DELETE_POINTS && selected) {
             selected.getJxgPoints().every((point, i) => {
                 if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
-                    if (selected.getJxgPoints().length > 1) { selected.removePoint(i); }
+                    if (selected.getJxgPoints().length > 1) { selected.removePoint(i); this.host.acceptPointEdit(); }
+                    else { this.host.refuseLastPointRemoval(); }
                     return false;
                 }
                 return true;

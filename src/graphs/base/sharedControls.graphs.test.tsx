@@ -2,13 +2,14 @@
  * The shared behaviour test (spec acceptance 3) against real graphs through the real host: two graphs per control kind.
  * Bare controls: `inputs/sharedControls.behaviour.test.tsx`. Every case mounts a fresh graph.
  */
-import {screen} from '@testing-library/react';
+import {act, screen} from '@testing-library/react';
 import {t} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
 import type {DemonstrationId} from '../../demonstrations';
 import {countSetterBehaviour, numericFieldBehaviour, pointCollectionBehaviour, pointListBehaviour, sliderBehaviour} from '../../inputs/sharedControlBehaviour';
 import {SERIES_A_MAX, SERIES_A_MIN, SERIES_TERMS_MAX, SERIES_TERMS_MIN} from '../../analysis/geometricSeriesModel';
+import {curveAccess} from './curveGraphTestAccess';
 import {INTERPOLATION_COORDINATE_LIMIT} from '../curves/interpolation/interpolationModel';
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from '../../analysis/interpolation';
 import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN} from '../../analysis/accumulation';
@@ -95,3 +96,49 @@ pointListBehaviour('interp-lagrange point list', {
             rows: () => document.querySelectorAll('.point-list-row').length};
     },
 });
+
+/** The curve workspace: the selected curve's points are the shared point collection (remove-last, typed entry) and the shared typed list. */
+async function mountSelectedCurve(id: DemonstrationId) {
+    const graph = createGraph(id);
+    mountGraph(graph);
+    await waitUntil(() => graph.state.initialized === true);
+    const access = curveAccess(graph);
+    const select = () => act(() => { access.select(); });
+    select();
+    await waitUntil(() => screen.queryByRole('spinbutton', {name: 'p₀, x'}) !== null);
+    const points = access.points;
+    // A host Reset deselects the curve; the controls are on screen again once it is selected.
+    const reset = async () => { await settle(() => graph.reset()); select(); await waitUntil(() => screen.queryByRole('spinbutton', {name: 'p₀, x'}) !== null); };
+    return {graph, points, reset};
+}
+
+for (const id of ['bezier', 'curve-curvature'] as const) {
+    pointCollectionBehaviour(`${id} curve points`, {
+        section: 'edit', min: 1, max: 12,
+        entry: {min: -1e6, max: 1e6, step: 1, valid: 7, outOfRange: 1e6 + 1},
+        mount: async () => {
+            const {points, reset} = await mountSelectedCurve(id);
+            const start = points().length;
+            const group = () => document.querySelector('.point-collection') as HTMLElement;
+            const button = (key: PlainKey) => () => group().querySelector(`button[aria-label="${t(key)}"]`) as HTMLElement;
+            const plus = button('increase_count'), minus = button('decrease_count');
+            return {get add() { return plus(); }, get remove() { return minus(); }, get addAt() { return screen.getByRole('button', {name: t('point_controls_add_at')}); },
+                read: () => points().length, reset,
+                entryFields: () => ['x', 'y'].map(axis => screen.getByRole('spinbutton', {name: t('point_controls_new_axis', {value0: axis})})),
+                lastAddedAt: () => points().length > start ? [points().at(-1)!.X(), points().at(-1)!.Y()] : undefined};
+        },
+    });
+}
+
+for (const id of ['bezier', 'curve-curvature'] as const) {
+    pointListBehaviour(`${id} curve point list`, {
+        section: 'edit', min: -1e6, max: 1e6, step: 1, valid: 7, outOfRange: 1e6 + 1, minCount: 1,
+        mount: async () => {
+            const {points, reset} = await mountSelectedCurve(id);
+            const field = () => screen.getByRole('spinbutton', {name: 'p₁, x'});
+            return {get field() { return field(); }, read: () => points()[1].X(), reset,
+                rows: () => document.querySelectorAll('.point-list-row').length,
+                removeButtons: () => [...document.querySelectorAll<HTMLElement>('.point-list-remove')]};
+        },
+    });
+}
