@@ -3,7 +3,7 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | check-changed [ref] | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | controls-fixture [args...] | clip <id> | preview [port] | loc <pattern> | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
+    @console.log('Bezeg developer commands: just check | check-changed [ref] | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | controls-fixture [args...] | clip <id> | preview [port] | loc <pattern> | test-cost [--save] [--top N] | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
 
 # Run typecheck, lint, all unit tests, then a provenance-recorded production build.
 check:
@@ -96,3 +96,7 @@ projective-conic-bench json="" md="":
 # Build and run the school function zero-drag benchmark (scripts/school-function-drag-benchmark/README.md); Node only, no test slot.
 school-function-drag-bench json="" md="":
     @for (const s of ["build", "run"]) require("child_process").execFileSync(process.execPath, ["scripts/school-function-drag-benchmark/" + s + ".cjs", ...(s === "run" ? process.argv.slice(2, 4) : [])], {stdio: "inherit"});
+
+# Show the slowest unit test files and total time from Vitest's cached results; --save records a baseline to compare against.
+test-cost *args:
+    @process.exitCode = require('./scripts/test-cost.cjs').cli(process.argv.slice(2))
