@@ -2450,3 +2450,17 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Lessons:
   - When a slice moves an export, have the worker run every importer of the old path (search), not only the files the brief names.
   - A brief that states the motivating failure should require the replay to fire on it, not merely record it.
+
+### 2026-11-08 — [Annotated UI follow-up](../specs/annotated-ui-follow-up.md)
+
+- **Roles, class and scope:** L, cross-surface UI implementation. Chapter reader, SVG drawing playground, homepage previews and botanical artwork.
+- **Dispatch:** Three independent implementation slices and two read-only reviews at Luna high. One production smoke worker at Luna max. The handler finished the localized crop and smoke assertion repairs.
+- **Outcome:** Local acceptance included 27 production Chromium smoke cases, actual emulated touch drawing and scrolling, and 24 bilingual homepage layout combinations. Direct hash navigation reached its heading. Focus timing varied between two samples. Console capture was incomplete in the earlier reader and drawing replays. No physical-device checks were run.
+- **Repairs and waits:** A late reader edit invalidated build provenance. The handler froze source and rebuilt. The first smoke run exposed a carousel assertion that still expected immediate looping on return. The follow-up tested release, single-pass playback and the transition to hover looping. The spec review prompted a deliberate tablet crop. The final smoke run used a temporary single-worker slot after the two normal owners showed no log activity.
+- **Context:** Handler rollout snapshots showed 27,377 initial input tokens and at least 187,665 during continuation. The standards and spec/UI workers ended at 79,158 and 91,295 observed input tokens respectively. These are request input snapshots.
+- **Handoff v13 — reader:** Preserve hashes and focus, and measure typeset MathJax. The handler added a shared permalink and closed the build-provenance gap.
+- **Handoff v13 — drawing:** Preserve valid empty storage and the Inspect remount handoff. Browser comparison recorded the two projective controls for the Controls stream.
+- **Handoff v13 — homepage:** Preserve catalog and picker policy. Clarifying cancellation and hover overlap led to one-shot retirement and reuse of the same video element.
+- **Handoff v13 — standards:** Review the fixed diff for lifecycle, compatibility and non-vacuous tests. No actionable findings.
+- **Handoff v13 — spec/UI:** Compare all six task criteria with the fixed diff. Identified the crop and touch evidence gaps.
+- **Handoff v13 — smoke:** Replay production probes with installed Chromium. Closed the touch-drag and outside-canvas scrolling checks.
