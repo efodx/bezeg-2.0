@@ -229,7 +229,7 @@ function Start-Stream([string]$id, [string]$reason) {
     if (Test-Path $worktree) {
         $cwd = $worktree
         $prompt = "You are a handler of the Bezeg feature stream '$id', started by the supervisor script because: $reason. " +
-                  "Rebase onto origin/master, then continue docs/tasks/feature-streams/$id.md from the latest note in docs/reviews/feature-streams/$id/ " +
+                  "Rebase onto origin/master, then continue docs/tasks/feature-streams/$id.md from docs/reviews/feature-streams/$id/state.md (or, if it has none yet, the newest handler-handoff note there) " +
                   "under AGENTS.md and docs/tasks/feature-streams/README.md. Set 'Run state: active' and push it before dispatching work."
     } else {
         $cwd = $Repo

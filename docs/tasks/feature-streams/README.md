@@ -10,7 +10,7 @@ A **stream** is a sequence of complete features with one owner. Its owner is a c
 
 - works in its own worktree and branch (`stream-<id>`), and pushes each accepted slice to `master` as a fast-forward under AGENTS.md;
 - keeps its own queue and status in `docs/tasks/feature-streams/<id>.md`. It edits no other stream's file and does not edit this README;
-- writes handoff notes to `docs/reviews/feature-streams/<id>/handler-handoff-<n>.md`;
+- keeps one [state note](../../agent-workflow.md#handler-context-budget-claude), `docs/reviews/feature-streams/<id>/state.md`, which each handler rewrites at its handoff;
 - runs at most **two** workers at once, plus short review and smoke workers. Each stream uses its own `SMOKE_PORT` (table below).
 
 The owner waived the session-usage limit behind the workflow's three-worker cap on 2026-10-31. The binding limits are now this machine and merge conflicts. Heavy `just` commands share machine-wide test slots (63 GB, 12 threads: 2 slots of 5 workers since the PC switch on 2026-11-02, set by user environment variables after the measurements in [the command guide](../../commands.md); this machine is CPU-bound, so more slots do not add throughput) and a memory gate, and queue, so six streams with two workers each mostly wait on tests rather than on each other. If the machine stays saturated (tests waiting more than about 10 minutes), drop to one worker per stream first.
@@ -65,6 +65,16 @@ Each lesson family follows its spec's **release batches**. Most specs have a Bat
 
 A family may be pushed per release batch. Under the [release policy](../../guardrails.md#release-policy--owner-decision-2026-10-24), implemented drafts count as released.
 
+## Item batches
+
+Some work applies one shared path to many existing items: clips or posters for Demonstrations, highlights for examples, a migration across graph classes. It starts with a **blocker triage** before any item is written. One script or worker pass runs over every item in its real start state (the scene, route or class the change will meet) and writes one table: item, what blocks the shared path, and the capability that would unblock it. Build each capability once, then fill the items in batches grouped by blocker. The triage is done when every item has a row; an item with no blocker says so.
+
+The [contracts consumer inventory](../mathematical-runtime-contracts/04-consumer-inventory.md) is the model: 42 graph classes sorted by disposition before any migration. The clips stream skipped this step, probed lesson example scenes instead of the posters it would start from, and found about 25 blockers one Demonstration at a time over 31 hours (snapped grids, traces that reset on edit, integer-only fields, points leaving the camera, the size budget).
+
+Decisions stay in the spec. Put each item's decisions under a heading or bullet that starts with its ID, so a handler finds the items it takes by search instead of reading them all.
+
+A lesson family's F0 plan does this for new content. Work on one screen or a handful of items needs no triage.
+
 ## Shared files
 
 These files are touched by several streams. Mechanical rebase conflicts are resolved by keeping both sides, and one that needs a decision stops the stream (AGENTS.md); the rules below keep conflicts rare.
@@ -94,11 +104,11 @@ If a stream sees its heavy runs waiting for more than about 10 minutes repeatedl
 
 Every stream handler, every session:
 
-1. At start, read the latest handoff note, the [handler card](../../agent-workflow/handler-card.md), your stream file's status lines and `git status`. Rebase the stream branch onto `origin/master`. The [budget hook](../../agent-workflow.md#handler-context-budget-claude) signals thresholds, so start no watcher.
+1. At start, read the stream's state note (`docs/reviews/feature-streams/<id>/state.md`, or the newest `handler-handoff-<n>.md` while the stream has none), the [handler card](../../agent-workflow/handler-card.md), your stream file's status lines and `git status`. Rebase the stream branch onto `origin/master`. The [budget hook](../../agent-workflow.md#handler-context-budget-claude) signals thresholds, so start no watcher.
 2. Take the next slice whose dependencies and gate are met. Write a `handoff-v13` brief and dispatch it.
 3. Accept: diff against acceptance, observed pre-change failure of new tests, [review routing](../../agent-workflow.md#review-routing), focused `just` checks, and smoke where the change alters a route, control, lesson or rendering path.
 4. Commit with explicit paths, fetch, rebase onto `origin/master`, recheck, `git push origin HEAD:master`. Update the stream file's status in the same push.
-5. On `BUDGET SOFT`, finish integrating and write the handoff note. On `BUDGET HANDOFF`, or once integration is done, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent bezeg-handler --model <own model> --permission-mode <own mode> --effort <own effort> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/handler-handoff-<n>.md under AGENTS.md."` Confirm the successor appears in `claude agents --json`, then stop everything this session started (Monitors, preview servers, workers) and end the turn. A finished session stays resident at about 0.7 GB until the supervisor stops it.
+5. On `BUDGET SOFT`, finish integrating and rewrite the state note. On `BUDGET HANDOFF`, or once integration is done, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent bezeg-handler --model <own model> --permission-mode <own mode> --effort <own effort> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/state.md under AGENTS.md."` Confirm the successor appears in `claude agents --json`, then stop everything this session started (Monitors, preview servers, workers) and end the turn. A finished session stays resident at about 0.7 GB until the supervisor stops it.
 6. When the stream's last feature is accepted, write a final note and launch nothing.
 
 **Run state.** The second line of each stream file is `Run state: <value>`. The supervisor script reads it from `origin/master`, so keep it exact and push every change:

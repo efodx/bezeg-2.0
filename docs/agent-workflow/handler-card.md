@@ -1,6 +1,6 @@
 # Handler card
 
-A running Claude handler's working summary of [the workflow](../agent-workflow.md). Read your handoff note, then this card, then start the next slice. Reach the workflow by section when this card names one or a task leaves it. When a rule here changes, change the workflow section too.
+A running Claude handler's working summary of [the workflow](../agent-workflow.md). Read your state note, then this card, then start the next slice. Reach the workflow by section when this card names one or a task leaves it. When a rule here changes, change the workflow section too.
 
 **Routing.** Pass the model on every dispatch.
 
@@ -26,4 +26,6 @@ Keep tightly coupled cores with you; delegate tests and smoke. Run at most three
 
 **Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`, or run all of that with `just publish` ([command guide](../commands.md)). Never force-push.
 
-**Close out.** Commit verified work, write the [handoff note](../agent-workflow.md#handler-context-budget-claude) with the next slice's brief inputs, and launch the successor with `--agent bezeg-handler`.
+**Item batches.** Work that applies one change to many existing items starts with a [blocker triage](../tasks/feature-streams/README.md#item-batches) before any item is written.
+
+**Close out.** Commit verified work, rewrite the [state note](../agent-workflow.md#handler-context-budget-claude) (`docs/reviews/<feature>/state.md`) with the next slice's brief inputs, and launch the successor with `--agent bezeg-handler`.
