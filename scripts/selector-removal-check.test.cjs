@@ -38,13 +38,28 @@ test('a removed class that a smoke spec still references produces a warning nami
     assert.equal(stale.length, 1);
 });
 
-test('no warning when the token still exists elsewhere in src, or no test references it', async () => {
+test('a token that survives elsewhere in src still warns and names the surviving file (the phase 0 case)', async () => {
     const stillThere = await findStaleReferences(DIFF, fixtureFind({
         src: ['<section className="point-coordinate-editor wide">'],
         tests: ["page.locator('.point-coordinate-editor')"],
     }));
-    assert.deepEqual(stillThere, []);
+    assert.deepEqual(stillThere.map(entry => [entry.token, entry.remaining]), [['point-coordinate-editor', ['src/f.cjs']]]);
+    assert.match(formatWarning(stillThere), /\(still in src\/f\.cjs; check the test targets a surviving element\)/);
+    const many = formatWarning([{kind: 'class', token: 'x-y', removedIn: 'src/a.tsx', remaining: [], references: [1, 2, 3, 4, 5, 6].map(line => ({file: 'tests/t.cjs', line}))}]);
+    assert.equal(many.split('\n').length, 1);
+    assert.match(many, /tests\/t\.cjs:4 \(\+2 more\)$/);
+});
+
+test('no warning when no test references the token, or the diff moves the line', async () => {
     assert.deepEqual(await findStaleReferences(DIFF, fixtureFind({src: [], tests: ["page.locator('.point-coordinate-editor-ish')"]})), []);
+    const moved = `${DIFF}\ndiff --git a/src/ui/Panel.tsx b/src/ui/Panel.tsx\n--- a/src/ui/Panel.tsx\n+++ b/src/ui/Panel.tsx\n@@ -1,0 +1,1 @@\n+    <div className="point-coordinate-editor" />`;
+    const stale = await findStaleReferences(moved, fixtureFind({tests: ["page.locator('.point-coordinate-editor')"]}));
+    assert.deepEqual(stale, []);
+});
+
+test('a deleted file keeps its own name as the removing file', () => {
+    const deleted = ['diff --git a/src/ui/Old.tsx b/src/ui/Old.tsx', 'deleted file mode 100644', '--- a/src/ui/Old.tsx', '+++ /dev/null', '@@ -1,1 +0,0 @@', '-    <div className="old-panel" />'].join('\n');
+    assert.deepEqual(removedTokens(deleted), [{kind: 'class', token: 'old-panel', file: 'src/ui/Old.tsx'}]);
 });
 
 test('a removed aria-label and data attribute are matched in tests', async () => {

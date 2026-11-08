@@ -3,12 +3,13 @@
 // Unit test files `just check-changed` always runs, in addition to what Vitest's import-graph selection picks.
 // They are the catalog-loop and content-lint files of docs/reviews/verification-throughput/unit-audit.md section 2:
 // they loop over a lesson/demonstration/preset registry or read files, so a registration change reaches them through
-// a file read or a registry the selection misses. About 2 s together. None mounts a real board. Keep the list short;
-// add a file only if it follows that rule (commands.test.cjs checks that every path exists).
+// a file read or a registry the selection misses. Their tests take about 2 s; the step measured 27 s wall on 2 workers
+// (2026-11-08), almost all per-file environment setup. None mounts a real board. Keep the list short;
+// add a file only if it follows that rule (commands.test.cjs checks that every path exists and mounts no board).
+// PresetCatalog.test.tsx is left out: it mounts every graph, and importing graphFactories already gets it selected.
 const ALWAYS_RUN = [
     'src/demonstrations.test.ts',
     'src/Routes.test.tsx',
-    'src/graphs/base/presets/PresetCatalog.test.tsx',
     'src/learning/runtime/lessonCatalog.test.ts',
     'src/learning/runtime/lessonSmokeCoverage.test.ts',
     'src/learning/content/familyChapters.test.ts',

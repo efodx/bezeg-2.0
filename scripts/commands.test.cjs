@@ -720,17 +720,16 @@ test('the always-run tier is unioned into the check-changed selection, deduplica
     assert.deepEqual(alwaysRunFiles(['src/setupTests.ts']), []);
     assert.deepEqual(alwaysRunFiles([], ['a.test.ts', 'a.test.ts']), ['a.test.ts']);
     assert.equal(new Set(ALWAYS_RUN).size, ALWAYS_RUN.length);
-    for (const required of ['src/demonstrations.test.ts', 'src/Routes.test.tsx', 'lessonCatalog.test.ts', 'familyChapters.test.ts', 'guidedExamplePreviewCopy.test.ts', 'guidedExamplePreviews.test.ts', 'lessonMathNotation.test.ts', 'mathAltText.test.ts', 'PresetCatalog.test.tsx']) {
+    for (const required of ['src/demonstrations.test.ts', 'src/Routes.test.tsx', 'lessonCatalog.test.ts', 'familyChapters.test.ts', 'guidedExamplePreviewCopy.test.ts', 'guidedExamplePreviews.test.ts', 'lessonMathNotation.test.ts', 'mathAltText.test.ts']) {
         assert.ok(ALWAYS_RUN.some(file => file.endsWith(required)), required);
     }
 });
 
 test('every always-run path exists and mounts no real board', () => {
     const repo = path.resolve(__dirname, '..');
-    // PresetCatalog.test.tsx is listed on the owner's instruction (it is the preset registry sweep) although it mounts boards.
     for (const file of ALWAYS_RUN) {
         const absolute = path.join(repo, file);
         assert.ok(fs.existsSync(absolute), `${file} is listed in scripts/check-changed-always-run.cjs but missing`);
-        if (!file.endsWith('PresetCatalog.test.tsx')) assert.doesNotMatch(fs.readFileSync(absolute, 'utf8'), /realGraphTestHarness|initBoard|mountGraph|createGraph/, `${file} mounts a real board`);
+        assert.doesNotMatch(fs.readFileSync(absolute, 'utf8'), /realGraphTestHarness|initBoard|mountGraph|createGraph/, `${file} mounts a real board`);
     }
 });
