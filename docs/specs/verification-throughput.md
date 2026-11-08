@@ -35,11 +35,19 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - `sceneReplacementContract` is not split. Its all-graph loop shares about 130 lines of helpers and a mock with four other describes, at 133 s.
   - The full `BEZEG_SWEEPS=all` run passed on a loaded machine. Summed restoration and scene time came to 752 s, against 722 s before. The untouched `sceneReplacementContract` also ran 10% slower, so the fold's saving is not shown locally.
   - Confirm on hosted runs: per-shard unit times, and whether the fold paid off.
-- Phases 1 item 4, 4, 6 and the regrowth guard are not started.
+- Phase 2b on CI (handler 3, [phase2b-ci-shards.md](../reviews/verification-throughput/phase2b-ci-shards.md)):
+  - The four-shard runs 42514768457 and 42516291702 left shard 1 at 8:35 and 9:49 job wall, against 4:33 for shard 3. The cause was the path-hash split, which gave shard 1 `sceneReplacementContract` (157 s) and about five 30–40 s files. The part files were balanced.
+  - The pre-fold three-shard run was already balanced (458 / 492 / 470 s of Vitest time), so the fourth shard alone saved about 40 s, not the predicted ~150 s.
+  - Four heavy files are pinned to shard 3 (`b1b5598a`). On run 42524584056 the shards took 5:18 / 7:47 / 5:54 / 6:59, so the critical path fell to 7:47 (shard 2), and trigger to deploy took 8:32.
+  - The fold's saving stays unproven on CI. Restoration plus scene content summed 917 file-s before the fold and 831 and 1008 after; normalised by `sceneReplacementContract` it is about 35% cheaper.
+- Phase 1 item 1 is complete: the gate's delta path also runs the always-run unit tier (`6a39ac59`). A rerun's first pass now uses a matching verified-base record (`dbabef1e`; see Follow-ups).
+- `55c05845` fixes a tooling-test fragility: fixtures nested in the repository read the host branch's changes through `git diff`.
+- Regrowth guard: `just test-cost` (`5029e1df`). The baseline is a local snapshot saved with `--save` in `.command-logs`, because no master run's `results.json` is recorded anywhere to compare against.
+- Phases 1 item 4, 4 and 6 are not started.
 
 **Follow-ups:**
 
-- A fresh `just publish` invocation still runs the full checks on its first pass even when a verified-base record matches. Let the first pass use the record, as the retry loop does.
+- Done (`dbabef1e`): a fresh `just publish` invocation now uses a matching verified-base record on its first pass, as the retry loop does. A record on the fetched master itself also takes the delta path.
 - Confirm on the first hosted run that the scope job's `gh api` lookup works with `actions: read`.
 - Record gate timings for a week against the 2026-11-07 baseline.
 
@@ -174,7 +182,7 @@ Acceptance: re-running the history in `ci-history.md` against the new tier shows
 
 ### Keeping it from regrowing
 
-- Add `just test-cost` to print the slowest files and summed time from `results.json`, plus the delta against `origin/master`'s last recorded run.
+- Add `just test-cost` to print the slowest files and summed time from `results.json`, plus the delta against a baseline. Done: the baseline is a local snapshot saved with `just test-cost --save` after a full run. No master run's results are recorded anywhere to compare against.
 - A new catalog-wide or real-graph-per-entry test must state its scope tier (sampled locally, full in CI) in its header comment.
 - The handler card asks slices that add tests to report the time delta.
 

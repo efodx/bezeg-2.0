@@ -82,3 +82,7 @@ observed 0.48-0.52 s per file-s: about 330 / 340 / 360 / 352 s, critical path ab
 B about -100 s). Caveat: removing four files from the hash pool shifts the contiguous chunk boundaries by about one
 file between neighbouring shards, a few file-s at most. Not verified: no Vitest run (the checkout's run claim was
 reserved); `just lint vite.config.mts` and `just typecheck` passed. The next hosted run is the real check.
+
+## After the pin (handler 3)
+
+Hosted run 42524584056 for `6a39ac59` (pin `b1b5598a`), green. Unit job walls including `npm ci`: shard 1 5:18, shard 2 7:47, shard 3 5:54, shard 4 6:59. The critical path fell from 8:35 (run 42514768457) and 9:49 (run 42516291702) to 7:47, and the workflow from trigger to deploy took 8:32. Shard 2 is now the longest; its hash-assigned files are the next rebalancing input if the gap persists over a few runs. Per-file times for this run were not pulled.
