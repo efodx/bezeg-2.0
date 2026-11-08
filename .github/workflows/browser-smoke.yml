@@ -10,7 +10,7 @@ on:
 permissions:
   contents: read
 
-# The checks run as parallel jobs: static checks, two Vitest shards, and the build feeding four Chromium smoke shards;
+# The checks run as parallel jobs: static checks, four Vitest shards, and the build feeding four Chromium smoke shards;
 # the `smoke` job gates them as one check.
 # Each job cancels the same job of an obsolete run; the group names a shard so shards of one run never cancel each other.
 # The deploy job is not cancelled.
@@ -69,7 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         # The PartSequencer in vite.config.mts spreads the *.partN.test.* files over the shards.
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4]
     concurrency:
       group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-unit-${{ matrix.shard }}
       cancel-in-progress: true
@@ -80,8 +80,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Run unit tests (shard ${{ matrix.shard }}/3)
-        run: npm test -- --shard=${{ matrix.shard }}/3
+      - name: Run unit tests (shard ${{ matrix.shard }}/4)
+        run: npm test -- --shard=${{ matrix.shard }}/4
         env:
           CI: 'true'
 
