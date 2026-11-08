@@ -2380,3 +2380,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Outcome: accepted. Clearing on a value change alone left the Lagrange case red: its start value equals the test's valid value, so its Reset restores the same number. The spec's event table already asks for a replacement signal there, so the fix added `ReplacementRevision` carrying `workspaceRevision`.
 - Checks/gaps: two `knownGap` Reset cases now pass as plain tests; three new `NumberInput.grid` tests (two fail before the fix, the snapped-hint guard passes both ways); `just unit src/inputs src/graphs/base`; `just check-changed`. Gap: the count setter's refusal does not listen to the revision.
 - Handler process note: a Python edit read a file without `encoding='utf-8'`, failed on write and truncated it; restored from `HEAD`.
+## 2026-11-08 — shared controls slice 5c, rendered fixture (controls stream, handler 5)
+
+- Class/size: tests and tooling / M; dev-server-only fixture, Playwright spec and config, `just controls-fixture`. Source: decision 25, lesson-authoring I3.
+- Dispatch: two `bezeg-worker` runs (Sonnet medium), the second continuing from the first's budget handoff note; one `bezeg-smoke` (Haiku medium) on the hint-after-Reset fix in parallel.
+- Outcome: accepted with one handler doc fix (`docs/commands.md` said TypeScript checks only `src/`). The first worker's clipping and focus checks did not fail on their mutations (a `width` on a flex label; focus compared border and background, which Bootstrap changes); the second worker narrowed both and observed 8 and 10 failures. Findings for a follow-up: 200% text clips the choice select and widens Display; every number field is 40 px on coarse pointers; an unbreakable long boolean label overflows.
+- Checks/gaps: `just controls-fixture` 36 tests (4 `test.fail`), `just tooling-test`, typecheck, lint, build with no fixture in `build/`. Gaps: Chromium only; at 200% the whole clipping test is `test.fail`, so other clipping there is hidden until the CSS fix.
+- Usage (as reported): worker 1 140,008 tokens, 63 min (budget handoff); worker 2 35,348 tokens, 17 min; smoke 38,612 tokens, 12 min.

@@ -585,3 +585,16 @@ test('heavy commands take a slot and pass its worker cap; filtered unit runs ski
         cleanup(root);
     }
 });
+
+test('controls-fixture runs its own Playwright config under a test slot and is a justfile recipe', async () => {
+    const root = fixture();
+    const received = path.join(root, 'received.log');
+    const slotDir = process.env.BEZEG_TEST_SLOT_DIR;
+    fs.mkdirSync(path.join(root, 'node_modules', '@playwright', 'test'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules', '@playwright', 'test', 'cli.js'), `const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(received)}, JSON.stringify({args: process.argv.slice(2), held: fs.readdirSync(${JSON.stringify(slotDir)}).length}));`);
+    try {
+        assert.equal(await commands.execute('controls-fixture', ['--grep', 'x'], {root, env: {...process.env, BEZEG_TEST_SLOTS: '1', BEZEG_TEST_WORKERS: '3'}}), 0);
+        assert.deepEqual(JSON.parse(fs.readFileSync(received, 'utf8')), {args: ['test', '-c', 'tests/controls-fixture.config.cjs', '--grep', 'x'], held: 1});
+        assert.match(fs.readFileSync(path.join(__dirname, '..', 'justfile'), 'utf8'), /^controls-fixture \*args:/m);
+    } finally { cleanup(root); }
+});

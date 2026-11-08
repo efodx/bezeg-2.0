@@ -1,0 +1,16 @@
+/* Fixture-only layout. The controls and the inspector keep the app's own CSS; this only places two inspectors on a page. */
+.fixture-workspace.demonstration-workspace {
+    min-height: 0;
+    grid-template-columns: repeat(2, 310px);
+    grid-template-areas: none;
+    justify-content: start;
+    align-items: start;
+    padding-bottom: 20px;
+}
+.fixture-workspace .workspace-inspector { grid-area: auto; height: auto; min-height: 0; overflow: visible; }
+.fixture-workspace #inspector-content { overflow: visible; }
+/* Same rule as "#inspector-content > section" in DemonstrationWorkspace.css, for both inspectors (ids stay unique). */
+.fixture-workspace .fixture-content > section { padding: 12px 14px; }
+@media (max-width: 700px) {
+    .fixture-workspace.demonstration-workspace { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+}

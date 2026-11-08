@@ -62,7 +62,7 @@ export default tseslint.config(
         rules: {eqeqeq: ['error', 'smart'], 'no-unused-vars': unusedVars},
     },
     {
-        files: ['src/**/*.{ts,tsx}', 'vite.config.mts'],
+        files: ['src/**/*.{ts,tsx}', 'fixtures/**/*.{ts,tsx}', 'vite.config.mts'],
         extends: [tseslint.configs.recommended],
         plugins: {'react-hooks': reactHooks},
         rules: {

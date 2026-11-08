@@ -375,7 +375,7 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
 // filtered to paths is short, so it skips the queue with at most FILTERED_UNIT_WORKERS workers.
 function needsSlot(command, args) {
     if (command === 'unit') return !args.some(arg => /[\\/]|\.test\./.test(arg));
-    return ['check', 'check-changed', 'build', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command);
+    return ['check', 'check-changed', 'build', 'smoke', 'smoke-built', 'smoke-lesson', 'controls-fixture'].includes(command);
 }
 
 async function execute(command, rawArgs = [], options = {}) {
@@ -386,7 +386,7 @@ async function execute(command, rawArgs = [], options = {}) {
         await admitByMemory({command, env: baseEnv});
         return executeCommand(command, rawArgs, {...options, root});
     }
-    if (!['unit', 'check', 'check-changed', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
+    if (!['unit', 'check', 'check-changed', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson', 'controls-fixture'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
     const unslotted = () => {
         const budget = machineBudget({env: baseEnv});
         return {...budget, workers: command === 'unit' ? Math.min(budget.workers, FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
@@ -485,6 +485,10 @@ async function executeCommand(command, rawArgs = [], options = {}) {
             return run('smoke', [smokeBuilt(parsed.args)], env, false, undefined, provenance);
         }
         return run('smoke-built', [smokeBuilt(parsed.args)], env, false, undefined, provenance);
+    }
+    if (command === 'controls-fixture') {
+        // Test-only rendered fixture of the shared controls on the Vite dev server (port 4328, set by its own config); no build needed.
+        return run('controls-fixture', [nodeStep('controls-fixture', path.join(root, 'node_modules', '@playwright', 'test', 'cli.js'), ['test', '-c', 'tests/controls-fixture.config.cjs', ...args])]);
     }
     if (command === 'smoke-lesson') {
         const parsed = parsePortArgs(args, Number(process.env.SMOKE_PORT || 4173));
