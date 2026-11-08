@@ -6,7 +6,7 @@ interface ChoiceSelectProps {
     /** Visible label, also the accessible name of the native select. */
     label: string;
     value: string;
-    options: readonly { value: string; text: string; disabled?: boolean }[];
+    options: readonly { value: string; text: string; disabled?: boolean; ariaLabel?: string }[];
     onChange: (value: string) => void;
     help?: string;
 }
@@ -19,7 +19,7 @@ export function ChoiceSelect(props: ChoiceSelectProps) {
         <Form.Label htmlFor={id}>{props.label}</Form.Label>
         <Form.Select id={id} value={props.value} aria-describedby={props.help ? `${id}-help` : undefined}
                      onChange={event => props.onChange(event.target.value)}>
-            {props.options.map(option => <option key={option.value} value={option.value} disabled={option.disabled}>{option.text}</option>)}
+            {props.options.map(option => <option key={option.value} value={option.value} disabled={option.disabled} aria-label={option.ariaLabel}>{option.text}</option>)}
         </Form.Select>
         {props.help && <p id={`${id}-help`} className="inspector-help">{props.help}</p>}
     </Form>;

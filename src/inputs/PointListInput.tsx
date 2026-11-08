@@ -47,6 +47,8 @@ interface PointListInputProps<R extends readonly number[]> {
     min?: number;
     max?: number;
     decimals?: number;
+    /** Spinner and arrow-key step of every field (default 1). */
+    step?: number;
     /** Passed to every field: a typed value off the grid is snapped, with a notice (decision 16; the field does it). */
     grid?: number;
     /** Passed to every field: only whole numbers are accepted. */
@@ -119,7 +121,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
                 return <div className="point-list-axis" key={axis}>
                     <span aria-hidden="true">{axisName}</span>
                     <NumberInput key={epoch} label={`${name}, ${axisName}`} hideLabel compact value={point[axis]} min={min} max={max}
-                                 decimals={decimals} step={1} rejectedHint={refused} grid={props.grid} integer={props.integer}
+                                 decimals={decimals} step={props.step ?? 1} rejectedHint={refused} grid={props.grid} integer={props.integer}
                                  onChange={value => edit(index, axis, value)}/>
                 </div>;
             };

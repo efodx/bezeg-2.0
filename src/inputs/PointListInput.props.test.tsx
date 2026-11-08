@@ -51,6 +51,19 @@ describe('PointListInput: grid and integer', () => {
     });
 });
 
+describe('PointListInput: step', () => {
+    test('an arrow key moves a field by the step prop, by 1 without it', () => {
+        const onCommit = vi.fn();
+        const {unmount} = render(<PointListInput title="t" points={[[0, 0]] as const} pointLabel={name} onCommit={onCommit} step={0.25}/>);
+        act(() => { fireEvent.keyDown(screen.getByRole('spinbutton', {name: 'T1, x'}), {key: 'ArrowUp'}); });
+        expect(onCommit).toHaveBeenLastCalledWith(0, [0.25, 0]);
+        unmount();
+        render(<PointListInput title="t" points={[[0, 0]] as const} pointLabel={name} onCommit={onCommit}/>);
+        act(() => { fireEvent.keyDown(screen.getByRole('spinbutton', {name: 'T1, x'}), {key: 'ArrowUp'}); });
+        expect(onCommit).toHaveBeenLastCalledWith(0, [1, 0]);
+    });
+});
+
 describe('PointListInput: onRemove and minCount', () => {
     const points = [[0, 0], [1, 1], [2, 2]] as const;
     test('each row has a remove button naming its point', () => {

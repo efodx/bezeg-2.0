@@ -45,6 +45,10 @@ interface NumberInputProps {
      * commits, and shows the reason as its hint (linked by aria-describedby). An open draft is dropped when the reason appears.
      */
     unavailableReason?: string;
+    /** The caller shows `unavailableReason` itself and links it through `describedBy`, so the field neither repeats it as its hint nor in a title. */
+    reasonShownElsewhere?: boolean;
+    /** Receives values from the step keys instead of `onChange`, for a caller that treats a step differently from typed text. */
+    onStepChange?: (value: number) => any;
 }
 
 type Language = ReturnType<typeof currentLanguage>;
@@ -135,7 +139,7 @@ export function NumberInput(props: NumberInputProps) {
 
     const outOfRange = (candidate: number) => (min !== undefined && candidate < min) || (max !== undefined && candidate > max);
     /** Applies a parsed value; returns whether it was in range and accepted by the model. */
-    const commit = (parsed: number): boolean => {
+    const commit = (parsed: number, viaStep = false): boolean => {
         if (unavailableReason !== undefined) return false;
         if ((integer && !Number.isInteger(parsed)) || outOfRange(parsed)) {
             setHint("range");
@@ -149,7 +153,7 @@ export function NumberInput(props: NumberInputProps) {
                 return false;
             }
         }
-        const accepted = props.onChange(used) !== false;
+        const accepted = (viaStep && props.onStepChange ? props.onStepChange : props.onChange)(used) !== false;
         committed.current = accepted ? used : undefined;
         setSnappedTo(used !== parsed ? used : undefined);
         setHint(!accepted ? "rejected" : used !== parsed ? "snapped" : undefined);
@@ -175,7 +179,7 @@ export function NumberInput(props: NumberInputProps) {
         if (accepted) edited.current = false;
         return accepted;
     };
-    const hintText = unavailableReason !== undefined ? unavailableReason
+    const hintText = unavailableReason !== undefined ? (props.reasonShownElsewhere ? undefined : unavailableReason)
         : hint === "snapped" && snappedTo !== undefined ? t("number_snapped_hint", {value0: formatNumber(snappedTo, language, Math.max(decimals, grid !== undefined && grid > 0 ? gridDecimals(grid) : 0))})
         : (hint === "range" || hint === "invalid") && min !== undefined && max !== undefined
         ? t("number_range_hint", {value0: formatNumber(min, language), value1: formatNumber(max, language)})
@@ -185,7 +189,7 @@ export function NumberInput(props: NumberInputProps) {
         <label htmlFor={id} className={props.hideLabel ? "visually-hidden" : undefined}>{props.label}</label>
         <input id={id} type="text" inputMode={min !== undefined && min >= 0 ? "decimal" : "text"} autoComplete="off" role="spinbutton" value={draft} disabled={props.disabled}
                readOnly={unavailableReason !== undefined} aria-disabled={unavailableReason !== undefined ? true : undefined}
-               title={unavailableReason}
+               title={props.reasonShownElsewhere ? undefined : unavailableReason}
                aria-valuemin={min} aria-valuemax={max}
                aria-valuenow={value !== undefined && Number.isFinite(value) ? value : undefined}
                aria-invalid={hintText && hint !== "snapped" && unavailableReason === undefined ? true : undefined}
@@ -223,7 +227,7 @@ export function NumberInput(props: NumberInputProps) {
                    if (max !== undefined) next = Math.min(max, next);
                    edited.current = false;
                    setDraft(show(next, Math.max(decimals, 6), language));
-                   commit(next);
+                   commit(next, true);
                }}
                onBlur={() => {
                    // A refusal stays explained after the field reverts to the model value.
