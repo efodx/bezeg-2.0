@@ -7,7 +7,7 @@ const path = require('node:path');
 const test = require('node:test');
 const {validateRow, validateRows, validateRowAgainstRecipes} = require('./_schema.cjs');
 const {assessPathSteps, SCHEDULE_STEP_LIMIT} = require('./_jump.cjs');
-const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance, pointsOutsideCamera, checkStrokes} = require('./_driver.cjs');
+const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance, pointsOutsideCamera, checkStrokes, parseTraceReadout} = require('./_driver.cjs');
 const {rows, rowsById} = require('./index.cjs');
 const {assertMotionEvidence} = require('../demonstration-preview-motion.cjs').testSupport;
 
@@ -263,4 +263,13 @@ test('restyle lets a stroke move only between widths the poster frame shows', ()
     assert.throws(() => checkStrokes(sweep, new Map(initial.strokesById), initial, swapped), /stroke width changed for a/);
     // A width the poster does not show, as a compounding presentation makes, still fails.
     assert.throws(() => checkStrokes(restyled, new Map(initial.strokesById), initial, {strokesById: [['a', '8px'], ['b', '4px']]}), /changed for a from 2px to 8px/);
+});
+
+test('a trace-step readout is a compgeo "Korak N od M" line or a root-finding "korak N, napaka E" board text', () => {
+    assert.deepEqual(parseTraceReadout('x', ['Korak 3 od 9']), {step: 3, length: 9});
+    assert.deepEqual(parseTraceReadout('x', ['korak 2, napaka 0,0858']), {step: 2, length: Infinity});
+    assert.throws(() => parseTraceReadout('x', []), /expected one step readout/);
+    assert.throws(() => parseTraceReadout('x', ['Korak 1 od 4', 'korak 1, napaka 0,5']), /expected one step readout/);
+    assert.equal(parseTraceReadout.matches('Korak 12'), false);
+    assert.equal(parseTraceReadout.matches('korak 2, napaka 0,0858'), true);
 });

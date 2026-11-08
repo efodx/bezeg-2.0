@@ -177,7 +177,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             assert.equal(await button.count(), 1, `${row.id}: ${field ? 'number field' : 'button'} "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
             for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
             const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
-            // A stepper shows its value in the text input of the same group; a trace-step button has none, the page's "Korak N od M" text is the readout.
+            // A stepper shows its value in the text input of the same group; a trace-step button has none, the page's step text is the readout (parseTraceReadout).
             const trace = row.control.kind === 'trace-step';
             // A button-count button has no value input either: the readout is how many inputs are labelled countLabel + a number.
             const counted = row.control.kind === 'button-count';
@@ -216,15 +216,24 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
     return {camera: fixedBox, samples};
 }
 
-/** Step and length from the visible "Korak N od M" readout of a compgeo trace graph (the lesson overlay's own "Korak" line is skipped). */
+/** A compgeo trace's "Korak N od M" line, or root-finding's board text "korak N, napaka E" (no fixed length: the iteration stops on its own). */
+const TRACE_READOUTS = [/^Korak (\d+) od (\d+)$/, /^korak (\d+), napaka \S.*$/];
+
+/** Step and length from the one distinct step readout among `texts`; a readout without a length gives Infinity, so the press read-back alone bounds it. */
+function parseTraceReadout(id, texts) {
+    const values = [...new Set(texts.filter(parseTraceReadout.matches))];
+    assert.equal(values.length, 1, `${id}: expected one step readout "Korak N od M" or "korak N, napaka E" on the page, found ${JSON.stringify(values)}`);
+    const [, step, length] = TRACE_READOUTS.map(pattern => values[0].match(pattern)).find(Boolean);
+    return {step: Number(step), length: length === undefined ? Infinity : Number(length)};
+}
+parseTraceReadout.matches = text => TRACE_READOUTS.some(pattern => pattern.test(text));
+
+/** The step readout of a trace-step row read from the page (the lesson overlay's own "Korak" line is skipped). */
 async function readTraceStep(page, row) {
-    const found = await page.evaluate(() => [...document.querySelectorAll('body *')]
-        .filter(el => !el.closest('.guided-lesson, .guided-lesson-tab, [class*="guided-lesson"]') && !el.querySelector('*') && /^Korak \d+ od \d+$/.test(el.textContent.trim()))
+    const texts = await page.evaluate(() => [...document.querySelectorAll('body *')]
+        .filter(el => !el.closest('.guided-lesson, .guided-lesson-tab, [class*="guided-lesson"]') && !el.querySelector('*'))
         .map(el => el.textContent.trim()));
-    const values = [...new Set(found)];
-    assert.equal(values.length, 1, `${row.id}: expected one step readout "Korak N od M" on the page, found ${JSON.stringify(values)}`);
-    const [, step, length] = values[0].match(/(\d+) od (\d+)/);
-    return {step: Number(step), length: Number(length)};
+    return parseTraceReadout(row.id, texts);
 }
 
 /**
@@ -404,4 +413,4 @@ async function clearSurfaceSelection(page, row) {
     await select.selectOption('');
 }
 
-module.exports = {pointsOutsideCamera, checkStrokes, captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};
+module.exports = {parseTraceReadout, pointsOutsideCamera, checkStrokes, captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};
