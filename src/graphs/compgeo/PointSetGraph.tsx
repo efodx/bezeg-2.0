@@ -208,7 +208,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     /** Where Add point puts the next point when no coordinates are given: one grid unit right of the last, else the origin (decision 1). */
     private placedPoint(): GridPoint {
-        const [x, y] = placeNewPoint(this.model.points.map(p => [p.x, p.y] as const), {limit: {max: this.coordinateLimit}});
+        const [x, y] = placeNewPoint(this.model.points.map(p => [p.x, p.y] as const), {limit: {max: this.coordinateLimit}, distinct: true});
         return {x, y};
     }
 
@@ -866,7 +866,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     private readonly actions: PointSetControlActions = {
-        addPoint: point => {this.addPointAt(point ?? this.placedPoint());},
+        addPoint: point => this.addPointAt(point ?? this.placedPoint()) ? undefined : this.noticeValue,
         addSegment: () => {this.addDefaultSegment();},
         addInterval: () => {this.addDefaultInterval();},
         removeInterval: k => {this.removeIntervalAt(k);},

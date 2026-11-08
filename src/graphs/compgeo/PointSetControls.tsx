@@ -11,8 +11,8 @@ import {PointListInput, SelectablePointButton} from "../../inputs/PointListInput
 
 /** What the controls ask the graph to do; every handler is a synchronous model edit on the graph. */
 export interface PointSetControlActions {
-    /** Adds a point at `point`; without it the graph places the next one (decision 1). */
-    addPoint(point?: GridPoint): void;
+    /** Adds a point at `point`; without it the graph places the next one (decision 1). A refusal returns its notice. */
+    addPoint(point?: GridPoint): PointSetNotice | undefined;
     /** Segments mode: adds a default short segment near the origin. */
     addSegment(): void;
     removeSegment(k: number): void;
@@ -93,7 +93,7 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
                 const [a, b] = [model.points[2 * k], model.points[2 * k + 1]];
                 const on = selected !== undefined && selected >> 1 === k;
                 return <li key={k} className="pointset-row" data-selected={on}>
-                    <SelectablePointButton label={`s${k + 1}`} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
+                    <SelectablePointButton label={`s${k + 1}`} accessibleName={t("pointset_select_segment", {value0: k + 1})} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
                     {field(t("pointset_segment_x", {value0: k + 1, value1: 1}), a.x, x => actions.movePoint(2 * k, {x, y: a.y}))}
                     {field(t("pointset_segment_y", {value0: k + 1, value1: 1}), a.y, y => actions.movePoint(2 * k, {x: a.x, y}))}
                     {field(t("pointset_segment_x", {value0: k + 1, value1: 2}), b.x, x => actions.movePoint(2 * k + 1, {x, y: b.y}))}
@@ -126,7 +126,7 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
                 const loIndex = model.points[2 * k].x <= model.points[2 * k + 1].x ? 2 * k : 2 * k + 1;
                 const hiIndex = 4 * k + 1 - loIndex;
                 return <li key={k} className="pointset-row" data-selected={on}>
-                    <SelectablePointButton label={letter} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
+                    <SelectablePointButton label={letter} accessibleName={t("pointset_select_interval", {value0: letter})} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
                     {field(t("pointset_interval_lo", {value0: letter}), lo, x => actions.movePoint(loIndex, {x, y: model.points[loIndex].y}))}
                     {field(t("pointset_interval_hi", {value0: letter}), hi, x => actions.movePoint(hiIndex, {x, y: model.points[hiIndex].y}))}
                     <button type="button" className={button} onClick={() => actions.removeInterval(k)}>
@@ -155,12 +155,13 @@ export function PointSetControls(props: PointSetControlsProps) {
     const intervals = model.mode === "intervals";
     const paired = segments || intervals;
     const fixed = props.fixedCount === true;
-    const noticeText = !notice ? ""
+    const textOf = (notice: PointSetNotice | undefined) => !notice ? ""
         : notice.kind === "fixed" ? t("pointset_count_fixed")
         : notice.kind === "limit" ? t("pointset_limit_reached", {value0: props.pointLimit})
             : notice.kind === "segment-limit" ? t("pointset_segment_limit_reached", {value0: props.segmentLimit ?? 0})
                 : notice.kind === "interval-limit" ? t("pointset_interval_limit_reached", {value0: props.intervalLimit ?? 0})
                     : t("pointset_out_of_range", {value0: props.coordinateLimit});
+    const noticeText = textOf(notice);
     const modes: readonly PointSetMode[] = ["points", "polygon", ...props.allowsSegments === true ? ["segments" as const] : [], ...props.allowsIntervals === true ? ["intervals" as const] : []];
     const modeLabel = {points: "pointset_mode_points", polygon: "pointset_mode_polygon", segments: "pointset_mode_segments", intervals: "pointset_mode_intervals"} as const;
     const button = "btn btn-outline-secondary btn-sm";
@@ -179,7 +180,7 @@ export function PointSetControls(props: PointSetControlsProps) {
         </div>
         <div className="inspector-group">
             {!fixed && !paired && <PointCollection label={t("pointset_collection_label")} count={model.points.length} min={0} max={props.pointLimit}
-                onAdd={at => actions.addPoint(at && {x: at[0], y: at[1]})}
+                onAdd={at => { const refusal = actions.addPoint(at && {x: at[0], y: at[1]}); return refusal && textOf(refusal); }}
                 removal={{kind: "selected", onRemove: actions.removeSelected, hasSelection: selected !== undefined}} onClear={actions.clear}
                 typedEntry={{axisLabels: ["x", "y"], min: -props.coordinateLimit, max: props.coordinateLimit, integer: true}}
                 addMode={{on: props.addMode, onToggle: () => actions.setAddMode(!props.addMode)}}/>}

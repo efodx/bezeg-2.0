@@ -2263,6 +2263,7 @@ export const sl = {
     "pointset_invalid_interval_rows": "v načinu intervalov mora imeti k-ti interval obe krajišči na višini y = k + 1; popravi y v datoteki",
     "pointset_count_fixed": "Število točk določa stopnja krivulje: točk ni mogoče dodajati, odstranjevati ali izbrisati. Točko raje povleci ali uredi njene koordinate.",
     "point_controls_remove_named": "Odstrani: {value0}",
+    "point_controls_select_named": "Izberi: {value0}",
     "point_controls_remove_selected": "Odstrani izbrano točko",
     "point_controls_clear_all": "Počisti vse točke",
     "point_controls_add_at": "Dodaj na koordinatah",

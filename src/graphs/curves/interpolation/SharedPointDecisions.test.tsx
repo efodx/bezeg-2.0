@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import InterpolationGraph from './InterpolationGraph';
 import HermiteGraph from '../hermite/HermiteGraph';
@@ -7,6 +7,7 @@ import {GraphHost} from '../../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {readoutAt} from './interpolationModel';
 import {DomainError} from '../../functions/BaseFunctionGraph';
+import {message} from '../../../localization';
 import {INTERPOLATION_POINTS_MAX} from '../../../analysis/interpolation';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -86,6 +87,25 @@ describe.each([
         view.unmount();
     });
 
+    test('decision 31: a default add at the coordinate limit never repeats an existing point', () => {
+        const {graph, view} = mount(make());
+        act(() => { graph.editPoint(2, [999, 0]); });
+        act(() => { graph.editPoint(3, [1000, 0]); });
+        act(() => { graph.addPoint(); });
+        expect(graph.state.points.at(-1)).toEqual([998, 0]);
+        view.unmount();
+    });
+
+    test('decision 31: a refused Add press shows the graph refusal and adds nothing', () => {
+        const {graph, view} = mount(make());
+        const before = graph.state.points;
+        vi.spyOn(graph, 'addPoint').mockReturnValue(message('interp_coincident_points', {value0: 3, value1: 4}));
+        act(() => { fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'})); });
+        expect(graph.state.points).toBe(before);
+        expect(document.querySelector('[data-point-collection-reason]')?.textContent?.trim()).toBeTruthy();
+        view.unmount();
+    });
+
     test('a lesson add at the maximum, with or without coordinates, throws a DomainError and adds nothing (task-0 decision 6)', () => {
         const {graph, view} = mount(make());
         const apply = (action: object) => act(() => graph.getLessonCapabilities().apply({kind: graph instanceof InterpolationGraph ? 'interpolation' : 'hermite', operation: 'add-point', ...action} as never));
@@ -135,6 +155,20 @@ describe('Interpolation drag decisions', () => {
 });
 
 describe('Hermite view: the tangent tip is framed', () => {
+    test('a typed edit whose tangent tip leaves the view refits; one whose tip stays inside does not', () => {
+        const {graph, view} = mount(new ObservedHermite());
+        act(() => { graph.addPoint(); });
+        act(() => { graph.addPoint(); });
+        const tight: [number, number, number, number] = [-1.95, 5.45, 6.95, -4.95];
+        act(() => graph.setBox(tight));
+        act(() => { graph.editPoint(1, [1.2, 2]); });
+        expect(graph.box()[2]).toBeCloseTo(tight[2], 6);
+        act(() => { graph.editPoint(5, [6.5, 0]); });
+        expect(graph.box()[2]).toBeGreaterThan(7);
+        view.unmount();
+    });
+
+
     test('a point inside the view whose tangent tip is outside refits', () => {
         const {graph, view} = mount(new ObservedHermite());
         // Tight box around the default points; the added point (6, 0) sits inside it but its tip (7, 0) does not.

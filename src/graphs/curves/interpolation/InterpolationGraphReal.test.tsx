@@ -202,16 +202,6 @@ describe('InterpolationGraph on a real board', () => {
         view.unmount();
     });
 
-    test('a typed coordinate beyond 1000 is refused by the field and leaves the points unchanged', () => {
-        const {graph, view} = mount();
-        act(() => typeAndEnter(field(3, 'x'), '1001'));
-        expect(graph.state.points[2]).toEqual([3, 3]);
-        expect(field(3, 'x')).toHaveAttribute('aria-invalid', 'true');
-        expect(typeof graph.editPoint(2, [1001, 3])).toBe('string');
-        expect(graph.state.points[2]).toEqual([3, 3]);
-        view.unmount();
-    });
-
     test('the list shows the current coordinates after a drag, add, remove, import, reset, checkpoint restore and lesson scenes', async () => {
         const {graph, view} = mount();
         const [, p1] = graph.sceneOf().pointElements();

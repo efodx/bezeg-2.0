@@ -70,7 +70,9 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     protected jxgCurves: AbstractJXGPointControlledCurve<PointControlledCurve, PointControlledCurveAttributes>[] = [];
     protected graphJXGPoints: JXG.Point[] = [];
     /** The reason a point edit was refused (a board Delete click on the last point), shown in the Edit panel until the next accepted edit. */
-    protected readonly pointRefusals = new RefusalChannel(() => this.requestRender());
+    private refusalChannel?: RefusalChannel;
+    // Created on first use: the base constructor restores the scene (`restoreTransientState`) before this class's field initialisers run.
+    protected get pointRefusals(): RefusalChannel { return this.refusalChannel ??= new RefusalChannel(() => this.requestRender()); }
     protected refreshWorkspace() {
         if (!this.graphSession?.isAlive) return;
         this.workspaceRevision++;
@@ -174,12 +176,13 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     }
 
     /** Adds a point to `curve` from the count control: without coordinates one unit right of the last (decision 1), else exactly there. */
-    private addTypedPoint(curve: EditableCurve, at?: readonly number[]): void {
+    private addTypedPoint(curve: EditableCurve, at?: readonly number[]): string | undefined {
         const [x, y] = placeNewPoint(curve.getCurve().getPoints().map(point => [point.X(), point.Y()] as const), at ? {at: [at[0], at[1]]} : {});
         curve.addPoint(x, y);
         this.pointRefusals.clear();
         this.afterTypedPointEdit([x, y]);
         this.refreshWorkspace();
+        return undefined; // a curve has no point-count maximum or model refusal here; the return carries one to the typed fields if that changes
     }
 
     /** Removes point `index` of `curve` (-1 is the last); the last remaining point stays, with the stated reason. */
@@ -335,6 +338,8 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
      */
     protected override restoreTransientState(saved: TransientState | undefined): void {
         super.restoreTransientState(saved);
+        // Every scene replacement (Reset, Preset, import, lesson restore) drops the refusal of the scene it replaced.
+        this.pointRefusals.clear();
         const rationalCurves = Array.isArray(saved?.rationalCurves) ? saved.rationalCurves : [];
         this.jxgCurves.forEach((curve, index) => {
             const entry = savedRationalCurve(rationalCurves[index]);

@@ -7,6 +7,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {PointSetGraph} from './PointSetGraph';
+import {PointSetControlActions, PointSetControls} from './PointSetControls';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {GRID_COORD_LIMIT} from '../../compgeo/grid';
@@ -73,6 +74,21 @@ pointCollectionBehaviour('PointSet point collection', {
     },
 });
 
+describe('PointSet typed add reports its refusal', () => {
+    test('a refused typed add keeps the typed values and shows the notice text', () => {
+        const addPoint = vi.fn(() => ({kind: 'range' as const}));
+        const actions = new Proxy({addPoint}, {get: (target, name) => name in target ? target[name as 'addPoint'] : () => undefined}) as unknown as PointSetControlActions;
+        render(<PointSetControls model={model([])} selected={undefined} addMode={false} notice={undefined} pointLimit={6} simplicity={undefined}
+                                 coordinateLimit={20} overlays={[]} actions={actions}/>);
+        const fields = ['x', 'y'].map(axis => screen.getByRole('spinbutton', {name: t('point_controls_new_axis', {value0: axis})}));
+        fields.forEach((field, i) => { fireEvent.change(field, {target: {value: String(5 + i)}}); fireEvent.blur(field); });
+        fireEvent.click(screen.getByRole('button', {name: t('point_controls_add_at')}));
+        expect(addPoint).toHaveBeenCalledWith({x: 5, y: 6});
+        expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe(t('pointset_out_of_range', {value0: 20}));
+        expect(fields.map(field => field.getAttribute('aria-valuenow'))).toEqual(['5', '6']);
+    });
+});
+
 describe('shared point decisions on PointSet', () => {
     test('decision 1: a default add goes one unit right of the last point; explicit coordinates win exactly', () => {
         const graph = new Observed();
@@ -82,6 +98,15 @@ describe('shared point decisions on PointSet', () => {
         expect(graph.model.points.at(-1)).toEqual({x: 4, y: 2});
         act(() => { graph.addPointAt({x: -9, y: 5}); });
         expect(graph.model.points.at(-1)).toEqual({x: -9, y: 5});
+    });
+
+    test('decision 31: a default add at the coordinate limit never repeats an existing point', () => {
+        const graph = new Observed({coordinateLimit: 20});
+        mount(graph);
+        load(graph, model([[19, 3], [20, 3]]));
+        act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'})); });
+        expect(graph.model.points).toHaveLength(3);
+        expect(graph.model.points.at(-1)).toEqual({x: 18, y: 3});
     });
 
     test('decision 3: a drag at the coordinate limit stops silently, with no notice', () => {

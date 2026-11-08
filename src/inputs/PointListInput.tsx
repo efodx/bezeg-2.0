@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {currentLanguage, useT} from "../localization";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
@@ -45,8 +45,11 @@ interface PointListInputProps<R extends readonly number[]> {
 }
 
 /** The name of a point as a pressed toggle (C14): `aria-pressed` tells whether it is the selected one. For lists that render rows themselves. */
-export function SelectablePointButton(props: {label: string; pressed: boolean; onToggle: () => void}) {
-    return <button type="button" className="point-list-index point-list-select" aria-pressed={props.pressed} onClick={props.onToggle}>{props.label}</button>;
+export function SelectablePointButton(props: {label: string; pressed: boolean; onToggle: () => void; accessibleName?: string}) {
+    const t = useT();
+    // The name says what pressing does and still contains the visible label (a bare "A" or "s1" would not).
+    return <button type="button" className="point-list-index point-list-select" aria-pressed={props.pressed} onClick={props.onToggle}
+                   aria-label={props.accessibleName ?? t("point_controls_select_named", {value0: props.label})}>{props.label}</button>;
 }
 
 const isRow = <R extends readonly number[]>(value: readonly number[], length: number): value is R => value.length === length;
@@ -85,9 +88,21 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
         setRefusal(undefined);
         return true;
     };
+    // After a row's remove button: focus the remove button now at the same index, else the previous row's, else the collection's controls.
+    const root = useRef<HTMLFieldSetElement>(null);
+    const focusAfterRemove = useRef<number>();
+    useEffect(() => {
+        const index = focusAfterRemove.current;
+        focusAfterRemove.current = undefined;
+        if (index === undefined || !root.current) return;
+        const buttons = root.current.querySelectorAll<HTMLElement>(".point-list-remove");
+        const target = buttons[Math.min(index, buttons.length - 1)]
+            ?? root.current.parentElement?.querySelector<HTMLElement>(".point-collection button, .point-collection input");
+        target?.focus();
+    });
     const atMinimum = props.minCount !== undefined && points.length <= props.minCount;
     const removeReason = atMinimum ? t("count_at_minimum", {value0: formatNumber(props.minCount ?? 0, currentLanguage(), 0)}) : undefined;
-    return <fieldset className="point-list">
+    return <fieldset className="point-list" ref={root}>
         <legend>{props.title}</legend>
         {points.map((point, index) => {
             const name = pointLabel(index);
@@ -107,7 +122,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
                     : <span className="point-list-index" aria-hidden="true">{name}</span>}
                 {axes.map((axisName, axis) => axisField(axis, axisName))}
                 {props.onRemove && <UnavailableButton className="btn point-list-remove" aria-label={t("point_controls_remove_named", {value0: name})}
-                                                      reason={removeReason} onPress={() => props.onRemove?.(index)}
+                                                      reason={removeReason} onPress={() => { focusAfterRemove.current = index; props.onRemove?.(index); }}
                                                       onBlockedPress={() => setBlocked(current => ({count: (current?.count ?? 0) + 1, list: points}))}>×</UnavailableButton>}
             </div>;
         })}

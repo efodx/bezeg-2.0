@@ -13,6 +13,9 @@ export function curveAccess(graph: BaseGraph<BaseGraphState>) {
         board: () => graph['board'] as JXG.Board,
         editing: () => graph['editing'],
         deleteMode: (mode: number) => graph['setCurveState']({selectedCurveOption: mode}),
+        restoreLessonScene: () => graph['prepareLessonDefaultScene'](),
+        refusal: () => graph['pointRefusals'].refusal,
+        hodographBoard: () => graph instanceof BasePhBezierCurveGraph ? graph['hodographBoard'] as JXG.Board | undefined : undefined,
         phPoints: () => graph instanceof BasePhBezierCurveGraph ? graph.getFirstCurveAsPHBezierCurve().w : undefined,
     };
 }

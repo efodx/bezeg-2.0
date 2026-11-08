@@ -77,19 +77,26 @@ describe('PointListInput: selection', () => {
     test('the row name is a pressed toggle; pressing the selected row releases it', () => {
         const onSelect = vi.fn();
         render(<PointListInput title="t" points={[[0, 0], [1, 1]] as const} pointLabel={name} onCommit={() => undefined} selected={1} onSelect={onSelect}/>);
-        expect(screen.getByRole('button', {name: 'T2'})).toHaveAttribute('aria-pressed', 'true');
-        expect(screen.getByRole('button', {name: 'T1'})).toHaveAttribute('aria-pressed', 'false');
-        fireEvent.click(screen.getByRole('button', {name: 'T1'}));
+        expect(screen.getByRole('button', {name: 'Izberi: T2'})).toHaveAttribute('aria-pressed', 'true');
+        expect(screen.getByRole('button', {name: 'Izberi: T1'})).toHaveAttribute('aria-pressed', 'false');
+        fireEvent.click(screen.getByRole('button', {name: 'Izberi: T1'}));
         expect(onSelect).toHaveBeenLastCalledWith(0);
-        fireEvent.click(screen.getByRole('button', {name: 'T2'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Izberi: T2'}));
         expect(onSelect).toHaveBeenLastCalledWith(undefined);
+    });
+
+    test('the toggle names its point, not just the bare label', () => {
+        setLanguage('sl');
+        render(<PointListInput title="t" points={[[0, 0]] as const} pointLabel={name} onCommit={() => undefined} selected={undefined} onSelect={() => undefined}/>);
+        expect(screen.getByRole('button', {name: 'Izberi: T1'})).toHaveTextContent('T1');
+        expect(screen.queryByRole('button', {name: 'T1'})).toBeNull();
     });
 
     test('SelectablePointButton stands alone', () => {
         const onToggle = vi.fn();
         render(<SelectablePointButton label="A" pressed onToggle={onToggle}/>);
-        fireEvent.click(screen.getByRole('button', {name: 'A'}));
-        expect(screen.getByRole('button', {name: 'A'})).toHaveAttribute('aria-pressed', 'true');
+        fireEvent.click(screen.getByRole('button', {name: 'Izberi: A'}));
+        expect(screen.getByRole('button', {name: 'Izberi: A'})).toHaveAttribute('aria-pressed', 'true');
         expect(onToggle).toHaveBeenCalledTimes(1);
     });
 });
@@ -193,5 +200,39 @@ describe('PointCollection', () => {
         expect(onAdd).not.toHaveBeenCalled();
         expect(screen.getByRole('button', {name: 'Dodaj na koordinatah'})).toHaveAttribute('aria-disabled', 'true');
         expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe('Doseženo je največje število točk (3). Odstrani točko, preden dodaš novo.');
+    });
+    test('a refused typed add keeps the typed values and shows the refusal; an accepted one clears them', () => {
+        let refusal: string | undefined = 'Ta točka že obstaja.';
+        const onAdd = vi.fn(() => refusal);
+        render(<PointCollection {...base} count={2} onAdd={onAdd} removal={{kind: 'last', onRemove: () => undefined}}
+                                typedEntry={{axisLabels: ['x', 'y']}}/>);
+        const [x, y] = screen.getAllByRole('spinbutton') as HTMLInputElement[];
+        type(x, '4');
+        fireEvent.keyDown(x, {key: 'Enter'});
+        type(y, '2');
+        fireEvent.keyDown(y, {key: 'Enter'});
+        expect(onAdd).toHaveBeenCalledWith([4, 2]);
+        expect(x.value).toBe('4');
+        expect(y.value).toBe('2');
+        expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe('Ta točka že obstaja.');
+        refusal = undefined;
+        fireEvent.keyDown(y, {key: 'Enter'});
+        expect(onAdd).toHaveBeenCalledTimes(2);
+        expect(x.value).toBe('');
+    });
+
+    test('a refused untyped add shows the refusal reason', () => {
+        render(<PointCollection {...base} count={2} onAdd={() => 'Ta točka že obstaja.'} removal={{kind: 'selected', onRemove: () => undefined, hasSelection: false}}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'}));
+        expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe('Ta točka že obstaja.');
+    });
+
+    test('the shown reason follows a changed min', () => {
+        const props = {label: 'p', max: 5, count: 3, onAdd: () => undefined, removal: {kind: 'last', onRemove: () => undefined} as const, onClear: () => undefined};
+        const view = render(<PointCollection {...props} min={1}/>);
+        fireEvent.click(screen.getByRole('button', {name: /Počisti/}));
+        expect(document.querySelector('[data-point-collection-reason]')?.textContent).toContain('1');
+        view.rerender(<PointCollection {...props} min={2}/>);
+        expect(document.querySelector('[data-point-collection-reason]')?.textContent).toContain('2');
     });
 });

@@ -30,9 +30,10 @@ interface PointCollectionProps {
     max: number;
     /**
      * Adds a point. Without coordinates the graph places it (decision 1); with `at` (from the typed entry) it is placed there. The caller
-     * stays within `max` and refuses nothing silently: this control already explains the bound.
+     * stays within `max`. It returns undefined when the point was added, or the localized reason when the graph refused it: the typed
+     * values then stay in their fields and the reason is shown here (never a silent no-op).
      */
-    onAdd: (at?: readonly number[]) => void;
+    onAdd: (at?: readonly number[]) => string | undefined | void;
     removal: Removal;
     /**
      * Clear all. Available only when `count > 0` and `min === 0`: clearing must be able to reach an empty collection, so a collection
@@ -52,6 +53,8 @@ interface PointCollectionProps {
  *
  * Real graphs mount it in P3 to P5; the bare control is covered by `sharedControls.behaviour.test.tsx`.
  */
+type Reasons = Record<"add" | "clear" | "remove" | "addAt", () => string | undefined>;
+
 export function PointCollection(props: PointCollectionProps) {
     const t = useT();
     const id = useId();
@@ -62,13 +65,19 @@ export function PointCollection(props: PointCollectionProps) {
 
     // The reason of the last blocked press (a counter makes a repeat announce again); a changed count drops it. It is kept as the
     // function that produces the text and called while rendering, so a language switch shows it in the new language.
-    const [pressed, setPressed] = useState<{reason: () => string; count: number}>();
+    const [pressed, setPressed] = useState<{reason: (now: Reasons) => string; count: number}>();
     const [seenCount, setSeenCount] = useState(count);
     if (seenCount !== count) {
         setSeenCount(count);
         setPressed(undefined);
     }
-    const blocked = (reason: () => string) => setPressed(current => ({reason, count: (current?.count ?? 0) + 1}));
+    const blocked = (reason: (now: Reasons) => string) => setPressed(current => ({reason, count: (current?.count ?? 0) + 1}));
+    const add = (at?: readonly number[]): boolean => {
+        const refusal = at ? props.onAdd(at) : props.onAdd();
+        if (typeof refusal !== "string") return true;
+        blocked(() => refusal);
+        return false;
+    };
 
     // The accepted coordinates of the new point. The ref mirrors the state so that Enter, which commits a field and adds in the same
     // keystroke, reads the value that very commit wrote.
@@ -83,12 +92,12 @@ export function PointCollection(props: PointCollectionProps) {
     const addAtReason = addAtReasonOf();
     const addAt = () => {
         const at = accepted.current;
-        if (atMax) return blocked(() => t("pointset_limit_reached", {value0: formatNumber(max, language, 0)}));
-        if (!complete(at)) return blocked(() => t("point_controls_incomplete"));
+        if (atMax) return blocked(now => now.addAt() ?? "");
+        if (!complete(at)) return blocked(now => now.addAt() ?? "");
+        if (!add(at)) return;
         const empty = Array.from({length: axisCount}, () => undefined);
         accepted.current = empty;
         setValues(empty);
-        props.onAdd(at);
     };
 
     const clearReasonOf = () => props.onClear === undefined ? undefined
@@ -99,22 +108,23 @@ export function PointCollection(props: PointCollectionProps) {
         : count <= min ? t("count_at_minimum", {value0: formatNumber(min, language, 0)}) : undefined;
     const clearReason = clearReasonOf();
     const removeSelectedReason = removeSelectedReasonOf();
-    const stored = (reasonOf: () => string | undefined) => () => blocked(() => reasonOf() ?? "");
+    const reasons: Reasons = {add: addReasonOf, clear: clearReasonOf, remove: removeSelectedReasonOf, addAt: addAtReasonOf};
+    const stored = (which: keyof typeof reasons) => () => blocked(now => now[which]() ?? "");
 
     return <div className="point-collection" role="group" aria-labelledby={`${id}-label`}>
         <div className="point-collection-label" id={`${id}-label`}>{props.label}</div>
         {removal.kind === "last"
-            ? <CountSetter n={count} min={min} max={max} onPlus={() => props.onAdd()} onMinus={removal.onRemove}
+            ? <CountSetter n={count} min={min} max={max} onPlus={() => { add(); }} onMinus={removal.onRemove}
                            maxReason={addReason}/>
             : <>
                 <p className="point-collection-count" role="status">{t("pointset_point_count", {value0: formatNumber(count, language, 0), value1: formatNumber(max, language, 0)})}</p>
                 <div className="point-collection-buttons">
-                    <UnavailableButton className="btn btn-primary" reason={addReason} onPress={() => props.onAdd()} onBlockedPress={stored(addReasonOf)}>{t("pointset_add_point")}</UnavailableButton>
-                    <UnavailableButton className="btn" reason={removeSelectedReason} onPress={removal.onRemove} onBlockedPress={stored(removeSelectedReasonOf)}>{t("point_controls_remove_selected")}</UnavailableButton>
+                    <UnavailableButton className="btn btn-primary" reason={addReason} onPress={() => { add(); }} onBlockedPress={stored("add")}>{t("pointset_add_point")}</UnavailableButton>
+                    <UnavailableButton className="btn" reason={removeSelectedReason} onPress={removal.onRemove} onBlockedPress={stored("remove")}>{t("point_controls_remove_selected")}</UnavailableButton>
                 </div>
             </>}
         {(props.onClear || props.addMode) && <div className="point-collection-buttons">
-            {props.onClear && <UnavailableButton className="btn" reason={clearReason} onPress={() => props.onClear?.()} onBlockedPress={stored(clearReasonOf)}>{t("point_controls_clear_all")}</UnavailableButton>}
+            {props.onClear && <UnavailableButton className="btn" reason={clearReason} onPress={() => props.onClear?.()} onBlockedPress={stored("clear")}>{t("point_controls_clear_all")}</UnavailableButton>}
             {props.addMode && <button type="button" className="btn point-collection-mode" aria-pressed={props.addMode.on} onClick={props.addMode.onToggle}>{t("pointset_add_mode")}</button>}
         </div>}
         {entry && <div className="point-collection-entry" role="group" aria-label={t("new_point")}
@@ -139,10 +149,10 @@ export function PointCollection(props: PointCollectionProps) {
                                  setValues(next);
                              }}/>
             </div>)}
-            <UnavailableButton className="btn" reason={addAtReason} onPress={addAt} onBlockedPress={stored(addAtReasonOf)}>{t("point_controls_add_at")}</UnavailableButton>
+            <UnavailableButton className="btn" reason={addAtReason} onPress={addAt} onBlockedPress={stored("addAt")}>{t("point_controls_add_at")}</UnavailableButton>
         </div>}
         <div role="status" aria-live="polite" data-point-collection-status>
-            {pressed && <p key={pressed.count} className="point-collection-reason" data-point-collection-reason>{pressed.reason()}</p>}
+            {pressed && <p key={pressed.count} className="point-collection-reason" data-point-collection-reason>{pressed.reason(reasons)}</p>}
         </div>
     </div>;
 }

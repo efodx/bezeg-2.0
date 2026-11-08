@@ -23,8 +23,8 @@ export const CURVE_POINTS_MAX = 12;
 export const CURVE_COORDINATE_LIMIT = 1e6;
 
 export interface CurvePointCollectionActions {
-    /** Adds a point; without `at` the graph places it one unit right of the last (decision 1). */
-    onAdd: (at?: readonly number[]) => void;
+    /** Adds a point and returns its refusal reason (undefined when added); without `at` the graph places it one unit right of the last (decision 1). */
+    onAdd: (at?: readonly number[]) => string | undefined;
     /** Removes the last point. */
     onRemove: () => void;
     /** Removes point `index` (the list's per-row button). */

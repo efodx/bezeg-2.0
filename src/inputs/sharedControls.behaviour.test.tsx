@@ -75,7 +75,7 @@ function bareList(props: {withSelection: boolean; minCount: number}) {
         reset: () => view.rerender(<Wrapper key={++generation}/>),
         rows: () => document.querySelectorAll('.point-list-row').length,
         removeButtons: () => screen.getAllByRole('button', {name: /^(Odstrani|Remove)/}),
-        selectButtons: props.withSelection ? () => screen.getAllByRole('button', {name: /^P\d$/}) : undefined,
+        selectButtons: props.withSelection ? () => screen.getAllByRole('button', {name: /^Izberi: P\d$/}) : undefined,
     };
 }
 

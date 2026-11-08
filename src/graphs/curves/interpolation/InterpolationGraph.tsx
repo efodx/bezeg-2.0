@@ -213,7 +213,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     addPoint(at?: readonly [number, number]): Message | undefined {
         const points = this.state.points;
         if (points.length >= INTERPOLATION_POINTS_MAX) return {key: 'count_at_maximum', params: {value0: INTERPOLATION_POINTS_MAX}};
-        const placed = placeNewPoint(points, {at, limit: {max: INTERPOLATION_COORDINATE_LIMIT}});
+        const placed = placeNewPoint(points, {at, limit: {max: INTERPOLATION_COORDINATE_LIMIT}, distinct: true});
         const next = [...points, [placed[0], placed[1]] as const];
         const rejection = interpolationRejection(next, this.state.parameterRule);
         if (!this.tryPoints(next)) return rejection;
@@ -291,7 +291,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
                                           onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
             <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
-                                                 max={INTERPOLATION_POINTS_MAX} onAdd={() => { this.addPoint(); }}
+                                                 max={INTERPOLATION_POINTS_MAX} onAdd={() => { const refusal = this.addPoint(); return refusal && renderMessage(refusal); }}
                                                  removal={{kind: 'last', onRemove: () => this.removePoint()}}/></div>,
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                               min={-INTERPOLATION_COORDINATE_LIMIT} max={INTERPOLATION_COORDINATE_LIMIT}

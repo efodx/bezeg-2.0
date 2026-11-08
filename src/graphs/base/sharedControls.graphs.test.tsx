@@ -2,7 +2,8 @@
  * The shared behaviour test (spec acceptance 3) against real graphs through the real host: two graphs per control kind.
  * Bare controls: `inputs/sharedControls.behaviour.test.tsx`. Every case mounts a fresh graph.
  */
-import {act, screen} from '@testing-library/react';
+import {act, fireEvent, screen} from '@testing-library/react';
+import {enterNumber} from '../../inputs/testEntry';
 import {t} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
@@ -73,8 +74,11 @@ slider('interp-lagrange', 'interp_slider_position', {min: 0, max: 1, step: 0.01,
 
 count('bspline-deboor', 'bsd_point_count', {min: 3, max: 12});
 
-/** Interpolation's and Hermite's count controls are the shared point collection (remove-last); BSD keeps the plain count setter. */
-for (const id of ['interp-lagrange', 'interp-hermite'] as const) pointCollectionBehaviour(`${id} interp_point_count`, {
+/**
+ * Interpolation's count control is the shared point collection (remove-last); BSD keeps the plain count setter. Hermite shares the same
+ * wiring and has the thin check below (full behaviours run on two graphs per control kind: Interpolation and PointSet).
+ */
+for (const id of ['interp-lagrange'] as const) pointCollectionBehaviour(`${id} interp_point_count`, {
     section: 'edit', min: INTERPOLATION_POINTS_MIN, max: INTERPOLATION_POINTS_MAX,
     mount: async () => {
         const {graph} = await mountWith(id, 'interp_point_count');
@@ -98,47 +102,50 @@ pointListBehaviour('interp-lagrange point list', {
 });
 
 /** The curve workspace: the selected curve's points are the shared point collection (remove-last, typed entry) and the shared typed list. */
-async function mountSelectedCurve(id: DemonstrationId) {
+async function mountSelectedCurve(id: DemonstrationId, firstField = 'p₀, x') {
     const graph = createGraph(id);
     mountGraph(graph);
     await waitUntil(() => graph.state.initialized === true);
     const access = curveAccess(graph);
     const select = () => act(() => { access.select(); });
     select();
-    await waitUntil(() => screen.queryByRole('spinbutton', {name: 'p₀, x'}) !== null);
+    await waitUntil(() => screen.queryByRole('spinbutton', {name: firstField}) !== null);
     const points = access.points;
     // A host Reset deselects the curve; the controls are on screen again once it is selected.
-    const reset = async () => { await settle(() => graph.reset()); select(); await waitUntil(() => screen.queryByRole('spinbutton', {name: 'p₀, x'}) !== null); };
+    const reset = async () => { await settle(() => graph.reset()); select(); await waitUntil(() => screen.queryByRole('spinbutton', {name: firstField}) !== null); };
     return {graph, points, reset};
 }
 
-for (const id of ['bezier', 'curve-curvature'] as const) {
-    pointCollectionBehaviour(`${id} curve points`, {
-        section: 'edit', min: 1, max: 12,
-        entry: {min: -1e6, max: 1e6, step: 1, valid: 7, outOfRange: 1e6 + 1},
-        mount: async () => {
-            const {points, reset} = await mountSelectedCurve(id);
-            const start = points().length;
-            const group = () => document.querySelector('.point-collection') as HTMLElement;
-            const button = (key: PlainKey) => () => group().querySelector(`button[aria-label="${t(key)}"]`) as HTMLElement;
-            const plus = button('increase_count'), minus = button('decrease_count');
-            return {get add() { return plus(); }, get remove() { return minus(); }, get addAt() { return screen.getByRole('button', {name: t('point_controls_add_at')}); },
-                read: () => points().length, reset,
-                entryFields: () => ['x', 'y'].map(axis => screen.getByRole('spinbutton', {name: t('point_controls_new_axis', {value0: axis})})),
-                lastAddedAt: () => points().length > start ? [points().at(-1)!.X(), points().at(-1)!.Y()] : undefined};
-        },
+/**
+ * The curve workspace and the PH hodograph are covered by one thin wiring check each (the full behaviours run on two graphs per control
+ * kind: Interpolation, Hermite and PointSet): the control mounts, and one edit reaches the model.
+ */
+describe('curve workspace wiring of the shared point controls', () => {
+    test('interp-hermite: the collection adds a point and the typed list edits one', async () => {
+        await mountWith('interp-hermite', 'interp_point_count');
+        const rows = () => document.querySelectorAll('.point-list-row').length;
+        const start = rows();
+        const add = document.querySelector<HTMLElement>(`.point-collection button[aria-label="${t('increase_count')}"]`)!;
+        act(() => { fireEvent.click(add); });
+        expect(rows()).toBe(start + 1);
+        enterNumber(screen.getByRole('spinbutton', {name: `${t('interp_point_name', {value0: 1})}, x`}), '7');
+        expect(screen.getByRole('spinbutton', {name: `${t('interp_point_name', {value0: 1})}, x`})).toHaveAttribute('aria-valuenow', '7');
     });
-}
 
-for (const id of ['bezier', 'curve-curvature'] as const) {
-    pointListBehaviour(`${id} curve point list`, {
-        section: 'edit', min: -1e6, max: 1e6, step: 1, valid: 7, outOfRange: 1e6 + 1, minCount: 1,
-        mount: async () => {
-            const {points, reset} = await mountSelectedCurve(id);
-            const field = () => screen.getByRole('spinbutton', {name: 'p₁, x'});
-            return {get field() { return field(); }, read: () => points()[1].X(), reset,
-                rows: () => document.querySelectorAll('.point-list-row').length,
-                removeButtons: () => [...document.querySelectorAll<HTMLElement>('.point-list-remove')]};
-        },
+    test('bezier: the count control adds a point and the typed list edits one', async () => {
+        const {points} = await mountSelectedCurve('bezier');
+        const start = points().length;
+        const add = document.querySelector<HTMLElement>(`.point-collection button[aria-label="${t('increase_count')}"]`)!;
+        act(() => { fireEvent.click(add); });
+        expect(points()).toHaveLength(start + 1);
+        enterNumber(screen.getByRole('spinbutton', {name: 'p₁, x'}), '7');
+        expect(points()[1].X()).toBe(7);
     });
-}
+
+    test('ph-cubic: the hodograph list edits a w point and offers no count control', async () => {
+        const {graph} = await mountSelectedCurve('ph-cubic', 'w₀, x');
+        enterNumber(screen.getByRole('spinbutton', {name: 'w₁, x'}), '7');
+        expect(curveAccess(graph).phPoints()![1].X()).toBe(7);
+        expect(document.querySelector('.point-collection')).toBeNull();
+    });
+});

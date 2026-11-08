@@ -189,7 +189,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         const rejection = hermiteRejection({...this.exportPresetData(), points: next});
         if (rejection) return renderMessage(rejection);
         this.tryPoints(next);
-        this.refitFor([[value[0], value[1]]]);
+        this.refitFor([[value[0], value[1]], ...this.arrowTips(index)]);
         return undefined;
     }
 
@@ -234,7 +234,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     addPoint(at?: readonly [number, number]): Message | undefined {
         const {points, tangents, parameterRule} = this.state;
         if (points.length >= INTERPOLATION_POINTS_MAX) return {key: 'count_at_maximum', params: {value0: INTERPOLATION_POINTS_MAX}};
-        const placed = placeNewPoint(points, {at, limit: {max: HERMITE_COORDINATE_LIMIT}});
+        const placed = placeNewPoint(points, {at, limit: {max: HERMITE_COORDINATE_LIMIT}, distinct: true});
         const next = [...points, [placed[0], placed[1]] as const];
         // Coincident neighbours first: the Catmull-Rom tangent below is not defined for them.
         const pair = firstCoincidentPair(next, parameterRule);
@@ -334,7 +334,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
                                           onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
             <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
-                                                 max={INTERPOLATION_POINTS_MAX} onAdd={() => { this.addPoint(); }}
+                                                 max={INTERPOLATION_POINTS_MAX} onAdd={() => { const refusal = this.addPoint(); return refusal && renderMessage(refusal); }}
                                                  removal={{kind: "last", onRemove: () => this.removePoint()}}/></div>,
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                               min={-HERMITE_COORDINATE_LIMIT} max={HERMITE_COORDINATE_LIMIT}

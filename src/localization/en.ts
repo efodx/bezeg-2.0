@@ -2264,6 +2264,7 @@ export const en: Record<keyof typeof sl, string> = {
     "pointset_invalid_interval_rows": "in intervals mode both endpoints of interval k must have y = k + 1; fix the y values in the file",
     "pointset_count_fixed": "The number of points is set by the curve degree: points cannot be added, removed or cleared. Drag a point or edit its coordinates instead.",
     "point_controls_remove_named": "Remove {value0}",
+    "point_controls_select_named": "Select {value0}",
     "point_controls_remove_selected": "Remove selected point",
     "point_controls_clear_all": "Clear all points",
     "point_controls_add_at": "Add at these coordinates",

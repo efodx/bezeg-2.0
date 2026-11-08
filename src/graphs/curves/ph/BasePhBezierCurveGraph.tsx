@@ -11,6 +11,7 @@ import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {PhOffsetDisplayControls, PhOffsetParameterControls} from "../../base/controls/PhBezierCurveControls";
 import {AuxiliaryBoardLifetime} from "./AuxiliaryBoardLifetime";
 import {CurvePointControls} from "../../base/CurvePointControls";
+import {refitWhenOutside} from "../../base/points";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 
@@ -49,7 +50,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         return <>{super.workspaceEdit()}{this.workspaceBeforeHodograph()}{this.getSelectedCurve() && <div className="inspector-group">
             <h3>{t("hodograph")}</h3><p>{t("drag_points_w0_and_w1_to_change_the_shape_of_the_ph_curve")}</p>
             <HodographInputbox key={`hodograph-${this.workspaceRevision}`} attach={host => this.attachHodograph(host)}/><CurvePointControls key={`hodograph-editor-${this.workspaceRevision}`} prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
-                boards={() => [this.board, this.hodographBoard]} onEdit={() => this.boardUpdate()}/></div>}
+                boards={() => [this.board, this.hodographBoard]} onEdit={(_, to) => this.afterTypedHodographEdit(to)}/></div>}
             {this.getFirstJxgCurveIfAny() && <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
                 <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}</>;
     }
@@ -149,6 +150,21 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
         } else {
             this.pendingHodographBoundingBox = undefined;
         }
+    }
+
+    /** A typed w redraws, and refits the hodograph view only when the point lies outside it (decision 6); a drag never does. */
+    private afterTypedHodographEdit(to: readonly [number, number]): void {
+        this.boardUpdate();
+        const board = this.hodographBoard;
+        if (!board) return;
+        const [left, top, right, bottom] = board.getBoundingBox();
+        refitWhenOutside([left, top, right, bottom], [[to[0], to[1]]], () => {
+            const margin = 0.1;
+            const xMin = Math.min(left, right, to[0]), xMax = Math.max(left, right, to[0]);
+            const yMin = Math.min(top, bottom, to[1]), yMax = Math.max(top, bottom, to[1]);
+            const padX = (xMax - xMin) * margin, padY = (yMax - yMin) * margin;
+            board.setBoundingBox([xMin - padX, yMax + padY, xMax + padX, yMin - padY], true);
+        });
     }
 
     getFirstCurveAsPHBezierCurve() {

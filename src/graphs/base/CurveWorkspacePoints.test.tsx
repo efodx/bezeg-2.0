@@ -2,7 +2,7 @@
 import {act, fireEvent, screen} from '@testing-library/react';
 import {t} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from './realGraphTestHarness';
+import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
 import type {DemonstrationId} from '../../demonstrations';
 import {enterNumber} from '../../inputs/testEntry';
 import {SelectedCurveOption} from './CurveEditingFeature';
@@ -99,6 +99,34 @@ describe('curve workspace point decisions on Bezier', () => {
         act(() => { fireEvent.click(document.querySelector<HTMLElement>('.point-collection button[aria-label="' + t('increase_count') + '"]')!); });
         expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe('');
     });
+    const refuseLastDeletion = async () => {
+        const mounted = await mountSelected('bezier');
+        const {access, points, curve} = mounted;
+        const removeButtons = () => [...document.querySelectorAll<HTMLElement>('.point-list-remove')];
+        while (points().length > 1) act(() => { fireEvent.click(removeButtons()[0]); });
+        act(() => { access.deleteMode(SelectedCurveOption.DELETE_POINTS); });
+        const jxg = curve().getJxgPoints()[0];
+        const editing = access.editing();
+        vi.spyOn(editing, 'getMouseCoords').mockReturnValue(new JXG.Coords(JXG.COORDS_BY_USER, [jxg.X(), jxg.Y()], access.board()));
+        act(() => editing.handleDown({} as PointerEvent));
+        expect(access.refusal()).toBeDefined();
+        return mounted;
+    };
+    test('the shown refusal is cleared by Reset', async () => {
+        const {graph, access} = await refuseLastDeletion();
+        await settle(() => graph.reset());
+        expect(access.refusal()).toBeUndefined();
+    });
+    test('the shown refusal is cleared by selecting a preset', async () => {
+        const {graph, access} = await refuseLastDeletion();
+        await settle(() => graph.selectPreset(''));
+        expect(access.refusal()).toBeUndefined();
+    });
+    test('the shown refusal is cleared by a lesson scene restore', async () => {
+        const {access} = await refuseLastDeletion();
+        await settle(async () => access.restoreLessonScene());
+        expect(access.refusal()).toBeUndefined();
+    });
 });
 
 describe('curve workspace on the PH hodograph', () => {
@@ -108,5 +136,50 @@ describe('curve workspace on the PH hodograph', () => {
         enterNumber(field('w₁, y'), '2.5');
         expect(w()[1].Y()).toBe(2.5);
         expect(document.querySelector('.point-collection')).toBeNull();
+    });
+    test('decision 6: a typed w outside the hodograph view refits that board; inside it never moves it', async () => {
+        const {access} = await mountSelected('ph-cubic', 'w₀, x');
+        const hodograph = access.hodographBoard()!;
+        const view: [number, number, number, number] = [-50, 50, 50, -50];
+        act(() => { hodograph.setBoundingBox(view, false); });
+        enterNumber(field('w₁, y'), '2.5');
+        expect(hodograph.getBoundingBox()).toEqual(view);
+        enterNumber(field('w₁, y'), '800');
+        expect(hodograph.getBoundingBox()).not.toEqual(view);
+    });
+});
+
+describe('curve point controls dispose their board listeners', () => {
+    // The listeners the controls add to "up" (the deleted PointCoordinateEditor's disposal test, carried over): every `on` is matched by an `off`.
+    const watchUp = (board: JXG.Board) => {
+        const live = new Set<unknown>();
+        const on = board.on.bind(board);
+        const off = board.off.bind(board);
+        board.on = ((event: string, handler: unknown, context?: unknown) => { if (event === 'up') live.add(handler); return on(event, handler as never, context as never); }) as typeof board.on;
+        board.off = ((event?: string, handler?: unknown) => { if (event === 'up') live.delete(handler); return off(event as never, handler as never); }) as typeof board.off;
+        return live;
+    };
+    const mountWatched = async (id: DemonstrationId, firstField: string) => {
+        const graph = createGraph(id);
+        const mounted = mountGraph(graph);
+        await waitUntil(() => graph.state.initialized === true);
+        const access = curveAccess(graph);
+        const live = watchUp(access.board());
+        act(() => { access.select(); });
+        await waitUntil(() => screen.queryByRole('spinbutton', {name: firstField}) !== null);
+        return {graph, mounted, live};
+    };
+    test.each([['bezier', 'p₀, x'], ['ph-cubic', 'w₀, x']] as const)('%s: unmounting leaves no listener behind', async (id, firstField) => {
+        const {mounted, live} = await mountWatched(id, firstField);
+        expect(live.size).toBeGreaterThan(0);
+        mounted.view.unmount();
+        expect(live.size).toBe(0);
+    });
+    test.each([['bezier', 'p₀, x'], ['ph-cubic', 'w₀, x']] as const)('%s: a replaced scene does not accumulate listeners', async (id, firstField) => {
+        const {graph, live} = await mountWatched(id, firstField);
+        const before = live.size;
+        await settle(() => graph.reset());
+        await waitUntil(() => screen.queryByRole('spinbutton', {name: firstField}) !== null || live.size <= before);
+        expect(live.size).toBeLessThanOrEqual(before);
     });
 });

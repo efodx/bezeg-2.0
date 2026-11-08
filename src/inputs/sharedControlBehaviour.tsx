@@ -437,9 +437,12 @@ export function pointListBehaviour(name: string, spec: PointListSpec) {
                 const handle = await spec.mount();
                 const before = handle.rows();
                 expect(before).toBeGreaterThan(spec.minCount!);
-                fireEvent.click(handle.removeButtons!()[0]);
+                const last = handle.removeButtons!().length - 1;
+                fireEvent.click(handle.removeButtons!()[last]);
                 await flush();
                 expect(handle.rows()).toBe(before - 1);
+                // The removed row's button is gone: focus must land on a remaining remove button, not drop to the body.
+                expect(handle.removeButtons!()).toContain(document.activeElement);
             });
         } else {
             it.skip('limit and refusal at the fewest rows (skipped: this list has no count bound)', () => {});
