@@ -38,4 +38,13 @@ module.exports = [
         lessonQuote: 'Poišči točko, v kateri se stikata barvi obeh odsekov.',
         discreteReason: null,
     },
+    {
+        id: 'bspline-nurbs',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Utež 3', step: 0.05},
+        // The poster is the NURBS circle (corner weights sqrt(2)/2, the others 1). The lesson suggests the second weight, but its field shows the rounded 0,70711, so a sweep could not return exactly to the poster; weight 3 is an exact 1. It goes to 2.5 and back: weight 3 belongs to the top point (0,1), and as it rises the two arcs beside it flatten inward off the unit circle (the dashed circle shows the gap) and the deviation E grows (handler 9).
+        path: [1, 2.5, 1],
+        lessonQuote: 'Spremeni utež in primerjaj odmik \\(E\\) z vrednostjo pred spremembo.',
+        discreteReason: null,
+    },
 ];
