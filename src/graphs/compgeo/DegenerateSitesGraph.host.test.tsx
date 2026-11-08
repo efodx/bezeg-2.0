@@ -8,6 +8,7 @@ import {VORONOI_EXAMPLE, VORONOI_PRESET_KEY, voronoiCollection} from './voronoiP
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {serializePointSetModel} from '../../compgeo/pointSetModel';
+import {enterNumber} from '../../inputs/testEntry';
 import {incircleValue} from '../../compgeo/predicates';
 import {setLanguage, t} from '../../localization';
 
@@ -265,11 +266,11 @@ describe('keyboard and numeric entry reach the on-circle position (C5)', () => {
         expect(four('incircle')).toContain('D = 2');
         act(() => { fireEvent.keyDown(boardContainer(), {key: 'ArrowDown'}); });
         expect(four('incircle')).toContain('D = 0');
-        const field = document.querySelector(`input[aria-label="${t('pointset_point_y', {value0: 3})}"]`) as HTMLInputElement;
-        act(() => { fireEvent.change(field, {target: {value: '2'}}); });
+        const field = screen.getByLabelText('P3, y');
+        act(() => { enterNumber(field, '2'); });
         expect(graph.model.points[2]).toEqual({x: 1, y: 2});
         expect(four('incircle')).toContain('D = 2');
-        act(() => { fireEvent.change(field, {target: {value: '1'}}); });
+        act(() => { enterNumber(field, '1'); });
         expect(four('incircle')).toContain('D = 0');
         expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.square.points);
     });

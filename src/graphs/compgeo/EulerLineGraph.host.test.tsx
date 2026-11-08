@@ -7,6 +7,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -198,7 +199,7 @@ test('vertices move by the board and the numeric fields; the example becomes cus
     const c = named(graph, 'P3')[0] as unknown as JXG.Point;
     act(() => { c.moveTo([2.4, 4.6], 0); drag(c); });
     expect(graph.model.points[2]).toEqual({x: 2, y: 5});
-    fireEvent.change(screen.getByLabelText('Točka 3: x'), {target: {value: '1'}});
+    enterNumber(screen.getByLabelText('P3, x'), '1');
     expect(graph.model.points[2]).toEqual({x: 1, y: 5});
     expect(graph.exampleId).toBeUndefined();
     expect((document.querySelector('[data-euler-example]') as HTMLSelectElement).value).toBe('custom');

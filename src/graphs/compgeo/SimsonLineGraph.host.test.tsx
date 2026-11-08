@@ -8,6 +8,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {SIMSON_OFFSETS} from '../../compgeo/simsonLineModel';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -417,7 +418,7 @@ test('the examples set vertices, mode and their point fields; a custom vertex ed
     act(() => { graph.loadExample('grid-off-circle'); });
     expect(statusOf()).toBe('not-collinear');
     expect(text('[data-simson-readout="power"]')).toContain('−2');
-    fireEvent.change(screen.getByLabelText('Točka 3: x'), {target: {value: '1'}});
+    enterNumber(screen.getByLabelText('P3, x'), '1');
     expect(graph.model.points[2]).toEqual({x: 1, y: 5});
     expect(graph.exampleId).toBeUndefined();
     expect(field('[data-simson-example]').value).toBe('custom');

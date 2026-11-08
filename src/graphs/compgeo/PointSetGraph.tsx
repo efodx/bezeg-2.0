@@ -1,10 +1,12 @@
 import React from "react";
+import JXG from "jsxgraph";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {LessonAction, UnsupportedLessonActionError} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
+import {constrainPoint, placeNewPoint, pointKeyCommand, refitWhenOutside, stepPoint} from "../base/points";
 import {
     addInterval, addPoint, addSegment, clearPoints, DEFAULT_INTERVAL_LIMIT, DEFAULT_POINT_LIMIT, DEFAULT_SEGMENT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard,
     intervalLetter, intervalRow, movePoint, nudgePoint, removeInterval,
@@ -98,10 +100,6 @@ interface DrawnScene {
     /** Segments mode: one text per segment, at its midpoint. */
     readonly labels: readonly JXG.GeometryElement[];
 }
-
-const ARROW_STEPS: Readonly<Record<string, readonly [number, number]>> = {
-    ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
-};
 
 export class PointSetGraph<Overlay extends string = never> extends BaseGraph<PointSetGraphState, PointSetModel> {
     private drawn?: DrawnScene;
@@ -201,8 +199,39 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     addPointAt(point: GridPoint): boolean {
         if (this.refuseFixedCount()) return false;
         const added = this.apply(addPoint(this.model, point, this.options));
-        if (added) this.selected = this.model.points.length - 1;
+        if (added) {
+            this.selected = this.model.points.length - 1;
+            this.refitFor(point);
+        }
         return added;
+    }
+
+    /** Where Add point puts the next point when no coordinates are given: one grid unit right of the last, else the origin (decision 1). */
+    private placedPoint(): GridPoint {
+        const [x, y] = placeNewPoint(this.model.points.map(p => [p.x, p.y] as const), {limit: {max: this.coordinateLimit}});
+        return {x, y};
+    }
+
+    /**
+     * View policy (decision 6): after an accepted add or typed edit the view refits, with the graph's own fit, when the new point lies
+     * outside it; a point inside never moves the view. A drag or key never calls this.
+     */
+    private refitFor(point: GridPoint): void {
+        if (!this.hasBoard) return;
+        const here = gridToBoard(point, this.model.gridStepExponent);
+        const [left, top, right, bottom] = this.board.getBoundingBox();
+        refitWhenOutside([left, top, right, bottom], [[here.x, here.y]], () => this.fitToVisiblePoints([[here.x, here.y]]));
+    }
+
+    /** The grid point inside the graph's coordinate range nearest to `point` (a drag or key stops silently at the limit, decisions 3 and 7). */
+    private clampToRange(point: GridPoint): GridPoint {
+        const [x, y] = constrainPoint([point.x, point.y], {bounds: this.rangeBounds()});
+        return {x, y};
+    }
+
+    private rangeBounds(): {x: readonly [number, number]; y: readonly [number, number]} {
+        const limit = this.coordinateLimit;
+        return {x: [-limit, limit], y: [-limit, limit]};
     }
 
     /** Adds the grid point nearest to a board position. */
@@ -248,14 +277,23 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return removed;
     }
 
+    /** A typed edit of a point (list fields): an accepted one refits the view when the point lands outside it. */
     movePointTo(index: number, point: GridPoint): boolean {
-        return this.apply(movePoint(this.model, index, point, this.options));
+        const moved = this.apply(movePoint(this.model, index, point, this.options));
+        if (moved) this.refitFor(this.model.points[index]);
+        return moved;
     }
 
+    /** The keyboard nudge, by whole grid steps; it behaves like a drag: it stops silently at the coordinate limit and never refits. */
     nudgeSelected(dx: number, dy: number): boolean {
+        const index = this.selected;
+        if (index === undefined) return false;
         // An interval endpoint moves along x only; a vertical key changes nothing (and shows no notice).
         if (this.model.mode === "intervals" && dx === 0) return false;
-        return this.selected !== undefined && this.apply(nudgePoint(this.model, this.selected, dx, dy, this.options));
+        if (!Number.isInteger(dx) || !Number.isInteger(dy)) return this.apply(nudgePoint(this.model, index, dx, dy, this.options));
+        const p = this.model.points[index];
+        const [x, y] = stepPoint([p.x, p.y], [dx, dy], {bounds: this.rangeBounds()});
+        return this.apply(movePoint(this.model, index, {x, y}, this.options));
     }
 
     removeSelected(): boolean {
@@ -526,23 +564,26 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     private readonly onKeyDown = (event: KeyboardEvent): void => {
-        if (event.altKey || event.ctrlKey || event.metaKey || this.graphInteractionLocked) return;
-        const step = ARROW_STEPS[event.key];
-        if (step) {
-            if (this.selected !== undefined) {
-                event.preventDefault();
-                this.nudgeSelected(step[0], step[1]);
-            }
-        } else if (event.key === "Escape") {
+        if (this.graphInteractionLocked) return;
+        // Intervals move along x only; Shift is the big step (ten grid steps).
+        const command = pointKeyCommand(event, {step: 1, axes: this.model.mode === "intervals" ? "x" : "xy"});
+        if (!command) return;
+        if (command.kind === "move") {
+            if (this.selected === undefined) return;
+            event.preventDefault();
+            this.nudgeSelected(command.dx, command.dy);
+        } else if (command.kind === "back") {
+            // Escape cancels a waiting first endpoint, otherwise it deselects.
             if (this.pending !== undefined) {
                 event.preventDefault();
                 this.cancelPending();
-            }
-        } else if (event.key === "Delete" || event.key === "Backspace") {
-            if (this.selected !== undefined) {
+            } else if (this.selected !== undefined) {
                 event.preventDefault();
-                this.removeSelected();
+                this.select(undefined);
             }
+        } else if (this.selected !== undefined && !this.fixesPointCount()) {
+            event.preventDefault();
+            this.removeSelected();
         }
     };
 
@@ -612,7 +653,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.applyClipFineGrid();
         const model = this.model;
         const exponent = model.gridStepExponent;
-        const snapped = snapToGrid(point.X(), point.Y(), exponent);
+        // A drag stops silently at the coordinate limit (decision 3): the stored point is clamped, never refused with a notice.
+        const snapped = this.clampToRange(snapToGrid(point.X(), point.Y(), exponent));
         const result = movePoint(model, index, snapped, this.options);
         // The edit decides the stored point (an interval endpoint keeps its row), so the board follows its result.
         const stored = result.ok ? result.model.points[index] : model.points[index];
@@ -824,7 +866,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     private readonly actions: PointSetControlActions = {
-        addPoint: point => {this.addPointAt(point);},
+        addPoint: point => {this.addPointAt(point ?? this.placedPoint());},
         addSegment: () => {this.addDefaultSegment();},
         addInterval: () => {this.addDefaultInterval();},
         removeInterval: k => {this.removeIntervalAt(k);},

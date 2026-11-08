@@ -7,6 +7,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {intervalLetter, PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -157,7 +158,8 @@ test('arrow keys nudge horizontally; vertical arrows are no-ops with no notice; 
     expect(graph.model.points[2]).toEqual({x: 1024, y: 2});
     act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
     expect(graph.model.points[2]).toEqual({x: 1024, y: 2});
-    expect(screen.getByText(/izven dovoljenega območja: koordinate smejo biti največ 1024/)).toBeInTheDocument();
+    // A key stops silently at the coordinate limit (decision 7): no notice.
+    expect(graph.notice).toBeUndefined();
     expectBoardMatchesModel(graph);
 });
 
@@ -186,13 +188,13 @@ test('numeric lo and hi fields move the endpoint and the board follows; a crosse
     const graph = new IntervalGraph();
     mount(graph);
     load(graph, ivs([0, 4], [-3, 1]));
-    act(() => { fireEvent.change(screen.getByLabelText('Interval b: desno krajišče'), {target: {value: '7'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Interval b: desno krajišče'), '7'); });
     expect(graph.model.points[3]).toEqual({x: 7, y: 2});
     expectBoardMatchesModel(graph);
-    act(() => { fireEvent.change(screen.getByLabelText('Interval a: levo krajišče'), {target: {value: '6'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Interval a: levo krajišče'), '6'); });
     expect(graph.model.points[0]).toEqual({x: 6, y: 1});
-    expect(screen.getByLabelText('Interval a: levo krajišče')).toHaveValue(4);
-    expect(screen.getByLabelText('Interval a: desno krajišče')).toHaveValue(6);
+    expect(screen.getByLabelText('Interval a: levo krajišče')).toHaveValue('4');
+    expect(screen.getByLabelText('Interval a: desno krajišče')).toHaveValue('6');
     expectBoardMatchesModel(graph);
 });
 

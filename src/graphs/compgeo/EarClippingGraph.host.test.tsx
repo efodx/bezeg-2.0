@@ -296,7 +296,7 @@ test('the base closed-polygon checkbox is not offered', () => {
     const graph = new Observed();
     mount(graph);
     expect(document.querySelector('.pointset-inspector')).not.toBeNull();
-    const labels = Array.from(document.querySelectorAll('.pointset-check')).map(label => label.textContent ?? '');
+    const labels = Array.from(document.querySelectorAll('.bool-field')).map(label => label.textContent ?? '');
     expect(labels.length).toBeGreaterThan(0);
     expect(labels.some(text => text.includes('Sklenjen večkotnik'))).toBe(false);
 });

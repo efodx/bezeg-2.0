@@ -748,23 +748,28 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         this.board.setBoundingBox(box ?? [...view], this.equalAxisUnits);
     }
 
+    /**
+     * The host Fit: fits the view to the visible points on the board plus `extra` (points not drawn yet), with the graph's `fitView`.
+     * JSXGraph's zoomAllPoints depends on the current zoom, so this fits from the points and canvas size alone.
+     */
+    protected fitToVisiblePoints(extra: readonly [number, number][] = []): void {
+        if (!this.hasBoard) return;
+        const points: [number, number][] = extra.map(([x, y]) => [x, y]);
+        for (const object of this.board.objectsList) {
+            if (JXG.isPoint(object) && object.visPropCalc.visible) points.push([object.coords.usrCoords[1], object.coords.usrCoords[2]]);
+        }
+        // setBoundingBox re-reads the container size, so fit against the same size.
+        const {width, height} = JXG.getDimensions(this.board.container, document);
+        const box = this.fitView(points, parseFloat(String(width)), parseFloat(String(height)));
+        if (box) {
+            this.board.setBoundingBox(box, this.equalAxisUnits, 'update');
+            this.board.applyZoom();
+        }
+    }
+
     private navigateBoard(action: string) {
         if (!this.hasBoard) return;
-        if (action === 'fit') {
-            // JSXGraph's zoomAllPoints depends on the current zoom, so fit from the points and canvas size alone.
-            const points: [number, number][] = [];
-            for (const object of this.board.objectsList) {
-                if (JXG.isPoint(object) && object.visPropCalc.visible) points.push([object.coords.usrCoords[1], object.coords.usrCoords[2]]);
-            }
-            // setBoundingBox re-reads the container size, so fit against the same size.
-            const {width, height} = JXG.getDimensions(this.board.container, document);
-            const box = this.fitView(points, parseFloat(String(width)), parseFloat(String(height)));
-            if (box) {
-                this.board.setBoundingBox(box, this.equalAxisUnits, 'update');
-                this.board.applyZoom();
-            }
-            return;
-        }
+        if (action === 'fit') { this.fitToVisiblePoints(); return; }
         if (action === "in") { this.board.zoomIn(); return; }
         if (action === "out") { this.board.zoomOut(); return; }
         const [left, top, right, bottom] = this.board.getBoundingBox();

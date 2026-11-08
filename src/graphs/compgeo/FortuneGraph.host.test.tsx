@@ -599,9 +599,9 @@ test('C-5: Add at twelve sites is refused with a visible notice in both language
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'})); });
     expect(graph.model.points).toHaveLength(12);
     expect(sitePoints(graph)).toHaveLength(12);
-    expect(document.querySelector('[data-pointset-notice]')!.textContent).toContain('Doseženo je največje število točk (12)');
+    expect(document.querySelector('[data-point-collection-reason]')!.textContent).toContain('Doseženo je največje število točk (12)');
     act(() => { setLanguage('en'); });
-    expect(document.querySelector('[data-pointset-notice]')!.textContent).toContain('maximum number of points (12)');
+    expect(document.querySelector('[data-point-collection-reason]')!.textContent).toContain('maximum number of points (12)');
 });
 
 test('C-2: importPresetData of a shorter set with a stale step 999 clamps the stored step to the new last step', () => {

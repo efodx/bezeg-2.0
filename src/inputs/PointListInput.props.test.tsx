@@ -1,5 +1,5 @@
 import React from 'react';
-import {fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {PointListInput, SelectablePointButton} from './PointListInput';
 import {PointCollection} from './PointCollection';
 import {setLanguage} from '../localization';
@@ -119,6 +119,22 @@ describe('PointCollection', () => {
         expect(remove()).toHaveAttribute('aria-disabled', 'true');
         fireEvent.click(remove());
         expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe('Najmanj 1.');
+    });
+
+    test('a pressed reason is shown again in the new language after a switch', () => {
+        const props = {label: 'p', min: 0, max: 3, count: 3, onAdd: () => undefined, removal: {kind: 'selected', onRemove: () => undefined, hasSelection: false} as const};
+        render(<PointCollection {...props}/>);
+        fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'}));
+        const reason = () => document.querySelector('[data-point-collection-reason]')?.textContent;
+        const slovenian = reason();
+        expect(slovenian).toBeTruthy();
+        act(() => setLanguage('en'));
+        try {
+            expect(reason()).toBeTruthy();
+            expect(reason()).not.toBe(slovenian);
+        } finally {
+            act(() => setLanguage('sl'));
+        }
     });
 
     test('Clear all is available only with points and no lower bound; otherwise it says why', () => {

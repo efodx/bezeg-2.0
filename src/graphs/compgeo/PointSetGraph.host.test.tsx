@@ -6,6 +6,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
+import {blurNumber, enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -151,7 +152,7 @@ test('Delete removes the selected point from model and board, and the Remove but
     expect(graph.model.points).toEqual([before[0], ...before.slice(2)]);
     expect(objects(graph, 'point')).toHaveLength(before.length - 1);
     expect(graph.selectedIndex).toBe(1);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Odstrani'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Odstrani izbrano točko'})); });
     expect(graph.model.points).toHaveLength(before.length - 2);
     expect(objects(graph, 'point')).toHaveLength(before.length - 2);
 });
@@ -161,7 +162,7 @@ test('Clear removes every point and edge from the board', () => {
     mount(graph);
     load(graph, model([[0, 0], [2, 0], [1, 2]], {mode: 'polygon', closed: true}));
     expect(objects(graph, 'segment')).toHaveLength(3);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Počisti'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Počisti vse točke'})); });
     expect(graph.model.points).toEqual([]);
     expect(graph.model.closed).toBe(false);
     expect(objects(graph, 'point')).toHaveLength(0);
@@ -172,9 +173,9 @@ test('numeric Add point appends exactly the typed grid point', () => {
     const graph = new Observed();
     mount(graph);
     const before = graph.model.points.length;
-    fireEvent.change(screen.getByLabelText('Nova točka: x'), {target: {value: '7'}});
-    fireEvent.change(screen.getByLabelText('Nova točka: y'), {target: {value: '-4'}});
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'})); });
+    enterNumber(screen.getByLabelText('Nova točka, x'), '7');
+    enterNumber(screen.getByLabelText('Nova točka, y'), '-4');
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj na koordinatah'})); });
     expect(graph.model.points).toHaveLength(before + 1);
     expect(graph.model.points.at(-1)).toEqual({x: 7, y: -4});
     expect(pointCoordinates(graph).at(-1)).toEqual([7, -4]);
@@ -183,11 +184,11 @@ test('numeric Add point appends exactly the typed grid point', () => {
 test('the numeric list edits a coordinate and the board follows', () => {
     const graph = new Observed();
     mount(graph);
-    fireEvent.change(screen.getByLabelText('Točka 1: x'), {target: {value: '4'}});
+    enterNumber(screen.getByLabelText('P1, x'), '4');
     expect(graph.model.points[0].x).toBe(4);
     expect(pointCoordinates(graph)[0][0]).toBe(4);
     // a non-integer is not stored
-    fireEvent.change(screen.getByLabelText('Točka 1: y'), {target: {value: '1.5'}});
+    enterNumber(screen.getByLabelText('P1, y'), '1.5');
     expect(graph.model.points[0].y).toBe(DEFAULT_POINT_SET_MODEL.points[0].y);
 });
 
@@ -195,11 +196,10 @@ test('a refused or unfinished coordinate draft resets to the stored value on blu
     const graph = new Observed();
     mount(graph);
     const stored = graph.model.points[0].x;
-    const field = screen.getByLabelText('Točka 1: x') as HTMLInputElement;
+    const field = screen.getByLabelText('P1, x') as HTMLInputElement;
     for (const typed of ['999999999', '1.5', '']) {
-        fireEvent.change(field, {target: {value: typed}});
-        fireEvent.blur(field);
-        expect(field.value).toBe(String(stored));
+        blurNumber(field, typed);
+        expect(field.value).toBe(String(stored).replace('-', '−'));
         expect(graph.model.points[0].x).toBe(stored);
         expect(pointCoordinates(graph)[0][0]).toBe(stored);
     }
@@ -213,9 +213,11 @@ test('at the point limit Add shows a visible message and adds nothing', () => {
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'})); });
     expect(graph.model.points).toHaveLength(3);
     expect(objects(graph, 'point')).toHaveLength(3);
-    expect(document.querySelector('[data-pointset-notice]')!.textContent).toContain('Doseženo je največje število točk (3)');
+    expect(document.querySelector('[data-point-collection-reason]')!.textContent).toContain('Doseženo je največje število točk (3)');
+    // The pressed reason is a sentence in the language it was announced in; pressing again after the switch gives the English one.
     act(() => { setLanguage('en'); });
-    expect(document.querySelector('[data-pointset-notice]')!.textContent).toContain('maximum number of points (3)');
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Add point'})); });
+    expect(document.querySelector('[data-point-collection-reason]')!.textContent).toContain('maximum number of points (3)');
 });
 
 test('a bow-tie is reported as not simple in words, a square as simple', () => {
@@ -277,7 +279,7 @@ test('Reset returns model, selection, Add mode and overlays to the default scene
     expect(graph.overlayShown('grid')).toBe(false);
     expect(objects(graph, 'grid')).toHaveLength(0);
     expect(addModeButton().getAttribute('aria-pressed')).toBe('false');
-    expect(screen.getByText('Nobena točka ni izbrana.')).toBeInTheDocument();
+    expect(document.querySelector('[data-pointset-selection]')?.textContent).toBe('Nobena točka ni izbrana.');
 });
 
 test('the grid overlay follows its switch, and a subclass overlay is drawn from the model through the hook', () => {
@@ -366,7 +368,7 @@ test('a language switch updates the controls and the board label and keeps model
     expect(container(graph).getAttribute('aria-label')).toContain('Points on a grid');
     expect(screen.getByRole('button', {name: 'Add point'})).toBeInTheDocument();
     expect(screen.getByText('Selected point: 3')).toBeInTheDocument();
-    expect(within(document.body).getByLabelText('Point 1: x')).toBeInTheDocument();
+    expect(within(document.body).getByLabelText('P1, x')).toBeInTheDocument();
     expect(graph.model).toBe(before.model);
     expect(graph.selectedIndex).toBe(2);
     expect(pointCoordinates(graph)).toEqual(before.coords);

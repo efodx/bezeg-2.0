@@ -8,6 +8,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {GLIDER_EXCLUSION_DEG, gliderGapCentres} from '../../compgeo/inscribedAngleModel';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -237,7 +238,7 @@ test('a vertex edit moves the circle and keeps P on it; an edit that makes the e
     const graph = new Observed();
     mount(graph);
     const centreBefore = [named(graph, 'O').find(o => o.name === 'O')!.X!(), named(graph, 'O').find(o => o.name === 'O')!.Y!()];
-    fireEvent.change(screen.getByLabelText('Točka 3: x'), {target: {value: '3'}});
+    enterNumber(screen.getByLabelText('P3, x'), '3');
     expect(graph.model.points[2]).toEqual({x: 3, y: 5});
     expect(graph.exampleId).toBeUndefined();
     const o = named(graph, 'O').find(object => object.name === 'O')!;

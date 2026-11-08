@@ -18,7 +18,7 @@ const controlExemptions = [
         files: [
             'src/graphs/compgeo/BezierClippingControls.tsx', 'src/graphs/compgeo/EulerLinePanel.tsx', 'src/graphs/compgeo/InscribedAnglePanel.tsx',
             'src/graphs/compgeo/InversionPanel.tsx', 'src/graphs/compgeo/NotablePointsPanel.tsx', 'src/graphs/compgeo/PointInPolygonGraph.tsx',
-            'src/graphs/compgeo/PointSetControls.tsx', 'src/graphs/compgeo/SimsonLinePanel.tsx', 'src/graphs/compgeo/TriangulationControls.tsx',
+            'src/graphs/compgeo/SimsonLinePanel.tsx', 'src/graphs/compgeo/TriangulationControls.tsx',
             'src/graphs/compgeo/VoronoiControls.tsx',
         ],
         reason: 'unmigrated: compgeo sweep (task 3)',

@@ -51,7 +51,7 @@ const button = (action: string) => document.querySelector(`button[data-action="$
 const click = (action: string) => act(() => { fireEvent.click(button(action)); });
 const siteButton = (site: number) => document.querySelector(`button[data-site="${site}"]`) as HTMLButtonElement;
 const triangleButton = (index: number) => document.querySelector(`button[data-triangle="${index}"]`) as HTMLButtonElement;
-const overlaySwitch = () => [...document.querySelectorAll('label.pointset-check')].find(l => /Dualnost|Duality/.test(l.textContent ?? ''))!.querySelector('input') as HTMLInputElement;
+const overlaySwitch = () => document.getElementById([...document.querySelectorAll<HTMLLabelElement>('label.bool-field-label')].find(l => /Dualnost|Duality/.test(l.textContent ?? ''))!.htmlFor) as HTMLInputElement;
 const live = () => document.querySelector('[data-voronoi-live]')?.textContent ?? '';
 const sitePoints = (graph: Observed) => objects(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
 const trigger = (target: object, name: string) => (target as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers([name], []);
@@ -574,7 +574,7 @@ test('a live language switch re-renders the panel and the query text', () => {
     expect(readout('sites')).toBe('Sites: 7');
     expect(part('query-nearest')).toContain('P6');
     expect(part('query-nearest')).not.toContain('Najbližje');
-    expect(overlaySwitch().closest('label')?.textContent).toContain('Duality');
+    expect(document.querySelector(`label[for="${overlaySwitch().id}"]`)?.textContent).toContain('Duality');
 });
 
 test('unmount and a scene change leave no objects or listeners (the graph schedules no timers)', async () => {

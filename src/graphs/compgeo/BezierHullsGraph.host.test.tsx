@@ -9,7 +9,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {curvePairRun, curvePairStateAt, curvePieces, pieceHull} from '../../compgeo/curvePairSubdivision';
 import {PointSetModel} from '../../compgeo/pointSetModel';
-import {setLanguage, t} from '../../localization';
+import {setLanguage} from '../../localization';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -451,16 +451,15 @@ test('the pieces overlay has its own switch and Preset key; the inspector rows r
     const graph = new Observed();
     mount(graph);
     expect(document.querySelectorAll('input[type="checkbox"]')).toHaveLength(4);
-    const rows = [...document.querySelectorAll('.pointset-row')];
-    expect(rows.map(r => r.querySelector('button span[aria-hidden]')?.textContent)).toEqual(['A_0', 'A_1', 'A_2', 'B_0', 'B_1', 'B_2']);
-    expect(rows[5].querySelector('button .visually-hidden')?.textContent).toBe(t('pointset_select_point', {value0: 'B_2'}));
-    expect(rows[5].querySelector('button .visually-hidden')?.textContent).toBe('Izberi točko B_2');
+    const rows = [...document.querySelectorAll('.point-list-row')];
+    expect(rows.map(r => r.querySelector('button')?.textContent)).toEqual(['A_0', 'A_1', 'A_2', 'B_0', 'B_1', 'B_2']);
+    expect(rows[5].getAttribute('aria-label')).toBe('B_2');
     expect(rows.map(r => [...r.querySelectorAll('input')].map(i => i.getAttribute('aria-label') ?? document.querySelector(`label[for="${i.id}"]`)?.textContent)).flat()
-        .slice(0, 4)).toEqual(['Točka A_0: x', 'Točka A_0: y', 'Točka A_1: x', 'Točka A_1: y']);
+        .slice(0, 4)).toEqual(['A_0, x', 'A_0, y', 'A_1, x', 'A_1, y']);
     act(() => { graph.select(4); });
     expect(document.querySelector('[data-pointset-selection]')?.textContent).toBe('Izbrana točka: B_1');
     act(() => { setLanguage('en'); });
-    expect(document.querySelector('.pointset-row:nth-child(3) button .visually-hidden')?.textContent).toBe('Select point A_2');
+    expect(document.querySelectorAll('.point-list-row')[2].getAttribute('aria-label')).toBe('A_2');
     expect(graph.presetCollection().key).toBe('compgeo-bezier-hulls');
     expect(graph.presetCollection().checkGraphState?.({initialized: true, overlays: {pieces: true}})).toBeUndefined();
 });

@@ -7,6 +7,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -159,7 +160,8 @@ test('arrow keys nudge a selected endpoint by one grid step, the board follows, 
     expect(graph.model.points[2]).toEqual({x: 1024, y: 0});
     act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
     expect(graph.model.points[2]).toEqual({x: 1024, y: 0});
-    expect(screen.getByText(/izven dovoljenega območja: koordinate smejo biti največ 1024/)).toBeInTheDocument();
+    // A key stops silently at the coordinate limit (decision 7): no notice.
+    expect(graph.notice).toBeUndefined();
     expectBoardMatchesModel(graph);
 });
 
@@ -190,7 +192,7 @@ test('numeric endpoint fields grouped per segment move the endpoint and the boar
     mount(graph);
     load(graph, segs([0, 0], [4, 2], [-3, 1], [1, -5]));
     const field = screen.getByLabelText('Daljica s2, krajišče 2: y');
-    act(() => { fireEvent.change(field, {target: {value: '7'}}); });
+    act(() => { enterNumber(field, '7'); });
     expect(graph.model.points[3]).toEqual({x: 1, y: 7});
     expectBoardMatchesModel(graph);
 });
