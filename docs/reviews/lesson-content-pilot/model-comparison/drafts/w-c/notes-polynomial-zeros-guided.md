@@ -1,0 +1,1 @@
+Hook: "Zakaj pri eni ničli graf seka, pri drugi se le dotakne?" (dobiček). Steps: 5 (dropped y-intercept, end behavior, second derivative). Unconfirmed, since src and the terms table were not read: ničla labels (−2, 1, −3), "odvod" and "druga krivulja" labels, drag-to-merge gesture, merge refusal reason, multiplicity display, derivative following drags.

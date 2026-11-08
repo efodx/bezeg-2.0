@@ -1,0 +1,1 @@
+Hook: zakaj graf pri eni ničli prečka os, pri drugi se je le dotakne, in ali to vidiš iz enačbe? 7 steps; dropped p'', x=-1, y-intercept, ends. Unconfirmed: inspector/Odčitki screen side (named by label only), merge notice placement, derivative staying visible after choosing Primer, drag reliably hitting the 0,1 grid point for a merge.

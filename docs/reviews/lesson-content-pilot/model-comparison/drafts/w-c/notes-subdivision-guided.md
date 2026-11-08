@@ -1,0 +1,1 @@
+Hook: can a Bézier curve be cut in two without changing shape? Five steps; step 4 has a calculation frame. Step 1 prediction resolved in step 4; 'Da' answer in step 5. Unconfirmed: 'drsnik t' and 'Subdiviziraj' locations (labels only); whether step 5's second cut starts from the original curve; 'de Casteljauja' spelling and 'vrstica' (terms table not read).

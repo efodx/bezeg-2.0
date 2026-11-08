@@ -1,0 +1,1 @@
+Hook: zakaj graf pri eni ničli seka os, pri drugi se je le dotakne; ali se vidi iz zapisa. 5 korakov (r0: 7). Opuščeni: p'', x=-1, presečišče z osjo y. Neprepričan: "izpis desno od grafa" (lokacija izpisa ničel), odvod kot "druga krivulja".

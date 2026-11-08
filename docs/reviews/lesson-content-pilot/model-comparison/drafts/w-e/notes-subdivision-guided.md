@@ -1,0 +1,1 @@
+Hook: "Ali lahko krivuljo razrežeš na dva Bézierjeva kosa brez spremembe oblike?" 5 steps, 3+2 frames pattern kept. Unconfirmed: gumb Subdiviziraj "pod grafom" location; cut already applied by scene (student does not press); "oranžni del" colour; final challenge (re-cut) needs slider after cut.

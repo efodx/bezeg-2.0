@@ -1,0 +1,1 @@
+Hook: which end bends more, and the number that measures it. Steps: 5 (hook, circle, κ calc, S-curve, payoff with challenge). Unconfirmed: readout showing κ and R, T/N labels, S-curve scene, left/right orientation, terms table. Fixed r0: N-into-bend claim, parabola step (false middle-point claim), unbounded max-curvature goal. Math hand-checked; src unread.
