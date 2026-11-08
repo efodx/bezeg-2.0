@@ -77,8 +77,11 @@ test('hover and rational weight selection change the marker outline and restore'
     for (const marker of ordinary) expect(marker.fill).toBe(COLORS.controlPoint);
 
     // Hover: an unselected point takes the highlight outline, and leaving restores the normal outline.
-    const target = ordinary[0];
-    await page.mouse.move(target.screenX, target.screenY);
+    // Read the screen position only after the board is in view, and approach in steps so JSXGraph sees pointer movement.
+    await page.locator('#jgbox').scrollIntoViewIfNeeded();
+    const target = (await markers(page)).find(m => m.id === ordinary[0].id);
+    await page.mouse.move(target.screenX - 40, target.screenY - 40);
+    await page.mouse.move(target.screenX, target.screenY, {steps: 8});
     await expect.poll(async () => (await markers(page)).find(m => m.id === target.id).stroke).toBe(COLORS.selectedOutline);
     const hovered = (await markers(page)).find(m => m.id === target.id);
     expect(hovered.fill).toBe(COLORS.selectedFill);
