@@ -4,7 +4,7 @@ Replaces the numbered `handler-handoff-<n>.md` notes (the last was [handoff 5](h
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`. Run state: **stopped** by the owner for a restart on the parallel plan (2026-11-08). No successor was launched.
+- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`. Run state: **active**, restarted by the supervisor on the parallel plan (2026-11-08); Wave 1 in progress.
 - **Task 2 (shared point controls)** on `master`: `f0548e4d` P1 point rules (`src/graphs/base/points/`), `10b37815` P2 `PointCollection` and extended `PointListInput` (`src/inputs/`), `44c8b288` P3 Interpolation pilot and `add-point` coordinates (Interpolation, Hermite, Correlation), `9ea84ea7` P4 PointSet pilot with `BaseGraph.fitToVisiblePoints`. P5 (curve workspace) and the engineering review: see [P5 status](#p5-and-review).
 - Decisions 27–29 and the task-2 User impact bullet are in the [spec](../../../specs/shared-graph-controls.md#decided-in-task-2--2026-11-08). Evidence: `points-p1.md` … `points-p5.md`; briefs `points-p*-brief.md` beside them.
 
