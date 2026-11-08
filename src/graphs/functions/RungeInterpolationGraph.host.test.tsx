@@ -274,3 +274,11 @@ test('dispose removes the owned board objects and the language listener', () => 
     act(() => { setLanguage('en'); });
     expect(update).not.toHaveBeenCalled();
 });
+
+test('the maximum-error marker is named for catalog clips and draws no label', () => {
+    const {graph} = mount();
+    type Named = { elType?: string; name?: string; visProp?: { withlabel?: boolean } };
+    const markers = (graph.liveBoard().objectsList as unknown as Named[]).filter(object => object.elType === 'point' && object.name === 'runge-grid-max');
+    expect(markers).toHaveLength(1);
+    expect(markers[0].visProp?.withlabel).toBe(false);
+});

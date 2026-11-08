@@ -199,3 +199,11 @@ test('the oblique asymptote label stays inside a wide view, where y = x + 2 leav
     vi.spyOn(graph.liveBoard(), 'getBoundingBox').mockReturnValue([20, 9, 30, -9]);
     expect(spot()).toBeUndefined();
 });
+
+test('the probe point is named for catalog clips and draws no label', () => {
+    const graph = mount();
+    type Named = { elType?: string; name?: string; visProp?: { withlabel?: boolean } };
+    const probes = (graph.liveBoard().objectsList as unknown as Named[]).filter(object => object.elType === 'point' && object.name === 'rational-probe');
+    expect(probes).toHaveLength(1);
+    expect(probes[0].visProp?.withlabel).toBe(false);
+});

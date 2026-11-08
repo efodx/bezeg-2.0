@@ -300,7 +300,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             strokeColor: GraphPalette.constructionAccent, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth), highlight: false, fixed: true, visible: shown,
         }));
         this.own(this.board.create("point", [() => this.model.probe, onCurve], {
-            ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.8),
+            ...this.styles.point.fixed, name: "rational-probe", withLabel: false, highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.8),
             fillColor: GraphPalette.constructionAccent, highlightFillColor: GraphPalette.constructionAccent, strokeColor: GraphPalette.constructionAccent, visible: shown,
         }));
         this.label(() => [this.model.probe + 6 / this.board.unitX, (onAsymptote() + onCurve()) / 2], () => {

@@ -185,7 +185,7 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
             });
         }
         marker(() => data().gridMaxAt, () => data().gridMax, () => model().showError && data().gridMax <= GRID_MAX_MARKER_LIMIT, {
-            face: "x", strokeColor: GraphPalette.warningText, highlightStrokeColor: GraphPalette.warningText, size: () => Math.max(5, this.displaySettings.pointSize * 1.2),
+            name: "runge-grid-max", face: "x", strokeColor: GraphPalette.warningText, highlightStrokeColor: GraphPalette.warningText, size: () => Math.max(5, this.displaySettings.pointSize * 1.2),
             strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
         });
 
