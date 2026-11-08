@@ -2341,3 +2341,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Checks/gaps: worker: typecheck, lint, affected unit files, 6 mutations, lesson smoke on a build of unknown freshness. Handler: affected directories, fresh build and lesson smoke; `check-changed` through the publish gate. The worker's background `check-changed` produced no log, and the worker returned before it finished.
 - Repairs: none to the worker's code.
 - Usage (as reported): worker 76,150 tokens, 64 min.
+## 2026-11-08 — shared controls slice 5a, raw-control lint rule (controls stream, handler 4)
+
+- Class/size: implementation / S; ESLint rule, exemption list, family-template rule. Source: [task 1](../tasks/shared-graph-controls/01-foundation.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium), in parallel with 5b on disjoint files. Handler review of a 60-line config diff.
+- Outcome: accepted with one handler change: the five hand-built-stepper files had been exempted from the rule; they moved to a recorded `uncaughtSteppers` list so the rule still covers them. Decision 22.
+- Checks/gaps: worker: `just lint`, four mutations (non-exempt input and `Form.Range` fail, exempt passes, removed entry fails). Handler: lint of the config and graph code after the change. Gap: new hand-built steppers are not caught.
+- Usage (as reported): worker 34,129 tokens, 16 min.
