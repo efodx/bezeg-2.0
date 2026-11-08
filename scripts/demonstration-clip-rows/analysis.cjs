@@ -36,5 +36,13 @@ module.exports = [
         lessonQuote: 'Poišči mesto, kjer se sled in zanka najbolj razhajata, in oceni, ali je razlika vidna.',
         discreteReason: null,
     },
-    // fourier-coefficients: unresolved. The poster is the default |x| layout, whose handle fields ("Vrednost f pri x = 0", 0 -> 1 -> 0, quote "Povleci konico gor in dol (ali uporabi tipki ↑ in ↓) in opazuj stolpce \(a_1\) in \(a_3\).") do not exist in the route probe, which was taken on the jump layout, so _check.cjs would fail; a canvas drag snaps to 0.05 on unnamed handles.
+    {
+        id: 'fourier-coefficients',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Vrednost f pri x = 0', step: 0.05},
+        // The poster is the default |x| layout, whose handle field "Vrednost f pri x = 0" starts at 0 and steps by 0.05 (FOURIER_VALUE_STEP), the grid the handle drag snaps to. The field carries the tip up to 1 and back, so the bars a_1 and a_3 move.
+        path: [0, 1, 0],
+        lessonQuote: 'Povleci konico gor in dol (ali uporabi tipki ↑ in ↓) in opazuj stolpce \\(a_1\\) in \\(a_3\\).',
+        discreteReason: null,
+    },
 ];

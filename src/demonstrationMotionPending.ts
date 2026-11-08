@@ -14,7 +14,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'bspline-nurbs', reason: NOT_CAPTURED},
     {id: 'geometric-series', reason: NOT_CAPTURED},
     {id: 'root-finding', reason: NOT_CAPTURED},
-    {id: 'fourier-coefficients', reason: NOT_CAPTURED},
     {id: 'linear-map', reason: NOT_CAPTURED},
     {id: 'inversion', reason: NOT_CAPTURED},
     {id: 'point-in-polygon', reason: NOT_CAPTURED},

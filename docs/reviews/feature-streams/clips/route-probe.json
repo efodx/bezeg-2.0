@@ -11349,6 +11349,18 @@
         "step": null,
         "value": "",
         "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 22,
+        "kind": "number",
+        "name": "Vrednost f pri x = 0",
+        "min": "-4",
+        "max": "4",
+        "step": "0.05",
+        "value": "0",
+        "disabled": false,
+        "addedBy": "handler 8: the probe scene is the jump layout; this field is in the free-polyline poster scene (FOURIER_VALUE_MIN/MAX/STEP in src/analysis/fourierCoefficientsModel.ts)"
       }
     ],
     "draggablePoints": [

@@ -106,6 +106,7 @@ import motion_rational_function from './images/demonstrations/catalog/rational-f
 import motion_interp_hermite from './images/demonstrations/catalog/interp-hermite.webm?no-inline';
 import motion_bspline_extraction from './images/demonstrations/catalog/bspline-extraction.webm?no-inline';
 import motion_epicycles from './images/demonstrations/catalog/epicycles.webm?no-inline';
+import motion_fourier_coefficients from './images/demonstrations/catalog/fourier-coefficients.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -215,4 +216,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'interp-hermite': {src: motion_interp_hermite, type: 'video/webm', duration: 4},
     'bspline-extraction': {src: motion_bspline_extraction, type: 'video/webm', duration: 4},
     'epicycles': {src: motion_epicycles, type: 'video/webm', duration: 4},
+    'fourier-coefficients': {src: motion_fourier_coefficients, type: 'video/webm', duration: 4},
 };
