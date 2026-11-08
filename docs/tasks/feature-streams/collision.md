@@ -1,5 +1,5 @@
 # Stream: Collision playground
-Run state: active
+Run state: complete
 
 Rules and slice template: [feature streams](README.md). Port 4320. Handoffs: `docs/reviews/feature-streams/collision/`. Tasks and slice status: [collision-playground tasks](../collision-playground/README.md). This file holds one status line per feature.
 
