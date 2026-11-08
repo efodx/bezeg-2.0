@@ -19,6 +19,9 @@ jobs:
   scope:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
     concurrency:
       group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-scope
       cancel-in-progress: true
@@ -33,6 +36,7 @@ jobs:
         run: node scripts/ci-change-scope.cjs
         env:
           GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
       - name: Test verification scope detector
         run: node --test scripts/ci-change-scope.test.cjs scripts/transient-state-scope.test.cjs
 

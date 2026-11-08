@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const test = require('node:test');
-const { determineScope, isDocumentationPath, main } = require('./ci-change-scope.cjs');
+const { determineScope, findLastFullRun, isDocumentationPath, main } = require('./ci-change-scope.cjs');
 
 function git(args, cwd) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8', windowsHide: true });
@@ -144,10 +144,76 @@ test('uses the complete multi-commit push range', () => {
     commit('first docs commit');
     write('docs/two.md', 'second\n');
     const after = commit('second docs commit');
-    const decision = determineScope({ eventName: 'push', before, after, cwd: root });
+    const decision = determineScope({ eventName: 'push', before, after, cwd: root, lookupLastFullRun: greenLookup });
     assert.equal(decision.fullVerification, false);
     assert.deepEqual(decision.changedPaths.sort(), ['docs/one.md', 'docs/two.md']);
   });
+});
+
+const greenLookup = () => ({ id: 100, headSha: 'a'.repeat(40), conclusion: 'success' });
+
+function docsPush(lookupLastFullRun, changed = 'docs/guide.md') {
+  let decision;
+  withRepo(({ root, write, commit }) => {
+    write('README.md', 'base\n');
+    const before = commit('base');
+    write(changed, 'change\n');
+    const after = commit('change');
+    decision = determineScope({ eventName: 'push', before, after, cwd: root, lookupLastFullRun });
+  });
+  return decision;
+}
+
+test('docs-only push is allowed when the previous full run succeeded', () => {
+  assert.equal(docsPush(greenLookup).fullVerification, false);
+});
+
+test('docs-only push selects full verification when the previous full run failed', () => {
+  const decision = docsPush(() => ({ id: 42475921993, headSha: 'b'.repeat(40), conclusion: 'failure' }));
+  assert.equal(decision.fullVerification, true);
+  assert.match(decision.reason, /42475921993/);
+  assert.match(decision.reason, new RegExp('b'.repeat(40)));
+  assert.match(decision.reason, /failure/);
+});
+
+test('docs-only push selects full verification when the lookup fails or finds nothing', () => {
+  assert.equal(docsPush(() => { throw new Error('API 500'); }).fullVerification, true);
+  assert.equal(docsPush(() => null).fullVerification, true);
+  assert.equal(docsPush(undefined).fullVerification, true);
+});
+
+test('non-docs push does not consult the lookup', () => {
+  const decision = docsPush(() => { throw new Error('must not be called'); }, 'src/app.js');
+  assert.equal(decision.fullVerification, true);
+  assert.match(decision.reason, /src\/app\.js/);
+});
+
+test('findLastFullRun skips docs-only, in-progress and current runs', () => {
+  const skipped = [{ name: 'scope', conclusion: 'success' }, { name: 'checks', conclusion: 'skipped' }, { name: 'unit', conclusion: 'skipped' }];
+  const ran = [{ name: 'scope', conclusion: 'success' }, { name: 'checks', conclusion: 'success' }, { name: 'unit', conclusion: 'failure' }];
+  const runs = [
+    { id: 60, status: 'completed', conclusion: 'success', head_sha: 'current', event: 'push' },
+    { id: 50, status: 'in_progress', conclusion: null, head_sha: 'busy', event: 'push' },
+    { id: 40, status: 'completed', conclusion: 'success', head_sha: 'docs', event: 'push' },
+    { id: 35, status: 'completed', conclusion: 'cancelled', head_sha: 'cancelled-docs', event: 'push' },
+    { id: 20, status: 'completed', conclusion: 'failure', head_sha: 'red', event: 'push' },
+    { id: 10, status: 'completed', conclusion: 'success', head_sha: 'old', event: 'push' },
+  ];
+  const jobs = { 60: ran, 50: ran, 40: skipped, 35: skipped, 20: ran, 10: ran };
+  const api = { listRuns: () => runs, listJobs: (id) => jobs[id] };
+  assert.deepEqual(findLastFullRun({ api, currentRunId: '60' }), { id: 20, headSha: 'red', conclusion: 'failure' });
+  assert.equal(findLastFullRun({ api, currentRunId: '60', limit: 3 }), null);
+});
+
+test('findLastFullRun returns a cancelled full run, so its unverified code selects full verification', () => {
+  const cancelledJobs = [{ name: 'scope', conclusion: 'success' }, { name: 'checks', conclusion: 'success' }, { name: 'unit', conclusion: 'cancelled' }];
+  const runs = [
+    { id: 30, status: 'completed', conclusion: 'cancelled', head_sha: 'cancel', event: 'push' },
+    { id: 10, status: 'completed', conclusion: 'success', head_sha: 'old', event: 'push' },
+  ];
+  const api = { listRuns: () => runs, listJobs: () => cancelledJobs };
+  assert.deepEqual(findLastFullRun({ api, currentRunId: '40' }), { id: 30, headSha: 'cancel', conclusion: 'cancelled' });
+  assert.equal(docsPush(() => findLastFullRun({ api, currentRunId: '40' })).fullVerification, true);
 });
 
 test('manual dispatch, empty diffs, and unavailable comparison history select full verification', () => {
