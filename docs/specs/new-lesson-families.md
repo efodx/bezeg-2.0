@@ -67,3 +67,5 @@ Graphs carry the quality bar in these families; lesson text is **one-shot**. The
 - **Review** covers kernels, constructions, readouts and scene actions. The family specs' prose criteria ("the prose says…") are guidance for the one-shot draft and sit outside review and repair.
 
 Reason: the owner wants high-quality graphs at low token cost and will revise lesson content separately.
+
+The revision has started with the [lesson content pilot](lesson-content-pilot.md) (2026-11-08). Its approved writing guide will replace "plausible, complete-looking wording" as the bar for lesson text.
