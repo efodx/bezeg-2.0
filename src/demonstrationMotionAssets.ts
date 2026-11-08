@@ -109,6 +109,7 @@ import motion_epicycles from './images/demonstrations/catalog/epicycles.webm?no-
 import motion_fourier_coefficients from './images/demonstrations/catalog/fourier-coefficients.webm?no-inline';
 import motion_geometric_series from './images/demonstrations/catalog/geometric-series.webm?no-inline';
 import motion_inversion from './images/demonstrations/catalog/inversion.webm?no-inline';
+import motion_point_in_polygon from './images/demonstrations/catalog/point-in-polygon.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -221,4 +222,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'fourier-coefficients': {src: motion_fourier_coefficients, type: 'video/webm', duration: 4},
     'geometric-series': {src: motion_geometric_series, type: 'video/webm', duration: 4},
     'inversion': {src: motion_inversion, type: 'video/webm', duration: 4},
+    'point-in-polygon': {src: motion_point_in_polygon, type: 'video/webm', duration: 4},
 };

@@ -14,7 +14,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'bspline-nurbs', reason: NOT_CAPTURED},
     {id: 'root-finding', reason: NOT_CAPTURED},
     {id: 'linear-map', reason: NOT_CAPTURED},
-    {id: 'point-in-polygon', reason: NOT_CAPTURED},
     {id: 'hull-robustness', reason: NOT_CAPTURED},
     {id: 'ear-clipping', reason: NOT_CAPTURED},
     {id: 'projective-pascal', reason: NOT_CAPTURED},
