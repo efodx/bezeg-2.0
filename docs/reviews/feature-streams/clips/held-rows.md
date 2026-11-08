@@ -1,6 +1,6 @@
 # Held rows (2026-11-07, handler 4)
 
-Handler 8 restored `interp-runge` and `rational-function` (named off-camera points), then `interp-hermite`, `bspline-extraction`, `epicycles` and `fourier-coefficients` (a field or slider instead of the blocked control, see the spec); handler 9 restored `geometric-series` (segments in the response signature, a new quote); their table rows are gone, and their row text below is history.
+Handler 8 restored `interp-runge` and `rational-function` (named off-camera points), then `interp-hermite`, `bspline-extraction`, `epicycles` and `fourier-coefficients` (a field or slider instead of the blocked control, see the spec); handler 9 restored `geometric-series` (segments in the response signature, a new quote) and captured `inversion` (a discrete `number-field` row on the inversion radius); their table rows are gone, and their row text below is history.
 
 Rows a worker wrote that failed their capture. Each is kept here verbatim so a later batch can fix and restore it to its family file. Reasons come from the capture failure message.
 

@@ -8,7 +8,7 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | --- | --- |
 | `id` | Demonstration ID (must also have a recipe in `scripts/demonstration-preview-recipes.cjs`) |
 | `motion` | `parameter-sweep`, `pointer-drag` or `discrete-exact-steps` (`surface-orbit` validates but the driver refuses it) |
-| `control` | `{kind: 'slider' or 'number', label, step}`, `{kind: 'point', name}`, `{kind: 'surface-point', name}`, `{kind: 'stepper', label, step}` or `{kind: 'trace-step', label, step}` (discrete only) |
+| `control` | `{kind: 'slider' or 'number', label, step}`, `{kind: 'point', name}`, `{kind: 'surface-point', name}`, `{kind: 'stepper', label, step}`, `{kind: 'trace-step', label, step}` or `{kind: 'number-field', label, step}` (discrete only; an integer number input with no stepper button: each checkpoint types start + count x step into it on a fresh poster scene) |
 | `path` | Out and back, first = last. Sweep: control values. Board drag: board coordinates. Surface drag: pixel offsets from `[0, 0]` in the 360x220 host. Discrete: 3 to 8 cumulative press counts, first = last = 0 |
 | `lessonQuote` | The lesson sentence the motion comes from |
 | `discreteReason` | `null`, except for `discrete-exact-steps`, where it says why smooth motion is impossible |

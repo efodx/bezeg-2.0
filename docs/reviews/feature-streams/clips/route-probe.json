@@ -16960,6 +16960,18 @@
       },
       {
         "tab": "edit",
+        "idx": null,
+        "kind": "number",
+        "name": "Polmer inverzije r",
+        "min": "1",
+        "max": "8",
+        "step": "1",
+        "value": "2",
+        "disabled": false,
+        "addedBy": "handler 9: the probe scene is the power example; this field is in the circle-not-through-centre poster scene (INVERSION_RADIUS_MAX in src/compgeo/inversionModel.ts)"
+      },
+      {
+        "tab": "edit",
         "idx": 5,
         "kind": "number",
         "name": "Smer sekante θ (stopinje)",

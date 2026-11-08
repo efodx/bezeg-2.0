@@ -38,4 +38,13 @@ module.exports = [
         lessonQuote: 'Povleci \\(P\\) po vsej krožnici in opazuj premico.',
         discreteReason: null,
     },
+    {
+        id: 'inversion',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'Polmer inverzije r', step: 1},
+        // The poster is the circle about (3,0), radius 1, with C = (0,0) and r = 2; its image is the circle about (3/2,0), radius 1/2, inside it. r goes 2 -> 3 and back: the image circle (centre 3r^2/8, radius r^2/8) grows from inside the source circle to past its far side (2.25 to 4.5 against 2 to 4), which answers the step's inside-or-outside question. r = 4 is not used: its image circle (centre 6, radius 2) leaves the poster camera on the right.
+        path: [0, 1, 0],
+        lessonQuote: 'Prikazano je vse. Premakni točko \\(X\\), središče \\(C\\) ali polmer \\(r\\), preklopi fokus in izberi druge primere.',
+        discreteReason: 'The inversion kernel is exact rational arithmetic on the integer grid (src/compgeo/inversionModel.ts): the radius field, the r handle and every other handle take whole numbers only, so no smooth motion exists without changing the model.',
+    },
 ];
