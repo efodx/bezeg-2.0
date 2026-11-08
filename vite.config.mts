@@ -18,6 +18,19 @@ const transientState = require('./scripts/transient-state-scope.cjs') as {
 const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
 
 /**
+ * Heavy single files that Vitest's path-hash split left on shard 1 (hosted run 42514768457: 943 file-s against 431 on
+ * shard 3). They run on shard 3 instead, which holds only two part files; see
+ * docs/reviews/verification-throughput/phase2b-ci-shards.md. Unlisted files keep the hash split.
+ */
+const PINNED_TO_SHARD_3 = [
+    'sceneReplacementContract.test.',
+    'sharedControls.graphs.test.',
+    'curveGeometryGuidedLessons.envelope.test.',
+    'epicyclesGuidedLessons.test.',
+];
+const pinned = (file: TestSpecification) => PINNED_TO_SHARD_3.some(name => file.moduleId.endsWith(`/${name}ts`) || file.moduleId.endsWith(`/${name}tsx`));
+
+/**
  * The slow real-graph suites are split into `*.partN.test.*` files. `vitest --shard` splits files by path hash, so
  * their parts could share one shard: part N goes to shard N (wrapping) instead, and every other file keeps Vitest's hash
  * split. Without cached durations (as in CI) Vitest runs larger files first, which would start the small part files
@@ -32,7 +45,8 @@ class PartSequencer extends BaseSequencer {
             const n = part(file);
             return n !== undefined && (Number(n) - 1) % count === index - 1;
         });
-        return [...parts, ...await super.shard(files.filter(file => part(file) === undefined))];
+        const pins = files.filter(file => pinned(file) && (3 - 1) % count === index - 1);
+        return [...parts, ...pins, ...await super.shard(files.filter(file => part(file) === undefined && !pinned(file)))];
     }
 
     override async sort(files: TestSpecification[]): Promise<TestSpecification[]> {
