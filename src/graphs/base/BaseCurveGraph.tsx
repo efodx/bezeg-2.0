@@ -73,9 +73,14 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     private refusalChannel?: RefusalChannel;
     // Created on first use: the base constructor restores the scene (`restoreTransientState`) before this class's field initialisers run.
     protected get pointRefusals(): RefusalChannel { return this.refusalChannel ??= new RefusalChannel(() => this.requestRender()); }
+    /** How many of the `workspaceRevision` bumps were ordinary edits (`refreshWorkspace`), not scene replacements. */
+    private editRevisions = 0;
+    /** Bumped only by a scene replacement (Reset, Preset, lesson restore, figure disposal, import); the point list remounts on it, never on an edit. */
+    private get replacementRevision(): number { return this.workspaceRevision - this.editRevisions; }
     protected refreshWorkspace() {
         if (!this.graphSession?.isAlive) return;
         this.workspaceRevision++;
+        this.editRevisions++;
         this.requestRender();
     }
 
@@ -217,7 +222,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         return <>
             {this.workspaceCurveSelection()}
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
-            {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`}
+            {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.replacementRevision}`}
                 points={() => selected.getCurve().getPoints()} boards={() => [this.board]}
                 onEdit={(_, to) => this.afterTypedPointEdit(to)}
                 collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(selected, at), onRemove: () => this.removePointAt(selected, -1),

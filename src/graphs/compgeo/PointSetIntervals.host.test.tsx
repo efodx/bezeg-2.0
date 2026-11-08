@@ -312,3 +312,14 @@ test('switching to intervals with too many points or an out-of-range x is refuse
     act(() => { expect(graph.setPointSetMode('intervals')).toBe(false); });
     expect(graph.notice).toEqual({kind: 'range'});
 });
+
+test('removing an interval row keeps focus on a remove button, then on Add interval when none is left', () => {
+    const graph = new IntervalGraph();
+    mount(graph);
+    load(graph, ivs([0, 4], [-3, 1]));
+    const press = (name: string) => act(() => { const b = screen.getByRole('button', {name}); b.focus(); fireEvent.click(b); });
+    press('Odstrani interval b');
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Odstrani interval a'}));
+    press('Odstrani interval a');
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Dodaj interval'}));
+});

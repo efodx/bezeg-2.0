@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef} from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {GridPoint} from "../../compgeo/grid";
@@ -7,7 +7,7 @@ import {PolygonSimplicity} from "../../compgeo/predicates";
 import {BooleanField} from "../../inputs/BooleanField";
 import {NumberInput} from "../../inputs/NumberInput";
 import {PointCollection} from "../../inputs/PointCollection";
-import {PointListInput, SelectablePointButton} from "../../inputs/PointListInput";
+import {PointListInput, SelectablePointButton, useRemoveFocus} from "../../inputs/PointListInput";
 
 /** What the controls ask the graph to do; every handler is a synchronous model edit on the graph. */
 export interface PointSetControlActions {
@@ -85,7 +85,9 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
     const bounds = {min: -coordinateLimit, max: coordinateLimit};
     const field = (label: string, value: number, onCommit: (value: number) => void) =>
         <NumberInput label={label} hideLabel compact integer step={1} {...bounds} value={value} onChange={onCommit}/>;
-    return <div className="inspector-group">
+    const root = useRef<HTMLDivElement>(null);
+    const requestRemoveFocus = useRemoveFocus(root, ".pointset-remove", () => root.current?.querySelector<HTMLElement>(":scope > button"));
+    return <div className="inspector-group" ref={root}>
         <h3 className="inspector-reveals-title">{t("pointset_segment_list")}</h3>
         {model.points.length === 0 && <p className="inspector-help">{t("pointset_no_segments")}</p>}
         <ol className="pointset-list">
@@ -98,7 +100,7 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
                     {field(t("pointset_segment_y", {value0: k + 1, value1: 1}), a.y, y => actions.movePoint(2 * k, {x: a.x, y}))}
                     {field(t("pointset_segment_x", {value0: k + 1, value1: 2}), b.x, x => actions.movePoint(2 * k + 1, {x, y: b.y}))}
                     {field(t("pointset_segment_y", {value0: k + 1, value1: 2}), b.y, y => actions.movePoint(2 * k + 1, {x: b.x, y}))}
-                    <button type="button" className={button} onClick={() => actions.removeSegment(k)}>
+                    <button type="button" className={`${button} pointset-remove`} onClick={() => { requestRemoveFocus(k); actions.removeSegment(k); }}>
                         <span aria-hidden="true">&times;</span><span className="visually-hidden">{t("pointset_remove_segment_n", {value0: k + 1})}</span>
                     </button>
                 </li>;
@@ -115,7 +117,9 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
     const field = (label: string, value: number, onCommit: (value: number) => void) =>
         <NumberInput label={label} hideLabel compact integer step={1} min={-coordinateLimit} max={coordinateLimit} value={value} onChange={onCommit}/>;
     const intervals = intervalsOf(model);
-    return <div className="inspector-group">
+    const root = useRef<HTMLDivElement>(null);
+    const requestRemoveFocus = useRemoveFocus(root, ".pointset-remove", () => root.current?.querySelector<HTMLElement>(":scope > button"));
+    return <div className="inspector-group" ref={root}>
         <h3 className="inspector-reveals-title">{t("pointset_interval_list")}</h3>
         {intervals.length === 0 && <p className="inspector-help">{t("pointset_no_intervals")}</p>}
         <ol className="pointset-list">
@@ -129,7 +133,7 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
                     <SelectablePointButton label={letter} accessibleName={t("pointset_select_interval", {value0: letter})} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
                     {field(t("pointset_interval_lo", {value0: letter}), lo, x => actions.movePoint(loIndex, {x, y: model.points[loIndex].y}))}
                     {field(t("pointset_interval_hi", {value0: letter}), hi, x => actions.movePoint(hiIndex, {x, y: model.points[hiIndex].y}))}
-                    <button type="button" className={button} onClick={() => actions.removeInterval(k)}>
+                    <button type="button" className={`${button} pointset-remove`} onClick={() => { requestRemoveFocus(k); actions.removeInterval(k); }}>
                         <span aria-hidden="true">&times;</span><span className="visually-hidden">{t("pointset_remove_interval_n", {value0: letter})}</span>
                     </button>
                 </li>;

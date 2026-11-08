@@ -5,6 +5,23 @@ import {NumberInput} from "./NumberInput";
 import {UnavailableButton} from "./UnavailableButton";
 import "./PointListInput.css";
 
+/**
+ * After a row's remove button: focus the remove button now at the same index, else the previous row's, else `fallback` (the collection's controls).
+ * `root` holds the rows; `buttonSelector` finds their remove buttons. Returns the function the remove press calls with its row index.
+ * Per instance: the list must stay mounted across the removal (a graph keys it only on a scene replacement).
+ */
+export function useRemoveFocus(root: React.RefObject<HTMLElement>, buttonSelector: string, fallback: () => HTMLElement | null | undefined): (index: number) => void {
+    const requested = useRef<number>();
+    useEffect(() => {
+        const index = requested.current;
+        requested.current = undefined;
+        if (index === undefined || !root.current) return;
+        const buttons = root.current.querySelectorAll<HTMLElement>(buttonSelector);
+        (buttons[Math.min(index, buttons.length - 1)] ?? fallback())?.focus();
+    });
+    return index => { requested.current = index; };
+}
+
 export type PointRow = readonly [number, number];
 /** A row of a 1D or a 3D list (`axisLabels` of length 1 or 3). */
 export type PointRow1 = readonly [number];
@@ -90,16 +107,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
     };
     // After a row's remove button: focus the remove button now at the same index, else the previous row's, else the collection's controls.
     const root = useRef<HTMLFieldSetElement>(null);
-    const focusAfterRemove = useRef<number>();
-    useEffect(() => {
-        const index = focusAfterRemove.current;
-        focusAfterRemove.current = undefined;
-        if (index === undefined || !root.current) return;
-        const buttons = root.current.querySelectorAll<HTMLElement>(".point-list-remove");
-        const target = buttons[Math.min(index, buttons.length - 1)]
-            ?? root.current.parentElement?.querySelector<HTMLElement>(".point-collection button, .point-collection input");
-        target?.focus();
-    });
+    const requestRemoveFocus = useRemoveFocus(root, ".point-list-remove", () => root.current?.parentElement?.querySelector<HTMLElement>(".point-collection button, .point-collection input"));
     const atMinimum = props.minCount !== undefined && points.length <= props.minCount;
     const removeReason = atMinimum ? t("count_at_minimum", {value0: formatNumber(props.minCount ?? 0, currentLanguage(), 0)}) : undefined;
     return <fieldset className="point-list" ref={root}>
@@ -122,7 +130,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
                     : <span className="point-list-index" aria-hidden="true">{name}</span>}
                 {axes.map((axisName, axis) => axisField(axis, axisName))}
                 {props.onRemove && <UnavailableButton className="btn point-list-remove" aria-label={t("point_controls_remove_named", {value0: name})}
-                                                      reason={removeReason} onPress={() => { focusAfterRemove.current = index; props.onRemove?.(index); }}
+                                                      reason={removeReason} onPress={() => { requestRemoveFocus(index); props.onRemove?.(index); }}
                                                       onBlockedPress={() => setBlocked(current => ({count: (current?.count ?? 0) + 1, list: points}))}>×</UnavailableButton>}
             </div>;
         })}

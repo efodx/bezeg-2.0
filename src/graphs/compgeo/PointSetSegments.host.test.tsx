@@ -337,3 +337,14 @@ test('switching to segments mode with more points than the segment limit allows 
     expect(graph.notice).toEqual({kind: 'segment-limit'});
     expect(screen.getByText(/Doseženo je največje število daljic \(12\)/)).toBeInTheDocument();
 });
+
+test('removing a segment row keeps focus on a remove button, then on Add segment when none is left', () => {
+    const graph = new SegmentGraph();
+    mount(graph);
+    load(graph, segs([0, 0], [4, 2], [-3, 1], [1, -5]));
+    const press = (name: string) => act(() => { const b = screen.getByRole('button', {name}); b.focus(); fireEvent.click(b); });
+    press('Odstrani daljico s2');
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Odstrani daljico s1'}));
+    press('Odstrani daljico s1');
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Dodaj daljico'}));
+});

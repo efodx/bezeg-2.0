@@ -129,7 +129,32 @@ describe('curve workspace point decisions on Bezier', () => {
     });
 });
 
+describe('curve workspace point removal', () => {
+    test('a per-row remove keeps focus on the remove button at that index, else the previous, else the collection', async () => {
+        await mountSelected('bezier');
+        const remove = (n: number) => screen.getByRole('button', {name: t('point_controls_remove_named', {value0: 'p' + '₀₁₂₃₄₅'[n]})});
+        const press = (n: number) => act(() => { const b = remove(n); b.focus(); fireEvent.click(b); });
+        const count = () => document.querySelectorAll('.point-list-remove').length;
+        const before = count();
+        press(1);
+        expect(count()).toBe(before - 1);
+        expect(document.activeElement).toBe(remove(1));
+        press(count() - 1);
+        expect(document.activeElement).toBe(remove(count() - 1));
+        while (count() > 2) press(count() - 1);
+        press(0);
+        expect(count()).toBe(1);
+        expect(document.activeElement).toBe(remove(0));
+    });
+});
+
 describe('curve workspace on the PH hodograph', () => {
+    test('a typed w keeps its value in the list field', async () => {
+        const {access} = await mountSelected('ph-cubic', 'w₀, x');
+        enterNumber(field('w₀, x'), '-3');
+        expect(field('w₀, x')).toHaveAttribute('aria-valuenow', '-3');
+        expect(access.phPoints()![0].X()).toBe(-3);
+    });
     test('the hodograph list edits the w points', async () => {
         const {access} = await mountSelected('ph-cubic', 'w₀, x');
         const w = () => access.phPoints()!;

@@ -65,6 +65,6 @@ export function CurvePointControls(props: CurvePointControlsProps) {
                                         typedEntry={{axisLabels: ["x", "y"], min: -CURVE_COORDINATE_LIMIT, max: CURVE_COORDINATE_LIMIT}}/>}
         <PointListInput title={t("point_coordinates_keyboard_editing")} points={points} pointLabel={i => curvePointName(props.prefix, i)} min={-CURVE_COORDINATE_LIMIT} max={CURVE_COORDINATE_LIMIT}
                         onRemove={collection ? collection.onRemoveAt : undefined} minCount={CURVE_POINTS_MIN}
-                        onCommit={(index, value) => { props.points()[index].setX(value[0]); props.points()[index].setY(value[1]); props.onEdit(index, value); }}/>
+                        onCommit={(index, value) => { props.points()[index].setX(value[0]); props.points()[index].setY(value[1]); props.onEdit(index, value); setRevision(r => r + 1); }}/>
     </div>;
 }
