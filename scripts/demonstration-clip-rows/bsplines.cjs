@@ -23,7 +23,8 @@ module.exports = [
         motion: 'parameter-sweep',
         control: {kind: 'slider', label: 'Argument b', step: 0.01},
         // Start a = 0, b = 0.5 (recipe description and BLOSSOM_DEFAULT_ARGS in bsplineBlossomModel.ts:13); only b moves, a stays 0.
-        path: [0.5, 1, 1.5, 1, 0.5],
+        // Peak 1.3, not 1.5: at b = 1.5 the blossom point f(0; b) is half clipped at the top of the view (handler 8 review).
+        path: [0.5, 1, 1.3, 1, 0.5],
         lessonQuote: 'Premikaj argumente, izberi drugi odsek \\([1,2)\\), preklopi na stopnjo \\(3\\) ali premakni kontrolno točko in opazuj, kako se trikotnik, simetrija in Bézierove točke spreminjajo.',
         discreteReason: null,
     },

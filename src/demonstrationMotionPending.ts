@@ -11,11 +11,9 @@ const NOT_CAPTURED = 'The lesson-guided clip is not captured yet (docs/specs/les
 export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly reason: string}[] = [
     {id: 'bezier-clipping', reason: NOT_CAPTURED},
     {id: 'interp-hermite', reason: NOT_CAPTURED},
-    {id: 'interp-runge', reason: NOT_CAPTURED},
     {id: 'bspline-insertion', reason: NOT_CAPTURED},
     {id: 'bspline-extraction', reason: NOT_CAPTURED},
     {id: 'bspline-nurbs', reason: NOT_CAPTURED},
-    {id: 'rational-function', reason: NOT_CAPTURED},
     {id: 'geometric-series', reason: NOT_CAPTURED},
     {id: 'root-finding', reason: NOT_CAPTURED},
     {id: 'fourier-coefficients', reason: NOT_CAPTURED},

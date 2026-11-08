@@ -101,6 +101,8 @@ import motion_conic_focal from './images/demonstrations/catalog/conic-focal.webm
 import motion_fortune from './images/demonstrations/catalog/fortune.webm?no-inline';
 import motion_voronoi from './images/demonstrations/catalog/voronoi.webm?no-inline';
 import motion_voronoi_degenerate from './images/demonstrations/catalog/voronoi-degenerate.webm?no-inline';
+import motion_interp_runge from './images/demonstrations/catalog/interp-runge.webm?no-inline';
+import motion_rational_function from './images/demonstrations/catalog/rational-function.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -205,4 +207,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'fortune': {src: motion_fortune, type: 'video/webm', duration: 4},
     'voronoi': {src: motion_voronoi, type: 'video/webm', duration: 4},
     'voronoi-degenerate': {src: motion_voronoi_degenerate, type: 'video/webm', duration: 4},
+    'interp-runge': {src: motion_interp_runge, type: 'video/webm', duration: 4},
+    'rational-function': {src: motion_rational_function, type: 'video/webm', duration: 4},
 };

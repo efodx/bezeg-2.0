@@ -1,16 +1,16 @@
 # Held rows (2026-11-07, handler 4)
 
+Handler 8 restored `interp-runge` and `rational-function` (named off-camera points); their table rows are gone, and their row text below is history.
+
 Rows a worker wrote that failed their capture. Each is kept here verbatim so a later batch can fix and restore it to its family file. Reasons come from the capture failure message.
 
 | id | Capture failure | Likely fix |
 | --- | --- | --- |
 | interp-hermite | `control jxgBoard1P45 moved at frame 13`: in the Catmull-Rom poster the tangent handles are draggable points that follow P1 | Let the driver accept derived handles that the graph recomputes, or drag a point whose handles stay fixed |
-| interp-runge | `point jxgBoard1P114 left the fixed camera at checkpoint 1`: raising the degree from 10 overshoots | A smaller first step, or a decision on off-camera points |
-| rational-function | `point jxgBoard1P55 left the fixed camera at frame 0`: a poster point already lies outside the camera | Find P55 (probably an asymptote or hole marker) and decide whether the check should skip off-board helpers |
 | geometric-series | `the app did not respond to the control at frame 16`: the poster shows one term, which does not depend on q | A row on a control the poster scene draws, or a recipe showing more terms |
 | bspline-extraction | `the last frame differs from the first (the loop does not close)`; the quote is about a cubic, the poster is quadratic | Find why the release misses the start (snapping?) and pick a quote for the quadratic |
-| bspline-nurbs | `the scene starts at 0.063, but the row path starts at 0.0625`: the slider rounds the poster's 1/16 | Compare the full-precision slider value, or move the recipe's t to a 0.001 multiple |
-| root-finding | `the last frame differs from the first (the loop does not close)` on the x0 number field | Check how the field formats the returning value |
+| bspline-nurbs | `the scene starts at 0.063, but the row path starts at 0.0625`: the slider rounds the poster's 1/16 | Compare the full-precision slider value, or move the recipe's t to a 0.001 multiple Handler 8: the loop check compares the first and last frames, and the slider can only return 0.063, so a path starting at 0.063 fails the loop instead. Waits for a finer slider step (spec decision, handler 8) |
+| root-finding | loop does not close: changing x0 resets the step to 0 (`src/analysis/rootFindingModel.ts:116`), and the poster is at step 1 | Poster only (spec decision, handler 8) |
 | epicycles | `control "Krajišče 1, koordinata x" stays hidden in every inspector tab` in the poster scene | Pick a control the poster scene shows |
 | linear-map | capture (handler 6): the colour check now finds a still patch (a fixed point marker, radius 5), but no CRF up to 34 fits 300 KiB: the mapped grid moves over the whole board in every frame. At CRF 34 the RGB encode is 446 KiB for the path 2 → 4 → −1,5 → 2 and still over budget for 2 → 4 → 0 → 2; a shorter path falls below the 16 grid values a coarse sweep needs | Poster only under the budget rule (spec Budgets: keep the poster, record the limitation). Revisit only if the grid's line count or the budget changes; row text in `.command-logs/rows-pending/linear-complex-with-map.cjs` |
 | projective-pascal | preflight (handler 5): state check, 0.149 from the schedule on a drag of B along the ellipse | The drag snaps to a table of line directions; the steppers need a selected point and show no value. Needs a driver path that follows the snapped table, or a held decision |

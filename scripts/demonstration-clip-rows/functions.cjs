@@ -38,4 +38,14 @@ module.exports = [
         // Spec decision "conic-focal keeps the lesson's crossing of eps = 1" (handler 5).
         offCamera: {points: ['$$F_2$$', '$$P$$'], reason: 'As eps approaches 1 the second focus runs off to infinity and returns from the other side, and P, held at its polar angle phi, runs off with the branch where 1 + eps cos(phi) nears 0; that crossing is what the lesson teaches.'},
     },
+    {
+        id: 'rational-function',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Števec: Ničla 2: položaj x', step: 0.1},
+        // The poster scene is (x^2-1)/(x-2) with numerator zeros -1 and 1. Numerator zero 2 (at 1) goes past the pole 2 to 4 and back, so the hole appears at the pole and disappears; it never meets zero 1 (-1), so nothing merges.
+        path: [1, 4, 1],
+        lessonQuote: 'Povleci ničle števca in imenovalca, jih vpiši kot števila in vsakič preveri: ničla okrajšanega števca je ničla funkcije, ničla okrajšanega imenovalca je pol, skupna ničla je luknja, stopnji pa določita asimptoto.',
+        discreteReason: null,
+        offCamera: {points: ['rational-probe'], reason: 'The remainder probe at x = 10 lies on the curve above the view already in the poster; it marks the gap to the asymptote far out and is not part of the zero move.'},
+    },
 ];
