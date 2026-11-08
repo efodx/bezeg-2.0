@@ -1,5 +1,5 @@
 # Stream: Clips
-Run state: blocked: only `projective-pascal` remains, waiting for the Pascal table-index readout queued in [Controls](controls.md) notes; see [handoff 10](../../reviews/feature-streams/clips/handler-handoff-10.md)
+Run state: blocked: only `projective-pascal` remains, waiting for the Pascal table-index readout queued in [Controls](controls.md) notes; see [handoff 10](../../reviews/feature-streams/clips/state.md)
 
 Owner of [lesson-guided catalog clips](../../specs/lesson-guided-catalog-clips.md): 67 Demonstrations have a poster but no hover clip. Rules: [feature streams](README.md). Port 4319. Handoffs: `docs/reviews/feature-streams/clips/`.
 
