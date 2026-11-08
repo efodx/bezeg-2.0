@@ -1,6 +1,6 @@
 # Lesson content pilot
 
-Status: accepted by the owner on 2026-11-08 (grilling session). Supersedes, for the lessons it covers, the "rewrite later" clause of [one-shot lesson text](new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31).
+Status: accepted by the owner on 2026-11-08 (grilling session). Pilot complete; results await owner review in [the results document](../reviews/lesson-content-pilot.md). Supersedes, for the lessons it covers, the "rewrite later" clause of [one-shot lesson text](new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31).
 
 ## Goal
 
@@ -70,8 +70,8 @@ Slovenian only until approval; English follows the approved Slovenian.
 
 ## Acceptance
 
-- [ ] Four scripts extracted, with visible fields documented.
-- [ ] Round-1 reviews: three personas × four lessons, every score quoted.
-- [ ] Merged findings and style brief.
-- [ ] Rewrites iterated until the stop rule is met or the 3-round cap is reached, with the score history recorded.
-- [ ] Side-by-side review document ready for the owner.
+- [x] Four scripts extracted, with visible fields documented.
+- [x] Round-1 reviews: three personas × four lessons, every score quoted.
+- [x] Merged findings and style brief.
+- [x] Rewrites iterated until the stop rule is met or the 3-round cap is reached, with the score history recorded.
+- [x] Side-by-side review document ready for the owner.

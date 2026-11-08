@@ -15,6 +15,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Completed record cleanup](reviews/planning-record-cleanup-2026-10-24.md): what was consolidated or removed, retained work and verification limits.
 
 ## Direction and work queue
+- [Lesson content pilot](specs/lesson-content-pilot.md): four lessons rewritten through blind student-persona review; [results and owner decisions](reviews/lesson-content-pilot.md) await owner review before any source change.
 
 - [Lesson-authoring architecture](specs/lesson-authoring-architecture.md): lead-reviewed plan for five bounded workstreams covering controls, lesson lookup, registration, scene ownership and persistence; implementation unstarted.
 - [JSXGraph surface view](tasks/jsxgraph-surface-view/README.md): complete. Patch views drawn with JSXGraph instead of Three.js ([spec](specs/jsxgraph-surface-view.md), [acceptance record](reviews/jsxgraph-surface-view/switch-over.md)).
