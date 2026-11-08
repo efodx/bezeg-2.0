@@ -99,6 +99,8 @@ import motion_monotone_partition from './images/demonstrations/catalog/monotone-
 import motion_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.webm?no-inline';
 import motion_conic_focal from './images/demonstrations/catalog/conic-focal.webm?no-inline';
 import motion_fortune from './images/demonstrations/catalog/fortune.webm?no-inline';
+import motion_voronoi from './images/demonstrations/catalog/voronoi.webm?no-inline';
+import motion_voronoi_degenerate from './images/demonstrations/catalog/voronoi-degenerate.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -201,4 +203,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'monotone-triangulation': {src: motion_monotone_triangulation, type: 'video/webm', duration: 4},
     'conic-focal': {src: motion_conic_focal, type: 'video/webm', duration: 4},
     'fortune': {src: motion_fortune, type: 'video/webm', duration: 4},
+    'voronoi': {src: motion_voronoi, type: 'video/webm', duration: 4},
+    'voronoi-degenerate': {src: motion_voronoi_degenerate, type: 'video/webm', duration: 4},
 };

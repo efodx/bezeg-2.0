@@ -132,19 +132,19 @@ async function captureRow(browser, d, row, directory, baseUrl, presentBoard, kit
                 : row.motion === 'parameter-sweep' ? await sweepBoard(page, d, row, directory, presentBoard, kit)
                     : await dragBoard(page, d, row, directory, presentBoard, kit);
         // Frame-to-frame change of the decoded PNGs, kept in the record so the offline validation re-runs the same check.
-        const {frameSteps, assessFrameSteps} = require('./_jump.cjs');
+        const {frameSteps, assessFrameSteps, restyledSteps} = require('./_jump.cjs');
         const buffers = Array.from({length: kit.frameCount}, (_, i) => fs.readFileSync(path.join(directory, frameName(i))));
         const {ignoredRatio, MAX_IGNORED_RATIO} = require('./_jump.cjs');
         const rects = unionRects(result.samples);
         const ignored = {rects, ratio: ignoredRatio(result.samples[0].capture.width, result.samples[0].capture.height, rects)};
         assert.ok(ignored.ratio <= MAX_IGNORED_RATIO, `${row.id}: the text regions ignored by the pixel check cover ${(ignored.ratio * 100).toFixed(1)} percent of the frame, over the ${MAX_IGNORED_RATIO * 100} percent limit; a mask that large hides the picture, so fix the row or the scene, do not raise the limit`);
         const steps = frameSteps(buffers, {ignore: rects});
-        const assessment = assessFrameSteps(steps, {discrete});
+        const assessment = assessFrameSteps(steps, {discrete, excused: restyledSteps(row, result.samples)});
         const pathState = assessRowState(row, result.samples, surface);
         // Both checks report in one message, so a failure shows which of them caught the clip.
         const failures = [];
         if (!pathState.ok) failures.push(`state check failed: ${pathState.reason}`);
-        if (!assessment.ok) failures.push(`pixel check failed: largest step ${assessment.max} is ${assessment.ratio}x the typical ${assessment.typical} (limit ${assessment.threshold}x, ${rects.length} text regions ignored)`);
+        if (!assessment.ok) failures.push(`pixel check failed: largest step ${assessment.max} is ${assessment.ratio}x the typical ${assessment.typical} (limit ${assessment.threshold}x, ${rects.length} text regions ignored${assessment.excused ? `, restyled steps ${assessment.excused.join(', ')} excused` : ''})`);
         assert.equal(failures.length, 0, `${row.id}: ${failures.join('; ')} [state check ${pathState.ok ? 'passed' : 'failed'}, pixel check ${assessment.ok ? 'passed' : 'failed'}]`);
         return {...result, jump: {steps, ...assessment}, ignored, pathState, schedule: rowSchedule(row), invariants: rowInvariants(row), cameraHeld: surface};
     } finally {await context?.close();}
@@ -168,7 +168,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
         page.setDefaultTimeout(20000);
         try {
             await openRecipeScene(page, d, recipes[d.id], baseUrl, {});
-            await presentFixed(page, d, presentBoard, fixedBox);
+            await presentFixed(page, d, presentBoard, fixedBox, row);
             const button = page.getByRole('button', {name: row.control.label, exact: true});
             assert.equal(await button.count(), 1, `${row.id}: button "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
             for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
@@ -186,7 +186,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             }
             for (let press = 0; press < row.path[k]; press++) { await button.click(); await settle(page); }
             await settle(page);
-            await presentFixed(page, d, presentBoard, fixedBox);
+            await presentFixed(page, d, presentBoard, fixedBox, row);
             const shown = await read();
             const expected = startValue + row.path[k] * row.control.step;
             assert.equal(shown, expected, `${row.id}: after ${row.path[k]} presses the control shows ${shown}, not ${expected}`);
@@ -219,11 +219,46 @@ async function readTraceStep(page, row) {
     return {step: Number(step), length: Number(length)};
 }
 
+/**
+ * Stroke widths stay as first seen, so a presentation that compounds them fails. A row with `restyle` lets the app move a stroke
+ * between widths the poster frame already shows (a highlight that passes from one object to another); any other width still fails.
+ */
+function checkStrokes(row, known, initial, state) {
+    const posterWidths = new Set(initial.strokesById.map(([, width]) => width));
+    for (const [id, width] of state.strokesById) {
+        if (!known.has(id)) { known.set(id, width); continue; }
+        if (width === known.get(id)) continue;
+        assert.ok(row.restyle && posterWidths.has(width), `${row.id}: stroke width changed for ${id}` + (row.restyle ? ` from ${known.get(id)} to ${width}, which the poster frame does not show (it shows ${[...posterWidths].join(', ')})` : ''));
+    }
+}
+
 /** Points outside the camera box [left, top, right, bottom], except the derived points a row's offCamera names. */
 const pointsOutsideCamera = (row, points, box) => points.filter(p => !(row.offCamera?.points || []).includes(p.name)
     && !(p.x >= box[0] && p.x <= box[2] && p.y <= box[1] && p.y >= box[3]));
 
-async function presentFixed(page, d, boardPresent, camera) {
+/**
+ * For a `restyle` row: the presentation keeps each stroke's first width (`data-preview-base-stroke`) and sets it inline, so a stroke
+ * the app restyles later (a highlight passing to another object) would keep its old width. When the app's own `stroke-width`
+ * attribute changes, drop the inline width and the kept base so the presentation scales the new width as it scaled the poster's.
+ */
+async function followRestyles(page) {
+    await page.locator('#jgbox').evaluate(container => {
+        const b = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
+        for (const o of Object.values(b.objects)) {
+            const node = o.rendNode;
+            if (!node || !['curve', 'line'].includes(o.elType)) continue;
+            const attribute = node.getAttribute('stroke-width') ?? '';
+            if (node.dataset.clipAppStroke !== undefined && node.dataset.clipAppStroke !== attribute) {
+                delete node.dataset.previewBaseStroke;
+                node.style.removeProperty('stroke-width');
+            }
+            node.dataset.clipAppStroke = attribute;
+        }
+    });
+}
+
+async function presentFixed(page, d, boardPresent, camera, row) {
+    if (row?.restyle) await followRestyles(page);
     const recipe = recipes[d.id];
     const presentation = recipe.framing.kind === 'coordinate-window' ? {window: recipe.framing.window} : {};
     return boardPresent(page.locator('#jgbox'), d, recipe, camera ? {...presentation, camera} : presentation);
@@ -231,7 +266,7 @@ async function presentFixed(page, d, boardPresent, camera) {
 
 /** Parameter sweep of a range or number control, as captureSweep does for the legacy clips. */
 async function sweepBoard(page, d, row, directory, presentBoard, kit) {
-    const poster = await presentFixed(page, d, presentBoard);
+    const poster = await presentFixed(page, d, presentBoard, undefined, row);
     const initial = await kit.boardSnapshot(page); const fixedBox = initial.box;
     assert.deepEqual(fixedBox, poster.boundingBox, `${row.id}: the poster fit must be the clip camera`);
     // Only form inputs count: a value list also gives each row's group its input's name (src/inputs/ValueListInput.tsx).
@@ -253,12 +288,12 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
         if (row.control.kind === 'number' && Math.abs(target - previousValue) > 1e-12) { await range.fill(String(target)); await range.press('Tab'); }
         else if (steps) { await range.focus(); for (let k = 0; k < Math.abs(steps); k++) await range.press(steps > 0 ? 'ArrowRight' : 'ArrowLeft'); }
         await settle(page);
-        await presentFixed(page, d, presentBoard, fixedBox);
+        await presentFixed(page, d, presentBoard, fixedBox, row);
         const value = parse(await range.inputValue());
         assert.ok(Math.abs(value - target) < 1e-9, `${row.id}: input ${value} differs from the scheduled ${target} at frame ${i}; if the control is coarse or integer-valued and cannot follow a smooth schedule, make the row motion "discrete-exact-steps" with a discreteReason`);
         const state = await kit.boardSnapshot(page);
         kit.assertCamera(state.box, fixedBox, 'Camera changed between sweep frames');
-        for (const [id, width] of state.strokesById) { if (known.has(id)) assert.equal(width, known.get(id), `${row.id}: stroke width changed for ${id}`); else known.set(id, width); }
+        checkStrokes(row, known, initial, state);
         for (const p of pointsOutsideCamera(row, state.points, fixedBox)) assert.fail(`${row.id}: point ${p.id} (${p.name}) left the fixed camera at frame ${i}`);
         const capture = await shoot(kit, page, path.join(directory, frameName(i)));
         samples.push({index: i, time: i / 24, target, actual: {input: value, steps}, capture, cameraBox: state.box,
@@ -271,7 +306,7 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
 
 /** Pointer drag of one control point of a curve board: press, follow the path in screen space, release at the exact start. */
 async function dragBoard(page, d, row, directory, presentBoard, kit) {
-    await presentFixed(page, d, presentBoard);
+    await presentFixed(page, d, presentBoard, undefined, row);
     const initial = await kit.boardSnapshot(page); const fixedBox = initial.box;
     const matches = initial.points.filter(p => p.draggable && plainName(p.name) === plainName(row.control.name));
     assert.equal(matches.length, 1, `${row.id}: expected one draggable point named "${row.control.name}"; draggable names are ${JSON.stringify(initial.points.filter(p => p.draggable).map(p => p.name))}`);
@@ -288,10 +323,10 @@ async function dragBoard(page, d, row, directory, presentBoard, kit) {
         if (i > PRESS - 1 && i < RELEASE) { const at = await screen(target[0], target[1]); await page.mouse.move(at.x, at.y); }
         if (i === RELEASE) { await page.mouse.up(); await parkPointer(page, row); }
         await settle(page);
-        await presentFixed(page, d, presentBoard, fixedBox);
+        await presentFixed(page, d, presentBoard, fixedBox, row);
         const state = await kit.boardSnapshot(page);
         kit.assertCamera(state.box, fixedBox, 'Camera changed during the drag');
-        for (const [id, width] of state.strokesById) { if (known.has(id)) assert.equal(width, known.get(id), `${row.id}: stroke width changed for ${id}`); else known.set(id, width); }
+        checkStrokes(row, known, initial, state);
         const actual = state.points.find(p => p.id === start.id);
         const others = state.points.filter(p => p.id !== start.id && initial.points.some(q => q.id === p.id && q.draggable));
         for (const p of others) { const q = initial.points.find(q => q.id === p.id); assert.ok(Math.hypot(p.x - q.x, p.y - q.y) < 1e-9, `${row.id}: control ${p.id} moved at frame ${i}`); }
@@ -361,4 +396,4 @@ async function clearSurfaceSelection(page, row) {
     await select.selectOption('');
 }
 
-module.exports = {pointsOutsideCamera, captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};
+module.exports = {pointsOutsideCamera, checkStrokes, captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};

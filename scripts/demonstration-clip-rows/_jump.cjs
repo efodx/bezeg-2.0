@@ -72,16 +72,30 @@ function median(values) {
 }
 
 /**
- * Judge a list of steps. `discrete` clips (exact-step or button-driven scenes) are allowed to jump and pass. Otherwise
+ * Judge a list of steps (`excused` indices, from restyledSteps, are left out). `discrete` clips (exact-step or button-driven scenes) are allowed to jump and pass. Otherwise
  * the clip needs at least one moving step (visible change) and no step above THRESHOLD times the median moving step.
  * Returns {ok, typical, max, ratio, threshold}; typical is 0 and ratio Infinity when nothing moves.
  */
-function assessFrameSteps(steps, {discrete} = {}) {
-    const moving = steps.filter(step => step > FLOOR);
-    const max = steps.length ? Math.max(...steps) : 0;
+function assessFrameSteps(steps, {discrete, excused = []} = {}) {
+    const judged = steps.filter((_, i) => !excused.includes(i));
+    const moving = judged.filter(step => step > FLOOR);
+    const max = judged.length ? Math.max(...judged) : 0;
     const typical = moving.length ? median(moving) : 0;
     const ratio = typical ? max / typical : Infinity;
-    return {ok: discrete === true || (moving.length > 0 && ratio <= THRESHOLD), typical, max, ratio, threshold: THRESHOLD};
+    const result = {ok: discrete === true || (moving.length > 0 && ratio <= THRESHOLD && excused.length <= MAX_EXCUSED_STEPS), typical, max, ratio, threshold: THRESHOLD};
+    return excused.length ? {...result, excused: [...excused]} : result;
+}
+
+/**
+ * Frame steps a `restyle` row excuses from the pixel check: those across which the app changed a stroke width (a highlight
+ * passing to another object, a whole cell at once). At most MAX_EXCUSED_STEPS, so a row cannot excuse its motion; the state
+ * check still holds the dragged value to the schedule on every frame.
+ */
+const MAX_EXCUSED_STEPS = 4;
+function restyledSteps(row, samples) {
+    if (!row.restyle) return [];
+    const widths = samples.map(sample => JSON.stringify(sample.strokeWidths));
+    return widths.slice(1).flatMap((w, i) => (w === widths[i] ? [] : [i]));
 }
 
 // State check, beside the pixel check: pixels saturate on dense scenes, so the value the app really showed (slider readback,
@@ -168,4 +182,4 @@ function stillColourPixel(pngBuffers, background, {radius = 8, stride = 16, minR
     throw new Error('No pixel keeps one colour in its neighbourhood in every frame, so the encoder colour check has nowhere to sample.');
 }
 
-module.exports = {frameSteps, assessFrameSteps, assessPathSteps, ignoredRatio, stillBackgroundPixel, stillColourPixel, SCHEDULE_STEP_LIMIT, MAX_IGNORED_RATIO};
+module.exports = {frameSteps, assessFrameSteps, restyledSteps, MAX_EXCUSED_STEPS, assessPathSteps, ignoredRatio, stillBackgroundPixel, stillColourPixel, SCHEDULE_STEP_LIMIT, MAX_IGNORED_RATIO};

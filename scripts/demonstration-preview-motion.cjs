@@ -1404,14 +1404,14 @@ function assertRowEvidence(motion) {
     const state = require('./demonstration-clip-rows/_driver.cjs').assessRowState(row, motion.samples, surface);
     assert.ok(state.ok, `${motion.id}: state check failed: ${state.reason}`);
     assert.deepEqual(motion.pathState, state, `${motion.id}: stored state check is stale`);
-    const {assessFrameSteps, ignoredRatio, MAX_IGNORED_RATIO} = require('./demonstration-clip-rows/_jump.cjs');
+    const {assessFrameSteps, restyledSteps, ignoredRatio, MAX_IGNORED_RATIO} = require('./demonstration-clip-rows/_jump.cjs');
     // The pixel check leaves board text out; the stored rectangles show what was ignored and must stay a minor part of the frame.
     assert.ok(motion.ignored && Array.isArray(motion.ignored.rects), `${motion.id}: missing the stored ignored text regions`);
     const ratio = ignoredRatio(first.capture.width, first.capture.height, motion.ignored.rects);
     assert.ok(ratio <= MAX_IGNORED_RATIO, `${motion.id}: the ignored text regions (${motion.ignored.rects.length}) cover ${(ratio * 100).toFixed(1)} percent of the frame, over the ${MAX_IGNORED_RATIO * 100} percent limit`);
     assert.ok(Math.abs(motion.ignored.ratio - ratio) < 1e-12, `${motion.id}: stored ignored ratio ${motion.ignored.ratio} is stale (rectangles give ${ratio})`);
     assert.ok(motion.jump && Array.isArray(motion.jump.steps) && motion.jump.steps.length === frameCount - 1, `${motion.id}: missing stored frame steps`);
-    const assessment = assessFrameSteps(motion.jump.steps, {discrete});
+    const assessment = assessFrameSteps(motion.jump.steps, {discrete, excused: restyledSteps(row, motion.samples)});
     assert.ok(assessment.ok, `${motion.id}: frames jump (largest step ${assessment.max} is ${assessment.ratio}x the typical ${assessment.typical}; limit ${assessment.threshold}x; ${motion.ignored.rects.length} text regions ignored, ${(ratio * 100).toFixed(1)} percent of the frame)`);
     const {steps: _steps, ...stored} = motion.jump;
     assert.deepEqual(stored, assessment, `${motion.id}: stored jump assessment is stale`);

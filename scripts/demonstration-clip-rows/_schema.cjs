@@ -3,8 +3,8 @@
 const assert = require('node:assert/strict');
 
 const rowFields = ['id', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
-// Optional: fineGrid (pointer-drag on a board only) and offCamera (board rows); see README.md.
-const optionalRowFields = ['fineGrid', 'offCamera'];
+// Optional: fineGrid (pointer-drag on a board only), offCamera and restyle (board rows); see README.md.
+const optionalRowFields = ['fineGrid', 'offCamera', 'restyle'];
 const motions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps', 'surface-orbit'];
 // Motions the driver can capture today. The other two are accepted by the schema so a row can name them, but the driver refuses them.
 const drivenMotions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps'];
@@ -24,6 +24,13 @@ function validateRow(row, where = 'row') {
         assert.ok(Number.isInteger(row.fineGrid) && row.fineGrid >= -8 && row.fineGrid <= -1, `${name}: fineGrid must be an integer from -8 to -1 (the grid step becomes 2^fineGrid board units)`);
         assert.equal(row.motion, 'pointer-drag', `${name}: fineGrid only applies to a pointer-drag row`);
         assert.equal(row.control.kind, 'point', `${name}: fineGrid only applies to a board point, not a surface point`);
+    }
+    if (row.restyle !== undefined) {
+        const restyle = row.restyle;
+        assert.ok(restyle && typeof restyle === 'object' && !Array.isArray(restyle), `${name}: restyle must be an object {reason}`);
+        assert.deepEqual(Object.keys(restyle), ['reason'], `${name}: restyle has exactly the field reason`);
+        assert.ok(typeof restyle.reason === 'string' && restyle.reason.trim(), `${name}: restyle.reason says which highlight the lesson's motion moves`);
+        assert.notEqual(row.control.kind, 'surface-point', `${name}: restyle applies to board rows only`);
     }
     if (row.offCamera !== undefined) {
         const exempt = row.offCamera;

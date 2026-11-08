@@ -25,7 +25,5 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'point-in-polygon', reason: NOT_CAPTURED},
     {id: 'hull-robustness', reason: NOT_CAPTURED},
     {id: 'ear-clipping', reason: NOT_CAPTURED},
-    {id: 'voronoi', reason: NOT_CAPTURED},
-    {id: 'voronoi-degenerate', reason: NOT_CAPTURED},
     {id: 'projective-pascal', reason: NOT_CAPTURED},
 ];

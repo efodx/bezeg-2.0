@@ -7,7 +7,7 @@ const path = require('node:path');
 const test = require('node:test');
 const {validateRow, validateRows, validateRowAgainstRecipes} = require('./_schema.cjs');
 const {assessPathSteps, SCHEDULE_STEP_LIMIT} = require('./_jump.cjs');
-const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance, pointsOutsideCamera} = require('./_driver.cjs');
+const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance, pointsOutsideCamera, checkStrokes} = require('./_driver.cjs');
 const {rows, rowsById} = require('./index.cjs');
 const {assertMotionEvidence} = require('../demonstration-preview-motion.cjs').testSupport;
 
@@ -220,4 +220,18 @@ test('offCamera names derived board points that may leave the camera, with a rea
     const points = [{id: 'a', name: '$$F_2$$', x: 50, y: 0}, {id: 'b', name: '$$P$$', x: 0, y: 0}, {id: 'c', name: '$$F$$', x: 0, y: -3}];
     assert.deepEqual(pointsOutsideCamera(exempt, points, box).map(p => p.id), ['c']);
     assert.deepEqual(pointsOutsideCamera(sweep, points, box).map(p => p.id), ['a', 'c']);
+});
+
+test('restyle lets a stroke move only between widths the poster frame shows', () => {
+    const restyled = {...clone(sweep), restyle: {reason: 'The highlighted Voronoi cell follows the query point.'}};
+    assert.doesNotThrow(() => validateRow(restyled));
+    rejects(row => { row.restyle.reason = ''; }, restyled, /restyle\.reason/);
+    rejects(row => { row.restyle.points = ['a']; }, restyled, /restyle has exactly/);
+    rejects(row => { row.control = {kind: 'surface-point', name: 'P'}; row.path = [[0, 0], [1, 1], [0, 0]]; row.motion = 'pointer-drag'; }, restyled, /restyle applies to board rows/);
+    const initial = {strokesById: [['a', '2px'], ['b', '4px']]};
+    const swapped = {strokesById: [['a', '4px'], ['b', '2px'], ['c', '1px']]};
+    assert.doesNotThrow(() => checkStrokes(restyled, new Map(initial.strokesById), initial, swapped));
+    assert.throws(() => checkStrokes(sweep, new Map(initial.strokesById), initial, swapped), /stroke width changed for a/);
+    // A width the poster does not show, as a compounding presentation makes, still fails.
+    assert.throws(() => checkStrokes(restyled, new Map(initial.strokesById), initial, {strokesById: [['a', '8px'], ['b', '4px']]}), /changed for a from 2px to 8px/);
 });

@@ -13,6 +13,7 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | `lessonQuote` | The lesson sentence the motion comes from |
 | `discreteReason` | `null`, except for `discrete-exact-steps`, where it says why smooth motion is impossible |
 | `fineGrid` | Optional integer -8 to -1, only for a `pointer-drag` row on a board point. See "Fine grid" |
+| `restyle` | Optional `{reason}` for a row where the app itself moves a stroke between widths the poster frame shows (a highlight passing to another cell). Excuses at most 4 frame steps of the pixel check where stored stroke widths change; the state check still holds the value to the schedule |
 | `offCamera` | Optional `{points, reason}` for a board row: JSXGraph names of derived points the lesson's motion takes out of view (for example `$$F_2$$` as a conic crosses ε = 1), and why. Every other point stays checked against the camera. Failure messages print each point's name |
 
 Copy accessible labels and point names from `docs/reviews/feature-streams/clips/route-probe.json`. Look at the three rows in this folder (`curve-geometry.cjs`, `bezier.cjs`, `patches.cjs`) as models.
@@ -31,7 +32,7 @@ A compgeo algorithm trace (convex hull, Bezier hulls, Delaunay, interval sweep, 
 
 Any graph built on `PointSetGraph` (the compgeo point-set views: orientation, polygon area, triangle centres, Euler line) snaps a dragged point to its model grid, so a smooth pointer drag would hop between grid nodes and fail the state check. Give such a row `fineGrid: -8` (the grid step becomes 2^-8 board units).
 
-The driver sets `window.__bezegClipGridStepExponent` before the page loads (`addInitScript`). `PointSetGraph` reads it in one place, `clipGridStepExponent()`. When set it rescales the model to the finer grid on the first drag (`rescaleToFinerGrid`, points keep their coordinates), keeps the dragged point under the pointer, and clears the selection when the point is released, so the last frame has no selection ring and the loop closes. Without the global the app behaves as before. The lesson's own scene is unchanged; the global is capture-only and nothing ships it.
+The driver sets `window.__bezegClipGridStepExponent` before the page loads (`addInitScript`). `PointSetGraph` reads it in one place, `clipGridStepExponent()`. When set it rescales the model to the finer grid on the first drag (`rescaleToFinerGrid`, points keep their coordinates), keeps the dragged point under the pointer, and clears the selection when the point is released, so the last frame has no selection ring and the loop closes. Voronoi's query point and its clipped drawing box follow the rescale (the box is kept while the view does not change, and the query marker follows the pointer and keeps its look on press), so the diagram does not redraw at the first drag. Without the global the app behaves as before. The lesson's own scene is unchanged; the global is capture-only and nothing ships it.
 
 Pointer tolerance: the offline check that the point is under the pointer allows one thousandth of a CSS pixel (`boardDragTolerance` in `_driver.cjs`), converted to board units from the clip's own camera (box width) and CSS frame width (`width / 2`, captured at deviceScaleFactor 2). Browser pointer coordinates are float32, so a fixed board tolerance of 1e-6 cannot be met. The surface tolerance (0.05 px) is unchanged.
 
