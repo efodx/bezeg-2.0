@@ -1,0 +1,147 @@
+# Verification throughput
+
+Status: planned 2026-11-08 at the owner's request ("the pipeline is so slow; do the tests catch anything; will `just check-changed` be enough; streams wait on publishing"). Research only: no test, build or smoke run was started. Every number below comes from Vitest's cached `results.json` (2026-11-08), 400 hosted `Browser smoke` runs on master (2026-11-02 to 11-08), one Playwright log (run 42473882485), Git history, and the repository's own recorded measurements. Evidence: [docs/reviews/verification-throughput/](../reviews/verification-throughput/) (`unit-audit.md`, `smoke-audit.md`, `ci-history.md`, `workflow-blocking.md`, `controls-impact.md`).
+
+Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, browser suite 665 s → 370 s) and the [fail-fast publication gate](fail-fast-publication-gate.md). No phase is task-filed yet; file tasks under `docs/tasks/verification-throughput/` when a phase is picked up.
+
+## Answers to the owner's questions
+
+**Do the tests catch anything?** Mostly yes, but the cost is not where the value is.
+
+- 128 of 198 `fix` commits change a test, and only 72 of 792 test-touching commits are test-only. Real-graph host tests have the clearest record (B-spline/NURBS, Voronoi, Delaunay, `sceneReplacementContract`, `NumberInput`).
+- Of 28 failed hosted runs, 4 distinct causes were real regressions: points outside a lesson frame, NURBS redraw, LaTeX in card alt text, a toolbar shifting between frames. 2 were lint. About 60% were bookkeeping: count tables, contract lists or generated images not updated after another stream registered a route or Preset. Flakes were about 0.7% of runs.
+- 315 pure-logic files cost 98 s (5% of test time). They are cheap and should stay.
+- Catalog-wide sweeps that mount a real graph for every lesson or Demonstration (`lessonRestoration.part1–4`, `sceneContentAgainstGraphs`, `sceneReplacementContract`, `GraphTransientState.part*`) take about 41% of unit test time. No fix commit has ever touched them. `GraphTransientState` failed 25 of 43 logged local runs, mostly while a graph was being registered, and rarely on a regression ([commands.md](../commands.md)).
+
+**Will `just check-changed` be enough?** No. It helps, but it targets the wrong bottleneck.
+
+- Selection is wide. A one-line change selects 163–283 of 614 files. 265 of 650 files import localization directly, so an `sl.ts`/`en.ts` edit (24 of the last 343 commits) selects most of the suite.
+- It runs inside a machine-wide test slot that is held for tsc, lint, unit and build together. Only 2 slots exist.
+- The main loss is the publication race described next. Each rebase onto a moved master reruns the gate.
+
+**Do streams block on publishing?** Yes. A runtime gate takes 16–50 minutes while master moves every few minutes ([handler handoff](../reviews/feature-streams/controls/handler-handoff-3.md)).
+
+- One stream ran three 24–41-minute gates in a row.
+- The gate requires a clean checkout, so the stream cannot keep editing while it runs.
+- Shared-file slices (localization, registrations) must push promptly, and each push invalidates every other gate still running.
+- Hosted CI itself is not awaited, apart from "fix red before your next push".
+
+**Will the controls stream lower this?** Not as currently written. It has added at least 12 test files and removed one. `sharedControls.graphs.test.tsx` mounts a real graph per case and is estimated at 55–60 s, the slowest unit file. Read literally, task 3 ("each family's panels pass the shared test") adds about 900–1,700 CPU-s, +40–80% of the suite. Shared controls make only 10–20 existing cases redundant (5–15 s). With the guardrails in phase 5 the stream ends roughly neutral.
+
+## Diagnosis
+
+1. **Waiting, not testing, dominates stream latency.** These costs multiply:
+   - every gate rerun after losing the race;
+   - slot queueing (2 slots, held through build);
+   - 60 s machine-wide start spacing;
+   - the clean-checkout requirement.
+2. **Cost scales with content.** Per-lesson and per-Demonstration sweeps grow linearly with the catalog: 45 lessons at consolidation, 123 now; 118 Demonstrations.
+   - Unit files grew about 3.6× in two weeks; a full local run took 103–143 s on 10-20 to 10-27 and 981 s on 11-03.
+   - Every new lesson adds about 16 s of browser walks plus its share of four real-graph unit sweeps.
+   - Each stream that adds content slows every other stream.
+3. **Bookkeeping tests turn parallel work into conflicts.** Literal totals (118 in `demonstrations.test.ts:135,182`, `Routes.test.tsx:112`, `guidedExamplePreviewCopy.test.ts:23`) and hand-kept lists produce rebase conflicts (22 commits only recount) and about 60% of red CI. They catch no product bugs.
+4. **Coverage gap: browser smoke is outside every local gate, and docs-only pushes hide red master.**
+   - Commit 97d22db4 removed `PointCoordinateEditor`. 29 references to `.point-coordinate-editor` remain in four smoke specs (`curve-ownership`, `guided-lessons`, `library-picker`, `standalone-learning`).
+   - Run 42475921993 (2fc4a346) is red, and the four docs-only runs after it show green without running Chromium.
+5. **CI wall time is set by unit shard 1** (median 9.5 min, last to finish in 11 of 17 runs). `lessonRestoration.part4` alone takes 154 s. Smoke shards finish 1–2 minutes earlier, so cutting smoke saves runner minutes but no wall time.
+
+## Plan
+
+Ranked by stream time saved per unit of effort. Each phase is independent, measured before and after, and recorded here. "Full" verification stays in hosted CI before deployment throughout; the plan narrows what runs locally and per gate, not what guards the deployed site.
+
+### Phase 0: repair master and stop masking red (immediately)
+
+- The controls stream updates the four smoke specs to the shared point controls (or restores the class hook), then pushes and confirms a green full run.
+- `scope` (`scripts/ci-change-scope.cjs`): a docs-only push selects full verification when the previous full-verification run on master did not succeed. Alternative: `just publish` prints and refuses on the last full run's failure. Pick one and record the reason.
+
+Acceptance: master's latest full run is green; a fault-injected red full run followed by a docs-only push runs Chromium again.
+
+### Phase 1: stop losing the publication race (largest stream gain, script-only)
+
+1. **Record the verified base.** After `check-changed` passes, the gate stores the master revision it verified on. When the push is rejected and master moved, the gate:
+   - rebases;
+   - if the incoming commits touch no file the slice imports (per Vitest's module graph) and no shared path, reruns only typecheck, lint and the always-run tier from phase 3;
+   - otherwise reruns `check-changed` limited to the incoming ∪ slice changes.
+
+   This removes the rejection that the original spec gave for skipping ("the verified base isn't recorded").
+2. **Machine-wide publish lock** around rebase, delta check and push. Gates on one machine stop invalidating each other, and the second gate's delta check sees the first gate's push.
+3. **Narrow slot holding.** Take the test slot only around Vitest/Playwright, not tsc, lint or build. Exempt `typecheck` and `lint` from the 60 s start spacing but keep the memory floor.
+4. **Later, needs an ADR:** publish from a dedicated worktree in the background, so the stream continues the next slice while its gate runs. The publication spec currently says the gate does not choose a worktree.
+
+Acceptance: `publish-gate.test.cjs` covers rejected-push → delta path, overlapping-incoming → full rerun, and lock contention. A recorded week of gates shows median gate time and reruns per published slice against the 2026-11-07 baseline (16–50 min, up to 3 reruns).
+
+### Phase 2: make catalog sweeps scale with the change, not the catalog
+
+Generalize the transient-state scope (`scripts/transient-state-scope.cjs`) to every catalog sweep:
+
+- **Locally and in the gate:** each sweep runs the entries the change reaches plus a fixed representative sample (one per restoration mechanism and family). It runs every entry when a shared path changes.
+- **In hosted CI:** every entry, as today.
+- **Sweeps:** `lessonRestoration`, `sceneContentAgainstGraphs`, `sceneReplacementContract`, `GraphTransientState`, and the guided-lesson/Demonstration smoke rows (for `just smoke`/`smoke-lesson`).
+- `BEZEG_<SWEEP>=all` overrides.
+- Estimated saving: about 450–500 CPU-s on a typical local or gate run. Local full-suite wall time falls to about 180–200 s at 10 workers. A content-only slice runs its own rows instead of the catalog.
+
+Same phase, structural:
+
+- Fold the guided-scene part of `sceneContentAgainstGraphs` into the restoration walk so each lesson mounts once. Keep its activities and limit-probe parts. Up to about 90 CPU-s.
+- Split `lessonRestoration` into eight parts and `sceneReplacementContract` (110 s) into parts. Rebalance the three unit shards (518 s vs 353 s today). CI critical path: about 9.5 → 7 min. Before splitting, measure whether a fourth unit shard is cheaper: each shard costs about 45 s of `npm ci`.
+
+Acceptance:
+
+- Faults are detected under the narrowed scope: a broken restoration in a changed lesson's graph and a broken shared base path each fail locally.
+- A fault in an unchanged, unsampled lesson fails only in CI. This is a documented, accepted risk, like the transient-state one.
+- Timings are recorded.
+
+### Phase 3: remove bookkeeping churn and catch it locally
+
+- Replace literal totals and hand-kept id lists with derived invariants. Every registered Demonstration has a route, copy, poster and home card; every lesson has a smoke row. Counts are asserted only where a count is the requirement.
+- Add an always-run tier to `check-changed`: the catalog-loop and content-lint files. They sum to about 2 s. Vitest's import selection misses them when a registration changes through a file read. Together with generated-image freshness, they account for most of the 60% bookkeeping failures.
+- Have the gate warn when the slice removes a CSS class, `data-*` attribute or `aria-label` that `tests/*.cjs` still references. This is a cheap static check that would have caught the phase 0 failure.
+
+Acceptance: re-running the history in `ci-history.md` against the new tier shows which of the 12 stale-count and 5 generated-image failures it would have caught locally; aim for most of them.
+
+### Phase 4: per-file overhead (measure first)
+
+- Every one of 650 files pays for jsdom plus a full `jsxgraph` import in `src/setupTests.ts` (forks pool, `isolate: true`). That is about 630 s of worker time per full run spent outside tests.
+- Move the 157 kernel-only files (analysis, compgeo, bezeg, projective, linear) into a Vitest `node` project with a light setup file.
+- Make the JSXGraph setup lazy for files that never mount a board.
+- Estimated 50–90 CPU-s. Accept only if a measured full run improves.
+
+### Phase 5: guardrails for the controls stream (apply before task 3)
+
+- The full shared-control behaviour test runs on two graphs per control kind, as the spec's acceptance already says. Every other migrated graph gets one thin wiring check.
+- Delete each graph's duplicate control-mechanics cases in the commit that migrates it. Examples: `InversionGraph.host.test.tsx:591`, `InscribedAngleGraph.host.test.tsx:190`, `PointSetSegments.host.test.tsx:149,200`; full list in `controls-impact.md`.
+- In `sharedControls.graphs.test.tsx`, mount once per group and reset between cases, and drop the redundant `curve-curvature` runs.
+- Each placement/view rule gets a pure test plus one real-graph case, not three real-graph files.
+- `just controls-fixture` stays outside `check-changed` and per-push CI.
+- Each sweep slice reports its test-time delta from `results.json`.
+
+### Phase 6: browser smoke (runner minutes, not wall time)
+
+- Scope lesson walks in CI with `ci-change-scope.cjs`:
+  - all walks when the lesson runtime, shared layout or smoke helpers change;
+  - matching rows for lesson-content changes;
+  - about 20–25 representative rows otherwise;
+  - all rows on manual dispatch and on the deploying run if the owner prefers.
+- Move the 7 Exit rows off lessons-2 (921 s vs 502 s on lessons-3).
+- Replace `settle()`'s poll-and-sleep (runs about 6,500 times) with one in-page `waitForFunction`.
+- Batch the catalogue and clip-decode tests (about 125 s) into one `evaluateAll`.
+- Lower the lesson timeout from 150 s to 60 s and set `maxFailures`, so a broken selector does not run every row to timeout.
+
+### Keeping it from regrowing
+
+- Add `just test-cost` to print the slowest files and summed time from `results.json`, plus the delta against `origin/master`'s last recorded run.
+- A new catalog-wide or real-graph-per-entry test must state its scope tier (sampled locally, full in CI) in its header comment.
+- The handler card asks slices that add tests to report the time delta.
+
+## Decisions taken
+
+- CI stays the full gate before deployment. Making local and gate runs narrower is what speeds streams up; making CI faster only saves runner minutes and the time to notice red.
+- No test is deleted for speed alone where history shows it catches bugs. Deletions target duplicated mechanics and literal-count bookkeeping.
+- Rejected for now:
+  - pushing on hosted CI alone, because it breaks the fail-fast contract;
+  - a GitHub merge queue, because it needs branch protection and the publication spec puts that out of scope;
+  - an automatic per-test quarantine, because the flake rate is 0.7% and not the problem.
+
+## Out of scope
+
+Replacing Vitest or Playwright, renderer changes, and test-impact tooling beyond Vitest's module graph and the existing scope scripts.

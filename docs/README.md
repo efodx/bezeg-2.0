@@ -28,6 +28,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 - [Learn landing visual alignment](tasks/learn-landing-visual-alignment/README.md): four planned tasks bringing `/learn` in line with the homepage and catalog look (shell tokens, grid backdrop, two-column opening, strand cards, calmer rows) from the [spec](specs/learn-landing-visual-alignment.md); unstarted.
 - [Lesson example improvements](tasks/lesson-example-improvements/README.md): planned batches linked to their source spec.
 - [Test consolidation](tasks/test-consolidation/README.md): five ranked implementation tasks for reducing repeated verification while retaining graph, content and browser coverage.
+- [Verification throughput](specs/verification-throughput.md): 2026-11-08 plan to cut stream waiting on publish gates and stop test cost scaling with the catalog, with evidence on what the tests catch; no phase is task-filed yet.
 - [Architecture deepening backlog](tasks/architecture-deepening-backlog/README.md): ten module-deepening tasks in four parallel lanes (host, curves, functions, learning) from the 2026-10-25 whole-app review.
 - [Feature streams](tasks/feature-streams/README.md): six parallel orchestrator streams that deliver complete features: the architecture backlog, the Learn UI work, and the fifteen new lesson families, with gates and shared-file rules.
 - [Lesson rollout reconciliation](reviews/guided-lessons-status-reconciliation.md): remaining evidence ownership and smoke coverage gaps.
