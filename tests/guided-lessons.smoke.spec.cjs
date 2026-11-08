@@ -2425,7 +2425,7 @@ const bezierClipping = {
     steps: 8,
     minFrames: 18, // 6 steps of 2 frames and 2 of 3
     stepProbe: async (page, ctx, step, label) => {
-        await expect.poll(() => page.locator('[data-bezier-clipping="tolerance"]').inputValue(), {message: `clipping tolerance at ${label}`}).toBe(CLIPPING_TOLERANCES[step - 1]);
+        await expect.poll(() => page.locator('[data-bezier-clipping="tolerance"] select').inputValue(), {message: `clipping tolerance at ${label}`}).toBe(CLIPPING_TOLERANCES[step - 1]);
     },
 };
 

@@ -80,7 +80,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
     const {rows, further} = readout.table;
     const liveReadout = useStatusReadout([stepText, status, count, ...(widest === null ? [] : [widest])].join("\n"));
     return <>
-        <div className="inspector-group">
+        <div className="inspector-group" data-bezier-clipping="tolerance">
             <ChoiceSelect label={t("bezierclipping_tolerance_label")} value={String(props.toleranceExponent)}
                           options={CLIP_TOLERANCE_EXPONENTS.map(k => ({value: String(k), text: powerOfTenText(k), ariaLabel: t("bezierclipping_tolerance_option", {value0: k})}))}
                           onChange={value => props.onTolerance(Number(value))}/>
