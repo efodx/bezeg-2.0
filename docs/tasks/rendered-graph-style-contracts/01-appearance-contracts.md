@@ -1,6 +1,6 @@
 # 1. Rendered appearance contracts
 
-Status: in progress 2026-11-08 in [Controls](../feature-streams/controls.md) step 3a. Source: [rendered graph style contracts](../../specs/rendered-graph-style-contracts.md), acceptance criteria 1–9 (canonical there; not repeated here).
+Status: accepted 2026-11-08 by the Controls handler (test-only; no defects found); evidence in [01-appearance-contracts.evidence.md](01-appearance-contracts.evidence.md). In [Controls](../feature-streams/controls.md) step 3a. Source: [rendered graph style contracts](../../specs/rendered-graph-style-contracts.md), acceptance criteria 1–9 (canonical there; not repeated here).
 
 ## Scope and entry points
 
