@@ -1,5 +1,5 @@
 # Stream: Controls
-Run state: active
+Run state: stopped: owner restart with parallel plan and more resources
 
 Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (spec: [shared-graph-controls.md](../../specs/shared-graph-controls.md)). The owner confirmed C1–C30 and decisions 1–11 on 2026-11-07, then handed further decisions to the handlers. Rules: [feature streams](README.md). Port 4317. Handoffs: `docs/reviews/feature-streams/controls/`.
 
@@ -9,7 +9,7 @@ Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (
 | --- | --- | --- | --- |
 | 0 | [Inventory](../shared-graph-controls/00-inventory.md) | Read-only. The handler decides exceptions and Reset removals | accepted 2026-11-07: [inventory](../shared-graph-controls/inventory.md), [evidence](../shared-graph-controls/00-inventory.evidence.md) |
 | 1 | [Foundation](../shared-graph-controls/01-foundation.md) | New graphs comply from here on | accepted 2026-11-08 (gaps in [handoff 5](../../reviews/feature-streams/controls/handler-handoff-5.md#open-items)): slices 1a and 1b accepted 2026-11-07 (evidence: [1a](../../reviews/feature-streams/controls/foundation-1a.md), [1a smoke](../../reviews/feature-streams/controls/foundation-1a-smoke.md), [1b](../../reviews/feature-streams/controls/foundation-1b.md), [1b smoke](../../reviews/feature-streams/controls/foundation-1b-smoke.md), [2a](../../reviews/feature-streams/controls/foundation-2a.md), [2b](../../reviews/feature-streams/controls/foundation-2b.md), [3](../../reviews/feature-streams/controls/foundation-3.md), [4](../../reviews/feature-streams/controls/foundation-4.md)); slices 2a and 2b accepted 2026-11-07; slices 3, 4, 5a and 5b accepted 2026-11-08 ([5a](../../reviews/feature-streams/controls/foundation-5a.md), [5b](../../reviews/feature-streams/controls/foundation-5b.md)); hint-on-Reset fix (decision 24, [smoke](../../reviews/feature-streams/controls/hint-reset-smoke.md)) and slice 5c ([5c](../../reviews/feature-streams/controls/foundation-5c.md)) accepted 2026-11-08; 5c fixture findings fixed in slice 5d (decision 26, [smoke](../../reviews/feature-streams/controls/foundation-5d-smoke.md)); next: task 2 |
-| 2 | [Shared point controls](../shared-graph-controls/02-shared-point-controls.md) | Pilots: PointSet, Interpolation, curve workspace | in progress 2026-11-08: slices P1 (point rules), P2 (point controls), P3 (Interpolation, `add-point` coordinates), P4 (PointSet), P5 (curve workspace); briefs `docs/reviews/feature-streams/controls/points-p*-brief.md` |
+| 2 | [Shared point controls](../shared-graph-controls/02-shared-point-controls.md) | Pilots: PointSet, Interpolation, curve workspace | implemented 2026-11-08, slices P1–P5 on `master` (evidence `points-p1.md`…`points-p5.md`, review `points-review-eng.md`); acceptance waits for the UI review, smoke and review follow-ups in [state.md](../../reviews/feature-streams/controls/state.md#before-task-2-is-accepted) |
 | 3 | [Contracts task 2](../mathematical-runtime-contracts/02-correlated-trace-types.md), then [task 3](../mathematical-runtime-contracts/03-shared-trace-playback.md) | Taken into this stream 2026-11-07: the sweeps edit the same panels and C24 uses this policy. Update their status in the [contracts queue](../mathematical-runtime-contracts/README.md) | pending |
 | 3a | [Rendered graph style contracts](../../specs/rendered-graph-style-contracts.md) | Added 2026-11-07. Write its task file from the spec first. Before the sweeps, so they run with the appearance checks in place | pending |
 | 4 | [Family sweeps](../shared-graph-controls/03-family-sweeps.md) | After step 3 | pending |
@@ -19,6 +19,18 @@ Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (
 | 7 | [Lesson-authoring workstream 5](../../specs/lesson-authoring-architecture.md#5-persisted-scene-validation-and-projection) | Approved once this scope settled. Write its task file from the spec first. Last of the steps above, so it shares no `BaseGraph.tsx` seam with them | pending |
 | 8 | [Lesson-authoring workstream 4](../../specs/lesson-authoring-architecture.md#4-owned-standalone-scenes) | Added 2026-11-07. Blossom and NURBS only. Write its task file from the spec first. After step 7: the two must not change `BaseGraph` replacement hooks at the same time | pending |
 | 9 | [Lesson-authoring workstream 3](../../specs/lesson-authoring-architecture.md#3-feature-local-registration) | Added 2026-11-07. Projective conics pilot, then stop. Write its task file from the spec first. After step 7, whose collections it references, and after [Contracts step 4](contracts.md), whose owner identities it consumes | pending |
+
+## Parallel plan
+
+Written 2026-11-08 at the owner's request, for a restart with more resources. State: [state.md](../../reviews/feature-streams/controls/state.md).
+
+- **Worker cap:** three workers by default, plus short review and smoke workers, limited by handler integration and context load and by merge conflicts on shared panels; up to four when slices are independent and heavy runs (smoke, fixture, build) are not queueing. Drop back if heavy runs wait more than about 10 minutes. Slices verify with `just check-changed` and the full suite runs only at checkpoints and in CI (since `d17a1ee1`), so test slots are no longer the main limit. On owner instruction, while only one or two streams run, this overrides both the README's two per stream and the handler card's three-worker maximum.
+- **Handler budget:** Handler budget 1.5x (BEZEG_HANDLER_BUDGET_SCALE in this worktree's .claude/settings.local.json): BUDGET SOFT about 262k, BUDGET HANDOFF about 322k for Opus. Set on 2026-11-08 by the supervising "controls stream status" session on the owner's behalf; the file is untracked and gitignored from `e7df5494`.
+- **Shared files:** anything that changes `BaseGraph.tsx` within a wave has a single owner. Each other shared file has one owner per wave; conflicts in `sl.ts`, `en.ts` and `controlExemptions` are mechanical (keep both sides).
+- **Wave 1:** first, step 2's UI and accessibility review and browser smoke ([state.md, "Before task 2 is accepted"](../../reviews/feature-streams/controls/state.md#before-task-2-is-accepted)), then accept step 2 (it owns `BaseGraph.tsx` until then). In parallel: step 3 (contracts task 2, then task 3) and step 3a (write its task file, then the appearance checks). Alongside them: step 6's read-only inventory and phone prototype (its items 1–2), and the handler writes the task files for steps 7, 8 and 9.
+- **Wave 2** (after steps 2, 3 and 3a): family sweeps two at a time: compgeo with projective, then functions with curves, then patches.
+- **Wave 3:** step 5 slices two at a time; the C29/C30 labels last and alone. Step 6's implementation starts once the C12/C24 playback slice lands. Step 5a stays gated on Codex's lesson navigation.
+- **Wave 4:** step 7 alone, then steps 8 and 9 in parallel.
 
 ## Decisions
 

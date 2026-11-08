@@ -470,7 +470,7 @@ export type LessonAction =
     /**
      * InterpolationGraph only (Lagrange versus Bezier, lesson I1): `set-rule` picks the parameter rule, `set-overlay` shows or hides the
      * convex hull, the Bezier curve or the basis plot, and `add-point` appends a point like the Add button, or exactly at `x`, `y` when
-     * both are given (a refusal at the point maximum changes nothing; a coordinate-given point the model cannot accept is refused with a message). The shared position s is the `parameter` action named `t`, a number from 0 to 1.
+     * both are given (a refused add, including one at the point maximum, throws a `DomainError`: a refused authored action is a content defect). The shared position s is the `parameter` action named `t`, a number from 0 to 1.
      */
     | {readonly kind: 'interpolation'; readonly operation: 'set-rule'; readonly rule: 'uniform' | 'chord'}
     | {readonly kind: 'interpolation'; readonly operation: 'set-overlay'; readonly overlay: 'hull' | 'bezier' | 'basis'; readonly visible: boolean}

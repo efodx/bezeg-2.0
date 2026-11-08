@@ -7,6 +7,8 @@ describe("constrainPoint", () => {
     it("snaps half away from zero", () => {
         expect(constrainPoint([0.25, -0.25], {step: 0.5})).toEqual([0.5, -0.5]);
         expect(constrainPoint([-1.5, 1.5], {step: 1})).toEqual([-2, 2]);
+        // 0.15 / 0.1 is 1.4999999999999998 in binary; the same tolerance as NumberInput rounds it half away from zero.
+        expect(constrainPoint([0.15, -0.15], {step: 0.1})).toEqual([0.2, -0.2]);
     });
     it("clamps silently per axis", () => {
         expect(constrainPoint([9, -9], {bounds: {x: [-2, 2]}})).toEqual([2, -9]);

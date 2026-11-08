@@ -16,7 +16,7 @@ function clean(value: number): number {
 
 /** Rounds to the step grid, half away from zero (as NumberInput does). */
 function snap(value: number, step: number): number {
-    return clean(Math.sign(value) * Math.round(Math.abs(value) / step) * step);
+    return clean(Math.sign(value) * Math.floor(Math.abs(value) / step + 0.5 + 1e-9) * step);
 }
 
 function constrainAxis(value: number, step: number | undefined, bounds: readonly [number, number] | undefined): number {
