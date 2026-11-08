@@ -571,7 +571,7 @@ test('heavy commands take a slot and pass its worker cap; filtered unit runs ski
     const npmCli = path.join(root, 'npm-cli.js');
     const received = path.join(root, 'received.log');
     const slotDir = process.env.BEZEG_TEST_SLOT_DIR;
-    fs.writeFileSync(npmCli, `const fs = require('node:fs'); fs.appendFileSync(${JSON.stringify(received)}, JSON.stringify({workers: process.env.BEZEG_TEST_WORKERS, held: fs.readdirSync(${JSON.stringify(slotDir)}).length}) + '\\n')`);
+    fs.writeFileSync(npmCli, `const fs = require('node:fs'); fs.appendFileSync(${JSON.stringify(received)}, JSON.stringify({workers: process.env.BEZEG_TEST_WORKERS, held: fs.readdirSync(${JSON.stringify(slotDir)}).filter(name => name.startsWith('slot-')).length}) + '\\n')`);
     process.env.npm_execpath = npmCli;
     const env = {...process.env, BEZEG_TEST_SLOTS: '1', BEZEG_TEST_WORKERS: '3'};
     try {
@@ -591,10 +591,118 @@ test('controls-fixture runs its own Playwright config under a test slot and is a
     const received = path.join(root, 'received.log');
     const slotDir = process.env.BEZEG_TEST_SLOT_DIR;
     fs.mkdirSync(path.join(root, 'node_modules', '@playwright', 'test'), {recursive: true});
-    fs.writeFileSync(path.join(root, 'node_modules', '@playwright', 'test', 'cli.js'), `const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(received)}, JSON.stringify({args: process.argv.slice(2), held: fs.readdirSync(${JSON.stringify(slotDir)}).length}));`);
+    fs.writeFileSync(path.join(root, 'node_modules', '@playwright', 'test', 'cli.js'), `const fs = require('node:fs'); fs.writeFileSync(${JSON.stringify(received)}, JSON.stringify({args: process.argv.slice(2), held: fs.readdirSync(${JSON.stringify(slotDir)}).filter(name => name.startsWith('slot-')).length}));`);
     try {
         assert.equal(await commands.execute('controls-fixture', ['--grep', 'x'], {root, env: {...process.env, BEZEG_TEST_SLOTS: '1', BEZEG_TEST_WORKERS: '3'}}), 0);
         assert.deepEqual(JSON.parse(fs.readFileSync(received, 'utf8')), {args: ['test', '-c', 'tests/controls-fixture.config.cjs', '--grep', 'x'], held: 1});
         assert.match(fs.readFileSync(path.join(__dirname, '..', 'justfile'), 'utf8'), /^controls-fixture \*args:/m);
     } finally { cleanup(root); }
 });
+
+// Fixture project whose tools append their name to one events file, shared with the injected slot and memory-gate fakes.
+function gateFixture() {
+    const root = fixture();
+    const events = path.join(root, 'events.log');
+    const record = label => fs.appendFileSync(events, `${label}\n`);
+    const append = label => `require('node:fs').appendFileSync(${JSON.stringify(events)}, ${JSON.stringify(`${label}\n`)});`;
+    fs.mkdirSync(path.join(root, 'node_modules/typescript/bin'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules/typescript/bin/tsc'), append('tsc'));
+    fs.mkdirSync(path.join(root, 'node_modules/eslint/bin'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules/eslint/bin/eslint.js'), append('lint'));
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({scripts: {build: 'fixture'}}));
+    const npmCli = path.join(root, 'npm-cli.js');
+    fs.writeFileSync(npmCli, `const fs = require('node:fs'); const run = process.argv[2] === 'run'; fs.appendFileSync(${JSON.stringify(events)}, (run ? 'build' : 'unit') + '\\n'); if (run) fs.writeFileSync('build/index.html', 'fixture build'); else if (fs.existsSync('fail-unit')) process.exit(5);`);
+    const fakes = {
+        acquireSlot: async ({command}) => { record(`slot-acquire ${command}`); return {index: 1, slots: 2, workers: 4, release: () => record('slot-release')}; },
+        admitByMemory: async ({command, spacing = true}) => { record(`admit ${command} spacing=${spacing}`); return {freeGB: 20}; },
+    };
+    const read = () => fs.readFileSync(events, 'utf8').trim().split('\n');
+    return {root, npmCli, fakes, read};
+}
+
+async function withGateFixture(body) {
+    const fixtureState = gateFixture();
+    const prior = process.env.npm_execpath;
+    process.env.npm_execpath = fixtureState.npmCli;
+    try { await body({...fixtureState, env: {...process.env, BEZEG_MEMORY_FLOOR_GB: '0'}}); }
+    finally {
+        if (prior === undefined) delete process.env.npm_execpath;
+        else process.env.npm_execpath = prior;
+        cleanup(fixtureState.root);
+    }
+}
+
+test('check-changed holds a slot only around the unit step; typecheck, lint and build hold none', () => withGateFixture(async ({root, fakes, read, env}) => {
+    assert.equal(await commands.execute('check-changed', [], {root, env, slots: fakes}), 0);
+    assert.deepEqual(read(), [
+        'admit typecheck spacing=false', 'tsc',
+        'admit lint spacing=false', 'lint',
+        'slot-acquire check-changed', 'admit check-changed spacing=true', 'unit', 'slot-release',
+        'admit build spacing=false', 'build',
+    ]);
+}));
+
+test('build, lint and typecheck acquire no slot', () => withGateFixture(async ({root, fakes, read, env}) => {
+    assert.equal(await commands.execute('build', [], {root, env, slots: fakes}), 0);
+    assert.equal(await commands.execute('lint', [], {root, env, slots: fakes}), 0);
+    assert.equal(await commands.execute('typecheck', [], {root, env, slots: fakes}), 0);
+    assert.deepEqual(read(), ['admit build spacing=false', 'build', 'admit lint spacing=false', 'lint', 'admit typecheck spacing=false', 'tsc']);
+}));
+
+test('the slot is released when the unit step fails, and the build is not reached', () => withGateFixture(async ({root, fakes, read, env}) => {
+    fs.writeFileSync(path.join(root, 'fail-unit'), '');
+    assert.equal(await commands.execute('check', [], {root, env, slots: fakes}), 5);
+    const events = read();
+    assert.equal(events.at(-1), 'slot-release');
+    assert.equal(events.filter(line => line.startsWith('slot-')).length, 2);
+    assert.ok(!events.includes('build'));
+}));
+
+test('smoke builds outside the slot and takes it only for the Playwright run', () => withGateFixture(async ({root, fakes, read, env}) => {
+    await commands.execute('smoke', [], {root, env, slots: fakes});
+    assert.deepEqual(read().slice(0, 3), ['admit build spacing=false', 'build', 'slot-acquire smoke']);
+}));
+
+test('spacing: false skips the start spacing and its marker but still waits for the memory floor', async () => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-memory-nospace-'));
+    const GB = 1024 ** 3;
+    const messages = [];
+    let free = 6 * GB;
+    const options = {env: {BEZEG_MEMORY_FLOOR_GB: '2'}, dir, stderr: {write: text => messages.push(text)}, pollMs: 5, now: () => 1_000_000, freeBytes: () => free, spacing: false};
+    try {
+        // Another live process just started: a spaced run would wait, an unspaced one reads memory and goes.
+        fs.writeFileSync(path.join(dir, 'memory-ramp.json'), JSON.stringify({pid: process.ppid, command: 'unit', started: 1_000_000}));
+        assert.equal((await slots.admitByMemory({command: 'typecheck', ...options})).freeGB, 6);
+        assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'memory-ramp.json'), 'utf8')).command, 'unit');
+        // Under the floor it still waits.
+        free = 2.5 * GB;
+        let admitted;
+        const waiting = slots.admitByMemory({command: 'lint', ...options}).then(result => { admitted = result; });
+        await new Promise(resolve => setTimeout(resolve, 40));
+        assert.equal(admitted, undefined);
+        assert.match(messages.join(''), /lint needs about 1 GB above the 2 GB floor/);
+        free = 6 * GB;
+        await waiting;
+        assert.equal(admitted.freeGB, 6);
+    } finally { cleanup(dir); }
+});
+
+test('a heavy command already running in the same checkout is refused before any step, though it holds no slot', () => withGateFixture(async ({root, fakes, read, env}) => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-run-claim-'));
+    const claimEnv = {...env, BEZEG_TEST_SLOT_DIR: dir};
+    try {
+        // Make another live process (this test's parent) the holder of `build` in this checkout.
+        const ours = require('./test-slots.cjs').claimRun({command: 'build', root, env: claimEnv});
+        const name = fs.readdirSync(dir).find(entry => entry.startsWith('run-'));
+        const holder = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
+        fs.writeFileSync(path.join(dir, name), JSON.stringify({...holder, pid: process.ppid}));
+        await assert.rejects(commands.execute('build', [], {root, env: claimEnv, slots: fakes}), /`build` is already running in this checkout/);
+        assert.equal(fs.existsSync(path.join(root, 'events.log')), false, 'no gate or step ran');
+        ours.release();
+        fs.rmSync(path.join(dir, name), {force: true});
+        // Once the holder is gone the command runs and leaves no claim behind.
+        assert.equal(await commands.execute('build', [], {root, env: claimEnv, slots: fakes}), 0);
+        assert.deepEqual(read(), ['admit build spacing=false', 'build']);
+        assert.deepEqual(fs.readdirSync(dir).filter(entry => entry.startsWith('run-')), []);
+    } finally { cleanup(dir); }
+}));

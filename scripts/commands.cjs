@@ -338,7 +338,8 @@ async function assertProvenance(root) {
     return stamp;
 }
 
-async function runPlan({root, scope, steps, env = process.env, longLived = false, onStart, provenance, label}) {
+async function runPlan({root, scope, steps, env = process.env, longLived = false, onStart, provenance, label: initialLabel}) {
+    let label = initialLabel;
     const log = logPath(root);
     const started = Date.now();
     let result = {code: 0, tail: '', warned: false};
@@ -350,8 +351,15 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
         onStart({log, state});
     }
     for (const step of steps) {
-        const full = {...step, cwd: root, env, log, verbose: env.BEZEG_VERBOSE === '1'};
-        result = await runChild(full);
+        // A step may take a gate (free-memory check, or a machine-wide slot) just before it runs and release it right after.
+        let held;
+        try {
+            held = step.acquire ? await step.acquire() : undefined;
+            if (held?.label) label = held.label;
+            const {acquire: _acquire, ...rest} = step;
+            const full = {...rest, cwd: root, env: {...env, ...held?.env}, log, verbose: env.BEZEG_VERBOSE === '1'};
+            result = await runChild(full);
+        } finally { held?.release?.(); }
         warned ||= result.warned;
         if (result.code !== 0) break;
         if (longLived) break;
@@ -380,41 +388,55 @@ function needsSlot(command, args) {
 
 async function execute(command, rawArgs = [], options = {}) {
     const root = options.root || ROOT;
-    const {FILTERED_UNIT_WORKERS, machineBudget, acquireSlot, admitByMemory, fitWorkers} = require('./test-slots.cjs');
+    const lib = {...require('./test-slots.cjs'), ...options.slots};
     const baseEnv = options.env || process.env;
-    if (['typecheck', 'lint'].includes(command)) {
-        await admitByMemory({command, env: baseEnv});
-        return executeCommand(command, rawArgs, {...options, root});
-    }
-    if (!['unit', 'check', 'check-changed', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson', 'controls-fixture'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
+    if (!['typecheck', 'lint', 'unit', 'check', 'check-changed', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson', 'controls-fixture'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
     const unslotted = () => {
-        const budget = machineBudget({env: baseEnv});
-        return {...budget, workers: command === 'unit' ? Math.min(budget.workers, FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
+        const budget = lib.machineBudget({env: baseEnv});
+        return {...budget, workers: command === 'unit' ? Math.min(budget.workers, lib.FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
     };
-    const slot = needsSlot(command, rawArgs) ? await acquireSlot({command, root, env: baseEnv}) : unslotted();
-    try {
-        // A slot holder may still wait here: the slot caps test runners, the memory gate covers everything else.
-        const {freeGB} = await admitByMemory({command, env: baseEnv});
-        const workers = fitWorkers(slot.workers, freeGB, baseEnv);
-        // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
-        const env = {...baseEnv, BEZEG_TEST_WORKERS: String(workers)};
-        const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${workers} workers` : `${workers} workers, no slot`;
-        return await executeCommand(command, rawArgs, {...options, root, env, label});
-    }
-    finally { slot.release(); }
+    const gate = {
+        // typecheck, lint and build hold no slot and skip the start spacing; they keep the free-memory floor.
+        async free(name) {
+            await lib.admitByMemory({command: name, env: baseEnv, spacing: false});
+            return {};
+        },
+        // The step that runs tests: holds a slot (a filtered unit run holds none) from here until the step ends.
+        async slot() {
+            const slot = needsSlot(command, rawArgs) ? await lib.acquireSlot({command, root, env: baseEnv}) : unslotted();
+            try {
+                // A slot holder may still wait here: the slot caps test runners, the memory gate covers everything else.
+                const {freeGB} = await lib.admitByMemory({command, env: baseEnv});
+                const workers = lib.fitWorkers(slot.workers, freeGB, baseEnv);
+                // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
+                const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${workers} workers` : `${workers} workers, no slot`;
+                return {env: {BEZEG_TEST_WORKERS: String(workers)}, label, release: slot.release};
+            } catch (error) {
+                slot.release();
+                throw error;
+            }
+        },
+    };
+    // A heavy command is refused up front when the same command already runs in this checkout, before any step starts.
+    const claim = needsSlot(command, rawArgs) ? lib.claimRun({command, root, env: baseEnv}) : undefined;
+    try { return await executeCommand(command, rawArgs, {...options, root, gate}); }
+    finally { claim?.release(); }
 }
 
 async function executeCommand(command, rawArgs = [], options = {}) {
     const root = options.root || ROOT;
     const args = [...rawArgs];
     const baseEnv = options.env || process.env;
-    const run = (scope, steps, env = baseEnv, longLived = false, onStart, provenance) => runPlan({root, scope, steps, env, longLived, onStart, provenance, label: options.label});
+    const run = (scope, steps, env = baseEnv, longLived = false, onStart, provenance) => runPlan({root, scope, steps, env, longLived, onStart, provenance});
+    const gate = options.gate;
+    const free = (name, step) => gate ? {...step, acquire: () => gate.free(name)} : step;
+    const slotted = step => gate ? {...step, acquire: () => gate.slot()} : step;
     const nodeStep = (label, file, argv = [], env = process.env) => ({label, executable: process.execPath, args: [file, ...argv], env});
-    const tsc = () => nodeStep('typecheck', localTool(root, 'typescript'), ['--noEmit', '--pretty', 'false']);
-    const lint = argv => nodeStep('lint', localTool(root, 'eslint'), argv.length ? argv : ['.']);
-    const build = () => npmStep('build');
-    const unit = argv => ({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
-    const smokeBuilt = argv => npmStep('test:smoke:built', argv);
+    const tsc = () => free('typecheck', nodeStep('typecheck', localTool(root, 'typescript'), ['--noEmit', '--pretty', 'false']));
+    const lint = argv => free('lint', nodeStep('lint', localTool(root, 'eslint'), argv.length ? argv : ['.']));
+    const build = () => free('build', npmStep('build'));
+    const unit = argv => slotted({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
+    const smokeBuilt = argv => slotted(npmStep('test:smoke:built', argv));
     if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs'), path.join(root, 'scripts/demonstration-preview-motion-runner.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_jump.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_rows.test.cjs'), path.join(root, 'scripts/publish-gate.test.cjs')]}]);
     if (command === 'clip') {
         if (args.length !== 1 || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(args[0])) throw new Error('Usage: just clip <demonstration-id> (one id, lowercase with hyphens).');
@@ -488,7 +510,7 @@ async function executeCommand(command, rawArgs = [], options = {}) {
     }
     if (command === 'controls-fixture') {
         // Test-only rendered fixture of the shared controls on the Vite dev server (port 4328, set by its own config); no build needed.
-        return run('controls-fixture', [nodeStep('controls-fixture', path.join(root, 'node_modules', '@playwright', 'test', 'cli.js'), ['test', '-c', 'tests/controls-fixture.config.cjs', ...args])]);
+        return run('controls-fixture', [slotted(nodeStep('controls-fixture', path.join(root, 'node_modules', '@playwright', 'test', 'cli.js'), ['test', '-c', 'tests/controls-fixture.config.cjs', ...args]))]);
     }
     if (command === 'smoke-lesson') {
         const parsed = parsePortArgs(args, Number(process.env.SMOKE_PORT || 4173));

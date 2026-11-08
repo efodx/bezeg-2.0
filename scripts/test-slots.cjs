@@ -145,6 +145,35 @@ async function acquireSlot({command, root, env = process.env, dir = slotDir(env)
     }
 }
 
+/**
+ * Claims `command` in checkout `root` for this process, separately from the test slots: typecheck, lint and build
+ * hold no slot, but two heavy runs of one command in one checkout would still share build/ and double the load.
+ * Throws when a live process already holds the claim. Returns {release}.
+ */
+function claimRun({command, root, env = process.env, dir = slotDir(env), now = Date.now()} = {}) {
+    fs.mkdirSync(dir, {recursive: true});
+    const resolved = process.platform === 'win32' ? path.resolve(root).toLowerCase() : path.resolve(root);
+    const key = require('node:crypto').createHash('sha1').update(`${resolved}\0${command}`).digest('hex').slice(0, 16);
+    const file = path.join(dir, `run-${key}.json`);
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+            fs.writeFileSync(file, JSON.stringify({pid: process.pid, command, root, started: now}), {flag: 'wx'});
+            const onExit = () => { if (readHolder(file)?.pid === process.pid) fs.rmSync(file, {force: true}); };
+            process.once('exit', onExit);
+            return {release: () => { process.removeListener('exit', onExit); onExit(); }};
+        } catch (error) {
+            if (error.code !== 'EEXIST') throw error;
+        }
+        const holder = readHolder(file);
+        if (holder && !stale(holder, now) && holder.pid !== process.pid) {
+            const started = new Date(holder.started).toTimeString().slice(0, 5);
+            throw new Error(`\`${command}\` is already running in this checkout (pid ${holder.pid}, started ${started}). Wait for it to finish and read its result in .command-logs/ (the log name contains pid ${holder.pid}) instead of starting it again.`);
+        }
+        fs.rmSync(file, {force: true});
+    }
+    throw new Error(`Could not claim \`${command}\` in this checkout; remove ${file} if no run is active.`);
+}
+
 function memoryFloorGB(env = process.env) {
     const raw = env.BEZEG_MEMORY_FLOOR_GB;
     if (raw === undefined || raw === '') return MEMORY_FLOOR_GB;
@@ -167,9 +196,9 @@ function fitWorkers(workers, freeGB, env = process.env) {
 /**
  * Waits until starting `command` keeps available memory above the floor, and spaces starts machine-wide: an admitted
  * run marks the gate for RAMP_MS, so the next reading includes the memory that run grows into. Returns {freeGB}.
- * BEZEG_MEMORY_FLOOR_GB=0 turns the gate off.
+ * BEZEG_MEMORY_FLOOR_GB=0 turns the gate off. With spacing: false (typecheck, lint, build) it only checks the floor.
  */
-async function admitByMemory({command, env = process.env, dir = slotDir(env), freeBytes = os.freemem, now = Date.now, pollMs = 5000, maxWaitMs = MAX_MEMORY_WAIT_MS, stderr = process.stderr} = {}) {
+async function admitByMemory({command, env = process.env, dir = slotDir(env), freeBytes = os.freemem, now = Date.now, pollMs = 5000, maxWaitMs = MAX_MEMORY_WAIT_MS, stderr = process.stderr, spacing = true} = {}) {
     const floor = memoryFloorGB(env);
     if (floor === 0) return {freeGB: freeBytes() / GB};
     const needGB = commandMemoryGB(command);
@@ -180,11 +209,17 @@ async function admitByMemory({command, env = process.env, dir = slotDir(env), fr
     for (;;) {
         const time = now();
         const ramping = readHolder(marker);
-        const busy = ramping && Number.isInteger(ramping.pid) && ramping.pid !== process.pid && alive(ramping.pid) && time - ramping.started < RAMP_MS;
+        const busy = spacing && ramping && Number.isInteger(ramping.pid) && ramping.pid !== process.pid && alive(ramping.pid) && time - ramping.started < RAMP_MS;
         const freeGB = freeBytes() / GB;
         const fits = freeGB - needGB >= floor;
         const timedOut = time - since >= maxWaitMs;
         if (!busy && (fits || timedOut)) {
+            // Commands without a slot neither wait for nor mark the spacing: they only read the free memory.
+            if (!spacing) {
+                if (!fits) stderr.write(`Starting ${command} after ${Math.round((time - since) / 60000)} min without enough memory: ${freeGB.toFixed(1)} GB available.
+`);
+                return {freeGB};
+            }
             fs.writeFileSync(marker, JSON.stringify({pid: process.pid, command, started: time}));
             // Two waiters can pass at once; the one whose mark was overwritten waits for the other's ramp.
             if (readHolder(marker)?.pid === process.pid) {
@@ -216,4 +251,4 @@ function lowerPriority(env = process.env) {
     catch { /* not permitted on this platform: run at normal priority */ }
 }
 
-module.exports = {FILTERED_UNIT_WORKERS, acquireSlot, admitByMemory, fitWorkers, lowerPriority, machineBudget, memoryFloorGB, tryAcquire};
+module.exports = {FILTERED_UNIT_WORKERS, acquireSlot, admitByMemory, claimRun, fitWorkers, lowerPriority, machineBudget, memoryFloorGB, tryAcquire};
