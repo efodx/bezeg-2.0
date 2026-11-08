@@ -1525,6 +1525,7 @@ async function boardSnapshot(page) {
         return {box: b.getBoundingBox(), scale: [b.unitX, b.unitY], curves: visible.filter(o => o.elType === 'curve').length,
             points: visible.filter(o => o.elType === 'point').map(o => ({id: o.id, name: o.name, x: o.X(), y: o.Y(), fixed: o.visProp.fixed, draggable: o.isDraggable === true})),
             paths: visible.filter(o => o.elType === 'curve').map(o => o.rendNode.getAttribute('d')),
+            lines: visible.filter(o => ['line', 'segment'].includes(o.elType)).map(o => [o.point1.X(), o.point1.Y(), o.point2.X(), o.point2.Y()]),
             curveSamples: visible.filter(o => o.elType === 'curve').map(o => Array.from({length:21},(_,i)=>[o.X(i/20),o.Y(i/20)])),
             strokeWidths: visible.filter(o => ['curve','line'].includes(o.elType)).map(o => getComputedStyle(o.rendNode).strokeWidth),
             strokesById: visible.filter(o => ['curve','line'].includes(o.elType)).map(o => [o.id, getComputedStyle(o.rendNode).strokeWidth]),

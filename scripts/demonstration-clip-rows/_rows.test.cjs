@@ -136,6 +136,14 @@ test('R1: an input change with an unchanged board fails at capture rule and offl
     assert.match(assessRowState({...discrete, path: [0, 1]}, frames, false).reason, /did not respond to the control at frame 1/);
 });
 
+test('a board that redraws only segments or lines responds to the control', () => {
+    // Bars and limit lines (geometric-series) are segments: same curves and points, different segment endpoints.
+    const frames = [0, 1].map(k => ({checkpoint: k, target: k, actual: {input: k}, curvePathHash: 'h', points: [], lineHash: `l${k}`}));
+    assert.equal(assessRowState({...discrete, path: [0, 1]}, frames, false).ok, true);
+    frames[1].lineHash = frames[0].lineHash;
+    assert.match(assessRowState({...discrete, path: [0, 1]}, frames, false).reason, /did not respond to the control at frame 1/);
+});
+
 test('a board drag may sit one thousandth of a CSS pixel from the pointer, no more', () => {
     const motion = stored('orientation');
     const perPixel = (motion.camera[2] - motion.camera[0]) / (motion.width / 2);

@@ -106,12 +106,13 @@ function boardDragTolerance(motion) {
 }
 const unresponsiveReason = frame => `the app did not respond to the control at frame ${frame}: the input changed but the board is identical to the previous frame`;
 /**
- * First frame whose slider/stepper value differs from the previous frame while the board (stored curve path hash and point
- * positions, neither derived from the input) does not, or -1. No allowance: an input the app ignores must fail.
+ * First frame whose slider/stepper value differs from the previous frame while the board (stored curve path hash, line and segment
+ * endpoints, and point positions, none derived from the input) does not, or -1. No allowance: an input the app ignores must fail.
+ * Records captured before lineHash existed compare it as missing on both frames, so their outcome is unchanged.
  */
 function boardUnresponsiveFrame(row, samples) {
     if (row.motion !== 'parameter-sweep' && row.motion !== 'discrete-exact-steps') return -1;
-    const board = s => JSON.stringify([s.curvePathHash, s.points]);
+    const board = s => JSON.stringify([s.curvePathHash, s.lineHash, s.points]);
     return samples.findIndex((s, i) => i > 0 && s.actual.input !== samples[i - 1].actual.input && board(s) === board(samples[i - 1]));
 }
 
@@ -200,7 +201,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
                 if (h) fs.copyFileSync(path.join(directory, frameName(frame)), path.join(directory, name));
                 samples.push({index: frame + h, time: (frame + h) / 24, checkpoint: k, presses: row.path[k], target: expected, actual: {input: shown, presses: row.path[k]}, capture: {...capture, file: name},
                     cameraBox: state.box, points: state.points.map(({id, name, x, y, draggable}) => ({id, name, x, y, draggable})), strokeWidths: state.strokeWidths,
-                    curvePathHash: kit.pathHash(state.paths), pathCount: kit.countPaths(state.paths)});
+                    curvePathHash: kit.pathHash(state.paths), pathCount: kit.countPaths(state.paths), lineHash: kit.pathHash(state.lines.map(String))});
             }
             frame += holds[k];
         } finally {await context.close();}
@@ -298,7 +299,7 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
         const capture = await shoot(kit, page, path.join(directory, frameName(i)));
         samples.push({index: i, time: i / 24, target, actual: {input: value, steps}, capture, cameraBox: state.box,
             points: state.points.map(({id, name, x, y, draggable}) => ({id, name, x, y, draggable})), strokeWidths: state.strokeWidths,
-            curvePathHash: kit.pathHash(state.paths), pathCount: kit.countPaths(state.paths)});
+            curvePathHash: kit.pathHash(state.paths), pathCount: kit.countPaths(state.paths), lineHash: kit.pathHash(state.lines.map(String))});
         previousValue = value;
     }
     return {camera: fixedBox, samples};
@@ -334,7 +335,7 @@ async function dragBoard(page, d, row, directory, presentBoard, kit) {
         const capture = await shoot(kit, page, path.join(directory, frameName(i)));
         samples.push({index: i, time: i / 24, target: {x: target[0], y: target[1]}, scheduled: {x: target[0], y: target[1]}, actual: {id: start.id, x: actual.x, y: actual.y},
             start: {x: start.x, y: start.y}, capture, cameraBox: state.box, points: state.points, strokeWidths: state.strokeWidths,
-            curvePathHash: kit.pathHash(state.paths), pathCount: kit.countPaths(state.paths)});
+            curvePathHash: kit.pathHash(state.paths), pathCount: kit.countPaths(state.paths), lineHash: kit.pathHash(state.lines.map(String))});
     }
     await page.mouse.up();
     return {camera: fixedBox, samples};
