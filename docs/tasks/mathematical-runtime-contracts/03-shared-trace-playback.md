@@ -1,6 +1,6 @@
 # 3. Shared trace playback policy
 
-Status: pending. Source: [specification, section 3](../../specs/mathematical-runtime-contracts.md#3-shared-trace-playback-policy), acceptance P1–P3 and shared verification. Dependency: task 2 accepted; serialize edits to its trace consumers.
+Status: accepted 2026-11-08 by the Controls handler ([evidence](03-shared-trace-playback.evidence.md); smoke: [3a](../../reviews/feature-streams/controls/contracts-3a-smoke.md), [3b](../../reviews/feature-streams/controls/contracts-3b-smoke.md), compgeo trace lessons pass). Source: [specification, section 3](../../specs/mathematical-runtime-contracts.md#3-shared-trace-playback-policy), acceptance P1–P3 and shared verification. Dependency: task 2 accepted; serialize edits to its trace consumers.
 
 ## Scope and entry points
 
