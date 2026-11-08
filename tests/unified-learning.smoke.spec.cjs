@@ -122,7 +122,12 @@ for (const chapter of chapters) {
         await expect(page.locator('mjx-container').first()).toBeVisible();
         await expect(page.locator('mjx-merror, .mjx-merror')).toHaveCount(0);
         await page.setViewportSize({width: 390, height: 844});
-        await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+            // Change text size after the viewport layout has settled, without another resize.
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            document.documentElement.style.fontSize = '200%';
+        });
         if (chapter === 'parametrization') {
             // Stress the real action labels independent of the host's installed fonts.
             await page.locator('.chapter-open-activity').evaluateAll(actions => {
@@ -138,18 +143,19 @@ for (const chapter of chapters) {
                 await expect(page.locator('.chapter-section h2').first()).toHaveText(patchSections[0][language === 'sl' ? 1 : 2]);
                 await expect(page.locator('mjx-container').first()).toBeVisible();
                 await expect(page.locator('mjx-merror, .mjx-merror')).toHaveCount(0);
-                const layout = await page.evaluate(() => {
+                await expect.poll(() => page.evaluate(() => {
                     const maths = [...document.querySelectorAll('.chapter-formula, .chapter-paragraph mjx-container:not([display="true"])')];
-                    return {count: maths.length, pageOverflow: document.documentElement.scrollWidth > innerWidth + 2,
-                        uncontained: maths.some(math => {
-                            const rect = math.getBoundingClientRect();
-                            const overflowX = getComputedStyle(math).overflowX;
-                            return rect.left < -2 || rect.right > innerWidth + 2 || (math.scrollWidth > math.clientWidth + 2 && !['auto', 'scroll'].includes(overflowX));
-                        })};
-                });
-                expect(layout.count).toBeGreaterThan(0);
-                expect(layout.pageOverflow).toBe(false);
-                expect(layout.uncontained).toBe(false);
+                    const uncontained = maths.filter(math => {
+                        const rect = math.getBoundingClientRect();
+                        const overflowX = getComputedStyle(math).overflowX;
+                        return rect.left < -2 || rect.right > innerWidth + 2 || (math.scrollWidth > math.clientWidth + 2 && !['auto', 'scroll'].includes(overflowX));
+                    });
+                    return {
+                        hasMath: maths.length > 0,
+                        pageOverflow: document.documentElement.scrollWidth > innerWidth + 2,
+                        uncontained: uncontained.map(math => math.querySelector('math')?.textContent ?? math.closest('section')?.id),
+                    };
+                })).toEqual({hasMath: true, pageOverflow: false, uncontained: []});
             }
         }
         if (chapter === 'parametrization') {

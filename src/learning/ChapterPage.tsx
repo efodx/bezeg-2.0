@@ -10,7 +10,7 @@ import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors, ChapterSectionPermalink, ChapterTrail} from './ChapterNavigation';
 import {linkedParagraph} from './chapter/linkedParagraph';
-import {fitChapterInlineMath} from './chapter/inlineMathLayout';
+import {observeChapterInlineMath} from './chapter/inlineMathLayout';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -106,10 +106,13 @@ export function ChapterPage() {
             if (!languageChanged && restoreGuidedExampleReading(`${location.pathname}${location.hash}`)) return;
             restoreAnchor();
         };
-        const layoutMath = () => fitChapterInlineMath(article, language);
-        window.addEventListener('resize', layoutMath);
-        void typesetMath(article, () => !disposed).then(() => { layoutMath(); settle(); }, settle);
-        return () => { disposed = true; window.removeEventListener('resize', layoutMath); };
+        let stopMathLayout: (() => void) | undefined;
+        void typesetMath(article, () => !disposed).then(() => {
+            if (disposed) return;
+            stopMathLayout = observeChapterInlineMath(article, language);
+            settle();
+        }, settle);
+        return () => { disposed = true; stopMathLayout?.(); };
     }, [language, location.hash, location.pathname]);
 
     const state = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : {};

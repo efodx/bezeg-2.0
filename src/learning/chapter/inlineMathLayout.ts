@@ -1,5 +1,5 @@
 /** Keep inline notation in the sentence unless its typeset width reaches beyond its reading measure. */
-export function fitChapterInlineMath(article: HTMLElement, language: 'sl' | 'en') {
+function fitChapterInlineMath(article: HTMLElement, language: 'sl' | 'en') {
     const math = article.querySelectorAll<HTMLElement>(
         '.chapter-paragraph mjx-container:not([display="true"]), .chapter-exploration-prompt mjx-container:not([display="true"])',
     );
@@ -26,4 +26,26 @@ export function fitChapterInlineMath(article: HTMLElement, language: 'sl' | 'en'
         expression.setAttribute('aria-label', language === 'sl' ? 'Matematični izraz' : 'Mathematical expression');
         expression.tabIndex = 0;
     }
+}
+
+export function observeChapterInlineMath(article: HTMLElement, language: 'sl' | 'en') {
+    let frame = 0;
+    // Schedule outside the resize notification because reflow can change the article height.
+    const schedule = () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+            frame = 0;
+            fitChapterInlineMath(article, language);
+        });
+    };
+
+    fitChapterInlineMath(article, language);
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule);
+    observer?.observe(article);
+    document.fonts?.addEventListener('loadingdone', schedule);
+    return () => {
+        observer?.disconnect();
+        document.fonts?.removeEventListener('loadingdone', schedule);
+        cancelAnimationFrame(frame);
+    };
 }

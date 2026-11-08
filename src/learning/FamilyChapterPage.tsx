@@ -12,7 +12,7 @@ import {ChapterContents, ChapterNeighbors, ChapterSectionPermalink, ChapterTrail
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {linkedParagraph} from './chapter/linkedParagraph';
-import {fitChapterInlineMath} from './chapter/inlineMathLayout';
+import {observeChapterInlineMath} from './chapter/inlineMathLayout';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -63,10 +63,13 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
         };
         // Browser history may restore focus after the math promise settles.
         const schedule = () => { if (!disposed) frame = window.requestAnimationFrame(settle); };
-        const layoutMath = () => fitChapterInlineMath(article, language);
-        window.addEventListener('resize', layoutMath);
-        void typesetMath(article, () => !disposed).then(() => { layoutMath(); schedule(); }, schedule);
-        return () => { disposed = true; window.removeEventListener('resize', layoutMath); window.cancelAnimationFrame(frame); };
+        let stopMathLayout: (() => void) | undefined;
+        void typesetMath(article, () => !disposed).then(() => {
+            if (disposed) return;
+            stopMathLayout = observeChapterInlineMath(article, language);
+            schedule();
+        }, schedule);
+        return () => { disposed = true; stopMathLayout?.(); window.cancelAnimationFrame(frame); };
     }, [chapter, language, location.hash, location.pathname]);
 
     useEffect(() => {
