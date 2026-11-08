@@ -1,6 +1,6 @@
 import React from "react";
 import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
-import {formatNumber} from "../../../analysis/format";
+import {formatNumber, formatScientific} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -51,10 +51,7 @@ export const weightRefusalText = (refusal: WeightRefusal): string => renderMessa
     refusal.reason === 'nonpositive' ? "bspline_weight_nonpositive" : "bspline_weight_not_finite", {value0: refusal.index + 1}));
 
 /** The radial error as text in exponent notation (it is near rounding or clearly large), with the language's decimal separator. */
-export const errorText = (value: number): string => {
-    const text = value === 0 ? '0' : value.toExponential(2);
-    return currentLanguage() === 'sl' ? text.replace('.', ',') : text;
-};
+export const errorText = (value: number): string => formatScientific(value, currentLanguage(), 3);
 
 /**
  * NURBS circle graph (lesson L5): a quadratic B-spline on nine points with editable positive weights, a maximum radial error

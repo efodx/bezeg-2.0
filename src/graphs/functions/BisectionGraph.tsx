@@ -5,7 +5,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
-import {formatNumber, MINUS_SIGN, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
+import {formatNumber, formatScientific, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
     BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, bisectionExample,
     BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep, jumpLeftLimit, sampleJumpPieces,
@@ -36,10 +36,7 @@ export function formatPrecise(value: number, language: NumberLanguage): string {
     if (!Number.isFinite(value)) return NOT_A_NUMBER_TEXT;
     if (value === 0) return "0";
     if (Math.abs(value) >= 1e-9) return formatNumber(value, language, 12);
-    const text = value.toExponential(3).replace(/\.?0+e/, "e");
-    const unsigned = text.startsWith("-") ? text.slice(1) : text;
-    const localized = language === "sl" ? unsigned.replace(".", ",") : unsigned;
-    return value < 0 ? `${MINUS_SIGN}${localized}` : localized;
+    return formatScientific(value, language, 4);
 }
 
 /** What the board and the inspector show for a model: the bisection history and the step that was revealed last. */

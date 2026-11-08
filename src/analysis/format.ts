@@ -37,6 +37,21 @@ export function formatLineEquation(line: {readonly slope: number; readonly inter
 
 const SUPERSCRIPT_DIGITS: Readonly<Record<string, string>> = {'0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻'};
 
+/** `mantissa·10ⁿ` with `digits` significant digits (trailing mantissa zeros trimmed), decimal comma for Slovenian, true minus for the value; 0 is "0". */
+export function formatScientific(value: number, language: NumberLanguage, digits = 3): string {
+    if (!Number.isFinite(value)) return NOT_A_NUMBER_TEXT;
+    if (value === 0) return '0';
+    const [mantissa, exponent] = Math.abs(value).toExponential(Math.max(0, digits - 1)).split('e');
+    const trimmed = mantissa.includes('.') ? mantissa.replace(/0+$/, '').replace(/\.$/, '') : mantissa;
+    const text = `${withDecimalSeparator(trimmed, language)}·10${String(Number(exponent)).replace(/./g, character => SUPERSCRIPT_DIGITS[character])}`;
+    return value < 0 ? `${MINUS_SIGN}${text}` : text;
+}
+
+/** An angle in degrees as number text only (the degree sign stays in the catalog strings): `formatNumber` with two decimals by default. */
+export function formatDegrees(value: number, language: NumberLanguage, maxDecimals = 2): string {
+    return formatNumber(value, language, maxDecimals);
+}
+
 /**
  * A magnitude with `digits` significant digits, for errors and bounds that span many orders of magnitude: plain decimals from
  * 0.0001 to 1 000 000, "1,23·10⁻⁷" outside that range, and 0 for anything below 1e-12 (floating-point noise such as 1e-17 or -0
@@ -46,14 +61,11 @@ export function formatSignificant(value: number, language: NumberLanguage, digit
     if (!Number.isFinite(value)) return NOT_A_NUMBER_TEXT;
     const magnitude = Math.abs(value);
     if (magnitude < 1e-12) return '0';
-    const decimalSeparator = (text: string) => language === 'sl' ? text.replace('.', ',') : text;
     let text: string;
     if (magnitude >= 1e-4 && magnitude < 1e6) {
-        text = decimalSeparator(String(Number(magnitude.toPrecision(digits))));
+        text = withDecimalSeparator(String(Number(magnitude.toPrecision(digits))), language);
     } else {
-        const [mantissa, exponent] = magnitude.toExponential(digits - 1).split('e');
-        const trimmed = mantissa.includes('.') ? mantissa.replace(/0+$/, '').replace(/\.$/, '') : mantissa;
-        text = `${decimalSeparator(trimmed)}·10${String(Number(exponent)).replace(/./g, character => SUPERSCRIPT_DIGITS[character])}`;
+        text = formatScientific(magnitude, language, digits);
     }
     return value < 0 ? `${MINUS_SIGN}${text}` : text;
 }

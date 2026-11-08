@@ -1,6 +1,6 @@
 import React from "react";
 import {currentLanguage, t} from "../../../localization";
-import {formatNumber} from "../../../analysis/format";
+import {formatNumber, formatScientific} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
@@ -253,7 +253,7 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         const lines: JSX.Element[] = [
             <p key="value" data-blossom-readout="value">{t("bsl_value", {value0: blossomArgumentText(used), value1: num(snap.value[0]), value2: num(snap.value[1])})}</p>,
             <p key="reversed" data-blossom-readout="reversed">{t("bsl_reversed", {value0: blossomArgumentText([...used].reverse()), value1: num(snap.reversed[0]), value2: num(snap.reversed[1])})}</p>,
-            <p key="symmetry" data-blossom-readout="symmetry">{t("bsl_symmetry", {value0: snap.deviation === 0 ? '0' : snap.deviation.toExponential(2)})}</p>,
+            <p key="symmetry" data-blossom-readout="symmetry">{t("bsl_symmetry", {value0: formatScientific(snap.deviation, language, 3)})}</p>,
             <p key="bezier" data-blossom-readout="bezier">{t("bsl_bezier_points", {value0: snap.bezier.map(p => this.pointText(p)).join("   ")})}</p>,
         ];
         const check = this.curveCheck();

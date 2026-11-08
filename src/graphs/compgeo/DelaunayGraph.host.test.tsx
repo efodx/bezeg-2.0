@@ -104,7 +104,7 @@ test('example 1: +64 at the first test, a flip to bd, then the trace own -64 tes
     mount(graph);
     expect(readout('min-start')).toBe('Najmanjši kot na začetku (korak 1): 19,65°');
     expect(readout('min-now')).toBe('Najmanjši kot zdaj: 19,65°');
-    expect(readout('angles-now')).toBe('Koti zdaj, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43');
+    expect(readout('angles-now')).toBe('Koti zdaj, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43');
     click('next-step');
     expect(part('incircle')).toBe('Vrednost preizkusa krožnice = +64: preizkušana točka je znotraj krožnice');
     expect(part('detail')).toBe('Preizkušeni rob P1–P3; nasprotni točki P2 in P4');
@@ -122,8 +122,8 @@ test('example 1: +64 at the first test, a flip to bd, then the trace own -64 tes
     expect(part('cocircular')).toBeUndefined();
     expect(readout('min-now')).toBe('Najmanjši kot zdaj: 26,57°');
     expect(readout('min-start')).toBe('Najmanjši kot na začetku (korak 1): 19,65°');
-    expect(readout('angles-now')).toBe('Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90,00');
-    expect(readout('angles-start')).toBe('Koti na začetku, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43');
+    expect(readout('angles-now')).toBe('Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90');
+    expect(readout('angles-start')).toBe('Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43');
 });
 
 test('example 2 makes exactly the flips p1p4, p2p4, p4p6 in order, from 1,91 to 25,35, to the spec Delaunay list', () => {

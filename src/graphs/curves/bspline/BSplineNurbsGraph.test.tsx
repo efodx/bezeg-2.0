@@ -92,9 +92,9 @@ describe('L5 acceptance 1: the radial error', () => {
     test('the inspector shows the readout, and it follows the example', () => {
         const {graph, view} = mount();
         const readout = () => document.querySelector('[data-nurbs-readout="radial-error"]')!.textContent!;
-        expect(readout()).toMatch(/(e-1[6-9]|: 0)$/);
+        expect(readout()).toMatch(/(·10⁻¹[⁶⁷⁸⁹]|: 0)$/);
         act(() => graph.selectExample('unit'));
-        expect(readout()).toMatch(/e-0?[12]$/);
+        expect(readout()).toMatch(/·10⁻[¹²]$/);
         view.unmount();
     });
 });

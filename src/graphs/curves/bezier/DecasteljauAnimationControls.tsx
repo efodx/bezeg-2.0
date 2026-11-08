@@ -1,5 +1,6 @@
-import {t, useT} from "../../../localization";
+import {t, useLanguage, useT} from "../../../localization";
 import React from "react";
+import {withDecimalSeparator} from "../../../analysis/format";
 import Slider from "../../../inputs/Slider";
 
 export type DecasteljauAnimationStatus = "ready" | "playing" | "paused" | "finished";
@@ -25,13 +26,14 @@ function statusLabel(status: DecasteljauAnimationStatus): string {
 
 export function DecasteljauAnimationControls(props: DecasteljauAnimationControlsProps) {
     const t = useT();
+    const {language} = useLanguage();
     return <section className="decasteljau-animation-panel" aria-label={t("animation_controls")}>
         <div className="decasteljau-animation-heading">
             <div>
                 <h4>{t("animation_controls")}</h4>
                 <span>{statusLabel(props.status)}</span>
             </div>
-            <output aria-live="polite">t = {props.parameter.toFixed(2)}</output>
+            <output aria-live="polite">t = {withDecimalSeparator(props.parameter.toFixed(2), language)}</output>
         </div>
         <div className="decasteljau-animation-actions inspector-playback" role="group" aria-label={t("animation_controls")}>
             <button type="button" className="decasteljau-animation-play inspector-playback-primary" disabled={props.status === "playing"} onClick={props.onPlay}>

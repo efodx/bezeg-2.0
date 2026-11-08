@@ -1,5 +1,6 @@
 import React from "react";
-import {currentLanguage, useT} from "../../localization";
+import {formatDegrees, type NumberLanguage} from "../../analysis/format";
+import {useLanguage, useT} from "../../localization";
 import type {LawsonNote} from "../../compgeo/delaunay";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
@@ -52,12 +53,6 @@ type Translate = ReturnType<typeof useT>;
 /** How many angles are listed in full: the six angles of a four-point quadrilateral. */
 const FULL_ANGLES = 6;
 
-/** Two decimals, with a decimal comma in Slovenian. Display only. */
-function degrees(value: number): string {
-    const text = value.toFixed(2);
-    return currentLanguage() === "sl" ? text.replace(".", ",") : text;
-}
-
 function noteText(t: Translate, note: LawsonNote): string {
     switch (note) {
         case "phase-start": return t("del_note_phase_start");
@@ -90,8 +85,8 @@ const triple = (corners: readonly number[]) => {
     return {value0: a + 1, value1: b + 1, value2: c + 1};
 };
 
-function angleLine(t: Translate, angles: readonly number[], whole: "del_angles_now" | "del_angles_start"): string {
-    const list = (items: readonly number[]) => items.map(degrees).join("; ");
+function angleLine(t: Translate, language: NumberLanguage, angles: readonly number[], whole: "del_angles_now" | "del_angles_start"): string {
+    const list = (items: readonly number[]) => items.map(angle => formatDegrees(angle, language)).join("; ");
     if (angles.length <= FULL_ANGLES) return t(whole, {value0: list(angles)});
     return t("del_angles_truncated", {value0: FULL_ANGLES, value1: angles.length, value2: list(angles.slice(0, FULL_ANGLES))});
 }
@@ -99,6 +94,7 @@ function angleLine(t: Translate, angles: readonly number[], whole: "del_angles_n
 /** Examples, Next step / Play / Pause / Reset and the readouts of the Lawson trace. Unavailable buttons stay focusable (`aria-disabled`). */
 export function DelaunayControls(props: DelaunayControlsProps) {
     const t = useT();
+    const {language} = useLanguage();
     const {status, playing, actions} = props;
     const traced = status !== undefined;
     const atEnd = traced && status.step >= status.length - 1;
@@ -142,10 +138,10 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             <ul aria-label={t("del_readout_label")} data-delaunay="readout">
                 <li data-readout="flips">{t("del_flips", {value0: status.flips})}</li>
                 <li data-readout="illegal">{t("del_illegal_count", {value0: status.illegalCount})}</li>
-                <li data-readout="min-now">{t("del_min_now", {value0: degrees(status.minNow)})}</li>
-                <li data-readout="min-start">{t("del_min_start", {value0: degrees(status.minStart)})}</li>
-                <li data-readout="angles-now">{angleLine(t, status.anglesNow, "del_angles_now")}</li>
-                <li data-readout="angles-start">{angleLine(t, status.anglesStart, "del_angles_start")}</li>
+                <li data-readout="min-now">{t("del_min_now", {value0: formatDegrees(status.minNow, language)})}</li>
+                <li data-readout="min-start">{t("del_min_start", {value0: formatDegrees(status.minStart, language)})}</li>
+                <li data-readout="angles-now">{angleLine(t, language, status.anglesNow, "del_angles_now")}</li>
+                <li data-readout="angles-start">{angleLine(t, language, status.anglesStart, "del_angles_start")}</li>
             </ul>
             <div className="inspector-playback" role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
                 {status.triangles.map((corners, index) => (

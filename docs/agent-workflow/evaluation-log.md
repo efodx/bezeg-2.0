@@ -2333,3 +2333,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Review: one `bezeg-reviewer` (Sonnet `medium`, 33k, 2 min), mathematical, no blocking findings. It confirmed the worker's caveat that the hull stage can differ from a direct piece test only for gaps at rounding scale, and said the handler's task wording ("a hull separation can never hide a pair") had overstated it. Accepted as documented; the comment and spec were reworded by the handler.
 - Integration defect, handler-caught: the worker's spec edit turned LaTeX escapes into control characters (`\t` in `\to` and `\text`, `\b` in `\binom` and `\bar`, `\a` in `\approx`). It was found while rewording, and the reviewer missed it. A pre-existing `\times` in the committed spec had the same defect. Suspected cause, labelled as such: escape processing in a script-based edit. The handler's own heredoc and inline-Python edits hit the same problem this session, including in this record. Check any write to Markdown with LaTeX that does not use the Edit tool for control characters.
 - Checks: `just unit src/compgeo src/learning/playground/collisions` (55.6 s), `npx tsc --noEmit`, `just lint` on the touched folders.
+## 2026-11-08 — shared controls slice 4, number formats (controls stream, handler 4)
+
+- Class/size: implementation / S–M; `formatDegrees`, `formatScientific`, seven callers, text pins. Source: [task 1](../tasks/shared-graph-controls/01-foundation.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium). No subagent review: about 80 changed source lines, reviewed by the handler. Brief `handoff-v13` with settled decisions F-a–F-d.
+- Outcome: accepted with one handler fix (a De Casteljau text pin in `ControlsFollowGraph.test.tsx` the worker's run surfaced but did not fix). Decision 21 in the spec.
+- Checks/gaps: worker: typecheck, lint, affected unit files, 6 mutations, lesson smoke on a build of unknown freshness. Handler: affected directories, fresh build and lesson smoke; `check-changed` through the publish gate. The worker's background `check-changed` produced no log, and the worker returned before it finished.
+- Repairs: none to the worker's code.
+- Usage (as reported): worker 76,150 tokens, 64 min.

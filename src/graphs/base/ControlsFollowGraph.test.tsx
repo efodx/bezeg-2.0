@@ -137,7 +137,7 @@ test('Reset restores the authored De Casteljau parameter after reopening an edit
     act(() => session.reset());
     expect(graph.state.t).toBe(0.5);
     expect(graph.drawnCurveCount()).toBe(2);
-    expect(view.container.querySelector('.decasteljau-animation-heading output')?.textContent).toContain('t = 0.50');
+    expect(view.container.querySelector('.decasteljau-animation-heading output')?.textContent).toContain('t = 0,50');
     view.unmount();
 });
 

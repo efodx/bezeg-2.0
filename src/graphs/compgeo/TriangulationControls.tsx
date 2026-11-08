@@ -1,5 +1,6 @@
 import React from "react";
-import {currentLanguage, useT} from "../../localization";
+import {formatDegrees} from "../../analysis/format";
+import {useLanguage, useT} from "../../localization";
 import type {TriangulationEvent, TriangulationReadout, TriangulationRefusal} from "./TriangulationGraph";
 
 export interface TriangulationControlActions {
@@ -25,12 +26,6 @@ export interface TriangulationControlsProps {
 }
 
 type Translate = ReturnType<typeof useT>;
-
-/** Two decimals, with a decimal comma in Slovenian. Display only. */
-function degrees(value: number): string {
-    const text = value.toFixed(2);
-    return currentLanguage() === "sl" ? text.replace(".", ",") : text;
-}
 
 export function refusalText(t: Translate, refusal: TriangulationRefusal): string {
     switch (refusal) {
@@ -70,6 +65,7 @@ export function eventText(t: Translate, event: TriangulationEvent): string {
 /** The readouts, the edge list and the Flip button of the triangulation graph. The live region announces the last event; a refusal is announced by its own alert only. */
 export function TriangulationControls(props: TriangulationControlsProps) {
     const t = useT();
+    const {language} = useLanguage();
     const {readout, refusal, event, edges, selected, triangulationShown, actions} = props;
     const key = (a: number, b: number) => `${a}-${b}`;
     const eventSentence = event ? eventText(t, event) : "";
@@ -108,10 +104,10 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                 <li data-readout="edges">{t("tri_readout_edges", {
                     value0: readout.counts.edges, value1: readout.n, value2: readout.boundary.k,
                     value3: readout.counts.interiorEdges, value4: readout.counts.hullEdges})}</li>
-                <li data-readout="angle">{t("tri_readout_angle_now", {value0: degrees(readout.minAngle)})}</li>
+                <li data-readout="angle">{t("tri_readout_angle_now", {value0: formatDegrees(readout.minAngle, language)})}</li>
                 <li data-readout="angle-before">{readout.minAngleBefore === undefined
                     ? t("tri_readout_angle_before_none")
-                    : t("tri_readout_angle_before", {value0: degrees(readout.minAngleBefore)})}</li>
+                    : t("tri_readout_angle_before", {value0: formatDegrees(readout.minAngleBefore, language)})}</li>
                 </>}
             </ul>}
             <p className="visually-hidden" role="status" aria-live="polite" data-triangulation="live">

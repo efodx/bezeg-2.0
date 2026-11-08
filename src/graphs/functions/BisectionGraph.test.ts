@@ -266,7 +266,7 @@ test('playback ends at stagnation for x^2 - 2 and the state never calls the midp
     expect(() => next(graph)).toThrow(DomainError);
     expect(graph.model.step).toBe(history.steps.length);
     // the width is shown in exponent notation, never as 0
-    expect(rows(graph).width).toMatch(/^\d,\d+e−?\d+$|^\d,\d+e-\d+$/);
+    expect(rows(graph).width).toMatch(/^\d,\d+·10⁻[⁰¹²³⁴⁵⁶⁷⁸⁹]+$/);
 });
 
 test('Next step takes over from playback, and Reset returns to step 0 and stops playback', () => {
@@ -421,11 +421,11 @@ test('formatPrecise keeps up to twelve decimals, switches to exponent notation f
     expect(formatPrecise(0.03125, 'en')).toBe('0.03125');
     expect(formatPrecise(0, 'sl')).toBe('0');
     expect(formatPrecise(-0, 'sl')).toBe('0');
-    expect(formatPrecise(2 ** -30, 'en')).toBe('9.313e-10');
-    expect(formatPrecise(-(2 ** -30), 'sl')).toBe('−9,313e-10');
+    expect(formatPrecise(2 ** -30, 'en')).toBe('9.313·10⁻¹⁰');
+    expect(formatPrecise(-(2 ** -30), 'sl')).toBe('−9,313·10⁻¹⁰');
     expect(formatPrecise(2 ** -20, 'en')).toBe('0.000000953674');
     expect(formatPrecise(1.4142135623730951, 'sl')).toBe('1,414213562373');
-    expect(formatPrecise(1.25e-12, 'en')).toBe('1.25e-12');
+    expect(formatPrecise(1.25e-12, 'en')).toBe('1.25·10⁻¹²');
     for (const bad of [NaN, Infinity, -Infinity]) expect(formatPrecise(bad, 'sl')).toBe('—');
 });
 

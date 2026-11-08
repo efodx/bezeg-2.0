@@ -124,7 +124,7 @@ describe('L6 acceptance 2: symmetry', () => {
             expect(graph.snapshot()!.deviation).toBeLessThan(TOL);
             near(graph.snapshot()!.reversed, graph.snapshot()!.value);
         }
-        expect(readout('symmetry')).toMatch(/e-1\d$|: 0$/);
+        expect(readout('symmetry')).toMatch(/·10⁻¹[⁰¹²³⁴⁵⁶⁷⁸⁹]$|: 0$/);
         view.unmount();
     });
 });

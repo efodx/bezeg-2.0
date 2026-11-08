@@ -1,7 +1,7 @@
 import type {GridPoint} from "../../compgeo/grid";
 import type {MonotoneChainOptions} from "../../compgeo/monotoneChain";
 import {kettnerSignMap} from "../../compgeo/inexactOrientation";
-import {formatSignificant} from "../../analysis/format";
+import {formatScientific, formatSignificant} from "../../analysis/format";
 
 /**
  * Pure adapters of the hull robustness graph (spec convexity-hulls-lessons A5, task 19): the saved choices with their parsers,
@@ -112,8 +112,6 @@ export function chainOutputReadout(hull: readonly number[], points: readonly Gri
     return {entries, repeated: [...repeated]};
 }
 
-const SUPERSCRIPT: Readonly<Record<string, string>> = {"-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"};
-
 /**
  * A double orientation value as text with three significant digits. `formatSignificant` turns anything below 1e-12 into "0" (it
  * hides floating-point noise), but here the tiny value is the point of the picture (about -5.68e-14 in cell (41, 48)), so a
@@ -121,8 +119,5 @@ const SUPERSCRIPT: Readonly<Record<string, string>> = {"-": "⁻", "0": "⁰", "
  */
 export function formatDoubleValue(value: number, language: Parameters<typeof formatSignificant>[1]): string {
     if (value === 0 || !Number.isFinite(value) || Math.abs(value) >= 1e-12) return formatSignificant(value, language, 3);
-    const [mantissa, exponent] = Math.abs(value).toExponential(2).split("e");
-    const trimmed = mantissa.replace(/0+$/, "").replace(/\.$/, "");
-    const text = `${language === "sl" ? trimmed.replace(".", ",") : trimmed}·10${String(Number(exponent)).replace(/./g, character => SUPERSCRIPT[character])}`;
-    return value < 0 ? `−${text}` : text;
+    return formatScientific(value, language, 3);
 }

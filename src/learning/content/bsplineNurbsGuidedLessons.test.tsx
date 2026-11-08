@@ -141,10 +141,10 @@ describe('the scenes show the spec numbers on the real graph', () => {
         const m = mount();
         try {
             m.scene(stepOf('bspline-nurbs-predict'));
-            expect(m.readout('radial-error')).toMatch(/6,07e-2/);
+            expect(m.readout('radial-error')).toMatch(/6,07·10⁻²/);
             m.scene(stepOf('bspline-nurbs-angle'));
             expect(m.readout('point')).toContain('21,598');
-            expect(m.readout('radial-error')).toMatch(/e-1[67]|^[^:]*: 0$/);
+            expect(m.readout('radial-error')).toMatch(/·10⁻¹[⁶⁷]|^[^:]*: 0$/);
         } finally {
             m.mounted.view.unmount();
         }
