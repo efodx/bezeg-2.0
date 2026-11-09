@@ -43,12 +43,24 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - A `kernel` Vitest project runs the 161 analysis, compgeo, bezeg, projective and linear files in node with no setup file: 27 s locally, against about 150 s in jsdom.
   - The setup loads JSXGraph lazily, with board disposal kept.
   - Full local run: setup share 12% → 3%, environment 26% → 15%. The wall time is not comparable, because the setup change widens the local sweep sample.
-  - Accepted on that evidence. The deciding measurement is the next hosted run's summed unit-shard time; revert if it does not fall.
+  - Accepted on that evidence, pending CI.
+  - First hosted run with phase 4 and the per-file shard map: 42541468552 for `eb9af4bc`, green.
+    - All 656 files ran once (161 / 166 / 164 / 165).
+    - Vitest took 444 / 346 / 316 / 314 s; shard 1 is the critical path at 8:33 job wall.
+    - Summed over shards, from Vitest's percentages, against the two runs before:
+      - setup 14 s against 104 and 96;
+      - environment 135 against 157 and 156;
+      - import 171 against 103 and 105, because files now load JSXGraph themselves;
+      - tests 1050 against 919 and 948;
+      - total 1421 against 1332 and 1352.
+    - Non-test overhead fell by about 45 s (12%). Test time rose about 10%, within the 1.6× runner variance.
+    - Neither change is shown to help on CI yet.
+  - Decision: keep both, and judge on the mean of three hosted runs. Revert phase 4 if the summed non-test time does not fall. Revert the shard map to plain hash sharding plus parts if the critical path does not beat about 8:30.
   - The fold's saving stays unproven on CI. Restoration plus scene content summed 917 file-s before the fold and 831 and 1008 after; normalised by `sceneReplacementContract` it is about 35% cheaper.
 - Phase 1 item 1 is complete: the gate's delta path also runs the always-run unit tier (`6a39ac59`). A rerun's first pass now uses a matching verified-base record (`dbabef1e`; see Follow-ups).
 - `55c05845` fixes a tooling-test fragility: fixtures nested in the repository read the host branch's changes through `git diff`.
 - Regrowth guard: `just test-cost` (`5029e1df`). The baseline is a local snapshot saved with `--save` in `.command-logs`, because no master run's `results.json` is recorded anywhere to compare against.
-- Phases 1 item 4 and 6 are not started.
+- Phase 1 item 4 is not started. Phase 6 first slice (smoke runner: `settle()`, timeouts, `maxFailures`, Exit rows) is in progress with handler 3.
 
 **Follow-ups:**
 
