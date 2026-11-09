@@ -39,7 +39,7 @@ test('legacy activity URLs resolve to one chapter-owned guided example', async (
     expect(lifecycle).toContain(`apply:${preparedAction.kind}:${actionTarget}`);
     expect(lifecycle.some(entry => entry.startsWith('capture:'))).toBe(true);
     expect(lifecycle.findIndex(entry => entry.startsWith('capture:'))).toBeLessThan(lifecycle.findIndex(entry => entry.startsWith('apply:')));
-    fireEvent.click(document.querySelector('.guided-lesson-owner a')!);
+    fireEvent.click(document.querySelector('.guided-lesson-chapter-return')!);
     await waitFor(() => expect(lifecycle).toContain('restore:ordinary'));
 });
 
@@ -65,6 +65,6 @@ test('legacy prepared activity does not start a second activity session under it
     expect(lifecycle.filter(entry => entry.startsWith('capture:'))).toHaveLength(1);
     expect(lifecycle.some(entry => entry.startsWith('apply:'))).toBe(true);
 
-    fireEvent.click(document.querySelector('.guided-lesson-owner a')!);
+    fireEvent.click(document.querySelector('.guided-lesson-chapter-return')!);
     await waitFor(() => expect(lifecycle).toContain('restore:ordinary'));
 });

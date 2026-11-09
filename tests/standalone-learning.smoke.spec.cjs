@@ -39,15 +39,8 @@ test('each Bézier chapter example opens the shared guided-example surface with 
         await link.click();
         await expect(panel(page)).toBeVisible();
         await expect(panel(page).getByRole('link', {name: 'Return to chapter', exact: true})).toHaveAttribute('href', `${chapter}#${section}`);
-        const owner = panel(page).locator('.guided-lesson-owner');
-        if (await owner.count()) {
-            await expect(owner).toContainText(/Bézier curves: shaping a curve with control points ·/);
-        } else {
-            const heading = page.getByRole('main').getByRole('heading', {level: 1});
-            await expect(heading).toBeVisible();
-            await expect(panel(page).getByRole('heading', {level: 2})).toHaveCount(0);
-            await h.expectLessonIdentity(page, await heading.innerText());
-        }
+        await expect(panel(page).locator('.guided-lesson-controls > div')).toHaveCount(2);
+        await expect(panel(page).locator('.guided-lesson-utilities a')).toHaveCount(1);
         await expect(page.locator('.chapter-activity-context')).toHaveCount(0);
         await expect(page.locator('#jgbox')).toBeVisible();
         await expect.poll(async () => (await h.boardStats(page)).curves).toBeGreaterThan(0);
@@ -210,7 +203,7 @@ test('legacy chapter activity and direct lesson links resolve to chapter-owned g
     await expect(panel(page).getByRole('link', {name: 'Return to chapter', exact: true})).toHaveAttribute('href', `${chapter}#parameter`);
     await page.goto('/bezeg-2.0/bezier/decasteljau?learn=1');
     await expect(panel(page)).toBeVisible();
-    await expect(page.locator('.guided-lesson-owner')).toContainText(/Bézier curves.*repeated interpolation/i);
+    await expect(panel(page).locator('.guided-lesson-chapter-return')).toHaveAttribute('href', `${chapter}#interpolation`);
     await expect(page).toHaveURL(/learn=1&learnChapter=bezier-curves&learnSection=interpolation/);
 
     await page.goto('/bezeg-2.0/bezier/decasteljau');
@@ -220,7 +213,7 @@ test('legacy chapter activity and direct lesson links resolve to chapter-owned g
 
     await page.goto('/bezeg-2.0/spline/c1spline?explore=splines.worked-join.spline-c1');
     await expect(panel(page)).toBeVisible();
-    await expect(panel(page).getByText('Splines: joining local curves · A worked join of two parabolas', {exact: true})).toBeVisible();
+    await expect(panel(page).getByRole('link', {name: 'Return to chapter', exact: true})).toHaveAttribute('href', '/bezeg-2.0/learn/splines#worked-join');
     expect(await h.visiblePoints(page)).toEqual(expect.arrayContaining([[0, 0], [0.5, 0], [1.5, 2], [2, 4]]));
 });
 

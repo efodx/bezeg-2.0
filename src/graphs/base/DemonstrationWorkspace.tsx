@@ -17,9 +17,8 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
 import {useChapterActivity} from '../../learning/chapter/useChapterActivity';
 import {chapterActivityVisit} from '../../learning/chapter/ChapterActivityVisit';
-import {useLanguage} from '../../localization';
 import '../../learning/chapter/ActivityContext.css';
-import {getGuidedLessonChapterTitle, getGuidedLessonSectionTitle, guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/chapter/guidedLessonOwnership';
+import {guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/chapter/guidedLessonOwnership';
 import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
 
@@ -35,7 +34,6 @@ export function DemonstrationWorkspace(props: {
     disposeFailedGraph?: () => void,
 }) {
     const t = useT();
-    const {language} = useLanguage();
     const closeLesson = useRef<(() => void) | undefined>();
     const registerLessonClose = useCallback((close: (() => void) | undefined) => { closeLesson.current = close; }, []);
     const exitLesson = useRef<(() => void) | undefined>();
@@ -128,6 +126,7 @@ export function DemonstrationWorkspace(props: {
     }, [hostContainerRef]);
     const fullScreen = presentation.fullScreen;
     const inspectorVisible = !fullScreen || presentationControls;
+    const workspaceTitle = demonstration?.workspaceTitle ?? 'Bezeg';
     // A requested lesson may arrive before a graph has finished creating its
     // board. Keep the normal workspace interactive until the graph-owned
     // capability is available; BaseGraph will provide it on the next render.
@@ -148,7 +147,7 @@ export function DemonstrationWorkspace(props: {
                 {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
                 {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
             </nav>
-                <h1>{demonstration?.workspaceTitle ?? "Bezeg"}</h1><p>{props.description}</p>
+                <h1>{workspaceTitle}</h1><p>{props.description}</p>
                 <svg className="workspace-botanical" viewBox="0 0 420 360" aria-hidden="true" focusable="false">
                     <g className="workspace-botanical-stems">
                         <path d="M410 358C367 279 327 207 278 157S203 69 170 7"/>
@@ -205,13 +204,11 @@ export function DemonstrationWorkspace(props: {
             </>}
         </p>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
-            visiblePageTitle={demonstration?.workspaceTitle}
+            visiblePageTitle={workspaceTitle}
             registerClose={registerLessonClose}
             registerExit={registerLessonExit}
             registerGraphActions={setLessonGraphActions}
             chapterOwner={lessonOwner ? {
-                chapterTitle: getGuidedLessonChapterTitle(lessonOwner, language),
-                sectionTitle: getGuidedLessonSectionTitle(lessonOwner, language),
                 returnPath: guidedLessonReturnPath(lessonOwner),
                 returnLabel: t('chapter_return'),
                 onReturn: () => navigateRoute(guidedLessonReturnPath(lessonOwner), {state: forwardedState}),

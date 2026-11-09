@@ -1,8 +1,6 @@
 import type {DemonstrationId, GuidedLessonDemonstrationId, LessonlessDemonstrationId} from '../../demonstrations';
 import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
-import {bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
-import {patchChapter} from '../content/patchChapter';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retainedExamples';
@@ -207,18 +205,6 @@ export function resolveGuidedLessonOwner(search: string, id: DemonstrationId): G
         }
     }
     return primaryOwner(id);
-}
-
-export function getGuidedLessonChapterTitle(owner: GuidedLessonOwner, language: 'sl' | 'en'): string {
-    if (owner.chapterId === 'bezier-curves') return bezierChapter[language].title;
-    if (owner.chapterId === 'bezier-patches') return patchChapter.title[language];
-    return familyChapters.find(chapter => chapter.id === owner.chapterId)!.title[language];
-}
-
-export function getGuidedLessonSectionTitle(owner: GuidedLessonOwner, language: 'sl' | 'en'): string {
-    if (owner.chapterId === 'bezier-curves') return bezierChapter[language].sections.find(section => section.id === owner.sectionId)!.title;
-    if (owner.chapterId === 'bezier-patches') return patchChapter.sections.find(section => section.id === owner.sectionId)!.title[language];
-    return familyChapters.find(chapter => chapter.id === owner.chapterId)!.sections.find(section => section.id === owner.sectionId)!.title[language];
 }
 
 export function guidedLessonReturnPath(owner: GuidedLessonOwner): string {

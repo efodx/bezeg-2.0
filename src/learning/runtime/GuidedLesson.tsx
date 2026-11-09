@@ -55,12 +55,14 @@ export function GuidedLesson(props: {
     registerExit?: (exit: (() => void) | undefined) => void;
     registerGraphActions?: (actions: {animationControls?: React.ReactNode} | undefined) => void;
     visiblePageTitle?: string;
-    chapterOwner?: {chapterTitle: string; sectionTitle: string; returnPath: string; returnLabel: string; onReturn: () => void};
+    chapterOwner?: {returnPath: string; returnLabel: string; onReturn: () => void};
 }) {
     const {language} = useLanguage();
     const t = useT();
-    const pageHeadingHasLessonTitle = !!props.visiblePageTitle
-        && props.visiblePageTitle.replace(/\s+/g, ' ').trim() === localized(props.lesson.title, language).replace(/\s+/g, ' ').trim();
+    const lessonTitle = localized(props.lesson.title, language);
+    const normalizeTitle = (title: string) => title.replace(/\s+/g, ' ').trim().toLocaleLowerCase(language);
+    const visiblePageTitle = normalizeTitle(props.visiblePageTitle ?? '');
+    const pageHeadingHasLessonTitle = !!visiblePageTitle && visiblePageTitle === normalizeTitle(lessonTitle);
     const [startupError, setStartupError] = useState<Error>();
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
     const [exitRequested, setExitRequested] = useState(false);
@@ -497,19 +499,15 @@ export function GuidedLesson(props: {
             setExitError(true);
         }
     };
-    const chapterReturnLink = !isComplete && pageHeadingHasLessonTitle && props.chapterOwner && <a className="guided-lesson-chapter-return" href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>;
-    const chapterIdentity = props.chapterOwner && !pageHeadingHasLessonTitle && <div className="guided-lesson-owner">
-        <span title={`${props.chapterOwner.chapterTitle} · ${props.chapterOwner.sectionTitle}`}>{props.chapterOwner.chapterTitle} · {props.chapterOwner.sectionTitle}</span>
-        {!isComplete && <a href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>}
-    </div>;
+    const chapterReturnLink = !isComplete && props.chapterOwner && <a className="guided-lesson-chapter-return" href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>;
+    const lessonHeading = <h2 id="guided-lesson-title" className="guided-lesson-title" title={lessonTitle}>{lessonTitle}</h2>;
 
     if (startupError) {
         return <><div className="guided-lesson-layer"><section ref={lessonRef} tabIndex={-1} className="guided-lesson guided-lesson-content" aria-labelledby="guided-lesson-title">
             <div className="guided-lesson-heading">
-                <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>
-                <div className="guided-lesson-utilities">{closeButton}</div>
+                {lessonHeading}
+                <div className="guided-lesson-utilities">{chapterReturnLink}{closeButton}</div>
             </div>
-            {chapterIdentity}
             {exitError && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
             <p role="alert">{t('guided_lesson_scene_error')} {startupError.message}</p>
         </section></div>{exitDialog}</>;
@@ -550,16 +548,14 @@ export function GuidedLesson(props: {
     {/* The visible graph around the panel is a pointer target for hiding the instructions;
         keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
     {overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}
-    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? localized(props.lesson.title, language) : undefined}>
+    {overlayVisible && <section ref={lessonRef} tabIndex={-1} style={sectionStyle} className={`guided-lesson guided-lesson-${mode} guided-lesson-frame-${frame.kind} guided-lesson-handoff-${overlayPhase}${panelDrag.dragging ? ' guided-lesson-dragging' : ''}`} aria-labelledby={pageHeadingHasLessonTitle ? undefined : 'guided-lesson-title'} aria-label={pageHeadingHasLessonTitle ? lessonTitle : undefined}>
         <div className="guided-lesson-controls">
         <div className="guided-lesson-heading" {...panelPointerHandlers} onPointerDown={startPanelDrag}>
             <button type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
-            {chapterReturnLink}
-            {pageHeadingHasLessonTitle ? completionHeading : <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>}
-            <div className="guided-lesson-utilities">{hideButton}{closeButton}</div>
+            {pageHeadingHasLessonTitle ? completionHeading : lessonHeading}
+            <div className="guided-lesson-utilities">{chapterReturnLink}{hideButton}{closeButton}</div>
         </div>
-        {chapterIdentity}
         {navigationToolbar}
         </div>
         {exitError && !exitRequested && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
@@ -599,7 +595,7 @@ export function GuidedLesson(props: {
     </section>}
     {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}
         onClick={() => { if (!tabDrag.consumeDragClick()) showOverlay(); }} {...tabDrag.handleProps} aria-keyshortcuts={ARROW_KEYS}
-        aria-label={`${localized(props.lesson.title, language)}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
+        aria-label={`${lessonTitle}, ${t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})}, ${t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}. ${t('back_to_instructions')}`}>
         <GripIcon/>
         <span className="guided-lesson-tab-title">{t('guided_example')}</span>
         <span className="guided-lesson-tab-progress">{snapshot.stepIndex + 1}/{props.lesson.steps.length} · {snapshot.frameIndex + 1}/{frames.length}</span>

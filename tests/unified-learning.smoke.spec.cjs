@@ -45,7 +45,7 @@ test('Learn opens chapters whose Guided examples return to their owning section'
     await expect(page.locator('#jgbox')).toBeVisible();
     await expect(page.locator('.guided-lesson')).toBeVisible();
     await expect(page.locator('.chapter-activity-context')).toHaveCount(0);
-    const readingReturn = page.locator('.guided-lesson-owner a[href="/bezeg-2.0/learn/bezier-curves#control-points"]');
+    const readingReturn = page.locator('.guided-lesson-chapter-return[href="/bezeg-2.0/learn/bezier-curves#control-points"]');
     await expect(readingReturn).toBeVisible();
     await readingReturn.click();
     await expect(page).toHaveURL('/bezeg-2.0/learn/bezier-curves#control-points');
@@ -59,8 +59,7 @@ test('Demonstrations catalog guidance opens the chapter-owned example while grap
     await page.locator('#demonstration-card-decasteljau-lesson').click();
     await expect(page).toHaveURL(/\/bezier\/decasteljau\?learn=1&learnChapter=bezier-curves&learnSection=interpolation/);
     await expect(page.locator('.guided-lesson')).toBeVisible();
-    await expect(page.locator('.guided-lesson-owner')).toContainText('Bézier curves');
-    await expect(page.locator('.guided-lesson-owner a')).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves#interpolation');
+    await expect(page.locator('.guided-lesson-chapter-return')).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves#interpolation');
 
     await page.goto('/bezeg-2.0/bezier/decasteljau');
     await expect(page.locator('.guided-lesson')).toHaveCount(0);

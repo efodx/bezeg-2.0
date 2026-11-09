@@ -43,7 +43,7 @@ test('the GitHub Pages 404 redirect preserves a guided example URL and returns t
     await page.reload();
     await expect(page).toHaveURL(examplePath);
     await expect(page.locator('.guided-lesson')).toBeVisible();
-    await expect(page.locator('.guided-lesson-owner')).toContainText(/parameter/i);
+    await expect(page.locator('.guided-lesson-chapter-return')).toHaveAttribute('href', `${chapter}#parameter`);
     const restored = await page.evaluate(() => history.state);
     expect(restored === null || typeof restored === 'object').toBe(true);
     expect(restored?.usr ?? {}).not.toHaveProperty('chapterActivity');
@@ -53,7 +53,7 @@ test('the GitHub Pages 404 redirect preserves a guided example URL and returns t
     expect(await page.evaluate(() => sessionStorage.getItem('bezeg-2.0:history-entry-bridge:v1'))).toBeNull();
 
     interceptReadingPage = true;
-    await page.locator('.guided-lesson-owner').getByRole('link', {name: 'Return to chapter', exact: true}).click();
+    await page.getByRole('link', {name: 'Return to chapter', exact: true}).click();
     await expect(page).toHaveURL(`${chapter}#parameter`);
     await expect(page.locator('#parameter-heading')).toBeFocused();
     expect(expectedDocument404).toContain('/bezeg-2.0/bezier/decasteljau');

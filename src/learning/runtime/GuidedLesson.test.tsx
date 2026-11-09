@@ -123,17 +123,40 @@ test('offers content-first navigation and preserves step identity when language 
     act(() => setLanguage('sl'));
 });
 
-test('uses the page heading as the lesson region name and keeps chapter return in the utility row', () => {
+test.each([
+    {visiblePageTitle: ' construction  \n TEST ', owned: true, showTitle: false},
+    {visiblePageTitle: 'Graph demonstration', owned: true, showTitle: true},
+    {visiblePageTitle: undefined, owned: true, showTitle: true},
+    {visiblePageTitle: '   ', owned: false, showTitle: true},
+    {visiblePageTitle: 'Construction test', owned: false, showTitle: false},
+])('uses one header for $visiblePageTitle (chapter-owned: $owned)', ({visiblePageTitle, owned, showTitle}) => {
     setLanguage('en');
-    const onReturn = vi.fn();
-    const {container} = render(<GuidedLesson lesson={framedLesson} capabilities={capabilities()} onClose={vi.fn()}
-        visiblePageTitle="Construction" chapterOwner={{chapterTitle: 'Foundations', sectionTitle: 'Curves', returnPath: '/learn', returnLabel: 'Return to chapter', onReturn}}/>);
+    const titledLesson = {...framedLesson, title: {...framedLesson.title, en: 'Construction test'}};
+    const chapterOwner = owned ? {returnPath: '/learn', returnLabel: 'Return to chapter', onReturn: vi.fn()} : undefined;
+    render(<GuidedLesson lesson={titledLesson} capabilities={capabilities()} onClose={vi.fn()}
+        visiblePageTitle={visiblePageTitle} chapterOwner={chapterOwner}/>);
 
-    expect(screen.queryByRole('heading', {name: 'Construction'})).not.toBeInTheDocument();
-    expect(screen.getByRole('region', {name: 'Construction'})).toBeInTheDocument();
-    expect(screen.getByRole('link', {name: 'Return to chapter'}).closest('.guided-lesson-heading')).not.toBeNull();
-    expect(container.querySelector('.guided-lesson-owner')).toBeNull();
-    expect(screen.getByRole('heading', {name: 'Explanation'})).toBeVisible();
+    const panel = screen.getByRole('region', {name: 'Construction test'});
+    const controls = panel.querySelector('.guided-lesson-controls')!;
+    const utilities = controls.querySelector('.guided-lesson-utilities');
+    const checkHeader = () => {
+        expect(Array.from(controls.children).map(row => row.className)).toEqual(['guided-lesson-heading', 'guided-lesson-toolbar']);
+        const title = screen.queryByRole('heading', {name: 'Construction test'});
+        if (showTitle) expect(title).toBeVisible();
+        else expect(title).not.toBeInTheDocument();
+        const returnLink = screen.queryByRole('link', {name: 'Return to chapter'});
+        if (owned) {
+            expect(returnLink?.parentElement).toBe(utilities);
+            expect(returnLink).toHaveAttribute('href', '/learn');
+            expect(utilities?.firstElementChild).toBe(returnLink);
+        } else expect(returnLink).not.toBeInTheDocument();
+        expect(panel).toHaveAccessibleName('Construction test');
+    };
+    expect(screen.getByRole('heading', {name: 'Explanation'}).closest('.guided-lesson-reading')).not.toBeNull();
+    checkHeader();
+    fireEvent.click(screen.getByRole('button', {name: 'Next: next frame'}));
+    expect(screen.getByRole('button', {name: 'Finish example'})).toBeVisible();
+    checkHeader();
     act(() => setLanguage('sl'));
 });
 
@@ -142,7 +165,7 @@ test('returning midway restores the graph checkpoint before returning to the own
     const caps = capabilities();
     const onReturn = vi.fn();
     render(<GuidedLesson lesson={{...lesson, steps: [lesson.steps[1]]}} capabilities={caps} onClose={vi.fn()} chapterOwner={{
-        chapterTitle: 'Foundations', sectionTitle: 'Control points', returnPath: '/learn#control-points',
+        returnPath: '/learn#control-points',
         returnLabel: 'Return to chapter', onReturn,
     }}/>);
 
@@ -158,7 +181,7 @@ test('completion offers chapter continuation and keeps the final graph scene', (
     const caps = capabilities();
     const onReturn = vi.fn();
     render(<GuidedLesson lesson={{...lesson, steps: [lesson.steps[1]]}} capabilities={caps} onClose={vi.fn()} chapterOwner={{
-        chapterTitle: 'Foundations', sectionTitle: 'Control points', returnPath: '/learn#control-points',
+        returnPath: '/learn#control-points',
         returnLabel: 'Return to chapter', onReturn,
     }}/>);
 

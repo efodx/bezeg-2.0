@@ -2,6 +2,13 @@
 const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 
+function navigationPosition(panel) {
+    return panel.locator('.guided-lesson-navigation button').evaluateAll(buttons => buttons.map(button => {
+        const {x, y, width, height} = button.getBoundingClientRect();
+        return {x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height)};
+    }));
+}
+
 async function lessonScrollPort(panel) {
     const owner = await panel.evaluate(section => {
         const candidates = [['section', section], ['reading', section.querySelector('.guided-lesson-reading')]];
@@ -136,10 +143,7 @@ module.exports = function registerExperienceChecks() {
                 await expect(h.hideButton(page)).toBeVisible();
                 await expect(panel.getByRole('button', {name: /Observe on the graph|Opazuj na grafu/})).toHaveCount(0);
 
-                const navigationBox = async () => Promise.all([h.backButton(page), h.nextButton(page)].map(async button => {
-                    const box = await button.boundingBox();
-                    return box && Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, Math.round(box[key])]));
-                }));
+                const navigationBox = () => navigationPosition(panel);
                 const panelBeforeDrag = await panel.boundingBox();
                 const grip = panel.locator('.guided-lesson-grip');
                 const gripBox = await grip.boundingBox();
@@ -219,12 +223,11 @@ module.exports = function registerExperienceChecks() {
                     await expect(h.backButton(page)).toBeDisabled();
                     await expect(h.backButton(page)).toHaveAccessibleName(language === 'en' ? 'Back: previous frame' : 'Nazaj: prejšnji okvir');
                     await expect(h.nextButton(page)).toHaveAccessibleName(language === 'en' ? 'Next: next frame' : 'Naprej: naslednji okvir');
-                    const toolbarPosition = async () => Promise.all([h.backButton(page), h.nextButton(page)].map(async button => {
-                        const box = await button.boundingBox();
-                        return Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, Math.round(box[key])]));
-                    }));
+                    const toolbarPosition = () => navigationPosition(panel);
                     await h.nextButton(page).scrollIntoViewIfNeeded();
                     await h.settle(page);
+                    // Let the resize and scroll observers apply the final panel height before taking the reference.
+                    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
                     const firstToolbarPosition = await toolbarPosition();
                     await h.nextButton(page).click();
                     await h.settle(page);
