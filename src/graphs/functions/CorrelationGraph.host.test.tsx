@@ -358,17 +358,12 @@ describe('editing', () => {
         expect(status('refused')).toBeUndefined();
     });
 
-    test('a refused drag (beyond +-20) returns the point and shows a notice, cleared by the next accepted edit', () => {
+    test('a drag beyond +-20 stops at the limit without a message (task 0 decision 3)', () => {
         const {graph} = mount();
-        const model = graph.modelNow();
         graph.drag(1, 99, 2);
-        expect(graph.modelNow()).toBe(model);
-        expect(graph.visibleHandles()[1].X()).toBe(1);
-        expect(status('refused')).toMatch(/od −20 do 20/);
-        expect(readout('r')).toBe('0,92338');
-        graph.drag(1, 1.5, 2);
+        expect(graph.modelNow().points[1]).toEqual([20, 2]);
+        expect(graph.visibleHandles()[1].X()).toBe(20);
         expect(status('refused')).toBeUndefined();
-        expect(graph.modelNow().points[1]).toEqual([1.5, 2]);
     });
 
     test('typed edits and Add refit the view only when a point leaves it', () => {
@@ -500,8 +495,8 @@ test('switching the language keeps the model and re-renders labels, numbers with
     minusButton();
     minusButton();
     expect(status('too-few')).toMatch(/needs at least 3 points/);
-    graph.drag(0, 99, 0);
-    expect(status('refused')).toMatch(/from −20 to 20/);
+    minusButton();
+    expect(document.querySelector('[data-count-reason]')?.textContent).toBe('At least 2.');
 });
 
 describe('lesson actions (P5)', () => {

@@ -249,3 +249,32 @@ describe('Preset collection', () => {
         expect(readout('kind')).toBe('hiperbola');
     });
 });
+
+describe('unavailable weight controls (F1)', () => {
+    const needsBridge = 'Utež velja za Bézierjev lok: najprej ga pokaži.';
+    const alreadyMatched = 'Utež je že prilegajoča se: lok leži na stožnici.';
+    const matchedButton = () => screen.getByRole('button', {name: 'Prilegajoča se utež'});
+
+    test('the weight slider and the matched-weight button are unavailable with the reason until the bridge is shown', () => {
+        const {graph} = mountGraph();
+        expect(matchedButton()).toHaveAttribute('aria-disabled', 'true');
+        expect(matchedButton()).toHaveAttribute('title', needsBridge);
+        expect(screen.getAllByText(needsBridge).length).toBeGreaterThan(1);
+        const before = graph.modelNow();
+        act(() => { fireEvent.click(matchedButton()); });
+        expect(graph.modelNow()).toBe(before);
+        expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe(needsBridge);
+    });
+
+    test('with the bridge on and the matched weight in use the button names the reason; a moved weight makes it available again', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.editBridge(true); });
+        expect(matchedButton()).toHaveAttribute('aria-disabled', 'true');
+        expect(matchedButton()).toHaveAttribute('title', alreadyMatched);
+        act(() => { graph.editWeight(1.6); });
+        expect(matchedButton()).toHaveAttribute('aria-disabled', 'false');
+        expect(matchedButton()).not.toHaveAttribute('title');
+        act(() => { fireEvent.click(matchedButton()); });
+        expect(graph.modelNow().weight).toBeNull();
+    });
+});

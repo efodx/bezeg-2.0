@@ -2,6 +2,8 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {FunctionStatus} from "./FunctionStatus";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
@@ -245,7 +247,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         const rangeHint = (min: number, max: number) => ({value0: formatNumber(min, language), value1: formatNumber(max, language)});
         const matched = view.bridge?.matchedWeight ?? state.weight ?? 1;
         const weightShown = state.weight ?? matched;
-        const resetUnavailable = !state.bridge || state.weight === null;
+        const matchedReason = !state.bridge ? t("conic_weight_needs_bridge") : state.weight === null ? t("conic_weight_already_matched") : undefined;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("conic_example_label")} value={example ?? "custom"} help={t("conic_example_help")}
@@ -267,13 +269,13 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
             <div className="inspector-group">
                 <OnOffSwitch checked={state.bridge} label={t("conic_bridge_label")} onChange={next => this.ignoreOutOfDomain(() => this.setBridge(next))}/>
                 <p className="inspector-help">{t("conic_bridge_help")}</p>
-                <Slider customText={t("conic_weight_label")} min={CONIC_WEIGHT_MIN} max={CONIC_WEIGHT_MAX} step={0.01} value={weightShown} disabled={!state.bridge}
+                <Slider customText={t("conic_weight_label")} min={CONIC_WEIGHT_MIN} max={CONIC_WEIGHT_MAX} step={0.01} value={weightShown} unavailableReason={state.bridge ? undefined : t("conic_weight_needs_bridge")}
                         rejectedHint={t("conic_weight_rejected_hint", rangeHint(CONIC_WEIGHT_MIN, CONIC_WEIGHT_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setWeight(next))}/>
                 <div className="demo-actions">
-                    {/* aria-disabled, not disabled: a focused button that becomes unavailable must not drop keyboard focus. */}
-                    <button type="button" data-action="matched-weight" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.ignoreOutOfDomain(() => this.setWeight(null)); }}>{t("conic_weight_matched")}</button>
+                    <UnavailableButton data-action="matched-weight" reason={matchedReason}
+                                       onBlockedPress={reason => this.refusals.refuse(reason, true)}
+                                       onPress={() => { if (this.ignoreOutOfDomain(() => this.setWeight(null))) this.refusals.clear(); }}>{t("conic_weight_matched")}</UnavailableButton>
                 </div>
                 <p className="inspector-help">{t("conic_weight_help")}</p>
             </div>
@@ -311,9 +313,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("conic_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(view).map(status => <p key={status.id} className="inspector-help" data-conic-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" dataAttribute="conic-status" lines={this.statuses(view)}/>
         </>;
     }
 }

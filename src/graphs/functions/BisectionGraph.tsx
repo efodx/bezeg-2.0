@@ -2,6 +2,7 @@ import React from "react";
 import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
@@ -347,9 +348,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("bisection_note")}/>
-            <div className="inspector-group bisection-status" role="status" aria-live="polite">
-                {this.statuses(model, language).map(status => <p key={status.id} className="inspector-help" data-bisection-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="bisection-status" dataAttribute="bisection-status" lines={this.statuses(model, language)} muted={this.controller.isPlaying()}/>
         </>;
     }
 }

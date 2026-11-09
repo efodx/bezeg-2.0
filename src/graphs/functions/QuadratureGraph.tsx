@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -233,8 +234,6 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
                         help={rule === "simpson" ? t("quadrature_n_help_simpson") : t("quadrature_n_help_trapezoid")}
                         rejectedHint={rule === "simpson" ? t("quadrature_n_even_rejected", {value0: counts.min, value1: counts.max}) : undefined}
                         onChange={next => this.ignoreOutOfDomain(() => this.setCount(Math.round(next)))}/>
-                {this.adjustment && <p className="inspector-help" role="status" data-quadrature-status="adjusted">
-                    {t("quadrature_adjusted", {value0: this.adjustment.from, value1: this.adjustment.to})}</p>}
             </div>
         </>;
     }
@@ -244,6 +243,8 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
         const result: { id: string; text: string }[] = [{id: model.rule, text: model.rule === "simpson" ? t("quadrature_status_simpson") : t("quadrature_status_trapezoid")}];
         if (view.halfN === undefined) result.push({id: "no-half", text: t("quadrature_status_no_half")});
         else if (view.ratio === undefined) result.push({id: "exact", text: t("quadrature_status_exact")});
+        // The even count the rule chose instead of the typed one is stated with the other statuses, in the one announcement.
+        if (this.adjustment) result.push({id: "adjusted", text: t("quadrature_adjusted", {value0: this.adjustment.from, value1: this.adjustment.to})});
         return result;
     }
 
@@ -266,9 +267,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("quadrature_note")}/>
-            <div className="inspector-group quadrature-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-quadrature-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="quadrature-status" dataAttribute="quadrature-status" lines={this.statuses(model, view)}/>
         </>;
     }
 

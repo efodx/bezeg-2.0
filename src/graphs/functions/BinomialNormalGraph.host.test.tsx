@@ -35,6 +35,8 @@ class ObservedBinomialNormalGraph extends BinomialNormalGraph {
         const handle = this.handleK();
         act(() => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); });
     }
+    /** The host Fit button. */
+    fit() { act(() => { this.fitToVisiblePoints(); }); }
     callSetP(value: unknown) { this.setP(value); }
     lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
 }
@@ -114,12 +116,13 @@ describe('edits through the inspector', () => {
         expect(graph.handleK().X()).toBe(45);
     });
 
-    test('the fit-view button refits the view after the user changed it', () => {
+    test('the host Fit frames the bars (there is no fit-view button) after the user changed it', () => {
         const {graph} = mount();
         const fitted = [...graph.liveBoard().getBoundingBox()];
         act(() => { graph.liveBoard().setBoundingBox([-50, 5, 50, -5], false); });
         expect(graph.liveBoard().getBoundingBox()).not.toEqual(fitted);
-        act(() => { fireEvent.click(document.querySelector('[data-action="fit-view"]')!); });
+        expect(document.querySelector('[data-action="fit-view"]')).toBeNull();
+        graph.fit();
         expect(graph.liveBoard().getBoundingBox()).toEqual(fitted);
     });
 
@@ -276,7 +279,7 @@ describe('Presets', () => {
 });
 
 describe('live region', () => {
-    const region = () => document.querySelector('[role="status"][aria-live="polite"]');
+    const region = () => document.querySelector('.function-status');
     const tailNote = () => region()?.querySelector('[data-prob-binomial="poisson-tail"]');
 
     test('the polite status region exists before any note; B(5; 0.9) with Poisson on adds the tail note inside it, off removes it', () => {

@@ -2,6 +2,9 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, FillCurve, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
+import {CountSetter} from "../../inputs/CountSetter";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {FunctionStatus} from "./FunctionStatus";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -280,12 +283,15 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                 <p className="inspector-help">{t("darboux_order_help")}</p>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("darboux_n_label")} value={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX} step={1} decimals={0}
-                             rejectedHint={t("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setCount(next))}/>
+                <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
+                             onPlus={() => this.ignoreOutOfDomain(() => this.setCount(n + 1))}
+                             onMinus={() => this.ignoreOutOfDomain(() => this.setCount(n - 1))}
+                             onSet={next => this.ignoreOutOfDomain(() => this.setCount(next))}/>
                 <div className="darboux-actions" role="group" aria-label={t("darboux_partition_label")}>
-                    <button type="button" data-action="refine" disabled={!refinable} aria-describedby="darboux-refine-help"
-                            onClick={() => this.ignoreOutOfDomain(() => this.refinePartition())}>{t("darboux_refine")}</button>
+                    <UnavailableButton data-action="refine" aria-describedby="darboux-refine-help"
+                                       reason={refinable ? undefined : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}
+                                       onBlockedPress={reason => this.refusals.refuse(reason, true)}
+                                       onPress={() => { if (this.ignoreOutOfDomain(() => this.refinePartition())) this.refusals.clear(); }}>{t("darboux_refine")}</UnavailableButton>
                 </div>
                 <p id="darboux-refine-help" className="inspector-help">{refinable ? t("darboux_refine_help") : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}</p>
             </div>
@@ -340,9 +346,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("darboux_note")}/>
-            <div className="inspector-group darboux-status" role="status" aria-live="polite">
-                {this.statuses(model).map(status => <p key={status.id} className="inspector-help" data-darboux-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="darboux-status" dataAttribute="darboux-status" lines={this.statuses(model)}/>
         </>;
     }
 }

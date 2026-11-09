@@ -1,4 +1,3 @@
-.epicycle-n-steps { display: flex; gap: .5rem; margin-top: .25rem; }
 .epicycle-fields { display: grid; gap: .25rem; }
 .epicycle-status { margin: 0 0 .5rem; color: var(--workspace-ink); font-size: .9rem; }
 .epicycle-table { max-height: 14rem; overflow: auto; border: 1px solid var(--workspace-rule); border-radius: 4px; }

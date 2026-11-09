@@ -95,10 +95,6 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         };
     }
 
-    protected resetValues(): void {
-        this.commitModel(this.defaultModel());
-    }
-
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     /** The polyline pieces of `fn` over the view, joined into one curve with NaN gaps (so poles and domain edges break the line). */
@@ -243,7 +239,6 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
                         onClick={() => this.setGhostVisible(!this.model.ghostVisible)}>
                     {state.ghostVisible ? t("function_transformation_ghost_hide") : t("function_transformation_ghost_show")}
                 </button>
-                <button type="button" data-action="reset-transformation" onClick={() => this.resetValues()}>{t("function_transformation_reset")}</button>
             </div>
         </>;
     }

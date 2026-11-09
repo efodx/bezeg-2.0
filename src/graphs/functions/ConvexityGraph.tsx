@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
@@ -430,9 +431,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("convexity_note")}/>
-            <div className="inspector-group convexity-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-convexity-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="convexity-status" dataAttribute="convexity-status" lines={this.statuses(model, view)}/>
         </>;
     }
 }

@@ -55,7 +55,9 @@ class ObservedCltGraph extends CltGraph {
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const status = (id: string) => document.querySelector(`[data-prob-clt-status="${id}"]`)?.textContent;
+const status = (id: string) => (id === 'refused'
+    ? document.querySelector('[data-refusal-notice]')?.textContent || undefined
+    : document.querySelector(`[data-prob-clt-status="${id}"]`)?.textContent);
 const field = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
 const typeIn = (label: RegExp, value: number) => act(() => {
     fireEvent.change(field(label), {target: {value: String(value)}});
@@ -260,6 +262,18 @@ describe('refused edits', () => {
         expectReadouts(graph.modelNow());
         typeHeight(0, 1);
         expect(status('refused')).toBeUndefined();
+    });
+
+    test('wiring: the refusal appears once in the shared refusal channel, outside the status group, and the next accepted edit clears it', () => {
+        const {graph} = mount();
+        for (const index of [0, 1, 2, 3, 4]) typeHeight(index, 0);
+        const notices = document.querySelectorAll('[data-refusal-notice]');
+        expect(notices).toHaveLength(1);
+        expect(notices[0].textContent).toMatch(/Vsaj ena višina mora ostati večja od 0/);
+        expect(notices[0].closest('[data-prob-clt-status]')).toBeNull();
+        typeHeight(0, 1);
+        expect(document.querySelector('[data-refusal-notice]')?.textContent ?? '').toBe('');
+        expect(graph.modelNow().heights[0]).toBe(1);
     });
 
     test('Reset clears a refusal notice', () => {

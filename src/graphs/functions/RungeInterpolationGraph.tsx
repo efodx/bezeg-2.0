@@ -1,8 +1,9 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {CountSetter} from "../../inputs/CountSetter";
+import {guard} from "../base/controls/guard";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
@@ -201,42 +202,33 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
         this.sampled = undefined;
     }
 
+    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    private guarded(action: () => void): boolean {
+        return guard(this.refusals, action);
+    }
+
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
         const state = this.model;
-        const atMinimum = state.degree <= RUNGE_DEGREE_MIN;
-        const atMaximum = state.degree >= RUNGE_DEGREE_MAX;
-        const help = atMinimum ? t("interp_runge_degree_limit_min", {value0: RUNGE_DEGREE_MIN})
-            : atMaximum ? t("interp_runge_degree_limit_max", {value0: RUNGE_DEGREE_MAX})
-                : t("interp_runge_degree_help", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX});
         const semicircleAvailable = state.nodeRule === "chebyshev";
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("interp_runge_function_label")} value={state.functionId} help={t("interp_runge_function_help")}
                               options={INTERPOLATION_FUNCTION_IDS.map(id => ({value: id, text: rungeFunctionName(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
+                              onChange={next => this.guarded(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="count-setter">
-                    <div className="count-setter-label">{t("interp_runge_degree_label")}</div>
-                    {/* aria-disabled, not disabled: a focused button that becomes unavailable at the end of the range must not drop keyboard focus. */}
-                    <div className="count-setter-controls">
-                        <button type="button" className="count-setter-button" data-action="degree-decrease" aria-disabled={atMinimum} aria-describedby="interp-runge-degree-help"
-                                aria-label={t("interp_runge_degree_decrease")} onClick={() => { if (!atMinimum) this.ignoreOutOfDomain(() => this.setDegree(this.model.degree - 1)); }}>−</button>
-                        <NumberInput label={t("interp_runge_degree_label")} hideLabel compact integer value={state.degree} min={RUNGE_DEGREE_MIN} max={RUNGE_DEGREE_MAX} step={1} decimals={0}
-                                     rejectedHint={t("interp_runge_degree_rejected", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
-                                     onChange={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
-                        <button type="button" className="count-setter-button" data-action="degree-increase" aria-disabled={atMaximum} aria-describedby="interp-runge-degree-help"
-                                aria-label={t("interp_runge_degree_increase")} onClick={() => { if (!atMaximum) this.ignoreOutOfDomain(() => this.setDegree(this.model.degree + 1)); }}>+</button>
-                    </div>
-                </div>
-                <p id="interp-runge-degree-help" className="inspector-help">{help}</p>
+                <CountSetter label={t("interp_runge_degree_label")} n={state.degree} min={RUNGE_DEGREE_MIN} max={RUNGE_DEGREE_MAX}
+                             help={t("interp_runge_degree_help", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
+                             onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
+                             onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
+                             onSet={next => this.guarded(() => this.setDegree(next))}/>
             </div>
             <div className="inspector-group">
                 <ChoiceSelect label={t("interp_runge_rule_label")} value={state.nodeRule} help={t("interp_runge_rule_help")}
                               options={RUNGE_NODE_RULES.map(rule => ({value: rule, text: this.ruleName(rule)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setNodeRule(next))}/>
+                              onChange={next => this.guarded(() => this.setNodeRule(next))}/>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.showError} label={t("interp_runge_show_error")} onChange={checked => this.setShowError(checked)}/>

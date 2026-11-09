@@ -1,7 +1,7 @@
 import React from "react";
-import {Button} from "react-bootstrap";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -26,7 +26,7 @@ import {functionPresetCollections} from "./functionPresetCollections";
  * object count does not depend on the interval; dragging an end rounds to 0.01.
  *
  * An example (N(0, 1) or N(100, 15)) sets all four numbers and the view; the view also follows an imported Preset without a view of
- * its own, and "fit the view" rescales to the current mu and sigma. The view does not move while mu and sigma are dragged.
+ * its own, and the host Fit rescales to the current mu and sigma. The view does not move while mu and sigma are dragged.
  */
 export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     protected pointA?: JXG.Point;
@@ -80,6 +80,11 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
 
     protected setBound(which: "a" | "b", value: unknown, options: { syncScene?: boolean } = {}): void {
         this.commitEdit(setDensityBound(this.model, which, value), options);
+    }
+
+    /** The host Fit frames the curve, as choosing an example does (the former "fit the view to the curve" button). */
+    protected override fitView(): BoundingBox {
+        return [...fitDensityView(this.model)];
     }
 
     /** Shows the curve fully: the view becomes mu +- 4 sigma wide and as high as the peak. */
@@ -161,9 +166,6 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_density_example_label")} value={example ?? "custom"} help={t("prob_density_example_help")} options={options}
                               onChange={next => { if (next === "standard" || next === "iq") this.setExample(next); }}/>
-                <Button type="button" variant="outline-secondary" size="sm" data-action="fit-view" onClick={() => this.fitToCurve()}>
-                    {t("prob_density_fit_view")}
-                </Button>
             </div>
             <div className="inspector-group">
                 <Slider customText={t("prob_density_mu_label")} min={-DENSITY_MU_LIMIT} max={DENSITY_MU_LIMIT} step={0.1} value={state.mu}
@@ -194,9 +196,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         const status = densityStatus(view.kind, language);
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_density_note")}/>
-            <div className="inspector-group" role="status" aria-live="polite">
-                {status && <p className="inspector-help" data-prob-density="status">{status}</p>}
-            </div>
+            <FunctionStatus dataAttribute="prob-density" lines={status ? [{id: "status", text: status}] : []}/>
         </>;
     }
 

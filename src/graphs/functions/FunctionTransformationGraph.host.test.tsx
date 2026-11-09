@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {settle} from '../base/realGraphTestHarness';
 import {FunctionTransformationGraph} from './FunctionTransformationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
@@ -132,7 +133,7 @@ test('dragging the image marker sets u on the grid and the base marker follows',
     expect(readout('base-point')).toBe('(3; 9)');
 });
 
-test('Reset, a restored Preset and the ghost toggle restore every field, the controls and the board objects', () => {
+test('Reset, a restored Preset and the ghost toggle restore every field, the controls and the board objects', async () => {
     const graph = mount();
     const baseline = boardObjects(graph);
     const stored = {base: 'abs', a: 1.5, b: -2, c: -3, d: 4, ghostVisible: false, u: 1.2};
@@ -155,7 +156,7 @@ test('Reset, a restored Preset and the ghost toggle restore every field, the con
     expect(graph.modelNow().ghostVisible).toBe(true);
     near(graph.markers().base, [1.2, 1.2]);
 
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi vrednosti'})); });
+    await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)
     expect(graph.modelNow()).toEqual(DEFAULT_FUNCTION_TRANSFORMATION_MODEL);
     expect((screen.getByLabelText('Osnovna funkcija f') as HTMLSelectElement).value).toBe('square');
     expect(field('Navpična raztegnitev a').value).toBe('−2');

@@ -93,8 +93,9 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputB, inputN] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const [inputA, inputB] = found.NumberInput;
+    const [inputN] = found.CountSetter;
+    const button = (action: string) => [...found.button, ...(found.UnavailableButton ?? [])].find((element: any) => element.props['data-action'] === action);
     return {found, inputA, inputB, inputN, refine: button('refine'), toggleLower: button('toggle-lower'), toggleUpper: button('toggle-upper')};
 };
 const rows = (graph: any): Record<string, string> =>
@@ -210,8 +211,8 @@ test('Refine doubles n through the button, is the same as the lesson action, and
     const viaLesson = makeGraph();
     const sequence = [8, 16, 32, 64, 128];
     for (const n of sequence) {
-        expect(controls(viaButton).refine.props.disabled).toBe(false);
-        controls(viaButton).refine.props.onClick();
+        expect(controls(viaButton).refine.props.reason).toBeUndefined();
+        controls(viaButton).refine.props.onPress();
         apply(viaLesson, parameter('darboux-n', n));
         expect(viaButton.model).toEqual(viaLesson.model);
         expect(viaButton.model.n).toBe(n);
@@ -219,15 +220,16 @@ test('Refine doubles n through the button, is the same as the lesson action, and
         expect(caption(viaButton)).toEqual(caption(viaLesson));
         expect(rects(curves(viaButton)[LOWER])).toEqual(rects(curves(viaLesson)[LOWER]));
     }
-    // at the limit the button is disabled, says why, and a press changes nothing
+    // at the limit the button is unavailable with a reason (not disabled), and a press changes nothing
     expect(canRefine(viaButton.model.n)).toBe(false);
     const atLimit = controls(viaButton);
-    expect(atLimit.refine.props.disabled).toBe(true);
+    expect(atLimit.refine.props.reason).toContain(String(DARBOUX_N_MAX));
+    expect(atLimit.refine.props.disabled).toBeUndefined();
     expect(atLimit.refine.props['aria-describedby']).toBe('darboux-refine-help');
     const help = collect([viaButton.renderControls(), viaButton.renderReveals()]).p.find((element: any) => element.props.id === 'darboux-refine-help');
     expect(String(help.props.children)).toContain(String(DARBOUX_N_MAX));
     expect(statusIds(viaButton)).toEqual(['trapped', 'limit']);
-    expect(() => atLimit.refine.props.onClick()).not.toThrow();
+    expect(() => atLimit.refine.props.onBlockedPress(atLimit.refine.props.reason)).not.toThrow();
     expect(viaButton.model.n).toBe(DARBOUX_N_MAX);
     expect(() => viaButton.refinePartition()).toThrow(DomainError);
     expect(viaButton.model.n).toBe(DARBOUX_N_MAX);
@@ -256,12 +258,19 @@ test('setting n, a and b through the number fields and through the lesson action
     const viaControl = makeGraph();
     const viaLesson = makeGraph();
     for (const value of [1, 7, 128, 4]) {
-        expect(controls(viaControl).inputN.props.onChange(value)).toBe(true);
+        expect(controls(viaControl).inputN.props.onSet(value)).toBe(true);
         apply(viaLesson, parameter('darboux-n', value));
         expect(viaControl.model).toEqual(viaLesson.model);
         expect(rows(viaControl)).toEqual(rows(viaLesson));
         expect(caption(viaControl)).toEqual(caption(viaLesson));
     }
+    // the shared count stepper reaches the same model
+    controls(viaControl).inputN.props.onPlus();
+    apply(viaLesson, parameter('darboux-n', 5));
+    expect(viaControl.model).toEqual(viaLesson.model);
+    controls(viaControl).inputN.props.onMinus();
+    apply(viaLesson, parameter('darboux-n', 4));
+    expect(viaControl.model).toEqual(viaLesson.model);
     expect(controls(viaControl).inputA.props.onChange(-1)).toBe(true);
     apply(viaLesson, parameter('darboux-a', -1));
     expect(controls(viaControl).inputB.props.onChange(3)).toBe(true);
@@ -300,17 +309,17 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
     const graph = makeGraph();
     const {inputA, inputB, inputN} = controls(graph);
-    expect([inputA, inputB, inputN].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
-        ['Levo krajišče a', -7, 7, 0], ['Desno krajišče b', -7, 7, 2], ['Število delov n', 1, 128, 4],
+    expect([inputA, inputB].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
+        ['Levo krajišče a', -7, 7, 0], ['Desno krajišče b', -7, 7, 2],
     ]);
+    expect([inputN.props.label, inputN.props.min, inputN.props.max, inputN.props.n]).toEqual(['Število delov n', 1, 128, 4]);
     expect(inputA.props.onChange(2)).toBe(false); // a = b
     expect(inputA.props.onChange(3)).toBe(false);
     expect(inputB.props.onChange(0)).toBe(false);
-    expect(inputN.props.onChange(2.5)).toBe(false);
-    expect(inputN.props.onChange(0)).toBe(false);
+    expect(inputN.props.onSet(2.5)).toBe(false);
+    expect(inputN.props.onSet(0)).toBe(false);
     expect(graph.model).toMatchObject({a: 0, b: 2, n: 4});
     expect(inputA.props.rejectedHint).toMatch(/a < b/);
-    expect(inputN.props.rejectedHint).toBe('Število delov n mora biti celo število od 1 do 128.');
     expect(inputA.props.onChange(1.5)).toBe(true);
     expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');

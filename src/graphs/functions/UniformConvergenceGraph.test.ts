@@ -84,9 +84,14 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputR, inputX, inputEpsilon, inputN] = found.NumberInput;
+    const [inputR, inputX, inputEpsilon] = found.NumberInput;
+    const [setter] = found.CountSetter;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
-    return {found, select: found.ChoiceSelect[0], inputR, inputX, inputEpsilon, inputN, toggle: button('toggle-uniform-supremum'), decrease: button('n-decrease'), increase: button('n-increase')};
+    // n is a shared CountSetter: its typed path, its minus and its plus
+    return {
+        found, select: found.ChoiceSelect[0], inputR, inputX, inputEpsilon, setter, toggle: button('toggle-uniform-supremum'),
+        inputN: {props: {onChange: setter.props.onSet}}, decrease: {props: {onClick: setter.props.onMinus}}, increase: {props: {onClick: setter.props.onPlus}},
+    };
 };
 const rows = (graph: any): Record<string, string> =>
     Object.fromEntries((graph.renderReadout().props.children[0].props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
@@ -388,14 +393,11 @@ test('controls and lesson actions give equivalent models', () => {
     expect(rows(viaControls)).toEqual(rows(viaLesson));
     expect(caption(viaControls)).toEqual(caption(viaLesson));
     expect(statusIds(viaControls)).toEqual(statusIds(viaLesson));
-    // the buttons clamp nothing: at 1 the decrease is disabled, at 50 the increase is
-    controls(viaControls).inputN.props.onChange(1);
-    expect(controls(viaControls).decrease.props['aria-disabled']).toBe(true);
-    expect(controls(viaControls).decrease.props['aria-describedby']).toBe('uniform-n-help');
+    // the stepper covers 1 to 50; a press past an end is refused through the graph's notice, never wrapped
+    expect(controls(viaControls).setter.props).toMatchObject({min: 1, max: 50});
     controls(viaControls).inputN.props.onChange(50);
-    expect(controls(viaControls).increase.props['aria-disabled']).toBe(true);
-    // an unavailable button stays focusable and its click does nothing
     controls(viaControls).increase.props.onClick();
+    expect(viaControls.refusals.refusal).toBeDefined();
     expect(viaControls.model.n).toBe(50);
     controls(viaControls).inputN.props.onChange(1);
     controls(viaControls).decrease.props.onClick();

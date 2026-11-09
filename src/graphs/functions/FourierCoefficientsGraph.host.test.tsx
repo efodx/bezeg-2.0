@@ -343,12 +343,12 @@ test('choosing a function that another slot already shows is rejected with the r
     choose(selectionSelect(1), 'abs');
     expect(graph.modelNow().selections).toEqual(['square', 'abs', 'smooth']);
     expect(selectionSelect(1).value).toBe('square');
-    expect(screen.getByTestId('fourier-decay-rejection').textContent).toBe('Izbrane funkcije morajo biti med seboj različne.');
+    expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe('Izbrane funkcije morajo biti med seboj različne.');
     expect(panelExamples()).toEqual(['square', 'abs', 'smooth']);
     // a free example is accepted and the message goes away
     choose(selectionSelect(1), 'sawtooth');
     expect(graph.modelNow().selections).toEqual(['sawtooth', 'abs', 'smooth']);
-    expect(screen.queryByTestId('fourier-decay-rejection')).toBeNull();
+    expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe('');
     expect(panelExamples()).toEqual(['sawtooth', 'abs', 'smooth']);
     expect(() => graph.lesson({kind: 'function-choice', name: 'fourier-selection-2', value: 'smooth'})).toThrow(DomainError);
 });

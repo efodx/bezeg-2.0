@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {settle} from '../base/realGraphTestHarness';
 import {RationalFunctionGraph} from './RationalFunctionGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
@@ -116,7 +117,7 @@ test('both languages: labels and readouts follow a live language switch', () => 
     expect(document.body.textContent).not.toMatch(/Števec|luknj|večkratnost|asimptota/);
 });
 
-test('Reset and an imported Preset restore controls and board objects', () => {
+test('Reset and an imported Preset restore controls and board objects', async () => {
     const graph = mount();
     const baseline = boardObjects(graph);
     const stored = rationalExampleModel('double-pole', 4);
@@ -126,7 +127,7 @@ test('Reset and an imported Preset restore controls and board objects', () => {
     expect(graph.glidersNow().denominator[1].X()).toBeCloseTo(1, 9);
     expect(boardObjects(graph)).toBe(baseline);
 
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi vrednosti'})); });
+    await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)
     expect(graph.modelNow()).toEqual(DEFAULT_RATIONAL_FUNCTION_MODEL);
     expect(screen.queryByLabelText('Imenovalec: Ničla 2: položaj x')).toBeNull();
     expect(boardObjects(graph)).toBe(baseline);

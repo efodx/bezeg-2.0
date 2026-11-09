@@ -2,6 +2,7 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -102,7 +103,7 @@ export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, 
  * Board objects (owned; the count does not depend on n except the point pool of CORRELATION_POINTS_MAX): the residual segments
  * (one dashed curve), the y-on-x line (solid curve), the x-on-y line (dashed curve in the comparison colour) with a text label
  * on each line, and the draggable points. A drag commits through `moveCorrelationPoint`, which snaps to tenths and refuses a
- * value outside +-CORRELATION_COORDINATE_LIMIT; a refused drag leaves the point at its previous value and shows a notice.
+ * value outside +-CORRELATION_COORDINATE_LIMIT; a drag stops at that limit without a message.
  *
  * Keyboard: the typed point list in the inspector (as in least squares) is the keyboard path.
  *
@@ -232,11 +233,11 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         this.refusals.clear();
     }
 
-    /** A drag: the point follows the pointer snapped to tenths; a refused value leaves the point at its previous value. */
+    /** A drag: the point follows the pointer snapped to tenths and stops at the coordinate limit without a message (task 0 decision 3). */
     private dragPoint(index: number, x: number, y: number): void {
-        const edit = moveCorrelationPoint(this.model, index, [x, y]);
-        if (!edit.ok) this.refusals.refuse(correlationEditMessage(edit.issue));
-        else {
+        const limited = (value: number) => Math.max(-CORRELATION_COORDINATE_LIMIT, Math.min(CORRELATION_COORDINATE_LIMIT, value));
+        const edit = moveCorrelationPoint(this.model, index, [limited(x), limited(y)]);
+        if (edit.ok) {
             this.refusals.clear();
             if (edit.model !== this.model) this.commitModel(edit.model, {syncScene: false});
         }
@@ -426,9 +427,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         if (view.status !== "ok") statuses.push({id: view.status, text: statusText[view.status]()});
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_correlation_note")}/>
-            <div className="inspector-group" role="status" aria-live="polite">
-                {statuses.map(status => <p key={status.id} className="inspector-help" data-prob-correlation-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus dataAttribute="prob-correlation-status" lines={statuses}/>
         </>;
     }
 

@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -346,9 +347,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("euler_ode_note")}/>
-            <div className="inspector-group euler-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-euler-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="euler-status" dataAttribute="euler-status" lines={this.statuses(model, view)}/>
         </>;
     }
 

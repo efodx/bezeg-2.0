@@ -2,6 +2,7 @@ import React from "react";
 import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
@@ -479,9 +480,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fixed_point_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-fixed-point-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" dataAttribute="fixed-point-status" lines={this.statuses(model, view)} muted={this.controller.isPlaying()}/>
         </>;
     }
 }

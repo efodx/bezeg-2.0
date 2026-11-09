@@ -36,6 +36,8 @@ class ObservedDensityAreaGraph extends DensityAreaGraph {
     }
     set(name: 'mu' | 'sigma', value: unknown) { act(() => { if (name === 'mu') this.setMu(value); else this.setSigma(value); }); }
     lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
+    /** The host Fit button. */
+    fit() { act(() => { this.fitToVisiblePoints(); }); }
     callSetSigma(value: unknown) { this.setSigma(value); }
     callSetBound(which: 'a' | 'b', value: unknown) { this.setBound(which, value); }
 }
@@ -143,8 +145,9 @@ test('a > b: probability 0, a status text, nothing filled and nothing broken', (
     expect(readout('area-percent')).toBe('0');
     expect(readout('area')).toBe('0');
     expect(status()).toMatch(/Meja a je večja od meje b: interval je prazen/);
-    // The live region exists before and after the message, so screen readers announce the change.
-    expect(document.querySelector('[role="status"][aria-live="polite"] [data-prob-density="status"]')).not.toBeNull();
+    // The one live region (hidden) announces the visible status line.
+    expect(document.querySelector('.function-status [data-prob-density="status"]')).not.toBeNull();
+    expect(document.querySelector('[data-readout-live]')?.textContent).toMatch(/interval je prazen/);
     expect(graph.fills()).toHaveLength(0);
     expect(graph.captionPlainLines().join('\n')).toMatch(/interval je prazen/);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
@@ -196,7 +199,7 @@ test('wording: readouts speak of the area under the density and never of the pro
     expect(document.body.textContent).not.toMatch(/probability of the point/i);
 });
 
-test('the examples set mu, sigma, a, b and the view; fit-to-curve rescales the view to the current mu and sigma', () => {
+test('the examples set mu, sigma, a, b and the view; the host Fit rescales the view to the current mu and sigma', () => {
     const {graph} = mount();
     expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(-4, 6);
     act(() => { fireEvent.change(exampleSelect(), {target: {value: 'iq'}}); });
@@ -205,14 +208,16 @@ test('the examples set mu, sigma, a, b and the view; fit-to-curve rescales the v
     const [left, , right] = graph.liveBoard().getBoundingBox();
     expect([left, right]).toEqual([40, 160]);
     expect(graph.handle('a').X()).toBe(85);
-    // a custom curve is not an example; the view stays until fit-to-curve
+    // a custom curve is not an example; the view stays until the host Fit
     graph.set('sigma', 5);
     expect(exampleSelect().value).toBe('custom');
     expect(graph.liveBoard().getBoundingBox()[0]).toBe(40);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: /^Prilagodi pogled krivulji$/})); });
+    expect(screen.queryByRole('button', {name: /^Prilagodi pogled krivulji$/})).toBeNull();
+    graph.fit();
     const [fitLeft, top, fitRight] = graph.liveBoard().getBoundingBox();
     expect([fitLeft, fitRight]).toEqual([80, 120]);
     expect(top).toBeGreaterThan(0.0798);
+    fitDensityView(graph.modelNow()).forEach((value, index) => expect(graph.liveBoard().getBoundingBox()[index]).toBeCloseTo(value, 6));
 });
 
 test('Reset restores the defaults, the fields, the readouts, the view and the board objects', async () => {

@@ -5,9 +5,11 @@ import {FunctionLegend} from "./FunctionReadout";
 import {TransientState} from "../base/BaseGraph";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
+import {guard} from "../base/controls/guard";
+import {FunctionStatus, FunctionStatusLine} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
-import {currentLanguage, Message, message, renderMessage, t, useT} from "../../localization";
+import {currentLanguage, message, renderMessage, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {FourierComplex} from "../../analysis/fourier";
@@ -65,7 +67,6 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     // ---- Host state: not in the model, not in a Preset -----------------------------------------------------------------
     private timeValue = 0;
     private playingValue = false;
-    private rejectionValue?: Message;
     private hostVersion = 0;
     private readonly hostListeners = new Set<() => void>();
 
@@ -107,10 +108,6 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         return this.playingValue;
     }
 
-    get rejection(): Message | undefined {
-        return this.rejectionValue;
-    }
-
     /** Stops the frame loop; the time stays where it is. */
     private halt(): void {
         this.driver.stop();
@@ -120,16 +117,10 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         }
     }
 
-    private showRejection(reason: Message | undefined): void {
-        if (this.rejectionValue === reason) return;
-        this.rejectionValue = reason;
-        this.notifyHost();
-    }
-
     private resetTime(): void {
         this.halt();
         this.timeValue = 0;
-        this.rejectionValue = undefined;
+        this.refusals.clear();
         this.notifyHost();
     }
 
@@ -137,7 +128,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     play(): void {
         if (this.playingValue || !this.graphSession?.isAlive) return;
         this.playingValue = true;
-        this.rejectionValue = undefined;
+        this.refusals.clear();
         this.driver.play();
         this.boardUpdate();
         this.notifyHost();
@@ -169,7 +160,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         this.driver.dispose();
         this.playingValue = false;
         this.timeValue = 0;
-        this.rejectionValue = undefined;
+        this.refusals.clear();
         this.hostListeners.clear();
         super.unmount();
     }
@@ -197,7 +188,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         super.restoreTransientState(saved);
         const time = saved?.epicycleTime;
         this.halt();
-        this.rejectionValue = undefined;
+        this.refusals.clear();
         this.timeValue = typeof time === "number" && Number.isFinite(time) && time >= 0 && time < TWO_PI ? time : 0;
         this.notifyHost();
     }
@@ -260,7 +251,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         if (!edit.ok) throw new DomainError(epicycleIssueMessage(edit.issue));
         if (edit.model === this.model) return;
         this.halt();
-        this.rejectionValue = undefined;
+        this.refusals.clear();
         this.commitModel(edit.model, options);
         this.notifyHost();
     }
@@ -289,18 +280,22 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         this.accepted(moveEpicycleControl(this.model, index, which, x, y), options);
     }
 
-    /** An inspector or drag edit: a refusal is shown beside the controls instead of thrown. Returns whether it applied. */
+    /** An inspector edit: a refusal goes to the graph's one notice, an accepted change (even a no-op) clears it. Returns whether it applied. */
     private attempt(action: () => void): boolean {
+        return guard(this.refusals, action);
+    }
+
+    /** A drag edit: the refusal says the point stays; repeated frames of one refusal are not announced again (decision 17). */
+    private attemptDrag(action: () => void): boolean {
         try {
             action();
-            return true;
         } catch (error) {
-            if (error instanceof DomainError) {
-                this.showRejection(error.reason ? message("epicycle_rejected", {value0: error.reason}) : undefined);
-                return false;
-            }
-            throw error;
+            if (!(error instanceof DomainError)) throw error;
+            this.refusals.refuse(error.reason ? message("epicycle_rejected", {value0: error.reason}) : error.message);
+            return false;
         }
+        this.refusals.clear();
+        return true;
     }
 
     protected override lessonFunctionActions(): FunctionLessonActions {
@@ -376,14 +371,14 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     private dragVertex(index: number, point: JXG.Point): void {
         const x = snapEpicycleValue(point.X());
         const y = snapEpicycleValue(point.Y());
-        this.attempt(() => this.setVertex(index, x, y, {syncScene: false}));
+        this.attemptDrag(() => this.setVertex(index, x, y, {syncScene: false}));
         this.syncSceneToModel();
     }
 
     private dragControl(index: number, which: 1 | 2, point: JXG.Point): void {
         const x = snapEpicycleValue(point.X());
         const y = snapEpicycleValue(point.Y());
-        this.attempt(() => this.setControl(index, which, x, y, {syncScene: false}));
+        this.attemptDrag(() => this.setControl(index, which, x, y, {syncScene: false}));
         this.syncSceneToModel();
     }
 
@@ -484,12 +479,6 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                 <Slider customText={t("epicycle_n_label")} min={0} max={EPICYCLE_MAX_N} step={1} value={state.N}
                         rejectedHint={renderMessage(epicycleIssueMessage({kind: "n", min: 0, max: EPICYCLE_MAX_N}))}
                         onChange={(next: number) => this.attempt(() => this.setN(next))}/>
-                <div className="epicycle-n-steps">
-                    <Button variant="outline-secondary" size="sm" aria-label={t("epicycle_n_minus_one")} disabled={state.N <= 0}
-                            onClick={() => this.attempt(() => this.setN(Math.max(0, this.model.N - 1)))}>−1</Button>
-                    <Button variant="outline-secondary" size="sm" aria-label={t("epicycle_n_plus_one")} disabled={state.N >= EPICYCLE_MAX_N}
-                            onClick={() => this.attempt(() => this.setN(Math.min(EPICYCLE_MAX_N, this.model.N + 1)))}>+1</Button>
-                </div>
                 {state.N >= EPICYCLE_MAX_N && <p className="inspector-help" data-testid="epicycle-n-cap">
                     {t("epicycle_n_cap", {value0: EPICYCLE_MAX_N, value1: 2 * EPICYCLE_MAX_N})}</p>}
             </div>
@@ -504,30 +493,16 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             <InspectorDisclosure title={t("epicycle_handles_summary")}>
                 {this.renderHandleFields(state)}
             </InspectorDisclosure>
-            <EpicycleRejection graph={this}/>
         </>;
-    }
-
-    /** Shift + arrow steps a value by 0.5 (the field itself steps by 0.05); the field's own handler is not run for it. */
-    private bigStep(current: () => number, apply: (value: number) => void): (event: React.KeyboardEvent) => void {
-        return event => {
-            if (!event.shiftKey || (event.key !== "ArrowUp" && event.key !== "ArrowDown")) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const next = current() + (event.key === "ArrowUp" ? 1 : -1) * EPICYCLE_VALUE_BIG_STEP;
-            apply(Math.min(EPICYCLE_COORDINATE_MAX, Math.max(EPICYCLE_COORDINATE_MIN, next)));
-        };
     }
 
     private renderHandleFields(state: EpicycleModel): React.ReactNode {
         const hint = renderMessage(epicycleIssueMessage({kind: "coordinate", min: EPICYCLE_COORDINATE_MIN, max: EPICYCLE_COORDINATE_MAX}));
-        const field = (key: string, label: string, value: number, current: () => number, apply: (value: number) => void) =>
-            <div key={key} onKeyDownCapture={this.bigStep(current, next => this.attempt(() => apply(next)))}>
-                <NumberInput label={label} value={value} min={EPICYCLE_COORDINATE_MIN} max={EPICYCLE_COORDINATE_MAX} step={EPICYCLE_VALUE_STEP}
-                             decimals={2} rejectedHint={hint} onChange={next => this.attempt(() => apply(next))}/>
-            </div>;
+        const field = (key: string, label: string, value: number, apply: (value: number) => void) =>
+            <NumberInput key={key} label={label} value={value} min={EPICYCLE_COORDINATE_MIN} max={EPICYCLE_COORDINATE_MAX} step={EPICYCLE_VALUE_STEP}
+                         bigStep={EPICYCLE_VALUE_BIG_STEP} decimals={2} rejectedHint={hint} onChange={next => this.attempt(() => apply(next))}/>;
         const vertex = (i: number, axis: "x" | "y") => field(
-            `v${i}${axis}`, t("epicycle_vertex_coordinate", {value0: i + 1, value1: axis}), state.vertices[i][axis], () => this.model.vertices[i][axis],
+            `v${i}${axis}`, t("epicycle_vertex_coordinate", {value0: i + 1, value1: axis}), state.vertices[i][axis],
             next => this.setVertex(i, axis === "x" ? next : this.model.vertices[i].x, axis === "y" ? next : this.model.vertices[i].y));
         const control = (i: number, which: 1 | 2, axis: "x" | "y") => {
             const span = state.spans[i];
@@ -536,7 +511,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                 return s.kind === "cubic" ? (which === 1 ? s.c1 : s.c2) : {x: 0, y: 0};
             };
             return field(`c${i}${which}${axis}`, t("epicycle_control_coordinate", {value0: i + 1, value1: which, value2: axis}),
-                span.kind === "cubic" ? read(state)[axis] : 0, () => read(this.model)[axis],
+                span.kind === "cubic" ? read(state)[axis] : 0,
                 next => this.setControl(i, which, axis === "x" ? next : read(this.model).x, axis === "y" ? next : read(this.model).y));
         };
         return <div className="epicycle-fields">
@@ -555,13 +530,11 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         const largest = terms.length === 0 ? undefined : terms.reduce((best, term) => (term.modulus > best.modulus ? term : best));
         const rows = [{k: 0, modulus: centre}, ...terms];
         return <>
-            <p className="epicycle-status" role="status" aria-live="polite" aria-atomic="true" data-testid="epicycle-status">
-                {largest
-                    ? t("epicycle_status", {
-                        value0: state.N, value1: rows.length, value2: largest.k, value3: this.number(largest.modulus, 4), value4: this.number(this.errorOf(state), 5),
-                    })
-                    : t("epicycle_status_no_rotating", {value0: state.N, value1: rows.length, value2: this.number(this.errorOf(state), 5)})}
-            </p>
+            <EpicycleStatus graph={this} lines={[{id: "status", text: largest
+                ? t("epicycle_status", {
+                    value0: state.N, value1: rows.length, value2: largest.k, value3: this.number(largest.modulus, 4), value4: this.number(this.errorOf(state), 5),
+                })
+                : t("epicycle_status_no_rotating", {value0: state.N, value1: rows.length, value2: this.number(this.errorOf(state), 5)})}]}/>
             <EpicycleTable rows={rows}/>
         </>;
     }
@@ -617,13 +590,11 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
     </div>;
 }
 
-/** Why the last drag or step was refused; it stays until the next accepted change. */
-function EpicycleRejection(props: { graph: EpicycleGraph }) {
-    useT();
+/** The status sentence and its one announcement region, silent while the run plays (the host state is read here, not in the inspector). */
+function EpicycleStatus(props: { graph: EpicycleGraph; lines: readonly FunctionStatusLine[] }) {
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    const reason = graph.rejection;
-    return reason ? <p className="inspector-help" role="alert" data-testid="epicycle-rejection">{renderMessage(reason)}</p> : null;
+    return <FunctionStatus className="epicycle-status" lines={props.lines} dataAttribute="epicycle-status" muted={graph.playing}/>;
 }
 
 export default EpicycleGraph;

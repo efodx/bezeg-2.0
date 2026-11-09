@@ -102,10 +102,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         if (visible !== this.model.tangentVisible) this.commitModel({...this.model, tangentVisible: visible});
     }
 
-    protected resetValues(): void {
-        this.commitModel(this.defaultModel());
-    }
-
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     /** A curve y = value(x) over the view, with NaN gaps where the function has no value. */
@@ -290,7 +286,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
                         onClick={() => this.setTangentVisible(!this.model.tangentVisible)}>
                     {state.tangentVisible ? t("function_inverse_tangent_hide") : t("function_inverse_tangent_show")}
                 </button>
-                <button type="button" data-action="reset-inverse" onClick={() => this.resetValues()}>{t("function_inverse_reset")}</button>
             </div>
         </>;
     }

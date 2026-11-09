@@ -172,6 +172,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             <NumberInput label={label} value={value} min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT} step={LINEAR_SNAP_SIZE}
                          onChange={next => this.ignoreOutOfDomain(() => this.setCoordinate(name, next))}/>;
         const hasKn = line.kind === "line";
+        const knReason = hasKn ? undefined : t(line.kind === "vertical" ? "linear_vertical_note" : "linear_degenerate_note");
         return <>
             <div className="inspector-group">
                 <h3>{t("function_points")}</h3>
@@ -182,10 +183,10 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             </div>
             <div className="inspector-group">
                 <div className="function-points-grid">
-                    <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} disabled={!hasKn} step={LINEAR_SNAP_SIZE}
+                    <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
                                  min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
-                    <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} disabled={!hasKn} step={LINEAR_SNAP_SIZE}
+                    <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
                                  min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
                 </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
@@ -433,9 +434,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("extrema_note")}/>
-            <div className="inspector-group extrema-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-extrema-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="extrema-status" dataAttribute="extrema-status" lines={this.statuses(model, view)}/>
         </>;
     }
 }

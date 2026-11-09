@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {settle} from '../base/realGraphTestHarness';
 import {PolynomialZerosGraph} from './PolynomialZerosGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
@@ -90,12 +91,19 @@ test('a typed zero moves, a typed zero onto another merges and says so, the cap 
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj ničlo'})); });
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj ničlo'})); });
     expect(graph.modelNow().zeros.reduce((s, e) => s + e.m, 0)).toBe(5);
-    expect(screen.getByRole('button', {name: 'Dodaj ničlo'})).toBeDisabled();
+    expect(screen.getByRole('button', {name: 'Dodaj ničlo'})).toHaveAttribute('aria-disabled', 'true');
+    const refusal = () => document.querySelector('[data-refusal-notice]')?.textContent ?? '';
+    expect(refusal()).toBe('');
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj ničlo'})); });
+    expect(graph.modelNow().zeros.reduce((s, e) => s + e.m, 0)).toBe(5);
+    expect(refusal()).toMatch(/Največja stopnja je 5/);
+    expect(notice()).toBe('');
     expect(document.querySelector('[data-zero-list-cap]')?.textContent).toMatch(/Največja stopnja je 5/);
 
     act(() => { enterNumber(screen.getByLabelText('Ničla 2: večkratnost'), '2'); });
     expect(graph.modelNow().zeros[1].m).toBe(1);
     act(() => { enterNumber(screen.getByLabelText('Ničla 1: večkratnost'), '2'); });
+    expect(refusal()).toBe('');
     expect(graph.modelNow().zeros[0].m).toBe(2);
     expect(graph.modelNow().zeros[1].m).toBe(1);
 });
@@ -133,7 +141,7 @@ test('both languages: labels and readouts follow a live language switch', () => 
     expect(document.body.textContent).not.toMatch(/Ničla|večkratnost/);
 });
 
-test('Reset and an imported Preset restore controls and board objects', () => {
+test('Reset and an imported Preset restore controls and board objects', async () => {
     const graph = mount();
     const baseline = boardObjects(graph);
     const stored = {k: 0.2, zeros: [{z: -3, m: 1}, {z: -1, m: 2}, {z: 2, m: 2}], derivativeVisible: true};
@@ -145,7 +153,7 @@ test('Reset and an imported Preset restore controls and board objects', () => {
     expect(screen.getByRole('button', {name: 'Skrij odvod p′'})).toBeInTheDocument();
     expect(boardObjects(graph)).toBe(baseline);
 
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi vrednosti'})); });
+    await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)
     expect(graph.modelNow()).toEqual(DEFAULT_POLYNOMIAL_ZEROS_MODEL);
     expect(screen.queryByLabelText('Ničla 3: položaj x')).toBeNull();
     expect(boardObjects(graph)).toBe(baseline);

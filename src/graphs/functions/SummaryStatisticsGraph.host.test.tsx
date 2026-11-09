@@ -52,7 +52,9 @@ class ObservedSummaryGraph extends SummaryStatisticsGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const readoutLabel = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
-const status = (id: string) => document.querySelector(`[data-prob-summary-status="${id}"]`)?.textContent;
+const status = (id: string) => id === 'refused'
+    ? document.querySelector('[data-refusal-notice]')?.textContent || undefined
+    : document.querySelector(`[data-prob-summary-status="${id}"]`)?.textContent;
 const field = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
 const typeIn = (label: RegExp, value: number) => act(() => {
     fireEvent.change(field(label), {target: {value: String(value)}});
@@ -147,17 +149,14 @@ describe('dragging', () => {
         expect(graph.modelNow().values[0]).toBe(4);
     });
 
-    test('a drag outside the range is refused: the dot returns to its previous value, model and readouts stay, a message is shown', () => {
+    test('a drag outside the range stops at the limit without a message (task 0 decision 3)', () => {
         const {graph} = mount();
         graph.drag(6, 12);
-        const model = graph.modelNow();
-        const shown = ['n', 'mean', 'median', 'sigma', 'q3'].map(readout);
         graph.drag(6, 45);
-        expect(graph.modelNow()).toBe(model);
-        expect(graph.handles()[6].X()).toBe(12);
-        expect(['n', 'mean', 'median', 'sigma', 'q3'].map(readout)).toEqual(shown);
-        expect(status('refused')).toMatch(/Vrednost mora biti število od 0 do 40/);
-        graph.drag(6, 13);
+        expect(graph.modelNow().values[6]).toBe(40);
+        expect(graph.handles()[6].X()).toBe(40);
+        graph.drag(6, -5);
+        expect(graph.modelNow().values[6]).toBe(0);
         expect(status('refused')).toBeUndefined();
     });
 });
@@ -203,6 +202,19 @@ describe('the typed list', () => {
         click('Dodaj vrednost');
         expect(graph.modelNow()).toBe(model);
         expect(status('refused')).toMatch(/Več kot 15 vrednosti/);
+    });
+
+    test('Add value is unavailable at 15 values with the reason as title, and a press shows the reason once in the refusal channel', () => {
+        const {graph} = mount();
+        const add = () => screen.getByRole('button', {name: 'Dodaj vrednost'});
+        expect(add()).toHaveAttribute('aria-disabled', 'false');
+        for (let i = 7; i < SUMMARY_VALUES_MAX; i++) click('Dodaj vrednost');
+        expect(add()).toHaveAttribute('aria-disabled', 'true');
+        expect(add().getAttribute('title')).toMatch(/Več kot 15 vrednosti/);
+        click('Dodaj vrednost');
+        expect(graph.modelNow().values).toHaveLength(SUMMARY_VALUES_MAX);
+        expect(document.querySelectorAll('[data-refusal-notice]')).toHaveLength(1);
+        expect(document.querySelector('[data-refusal-notice]')?.closest('[data-prob-summary-status]')).toBeNull();
     });
 });
 

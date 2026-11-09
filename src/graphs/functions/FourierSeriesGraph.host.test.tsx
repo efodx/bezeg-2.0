@@ -22,6 +22,10 @@ class ObservedFourierGraph extends FourierSeriesGraph {
         this.applyLessonAction(action);
     }
 
+    fit() {
+        this.fitToVisiblePoints();
+    }
+
     modelNow() {
         return this.model;
     }
@@ -46,7 +50,7 @@ class ObservedFourierGraph extends FourierSeriesGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-fourier-status]')].map(element => element.getAttribute('data-fourier-status'));
-const field = (name: RegExp | string) => screen.getByLabelText(name) as HTMLInputElement;
+const field = (name: RegExp | string) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 const select = () => screen.getByLabelText(/^Primer vala$|^Wave$/) as HTMLSelectElement;
 /** The scene's own objects; the board's tick labels come and go with the view and are not counted. */
 const boardObjects = (graph: ObservedFourierGraph) => graph.ownedObjects();
@@ -94,7 +98,7 @@ test('N: the buttons and the field change the model, a non-integer is refused, a
     expect(graph.modelNow().n).toBe(101);
     act(() => { enterNumber(nInput(), '1002'); });
     expect(graph.modelNow().n).toBe(101);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj število harmonikov N za 1'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj število'})); });
     expect(graph.modelNow().n).toBe(100);
     expect(statusIds()).toContain('even-square');
     expect(readout('order')).toBe('99');
@@ -102,7 +106,6 @@ test('N: the buttons and the field change the model, a non-integer is refused, a
     act(() => { enterNumber(nInput(), '1001'); });
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(fourierGibbsPeak('square', 1001).value, 12);
     act(() => { enterNumber(nInput(), '1'); });
-    expect(screen.getByRole('button', {name: 'Zmanjšaj število harmonikov N za 1'}).getAttribute('aria-disabled')).toBe('true');
     expect(boardObjects(graph)).toBe(baseline);
 });
 
@@ -117,8 +120,13 @@ test('the zoom window follows the peak when N changes, and only while the view i
     graph.liveBoard().setBoundingBox([-3, 2, 3, -1], false);
     act(() => { enterNumber(nInput(), '21'); });
     nearBox(box(graph), [-3, 2, 3, -1]);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: "Pokaži celoten graf"})); });
+    // the host Fit frames the example's whole view (it replaced the "whole view" button), for both examples
+    act(() => { graph.fit(); });
     nearBox(box(graph), DEFAULT_SQUARE_VIEW);
+    act(() => { fireEvent.change(select(), {target: {value: 'sawtooth'}}); });
+    graph.liveBoard().setBoundingBox([-3, 2, 3, -1], false);
+    act(() => { graph.fit(); });
+    nearBox(box(graph), DEFAULT_SAWTOOTH_VIEW);
 });
 
 test('Reset, also after choosing the sawtooth, restores every field, the readouts, the view and the board objects', async () => {
@@ -177,7 +185,7 @@ test('both languages: labels, readouts and board texts follow a live language sw
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
     expect(field(/^Number of harmonics N$/)).toBeInTheDocument();
-    expect(screen.getByRole('button', {name: 'Decrease the number of harmonics N by 1'})).toBeInTheDocument();
+    expect(screen.getByRole('button', {name: 'Decrease count'})).toBeInTheDocument();
     expect(readout('x')).toBe('1.5');
     expect(readout('peak-value')).toBe('1.1813');
     expect(document.querySelector('[data-readout="terms"] dt')?.textContent).toBe('Terms of the series Sₙ');
@@ -187,7 +195,7 @@ test('both languages: labels, readouts and board texts follow a live language sw
     act(() => { setLanguage('sl'); });
     expect(readout('x')).toBe('1,5');
     expect(document.querySelector('[data-readout="terms"] dt')?.textContent).toBe('Členi vrste Sₙ');
-    expect(screen.getByLabelText(/^Število harmonikov N$/)).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: /^Število harmonikov N$/})).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 });
 

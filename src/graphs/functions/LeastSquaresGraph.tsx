@@ -1,6 +1,7 @@
 import React, {useRef} from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, COMPACT_BOARD_WIDTH, DomainError, FillCurve} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -280,8 +281,6 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
                     <p className="inspector-help">{t("interp_lsq_degree_help", {value0: LSQ_DEGREE_MIN, value1: maxDegree})}</p>
                 </>}
                 {state.manualLine && <p className="inspector-help">{t("interp_lsq_degree_manual")}</p>}
-                {!state.manualLine && !view.fit.ok &&
-                    <p role="status" className="inspector-help" data-lsq="reason">{t("interp_lsq_board_reason", {value0: leastSquaresReason(view.fit.reason)})}</p>}
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.showSquares} label={t("interp_lsq_show_squares")} onChange={checked => this.setShowSquares(checked)}/>
@@ -332,7 +331,12 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
                 {id: "sum", label: t("interp_lsq_readout_sum"), value: sum(view.sumOfSquares)},
                 {id: "residuals", label: t("interp_lsq_readout_residuals"), value: residuals},
             ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("interp_lsq_note")}/>;
+        // Why no curve is drawn is a state of the data, not a refused edit: a status line, not the refusal channel.
+        const reason = !model.manualLine && !view.fit.ok ? [{id: "reason", text: t("interp_lsq_board_reason", {value0: leastSquaresReason(view.fit.reason)})}] : [];
+        return <>
+            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("interp_lsq_note")}/>
+            <FunctionStatus dataAttribute="lsq" lines={reason}/>
+        </>;
     }
 }
 

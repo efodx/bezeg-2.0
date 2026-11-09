@@ -3,6 +3,9 @@ import BaseFunctionGraph, {BoundingBox, DomainError, escapeHtml, FunctionLessonA
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {CountSetter} from "../../inputs/CountSetter";
+import {guard} from "../base/controls/guard";
+import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
@@ -171,6 +174,11 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         };
     }
 
+    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    private guarded(action: () => void): boolean {
+        return guard(this.refusals, action);
+    }
+
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
 
     private number(value: number): string {
@@ -312,41 +320,28 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const language = currentLanguage();
         const example = taylorExample(state.example);
         const fixedCenter = example.centerMin === example.centerMax;
-        const atMinimum = state.degree <= TAYLOR_DEGREE_MIN;
-        const atMaximum = state.degree >= TAYLOR_DEGREE_MAX;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("taylor_example_label")} value={state.example} help={t("taylor_example_help")}
                               options={TAYLOR_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
+                              onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} decimals={PRECISE}
-                             disabled={fixedCenter} describedBy={fixedCenter ? "taylor-center-help" : undefined}
+                             unavailableReason={fixedCenter ? t("taylor_center_fixed_help") : undefined} reasonShownElsewhere describedBy={fixedCenter ? "taylor-center-help" : undefined}
                              rejectedHint={t("taylor_center_rejected_hint", {value0: formatNumber(example.centerMin, language), value1: formatNumber(example.centerMax, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setCenter(next))}/>
+                             onChange={next => this.guarded(() => this.setCenter(next))}/>
                 {fixedCenter && <p id="taylor-center-help" className="inspector-help">{t("taylor_center_fixed_help")}</p>}
                 <NumberInput label={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} decimals={PRECISE}
                              rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
+                             onChange={next => this.guarded(() => this.setX(next))}/>
                 <p className="inspector-help">{t("taylor_points_help")}</p>
             </div>
             <div className="inspector-group">
-                <div className="count-setter">
-                    <div className="count-setter-label">{t("taylor_degree_label")}</div>
-                    <div className="count-setter-controls">
-                        <button type="button" className="count-setter-button" data-action="degree-decrease" disabled={atMinimum} aria-describedby="taylor-degree-help"
-                                aria-label={t("taylor_degree_decrease")} onClick={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree - 1))}>−</button>
-                        <NumberInput label={t("taylor_degree_label")} hideLabel compact value={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} step={1} decimals={0}
-                                     rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
-                                     onChange={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
-                        <button type="button" className="count-setter-button" data-action="degree-increase" disabled={atMaximum} aria-describedby="taylor-degree-help"
-                                aria-label={t("taylor_degree_increase")} onClick={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree + 1))}>+</button>
-                    </div>
-                </div>
-                <p id="taylor-degree-help" className="inspector-help">
-                    {atMinimum ? t("taylor_degree_limit_min", {value0: TAYLOR_DEGREE_MIN}) : atMaximum ? t("taylor_degree_limit_max", {value0: TAYLOR_DEGREE_MAX}) : t("taylor_degree_help")}
-                </p>
+                <CountSetter label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
+                             onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
+                             onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
+                             onSet={next => this.guarded(() => this.setDegree(next))}/>
             </div>
         </>;
     }
@@ -418,9 +413,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("taylor_note")}/>
-            <div className="inspector-group taylor-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-taylor-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="taylor-status" lines={this.statuses(model, view)} dataAttribute="taylor-status"/>
         </>;
     }
 }

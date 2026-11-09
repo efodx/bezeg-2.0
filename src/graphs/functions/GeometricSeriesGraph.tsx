@@ -2,6 +2,7 @@ import React from "react";
 import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -316,9 +317,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("series_note", {value0: SERIES_TERMS_MAX})}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-series-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" dataAttribute="series-status" lines={this.statuses(model, view)} muted={this.controller.isPlaying()}/>
         </>;
     }
 }

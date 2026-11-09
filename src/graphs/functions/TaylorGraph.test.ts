@@ -85,9 +85,15 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputCenter, inputX, inputDegree] = found.NumberInput;
+    const [inputCenter, inputX] = found.NumberInput;
+    const [setter] = found.CountSetter;
     const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
-    return {found, inputCenter, inputX, inputDegree, toggle: button('toggle-taylor-bound'), decrease: button('degree-decrease'), increase: button('degree-increase')};
+    return {
+        found, inputCenter, inputX, setter, toggle: button('toggle-taylor-bound'),
+        // the degree is a shared CountSetter: its typed path, its minus and its plus
+        inputDegree: {props: {label: setter.props.label, min: setter.props.min, max: setter.props.max, value: setter.props.n, onChange: setter.props.onSet}},
+        decrease: {props: {onClick: setter.props.onMinus}}, increase: {props: {onClick: setter.props.onPlus}},
+    };
 };
 const rows = (graph: any): Record<string, string> =>
     Object.fromEntries((graph.renderReadout().props.children[0].props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
@@ -301,13 +307,14 @@ test('the flat function: every T_n is 0, f(1) = e^-1 > 0, the series converges t
     expect(rows(graph)).toMatchObject({function: '0', polynomial: '0', 'absolute-error': '0'});
 });
 
-test('the center field of the flat example is disabled with an explanation that the field points to; the other examples keep it enabled', () => {
+test('the center field of the flat example is unavailable with an explanation that the field points to; the other examples keep it available', () => {
     const graph = makeGraph();
-    expect(controls(graph).inputCenter.props.disabled).toBe(false);
+    expect(controls(graph).inputCenter.props.unavailableReason).toBeUndefined();
     expect(controls(graph).inputCenter.props.describedBy).toBeUndefined();
     apply(graph, choice('flat'));
     const {inputCenter, found} = controls(graph);
-    expect(inputCenter.props.disabled).toBe(true);
+    expect(inputCenter.props.unavailableReason).toMatch(/stalno c = 0/);
+    expect(inputCenter.props.reasonShownElsewhere).toBe(true);
     expect(inputCenter.props.describedBy).toBe('taylor-center-help');
     const help = found.p.find((element: any) => element.props.id === 'taylor-center-help');
     expect(help.props.children).toMatch(/stalno c = 0/);
@@ -389,26 +396,16 @@ test('setting the example, center, degree, x and the bound through the controls 
     expect(viaControl.model.boundVisible).toBe(false);
 });
 
-test('the degree buttons are disabled at 0 and 10 and point at the explanation, which changes with the limit', () => {
+test('the degree stepper is a CountSetter over 0 to 10 whose plus at the limit is refused, never wrapped', () => {
     const graph = makeGraph();
-    const help = () => collect([graph.renderControls(), graph.renderReveals()]).p.find((element: any) => element.props.id === 'taylor-degree-help').props.children;
-    expect(controls(graph).decrease.props.disabled).toBe(false);
-    expect(controls(graph).decrease.props['aria-describedby']).toBe('taylor-degree-help');
-    expect(help()).toMatch(/gumboma/);
-    apply(graph, parameter('taylor-degree', 0));
-    expect(controls(graph).decrease.props.disabled).toBe(true);
-    expect(controls(graph).increase.props.disabled).toBe(false);
-    expect(help()).toMatch(/najmanjša/);
+    expect(controls(graph).setter.props).toMatchObject({label: 'Stopnja n', n: 1, min: 0, max: 10});
     apply(graph, parameter('taylor-degree', 10));
-    expect(controls(graph).increase.props.disabled).toBe(true);
-    expect(controls(graph).increase.props['aria-describedby']).toBe('taylor-degree-help');
-    expect(controls(graph).decrease.props.disabled).toBe(false);
-    expect(help()).toMatch(/največja/);
-    // a click at a limit is refused, never wrapped
     controls(graph).increase.props.onClick();
     expect(graph.model.degree).toBe(10);
-    expect(controls(graph).decrease.props['aria-label']).toBe('Zmanjšaj stopnjo n za 1');
-    expect(controls(graph).decrease.props.type).toBe('button');
+    expect(graph.refusals.refusal).toBeDefined();
+    controls(graph).decrease.props.onClick();
+    expect(graph.model.degree).toBe(9);
+    expect(graph.refusals.refusal).toBeUndefined();
 });
 
 test('the number fields carry their ranges per example, report rejection with a hint and name their labels in both languages', () => {
@@ -423,7 +420,6 @@ test('the number fields carry their ranges per example, report rejection with a 
     expect(inputDegree.props.onChange(11)).toBe(false);
     expect(graph.model).toMatchObject({center: 0, x: 1, degree: 1});
     expect(inputCenter.props.rejectedHint).toBe('Središče c mora biti število med −2 in 2.');
-    expect(inputDegree.props.rejectedHint).toBe('Stopnja n mora biti celo število med 0 in 10.');
     apply(graph, choice('geometric'));
     expect([controls(graph).inputCenter, controls(graph).inputX].map((input: any) => [input.props.min, input.props.max])).toEqual([[-1, 0.5], [-2, 0.95]]);
     setLanguage('en');

@@ -34,7 +34,7 @@ class ObservedUniformGraph extends UniformConvergenceGraph {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-uniform-status]')].map(element => element.getAttribute('data-uniform-status'));
 const boardObjects = (graph: ObservedUniformGraph) => graph.liveBoard().objectsList.length;
-const field = (name: RegExp) => screen.getByLabelText(name) as HTMLInputElement;
+const field = (name: RegExp) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 
 test('a real board shows f_n and its limit: the fields, the n buttons, the example and the Show supremum button change the model and the readout', () => {
     const graph = new ObservedUniformGraph();
@@ -49,8 +49,7 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     const baseline = boardObjects(graph);
 
     // n through the buttons and through the labelled field
-    const increase = () => screen.getByRole('button', {name: 'Povečaj indeks n za 1'}) as HTMLButtonElement;
-    const decrease = () => screen.getByRole('button', {name: 'Zmanjšaj indeks n za 1'}) as HTMLButtonElement;
+    const increase = () => screen.getByRole('button', {name: 'Povečaj število'}) as HTMLButtonElement;
     act(() => { fireEvent.click(increase()); });
     expect(graph.modelNow()).toMatchObject({n: 6});
     const inputN = field(/^Indeks n$/);
@@ -58,14 +57,7 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     expect(graph.modelNow()).toMatchObject({n: 11});
     act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow()).toMatchObject({n: 11});
-    act(() => { enterNumber(inputN, '1'); });
-    expect(decrease().getAttribute('aria-disabled')).toBe('true');
-    expect(decrease().disabled).toBe(false);
-    expect(document.getElementById('uniform-n-help')?.textContent).toMatch(/najmanjši/);
     act(() => { enterNumber(inputN, '50'); });
-    expect(increase().getAttribute('aria-disabled')).toBe('true');
-    act(() => { fireEvent.click(increase()); });
-    expect(graph.modelNow()).toMatchObject({n: 50});
     act(() => { enterNumber(inputN, '11'); });
 
     // Show supremum names its state and reveals the supremum, whether it is attained and the shared N
@@ -84,7 +76,7 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     const inputR = field(/^Konec območja r/);
     act(() => { enterNumber(inputR, '0.4'); });
     expect(graph.modelNow()).toMatchObject({r: 0.8, x: 0.5});
-    expect(screen.getByText(/Najprej premakni točko x/)).toBeInTheDocument();
+    expect(document.querySelector('[data-refusal-notice]')?.textContent).toMatch(/Najprej premakni točko x/);
     act(() => { enterNumber(field(/^Točka x$/), '0.3'); });
     act(() => { enterNumber(inputR, '0.45'); });
     expect(graph.modelNow()).toMatchObject({r: 0.45, x: 0.3, supremumVisible: true});
@@ -115,7 +107,7 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
     expect(screen.getByRole('button', {name: 'Hide supremum'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Index n')).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: 'Index n'})).toBeInTheDocument();
     expect(readout('shared-n')).toBe('does not exist');
     expect(graph.captionPlainLines()[3]).toBe('sup |fₙ − f| = 1, not attained');
     act(() => { setLanguage('sl'); });

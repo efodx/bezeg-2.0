@@ -2,6 +2,7 @@ import React from "react";
 import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
@@ -350,9 +351,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                 </table>
                 {first > 0 && <p className="inspector-help" role="note">{t("root_finding_table_truncated", {value0: ROOT_FINDING_TABLE_ROWS})}</p>}
             </div>
-            <div className="inspector-group bisection-status" role="status" aria-live="polite">
-                <p key={status.id} className="inspector-help" data-root-finding-status={status.id}>{status.text}</p>
-            </div>
+            <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[status]} muted={this.controller.isPlaying()}/>
         </>;
     }
 }

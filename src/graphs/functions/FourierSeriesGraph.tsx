@@ -3,6 +3,9 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCu
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {CountSetter} from "../../inputs/CountSetter";
+import {guard} from "../base/controls/guard";
+import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
@@ -172,11 +175,6 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         this.boardUpdate();
     }
 
-    protected showWholeView(): void {
-        this.board.setBoundingBox([...BOARD_VIEWS[this.model.example]], false);
-        this.boardUpdate();
-    }
-
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
 
     private number(value: number): string {
@@ -309,45 +307,36 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         this.sampled = undefined;
     }
 
+    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    private guarded(action: () => void): boolean {
+        return guard(this.refusals, action);
+    }
+
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
         const state = this.model;
         const language = currentLanguage();
-        const atMinimum = state.n <= FOURIER_N_MIN;
-        const atMaximum = state.n >= FOURIER_N_MAX;
-        const nHelp = atMinimum ? t("fourier_n_limit_min", {value0: FOURIER_N_MIN})
-            : atMaximum ? t("fourier_n_limit_max", {value0: FOURIER_N_MAX})
-                : state.example === "square" && state.n % 2 === 0 ? t("fourier_n_help_even", {value0: state.n, value1: state.n - 1}) : t("fourier_n_help", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX});
+        const nHelp = state.example === "square" && state.n % 2 === 0 ? t("fourier_n_help_even", {value0: state.n, value1: state.n - 1}) : t("fourier_n_help", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX});
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("fourier_example_label")} value={state.example} help={t("fourier_example_help")}
                               options={FOURIER_SERIES_EXAMPLE_IDS.map(id => ({value: id, text: id === "square" ? t("fourier_example_square") : t("fourier_example_sawtooth")}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
+                              onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="count-setter">
-                    <div className="count-setter-label">{t("fourier_n_label")}</div>
-                    {/* aria-disabled, not disabled: a focused button that becomes unavailable at the end of the range must not drop keyboard focus. */}
-                    <div className="count-setter-controls">
-                        <button type="button" className="count-setter-button" data-action="n-decrease" aria-disabled={atMinimum} aria-describedby="fourier-n-help"
-                                aria-label={t("fourier_n_decrease")} onClick={() => { if (!atMinimum) this.ignoreOutOfDomain(() => this.setN(this.model.n - 1)); }}>−</button>
-                        <NumberInput label={t("fourier_n_label")} hideLabel compact integer value={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} step={1} decimals={0}
-                                     rejectedHint={t("fourier_n_rejected_hint", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX})}
-                                     onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
-                        <button type="button" className="count-setter-button" data-action="n-increase" aria-disabled={atMaximum} aria-describedby="fourier-n-help"
-                                aria-label={t("fourier_n_increase")} onClick={() => { if (!atMaximum) this.ignoreOutOfDomain(() => this.setN(this.model.n + 1)); }}>+</button>
-                    </div>
-                </div>
-                <p id="fourier-n-help" className="inspector-help">{nHelp}</p>
+                <CountSetter label={t("fourier_n_label")} n={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} help={nHelp}
+                             onPlus={() => this.guarded(() => this.setN(this.model.n + 1))}
+                             onMinus={() => this.guarded(() => this.setN(this.model.n - 1))}
+                             onSet={next => this.guarded(() => this.setN(next))}/>
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP} decimals={2}
                              rejectedHint={t("fourier_x_rejected_hint", {value0: formatNumber(FOURIER_X_MIN, language), value1: formatNumber(FOURIER_X_MAX, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
+                             onChange={next => this.guarded(() => this.setX(next))}/>
                 <NumberInput label={t("fourier_epsilon_label")} value={state.epsilon} min={FOURIER_EPSILON_MIN} max={FOURIER_EPSILON_MAX} step={FOURIER_EPSILON_STEP} decimals={2}
                              rejectedHint={t("fourier_epsilon_rejected_hint", {value0: formatNumber(FOURIER_EPSILON_MIN, language), value1: formatNumber(FOURIER_EPSILON_MAX, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
+                             onChange={next => this.guarded(() => this.setEpsilon(next))}/>
                 <p className="inspector-help">{t("fourier_fields_help")}</p>
             </div>
         </>;
@@ -357,7 +346,6 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         return <>
             <div className="demo-actions" role="group" aria-label={t("fourier_actions_label")}>
                 <button type="button" data-action="fourier-zoom-peak" onClick={() => this.zoomToPeak()}>{t("fourier_zoom_peak")}</button>
-                <button type="button" data-action="fourier-zoom-full" onClick={() => this.showWholeView()}>{t("fourier_zoom_full")}</button>
             </div>
             <p className="inspector-help">{t("fourier_zoom_help")}</p>
         </>;
@@ -410,9 +398,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fourier_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-fourier-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" lines={this.statuses(model, view)} dataAttribute="fourier-status"/>
         </>;
     }
 }

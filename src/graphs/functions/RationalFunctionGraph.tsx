@@ -1,4 +1,5 @@
 import React from "react";
+import {guard} from "../base/controls/guard";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, LABEL_STYLE, mathTextHtml} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -13,7 +14,7 @@ import {
     RationalExampleId, rationalExampleModel, RationalFacts, rationalFacts, RationalFunctionEdit, RationalFunctionModel, RationalPart, rationalSpecsOf,
     removeRationalZero, setRationalK, setRationalMultiplicity, setRationalProbe,
 } from "../../analysis/rationalFunctionModel";
-import {isZeroListIssue, ZERO_GRID_DECIMALS} from "../../analysis/zeroListModel";
+import {ZERO_GRID_DECIMALS} from "../../analysis/zeroListModel";
 import {
     asymptoteEquationText, coefficientsText, fractionText, productText, rationalFunctionEditMessage, rationalRuleText,
 } from "./rationalFunctionMessages";
@@ -87,12 +88,24 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     /** Applies an edit: the notice follows the outcome (a hole made or removed, a merge, a refused rule) and a refusal throws. */
     private applyEdit(edit: RationalFunctionEdit, options: { syncScene?: boolean } = {}): void {
         if (!edit.ok) {
-            if (isZeroListIssue(edit.issue)) this.notices.set({kind: "refused", issue: edit.issue});
+            this.notices.set(undefined); // a refusal is shown alone, through the refusal channel
             throw new DomainError(rationalFunctionEditMessage(edit.issue));
         }
         if (edit.model === this.model) return;
         this.notices.set(this.noticeOf(this.factsOf(this.model), this.factsOf(edit.model), edit.event));
         this.commitModel(edit.model, options);
+    }
+
+    /** A drag frame's edit: a refusal is shown (an equal one on the next frame is not announced again), an accepted frame clears it. */
+    private dragEdit(action: () => void): void {
+        try {
+            action();
+        } catch (error) {
+            if (!(error instanceof DomainError)) throw error;
+            this.refusals.refuse(error.reason ?? error.message);
+            return;
+        }
+        this.refusals.clear();
     }
 
     protected setK(value: number): void {
@@ -136,11 +149,6 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             },
             choices: {"rational-example": value => this.setExample(value)},
         };
-    }
-
-    protected resetValues(): void {
-        this.notices.set(undefined);
-        this.commitModel(this.defaultModel());
     }
 
     /** A freshly loaded scene starts without a notice; the notice is transient and never part of a captured scene. */
@@ -336,7 +344,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             }
             const x = Math.min(POLY_BOUNDS.z[1], Math.max(POLY_BOUNDS.z[0], point.X()));
             const before = list().length;
-            this.ignoreOutOfDomain(() => this.setZeroPosition(part, index, x));
+            this.dragEdit(() => this.setZeroPosition(part, index, x));
             if (list().length < before) this.dragMerged = true;
             this.syncSceneToModel();
         });
@@ -468,25 +476,23 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         const lists = (["numerator", "denominator"] as const).map(part => <ZeroListEditor key={part}
             scope={part === "numerator" ? t("rational_function_numerator") : t("rational_function_denominator")}
             zeros={state[part]} maxDegree={MAX_POLY_DEGREE}
-            onMove={(index, next) => this.ignoreOutOfDomain(() => this.setZeroPosition(part, index, next))}
-            onMultiplicity={(index, next) => this.ignoreOutOfDomain(() => this.setMultiplicity(part, index, next))}
-            onAdd={() => this.ignoreOutOfDomain(() => this.addZero(part))}
-            onRemove={index => this.ignoreOutOfDomain(() => this.removeZero(part, index))}/>);
+            onMove={(index, next) => guard(this.refusals, () => this.setZeroPosition(part, index, next))}
+            onMultiplicity={(index, next) => { guard(this.refusals, () => this.setMultiplicity(part, index, next)); }}
+            onAdd={() => { guard(this.refusals, () => this.addZero(part)); }}
+            onRemove={index => { guard(this.refusals, () => this.removeZero(part, index)); }}
+            onBlocked={reason => this.refusals.refuse(reason, true)}/>);
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("rational_function_example_label")} value={current ?? "custom"} help={t("rational_function_example_help")}
-                              options={options} onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
+                              options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
                 <NumberInput label={t("rational_function_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
-                             rejectedHint={t("rational_function_k_hint", kRange)} onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>
+                             rejectedHint={t("rational_function_k_hint", kRange)} onChange={next => guard(this.refusals, () => this.setK(next))}/>
                 <Slider customText={t("rational_function_probe_label")} min={PROBE_BOUNDS[0]} max={PROBE_BOUNDS[1]} step={PROBE_STEP} value={state.probe}
                         help={t("rational_function_probe_help")} rejectedHint={t("rational_function_probe_hint", probeRange)}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setProbe(next))}/>
+                        onChange={next => guard(this.refusals, () => this.setProbe(next))}/>
             </div>
             {lists}
             <ZeroListNoticeView store={this.notices} describe={describeNotice}/>
-            <div className="convexity-actions" role="group" aria-label={t("rational_function_actions_label")}>
-                <button type="button" data-action="reset-rational" onClick={() => this.resetValues()}>{t("rational_function_reset")}</button>
-            </div>
         </>;
     }
 

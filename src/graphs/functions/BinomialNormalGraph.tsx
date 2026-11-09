@@ -1,7 +1,7 @@
 import React from "react";
-import {Button} from "react-bootstrap";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -94,6 +94,11 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
 
     protected setFlag(field: "correction" | "poisson", value: unknown): void {
         this.commitEdit(setBinomialFlag(this.model, field, value));
+    }
+
+    /** The host Fit frames the bars, as choosing an example does (the former "fit the view to the bars" button). */
+    protected override fitView(): BoundingBox {
+        return [...fitBinomialNormalView(this.model)];
     }
 
     /** Shows the bars fully: the view of `fitBinomialNormalView` for the current n, p and Poisson overlay. */
@@ -206,9 +211,6 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_binomial_example_label")} value={example ?? "custom"} help={t("prob_binomial_example_help")} options={options}
                               onChange={next => { if (isBinomialNormalExampleId(next)) this.setExample(next); }}/>
-                <Button type="button" variant="outline-secondary" size="sm" data-action="fit-view" onClick={() => this.fitToBars()}>
-                    {t("prob_binomial_fit_view")}
-                </Button>
             </div>
             <div className="inspector-group">
                 <Slider customText={t("prob_binomial_n_label")} min={1} max={BINOMIAL_NORMAL_N_MAX} step={1} value={state.n}
@@ -249,11 +251,8 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
         const tail = model.poisson ? this.poissonOf(model).tail : 0;
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_binomial_note")}/>
-            <div className="inspector-group" role="status" aria-live="polite">
-                {tail > POISSON_TAIL_NOTE_MIN && <p className="inspector-help" data-prob-binomial="poisson-tail">
-                    {t("prob_binomial_poisson_tail", {value0: probability(tail)})}
-                </p>}
-            </div>
+            <FunctionStatus dataAttribute="prob-binomial"
+                            lines={tail > POISSON_TAIL_NOTE_MIN ? [{id: "poisson-tail", text: t("prob_binomial_poisson_tail", {value0: probability(tail)})}] : []}/>
         </>;
     }
 

@@ -48,24 +48,25 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     const baseline = boardObjects(graph);
 
     // the degree through the stepper buttons and through the labelled field
-    const increase = () => screen.getByRole('button', {name: 'Povečaj stopnjo n za 1'}) as HTMLButtonElement;
-    const decrease = () => screen.getByRole('button', {name: 'Zmanjšaj stopnjo n za 1'}) as HTMLButtonElement;
+    const increase = () => screen.getByRole('button', {name: 'Povečaj število'}) as HTMLButtonElement;
+    const decrease = () => screen.getByRole('button', {name: 'Zmanjšaj število'}) as HTMLButtonElement;
     act(() => { fireEvent.click(increase()); });
     act(() => { fireEvent.click(increase()); });
     expect(graph.modelNow()).toMatchObject({degree: 3});
     expect(readout('polynomial')).toBe('2,6667');
-    const inputDegree = screen.getByLabelText('Stopnja n') as HTMLInputElement;
+    const inputDegree = screen.getByRole('spinbutton', {name: 'Stopnja n'}) as HTMLInputElement;
     act(() => { enterNumber(inputDegree, '6'); });
     expect(graph.modelNow()).toMatchObject({degree: 6});
     expect(readout('polynomial')).toBe('2,7181');
     act(() => { enterNumber(inputDegree, '2.5'); });
     expect(graph.modelNow()).toMatchObject({degree: 6});
     act(() => { enterNumber(inputDegree, '0'); });
-    expect(decrease().disabled).toBe(true);
-    expect(decrease().getAttribute('aria-describedby')).toBe('taylor-degree-help');
-    expect(document.getElementById('taylor-degree-help')?.textContent).toMatch(/najmanjša/);
+    expect(decrease().getAttribute('aria-disabled')).toBe('true');
+    act(() => { fireEvent.click(decrease()); });
+    expect(graph.modelNow()).toMatchObject({degree: 0});
+    expect(document.querySelector('[data-count-status]')?.textContent).toMatch(/Najmanj 0/);
     act(() => { enterNumber(inputDegree, '10'); });
-    expect(increase().disabled).toBe(true);
+    expect(increase().getAttribute('aria-disabled')).toBe('true');
     act(() => { enterNumber(inputDegree, '6'); });
 
     // Show error bound is a native button whose label names its state; it reveals the bound with its assumption
@@ -91,8 +92,9 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     const select = screen.getByLabelText('Primer funkcije') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'flat'}}); });
     expect(graph.modelNow()).toEqual({example: 'flat', center: 0, degree: 3, x: 1, boundVisible: false});
-    const center = screen.getByLabelText('Središče c') as HTMLInputElement;
-    expect(center.disabled).toBe(true);
+    const center = screen.getByRole('spinbutton', {name: 'Središče c'}) as HTMLInputElement;
+    expect(center.readOnly).toBe(true);
+    expect(center.getAttribute('aria-disabled')).toBe('true');
     expect(center.getAttribute('aria-describedby')).toContain('taylor-center-help');
     expect(document.getElementById('taylor-center-help')?.textContent).toMatch(/stalno c = 0/);
     expect(readout('polynomial')).toBe('0');
@@ -114,8 +116,8 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     // the English labels follow a live language switch
     act(() => { setLanguage('en'); });
     expect(screen.getByRole('button', {name: 'Show error bound'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Center c')).toBeInTheDocument();
-    expect(screen.getByLabelText('Degree n')).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: 'Center c'})).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: 'Degree n'})).toBeInTheDocument();
     expect(readout('convergence')).toMatch(/x is outside/);
 });
 

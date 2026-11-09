@@ -1,10 +1,13 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {FunctionStatus} from "./FunctionStatus";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {guard} from "../base/controls/guard";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ValueListInput} from "../../inputs/ValueListInput";
-import {currentLanguage, Message, renderMessage, t} from "../../localization";
+import {currentLanguage, renderMessage, t} from "../../localization";
 import {NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import type {QuartileRule} from "../../analysis/descriptiveStatistics";
 import {
@@ -48,8 +51,6 @@ const BAND_TOP = -1.3;
  */
 export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
     protected pointObjects: JXG.Point[] = [];
-    /** The reason the last refused edit gave; shown in the status region until an edit is accepted. */
-    private notice?: Message;
 
     override presetCollection() {
         return functionPresetCollections["prob-summary"];
@@ -91,23 +92,9 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         return edit.model;
     }
 
-    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    /** Runs an inspector change: a refusal is shown alone in the graph's refusal notice, an accepted change clears it. */
     private guarded(action: () => void): boolean {
-        try {
-            action();
-            this.setNotice(undefined);
-            return true;
-        } catch (error) {
-            if (!(error instanceof DomainError)) throw error;
-            this.setNotice(error.reason);
-            return false;
-        }
-    }
-
-    private setNotice(next: Message | undefined): void {
-        if (this.notice === next) return;
-        this.notice = next;
-        this.requestRender();
+        return guard(this.refusals, action);
     }
 
     /** Refits only when a value lies outside the visible x range (after an add or a typed edit; never during a drag). */
@@ -167,15 +154,14 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         if (!edit.ok) return renderMessage(summaryEditMessage(edit.issue));
         if (edit.model !== this.model) this.commitModel(edit.model);
         this.ensureValuesVisible();
-        this.setNotice(undefined);
+        this.refusals.clear();
     }
 
-    /** A drag: the value follows the pointer snapped to tenths; a refused value leaves the dot at its previous value. */
+    /** A drag: the value follows the pointer snapped to tenths and stops at the value limit without a message (task 0 decision 3). */
     private dragValue(index: number, x: number): void {
-        const edit = moveSummaryValue(this.model, index, x);
-        if (!edit.ok) this.setNotice(summaryEditMessage(edit.issue));
-        else {
-            this.setNotice(undefined);
+        const edit = moveSummaryValue(this.model, index, Math.max(SUMMARY_VALUE_MIN, Math.min(SUMMARY_VALUE_MAX, x)));
+        if (edit.ok) {
+            this.refusals.clear();
             if (edit.model !== this.model) this.commitModel(edit.model, {syncScene: false});
         }
         this.syncSceneToModel();
@@ -209,11 +195,6 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             else if (action.operation === "remove-value") this.removeValue(action.index);
             else throw new Error("A summary action needs the operation set-value, add-value or remove-value.");
         });
-    }
-
-    override importPresetData(data: SummaryModel): void {
-        super.importPresetData(data);
-        this.notice = undefined;
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -371,8 +352,10 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
                                 removeLabel={i => t("prob_summary_value_remove", {value0: i + 1})}
                                 removeText={t("prob_summary_remove_text")} canRemove={state.values.length > SUMMARY_VALUES_MIN}/>
                 <div className="bisection-actions" role="group" aria-label={t("prob_summary_values_title")}>
-                    <button type="button" data-action="add-value" aria-disabled={state.values.length >= SUMMARY_VALUES_MAX}
-                            onClick={() => this.guarded(() => this.addValue())}>{t("prob_summary_add")}</button>
+                    <UnavailableButton data-action="add-value"
+                                       reason={state.values.length >= SUMMARY_VALUES_MAX ? renderMessage(summaryEditMessage({kind: "full", max: SUMMARY_VALUES_MAX})) : undefined}
+                                       onPress={() => this.guarded(() => this.addValue())}
+                                       onBlockedPress={() => this.guarded(() => this.addValue())}>{t("prob_summary_add")}</UnavailableButton>
                 </div>
                 <p className="inspector-help">{t("prob_summary_values_help", {value0: SUMMARY_VALUE_MIN, value1: SUMMARY_VALUE_MAX})}</p>
             </div>
@@ -424,13 +407,10 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             },
         ];
         const statuses: { id: string; text: string }[] = [];
-        if (this.notice) statuses.push({id: "refused", text: renderMessage(this.notice)});
         if (model.boxPlot && s.status === "too-few") statuses.push({id: "too-few", text: t("prob_summary_board_too_few", {value0: 3})});
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_summary_note")}/>
-            <div className="inspector-group" role="status" aria-live="polite">
-                {statuses.map(status => <p key={status.id} className="inspector-help" data-prob-summary-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus dataAttribute="prob-summary-status" lines={statuses}/>
         </>;
     }
 

@@ -67,18 +67,18 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(readout('upper')).toBe('3,1875');
 
     // n through the labelled field: an integer in range is applied, a fraction is refused with a hint and leaves the model alone
-    const inputN = screen.getByLabelText('Število delov n') as HTMLInputElement;
+    const inputN = screen.getByLabelText('Število delov n', {selector: 'input'}) as HTMLInputElement;
     act(() => { enterNumber(inputN, '64'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
     act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
-    expect(screen.getByText('Število delov n mora biti celo število od 1 do 128.')).toBeInTheDocument();
+    expect(screen.getByText('Vnesi vrednost med 1 in 128.')).toBeInTheDocument();
 
-    // at the limit Refine is a disabled native button that points at its explanation
+    // at the limit Refine is an aria-disabled button that points at its explanation
     act(() => { fireEvent.click(refine()); });
     expect(graph.modelNow()).toMatchObject({n: 128});
-    expect(refine().disabled).toBe(true);
-    expect(refine().getAttribute('aria-describedby')).toBe('darboux-refine-help');
+    expect(refine()).toHaveAttribute('aria-disabled', 'true');
+    expect(refine().getAttribute('aria-describedby')).toContain('darboux-refine-help');
     expect(document.getElementById('darboux-refine-help')?.textContent).toMatch(/mejo 128/);
     expect(statusIds()).toEqual(['trapped', 'limit']);
 
@@ -98,7 +98,7 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     act(() => { setLanguage('en'); });
     expect(screen.getByRole('button', {name: 'Refine the partition (n → 2n)'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Number of parts n')).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: 'Number of parts n'})).toBeInTheDocument();
     expect(readout('lower')).toBe('−3.1416');
 });
 

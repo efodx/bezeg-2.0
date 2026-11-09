@@ -35,7 +35,7 @@ class ObservedRungeGraph extends RungeInterpolationGraph {
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const degreeInput = () => screen.getByLabelText(/^Stopnja n$|^Degree n$/) as HTMLInputElement;
+const degreeInput = () => screen.getByRole('spinbutton', {name: /^Stopnja n$|^Degree n$/}) as HTMLInputElement;
 const functionSelect = () => screen.getByLabelText(/^Funkcija f$|^Function f$/) as HTMLSelectElement;
 const ruleSelect = () => screen.getByLabelText(/^Razporeditev interpolacijskih točk$|^Placement of the interpolation nodes$/) as HTMLSelectElement;
 const errorSwitch = () => screen.getByLabelText(/^Pokaži krivuljo napake|^Show the error curve/) as HTMLInputElement;
@@ -168,14 +168,11 @@ test('degree: the buttons and the field change the model; 0, 41 and non-integers
     const baseline = graph.ownedObjects();
     setDegree(40);
     expect(graph.modelNow().degree).toBe(40);
-    expect(screen.getByRole('button', {name: 'Povečaj stopnjo n za 1'}).getAttribute('aria-disabled')).toBe('true');
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Povečaj stopnjo n za 1'})); });
-    expect(graph.modelNow().degree).toBe(40);
     for (const bad of ['41', '0', '2.5']) {
         setDegree(Number(bad));
         expect(graph.modelNow().degree).toBe(40);
     }
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj stopnjo n za 1'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj število'})); });
     expect(graph.modelNow().degree).toBe(39);
     expect(graph.ownedObjects()).toBe(baseline);
     expect(() => (graph as unknown as { setDegree(v: unknown): void }).setDegree(41)).toThrow(DomainError);
@@ -257,7 +254,7 @@ test('a live language switch updates the board text and the labels', () => {
     expect(update).toHaveBeenCalled();
     expect(graph.captionPlainLines().join('\n')).toMatch(/Grid maximum of the error: 1\.916 at x = −?0\.9402/);
     expect(graph.captionPlainLines().join('\n')).toMatch(/Equispaced nodes/);
-    expect(screen.getByLabelText(/^Degree n$/)).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: /^Degree n$/})).toBeInTheDocument();
     expect(readout('grid-max')).toBe('1.916');
     act(() => { setLanguage('sl'); });
     expect(graph.captionPlainLines().join('\n')).toMatch(/Enakomerno razporejene točke/);

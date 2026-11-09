@@ -3,8 +3,10 @@ import {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGra
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
-import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {guard} from "../base/controls/guard";
+import {FunctionStatus} from "./FunctionStatus";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, Message, message, renderMessage, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
@@ -32,9 +34,6 @@ export const CLT_STEP_INTERVAL_MS = 700;
  * on the board: the board shows the standardized sum, whose coordinates are not the base shape's).
  */
 export class CltGraph extends IterativeFunctionGraph<CltModel> {
-    /** The reason the last refused edit gave; shown in the status region until an edit is accepted. */
-    private notice?: Message;
-
     override presetCollection() {
         return functionPresetCollections["prob-clt"];
     }
@@ -100,7 +99,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
     /** Back to n = 1 with the same shape; playback stops. */
     protected resetIteration(): void {
         this.replaceModel({...this.model, n: 1});
-        this.setNotice(undefined); // the button and the lesson reset/replay commands both land here
+        this.refusals.clear(); // the button and the lesson reset/replay commands both land here
     }
 
     // ---- Model operations (read and write the synchronous model) ------------------------------
@@ -110,23 +109,9 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         return edit.model;
     }
 
-    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    /** Runs an inspector change: a refusal is shown alone in the graph's refusal notice, an accepted change clears it. */
     private guarded(action: () => void): boolean {
-        try {
-            action();
-            this.setNotice(undefined);
-            return true;
-        } catch (error) {
-            if (!(error instanceof DomainError)) throw error;
-            this.setNotice(error.reason);
-            return false;
-        }
-    }
-
-    private setNotice(next: Message | undefined): void {
-        if (this.notice === next) return;
-        this.notice = next;
-        this.requestRender();
+        return guard(this.refusals, action);
     }
 
     /** Shows the whole standardized plot when the edit changed what the fixed view depends on (peak, density or CDF). */
@@ -180,11 +165,6 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
             visibility: {"clt-cdf": visible => this.setCdf(visible)},
             choices: {"clt-example": value => this.setExample(value)},
         };
-    }
-
-    override importPresetData(data: CltModel): void {
-        super.importPresetData(data);
-        this.notice = undefined;
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -282,14 +262,11 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
             {id: "mass-residual", label: t("prob_clt_readout_residual"), value: formatSignificant(result.view.massResidual, language, 3)},
         ] : [{id: "n", label: t("prob_clt_readout_n"), value: String(model.n)}];
         const statuses: { id: string; text: string }[] = [];
-        if (this.notice) statuses.push({id: "refused", text: renderMessage(this.notice)});
         if (!result.ok) statuses.push({id: "failed", text: renderMessage(cltEditMessage(result.issue))});
         if (model.n >= CLT_N_MAX) statuses.push({id: "max-n", text: renderMessage(this.cannotAdvanceMessage())});
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_clt_note")}/>
-            <div className="inspector-group" role="status" aria-live="polite">
-                {statuses.map(status => <p key={status.id} className="inspector-help" data-prob-clt-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus dataAttribute="prob-clt-status" lines={statuses} muted={this.controller.isPlaying()}/>
         </>;
     }
 

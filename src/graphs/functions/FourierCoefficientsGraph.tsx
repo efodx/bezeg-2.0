@@ -1,14 +1,14 @@
-import React, {useState} from "react";
+import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FourierSpectrumBars} from "./FourierSpectrumBars";
 import {FourierDecaySpectra} from "./FourierDecaySpectra";
+import {guard} from "../base/controls/guard";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import {currentLanguage, Message, renderMessage, t, useT} from "../../localization";
+import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
-import {cleanNumber} from "../../analysis/numbers";
 import {FOURIER_EXAMPLE_IDS, FOURIER_EXAMPLES, FourierExampleId} from "../../analysis/fourierExamples";
 import {fourierExampleCoefficients, fourierSupError} from "../../analysis/fourierDecay";
 import {
@@ -185,17 +185,6 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         if (next !== this.model) this.commitModel(next);
     }
 
-    /** An inspector choice of a decay example: the reason it was rejected (shown beside the select), or nothing. */
-    private trySelect(slot: number, value: string): Message | undefined {
-        try {
-            this.setSelection(slot, value);
-            return undefined;
-        } catch (error) {
-            if (error instanceof DomainError && error.reason) return error.reason;
-            throw error;
-        }
-    }
-
     protected override lessonFunctionActions(): FunctionLessonActions {
         const handle = (index: number) => (value: number) => this.setValue(index, value);
         return {
@@ -343,7 +332,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 const slot = slotNow();
                 if (!slot) return;
                 const snapped = snapFourierValue(point.Y());
-                const accepted = this.ignoreOutOfDomain(() => this.setValue(slot.index, snapped, {syncScene: false}));
+                const accepted = this.dragEdit(() => this.setValue(slot.index, snapped, {syncScene: false}));
                 point.moveTo([slot.x, accepted ? snapped : this.model.values[slot.index]]);
             });
             return point;
@@ -378,15 +367,22 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    /** Shift + arrow steps a value by 0.5 (the field itself steps by 0.05); the field's own handler is not run for it. */
-    private bigStep(index: number): (event: React.KeyboardEvent) => void {
-        return event => {
-            if (!event.shiftKey || (event.key !== "ArrowUp" && event.key !== "ArrowDown")) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const next = cleanNumber(this.model.values[index] + (event.key === "ArrowUp" ? 1 : -1) * FOURIER_VALUE_BIG_STEP);
-            this.ignoreOutOfDomain(() => this.setValue(index, Math.min(FOURIER_VALUE_MAX, Math.max(FOURIER_VALUE_MIN, next))));
-        };
+    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    private guarded(action: () => void): boolean {
+        return guard(this.refusals, action);
+    }
+
+    /** A handle drag: a refusal shows its reason once (repeated frames are not announced again), an accepted frame clears it. */
+    private dragEdit(action: () => void): boolean {
+        try {
+            action();
+        } catch (error) {
+            if (!(error instanceof DomainError)) throw error;
+            this.refusals.refuse(error.reason ?? error.message);
+            return false;
+        }
+        this.refusals.clear();
+        return true;
     }
 
     protected renderControls(): React.ReactNode {
@@ -395,7 +391,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("fourier_coef_view_label")} value={state.view} options={FOURIER_COEFFICIENTS_VIEWS.map(id => ({value: id, text: viewText[id]}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setView(next))}/>
+                              onChange={next => this.guarded(() => this.setView(next))}/>
             </div>
             {state.view === "decay" ? this.renderDecayControls(state) : this.renderProjectionControls(state)}
         </>;
@@ -403,20 +399,19 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
 
     private renderDecayControls(state: FourierCoefficientsModel): React.ReactNode {
         const scaleText: Record<FourierDecayScale, string> = {linear: t("fourier_decay_scale_linear"), log: t("fourier_decay_scale_log")};
-        const signature = state.selections.join();
         return <div className="inspector-group">
             {/* An example shown by another slot is disabled here (the model also rejects it, with a visible reason, for lesson and Preset paths).
                 Lesson authors: swapping two examples between slots needs a free example as an intermediate step. */}
-            {state.selections.map((id, slot) => <ExampleChoice key={slot} label={t("fourier_decay_selection_label", {value0: slot + 1})} value={id} signature={signature}
-                                                            options={FOURIER_EXAMPLE_IDS.map(option => ({
-                                                                value: option, text: this.exampleName(option), disabled: option !== id && state.selections.includes(option),
-                                                            }))}
-                                                            apply={next => this.trySelect(slot, next)}/>)}
+            {state.selections.map((id, slot) => <ChoiceSelect key={slot} label={t("fourier_decay_selection_label", {value0: slot + 1})} value={id}
+                                                              options={FOURIER_EXAMPLE_IDS.map(option => ({
+                                                                  value: option, text: this.exampleName(option), disabled: option !== id && state.selections.includes(option),
+                                                              }))}
+                                                              onChange={next => this.guarded(() => this.setSelection(slot, next))}/>)}
             <NumberInput label={t("fourier_decay_n_label")} integer value={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX} step={1} decimals={0}
                          rejectedHint={t("fourier_coef_issue_n", {value0: FOURIER_DECAY_N_MIN, value1: FOURIER_DECAY_N_MAX})}
-                         onChange={next => this.ignoreOutOfDomain(() => this.setDecayN(next))}/>
+                         onChange={next => this.guarded(() => this.setDecayN(next))}/>
             <ChoiceSelect label={t("fourier_decay_scale_label")} value={state.scale} options={FOURIER_DECAY_SCALES.map(id => ({value: id, text: scaleText[id]}))}
-                          onChange={next => this.ignoreOutOfDomain(() => this.setScale(next))}/>
+                          onChange={next => this.guarded(() => this.setScale(next))}/>
             <p className="inspector-help">{t("fourier_decay_help")}</p>
         </div>;
     }
@@ -431,28 +426,27 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
             <div className="inspector-group">
                 <ChoiceSelect label={t("fourier_coef_layout_label")} value={state.layout} help={t("fourier_coef_layout_help")}
                               options={FOURIER_COEFFICIENTS_LAYOUTS.map(id => ({value: id, text: layoutText[id]}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setLayout(next))}/>
+                              onChange={next => this.guarded(() => this.setLayout(next))}/>
             </div>
             <div className="inspector-group">
-                {slots.map(slot => <div key={slot.index} onKeyDownCapture={this.bigStep(slot.index)}>
-                    <NumberInput label={this.slotLabel(slot)} value={state.values[slot.index]} min={FOURIER_VALUE_MIN} max={FOURIER_VALUE_MAX} step={FOURIER_VALUE_STEP}
-                                 decimals={2} rejectedHint={t("fourier_coef_issue_value", {value0: FOURIER_VALUE_MIN, value1: FOURIER_VALUE_MAX})}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setValue(slot.index, next))}/>
-                </div>)}
+                {slots.map(slot => <NumberInput key={slot.index} label={this.slotLabel(slot)} value={state.values[slot.index]} min={FOURIER_VALUE_MIN} max={FOURIER_VALUE_MAX}
+                                                step={FOURIER_VALUE_STEP} bigStep={FOURIER_VALUE_BIG_STEP} decimals={2}
+                                                rejectedHint={t("fourier_coef_issue_value", {value0: FOURIER_VALUE_MIN, value1: FOURIER_VALUE_MAX})}
+                                                onChange={next => this.guarded(() => this.setValue(slot.index, next))}/>)}
                 <p className="inspector-help">{t("fourier_coef_handles_help")}</p>
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("fourier_coef_k_label")} integer value={state.K} min={FOURIER_K_MIN} max={FOURIER_K_MAX} step={1} decimals={0}
                              rejectedHint={t("fourier_coef_issue_k", {value0: FOURIER_K_MIN, value1: FOURIER_K_MAX})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>
+                             onChange={next => this.guarded(() => this.setK(next))}/>
                 <ChoiceSelect label={t("fourier_coef_term_label")} value={state.selected.term}
                               options={FOURIER_COEFFICIENT_TERMS.map(id => ({value: id, text: id === "a" ? t("fourier_coef_term_a") : t("fourier_coef_term_b")}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setTerm(next))}/>
+                              onChange={next => this.guarded(() => this.setTerm(next))}/>
                 <NumberInput label={t("fourier_coef_harmonic_label")} integer value={state.selected.k} min={0} max={state.K} step={1} decimals={0}
                              rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setHarmonic(next))}/>
+                             onChange={next => this.guarded(() => this.setHarmonic(next))}/>
                 <p className="inspector-help">{t("fourier_coef_harmonic_help", {value0: formatNumber(state.K, language, 0)})}</p>
-                <OnOffSwitch checked={state.overlay} label={t("fourier_coef_overlay_label")} onChange={next => this.ignoreOutOfDomain(() => this.setOverlay(next))}/>
+                <OnOffSwitch checked={state.overlay} label={t("fourier_coef_overlay_label")} onChange={next => this.guarded(() => this.setOverlay(next))}/>
             </div>
         </>;
     }
@@ -514,23 +508,6 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
             </div>
         </>;
     }
-}
-
-/** A select of one decay example; a choice the model rejects shows its reason beside the select until the selections change. */
-function ExampleChoice(props: {
-    label: string; value: string; signature: string; options: readonly { value: string; text: string; disabled?: boolean }[]; apply: (value: string) => Message | undefined;
-}) {
-    useT();
-    const [rejection, setRejection] = useState<{ reason: Message; signature: string } | undefined>();
-    const shown = rejection !== undefined && rejection.signature === props.signature ? rejection.reason : undefined;
-    return <>
-        <ChoiceSelect label={props.label} value={props.value} options={props.options}
-                      onChange={next => {
-                          const reason = props.apply(next);
-                          setRejection(reason ? {reason, signature: props.signature} : undefined);
-                      }}/>
-        {shown && <p className="inspector-help" role="alert" data-testid="fourier-decay-rejection">{renderMessage(shown)}</p>}
-    </>;
 }
 
 export default FourierCoefficientsGraph;

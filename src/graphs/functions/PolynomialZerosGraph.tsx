@@ -1,4 +1,5 @@
 import React from "react";
+import {guard} from "../base/controls/guard";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -12,7 +13,7 @@ import {
     PolynomialExampleId, polynomialExampleModel, PolynomialFacts, polynomialFacts, PolynomialZerosEdit, PolynomialZerosModel,
     polynomialSpecOf, removePolynomialZero, setPolynomialK, setPolynomialMultiplicity,
 } from "../../analysis/polynomialZerosModel";
-import {isZeroListIssue, ZERO_GRID_DECIMALS} from "../../analysis/zeroListModel";
+import {ZERO_GRID_DECIMALS} from "../../analysis/zeroListModel";
 import {polynomialProductText, polynomialRuleText, polynomialZerosEditMessage} from "./polynomialZerosMessages";
 import {noticeOfEvent, ZeroListEditor, ZeroListNoticeStore, ZeroListNoticeView, zeroListNoticeText} from "./ZeroListEditor";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -60,12 +61,23 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
     /** Applies an edit: the notice follows the outcome (a merge is announced, a refused zero list rule is explained) and a refusal throws. */
     private applyEdit(edit: PolynomialZerosEdit, options: { syncScene?: boolean } = {}): void {
         if (!edit.ok) {
-            // A zero list rule's reason is shown in the live text as well as in the field.
-            if (isZeroListIssue(edit.issue)) this.notices.set({kind: "refused", issue: edit.issue});
+            this.notices.set(undefined); // a refusal is shown alone, through the refusal channel
             throw new DomainError(polynomialZerosEditMessage(edit.issue));
         }
         this.notices.set(edit.event ? noticeOfEvent(edit.event) : undefined);
         if (edit.model !== this.model) this.commitModel(edit.model, options);
+    }
+
+    /** A drag frame's edit: a refusal is shown (an equal one on the next frame is not announced again), an accepted frame clears it. */
+    private dragEdit(action: () => void): void {
+        try {
+            action();
+        } catch (error) {
+            if (!(error instanceof DomainError)) throw error;
+            this.refusals.refuse(error.reason ?? error.message);
+            return;
+        }
+        this.refusals.clear();
     }
 
     protected setK(value: number): void {
@@ -108,11 +120,6 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
             choices: {"polynomial-example": value => this.setExample(value)},
             visibility: {"polynomial-derivative": visible => this.setDerivativeVisible(visible)},
         };
-    }
-
-    protected resetValues(): void {
-        this.notices.set(undefined);
-        this.commitModel(this.defaultModel());
     }
 
     /** A freshly loaded scene starts without a notice; the notice is transient and never part of a captured scene. */
@@ -191,7 +198,7 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
             }
             const x = Math.min(POLY_BOUNDS.z[1], Math.max(POLY_BOUNDS.z[0], point.X()));
             const before = this.model.zeros.length;
-            this.ignoreOutOfDomain(() => this.setZeroPosition(index, x));
+            this.dragEdit(() => this.setZeroPosition(index, x));
             if (this.model.zeros.length < before) this.dragMerged = true;
             this.syncSceneToModel();
         });
@@ -280,22 +287,22 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("polynomial_zeros_example_label")} value={current ?? "custom"} help={t("polynomial_zeros_example_help")}
-                              options={options} onChange={next => { if (next !== "custom") this.ignoreOutOfDomain(() => this.setExample(next)); }}/>
+                              options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
                 <NumberInput label={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
-                             rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>
+                             rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guard(this.refusals, () => this.setK(next))}/>
             </div>
             <ZeroListEditor zeros={state.zeros} maxDegree={MAX_POLY_DEGREE}
-                            onMove={(index, next) => this.ignoreOutOfDomain(() => this.setZeroPosition(index, next))}
-                            onMultiplicity={(index, next) => this.ignoreOutOfDomain(() => this.setMultiplicity(index, next))}
-                            onAdd={() => this.ignoreOutOfDomain(() => this.addZero())}
-                            onRemove={index => this.ignoreOutOfDomain(() => this.removeZero(index))}/>
+                            onMove={(index, next) => guard(this.refusals, () => this.setZeroPosition(index, next))}
+                            onMultiplicity={(index, next) => { guard(this.refusals, () => this.setMultiplicity(index, next)); }}
+                            onAdd={() => { guard(this.refusals, () => this.addZero()); }}
+                            onRemove={index => { guard(this.refusals, () => this.removeZero(index)); }}
+                            onBlocked={reason => this.refusals.refuse(reason, true)}/>
             <ZeroListNoticeView store={this.notices} describe={zeroListNoticeText}/>
             <div className="convexity-actions" role="group" aria-label={t("polynomial_zeros_actions_label")}>
                 <button type="button" data-action="toggle-derivative" data-revealed={state.derivativeVisible}
                         onClick={() => this.setDerivativeVisible(!this.model.derivativeVisible)}>
                     {state.derivativeVisible ? t("polynomial_zeros_derivative_hide") : t("polynomial_zeros_derivative_show")}
                 </button>
-                <button type="button" data-action="reset-polynomial" onClick={() => this.resetValues()}>{t("polynomial_zeros_reset")}</button>
             </div>
         </>;
     }

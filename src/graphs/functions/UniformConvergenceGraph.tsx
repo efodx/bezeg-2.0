@@ -3,6 +3,9 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCu
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {CountSetter} from "../../inputs/CountSetter";
+import {guard} from "../base/controls/guard";
+import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
@@ -326,50 +329,41 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         this.pointX = undefined;
     }
 
+    /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
+    private guarded(action: () => void): boolean {
+        return guard(this.refusals, action);
+    }
+
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
         const state = this.model;
         const language = currentLanguage();
-        const atMinimum = state.n <= UNIFORM_N_MIN;
-        const atMaximum = state.n >= UNIFORM_MAX_N;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("uniform_example_label")} value={state.example} help={t("uniform_example_help")}
                               options={UNIFORM_EXAMPLE_IDS.map(id => ({value: id, text: exampleFormula(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
+                              onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("uniform_r_label")} value={state.r} min={UNIFORM_R_MIN} max={UNIFORM_R_MAX} step={UNIFORM_R_STEP} decimals={2}
                              rejectedHint={t("uniform_r_rejected_hint", {
                                  value0: formatNumber(UNIFORM_R_MIN, language), value1: formatNumber(UNIFORM_R_MAX, language), value2: formatNumber(state.x, language),
                              })}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setR(next))}/>
+                             onChange={next => this.guarded(() => this.setR(next))}/>
                 <NumberInput label={t("uniform_x_label")} value={state.x} min={0} max={state.r} step={UNIFORM_X_STEP} decimals={2}
                              rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
+                             onChange={next => this.guarded(() => this.setX(next))}/>
                 <NumberInput label={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP} decimals={2}
                              rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
+                             onChange={next => this.guarded(() => this.setEpsilon(next))}/>
                 <p className="inspector-help">{t("uniform_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <div className="count-setter">
-                    <div className="count-setter-label">{t("uniform_n_label")}</div>
-                    {/* aria-disabled, not disabled: a focused button that becomes unavailable at n = 1 or n = 50 must not drop keyboard focus. */}
-                    <div className="count-setter-controls">
-                        <button type="button" className="count-setter-button" data-action="n-decrease" aria-disabled={atMinimum} aria-describedby="uniform-n-help"
-                                aria-label={t("uniform_n_decrease")} onClick={() => { if (!atMinimum) this.ignoreOutOfDomain(() => this.setN(this.model.n - 1)); }}>−</button>
-                        <NumberInput label={t("uniform_n_label")} hideLabel compact value={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} step={1} decimals={0}
-                                     rejectedHint={t("uniform_n_rejected_hint", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N})}
-                                     onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
-                        <button type="button" className="count-setter-button" data-action="n-increase" aria-disabled={atMaximum} aria-describedby="uniform-n-help"
-                                aria-label={t("uniform_n_increase")} onClick={() => { if (!atMaximum) this.ignoreOutOfDomain(() => this.setN(this.model.n + 1)); }}>+</button>
-                    </div>
-                </div>
-                <p id="uniform-n-help" className="inspector-help">
-                    {atMinimum ? t("uniform_n_limit_min", {value0: UNIFORM_N_MIN}) : atMaximum ? t("uniform_n_limit_max", {value0: UNIFORM_MAX_N}) : t("uniform_n_help")}
-                </p>
+                <CountSetter label={t("uniform_n_label")} n={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} help={t("uniform_n_help")}
+                             onPlus={() => this.guarded(() => this.setN(this.model.n + 1))}
+                             onMinus={() => this.guarded(() => this.setN(this.model.n - 1))}
+                             onSet={next => this.guarded(() => this.setN(next))}/>
             </div>
         </>;
     }
@@ -458,9 +452,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("uniform_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-uniform-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" lines={this.statuses(model, view)} dataAttribute="uniform-status"/>
         </>;
     }
 }

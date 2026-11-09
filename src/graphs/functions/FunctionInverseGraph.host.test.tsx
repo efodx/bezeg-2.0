@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {settle} from '../base/realGraphTestHarness';
 import {FunctionInverseGraph} from './FunctionInverseGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
@@ -236,7 +237,7 @@ test('the inverse can be hidden (predict, then reveal) and so can the tangents',
     expect(graph.segments()[1]).toBeUndefined();
 });
 
-test('Reset, a restored Preset and the language switch restore every field, the controls and the board objects', () => {
+test('Reset, a restored Preset and the language switch restore every field, the controls and the board objects', async () => {
     const graph = mount();
     const baseline = boardObjects(graph);
     const stored = {restriction: 'exp', base: 3.5, x0: -1.5, inverseVisible: false, tangentVisible: true};
@@ -262,7 +263,7 @@ test('Reset, a restored Preset and the language switch restore every field, the 
     expect(readout('hypothesis')).toBe('a > 0 and a ≠ 1');
     expect(readout('asymptote')).toMatch(/vertical asymptote/);
 
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Reset values'})); });
+    await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)
     expect(graph.modelNow()).toEqual(DEFAULT_FUNCTION_INVERSE_MODEL);
     expect((screen.getByLabelText('Restriction with its inverse') as HTMLSelectElement).value).toBe('square');
     expect(field('Point P: abscissa x₀').value).toBe('2');
