@@ -1,0 +1,14 @@
+# W3 O1 review (a3a713d7)
+
+Method: code read only (BezierCurveControls.tsx, CurveOperationPanel.test.tsx, graphs, tests grep). No tests run.
+
+1. MEDIUM, BezierCurveControls.tsx:88-99 (also CurveOperation :200-203). The cleanup of useCurvePreviews hides the Casteljau scheme (`isShowingDecasteljauScheme` -> `hideDecasteljauScheme`) of the curve on every unmount or curve change. This also runs for `permanentPreview` graph commands (Elevation, Extrapolation, Subdivision), which never own a scheme. When selecting a curve removes the command row, or a lesson or preset restore remounts it, a scheme the lesson or user showed is hidden without state. Expected: hide only what this hook showed (scheme owned by its panel's toggle).
+2. LOW, :79. `shrinkT` is initialised once from the curve; after a curve switch it keeps the old curve's value. Expected: reset in the [curve] effect.
+3. LOW (behaviour change, record in User impact), :184. Shorten no longer shares the adapter `subdivisionT` in the selected-curve panel (matrix row P2: shared). A Preset `subdivisionT` no longer sets the shortening end.
+4. MEDIUM, CurveOperationPanel.test.tsx:84-93 (weak test). Panel remounts on notify, so the check passes without `previews?.clear()`. Catch it by rendering `CurveOperation` directly with a no-op `onApplied`, pressing Preview, clicking Apply, then asserting `aria-pressed=false` and `curve.isShowingElevatePoints()===false`; or spy `hideElevatePoints` and require it to run before `elevate` (invocationCallOrder).
+5. e2e: no break found. Elevation and repeated Subdivision keep the accessible names (guided-lessons.smoke.spec.cjs:189,190,202 'Subdivide'; 2815,2818,2840,2843 'Elevate degree'); the graph commands are not in disclosures. No test uses `.operation-group`, `rational-weight-*` or the old switch. Not verified by running. Risk: with a curve selected, the Edit tab has both a `<summary>` and an Apply with the same name; if Playwright counts the summary, those locators hit strict mode (use `.getByRole('button', {name, exact:true})` scoped to the command row).
+6. LOW, DemonstrationWorkspace.css:80,163,164,348: `.operation-group` is unused in src (grep); delete the rules.
+7. LOW UI: with a disclosure collapsed the preview stays on the board with its toggle hidden. Terms "Skrči" (title) and "Predogled skrajšanja" disagree.
+
+Cleared: apply math (subdivide, extrapolate, elevate use unchanged adapter calls; the rational variants go through the same adapter); the lesson actions (degreeElevationAction, extrapolationActions, 'subdivide' with its limit throw) are untouched; Preset fields unchanged; the preview is hidden on unmount/curve change by the effect cleanup; the renderer guard is present.
+Not verified: Reset weight (RationalBezierCurveControls), focus order in the browser, the English strings in the UI.

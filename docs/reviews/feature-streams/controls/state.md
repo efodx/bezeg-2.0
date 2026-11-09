@@ -6,7 +6,7 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 - **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`, rebased on `origin/master`. Run state: **active**. Wave 2 (step 4, family sweeps) is complete and pushed: `controlExemptions` lists only the host chrome (`PresetImportDialog`, `PresetSelector`). Wave 3 (step 5) is next. The previous handler handed off at this boundary.
 - **Clean publish worktree:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached HEAD, its own `npm ci`. Check out `origin/master`, cherry-pick the slice, run `just check-changed origin/master` (about 9–10 min, includes the build), `just smoke-lesson <ids>` for affected lessons, serve with `just preview 4327` for browser smoke. Publish from the stream worktree with `just publish --background --recipe runtime --base <commit before the slice> --commits <ids>` and check `just publish --status` (ADR 0043); then `just ci <pushed sha>`.
-- **Hosted CI:** `81300d01` failed (Taylor smoke locator matched both parts of the new `CountSetter`); fixed in `6ee72917`, green. `7e14b51c` (patches) green. `050612c4` (learning) green: run 42618777343, Browser smoke success.
+- **Hosted CI:** `81300d01` failed (Taylor smoke locator matched both parts of the new `CountSetter`); fixed in `6ee72917`, green. `7e14b51c` (patches) green. `050612c4` (learning) green: run 42618777343, Browser smoke success. `d2df201d` (Wave 3 P1/D1) green: run 42648129369.
 - **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Verification-throughput phase 5 applies to every sweep.
 
 ## Accepted in Wave 2 (on `master`)
@@ -34,6 +34,7 @@ Alongside: step 6 items 1–2 (inventory open cells, before screenshots at 390×
 - Playback rows still own-built (P2): Euler Next step / Show all (`aria-disabled`, no reason); Epicycle Play (no reasons); collision playground Play/Step once/New arrangement and Inspect Previous/Next/Play/New (native `disabled`); decisions 56–58 settle their shape. TRACE-POLICY-SHARED: `IterativeFunctionGraph`, DeBoor and SubdivisionCurve still hand-copy `exportBusy`/pause guards.
 - Decision 57 gaps: De Casteljau's curve-control commands and Preset load leave a run going; lesson `play` of the parametric roll ignores reduced motion (unchanged).
 - Curve operation panels (C15) and readout blocks (C27) unchanged in functions and curves.
+- C30: `ResetExampleButton` borrows the `inspector-playback` wrapper class for its look (R2a); decision 62 wants it out of playback groups, so give it its own layout class in the C29/C30 slice.
 - Complex, linear and Bernstein panels (inventory rows 139–143) were in no sweep.
 - Pascal ◀ ▶ steppers and `pointset-row` buttons have no 44 px coarse-pointer rule.
 - Projective panels keep visible `role="status"` paragraphs and a nudge region; Triangulation keeps a hand-written hidden live paragraph (`data-triangulation="live"`).

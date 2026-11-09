@@ -1,0 +1,13 @@
+# Wave 3 smoke brief, second pair (P2a, P2b, V1)
+
+Same frame as `w2-pa-smoke-brief.md` (role, setup reading, evidence and return rules) and the five checks of `w3-smoke-brief.md`. Preview: production build of commit `42d85cbb` at `http://localhost:4327/bezeg-2.0/`, served by the handler; do not start or stop it. Confirm route paths in `src/demonstrations.ts` (search the graph name) and the learning playground routes by searching `CollisionPlayground` under `src/learning`.
+
+**Group C, playback (P2a, P2b).**
+- Euler (`EulerGraph`): Next step and Show all; at the end Next is focusable, `aria-disabled` and states "no more steps" once when pressed; after Show all, Show all states its reason.
+- Epicycle: Play/Pause in one shared group (`.inspector-playback`, `data-action="play-pause"`, `data-playing`); a time-slider move while playing pauses; reduced motion (`page.emulateMedia({reducedMotion: 'reduce'})`) blocks Play with the reason.
+- Collision playground (a lesson or chapter page that embeds it): Step once is blocked with the "playing" reason while playing; Play/Pause; New arrangement; changing count or method while playing pauses. Inspect view (Previous, Next, Play, New): Previous states a reason at the first step.
+- Trace policy (P2b): `/analysis/sequence`, `/analysis/fixed-point`, one of Bisection or Root finding, De Boor, and a subdivision-curve route: Next step to the end, then Next is unavailable with its reason; Reset; Play runs to the end and stops; an edit while playing pauses (De Boor keeps the shown level after an edit). No console errors.
+
+**Group D, Reset example and choices (V1).** B-spline Extraction, Insertion and Nurbs routes and Voronoi: "Ponastavi primer"/"Reset example" sits under the example select (Voronoi: after the degenerate modes), is unavailable with "already the example"-style reason on load, becomes available after dragging a point, restores the example when pressed, and is unavailable again. Linear map: Reset to the identity unavailable with its reason at the identity; available after a matrix edit. ComplexRoots (`/complex-roots`): degree is a −/+ stepper with a typed field; changing it changes the roots. Triangulation (`ChoiceSelect` with a reason): find the select that is unavailable and confirm the reason line is visible and changes are ignored. Pascal: at 390×844 with touch emulation the ◀ ▶ steppers are at least 44 px.
+
+Evidence: `docs/reviews/feature-streams/controls/w3-smoke-<group>.md` (`c` or `d`), screenshots under `.command-logs/w3-smoke-<group>/`. Return ≤300 words: route × check table, failures first with repro, gaps.
