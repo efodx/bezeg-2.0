@@ -284,7 +284,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                 <p className="inspector-help">{t("darboux_order_help")}</p>
             </div>
             <div className="inspector-group">
-                <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
+                <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
                              rejectedHint={t("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})}
                              onPlus={() => guard(this.refusals, () => this.setCount(n + 1))}
                              onMinus={() => guard(this.refusals, () => this.setCount(n - 1))}
@@ -294,7 +294,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                                        reason={refinable ? undefined : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}
                                        onPress={() => { guard(this.refusals, () => this.refinePartition()); }}>{t("darboux_refine")}</UnavailableButton>
                 </div>
-                <p id="darboux-refine-help" className="inspector-help">{refinable ? t("darboux_refine_help") : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}</p>
+                <p id="darboux-refine-help" className="inspector-help">{t("darboux_refine_help")}</p>
             </div>
         </>;
     }

@@ -79,8 +79,10 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(graph.modelNow()).toMatchObject({n: 128});
     expect(refine()).toHaveAttribute('aria-disabled', 'true');
     expect(refine().getAttribute('aria-describedby')).toContain('darboux-refine-help');
-    expect(document.getElementById('darboux-refine-help')?.textContent).toMatch(/mejo 128/);
+    // the limit is stated visibly once (the status line); the help paragraph does not repeat it
+    expect(document.getElementById('darboux-refine-help')?.textContent).not.toMatch(/128/);
     expect(statusIds()).toEqual(['trapped', 'limit']);
+    expect([...document.querySelectorAll('.inspector-help')].filter(element => /128/.test(element.textContent ?? '') && !element.closest('.number-input'))).toHaveLength(1);
 
     // an endpoint that would reach the other one is refused with the rule; a valid one is applied
     const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;

@@ -227,9 +227,10 @@ test('Refine doubles n through the button, is the same as the lesson action, and
     expect(atLimit.refine.props.disabled).toBeUndefined();
     expect(atLimit.refine.props['aria-describedby']).toBe('darboux-refine-help');
     const help = collect([viaButton.renderControls(), viaButton.renderReveals()]).p.find((element: any) => element.props.id === 'darboux-refine-help');
-    expect(String(help.props.children)).toContain(String(DARBOUX_N_MAX));
+    // the visible limit text is the status line alone; the help paragraph keeps what Refine does (the button carries its reason)
+    expect(String(help.props.children)).not.toContain(String(DARBOUX_N_MAX));
     expect(statusIds(viaButton)).toEqual(['trapped', 'limit']);
-    // the reason is shown once, in the help paragraph: a blocked press does not also refuse into the channel
+    // a blocked press does not also refuse into the channel
     expect(atLimit.refine.props.onBlockedPress).toBeUndefined();
     expect(viaButton.model.n).toBe(DARBOUX_N_MAX);
     expect(() => viaButton.refinePartition()).toThrow(DomainError);
