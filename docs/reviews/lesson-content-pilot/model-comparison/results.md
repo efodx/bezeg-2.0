@@ -51,26 +51,34 @@ The same persona scoring the same text differs by 1.0 point on average (maximum 
 
 ## Cost
 
-Subagent tokens and wall time from the task notifications, including failed attempts (details in the [cost log](cost-log.md)).
+Dollar estimates at Anthropic's list API prices ([pricing page](https://platform.claude.com/docs/en/about-claude/pricing), read 2026-11-09). Token counts come from every request in each subagent transcript, split into input, cache writes, cache reads and output, and include failed attempts. Cache writes are priced at the 5-minute rate. Haiku 5.5 is priced per request at its tier: prompts over 100k tokens pay the higher rate.
 
-| Config | Tokens, total | Per lesson | Wall time, total | Failed runs |
+| Model | Input | Cache write | Cache read | Output (per MTok) |
 | --- | --- | --- | --- | --- |
-| w-a Opus high | 364k | 91k | 41 min | 1 (planning run at the budget) |
-| w-b Sonnet high | 201k | 50k | 31 min | 0 (one run fit three lessons) |
-| w-c Haiku max | 794k | 199k | 50 min | 2, plus a no-source workaround |
-| w-d Fable low | 186k | 47k | 25 min | 0 |
-| w-e Sonnet medium | 119k | 30k | 13 min | 0 |
+| Opus 5.5 | $4 | $5 | $0.20 | $20 |
+| Sonnet 5.5 | $2 | $2.50 | $0.10 | $10 |
+| Haiku 5.5 (≤100k / >100k prompt) | $0.10 / $0.50 | $0.125 / $0.625 | $0.01 / $0.05 | $0.50 / $2.50 |
+| Fable 5.1 | $10 | $12.50 | $0.25 | $50 |
 
-Token counts are not prices: an Opus or Fable token costs more than a Sonnet token, and a Haiku token less. Haiku max spent its tokens on reasoning: it hit its 78k budget three times before a run with no source access fit one lesson.
+| Config | Total, 4 lessons | Per lesson | Mean score | Wall time | Failed runs |
+| --- | --- | --- | --- | --- | --- |
+| w-a Opus high | $4.93 | $1.23 | 20.8 | 41 min | 1 (planning run at the budget, $2.11) |
+| w-b Sonnet high | $1.51 | $0.38 | 22.4 | 31 min | 0 (one run fit three lessons) |
+| w-c Haiku max | $0.83 | $0.21 | 20.7 | 50 min | 2, plus a no-source workaround |
+| w-d Fable low | $4.01 | $1.00 | 22.4 | 25 min | 0 |
+| w-e Sonnet medium | $0.51 | $0.13 | 20.9 | 13 min | 0 |
+
+Scoring costs about $0.17 per review agent, or roughly $0.15 for all three personas on one draft. All 60 reviews plus the repeat check cost $3.43, and the source check of the four best drafts cost $0.53. These are list prices; a subscription bills differently, but the ratios between models hold. Haiku max spent its money on reasoning output (93k–132k output tokens per lesson). It hit its 78k context budget three times before a run with no source access fit one lesson.
 
 ## Verdict: are better writer models worth it?
 
-- **Opus high: no.** It is the most expensive per lesson and scored on the baseline. Its subdivision draft was the weakest after Haiku's. One caveat: Opus planned in a run that hit the budget and wrote from that plan, so a clean one-lesson-per-run Opus was not tested.
-- **Haiku max: no.** It costs the most tokens, needs the source-access workaround, and scores on the baseline. Its zeros draft was strong (23.3), but its subdivision draft scored lowest of all.
-- **Sonnet high and Fable low: a modest yes for first drafts.** They lead by about 1.5 of 27 points and cost about 1.6 times the baseline tokens. Neither failed a run.
+- **Opus high: no.** At $1.23 per lesson it is the most expensive, and it scored on the baseline. Its subdivision draft was the weakest after Haiku's. One caveat: Opus planned in a run that hit the budget and wrote from that plan, so a clean one-lesson-per-run Opus was not tested.
+- **Haiku max: no.** It is cheap ($0.21 per lesson) but slow and fragile: it needed the no-source workaround, failed twice, and scored on the baseline. Its zeros draft was strong (23.3), but its subdivision draft scored lowest of all.
+- **Sonnet high: yes, for first drafts.** It ties for the best score and costs $0.38 per lesson, $0.25 more than the baseline.
+- **Fable low: no.** It ties Sonnet high on score at 2.6 times the price ($1.00 per lesson).
 - **The review loop matters more than the writer.** A single-shot rewrite from round-1 reviews already scores in the range the pilot's iterated rewrites reached. Going from r0 to a rewrite gains 6 to 8 points on average; changing the writer moves 1 to 2. Keep the blind persona loop and spend extra on a better writer only for the first draft.
 
-**Recommendation:** use Sonnet high, or Fable low, as the lesson writer for new families. Keep Sonnet medium for repair rounds. Do not use Opus or Haiku for lesson prose. To make the lead firm, have a second draft from each of the top two writers on subdivision scored, which costs about 100k tokens.
+**Recommendation:** use Sonnet high as the lesson writer for new families. Keep Sonnet medium for repair rounds. Do not use Opus, Fable or Haiku for lesson prose. Every writer is cheap next to the review loop's value: a full rewrite and its three blind reviews cost under $1 with Sonnet high. To make the lead firm, score a second Sonnet high and Sonnet medium draft of subdivision (about $1).
 
 ## Best rewrites
 
