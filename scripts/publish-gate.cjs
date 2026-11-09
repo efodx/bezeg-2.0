@@ -14,7 +14,7 @@ const {LESSON_SHARED_PATHS} = require('./transient-state-scope.cjs');
 const {alwaysRunFiles} = require('./check-changed-always-run.cjs');
 
 const PRODUCTION_ORIGINS = ['https://github.com/efodx/bezeg-2.0.git', 'https://github.com/efodx/bezeg-2.0'];
-const USAGE = 'Usage: just publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...>\n'
+const USAGE = 'Usage: just publish [--background] --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...> | just publish --status\n'
     + 'List the reviewed commits oldest first: every commit after --base, and no others.';
 const OUTPUT_TAIL = 2000;
 const CANCELLED_EXIT = 130;
@@ -24,6 +24,8 @@ const MAX_RECORDS = 20;
 const LOCK_WAIT_MS = 15 * 60 * 1000;
 const LOCK_STALE_MS = 45 * 60 * 1000;
 const LOCK_POLL_MS = 1000;
+const WORKTREE_KEEP_MS = 24 * 60 * 60 * 1000;
+const WORKTREES_DIR = path.join('.claude', 'worktrees');
 // The always-run unit tier (scripts/check-changed-always-run.cjs) goes between lint and build when the slice has files for it.
 const DELTA_CHECKS = (changed) => {
     const always = alwaysRunFiles(changed);
@@ -471,13 +473,207 @@ function formatReport(report) {
     return lines.join('\n');
 }
 
+// Background publication (docs/adr/0043-background-publish-worktree.md): the same gate, run detached in its own worktree.
+const backgroundDir = root => path.join(root, '.command-logs');
+const gitSync = (cwd, args) => {
+    const result = spawnSync('git', args, {cwd, encoding: 'utf8', windowsHide: true});
+    if (result.error || result.status !== 0) throw new GateStop(`git ${args.join(' ')} failed: ${(result.stderr || result.error?.message || '').trim().slice(-OUTPUT_TAIL)}`);
+    return result.stdout.trim();
+};
+
+/** Removes a publish worktree. Its node_modules link goes first, so Git never follows it into the shared install. */
+function removePublishWorktree(root, worktree) {
+    const link = path.join(worktree, 'node_modules');
+    try {
+        if (fs.lstatSync(link).isSymbolicLink()) { try { fs.unlinkSync(link); } catch { fs.rmdirSync(link); } }
+    } catch { /* no link, or it could not be removed: checked below */ }
+    let remains = false;
+    try { fs.lstatSync(link); remains = true; } catch { /* gone */ }
+    if (remains) return false; // a link or directory is still there: never let Git or rmSync follow it into the shared install
+    spawnSync('git', ['worktree', 'remove', '--force', worktree], {cwd: root, windowsHide: true, stdio: 'ignore'});
+    fs.rmSync(worktree, {recursive: true, force: true, maxRetries: 3});
+    spawnSync('git', ['worktree', 'prune'], {cwd: root, windowsHide: true, stdio: 'ignore'});
+    return true;
+}
+
+/** Only a `publish-*` directory directly under the main checkout's worktrees directory, never the origin or the main worktree. */
+function isPublishWorktree(origin, worktree) {
+    try {
+        const main = fs.realpathSync.native(mainCheckout(origin));
+        const target = fs.realpathSync.native(worktree);
+        const parent = path.join(main, WORKTREES_DIR);
+        const same = (a, b) => path.relative(a, b) === '';
+        return path.dirname(target).toLowerCase() === parent.toLowerCase() && path.basename(target).startsWith('publish-')
+            && !same(target, fs.realpathSync.native(origin)) && !same(target, main);
+    } catch { return false; }
+}
+
+const claimPath = root => path.join(backgroundDir(root), 'publish.claim');
+
+/** Takes the exclusive start claim, unless an earlier start or run is still alive. */
+function takeClaim(root, now) {
+    const file = claimPath(root);
+    fs.mkdirSync(path.dirname(file), {recursive: true});
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            fs.writeFileSync(file, JSON.stringify({pid: process.pid, at: new Date(now).toISOString()}), {flag: 'wx'});
+            return true;
+        } catch (error) {
+            if (error.code !== 'EEXIST') throw error;
+            const holder = readJson(file);
+            if (holder?.pid && pidAlive(holder.pid)) return false;
+            fs.rmSync(file, {force: true});
+        }
+    }
+    return false;
+}
+
+function readJson(file) {
+    try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
+}
+
+/** Background runs that started but have not written a result (a dead pid means the run ended without one). */
+function pendingRuns(root) {
+    const dir = backgroundDir(root);
+    let names = [];
+    try { names = fs.readdirSync(dir).filter(name => /^publish-.+\.pending$/.test(name)); } catch { /* none yet */ }
+    return names.map(name => ({id: name.slice('publish-'.length, -'.pending'.length), ...readJson(path.join(dir, name))}))
+        .filter(run => !fs.existsSync(path.join(dir, `publish-${run.id}.json`)));
+}
+
+/** Publish worktrees live under the main checkout, even when the handler runs from a linked worktree. */
+const mainCheckout = root => path.dirname(gitSync(root, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
+
+function removeStaleWorktrees(root, now) {
+    const dir = path.join(mainCheckout(root), WORKTREES_DIR);
+    let names;
+    try { names = fs.readdirSync(dir).filter(name => name.startsWith('publish-')); } catch { return; }
+    const live = pendingRuns(root).filter(run => run.pid && pidAlive(run.pid)).map(run => run.worktree);
+    for (const name of names) {
+        const worktree = path.join(dir, name);
+        try {
+            if (!live.includes(worktree) && now - fs.statSync(worktree).mtimeMs > WORKTREE_KEEP_MS) removePublishWorktree(root, worktree);
+        } catch { /* leave it for the next run */ }
+    }
+}
+
+function launchGate({cwd, args}) {
+    const child = spawn(process.execPath, [__filename, ...args], {cwd, detached: true, windowsHide: true, stdio: 'ignore', env: {...process.env, GIT_EDITOR: 'true'}});
+    child.unref();
+    return child.pid;
+}
+
+/** Creates the publish worktree at the last declared commit and starts the foreground gate there; returns at once. */
+async function publishBackground({cwd = process.cwd(), base, commits, recipe, launch = launchGate, now = Date.now()}) {
+    const fail = (message, exitCode = 1) => ({ok: false, message, exitCode});
+    let claimed = false;
+    let root;
+    let worktree;
+    try {
+        if (!Object.hasOwn(RECIPES, recipe ?? '')) return fail(`Unknown or missing recipe "${recipe ?? ''}".\n${USAGE}`, 2);
+        if (!base || !commits?.length) return fail(`Declare the task base and its commits.\n${USAGE}`, 2);
+        root = gitSync(cwd, ['rev-parse', '--show-toplevel']);
+        const pending = pendingRuns(root).find(run => run.pid && pidAlive(run.pid));
+        if (pending) return fail(`A background publish is pending (${pending.id}, pid ${pending.pid}) and has no result yet. Check \`just publish --status\` first.`);
+        if (!takeClaim(root, now)) return fail('Another background publish is being started. Check `just publish --status` first.');
+        claimed = true;
+        const resolve = id => gitSync(root, ['rev-parse', '--verify', `${id}^{commit}`]);
+        const declaredBase = resolve(base);
+        const declared = commits.map(resolve);
+        gitSync(root, ['merge-base', '--is-ancestor', declaredBase, 'HEAD']);
+        const actual = gitSync(root, ['rev-list', '--reverse', '--topo-order', `${declaredBase}..HEAD`]).split(/\s+/).filter(Boolean);
+        if (actual.join() !== declared.join()) {
+            return fail(`The declared commits do not match ${base}..HEAD, oldest first.\nDeclared: ${declared.join(' ')}\nActual:   ${actual.join(' ') || '(none)'}`);
+        }
+        if (gitSync(root, ['rev-list', '--merges', `${declaredBase}..HEAD`])) return fail('The slice contains a merge commit. Rebase it to a linear series first.');
+
+        removeStaleWorktrees(root, now);
+        const last = declared.at(-1);
+        const id = `${gitSync(root, ['rev-parse', '--short', last])}-${crypto.randomBytes(3).toString('hex')}`;
+        worktree = path.join(mainCheckout(root), WORKTREES_DIR, `publish-${id}`);
+        const logDir = backgroundDir(root);
+        const resultPath = path.join(logDir, `publish-${id}.json`);
+        const logPath = path.join(logDir, `publish-${id}.log`);
+        fs.mkdirSync(logDir, {recursive: true});
+        gitSync(root, ['worktree', 'add', '--detach', worktree, last]);
+        const modules = path.join(root, 'node_modules');
+        if (fs.existsSync(modules)) fs.symlinkSync(fs.realpathSync(modules), path.join(worktree, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
+        const args = ['--recipe', recipe, '--base', declaredBase, '--commits', declared.join(','), '--result-file', resultPath, '--origin', root, '--log-path', logPath];
+        const pid = await launch({cwd: worktree, args, logPath});
+        if (!Number.isInteger(pid)) throw new GateStop('The background gate did not start (no process id).');
+        fs.writeFileSync(path.join(logDir, `publish-${id}.pending`), JSON.stringify({pid, worktree, at: new Date(now).toISOString()}));
+        const started = {ok: true, exitCode: 0, id, worktree, logPath, resultPath, pid};
+        worktree = undefined;
+        return started;
+    } catch (error) {
+        if (worktree && fs.existsSync(worktree)) {
+            try { removePublishWorktree(root, worktree); } catch { /* the stale cleanup removes it later */ }
+        }
+        return fail(error.message, error.exitCode ?? 1);
+    } finally {
+        if (claimed) fs.rmSync(claimPath(root), {force: true});
+    }
+}
+
+/** Runs in the background process after its gate: records the outcome, and drops the worktree only when the gate succeeded. */
+function recordBackgroundResult({report, resultFile, origin, worktree}) {
+    const result = {ok: report.ok, failedStage: report.ok ? null : report.failedStage, pushedRevision: report.pushed || report.ok ? report.candidate : null,
+        logPath: report.logPath, worktree, at: new Date().toISOString()};
+    fs.mkdirSync(path.dirname(resultFile), {recursive: true});
+    fs.appendFileSync(report.logPath, `\n${formatReport(report)}\n`);
+    fs.writeFileSync(resultFile, JSON.stringify(result, null, 1));
+    fs.rmSync(resultFile.replace(/\.json$/, '.pending'), {force: true});
+    if (report.ok && origin && isPublishWorktree(origin, worktree)) {
+        // The process's own directory cannot be removed on Windows.
+        if (path.resolve(process.cwd()).toLowerCase().startsWith(path.resolve(worktree).toLowerCase())) process.chdir(origin);
+        removePublishWorktree(origin, worktree);
+    }
+    return result;
+}
+
+/** Latest background results, newest first, after the runs that still have no result. */
+function backgroundStatus({cwd = process.cwd(), limit = 5} = {}) {
+    const root = gitSync(cwd, ['rev-parse', '--show-toplevel']);
+    const dir = backgroundDir(root);
+    let files = [];
+    try { files = fs.readdirSync(dir).filter(name => /^publish-.+\.json$/.test(name)).map(name => ({name, time: fs.statSync(path.join(dir, name)).mtimeMs})); } catch { /* none */ }
+    const lines = pendingRuns(root).map(run => `publish-${run.id}: ${run.pid && pidAlive(run.pid) ? 'pending' : 'ended without a result'} (pid ${run.pid}, worktree ${run.worktree})`);
+    for (const {name} of files.sort((a, b) => b.time - a.time).slice(0, limit)) {
+        const result = readJson(path.join(dir, name)) ?? {};
+        const outcome = result.ok ? `ok, pushed ${result.pushedRevision}` : `FAILED at ${result.failedStage ?? 'unknown'}${result.pushedRevision ? ` (pushed ${result.pushedRevision})` : ''}`;
+        lines.push(`${name.slice(0, -'.json'.length)}: ${outcome} at ${result.at ?? '?'}`, `  log: ${result.logPath ?? '?'}${result.ok ? '' : `\n  worktree kept: ${result.worktree ?? '?'}`}`);
+    }
+    return lines.length ? lines.join('\n') : 'No background publish has run from this checkout.';
+}
+
 async function cli(argv, options = {}) {
     let values;
     try {
-        ({values} = parseArgs({args: argv, options: {recipe: {type: 'string'}, base: {type: 'string'}, commits: {type: 'string'}}}));
+        ({values} = parseArgs({args: argv, options: {
+            recipe: {type: 'string'}, base: {type: 'string'}, commits: {type: 'string'}, background: {type: 'boolean'}, status: {type: 'boolean'},
+            'result-file': {type: 'string'}, origin: {type: 'string'}, 'log-path': {type: 'string'},
+        }}));
     } catch (error) {
         console.error(`${error.message}\n${USAGE}`);
         process.exitCode = 2;
+        return;
+    }
+    if (Boolean(values['result-file']) !== Boolean(values.origin)) {
+        console.error(`--result-file and --origin are internal flags and must be given together.
+${USAGE}`);
+        process.exitCode = 2;
+        return;
+    }
+    const commits = values.commits?.split(',').map(id => id.trim()).filter(Boolean);
+    if (values.status) {
+        try { console.log(backgroundStatus({cwd: options.cwd})); } catch (error) { console.error(error.message); process.exitCode = 1; }
+        return;
+    }
+    if (values.background) {
+        const started = await publishBackground({cwd: options.cwd, recipe: values.recipe, base: values.base, commits});
+        if (started.ok) console.log(`Background publish started (pid ${started.pid}).\nWorktree: ${started.worktree}\nLog: ${started.logPath}\nResult: ${started.resultPath}\nCheck \`just publish --status\` before calling the slice published.`);
+        else console.error(started.message);
+        process.exitCode = started.exitCode;
         return;
     }
     const controller = new AbortController();
@@ -488,15 +684,17 @@ async function cli(argv, options = {}) {
         ...options,
         recipe: values.recipe,
         base: values.base,
-        commits: values.commits?.split(',').map(id => id.trim()).filter(Boolean),
+        commits,
         signal: controller.signal,
+        ...(values['log-path'] ? {logPath: values['log-path']} : {}),
     });
     process.removeListener('SIGINT', abort);
     process.removeListener('SIGTERM', abort);
-    (report.ok ? console.log : console.error)(formatReport(report));
+    if (values['result-file']) recordBackgroundResult({report, resultFile: values['result-file'], origin: values.origin, worktree: options.cwd ?? process.cwd()});
+    else (report.ok ? console.log : console.error)(formatReport(report));
     process.exitCode = report.exitCode;
 }
 
 if (require.main === module) cli(process.argv.slice(2));
 
-module.exports = {PRODUCTION_ORIGINS, RECIPES, cli, formatReport, publish, spawnExec};
+module.exports = {PRODUCTION_ORIGINS, RECIPES, backgroundStatus, cli, formatReport, publish, publishBackground, removePublishWorktree, spawnExec};

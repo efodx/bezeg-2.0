@@ -508,3 +508,188 @@ test('the command line returns the gate result, and production defaults refuse a
     assert.match(passed.stdout, /CI and Pages have not reported yet/);
     assert.equal(f.remoteHead(), commit);
 });
+
+// Background publication (docs/adr/0043-background-publish-worktree.md): the launcher is injected, so no real gate runs here.
+const {publishBackground, backgroundStatus, cli, removePublishWorktree} = require('./publish-gate.cjs');
+
+function background(f, commits, extra = {}) {
+    const launched = [];
+    const launch = request => { launched.push(request); return extra.pid ?? process.pid; };
+    return {launched, run: () => publishBackground({cwd: f.work, base: f.base, recipe: 'runtime', commits, launch, ...extra.options})};
+}
+
+test('background creates a worktree at the last declared commit and returns before the gate runs', async t => {
+    const f = fixture(t);
+    const first = commitFile(f.work, 'src/a.txt', 'a\n');
+    const last = commitFile(f.work, 'src/b.txt', 'b\n');
+    fs.writeFileSync(path.join(f.work, 'untracked.txt'), 'the handler may keep editing');
+    const b = background(f, [first, last]);
+    const result = await b.run();
+    assert.equal(result.ok, true, result.message);
+    assert.equal(result.exitCode, 0);
+    assert.equal(git(result.worktree, 'rev-parse', 'HEAD'), last);
+    assert.match(path.relative(fs.realpathSync.native(f.work), fs.realpathSync.native(result.worktree)).split(path.sep).join('/'), /^\.claude\/worktrees\/publish-[0-9a-f]+-[0-9a-f]+$/);
+    assert.equal(b.launched.length, 1);
+    assert.equal(b.launched[0].cwd, result.worktree);
+    assert.equal(path.dirname(result.resultPath), path.join(fs.realpathSync.native(f.work), '.command-logs'));
+    assert.equal(fs.existsSync(result.resultPath), false);
+    assert.equal(f.remoteHead(), f.base);
+});
+
+test('a background run that succeeds writes an ok result and removes its worktree', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const result = await background(f, [commit]).run();
+    const argv = ['--recipe', 'runtime', '--base', f.base, '--commits', commit, '--result-file', result.resultPath, '--origin', f.work, '--log-path', result.logPath];
+    await cli(argv, {cwd: result.worktree, expectedOrigins: [f.remote]});
+    const written = JSON.parse(fs.readFileSync(result.resultPath, 'utf8'));
+    assert.equal(written.ok, true);
+    assert.equal(written.failedStage, null);
+    assert.equal(written.pushedRevision, f.remoteHead());
+    assert.equal(written.logPath, result.logPath);
+    assert.equal(fs.existsSync(result.worktree), false);
+    assert.equal(git(f.work, 'worktree', 'list', '--porcelain').includes('publish-'), false);
+    process.exitCode = 0;
+});
+
+test('a background run that fails writes the failed stage and keeps its worktree', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const result = await background(f, [commit]).run();
+    process.env.FIXTURE_ACTION = 'fail';
+    const argv = ['--recipe', 'runtime', '--base', f.base, '--commits', commit, '--result-file', result.resultPath, '--origin', f.work, '--log-path', result.logPath];
+    await cli(argv, {cwd: result.worktree, expectedOrigins: [f.remote]});
+    delete process.env.FIXTURE_ACTION;
+    const written = JSON.parse(fs.readFileSync(result.resultPath, 'utf8'));
+    assert.equal(written.ok, false);
+    assert.equal(written.failedStage, 'verify:check-changed');
+    assert.equal(written.pushedRevision, null);
+    assert.equal(fs.existsSync(result.worktree), true);
+    assert.equal(f.remoteHead(), f.base);
+    process.exitCode = 0;
+});
+
+test('a second background run refuses while the first is pending, and runs once it has a result or died', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const first = await background(f, [commit]).run();
+    const second = background(f, [commit]);
+    const refused = await second.run();
+    assert.equal(refused.ok, false);
+    assert.notEqual(refused.exitCode, 0);
+    assert.match(refused.message, /pending/);
+    assert.equal(second.launched.length, 0);
+    assert.equal(git(f.work, 'worktree', 'list', '--porcelain').split('publish-').length, 2);
+    fs.writeFileSync(first.resultPath, '{"ok":true}');
+    assert.equal((await background(f, [commit]).run()).ok, true);
+});
+
+test('a dead pending background run does not block the next one', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    await background(f, [commit], {pid: 2 ** 22 + 12345}).run();
+    assert.equal((await background(f, [commit]).run()).ok, true);
+});
+
+test('background refuses declared commits that do not match base..HEAD and creates nothing', async t => {
+    const f = fixture(t);
+    const first = commitFile(f.work, 'src/a.txt', 'a\n');
+    commitFile(f.work, 'src/b.txt', 'b\n');
+    const b = background(f, [first]);
+    const result = await b.run();
+    assert.equal(result.ok, false);
+    assert.match(result.message, /do not match/);
+    assert.equal(b.launched.length, 0);
+    assert.equal(git(f.work, 'worktree', 'list', '--porcelain').includes('publish-'), false);
+    assert.equal(fs.existsSync(path.join(f.work, '.claude', 'worktrees')), false);
+});
+
+test('status prints the latest results and pending runs', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const pending = await background(f, [commit]).run();
+    assert.match(backgroundStatus({cwd: f.work}), /pending/);
+    fs.writeFileSync(pending.resultPath, JSON.stringify({ok: false, failedStage: 'verify:lint', pushedRevision: null, logPath: 'x.log', worktree: pending.worktree, at: '2026-11-09T10:00:00.000Z'}));
+    const text = backgroundStatus({cwd: f.work});
+    assert.match(text, /FAILED at verify:lint/);
+    assert.match(text, /x\.log/);
+    assert.doesNotMatch(text, /pending/);
+    assert.match(backgroundStatus({cwd: path.join(f.dir, 'other')}), /No background publish/);
+});
+
+test('a foreground run given result flags never deletes its checkout, and the flags come as a pair', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const resultFile = path.join(f.dir, 'x', 'publish-zz.json');
+    await cli(['--recipe', 'runtime', '--base', f.base, '--commits', commit, '--result-file', resultFile, '--origin', f.work], {cwd: f.work, expectedOrigins: [f.remote]});
+    assert.equal(fs.existsSync(path.join(f.work, '.git')), true);
+    assert.equal(fs.existsSync(resultFile), true);
+    process.exitCode = 0;
+    await cli(['--recipe', 'runtime', '--base', f.base, '--commits', commit, '--result-file', resultFile], {cwd: f.work, expectedOrigins: [f.remote]});
+    assert.equal(process.exitCode, 2);
+    process.exitCode = 0;
+    await cli(['--recipe', 'runtime', '--base', f.base, '--commits', commit, '--origin', f.work], {cwd: f.work, expectedOrigins: [f.remote]});
+    assert.equal(process.exitCode, 2);
+    process.exitCode = 0;
+});
+
+test('removing a publish worktree never reaches through its node_modules link', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const result = await background(f, [commit]).run();
+    const shared = path.join(f.dir, 'shared modules');
+    fs.mkdirSync(shared);
+    fs.writeFileSync(path.join(shared, 'marker.txt'), 'keep');
+    fs.symlinkSync(shared, path.join(result.worktree, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
+    removePublishWorktree(f.work, result.worktree);
+    assert.equal(fs.existsSync(path.join(shared, 'marker.txt')), true);
+    assert.equal(fs.existsSync(result.worktree), false);
+});
+
+test('a second background run refuses while the first is still launching', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    let release;
+    const held = new Promise(resolve => { release = resolve; });
+    let started;
+    const reached = new Promise(resolve => { started = resolve; });
+    const slow = publishBackground({cwd: f.work, base: f.base, recipe: 'runtime', commits: [commit], launch: () => { started(); return held; }});
+    await reached;
+    const second = background(f, [commit]);
+    const refused = await second.run();
+    assert.equal(refused.ok, false);
+    assert.equal(second.launched.length, 0);
+    assert.equal(git(f.work, 'worktree', 'list', '--porcelain').split('publish-').length, 2);
+    release(process.pid);
+    assert.equal((await slow).ok, true);
+    assert.equal(fs.existsSync(path.join(f.work, '.command-logs', 'publish.claim')), false);
+});
+
+test('a launch that yields no pid leaves no worktree, claim or pending record', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    for (const launch of [() => undefined, () => { throw new Error('spawn failed'); }]) {
+        const result = await publishBackground({cwd: f.work, base: f.base, recipe: 'runtime', commits: [commit], launch});
+        assert.equal(result.ok, false);
+        assert.equal(git(f.work, 'worktree', 'list', '--porcelain').includes('publish-'), false);
+        const left = fs.readdirSync(path.join(f.work, '.command-logs')).filter(name => /\.(pending|claim)$/.test(name));
+        assert.deepEqual(left, []);
+    }
+});
+
+test('stale cleanup removes only publish worktrees older than a day', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const dir = path.join(f.work, '.claude', 'worktrees');
+    fs.mkdirSync(dir, {recursive: true});
+    git(f.work, 'worktree', 'add', '--detach', path.join(dir, 'publish-old'), commit);
+    git(f.work, 'worktree', 'add', '--detach', path.join(dir, 'publish-new'), commit);
+    fs.mkdirSync(path.join(dir, 'other-dir'));
+    const old = new Date(Date.now() - 48 * 3600 * 1000);
+    fs.utimesSync(path.join(dir, 'publish-old'), old, old);
+    fs.utimesSync(path.join(dir, 'other-dir'), old, old);
+    assert.equal((await background(f, [commit]).run()).ok, true);
+    assert.equal(fs.existsSync(path.join(dir, 'publish-old')), false);
+    assert.equal(fs.existsSync(path.join(dir, 'publish-new')), true);
+    assert.equal(fs.existsSync(path.join(dir, 'other-dir')), true);
+});

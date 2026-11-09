@@ -15,7 +15,7 @@ A `runtime` gate takes about 16–50 minutes on a loaded machine (2026-11-07 bas
 - The foreground gate is unchanged: clean checkout, fetch, rebase onto `origin/master`, delta or full checks, the machine-wide publish lock, fast-forward push. Its rebase moves the publish worktree's detached `HEAD` only, never the handler's branch.
 - On exit the background run writes the result file (`ok`, failed stage, pushed revision, log path) and removes its worktree on success. On failure it keeps the worktree for diagnosis, and a stale one is removed by the next background run after 24 hours.
 - `just publish --status` prints the latest result files. The handler checks the result before it reports a slice published, and before it starts a background publish that depends on an earlier one.
-- At most one background publish per handler checkout is pending at a time. The second refuses while the first's result file is missing, because its commits would otherwise race to the same lock with an older base.
+- At most one background publish per handler checkout runs at a time. A second refuses while the earlier run is live (its start claim or its pending record has a live pid). A run that died without a result shows as "ended without a result" in `--status` and no longer blocks, because its commits would otherwise race to the same lock with an older base.
 - After a successful background push, the handler's branch still holds the pre-rebase commits. Its next `just publish` rebases its new commits only, so the already-published patches drop out as duplicates.
 
 ## Alternatives
