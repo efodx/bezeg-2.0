@@ -163,8 +163,8 @@ const extractionLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno vleči točke, spreminjaj vozle in opazuj odseke.', 'Dragging points, editing knots and watching the pieces on your own.'),
             explanation: text(
-                'Spet je privzeta kvadratna krivulja. Vleci kontrolne točke in poglej, kateri odseki se spremenijo, spremeni vozel in preštej odseke ali enega od odsekov odpri kot Bézierjevo krivuljo. Gumb »Nazaj na primer« vrne začetne vozle in točke.',
-                'The default quadratic curve is back. Drag control points and see which pieces change, edit a knot and count the pieces, or open one of the pieces as a Bézier curve. The “Back to the example” button returns to the original knots and points.',
+                'Spet je privzeta kvadratna krivulja. Vleci kontrolne točke in poglej, kateri odseki se spremenijo, spremeni vozel in preštej odseke ali enega od odsekov odpri kot Bézierjevo krivuljo. Gumb »Ponastavi primer« vrne začetne vozle in točke.',
+                'The default quadratic curve is back. Drag control points and see which pieces change, edit a knot and count the pieces, or open one of the pieces as a Bézier curve. The “Reset example” button returns to the original knots and points.',
             ),
             formulaIds: ['bspline-extraction-junction', 'bspline-extraction-count'],
             frames: [frame('bspline-extraction-explore-explanation', 'explanation'), frame('bspline-extraction-explore-observation', 'observation')],

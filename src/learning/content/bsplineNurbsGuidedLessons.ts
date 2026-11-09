@@ -171,8 +171,8 @@ const nurbsLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno spreminjati uteži in opazovati odmik.', 'Changing the weights on your own and watching the deviation.'),
             explanation: text(
-                'Spet je NURBS krog. Spremeni eno utež, na primer drugo, in poglej, kako se poveča odmik \\(E\\); vse uteži hkrati pomnoži z istim številom in preveri, da se krivulja ne spremeni. Utež mora biti pozitivna. Gumb »Nazaj na primer« vrne začetne uteži.',
-                'The NURBS circle is back. Change one weight, for example the second, and see how the deviation \\(E\\) grows; multiply all weights by the same number and check that the curve does not change. A weight must be positive. The “Back to the example” button returns the original weights.',
+                'Spet je NURBS krog. Spremeni eno utež, na primer drugo, in poglej, kako se poveča odmik \\(E\\); vse uteži hkrati pomnoži z istim številom in preveri, da se krivulja ne spremeni. Utež mora biti pozitivna. Gumb »Ponastavi primer« vrne začetne uteži.',
+                'The NURBS circle is back. Change one weight, for example the second, and see how the deviation \\(E\\) grows; multiply all weights by the same number and check that the curve does not change. A weight must be positive. The “Reset example” button returns the original weights.',
             ),
             formulaIds: ['bspline-nurbs-rational', 'bspline-nurbs-error'],
             frames: [frame('bspline-nurbs-explore-explanation', 'explanation'), frame('bspline-nurbs-explore-observation', 'observation')],

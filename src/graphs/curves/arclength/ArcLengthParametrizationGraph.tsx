@@ -94,6 +94,8 @@ function curveLabel(kind: ArcCurveKind): string {
  * position slider is disabled while playing, since the frame loop owns the position.
  */
 class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
     private overlay?: ArcLengthOverlay;
     private drawn?: { pieces: number, equalT: boolean, equalArc: boolean, mode: ArcMoverMode };
     private readonly liveReadout = new SettledReadout();

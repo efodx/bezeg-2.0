@@ -1,9 +1,10 @@
 import React from "react";
-import {LocalizedError, renderMessage, t} from "../../../localization";
+import {LocalizedError, message, renderMessage, t} from "../../../localization";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
+import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import type {LessonAnimationCommand} from "../../../learning/model";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {IterationController} from "../../../learning/runtime/iterationController";
@@ -18,6 +19,8 @@ import {
 import {subdivisionPresetCollection} from "./subdivisionPresetCollection";
 import {SubdivisionScene} from "./SubdivisionScene";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
+import {LiveReadout} from "../../base/controls/LiveReadout";
+import {useStatusReadout} from "../../base/controls/useStatusReadout";
 
 export interface SubdivisionGraphState extends BaseGraphState {
     points: readonly Row[];
@@ -28,6 +31,17 @@ export interface SubdivisionGraphState extends BaseGraphState {
     showLimit: boolean;
     /** Why the last point removal or closing was refused (the state keeps the previous, valid data); empty otherwise. */
     notice: '' | 'closed-needs-three';
+}
+
+/** The visible status lines (no live role) and the graph's one live region, muted while the rounds play. */
+function SubdivisionStatus({lines, muted}: {lines: readonly {id: string; text: string}[]; muted: boolean}) {
+    const readout = useStatusReadout(lines.map(line => line.text).join(" "), true);
+    return <>
+        <div className="inspector-group">
+            {lines.map(line => <p key={line.id} className="inspector-help" data-subdivision-status={line.id}>{line.text}</p>)}
+        </div>
+        <LiveReadout readout={readout} muted={muted}/>
+    </>;
 }
 
 const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'replay', 'next-step', 'reset'];
@@ -44,6 +58,8 @@ const copyRows = (rows: readonly Row[]) => rows.map(r => [r[0], r[1]] as const);
  */
 export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, SubdivisionPresetData> {
     private scene?: SubdivisionScene;
+    /** The one refusal the panel shows; cleared by the next accepted edit. */
+    private readonly refusals = new RefusalChannel(() => this.requestRender());
     private controller: IterationController;
     private controllerDisposed = false;
     /** The polygon the scene started with (default, imported Preset or lesson scene): what Reset returns to. */
@@ -67,6 +83,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     /** The one step of the iteration: reveal the next round. The controller completes at the round cap. */
     private transition(): void {
         // The controller completes at the cap; the clamp keeps a state restored without a controller reset in range.
+        this.refusals.clear();
         this.setState({round: Math.min(this.state.round + 1, MAX_SUBDIVISION_ROUNDS), notice: ''});
     }
 
@@ -101,6 +118,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const rejection = subdivisionRejection(data);
         if (rejection) throw new LocalizedError(rejection);
         this.start = {points: copyRows(data.points), closed: data.closed};
+        this.refusals.clear();
         this.setState({points: copyRows(data.points), closed: data.closed, rule: data.rule, round: data.round, showLimit: data.showLimit, notice: ''});
         this.controller.reset(data.round);
         this.ensureScene();
@@ -210,6 +228,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         this.controller.reset(0);
         const {points, closed} = this.start;
         const rebuilt = points.length !== this.state.points.length;
+        this.refusals.clear();
         this.setState({points: copyRows(points), closed, round: 0, notice: ''});
         if (rebuilt) {
             this.ensureScene();
@@ -225,6 +244,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const points = this.state.points;
         if (!Number.isInteger(index) || index < 0 || index >= points.length || !Number.isFinite(x) || !Number.isFinite(y)) return false;
         this.pause();
+        this.refusals.clear();
         this.setState({points: points.map((p, i) => i === index ? [clamp(x), clamp(y)] as const : p), notice: ''});
         return true;
     }
@@ -237,6 +257,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const rejection = subdivisionRejection({...this.exportPresetData(), points: next});
         if (rejection) return renderMessage(rejection);
         this.pause();
+        this.refusals.clear();
         this.setState({points: next, notice: ''});
         if (this.board) {
             const [left, top, right, bottom] = this.board.getBoundingBox();
@@ -253,6 +274,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const last = points[points.length - 1];
         const x = last[0] + 1 <= SUBDIVISION_COORDINATE_LIMIT ? last[0] + 1 : last[0] - 1;
         this.pause();
+        this.refusals.clear();
         this.setState({points: [...points, [x, last[1]] as const], notice: ''});
         this.ensureScene();
         this.fit();
@@ -263,10 +285,12 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const {points, closed} = this.state;
         if (points.length <= SUBDIVISION_POINTS_MIN) return;
         if (closed && points.length <= SUBDIVISION_CLOSED_POINTS_MIN) {
+            this.refusals.refuse(message("subdiv_closed_notice"), true);
             this.setState({notice: 'closed-needs-three'});
             return;
         }
         this.pause();
+        this.refusals.clear();
         this.setState({points: points.slice(0, -1), notice: ''});
         this.ensureScene();
     }
@@ -275,10 +299,12 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     setClosed(closed: boolean) {
         if (typeof closed !== 'boolean' || closed === this.state.closed) return;
         if (closed && this.state.points.length < SUBDIVISION_CLOSED_POINTS_MIN) {
+            this.refusals.refuse(message("subdiv_closed_notice"), true);
             this.setState({notice: 'closed-needs-three'});
             return;
         }
         this.pause();
+        this.refusals.clear();
         this.setState({closed, notice: ''});
     }
 
@@ -286,6 +312,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     setRule(rule: SubdivisionRule) {
         if (!isSubdivisionRule(rule) || rule === this.state.rule) return;
         this.controller.reset(0);
+        this.refusals.clear();
         this.setState({rule, round: 0, notice: ''});
         this.requestRender();
     }
@@ -334,7 +361,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {points, closed, rule, round, showLimit, notice} = this.state;
+        const {points, closed, rule, round, showLimit} = this.state;
         const playing = this.controller.isPlaying();
         const complete = this.isComplete();
         return super.getGraphCommands().concat(
@@ -348,8 +375,9 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
                                               min={-SUBDIVISION_COORDINATE_LIMIT} max={SUBDIVISION_COORDINATE_LIMIT}
                                               onCommit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="limit"><OnOffSwitch checked={showLimit} label={t("subdiv_show_limit")} disabled={rule !== 'chaikin'}
+                                          describedBy={rule !== 'chaikin' ? "subdiv-limit-reason" : undefined}
                                           onChange={checked => this.setShowLimit(checked)}/>
-                {rule !== 'chaikin' ? <p className="inspector-help">{t("subdiv_limit_disabled")}</p> : null}</div>,
+                {rule !== 'chaikin' ? <p id="subdiv-limit-reason" className="inspector-help">{t("subdiv_limit_disabled")}</p> : null}</div>,
             <div key="playback" className="inspector-group">
                 <PlaybackButtons groupLabel={t("subdiv_controls")} nextLabel={t("subdiv_next_step")} resetLabel={t("subdiv_reset")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
@@ -357,12 +385,12 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
                                  {...playbackBlocks({atStart: round === 0 && this.isStartPolygon(), atEnd: complete, playing})}/>
                 <p className="inspector-help">{t("subdiv_playback_note", {value0: MAX_SUBDIVISION_ROUNDS})}</p>
             </div>,
-            <div key="status" className="inspector-group" role="status" aria-live="polite">
-                <p className="inspector-help" data-subdivision-status="step">{t("subdiv_step_readout", {value0: round, value1: MAX_SUBDIVISION_ROUNDS})}</p>
-                <p className="inspector-help" data-subdivision-status="vertices">{t("subdiv_vertex_count", {value0: stageOf(this.state).length})}</p>
-                {complete ? <p className="inspector-help" data-subdivision-status="complete">{t("subdiv_complete", {value0: MAX_SUBDIVISION_ROUNDS})}</p> : null}
-            </div>,
-            ...(notice === 'closed-needs-three' ? [<div key="notice" role="alert" className="inspector-help">{t("subdiv_closed_notice")}</div>] : []),
+            <SubdivisionStatus key="status" muted={playing} lines={[
+                {id: "step", text: t("subdiv_step_readout", {value0: round, value1: MAX_SUBDIVISION_ROUNDS})},
+                {id: "vertices", text: t("subdiv_vertex_count", {value0: stageOf(this.state).length})},
+                ...(complete ? [{id: "complete", text: t("subdiv_complete", {value0: MAX_SUBDIVISION_ROUNDS})}] : []),
+            ]}/>,
+            <RefusalNotice key="notice" channel={this.refusals}/>,
         );
     }
 

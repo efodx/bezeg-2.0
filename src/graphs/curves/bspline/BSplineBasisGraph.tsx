@@ -2,9 +2,11 @@ import React from "react";
 import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import Slider from "../../../inputs/Slider";
-import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
+import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {LiveReadout} from "../../base/controls/LiveReadout";
+import {useStatusReadout} from "../../base/controls/useStatusReadout";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import type {LessonCurveFixture} from "../../../learning/model";
 import {Preset} from "../../base/presets/Presets";
@@ -15,6 +17,15 @@ import {
     BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, basisPresetData, basisViewBox, clampToDomain, DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS,
     DEFAULT_BASIS_T, domainNote, dragKnotEdit, editedKnots, isClamped, knotProblem, lastIndexOf, parameterView, placeholderPoints, readoutLines, rebuiltKnots,
 } from "./bsplineBasisModel";
+
+/** The visible readout lines and the graph's one announcement region; it is settled because a knot drag changes the text every frame. */
+function BasisReadout({lines}: {lines: readonly string[]}) {
+    const readout = useStatusReadout(lines.join(" "), true);
+    return <>
+        <div className="inspector-help">{lines.map((line, i) => <p key={i}>{line}</p>)}</div>
+        <LiveReadout readout={readout} dataAttribute="bspline-basis-live"/>
+    </>;
+}
 
 export interface BSplineBasisGraphState extends BaseGraphState {
     degree: number;
@@ -161,6 +172,8 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         // A scene is built for one function and knot count; a degree or Preset change that alters either builds a new one.
         if (this.scene && !this.scene.fits(this.state.knots, this.state.degree)) this.ensureScene();
         else this.scene?.sync();
+        const problem = knotProblem(this.state.knots, this.state.degree);
+        if (problem) this.refusals.refuse(message("bsb_invalid_notice", {value0: renderMessage(problem)}));
         this.boardUpdate();
     }
 
@@ -255,10 +268,9 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         const view = problem ? undefined : parameterView(knots, degree, normalized);
         const lines = problem ? [] : readoutLines(knots, degree, position, normalized, language);
         return super.getGraphCommands().concat(
-            <div key="degree"><ChoiceSelect label={t("bsb_degree")} value={String(degree)}
-                                            options={Array.from({length: BASIS_MAX_DEGREE - BASIS_MIN_DEGREE + 1}, (_, i) => String(BASIS_MIN_DEGREE + i))
-                                                .map(value => ({value, text: value}))}
-                                            onChange={value => this.setDegree(Number(value))}/></div>,
+            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BASIS_MIN_DEGREE} max={BASIS_MAX_DEGREE}
+                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
+                                           onSet={value => this.setDegree(value)}/></div>,
             <div key="clamped"><OnOffSwitch checked={isClamped(knots, degree)} label={t("bsb_clamped")} onChange={checked => this.setClamped(checked)}/>
                 <p className="inspector-help">{t("bsb_clamped_help")}</p></div>,
             <div key="normalize"><OnOffSwitch checked={normalized} label={t("bsb_normalize")} onChange={checked => this.setNormalized(checked)}/>
@@ -266,11 +278,7 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
             ...(view ? [<div key="position"><Slider min={view.toDisplay(view.start)} max={view.toDisplay(view.end)} step={0.01}
                                                     value={view.toDisplay(clampToDomain(knots, degree, position))} customText={t("bsb_slider_t")}
                                                     help={t("bsb_slider_help")} onChange={value => this.setDisplayedT(value)}/></div>] : []),
-            <div key="readout" role="status" className="inspector-help">
-                {lines.map((line, i) => <p key={i}>{line}</p>)}
-                {!problem && <p>{domainNote(knots, degree, normalized, language)}</p>}
-            </div>,
-            ...(problem ? [<div key="notice" role="alert" className="inspector-help">{t("bsb_invalid_notice", {value0: renderMessage(problem)})}</div>] : []),
+            <div key="readout"><BasisReadout lines={problem ? [] : [...lines, domainNote(knots, degree, normalized, language)]}/></div>,
             <RefusalNotice key="refusal" channel={this.refusals}/>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );

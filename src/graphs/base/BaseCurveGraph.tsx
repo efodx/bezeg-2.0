@@ -21,7 +21,9 @@ import {JXGPointWrapper} from "../curves/object/JXGPointWrapper";
 import {CurveWorkspaceOperations} from "./CurveWorkspaceControls";
 import {JXGBezierCurve} from "../curves/object/JXGBezierCurve";
 import {CURVE_POINTS_MIN, CurvePointControls} from "./CurvePointControls";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {Point} from "../../bezeg/api/point/point";
 import {placeNewPoint, refitWhenOutside} from "./points";
 import {CurveDisplayControls} from "./controls/CurveDisplayControls";
 import {selectedCurveControls} from "./controls/SelectedCurveControls";
@@ -161,6 +163,10 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
 
     protected workspacePointEditing() { return true; }
     protected workspaceUsesStructuredEditing() { return false; }
+    /** Opt-in for boards without the structured list: an edit-only typed list (coordinates, no add or remove) for the selected curve, else the first. */
+    protected workspaceTypedPoints() { return false; }
+    /** The points that list shows: the curve's draggable points. Boards with derived points (splines) override it. */
+    protected typedPointsOf(curve: EditableCurve): readonly Point[] { return curve.getCurve().getPoints(); }
     private workspaceCurveSelection(): React.ReactNode {
         const selectableCurves = this.jxgCurves.filter(curve => curve.getAttributes().selectable !== false);
         if (selectableCurves.length === 0) { return null; }
@@ -213,11 +219,15 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
 
     protected override workspaceEdit(): React.ReactNode {
         if (!this.workspaceUsesStructuredEditing()) {
-            return <>{this.workspaceCurveSelection()}{super.workspaceEdit()}</>;
+            const typed = this.workspaceTypedPoints() ? this.getSelectedCurve() ?? this.jxgCurves[0] : undefined;
+            return <>{this.workspaceCurveSelection()}
+                {typed && <CurvePointControls key={`points-${this.jxgCurves.indexOf(typed)}-${this.replacementRevision}`}
+                    points={() => this.typedPointsOf(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)}/>}
+                {super.workspaceEdit()}</>;
         }
         const selected = this.getSelectedCurve();
         const mode = this.state.selectedCurveOption;
-        const hints = [t("drag_a_control_point_drag_inside_the_frame_to_move_the_selected_curve_use_a_corner_to_scale_it_or_an_edge_to_rotate_it"),
+        const hints = [t("a_selected_curve_moves_scales_or_rotates_from_its_frame_clear_the_selection_to_move_a_single_point"),
             t("click_an_empty_part_of_the_graph_to_add_a_point_to_the_selected_curve"), t("click_a_control_point_of_the_selected_curve_to_delete_it")];
         return <>
             {this.workspaceCurveSelection()}
@@ -227,12 +237,13 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
                 onEdit={(_, to) => this.afterTypedPointEdit(to)}
                 collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(selected, at), onRemove: () => this.removePointAt(selected, -1),
                     onRemoveAt: index => this.removePointAt(selected, index)}}/>}
-            {selected && this.workspacePointEditing() && <RefusalNotice channel={this.pointRefusals}/>}
+            {this.workspacePointEditing() && <RefusalNotice channel={this.pointRefusals}/>}
             <details className="inspector-group editing-mode"><summary>{t("editing_mode")}: {this.workspacePointEditing() ? [t('move'), t('add_point'), t('delete_point')][mode] : t('hodograph')}</summary>
                 {this.workspacePointEditing() ? <><div className="workspace-modes">
                     {[t("move"), t("add_point"), t("delete_point")].map((label, i) =>
-                        <button key={i} disabled={!selected && i !== 0} aria-pressed={mode === i}
-                            onClick={() => this.setCurveState({selectedCurveOption: i})}>{label}</button>)}
+                        <UnavailableButton key={i} reason={!selected && i !== 0 ? t("select_a_curve_to_use_this_mode") : undefined} aria-pressed={mode === i}
+                            onBlockedPress={() => this.pointRefusals.refuse(message("select_a_curve_to_use_this_mode"), true)}
+                            onPress={() => this.setCurveState({selectedCurveOption: i})}>{label}</UnavailableButton>)}
                 </div><p>{hints[mode]}</p></> : <p>{t("edit_the_ph_curve_using_its_hodograph_points_adding_and_deleting_points_is_unavailable_here")}</p>}
             </details>
         </>;

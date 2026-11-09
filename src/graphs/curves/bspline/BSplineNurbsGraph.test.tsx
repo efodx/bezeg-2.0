@@ -135,6 +135,10 @@ describe('L5 acceptance 2: the point and the angle', () => {
     });
 });
 
+/** The text of the elements a field is described by (its hint). */
+const described = (field: HTMLElement): string =>
+    (field.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ').trim();
+
 describe('L5 acceptance 3: weights are positive', () => {
     test.each([[0], [-1.5], [NaN], [Infinity]])('the weight value %s is refused with a reason and the curve keeps its state', value => {
         const {graph, view} = mount();
@@ -146,7 +150,7 @@ describe('L5 acceptance 3: weights are positive', () => {
         expect(graph.state.weights).toEqual(before);
         expect(graph.sample()).toEqual(sampled);
         expect(graph.state.refusal?.index).toBe(3);
-        expect(screen.getByRole('alert').textContent).toBe(reason);
+        expect(screen.queryByRole('alert')).toBeNull();
         view.unmount();
     });
 
@@ -155,7 +159,7 @@ describe('L5 acceptance 3: weights are positive', () => {
         const field = screen.getByLabelText('Utež 2');
         enterNumber(field, '0');
         expect(graph.state.weights[1]).toBe(S);
-        expect(screen.getByRole('alert').textContent).toBe('utež 2 mora biti pozitivna');
+        expect(described(field)).toBe('utež 2 mora biti pozitivna');
         const before = graph.sample();
         act(() => { expect(graph.setWeight(1, 2)).toBeUndefined(); });
         expect(graph.state.weights[1]).toBe(2);
@@ -190,7 +194,7 @@ describe('controls', () => {
     test('Reset restores the example after a weight edit and a parameter change', () => {
         const {graph, view} = mount();
         act(() => { graph.setWeight(1, 3); graph.setT(0.5); });
-        fireEvent.click(screen.getByRole('button', {name: 'Nazaj na primer'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Ponastavi primer'}));
         expect(graph.state.weights).toEqual(nurbsExample('circle').weights);
         expect(graph.state.t).toBe(1 / 16);
         expect(graph.radialError()).toBeLessThan(1e-12);
@@ -377,11 +381,12 @@ describe('dragging and language', () => {
     });
 
     test('the refusal reason renders in English after a language switch', () => {
-        const {graph, view} = mount();
-        act(() => { graph.setWeight(3, 0); });
-        expect(screen.getByRole('alert').textContent).toBe('utež 4 mora biti pozitivna');
+        const {view} = mount();
+        const field = screen.getByLabelText('Utež 4');
+        enterNumber(field, '0');
+        expect(described(field)).toBe('utež 4 mora biti pozitivna');
         act(() => setLanguage('en'));
-        expect(screen.getByRole('alert').textContent).toBe('weight 4 must be positive');
+        expect(described(screen.getByLabelText('Weight 4'))).toBe('weight 4 must be positive');
         view.unmount();
     });
 });
@@ -392,3 +397,15 @@ function accepted(raw: unknown): BSplinePresetData {
     if (!('data' in checked)) throw new Error('the collection refused the data');
     return checked.data;
 }
+
+describe('shared controls wiring', () => {
+    test('a typed control point reaches the model and out-of-range values are refused', () => {
+        const {graph, view} = mount();
+        const x = screen.getByLabelText('Točka 2, x');
+        enterNumber(x, '1.5');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        enterNumber(x, '2000000');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        view.unmount();
+    });
+});

@@ -13,20 +13,11 @@ const sharedControlMessage = 'Use the shared controls in src/inputs/ (NumberInpu
 // (Likely exceptions). "unmigrated" entries go when their family sweep (task 3) lands.
 const controlExemptions = [
     {files: ['src/graphs/base/PresetImportDialog.tsx', 'src/graphs/base/PresetSelector.tsx'], reason: 'host chrome, not a graph control'},
-    {files: ['src/graphs/base/AxisSelector.tsx'], reason: 'unmigrated: curves sweep (task 3)'},
     {files: ['src/graphs/patches/TensorPatchPanels.tsx'], reason: 'unmigrated: patches sweep (task 3)'},
     {
         files: ['src/learning/playground/collisions/CollisionPlayground.tsx', 'src/learning/playground/LookUnderneath.tsx'],
         reason: 'unmigrated: learning sweep (task 3)',
     },
-];
-
-// Hand-built -/+ button pairs have no syntactic signal, so the rule cannot catch them. These files have one today; they
-// stay under the rule for raw inputs and migrate to CountSetter in their family sweep (task 3). Not an exemption.
-export const uncaughtSteppers = [
-    'src/graphs/functions/FourierSeriesGraph.tsx', 'src/graphs/functions/RungeInterpolationGraph.tsx',
-    'src/graphs/functions/TaylorGraph.tsx', 'src/graphs/functions/UniformConvergenceGraph.tsx',
-    'src/graphs/base/controls/RationalBezierCurveControls.tsx',
 ];
 
 const rawControlSyntax = [

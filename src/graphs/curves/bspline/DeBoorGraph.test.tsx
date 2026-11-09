@@ -1,6 +1,7 @@
 import React from 'react';
+import {enterNumber} from '../../../inputs/testEntry';
 import JXG from 'jsxgraph';
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {act, fireEvent, render, screen, waitFor, within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
 import DeBoorGraph, {DEBOOR_ANIMATION_ID} from './DeBoorGraph';
@@ -500,6 +501,30 @@ describe('drawing cost (jsdom, real JSXGraph board)', () => {
         console.info(`BSPLINE_DEBOOR_MEASURE drag ${dragMs.toFixed(2)} ms/event, t sweep ${sweepMs.toFixed(2)} ms/step (jsdom, degree 2, 4 points)`);
         expect(dragMs).toBeLessThan(100);
         expect(sweepMs).toBeLessThan(100);
+        view.unmount();
+    });
+});
+
+describe('shared controls wiring', () => {
+    test('a typed control point reaches the model and out-of-range values are refused', () => {
+        const {graph, view} = mount();
+        const x = screen.getByLabelText('Točka 2, x');
+        enterNumber(x, '1.5');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        enterNumber(x, '2000000');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        view.unmount();
+    });
+});
+
+describe('degree stepper wiring', () => {
+    test('plus raises the degree and minus lowers it', () => {
+        const {graph, view} = mount();
+        const degree = () => within(screen.getByRole('group', {name: 'Stopnja B-zlepka k'}));
+        fireEvent.click(degree().getByRole('button', {name: 'Povečaj število'}));
+        expect(graph.state.degree).toBe(3);
+        fireEvent.click(degree().getByRole('button', {name: 'Zmanjšaj število'}));
+        expect(graph.state.degree).toBe(2);
         view.unmount();
     });
 });

@@ -18,6 +18,8 @@ function ShowControlPolygons(props: { checked: boolean, onChange: (checked: bool
 }
 
 class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
     /**
      * Subdivision steps the scene has taken, derived from its pieces rather than kept as transient state: every step
      * splits every piece at 1/2 and the pieces offer no other subdivision, so k steps give 2^k pieces. An imported

@@ -23,6 +23,8 @@ interface DecasteljauGraphStates extends BaseGraphStates {
 }
 
 class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
 
     override getInitialState(): DecasteljauGraphStates {
         return {...super.getInitialState(), t: 0.5, v: 1};

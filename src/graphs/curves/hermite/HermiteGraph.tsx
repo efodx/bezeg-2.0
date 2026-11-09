@@ -8,6 +8,7 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {PointCollection} from "../../../inputs/PointCollection";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
+import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import {catmullRomTangents} from "../../../analysis/hermite";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
@@ -45,6 +46,8 @@ const copyRows = (rows: readonly (readonly [number, number])[]) => rows.map(r =>
  */
 export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData> {
     private scene?: HermiteScene;
+    /** The one refusal the panel shows (coincident neighbours keep their stated reason); cleared by the next accepted edit. */
+    private readonly refusals = new RefusalChannel(() => this.requestRender());
 
     override getInitialState(): HermiteGraphState {
         return {initialized: false, ...DEFAULT_HERMITE_PRESET, notice: ''};
@@ -82,6 +85,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     override importPresetData(data: HermitePresetData) {
         const rejection = hermiteRejection(data);
         if (rejection) throw new LocalizedError(rejection);
+        this.refusals.clear();
         this.setState({
             points: copyRows(data.points), mode: data.mode, tangents: copyRows(data.tangents), parameterRule: data.parameterRule,
             tension: data.tension, showTangents: data.showTangents, showBezier: data.showBezier, notice: '',
@@ -152,9 +156,11 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     private tryPoints(points: readonly (readonly [number, number])[], rule: ParameterRule = this.state.parameterRule,
                       tangents: readonly (readonly [number, number])[] = this.state.tangents): boolean {
         if (firstCoincidentPair(points, rule) !== undefined) {
+            this.refusals.refuse(message("hermite_coincident_notice"));
             this.setState({notice: 'coincident'});
             return false;
         }
+        this.refusals.clear();
         this.setState({points, tangents, parameterRule: rule, notice: ''});
         return true;
     }
@@ -174,6 +180,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         if (mode !== 'hermite' || !Number.isInteger(index) || index < 0 || index >= points.length || !Number.isFinite(x) || !Number.isFinite(y)) return false;
         const next: readonly [number, number] = [clamp(x - points[index][0], HERMITE_TANGENT_LIMIT), clamp(y - points[index][1], HERMITE_TANGENT_LIMIT)];
         this.setState({tangents: tangents.map((m, i) => i === index ? next : m), notice: ''});
+        this.refusals.clear();
         return true;
     }
 
@@ -200,6 +207,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         const next = tangents.map((m, i) => i === index ? [value[0], value[1]] as const : m);
         const rejection = hermiteRejection({...this.exportPresetData(), tangents: next});
         if (rejection) return renderMessage(rejection);
+        this.refusals.clear();
         this.setState({tangents: next, notice: ''});
         return undefined;
     }
@@ -207,6 +215,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     /** Switching to Hermite mode copies the current (tension-scaled) Catmull-Rom tangents, so the curve does not jump. */
     setMode(mode: HermiteMode) {
         if (!isHermiteMode(mode) || mode === this.state.mode) return;
+        this.refusals.clear();
         if (mode === 'hermite') {
             const {points, parameterRule, tension} = this.state;
             this.setState({mode, tangents: catmullRomStored(points, parameterRule, tension), notice: ''});
@@ -223,6 +232,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     /** Tension scales the Catmull-Rom tangents; it has no meaning in Hermite mode and is ignored there. */
     setTension(value: number) {
         if (!Number.isFinite(value) || this.state.mode !== 'catmull-rom') return;
+        this.refusals.clear();
         this.setState({tension: Math.min(HERMITE_TENSION_MAX, Math.max(HERMITE_TENSION_MIN, value))});
     }
 
@@ -239,6 +249,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         // Coincident neighbours first: the Catmull-Rom tangent below is not defined for them.
         const pair = firstCoincidentPair(next, parameterRule);
         if (pair !== undefined) {
+            this.refusals.refuse(message("hermite_coincident_notice"));
             this.setState({notice: 'coincident'});
             return message("hermite_coincident_points", {value0: pair, value1: pair + 1});
         }
@@ -272,10 +283,12 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     }
 
     setShowTangents(show: boolean) {
+        this.refusals.clear();
         this.setState({showTangents: show});
     }
 
     setShowBezier(show: boolean) {
+        this.refusals.clear();
         this.setState({showBezier: show});
     }
 
@@ -323,7 +336,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {points, mode, tangents, parameterRule, tension, showTangents, showBezier, notice} = this.state;
+        const {points, mode, tangents, parameterRule, tension, showTangents, showBezier} = this.state;
         const hermite = mode === 'hermite';
         return super.getGraphCommands().concat(
             <div key="mode"><ChoiceSelect label={t("hermite_mode")} value={mode}
@@ -344,12 +357,12 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
                                                                min={-HERMITE_TANGENT_LIMIT} max={HERMITE_TANGENT_LIMIT}
                                                                onCommit={(index, value) => this.editTangent(index, value)}/></div>] : []),
             <div key="tension"><Slider min={HERMITE_TENSION_MIN} max={HERMITE_TENSION_MAX} step={HERMITE_TENSION_STEP} value={tension}
-                                       customText={t("hermite_tension")} help={t(hermite ? "hermite_tension_disabled" : "hermite_tension_help")}
-                                       disabled={hermite} onChange={value => this.setTension(value)}/></div>,
+                                       customText={t("hermite_tension")} help={hermite ? undefined : t("hermite_tension_help")}
+                                       unavailableReason={hermite ? t("hermite_tension_disabled") : undefined} onChange={value => this.setTension(value)}/></div>,
             <div key="tangent-switch"><OnOffSwitch checked={showTangents} label={t("hermite_show_tangents")} onChange={checked => this.setShowTangents(checked)}/></div>,
             <div key="bezier"><OnOffSwitch checked={showBezier} label={t("hermite_show_bezier")} onChange={checked => this.setShowBezier(checked)}/></div>,
             ...(hermite ? [] : [<div key="end-note" className="inspector-help">{t("hermite_end_note")}</div>]),
-            ...(notice === 'coincident' ? [<div key="notice" role="alert" className="inspector-help">{t("hermite_coincident_notice")}</div>] : []),
+            <RefusalNotice key="notice" channel={this.refusals}/>,
         );
     }
 }

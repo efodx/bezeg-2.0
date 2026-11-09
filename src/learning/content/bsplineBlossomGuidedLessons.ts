@@ -177,8 +177,8 @@ const blossomLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno spreminjati argumente, odsek in stopnjo.', 'Changing the arguments, the segment and the degree on your own.'),
             explanation: text(
-                'Spet je privzeta krivulja. Premikaj argumente, izberi drugi odsek \\([1,2)\\), preklopi na stopnjo \\(3\\) ali premakni kontrolno točko in opazuj, kako se trikotnik, simetrija in Bézierove točke spreminjajo. Gumb »Nazaj na privzeto« vrne začetno stanje.',
-                'The default curve is back. Move the arguments, choose the other segment \\([1,2)\\), switch to degree \\(3\\) or drag a control point and watch how the triangle, the symmetry and the Bézier points change. The “Back to the default” button returns the starting state.',
+                'Spet je privzeta krivulja. Premikaj argumente, izberi drugi odsek \\([1,2)\\), preklopi na stopnjo \\(3\\) ali premakni kontrolno točko in opazuj, kako se trikotnik, simetrija in Bézierove točke spreminjajo. Gumb »Ponastavi« vrne začetno stanje.',
+                'The default curve is back. Move the arguments, choose the other segment \\([1,2)\\), switch to degree \\(3\\) or drag a control point and watch how the triangle, the symmetry and the Bézier points change. The “Reset” button returns the starting state.',
             ),
             formulaIds: ['bspline-blossom-f-controls', 'bspline-blossom-f-symmetry', 'bspline-blossom-f-bezier'],
             frames: [frame('bspline-blossom-explore-explanation', 'explanation'), frame('bspline-blossom-explore-observation', 'observation')],

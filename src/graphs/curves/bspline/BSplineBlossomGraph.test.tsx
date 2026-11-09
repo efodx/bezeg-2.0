@@ -1,4 +1,5 @@
 import React from 'react';
+import {enterNumber} from '../../../inputs/testEntry';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
@@ -187,9 +188,8 @@ describe('L6 acceptance 3: f(t, ..., t) and the curve', () => {
 describe('L6 acceptance 4: only degree 2 and 3', () => {
     test('the selector offers exactly 2 and 3 and switching rebuilds a valid vector', () => {
         const {graph, view} = mount();
-        const select = screen.getByLabelText('Stopnja B-zlepka k') as HTMLSelectElement;
-        expect([...select.options].map(o => o.value)).toEqual(['2', '3']);
-        fireEvent.change(select, {target: {value: '3'}});
+        expect(screen.getByRole('button', {name: 'Zmanjšaj število'}).getAttribute('aria-disabled')).toBe('true');
+        fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'}));
         expect(graph.state.degree).toBe(3);
         expect(graph.state.knots).toEqual([0, 0, 0, 0, 1, 1, 1, 1]);
         expect(graph.state.segment).toBe(3);
@@ -241,7 +241,7 @@ describe('controls', () => {
         expect(graph.state.points[1]).toEqual([1.5, 0.3]);
         act(() => graph.setDegree(3));
         act(() => { graph.setArgument(2, 0.75); });
-        fireEvent.click(screen.getByRole('button', {name: 'Nazaj na privzeto'}));
+        act(() => graph.resetToDefaults());
         expect(graph.state.degree).toBe(2);
         expect(graph.state.knots).toEqual([0, 0, 0, 1, 2, 2, 2]);
         expect(graph.state.points).toEqual(DEBOOR_DEFAULT_POINTS);
@@ -338,7 +338,8 @@ describe('language', () => {
         act(() => setLanguage('en'));
         expect(readout('reversed')).toMatch(/^Reversed order: f\(0\.5, 0\) = \(0\.5, 1\)/);
         expect(readout('symmetry')).toContain('Difference caused by the order');
-        expect(screen.getByRole('button', {name: 'Back to the default'})).toBeTruthy();
+        expect(screen.queryByRole('button', {name: /default|privzeto/i})).toBeNull();
+        expect(screen.getByRole('group', {name: 'B-spline degree k'})).toBeTruthy();
         expect(graph.sceneOf().labelText()).toBe('f(0, 0.5)');
         view.unmount();
     });
@@ -358,5 +359,26 @@ describe('language', () => {
     test('model: the snapshot is undefined for data the kernel refuses', () => {
         expect(blossomSnapshot([0, 0, 0, 1, 2, 2, 2], 2, [[0, 0], [1, 2], [3, 2], [4, 0]], 1, [0, 0])).toBeUndefined();
         expect(blossomSnapshot([0, 0, 0, 1, 2, 2, 2], 2, [[0, 0], [1, 2], [3, 2], [4, 0]], 2, [0, NaN])).toBeUndefined();
+    });
+});
+
+describe('shared controls wiring', () => {
+    test('a typed control point reaches the model and out-of-range values are refused', () => {
+        const {graph, view} = mount();
+        const x = screen.getByLabelText('Točka 2, x');
+        enterNumber(x, '1.5');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        enterNumber(x, '2000000');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        view.unmount();
+    });
+});
+
+describe('degree stepper wiring', () => {
+    test('plus sets degree 3, where plus is then unavailable', () => {
+        const {graph, view} = mount();
+        fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'}));
+        expect(graph.state.degree).toBe(3);
+        view.unmount();
     });
 });

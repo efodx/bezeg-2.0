@@ -2,6 +2,7 @@ import React from "react";
 import {currentLanguage, t} from "../../../localization";
 import {formatNumber, formatScientific} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
+import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
@@ -9,6 +10,7 @@ import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {BSplineBlossomScene} from "./BSplineBlossomScene";
+import {BSplinePointList} from "./BSplinePointList";
 import {isClamped, rebuiltKnots} from "./bsplineBasisModel";
 import {ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
 import {
@@ -174,6 +176,13 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         this.setState({degree, knots: rebuilt, segment: blossomSegments(rebuilt, degree)[0], args: args.map(a => Math.min(end, Math.max(start, a)))});
     }
 
+    /** A typed control point (the same path as a board drag); the caller keeps coordinates inside the curve limit. */
+    editPoint(index: number, value: ControlPoint) {
+        const {points} = this.state;
+        if (!Number.isInteger(index) || index < 0 || index >= points.length) return;
+        this.setState({points: points.map((point, i) => i === index ? value : point)});
+    }
+
     /** Chooses the segment [u_j, u_{j+1}) by its index; an empty or unknown span is ignored. */
     setSegment(segment: number) {
         const {knots, degree} = this.state;
@@ -274,10 +283,12 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         const [start, end] = blossomDomain(knots, degree);
         const language = currentLanguage();
         const num = (v: number) => formatNumber(v, language, 3);
+        const maxDegree = Math.min(BLOSSOM_DEGREES[BLOSSOM_DEGREES.length - 1], points.length - 1);
         return super.getGraphCommands().concat(
-            <div key="degree"><ChoiceSelect label={t("bsb_degree")} value={String(degree)}
-                                            options={BLOSSOM_DEGREES.filter(d => points.length >= d + 1).map(d => ({value: String(d), text: String(d)}))}
-                                            onChange={value => this.setDegree(Number(value))}/></div>,
+            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BLOSSOM_DEGREES[0]} max={maxDegree}
+                                           maxReason={maxDegree < BLOSSOM_DEGREES[BLOSSOM_DEGREES.length - 1] ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
+                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
+                                           onSet={value => this.setDegree(value)}/></div>,
             <div key="segment"><ChoiceSelect label={t("bsl_segment")} value={String(segment)}
                                              options={blossomSegments(knots, degree).map(j => ({
                                                  value: String(j), text: t("bsl_segment_option", {value0: num(knots[j]), value1: num(knots[j + 1])}),
@@ -292,9 +303,7 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
                 {this.readoutLines()}
             </div>,
             <div key="bezier"><OnOffSwitch checked={showBezier} label={t("bsl_bezier")} onChange={show => this.setShowBezier(show)}/></div>,
-            <div key="reset" className="inspector-playback">
-                <button type="button" data-action="reset" onClick={() => this.resetToDefaults()}>{t("bsl_reset")}</button>
-            </div>,
+            <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
         );
     }
 }

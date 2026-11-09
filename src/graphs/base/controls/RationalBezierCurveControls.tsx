@@ -3,7 +3,7 @@ import {Button} from "react-bootstrap";
 import React from "react";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import {NumberInput} from "../../../inputs/NumberInput";
+import {CountSetter} from "../../../inputs/CountSetter";
 import {CurveControlsProps} from "./CurveDisplayControls";
 
 const SUBSCRIPT_DIGITS = "₀₁₂₃₄₅₆₇₈₉";
@@ -33,15 +33,16 @@ export function RationalBezierCurveControls({curve, curveNumber, onChanged}: Rat
     return <div className="rational-weight-controls">
         <p className="rational-weight-identity">{identity}</p>
         <div className="rational-weight-stepper" role="group" aria-label={identity}>
-            <Button aria-label={t("decrease_weight")} onClick={() => change(() => curve.changeWeight(-0.25))}>−</Button>
             {/* A weight of zero or less is refused here: the rational curve is not defined by such a weight. */}
-            <NumberInput label={t("weight_value")} value={weight} decimals={2} step={0.25} compact
+            <CountSetter label={t("weight_value")} n={weight} decimals={2} step={0.25}
+                         minusLabel={t("decrease_weight")} plusLabel={t("increase_weight")}
                          rejectedHint={t("weight_must_be_positive")}
-                         onChange={value => {
+                         onMinus={() => change(() => curve.changeWeight(-0.25))}
+                         onPlus={() => change(() => curve.changeWeight(0.25))}
+                         onSet={value => {
                              if (value <= 0) return false;
                              change(() => curve.setWeight(value));
                          }}/>
-            <Button aria-label={t("increase_weight")} onClick={() => change(() => curve.changeWeight(0.25))}>+</Button>
         </div>
         <div className="rational-weight-navigation">
             <Button onClick={() => change(() => curve.prevWeight())}>{t("previous_weight")}</Button>

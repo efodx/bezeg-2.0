@@ -11,6 +11,8 @@ import Slider from "../../../inputs/Slider";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
     defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
             "points": [[-4, -2], [-3, 3], [2, 3], [3, -1]], "state": {

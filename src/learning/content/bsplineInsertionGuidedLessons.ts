@@ -165,8 +165,8 @@ const insertionLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno vstavljati vozle, vleči točke in opazovati poligon, večkratnosti ter glavnik.', 'Inserting knots, dragging points and watching the polygon, the multiplicities and the comb on your own.'),
             explanation: text(
-                'Spet je privzeta kvadratna krivulja. Vstavi vozel, vstavi ga še enkrat, dokler ne doseže največje večkratnosti, ali vpiši vrednost zunaj definicijskega območja in preberi razlog za zavrnitev. Gumb Nazaj na primer vrne začetne vozle in točke.',
-                'The default quadratic curve is back. Insert a knot, insert it again until it reaches the largest multiplicity, or type a value outside the domain and read the reason for the refusal. The Back to the example button returns to the original knots and points.',
+                'Spet je privzeta kvadratna krivulja. Vstavi vozel, vstavi ga še enkrat, dokler ne doseže največje večkratnosti, ali vpiši vrednost zunaj definicijskega območja in preberi razlog za zavrnitev. Gumb »Ponastavi primer« vrne začetne vozle in točke.',
+                'The default quadratic curve is back. Insert a knot, insert it again until it reaches the largest multiplicity, or type a value outside the domain and read the reason for the refusal. The “Reset example” button returns to the original knots and points.',
             ),
             formulaIds: ['bspline-insertion-boehm', 'bspline-insertion-continuity'],
             frames: [frame('bspline-insertion-explore-explanation', 'explanation'), frame('bspline-insertion-explore-observation', 'observation')],

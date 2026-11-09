@@ -1,4 +1,5 @@
 import React from 'react';
+import {enterNumber} from '../../../inputs/testEntry';
 import JXG from 'jsxgraph';
 import {act, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -249,7 +250,7 @@ describe('moving a control point updates the pieces and highlights the affected 
         const {graph, view} = mount();
         act(() => graph.drag(0, 0.5, 0.5));
         expect(graph.emphasized()).toEqual([0]);
-        act(() => screen.getByRole('button', {name: 'Nazaj na primer'}).click());
+        act(() => screen.getByRole('button', {name: 'Ponastavi primer'}).click());
         graph.boardUpdate();
         expect(graph.state.moved).toEqual([]);
         expect(graph.emphasized()).toEqual([]);
@@ -303,5 +304,17 @@ describe('disposal', () => {
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);
+    });
+});
+
+describe('shared controls wiring', () => {
+    test('a typed control point reaches the model and out-of-range values are refused', () => {
+        const {graph, view} = mount();
+        const x = screen.getByLabelText('Točka 2, x');
+        enterNumber(x, '1.5');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        enterNumber(x, '2000000');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        view.unmount();
     });
 });

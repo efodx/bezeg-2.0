@@ -1,6 +1,6 @@
 import {useT} from "../../localization";
 import React from "react";
-import {Form} from "react-bootstrap";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {AxisSelect} from "./DisplaySettings";
 
 
@@ -16,15 +16,8 @@ export function AxisSelector(props: { selected: AxisSelect, onChange: (selected:
         [AxisSelect.EVERYTHING]: t("all")
     };
 
-    return <Form.Group>
-        <Form.Label>{t("coordinate_system")}</Form.Label>
-        <Form.Select onChange={(value) => props.onChange(value.target.value as AxisSelect)}
-                     aria-label={t("coordinate_system")}
-                     value={props.selected}
-        >
-            {Object.values(AxisSelect).map(select =>
-                <option key={select} value={select}>{labels[select]}</option>)}
-        </Form.Select>
-    </Form.Group>;
+    return <ChoiceSelect label={t("coordinate_system")} value={props.selected}
+                        options={Object.values(AxisSelect).map(select => ({value: select, text: labels[select]}))}
+                        onChange={value => props.onChange(value as AxisSelect)}/>;
 
 }

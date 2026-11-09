@@ -1,4 +1,4 @@
-import {currentLanguage, Language, t} from "../../../localization";
+import {currentLanguage, Language, Message, message, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {checkKnotInsertion, domain, insertKnot, knotJoins, multiplicity, spanSources} from "../../../bezeg/impl/curve/bspline";
 import {combAtJoin, curvatureAt, sampleComb} from "../../../bezeg/impl/curve/curvature";
@@ -47,17 +47,20 @@ export function planInsertion(knots: readonly number[], degree: number, points: 
     return {ok: true, knots: result.knots, points: result.points.map(p => [p[0], p[1]] as const)};
 }
 
-/** The localized refusal text for the language in force. */
-export function insertionRefusalText(refusal: InsertionRefusal, knots: readonly number[], degree: number, pointCount: number): string {
+/**
+ * The refusal as a localizable message, so a language switch re-renders its text. The numbers in it are formatted when the
+ * refusal is made (the separator follows the language of that moment).
+ */
+export function insertionRefusalMessage(refusal: InsertionRefusal, knots: readonly number[], degree: number, pointCount: number): Message {
     const num = (v: number) => formatNumber(v, currentLanguage(), 4);
     switch (refusal.reason) {
-        case 'not_finite': return t("bsi_refused_not_finite");
+        case 'not_finite': return message("bsi_refused_not_finite");
         case 'outside_domain': {
             const [start, end] = domain(knots, degree, pointCount - 1);
-            return t("bsi_refused_outside_domain", {value0: num(refusal.value), value1: num(start), value2: num(end)});
+            return message("bsi_refused_outside_domain", {value0: num(refusal.value), value1: num(start), value2: num(end)});
         }
-        case 'multiplicity_too_high': return t("bsi_refused_multiplicity", {value0: num(refusal.value), value1: degree + 1});
-        case 'too_many_points': return t("bsi_refused_too_many", {value0: INSERTION_MAX_POINTS});
+        case 'multiplicity_too_high': return message("bsi_refused_multiplicity", {value0: num(refusal.value), value1: degree + 1});
+        case 'too_many_points': return message("bsi_refused_too_many", {value0: INSERTION_MAX_POINTS});
     }
 }
 

@@ -1,4 +1,5 @@
 import InterpolationGraph from './InterpolationGraph';
+import {RefusalChannel} from '../../../inputs/RefusalChannel';
 import {InterpolationScene} from './InterpolationScene';
 import {DEFAULT_INTERPOLATION_PRESET, insideHull, interpolationRejection, readoutAt, readoutLines} from './interpolationModel';
 import {interpolationPresetCollection} from './interpolationPresetCollection';
@@ -45,6 +46,7 @@ function fakeBoard() {
 function makeGraph() {
     const graph = Object.create(InterpolationGraph.prototype) as any;
     graph.board = fakeBoard();
+    graph.refusals = new RefusalChannel(); // field initializers do not run on Object.create
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...graph.getInitialState(), initialized: true});
     graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });

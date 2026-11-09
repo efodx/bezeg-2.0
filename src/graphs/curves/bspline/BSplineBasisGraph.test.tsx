@@ -471,3 +471,13 @@ describe('drawing cost (jsdom, real JSXGraph board)', () => {
         view.unmount();
     });
 });
+
+describe('degree stepper and the one live readout', () => {
+    test('the degree stepper reaches the model and the readout is announced once, not twice', () => {
+        const {graph, view} = mount();
+        fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'}));
+        expect(graph.state.degree).toBe(3);
+        expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
+        view.unmount();
+    });
+});

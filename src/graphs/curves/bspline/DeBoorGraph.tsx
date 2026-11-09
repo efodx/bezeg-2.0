@@ -1,7 +1,6 @@
 import React from "react";
 import {renderMessage, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
-import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import BaseGraph, {BaseGraphState, TransientState} from "../../base/BaseGraph";
 import {BSplineCurve, InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
@@ -12,6 +11,7 @@ import {IterationController, IterationOutcome} from "../../../learning/runtime/i
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 import {DeBoorScene} from "./DeBoorScene";
+import {BSplinePointList} from "./BSplinePointList";
 import {KnotEditor} from "./KnotEditor";
 import {BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, isClamped, KNOT_LIMIT, knotProblem, lastIndexOf} from "./bsplineBasisModel";
 import {
@@ -272,6 +272,13 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         this.setState({points: next, knots: rebuilt});
     }
 
+    /** A typed control point: the same path as a board drag. */
+    editPoint(index: number, value: ControlPoint) {
+        const {points} = this.state;
+        if (!Number.isInteger(index) || index < 0 || index >= points.length) return;
+        this.setState({points: points.map((point, i) => i === index ? value : point)});
+    }
+
     /** Sets the slider by its raw value; it is held inside the domain. */
     setT(value: number) {
         if (!Number.isFinite(value) || !this.scene) return;
@@ -328,13 +335,14 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         const {degree, knots, points, t: position, level} = this.state;
         const [start, end] = this.scene ? this.scene.domain() : [knots[degree], knots[knots.length - degree - 1]];
         const playing = this.playing;
+        const maxDegree = Math.min(BASIS_MAX_DEGREE, points.length - 1);
         const status = t("bsd_levels_status", {value0: level, value1: degree});
         this.liveReadout.report(status);
         return super.getGraphCommands().concat(
-            <div key="degree"><ChoiceSelect label={t("bsb_degree")} value={String(degree)}
-                                            options={Array.from({length: BASIS_MAX_DEGREE - BASIS_MIN_DEGREE + 1}, (_, i) => String(BASIS_MIN_DEGREE + i))
-                                                .filter(value => points.length >= Number(value) + 1).map(value => ({value, text: value}))}
-                                            onChange={value => this.setDegree(Number(value))}/></div>,
+            <div key="degree"><CountSetter label={t("bsb_degree")} n={degree} min={BASIS_MIN_DEGREE} max={maxDegree}
+                                           maxReason={maxDegree < BASIS_MAX_DEGREE ? t("bsp_degree_needs_points", {value0: points.length, value1: maxDegree}) : undefined}
+                                           onPlus={() => this.setDegree(degree + 1)} onMinus={() => this.setDegree(degree - 1)}
+                                           onSet={value => this.setDegree(value)}/></div>,
             <div key="count"><CountSetter label={t("bsd_point_count")} n={points.length} min={degree + 1} max={DEBOOR_MAX_POINTS}
                                           onPlus={() => this.changePointCount(true)} onMinus={() => this.changePointCount(false)}/>
                 <p className="inspector-help">{t("bsd_point_count_help")}</p></div>,
@@ -348,6 +356,7 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
                 <p className="inspector-help" data-deboor-status="levels">{status}</p>
                 <LiveReadout readout={this.liveReadout} muted={playing}/>
             </div>,
+            <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
     }

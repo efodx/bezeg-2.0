@@ -26,6 +26,9 @@ export function alphaParameterization(alpha: number, t: number): number {
 
 class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphStates> {
 
+    /** The control points also have a typed path (the shared edit-only list), next to dragging. */
+    protected override workspaceTypedPoints() { return true; }
+
     override getInitialState() {
         return {
             ...super.getInitialState(),

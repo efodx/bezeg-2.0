@@ -56,12 +56,14 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
                              onPlus={() => this.stepContinuity(1)}
                              n={spline.getContinuity()}
                              onMinus={() => this.stepContinuity(-1)}
+                             onSet={value => this.setTyped({continuity: value})}
                              min={spline.continuityRange().min} max={spline.continuityRange().max}></CountSetter>
             </div>, <div>
                 <CountSetter label={t("spline_degree")}
                              onPlus={() => this.stepDegree(1)}
                              n={spline.getDegree()}
                              onMinus={() => this.stepDegree(-1)}
+                             onSet={value => this.setTyped({degree: value})}
                              min={spline.degreeRange().min} max={spline.degreeRange().max}></CountSetter>
             </div>]);
     }
@@ -71,6 +73,17 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
     }
 
     // Read the live curve at click time: a Reset or Preset import may have replaced it since the last render.
+    /** A typed count: the field already kept it inside the displayed range; the model still validates the completed target and a rejected one changes nothing. */
+    private setTyped(target: GenericSplineChange): boolean {
+        try {
+            this.changeSpline(target);
+        } catch {
+            return false;
+        }
+        this.store.notify();
+        return true;
+    }
+
     private stepContinuity(delta: number) {
         this.changeSpline({continuity: this.getFirstJxgCurve().getCurve().getContinuity() + delta});
         this.store.notify();

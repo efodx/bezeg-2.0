@@ -1,4 +1,5 @@
 import HermiteGraph from './HermiteGraph';
+import {RefusalChannel} from '../../../inputs/RefusalChannel';
 import {HermiteScene} from './HermiteScene';
 import {
     catmullRomStored, chainDerivative, chainPoint, DEFAULT_HERMITE_PRESET, hermiteChain, hermiteRejection, HermitePresetData,
@@ -48,6 +49,7 @@ function fakeBoard() {
 function makeGraph() {
     const graph = Object.create(HermiteGraph.prototype) as any;
     graph.board = fakeBoard();
+    graph.refusals = new RefusalChannel(); // field initializers do not run on Object.create
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...graph.getInitialState(), initialized: true});
     graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });

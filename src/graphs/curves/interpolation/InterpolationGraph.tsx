@@ -1,5 +1,5 @@
 import React from "react";
-import {renderMessage} from "../../../localization";
+import {message, renderMessage} from "../../../localization";
 import type {Message} from "../../../localization";
 import {DomainError} from "../../functions/BaseFunctionGraph";
 import {constrainPoint, placeNewPoint, refitWhenOutside} from "../../base/points";
@@ -9,6 +9,9 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {PointCollection} from "../../../inputs/PointCollection";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
+import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
+import {LiveReadout} from "../../base/controls/LiveReadout";
+import {useStatusReadout} from "../../base/controls/useStatusReadout";
 import {BasisPlot} from "./BasisPlot";
 import {basisPlotData} from "./interpolationBasis";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN, Point2} from "../../../analysis/interpolation";
@@ -34,6 +37,15 @@ export interface InterpolationGraphState extends BaseGraphState {
     notice: '' | 'coincident';
 }
 
+/** The visible readout lines (no live role) and the graph's one live region; a slider drag publishes after the quiet period. */
+function InterpolationReadout({lines}: {lines: readonly string[]}) {
+    const readout = useStatusReadout(lines.join("\n"), true);
+    return <>
+        <div className="inspector-help">{lines.map((line, i) => <p key={i}>{line}</p>)}</div>
+        <LiveReadout readout={readout}/>
+    </>;
+}
+
 /** The view that shows the points with a margin, so the interpolant's overshoot is mostly visible. */
 export const interpolationViewBox = (points: readonly Point2[]): [number, number, number, number] => {
     const xs = points.map(p => p[0]);
@@ -53,6 +65,8 @@ export const interpolationViewBox = (points: readonly Point2[]): [number, number
  */
 export class InterpolationGraph extends BaseGraph<InterpolationGraphState, InterpolationPresetData> {
     private scene?: InterpolationScene;
+    /** The one refusal the panel shows (a repeated parameter keeps its stated reason); cleared by the next accepted edit. */
+    private readonly refusals = new RefusalChannel(() => this.requestRender());
 
     override getInitialState(): InterpolationGraphState {
         return {initialized: false, ...DEFAULT_INTERPOLATION_PRESET, notice: ''};
@@ -90,6 +104,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     override importPresetData(data: InterpolationPresetData) {
         const rejection = interpolationRejection(data.points, data.parameterRule);
         if (rejection) throw new LocalizedError(rejection);
+        this.refusals.clear();
         this.setState({
             points: data.points.map(p => [p[0], p[1]] as const), parameterRule: data.parameterRule, showHull: data.showHull,
             showBezier: data.showBezier, showBasis: data.showBasis, t: data.t, notice: '',
@@ -157,9 +172,11 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     /** Applies candidate points when they can be interpolated; otherwise keeps the old ones and sets the notice. */
     private tryPoints(points: readonly (readonly [number, number])[], rule: ParameterRule = this.state.parameterRule): boolean {
         if (interpolationRejection(points, rule)) {
+            this.refusals.refuse(message("interp_coincident_notice"));
             this.setState({notice: 'coincident'});
             return false;
         }
+        this.refusals.clear();
         this.setState({points, parameterRule: rule, notice: ''});
         return true;
     }
@@ -192,6 +209,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     }
 
     setShowBasis(show: boolean) {
+        this.refusals.clear();
         this.setState({showBasis: show});
     }
 
@@ -231,15 +249,18 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     }
 
     setShowHull(show: boolean) {
+        this.refusals.clear();
         this.setState({showHull: show});
     }
 
     setShowBezier(show: boolean) {
+        this.refusals.clear();
         this.setState({showBezier: show});
     }
 
     setPosition(value: number) {
         if (!Number.isFinite(value)) return;
+        this.refusals.clear();
         this.setState({t: Math.min(1, Math.max(0, value))});
     }
 
@@ -284,7 +305,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {points, parameterRule, showHull, showBezier, showBasis, t: position, notice} = this.state;
+        const {points, parameterRule, showHull, showBezier, showBasis, t: position} = this.state;
         const lines = readoutLines(points, parameterRule, position, showBezier, currentLanguage());
         return super.getGraphCommands().concat(
             <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
@@ -302,10 +323,8 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
             ...(showBasis ? [<div key="basis-plot"><BasisPlot data={basisPlotData(points, parameterRule, position)} fontSize={this.displaySettings.fontSize}/></div>] : []),
             <div key="position"><Slider min={0} max={1} step={0.01} value={position} customText={t("interp_slider_position")}
                                         help={t("interp_slider_help")} onChange={value => this.setPosition(value)}/></div>,
-            <div key="readout" role="status" className="inspector-help">
-                {lines.map((line, i) => <p key={i}>{line}</p>)}
-            </div>,
-            ...(notice === 'coincident' ? [<div key="notice" role="alert" className="inspector-help">{t("interp_coincident_notice")}</div>] : []),
+            <InterpolationReadout key="readout" lines={lines}/>,
+            <RefusalNotice key="notice" channel={this.refusals}/>,
         );
     }
 }

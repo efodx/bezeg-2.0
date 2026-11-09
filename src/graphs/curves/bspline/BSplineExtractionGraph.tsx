@@ -9,6 +9,7 @@ import type {BezierPiece} from "../../../bezeg/impl/curve/bspline";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 import {BSplineExtractionScene} from "./BSplineExtractionScene";
+import {BSplinePointList} from "./BSplinePointList";
 import {KnotEditor} from "./KnotEditor";
 import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
 import {assertDrawableCurve, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
@@ -207,6 +208,13 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         return undefined;
     }
 
+    /** A typed control point: the same path as a board drag (the moved point is emphasized). */
+    editPoint(index: number, value: ControlPoint) {
+        if (!Number.isInteger(index) || index < 0 || index >= this.state.points.length) return;
+        const points = this.state.points.map((point, i) => i === index ? value : point);
+        this.setState({points, moved: this.dragMoved(points)});
+    }
+
     // ---- Lesson actions ----------------------------------------------------------------------------------------------
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
@@ -245,10 +253,11 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
                                              onChange={value => this.selectExample(value as InsertionExampleId)}/></div>,
             <div key="reset" className="inspector-group">
                 <div className="inspector-playback">
-                    <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bse_reset")}</button>
+                    <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsp_example_reset")}</button>
                 </div>
                 <p className="inspector-help">{t("bse_help")}</p>
             </div>,
+            <div key="points"><BSplinePointList points={this.state.points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="pieces" className="inspector-group" role="group" aria-labelledby="bse-pieces-title">
                 <h3 id="bse-pieces-title">{t("bse_pieces_title")}</h3>
                 <p data-extraction-readout="count">{t("bse_count", {value0: pieces.length})}</p>

@@ -12,6 +12,8 @@ import {TransientState} from "../../base/BaseGraph";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
     /** Transient switch; the overlay is on in a fresh scene and is not stored in presets. */
     private elevationOverlayOn = true;
     /**

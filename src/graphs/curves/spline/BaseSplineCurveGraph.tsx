@@ -1,6 +1,7 @@
 import {t} from "../../../localization";
 import React from "react";
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
+import type {EditableCurve} from "../../base/CurveEditingFeature";
 import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
 import {AbstractJXGSplineCurve} from "../object/AbstractJXGSplineCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -8,6 +9,13 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 
 export abstract class BaseSplineCurveGraph<S extends BaseGraphStates> extends BaseCurveGraph<S> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
+    /** Only the free points are rows; the junction points are computed from them. */
+    protected override typedPointsOf(curve: EditableCurve) {
+        const spline = curve.getCurve() as BezierSpline;
+        return spline.getPoints().filter(point => !spline.getNonFreePoints().includes(point));
+    }
     override mount(container: HTMLElement) {
         super.mount(container);
         this.getFirstJxgCurve().setAttributes({allowShowPoints: true});

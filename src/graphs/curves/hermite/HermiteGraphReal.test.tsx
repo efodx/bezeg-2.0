@@ -169,12 +169,12 @@ describe('HermiteGraph on a real board', () => {
         expect(graph.state.points[1]).toEqual([1, 2]);
         expect(graph.state.notice).toBe('coincident');
         expect([p1.X(), p1.Y()]).toEqual([1, 2]);
-        expect(screen.getByRole('alert')).toBeInTheDocument();
+        expect(document.querySelector('[data-refusal-notice] p')).not.toBeNull();
         p1.moveTo([1, 2.5]);
         act(() => drag(p1));
         expect(graph.state.points[1]).toEqual([1, 2.5]);
         expect(graph.state.notice).toBe('');
-        expect(screen.queryByRole('alert')).toBeNull();
+        expect(document.querySelector('[data-refusal-notice] p')).toBeNull();
         view.unmount();
     });
 
@@ -255,13 +255,13 @@ describe('HermiteGraph on a real board', () => {
     test('the tension slider is enabled for Catmull-Rom, disabled in Hermite mode where setTension is ignored; tangent fields appear only there', () => {
         const {graph, view} = mount();
         const slider = () => screen.getAllByRole('slider').find(s => (s as HTMLInputElement).max === '2') as HTMLInputElement;
-        expect(slider().disabled).toBe(false);
+        expect(slider()).not.toHaveAttribute('aria-disabled');
         expect(screen.queryByText('Komponente tangent')).toBeNull();
         expect(screen.getByText(/enostranski/)).toBeInTheDocument();
         act(() => graph.setTension(0.3));
         expect(graph.state.tension).toBe(0.3);
         act(() => graph.setMode('hermite'));
-        expect(slider().disabled).toBe(true);
+        expect(slider()).toHaveAttribute('aria-disabled', 'true');
         act(() => graph.setTension(1.2));
         expect(graph.state.tension).toBe(0.3);
         expect(screen.getByText('Komponente tangent')).toBeInTheDocument();

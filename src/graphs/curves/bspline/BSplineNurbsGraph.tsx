@@ -11,6 +11,7 @@ import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BSplinePresetData, bsplinePresetCollection, weightsRejection} from "./bsplinePresetCollection";
 import {BSplineNurbsScene} from "./BSplineNurbsScene";
+import {BSplinePointList} from "./BSplinePointList";
 import {assertDrawableCurve, ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
 import {
     angleDegrees, copyNurbs, maxRadialError, NURBS_EXAMPLE_IDS, NURBS_MAX_POINTS, NurbsData, NurbsExampleId, nurbsExample, nurbsPointAt,
@@ -209,6 +210,13 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         return undefined;
     }
 
+    /** A typed control point (the same path as a board drag); the weights stay. */
+    editPoint(index: number, value: ControlPoint) {
+        const {points} = this.state;
+        if (!Number.isInteger(index) || index < 0 || index >= points.length) return;
+        this.setState({points: points.map((point, i) => i === index ? value : point)});
+    }
+
     setT(t: number) {
         if (!Number.isFinite(t)) return;
         const [start, end] = domain(this.state.knots, this.state.degree, this.state.points.length - 1);
@@ -290,6 +298,7 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
                         customText={t("bsb_slider_t")} help={t("bsn_slider_help")} onChange={value => this.setT(value)}/>
                 {point ? <p data-nurbs-readout="point">{t("bsn_point", {value0: num(point[0]), value1: num(point[1]), value2: formatNumber(angleDegrees(point), language, 3)})}</p> : null}
             </div>,
+            <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="weights" className="inspector-group" role="group" aria-labelledby="bsn-weights-title">
                 <h3 id="bsn-weights-title">{t("bsn_weights_title")}</h3>
                 {weights.map((weight, index) =>
@@ -297,10 +306,9 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
                                  rejectedHint={refusal?.index === index ? weightRefusalText(refusal) : undefined}
                                  onChange={value => this.setWeight(index, value) === undefined}/>)}
                 <p className="inspector-help">{t("bsn_weights_help")}</p>
-                {refusal ? <p className="inspector-help" role="alert" data-nurbs-status="refused">{weightRefusalText(refusal)}</p> : null}
             </div>,
             <div key="reset" className="inspector-playback">
-                <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsn_reset")}</button>
+                <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsp_example_reset")}</button>
             </div>,
         );
     }

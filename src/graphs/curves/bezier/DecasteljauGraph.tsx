@@ -27,6 +27,8 @@ interface DecasteljauGraphStates extends BaseGraphStates {
 }
 
 class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
     /**
      * Deliberate drawing cache of the scene-store `t`: playback draws every frame but publishes `t` at a display
      * cadence, so this runs ahead of the store while playing. Saved scenes use it (`sceneGraphState`), and every scene

@@ -54,6 +54,8 @@ function cubicPreset(points: number[][]): CurveCollectionPresetData {
  * constraint set, never an exact reduction unless the third difference vanishes within the stated tolerance.
  */
 class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
+    /** Typed coordinates for the draggable control points (shared edit-only list). */
+    protected override workspaceTypedPoints() { return true; }
     private overlay?: ReductionOverlay;
     /** What the overlay last read: a lesson scene resets the state and sets it back within one batch, so comparing only with the previous state would miss a redraw. */
     private drawn?: { mode: ReductionMode, shown: boolean, elevation: boolean };

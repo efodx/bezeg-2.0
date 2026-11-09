@@ -5,18 +5,20 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 import {BSplineInsertionScene} from "./BSplineInsertionScene";
+import {BSplinePointList} from "./BSplinePointList";
 import {KnotEditor} from "./KnotEditor";
 import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
 import {assertDrawableCurve, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {
     INSERTION_DEFAULT_VALUE, INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, InsertionRefusal,
-    insertionExample, insertionRefusalText, joinReports, jumpReadoutLines, multiplicityRows, planInsertion,
+    insertionExample, insertionRefusalMessage, joinReports, jumpReadoutLines, multiplicityRows, planInsertion,
 } from "./bsplineInsertionModel";
 
 export interface BSplineInsertionState extends BaseGraphState {
@@ -54,6 +56,8 @@ const initialData = (): Omit<BSplineInsertionState, 'initialized'> => {
  */
 export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSplinePresetData> {
     private scene?: BSplineInsertionScene;
+    /** The reason the last refused insertion gave; cleared once the state holds no refusal (any accepted edit, Reset or Preset). */
+    private readonly refusals = new RefusalChannel(() => this.requestRender());
 
     override getInitialState(): BSplineInsertionState {
         return {initialized: false, ...initialData()};
@@ -144,7 +148,9 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
     }
 
     protected override onStateChange(prevState: Readonly<BSplineInsertionState>) {
-        if (prevState === this.state || !this.board) return;
+        if (prevState === this.state) return;
+        if (!this.state.refusal) this.refusals.clear();
+        if (!this.board) return;
         const {state} = this;
         if (this.scene && !this.scene.fits(state.degree, state.points.length, state.ghost.length)) this.ensureScene();
         else this.scene?.sync();
@@ -152,6 +158,13 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
     }
 
     // ---- Actions -----------------------------------------------------------------------------------------------------
+
+    /** A typed control point (the same path as a board drag); the ghost stays. */
+    editPoint(index: number, value: ControlPoint) {
+        const {points} = this.state;
+        if (!Number.isInteger(index) || index < 0 || index >= points.length) return;
+        this.setState({points: points.map((point, i) => i === index ? value : point)});
+    }
 
     /** Sets the value in the insertion field; a finite value only. */
     setInsertValue(value: number) {
@@ -168,7 +181,9 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         const {knots, degree, points} = this.state;
         const plan = planInsertion(knots, degree, points, x);
         if (!plan.ok) {
-            this.setState({refusal: {reason: plan.reason, value: x}});
+            const refusal = {reason: plan.reason, value: x};
+            this.refusals.refuse(insertionRefusalMessage(refusal, knots, degree, points.length), true);
+            this.setState({refusal});
             return false;
         }
         this.setState({knots: plan.knots, points: plan.points, ghost: points, refusal: null});
@@ -247,7 +262,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
-        const {degree, knots, points, example, ghost, showComb, insertValue, refusal} = this.state;
+        const {degree, knots, points, example, ghost, showComb, insertValue} = this.state;
         const rows = multiplicityRows(knots, degree);
         const jumps = this.jumpLines();
         const options: { value: string, text: string }[] = INSERTION_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'quadratic' ? "bsi_example_quadratic" : "bsi_example_cubic")}));
@@ -260,12 +275,13 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                              onChange={value => { this.setInsertValue(value); }}/>
                 <div className="inspector-playback">
                     <button type="button" data-action="insert-knot" onClick={() => { this.insert(); }}>{t("bsi_insert")}</button>
-                    <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsi_reset")}</button>
+                    <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsp_example_reset")}</button>
                 </div>
                 <p className="inspector-help">{t("bsi_insert_help")}</p>
-                {refusal ? <p className="inspector-help" role="alert" data-insertion-status="refused">{insertionRefusalText(refusal, knots, degree, points.length)}</p> : null}
+                <RefusalNotice channel={this.refusals}/>
                 {ghost.length ? <p className="inspector-help" data-insertion-status="ghost">{t("bsi_ghost_note")}</p> : null}
             </div>,
+            <div key="points"><BSplinePointList points={points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,
             <div key="multiplicity" className="inspector-group" role="group" aria-labelledby="bsi-multiplicity-title">
                 <h3 id="bsi-multiplicity-title">{t("bsi_multiplicity_title")}</h3>
                 {rows.length

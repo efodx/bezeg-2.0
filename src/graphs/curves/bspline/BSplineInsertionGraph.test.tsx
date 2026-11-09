@@ -144,6 +144,8 @@ describe('the ghost of the previous polygon', () => {
     });
 });
 
+const refusalText = () => document.querySelector('[data-refusal-notice]')?.textContent ?? '';
+
 describe('L3 acceptance 4: refusals change nothing', () => {
     test('outside the domain and not finite are refused with a localized reason in both languages', () => {
         const {graph, view} = mount();
@@ -152,13 +154,13 @@ describe('L3 acceptance 4: refusals change nothing', () => {
         expect(graph.state.knots).toBe(knots);
         expect(graph.state.points).toBe(points);
         expect(graph.state.ghost).toBe(ghost);
-        expect(screen.getByRole('alert').textContent).toContain('zunaj definicijskega območja [0, 2]');
+        expect(refusalText()).toContain('zunaj definicijskega območja [0, 2]');
         act(() => setLanguage('en'));
-        expect(screen.getByRole('alert').textContent).toContain('outside the domain [0, 2]');
+        expect(refusalText()).toContain('outside the domain [0, 2]');
         act(() => { expect(graph.insert(-0.1)).toBe(false); });
         act(() => { expect(graph.insert(Number.NaN)).toBe(false); });
         expect(graph.state.refusal?.reason).toBe('not_finite');
-        expect(screen.getByRole('alert').textContent).toContain('finite number');
+        expect(refusalText()).toContain('finite number');
         expect(graph.state.knots).toBe(knots);
         expect(graph.state.points).toBe(points);
         view.unmount();
@@ -182,9 +184,9 @@ describe('L3 acceptance 4: refusals change nothing', () => {
         expect(graph.state.points).toBe(points);
         expect(graph.state.ghost).toBe(ghost);
         expect(graph.state.refusal).toEqual({reason: 'multiplicity_too_high', value: 1});
-        expect(screen.getByRole('alert').textContent).toContain('največjo večkratnost 3');
+        expect(refusalText()).toContain('največjo večkratnost 3');
         act(() => setLanguage('en'));
-        expect(screen.getByRole('alert').textContent).toContain('largest multiplicity 3');
+        expect(refusalText()).toContain('largest multiplicity 3');
         view.unmount();
     });
 });
@@ -315,7 +317,7 @@ describe('L3 acceptance 6: Reset, examples and import', () => {
         act(() => { graph.insert(1); graph.insert(0.5); });
         act(() => graph.setState({points: graph.state.points.map(p => [p[0] + 1, p[1]] as const)}));
         expect(graph.state.ghost.length).toBeGreaterThan(0);
-        act(() => screen.getByRole('button', {name: 'Nazaj na primer'}).click());
+        act(() => screen.getByRole('button', {name: 'Ponastavi primer'}).click());
         graph.boardUpdate();
         expect(graph.state.knots).toEqual(original.knots);
         expectRows(graph.state.points, original.points);
@@ -373,5 +375,17 @@ describe('disposal', () => {
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);
+    });
+});
+
+describe('shared controls wiring', () => {
+    test('a typed control point reaches the model and out-of-range values are refused', () => {
+        const {graph, view} = mount();
+        const x = screen.getByLabelText('Točka 2, x');
+        enterNumber(x, '1.5');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        enterNumber(x, '2000000');
+        expect(graph.state.points[1][0]).toBe(1.5);
+        view.unmount();
     });
 });
