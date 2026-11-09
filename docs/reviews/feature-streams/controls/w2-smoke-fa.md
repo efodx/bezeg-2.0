@@ -33,7 +33,7 @@ FOURIER COEFF
   type Največji harmonik K 5 -> val 5 board changed true
   type Vrednost f pri x = 0 1 -> val 1 board changed true
   refuse Največji harmonik K abc error nodes: [] occurrences of "Vnesi vrednost" in page 1
-  focus after tab SELECT 
+  focus after tab SELECT
   lang EN labels ["Language","View","Shape of the function f","Value of f at x = −π","Value of f at x = 0","Highest harmonic K"] board same after round trip true errs 0
 EPICYCLES
  load errs 0
