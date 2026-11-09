@@ -1,4 +1,4 @@
-import {act, cleanup, fireEvent, render, screen, within} from '@testing-library/react'
+import {act, cleanup, fireEvent, render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {setLanguage} from '../../../localization'
@@ -137,7 +137,7 @@ describe('commands', () => {
 
   it('the method radios send setMethod', () => {
     render(<CollisionPlayground/>)
-    fireEvent.click(screen.getByRole('radio', {name: 'Preizkus vseh parov'}))
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'naive'}})
     expect(send).toHaveBeenCalledWith({type: 'setMethod', method: 'naive'})
   })
 
@@ -155,7 +155,7 @@ describe('commands', () => {
 
   it('switching to a method with a lower limit clamps the count', () => {
     render(<CollisionPlayground initialMethod="sweep" initialCount={MAX_COUNT.circle.sweep}/>)
-    fireEvent.click(screen.getByRole('radio', {name: 'Preizkus vseh parov'}))
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'naive'}})
     expect(send).toHaveBeenCalledWith({type: 'setCount', count: MAX_COUNT.circle.naive})
   })
 })
@@ -169,8 +169,8 @@ describe('paused method switch with the real worker loop', () => {
     loop.handle({type: 'stepOnce'})
     act(() => { vi.advanceTimersByTime(1000) })
     expect(digits(readoutValue(/Preizkusi pravokotnikov/))).toBe('19900')
-    fireEvent.click(screen.getByRole('radio', {name: /Pometanje in obrezovanje/}))
-    expect(document.querySelector('.collision-playground__live')!.textContent).toContain('Pometanje in obrezovanje')
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'sweep'}})
+    expect(document.querySelector('[data-readout-live]')!.textContent).toContain('Pometanje in obrezovanje')
     act(() => { vi.advanceTimersByTime(1000) })
     expect(Number(digits(readoutValue(/Preizkusi pravokotnikov/)))).toBeLessThan(19900)
   })
@@ -193,7 +193,7 @@ describe('readouts', () => {
     expect(readoutValue(/Čas koraka/)).toContain('12,3')
     expect(digits(readoutValue(/Hitrost/))).toBe('9')
     expect(digits(readoutValue(/Objekti/))).toBe('1000')
-    fireEvent.click(screen.getByRole('radio', {name: 'Pometanje in obrezovanje'}))
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'sweep'}})
     expect(screen.queryByText(/Vsi pari/)).toBeNull()
   })
 
@@ -211,7 +211,7 @@ describe('readouts', () => {
 })
 
 describe('live region', () => {
-  const live = () => document.querySelector('.collision-playground__live')!
+  const live = () => document.querySelector('[data-readout-live]')!
 
   it('stays empty for snapshots no action asked for', () => {
     render(<CollisionPlayground/>)
@@ -233,20 +233,33 @@ describe('live region', () => {
     expect(live().textContent).toBe(spoken)
   })
 
-  it('changes the region for a second action with the same result, so it is spoken again', () => {
+  it('keeps the same text for a second action with the same result (the shared live region does not repeat it)', () => {
     render(<CollisionPlayground/>)
     fireEvent.click(screen.getByRole('button', {name: 'Korak'}))
     emit(snap())
     const first = live().textContent!
     fireEvent.click(screen.getByRole('button', {name: 'Korak'}))
     emit(snap())
-    expect(live().textContent).not.toBe(first)
-    expect(live().textContent!.trim()).toBe(first.trim())
+    expect(live().textContent).toBe(first)
+  })
+
+  it('is muted while a run plays and shows the current text again on pause', () => {
+    const {rerender} = render(<CollisionPlayground/>)
+    fireEvent.click(screen.getByRole('button', {name: 'Korak'}))
+    apiState.playing = true
+    setApi()
+    rerender(<CollisionPlayground/>)
+    emit(snap())
+    expect(live().textContent).toBe('')
+    apiState.playing = false
+    setApi()
+    rerender(<CollisionPlayground/>)
+    expect(live().textContent).toContain('preizkusov')
   })
 
   it('skips an in-flight snapshot of the old method after a method action, then speaks the new one', () => {
     render(<CollisionPlayground initialMethod="naive" initialCount={2}/>)
-    fireEvent.click(screen.getByRole('radio', {name: /Pometanje in obrezovanje/}))
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'sweep'}})
     emit(snap({method: 'naive', count: 2}))
     expect(live().textContent).toBe('')
     emit(snap({method: 'sweep', count: 2}))
@@ -353,10 +366,8 @@ describe('keyboard path', () => {
     // Coverage 1.25 % (5 quarter percents) plus one big step of 4 quarter percents.
     expect(send).toHaveBeenLastCalledWith({type: 'setCoverage', areaFraction: 9 / 400})
     userEvent.tab()
-    const group = within(screen.getByRole('group', {name: 'Način iskanja trkov'}))
-    expect(document.activeElement).toBe(group.getByRole('radio', {name: 'Pometanje in obrezovanje'}))
-    userEvent.keyboard('{arrowright}')
-    fireEvent.click(group.getByRole('radio', {name: 'Preizkus vseh parov'}))
+    expect(document.activeElement).toBe(screen.getByRole('combobox', {name: 'Način iskanja trkov'}))
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'naive'}})
     expect(send).toHaveBeenCalledWith({type: 'setMethod', method: 'naive'})
     userEvent.tab()
     const bounce = screen.getByRole('checkbox', {name: 'Odboji med objekti'})
@@ -433,22 +444,22 @@ describe('polygon mode', () => {
     expect(posted[0]).toMatchObject({type: 'init', shape: 'circle'})
   })
 
-  it('offers the three stages as a radio group and sends setOverlay', () => {
+  it('offers the three stages as a select and sends setOverlay', () => {
     render(<CollisionPlayground shape="polygon"/>)
-    const group = within(screen.getByRole('group', {name: 'Prikazana faza'}))
-    expect(group.getAllByRole('radio').map((r) => (r as HTMLInputElement).value)).toEqual(['boxes', 'hulls', 'pieces'])
-    expect((group.getByRole('radio', {name: 'Očrtani pravokotniki'}) as HTMLInputElement).checked).toBe(true)
-    fireEvent.click(group.getByRole('radio', {name: 'Konveksne ovojnice'}))
+    const select = screen.getByRole('combobox', {name: 'Prikazana faza'}) as HTMLSelectElement
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['boxes', 'hulls', 'pieces'])
+    expect(select.value).toBe('boxes')
+    fireEvent.change(select, {target: {value: 'hulls'}})
     expect(send).toHaveBeenLastCalledWith({type: 'setOverlay', overlay: 'hulls'})
-    fireEvent.click(group.getByRole('radio', {name: 'Konveksni deli'}))
+    fireEvent.change(select, {target: {value: 'pieces'}})
     expect(send).toHaveBeenLastCalledWith({type: 'setOverlay', overlay: 'pieces'})
-    expect((group.getByRole('radio', {name: 'Konveksni deli'}) as HTMLInputElement).checked).toBe(true)
+    expect(select.value).toBe('pieces')
   })
 
   it('has no stage switch and no removed-pair readouts for circles', () => {
     render(<CollisionPlayground/>)
     emit(snap())
-    expect(screen.queryByRole('group', {name: 'Prikazana faza'})).toBeNull()
+    expect(screen.queryByRole('combobox', {name: 'Prikazana faza'})).toBeNull()
     expect(screen.queryByText(/Pari, ki jih zavrnejo/)).toBeNull()
   })
 
@@ -459,9 +470,9 @@ describe('polygon mode', () => {
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getAllByRole('slider')[1])
     userEvent.tab()
-    expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Pometanje in obrezovanje'}))
+    expect(document.activeElement).toBe(screen.getByRole('combobox', {name: 'Način iskanja trkov'}))
     userEvent.tab()
-    expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Očrtani pravokotniki'}))
+    expect(document.activeElement).toBe(screen.getByRole('combobox', {name: 'Prikazana faza'}))
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('checkbox', {name: 'Odboji med objekti'}))
     userEvent.tab()
@@ -481,10 +492,10 @@ describe('polygon mode', () => {
 
   it('speaks only after a reader action, and the stage switch is not an announced action', () => {
     render(<CollisionPlayground shape="polygon"/>)
-    const live = document.querySelector('.collision-playground__live')!
+    const live = document.querySelector('[data-readout-live]')!
     emit(polySnap())
     expect(live.textContent).toBe('')
-    fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
+    fireEvent.change(screen.getByRole('combobox', {name: 'Prikazana faza'}), {target: {value: 'hulls'}})
     emit(polySnap())
     expect(live.textContent).toBe('')
     fireEvent.click(screen.getByRole('button', {name: 'Korak'}))
@@ -515,7 +526,7 @@ describe('polygon mode', () => {
     setApi()
     const {container} = render(<CollisionPlayground shape="polygon"/>)
     expect(container.querySelector('canvas')).toBeNull()
-    expect(screen.queryByRole('group', {name: 'Prikazana faza'})).toBeNull()
+    expect(screen.queryByRole('combobox', {name: 'Prikazana faza'})).toBeNull()
     expect(digits(screen.getByText(/1000 objektih/).textContent)).toContain('1000499500')
   })
 
@@ -563,7 +574,7 @@ describe('polygon mode', () => {
     const clear = (): void => { rec.strokes = []; rec.fills = 0; rec.fillLog = []; rec.images = [] }
     const drawStage = (name: string | null): void => {
       render(<CollisionPlayground shape="polygon"/>)
-      if (name) fireEvent.click(screen.getByRole('radio', {name}))
+      if (name) fireEvent.change(screen.getByRole('combobox', {name: 'Prikazana faza'}), {target: {value: name}})
       frame()
       clear()
       emit(seven())
@@ -589,7 +600,7 @@ describe('polygon mode', () => {
     })
 
     it('draws the hull of each template, dotted, in the hull stage', () => {
-      drawStage('Konveksne ovojnice')
+      drawStage('hulls')
       expect(rec.strokes).toHaveLength(7)
       rec.strokes.forEach((st, i) => {
         expect(st.rects).toBe(0)
@@ -603,7 +614,7 @@ describe('polygon mode', () => {
 
     it('draws the exact hull outline of a known template and places its sprite at the scaled body position', () => {
       const {container} = render(<CollisionPlayground shape="polygon"/>)
-      fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
+      fireEvent.change(screen.getByRole('combobox', {name: 'Prikazana faza'}), {target: {value: 'hulls'}})
       frame()
       clear()
       emit(polySnap({count: 1, positions: new Float32Array([500, 300]), radii: new Float32Array([5]), touching: new Uint8Array(1), templates: new Uint8Array([2]), scale: 4}))
@@ -665,7 +676,7 @@ describe('polygon mode', () => {
     })
 
     it('draws every convex piece, solid, in the piece stage', () => {
-      drawStage('Konveksni deli')
+      drawStage('pieces')
       expect(rec.strokes).toHaveLength(7)
       const pieces = POLYGON_TEMPLATES.reduce((sum, shape) => sum + shape.pieces.length, 0)
       expect(rec.strokes.reduce((sum, st) => sum + st.loops.length, 0)).toBe(pieces)

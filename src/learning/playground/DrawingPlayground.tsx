@@ -9,10 +9,13 @@
  * Undo steps: a pointer drag is one step (committed on pointerup). A keyboard move is one step per key press; held-down
  * key repeat on the same element is coalesced into the step started by the first press.
  */
-import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState} from 'react';
 import {useT} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
 import {GraphPalette} from '../../graphs/styles/GraphPalette';
+import {RefusalChannel, RefusalNotice} from '../../inputs/RefusalChannel';
+import {UnavailableButton} from '../../inputs/UnavailableButton';
+import {LiveReadout, SettledReadout} from '../../graphs/base/controls/LiveReadout';
 import {
     Anchor, AnchorType, Drawing, EMPTY_DRAWING, History, MAX_ANCHORS, Point, VIEWBOX_HEIGHT, VIEWBOX_WIDTH,
     addPointAfterLast, appendCorner, appendSmooth, canClose, canRedo, canUndo, clearDrawing, closeDrawing,
@@ -54,6 +57,8 @@ export interface PlaygroundOverlayContext {
     mode: 'draw' | 'inspect';
     /** User-space units per CSS pixel on the current canvas (for sizing overlay marks). */
     unitsPerPx: number;
+    /** The playground's one refusal channel: a blocked press in `controls` reports its reason here (shown under the toolbar). */
+    refusal: RefusalChannel;
 }
 
 export interface DrawingPlaygroundProps {
@@ -123,6 +128,10 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
     const [history, setHistoryState] = useState<History<Drawing>>(() => createHistory(initial.drawing));
     const [showStarterPrompt, setShowStarterPrompt] = useState(initial.showStarterPrompt);
     const historyRef = useRef(history);
+    const [, rerender] = useReducer((n: number) => n + 1, 0);
+    const refusal = useMemo(() => new RefusalChannel(rerender), []);
+    const summaryReadout = useMemo(() => new SettledReadout(), []);
+    const blocked = (reason: string) => refusal.refuse(reason, true);
     const savedRef = useRef(history.present);
     const [draft, setDraft] = useState<Drawing | null>(null);
     const draftRef = useRef<Drawing | null>(null);
@@ -147,8 +156,9 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
         historyRef.current = h;
         setHistoryState(h);
         setShowStarterPrompt(false);
+        refusal.clear();
         if (save) flushSave();
-    }, [flushSave]);
+    }, [flushSave, refusal]);
     const commit = useCallback((next: Drawing) => { amendRef.current = null; setHistory(pushHistory(historyRef.current, next)); }, [setHistory]);
 
     const drawing = draft ?? history.present;
@@ -351,7 +361,7 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
     const typeName = (type: AnchorType) => type === 'corner' ? t('playground_type_corner') : type === 'smooth-aligned' ? t('playground_type_g1') : t('playground_type_c1');
     const hit = Math.max(14, (scale.coarse ? 22 : 10) * scale.unitsPerPx);
     const mark = Math.max(1, scale.unitsPerPx * 0.8);
-    const ctx: PlaygroundOverlayContext = {drawing, selectedAnchor: selectedIndex, mode, unitsPerPx: scale.unitsPerPx};
+    const ctx: PlaygroundOverlayContext = {drawing, selectedAnchor: selectedIndex, mode, unitsPerPx: scale.unitsPerPx, refusal};
     const path = useMemo(() => toSvgPath(drawing), [drawing]);
     const closedShape = drawing.closed && segments(drawing).length > 0;
     const selectedType = selectedIndex !== null ? drawing.anchors[selectedIndex].type : null;
@@ -393,29 +403,36 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
     const summary = announce === null ? '' : announce.count === 0 ? t('playground_summary_empty')
         : t(announce.closed ? 'playground_summary_closed' : 'playground_summary_open', {value0: announce.count});
 
+    useEffect(() => { summaryReadout.replace(summary); }, [summaryReadout, summary]);
+    useEffect(() => () => summaryReadout.cancel(), [summaryReadout]);
+    const selectFirst = t('playground_select_point_first');
+    const addReason = present.closed ? t('playground_add_unavailable_closed') : present.anchors.length >= MAX_ANCHORS ? t('playground_add_unavailable_max', {value0: MAX_ANCHORS}) : undefined;
+    const closeReason = present.closed ? t('playground_close_unavailable_closed') : !canClose(present) ? t('playground_close_unavailable_few') : undefined;
+
     return (
         <div className={`playground playground--${mode}`}>
             <div className="playground__toolbar" role="group" aria-label={t('playground_toolbar')} onKeyDown={onKeyDown}>
                 <span className="playground__group" role="group" aria-label={t('playground_history')}>
-                    <button type="button" onClick={undo} disabled={!canUndo(history)}>{t('playground_undo')}</button>
-                    <button type="button" onClick={redo} disabled={!canRedo(history)}>{t('playground_redo')}</button>
+                    <UnavailableButton onPress={undo} reason={canUndo(history) ? undefined : t('playground_undo_unavailable')} onBlockedPress={blocked}>{t('playground_undo')}</UnavailableButton>
+                    <UnavailableButton onPress={redo} reason={canRedo(history) ? undefined : t('playground_redo_unavailable')} onBlockedPress={blocked}>{t('playground_redo')}</UnavailableButton>
                 </span>
                 <span className="playground__group" role="group" aria-label={t('playground_shape_actions')}>
-                    <button type="button" onClick={() => commit(clearDrawing())} disabled={present.anchors.length === 0}>{t('playground_clear')}</button>
-                    <button type="button" onClick={() => commit(addPointAfterLast(present))} disabled={present.closed || present.anchors.length >= MAX_ANCHORS}>{t('add_point')}</button>
-                    <button type="button" onClick={() => commit(closeDrawing(present))} disabled={!canClose(present)}>{t('playground_close')}</button>
+                    <UnavailableButton onPress={() => commit(clearDrawing())} reason={present.anchors.length === 0 ? t('playground_clear_unavailable') : undefined} onBlockedPress={blocked}>{t('playground_clear')}</UnavailableButton>
+                    <UnavailableButton onPress={() => commit(addPointAfterLast(present))} reason={addReason} onBlockedPress={blocked}>{t('add_point')}</UnavailableButton>
+                    <UnavailableButton onPress={() => commit(closeDrawing(present))} reason={closeReason} onBlockedPress={blocked}>{t('playground_close')}</UnavailableButton>
                     <button type="button" onClick={loadExample}>{t('playground_load_example')}</button>
                 </span>
                 <span className="playground__group" role="group" aria-label={t('playground_selected_point_tools')}>
-                    <button type="button" onClick={() => selectedIndex !== null && removeAnchor(selectedIndex)} disabled={selectedIndex === null}>{t('delete_point')}</button>
+                    <UnavailableButton onPress={() => selectedIndex !== null && removeAnchor(selectedIndex)} reason={selectedIndex === null ? selectFirst : undefined} onBlockedPress={blocked}>{t('delete_point')}</UnavailableButton>
                     <span className="playground__group" role="group" aria-label={t('playground_anchor_type')}>
                         {([['corner', 'playground_set_corner'], ['smooth-aligned', 'playground_set_g1'], ['smooth-mirrored', 'playground_set_c1']] as const).map(([type, key]) => (
-                            <button key={type} type="button" aria-pressed={selectedType === type} disabled={selectedIndex === null}
-                                    onClick={() => selectedIndex !== null && commit(setAnchorType(historyRef.current.present, selectedIndex, type))}>{t(key)}</button>
+                            <UnavailableButton key={type} aria-pressed={selectedType === type} reason={selectedIndex === null ? selectFirst : undefined} onBlockedPress={blocked}
+                                               onPress={() => selectedIndex !== null && commit(setAnchorType(historyRef.current.present, selectedIndex, type))}>{t(key)}</UnavailableButton>
                         ))}
                     </span>
                 </span>
             </div>
+            <RefusalNotice channel={refusal}/>
             <div className="playground__stage">
             <svg ref={svgRef} className="playground__canvas" viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} role="group"
                  aria-label={t('playground_canvas')} tabIndex={-1} onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={flushSave} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
@@ -432,7 +449,7 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
             </p>}
             </div>
             {controls?.(ctx)}
-            <div className="playground__live" role="status" aria-live="polite">{summary}</div>
+            <LiveReadout readout={summaryReadout}/>
         </div>
     );
 }

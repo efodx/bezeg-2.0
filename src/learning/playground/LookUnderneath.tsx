@@ -9,7 +9,8 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useT} from '../../localization';
 import Slider from '../../inputs/Slider';
-import {BooleanField} from '../../inputs/BooleanField';
+import {OnOffSwitch} from '../../inputs/OnOffSwitch';
+import {UnavailableButton} from '../../inputs/UnavailableButton';
 import DrawingPlayground, {PlaygroundOverlayContext} from './DrawingPlayground';
 import {
     Drawing, Point, VIEWBOX_HEIGHT, VIEWBOX_WIDTH, classifyJoint, deCasteljauRows, evaluateBezier, jointIndices, segments, singleCurveControlPoints,
@@ -130,7 +131,10 @@ export default function LookUnderneath() {
     const controls = (ctx: PlaygroundOverlayContext) => {
         const count = segments(ctx.drawing).length;
         const sel = count > 0 ? clampIndex(selected, count) : -1;
-        const toggle = (key: keyof Switches, label: string) => <BooleanField variant="checkbox" checked={switches[key]}
+        const blocked = (reason: string) => ctx.refusal.refuse(reason, true);
+        const prevReason = sel < 0 ? translate('playground_segment_unavailable_none') : sel === 0 ? translate('playground_segment_prev_unavailable') : undefined;
+        const nextReason = sel < 0 ? translate('playground_segment_unavailable_none') : sel >= count - 1 ? translate('playground_segment_next_unavailable') : undefined;
+        const toggle = (key: keyof Switches, label: string) => <OnOffSwitch checked={switches[key]}
             onChange={checked => setSwitches(current => ({...current, [key]: checked}))} label={label}/>;
         return <div className="lu-controls">
             <ClampSelection count={count} selected={selected} set={setSelected}/>
@@ -142,9 +146,9 @@ export default function LookUnderneath() {
                 {toggle('single', translate('playground_overlay_single'))}
             </fieldset>
             <div className="lu-segments">
-                <button type="button" disabled={sel <= 0} onClick={() => setSelected(sel - 1)}>{translate('playground_segment_prev')}</button>
+                <UnavailableButton reason={prevReason} onPress={() => setSelected(sel - 1)} onBlockedPress={blocked}>{translate('playground_segment_prev')}</UnavailableButton>
                 <span data-lu="segment">{sel >= 0 ? translate('playground_segment_current', {value0: sel + 1, value1: count}) : translate('playground_segment_none')}</span>
-                <button type="button" disabled={sel < 0 || sel >= count - 1} onClick={() => setSelected(sel + 1)}>{translate('playground_segment_next')}</button>
+                <UnavailableButton reason={nextReason} onPress={() => setSelected(sel + 1)} onBlockedPress={blocked}>{translate('playground_segment_next')}</UnavailableButton>
             </div>
             {switches.single && count > 0 && <p className="lu-note" data-lu="degree">{translate('playground_single_degree', {value0: 3 * count})}</p>}
             {switches.joins && <p className="lu-note" data-lu="legend">{translate('playground_joins_legend')}</p>}

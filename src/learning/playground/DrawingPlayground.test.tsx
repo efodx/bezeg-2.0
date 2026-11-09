@@ -19,6 +19,9 @@ const stored = (): Drawing | null => { const raw = appStorage.getItem(PLAYGROUND
 const anchorEl = (container: HTMLElement, i: number) => container.querySelector(`[data-role="anchor"][data-index="${i}"]`)!;
 const handleEl = (container: HTMLElement, i: number, which: 'in' | 'out') => container.querySelector(`[data-role="handle-${which}"][data-index="${i}"]`)!;
 const button = (name: string | RegExp) => screen.getByRole('button', {name}) as HTMLButtonElement;
+const unavailable = (el: HTMLElement) => el.getAttribute('aria-disabled') === 'true';
+const liveRegion = () => document.querySelector('[data-readout-live]') as HTMLElement;
+const refusalText = () => document.querySelector('[data-refusal-notice]')!.textContent;
 
 /** Open path of three corners A(100,100) B(300,100) C(300,300). */
 function threeCorners(svg: SVGSVGElement) {
@@ -63,7 +66,7 @@ describe('pointer editing', () => {
         expect(stored()!.closed).toBe(true);
         click(svg, 700, 500);
         expect(stored()!.anchors).toHaveLength(3);
-        expect(button('Izbriši točko').disabled).toBe(true);
+        expect(unavailable(button('Izbriši točko'))).toBe(true);
     });
 
     it('does not close with fewer than two anchors', () => {
@@ -155,15 +158,15 @@ describe('pointer editing', () => {
 describe('toolbar', () => {
     it('has correct disabled states, deletes, clears and loads the example', () => {
         const {svg, container} = renderPlayground();
-        expect(button('Razveljavi').disabled).toBe(true);
-        expect(button('Ponovi').disabled).toBe(true);
-        expect(button('Počisti').disabled).toBe(true);
-        expect(button('Zapri obliko').disabled).toBe(true);
-        expect(button('Kotna').disabled).toBe(true);
+        expect(unavailable(button('Razveljavi'))).toBe(true);
+        expect(unavailable(button('Ponovi'))).toBe(true);
+        expect(unavailable(button('Počisti'))).toBe(true);
+        expect(unavailable(button('Zapri obliko'))).toBe(true);
+        expect(unavailable(button('Kotna'))).toBe(true);
         threeCorners(svg);
-        expect(button('Počisti').disabled).toBe(false);
-        expect(button('Zapri obliko').disabled).toBe(false);
-        expect(button('Kotna').disabled).toBe(false);
+        expect(unavailable(button('Počisti'))).toBe(false);
+        expect(unavailable(button('Zapri obliko'))).toBe(false);
+        expect(unavailable(button('Kotna'))).toBe(false);
         expect(button('Kotna').getAttribute('aria-pressed')).toBe('true');
         fireEvent.click(button('Gladka (G1)'));
         expect(stored()!.anchors[2].type).toBe('smooth-aligned');
@@ -176,7 +179,7 @@ describe('toolbar', () => {
         fireEvent.click(button('Naloži primer'));
         expect(stored()).toEqual(EXAMPLE_DRAWING);
         expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(EXAMPLE_DRAWING.anchors.length);
-        expect(button('Dodaj točko').disabled).toBe(true); // closed
+        expect(unavailable(button('Dodaj točko'))).toBe(true); // closed
     });
 
     it('the authored example is valid', () => {
@@ -237,15 +240,15 @@ describe('keyboard', () => {
         vi.useFakeTimers();
         renderPlayground();
         for (let i = 0; i < 3; i++) fireEvent.click(button('Dodaj točko'));
-        const live = screen.getByRole('status');
+        const live = liveRegion();
         expect(live.textContent).toBe('');
         act(() => { vi.advanceTimersByTime(499); });
         expect(live.textContent).toBe('');
         act(() => { vi.advanceTimersByTime(2); });
-        expect(live.textContent).toBe('Število točk: 3, oblika je odprta');
+        expect(live.textContent).toBe('Število točk: 3, oblika je odprta.');
         fireEvent.click(button('Zapri obliko'));
         act(() => { vi.advanceTimersByTime(600); });
-        expect(live.textContent).toBe('Število točk: 3, oblika je zaprta');
+        expect(live.textContent).toBe('Število točk: 3, oblika je zaprta.');
     });
 });
 
@@ -264,7 +267,7 @@ describe('localization', () => {
         expect(handleEl(container, 2, 'in').getAttribute('aria-label')).toBe('Incoming handle of point 3');
         expect(button('Undo')).toBeTruthy();
         expect(button('Load example')).toBeTruthy();
-        expect(screen.getByRole('status').textContent).toBe('Number of points: 3, closed shape');
+        expect(liveRegion().textContent).toBe('Number of points: 3, closed shape.');
         expect(screen.getByRole('group', {name: /Drawing tools/}).getAttribute('aria-label')).toBe('Drawing tools');
     });
 });
@@ -438,12 +441,12 @@ describe('PG2 repairs', () => {
         fireEvent.click(button('Naloži primer'));
         fireEvent.click(button('Razveljavi'));
         expect(anchorCount(container)).toBe(0);
-        expect(button('Razveljavi').disabled).toBe(true);
+        expect(unavailable(button('Razveljavi'))).toBe(true);
         threeCorners(svg);
         fireEvent.focus(anchorEl(container, 0));
-        expect(button('Izbriši točko').disabled).toBe(false);
+        expect(unavailable(button('Izbriši točko'))).toBe(false);
         fireEvent.click(button('Razveljavi'));
-        expect(button('Izbriši točko').disabled).toBe(true);
+        expect(unavailable(button('Izbriši točko'))).toBe(true);
     });
 
     it('moves focus to the canvas when the last anchor is deleted', () => {
@@ -462,9 +465,9 @@ describe('PG2 repairs', () => {
         expect(screen.getByRole('group', {name: 'Orodja za risanje'})).toBeTruthy();
         fireEvent.click(button('Dodaj točko'));
         fireEvent.click(button('Dodaj točko'));
-        expect(button('Izbriši točko').disabled).toBe(true);
+        expect(unavailable(button('Izbriši točko'))).toBe(true);
         fireEvent.keyDown(handleEl(container, 1, 'in'), {key: 'Enter'});
-        expect(button('Izbriši točko').disabled).toBe(false);
+        expect(unavailable(button('Izbriši točko'))).toBe(false);
     });
 
     it('does not announce the stored drawing on mount, also under StrictMode', () => {
@@ -472,10 +475,10 @@ describe('PG2 repairs', () => {
         appStorage.setItem(PLAYGROUND_STORAGE_KEY, JSON.stringify(EXAMPLE_DRAWING));
         render(<React.StrictMode><DrawingPlayground mode="draw"/></React.StrictMode>);
         act(() => { vi.advanceTimersByTime(2000); });
-        expect(screen.getByRole('status').textContent).toBe('');
+        expect(liveRegion().textContent).toBe('');
         fireEvent.click(button('Počisti'));
         act(() => { vi.advanceTimersByTime(600); });
-        expect(screen.getByRole('status').textContent).not.toBe('');
+        expect(liveRegion().textContent).not.toBe('');
     });
 
     it('maps pointers through the bounding box when getScreenCTM is null, and through the CTM when present', () => {
@@ -487,5 +490,44 @@ describe('PG2 repairs', () => {
         svg.getScreenCTM = () => ({inverse: () => ({a: 2, b: 0, c: 0, d: 2, e: -100, f: 0})}) as unknown as DOMMatrix;
         click(svg, 400, 200);
         expect(stored()!.anchors[1].position).toEqual({x: 700, y: 400});
+    });
+});
+
+describe('unavailable buttons and the refusal notice', () => {
+    it('keeps an unavailable toolbar button focusable, gives its reason and announces it on a press, until an edit is accepted', () => {
+        const {svg} = renderPlayground();
+        const undo = button('Razveljavi');
+        expect(undo.hasAttribute('disabled')).toBe(false);
+        expect(undo.title).toBe('Ni česa razveljaviti.');
+        expect(refusalText()).toBe('');
+        fireEvent.click(undo);
+        expect(refusalText()).toBe('Ni česa razveljaviti.');
+        expect(stored()).toEqual(EMPTY_DRAWING);
+        fireEvent.click(button('Izbriši točko'));
+        expect(refusalText()).toBe('Najprej izberi točko.'); // one shared notice: the latest refusal replaces the previous
+        click(svg, 100, 100);
+        expect(refusalText()).toBe('');
+        act(() => setLanguage('en'));
+        fireEvent.click(button('Redo'));
+        expect(refusalText()).toBe('Nothing to redo.');
+    });
+
+    it('keeps the anchor-type buttons a pressed group, unavailable with a reason until a point is selected', () => {
+        const {svg} = renderPlayground();
+        const corner = button('Kotna');
+        expect(corner.hasAttribute('aria-pressed')).toBe(true);
+        expect(corner.hasAttribute('disabled')).toBe(false);
+        expect(corner.title).toBe('Najprej izberi točko.');
+        fireEvent.click(corner);
+        expect(refusalText()).toBe('Najprej izberi točko.');
+        click(svg, 100, 100);
+        fireEvent.focus(document.querySelector('[data-role="anchor"][data-index="0"]')!);
+        expect(unavailable(corner)).toBe(false);
+        expect(corner.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('has exactly the live summary and the refusal notice as status regions', () => {
+        renderPlayground();
+        expect(screen.getAllByRole('status')).toHaveLength(2);
     });
 });

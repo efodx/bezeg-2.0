@@ -266,9 +266,9 @@ describe('hand-computed values', () => {
 });
 
 describe('controls area', () => {
-    it('has a single live region, visible segment and degree text, and a joins legend only while Joins is on', () => {
+    it('has the live summary and the one refusal notice as its only live regions, visible segment and degree text, and a joins legend only while Joins is on', () => {
         const {container} = mount(EXAMPLE_DRAWING);
-        expect(screen.getAllByRole('status')).toHaveLength(1);
+        expect(screen.getAllByRole('status')).toHaveLength(2);
         expect(container.querySelector('[data-lu="segment"]')!.textContent).toBe('Odsek 1 od 6');
         expect(container.querySelector('[data-lu="degree"]')!.textContent).toBe('Ena Bézierjeva krivulja stopnje 18');
         expect(container.querySelector('[data-lu="legend"]')!.textContent).toContain('G1: smer se nadaljuje');
@@ -300,5 +300,39 @@ describe('controls area', () => {
         expect(container.querySelector('[data-lu="segment"]')!.textContent).toBe('Odsek 5 od 6');
         fireEvent.click(screen.getByRole('button', {name: 'Naslednji odsek'}));
         expect(container.querySelector('[data-lu="segment"]')!.textContent).toBe('Odsek 6 od 6');
+    });
+});
+
+describe('switches and segment buttons', () => {
+    it('toggles an overlay through a switch that reports its state as a checkbox', () => {
+        const {container} = mount(EXAMPLE_DRAWING);
+        const sw = screen.getByRole('checkbox', {name: 'Kontrolne točke'}) as HTMLInputElement;
+        expect(sw.checked).toBe(true);
+        expect(container.querySelector('.bool-field-switch')).not.toBeNull();
+        fireEvent.click(sw);
+        expect(sw.checked).toBe(false);
+    });
+
+    it('keeps Previous focusable at the first segment, with a reason announced on a press and cleared by a move', () => {
+        mount(EXAMPLE_DRAWING);
+        const prev = screen.getByRole('button', {name: 'Prejšnji odsek'});
+        const refusal = () => document.querySelector('[data-refusal-notice]')!.textContent;
+        expect(prev.hasAttribute('disabled')).toBe(false);
+        expect(prev.getAttribute('aria-disabled')).toBe('true');
+        expect(prev.title).toBe('To je prvi odsek.');
+        fireEvent.click(prev);
+        expect(refusal()).toBe('To je prvi odsek.');
+        expect(screen.getByText('Odsek 1 od 6')).toBeTruthy();
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji odsek'}));
+        expect(screen.getByText('Odsek 2 od 6')).toBeTruthy();
+        expect(prev.getAttribute('aria-disabled')).toBe('false');
+    });
+
+    it('refuses Next at the last segment', () => {
+        mount(EXAMPLE_DRAWING);
+        for (let i = 0; i < 5; i++) fireEvent.click(screen.getByRole('button', {name: 'Naslednji odsek'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naslednji odsek'}));
+        expect(document.querySelector('[data-refusal-notice]')!.textContent).toBe('To je zadnji odsek.');
+        expect(screen.getByText('Odsek 6 od 6')).toBeTruthy();
     });
 });

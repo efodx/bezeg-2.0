@@ -1,7 +1,9 @@
 import {useEffect, useRef, useState} from 'react'
-import type {ChangeEvent} from 'react'
 import {currentLanguage, useT} from '../../../localization'
 import Slider from '../../../inputs/Slider'
+import {ChoiceSelect} from '../../../inputs/ChoiceSelect'
+import {OnOffSwitch} from '../../../inputs/OnOffSwitch'
+import {LiveReadout, SettledReadout} from '../../../graphs/base/controls/LiveReadout'
 import {WORLD_HEIGHT, WORLD_WIDTH} from '../../../compgeo/collisions/world'
 import {POLYGON_TEMPLATES} from '../../../compgeo/collisions/polygonTemplates'
 import {clampCount, MAX_COUNT} from './collisionProtocol'
@@ -214,7 +216,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
   const stageRef = useRef<Stage>('boxes')
   const redrawRef = useRef<() => void>(() => undefined)
   const [readout, setReadout] = useState<Readout | null>(null)
-  const [announcement, setAnnouncement] = useState('')
+  const [announcement] = useState(() => new SettledReadout())
   const {status, playing, snapshotRef, subscribe, send} = useCollisionWorker({
     initial: {
       seed: initialSeed,
@@ -227,7 +229,6 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
   })
   /** Set by a reader action; method and count, when given, are what the first announced snapshot must show. */
   const pendingAnnounce = useRef<{method?: BroadPhaseMethod; count?: number} | null>(null)
-  const announceToggle = useRef(false)
   const coloursRef = useRef<Colours>({body: '#587445', touching: '#bf8542', outline: '#33402b'})
   const [sprites] = useState(() => createPolygonSpriteCache(renderSpriteToCanvas))
   const rafRef = useRef(0)
@@ -284,8 +285,6 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       if (s && want && (want.method === undefined || want.method === s.method) && (want.count === undefined || want.count === s.count)) {
         // The live region: one message, for the first snapshot after a reader action.
         pendingAnnounce.current = null
-        // Alternate a trailing no-break space so an identical message after a second action still changes the region.
-        announceToggle.current = !announceToggle.current
         const method = t(s.method === 'naive' ? 'collision_method_naive' : 'collision_method_sweep')
         const spoken =
           s.shape === 'polygon'
@@ -303,7 +302,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
                 value2: formatInt(s.counters.boxTests),
                 value3: formatInt(s.simSpeed),
               })
-        setAnnouncement(spoken + (announceToggle.current ? String.fromCharCode(0xa0) : ''))
+        announcement.replace(spoken)
       }
       const wait = READOUT_INTERVAL_MS - (performance.now() - lastReadout)
       if (wait <= 0) {
@@ -335,7 +334,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       redrawRef.current = () => undefined
       sprites.reset()
     }
-  }, [status, snapshotRef, subscribe, t, sprites])
+  }, [status, snapshotRef, subscribe, t, sprites, announcement])
 
   const onCount = (position: number): void => {
     // At low counts one log step rounds to the same integer, so step the count itself by one in the slider's direction.
@@ -348,8 +347,8 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     setCount(next)
     send({type: 'setCount', count: next})
   }
-  const onMethod = (e: ChangeEvent<HTMLInputElement>): void => {
-    const next: BroadPhaseMethod = e.target.value === 'naive' ? 'naive' : 'sweep'
+  const onMethod = (value: string): void => {
+    const next: BroadPhaseMethod = value === 'naive' ? 'naive' : 'sweep'
     const clamped = clampCount(count, next, shape)
     pendingAnnounce.current = {method: next, count: clamped}
     setMethod(next)
@@ -360,8 +359,8 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     }
   }
 
-  const onStage = (e: ChangeEvent<HTMLInputElement>): void => {
-    const next: Stage = STAGES.find((candidate) => candidate === e.target.value) ?? 'boxes'
+  const onStage = (value: string): void => {
+    const next: Stage = STAGES.find((candidate) => candidate === value) ?? 'boxes'
     stageRef.current = next
     setStage(next)
     send({type: 'setOverlay', overlay: next satisfies CollisionOverlay})
@@ -390,34 +389,16 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
                 customText={t('collision_coverage')} formatValue={(p) => t('collision_percent', {value0: formatCoverage(p / 4)})}
                 onChange={(p) => { setCoverage(p); pendingAnnounce.current = {}; send({type: 'setCoverage', areaFraction: p / 400}) }}/>
         {readout?.clampedFrom != null && <p className="collision-playground__note">{t('collision_limit', {value0: formatInt(limit)})}</p>}
-        <fieldset className="collision-playground__methods">
-          <legend>{t('collision_methods')}</legend>
-          {(['naive', 'sweep'] as const).map((m) => (
-            <label key={m} className="collision-playground__choice">
-              <input type="radio" name="collision-method" value={m} checked={method === m} onChange={onMethod}/>
-              <span>{t(m === 'naive' ? 'collision_method_naive' : 'collision_method_sweep')}</span>
-            </label>
-          ))}
-        </fieldset>
+        <ChoiceSelect label={t('collision_methods')} value={method} onChange={onMethod}
+                      options={(['naive', 'sweep'] as const).map((m) => ({value: m, text: t(m === 'naive' ? 'collision_method_naive' : 'collision_method_sweep')}))}/>
         {polygons && (
-          <fieldset className="collision-playground__methods">
-            <legend>{t('collision_overlay')}</legend>
-            {STAGES.map((st) => (
-              <label key={st} className="collision-playground__choice">
-                <input type="radio" name="collision-overlay" value={st} checked={stage === st} onChange={onStage}/>
-                <span>{t(STAGE_LABEL[st])}</span>
-              </label>
-            ))}
-            <p className="collision-playground__note">{t('collision_overlay_legend')}</p>
-          </fieldset>
+          <ChoiceSelect label={t('collision_overlay')} value={stage} onChange={onStage} help={t('collision_overlay_legend')}
+                        options={STAGES.map((st) => ({value: st, text: t(STAGE_LABEL[st])}))}/>
         )}
-        <label className="collision-playground__choice">
-          <input type="checkbox" checked={bounce} onChange={(event) => {
-            setBounce(event.target.checked)
-            send({type: 'setBounce', bounce: event.target.checked})
-          }}/>
-          <span>{t('collision_bounce')}</span>
-        </label>
+        <OnOffSwitch label={t('collision_bounce')} checked={bounce} onChange={(checked) => {
+          setBounce(checked)
+          send({type: 'setBounce', bounce: checked})
+        }}/>
         <div className="collision-playground__buttons">
           <button type="button" aria-pressed={playing} onClick={() => send({type: playing ? 'pause' : 'play'})}>
             {t(playing ? 'collision_pause' : 'collision_play')}
@@ -449,7 +430,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
         <div><dt>{t('collision_step_time')}</dt><dd>{readout ? t('collision_ms', {value0: formatOne(readout.stepMs)}) : '—'}</dd></div>
         <div><dt>{t('collision_speed')}</dt><dd>{readout ? t('collision_percent', {value0: formatInt(readout.simSpeed)}) : '—'}</dd></div>
       </dl>
-      <div className="collision-playground__live" role="status" aria-live="polite">{announcement}</div>
+      <LiveReadout readout={announcement} muted={playing}/>
     </section>
   )
 }
