@@ -184,6 +184,11 @@ test('the status, the clip count and the widest width follow the run, with a dec
     expect(text('status')).not.toContain('prekrivata');
 });
 
+test('the clipping table sits in a scroll-table wrapper', () => {
+    setup();
+    expect(document.querySelector('.readout-scroll-table > [data-bezier-clipping="table"]')).not.toBeNull();
+});
+
 test('the table never shows more than eight rows plus one "further n" row, along the whole tangent run at 10^-10', () => {
     const {graph} = setup();
     load(graph, TANGENT);

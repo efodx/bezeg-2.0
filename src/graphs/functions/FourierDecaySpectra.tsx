@@ -6,6 +6,7 @@ import {FourierExampleId} from "../../analysis/fourierExamples";
 import {
     FOURIER_DECAY_REFERENCES, FOURIER_LOG_MIN_EXPONENT, fourierAmplitudes, fourierLogAxis, isZeroAmplitude,
 } from "../../analysis/fourierDecay";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import "./FourierDecaySpectra.css";
 
 const W = 240;
@@ -118,8 +119,8 @@ export function FourierDecaySpectra(props: FourierDecaySpectraProps) {
                         ? t("fourier_decay_reference_envelope", {value0: reference.formula})
                         : t("fourier_decay_reference_exact", {value0: reference.formula})}</p>
                     {scale === "linear" && hidden > 0 && <p className="fourier-decay-key" data-testid="fourier-decay-zero-key">{t("fourier_decay_zero_key")}</p>}
-                    {scale === "log" && hidden > 0 && <p className="fourier-decay-note" role="note" data-testid="fourier-decay-zero-note">{t("fourier_decay_zero_note")}</p>}
-                    {floored && <p className="fourier-decay-note" role="note" data-testid="fourier-decay-floor-note">{t("fourier_decay_floor_note")}</p>}
+                    {scale === "log" && hidden > 0 && <ReadoutHelp hooks={{"data-testid": "fourier-decay-zero-note"}}>{t("fourier_decay_zero_note")}</ReadoutHelp>}
+                    {floored && <ReadoutHelp hooks={{"data-testid": "fourier-decay-floor-note"}}>{t("fourier_decay_floor_note")}</ReadoutHelp>}
                     <details>
                         <summary>{t("fourier_decay_table_summary")}</summary>
                         <table className="fourier-decay-table" data-testid="fourier-decay-table" data-example={id}>

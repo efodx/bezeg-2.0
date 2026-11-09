@@ -112,7 +112,7 @@ test('the readout shows labelled values and an optional note', () => {
     render(<FunctionReadout title="Odčitki" rows={[{id: 'k', label: 'k', value: '2'}, {id: 'n', label: 'n', value: 'ni določen'}]} note="Opomba"/>);
     expect(screen.getByRole('heading', {name: 'Odčitki'})).toBeInTheDocument();
     expect(screen.getByText('ni določen')).toBeInTheDocument();
-    expect(screen.getByRole('note')).toHaveTextContent('Opomba');
+    expect(document.querySelector('[data-readout-note]')).toHaveTextContent('Opomba');
 });
 
 test('keeps what is typed until Enter or blur, then applies it once and explains a refusal', () => {

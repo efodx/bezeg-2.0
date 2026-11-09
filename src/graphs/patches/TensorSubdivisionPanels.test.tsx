@@ -36,7 +36,7 @@ const unavailable = (axis: "u" | "v") => elevateButton(axis).getAttribute("aria-
 const reason = (axis: "u" | "v") => document.querySelector(`[data-elevate-reason="${axis}"]`);
 const piecesSwitch = () => screen.getByLabelText<HTMLInputElement>(t("patch_show_pieces"));
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)!.textContent;
-const lockedNotice = () => document.querySelector(".patch-split-locked");
+const lockedNotice = () => document.querySelector('[data-patch-note="split-locked"]');
 const eval3 = (graph: TensorSubdivisionGraph, u: number, v: number): Xyz => {
     const p = patchFromNet(graph.state.net).eval(u, v);
     return [p.X(), p.Y(), p.Z?.() ?? 0];
@@ -107,7 +107,7 @@ describe("editing the original points", () => {
     it("offers no coordinate editor (and so no Apply that does nothing) for a selected point while the pieces are shown", () => {
         const {graph} = mount();
         const editor = () => document.querySelector(".patch-point-editor");
-        const pointLocked = () => document.querySelector(".patch-point-locked");
+        const pointLocked = () => document.querySelector('[data-patch-note="point-locked"]');
         // Selected before the pieces were switched off, and while they are shown.
         fireEvent.click(piecesSwitch());
         act(() => graph.selectIndex(1, 1));

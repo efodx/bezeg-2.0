@@ -2,6 +2,8 @@ import React, {useMemo} from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PointListInput, PointRow1} from "../../inputs/PointListInput";
 import {useLanguage, useT} from "../../localization";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {CROSS_RATIO_COORD_LIMIT, CROSS_RATIO_EXAMPLE_IDS, CrossRatioExampleId, CrossRatioModel, CrossRatioScene} from "./crossRatioModel";
 import {handleName, handlePosition, HANDLE_COUNT} from "./crossRatioEdit";
 import {describeCrossRatio} from "./crossRatioText";
@@ -38,6 +40,11 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
     const {model, scene, selected, nudged, actions} = props;
     const nudgedAt = nudged === undefined ? undefined : handlePosition(model, nudged);
     const text = describeCrossRatio(scene, t, language);
+    const nudgeText = nudged === undefined || nudgedAt === undefined ? "" : nudged < 4
+        ? t("projective_k1_nudged_line", {value0: handleName(nudged), value1: String(nudgedAt.x)})
+        : t("projective_k1_nudged_point", {value0: handleName(nudged), value1: String(nudgedAt.x), value2: String(nudgedAt.y)});
+    // The one announcement: the status and ratios, then the stepped handle; settled, so a drag is not read frame by frame.
+    const liveReadout = useStatusReadout([text.status, text.originalRatio, text.imageRatio, nudgeText].filter(Boolean).join("\n"), true);
     const exampleOptions = CROSS_RATIO_EXAMPLE_IDS.filter(id => id !== "custom" || model.example === "custom").map(id => ({value: id, text: t(EXAMPLE_LABELS[id])}));
     // Stable while the model is, so a refusal shown at a field stays until the points change.
     const [onLine, inPlane] = useMemo(() => {
@@ -50,7 +57,7 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
                           onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
         </div>
         <div className="inspector-group">
-            <div role="status" data-projective-status={text.statusKind}>
+            <div data-projective-status={text.statusKind}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
                 {text.originalRatio && <p className="inspector-help" data-projective-line="original-ratio">{text.originalRatio}</p>}
                 {text.imageRatio && <p className="inspector-help" data-projective-line="image-ratio">{text.imageRatio}</p>}
@@ -58,11 +65,7 @@ export function CrossRatioControls(props: CrossRatioControlsProps) {
             {text.limit && <p className="inspector-help" data-projective-line="limit">{text.limit}</p>}
             <p className="inspector-help" data-projective-line="originals">{t("projective_k1_originals", {value0: text.originals})}</p>
             {text.images && <p className="inspector-help" data-projective-line="images">{t("projective_k1_images", {value0: text.images})}</p>}
-            <p className="visually-hidden" role="status" data-projective-nudge>
-                {nudged === undefined || nudgedAt === undefined ? "" : nudged < 4
-                    ? t("projective_k1_nudged_line", {value0: handleName(nudged), value1: String(nudgedAt.x)})
-                    : t("projective_k1_nudged_point", {value0: handleName(nudged), value1: String(nudgedAt.x), value2: String(nudgedAt.y)})}
-            </p>
+            <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
             <p className="inspector-help" data-projective-selection>{selected === undefined ? t("projective_k1_no_selection") : t("projective_k1_selected", {value0: handleName(selected)})}</p>

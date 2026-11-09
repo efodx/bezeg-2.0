@@ -3,6 +3,8 @@ import {currentLanguage, useT} from '../../../localization'
 import Slider from '../../../inputs/Slider'
 import {UnavailableButton} from '../../../inputs/UnavailableButton'
 import {PlaybackButtons, playbackBlocks} from '../../../graphs/base/controls/PlaybackButtons'
+import {LiveReadout, SettledReadout} from '../../../graphs/base/controls/LiveReadout'
+import {StepCounter} from '../../../graphs/base/controls/StepCounter'
 import {WORLD_HEIGHT, WORLD_WIDTH, createScratch, createWorld, stepWorld} from '../../../compgeo/collisions/world'
 import {replaySweep, traceSweep} from '../../../compgeo/collisions/sweepTrace'
 import type {SweepEvent} from '../../../compgeo/collisions/sweepTrace'
@@ -76,8 +78,8 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
   const [version, setVersion] = useState(0)
   const [applied, setApplied] = useState(0)
   const [playing, setPlaying] = useState(false)
-  const [announcement, setAnnouncement] = useState('')
-  const announceToggle = useRef(false)
+  const readout = useMemo(() => new SettledReadout(), [])
+  useEffect(() => () => readout.cancel(), [readout])
   const [previousPressed, setPreviousPressed] = useState(false)
 
   // The world is mutated in place by Play (`version` re-renders); it is rebuilt only when count or seed change.
@@ -102,11 +104,8 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
     }
   }, [t])
 
-  /** The live region speaks once per step-through action; an alternating no-break space keeps repeated text audible. */
-  const announce = useCallback((text: string): void => {
-    announceToggle.current = !announceToggle.current
-    setAnnouncement(text + (announceToggle.current ? String.fromCharCode(0xa0) : ''))
-  }, [])
+  /** The one live readout speaks once per step-through action (settled, muted while playing); a repeated text is not read again. */
+  const announce = useCallback((text: string): void => { readout.replace(text) }, [readout])
 
   const goTo = (next: number): void => {
     const at = Math.max(0, Math.min(next, trace.events.length))
@@ -148,7 +147,6 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
   const togglePlay = (): void => {
     if (!playing) {
       setPlaying(true)
-      announce(t('collision_inspect_playing'))
     } else {
       setPlaying(false)
       setApplied(trace.events.length)
@@ -245,9 +243,10 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
           {previousPressed && previousReason && <p className="inspector-help" data-playback-reason="previous">{previousReason}</p>}
         </div>
       </div>
-      <p className="collision-inspect__event" data-testid="inspect-event">
-        {playing ? eventText : `${t('collision_inspect_progress', {value0: formatInt(shown), value1: formatInt(trace.events.length)})}. ${eventText}`}
-      </p>
+      <div className="collision-inspect__event" data-testid="inspect-event">
+        {!playing && <StepCounter step={shown - 1} length={trace.events.length} noun="event" hooks={{'data-inspect-progress': ''}}/>}
+        <p className="inspector-help">{eventText}</p>
+      </div>
       <div className="collision-inspect__active">
         <h4 id="collision-inspect-active">{t('collision_inspect_active')}</h4>
         {replay.active.length === 0 ? (
@@ -273,7 +272,7 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
       <p className="collision-playground__note" data-testid="inspect-caption">
         {t('collision_inspect_caption', {value0: formatInt(replay.boxTests), value1: formatInt(pairsTotal), value2: formatInt(count)})}
       </p>
-      <div className="collision-playground__live" role="status" aria-live="polite" data-testid="inspect-live">{announcement}</div>
+      <LiveReadout readout={readout} muted={playing} dataAttribute="inspect-live"/>
     </section>
   )
 }

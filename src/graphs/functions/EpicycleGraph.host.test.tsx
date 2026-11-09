@@ -148,6 +148,11 @@ test('the default model mounts without console errors: a fixed object set, equal
     errors.mockRestore();
 });
 
+test('the epicycle table sits in a scroll-table wrapper', () => {
+    mount();
+    expect(document.querySelector('[data-testid="epicycle-table"] > .readout-scroll-table > table')).not.toBeNull();
+});
+
 test('the status and the table come from the model: N, the terms, the largest term and the sampled trace error', () => {
     const {graph} = mount();
     const model = graph.modelNow();

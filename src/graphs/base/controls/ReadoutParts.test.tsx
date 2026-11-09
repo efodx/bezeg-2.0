@@ -39,22 +39,74 @@ describe('ReadoutList', () => {
     });
 });
 
-test('the heading is an h3 and the help text carries no note role', () => {
+test('the heading is the readout title and the help text is muted plain text without a note role', () => {
     const view = render(<><ReadoutHeading>Naslov</ReadoutHeading><ReadoutHelp hooks={{'data-help': 'x'}}>Pomoč</ReadoutHelp></>);
-    expect(view.getByRole('heading', {level: 3, name: 'Naslov'})).toBeTruthy();
+    expect(view.getByRole('heading', {level: 3, name: 'Naslov'}).className).toBe('inspector-reveals-title');
     const help = view.container.querySelector('[data-help="x"]')!;
+    expect(help.tagName).toBe('P');
+    expect(help.className).toBe('inspector-help');
     expect(help.getAttribute('role')).toBeNull();
+    expect(view.queryByRole('note')).toBeNull();
     expect(help.textContent).toBe('Pomoč');
 });
 
 describe('ReadoutScrollTable', () => {
-    afterEach(() => { vi.unstubAllGlobals(); });
+    afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+
+    /** The width of a table is its text length: a fixed 200 px wrapper, content that grows with its text. */
+    const mockWidths = (client = 200) => {
+        const scrollWidth = vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(function (this: HTMLElement) { return this.textContent!.length * 10; });
+        vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(client);
+        return scrollWidth;
+    };
+    const table = (text: string) => <ReadoutScrollTable label="Tabela"><table><tbody><tr><td>{text}</td></tr></tbody></table></ReadoutScrollTable>;
 
     test('is neither a tab stop nor a region while the table fits', () => {
-        const view = render(<ReadoutScrollTable label="Tabela"><table><tbody><tr><td>1</td></tr></tbody></table></ReadoutScrollTable>);
+        const measured = mockWidths();
+        const view = render(table('kratko'));
         const wrapper = view.container.firstElementChild!;
+        expect(measured).toHaveBeenCalled();
+        expect(wrapper.getAttribute('data-scrolls')).toBe('false');
         expect(wrapper.getAttribute('tabindex')).toBeNull();
         expect(wrapper.getAttribute('role')).toBeNull();
+    });
+
+    test('content that grows inside a fixed-width wrapper makes it a tab stop and a region, and shrinking undoes it', () => {
+        mockWidths();
+        const view = render(table('kratko'));
+        expect(view.queryByRole('region')).toBeNull();
+        view.rerender(table('zelo dolga vrstica, ki je širša od okvirja tabele'));
+        expect(view.getByRole('region', {name: 'Tabela'}).getAttribute('tabindex')).toBe('0');
+        view.rerender(table('kratko'));
+        expect(view.queryByRole('region')).toBeNull();
+    });
+
+    test('observes the table itself, so a size change that no render announced is measured', () => {
+        const callbacks: Array<() => void> = [];
+        const observed: Element[] = [];
+        vi.stubGlobal('ResizeObserver', class {
+            constructor(callback: () => void) { callbacks.push(callback); }
+            observe(target: Element) { observed.push(target); }
+            disconnect() { /* nothing to release */ }
+        });
+        let width = 100;
+        vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(() => width);
+        vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(200);
+        const view = render(table('x'));
+        expect(observed).toContain(view.container.querySelector('table'));
+        expect(view.queryByRole('region')).toBeNull();
+        width = 400;
+        act(() => { callbacks[callbacks.length - 1](); });
+        expect(view.getByRole('region', {name: 'Tabela'})).toBeTruthy();
+    });
+
+    test('takes a tab stop and a name when a capped height makes it scroll down', () => {
+        vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(100);
+        vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(200);
+        vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(500);
+        vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(224);
+        const view = render(table('x'));
+        expect(view.getByRole('region', {name: 'Tabela'}).getAttribute('tabindex')).toBe('0');
     });
 
     test('takes a tab stop and a name when it scrolls sideways', () => {

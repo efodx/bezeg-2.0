@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
+import {FunctionStatus} from "../functions/FunctionStatus";
 import {CountSetter} from "../../inputs/CountSetter";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -405,9 +406,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("complex_roots_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-complex-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" dataAttribute="complex-status" lines={this.statuses(model, view)}/>
         </>;
     }
 }

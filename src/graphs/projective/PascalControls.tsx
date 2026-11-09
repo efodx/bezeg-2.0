@@ -2,6 +2,8 @@ import React from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {SelectablePointButton} from "../../inputs/PointListInput";
 import {useT} from "../../localization";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {DIRECTION_TABLE_SIZE} from "../../projective/conicPencil";
 import {PASCAL_CONIC_IDS, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PascalConicId, PascalExampleId, PascalModel, PascalOrderId, PascalScene, orderIdOf} from "./pascalModel";
 import {describePascal} from "./pascalText";
@@ -48,6 +50,9 @@ export function PascalControls(props: PascalControlsProps) {
     const {model, scene, selected, nudged, actions} = props;
     const text = describePascal(scene, t);
     const button = "btn btn-outline-secondary btn-sm";
+    const nudgeText = nudged === undefined ? "" : t("projective_k2_handle_at", {value0: scene.names[nudged], value1: pointText(scene.handles[nudged])});
+    // The one announcement: the state sentence, then the stepped point; settled, so a drag is not read frame by frame.
+    const liveReadout = useStatusReadout([text.status, nudgeText].filter(Boolean).join("\n"), true);
     const currentOrder = orderIdOf(model.order);
     // An imported file may hold any permutation; it is shown as a disabled entry that cannot be chosen.
     const orderOptions = [...PASCAL_ORDER_IDS.map(id => ({value: id as string, text: t(ORDER_LABELS[id])})),
@@ -65,16 +70,14 @@ export function PascalControls(props: PascalControlsProps) {
                           onChange={id => { if (isOrderId(id)) actions.setOrder(id); }}/>
         </div>
         <div className="inspector-group">
-            <div role="status" data-projective-status={text.kind}>
+            <div data-projective-status={text.kind}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
             </div>
             <p className="inspector-help" data-projective-line="hexagon">{text.hexagon}</p>
             {text.determinant && <p className="inspector-help" data-projective-line="determinant">{text.determinant}</p>}
             {text.points.map((line, i) => <p key={i} className="inspector-help" data-projective-line={`point-${i + 1}`}>{line}</p>)}
             {text.line && <p className="inspector-help" data-projective-line="line">{text.line}</p>}
-            <p className="visually-hidden" role="status" data-projective-nudge>
-                {nudged === undefined ? "" : t("projective_k2_handle_at", {value0: scene.names[nudged], value1: pointText(scene.handles[nudged])})}
-            </p>
+            <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
             <p className="inspector-help" data-projective-selection>

@@ -5,6 +5,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, useT} from "../../localization";
 import type {CoonsCornerMismatch} from "../../bezeg/impl/kernels/coons";
 import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {COONS_BOUNDARY_NAMES, COONS_SHOWN, type CoonsBoundaryName, type CoonsShown} from "./coonsScene";
@@ -77,7 +78,7 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
                 ? <>
                     <PatchPointEditor key={`${selection.name}-${selection.index}`} name={coonsPointName(selection.name, selection.index)} xyz={selection.xyz}
                                  onCommit={coordinates => actions.setSelectedCoordinates(coordinates)}/>
-                    {selection.shared && <p className="inspector-help" role="note">{t("coons_corner_shared")}</p>}
+                    {selection.shared && <ReadoutHelp hooks={{"data-patch-note": "corner-shared"}}>{t("coons_corner_shared")}</ReadoutHelp>}
                 </>
                 : <p className="inspector-help">{t("coons_select_help")}</p>}
         </div>

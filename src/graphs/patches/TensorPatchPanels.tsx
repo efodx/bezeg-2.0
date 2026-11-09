@@ -5,6 +5,7 @@ import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {PatchPointChooser} from "./PatchPointChooser";
 import {PatchPointEditor} from "./PatchPointEditor";
@@ -128,7 +129,7 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
                                onChange={chosen => chosen === undefined ? actions.selectIndex(undefined, undefined)
                                    : actions.selectIndex(chosen[0] === undefined ? undefined : Number(chosen[0]), chosen[1] === undefined ? undefined : Number(chosen[1]))}/>
             {selection && pointLocked !== undefined
-                ? <p className="inspector-help patch-point-locked" role="note">{pointLocked}</p>
+                ? <ReadoutHelp hooks={{"data-patch-note": "point-locked"}}>{pointLocked}</ReadoutHelp>
                 : selection
                 ? <PatchPointEditor key={`${selection.i}-${selection.j}`} name={`P${subscriptDigits(selection.i)}${subscriptDigits(selection.j)}`} xyz={selection.xyz}
                                     onCommit={coordinates => actions.setSelectedCoordinates(coordinates)}/>

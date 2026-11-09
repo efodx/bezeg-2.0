@@ -4,6 +4,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {defaultTriangularPatchPresets} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
@@ -132,7 +133,7 @@ export function TriangularPatchEditPanel({state, selection, actions}: {state: Tr
         <div className="inspector-group"><h3>{t("patch_subdivision_heading")}</h3>
             <OnOffSwitch label={t("patch_subdivision_show")} checked={state.subdivisionPreview} onChange={on => actions.setSubdivisionPreview(on)}/>
             <p className="inspector-help">{t("patch_subdivision_help")}</p>
-            {state.subdivisionPreview && !interior && <p className="inspector-help" role="note">{t("patch_subdivision_interior_required")}</p>}
+            {state.subdivisionPreview && !interior && <ReadoutHelp hooks={{"data-patch-note": "interior-required"}}>{t("patch_subdivision_interior_required")}</ReadoutHelp>}
         </div>
     </>;
 }
@@ -152,8 +153,8 @@ export function TriangularPatchDisplayPanel({state, actions}: {state: Triangular
             <OnOffSwitch label={t("patch_compare_show")} checked={state.compareTensor} onChange={on => actions.setTensorComparison(on)}/>
             <p className="inspector-help">{t("patch_compare_help")}</p>
             {state.compareTensor && <>
-                <p className="inspector-help" role="note">{t("patch_compare_domains")}</p>
-                <p className="inspector-help" role="note">{t("patch_compare_boundaries")}</p>
+                <ReadoutHelp hooks={{"data-patch-note": "compare-domains"}}>{t("patch_compare_domains")}</ReadoutHelp>
+                <ReadoutHelp hooks={{"data-patch-note": "compare-boundaries"}}>{t("patch_compare_boundaries")}</ReadoutHelp>
             </>}
         </div>
         <div className="inspector-group"><h3>{t("patch_density_heading")}</h3>

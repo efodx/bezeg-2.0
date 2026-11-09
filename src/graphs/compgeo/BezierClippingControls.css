@@ -1,0 +1,2 @@
+/* The clipping table scrolls inside the inspector instead of growing it (see ReadoutScrollTable). */
+.bezier-clipping-table { --readout-scroll-max: 16rem; }

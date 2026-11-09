@@ -21,7 +21,7 @@ test('Delaunay: the step counter is the shared one and the readout list keeps it
     const view = render(<DelaunayControls status={status} playing={false} exampleId={undefined}
                                           actions={{nextStep: noop, playPause: noop, reset: noop, loadExample: noop, selectTriangle: noop}}/>);
     expect(view.container.querySelector('[data-step-counter]')!.textContent).toBe('Korak 3 od 7');
-    expect(view.getByRole('list', {name: /.+/, hidden: false}).querySelectorAll('[data-readout]')).toHaveLength(6);
+    expect(view.getByRole('list', {name: 'Števila Delaunayjeve triangulacije'}).querySelectorAll('[data-readout]')).toHaveLength(6);
 });
 
 test('Triangulation: its announcement is the one LiveReadout, not a hand-written status paragraph', () => {
@@ -29,7 +29,8 @@ test('Triangulation: its announcement is the one LiveReadout, not a hand-written
                                                event={{kind: 'rebuilt'} as never} actions={{selectEdge: noop, flip: noop}}/>);
     expect(view.container.querySelector('[data-triangulation="live"]')).toBeNull();
     expect(view.container.querySelectorAll('[data-readout-live]')).toHaveLength(1);
-    expect(view.container.querySelector('[data-triangulation-live]')!.textContent).not.toBe('');
+    expect(view.container.querySelector('[data-triangulation-live]')!.textContent)
+        .toBe('Triangulacija je ponovno zgrajena po začetnem pravilu (vstavljanje točk po vrsti, od leve proti desni), ker prejšnja ni več veljavna.');
 });
 
 test('Notable points: the state chip is plain text and the LiveReadout carries the sentence', () => {

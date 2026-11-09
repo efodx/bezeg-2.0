@@ -42,6 +42,11 @@ test('the default scene draws the circle, L, the image ellipse and the status fo
     expect(graph.model).toEqual(DEFAULT_THREE_VIEWS_MODEL);
     expect(status()?.getAttribute('data-projective-status')).toBe('ellipse');
     expect(status()?.getAttribute('data-projective-contact')).toBe('misses');
+    // Decision 63: the visible status is plain text; the graph's one live region announces it.
+    expect(status()?.getAttribute('role')).toBeNull();
+    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
+    expect(document.querySelector('[data-projective-live]')?.textContent).toContain('ne seka krožnice');
     expect(line('status')).toContain('ne seka krožnice');
     expect(line('equation')).toContain('X² + 3Y² + 4Y + 1 = 0');
     expect(line('discriminant')).toContain('−12');

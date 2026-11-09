@@ -6,6 +6,7 @@ import Slider from "../../inputs/Slider";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {currentLanguage, useT} from "../../localization";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import type {PatchDirection} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import type {PieceCorrespondence} from "./TensorSubdivisionScene";
@@ -29,7 +30,7 @@ export function SubdivisionSplitControls({direction, value, showPieces, onDirect
         <Slider customText={t(direction === "u" ? "patch_split_value_u" : "patch_split_value_v")} min={SUBDIVISION_RANGE.min} max={SUBDIVISION_RANGE.max}
                 step={0.01} value={value} onChange={onValue}/>
         <p className="inspector-help">{t("patch_split_help")}</p>
-        {showPieces && <p className="inspector-help patch-split-locked" role="note">{t("patch_pieces_locked")}</p>}
+        {showPieces && <ReadoutHelp hooks={{"data-patch-note": "split-locked"}}>{t("patch_pieces_locked")}</ReadoutHelp>}
     </div>;
 }
 

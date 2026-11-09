@@ -33,7 +33,7 @@ const modeSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_
 const alphaSlider = () => screen.getByLabelText<HTMLInputElement>(t("patch_join_alpha"));
 const alphaField = () => screen.getByRole<HTMLInputElement>("spinbutton", {name: t("number_field_label", {value0: t("patch_join_alpha")})});
 const state = () => document.querySelector('[data-readout="state"] dd')!.textContent;
-const note = () => document.querySelector('[role="note"]')!.textContent!;
+const note = () => document.querySelector('[data-readout-note]')!.textContent!;
 /** The paragraph the alpha slider points at with aria-describedby (its help, which carries the reason while disabled). */
 const alphaDescription = () => alphaSlider().getAttribute("aria-describedby")!.split(" ")
     .map(id => document.getElementById(id)!.textContent!).join(" ");
@@ -42,7 +42,7 @@ const degreeU = () => degreeField("patch_join_b_degree_u");
 const degreeV = () => degreeField("patch_join_b_degree_v");
 const rowSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_index_i"));
 const columnSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_index_j"));
-const derivedNote = () => document.querySelector(".patch-join-derived-note");
+const derivedNote = () => document.querySelector('[data-patch-note="join-derived"]');
 const bEditor = () => document.querySelector(".patch-join-b-point .patch-point-editor");
 const sceneSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_scenes_heading"));
 const useScene = (id: string) => fireEvent.change(sceneSelect(), {target: {value: String(joinStartingScenes.findIndex(scene => scene.id === id))}});
@@ -117,7 +117,7 @@ describe("patch B", () => {
         expect(graph.selectedBIndex()).toBeUndefined();
         expect(bEditor()).toBeNull();
         expect(derivedNote()!.textContent).toBe(t("patch_join_b_derived_note", {value0: "Q₁₂"}));
-        expect(derivedNote()!.getAttribute("role")).toBe("note");
+        expect(derivedNote()!.getAttribute("role")).toBeNull();
         act(() => graph.setSelectedCoordinates([9, 9, 9]));
         expect(graph.state.netB).toBe(before);
         expect(graph.bNet()[1][2]).not.toEqual([9, 9, 9]);
@@ -245,13 +245,13 @@ describe("report wording", () => {
         expect(joinReportCase(report)).toBe("c0-planes");
         const rendered = render(<JoinReportPanel report={report}/>);
         expect(rendered.container.querySelector('[data-readout="state"] dd')!.textContent).toBe(t("patch_join_state_c0_planes"));
-        const text = rendered.container.querySelector('[role="note"]')!.textContent!;
+        const text = rendered.container.querySelector('[data-readout-note]')!.textContent!;
         expect(text).toBe(t("patch_join_report_c0_planes"));
         expect(text).toContain("tangentni ravnini");
         expect(text).toContain("ni C1 in ni G1 s stalnim razmerjem");
         expect(text).not.toContain("ostri rob.");
         act(() => setLanguage("en"));
-        expect(rendered.container.querySelector('[role="note"]')!.textContent).toContain("neither C1 nor G1 with a constant ratio");
+        expect(rendered.container.querySelector('[data-readout-note]')!.textContent).toContain("neither C1 nor G1 with a constant ratio");
     });
 
     it("the C1 and G1 texts only claim tangent planes where they are defined", () => {
@@ -271,7 +271,7 @@ describe("report wording", () => {
         expect(joinReportCase(report)).toBe("vanish");
         const rendered = render(<JoinReportPanel report={report}/>);
         expect(rendered.container.querySelector('[data-readout="state"] dd')!.textContent).toBe(t("patch_join_state_vanish"));
-        const text = rendered.container.querySelector('[role="note"]')!.textContent!;
+        const text = rendered.container.querySelector('[data-readout-note]')!.textContent!;
         expect(text).toBe(t("patch_join_report_vanish"));
         expect(text).toContain("ni določena z odvodom");
         expect(text).toContain("ne moremo sklepati");

@@ -21,6 +21,7 @@ import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 
 /** Time between two playback steps: one step per interval, never more than one per frame (ADR 0012), as for bisection. */
 export const ROOT_FINDING_STEP_INTERVAL_MS = 600;
@@ -345,7 +346,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                         </tr>)}
                     </tbody>
                 </table>
-                {first > 0 && <p className="inspector-help" role="note">{t("root_finding_table_truncated", {value0: ROOT_FINDING_TABLE_ROWS})}</p>}
+                {first > 0 && <ReadoutHelp>{t("root_finding_table_truncated", {value0: ROOT_FINDING_TABLE_ROWS})}</ReadoutHelp>}
             </div>
             <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[status]} muted={this.playback.isPlaying}/>
         </>;

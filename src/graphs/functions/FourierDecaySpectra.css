@@ -14,6 +14,6 @@
 .fourier-decay-label-x { transform: translateX(-50%); }
 .fourier-decay-reference { fill: none; stroke: var(--workspace-ink-soft); stroke-width: 1.2; stroke-dasharray: 4 3; }
 .fourier-decay-zero { fill: var(--workspace-panel); stroke: var(--workspace-ink); stroke-width: 1.2; }
-.fourier-decay-key, .fourier-decay-note { margin: .15rem 0 0; color: var(--workspace-ink-soft); font-size: .8rem; font-weight: 400; }
+.fourier-decay-key { margin: .15rem 0 0; color: var(--workspace-ink-soft); font-size: .8rem; font-weight: 400; }
 .fourier-decay-table { width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
 .fourier-decay-table th, .fourier-decay-table td { padding: 0 .4rem; text-align: right; }

@@ -80,7 +80,7 @@ const controls = (graph: any) => {
     const selects = found.ChoiceSelect;
     return {x1, y1, x2, y2, button, selects, notices: (found.p ?? []).filter((p: any) => p.props['data-linear-map-notice']), found};
 };
-const statusIds = (graph: any) => (collect(graph.renderReadout()).p ?? []).filter((p: any) => p.props['data-linear-map-status']).map((p: any) => p.props['data-linear-map-status']);
+const statusIds = (graph: any) => (collect(graph.renderReadout()).FunctionStatus[0].props.lines as {id: string}[]).map(line => line.id);
 const readout = (graph: any, id: string) => {
     const rows = collect(graph.renderReadout()).FunctionReadout[0].props.rows as {id: string; value: string}[];
     return rows.find(row => row.id === id)?.value;
@@ -460,13 +460,13 @@ describe('language switch', () => {
         expect(readout(graph, 'orientation')).toBe('obrnjena');
         expect(readout(graph, 'a1')).toBe('(1, 2)');
         const slRows = JSON.stringify(collect(graph.renderReadout()).FunctionReadout[0].props.rows);
-        const slStatus = JSON.stringify(collect(graph.renderReadout()).p);
+        const slStatus = JSON.stringify(collect(graph.renderReadout()).FunctionStatus);
         setLanguage('en');
         expect(caption(graph).join('|')).toContain('Orientation: reversed');
         expect(readout(graph, 'orientation')).toBe('reversed');
         expect(JSON.stringify(collect(graph.renderReadout()).FunctionReadout[0].props.rows)).not.toBe(slRows);
-        expect(JSON.stringify(collect(graph.renderReadout()).p)).not.toBe(slStatus);
-        expect(JSON.stringify(collect(graph.renderReadout()).p)).toContain('reversed');
+        expect(JSON.stringify(collect(graph.renderReadout()).FunctionStatus)).not.toBe(slStatus);
+        expect(JSON.stringify(collect(graph.renderReadout()).FunctionStatus)).toContain('reversed');
         const select = controls(graph).selects[0];
         expect(select.props.label).toBe('Example matrix');
         expect(select.props.options.map((option: any) => option.text)).toContain('B: reversed orientation');

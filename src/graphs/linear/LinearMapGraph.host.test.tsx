@@ -110,6 +110,17 @@ test('a real board: handles, fields, Reset, example and mode keep the model, rea
     expect(graph.liveBoard().objectsList.length).toBe(baseline);
 });
 
+test('the visible statuses are plain text; the graph announces them through its one settled live region (decision 63)', () => {
+    const graph = new ObservedLinearMapGraph();
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    act(() => { graph.setMatrixDirectly([[0, 0], [0, 0]]); });
+    const first = document.querySelector('[data-linear-map-status]')!;
+    expect(first.closest('[role="status"], [aria-live]')).toBeNull();
+    const live = document.querySelectorAll('[data-readout-live]');
+    expect(live).toHaveLength(1);
+    expect(live[0].textContent).toContain(first.textContent);
+});
+
 test('a live language switch updates the board caption, labels, readouts and statuses and asks the board to redraw', () => {
     const graph = new ObservedLinearMapGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);

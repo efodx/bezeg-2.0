@@ -7,6 +7,7 @@ import {directionIndex, handlePoint, PASCAL_DEFAULT_INDICES, PASCAL_EXAMPLES, PA
 import {nearestIndex} from './pascalEdit';
 import {toAffine} from '../../projective/homogeneous';
 import {GraphHost} from '../base/GraphHost';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption} from './controlsTest';
@@ -324,16 +325,22 @@ test('the live region holds the state sentence only; an arrow step announces jus
     const graph = new Observed();
     mount(graph);
     const live = document.querySelector('[data-projective-status]')!;
-    expect(live.getAttribute('role')).toBe('status');
+    expect(live.getAttribute('role')).toBeNull();
+    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
     expect(live.querySelector('[data-projective-line="status"]')).not.toBeNull();
     expect(live.querySelector('[data-projective-line="determinant"]')).toBeNull();
     expect(live.querySelector('[data-projective-line="point-1"]')).toBeNull();
     expect(live.querySelector('[data-projective-line="line"]')).toBeNull();
-    const nudge = () => document.querySelector('[data-projective-nudge]')!.textContent;
-    expect(nudge()).toBe('');
-    act(() => { graph.select(0); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(nudge()).toMatch(/^Točka A = \(/);
+    const nudge = () => document.querySelector('[data-projective-live]')!.textContent;
+    expect(nudge()).not.toMatch(/Točka A = \(/);
+    vi.useFakeTimers();
+    try {
+        act(() => { graph.select(0); });
+        act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
+        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 50); });
+        expect(nudge()).toMatch(/Točka A = \(/);
+    } finally { vi.useRealTimers(); }
 });
 
 test('selecting a point from the inspector moves the focus to the board so the arrow keys work', () => {

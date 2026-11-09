@@ -5,6 +5,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {PolePolarGraph} from './PolePolarGraph';
 import {POLE_POLAR_EXAMPLES} from './polePolarModel';
 import {GraphHost} from '../base/GraphHost';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption, typeNumber} from './controlsTest';
@@ -228,17 +229,23 @@ test('the live region holds the status and the polar only; an arrow step announc
     const graph = new Observed();
     mount(graph);
     const live = document.querySelector('[data-projective-status]')!;
-    expect(live.getAttribute('role')).toBe('status');
+    expect(live.getAttribute('role')).toBeNull();
+    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
     expect(live.querySelector('[data-projective-line="status"]')).not.toBeNull();
     expect(live.querySelector('[data-projective-line="polar"]')).not.toBeNull();
     expect(live.querySelector('[data-projective-line="tangent-1"]')).toBeNull();
     expect(live.querySelector('[data-projective-line="tangency-1"]')).toBeNull();
     expect(live.querySelector('[data-projective-line="centre"]')).toBeNull();
-    const nudge = () => document.querySelector('[data-projective-nudge]')!.textContent;
-    expect(nudge()).toBe('');
-    act(() => { graph.select(true); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(nudge()).toBe('Točka P = (6/5, 21/5)');
+    const nudge = () => document.querySelector('[data-projective-live]')!.textContent;
+    expect(nudge()).not.toContain('Točka P = (6/5, 21/5)');
+    vi.useFakeTimers();
+    try {
+        act(() => { graph.select(true); });
+        act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
+        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 50); });
+        expect(nudge()).toContain('Točka P = (6/5, 21/5)');
+    } finally { vi.useRealTimers(); }
 });
 
 test('selecting P from the inspector moves the focus to the board so the arrow keys work', () => {

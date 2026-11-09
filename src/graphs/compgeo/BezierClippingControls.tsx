@@ -10,6 +10,8 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
+import {ReadoutScrollTable} from "../base/controls/ReadoutParts";
+import "./BezierClippingControls.css";
 
 export interface BezierClippingControlsProps {
     /** What the shown step knows (the graph's `clipState`). */
@@ -98,7 +100,8 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
             <p className="inspector-help" data-bezier-clipping="clips">{count}</p>
             {widest !== null && <p className="inspector-help" data-bezier-clipping="widest">{widest}</p>}
         </div>
-        <div className="inspector-group" style={{maxHeight: "16rem", overflow: "auto"}}>
+        <div className="inspector-group bezier-clipping-table">
+            <ReadoutScrollTable label={t("bezierclipping_table_caption")}>
             <table data-bezier-clipping="table" style={{width: "100%", fontSize: "1rem", fontVariantNumeric: "tabular-nums", borderCollapse: "collapse"}}>
                 <caption style={{textAlign: "left", fontWeight: 700}}>{t("bezierclipping_table_caption")}</caption>
                 <thead>
@@ -119,6 +122,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
                     </tr>}
                 </tbody>
             </table>
+            </ReadoutScrollTable>
         </div>
         <Inset controller={props.inset} fontSize={props.fontSize}/>
         {/* Silent while Play runs (a tick each interval would flood a screen reader); announces once on Pause or at the end. */}

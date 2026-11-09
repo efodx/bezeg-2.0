@@ -64,7 +64,7 @@ const readout = (graph: any, id: string): string | undefined => {
     return rows.find(row => row.id === id)?.value;
 };
 const statusIds = (graph: any): string[] =>
-    (collect(graph.renderReadout()).p ?? []).filter((p: any) => p.props['data-linear-map-status']).map((p: any) => p.props['data-linear-map-status']);
+    (collect(graph.renderReadout()).FunctionStatus[0].props.lines as {id: string}[]).map(line => line.id);
 
 /** Runs the actions of one lesson step in one synchronous tick, as the lesson runtime does. */
 const runStep = (graph: any, lesson: LessonDefinition, stepId: string) => {

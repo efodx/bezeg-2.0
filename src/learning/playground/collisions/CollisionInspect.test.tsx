@@ -16,7 +16,7 @@ function expected(count: number, seed: number) {
 
 const next = () => screen.getByRole('button', {name: 'Naslednji korak'}) as HTMLButtonElement
 const prev = () => screen.getByRole('button', {name: 'Prejšnji korak'}) as HTMLButtonElement
-const live = () => screen.getByTestId('inspect-live')
+const live = () => document.querySelector('[data-inspect-live]') as HTMLElement
 const eventText = () => screen.getByTestId('inspect-event').textContent ?? ''
 const clean = (s: string | null) => (s ?? '').replace(/ /g, '')
 
@@ -180,7 +180,7 @@ describe('live region', () => {
     expect(live().getAttribute('aria-live')).toBe('polite')
     expect(live().textContent).toBe('')
     fireEvent.click(next())
-    expect(clean(live().textContent)).toBe(`Vstop objekta ${t.events[0].body + 1} pri x = ${Math.round(t.events[0].x)}`)
+    expect(clean(live().textContent)).toBe(`Vstop objekta ${t.events[0].body + 1} pri x = ${Math.round(t.events[0].x)}.`)
     const spoken = live().textContent
     // A re-render without an action does not change the region.
     fireEvent.change(screen.getAllByRole('spinbutton')[0], {target: {value: '20'}})
@@ -198,13 +198,18 @@ describe('live region', () => {
     expect(live().textContent).toBe(spoken)
   })
 
-  it('repeats an identical message audibly by alternating a no-break space', () => {
+  it('is one muted-while-playing region and does not repeat an identical message', () => {
     render(<CollisionInspect/>)
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1)
     fireEvent.click(screen.getByRole('button', {name: 'Nova razporeditev'}))
     const a = live().textContent
+    expect(a).not.toBe('')
     fireEvent.click(screen.getByRole('button', {name: 'Nova razporeditev'}))
-    expect(live().textContent).not.toBe(a)
-    expect(clean(live().textContent)).toBe(clean(a))
+    expect(live().textContent).toBe(a)
+    fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'}))
+    expect(live().textContent).toBe('')
+    fireEvent.click(screen.getByRole('button', {name: 'Premor'}))
+    expect(live().textContent).not.toBe('')
   })
 })
 
@@ -228,7 +233,7 @@ describe('keyboard path', () => {
     expect(prev().getAttribute('aria-disabled')).toBe('false')
   })
 
-  it('keeps Previous, Next, Play, New in DOM order, and Previous (unavailable but focusable) shows its reason once pressed', () => {
+  it('keeps Previous, Next, Play, New in DOM order, and Previous (unavailable but focusable) shows its reason once pressed in a polite region', () => {
     render(<CollisionInspect/>)
     const names = Array.from(screen.getByRole('group', {name: 'Korakanje po pometanju in gibanje'}).querySelectorAll('button')).map(b => b.getAttribute('data-action'))
     expect(names).toEqual(['previous-step', 'next-step', 'play-pause', 'new-arrangement'])
@@ -236,7 +241,9 @@ describe('keyboard path', () => {
     expect(prev().hasAttribute('disabled')).toBe(false)
     expect(prev().getAttribute('title')).toBe('Prikaz je že na začetku.')
     fireEvent.click(prev())
-    expect(document.querySelector('[data-playback-reason="previous"]')?.textContent).toBe('Prikaz je že na začetku.')
+    const reason = document.querySelector('[data-playback-reason="previous"]')
+    expect(reason?.textContent).toBe('Prikaz je že na začetku.')
+    expect(reason?.parentElement?.getAttribute('role')).toBe('status')
     userEvent.tab()
     expect(document.activeElement).toBe(next())
     userEvent.tab()

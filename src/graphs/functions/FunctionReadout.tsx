@@ -1,5 +1,6 @@
 import React from "react";
 import {useT} from "../../localization";
+import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../base/controls/ReadoutParts";
 import "./FunctionReadout.css";
 
 export interface ReadoutRow {
@@ -18,14 +19,9 @@ export function FunctionReadout(props: { title: string; rows: readonly ReadoutRo
     useT();
     const notes = props.note === undefined ? [] : typeof props.note === "string" ? [props.note] : props.note;
     return <div className="inspector-group function-readout">
-        <h3>{props.title}</h3>
-        <dl>
-            {props.rows.map(row => <div key={row.id} className="function-readout-row" data-readout={row.id}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-            </div>)}
-        </dl>
-        {notes.map(note => <p key={note} className="inspector-help" role="note">{note}</p>)}
+        <ReadoutHeading>{props.title}</ReadoutHeading>
+        <ReadoutList label={props.title} rows={props.rows}/>
+        {notes.map(note => <ReadoutHelp key={note} hooks={{"data-readout-note": ""}}>{note}</ReadoutHelp>)}
     </div>;
 }
 

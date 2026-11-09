@@ -5,6 +5,7 @@ import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
+import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {PatchPointChooser} from "./PatchPointChooser";
 import {PatchPointEditor} from "./PatchPointEditor";
@@ -132,7 +133,7 @@ function JoinBPointControlsBody({netB, isDerivedRow, selected, onSelect, onApply
             ? <PatchPointEditor key={selected.join("-")} name={nameOf(selected[0], selected[1])}
                            xyz={netB[selected[0]][selected[1]]} onCommit={onApply}/>
             : focus
-                ? <p className="inspector-help patch-join-derived-note" role="note">{t("patch_join_b_derived_note", {value0: nameOf(focus[0], focus[1])})}</p>
+                ? <ReadoutHelp hooks={{"data-patch-note": "join-derived"}}>{t("patch_join_b_derived_note", {value0: nameOf(focus[0], focus[1])})}</ReadoutHelp>
                 : <p className="inspector-help">{t("patch_join_b_point_help")}</p>}
     </div>;
 }

@@ -48,6 +48,11 @@ test('the default scene draws A to E, P1, F1, F2, S and reads the weight and the
     expect([p1.X(), p1.Y()]).toEqual([5, 3]);
     expect(status()?.getAttribute('data-projective-status')).toBe('ok');
     expect(status()?.getAttribute('data-projective-stale')).toBe('false');
+    // Decision 63: the visible status is plain text; the graph's one live region announces it.
+    expect(status()?.getAttribute('role')).toBeNull();
+    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
+    expect(document.querySelector('[data-projective-live]')?.textContent).toContain(line('status'));
     expect(line('weight')).toContain('1/2');
     expect(line('deviation')).toContain('vzorc');
     expect(boardTexts(graph).join(' ')).toContain('w² = 1/2');

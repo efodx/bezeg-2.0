@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
+import {FunctionStatus} from "../functions/FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -461,9 +462,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("linear_map_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-linear-map-status={status.id}>{status.text}</p>)}
-            </div>
+            <FunctionStatus className="demo-status" dataAttribute="linear-map-status" lines={this.statuses(model, view)}/>
         </>;
     }
 }

@@ -1,3 +1,9 @@
 dl.readout-list { margin: 0; }
-.readout-scroll-table { max-width: 100%; overflow-x: auto; }
+/* The labelled rows of a readout list: the term at the left, the value right-aligned in tabular figures. */
+.readout-list-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; }
+.readout-list-row > * { min-width: 0; overflow-wrap: anywhere; }
+.readout-list-row dt { font-weight: 600; font-size: .86rem; }
+.readout-list-row dd { margin: 0; font-variant-numeric: tabular-nums; font-size: .95rem; font-weight: 600; text-align: right; }
+/* A caller may cap the height by setting --readout-scroll-max on an ancestor; the table then scrolls down as well. */
+.readout-scroll-table { max-width: 100%; max-height: var(--readout-scroll-max, none); overflow: auto; }
 .readout-scroll-table[data-scrolls="true"]:focus-visible { outline: 2px solid var(--workspace-green); outline-offset: 2px; }

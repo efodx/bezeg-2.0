@@ -2,6 +2,8 @@ import React from "react";
 import {BooleanField} from "../../inputs/BooleanField";
 import Slider from "../../inputs/Slider";
 import {useLanguage, useT} from "../../localization";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {formatNumber} from "../../analysis/format";
 import {
     THREE_VIEWS_ANGLE_STEPS, THREE_VIEWS_LIMIT, THREE_VIEWS_STEP_DEGREES, THREE_VIEWS_TENTHS, ThreeViewsModel, ThreeViewsScene,
@@ -30,6 +32,8 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
     const {language} = useLanguage();
     const {model, scene, actions} = props;
     const text = describeThreeViews(scene, t, language);
+    // The one announcement: the type of the conic; settled, so a slider drag is not read frame by frame.
+    const liveReadout = useStatusReadout(text.status, true);
     const angleDegrees = model.angle * THREE_VIEWS_STEP_DEGREES;
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
@@ -40,9 +44,10 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
             <p className="inspector-help" data-projective-line="c">{t("projective_three_views_slider_value", {value0: formatNumber(model.c / THREE_VIEWS_TENTHS, language, 1)})}</p>
         </div>
         <div className="inspector-group">
-            <div role="status" data-projective-status={scene.type} data-projective-contact={scene.contact}>
+            <div data-projective-status={scene.type} data-projective-contact={scene.contact}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
             </div>
+            <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
             <p className="inspector-help" data-projective-line="equation">{text.equation}</p>
             <p className="inspector-help" data-projective-line="discriminant">{text.discriminant}</p>
             <p className="inspector-help" data-projective-line="determinant">{text.determinant}</p>

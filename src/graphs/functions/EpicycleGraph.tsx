@@ -1,5 +1,6 @@
 import React, {useSyncExternalStore} from "react";
 import {PlaybackButtons} from "../base/controls/PlaybackButtons";
+import {ReadoutHelp, ReadoutScrollTable} from "../base/controls/ReadoutParts";
 import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend} from "./FunctionReadout";
 import {TransientState} from "../base/BaseGraph";
@@ -493,7 +494,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                               options={EPICYCLE_PARAMETRIZATIONS.map(id => ({value: id, text: parametrizationText[id]}))}
                               onChange={next => this.attempt(() => this.setParametrization(next))}/>
                 {state.parametrization === "chord" && analysis.fellBack
-                    && <p className="inspector-help" role="note" data-testid="epicycle-chord-fallback">{t("epicycle_chord_fallback")}</p>}
+                    && <ReadoutHelp hooks={{"data-testid": "epicycle-chord-fallback"}}>{t("epicycle_chord_fallback")}</ReadoutHelp>}
             </div>
             <EpicyclePlayback graph={this}/>
             <InspectorDisclosure title={t("epicycle_handles_summary")}>
@@ -563,7 +564,8 @@ function EpicycleTable(props: { rows: readonly { k: number; modulus: number }[] 
     const text = useT();
     const language = currentLanguage();
     return <div className="inspector-group">
-        <div className="epicycle-table" data-testid="epicycle-table" role="region" tabIndex={0} aria-label={text("epicycle_table_summary")}>
+        <div className="epicycle-table" data-testid="epicycle-table">
+            <ReadoutScrollTable label={text("epicycle_table_summary")}>
             <table>
                 <caption>{text("epicycle_table_summary")}</caption>
                 <thead><tr><th scope="col">{text("epicycle_table_k")}</th><th scope="col">{text("epicycle_table_modulus")}</th></tr></thead>
@@ -574,6 +576,7 @@ function EpicycleTable(props: { rows: readonly { k: number; modulus: number }[] 
                 </tr>)}
                 </tbody>
             </table>
+            </ReadoutScrollTable>
         </div>
     </div>;
 }

@@ -36,6 +36,16 @@ const statusIds = () => [...document.querySelectorAll('[data-complex-status]')].
 const boardObjects = (graph: ObservedComplexGraph) => graph.liveBoard().objectsList.length;
 const field = (name: RegExp | string) => screen.getByLabelText(name) as HTMLInputElement;
 
+test('the visible statuses are plain text; the graph announces them through its one settled live region (decision 63)', () => {
+    const graph = new ObservedComplexGraph();
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    expect(statusIds()).toEqual(['hidden']);
+    expect(document.querySelector('[data-complex-status]')!.closest('[role="status"], [aria-live]')).toBeNull();
+    const live = document.querySelectorAll('[data-readout-live]');
+    expect(live).toHaveLength(1);
+    expect(live[0].textContent).toContain(document.querySelector('[data-complex-status]')!.textContent);
+});
+
 test('a real board shows z, w and zw: the fields, the polar fields, the example and the Show buttons change the model and the readouts', () => {
     const graph = new ObservedComplexGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);

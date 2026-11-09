@@ -2,6 +2,8 @@ import React, {useMemo} from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PointListInput} from "../../inputs/PointListInput";
 import {useLanguage, useT} from "../../localization";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {
     POLE_POLAR_CONIC_IDS, POLE_POLAR_DENOMINATOR, POLE_POLAR_DIRECTION_LIMIT, POLE_POLAR_EXAMPLE_IDS, POLE_POLAR_NUMERATOR_LIMIT, PolePolarConicId,
     PolePolarDirection, PolePolarExampleId, PolePolarModel, PolePolarScene, pointText,
@@ -53,6 +55,9 @@ export function PolePolarControls(props: PolePolarControlsProps) {
     const finite = useMemo(() => [[model.p.x / POLE_POLAR_DENOMINATOR, model.p.y / POLE_POLAR_DENOMINATOR] as const], [model]);
     const direction = useMemo(() => [[model.ideal?.dx ?? 0, model.ideal?.dy ?? 0] as const], [model]);
     const where = pointText(scene.p);
+    const nudgeText = !nudged ? "" : scene.ideal ? t("projective_k3_status_ideal", {value0: where}) : t("projective_k3_nudged", {value0: where});
+    // The one announcement: the region and polar, then the stepped P; settled, so a drag is not read frame by frame.
+    const liveReadout = useStatusReadout([text.status, text.polar, nudgeText].filter(Boolean).join("\n"), true);
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
             <ChoiceSelect label={t("projective_k3_example_label")} value={model.example} options={exampleOptions}
@@ -62,7 +67,7 @@ export function PolePolarControls(props: PolePolarControlsProps) {
                           onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
         </div>
         <div className="inspector-group">
-            <div role="status" data-projective-status={text.region}>
+            <div data-projective-status={text.region}>
                 <p className="inspector-help" data-projective-line="status">{text.status}</p>
                 {text.polar && <p className="inspector-help" data-projective-line="polar">{text.polar}</p>}
             </div>
@@ -70,9 +75,7 @@ export function PolePolarControls(props: PolePolarControlsProps) {
             {text.tangency.map((line, i) => <p key={i} className="inspector-help" data-projective-line={`tangency-${i + 1}`}>{line}</p>)}
             {text.numerical && <p className="inspector-help" data-projective-line="numerical">{text.numerical}</p>}
             <p className="inspector-help" data-projective-line="centre">{text.centre}</p>
-            <p className="visually-hidden" role="status" data-projective-nudge>
-                {!nudged ? "" : scene.ideal ? t("projective_k3_status_ideal", {value0: where}) : t("projective_k3_nudged", {value0: where})}
-            </p>
+            <LiveReadout readout={liveReadout} dataAttribute="projective-live"/>
         </div>
         <div className="inspector-group">
             <p className="inspector-help" data-projective-selection>{selected ? t("projective_k1_selected", {value0: "P"}) : t("projective_k1_no_selection")}</p>
