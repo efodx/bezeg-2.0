@@ -13,7 +13,9 @@
 .function-readout p[role="note"] { color: var(--workspace-ink-soft); font-size: .82rem; line-height: 1.5; }
 /* Mathematical status (a jump, a term outside the band, a value not attained): an observation, not an input error. Muted ink
    with a thin ochre rule for the state; there is no danger or error styling here. */
+.function-inspector .function-status > p.inspector-help,
 .function-inspector [role="status"] > p.inspector-help { margin: 0; padding-left: 8px; border-left: 2px solid var(--workspace-pollen); color: var(--workspace-ink); }
+.function-inspector .function-status > p.inspector-help + p.inspector-help,
 .function-inspector [role="status"] > p.inspector-help + p.inspector-help { margin-top: 6px; }
 .function-points-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
 /* Consecutive inputs and sliders of the function inspector get a gap (the shared slider and number blocks have none). */
