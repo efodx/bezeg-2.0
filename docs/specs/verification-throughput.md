@@ -67,10 +67,10 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - Exit tests are interleaved between rows, so `--shard=N/3` gets 3 / 2 / 2 Exit rows instead of 0 / 6 / 1.
   - A five-lesson subset fell from 162.8 s to 124.7 s of test time locally. The full guided-lessons spec passed locally, apart from one local socket error that passed on rerun.
   - Hosted lesson-shard times are not yet observed.
-- Hosted judgement, handler 4 ([phase4-6a-hosted.md](../reviews/verification-throughput/phase4-6a-hosted.md)). Two of three runs so far (42541468552, 42545997964):
-  - Unit non-test time (setup + environment + import, summed over shards) was 320 and 296 s, against 364 and 357 before phase 4. Phase 4 holds so far.
-  - Unit critical path was 8:33 and 8:30, at the bar of about 8:30, so the shard map is not yet shown to beat it.
-  - Phase 6a: lesson test steps were 3.0 / 3.2 / 2.7 min, against 4.4 / 5.2 / 3.4. other-specs stayed at 5.5 min, now the slowest Chromium job. Neither `maxFailures` nor the 60 s timeout fired.
+- Hosted judgement, handler 4 ([phase4-6a-hosted.md](../reviews/verification-throughput/phase4-6a-hosted.md)), over three runs (42541468552, 42545997964, 42552202709):
+  - Phase 4 stays. Unit non-test time (setup + environment + import, summed over shards) was 320, 296 and 313 s, a mean of 310 s against 364 and 357 s before phase 4.
+  - The per-file shard map stays. The unit critical path was 8:33, 8:30 and 8:06, a mean of 8:23 against the 8:30 bar. That margin is inside runner variance, and the critical shard moved between runs.
+  - Phase 6a holds. Lesson test steps were 3.0 / 3.2 / 2.7 and 3.9 / 2.9 / 2.6 min, against 4.4 / 5.2 / 3.4. other-specs went from 5.5 to 4.7 min once catalogue batching landed. Neither `maxFailures` nor the 60 s timeout fired.
 - Phase 6, catalogue batching: the catalogue card loop and the two all-clips decode loops each run as one in-page pass, and failures name the card id. Locally the tests took 31.0 → 0.9 s, 22.1 → 10.5 s and 20.6 → 17.5 s. The 390 px test is bound by decoding, not round trips. Five injected faults each failed and named their card. Hover in the batched clip loops is a synthetic `pointerover`; real-mouse hover stays covered by the file's first and last tests.
 - Phase 6, lesson-walk scoping: `scripts/ci-change-scope.cjs` emits `lesson_grep` for the lessons-N shards.
   - All rows run when the change touches the lesson runtime or shared paths, the smoke helpers, the Playwright config or the workflow, and on dispatch or an undecidable scope.
@@ -78,7 +78,7 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - Any other change walks 24 representative rows, which include all Exit samples, plus the spec's standalone extras describes: 74 of 292 tests.
   - Deploying pushes use the scoped set, because the unit sweeps and other-specs still run in full.
   - A shard left without rows passes (`--pass-with-no-tests`).
-- Phase 1 item 4: [ADR 0043](../adr/0043-background-publish-worktree.md) decides on a background publish from a detached per-publish worktree. Implementation is in progress.
+- Phase 1 item 4: [ADR 0043](../adr/0043-background-publish-worktree.md) decides on a background publish from a detached per-publish worktree. It is implemented as `just publish --background` and `--status` (`a5eec7a9`). Engineering review findings were fixed before commit: internal flags could delete a foreground checkout, two runs could start at once, and failed starts leaked worktrees. 35 gate tests pass.
 
 **Follow-ups:**
 

@@ -10,6 +10,9 @@ Non-test time here is setup + environment + import, as in handoff 3 (transform e
 | --- | --- | --- | --- | --- | --- |
 | 42541468552 | `eb9af4bc` | 444 / 346 / 316 / 314 | 8:33 critical (shard 1) | 320 | 1050 |
 | 42545997964 | `38805767` | 257 / 444 / 414 / 236 | 5:03 / 8:30 / 7:59 / 4:57 | 296 | about 1005 |
+| 42552202709 | `0c672035` | 421 / 341 / 305 / 308 | 8:06 / 6:39 / 6:05 / 6:13 | 313 | about 1020 |
+
+Verdict after three runs: mean non-test 310 s against about 360 s before phase 4, so phase 4 stays. Mean unit critical path 8:23 (8:33, 8:30, 8:06) against the 8:30 bar: the per-file shard map stays, but its margin is inside runner variance; the critical shard moved between runs (1, 2, 1).
 
 Run 42546128156 (`1247d217`) was documentation-only and ran no checks.
 
@@ -20,5 +23,6 @@ Audit test step before phase 6a: lessons-1/2/3 4.4 / 5.2 / 3.4 min, other-specs 
 | Run | Commit | Test step (Playwright total) lessons-1/2/3, other | Job wall lessons-1/2/3, other | Failures |
 | --- | --- | --- | --- | --- |
 | 42545997964 | `38805767` | 3.0 / 3.2 / 2.7, 5.5 min | 4:01 / 4:07 / 3:39, 6:55 | none; `maxFailures` and the 60 s timeout did not fire |
+| 42552202709 | `0c672035` (all rows; catalogue batching in) | 3.9 / 2.9 / 2.6, 4.7 min | 5:15 / 3:46 / 3:31, 6:05 | none |
 
-Lesson shards fell by 1.4–2.0 min and are now even. other-specs (5.5 min, critical among Chromium jobs) is unchanged within runner variance; the catalogue batching slice targets it.
+Lesson shards fell by 0.5–2.3 min against the audit and no longer carry a 2-minute imbalance. other-specs, the slowest Chromium job, was 5.5 min before catalogue batching and 4.7 min with it, against the audit's 5.1. Neither `maxFailures` nor the 60 s timeout caused a failure on either run.
