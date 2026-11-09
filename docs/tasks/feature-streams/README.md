@@ -27,6 +27,7 @@ The owner waived the session-usage limit behind the workflow's three-worker cap 
 | Contracts | [contracts.md](contracts.md) | Runtime contracts tasks 1, 5 and 4 → lesson-authoring workstream 2 | 4318 | — |
 | Clips | [clips.md](clips.md) | Lesson-guided catalog clips for the 67 Demonstrations without one | 4319 | — |
 | Collision | [collision.md](collision.md) | Collision playground: sweep chapter (batches A, B) → convexity chapter polygons (batch C) | 4320 | — |
+| Families prep | [families-prep.md](families-prep.md) | Specs, plans and kernels for the [top-15 candidates](../../research/lesson-family-candidates-2026-11-09.md); graphs only where Controls allows | 4321 | — |
 
 Chains follow the [family dependencies](../../specs/new-lesson-families.md#dependencies-and-order): each family's prerequisites sit earlier in its own stream or behind a gate.
 

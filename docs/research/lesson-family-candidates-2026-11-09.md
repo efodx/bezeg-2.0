@@ -1,6 +1,6 @@
 # New lesson-family candidates: top 15 (2026-11-09)
 
-**Status:** research report, 2026-11-09. Not a spec or a scheduling decision. It ranks fifteen candidate chapter families that released content does not cover. The owner settled the criteria in a grilling session on the same day (below). Companion to the [first candidates](lesson-family-candidates-2026-10-31.md), the [expansion research](lesson-family-candidates-2026-10-31-expansion.md) and [new-lesson-families.md](../specs/new-lesson-families.md).
+**Status:** research report, 2026-11-09. **Preparation scheduled 2026-11-10** in stream [families-prep](../tasks/feature-streams/families-prep.md) (specs, plans, kernels); release is not scheduled. #11 and #12 turned out to be the unreleased Batches B–C of the [linear-maps](../specs/linear-maps-lessons.md) and [complex-maps](../specs/complex-maps-lessons.md) specs. It ranks fifteen candidate chapter families that released content does not cover. The owner settled the criteria in a grilling session on the same day (below). Companion to the [first candidates](lesson-family-candidates-2026-10-31.md), the [expansion research](lesson-family-candidates-2026-10-31-expansion.md) and [new-lesson-families.md](../specs/new-lesson-families.md).
 
 ## Ranking rules (owner decisions, 2026-11-09)
 

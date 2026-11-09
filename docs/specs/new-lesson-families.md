@@ -3,7 +3,7 @@
 **Status:** scheduled 2026-10-31 at the owner's request for full features; delivered by the Geometry, Curves, Functions and Maps [feature streams](../tasks/feature-streams/README.md). Each family creates its `docs/tasks/<feature>/` in its first slice.
 **Agreed:** 2026-10-31. The owner approved the candidate families from the research notes, asked for line-sweep algorithms to be added, and asked for each family to be specified.
 **Expanded:** 2026-10-31. The owner added seven families from the [expansion research](../research/lesson-family-candidates-2026-10-31-expansion.md) (candidates E1, E2, E3, E4, E6, E7, E8); phase portraits (E5), level sets and optimization (E9) and mechanical curves (E10) stay research candidates only.
-**Further candidates:** 2026-11-09. A ranked [top 15](../research/lesson-family-candidates-2026-11-09.md) of new families (including E5, E9 and E10) is research only; none is scheduled.
+**Further candidates:** 2026-11-09. A ranked [top 15](../research/lesson-family-candidates-2026-11-09.md) of new families (including E5, E9 and E10) is research only. Preparation (specs, plans, kernels) was scheduled on 2026-11-10 in stream [families-prep](../tasks/feature-streams/families-prep.md).
 **Source:** [lesson-family candidates](../research/lesson-family-candidates-2026-10-31.md), [computational geometry candidates](../research/computational-geometry-candidates-2026-10-31.md) and the [expansion research](../research/lesson-family-candidates-2026-10-31-expansion.md).
 
 ## Purpose
