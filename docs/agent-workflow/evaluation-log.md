@@ -2548,3 +2548,21 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - A single post-change hosted run misled twice: the shard-3 pin looked like a win and then lost. Hosted unit jobs vary about 1.6× by runner, so judge CI-time changes on three runs.
   - A local full-run comparison is invalid when the change touches a sweep shared path (`setupTests.ts` widens the local sample).
 - Briefs: a worker that stops "waiting on its own background work" can hold the checkout's run claim. Stop it before running checks yourself.
+
+## 2026-11-09 — verification throughput: hosted judgement, phase 6 scoping and batching, background publish (verification-throughput stream, handler 4)
+
+- Class/size: tooling, CI configuration and smoke mechanics / M. Source: [spec](../specs/verification-throughput.md), handoff 3.
+- Dispatch: five `bezeg-worker` runs and one `bezeg-reviewer` run (all Sonnet `medium`), all in the handler's worktree, at most two at a time:
+  - Lesson-walk scoping. Observed: 72k tokens, 48 min.
+  - Catalogue batching. Observed: 45k, 46 min.
+  - ADR 0043 implementation. Observed: 60k, 26 min.
+  - Engineering review. Observed: 29k, 4 min.
+  - Review repairs. Observed: 43k, 17 min.
+  - Windows launch fix. Observed: 32k, 20 min.
+- Outcome: `72ec80c8`, `378a0eb7`, `a5eec7a9`, `ff37bc26` and docs. Hosted runs 42545997964 and 42552202709 were green; phase 4 and the shard map were kept on three runs.
+- Handler repairs at acceptance:
+  - The scoped grep skipped the spec's standalone extras describes; they were added.
+  - Publish worktrees were nested in the invoking worktree and ignored only through the machine-local exclude; they were moved under the main checkout.
+- Review value: the reviewer found a blocking defect the worker's 30 tests missed. The internal `--result-file`/`--origin` flags let a foreground run `rmSync` its own checkout. It also found a start race and leaked worktrees.
+- Live-use value: the first real background publish showed that a `just`-captured caller waited for the whole gate (Windows pipe-handle inheritance). No unit test could reproduce it, because the leak needs `just` as the parent. The worker's guard test passes on old code too, so it was reported as non-guarding instead of claimed.
+- Brief lesson: for a tool whose contract is about process lifetime, require one live invocation through the real entry point (`just …` from the agent shell) in the acceptance, not only injected-launch tests.
