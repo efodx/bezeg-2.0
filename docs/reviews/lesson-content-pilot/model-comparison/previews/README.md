@@ -22,6 +22,12 @@ Lesson routes (append to `http://127.0.0.1:<port>/bezeg-2.0/`):
 - curve-curvature-guided: `curve-geometry/curvature?learn=1`
 - polynomial-zeros-guided: `functions/polynomial-zeros?learn=1`
 
+## Verification (2026-11-09)
+
+- All 24 lesson URLs (six ports × four lessons) return 200, and each config's build contains its own draft's bezier title.
+- A Playwright load check (Haiku `bezeg-smoke`, then a handler rerun for the chapter routes) opened all 20 ported lessons at 1440×900 and clicked Naprej through to the end: every lesson completed, with 0 page errors, 0 console errors and a non-empty board on the first and last frame. Chapter-owned lessons (curvature, polynomial zeros) open in the chapter panel ("Nazaj v poglavje"), which has no `#guided-lesson-title`; the first check waited for that heading and timed out on r0 as well, so it was a selector issue, not a port defect.
+- Not checked: visual review of each frame, scene correctness against each draft's "Na grafu" lines (the deviation notes list what workers could not match), touch and narrow layouts.
+
 ## How the ports were made
 
 - [port-brief.md](port-brief.md): one `bezeg-worker` (Sonnet medium) per config and lesson, transcribing faithfully. Writers' known blockers were not fixed.
