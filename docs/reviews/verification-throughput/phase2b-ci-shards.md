@@ -86,3 +86,81 @@ reserved); `just lint vite.config.mts` and `just typecheck` passed. The next hos
 ## After the pin (handler 3)
 
 Hosted run 42524584056 for `6a39ac59` (pin `b1b5598a`), green. Unit job walls including `npm ci`: shard 1 5:18, shard 2 7:47, shard 3 5:54, shard 4 6:59. The critical path fell from 8:35 (run 42514768457) and 9:49 (run 42516291702) to 7:47, and the workflow from trigger to deploy took 8:32. Shard 2 is now the longest; its hash-assigned files are the next rebalancing input if the gap persists over a few runs. Per-file times for this run were not pulled.
+
+Second post-pin sample: run 42527684457 for `d7cd5da8` (green), shard job walls 5:17 / 5:04 / 9:06 / 6:58. Shard 3, which holds the four pinned files plus restoration parts 3 and 7, became the critical path at 9:06, about as long as the pre-pin worst case. Two samples disagree (7:47 and 9:06 critical path), so the pin is not shown to help. Next: pull per-file times from both post-pin runs, and either spread the pinned files over shards 2–4 or drop the pin.
+
+## Post-pin analysis (handler 3)
+
+Per-file times pulled from the hosted logs of both post-pin runs (R1 = 42524584056, R2 = 42527684457; job ids in
+`gh run view <run> --json jobs`), parsed with a small script (the log text carries literal `^[[2m` markers, not ESC
+bytes). file-s = sum of printed per-file times (159-166 files per shard).
+
+| shard | R1 Vitest (job wall) | R1 file-s | R2 Vitest (job wall) | R2 file-s | R1/R2 file-s ratio |
+|---|---|---|---|---|---|
+| 1 | 270.5 s (5:18) | 511 | 265.9 s (5:17) | 509 | 1.00 |
+| 2 | 406.1 s (7:47) | 824 | 254.6 s (5:04) | 505 | 1.63 |
+| 3 | 305.2 s (5:54) | 655 | 481.4 s (9:06) | 1040 | 0.63 |
+| 4 | 350.2 s (6:59) | 687 | 349.8 s (6:58) | 690 | 1.00 |
+
+Top files per shard (R1 / R2 seconds):
+
+| shard | files |
+|---|---|
+| 1 | GraphTransientState.part1 124/127, lessonRestoration.part5 68/73, part1 58/60, arcLengthGuidedLessons 24/23, jsxSurfaceFraming 23/21, curveGeometryGuidedLessons.offset 16/16 |
+| 2 | GraphTransientState.part2 180/109, lessonRestoration.part2 120/68, part6 119/74, InscribedAngleGraph.host 31/19, SimsonLineGraph.host 23/14, MonotoneTriangulationGraph.host 18/12, InversionGraph.host 18/12, degreeReductionGuidedLessons 17/11 |
+| 3 | sceneReplacementContract 113/174, GraphTransientState.part3 97/144, lessonRestoration.part3 93/165, part7 66/102, PresetCatalog 30/45, sharedControls.graphs 27/43, curveGeometryGuidedLessons.envelope 22/38, epicyclesGuidedLessons 22/30, curveGeometryGuidedLessons 19/29 |
+| 4 | lessonRestoration.part4 176/183, GraphTransientState.part4 161/168, part8 97/92, sceneContentAgainstGraphs 29/28, interpolationGuidedLessons 16/14, DelaunayGraph.host 14/13, HullTraceGraph.host 13/13 |
+
+### Variance explanation
+
+- The assignment is identical in both runs: the same files sit on the same shards, and shards 1 and 4 reproduce to
+  within 1% (511/509, 687/690 file-s; 270/266 s, 350/350 s Vitest).
+- The variance is per-runner speed. Shard 2 ran 1.63x slower in R1 than in R2 and shard 3 ran 1.59x slower in R2 than
+  in R1, and the slowdown is uniform inside the job: shard 2 GraphTransientState.part2 1.65x, restoration part2 1.76x,
+  small host files 1.6x; shard 3 sceneReplacementContract 1.54x, restoration part3 1.77x, part7 1.55x, small files
+  1.5-1.7x. A noisy or slower hosted runner, not a test-content change, so the critical path swung between shards 2 and
+  3 (7:47 vs 9:06). Wall per file-s: 0.47-0.53 s on a normal runner, 0.46-0.49 s on the slow ones (Vitest parallelism
+  absorbs less, but still the count of file-s inflates).
+- Run-to-run slow-runner draws happen to roughly one job in four; the earlier runs show the same (sceneReplacementContract
+  111.5 s P, 156.5 A, 183.8 B, 113 R1, 174 R2: a 1.0-1.65x band).
+- Is the pin too heavy for shard 3? On a normal-speed runner no: the nominal shard 3 is 655 file-s (R1, fast draw),
+  305 s Vitest, below shard 4 (688 file-s, 350 s). The pin only matters when shard 3 draws a slow runner, because
+  it is the second-heaviest shard in nominal terms (restoration parts 3 and 7 plus GraphTransientState.part3 = 256,
+  pins 184, other hash files about 215). Nominal ranking (fast-draw file-s): shard 4 688, shard 3 655, shard 1 510,
+  shard 2 505. So even without noise the pin overloaded shard 3 and left shards 1 and 2 about 150 file-s light, and
+  shard 4 (never touched by the pin) is the nominal critical path at about 350 s.
+
+### Proposal
+
+Spread the pins. Nominal seconds are the fast-draw values above (the mean of the four runs is about 1.3x higher for
+the heavy files, uniformly); predictions are file-s at the fast baseline, wall about 0.5 s per file-s.
+
+```ts
+const PINNED_TO_SHARD: Record<string, number> = {
+    'sceneReplacementContract.test.': 2,
+    'sharedControls.graphs.test.': 3,
+    'curveGeometryGuidedLessons.envelope.test.': 3,
+    'epicyclesGuidedLessons.test.': 3,
+    'sceneContentAgainstGraphs.test.': 1,
+    'interpolationGuidedLessons.test.': 1,
+    'compgeoBezierHullsLesson.test.': 1,
+    'triangleGeometryChapter.test.': 1,
+};
+```
+
+| shard | now (fast draw) | change | predicted file-s | predicted Vitest wall |
+|---|---|---|---|---|
+| 1 | 510 | +29 +16 +11 +10 | 576 | about 290 s |
+| 2 | 505 | +113 (sceneReplacementContract) | 618 | about 310 s |
+| 3 | 655 | -113 | 542 | about 270 s |
+| 4 | 688 | -66 | 622 | about 310 s |
+
+Critical path about 310 s Vitest against 350 s now on a normal runner (-40 s), and a slow-runner draw (1.6x) on
+the heaviest shard would give about 500 s, the same as today; assignment cannot remove that, only a smaller heaviest
+shard (the 4 shards are within 15% after the change). Caveats: the four moved shard-4 files must be matched by exact
+basename like the existing pins (verify the names are unique); removing files from the hash pool shifts the contiguous
+chunk boundaries by about a file between neighbours, a few file-s; the small-file moves are the least certain part, so
+the minimal alternative is only `sceneReplacementContract: 2` (shard 2 618, shard 3 542, shard 4 unchanged at 688,
+critical path stays shard 4 at about 350 s). `PartSequencer.shard` needs the pin list generalized to a per-file shard
+(`(shard - 1) % count === index - 1`). Not verified: nothing was run; predictions rest on two post-pin runs and the
+earlier A/B/P tables.

@@ -38,12 +38,17 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
 - Phase 2b on CI (handler 3, [phase2b-ci-shards.md](../reviews/verification-throughput/phase2b-ci-shards.md)):
   - The four-shard runs 42514768457 and 42516291702 left shard 1 at 8:35 and 9:49 job wall, against 4:33 for shard 3. The cause was the path-hash split, which gave shard 1 `sceneReplacementContract` (157 s) and about five 30–40 s files. The part files were balanced.
   - The pre-fold three-shard run was already balanced (458 / 492 / 470 s of Vitest time), so the fourth shard alone saved about 40 s, not the predicted ~150 s.
-  - Four heavy files are pinned to shard 3 (`b1b5598a`). On run 42524584056 the shards took 5:18 / 7:47 / 5:54 / 6:59, so the critical path fell to 7:47 (shard 2), and trigger to deploy took 8:32.
+  - Four heavy files are pinned to shard 3 (`b1b5598a`). On run 42524584056 the shards took 5:18 / 7:47 / 5:54 / 6:59, so the critical path fell to 7:47 (shard 2), and trigger to deploy took 8:32. The next run, 42527684457, took 5:17 / 5:04 / 9:06 / 6:58, with shard 3 (the pinned files) as the critical path. Per-file times show that the assignment is deterministic and the swing is runner speed: every file on a slow job ran about 1.6× slower. The pin overloaded shard 3 nominally. A per-file map over shards 1–3 replaced it, predicting 576 / 618 / 542 / 622 file-s, a critical path of about 310 s down from 350 s. Runner variance (about 1.6×) outweighs any assignment.
+- Phase 4 (handler 3, [phase4-notes.md](../reviews/verification-throughput/phase4-notes.md)):
+  - A `kernel` Vitest project runs the 161 analysis, compgeo, bezeg, projective and linear files in node with no setup file: 27 s locally, against about 150 s in jsdom.
+  - The setup loads JSXGraph lazily, with board disposal kept.
+  - Full local run: setup share 12% → 3%, environment 26% → 15%. The wall time is not comparable, because the setup change widens the local sweep sample.
+  - Accepted on that evidence. The deciding measurement is the next hosted run's summed unit-shard time; revert if it does not fall.
   - The fold's saving stays unproven on CI. Restoration plus scene content summed 917 file-s before the fold and 831 and 1008 after; normalised by `sceneReplacementContract` it is about 35% cheaper.
 - Phase 1 item 1 is complete: the gate's delta path also runs the always-run unit tier (`6a39ac59`). A rerun's first pass now uses a matching verified-base record (`dbabef1e`; see Follow-ups).
 - `55c05845` fixes a tooling-test fragility: fixtures nested in the repository read the host branch's changes through `git diff`.
 - Regrowth guard: `just test-cost` (`5029e1df`). The baseline is a local snapshot saved with `--save` in `.command-logs`, because no master run's `results.json` is recorded anywhere to compare against.
-- Phases 1 item 4, 4 and 6 are not started.
+- Phases 1 item 4 and 6 are not started.
 
 **Follow-ups:**
 
