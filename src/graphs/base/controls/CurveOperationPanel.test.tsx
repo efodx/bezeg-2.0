@@ -10,6 +10,7 @@ import SubdivisionGraph, {MAX_SUBDIVISION_STEPS} from '../../curves/bezier/Subdi
 import SubdivisionGraph1 from '../../curves/bezier/SubdivisionGraph1';
 import RationalElevationGraph from '../../curves/rational/RationalElevationGraph';
 import {GraphHost} from '../GraphHost';
+import {CurveOperation, BezierAdapter} from './BezierCurveControls';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -81,14 +82,63 @@ describe('the selected-curve operations keep their mathematical results', () => 
         view.unmount();
     });
 
-    test('the apply button clears a pressed preview', () => {
+    test('Apply hides a pressed preview before it runs the operation and clears the pressed state', () => {
+        const graph = new SelectableGraph();
+        const mounted = mount(graph);
+        const curve = graph.getFirstJxgCurve() as unknown as BezierAdapter;
+        const order: string[] = [];
+        const hide = vi.spyOn(curve, 'hideElevatePoints').mockImplementation(() => {order.push('hide');});
+        const elevate = vi.spyOn(curve, 'elevate').mockImplementation(() => {order.push('elevate');});
+        const view = render(<CurveOperation curve={curve} tool="elevation" onChanged={() => undefined} onApplied={() => undefined}/>);
+        fireEvent.click(view.getByRole('button', {name: t('preview_elevation')}));
+        expect(view.getByRole('button', {name: t('preview_elevation')}).getAttribute('aria-pressed')).toBe('true');
+        fireEvent.click(view.getByRole('button', {name: t('elevate_degree')}));
+        expect(order).toEqual(['hide', 'elevate']);
+        expect(view.getByRole('button', {name: t('preview_elevation')}).getAttribute('aria-pressed')).toBe('false');
+        hide.mockRestore();
+        elevate.mockRestore();
+        view.unmount();
+        mounted.unmount();
+    });
+
+    test('unmounting the panel leaves a De Casteljau scheme that was shown from outside', () => {
+        const graph = new SelectableGraph();
+        const mounted = mount(graph);
+        const curve = graph.getFirstJxgCurve() as unknown as BezierAdapter;
+        const view = render(<CurveOperation curve={curve} tool="elevation" onChanged={() => undefined}/>);
+        act(() => {curve.showCurrentDecasteljauScheme(); });
+        expect(curve.isShowingDecasteljauScheme()).toBe(true);
+        view.unmount();
+        expect(curve.isShowingDecasteljauScheme()).toBe(true);
+        mounted.unmount();
+    });
+
+    test('collapsing an operation disclosure clears its pressed preview', () => {
         const graph = new SelectableGraph();
         const view = mount(graph);
         act(() => graph.selectFirst());
         fireEvent.click(view.getByRole('button', {name: t('preview_elevation')}));
-        expect(view.getByRole('button', {name: t('preview_elevation')}).getAttribute('aria-pressed')).toBe('true');
-        fireEvent.click(view.getByRole('button', {name: t('elevate_degree')}));
+        const details = view.getByRole('button', {name: t('preview_elevation')}).closest('details') as HTMLDetailsElement;
+        details.open = false;
+        fireEvent(details, new Event('toggle'));
+        details.open = true;
+        fireEvent(details, new Event('toggle'));
         expect(view.getByRole('button', {name: t('preview_elevation')}).getAttribute('aria-pressed')).toBe('false');
+        view.unmount();
+    });
+
+    test('Shorten ends at the adapter subdivision parameter, so a restored subdivisionT sets it', () => {
+        const graph = new SelectableGraph();
+        const view = mount(graph);
+        act(() => graph.selectFirst());
+        const curve = graph.getFirstJxgCurve() as unknown as BezierAdapter;
+        act(() => {curve.setSubdivisionT(0.4); });
+        view.rerender(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const slider = view.getByLabelText(t('end_parameter_of_the_shortened_curve_t')) as HTMLInputElement;
+        expect(Number(slider.value)).toBeCloseTo(0.4, 8);
+        const original = evalAt(graph, 0.4 * 0.5);
+        fireEvent.click(view.getByRole('button', {name: t('shorten')}));
+        expect(evalAt(graph, 0.5)[0]).toBeCloseTo(original[0], 8);
         view.unmount();
     });
 });

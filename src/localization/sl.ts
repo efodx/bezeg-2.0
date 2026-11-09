@@ -234,7 +234,7 @@ export const sl = {
     "extrapolate": "Ekstrapoliraj",
     "end_parameter_of_the_shortened_curve_t": "Končni parameter skrajšane krivulje t",
     "keep_the_curve_from_the_start_to_the_selected_parameter": "Ohrani del krivulje od začetka do izbranega parametra.",
-    "preview_shortening": "Predogled skrajšanja",
+    "preview_shortening": "Predogled krčenja",
     "shorten": "Skrči",
     "de_casteljau_construction": "De Casteljaujeva konstrukcija",
     "construction_parameter_t": "Parameter konstrukcije t",

@@ -57,12 +57,6 @@ export interface CurvePreviews {
     readonly preview: PreviewName | undefined;
     readonly toggle: (name: PreviewName) => void;
     readonly clear: () => void;
-    /** The subdivision parameter the user chose: while the shortening preview borrows the adapter's, this is the held one. */
-    readonly subdivisionT: number;
-    readonly setSubdivisionT: (value: number) => void;
-    /** The end parameter of the shortened curve; it is the user's own and does not change the subdivision parameter. */
-    readonly shrinkT: number;
-    readonly setShrinkT: (value: number) => void;
 }
 
 /**
@@ -73,18 +67,6 @@ export function useCurvePreviews(curve: BezierAdapter): CurvePreviews {
     const [preview, setPreview] = useState<PreviewName>();
     // Mirrors `preview` for the cleanup, which must hide what this panel showed even after the state is gone.
     const activePreview = useRef<PreviewName>();
-    // The shortening preview shows its cut point at the adapter's subdivision parameter, so it borrows it and gives it back.
-    const held = useRef<number>();
-    const [heldT, setHeldT] = useState<number>();
-    const [shrinkT, setShrink] = useState(() => curve.getSubdivisionT());
-    const hold = (value: number | undefined) => {
-        held.current = value;
-        setHeldT(value);
-    };
-    const release = () => {
-        if (held.current !== undefined) curve.setSubdivisionT(held.current);
-        hold(undefined);
-    };
     useEffect(() => {
         setPreview(undefined);
         return () => {
@@ -92,41 +74,23 @@ export function useCurvePreviews(curve: BezierAdapter): CurvePreviews {
             if (!curve.board.renderer) return;
             if (activePreview.current) hidePreview(curve, activePreview.current);
             activePreview.current = undefined;
-            if (held.current !== undefined) curve.setSubdivisionT(held.current);
-            held.current = undefined;
-            if (curve.isShowingDecasteljauScheme()) curve.hideDecasteljauScheme();
         };
     }, [curve]);
     const clear = () => {
         if (activePreview.current) hidePreview(curve, activePreview.current);
         activePreview.current = undefined;
-        release();
         setPreview(undefined);
     };
     const toggle = (name: PreviewName) => {
         const previous = activePreview.current;
         clear();
         if (previous === name) return;
-        if (name === "shrink") {
-            hold(curve.getSubdivisionT());
-            curve.setSubdivisionT(shrinkT);
-        }
         showPreview(curve, name);
         activePreview.current = name;
         setPreview(name);
         curve.board.update();
     };
-    const setSubdivisionT = (value: number) => {
-        if (held.current === undefined) curve.setSubdivisionT(value); else hold(value);
-    };
-    const setShrinkT = (value: number) => {
-        setShrink(value);
-        if (activePreview.current === "shrink") {
-            curve.setSubdivisionT(value);
-            curve.board.update();
-        }
-    };
-    return {preview, toggle, clear, subdivisionT: heldT ?? curve.getSubdivisionT(), setSubdivisionT, shrinkT, setShrinkT};
+    return {preview, toggle, clear};
 }
 
 const TOOL_TITLES = {subdivision: "subdivide", extrapolation: "extrapolate", shrink: "shorten", elevation: "elevate_degree"} as const;
@@ -167,8 +131,8 @@ export function OperationTool({curve, tool, onChanged, onApplied = onChanged, pr
     let action = () => curve.elevate();
     let previewLabel = t("preview_elevation");
     if (tool === "subdivision") {
-        const p = parameter === undefined ? {value: previews?.subdivisionT ?? curve.getSubdivisionT(), min: 0, max: 1,
-            onChange: (value: number) => previews ? previews.setSubdivisionT(value) : curve.setSubdivisionT(value)} : parameter;
+        const p = parameter === undefined ? {value: curve.getSubdivisionT(), min: 0, max: 1,
+            onChange: (value: number) => curve.setSubdivisionT(value)} : parameter;
         slider = p && <Slider min={p.min} max={p.max} value={p.value} customText={t("subdivision_parameter_t")}
                               onChange={value => {p.onChange(value); onChanged();}}/>;
         action = () => curve.subdivide();
@@ -181,9 +145,9 @@ export function OperationTool({curve, tool, onChanged, onApplied = onChanged, pr
         action = () => curve.extrapolate(curve.getExtrapolationT());
         previewLabel = t("preview_extrapolation");
     } else if (tool === "shrink") {
-        const end = previews?.shrinkT ?? curve.getSubdivisionT();
+        const end = curve.getSubdivisionT();
         slider = <Slider min={0} max={1} value={end} customText={t("end_parameter_of_the_shortened_curve_t")}
-                         onChange={value => {if (previews) previews.setShrinkT(value); else curve.setSubdivisionT(value); onChanged();}}/>;
+                         onChange={value => {curve.setSubdivisionT(value); curve.board.update(); onChanged();}}/>;
         action = () => curve.extrapolate(end);
         previewLabel = t("preview_shortening");
     }
@@ -227,7 +191,7 @@ export function BezierCurveControls({curve, onChanged, onApplied = onChanged}: C
                         onChange={value => {curve.setDecasteljauT(value); curve.board.update(); onChanged();}}/>
             </InspectorDisclosure>;
         }
-        return <InspectorDisclosure key={tool} title={t(TOOL_TITLES[tool])}>
+        return <InspectorDisclosure key={tool} title={t(TOOL_TITLES[tool])} onToggle={open => {if (!open && previews.preview === tool) previews.clear();}}>
             <OperationTool curve={curve} tool={tool} onChanged={onChanged} previews={previews} onApplied={onApplied}/>
         </InspectorDisclosure>;
     })}</>;

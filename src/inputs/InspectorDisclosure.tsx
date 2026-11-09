@@ -10,8 +10,11 @@ export function InspectorDisclosure(props: React.PropsWithChildren<{
     title: React.ReactNode,
     defaultOpen?: boolean,
     className?: string,
+    /** Called when the browser opens or closes the group. */
+    onToggle?: (open: boolean) => void,
 }>) {
-    return <details className={`inspector-disclosure${props.className ? ` ${props.className}` : ""}`} open={props.defaultOpen || undefined}>
+    return <details className={`inspector-disclosure${props.className ? ` ${props.className}` : ""}`} open={props.defaultOpen || undefined}
+                    onToggle={props.onToggle && (event => props.onToggle?.(event.currentTarget.open))}>
         <summary>{props.title}</summary>
         <div className="inspector-disclosure-body">{props.children}</div>
     </details>;

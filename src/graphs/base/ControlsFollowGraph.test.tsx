@@ -173,7 +173,7 @@ test('the selected-curve parameter sliders read the adapter, so an outside chang
     view.unmount();
 });
 
-test('using the shorten preview does not change the subdivision parameter the user chose', () => {
+test('the shorten end parameter is the shared subdivision parameter', () => {
     class Graph extends SelectableBezierGraph {
         curveCount() { return this.jxgCurves.length; }
     }
@@ -182,18 +182,19 @@ test('using the shorten preview does not change the subdivision parameter the us
     act(() => graph.selectFirst());
     const curve = graph.getFirstJxgCurve();
     const subdivisionSlider = () => view.getByLabelText(t('subdivision_parameter_t')) as HTMLInputElement;
-    const expectedSplit = curve.getCurve().eval(0.3);
+    const expectedSplit = curve.getCurve().eval(0.8);
 
     fireEvent.change(subdivisionSlider(), {target: {value: '0.3'}});
     fireEvent.click(view.getByRole('button', {name: t('preview_shortening')}));
     fireEvent.change(view.getByLabelText(t('end_parameter_of_the_shortened_curve_t')), {target: {value: '0.8'}});
 
-    // The preview borrows the shared parameter, but the slider keeps the user's choice.
-    expect(Number(subdivisionSlider().value)).toBeCloseTo(0.3);
+    // Shorten's end parameter is the adapter's subdivision parameter, so both sliders show it.
+    expect(Number(subdivisionSlider().value)).toBeCloseTo(0.8);
+    expect(curve.getSubdivisionT()).toBeCloseTo(0.8);
 
-    // Ending the preview gives the adapter its own value back.
+    // Ending the preview keeps it.
     fireEvent.click(view.getByRole('button', {name: t('preview_shortening')}));
-    expect(curve.getSubdivisionT()).toBeCloseTo(0.3);
+    expect(curve.getSubdivisionT()).toBeCloseTo(0.8);
 
     fireEvent.click(view.getByRole('button', {name: t('preview_shortening')}));
     fireEvent.click(view.getByRole('button', {name: t('subdivide')}));
