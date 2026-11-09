@@ -16,6 +16,8 @@ module.exports = defineConfig({
     // The just runner sets BEZEG_TEST_WORKERS from its machine-wide test slot (scripts/test-slots.cjs).
     workers: process.env.CI ? 3 : Math.min(6, Number(process.env.BEZEG_TEST_WORKERS) || Math.max(2, os.cpus().length - 2)),
     retries: 0,
+    // A broken shared selector would otherwise run every row to its timeout; stop a CI shard after 10 failures.
+    ...(process.env.CI ? {maxFailures: 10} : {}),
     globalTimeout: 30 * 60 * 1000,
     reporter: [
         ['list'],

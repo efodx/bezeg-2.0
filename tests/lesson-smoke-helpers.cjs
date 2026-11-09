@@ -202,17 +202,29 @@ async function countSetterValue(page, index) {
 }
 
 // Wait until either the expanded instruction panel or its compact graph tab is available.
+// One in-page requestAnimationFrame poll replaces per-attempt round trips; the conditions are the original ones.
 async function settle(page) {
-    await expect.poll(async () => {
-        if (await reopenButton(page).isVisible() && !(await nextButton(page).isVisible())) return true;
-        return /guided-lesson-handoff-visible/.test((await lessonPanel(page).getAttribute('class')) || '');
-    }).toBe(true);
-    await page.waitForTimeout(20);
+    try {
+        await page.waitForFunction(() => {
+            const visible = element => {
+                if (!element) return false;
+                const box = element.getBoundingClientRect();
+                return box.width > 0 && box.height > 0 && getComputedStyle(element).visibility !== 'hidden';
+            };
+            const panel = document.querySelector('section.guided-lesson');
+            if (visible(document.querySelector('button.guided-lesson-tab'))
+                && !visible(panel && panel.querySelector('.guided-lesson-nav-next'))) return true;
+            return /guided-lesson-handoff-visible/.test((panel && panel.getAttribute('class')) || '');
+        }, undefined, {polling: 'raf', timeout: 10_000});
+    } catch (error) {
+        throw new Error(`settle: neither the compact tab (with Next hidden) nor the handoff-visible panel appeared within 10 s: ${error.message.split('\n')[0]}`, {cause: error});
+    }
 }
 
 // Reopens instructions from the compact graph tab; progression stays inside the expanded overlay.
-async function reveal(page) {
-    await settle(page);
+// alreadySettled: the caller's previous action was settle(page) and nothing happened since, so skip the repeat.
+async function reveal(page, alreadySettled = false) {
+    if (!alreadySettled) await settle(page);
     if (!(await nextButton(page).isVisible())) {
         await reopenButton(page).focus();
         await page.keyboard.press('Enter');
@@ -221,8 +233,8 @@ async function reveal(page) {
     await expect(nextButton(page)).toBeVisible();
 }
 
-async function progress(page) {
-    await reveal(page);
+async function progress(page, alreadySettled = false) {
+    await reveal(page, alreadySettled);
     return (await lessonPanel(page).locator('.guided-lesson-progress').innerText()).replace(/\s+/g, ' ').trim();
 }
 

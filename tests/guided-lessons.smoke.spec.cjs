@@ -2453,7 +2453,8 @@ async function walkFrames(page, row, observe) {
     const offscreen = [];
     let completed = false;
     for (let guard = 0; guard < 60 && !completed; guard += 1) {
-        const label = await progress(page);
+        // Every iteration after the first starts right after the settle() that ends the previous one.
+        const label = await progress(page, guard > 0);
         visited.push(label.match(/\d+/g).map(Number));
         const finishing = await isFinishing(page);
         await observe(label);
@@ -2498,11 +2499,16 @@ async function collectOffscreen(page, row, label, found) {
 // Shared runtime behaviour (GuidedLesson.tsx) is identical for every lesson, so it is tested once on these rows.
 const SHARED_RUNTIME_ROWS = [bernstein, farin, splineG1];
 
+// The Exit tests are declared between the rows, not inside them: Playwright shards by declaration order, and rows with an
+// Exit test sit close together, which put all seven on one CI shard. exitAfter maps a row id to the Exit row registered after it.
+const exitRows = LESSONS.filter(row => EXIT_SAMPLE.has(row.id));
+const exitAfter = new Map(exitRows.map((row, index) => [LESSONS[Math.floor((index + 0.5) * LESSONS.length / exitRows.length)].id, row]));
+
 for (const row of LESSONS) {
     const minFrames = row.minFrames ?? 10;
 
     test.describe(`Lesson ${row.id}`, () => {
-        test.setTimeout(150_000);
+        test.setTimeout(60_000);
 
         test('sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes', async ({page}) => {
             await openLesson(page, row, 'sl');
@@ -2546,7 +2552,14 @@ for (const row of LESSONS) {
             await noHorizontalOverflow(page);
         });
 
-        if (EXIT_SAMPLE.has(row.id)) test('en: Exit restores the user state and re-entering twice keeps board counts stable', async ({page}) => {
+    });
+    if (exitAfter.has(row.id)) exitTest(exitAfter.get(row.id));
+}
+
+function exitTest(row) {
+    test.describe(`Lesson ${row.id} exit`, () => {
+        test.setTimeout(90_000);
+        test('en: Exit restores the user state and re-entering twice keeps board counts stable', async ({page}) => {
             await h.useLanguage(page, 'en');
             await page.goto(row.path, {waitUntil: 'domcontentloaded'});
             const ctx = row.setup ? await row.setup(page) : undefined;
@@ -2593,7 +2606,7 @@ for (const row of LESSONS) {
 
 // ---------------------------------------------------------------- Shared lesson runtime
 test.describe('Shared lesson runtime', () => {
-    test.setTimeout(150_000);
+    test.setTimeout(60_000);
 
     for (const row of SHARED_RUNTIME_ROWS) {
         test.describe(`on ${row.id}`, () => {
@@ -2655,7 +2668,7 @@ test.describe('Shared lesson runtime', () => {
 
 // ---------------------------------------------------------------- Extras: Bernstein
 test.describe('Bernstein extras', () => {
-    test.setTimeout(150_000);
+    test.setTimeout(60_000);
 
     test('stacked-area step reflects the switch ON and stepping back/forth does not accumulate curves', async ({page}) => {
         await openLesson(page, bernstein, 'en');
@@ -2733,7 +2746,7 @@ test.describe('Bernstein extras', () => {
 
 // ---------------------------------------------------------------- Extras: rational elevation
 test.describe('Rational elevation extras', () => {
-    test.setTimeout(150_000);
+    test.setTimeout(60_000);
 
     test('?learn=1 completes with 5 then 6 points and labels; Exit restores the entry scene', async ({page}) => {
         await openLesson(page, rationalElevation, 'en');
@@ -2778,7 +2791,7 @@ test.describe('Rational elevation extras', () => {
 });
 
 test.describe('Rational elevation outside lessons', () => {
-    test.setTimeout(150_000);
+    test.setTimeout(60_000);
     const RATIONAL = rationalElevation.path;
 
     async function selectCurve(page) {
@@ -2836,7 +2849,7 @@ test.describe('Rational elevation outside lessons', () => {
 // ---------------------------------------------------------------- Extras: observation flow
 // Observation frames are read in the full panel (graph locked). Hiding it leaves a compact reopen tab over the graph.
 test.describe('Observation flow', () => {
-    test.setTimeout(150_000);
+    test.setTimeout(60_000);
     const graph = page => page.locator('section.workspace-graph');
     const locked = async page => (await graph(page).getAttribute('data-lesson-locked')) === 'true';
     const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
