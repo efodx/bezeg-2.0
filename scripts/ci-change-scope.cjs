@@ -1,7 +1,33 @@
 #!/usr/bin/env node
 
 const fs = require('node:fs');
+const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { LESSON_SHARED_PATHS } = require('./transient-state-scope.cjs');
+const { lessonGrep } = require('./commands.cjs');
+
+const REPO_ROOT = path.resolve(__dirname, '..');
+const LESSON_SPEC = 'tests/guided-lessons.smoke.spec.cjs';
+
+// Rows walked when a change touches no lesson runtime, shared layout or lesson content: one or two per lesson family
+// or mechanism, every EXIT_SAMPLE row of the spec (the Exit/re-entry mechanisms) and the Shared lesson runtime rows.
+const REPRESENTATIVE_LESSON_IDS = [
+  'bernstein', 'rational-elevation', 'spline-c1', 'spline-g1', 'farin', 'repeated-subdivision', 'decasteljau', 'ph-cubic',
+  'linear-function', 'derivative', 'taylor', 'bisection', 'complex-multiplication', 'triangle-centres', 'patch-tensor',
+  'convex-hull', 'delaunay', 'curve-parametric', 'interp-lagrange', 'bspline-deboor', 'projective-cross-ratio',
+  'prob-density', 'fortune', 'fourier-series',
+];
+
+// Paths whose change can alter any lesson row, besides the lesson runtime and shared layout of LESSON_SHARED_PATHS.
+const LESSON_SPEC_PATHS = [
+  /^tests\/(lesson-smoke-helpers|lesson-experience-checks|guided-lessons\.smoke\.spec)\.cjs$/,
+  /^playwright\.config\.cjs$/,
+  /^\.github\/workflows\//,
+  /^scripts\/(ci-change-scope|commands)\.cjs$/,
+  /^docs\/reviews\/bezier-patches\/guided-example-inventory\.json$/,
+];
+
+const allLessons = (reason) => ({ all: true, ids: null, grep: '', reason });
 
 function git(args, cwd) {
   const result = spawnSync('git', args, {
@@ -30,7 +56,7 @@ function isDocumentationPath(filePath) {
 }
 
 function full(reason, changedPaths = []) {
-  return { fullVerification: true, reason, changedPaths };
+  return { fullVerification: true, reason, changedPaths, lessons: allLessons('the verification scope is full') };
 }
 
 function documentationOnly(paths) {
@@ -41,7 +67,60 @@ function documentationOnly(paths) {
     fullVerification: false,
     reason: `All ${paths.length} changed path${paths.length === 1 ? ' is' : 's are'} recognized documentation.`,
     changedPaths: paths,
+    lessons: allLessons('no browser smoke runs'),
   };
+}
+
+const isTestFile = (filePath) => /\.test\.[jt]sx?$/.test(filePath);
+const isContentFile = (filePath) => /^src\/learning\/content\//.test(filePath) && !isTestFile(filePath);
+
+// The spec row ids a changed lesson content file names as quoted strings; null when it names none or cannot be read.
+// Mirrors lessonsMentionedBy in src/learning/runtime/lessonRestorationContract.tsx.
+function rowsMentionedBy(filePath, rowIds, cwd) {
+  let text;
+  try {
+    text = fs.readFileSync(path.join(cwd, filePath), 'utf8');
+  } catch {
+    return null;
+  }
+  const mentioned = rowIds.filter((id) => ["'", '"', '`'].some((quote) => text.includes(quote + id + quote)));
+  return mentioned.length > 0 ? mentioned : null;
+}
+
+// Which guided-lesson rows the hosted lesson shards walk for these changed paths.
+function lessonScope(paths, cwd = process.cwd()) {
+  try {
+    const shared = paths.find((filePath) => !isTestFile(filePath)
+      && [...LESSON_SHARED_PATHS, ...LESSON_SPEC_PATHS].some((pattern) => pattern.test(filePath)));
+    if (shared) return allLessons(`${shared} is shared by every lesson`);
+    const specText = fs.readFileSync(path.join(REPO_ROOT, LESSON_SPEC), 'utf8');
+    const rowIds = [...new Set([...specText.matchAll(/\bid: '([a-z0-9-]+)'/g)].map((match) => match[1]))];
+    const content = paths.filter(isContentFile);
+    const reached = new Set();
+    for (const filePath of content) {
+      const found = rowsMentionedBy(filePath, rowIds, cwd);
+      if (!found) return allLessons(`${filePath} names no lesson row`);
+      found.forEach((id) => reached.add(id));
+    }
+    const others = paths.filter((filePath) => !isDocumentationPath(filePath) && !isTestFile(filePath) && !isContentFile(filePath));
+    const contentIds = rowIds.filter((id) => reached.has(id));
+    let ids;
+    let reason;
+    if (content.length > 0 && others.length === 0) {
+      ids = contentIds;
+      reason = `lesson content reaches ${ids.length} row${ids.length === 1 ? '' : 's'}`;
+    } else {
+      ids = [...REPRESENTATIVE_LESSON_IDS, ...contentIds.filter((id) => !REPRESENTATIVE_LESSON_IDS.includes(id))];
+      reason = content.length > 0 ? 'representative rows plus the rows lesson content reaches' : 'representative rows';
+    }
+    // The spec's standalone describes (extras, observation flow) test mechanisms no row reaches, so a scoped run keeps them.
+    const extras = [...specText.matchAll(/^test\.describe\('([^']+)'/gm)].map((match) => match[1])
+      .filter((title) => title !== 'Shared lesson runtime');
+    const grep = extras.length > 0 ? `${lessonGrep(REPO_ROOT, ids)}|(${extras.join('|')}) ` : lessonGrep(REPO_ROOT, ids);
+    return { all: false, ids, extras, grep, reason };
+  } catch (error) {
+    return allLessons(`the lesson scope could not be decided (${error.message.split('\n')[0]})`);
+  }
 }
 
 function diffPaths(base, head, cwd) {
@@ -146,6 +225,7 @@ function determineScope({ eventName, eventPayload, before, after, cwd = process.
 
     const paths = diffPaths(base, head, cwd);
     const decision = documentationOnly(paths);
+    if (decision.fullVerification && paths.length > 0) decision.lessons = lessonScope(paths, cwd);
     // Applied to pushes only; pull requests do not change master's state.
     return eventName === 'push' ? guardDocumentationOnly(decision, lookupLastFullRun) : decision;
   } catch (error) {
@@ -158,13 +238,19 @@ function appendOutput(filePath, values) {
   fs.appendFileSync(filePath, `${Object.entries(values).map(([key, value]) => `${key}=${value}`).join('\n')}\n`);
 }
 
+function lessonSummary(lessons) {
+  if (lessons.all) return `Guided lesson rows: all (${lessons.reason}).`;
+  const kind = lessons.reason.startsWith('representative') ? ' representative' : '';
+  return `Guided lesson rows: ${lessons.ids.length}${kind} (${lessons.reason}): ${lessons.ids.join(', ')}.`;
+}
+
 function appendSummary(filePath, decision) {
   if (!filePath) return;
   const mode = decision.fullVerification ? 'Full verification' : 'Documentation-only change';
   const paths = decision.changedPaths.length
     ? `\n\nChanged paths:\n${decision.changedPaths.map((item) => `- \`${item.replaceAll('`', '\\`')}\``).join('\n')}`
     : '';
-  fs.appendFileSync(filePath, `## Browser smoke scope\n\n**${mode}.** ${decision.reason}${paths}\n`);
+  fs.appendFileSync(filePath, `## Browser smoke scope\n\n**${mode}.** ${decision.reason}${decision.fullVerification ? `\n\n${lessonSummary(decision.lessons)}` : ''}${paths}\n`);
 }
 
 function main(env = process.env, lookupLastFullRun = () => lookupLastFullRunViaGh(env)) {
@@ -185,6 +271,7 @@ function main(env = process.env, lookupLastFullRun = () => lookupLastFullRunViaG
   appendOutput(env.GITHUB_OUTPUT, {
     full_verification: String(decision.fullVerification),
     reason: decision.reason.replace(/[\r\n]/g, ' '),
+    lesson_grep: decision.lessons.grep.replace(/[\r\n]/g, ' '),
   });
   appendSummary(env.GITHUB_STEP_SUMMARY, decision);
   return decision;
@@ -195,4 +282,4 @@ if (require.main === module) {
   process.stdout.write(`${result.fullVerification ? 'full' : 'documentation-only'}: ${result.reason}\n`);
 }
 
-module.exports = { determineScope, findLastFullRun,isDocumentationPath, main, readPullRequestRange };
+module.exports = { REPRESENTATIVE_LESSON_IDS, determineScope, findLastFullRun, isDocumentationPath, lessonScope, main, readPullRequestRange };

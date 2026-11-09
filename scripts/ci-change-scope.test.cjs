@@ -226,3 +226,98 @@ test('manual dispatch, empty diffs, and unavailable comparison history select fu
     assert.equal(determineScope({ eventName: 'pull_request', eventPayload: {}, cwd: root }).fullVerification, true);
   });
 });
+
+// Guided-lesson rows (Phase 6): which rows of tests/guided-lessons.smoke.spec.cjs the hosted shards walk.
+const { REPRESENTATIVE_LESSON_IDS } = require('./ci-change-scope.cjs');
+const repoRoot = path.resolve(__dirname, '..');
+const specIds = new Set([...fs.readFileSync(path.join(repoRoot, 'tests/guided-lessons.smoke.spec.cjs'), 'utf8').matchAll(/\bid: '([a-z0-9-]+)'/g)].map((match) => match[1]));
+
+function lessonsFor(files) {
+  let decision;
+  withRepo(({ root, write, commit }) => {
+    write('README.md', 'base\n');
+    const base = commit('base');
+    for (const [file, contents] of Object.entries(files)) write(file, contents);
+    decision = pr(root, base, commit('change'));
+  });
+  return decision.lessons;
+}
+
+test('every representative lesson id is a row of the lesson spec, with an Exit row among them', () => {
+  assert.ok(REPRESENTATIVE_LESSON_IDS.length >= 20 && REPRESENTATIVE_LESSON_IDS.length <= 25, String(REPRESENTATIVE_LESSON_IDS.length));
+  for (const id of REPRESENTATIVE_LESSON_IDS) assert.ok(specIds.has(id), id);
+  assert.ok(REPRESENTATIVE_LESSON_IDS.includes('linear-function'));
+  assert.equal(new Set(REPRESENTATIVE_LESSON_IDS).size, REPRESENTATIVE_LESSON_IDS.length);
+});
+
+test('lesson runtime, shared layout and smoke helper changes walk every lesson row', () => {
+  for (const file of ['src/learning/runtime/lessonSession.ts', 'src/graphs/base/BaseGraph.ts', 'tests/lesson-smoke-helpers.cjs',
+    'tests/lesson-experience-checks.cjs', 'tests/guided-lessons.smoke.spec.cjs', 'playwright.config.cjs', 'package.json',
+    '.github/workflows/browser-smoke.yml']) {
+    const lessons = lessonsFor({ [file]: 'x\n' });
+    assert.equal(lessons.all, true, file);
+    assert.equal(lessons.ids, null, file);
+  }
+});
+
+test('a lesson content change walks exactly the rows it mentions', () => {
+  const lessons = lessonsFor({ 'src/learning/content/x.ts': "export const a = ['bisection', \"farin\", 'not-a-lesson'];\n" });
+  assert.equal(lessons.all, false);
+  assert.deepEqual([...lessons.ids].sort(), ['bisection', 'farin']);
+  assert.match(lessons.grep, /^\(Lesson\|on\) \((farin\|bisection|bisection\|farin)\) \|\(.+\) $/);
+});
+
+test('a scoped run keeps the spec standalone describes that no row reaches', () => {
+  const lessons = lessonsFor({ 'src/learning/content/x.ts': "export const a = ['bisection'];\n" });
+  assert.ok(lessons.extras.includes('Bernstein extras'), lessons.extras.join(', '));
+  assert.ok(lessons.extras.includes('Observation flow'), lessons.extras.join(', '));
+  assert.ok(!lessons.extras.includes('Shared lesson runtime'));
+  assert.ok(lessons.grep.includes('|(') && lessons.grep.includes('Observation flow'));
+});
+
+test('a content file that mentions no row, or an unreadable one, walks every row', () => {
+  assert.equal(lessonsFor({ 'src/learning/content/helper.ts': 'export const a = 1;\n' }).all, true);
+});
+
+test('an unrelated application change walks the representative rows', () => {
+  const lessons = lessonsFor({ 'src/components/Unrelated.tsx': 'x\n', 'src/learning/content/x.test.ts': "'bisection'\n" });
+  assert.equal(lessons.all, false);
+  assert.deepEqual(lessons.ids, REPRESENTATIVE_LESSON_IDS);
+});
+
+test('content changes beside an unrelated application change add to the representative rows', () => {
+  const lessons = lessonsFor({ 'src/components/Unrelated.tsx': 'x\n', 'src/learning/content/x.ts': "'polygon-area'\n" });
+  assert.deepEqual([...lessons.ids].sort(), [...new Set([...REPRESENTATIVE_LESSON_IDS, 'polygon-area'])].sort());
+});
+
+test('documentation-only, dispatch and undecidable scopes keep their behaviour', () => {
+  const docs = (() => { let d; withRepo(({ root, write, commit }) => { write('README.md', 'a\n'); const b = commit('b'); write('docs/a.md', 'x\n'); d = pr(root, b, commit('c')); }); return d; })();
+  assert.equal(docs.fullVerification, false);
+  assert.equal(docs.lessons.all, true);
+  const dispatch = determineScope({ eventName: 'workflow_dispatch' });
+  assert.equal(dispatch.lessons.all, true);
+  assert.equal(determineScope({ eventName: 'push', before: 'missing', after: 'missing' }).lessons.all, true);
+});
+
+test('main writes the lesson_grep output and a summary line naming the decision', () => {
+  withRepo(({ root, write, commit }) => {
+    write('README.md', 'base\n');
+    const base = commit('base');
+    write('src/components/Unrelated.tsx', 'x\n');
+    const head = commit('change');
+    const dir = fs.mkdtempSync(path.join(root, 'out-'));
+    const event = path.join(dir, 'event.json');
+    const output = path.join(dir, 'output');
+    const summary = path.join(dir, 'summary');
+    fs.writeFileSync(event, JSON.stringify({ pull_request: { base: { sha: base }, head: { sha: head } } }));
+    const cwd = process.cwd();
+    process.chdir(root);
+    try {
+      main({ GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: event, GITHUB_OUTPUT: output, GITHUB_STEP_SUMMARY: summary });
+    } finally {
+      process.chdir(cwd);
+    }
+    assert.match(fs.readFileSync(output, 'utf8'), /^lesson_grep=\(Lesson\|on\) \(bernstein\|/m);
+    assert.match(fs.readFileSync(summary, 'utf8'), new RegExp(`Guided lesson rows: ${REPRESENTATIVE_LESSON_IDS.length} representative`));
+  });
+});
