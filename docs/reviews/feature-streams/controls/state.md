@@ -18,14 +18,22 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 ## Next: Wave 3 (step 5)
 
-Task: [04-remaining-controls](../../../tasks/shared-graph-controls/04-remaining-controls.md), items 1–6; plan: step 5 slices two at a time, C29/C30 labels last and alone; step 6's implementation starts once the C12/C24 playback slice lands; step 5a stays gated on Codex's lesson navigation. Start with a blocker triage (stream README, Item batches) over the open items below, then slice. Suggested first pair: playback (C12, C24: item 4) and readouts/operations (C15, C27: item 5), which share no files except `sl.ts`/`en.ts`.
+Task: [04-remaining-controls](../../../tasks/shared-graph-controls/04-remaining-controls.md), items 1–6; plan: step 5 slices two at a time, C29/C30 labels last and alone; step 6's implementation starts once the C12/C24 playback slice lands; step 5a stays gated on Codex's lesson navigation.
+
+Triage done: [w3-triage.md](w3-triage.md) (66 rows, capabilities and build order). It refuted the playback + readouts pairing (they share `LiveReadout`, `PlaybackButtons`, De Casteljau, the compgeo trace controls, Epicycle and the collision files), so the pairs are:
+
+1. **Done: P1** (playback variants + De Casteljau, arc length, parametric roll) and **D1** (`RevealButton`, Linear map switches, `AngleSlider`): `d0a72a48` feature, `c731a291` review repairs; decisions 56–60 and User impact. Evidence: briefs `w3-common-brief.md`, `w3-p1-brief.md`, `w3-d1-brief.md`, `w3-repair-brief.md`, `w3-smoke-brief.md`; results `w3-p1.md`, `w3-d1.md`, `w3-repair.md`; reviews `w3-review-eng.md`, `w3-review-ui.md`; smokes `w3-smoke-a.md` (5 routes passed), `w3-smoke-b.md` (partial), `w3-smoke-r.md` (recheck). Reuse `w3-common-brief.md` for the next slices.
+2. **P2** (Euler, Epicycle, collision playground and Inspect, and TRACE-POLICY-SHARED: move `tracePlayback.ts` to base for `IterativeFunctionGraph`, DeBoor, SubdivisionCurve) with **V1** (C9 local Resets: decide D-RESET-LABEL; C10/C25/C26 leftovers: ComplexRoots degree to `CountSetter`; Pascal steppers coarse-pointer rule).
+3. **R1** readouts and `StepCounter` (C27; decide D-STATUS) and **O1** operation panel (C15; decide which preview state wins), after P2 because they share the trace controls.
+4. C29/C30 alone.
 
 Alongside: step 6 items 1–2 (inventory open cells, before screenshots at 390×844 and 360×640, prototype).
 
 ## Open items for step 5
 
-- Playback rows still natively disabled or own-built: De Casteljau animation buttons and its `aria-live` t readout; arc-length Play under reduced motion; Euler Next step / Show all; Epicycle Play; collision playground Step once (`disabled` while playing).
-- Reveal buttons (C11), curve operation panels (C15), readout blocks (C27) unchanged in functions and curves.
+- Playback rows still own-built (P2): Euler Next step / Show all (`aria-disabled`, no reason); Epicycle Play (no reasons); collision playground Play/Step once/New arrangement and Inspect Previous/Next/Play/New (native `disabled`); decisions 56–58 settle their shape. TRACE-POLICY-SHARED: `IterativeFunctionGraph`, DeBoor and SubdivisionCurve still hand-copy `exportBusy`/pause guards.
+- Decision 57 gaps: De Casteljau's curve-control commands and Preset load leave a run going; lesson `play` of the parametric roll ignores reduced motion (unchanged).
+- Curve operation panels (C15) and readout blocks (C27) unchanged in functions and curves.
 - Complex, linear and Bernstein panels (inventory rows 139–143) were in no sweep.
 - Pascal ◀ ▶ steppers and `pointset-row` buttons have no 44 px coarse-pointer rule.
 - Projective panels keep visible `role="status"` paragraphs and a nudge region; Triangulation keeps a hand-written hidden live paragraph (`data-triangulation="live"`).

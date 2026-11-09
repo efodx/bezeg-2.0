@@ -2626,3 +2626,17 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Lessons:
   - Giving the shared exemption entry to the handler avoided two workers editing one array that empties.
   - A brief that reuses another family's common brief by section was enough for a small sweep; both workers finished in one pass with mutation evidence, the first time in Wave 2 without a continuation.
+
+## 2026-11-09: controls Wave 3, triage and first pair P1/D1 (controls stream, handler)
+
+- Scope: controls task 4 (spec step 5): blocker triage over every remaining site, then slice P1 (`PlaybackButtons` variants; De Casteljau, arc length, parametric roll) and slice D1 (`RevealButton` for 18 buttons, Linear map switches, `AngleSlider`). Class/size: L (triage) then two M slices. Handler: Opus `medium`.
+- Workers: triage 1 Sonnet `medium` (`bezeg-worker`, read-only, 66 rows, about 44 min); P1 and D1 Sonnet `medium` in parallel (about 50 min each); 2 Sonnet `medium` reviewers (engineering, UI and accessibility); 1 Sonnet `medium` repair worker (six findings, about 23 min); smoke A Sonnet `medium` (5 routes, passed), smoke B Haiku `medium` (10 routes, partial at HANDOFF), recheck Haiku `medium`.
+- Outcome: `d0a72a48` (feature), `c731a291` (review repairs); spec decisions 56–60 and User impact. `check-changed` passed (713 s); its "selector removed" warning was a false positive again. Hosted CI for `050612c4` green before new work.
+- Lessons:
+  - The triage refuted the state note's suggested first pair (playback with readouts share about 15 files); pairing by file overlap from the triage table avoided a shared-region brief. Grouping rows by unblocking capability gave the slice boundaries directly.
+  - The triage also showed that the catalogue's "Today" column was well out of date after Wave 2 (raw ranges, checkboxes, button-row choosers and extra Fit buttons already gone), so surveying HEAD instead of the catalogue was what made it useful.
+  - P1 changed a deliberately pinned format (`t` with two decimals) because the decision text said `formatNumber`; the handler's decision wording caused it. Check a decision's concrete format against existing tests before writing it.
+  - Concurrent workers again reported each other's transient type errors; D1 left two test-helper callers with `possibly undefined` that only the integrated typecheck showed. Keep one integrated typecheck before review.
+  - Engineering review found four untested pause paths (worker had observed failures only for its own new tests); the separate repair worker added and mutation-checked them in one pass, as the Wave 2 risk note suggests.
+  - Haiku smoke on ten routes ran out of budget after selector retries; a route with a mode-dependent control (Inversion's angle only under focus "power") needs that precondition in the brief.
+- Context: two duplicate handler sessions were started by the supervisor while this handler was live; both stood down on message. One had pushed a docs commit and restored a triage file a duplicate worker overwrote.
