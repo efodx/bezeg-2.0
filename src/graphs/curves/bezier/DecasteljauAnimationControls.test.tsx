@@ -48,7 +48,7 @@ describe('DecasteljauAnimationControls', () => {
         expect(live().textContent).toBe('t = 0,25.');
         rerender(controls('playing', 0.5));
         expect(live().textContent).toBe('');
-        expect(document.querySelector('output')!.hasAttribute('aria-live')).toBe(false);
+        expect(document.querySelector('output')!.getAttribute('aria-live')).toBe('off');
         rerender(controls('paused', 0.5));
         expect(live().textContent).not.toBe('');
         setLanguage('en');

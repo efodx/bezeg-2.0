@@ -40,7 +40,7 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
                 <h4>{t("animation_controls")}</h4>
                 <span>{statusLabel(props.status)}</span>
             </div>
-            <output>{readoutText}</output>
+            <output aria-live="off">{readoutText}</output>
             <LiveReadout readout={readout} muted={playing}/>
         </div>
         <PlaybackButtons groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}

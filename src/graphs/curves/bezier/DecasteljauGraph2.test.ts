@@ -214,3 +214,30 @@ describe('helper ownership', () => {
         } finally { spy.mockRestore(); }
     });
 });
+
+describe('pauses a run (decision 57)', () => {
+    test('a board press pauses, a pan included', () => {
+        const graph = Object.create(DecasteljauGraph2.prototype) as any;
+        const on = vi.fn();
+        graph.getActiveGraphSession = () => ({on});
+        graph.pausePlayback = vi.fn();
+        const mount = vi.spyOn(BaseCurveGraph.prototype, 'mount').mockImplementation(() => undefined);
+        try { graph.mount(document.createElement('div')); } finally { mount.mockRestore(); }
+        expect(on).toHaveBeenCalledWith('down', expect.any(Function));
+        on.mock.calls.find(([name]: any[]) => name === 'down')?.[1]();
+        expect(graph.pausePlayback).toHaveBeenCalledTimes(1);
+    });
+
+    test('switching the curve option pauses', () => {
+        const graph = Object.create(DecasteljauGraph2.prototype) as any;
+        graph.parameter = 0.3;
+        graph.store.replaceState({t: 0.3, v: 1, animationStatus: 'playing', wholeCurve: false, selectedCurveOption: 1});
+        graph.pausePlayback = vi.fn();
+        graph.getFirstJxgCurve = () => ({setDecasteljauT: vi.fn()});
+        graph.board = {suspendUpdate: vi.fn()};
+        graph.boardUpdate = vi.fn();
+        graph.unsuspendBoardUpdate = vi.fn();
+        try { graph.onStateChange({...graph.state, selectedCurveOption: 0}); } catch { /* the pause precedes any redraw */ }
+        expect(graph.pausePlayback).toHaveBeenCalledTimes(1);
+    });
+});

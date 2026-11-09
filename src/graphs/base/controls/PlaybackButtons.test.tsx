@@ -114,7 +114,7 @@ describe('PlaybackButtons', () => {
         expect(onPlayPause).not.toHaveBeenCalled();
         expect(document.activeElement).toBe(play);
         expect(play.getAttribute('aria-disabled')).toBe('true');
-        expect(play.title).toBe('Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo.');
+        expect(play.title).toBe('Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo. Parameter premikajte z drsnikom.');
         expect(screen.getByRole('status').textContent).toBe(play.title);
     });
 });
