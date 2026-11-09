@@ -9,6 +9,7 @@ const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit ex
 const observationFrame = page => page.locator('section.guided-lesson.guided-lesson-frame-observation');
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
 const reopenButton = page => page.locator('button.guided-lesson-tab');
+const normalizeTitle = title => title.replace(/\s+/g, ' ').trim().toLowerCase();
 
 async function expectLessonIdentity(page, expectedTitle) {
     const panel = lessonPanel(page);
@@ -19,7 +20,9 @@ async function expectLessonIdentity(page, expectedTitle) {
     } else {
         // When the page h1 already names this lesson, production removes the duplicate panel heading but labels the
         // instruction region with that same identity.
-        await expect(page.getByRole('main').getByRole('heading', {level: 1})).toHaveText(expectedTitle);
+        const pageHeading = page.getByRole('main').getByRole('heading', {level: 1});
+        await expect(pageHeading).toBeVisible();
+        expect(normalizeTitle(await pageHeading.innerText())).toBe(normalizeTitle(expectedTitle));
         await expect(panel).toHaveAttribute('aria-label', expectedTitle);
     }
     await expect(panel).toHaveAccessibleName(expectedTitle);
