@@ -2618,3 +2618,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Splitting one file by region between two concurrent workers worked; neither reported the other's half-edits once the briefs named the regions.
   - Both slice workers ran out of budget on their follow-ups and skipped the mutation step when the budget ran low. A separate mutation worker on a committed snapshot, with reviewers reading the commit, kept the evidence step from blocking review.
   - Ask for bounded loops in test helpers: a stuck stepper should fail, not hang a shared test slot.
+
+## 2026-11-09: controls Wave 2, learning sweep (controls stream, handler)
+
+- Scope: controls task 3 for the three learning playgrounds (collision, drawing, Look underneath), the last `controlExemptions` entry besides host chrome. Class/size: S. Handler: Opus `medium`. Two Sonnet `medium` workers in parallel on disjoint files (LE1 48k, LE2 77k); a short common brief that points to the patches brief for the shared sections; the handler removed the shared lint entry at integration, reviewed the diff in the main chat, ran `check-changed` and the build, and sent one Sonnet smoke group.
+- Outcome: the sweep commit and the docs commit; spec decision 55; the inventory gained the missing collision playground row.
+- Lessons:
+  - Giving the shared exemption entry to the handler avoided two workers editing one array that empties.
+  - A brief that reuses another family's common brief by section was enough for a small sweep; both workers finished in one pass with mutation evidence, the first time in Wave 2 without a continuation.

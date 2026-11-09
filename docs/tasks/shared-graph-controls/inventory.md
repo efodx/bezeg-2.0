@@ -143,6 +143,7 @@ A capability in no column is one the panel does not offer. All 134 rows were mer
 | Linear map | linear/LinearMapGraph.tsx:371-420 | C10 (example, mode), C8 (four entries, `applyOn="confirm"`, :376) | **C9 local Reset "Reset to the identity"** (:409); C11 three raw `aria-pressed` buttons (:382); C22 private `notice` (:64,:403); typed clamp or snap with message (:137-145); C21 status group (:460) | typed clamp contradicts decision 3; decision 8 covers it |
 | Drawing playground | src/learning/playground/DrawingPlayground.tsx:381-395 | none | own toolbar: Undo, Redo, Clear (C3), Add point (C1), Close, Delete point (C2), anchor-type pressed group, Load example; all natively `disabled`, no reason (C6); C16 keys (:293-330); C21 live summary (:376,:409) | whole playground: free-drawing model, see Exception candidates |
 | Look underneath | src/learning/playground/LookUnderneath.tsx:123-150 | C13 (`Slider`, :146) | C11 four raw checkboxes (:129-135); Previous/Next segment natively `disabled` at the ends (C6) | none |
+| Collision playground | src/learning/playground/collisions/CollisionPlayground.tsx:390-455 (row added in the learning sweep, 2026-11-09) | none | C10 method and overlay-stage radio groups; C11 raw bounce checkbox; C21 own `role=status` live div; Play, Step once (native `disabled` while playing), New arrangement (C12) | none |
 
 The last column holds candidates as the workers proposed them; the spec records the decisions.
 
