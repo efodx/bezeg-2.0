@@ -117,6 +117,7 @@ describe("patch B", () => {
         expect(graph.selectedBIndex()).toBeUndefined();
         expect(bEditor()).toBeNull();
         expect(derivedNote()!.textContent).toBe(t("patch_join_b_derived_note", {value0: "Q₁₂"}));
+        expect(derivedNote()!.getAttribute("role")).toBe("note");
         act(() => graph.setSelectedCoordinates([9, 9, 9]));
         expect(graph.state.netB).toBe(before);
         expect(graph.bNet()[1][2]).not.toEqual([9, 9, 9]);
@@ -165,6 +166,24 @@ describe("patch B", () => {
         expect(degreeGroup()).not.toContain(t("patch_join_b_degree_shared"));
         enterNumber(degreeV(), "4");
         expect(graph.state).toMatchObject({n: 2, nB: 4});
+    });
+});
+
+describe("starting scene select", () => {
+    it("shows the used scene without a custom entry, shows custom after an edit, and choosing the shown scene changes nothing", () => {
+        const {graph} = mount();
+        useScene("join-g1");
+        const index = String(joinStartingScenes.findIndex(scene => scene.id === "join-g1"));
+        expect(sceneSelect().value).toBe(index);
+        expect([...sceneSelect().options].map(option => option.text)).not.toContain(t("patch_join_scene_custom"));
+        const before = graph.state;
+        fireEvent.change(sceneSelect(), {target: {value: index}});
+        expect(graph.state).toBe(before);
+        enterNumber(rowSelect(), "2");
+        enterNumber(columnSelect(), "1");
+        enterNumber(screen.getByRole("spinbutton", {name: "Q₂₁, x"}), "7");
+        expect(sceneSelect().selectedOptions[0].text).toBe(t("patch_join_scene_custom"));
+        expect(graph.joinSceneIndex()).toBeUndefined();
     });
 });
 

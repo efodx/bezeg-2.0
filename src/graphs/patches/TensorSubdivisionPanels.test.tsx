@@ -163,6 +163,21 @@ describe("degree elevation", () => {
         expect(unavailable("u")).toBe(false);
         expect(reason("u")).toBeNull();
     });
+
+    it("a blocked press announces the reason once in the hidden notice, and a second press announces again", () => {
+        mount();
+        const notice = () => document.querySelector<HTMLElement>(".patch-elevate-controls .visually-hidden [data-refusal-notice]")!;
+        const line = () => notice().querySelector("p");
+        const message = t("patch_elevate_maximum", {value0: "u"});
+        fireEvent.click(elevateButton("u"));
+        expect(notice().textContent).toBe("");
+        fireEvent.click(elevateButton("u"));
+        expect(notice().textContent).toBe(message);
+        const first = line();
+        fireEvent.click(elevateButton("u"));
+        expect(notice().textContent).toBe(message);
+        expect(line()).not.toBe(first);
+    });
 });
 
 describe("correspondence readout", () => {

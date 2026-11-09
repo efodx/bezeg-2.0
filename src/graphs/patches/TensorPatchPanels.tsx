@@ -96,6 +96,10 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
     const t = useT();
     const matching = actions.startingPatchIndex();
     const shownPatch = matching === undefined ? CUSTOM_PATCH : String(matching);
+    const typedDegree = (direction: "u" | "v", degree: number) => {
+        if (!Number.isInteger(degree) || degree < MIN_DEGREE || degree > MAX_DEGREE) return false;
+        actions.setDegree(direction, degree);
+    };
     return <>
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
             <ChoiceSelect label={t("patch_starting_heading")} value={shownPatch} options={startingPatchOptions(startingPatches, t, matching === undefined)}
@@ -103,9 +107,11 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
         </div>
         <div className="inspector-group"><h3>{t("patch_degree_heading")}</h3>
             <CountSetter label={t("patch_degree_u")} n={state.m} min={MIN_DEGREE} max={MAX_DEGREE} help={t("patch_degree_help")}
-                         onMinus={() => actions.setDegree("u", state.m - 1)} onPlus={() => actions.setDegree("u", state.m + 1)}/>
+                         onMinus={() => actions.setDegree("u", state.m - 1)} onPlus={() => actions.setDegree("u", state.m + 1)}
+                         onSet={degree => typedDegree("u", degree)}/>
             <CountSetter label={t("patch_degree_v")} n={state.n} min={MIN_DEGREE} max={MAX_DEGREE}
-                         onMinus={() => actions.setDegree("v", state.n - 1)} onPlus={() => actions.setDegree("v", state.n + 1)}/>
+                         onMinus={() => actions.setDegree("v", state.n - 1)} onPlus={() => actions.setDegree("v", state.n + 1)}
+                         onSet={degree => typedDegree("v", degree)}/>
         </div>
         <div className="inspector-group"><h3>{t("patch_point_heading")}</h3>
             <Slider customText={t("patch_parameter_u")} min={0} max={1} step={0.01} value={state.u}

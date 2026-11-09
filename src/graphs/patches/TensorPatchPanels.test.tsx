@@ -4,6 +4,7 @@ import {GraphHost} from "../base/GraphHost";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
 import {appStorage} from "../../storage/appStorage";
 import {setLanguage, t} from "../../localization";
+import {enterNumber} from "../../inputs/testEntry";
 import {FakeSurfaceView} from "./FakeSurfaceView";
 import {patchFromNet} from "./patchSceneBuilder";
 import TensorPatchGraph from "./TensorPatchGraph";
@@ -35,9 +36,10 @@ const startWith = (name: keyof typeof startingPatches) => fireEvent.change(start
 /** A degree stepper (CountSetter): its shown value, and a change to a target by pressing + or -. */
 type DegreeLabel = "patch_degree_u" | "patch_degree_v";
 const degreeGroup = (label: DegreeLabel) => screen.getByRole("group", {name: t(label)});
-const degree = (label: DegreeLabel) => Number(degreeGroup(label).querySelector("output")!.textContent);
+const degree = (label: DegreeLabel) => Number(within(degreeGroup(label)).getByRole<HTMLInputElement>("spinbutton").value);
 const setDegree = (label: DegreeLabel, target: number) => {
-    while (degree(label) !== target) {
+    for (let presses = 0; degree(label) !== target; presses++) {
+        if (presses >= 4) throw new Error(`degree ${label} stuck at ${degree(label)}, target ${target}`);
         const button = within(degreeGroup(label)).getAllByRole("button")[degree(label) < target ? 1 : 0];
         fireEvent.click(button);
     }
@@ -78,6 +80,14 @@ describe("Uredi panel", () => {
         expect(view.last.points).toHaveLength(3 * 2);
         expectControlsToMatch(graph);
         expect(screen.getByText(t("patch_degree_help"))).toBeTruthy();
+    });
+
+    it("a typed degree sets it on Enter and a value out of range changes nothing", () => {
+        const {graph} = mount();
+        enterNumber(within(degreeGroup("patch_degree_u")).getByRole("spinbutton"), "2");
+        expect(graph.state.m).toBe(2);
+        enterNumber(within(degreeGroup("patch_degree_u")).getByRole("spinbutton"), "7");
+        expect(graph.state.m).toBe(2);
     });
 
     it("the u and v sliders move the evaluated marker to S(u,v)", () => {
