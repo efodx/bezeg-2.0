@@ -22,17 +22,27 @@ const KERNEL_NEEDS_DOM: string[] = [];
 const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
 
 /**
- * Heavy single files that Vitest's path-hash split left on shard 1 (hosted run 42514768457: 943 file-s against 431 on
- * shard 3). They run on shard 3 instead, which holds only two part files; see
- * docs/reviews/verification-throughput/phase2b-ci-shards.md. Unlisted files keep the hash split.
+ * Heavy single files placed on a shard by hand: Vitest's path-hash split left most of them on shard 1 (hosted run
+ * 42514768457: 943 file-s against 431 on shard 3), and pinning them all to shard 3 overloaded it. This map, from the
+ * per-file times of four hosted runs, predicts 576 / 618 / 542 / 622 file-s on four shards; runner speed still varies
+ * about 1.6x between jobs. See docs/reviews/verification-throughput/phase2b-ci-shards.md. Unlisted files keep the hash
+ * split. A shard number above the shard count wraps.
  */
-const PINNED_TO_SHARD_3 = [
-    'sceneReplacementContract.test.',
-    'sharedControls.graphs.test.',
-    'curveGeometryGuidedLessons.envelope.test.',
-    'epicyclesGuidedLessons.test.',
-];
-const pinned = (file: TestSpecification) => PINNED_TO_SHARD_3.some(name => file.moduleId.endsWith(`/${name}ts`) || file.moduleId.endsWith(`/${name}tsx`));
+const PINNED_SHARDS: Record<string, number> = {
+    'src/graphs/base/sceneReplacementContract.test.tsx': 2,
+    'src/graphs/base/sharedControls.graphs.test.tsx': 3,
+    'src/learning/content/curveGeometryGuidedLessons.envelope.test.ts': 3,
+    'src/learning/content/epicyclesGuidedLessons.test.ts': 3,
+    'src/learning/content/sceneContentAgainstGraphs.test.tsx': 1,
+    'src/learning/content/interpolationGuidedLessons.test.ts': 1,
+    'src/learning/content/compgeoBezierHullsLesson.test.ts': 1,
+    'src/learning/content/triangleGeometryChapter.test.ts': 1,
+};
+const pinnedShard = (file: TestSpecification) => {
+    const path = file.moduleId.replace(/\\/g, '/');
+    const key = Object.keys(PINNED_SHARDS).find(name => path.endsWith(`/${name}`));
+    return key === undefined ? undefined : PINNED_SHARDS[key];
+};
 
 /**
  * The slow real-graph suites are split into `*.partN.test.*` files. `vitest --shard` splits files by path hash, so
@@ -49,8 +59,11 @@ class PartSequencer extends BaseSequencer {
             const n = part(file);
             return n !== undefined && (Number(n) - 1) % count === index - 1;
         });
-        const pins = files.filter(file => pinned(file) && (3 - 1) % count === index - 1);
-        return [...parts, ...pins, ...await super.shard(files.filter(file => part(file) === undefined && !pinned(file)))];
+        const pins = files.filter(file => {
+            const shard = pinnedShard(file);
+            return shard !== undefined && (shard - 1) % count === index - 1;
+        });
+        return [...parts, ...pins, ...await super.shard(files.filter(file => part(file) === undefined && pinnedShard(file) === undefined))];
     }
 
     override async sort(files: TestSpecification[]): Promise<TestSpecification[]> {
