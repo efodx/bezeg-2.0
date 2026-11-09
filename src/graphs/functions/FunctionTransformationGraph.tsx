@@ -16,6 +16,7 @@ import {functionTransformationEditMessage, shiftedArgument, transformRuleText} f
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Positions show four decimals, so that 0.25 and 1.5 are read off exactly. */
 const PRECISE = 4;
@@ -235,10 +236,8 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
                 <p className="inspector-help">{t("function_transformation_order_help")}</p>
             </div>
             <div className="convexity-actions" role="group" aria-label={t("function_transformation_actions_label")}>
-                <button type="button" data-action="toggle-ghost" data-revealed={state.ghostVisible}
-                        onClick={() => this.setGhostVisible(!this.model.ghostVisible)}>
-                    {state.ghostVisible ? t("function_transformation_ghost_hide") : t("function_transformation_ghost_show")}
-                </button>
+                <RevealButton action="toggle-ghost" revealed={state.ghostVisible} showLabel={t("function_transformation_ghost_show")} hideLabel={t("function_transformation_ghost_hide")}
+                              onToggle={() => this.setGhostVisible(!this.model.ghostVisible)}/>
             </div>
         </>;
     }

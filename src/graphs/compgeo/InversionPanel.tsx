@@ -1,9 +1,8 @@
 import React from "react";
 import {useLanguage, useT} from "../../localization";
-import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
-import Slider from "../../inputs/Slider";
+import AngleSlider from "../../inputs/AngleSlider";
 import {GridPoint} from "../../compgeo/grid";
 import {
     CircleSpec, INVERSION_COORDINATE_MAX, INVERSION_EXAMPLES, INVERSION_RADIUS_MAX, InversionExampleId, InversionSource,
@@ -163,9 +162,7 @@ function IntField(props: {label: string; field: string; value: number; min: numb
 
 function ThetaFields(props: {degrees: number; onTheta(degrees: number): void}) {
     const t = useT();
-    const {language} = useLanguage();
     return <div className="inversion-theta" data-inversion-theta>
-        <Slider customText={t("inversion_theta_label")} min={0} max={360} step={1} bigStep={10} decimals={1} cyclic={360} fieldDecimals={2} value={props.degrees}
-                valueText={value => `${formatNumber(value, language, 1)}°`} onChange={degrees => props.onTheta(degrees)}/>
+        <AngleSlider customText={t("inversion_theta_label")} value={props.degrees} onChange={degrees => props.onTheta(degrees)}/>
     </div>;
 }

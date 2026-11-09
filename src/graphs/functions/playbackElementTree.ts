@@ -4,6 +4,7 @@
  * element's buttons are shaped like host buttons (`aria-disabled`, `onClick` gated on the block, like the component does).
  */
 import {t} from "../../localization";
+import {revealActions, revealButton} from "./revealElementTree";
 
 type Elements = Record<string, any[]>;
 
@@ -22,10 +23,10 @@ function sharedButton(props: any, action: typeof PLAYBACK_ACTIONS[number]) {
 export function playbackButton(found: Elements, action: string) {
     const shared = found.PlaybackButtons?.[0]?.props;
     if (shared && PLAYBACK_ACTIONS.some(name => name === action)) return sharedButton(shared, action as typeof PLAYBACK_ACTIONS[number]);
-    return found.button?.find((element: any) => element.props['data-action'] === action);
+    return found.button?.find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
 }
 
 /** The data-action of every button, the shared playback buttons first as in the markup. */
 export function buttonActions(found: Elements): string[] {
-    return [...(found.PlaybackButtons ? PLAYBACK_ACTIONS : []), ...(found.button ?? []).map((button: any) => button.props['data-action'])];
+    return [...(found.PlaybackButtons ? PLAYBACK_ACTIONS : []), ...(found.button ?? []).map((button: any) => button.props['data-action']), ...revealActions(found)];
 }

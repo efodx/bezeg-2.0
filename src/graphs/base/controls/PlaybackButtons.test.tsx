@@ -96,4 +96,25 @@ describe('PlaybackButtons', () => {
         expect(screen.getByRole('group', {name: 'Iteration'}).className).toBe('inspector-playback');
         expect(button('play-pause').textContent).toBe('Premor');
     });
+
+    test('a button whose handler is absent is left out: a continuous run shows only Play and, with a handler, Reset', () => {
+        const {rerender} = render(<PlaybackButtons groupLabel="Run" playing={false} onPlayPause={() => {}}/>);
+        const actions = () => [...screen.getByRole('group', {name: 'Run'}).querySelectorAll('button')].map(element => element.dataset.action);
+        expect(actions()).toEqual(['play-pause']);
+        rerender(<PlaybackButtons groupLabel="Run" playing={false} onPlayPause={() => {}} onReset={() => {}}/>);
+        expect(actions()).toEqual(['play-pause', 'reset']);
+    });
+
+    test('the reduced-motion reason blocks Play, keeps focus and says why when pressed', () => {
+        const onPlayPause = vi.fn();
+        render(<PlaybackButtons groupLabel="Run" playing={false} playBlock="reduced-motion" onPlayPause={onPlayPause}/>);
+        const play = button('play-pause');
+        play.focus();
+        fireEvent.click(play);
+        expect(onPlayPause).not.toHaveBeenCalled();
+        expect(document.activeElement).toBe(play);
+        expect(play.getAttribute('aria-disabled')).toBe('true');
+        expect(play.title).toBe('Sistem je nastavljen na manj gibanja, zato predvajanje ni na voljo.');
+        expect(screen.getByRole('status').textContent).toBe(play.title);
+    });
 });

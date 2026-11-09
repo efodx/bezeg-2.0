@@ -2412,7 +2412,7 @@ const arcLengthParam = {
     steps: 7,
     minFrames: 15,
     stepProbe: async (page, ctx, step, label) => {
-        await expect.poll(() => page.getByTestId('arc-play-toggle').getAttribute('aria-pressed'), {message: `arc playback at ${label}`}).toBe('false');
+        await expect.poll(() => page.locator('.arc-playback [data-action="play-pause"]').getAttribute('data-playing'), {message: `arc playback at ${label}`}).toBe('false');
     },
 };
 

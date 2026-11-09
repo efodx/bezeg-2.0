@@ -15,6 +15,7 @@ import {functionInverseEditMessage} from "./functionInverseMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Positions and slopes show four decimals, so that 0.25 and 5.5452 are read off. */
 const PRECISE = 4;
@@ -278,14 +279,10 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
                              onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
             </div>
             <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>
-                <button type="button" data-action="toggle-inverse" data-revealed={state.inverseVisible}
-                        onClick={() => this.setInverseVisible(!this.model.inverseVisible)}>
-                    {state.inverseVisible ? t("function_inverse_inverse_hide") : t("function_inverse_inverse_show")}
-                </button>
-                <button type="button" data-action="toggle-tangent" data-revealed={state.tangentVisible}
-                        onClick={() => this.setTangentVisible(!this.model.tangentVisible)}>
-                    {state.tangentVisible ? t("function_inverse_tangent_hide") : t("function_inverse_tangent_show")}
-                </button>
+                <RevealButton action="toggle-inverse" revealed={state.inverseVisible} showLabel={t("function_inverse_inverse_show")} hideLabel={t("function_inverse_inverse_hide")}
+                              onToggle={() => this.setInverseVisible(!this.model.inverseVisible)}/>
+                <RevealButton action="toggle-tangent" revealed={state.tangentVisible} showLabel={t("function_inverse_tangent_show")} hideLabel={t("function_inverse_tangent_hide")}
+                              onToggle={() => this.setTangentVisible(!this.model.tangentVisible)}/>
             </div>
         </>;
     }

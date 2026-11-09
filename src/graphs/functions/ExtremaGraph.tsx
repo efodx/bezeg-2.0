@@ -14,6 +14,7 @@ import {chooseExtremaExample, EXTREMA_EXAMPLE_MODELS, ExtremaEndpoint, ExtremaMo
 import {extremaEditMessage} from "./extremaMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Values and positions show four decimals so that pi/2 = 1.5708 and sin(4) = -0.7568 can be read off. */
 const PRECISE = 4;
@@ -380,8 +381,8 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         const {revealed} = this.model;
         return <>
             <div className="extrema-actions" role="group" aria-label={t("extrema_actions_label")}>
-                <button type="button" data-action="toggle-classification" data-revealed={revealed}
-                        onClick={() => this.setRevealed(!this.model.revealed)}>{revealed ? t("extrema_hide_classification") : t("extrema_show_classification")}</button>
+                <RevealButton action="toggle-classification" revealed={revealed} showLabel={t("extrema_show_classification")} hideLabel={t("extrema_hide_classification")}
+                              onToggle={() => this.setRevealed(!this.model.revealed)}/>
             </div>
             <p className="inspector-help">{t("extrema_classification_help")}</p>
         </>;

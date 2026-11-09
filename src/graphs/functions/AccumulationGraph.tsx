@@ -17,6 +17,7 @@ import {accumulationEditMessage} from "./accumulationMessages";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Values show four decimals so that the lesson's 1.4161 can be read off. */
 const PRECISE = 4;
@@ -321,10 +322,8 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         const {accumulationVisible} = this.model;
         return <>
             <div className="accumulation-actions" role="group" aria-label={t("accumulation_actions_label")}>
-                <button type="button" data-action="toggle-accumulation" data-revealed={accumulationVisible}
-                        onClick={() => this.setAccumulationVisible(!this.model.accumulationVisible)}>
-                    {accumulationVisible ? t("accumulation_hide") : t("accumulation_show")}
-                </button>
+                <RevealButton action="toggle-accumulation" revealed={accumulationVisible} showLabel={t("accumulation_show")} hideLabel={t("accumulation_hide")}
+                              onToggle={() => this.setAccumulationVisible(!this.model.accumulationVisible)}/>
             </div>
             <p className="inspector-help">{t("accumulation_toggle_help")}</p>
         </>;

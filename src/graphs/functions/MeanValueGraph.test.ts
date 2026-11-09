@@ -6,6 +6,7 @@ import {MEAN_VALUE_EXAMPLE_MODELS} from '../../analysis/meanValueModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const BOX = [-2.5, 5, 4, -2.5];
 
@@ -86,7 +87,8 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB, inputC] = found.NumberInput;
-    const toggle = found.button.find((element: any) => element.props['data-action'] === 'toggle-matches');
+    const toggle = revealButton(found, 'toggle-matches');
+    if (!toggle) throw new Error('no toggle-matches reveal button');
     return {found, inputA, inputB, inputC, toggle};
 };
 const rows = (graph: any): Record<string, string> =>

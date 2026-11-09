@@ -1,8 +1,8 @@
 import React from "react";
-import Button from "react-bootstrap/Button";
 import {t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
+import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {Preset} from "../../base/presets/Presets";
 import {AnimationDriver} from "../../../learning/runtime/animation";
@@ -70,7 +70,8 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         return this.rollDriverInstance ??= new AnimationDriver(delta => {
             const [from, to] = PARAMETRIC_CATALOGUE[this.state.curve].domain;
             const next = this.state.parameter + (to - from) * delta / ROLL_DURATION_MS;
-            this.setParameter(next);
+            // The roll's own step: a user edit goes through setParameter, which pauses the roll.
+            this.setState({parameter: clampParameter(this.state, next)});
             if (next >= to) this.rollDriver.stop();
         });
     }
@@ -186,11 +187,14 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
 
     setRadius(radius: number) {
         if (!Number.isFinite(radius)) return;
+        this.stopRoll();
         this.setState({radius: Math.min(CYCLOID_RADIUS_MAX, Math.max(CYCLOID_RADIUS_MIN, radius))});
         this.fitToCurve();
     }
 
+    /** A user or lesson edit of the parameter pauses the roll (decision 57); the roll itself advances through its own step. */
     setParameter(value: number) {
+        this.stopRoll();
         this.setState({parameter: clampParameter(this.state, value)});
     }
 
@@ -265,6 +269,11 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         this.requestRender();
     }
 
+    /** Read at render time, so a changed system setting applies at the next render. The slider still sets the parameter. */
+    reducedMotion(): boolean {
+        return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+    }
+
     override pausePlayback(): void {
         this.stopRoll();
     }
@@ -286,9 +295,9 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             ...(curve === 'cycloid' ? [<div key="radius"><Slider min={CYCLOID_RADIUS_MIN} max={CYCLOID_RADIUS_MAX} step={0.05} value={radius}
                                                                  customText={t("parametric_radius_label")}
                                                                  onChange={value => this.setRadius(value)}/></div>] : []),
-            <div key="roll"><Button variant="outline-secondary" size="sm"
-                                    onClick={() => { if (this.rolling) this.stopRoll(); else this.playRoll(); this.requestRender(); }}>
-                {this.rolling ? t("parametric_roll_stop") : t("parametric_roll_play")}</Button></div>,
+            <div key="roll"><PlaybackButtons groupLabel={t("animation_controls")} playing={this.rolling}
+                                             playBlock={this.reducedMotion() ? 'reduced-motion' : undefined}
+                                             onPlayPause={() => { if (this.rolling) this.stopRoll(); else this.playRoll(); this.requestRender(); }}/></div>,
         );
     }
 }

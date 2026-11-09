@@ -20,6 +20,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {TransientState} from "../base/BaseGraph";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Step of the arrow keys in the k field. */
 const K_STEP = 0.5;
@@ -299,10 +300,8 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
                             onBlocked={reason => this.refusals.refuse(reason, true)}/>
             <ZeroListNoticeView store={this.notices} describe={zeroListNoticeText}/>
             <div className="convexity-actions" role="group" aria-label={t("polynomial_zeros_actions_label")}>
-                <button type="button" data-action="toggle-derivative" data-revealed={state.derivativeVisible}
-                        onClick={() => this.setDerivativeVisible(!this.model.derivativeVisible)}>
-                    {state.derivativeVisible ? t("polynomial_zeros_derivative_hide") : t("polynomial_zeros_derivative_show")}
-                </button>
+                <RevealButton action="toggle-derivative" revealed={state.derivativeVisible} showLabel={t("polynomial_zeros_derivative_show")} hideLabel={t("polynomial_zeros_derivative_hide")}
+                              onToggle={() => this.setDerivativeVisible(!this.model.derivativeVisible)}/>
             </div>
         </>;
     }

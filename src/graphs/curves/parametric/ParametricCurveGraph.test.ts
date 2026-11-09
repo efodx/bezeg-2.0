@@ -1,3 +1,5 @@
+import React from 'react';
+import {fireEvent, render} from '@testing-library/react';
 import ParametricCurveGraph, {ROLL_DURATION_MS, widenToCanvas} from './ParametricCurveGraph';
 import {ParametricScene} from './ParametricScene';
 import {DEFAULT_PARAMETRIC_PRESET, parametricPresetCollection} from './parametricPresetCollection';
@@ -282,6 +284,37 @@ describe('roll animation', () => {
         graph.playRoll();
         graph.setCurve('rose');
         expect(graph.rolling).toBe(false);
+    });
+
+    test('an accepted edit pauses the roll and keeps the parameter; the roll itself does not (decision 57)', () => {
+        const {tick} = withFrames();
+        const graph = makeGraph();
+        graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0});
+        graph.playRoll();
+        tick(0);
+        tick(1000);
+        expect(graph.rolling).toBe(true);
+        graph.setParameter(1);
+        expect(graph.rolling).toBe(false);
+        expect(graph.state.parameter).toBe(1);
+        graph.playRoll();
+        graph.setRadius(1.5);
+        expect(graph.rolling).toBe(false);
+        graph.playRoll();
+        graph.setRadius(Number.NaN);
+        expect(graph.rolling).toBe(true);
+    });
+
+    test('Play under reduced motion is blocked with its reason and the button never starts the roll', () => {
+        const graph = makeGraph();
+        graph.importPresetData(graph.defaultPreset());
+        vi.spyOn(graph, 'reducedMotion').mockReturnValue(true);
+        const view = render(React.createElement('div', null, ...graph.getGraphCommands()));
+        const play = view.container.querySelector<HTMLButtonElement>('[data-action="play-pause"]')!;
+        expect(play.getAttribute('aria-disabled')).toBe('true');
+        fireEvent.click(play);
+        expect(graph.rolling).toBe(false);
+        view.unmount();
     });
 
     test('unmount cancels a running roll', () => {

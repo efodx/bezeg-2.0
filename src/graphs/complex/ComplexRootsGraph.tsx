@@ -17,6 +17,7 @@ import {complexRootsEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexRootsPresetCollection} from "./complexRootsPresets";
+import {RevealButton} from "../../inputs/RevealButton";
 
 
 /** w and the test point z lie within 2*sqrt(2) of the origin and the roots within 2^(3/4) of it; a square of half-width 3.4 shows them all. */
@@ -343,7 +344,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
         const toggle = (action: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
-            <button type="button" data-action={action} data-revealed={shown} onClick={() => set(!shown)}>{shown ? hide : show}</button>
+            <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
         );
         return <>
             <div className="demo-actions" role="group" aria-label={t("complex_roots_actions_label")}>

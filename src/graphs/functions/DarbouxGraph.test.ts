@@ -6,6 +6,7 @@ import {DARBOUX_N_MAX, DARBOUX_X_MAX, DARBOUX_X_MIN, DARBOUX_EXAMPLE_IDS, darbou
 import {DARBOUX_EXAMPLE_MODELS} from '../../analysis/darbouxModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const BOX = [-3.2, 4.6, 5.2, -3.6];
 
@@ -95,7 +96,7 @@ const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB] = found.NumberInput;
     const [inputN] = found.CountSetter;
-    const button = (action: string) => [...found.button, ...(found.UnavailableButton ?? [])].find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => [...(found.button ?? []), ...(found.UnavailableButton ?? [])].find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {found, inputA, inputB, inputN, refine: button('refine'), toggleLower: button('toggle-lower'), toggleUpper: button('toggle-upper')};
 };
 const rows = (graph: any): Record<string, string> =>

@@ -140,10 +140,21 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     const baseline = graph.liveBoard().objectsList.length;
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     act(() => { fireEvent.change(screen.getByLabelText('Primer matrike'), {target: {value: 'basis-default'}}); });
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Bézierjeva krivulja'})); });
+    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Bézierjeva krivulja'})); });
     expect(graph.modelNow()).toMatchObject({curveVisible: false});
     expect(graph.liveBoard().objectsList.length).toBe(baseline);
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
     expect(graph.handles()).toEqual([undefined, undefined]);
+});
+
+test('the probe toggle is a switch that reaches the model', () => {
+    const graph = new ObservedLinearMapGraph();
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const probe = screen.getByRole('checkbox', {name: 'Točka p'}) as HTMLInputElement;
+    expect(probe.type).toBe('checkbox');
+    const before = graph.modelNow().probeVisible;
+    act(() => { fireEvent.click(probe); });
+    expect(graph.modelNow().probeVisible).toBe(!before);
+    expect(probe.checked).toBe(!before);
 });

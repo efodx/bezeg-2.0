@@ -5,6 +5,7 @@ import {analyzeExtrema, EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, extre
 import {EXTREMA_EXAMPLE_MODELS} from '../../analysis/extremaModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const BOX = [-6, 4.6, 6, -5.6];
 
@@ -90,7 +91,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {found, inputA, inputB, toggle: button('toggle-classification')};
 };
 const rows = (graph: any): Record<string, string> =>
@@ -341,7 +342,6 @@ test('the toggle names its state in words, editing a and b keeps the classificat
     controls(graph).toggle.props.onClick();
     expect(controls(graph).toggle.props.children).toBe('Skrij klasifikacijo');
     expect(controls(graph).toggle.props['data-revealed']).toBe(true);
-    expect(controls(graph).toggle.props.type).toBe('button');
     apply(graph, parameter('extrema-b', 1));
     apply(graph, parameter('extrema-a', -2));
     expect(graph.model).toEqual({example: 'square', a: -2, b: 1, revealed: true});

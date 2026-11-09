@@ -17,6 +17,7 @@ import {complexEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "../functions/functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 
 /**
@@ -431,14 +432,10 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("complex_actions_label")}>
-                <button type="button" data-action="toggle-complex-product" data-revealed={state.productVisible}
-                        onClick={() => this.setProductVisible(!this.model.productVisible)}>
-                    {state.productVisible ? t("complex_hide_product") : t("complex_show_product")}
-                </button>
-                <button type="button" data-action="toggle-complex-arguments" data-revealed={state.anglesVisible}
-                        onClick={() => this.setAnglesVisible(!this.model.anglesVisible)}>
-                    {state.anglesVisible ? t("complex_hide_arguments") : t("complex_show_arguments")}
-                </button>
+                <RevealButton action="toggle-complex-product" revealed={state.productVisible} showLabel={t("complex_show_product")} hideLabel={t("complex_hide_product")}
+                              onToggle={() => this.setProductVisible(!this.model.productVisible)}/>
+                <RevealButton action="toggle-complex-arguments" revealed={state.anglesVisible} showLabel={t("complex_show_arguments")} hideLabel={t("complex_hide_arguments")}
+                              onToggle={() => this.setAnglesVisible(!this.model.anglesVisible)}/>
             </div>
             <p className="inspector-help">{t("complex_product_help")}</p>
             <p className="inspector-help">{t("complex_arguments_help")}</p>

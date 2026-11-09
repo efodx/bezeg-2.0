@@ -120,6 +120,16 @@ describe('lesson parameter action', () => {
         expect(graph.state).toMatchObject({t: 0.3, animationStatus: 'paused'});
     });
 
+    test('a seek with the parameter slider pauses a running animation (decision 57)', () => {
+        const graph = makeGraph();
+        graph.bindSceneToFirstCurve();
+        graph.animation.isRunning.mockReturnValue(true);
+        graph.changeParameter(0.8);
+        expect(graph.animation.pause).toHaveBeenCalledTimes(1);
+        expect(graph.state).toMatchObject({t: 0.8, animationStatus: 'paused'});
+        expect(graph.animation.play).not.toHaveBeenCalled();
+    });
+
     test('workspace pause preserves the drawn frame and playback can resume from it', () => {
         const graph = makeGraph();
         graph.bindSceneToFirstCurve();

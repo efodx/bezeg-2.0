@@ -19,6 +19,7 @@ import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /**
  * Time between two playback steps. One iterate per interval, never more than one per frame, whatever the display refresh rate
@@ -386,10 +387,8 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
-                <button type="button" data-action="toggle-fixed-point-bound" data-revealed={state.boundVisible}
-                        onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
-                    {state.boundVisible ? t("fixed_point_hide_bound") : t("fixed_point_show_bound")}
-                </button>
+                <RevealButton action="toggle-fixed-point-bound" revealed={state.boundVisible} showLabel={t("fixed_point_show_bound")} hideLabel={t("fixed_point_hide_bound")}
+                              onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
             <p className="inspector-help">{t("fixed_point_bound_help")}</p>
         </>;

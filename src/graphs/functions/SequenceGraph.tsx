@@ -22,6 +22,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /**
  * Time between two playback steps. One term per interval, never more than one per frame, whatever the display refresh rate
@@ -387,10 +388,8 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
         const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
-                <button type="button" data-action="toggle-sequence-certificate" data-revealed={state.certificateVisible}
-                        onClick={() => this.setCertificateVisible(!this.model.certificateVisible)}>
-                    {state.certificateVisible ? t("sequence_hide_certificate") : t("sequence_show_certificate")}
-                </button>
+                <RevealButton action="toggle-sequence-certificate" revealed={state.certificateVisible} showLabel={t("sequence_show_certificate")} hideLabel={t("sequence_hide_certificate")}
+                              onToggle={() => this.setCertificateVisible(!this.model.certificateVisible)}/>
             </div>
             <p className="inspector-help">{t("sequence_certificate_help")}</p>
         </>;

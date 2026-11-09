@@ -38,7 +38,7 @@ test('Triangulation minimum angle reads 30° without trailing zeros', () => {
 });
 
 test('De Casteljau keeps two decimals in t with the language separator', () => {
-    const props = {parameter: 0.5, speed: 1, status: 'ready' as const, onPlay: noop, onPause: noop, onStop: noop, onReplay: noop, onParameterChange: noop, onSpeedChange: noop};
+    const props = {parameter: 0.5, speed: 1, status: 'ready' as const, onPlay: noop, onPause: noop, onStop: noop, onParameterChange: noop, onSpeedChange: noop};
     const view = render(<DecasteljauAnimationControls {...props}/>);
     expect(view.container.querySelector('output')!.textContent).toBe('t = 0,50');
     view.unmount();

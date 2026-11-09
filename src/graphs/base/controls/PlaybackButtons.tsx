@@ -3,7 +3,7 @@ import {useT} from "../../../localization";
 import {UnavailableButton} from "../../../inputs/UnavailableButton";
 
 /** Why a playback button is unavailable; see docs/specs/playback-button-reasons.md. */
-export type PlaybackBlock = 'no-more-steps' | 'playing' | 'at-start' | 'no-run';
+export type PlaybackBlock = 'no-more-steps' | 'playing' | 'at-start' | 'no-run' | 'reduced-motion';
 
 export interface PlaybackBlocks {
     readonly nextBlock: PlaybackBlock | undefined;
@@ -37,13 +37,16 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
     readonly groupLabel: string;
     /** Added to the group's `inspector-playback` class. */
     readonly className?: string;
-    readonly nextLabel: string;
+    /** Needed with `onNext`. */
+    readonly nextLabel?: string;
     /** Defaults to the shared Reset label. */
     readonly resetLabel?: string;
     readonly playing: boolean;
-    readonly onNext: () => void;
+    /** A continuous run has no step: leave `onNext` out and the Next step button is not shown. */
+    readonly onNext?: () => void;
     readonly onPlayPause: () => void;
-    readonly onReset: () => void;
+    /** Left out when the graph has no run reset; the Reset button is then not shown. */
+    readonly onReset?: () => void;
     /** Further buttons of the same group, after the three. */
     readonly children?: React.ReactNode;
 }
@@ -62,17 +65,19 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         'playing': t("playback_block_playing"),
         'at-start': t("playback_block_at_start"),
         'no-run': t("playback_block_no_run"),
+        'reduced-motion': t("playback_block_reduced_motion"),
     };
-    const buttons: readonly {action: PlaybackAction, block: PlaybackBlock | undefined, label: string, run: () => void}[] = [
-        {action: 'next-step', block: nextBlock, label: nextLabel, run: onNext},
+    const all: readonly {action: PlaybackAction, block: PlaybackBlock | undefined, label: string, run: (() => void) | undefined}[] = [
+        {action: 'next-step', block: nextBlock, label: nextLabel ?? "", run: onNext},
         {action: 'play-pause', block: playBlock, label: playing ? t("pause") : t("play"), run: onPlayPause},
         {action: 'reset', block: resetBlock, label: resetLabel ?? t("reset"), run: onReset},
     ];
+    const buttons = all.flatMap(({run, ...rest}) => run ? [{...rest, run}] : []);
     const shownBlock = buttons.find(button => button.action === pressed)?.block;
     return <>
         <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel}>
             {buttons.map(({action, block, label, run}) =>
-                <UnavailableButton key={action} data-action={action} reason={block && reasons[block]} onPress={() => { setPressed(undefined); run(); }}
+                <UnavailableButton key={action} data-action={action} data-playing={action === 'play-pause' ? String(playing) : undefined} reason={block && reasons[block]} onPress={() => { setPressed(undefined); run(); }}
                                    onBlockedPress={() => setPressed(action)}>{label}</UnavailableButton>)}
             {children}
         </div>

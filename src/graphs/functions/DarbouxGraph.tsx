@@ -19,6 +19,7 @@ import {guard, guardField} from "../base/controls/guard";
 import {darbouxEditMessage} from "./darbouxMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Sums and the integral show four decimals so that 1.75, 3.75 and 8/3 = 2.6667 can be read off. */
 const PRECISE = 4;
@@ -303,10 +304,10 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         const {lowerVisible, upperVisible} = this.model;
         return <>
             <div className="darboux-actions" role="group" aria-label={t("darboux_sums_label")}>
-                <button type="button" data-action="toggle-lower" data-revealed={lowerVisible}
-                        onClick={() => this.setLowerVisible(!this.model.lowerVisible)}>{lowerVisible ? t("darboux_hide_lower") : t("darboux_show_lower")}</button>
-                <button type="button" data-action="toggle-upper" data-revealed={upperVisible}
-                        onClick={() => this.setUpperVisible(!this.model.upperVisible)}>{upperVisible ? t("darboux_hide_upper") : t("darboux_show_upper")}</button>
+                <RevealButton action="toggle-lower" revealed={lowerVisible} showLabel={t("darboux_show_lower")} hideLabel={t("darboux_hide_lower")}
+                              onToggle={() => this.setLowerVisible(!this.model.lowerVisible)}/>
+                <RevealButton action="toggle-upper" revealed={upperVisible} showLabel={t("darboux_show_upper")} hideLabel={t("darboux_hide_upper")}
+                              onToggle={() => this.setUpperVisible(!this.model.upperVisible)}/>
             </div>
             <p className="inspector-help">{t("darboux_sums_help")}</p>
         </>;

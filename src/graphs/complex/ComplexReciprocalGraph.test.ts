@@ -4,6 +4,7 @@ import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DEFAULT_COMPLEX_RECIPROCAL_MODEL} from '../../analysis/complexReciprocalModel';
 import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {DomainError} from '../functions/BaseFunctionGraph';
+import {revealButton} from "../functions/revealElementTree";
 
 const BOX = [-4.5, 4.5, 4.5, -4.5];
 const ZBAR = 'z̄';
@@ -82,7 +83,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [zRe, zIm, wRe, wIm, centreRe, centreIm, radius] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
         found, select: found.ChoiceSelect[0], zRe, zIm, wRe, wIm, centreRe, centreIm, radius,
         showReciprocal: button('toggle-complex-reciprocal'), showQuotient: button('toggle-complex-quotient'), showCircle: button('toggle-complex-circle'),

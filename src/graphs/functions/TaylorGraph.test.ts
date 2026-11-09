@@ -5,6 +5,7 @@ import {TAYLOR_EXAMPLE_IDS, TAYLOR_EXAMPLES, TaylorExampleId} from '../../analys
 import {TAYLOR_EXAMPLE_MODELS} from '../../analysis/taylorModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const BOX = [-3.5, 10, 3.5, -4];
 
@@ -87,7 +88,7 @@ const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputCenter, inputX] = found.NumberInput;
     const [setter] = found.CountSetter;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
         found, inputCenter, inputX, setter, toggle: button('toggle-taylor-bound'),
         // the degree is a shared CountSetter: its typed path, its minus and its plus
@@ -433,7 +434,6 @@ test('the toggle names its state in words; editing the center, degree and x keep
     const graph = makeGraph();
     expect(controls(graph).toggle.props.children).toBe('Pokaži oceno napake');
     expect(controls(graph).toggle.props['data-revealed']).toBe(false);
-    expect(controls(graph).toggle.props.type).toBe('button');
     controls(graph).toggle.props.onClick();
     expect(controls(graph).toggle.props.children).toBe('Skrij oceno napake');
     expect(controls(graph).toggle.props['data-revealed']).toBe(true);

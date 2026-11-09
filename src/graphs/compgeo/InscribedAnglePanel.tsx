@@ -1,8 +1,7 @@
 import React from "react";
 import {useLanguage, useT} from "../../localization";
-import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import Slider from "../../inputs/Slider";
+import AngleSlider from "../../inputs/AngleSlider";
 import {INSCRIBED_EXAMPLES, InscribedAnalysis, InscribedExampleId} from "../../compgeo/inscribedAngleModel";
 import {inscribedTexts} from "./inscribedAngleText";
 
@@ -51,11 +50,9 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
 
 function GliderControls(props: {t: number; onT(value: number, direction: number): void}) {
     const t = useT();
-    const {language} = useLanguage();
     return <div className="inscribed-glider" data-inscribed-t>
         <h3 className="inspector-reveals-title">{t("inscribed_glider_heading")}</h3>
-        <Slider customText={t("inscribed_t_label")} min={0} max={360} step={1} bigStep={10} decimals={1} cyclic={360} fieldDecimals={2} value={props.t}
-                valueText={value => `${formatNumber(value, language, 1)}°`}
+        <AngleSlider customText={t("inscribed_t_label")} value={props.t}
                 // A drag or key moves in its direction around the circle (the shorter way); a typed value goes to the nearer edge of a gap.
                 onChange={value => props.onT(value, Math.sign(((value - props.t + 540) % 360) - 180))}
                 onTypedChange={value => props.onT(value, 0)}/>

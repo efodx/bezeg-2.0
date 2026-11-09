@@ -16,6 +16,7 @@ import {chooseConvexityExample, CONVEXITY_EXAMPLE_MODELS, ConvexityModel, Convex
 import {convexityEditMessage} from "./convexityMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Positions and line coefficients show four decimals, so that 0.25 and 1.5 are read off exactly. */
 const PRECISE = 4;
@@ -381,10 +382,8 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         const state = this.model;
         return <>
             <div className="convexity-actions" role="group" aria-label={t("convexity_actions_label")}>
-                <button type="button" data-action="toggle-second-derivative" data-revealed={state.secondDerivativeVisible}
-                        onClick={() => this.setSecondDerivativeVisible(!this.model.secondDerivativeVisible)}>
-                    {state.secondDerivativeVisible ? t("convexity_hide_second_derivative") : t("convexity_show_second_derivative")}
-                </button>
+                <RevealButton action="toggle-second-derivative" revealed={state.secondDerivativeVisible} showLabel={t("convexity_show_second_derivative")} hideLabel={t("convexity_hide_second_derivative")}
+                              onToggle={() => this.setSecondDerivativeVisible(!this.model.secondDerivativeVisible)}/>
             </div>
             <p className="inspector-help">{t("convexity_second_derivative_help")}</p>
         </>;

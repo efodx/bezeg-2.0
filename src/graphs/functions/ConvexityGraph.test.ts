@@ -7,6 +7,7 @@ import {
 import {CONVEXITY_EXAMPLE_MODELS} from '../../analysis/convexityModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const BOX = [-6.5, 4.2, 6.5, -3.2];
 
@@ -91,7 +92,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputB, inputT] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {found, inputA, inputB, inputT, toggle: button('toggle-second-derivative')};
 };
 const rows = (graph: any): Record<string, string> =>
@@ -395,7 +396,6 @@ test('the toggle names its state in words, editing a, b and t keeps the reveal a
     controls(graph).toggle.props.onClick();
     expect(controls(graph).toggle.props.children).toBe('Skrij drugi odvod');
     expect(controls(graph).toggle.props['data-revealed']).toBe(true);
-    expect(controls(graph).toggle.props.type).toBe('button');
     apply(graph, parameter('convexity-b', 1));
     apply(graph, parameter('convexity-a', -2));
     apply(graph, parameter('convexity-t', 1.9));

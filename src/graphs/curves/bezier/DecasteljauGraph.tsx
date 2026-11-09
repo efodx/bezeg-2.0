@@ -60,6 +60,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         // A published playback value may lag the drawn parameter; only external values move it.
         const parameterChanged = this.state.t !== prevState.t && this.state.t !== this.publishedParameter;
         if (parameterChanged) this.parameter = this.state.t;
+        if (prevState.selectedCurveOption !== this.state.selectedCurveOption) this.pausePlayback();
         const wholeCurveChanged = this.state.wholeCurve !== prevState.wholeCurve;
         if (wholeCurveChanged) this.syncWholeCurve();
         if (!onlyParameterStateChanged(prevState, this.state, ["wholeCurve"])) {
@@ -104,6 +105,12 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     protected override sceneGraphState(): DecasteljauGraphStates {
         return {...super.sceneGraphState(), t: this.parameter};
+    }
+
+    override mount(container: HTMLElement) {
+        super.mount(container);
+        // A press on the board (a drag, adding or deleting a point, or a pan) pauses the run (decision 57).
+        this.getActiveGraphSession()?.on('down', () => this.pausePlayback());
     }
 
     override unmount() {
@@ -189,7 +196,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         return this.state.initialized ? super.getGraphCommands().concat([
             <DecasteljauAnimationControls status={this.state.animationStatus} parameter={this.state.t} speed={this.state.v}
                 onPlay={() => this.playAnimation()} onPause={() => this.pauseAnimation()}
-                onStop={() => this.stopAnimation()} onReplay={() => this.replayAnimation()}
+                onStop={() => this.stopAnimation()}
                 onParameterChange={(value) => this.changeParameter(value)}
                 onSpeedChange={(value) => this.setState({v: value})}/>]) : [];
     }
@@ -213,8 +220,11 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.setParameter(0, "playing", this.whileMounted(() => this.lessonAnimation.replay()));
     }
 
+    /** A seek is an edit: it pauses a running animation (decision 57). */
     private changeParameter(value: number) {
-        this.setParameter(value, this.lessonAnimation.isRunning() ? "playing" : "ready");
+        const running = this.lessonAnimation.isRunning();
+        this.lessonAnimation.pause();
+        this.setParameter(value, running ? "paused" : "ready");
     }
 
     protected override stopLessonAnimations(): void {
@@ -239,7 +249,9 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
             if (action.value < 0 || action.value > 1 || !Number.isFinite(action.value)) {
                 throw new Error('The De Casteljau parameter must be between 0 and 1.');
             }
-            this.setParameter(action.value, this.state.animationStatus);
+            const running = this.lessonAnimation.isRunning();
+            this.lessonAnimation.pause();
+            this.setParameter(action.value, running || this.state.animationStatus === "playing" ? "paused" : this.state.animationStatus);
         });
         registry.onDiscriminated('curve-visibility', 'decasteljau-full-curve', action => {
             this.setState({wholeCurve: action.visible});

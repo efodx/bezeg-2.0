@@ -4,6 +4,7 @@ import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DEFAULT_COMPLEX_ROOTS_MODEL} from '../../analysis/complexRootsModel';
 import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {DomainError} from '../functions/BaseFunctionGraph';
+import {revealButton} from "../functions/revealElementTree";
 
 const BOX = [-3.4, 3.4, 3.4, -3.4];
 
@@ -87,7 +88,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [wRe, wIm, degree, zRe, zIm] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
         found, select: found.ChoiceSelect[0], wRe, wIm, degree, zRe, zIm,
         showRoots: button('toggle-complex-roots'), showPolygon: button('toggle-complex-polygon'), showTest: button('toggle-complex-test'),

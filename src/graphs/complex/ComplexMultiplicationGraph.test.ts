@@ -5,6 +5,7 @@ import {COMPLEX_EXAMPLE_MODELS, DEFAULT_COMPLEX_MODEL} from '../../analysis/comp
 import {COMPLEX_MAX_PRODUCT_MODULUS, complexModulus, complexMultiply, snapComplexCoordinate} from '../../analysis/complex';
 import {setLanguage, onLanguageChange} from '../../localization';
 import {DomainError} from '../functions/BaseFunctionGraph';
+import {revealButton} from "../functions/revealElementTree";
 
 const BOX = [-4.5, 4.5, 4.5, -4.5];
 
@@ -88,7 +89,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [zRe, zIm, wRe, wIm, modulus, argument] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
         found, select: found.ChoiceSelect[0], zRe, zIm, wRe, wIm, modulus, argument,
         showProduct: button('toggle-complex-product'), showArguments: button('toggle-complex-arguments'),

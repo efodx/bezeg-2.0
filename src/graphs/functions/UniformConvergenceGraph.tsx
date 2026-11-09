@@ -20,6 +20,7 @@ import {
 import {uniformConvergenceEditMessage} from "./uniformConvergenceMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Errors and the supremum show five significant digits, so 0.8^5 reads 0.32768. */
 const SIGNIFICANT_DIGITS = 5;
@@ -373,10 +374,8 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("uniform_actions_label")}>
-                <button type="button" data-action="toggle-uniform-supremum" data-revealed={state.supremumVisible}
-                        onClick={() => this.setSupremumVisible(!this.model.supremumVisible)}>
-                    {state.supremumVisible ? t("uniform_hide_supremum") : t("uniform_show_supremum")}
-                </button>
+                <RevealButton action="toggle-uniform-supremum" revealed={state.supremumVisible} showLabel={t("uniform_show_supremum")} hideLabel={t("uniform_hide_supremum")}
+                              onToggle={() => this.setSupremumVisible(!this.model.supremumVisible)}/>
             </div>
             <p className="inspector-help">{t("uniform_supremum_help")}</p>
         </>;

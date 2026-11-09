@@ -19,6 +19,7 @@ import {complexReciprocalEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexReciprocalPresetCollection} from "./complexReciprocalPresets";
+import {RevealButton} from "../../inputs/RevealButton";
 
 
 /** Operands and the whole inversion circle (centre and radius up to 2) lie within 4 of the origin; a square of half-width 4.5 shows them. */
@@ -450,7 +451,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
         const toggle = (action: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
-            <button type="button" data-action={action} data-revealed={shown} onClick={() => set(!shown)}>{shown ? hide : show}</button>
+            <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
         );
         return <>
             <div className="demo-actions" role="group" aria-label={t("complex_recip_actions_label")}>

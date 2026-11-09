@@ -5,6 +5,7 @@ import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {UNIFORM_EXAMPLE_MODELS} from '../../analysis/uniformConvergenceModel';
 import {setLanguage, onLanguageChange} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const BOX = [-0.15, 1.45, 1.2, -0.35];
 
@@ -86,7 +87,7 @@ const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputR, inputX, inputEpsilon] = found.NumberInput;
     const [setter] = found.CountSetter;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     // n is a shared CountSetter: its typed path, its minus and its plus
     return {
         found, select: found.ChoiceSelect[0], inputR, inputX, inputEpsilon, setter, toggle: button('toggle-uniform-supremum'),

@@ -1,7 +1,9 @@
 import {t, useLanguage, useT} from "../../../localization";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {withDecimalSeparator} from "../../../analysis/format";
 import Slider from "../../../inputs/Slider";
+import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 
 export type DecasteljauAnimationStatus = "ready" | "playing" | "paused" | "finished";
 
@@ -11,8 +13,8 @@ interface DecasteljauAnimationControlsProps {
     status: DecasteljauAnimationStatus;
     onPlay: () => void;
     onPause: () => void;
+    /** Back to t = 0, stopped: the run Reset. */
     onStop: () => void;
-    onReplay: () => void;
     onParameterChange: (value: number) => void;
     onSpeedChange: (value: number) => void;
 }
@@ -27,28 +29,23 @@ function statusLabel(status: DecasteljauAnimationStatus): string {
 export function DecasteljauAnimationControls(props: DecasteljauAnimationControlsProps) {
     const t = useT();
     const {language} = useLanguage();
+    const playing = props.status === "playing";
+    const readoutText = `t = ${withDecimalSeparator(props.parameter.toFixed(2), language)}`;
+    const [readout] = useState(() => new SettledReadout());
+    useEffect(() => { readout.report(readoutText); }, [readout, readoutText]);
+    useEffect(() => () => readout.cancel(), [readout]);
     return <section className="decasteljau-animation-panel" aria-label={t("animation_controls")}>
         <div className="decasteljau-animation-heading">
             <div>
                 <h4>{t("animation_controls")}</h4>
                 <span>{statusLabel(props.status)}</span>
             </div>
-            <output aria-live="polite">t = {withDecimalSeparator(props.parameter.toFixed(2), language)}</output>
+            <output>{readoutText}</output>
+            <LiveReadout readout={readout} muted={playing}/>
         </div>
-        <div className="decasteljau-animation-actions inspector-playback" role="group" aria-label={t("animation_controls")}>
-            <button type="button" className="decasteljau-animation-play inspector-playback-primary" disabled={props.status === "playing"} onClick={props.onPlay}>
-                <span aria-hidden="true">▶</span>{t("play")}
-            </button>
-            <button type="button" disabled={props.status !== "playing"} onClick={props.onPause}>
-                <span aria-hidden="true">Ⅱ</span>{t("pause")}
-            </button>
-            <button type="button" disabled={props.status === "ready" && props.parameter === 0} onClick={props.onStop}>
-                <span aria-hidden="true">■</span>{t("stop")}
-            </button>
-            <button type="button" onClick={props.onReplay}>
-                <span aria-hidden="true">↻</span>{t("replay")}
-            </button>
-        </div>
+        <PlaybackButtons groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}
+                         {...playbackBlocks({atStart: props.status === "ready" && props.parameter === 0, atEnd: false, playing})}
+                         onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}/>
         <div className="decasteljau-animation-slider">
             <Slider customText={t("animation_parameter")} min={0} max={1} value={props.parameter}
                     onChange={props.onParameterChange}/>

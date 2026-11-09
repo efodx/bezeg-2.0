@@ -17,6 +17,7 @@ import {
 import {meanValueEditMessage} from "./meanValueMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /**
  * Two slopes closer than this are shown as "agreeing". It is a numerical comparison of the displayed numbers, not a proof
@@ -317,8 +318,8 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
         const {revealed} = this.model;
         return <>
             <div className="mean-value-actions" role="group" aria-label={t("mean_value_actions_label")}>
-                <button type="button" data-action="toggle-matches" data-revealed={revealed}
-                        onClick={() => this.setRevealed(!this.model.revealed)}>{revealed ? t("mean_value_hide_matches") : t("mean_value_show_matches")}</button>
+                <RevealButton action="toggle-matches" revealed={revealed} showLabel={t("mean_value_show_matches")} hideLabel={t("mean_value_hide_matches")}
+                              onToggle={() => this.setRevealed(!this.model.revealed)}/>
             </div>
             <p className="inspector-help">{t("mean_value_matches_help")}</p>
         </>;

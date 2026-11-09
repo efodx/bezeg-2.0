@@ -3,6 +3,7 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelP
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {LessonAction} from "../../learning/model";
@@ -378,10 +379,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                          onChange={next => this.ignoreOutOfDomain(() => this.setEntryFromInput(row, column, next))}/>
         );
         const notice = this.notice;
-        const toggle = (field: "probeVisible" | "curveVisible" | "squareVisible", action: string, label: string) => (
-            <button type="button" data-action={action} aria-pressed={state[field]} onClick={() => this.setToggle(field, !this.model[field])}>
-                {label}
-            </button>
+        const toggle = (field: "probeVisible" | "curveVisible" | "squareVisible", label: string) => (
+            <OnOffSwitch checked={state[field]} label={label} onChange={checked => this.setToggle(field, checked)}/>
         );
         return <>
             <div className="inspector-group">
@@ -407,10 +406,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 </div>
                 <div className="demo-actions" role="group" aria-label={t("linear_map_actions_label")}>
                     <button type="button" data-action="linear-map-reset" onClick={() => this.resetToIdentity()}>{t("linear_map_reset")}</button>
-                    {toggle("squareVisible", "toggle-linear-map-square", t("linear_map_toggle_square"))}
-                    {toggle("probeVisible", "toggle-linear-map-probe", t("linear_map_toggle_probe"))}
-                    {toggle("curveVisible", "toggle-linear-map-curve", t("linear_map_toggle_curve"))}
                 </div>
+                {toggle("squareVisible", t("linear_map_toggle_square"))}
+                {toggle("probeVisible", t("linear_map_toggle_probe"))}
+                {toggle("curveVisible", t("linear_map_toggle_curve"))}
             </div>
         </>;
     }

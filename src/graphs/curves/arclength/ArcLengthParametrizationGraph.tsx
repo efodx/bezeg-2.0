@@ -9,6 +9,7 @@ import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry"
 import {fitBoundingBox} from "../../base/fitBoundingBox";
 import {arcLengthParamPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
+import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
 import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
 import {ARC_MOVER_MODES, ARC_PIECES_DEFAULT, ARC_PIECES_MAX, ARC_PIECES_MIN, ArcMoverMode} from "./arcLengthModel";
 import {ArcLengthOverlay} from "./ArcLengthOverlay";
@@ -401,12 +402,9 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
             <Slider min={0} max={1} step={0.001} value={this.moverPosition()} customText={t("arcparam_mover_position")}
                     unavailableReason={this.playing ? t("arcparam_position_while_playing") : undefined}
                     onChange={value => this.setArcMoverPosition(value)}/>
-            <button type="button" className="inspector-playback-primary" disabled={reduced} aria-describedby={reduced ? "arc-reduced-motion-reason" : undefined} data-testid="arc-play-toggle"
-                    aria-pressed={this.playing} aria-label={this.playing ? t("arcparam_pause_label") : t("arcparam_play_label")}
-                    onClick={() => { if (this.playing) this.pause(); else this.play(); }}>
-                {this.playing ? t("pause") : t("play")}
-            </button>
-            {reduced && <p id="arc-reduced-motion-reason" className="inspector-help">{t("arcparam_reduced_motion")}</p>}
+            <PlaybackButtons groupLabel={t("animation_controls")} className="arc-playback" playing={this.playing}
+                             playBlock={reduced ? 'reduced-motion' : undefined}
+                             onPlayPause={() => { if (this.playing) this.pause(); else this.play(); }}/>
             <OnOffSwitch label={t("arcparam_speed_plot_shown")} checked={this.state.arcSpeedPlotShown}
                          onChange={checked => this.setArcSpeedPlotShown(checked)}/>
             {this.state.arcSpeedPlotShown && <ArcSpeedPlot controller={this.plot} fontSize={this.displaySettings.fontSize}/>}

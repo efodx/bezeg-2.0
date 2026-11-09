@@ -206,6 +206,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         const count = curve.getCurve().getPoints().length;
         if (count <= CURVE_POINTS_MIN) { this.pointRefusals.refuse(message('count_at_minimum', {value0: String(CURVE_POINTS_MIN)}), true); return; }
         curve.removePoint(index < 0 ? count - 1 : index);
+        this.pausePlayback(); // an accepted edit pauses a run (decision 57)
         this.pointRefusals.clear();
         this.boardUpdate();
         this.refreshWorkspace();
@@ -213,6 +214,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
 
     /** A typed add or edit redraws, clears a refusal, and refits the view only when the point lies outside it (decision 6); a board click or drag never does. */
     private afterTypedPointEdit(to: readonly number[]): void {
+        this.pausePlayback(); // an accepted edit pauses a run (decision 57)
         this.pointRefusals.clear();
         this.boardUpdate();
         if (this.hasBoard) {

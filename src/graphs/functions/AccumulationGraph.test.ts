@@ -6,6 +6,7 @@ import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
+import {revealButton} from "./revealElementTree";
 
 const SIN_VIEW = [-1.2, 3.1, 6.7, -3.1];
 
@@ -94,7 +95,8 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const [inputA, inputX] = found.NumberInput;
-    const toggle = found.button.find((element: any) => element.props['data-action'] === 'toggle-accumulation');
+    const toggle = revealButton(found, 'toggle-accumulation');
+    if (!toggle) throw new Error('no toggle-accumulation reveal button');
     return {found, inputA, inputX, toggle};
 };
 const rows = (graph: any): Record<string, string> =>
@@ -367,7 +369,6 @@ test('the controls carry the range, label every field, name the reveal state in 
         ['Spodnja meja a', ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_MAX, 0], ['Točka x', ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_MAX, 2],
     ]);
     expect(toggle.props.children).toBe('Pokaži akumulacijo A');
-    expect(toggle.props.type).toBe('button');
     expect(found.ChoiceSelect[0].props.options.map((option: any) => [option.value, option.text])).toEqual([
         ['square', 'f(x) = x²'], ['sin', 'f(x) = sin x'], ['exp', 'f(x) = eˣ'],
     ]);

@@ -17,6 +17,7 @@ import {chooseTaylorExample, setTaylorCenter, setTaylorDegree, setTaylorX, TAYLO
 import {taylorEditMessage} from "./taylorMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {RevealButton} from "../../inputs/RevealButton";
 
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
 const PRECISE = 4;
@@ -351,10 +352,8 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const state = this.model;
         return <>
             <div className="taylor-actions" role="group" aria-label={t("taylor_actions_label")}>
-                <button type="button" data-action="toggle-taylor-bound" data-revealed={state.boundVisible}
-                        onClick={() => this.setBoundVisible(!this.model.boundVisible)}>
-                    {state.boundVisible ? t("taylor_hide_bound") : t("taylor_show_bound")}
-                </button>
+                <RevealButton action="toggle-taylor-bound" revealed={state.boundVisible} showLabel={t("taylor_show_bound")} hideLabel={t("taylor_hide_bound")}
+                              onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
             <p className="inspector-help">{t("taylor_bound_help")}</p>
         </>;

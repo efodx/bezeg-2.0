@@ -6,6 +6,7 @@ import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
+import AngleSlider from "../../inputs/AngleSlider";
 import {
     SIMSON_EXAMPLES, SIMSON_OFFSETS, SimsonAnalysis, SimsonExampleId, SimsonMode, SimsonSettings, isSimsonMode, resolveOffset,
 } from "../../compgeo/simsonLineModel";
@@ -113,8 +114,7 @@ function GliderControls(props: GliderControlsProps) {
     const stop = Math.max(0, SIMSON_OFFSETS.findIndex(offset => offset === props.epsilon));
     return <div className="simson-glider">
         <div data-simson-t>
-            <Slider customText={t("simson_t_label")} min={0} max={360} step={1} bigStep={10} decimals={1} cyclic={360} fieldDecimals={2} value={props.t}
-                    valueText={value => `${formatNumber(value, language, 1)}°`} onChange={value => props.onT(value)}/>
+            <AngleSlider customText={t("simson_t_label")} value={props.t} onChange={value => props.onT(value)}/>
         </div>
         <div data-simson-epsilon>
             <Slider customText={t("simson_epsilon_label")} min={0} max={SIMSON_OFFSETS.length - 1} step={1} value={stop}
