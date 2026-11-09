@@ -6,6 +6,7 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 - **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`, rebased on `origin/master`. Run state: **active**. Wave 2's second pair (functions, curves) closed 2026-11-09 and is pushed; patches is next. The previous handler handed off at this boundary on `BUDGET SOFT`.
 - **Clean publish worktree:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached HEAD, its own `npm ci`. Check out the commit there, run `just check-changed origin/master` (about 14 min), `just build`, `just smoke-lesson <ids>` for affected lessons, serve with `just preview 4327` for browser smoke, then publish. Untracked logs there make builds "dirty"; that is harmless.
+- **Hosted CI for `81300d01`:** failure (run 42579563632): `tests/lesson-graph-access.smoke.spec.cjs` Taylor test, `getByLabel('Degree n')` matched both the `CountSetter` group and its typed field after the functions sweep. Fixed by targeting the spinbutton; the spec passed 3/3 against a build of `0b81cdad` in the clean worktree. Recheck hosted CI on the fix commit.
 - **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Verification-throughput phase 5 applies to every sweep.
 
 ## Accepted in Wave 2 (on `master`)
