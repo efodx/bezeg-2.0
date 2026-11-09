@@ -212,3 +212,30 @@ test('each graph ticks at its own interval: a frame shorter than the interval do
         expect(h.step).toBe(1);
     }
 });
+
+test('a run of unknown length (runLength = step + 1 once it cannot advance) ignores Next step and Play at its end, and the transition outcome ends playback', () => {
+    const frames = manualScheduler();
+    const last = 3;
+    const run = {step: 0, writes: [] as number[], playback: undefined as unknown as TracePlayback};
+    run.playback = new TracePlayback({
+        runLength: () => run.step + (run.step < last ? 2 : 1),
+        step: () => run.step,
+        writeStep: step => { run.writes.push(step); run.step = step; return step >= last ? 'complete' as const : 'continue' as const; },
+        exportBusy: () => false,
+        requestRender: () => undefined,
+        intervalMs: () => 400,
+    }, frames.scheduler);
+    run.playback.play();
+    frames.frame(0);
+    for (let i = 0; i < 10; i++) frames.frame(400);
+    expect([run.step, run.playback.isPlaying, frames.callbacks.size]).toEqual([last, false, 0]);
+    // a restore to the end outside advance() resets the controller, so only the host's end guard keeps Next step and Play out
+    run.step = 0;
+    run.playback.settle(false, true);
+    run.step = last;
+    run.playback.settle(false, true);
+    const writes = run.writes.length;
+    run.playback.nextStep();
+    run.playback.play();
+    expect([run.writes.length, run.step, run.playback.isPlaying, frames.callbacks.size]).toEqual([writes, last, false, 0]);
+});

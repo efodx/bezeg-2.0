@@ -118,3 +118,14 @@ describe('PlaybackButtons', () => {
         expect(screen.getByRole('status').textContent).toBe(play.title);
     });
 });
+
+describe('the leading slot', () => {
+    test('renders its buttons before Next, Play and Reset inside the group', () => {
+        render(<PlaybackButtons groupLabel="Iteration" nextLabel="Next" playing={false} onNext={() => {}} onPlayPause={() => {}} onReset={() => {}}
+                                leading={<button data-action="previous-step">Previous</button>}>
+            <button data-action="extra">New</button>
+        </PlaybackButtons>);
+        const order = Array.from(screen.getByRole('group', {name: 'Iteration'}).querySelectorAll('button')).map(b => b.getAttribute('data-action'));
+        expect(order).toEqual(['previous-step', 'next-step', 'play-pause', 'reset', 'extra']);
+    });
+});

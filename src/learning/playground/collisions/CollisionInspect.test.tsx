@@ -209,13 +209,15 @@ describe('live region', () => {
 })
 
 describe('keyboard path', () => {
-  it('reaches the count slider and then Next, Play and New in order, and Enter steps', () => {
+  it('reaches the count slider and then Previous, Next, Play and New in order, and Enter steps', () => {
     render(<CollisionInspect/>)
     userEvent.tab()
     // The number field comes first in the slider, then the range; Previous is unavailable but stays in the order.
     expect(document.activeElement).toBe(screen.getByRole('spinbutton'))
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('slider'))
+    userEvent.tab()
+    expect(document.activeElement).toBe(prev())
     userEvent.tab()
     expect(document.activeElement).toBe(next())
     const handler = vi.fn()
@@ -226,17 +228,18 @@ describe('keyboard path', () => {
     expect(prev().getAttribute('aria-disabled')).toBe('false')
   })
 
-  it('tabs from Next to Play to Previous (unavailable but focusable, with its reason once pressed) to New', () => {
+  it('keeps Previous, Next, Play, New in DOM order, and Previous (unavailable but focusable) shows its reason once pressed', () => {
     render(<CollisionInspect/>)
-    next().focus()
-    userEvent.tab()
-    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Predvajaj'}))
-    userEvent.tab()
-    expect(document.activeElement).toBe(prev())
+    const names = Array.from(screen.getByRole('group', {name: 'Korakanje po pometanju in gibanje'}).querySelectorAll('button')).map(b => b.getAttribute('data-action'))
+    expect(names).toEqual(['previous-step', 'next-step', 'play-pause', 'new-arrangement'])
+    prev().focus()
     expect(prev().hasAttribute('disabled')).toBe(false)
     expect(prev().getAttribute('title')).toBe('Prikaz je že na začetku.')
     fireEvent.click(prev())
     expect(document.querySelector('[data-playback-reason="previous"]')?.textContent).toBe('Prikaz je že na začetku.')
+    userEvent.tab()
+    expect(document.activeElement).toBe(next())
+    userEvent.tab()
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Nova razporeditev'}))
   })

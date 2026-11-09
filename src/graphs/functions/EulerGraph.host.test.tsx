@@ -215,6 +215,8 @@ test('with end x = x0 the single-node polyline is hidden and returns with the fi
     expect(graph.polyline().evalVisProp('visible')).toBe(true);
 });
 
+const nextStepButton = (): HTMLElement => screen.getByRole('button', {name: 'Naslednji korak'});
+
 test('Next step reveals the polyline one step at a time and Show all restores it', () => {
     const {graph} = mount();
     act(() => { enterNumber(slider(), '3'); });
@@ -226,6 +228,12 @@ test('Next step reveals the polyline one step at a time and Show all restores it
     click('Naslednji korak');
     expect(graph.polyline().dataX).toHaveLength(3);
     expect(document.querySelector('[data-euler-status="revealed"]')?.textContent).toBe('Prikazan je 2. korak od 8.');
+    for (let i = 0; i < 6; i++) click('Naslednji korak');
+    expect(graph.modelNow().revealed).toBe(8);
+    expect(nextStepButton().getAttribute('aria-disabled')).toBe('true');
+    click('Naslednji korak');
+    expect(graph.modelNow().revealed).toBe(8);
+    expect(document.querySelector('[data-playback-reason="next-step"]')?.textContent).toBe('Ni več korakov.');
     click('Pokaži vse korake');
     expect(graph.modelNow().revealed).toBeNull();
     expect(graph.polyline().dataX).toHaveLength(9);

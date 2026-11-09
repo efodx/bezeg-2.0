@@ -1,7 +1,7 @@
 import React from 'react';
 import {enterNumber} from '../../../inputs/testEntry';
 import JXG from 'jsxgraph';
-import {act, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
 import BSplineExtractionGraph from './BSplineExtractionGraph';
@@ -304,6 +304,19 @@ describe('disposal', () => {
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);
+    });
+});
+
+describe('Reset example availability', () => {
+    test('Reset is unavailable at the origin, available after a point edit and unavailable again after Reset', () => {
+        const {graph, view} = mount();
+        const reset = () => document.querySelector<HTMLButtonElement>('button[data-action="reset"]')!;
+        expect(reset().getAttribute('aria-disabled')).toBe('true');
+        act(() => graph.editPoint(1, [graph.state.points[1][0] + 0.5, graph.state.points[1][1]]));
+        expect(reset().getAttribute('aria-disabled')).toBe('false');
+        act(() => { fireEvent.click(reset()); });
+        expect(reset().getAttribute('aria-disabled')).toBe('true');
+        view.unmount();
     });
 });
 

@@ -338,9 +338,9 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     }
   }, [status, snapshotRef, subscribe, t, sprites, announcement])
 
-  /** Decision 57: a change to the arrangement or the method pauses a running playground before it is sent. */
+  /** Decision 57: a change to the arrangement or the method pauses a running playground before it is sent. Pause is idempotent and `playing` lags the worker, so it is sent unconditionally. */
   const pauseForEdit = (): void => {
-    if (playing) send({type: 'pause'})
+    send({type: 'pause'})
   }
 
   const onCount = (position: number): void => {

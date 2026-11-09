@@ -78,13 +78,14 @@ describe('divergent runs', () => {
 });
 
 describe('the reveal', () => {
-    test('shows the first k steps, Next step advances and returns to all steps after the last', () => {
+    test('shows the first k steps, Next step advances and stops at the last step', () => {
         const base = model({step: 0.25});
         expect(eulerView(model({...base, revealed: 2})).visibleNodes).toHaveLength(3);
         expect(eulerView(model({...base, revealed: 0})).visibleNodes).toHaveLength(1);
         expect(eulerView(model({...base, revealed: 99})).visibleNodes).toHaveLength(5);
         expect(nextRevealed(base, 4)).toBe(1);
-        expect(nextRevealed(model({...base, revealed: 3}), 4)).toBeNull();
+        expect(nextRevealed(model({...base, revealed: 3}), 4)).toBe(4);
+        expect(nextRevealed(model({...base, revealed: 4}), 4)).toBe(4);
         expect(plannedSteps(base)).toBe(4);
     });
 

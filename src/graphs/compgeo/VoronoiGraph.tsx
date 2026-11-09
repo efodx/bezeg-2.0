@@ -857,15 +857,18 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         return false;
     }
 
-    /** Whether the scene already is what Reset example restores: the example's sites, no triangle or cell chosen, the starting query point and mode (the overlays are not compared). */
+    /** Whether the scene already is what Reset example restores: the example's sites, no triangle or cell chosen, the starting query point and mode, and every overlay at the value `overlays: {}` yields (its initial one). */
     private atExample(): boolean {
         const query = this.queryText;
-        return matchingExample(this.model, [{id: "example", ...this.exampleModel()}]) !== undefined && !this.overlayShown("delaunay")
+        const initial = this.getInitialState().overlays;
+        return matchingExample(this.model, [{id: "example", ...this.exampleModel()}]) !== undefined
+            && this.overlayIds().every(id => this.overlayShown(id) === (initial[id] === true))
             && this.cellSite === null && this.construction === 0 && this.selectedTriangleValue === undefined && this.mode === this.defaultMode()
             && query.x === VORONOI_DEFAULT_QUERY.x && query.y === VORONOI_DEFAULT_QUERY.y;
     }
 
-    private status(): VoronoiStatus {        const points = this.model.points;
+    private status(): VoronoiStatus {
+        const points = this.model.points;
         const {outcome} = this.derive();
         const diagram = this.diagram();
         const query = this.queryText;

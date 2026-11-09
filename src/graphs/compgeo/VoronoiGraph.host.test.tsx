@@ -437,6 +437,17 @@ test('Reset restores the example, switches the overlay off and clears selection,
     expect(overlaySwitch().checked).toBe(false);
 });
 
+test('Reset example is available once any overlay differs from the example, including the diagram alone', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(button('reset-example').getAttribute('aria-disabled')).toBe('true');
+    act(() => { graph.setOverlay('diagram', false); });
+    expect(button('reset-example').getAttribute('aria-disabled')).toBe('false');
+    click('reset-example');
+    expect(graph.overlayShown('diagram')).toBe(true);
+    expect(button('reset-example').getAttribute('aria-disabled')).toBe('true');
+});
+
 test('duplicates and fewer than two sites refuse with a message and draw nothing; collinear sets are noted', () => {
     const graph = new Observed();
     mount(graph);

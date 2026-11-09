@@ -47,6 +47,8 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
     readonly onPlayPause: () => void;
     /** Left out when the graph has no run reset; the Reset button is then not shown. */
     readonly onReset?: () => void;
+    /** Buttons of the same group placed before the three, such as Previous. */
+    readonly leading?: React.ReactNode;
     /** Further buttons of the same group, after the three. */
     readonly children?: React.ReactNode;
 }
@@ -57,7 +59,7 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
  * title, in its description, and in the status line once pressed.
  */
 export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, nextBlock, playBlock, resetBlock,
-                                    onNext, onPlayPause, onReset, children}: PlaybackButtonsProps) {
+                                    onNext, onPlayPause, onReset, leading, children}: PlaybackButtonsProps) {
     const t = useT();
     const [pressed, setPressed] = useState<PlaybackAction>();
     const reasons: Record<PlaybackBlock, string> = {
@@ -76,6 +78,7 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     const shownBlock = buttons.find(button => button.action === pressed)?.block;
     return <>
         <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel}>
+            {leading}
             {buttons.map(({action, block, label, run}) =>
                 <UnavailableButton key={action} data-action={action} data-playing={action === 'play-pause' ? String(playing) : undefined} reason={block && reasons[block]} onPress={() => { setPressed(undefined); run(); }}
                                    onBlockedPress={() => setPressed(action)}>{label}</UnavailableButton>)}

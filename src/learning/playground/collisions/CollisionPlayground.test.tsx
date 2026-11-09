@@ -243,6 +243,14 @@ describe('live region', () => {
     expect(send).toHaveBeenLastCalledWith({type: 'setBounce', bounce: true})
   })
 
+  it('sends pause on an edit even when React playing still reads false (the worker echo lags)', () => {
+    apiState.playing = false
+    setApi()
+    render(<CollisionPlayground shape="polygon"/>)
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'naive'}})
+    expect(send.mock.calls.map((call) => (call[0] as {type: string}).type)).toContain('pause')
+  })
+
   it('speaks once, on the first snapshot after a reader action', () => {
     render(<CollisionPlayground/>)
     fireEvent.click(screen.getByRole('button', {name: 'Korak'}))

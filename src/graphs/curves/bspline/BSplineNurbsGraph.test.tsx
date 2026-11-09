@@ -201,6 +201,17 @@ describe('controls', () => {
         view.unmount();
     });
 
+    test('Reset is unavailable at the origin, available after a weight change and unavailable again after Reset', () => {
+        const {graph, view} = mount();
+        const reset = () => document.querySelector<HTMLButtonElement>('button[data-action="reset"]')!;
+        expect(reset().getAttribute('aria-disabled')).toBe('true');
+        act(() => { graph.setWeight(1, 3); });
+        expect(reset().getAttribute('aria-disabled')).toBe('false');
+        act(() => { fireEvent.click(reset()); });
+        expect(reset().getAttribute('aria-disabled')).toBe('true');
+        view.unmount();
+    });
+
     test('the example switch changes weights and the Reset target', () => {
         const {graph, view} = mount();
         act(() => graph.selectExample('unit'));

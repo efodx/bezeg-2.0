@@ -20,6 +20,7 @@ import {appStorage} from '../../storage/appStorage';
 import {framesForLessonStep, type LessonAction, type LessonAnimationId} from '../model';
 import {AnimationDriver} from './animation';
 import {PatchSweeps} from '../../graphs/patches/patchSweep';
+import {TracePlayback} from '../../graphs/base/tracePlayback';
 import {GUIDED_LESSON_AVAILABLE_IDS, getLessonForDemonstration} from './lessonCatalog';
 import {LessonSession} from './LessonSession';
 import {existsSync, readFileSync} from 'node:fs';
@@ -73,6 +74,7 @@ export function selectedLessons(scope: SweepScope | undefined, variable: string)
 function drivers(graph: BaseGraph<BaseGraphState>): Pick<AnimationDriver, 'isRunning'>[] {
     return Object.values(graph as object).flatMap(value => {
         if (value instanceof AnimationDriver) return [value];
+        if (value instanceof TracePlayback) return [{isRunning: () => value.isPlaying}];
         if (value instanceof PatchSweeps) return [
             {isRunning: () => value.isRunning('u')},
             {isRunning: () => value.isRunning('v')},

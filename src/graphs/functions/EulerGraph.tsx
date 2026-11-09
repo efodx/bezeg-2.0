@@ -106,7 +106,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     protected nextStep(): void {
         const available = this.viewOf(this.model).stepsTaken;
-        if (available < 1) return;
+        if (available < 1 || (this.model.revealed !== null && this.model.revealed >= available)) return;
         this.commitModel(setEulerRevealed(this.model, nextRevealed(this.model, available)));
     }
 
@@ -274,7 +274,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         const view = this.viewOf(model);
         const language = currentLanguage();
         const stepIndex = STEP_SIZES.indexOf(model.step);
-        const nextUnavailable = view.stepsTaken < 1;
+        const nextUnavailable = view.stepsTaken < 1 || (model.revealed !== null && model.revealed >= view.stepsTaken);
         const showAllUnavailable = model.revealed === null;
         return <>
             <div className="inspector-group">

@@ -131,12 +131,12 @@ export const setEulerRevealed = (model: EulerModel, revealed: number | null): Eu
 export const plannedSteps = (model: EulerModel): number => Math.ceil((model.xEnd - model.x0) / model.step);
 
 /**
- * The next reveal count for "Next step": from all steps shown it starts at the first step; after the last step it shows all.
- * A run that stops early has fewer steps than planned, so the count is cut to the steps that exist.
+ * The next reveal count for "Next step": from all steps shown it starts at the first step; it stops at the last step that
+ * exists (a run that stops early has fewer steps than planned) and does not wrap; "Show all" is the way back to all steps.
  */
 export function nextRevealed(model: EulerModel, available: number): number | null {
     const next = (model.revealed ?? 0) + 1;
-    return next >= available ? null : next;
+    return Math.min(next, available);
 }
 
 /** The exact solution through (x0, y0) exists on [x0, xEnd] (y' = y^2 from y0 > 0 has a pole at x0 + 1/y0). */

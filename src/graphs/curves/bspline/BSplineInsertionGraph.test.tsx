@@ -327,6 +327,17 @@ describe('L3 acceptance 6: Reset, examples and import', () => {
         view.unmount();
     });
 
+    test('Reset is unavailable at the origin, available after an insertion and unavailable again after Reset', () => {
+        const {graph, view} = mount();
+        const reset = () => document.querySelector<HTMLButtonElement>('button[data-action="reset"]')!;
+        expect(reset().getAttribute('aria-disabled')).toBe('true');
+        act(() => { graph.insert(0.5); });
+        expect(reset().getAttribute('aria-disabled')).toBe('false');
+        act(() => { fireEvent.click(reset()); });
+        expect(reset().getAttribute('aria-disabled')).toBe('true');
+        view.unmount();
+    });
+
     test('Reset returns to the chosen example, not the quadratic', () => {
         const {graph, view} = mount();
         act(() => graph.selectExample('cubic'));

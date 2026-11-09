@@ -20,6 +20,8 @@ test('a reason is shown as a line linked to the select, which stays focusable (a
     expect(select).toHaveAccessibleDescription('Ni robov za izbiro.');
     fireEvent.change(select, {target: {value: 'a'}});
     expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent('Ni robov za izbiro.');
+    expect(select).toHaveValue('');
 });
 
 test('without a reason the select is enabled and reports changes', () => {

@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {useT} from "../localization";
+import "./ResetExampleButton.css";
 import {UnavailableButton} from "./UnavailableButton";
 
 interface ResetExampleButtonProps {
@@ -17,8 +18,10 @@ export function ResetExampleButton({onReset, atExample, action = "reset-example"
     const [blocked, setBlocked] = useState(0);
     const reason = atExample ? t("reset_example_already") : undefined;
     return <div className="reset-example">
-        <UnavailableButton className="btn" data-action={action} reason={reason} onPress={() => { setBlocked(0); onReset(); }}
-                           onBlockedPress={() => setBlocked(count => count + 1)}>{t("reset_example")}</UnavailableButton>
+        <div className="inspector-playback">
+            <UnavailableButton data-action={action} reason={reason} onPress={() => { setBlocked(0); onReset(); }}
+                               onBlockedPress={() => setBlocked(count => count + 1)}>{t("reset_example")}</UnavailableButton>
+        </div>
         <div role="status" aria-live="polite">{atExample && blocked > 0 && <p key={blocked} className="inspector-help" data-reset-example-reason>{reason}</p>}</div>
     </div>;
 }

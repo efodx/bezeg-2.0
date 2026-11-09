@@ -513,6 +513,7 @@ test('the Play and Pause group has no Next or Reset; a time-slider seek, a param
     expect(document.querySelectorAll('[role="group"] [data-action]')).toHaveLength(1);
     expect(playButton().getAttribute('data-playing')).toBe('false');
     act(() => { fireEvent.click(playButton()); });
+    expect(graph.playing).toBe(true);
     expect(playButton().getAttribute('data-playing')).toBe('true');
     act1(graph, {kind: 'function-parameter', name: 'epicycle-time', value: 1});
     expect(graph.playing).toBe(false);
@@ -532,6 +533,25 @@ test('under reduced motion Play is blocked with its reason and nothing starts; P
         expect(graph.playing).toBe(false);
         expect(scheduler.pending).toBe(0);
         expect(document.querySelector('[data-playback-reason="reduced-motion"]')).not.toBeNull();
+    } finally {
+        window.matchMedia = original;
+    }
+});
+
+test('a run already playing when reduced motion turns on keeps Pause available and can be paused', () => {
+    const original = window.matchMedia;
+    const {graph, scheduler} = mount();
+    act(() => { fireEvent.click(playButton()); });
+    expect(graph.playing).toBe(true);
+    window.matchMedia = ((query: string) => ({matches: query === '(prefers-reduced-motion: reduce)', addEventListener: () => undefined,
+        removeEventListener: () => undefined, addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
+    try {
+        act(() => scheduler.advance(16));
+        act(() => scheduler.advance(100));
+        expect(playButton().getAttribute('aria-disabled')).toBe('false');
+        act(() => { fireEvent.click(playButton()); });
+        expect(graph.playing).toBe(false);
+        expect(playButton().getAttribute('aria-disabled')).toBe('true');
     } finally {
         window.matchMedia = original;
     }
