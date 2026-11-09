@@ -79,11 +79,15 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - Deploying pushes use the scoped set, because the unit sweeps and other-specs still run in full.
   - A shard left without rows passes (`--pass-with-no-tests`).
 - Phase 1 item 4: [ADR 0043](../adr/0043-background-publish-worktree.md) decides on a background publish from a detached per-publish worktree. It is implemented as `just publish --background` and `--status` (`a5eec7a9`). Engineering review findings were fixed before commit: internal flags could delete a foreground checkout, two runs could start at once, and failed starts leaked worktrees. 35 gate tests pass.
+- Handler 5, 2026-11-09:
+  - The Windows launch fix (`ff37bc26`) works live: `just publish --background` returned in 9 s from the Bash tool and pushed `ba4d421b`. Hosted runs 42557268766 (`65a9a2eb`) and 42559644939 (`ba4d421b`) are green.
+  - 42559644939 was the first scoped lesson run, with 25 / 25 / 24 tests and lessons job walls of about 2 min against 3:31–5:15 ([phase4-6a-hosted.md](../reviews/verification-throughput/phase4-6a-hosted.md)). Unit shard 1 (7:55) now bounds the run, at 8:39 from trigger to deploy.
+  - The handler card and the feature-streams README now offer `--background` to every stream.
 
 **Follow-ups:**
 
 - Done (`dbabef1e`): a fresh `just publish` invocation now uses a matching verified-base record on its first pass, as the retry loop does. A record on the fetched master itself also takes the delta path.
-- Confirm on the first hosted run that the scope job's `gh api` lookup works with `actions: read`.
+- Done: the scope job's `gh api` lookup works with `actions: read`. The documentation-only run 42546128156 (`1247d217`) skipped its checks, and the script reaches that decision only after a successful lookup; a failed lookup falls back to full verification.
 - Record gate timings for a week against the 2026-11-07 baseline.
 
 **Scheduling.**

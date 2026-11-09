@@ -24,5 +24,8 @@ Audit test step before phase 6a: lessons-1/2/3 4.4 / 5.2 / 3.4 min, other-specs 
 | --- | --- | --- | --- | --- |
 | 42545997964 | `38805767` | 3.0 / 3.2 / 2.7, 5.5 min | 4:01 / 4:07 / 3:39, 6:55 | none; `maxFailures` and the 60 s timeout did not fire |
 | 42552202709 | `0c672035` (all rows; catalogue batching in) | 3.9 / 2.9 / 2.6, 4.7 min | 5:15 / 3:46 / 3:31, 6:05 | none |
+| 42559644939 | `ba4d421b` (first scoped run: 74 rows) | 1.3 / 1.0 / 0.8, 3.3 min | 2:31 / 2:07 / 2:03, 4:17 | none |
 
 Lesson shards fell by 0.5–2.3 min against the audit and no longer carry a 2-minute imbalance. other-specs, the slowest Chromium job, was 5.5 min before catalogue batching and 4.7 min with it, against the audit's 5.1. Neither `maxFailures` nor the 60 s timeout caused a failure on either run.
+
+Run 42559644939 pushed `ff37bc26` (publish script) and `ba4d421b` (documentation), so the scope job chose the representative rows. Playwright ran 25 / 25 / 24 tests on the three lessons shards, against about 97 each before, so `lesson_grep` reached `--grep`. The lessons shards' job wall fell to about 2 min, and other-specs (4:17) became the slowest Chromium job. The unit shards (5:55 / 5:18 / 5:55 / 7:55, shard 1 critical at 7:55) bound the run: trigger to deploy took 8:39.

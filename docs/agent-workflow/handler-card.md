@@ -24,7 +24,7 @@ Keep tightly coupled cores with you; delegate tests and smoke. Run at most three
 
 **Accept.** Diff against acceptance, confirm observed pre-change failures, apply [review routing](../agent-workflow.md#review-routing), run focused `just` checks (`just --list`; never bare `npm test`, `npx vitest` or `npx playwright`), and smoke when a route, control, lesson or rendering path changes. Record the [evaluation entry](../../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log).
 
-**Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`, or run all of that with `just publish` ([command guide](../commands.md)). Never force-push.
+**Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`, or run all of that with `just publish` ([command guide](../commands.md)). `just publish --background` runs the same gate in a detached worktree and returns at once, so you can continue the next slice; check `just publish --status` before you report a slice published or start a publish that depends on it ([ADR 0043](../adr/0043-background-publish-worktree.md)). Never force-push.
 
 **Item batches.** Work that applies one change to many existing items starts with a [blocker triage](../tasks/feature-streams/README.md#item-batches) before any item is written.
 
