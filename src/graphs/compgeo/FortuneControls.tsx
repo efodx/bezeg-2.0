@@ -10,7 +10,7 @@ import {FORTUNE_EXAMPLE_IDS, type FortuneExampleId} from "./fortunePresetCollect
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {stepCounterText} from "./stepCounter";
 
 export interface FortuneControlActions {

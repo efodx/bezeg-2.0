@@ -10,7 +10,7 @@ import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./Swe
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {stepCounterText} from "./stepCounter";
 
 /** The named examples, in the order of the chooser. */

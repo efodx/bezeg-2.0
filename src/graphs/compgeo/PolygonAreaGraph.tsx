@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from "react";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
-import {StatusLive} from "./StatusLive";
+import {StatusLive} from "../base/controls/StatusLive";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {currentLanguage, t, useLanguage, useT} from "../../localization";
 import {gridToBoard, PointSetModel, reverseVertices} from "../../compgeo/pointSetModel";

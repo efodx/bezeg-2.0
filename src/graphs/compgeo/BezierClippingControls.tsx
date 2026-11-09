@@ -8,7 +8,7 @@ import type {TraceControlActions} from "./TraceCurvePairGraph";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {LiveReadout} from "../base/controls/LiveReadout";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {stepCounterText} from "./stepCounter";
 
 export interface BezierClippingControlsProps {

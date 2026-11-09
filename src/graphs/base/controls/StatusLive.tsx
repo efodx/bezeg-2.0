@@ -1,5 +1,5 @@
 import React, {useLayoutEffect, useState} from "react";
-import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
+import {LiveReadout, SettledReadout} from "./LiveReadout";
 
 /**
  * The announcement region for a status sentence that React already renders as visible text: the shared hidden `LiveReadout`,

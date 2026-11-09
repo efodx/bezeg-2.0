@@ -8,7 +8,7 @@ import type {IntervalPair} from "../../compgeo/sweep/intervalSweep";
 import type {IntervalEventInfo, IntervalRun, IntervalView} from "./intervalSweepRun";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {stepCounterText} from "./stepCounter";
 
 export interface IntervalSweepControlActions {

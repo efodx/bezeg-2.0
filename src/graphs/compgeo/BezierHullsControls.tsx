@@ -4,7 +4,7 @@ import type {CurvePairState} from "../../compgeo/curvePairSubdivision";
 import {BezierHullsLine, bezierHullsReadout} from "./bezierHullsReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {stepCounterText} from "./stepCounter";
 
 export interface BezierHullsControlActions {

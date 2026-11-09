@@ -1,6 +1,6 @@
 import React from "react";
 import {PointListInput} from "../../inputs/PointListInput";
-import {StatusLive} from "./StatusLive";
+import {StatusLive} from "../base/controls/StatusLive";
 import {ExampleSelect, matchingExample} from "./ExampleSelect";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {LessonAction} from "../../learning/model";

@@ -5,7 +5,7 @@ import type {LawsonNote} from "../../compgeo/delaunay";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 
 /** The named examples, in the order of the chooser. */
 export type DelaunayExampleId = "quad" | "seven" | "square";

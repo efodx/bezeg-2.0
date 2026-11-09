@@ -5,7 +5,7 @@ import type {EarClippingNote} from "../../compgeo/earClipping";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 
 /** The named examples, in the order of the chooser. */
 export type EarClippingExampleId = "example-1" | "example-2";

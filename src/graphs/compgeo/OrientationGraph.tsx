@@ -1,4 +1,4 @@
-import {StatusLive} from "./StatusLive";
+import {StatusLive} from "../base/controls/StatusLive";
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";

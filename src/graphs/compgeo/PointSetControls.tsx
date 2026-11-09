@@ -8,7 +8,7 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
-import {StatusLive} from "./StatusLive";
+import {StatusLive} from "../base/controls/StatusLive";
 import {NumberInput} from "../../inputs/NumberInput";
 import {PointCollection} from "../../inputs/PointCollection";
 import {PointListInput, SelectablePointButton, useRemoveFocus} from "../../inputs/PointListInput";

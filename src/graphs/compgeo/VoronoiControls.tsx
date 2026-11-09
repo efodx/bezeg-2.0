@@ -6,7 +6,7 @@ import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {ExampleSelect} from "./ExampleSelect";
-import {useStatusReadout} from "./useStatusReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {FourPointReadout} from "./degenerateSites";
 import type {VoronoiMode} from "./voronoiPresetCollection";
 

@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {SettledReadout} from "../base/controls/LiveReadout";
+import {SettledReadout} from "./LiveReadout";
 
 /**
  * The announcement of a trace graph's status as a {@link SettledReadout} for its `LiveReadout` (muted by the caller while Play
