@@ -1,7 +1,7 @@
-/// <reference types="vitest/config" />
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import {BaseSequencer, type TestSpecification} from 'vitest/node';
+import {configDefaults} from 'vitest/config';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
@@ -14,6 +14,10 @@ const transientState = require('./scripts/transient-state-scope.cjs') as {
     SWEEPS: Record<'lessonRestoration' | 'sceneContent' | 'sceneReplacement', {variable: string; shared: RegExp[]}>;
     gitChangedPaths: (cwd: string) => string[];
 };
+
+/** Directories whose tests import no React, DOM or JSXGraph; see the `projects` entry below. */
+const KERNEL_TESTS = ['analysis', 'compgeo', 'bezeg', 'projective', 'linear'].map(dir => `src/${dir}/**/*.test.{ts,tsx}`);
+const KERNEL_NEEDS_DOM: string[] = [];
 
 const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
 
@@ -67,16 +71,26 @@ export default defineConfig({
         chunkSizeWarningLimit: 3000,
     },
     test: {
-        environment: 'jsdom',
         globals: true,
-        setupFiles: ['src/setupTests.ts'],
         // src/setupTests.ts collects garbage between tests once a worker's heap is large (see its board hook).
         execArgv: ['--expose-gc'],
         // Successor to CRA's Jest `resetMocks`: clears calls and overrides before each test. Unlike Jest, Vitest
         // restores a `vi.fn(impl)` implementation rather than removing it.
         mockReset: true,
-        // tests/ holds the Playwright smoke specs, which run against a production build.
-        include: ['src/**/*.test.{ts,tsx}'],
+        // Two projects split the one include list so every file runs exactly once: the kernel directories (pure
+        // geometry and analysis, no DOM, React or JSXGraph) run in plain node with no setup file, skipping jsdom and the
+        // jest-dom import that the other files need. tests/ holds the Playwright smoke specs, which run against a
+        // production build.
+        projects: [
+            {
+                extends: true,
+                test: {name: 'dom', environment: 'jsdom', setupFiles: ['src/setupTests.ts'], include: ['src/**/*.test.{ts,tsx}'], exclude: [...KERNEL_TESTS, ...configDefaults.exclude]},
+            },
+            {
+                extends: true,
+                test: {name: 'kernel', environment: 'node', include: KERNEL_TESTS, exclude: KERNEL_NEEDS_DOM},
+            },
+        ],
         // Jest ran serially with a 5 s timeout; Vitest runs files in parallel workers, and several slow component
         // tests (2-3 s alone) exceeded the 5 s default under CI load.
         testTimeout: 15000,
