@@ -43,7 +43,7 @@ class ObservedRootFindingGraph extends RootFindingGraph {
     }
 
     playing() {
-        return this['controller'].isPlaying();
+        return this.playback.isPlaying;
     }
 }
 

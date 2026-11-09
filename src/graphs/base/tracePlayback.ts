@@ -1,6 +1,6 @@
 import type {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
-import type {TraceControls} from "./traceLessonActions";
+import type {TraceControls} from "../compgeo/traceLessonActions";
 
 /** The documented step limit of the controller: far above the longest trace of any trace graph. */
 const MAX_PLAYBACK_STEPS = 100000;
@@ -14,8 +14,12 @@ export interface TracePlaybackHost {
     runLength(): number;
     /** The step index in the store, clamped to the current run. */
     step(): number;
-    /** Writes the step index to the scene store; the graph's `setState` calls `TracePlayback.settle` for it. */
-    writeStep(step: number): void;
+    /**
+     * Writes the step index to the scene store; the graph's `setState` calls `TracePlayback.settle` for it. A graph whose
+     * run length is only known by taking the step (the function iterations) may return the outcome of the step it took;
+     * `advance()` then uses it instead of comparing with `runLength()`.
+     */
+    writeStep(step: number): IterationOutcome | void;
     /** True while a figure export is running; Next step and Play are refused then. */
     exportBusy(): boolean;
     requestRender(): void;
@@ -75,14 +79,15 @@ export class TracePlayback implements TraceControls {
     private advance(): IterationOutcome {
         const last = this.host.runLength() - 1;
         const next = Math.min(this.host.step() + 1, Math.max(last, 0));
+        let outcome: IterationOutcome | void;
         this.advancing = true;
         try {
-            this.host.writeStep(next);
+            outcome = this.host.writeStep(next);
         } finally {
             this.advancing = false;
         }
         this.host.requestRender();
-        return next >= last ? "complete" : "continue";
+        return outcome ?? (next >= last ? "complete" : "continue");
     }
 
     nextStep(): void {

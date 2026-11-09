@@ -55,9 +55,9 @@ describe('step-through', () => {
     expect(document.querySelectorAll('g[data-row]').length).toBe(20)
     expect(screen.queryByTestId('inspect-sweep')).toBeNull()
     expect(eventText()).toContain(`Dogodek 0 od ${t.events.length}`)
-    expect(prev().disabled).toBe(true)
-    expect(next().disabled).toBe(false)
-    expect(screen.getByRole('button', {name: 'Predvajaj gibanje'}).getAttribute('aria-pressed')).toBe('false')
+    expect(prev().getAttribute('aria-disabled')).toBe('true')
+    expect(next().getAttribute('aria-disabled')).toBe('false')
+    expect(screen.getByRole('button', {name: 'Predvajaj'}).getAttribute('data-playing')).toBe('false')
   })
 
   it('applies one event per Next and undoes it with Previous; the buttons are disabled at the ends', () => {
@@ -68,12 +68,12 @@ describe('step-through', () => {
     expect(eventText()).toContain(`Dogodek 1 od ${t.events.length}`)
     expect(eventText()).toContain(`Vstop objekta ${t.events[0].body + 1}`)
     expect(screen.getByTestId('inspect-active').children.length).toBe(1)
-    expect(prev().disabled).toBe(false)
+    expect(prev().getAttribute('aria-disabled')).toBe('false')
     fireEvent.click(prev())
     expect(eventText()).toContain('Dogodek 0 od')
     expect(screen.queryByTestId('inspect-active')).toBeNull()
     for (let k = 0; k < t.events.length; k++) fireEvent.click(next())
-    expect(next().disabled).toBe(true)
+    expect(next().getAttribute('aria-disabled')).toBe('true')
     expect(eventText()).toContain(`Konec pometanja: ${t.candidates.length} kandidatnih parov, ${t.boxTests} preizkusov pravokotnikov.`)
   })
 
@@ -158,17 +158,17 @@ describe('Play', () => {
   it('moves the bodies with the overlays on, disables stepping, and Pause keeps the full trace', () => {
     render(<CollisionInspect/>)
     const x0 = document.querySelector('circle[data-body="1"]')!.getAttribute('cx')
-    const play = screen.getByRole('button', {name: 'Predvajaj gibanje'})
+    const play = screen.getByRole('button', {name: 'Predvajaj'})
     fireEvent.click(play)
-    expect(screen.getByRole('button', {name: 'Ustavi gibanje'}).getAttribute('aria-pressed')).toBe('true')
-    expect(next().disabled).toBe(true)
-    expect(prev().disabled).toBe(true)
+    expect(screen.getByRole('button', {name: 'Premor'}).getAttribute('data-playing')).toBe('true')
+    expect(next().getAttribute('aria-disabled')).toBe('true')
+    expect(prev().getAttribute('aria-disabled')).toBe('true')
     runFrames(500)
     expect(document.querySelector('circle[data-body="1"]')!.getAttribute('cx')).not.toBe(x0)
     expect(document.querySelectorAll('line[data-kind]').length).toBeGreaterThan(0)
-    fireEvent.click(screen.getByRole('button', {name: 'Ustavi gibanje'}))
-    expect(next().disabled).toBe(true)
-    expect(prev().disabled).toBe(false)
+    fireEvent.click(screen.getByRole('button', {name: 'Premor'}))
+    expect(next().getAttribute('aria-disabled')).toBe('true')
+    expect(prev().getAttribute('aria-disabled')).toBe('false')
     expect(eventText()).toContain('Konec pometanja')
   })
 })
@@ -191,7 +191,7 @@ describe('live region', () => {
 
   it('does not speak while the motion plays frame by frame', () => {
     render(<CollisionInspect/>)
-    fireEvent.click(screen.getByRole('button', {name: 'Predvajaj gibanje'}))
+    fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'}))
     const spoken = live().textContent
     runFrames(100)
     runFrames(100)
@@ -212,7 +212,7 @@ describe('keyboard path', () => {
   it('reaches the count slider and then Next, Play and New in order, and Enter steps', () => {
     render(<CollisionInspect/>)
     userEvent.tab()
-    // The number field comes first in the slider, then the range; Previous is disabled and skipped.
+    // The number field comes first in the slider, then the range; Previous is unavailable but stays in the order.
     expect(document.activeElement).toBe(screen.getByRole('spinbutton'))
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('slider'))
@@ -223,14 +223,20 @@ describe('keyboard path', () => {
     act(() => { userEvent.keyboard('{enter}') })
     expect(handler).toHaveBeenCalledTimes(1)
     expect(eventText()).toContain('Dogodek 1 od')
-    expect(prev().disabled).toBe(false)
+    expect(prev().getAttribute('aria-disabled')).toBe('false')
   })
 
-  it('tabs from Next to Play to New when Previous is disabled', () => {
+  it('tabs from Next to Play to Previous (unavailable but focusable, with its reason once pressed) to New', () => {
     render(<CollisionInspect/>)
     next().focus()
     userEvent.tab()
-    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Predvajaj gibanje'}))
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Predvajaj'}))
+    userEvent.tab()
+    expect(document.activeElement).toBe(prev())
+    expect(prev().hasAttribute('disabled')).toBe(false)
+    expect(prev().getAttribute('title')).toBe('Prikaz je že na začetku.')
+    fireEvent.click(prev())
+    expect(document.querySelector('[data-playback-reason="previous"]')?.textContent).toBe('Prikaz je že na začetku.')
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Nova razporeditev'}))
   })

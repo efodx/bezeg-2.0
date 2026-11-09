@@ -2,6 +2,7 @@ import React from "react";
 import {currentLanguage, renderMessage, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
+import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
@@ -37,6 +38,8 @@ export interface BSplineInsertionState extends BaseGraphState {
     /** The latest refused insertion; shown as text in the current language. */
     refusal: InsertionRefusal | null;
 }
+
+const sameNumbers = (a: readonly number[], b: readonly number[]) => a.length === b.length && a.every((value, index) => value === b[index]);
 
 const copyData = (data: InsertionData): InsertionData =>
     ({degree: data.degree, knots: [...data.knots], points: data.points.map(point => [point[0], point[1]] as const)});
@@ -195,6 +198,13 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         this.setState({...copyData(this.state.origin), ghost: [], refusal: null});
     }
 
+    /** Whether the scene already equals what Reset restores: the origin's curve and nothing left over from edits. */
+    private atOrigin(): boolean {
+        const {origin, degree, knots, points} = this.state;
+        return degree === origin.degree && sameNumbers(knots, origin.knots) && points.length === origin.points.length
+            && points.every((point, index) => point[0] === origin.points[index][0] && point[1] === origin.points[index][1]) && this.state.ghost.length === 0 && this.state.refusal === null;
+    }
+
     /** Loads an example as the new Reset target. */
     selectExample(id: InsertionExampleId) {
         if (!INSERTION_EXAMPLE_IDS.includes(id)) return;
@@ -269,13 +279,13 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         if (example === 'custom') options.push({value: 'custom', text: t("bsi_example_custom")});
         return super.getGraphCommands().concat(
             <div key="example"><ChoiceSelect label={t("bsi_example")} value={example} options={options}
-                                             onChange={value => this.selectExample(value as InsertionExampleId)}/></div>,
+                                             onChange={value => this.selectExample(value as InsertionExampleId)}/>
+                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="insert" className="inspector-group">
                 <NumberInput label={t("bsi_insert_value")} value={insertValue} step={0.01} decimals={4} min={-KNOT_LIMIT} max={KNOT_LIMIT}
                              onChange={value => { this.setInsertValue(value); }}/>
                 <div className="inspector-playback">
                     <button type="button" data-action="insert-knot" onClick={() => { this.insert(); }}>{t("bsi_insert")}</button>
-                    <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsp_example_reset")}</button>
                 </div>
                 <p className="inspector-help">{t("bsi_insert_help")}</p>
                 <RefusalNotice channel={this.refusals}/>

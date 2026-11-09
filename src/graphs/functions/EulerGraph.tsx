@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
@@ -6,6 +6,7 @@ import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {EULER_EXAMPLE_IDS, EULER_X_MAX, EULER_X_MIN, eulerExample, EulerExampleId, STEP_SIZES} from "../../analysis/odeEuler";
@@ -299,13 +300,9 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
                 <OnOffSwitch checked={model.showExact} label={t("euler_ode_exact_label")} onChange={next => this.setShowExact(next)}/>
             </div>
             <div className="inspector-group">
-                {/* An unavailable control stays focusable (aria-disabled, not disabled), as in the bisection graph. */}
-                <div className="inspector-playback" role="group" aria-label={t("euler_ode_steps_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("euler_ode_next_step")}</button>
-                    <button type="button" data-action="show-all" aria-disabled={showAllUnavailable}
-                            onClick={() => { if (!showAllUnavailable) this.showAllSteps(); }}>{t("euler_ode_show_all")}</button>
-                </div>
+                <EulerRevealButtons nextReason={nextUnavailable ? t("playback_block_no_more_steps") : undefined}
+                                    showAllReason={showAllUnavailable ? t("euler_ode_show_all_done") : undefined}
+                                    onNext={() => this.ignoreOutOfDomain(() => this.nextStep())} onShowAll={() => this.showAllSteps()}/>
                 <p className="inspector-help">{t("euler_ode_reveal_note")}</p>
             </div>
         </>;
@@ -362,3 +359,18 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 }
 
 export default EulerGraph;
+
+/** Next step and Show all: a two-button group whose unavailable buttons stay focusable and say why (decision 56). */
+function EulerRevealButtons(props: { nextReason: string | undefined; showAllReason: string | undefined; onNext: () => void; onShowAll: () => void }) {
+    const [pressed, setPressed] = useState<"next-step" | "show-all">();
+    const shown = pressed === "next-step" ? props.nextReason : pressed === "show-all" ? props.showAllReason : undefined;
+    return <>
+        <div className="inspector-playback" role="group" aria-label={t("euler_ode_steps_controls")}>
+            <UnavailableButton data-action="next-step" reason={props.nextReason} onPress={() => { setPressed(undefined); props.onNext(); }}
+                               onBlockedPress={() => setPressed("next-step")}>{t("euler_ode_next_step")}</UnavailableButton>
+            <UnavailableButton data-action="show-all" reason={props.showAllReason} onPress={() => { setPressed(undefined); props.onShowAll(); }}
+                               onBlockedPress={() => setPressed("show-all")}>{t("euler_ode_show_all")}</UnavailableButton>
+        </div>
+        <div role="status" aria-live="polite">{shown && <p className="inspector-help" data-playback-reason={pressed}>{shown}</p>}</div>
+    </>;
+}

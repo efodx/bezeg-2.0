@@ -222,6 +222,21 @@ describe('the de Boor triangle through the graph (defaults: degree 2, knots 0,0,
 });
 
 describe('the deboor iteration', () => {
+    test('Next step and Play are refused while a figure is exported; Play at the full triangle restarts at level 0', () => {
+        const frames = manualScheduler();
+        const {graph, view} = mount(frames.scheduler);
+        act(() => { expect(graph.nextStep()).toBe(true); });
+        Object.defineProperty(graph, 'exportBusy', {get: () => true, configurable: true});
+        act(() => { expect(graph.nextStep()).toBe(false); graph.play(); });
+        expect([graph.state.level, graph.playing, frames.pending()]).toEqual([1, false, 0]);
+        Object.defineProperty(graph, 'exportBusy', {get: () => false, configurable: true});
+        act(() => { graph.nextStep(); });
+        expect(graph.state.level).toBe(2);
+        act(() => graph.play());
+        expect([graph.state.level, graph.playing]).toEqual([0, true]);
+        view.unmount();
+    });
+
     test('the id is exported and the animation is stopped by default', () => {
         expect(DEBOOR_ANIMATION_ID).toBe('deboor');
         const frames = manualScheduler();

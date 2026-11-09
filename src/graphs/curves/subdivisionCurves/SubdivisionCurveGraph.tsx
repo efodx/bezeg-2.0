@@ -7,7 +7,7 @@ import {PointListInput} from "../../../inputs/PointListInput";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import type {LessonAnimationCommand} from "../../../learning/model";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
-import {IterationController} from "../../../learning/runtime/iterationController";
+import {TracePlayback} from "../../base/tracePlayback";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Preset} from "../../base/presets/Presets";
@@ -50,8 +50,8 @@ const copyRows = (rows: readonly Row[]) => rows.map(r => [r[0], r[1]] as const);
 
 /**
  * Chaikin and four-point subdivision Demonstration (interpolation lesson I5). It extends `BaseGraph` directly and drives the
- * revealed round with an `IterationController` (it mirrors `IterativeFunctionGraph`, whose base class belongs to the function
- * graphs): Next step and every playback step run the one `transition()`; anything that edits the data, replaces the scene,
+ * revealed round with the shared `TracePlayback` (the round stays in the scene state): Next step and every playback step reveal
+ * one round; anything that edits the data, replaces the scene,
  * exports a figure or unmounts the graph pauses playback. The stages are always derived from the polygon by
  * `subdivisionRounds`, never stored. The one owned {@link SubdivisionScene} is rebuilt when the point count changes or a Preset
  * is imported and is disposed on unmount.
@@ -60,31 +60,25 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     private scene?: SubdivisionScene;
     /** The one refusal the panel shows; cleared by the next accepted edit. */
     private readonly refusals = new RefusalChannel(() => this.requestRender());
-    private controller: IterationController;
-    private controllerDisposed = false;
+    /** The shared playback policy; the revealed round (`state.round`) is its step index and stays in the scene state. */
+    private readonly playback: TracePlayback;
     /** The polygon the scene started with (default, imported Preset or lesson scene): what Reset returns to. */
     private start: {points: readonly Row[]; closed: boolean} = {points: copyRows(DEFAULT_SUBDIVISION_PRESET.points), closed: false};
 
     constructor(private readonly scheduler?: AnimationScheduler) {
         super();
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.transition(),
-            stepIntervalMs: SUBDIVISION_STEP_INTERVAL_MS,
-            maxIterations: MAX_SUBDIVISION_ROUNDS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
-    }
-
-    /** The one step of the iteration: reveal the next round. The controller completes at the round cap. */
-    private transition(): void {
-        // The controller completes at the cap; the clamp keeps a state restored without a controller reset in range.
-        this.refusals.clear();
-        this.setState({round: Math.min(this.state.round + 1, MAX_SUBDIVISION_ROUNDS), notice: ''});
+        this.playback = new TracePlayback({
+            runLength: () => MAX_SUBDIVISION_ROUNDS + 1,
+            step: () => this.state.round,
+            writeStep: round => {
+                // The policy never writes past the cap, so the round is the next one.
+                this.refusals.clear();
+                this.setState({round, notice: ''});
+            },
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => SUBDIVISION_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     override getInitialState(): SubdivisionGraphState {
@@ -120,7 +114,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         this.start = {points: copyRows(data.points), closed: data.closed};
         this.refusals.clear();
         this.setState({points: copyRows(data.points), closed: data.closed, rule: data.rule, round: data.round, showLimit: data.showLimit, notice: ''});
-        this.controller.reset(data.round);
+        this.playback.restoreTo(data.round);
         this.ensureScene();
         this.requestRender();
     }
@@ -160,16 +154,12 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
 
     override mount(container: HTMLElement): void {
         // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount() {
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         this.removeScene();
         super.unmount();
     }
@@ -200,32 +190,27 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     }
 
     isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** Reveals the next round (taking over from playback); false when the cap is reached or a figure is being captured. */
     nextStep(): boolean {
-        if (this.exportBusy || this.isComplete()) return false;
-        this.controller.pause();
-        const advanced = this.controller.nextStep();
-        this.requestRender();
-        return advanced;
+        const before = this.state.round;
+        this.playback.nextStep();
+        return this.state.round !== before;
     }
 
     play(): void {
-        if (this.exportBusy || this.isComplete()) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to round 0 and the polygon (and closed setting) the scene started with; playback stops. Rule and overlay stay. */
     resetRounds(): void {
-        this.controller.reset(0);
+        this.playback.restoreTo(0);
         const {points, closed} = this.start;
         const rebuilt = points.length !== this.state.points.length;
         this.refusals.clear();
@@ -311,7 +296,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     /** Switching the rule returns to round 0 (paused), so the four-point reveal is not shown before the prediction step. */
     setRule(rule: SubdivisionRule) {
         if (!isSubdivisionRule(rule) || rule === this.state.rule) return;
-        this.controller.reset(0);
+        this.playback.restoreTo(0);
         this.refusals.clear();
         this.setState({rule, round: 0, notice: ''});
         this.requestRender();
@@ -362,7 +347,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
         const {points, closed, rule, round, showLimit} = this.state;
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const complete = this.isComplete();
         return super.getGraphCommands().concat(
             <div key="rule"><ChoiceSelect label={t("subdiv_rule")} value={rule}

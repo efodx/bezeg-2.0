@@ -2,6 +2,7 @@ import React from "react";
 import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
 import {formatNumber, formatScientific} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
+import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
@@ -232,6 +233,15 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         this.setState({...copyNurbs(this.state.origin), t: NURBS_DEFAULT_T, refusal: null});
     }
 
+    /** Whether the scene already equals what Reset restores: the origin's curve and weights, the starting parameter and no refusal. */
+    private atOrigin(): boolean {
+        const {origin, degree, knots, points, weights} = this.state;
+        const same = (a: readonly number[], b: readonly number[]) => a.length === b.length && a.every((value, index) => value === b[index]);
+        return degree === origin.degree && same(knots, origin.knots) && same(weights, origin.weights) && points.length === origin.points.length
+            && points.every((point, index) => point[0] === origin.points[index][0] && point[1] === origin.points[index][1])
+            && this.state.t === NURBS_DEFAULT_T && this.state.refusal === null;
+    }
+
     /** Loads an example as the new Reset target. */
     selectExample(id: NurbsExampleId) {
         if (!NURBS_EXAMPLE_IDS.includes(id)) return;
@@ -287,7 +297,8 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         if (example === 'custom') options.push({value: 'custom', text: t("bsn_example_custom")});
         return super.getGraphCommands().concat(
             <div key="example"><ChoiceSelect label={t("bsn_example")} value={example} options={options}
-                                             onChange={value => this.selectExample(value as NurbsExampleId)}/></div>,
+                                             onChange={value => this.selectExample(value as NurbsExampleId)}/>
+                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="error" className="inspector-group">
                 <p data-nurbs-readout="radial-error">{t("bsn_radial_error", {value0: errorText(this.radialError())})}</p>
                 <p className="inspector-help">{t("bsn_radial_error_help")}</p>
@@ -306,9 +317,6 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
                                  rejectedHint={refusal?.index === index ? weightRefusalText(refusal) : undefined}
                                  onChange={value => this.setWeight(index, value) === undefined}/>)}
                 <p className="inspector-help">{t("bsn_weights_help")}</p>
-            </div>,
-            <div key="reset" className="inspector-playback">
-                <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsp_example_reset")}</button>
             </div>,
         );
     }

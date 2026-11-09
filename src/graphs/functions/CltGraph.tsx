@@ -70,11 +70,6 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         return CLT_STEP_INTERVAL_MS;
     }
 
-    /** n runs 1..CLT_N_MAX, so CLT_N_MAX - 1 additions. */
-    protected maxIterations(): number {
-        return CLT_N_MAX - 1;
-    }
-
     protected iterationIndex(model: CltModel): number {
         return model.n - 1;
     }
@@ -216,7 +211,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
             ...CLT_EXAMPLE_IDS.map(id => ({value: id, text: t(id === "uniform" ? "prob_clt_example_uniform" : "prob_clt_example_skewed")})),
             ...(example === undefined ? [{value: "custom", text: t("prob_clt_example_custom")}] : []),
         ];
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const atMax = state.n >= CLT_N_MAX;
         return <>
             <div className="inspector-group">
@@ -268,7 +263,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         if (model.n >= CLT_N_MAX) statuses.push({id: "max-n", text: renderMessage(this.cannotAdvanceMessage())});
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_clt_note")}/>
-            <FunctionStatus dataAttribute="prob-clt-status" lines={statuses} muted={this.controller.isPlaying()}/>
+            <FunctionStatus dataAttribute="prob-clt-status" lines={statuses} muted={this.playback.isPlaying}/>
         </>;
     }
 

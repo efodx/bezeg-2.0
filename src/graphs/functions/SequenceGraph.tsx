@@ -9,7 +9,7 @@ import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
     isTermInBand, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_SCALE,
-    SEQUENCE_EPSILON_STEP, SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS, SEQUENCE_THRESHOLD_MAX,
+    SEQUENCE_EPSILON_STEP, SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_MAX_TERMS, SEQUENCE_THRESHOLD_MAX,
     SEQUENCE_THRESHOLD_MIN, sequenceCertificate, SequenceCertificate, sequenceDistance, sequenceEpsilonHundredths, sequenceExample, SequenceExample, SequenceExampleId, sequenceTerm,
 } from "../../analysis/sequence";
 import {
@@ -138,10 +138,6 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
 
     protected stepIntervalMs(): number {
         return SEQUENCE_STEP_INTERVAL_MS;
-    }
-
-    protected maxIterations(): number {
-        return SEQUENCE_MAX_STEPS;
     }
 
     protected iterationIndex(model: SequenceModel): number {
@@ -354,7 +350,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     protected renderControls(): React.ReactNode {
         const state = this.model;
         const language = currentLanguage();
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const canAdvance = canAdvanceSequence(state);
         return <>
             <div className="inspector-group">
@@ -479,7 +475,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("sequence_note")}/>
             <div className="inspector-group demo-status">
                 {statuses.map(status => <p key={status.id} className="inspector-help" data-sequence-status={status.id}>{status.text}</p>)}
-                <LiveReadout readout={this.liveReadout} muted={this.controller.isPlaying()}/>
+                <LiveReadout readout={this.liveReadout} muted={this.playback.isPlaying}/>
             </div>
         </>;
     }

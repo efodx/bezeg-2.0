@@ -77,7 +77,7 @@ function makeGraph() {
 function playSteps(graph: any, steps: number) {
     const target = graph.model.step + steps;
     graph.frames.frame(0);
-    for (let guard = 0; guard < steps * 3 && graph.model.step < target && graph.controller.isPlaying(); guard++) {
+    for (let guard = 0; guard < steps * 3 && graph.model.step < target && graph.playback.isPlaying; guard++) {
         graph.frames.frame(FIXED_POINT_STEP_INTERVAL_MS);
     }
 }
@@ -85,7 +85,7 @@ function playSteps(graph: any, steps: number) {
 /** Plays until the controller stops by itself. */
 function playToEnd(graph: any) {
     graph.frames.frame(0);
-    for (let guard = 0; guard < 200 && graph.controller.isPlaying(); guard++) graph.frames.frame(FIXED_POINT_STEP_INTERVAL_MS);
+    for (let guard = 0; guard < 200 && graph.playback.isPlaying; guard++) graph.frames.frame(FIXED_POINT_STEP_INTERVAL_MS);
 }
 
 const apply = (graph: any, action: LessonAction) => graph.applyLessonAction(action);
@@ -233,7 +233,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         apply(graph, reveal(true));
         apply(graph, command('play'));
         for (const action of step.scene!.actions) apply(graph, action);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
         return graph.model;
     });
     expect(finals).toEqual([
@@ -250,7 +250,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     for (const action of lesson.steps[4].scene!.actions) apply(rounding, action);
     expect(rounding.viewOf(rounding.model).history.termination).toBe('threshold');
     expect(rows(rounding).current).toBe('1');
-    expect(rounding.controller.isComplete()).toBe(true);
+    expect(rounding.playback['controller'].isComplete()).toBe(true);
     const reflection = makeGraph();
     for (const action of lesson.steps[5].scene!.actions) apply(reflection, action);
     expect(reflection.viewOf(reflection.model).history.cycle).toEqual({first: 0.2, second: 0.8});
@@ -265,7 +265,7 @@ test('k Next steps and k playback steps reach the same model, one iterate per in
             const played = makeGraph();
             apply(played, choice(example));
             apply(played, command('play'));
-            expect(played.controller.isPlaying()).toBe(true);
+            expect(played.playback.isPlaying).toBe(true);
             playSteps(played, k);
             apply(played, command('pause'));
             expect(played.model).toEqual(manual.model);
@@ -288,8 +288,8 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     const affine = makeGraph();
     apply(affine, command('play'));
     playToEnd(affine);
-    expect(affine.controller.isPlaying()).toBe(false);
-    expect(affine.controller.isComplete()).toBe(true);
+    expect(affine.playback.isPlaying).toBe(false);
+    expect(affine.playback['controller'].isComplete()).toBe(true);
     expect(affine.frames.callbacks.size).toBe(0);
     expect(affine.model.step).toBe(10);
     expect(rows(affine).end).toBe('ocena a posteriori pod pragom');
@@ -310,7 +310,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(statusIds(known)).toEqual(['fixed-point', 'bound-hidden']);
     expect(rows(known).end).toBe('začetek je znana negibna točka');
     apply(known, command('play'));
-    expect(known.controller.isPlaying()).toBe(false);
+    expect(known.playback.isPlaying).toBe(false);
     expect(() => next(known)).toThrow(DomainError);
     // the iteration limit: 1 - x has no threshold and stops at 60 steps, reporting the two-cycle and not a conclusion about convergence
     const reflection = makeGraph();
@@ -318,7 +318,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     apply(reflection, command('play'));
     playToEnd(reflection);
     expect(reflection.model.step).toBe(FIXED_POINT_MAX_STEPS);
-    expect(reflection.controller.isComplete()).toBe(true);
+    expect(reflection.playback['controller'].isComplete()).toBe(true);
     expect(rows(reflection).end).toBe('meja korakov');
     expect(statusIds(reflection)).toEqual(['iteration-limit', 'cycle', 'bound-hidden']);
     expect(statusTexts(reflection)[0]).toBe('Ustavljeno: dosežena je meja 60 korakov. To ni zaključek o konvergenci.');
@@ -334,11 +334,11 @@ test('the controls offer no further step once the iteration has ended, and Reset
     expect(controls(graph).play.props['aria-disabled']).toBe(true);
     expect(controls(graph).reset.props['aria-disabled']).toBe(false);
     apply(graph, command('play'));
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.model.step).toBe(10);
     controls(graph).reset.props.onClick();
     expect(graph.model).toEqual(model({}));
-    expect(graph.controller.isComplete()).toBe(false);
+    expect(graph.playback['controller'].isComplete()).toBe(false);
     expect(controls(graph).reset.props['aria-disabled']).toBe(true);
     next(graph, 3);
     expect(graph.model.step).toBe(3);
@@ -348,17 +348,17 @@ test('Next step takes over from playback, and Reset returns to step 0 and stops 
     const graph = makeGraph();
     apply(graph, command('play'));
     playSteps(graph, 2);
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     next(graph);
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.model.step).toBe(3);
     apply(graph, command('play'));
     apply(graph, command('reset'));
     expect(graph.model).toEqual(model({}));
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
     apply(graph, command('replay'));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     expect(graph.model.step).toBe(0);
     playSteps(graph, 2);
     expect(graph.model.step).toBe(2);
@@ -386,11 +386,11 @@ test('editing the example, x0 or the tolerance pauses playback and returns to st
         next(graph, 3);
         apply(graph, reveal(true));
         apply(graph, command('play'));
-        expect(graph.controller.isPlaying(), name).toBe(true);
+        expect(graph.playback.isPlaying, name).toBe(true);
         edit(graph);
         const keepsReveal = !name.includes('example');
         expect(graph.model, name).toEqual({...defaultFixedPointModel('affine'), boundVisible: keepsReveal, ...expected, step: 0});
-        expect(graph.controller.isPlaying(), name).toBe(false);
+        expect(graph.playback.isPlaying, name).toBe(false);
         expect(graph.frames.callbacks.size, name).toBe(0);
         // the iteration continues from step 0: the next step adds exactly one
         next(graph);
@@ -402,13 +402,13 @@ test('editing the example, x0 or the tolerance pauses playback and returns to st
     apply(graph, command('play'));
     apply(graph, parameter('fixed-point-x0', 0));
     apply(graph, parameter('fixed-point-digits', 3));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     expect(graph.model.step).toBe(2);
     // showing or hiding the bound does not stop playback
     apply(graph, reveal(true));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     apply(graph, reveal(false));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
 });
 
 test('controls and lesson actions give equivalent models', () => {
@@ -602,14 +602,14 @@ test('controls: example select, two number fields, Next step, Play/Pause, Reset 
     expect(graph.model.step).toBe(1);
     expect(controls(graph).reset.props['aria-disabled']).toBe(false);
     controls(graph).play.props.onClick();
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     const playing = controls(graph);
     expect(playing.play.props.children).toBe('Premor');
     // the label swap is the one state cue: a toggle with a swapped label has no aria-pressed (it would be announced twice)
     expect(playing.play.props['aria-pressed']).toBeUndefined();
     expect(playing.next.props['aria-disabled']).toBe(true);
     playing.play.props.onClick();
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(controls(graph).play.props.children).toBe('Predvajaj');
     controls(graph).toggle.props.onClick();
     expect(graph.model.boundVisible).toBe(true);
@@ -644,10 +644,10 @@ test('presets save the model with the step and the reveal, reopen paused and nev
 
     const reopened = makeGraph();
     apply(reopened, command('play'));
-    expect(reopened.controller.isPlaying()).toBe(true);
+    expect(reopened.playback.isPlaying).toBe(true);
     reopened.importPreset({id: 'fixed-point', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
-    expect(reopened.controller.isPlaying()).toBe(false);
+    expect(reopened.playback.isPlaying).toBe(false);
     expect(reopened.frames.callbacks.size).toBe(0);
     expect(caption(reopened)[1]).toBe(`korak k = 5, xₖ = ${rows(reopened).current}`);
     // continuing from the loaded step gives the same state as never having left it
@@ -658,7 +658,7 @@ test('presets save the model with the step and the reveal, reopen paused and nev
     // extra properties and a step beyond the end of the iteration: the step is cut to what the history can take
     reopened.importPreset({id: 'stored', data: {example: 'affine', x0: 0, step: 60, digits: 3, boundVisible: false, extra: true}});
     expect(reopened.model).toEqual({example: 'affine', x0: 0, step: 10, digits: 3, boundVisible: false});
-    expect(reopened.controller.isPlaying()).toBe(false);
+    expect(reopened.playback.isPlaying).toBe(false);
     expect(controls(reopened).next.props['aria-disabled']).toBe(true);
     expect(() => next(reopened)).toThrow(DomainError);
     // a start at a known fixed point has step 0
@@ -666,9 +666,9 @@ test('presets save the model with the step and the reveal, reopen paused and nev
     expect(reopened.model.step).toBe(0);
     // a finished reflection reopens as a finished iteration
     reopened.importPreset({id: 'stored', data: {example: 'reflection', x0: 0.2, step: 60, digits: 3, boundVisible: false}});
-    expect(reopened.controller.isComplete()).toBe(true);
+    expect(controls(reopened).next.props['aria-disabled']).toBe(true);
     reopened.importPreset({id: 'stored', data: {...exported.data, step: 3}});
-    expect(reopened.controller.isComplete()).toBe(false);
+    expect(controls(reopened).next.props['aria-disabled']).toBe(false);
     next(reopened);
     expect(reopened.model.step).toBe(4);
 });
@@ -691,7 +691,7 @@ test('malformed preset data is rejected to the default model with a warning', ()
     for (const entry of bad) {
         graph.importPreset({id: 'stored', data: entry});
         expect(graph.model, JSON.stringify(entry)).toEqual(valid);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
     }
     // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
     expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
@@ -712,7 +712,7 @@ test('capture and restore bring back the synchronous model and leave playback pa
     apply(graph, command('play'));
     graph.restoreLessonState(checkpoint);
     expect(graph.model).toEqual(checkpoint.value.data);
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
     expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({example: 'cosine', x0: 0.5, step: 3})}));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
@@ -735,9 +735,9 @@ test('lesson lifecycle, figure capture, export and scene replacement pause playb
         const graph = makeGraph();
         next(graph, 2);
         apply(graph, command('play'));
-        expect(graph.controller.isPlaying(), name).toBe(true);
+        expect(graph.playback.isPlaying, name).toBe(true);
         pause(graph);
-        expect(graph.controller.isPlaying(), name).toBe(false);
+        expect(graph.playback.isPlaying, name).toBe(false);
         expect(graph.frames.callbacks.size, name).toBe(0);
     }
     // the base graph calls the capture hook before a single figure export and before a figure batch
@@ -749,7 +749,7 @@ test('lesson lifecycle, figure capture, export and scene replacement pause playb
         const hook = vi.spyOn(graph, 'beforeFigureCapture');
         exportFigure(graph);
         expect(hook).toHaveBeenCalledTimes(1);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
     }
 });
 
@@ -760,7 +760,7 @@ test('a capture in progress blocks Next step and Play so the export shows one se
     next(graph);
     apply(graph, command('play'));
     expect(graph.model.step).toBe(0);
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     releaseBatch?.();
     next(graph);
     expect(graph.model.step).toBe(1);
@@ -772,7 +772,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     apply(graph, command('play'));
     graph.frames.frame(0);
     expect(graph.frames.callbacks.size).toBe(1);
-    const controller = graph.controller;
+    const controller = graph.playback['controller'];
     graph.unmount();
     const disposedModel = graph.model;
     expect(graph.frames.callbacks.size).toBe(0);
@@ -886,7 +886,7 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
                         const graph = makeGraph();
                         apply(graph, choice(id));
                         apply(graph, parameter('fixed-point-digits', digits));
-                        for (let i = 0; i < steps && graph.controller.status !== 'complete'; i++) {
+                        for (let i = 0; i < steps && graph.playback['controller'].status !== 'complete'; i++) {
                             try { next(graph); } catch { break; }
                         }
                         apply(graph, reveal(visible));
@@ -902,10 +902,10 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
 test('a scene replaced while playing pauses the iteration and requests a render so Play/Pause updates', () => {
     const graph = makeGraph();
     graph.play();
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     graph.requestRender = vi.fn();
     graph.onSceneRemoved();
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.requestRender).toHaveBeenCalled();
 });
 

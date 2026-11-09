@@ -7,7 +7,7 @@ import type {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {matchingExample} from "./ExampleSelect";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";

@@ -7,7 +7,7 @@ import {BSplineCurve, InvalidKnotVectorError} from "../../../bezeg/impl/curve/bs
 import type {LessonAnimationCommand, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../../learning/runtime/iterationController";
+import {TracePlayback} from "../../base/tracePlayback";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 import {DeBoorScene} from "./DeBoorScene";
@@ -15,7 +15,7 @@ import {BSplinePointList} from "./BSplinePointList";
 import {KnotEditor} from "./KnotEditor";
 import {BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, isClamped, KNOT_LIMIT, knotProblem, lastIndexOf} from "./bsplineBasisModel";
 import {
-    appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_LEVELS, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
+    appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
     assertDrawableCurve, deBoorPresetData, defaultDeBoorData, knotsForCount,
 } from "./bsplineDeBoorModel";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
@@ -52,24 +52,21 @@ const initialData = (): Omit<DeBoorGraphState, 'initialized'> => {
  */
 export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> {
     private scene?: DeBoorScene;
-    private controller: IterationController;
-    private controllerDisposed = false;
+    /** The shared playback policy; the revealed level (`state.level`) is its step index and stays in the scene state. */
+    private readonly playback: TracePlayback;
     /** The graph's one announcement: the levels status, silent while Play runs. */
     private readonly liveReadout = new SettledReadout();
 
     constructor(private readonly scheduler?: AnimationScheduler) {
         super();
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.transition(),
-            stepIntervalMs: DEBOOR_STEP_INTERVAL_MS,
-            maxIterations: DEBOOR_MAX_LEVELS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.state.degree + 1,
+            step: () => this.state.level,
+            writeStep: level => this.setState({level}),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => DEBOOR_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     override getInitialState(): DeBoorGraphState {
@@ -156,17 +153,13 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
 
     override mount(container: HTMLElement): void {
         // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount() {
         this.liveReadout.cancel();
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         this.removeScene();
         super.unmount();
     }
@@ -175,9 +168,8 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         if (prevState === this.state || !this.board) return;
         const {state} = this;
         // Any edit (points, knots, degree, t) ends playback; the revealed level stays.
-        if (state.degree !== prevState.degree || state.knots !== prevState.knots || state.points !== prevState.points || state.t !== prevState.t) {
-            this.controller.reset(state.level);
-        }
+        this.playback.settle(state.degree !== prevState.degree || state.knots !== prevState.knots || state.points !== prevState.points
+            || state.t !== prevState.t, false);
         if (this.scene && !this.scene.fits(state.degree, state.points.length)) this.ensureScene();
         else this.scene?.sync();
         this.boardUpdate();
@@ -185,56 +177,41 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
 
     // ---- Animation ---------------------------------------------------------------------------------------------------
 
-    /** The one step of the iteration: reveal the next level. Completes at level k. */
-    private transition(): IterationOutcome {
-        const {level, degree} = this.state;
-        if (level >= degree) return 'complete';
-        this.setState({level: level + 1});
-        return level + 1 >= degree ? 'complete' : 'continue';
-    }
-
     /** Whether another level can be revealed. */
     get canAdvance(): boolean {
         return this.state.level < this.state.degree;
     }
 
     get playing(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** Reveals one level. It takes over from playback; false when all levels are shown (or a figure is being captured). */
     nextStep(): boolean {
-        if (this.exportBusy || !this.canAdvance) return false;
-        this.controller.pause();
-        const moved = this.controller.nextStep();
-        this.requestRender();
-        return moved;
+        const before = this.state.level;
+        this.playback.nextStep();
+        return this.state.level !== before;
     }
 
     /** Starts or resumes playback; from the full triangle it starts again at level 0. */
     play(): void {
-        if (this.exportBusy) return;
-        if (!this.canAdvance) this.resetLevels();
-        this.controller.play();
-        this.requestRender();
+        if (!this.canAdvance && !this.exportBusy) this.resetLevels();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to level 0; playback stops. */
     resetLevels(): void {
-        this.controller.reset(0);
-        this.setState({level: 0});
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /** The controller follows the revealed level and starts paused: a scene never opens in playback. */
     protected override restoreTransientState(saved: TransientState | undefined): void {
         super.restoreTransientState(saved);
-        this.controller.reset(this.state.level);
+        this.playback.restoreTo(this.state.level);
     }
 
     protected override stopLessonAnimations(): void {

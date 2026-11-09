@@ -1,9 +1,10 @@
 import BaseFunctionGraph, {DomainError} from "./BaseFunctionGraph";
 import {Message} from "../../localization";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
+import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {LessonAnimationCommand} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {TracePlayback} from "../base/tracePlayback";
 
 /** The lesson animation commands an iteration handles. `stop` is rejected: the iteration has no separate stopped state (use pause or reset). */
 const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["play", "pause", "replay", "next-step", "reset"];
@@ -15,12 +16,23 @@ const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["play", "pause", "re
  * pauses it. The subclass supplies its model's mathematics (`transition`, `canAdvance`, `resetIteration`, `iterationIndex`).
  */
 export default abstract class IterativeFunctionGraph<M extends object> extends BaseFunctionGraph<M> {
-    protected controller: IterationController;
-    private controllerDisposed = false;
+    /**
+     * The shared playback policy. The step index is the model's (`iterationIndex`), which Presets store; the length of a
+     * run is only known by taking its steps, so the host reports `canAdvance()` as "one more step" and `transition()` as the
+     * outcome of the step it took.
+     */
+    protected readonly playback: TracePlayback;
 
     constructor(protected readonly scheduler?: AnimationScheduler) {
         super();
-        this.controller = this.createController();
+        this.playback = new TracePlayback({
+            runLength: () => this.iterationIndex(this.model) + (this.canAdvance() ? 2 : 1),
+            step: () => this.iterationIndex(this.model),
+            writeStep: () => this.transition(),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => this.stepIntervalMs(),
+        }, scheduler);
     }
 
     /** The animation id lesson `animation` actions are addressed to. */
@@ -28,9 +40,6 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
 
     /** Time between two playback steps: one step per interval, never more than one per frame (see ADR 0012). */
     protected abstract stepIntervalMs(): number;
-
-    /** The number of transitions a full run takes. */
-    protected abstract maxIterations(): number;
 
     /** The one mathematical transition of the iteration; it commits the next model and says whether the run continues or is complete. */
     protected abstract transition(): IterationOutcome;
@@ -52,44 +61,28 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
         return model;
     }
 
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.transition(),
-            stepIntervalMs: this.stepIntervalMs(),
-            maxIterations: this.maxIterations(),
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
-    }
-
     /** Replaces the model by an edit: the controller follows the revealed steps and playback stops. */
     protected replaceModel(next: M): void {
         const model = this.normalizeIterationModel(next);
-        this.controller.reset(this.iterationIndex(model));
+        this.playback.restoreTo(this.iterationIndex(model));
         this.commitModel(model);
         this.requestRender();
     }
 
     protected pauseIteration(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** One Next step. It takes over from playback, throws when the iteration cannot advance, and waits while a figure is captured. */
     protected nextStep(): void {
-        // While a figure is captured the step is dropped without an error: a lesson `next-step` that arrives then is not queued
-        // (the export lock is short and ends in a figure, never in a scene change).
-        if (this.exportBusy) return;
-        if (!this.canAdvance()) throw new DomainError(this.cannotAdvanceMessage());
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        // While a figure is captured the step is dropped without an error (the policy refuses it): a lesson `next-step` that
+        // arrives then is not queued (the export lock is short and ends in a figure, never in a scene change).
+        if (!this.exportBusy && !this.canAdvance()) throw new DomainError(this.cannotAdvanceMessage());
+        this.playback.nextStep();
     }
 
     protected play(): void {
-        if (this.exportBusy || !this.canAdvance()) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
@@ -112,16 +105,12 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
 
     override mount(container: HTMLElement): void {
         // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -129,8 +118,7 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
     /** An imported model is normalized like any other entry into the iteration (a stored step cut to the steps it can take). */
     override importPresetData(data: M): void {
         super.importPresetData(this.normalizeIterationModel(data));
-        this.controller.reset(this.iterationIndex(this.model));
-        this.requestRender();
+        this.playback.restoreTo(this.iterationIndex(this.model));
     }
 
     protected override stopLessonAnimations(): void {
@@ -144,8 +132,7 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
     protected override onSceneRemoved(): void {
         // A replaced scene must not keep running behind the new one. The base class may call this before the controller exists;
         // the render refreshes the Play/Pause label.
-        if (!this.controller) return;
-        this.controller.pause();
-        this.requestRender();
+        if (!this.playback) return;
+        this.playback.pause();
     }
 }

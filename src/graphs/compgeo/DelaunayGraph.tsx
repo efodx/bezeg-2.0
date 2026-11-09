@@ -18,7 +18,7 @@ import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationG
 import {parseTriangleList} from "./triangulationPresetCollection";
 import {matchingExample} from "./ExampleSelect";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 

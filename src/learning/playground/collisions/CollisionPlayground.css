@@ -40,17 +40,17 @@
     cursor: pointer;
 }
 
-.collision-playground__buttons button:hover:not(:disabled) {
+.collision-playground__buttons button:hover:not([aria-disabled='true']) {
     background: var(--bezeg-shell-control-hover);
     border-color: var(--bezeg-shell-control-rule-hover);
 }
 
-.collision-playground__buttons button[aria-pressed='true'] {
+.collision-playground__buttons button[data-playing='true'] {
     background: var(--bezeg-shell-choice-selected);
     border-color: var(--bezeg-shell-choice-rule-selected);
 }
 
-.collision-playground__buttons button:disabled {
+.collision-playground__buttons button[aria-disabled='true'] {
     opacity: 0.5;
     cursor: default;
 }

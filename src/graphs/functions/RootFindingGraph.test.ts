@@ -159,8 +159,8 @@ test('Next step and playback run the same transition and playback stops at the e
     played.frames.frame(0);
     for (let guard = 0; guard < 10 && played.model.step < 3; guard++) played.frames.frame(ROOT_FINDING_STEP_INTERVAL_MS);
     expect(played.model).toEqual(stepped.model);
-    for (let guard = 0; guard < 80 && played.controller.isPlaying(); guard++) played.frames.frame(ROOT_FINDING_STEP_INTERVAL_MS);
-    expect(played.controller.isPlaying()).toBe(false);
+    for (let guard = 0; guard < 80 && played.playback.isPlaying; guard++) played.frames.frame(ROOT_FINDING_STEP_INTERVAL_MS);
+    expect(played.playback.isPlaying).toBe(false);
     expect(statusId(played)).toBe('root-found');
     expect(played.model.step).toBeLessThan(12);
     expect(() => played.nextStep()).toThrow(DomainError);
@@ -182,10 +182,10 @@ test('editing the method, the example or a start restarts the history at step 0 
         const graph = makeGraph();
         next(graph, 2);
         graph.play();
-        expect(graph.controller.isPlaying()).toBe(true);
+        expect(graph.playback.isPlaying).toBe(true);
         edit(graph);
         expect(graph.model.step, `edit ${index}`).toBe(0);
-        expect(graph.controller.isPlaying(), `edit ${index}`).toBe(false);
+        expect(graph.playback.isPlaying, `edit ${index}`).toBe(false);
         expect(graph.frames.callbacks.size).toBe(0);
         expect(progressText(graph)).toMatch(/^korak 0, /);
         next(graph);
@@ -214,7 +214,7 @@ test('Reset returns to step 0 of the same model and stops playback', () => {
     graph.play();
     controls(graph).reset.props.onClick();
     expect(graph.model).toEqual({method: 'newton', example: 'square-minus-two', x0: 3, x1: 2, step: 0});
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(statusId(graph)).toBe('ready');
 });
 
@@ -284,10 +284,10 @@ test('presets save the model with the step, reopen paused at that step and never
 
     const reopened = makeGraph();
     reopened.play();
-    expect(reopened.controller.isPlaying()).toBe(true);
+    expect(reopened.playback.isPlaying).toBe(true);
     reopened.importPreset({id: 'root-finding', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
-    expect(reopened.controller.isPlaying()).toBe(false);
+    expect(reopened.playback.isPlaying).toBe(false);
     expect(reopened.frames.callbacks.size).toBe(0);
     expect(view(reopened).history).toEqual(view(graph).history);
     next(reopened);
@@ -309,7 +309,7 @@ test('malformed preset data is rejected to the default model with a warning', ()
     for (const entry of bad) {
         graph.importPreset({id: 'stored', data: entry});
         expect(graph.model).toEqual(valid);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
     }
     expect(warn).toHaveBeenCalledTimes(bad.length);
     warn.mockRestore();

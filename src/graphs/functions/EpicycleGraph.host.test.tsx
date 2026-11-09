@@ -116,7 +116,7 @@ const cell = (k: number) => document.querySelector(`[data-testid="epicycle-table
 const vertexField = (i: number, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Krajišče ${i + 1}, koordinata ${axis}$`)) as HTMLInputElement;
 const controlField = (i: number, which: 1 | 2, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Kontrolna točka ${i + 1}\\.${which}, koordinata ${axis}$`)) as HTMLInputElement;
 const PLAY_LABEL = 'Predvajaj';
-const playButton = () => screen.getByTestId('epicycle-play');
+const playButton = () => document.querySelector('[data-action="play-pause"]') as HTMLElement;
 /** Drags a handle as the board does: the position changes, then the drag handlers run. */
 const drag = (point: Handle, x: number, y: number) => act(() => {
     point.moveTo([x, y]);
@@ -506,4 +506,33 @@ test('a lesson checkpoint restore while playing stops, takes the saved time, can
     act(() => { capabilities.restoreState(checkpoint); });
     expect(refusal()).toBe('');
     expect(graph.time).toBe(2);
+});
+
+test('the Play and Pause group has no Next or Reset; a time-slider seek, a parametrization change and a display switch follow the pause rule (decision 57)', () => {
+    const {graph} = mount();
+    expect(document.querySelectorAll('[role="group"] [data-action]')).toHaveLength(1);
+    expect(playButton().getAttribute('data-playing')).toBe('false');
+    act(() => { fireEvent.click(playButton()); });
+    expect(playButton().getAttribute('data-playing')).toBe('true');
+    act1(graph, {kind: 'function-parameter', name: 'epicycle-time', value: 1});
+    expect(graph.playing).toBe(false);
+    act(() => { fireEvent.click(playButton()); });
+    act1(graph, param('chord'));
+    expect(graph.playing).toBe(false);
+});
+
+test('under reduced motion Play is blocked with its reason and nothing starts; Pause stays available while a run plays', () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({matches: query === '(prefers-reduced-motion: reduce)', addEventListener: () => undefined,
+        removeEventListener: () => undefined, addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
+    try {
+        const {graph, scheduler} = mount();
+        expect(playButton().getAttribute('aria-disabled')).toBe('true');
+        act(() => { fireEvent.click(playButton()); });
+        expect(graph.playing).toBe(false);
+        expect(scheduler.pending).toBe(0);
+        expect(document.querySelector('[data-playback-reason="reduced-motion"]')).not.toBeNull();
+    } finally {
+        window.matchMedia = original;
+    }
 });

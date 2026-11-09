@@ -23,8 +23,9 @@ import {VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus,
 import {fourPointReadout} from "./degenerateSites";
 import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
 import {boardFrameOf, fitFrame} from "./frameFit";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 import {followedGridBox, visibleGridBox} from "./followBox";
+import {matchingExample} from "./ExampleSelect";
 import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {
     FOUR_POINT_SITES, isVoronoiMode, VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection,
@@ -856,8 +857,15 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         return false;
     }
 
-    private status(): VoronoiStatus {
-        const points = this.model.points;
+    /** Whether the scene already is what Reset example restores: the example's sites, no triangle or cell chosen, the starting query point and mode (the overlays are not compared). */
+    private atExample(): boolean {
+        const query = this.queryText;
+        return matchingExample(this.model, [{id: "example", ...this.exampleModel()}]) !== undefined && !this.overlayShown("delaunay")
+            && this.cellSite === null && this.construction === 0 && this.selectedTriangleValue === undefined && this.mode === this.defaultMode()
+            && query.x === VORONOI_DEFAULT_QUERY.x && query.y === VORONOI_DEFAULT_QUERY.y;
+    }
+
+    private status(): VoronoiStatus {        const points = this.model.points;
         const {outcome} = this.derive();
         const diagram = this.diagram();
         const query = this.queryText;
@@ -867,7 +875,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
             vertices: [], cellSite: null,
             query: {x: query.x, y: query.y, value: [this.query.x.toNumber(), this.query.y.toNumber()] as const, nearest: this.queryNearest()},
             coordinateLimit: this.coordinateLimit, overlayShown: this.overlayShown("delaunay"), diagramShown: this.overlayShown("diagram"), triangles: [],
-            mode: this.mode, modeSwitch: this.showsModeSwitch(), modeRefused: this.modeRefused, examples: this.exampleIds(), exampleId: this.currentExampleId(),
+            mode: this.mode, modeSwitch: this.showsModeSwitch(), modeRefused: this.modeRefused, atExample: this.atExample(), examples: this.exampleIds(), exampleId: this.currentExampleId(),
         } satisfies VoronoiStatus;
         if (!diagram) {
             const duplicate = !outcome.ok && outcome.refusal.kind === "duplicate-point" ? outcome.refusal.indices : undefined;

@@ -17,7 +17,7 @@ import {BentleyOttmannControlActions, BentleyOttmannControls, BentleyOttmannList
 import {BentleyOttmannRun, runBentleyOttmann} from "./bentleyOttmannRun";
 import {BENTLEY_OTTMANN_EXAMPLE_1, BENTLEY_OTTMANN_OVERLAY_IDS, bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 import {parseHullStep} from "./hullTraceRun";
 
 /** Time between two playback steps (one step per trace event, never more). */

@@ -47,7 +47,7 @@ class ObservedSequenceGraph extends SequenceGraph {
     }
 
     playing() {
-        return this['controller'].isPlaying();
+        return this.playback.isPlaying;
     }
 
     ownedObjects() {

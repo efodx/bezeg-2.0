@@ -4,6 +4,8 @@ import Slider from '../../../inputs/Slider'
 import {ChoiceSelect} from '../../../inputs/ChoiceSelect'
 import {OnOffSwitch} from '../../../inputs/OnOffSwitch'
 import {LiveReadout, SettledReadout} from '../../../graphs/base/controls/LiveReadout'
+import {PlaybackButtons} from '../../../graphs/base/controls/PlaybackButtons'
+import {UnavailableButton} from '../../../inputs/UnavailableButton'
 import {WORLD_HEIGHT, WORLD_WIDTH} from '../../../compgeo/collisions/world'
 import {POLYGON_TEMPLATES} from '../../../compgeo/collisions/polygonTemplates'
 import {clampCount, MAX_COUNT} from './collisionProtocol'
@@ -336,6 +338,11 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     }
   }, [status, snapshotRef, subscribe, t, sprites, announcement])
 
+  /** Decision 57: a change to the arrangement or the method pauses a running playground before it is sent. */
+  const pauseForEdit = (): void => {
+    if (playing) send({type: 'pause'})
+  }
+
   const onCount = (position: number): void => {
     // At low counts one log step rounds to the same integer, so step the count itself by one in the slider's direction.
     const direction = Math.sign(position - toPosition(count, method, shape))
@@ -344,6 +351,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     if (direction < 0 && next >= count) next = clampCount(count - 1, method, shape)
     if (next === count) return
     pendingAnnounce.current = {count: next}
+    pauseForEdit()
     setCount(next)
     send({type: 'setCount', count: next})
   }
@@ -351,6 +359,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     const next: BroadPhaseMethod = value === 'naive' ? 'naive' : 'sweep'
     const clamped = clampCount(count, next, shape)
     pendingAnnounce.current = {method: next, count: clamped}
+    pauseForEdit()
     setMethod(next)
     send({type: 'setMethod', method: next})
     if (clamped !== count) {
@@ -387,7 +396,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
                 customText={t('collision_count')} formatValue={(p) => formatInt(p === toPosition(count, method, shape) ? count : toCount(p, method, shape))} onChange={onCount}/>
         <Slider min={1} max={120} step={1} bigStep={4} value={coverage}
                 customText={t('collision_coverage')} formatValue={(p) => t('collision_percent', {value0: formatCoverage(p / 4)})}
-                onChange={(p) => { setCoverage(p); pendingAnnounce.current = {}; send({type: 'setCoverage', areaFraction: p / 400}) }}/>
+                onChange={(p) => { setCoverage(p); pendingAnnounce.current = {}; pauseForEdit(); send({type: 'setCoverage', areaFraction: p / 400}) }}/>
         {readout?.clampedFrom != null && <p className="collision-playground__note">{t('collision_limit', {value0: formatInt(limit)})}</p>}
         <ChoiceSelect label={t('collision_methods')} value={method} onChange={onMethod}
                       options={(['naive', 'sweep'] as const).map((m) => ({value: m, text: t(m === 'naive' ? 'collision_method_naive' : 'collision_method_sweep')}))}/>
@@ -399,17 +408,14 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
           setBounce(checked)
           send({type: 'setBounce', bounce: checked})
         }}/>
-        <div className="collision-playground__buttons">
-          <button type="button" aria-pressed={playing} onClick={() => send({type: playing ? 'pause' : 'play'})}>
-            {t(playing ? 'collision_pause' : 'collision_play')}
-          </button>
-          <button type="button" disabled={playing} onClick={() => { pendingAnnounce.current = {}; send({type: 'stepOnce'}) }}>
-            {t('collision_step')}
-          </button>
-          <button type="button" onClick={() => { pendingAnnounce.current = {}; send({type: 'reset', seed: Math.floor(Math.random() * 2 ** 31)}) }}>
-            {t('collision_new')}
-          </button>
-        </div>
+          <PlaybackButtons groupLabel={t('collision_playback_group')} className="collision-playground__buttons" playing={playing}
+                           nextLabel={t('collision_step')} nextBlock={playing ? 'playing' : undefined}
+                           onNext={() => { pendingAnnounce.current = {}; send({type: 'stepOnce'}) }}
+                           onPlayPause={() => send({type: playing ? 'pause' : 'play'})}>
+            <UnavailableButton onPress={() => { pendingAnnounce.current = {}; pauseForEdit(); send({type: 'reset', seed: Math.floor(Math.random() * 2 ** 31)}) }}>
+              {t('collision_new')}
+            </UnavailableButton>
+          </PlaybackButtons>
       </div>
       <dl className="collision-playground__readouts" aria-label={t('collision_readouts')}>
         <div><dt>{t('collision_objects')}</dt><dd>{readout ? formatInt(readout.count) : '—'}</dd></div>

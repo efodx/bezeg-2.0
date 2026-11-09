@@ -109,10 +109,6 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         return FIXED_POINT_STEP_INTERVAL_MS;
     }
 
-    protected maxIterations(): number {
-        return FIXED_POINT_MAX_STEPS;
-    }
-
     protected iterationIndex(model: FixedPointModel): number {
         return model.step;
     }
@@ -356,7 +352,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         const state = this.model;
         const language = currentLanguage();
         const example = fixedPointExample(state.example);
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const canAdvance = fixedPointCanAdvance(state);
         return <>
             <div className="inspector-group">
@@ -479,7 +475,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fixed_point_note")}/>
-            <FunctionStatus className="demo-status" dataAttribute="fixed-point-status" lines={this.statuses(model, view)} muted={this.controller.isPlaying()}/>
+            <FunctionStatus className="demo-status" dataAttribute="fixed-point-status" lines={this.statuses(model, view)} muted={this.playback.isPlaying}/>
         </>;
     }
 }

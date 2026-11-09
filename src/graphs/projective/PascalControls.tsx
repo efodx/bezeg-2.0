@@ -6,6 +6,7 @@ import {DIRECTION_TABLE_SIZE} from "../../projective/conicPencil";
 import {PASCAL_CONIC_IDS, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PascalConicId, PascalExampleId, PascalModel, PascalOrderId, PascalScene, orderIdOf} from "./pascalModel";
 import {describePascal} from "./pascalText";
 import {pointText} from "./polePolarModel";
+import "./PascalControls.css";
 
 export interface PascalControlActions {
     loadExample(id: PascalExampleId): void;

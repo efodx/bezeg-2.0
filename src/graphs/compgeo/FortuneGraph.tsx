@@ -24,7 +24,7 @@ import {followedGridBox, visibleGridBox} from "./followBox";
 import {createVoronoiDrawing, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {parseHullStep} from "./hullTraceRun";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 
 const FORTUNE_NAMED_EXAMPLES = [
     {id: "example-1", ...FORTUNE_EXAMPLE_1}, {id: "example-2", ...FORTUNE_EXAMPLE_2},

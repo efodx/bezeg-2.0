@@ -47,7 +47,7 @@ class ObservedFixedPointGraph extends FixedPointGraph {
     }
 
     playing() {
-        return this['controller'].isPlaying();
+        return this.playback.isPlaying;
     }
 
     ownedObjects() {

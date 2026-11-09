@@ -22,7 +22,7 @@ import {
 import {PartitionRun, runMonotonePartition, vertexName} from "./monotonePartitionRun";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {matchingExample} from "./ExampleSelect";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 import {parseHullStep} from "./hullTraceRun";
 
 /** Time between two playback steps (one step per trace event, never more). */

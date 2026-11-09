@@ -11,7 +11,7 @@ import {formatNumber, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {firstTermWithinTolerance, geometricPartialSum, geometricTerm} from "../../analysis/geometricSeries";
 import {
     canAdvanceSeries, chooseSeriesExample, defaultGeometricSeriesModel, GeometricSeriesModel, nextSeriesStep, resetSeriesTerms, SERIES_A_MAX, SERIES_A_MIN,
-    SERIES_EXAMPLE_IDS, SERIES_EXAMPLE_MODELS, SERIES_MAX_STEPS, SERIES_Q_MAX, SERIES_Q_MIN, SERIES_TERMS_MAX, SERIES_TERMS_MIN, SERIES_TOLERANCE_MAX,
+    SERIES_EXAMPLE_IDS, SERIES_EXAMPLE_MODELS, SERIES_Q_MAX, SERIES_Q_MIN, SERIES_TERMS_MAX, SERIES_TERMS_MIN, SERIES_TOLERANCE_MAX,
     SERIES_TOLERANCE_MIN, seriesExampleOf, SeriesEdit, seriesView, SeriesView, seriesYRange, setSeriesA, setSeriesQ, setSeriesTerms, setSeriesTolerance,
 } from "../../analysis/geometricSeriesModel";
 import {geometricSeriesEditMessage} from "./geometricSeriesMessages";
@@ -89,10 +89,6 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
 
     protected stepIntervalMs(): number {
         return SERIES_STEP_INTERVAL_MS;
-    }
-
-    protected maxIterations(): number {
-        return SERIES_MAX_STEPS;
     }
 
     protected iterationIndex(model: GeometricSeriesModel): number {
@@ -255,7 +251,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
     protected renderControls(): React.ReactNode {
         const state = this.model;
         const language = currentLanguage();
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const canAdvance = canAdvanceSeries(state);
         const example = seriesExampleOf(state);
         const options = SERIES_EXAMPLE_IDS.map(id => ({value: id as string, text: exampleText(id)}));
@@ -317,7 +313,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("series_note", {value0: SERIES_TERMS_MAX})}/>
-            <FunctionStatus className="demo-status" dataAttribute="series-status" lines={this.statuses(model, view)} muted={this.controller.isPlaying()}/>
+            <FunctionStatus className="demo-status" dataAttribute="series-status" lines={this.statuses(model, view)} muted={this.playback.isPlaying}/>
         </>;
     }
 }

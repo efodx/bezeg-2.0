@@ -1,6 +1,8 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {currentLanguage, useT} from '../../../localization'
 import Slider from '../../../inputs/Slider'
+import {UnavailableButton} from '../../../inputs/UnavailableButton'
+import {PlaybackButtons, playbackBlocks} from '../../../graphs/base/controls/PlaybackButtons'
 import {WORLD_HEIGHT, WORLD_WIDTH, createScratch, createWorld, stepWorld} from '../../../compgeo/collisions/world'
 import {replaySweep, traceSweep} from '../../../compgeo/collisions/sweepTrace'
 import type {SweepEvent} from '../../../compgeo/collisions/sweepTrace'
@@ -76,6 +78,7 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
   const [playing, setPlaying] = useState(false)
   const [announcement, setAnnouncement] = useState('')
   const announceToggle = useRef(false)
+  const [previousPressed, setPreviousPressed] = useState(false)
 
   // The world is mutated in place by Play (`version` re-renders); it is rebuilt only when count or seed change.
   const {world, scratch} = useMemo(() => arrangement(count, seed), [count, seed])
@@ -178,6 +181,8 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
   }
   const pairsTotal = (count * (count - 1)) / 2
   const atEnd = shown >= trace.events.length
+  const blocks = playbackBlocks({atStart: shown <= 0, atEnd, playing})
+  const previousReason = playing ? t('playback_block_playing') : shown <= 0 ? t('playback_block_at_start') : undefined
   const eventText = playing ? t('collision_inspect_playing') : describe(trace.events, shown, trace.candidates.length, trace.boxTests)
 
   return (
@@ -229,13 +234,15 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
                   const next = Math.max(INSPECT_MIN, Math.min(INSPECT_MAX, Math.round(v)))
                   if (next !== count) reset(next, seed)
                 }}/>
-        <div className="collision-playground__buttons">
-          <button type="button" disabled={playing || shown <= 0} onClick={() => goTo(shown - 1)}>{t('collision_inspect_prev')}</button>
-          <button type="button" disabled={playing || atEnd} onClick={() => goTo(shown + 1)}>{t('collision_inspect_next')}</button>
-          <button type="button" aria-pressed={playing} onClick={togglePlay}>
-            {playing ? t('collision_inspect_pause') : t('collision_inspect_play')}
-          </button>
-          <button type="button" onClick={() => reset(count, seed + 1)}>{t('collision_inspect_new')}</button>
+        <PlaybackButtons groupLabel={t('collision_inspect_playback_group')} className="collision-playground__buttons" playing={playing}
+                         nextLabel={t('collision_inspect_next')} nextBlock={blocks.nextBlock} onNext={() => { setPreviousPressed(false); goTo(shown + 1) }}
+                         onPlayPause={() => { setPreviousPressed(false); togglePlay() }}>
+          <UnavailableButton data-action="previous-step" reason={previousReason} onBlockedPress={() => setPreviousPressed(true)}
+                             onPress={() => { setPreviousPressed(false); goTo(shown - 1) }}>{t('collision_inspect_prev')}</UnavailableButton>
+          <UnavailableButton data-action="new-arrangement" onPress={() => { setPreviousPressed(false); reset(count, seed + 1) }}>{t('collision_inspect_new')}</UnavailableButton>
+        </PlaybackButtons>
+        <div role="status" aria-live="polite">
+          {previousPressed && previousReason && <p className="inspector-help" data-playback-reason="previous">{previousReason}</p>}
         </div>
       </div>
       <p className="collision-inspect__event" data-testid="inspect-event">

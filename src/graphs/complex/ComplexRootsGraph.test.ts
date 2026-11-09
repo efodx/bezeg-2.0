@@ -87,7 +87,8 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [wRe, wIm, degree, zRe, zIm] = found.NumberInput;
+    const [wRe, wIm, zRe, zIm] = found.NumberInput;
+    const [degree] = found.CountSetter;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
         found, select: found.ChoiceSelect[0], wRe, wIm, degree, zRe, zIm,
@@ -303,7 +304,7 @@ test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real of
     expect(graph.model.wRe).toBe(0.3);
     inspector().wIm.props.onChange(-0);
     expect(Object.is(graph.model.wIm, -0)).toBe(false);
-    inspector().degree.props.onChange(7);
+    inspector().degree.props.onSet(7);
     inspector().zRe.props.onChange(-1.5);
     inspector().zIm.props.onChange(0.25);
     expect(graph.model).toMatchObject({wRe: 0.3, wIm: 0, degree: 7, zRe: -1.5, zIm: 0.25});
@@ -311,7 +312,7 @@ test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real of
     expect(at(points(graph)[Z_POINT])).toEqual([-1.5, 0.25]);
     const before = {...graph.model};
     for (const [field, value] of [['wRe', 0.123], ['wIm', 2.05], ['zRe', -2.5], ['zIm', Number.NaN], ['degree', 1], ['degree', 9], ['degree', 2.5], ['degree', Number.NaN]] as const) {
-        inspector()[field].props.onChange(value);
+        inspector()[field].props[field === 'degree' ? 'onSet' : 'onChange'](value);
         expect(graph.model, `${field} ${value}`).toEqual(before);
     }
     expect(inspector().degree.props.min).toBe(2);
@@ -432,14 +433,14 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
     expect(caption(graph)[0]).toBe('w = 2i, n = 3');
     expect(rows(graph)).toMatchObject({degree: '3', roots: 'skrito'});
     expect(controls(graph).wRe.props.value).toBe(0);
-    expect(controls(graph).degree.props.value).toBe(3);
+    expect(controls(graph).degree.props.n).toBe(3);
     graph.restoreLessonState(checkpoint);
     expect(graph.model).toEqual(exported);
     expect(at(points(graph)[W_POINT])).toEqual([-1.35, 1]);
     expect(at(points(graph)[Z_POINT])).toEqual([0.5, -0.25]);
     expect(shownRoots(graph)).toEqual([0, 1, 2, 3, 4]);
     expect(controls(graph).wRe.props.value).toBe(-1.35);
-    expect(controls(graph).degree.props.value).toBe(5);
+    expect(controls(graph).degree.props.n).toBe(5);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
 });
 

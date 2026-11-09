@@ -10,7 +10,7 @@ import {parseBezierHullsStep} from "./bezierHullsPresetCollection";
 import {CurvePairGraph} from "./CurvePairGraph";
 import {PointSetGraphState} from "./PointSetGraph";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 
 /** Time between two playback steps (one step per interval, never more), as in the hull trace. */
 export const TRACE_STEP_INTERVAL_MS = 400;

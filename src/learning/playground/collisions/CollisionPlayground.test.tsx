@@ -132,7 +132,14 @@ describe('commands', () => {
     rerender(<CollisionPlayground/>)
     fireEvent.click(screen.getByRole('button', {name: 'Premor'}))
     expect(send).toHaveBeenLastCalledWith({type: 'pause'})
-    expect((screen.getByRole('button', {name: 'Korak'}) as HTMLButtonElement).disabled).toBe(true)
+    const step = screen.getByRole('button', {name: 'Korak'})
+    expect(step.getAttribute('aria-disabled')).toBe('true')
+    expect(step.hasAttribute('disabled')).toBe(false)
+    expect(step.getAttribute('title')).toBe('Med predvajanjem korak ni na voljo. Najprej pritisni Premor.')
+    send.mockClear()
+    fireEvent.click(step)
+    expect(send).not.toHaveBeenCalled()
+    expect(document.querySelector('[data-playback-reason="playing"]')).not.toBeNull()
   })
 
   it('the method radios send setMethod', () => {
@@ -219,6 +226,21 @@ describe('live region', () => {
     act(() => { vi.advanceTimersByTime(1000) })
     emit(snap())
     expect(live().textContent).toBe('')
+  })
+
+  it('pauses a running playground before a count, method, coverage or New arrangement edit, but not before bounce or the stage (decision 57)', () => {
+    apiState.playing = true
+    setApi()
+    render(<CollisionPlayground shape="polygon"/>)
+    const lastTwo = () => send.mock.calls.slice(-2).map((call) => (call[0] as {type: string}).type)
+    fireEvent.click(screen.getByRole('button', {name: 'Nova razporeditev'}))
+    expect(lastTwo()).toEqual(['pause', 'reset'])
+    fireEvent.change(screen.getByRole('combobox', {name: 'Način iskanja trkov'}), {target: {value: 'naive'}})
+    expect(send.mock.calls.map((call) => (call[0] as {type: string}).type).slice(-3)).toContain('pause')
+    send.mockClear()
+    fireEvent.click(screen.getByRole('checkbox', {name: 'Odboji med objekti'}))
+    expect(send).toHaveBeenCalledTimes(1)
+    expect(send).toHaveBeenLastCalledWith({type: 'setBounce', bounce: true})
   })
 
   it('speaks once, on the first snapshot after a reader action', () => {
@@ -347,7 +369,7 @@ describe('reduced motion', () => {
     hookState.useReal = true
     render(<CollisionPlayground/>)
     expect(posted.map((m) => m.type)).toEqual(['init'])
-    expect(screen.getByRole('button', {name: 'Predvajaj'}).getAttribute('aria-pressed')).toBe('false')
+    expect(screen.getByRole('button', {name: 'Predvajaj'}).getAttribute('data-playing')).toBe('false')
   })
 })
 
@@ -374,7 +396,7 @@ describe('keyboard path', () => {
     expect(document.activeElement).toBe(bounce)
     fireEvent.click(bounce)
     expect(send).toHaveBeenLastCalledWith({type: 'setBounce', bounce: true})
-    for (const name of ['Predvajaj', 'Korak', 'Nova razporeditev']) {
+    for (const name of ['Korak', 'Predvajaj', 'Nova razporeditev']) {
       userEvent.tab()
       expect(document.activeElement).toBe(screen.getByRole('button', {name}))
     }
@@ -476,7 +498,7 @@ describe('polygon mode', () => {
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('checkbox', {name: 'Odboji med objekti'}))
     userEvent.tab()
-    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Predvajaj'}))
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Korak'}))
   })
 
   it('shows the pairs removed by each stage from the counters, and the hull and piece tests', () => {
@@ -518,7 +540,7 @@ describe('polygon mode', () => {
     vi.stubGlobal('matchMedia', (query: string) => ({matches: query.includes('reduce'), addEventListener: () => {}, removeEventListener: () => {}}))
     render(<CollisionPlayground shape="polygon"/>)
     expect(posted.map((m) => m.type)).toEqual(['init'])
-    expect(screen.getByRole('button', {name: 'Predvajaj'}).getAttribute('aria-pressed')).toBe('false')
+    expect(screen.getByRole('button', {name: 'Predvajaj'}).getAttribute('data-playing')).toBe('false')
   })
 
   it('renders the static explanation when the worker is unavailable', () => {

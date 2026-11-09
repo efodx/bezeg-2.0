@@ -1,6 +1,7 @@
 import React from "react";
 import {currentLanguage, renderMessage, t} from "../../../localization";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
+import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -27,6 +28,8 @@ export interface BSplineExtractionState extends BaseGraphState {
     /** Indices of the control points the last drag moved; empty when none (until the next drag, edit or Reset). */
     moved: readonly number[];
 }
+
+const sameNumbers = (a: readonly number[], b: readonly number[]) => a.length === b.length && a.every((value, index) => value === b[index]);
 
 const copyData = (data: InsertionData): InsertionData =>
     ({degree: data.degree, knots: [...data.knots], points: data.points.map(point => [point[0], point[1]] as const)});
@@ -181,6 +184,13 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         this.setState({...copyData(this.state.origin), moved: []});
     }
 
+    /** Whether the scene already equals what Reset restores: the origin's curve and nothing left over from edits. */
+    private atOrigin(): boolean {
+        const {origin, degree, knots, points} = this.state;
+        return degree === origin.degree && sameNumbers(knots, origin.knots) && points.length === origin.points.length
+            && points.every((point, index) => point[0] === origin.points[index][0] && point[1] === origin.points[index][1]) && this.state.moved.length === 0;
+    }
+
     /** Loads an example as the new Reset target. */
     selectExample(id: InsertionExampleId) {
         if (!INSERTION_EXAMPLE_IDS.includes(id)) return;
@@ -250,11 +260,9 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         if (example === 'custom') options.push({value: 'custom', text: t("bse_example_custom")});
         return super.getGraphCommands().concat(
             <div key="example"><ChoiceSelect label={t("bse_example")} value={example} options={options}
-                                             onChange={value => this.selectExample(value as InsertionExampleId)}/></div>,
+                                             onChange={value => this.selectExample(value as InsertionExampleId)}/>
+                <ResetExampleButton action="reset" atExample={this.atOrigin()} onReset={() => this.resetToOrigin()}/></div>,
             <div key="reset" className="inspector-group">
-                <div className="inspector-playback">
-                    <button type="button" data-action="reset" onClick={() => this.resetToOrigin()}>{t("bsp_example_reset")}</button>
-                </div>
                 <p className="inspector-help">{t("bse_help")}</p>
             </div>,
             <div key="points"><BSplinePointList points={this.state.points} onEdit={(index, value) => this.editPoint(index, value)}/></div>,

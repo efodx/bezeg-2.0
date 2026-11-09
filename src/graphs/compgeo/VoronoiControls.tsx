@@ -1,6 +1,7 @@
 import React from "react";
 import {useT} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {ResetExampleButton} from "../../inputs/ResetExampleButton";
 import {PointListInput} from "../../inputs/PointListInput";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {LiveReadout} from "../base/controls/LiveReadout";
@@ -58,6 +59,8 @@ export interface VoronoiStatus {
     modeSwitch: boolean;
     /** The last switch to four-point mode was refused because there are not exactly four sites. */
     modeRefused: boolean;
+    /** The scene already is what Reset example restores (the button is unavailable then). */
+    atExample: boolean;
     examples: readonly VoronoiExampleId[];
     /** The example the sites show now, or undefined once they are custom. */
     exampleId?: VoronoiExampleId;
@@ -178,12 +181,10 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const liveReadout = useStatusReadout([overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer,
         ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "));
     return <>
-        <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("vor_view_group")}>
-                <button type="button" data-action="reset-example" onClick={actions.resetExample}>{t("vor_example_reset")}</button>
-            </div>
-        </div>
         <DegenerateModes status={status} actions={actions}/>
+        <div className="inspector-group">
+            <ResetExampleButton atExample={status.atExample} onReset={actions.resetExample}/>
+        </div>
         <div className="inspector-group" data-voronoi-status="">
             {refusalText && <p className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
             {status.collinear && !refusal && <p className="inspector-help" data-voronoi="collinear">{t("vor_collinear_note")}</p>}

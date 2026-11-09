@@ -44,7 +44,7 @@ class ObservedCltGraph extends CltGraph {
     refuseNow(text: string) { this.refusals.refuse(text); }
     liveBoard() { return this.board; }
     ownedObjects() { return this.generatedObjectCount; }
-    playing() { return this.controller.isPlaying(); }
+    playing() { return this.playback.isPlaying; }
     /** The curves in creation order: the standard normal curve, then the standardized n-fold curve. */
     curves() { return (this.board.objectsList as unknown as BoardObject[]).filter(object => object.elType === 'curve'); }
     normalCurve() { return this.curves()[0]; }

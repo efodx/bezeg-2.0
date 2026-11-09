@@ -6,7 +6,7 @@ import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits
 import type {Interval} from "../../compgeo/sweep/intervalSweep";
 import type {LessonAction} from "../../learning/model";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
-import {TracePlayback} from "./tracePlayback";
+import {TracePlayback} from "../base/tracePlayback";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";

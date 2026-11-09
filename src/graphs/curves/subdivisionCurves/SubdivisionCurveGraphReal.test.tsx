@@ -242,6 +242,14 @@ describe('SubdivisionCurveGraph on a real board', () => {
         view.unmount();
     });
 
+    test('Next step and Play are refused while a figure is exported', () => {
+        const {graph, view, scheduler} = mount();
+        Object.defineProperty(graph, 'exportBusy', {get: () => true, configurable: true});
+        act(() => { expect(graph.nextStep()).toBe(false); graph.play(); });
+        expect([graph.state.round, graph.isPlaying(), scheduler.tick(PERIOD)]).toEqual([0, false, false]);
+        view.unmount();
+    });
+
     test('a rule switch pauses and returns to round 0', () => {
         const {graph, view, scheduler} = playing();
         act(() => graph.setRule('four-point'));

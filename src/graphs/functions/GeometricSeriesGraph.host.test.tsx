@@ -43,7 +43,7 @@ function manualScheduler() {
 class ObservedSeriesGraph extends GeometricSeriesGraph {
     liveBoard() { return this.board; }
     modelNow() { return this.model; }
-    playing() { return this['controller'].isPlaying(); }
+    playing() { return this.playback.isPlaying; }
     ownedObjects() { return this.generatedObjectCount; }
     objects(): BoardObject[] { return this.board.objectsList as BoardObject[]; }
     editQ(value: number) { this.setQ(value); }

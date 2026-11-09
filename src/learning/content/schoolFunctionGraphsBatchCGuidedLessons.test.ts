@@ -57,7 +57,7 @@ function mount() {
     const capabilities = graph.getLessonCapabilities();
     const checkpoint = capabilities.captureState();
     return {
-        graph: graph as unknown as {model: GeometricSeriesModel; controller: {isPlaying(): boolean}}, mounted, capabilities,
+        graph: graph as unknown as {model: GeometricSeriesModel; playback: {isPlaying: boolean}}, mounted, capabilities,
         /** The scene of a step the way a lesson session applies it: restore the checkpoint, then every action, in one act. */
         scene: (stepId: string) => act(() => {
             capabilities.restoreState(checkpoint);
@@ -81,7 +81,7 @@ test('S5: every scene lands in the stated state, in one synchronous sequence fro
             m.scene(id);
             const {a, q, terms, tolerance} = m.graph.model;
             expect({id, a, q, terms, tolerance}).toEqual({id, ...SCENES[id]});
-            expect({id, playing: m.graph.controller.isPlaying()}).toEqual({id, playing: false});
+            expect({id, playing: m.graph.playback.isPlaying}).toEqual({id, playing: false});
         }
     } finally {
         m.mounted.view.unmount();

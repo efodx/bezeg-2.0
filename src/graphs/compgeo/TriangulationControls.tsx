@@ -85,9 +85,9 @@ export function TriangulationControls(props: TriangulationControlsProps) {
     return <>
         {triangulationShown && <div className="inspector-group" data-triangulation="edge-flip">
             <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>
-                {/* No edges: the list offers only "none" and says why (the shared select has no unavailable state). */}
+                {/* No edges: the list offers only "none" and says why (the shared select's unavailable reason). */}
                 <ChoiceSelect label={t("tri_edge_select")} value={selected ? key(selected[0], selected[1]) : ""}
-                              help={edges.length === 0 ? t("tri_edges_unavailable") : undefined}
+                              reason={edges.length === 0 ? t("tri_edges_unavailable") : undefined}
                               options={[{value: "", text: t("tri_edge_none")}, ...edges.map(e => ({
                                   value: key(e.a, e.b),
                                   text: t(e.interior ? "tri_edge_option_interior" : "tri_edge_option_hull", {value0: e.a + 1, value1: e.b + 1}),

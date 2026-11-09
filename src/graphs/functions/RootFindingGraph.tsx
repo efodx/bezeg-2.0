@@ -92,10 +92,6 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         return ROOT_FINDING_STEP_INTERVAL_MS;
     }
 
-    protected maxIterations(): number {
-        return ROOT_FINDING_MAX_STEPS;
-    }
-
     protected iterationIndex(model: RootFindingModel): number {
         return model.step;
     }
@@ -263,7 +259,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
     protected renderControls(): React.ReactNode {
         const {method, example, x0, x1, step} = this.model;
         const history = this.historyOf(this.model);
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const canAdvance = history.termination === "running";
         return <>
             <div className="inspector-group">
@@ -351,7 +347,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                 </table>
                 {first > 0 && <p className="inspector-help" role="note">{t("root_finding_table_truncated", {value0: ROOT_FINDING_TABLE_ROWS})}</p>}
             </div>
-            <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[status]} muted={this.controller.isPlaying()}/>
+            <FunctionStatus className="bisection-status" dataAttribute="root-finding-status" lines={[status]} muted={this.playback.isPlaying}/>
         </>;
     }
 }

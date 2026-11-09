@@ -319,3 +319,16 @@ test('StrictMode does not duplicate board objects or the field curve', () => {
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
 });
+
+test('Show all is an unavailable button with a reason while everything is shown; pressing it states the reason and changes nothing', () => {
+    const {graph} = mount();
+    const showAll = () => document.querySelector('[data-action="show-all"]') as HTMLElement;
+    expect(showAll().getAttribute('aria-disabled')).toBe('true');
+    expect(showAll().getAttribute('title')).toBe('Vsi koraki so že prikazani.');
+    expect(showAll().hasAttribute('disabled')).toBe(false);
+    act(() => { fireEvent.click(showAll()); });
+    expect(document.querySelector('[data-playback-reason]')?.textContent).toBe('Vsi koraki so že prikazani.');
+    expect(graph.modelNow().revealed).toBeNull();
+    click('Naslednji korak');
+    expect(showAll().getAttribute('aria-disabled')).toBe('false');
+});

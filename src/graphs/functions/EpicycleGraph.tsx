@@ -1,5 +1,5 @@
 import React, {useSyncExternalStore} from "react";
-import {Button} from "react-bootstrap";
+import {PlaybackButtons} from "../base/controls/PlaybackButtons";
 import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend} from "./FunctionReadout";
 import {TransientState} from "../base/BaseGraph";
@@ -124,9 +124,14 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         this.notifyHost();
     }
 
-    /** The play button: starts the frame loop from the current time. */
+    /** Read at the time of the call, so a changed system setting applies at the next Play. */
+    reducedMotion(): boolean {
+        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+    }
+
+    /** The play button: starts the frame loop from the current time. Under reduced motion nothing moves; the slider still sets the time. */
     play(): void {
-        if (this.playingValue || !this.graphSession?.isAlive) return;
+        if (this.playingValue || this.reducedMotion() || !this.graphSession?.isAlive) return;
         this.playingValue = true;
         this.refusals.clear();
         this.driver.play();
@@ -580,10 +585,9 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
     const language = currentLanguage();
     return <div className="inspector-group">
-        <Button variant="outline-primary" size="sm" data-testid="epicycle-play"
-                onClick={() => (graph.playing ? graph.pause() : graph.play())}>
-            {graph.playing ? text("epicycle_pause") : text("epicycle_play")}
-        </Button>
+        <PlaybackButtons groupLabel={text("epicycle_playback_group")} playing={graph.playing}
+                         playBlock={!graph.playing && graph.reducedMotion() ? "reduced-motion" : undefined}
+                         onPlayPause={() => (graph.playing ? graph.pause() : graph.play())}/>
         <Slider customText={text("epicycle_time_label")} min={0} max={6.28} step={0.01} value={Math.min(graph.time, 6.28)}
                 formatValue={value => formatNumber(value / TWO_PI, language, 2)}
                 onChange={(next: number) => { try { graph.setTime(next); } catch (error) { if (!(error instanceof DomainError)) throw error; } }}/>

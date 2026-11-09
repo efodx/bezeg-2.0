@@ -76,7 +76,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls()]);
     const [x1, y1, x2, y2] = found.NumberInput;
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => (found.UnavailableButton ?? []).find((element: any) => element.props['data-action'] === action);
     const selects = found.ChoiceSelect;
     return {x1, y1, x2, y2, button, selects, notices: (found.p ?? []).filter((p: any) => p.props['data-linear-map-notice']), found};
 };
@@ -215,7 +215,7 @@ describe('Reset, examples and modes', () => {
         act(graph, () => controls(graph).x1.props.onChange(9));
         act(graph, () => graph.setExample('basis-default'));
         setMatrix(graph, [[2, -1], [1, 1]]);
-        act(graph, () => controls(graph).button('linear-map-reset').props.onClick());
+        act(graph, () => controls(graph).button('linear-map-reset').props.onPress());
         expect(matrixOf(graph)).toEqual(IDENTITY);
         expect(graph.model.exampleId).toBe('identity');
         const c = controls(graph);
@@ -229,6 +229,15 @@ describe('Reset, examples and modes', () => {
         expect(image.dataX).toEqual(identity.x);
         expect(image.dataY).toEqual(identity.y);
         expect(readout(graph, 'a1')).toBe('(1, 0)');
+    });
+
+    test('Reset to the identity is unavailable with a reason at the identity and available once the matrix changes', () => {
+        const graph = makeGraph();
+        expect(controls(graph).button('linear-map-reset').props.reason).toBeTruthy();
+        setMatrix(graph, [[2, 1], [0, 1]]);
+        expect(controls(graph).button('linear-map-reset').props.reason).toBeUndefined();
+        act(graph, () => controls(graph).button('linear-map-reset').props.onPress());
+        expect(controls(graph).button('linear-map-reset').props.reason).toBeTruthy();
     });
 
     test('Reset keeps the mode and the display switches', () => {

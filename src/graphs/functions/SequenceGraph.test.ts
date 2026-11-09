@@ -79,7 +79,7 @@ function makeGraph() {
 function playSteps(graph: any, steps: number) {
     const target = graph.model.terms + steps;
     graph.frames.frame(0);
-    for (let guard = 0; guard < steps * 3 && graph.model.terms < target && graph.controller.isPlaying(); guard++) {
+    for (let guard = 0; guard < steps * 3 && graph.model.terms < target && graph.playback.isPlaying; guard++) {
         graph.frames.frame(SEQUENCE_STEP_INTERVAL_MS);
     }
 }
@@ -233,7 +233,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         apply(graph, reveal(true));
         apply(graph, command('play'));
         for (const action of step.scene!.actions) apply(graph, action);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
         return graph.model;
     });
     expect(finals).toEqual([
@@ -253,7 +253,7 @@ test('k Next steps and k playback steps reach the same model, and playback stops
         next(manual, k);
         const played = makeGraph();
         apply(played, command('play'));
-        expect(played.controller.isPlaying()).toBe(true);
+        expect(played.playback.isPlaying).toBe(true);
         playSteps(played, k);
         apply(played, command('pause'));
         expect(played.model).toEqual(manual.model);
@@ -273,17 +273,17 @@ test('k Next steps and k playback steps reach the same model, and playback stops
 test('playback ends at the last term, the controls then offer no further step, and a further Next step is rejected', () => {
     const graph = makeGraph();
     apply(graph, command('play'));
-    for (let guard = 0; guard < 200 && graph.controller.isPlaying(); guard++) graph.frames.frame(guard === 0 ? 0 : SEQUENCE_STEP_INTERVAL_MS);
-    expect(graph.controller.isPlaying()).toBe(false);
+    for (let guard = 0; guard < 200 && graph.playback.isPlaying; guard++) graph.frames.frame(guard === 0 ? 0 : SEQUENCE_STEP_INTERVAL_MS);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.model.terms).toBe(SEQUENCE_MAX_TERMS);
-    expect(graph.controller.isComplete()).toBe(true);
+    expect(graph.playback['controller'].isComplete()).toBe(true);
     expect(graph.frames.callbacks.size).toBe(0);
     expect(statusIds(graph)).toEqual(['hidden', 'complete']);
     expect(controls(graph).next.props['aria-disabled']).toBe(true);
     expect(controls(graph).play.props['aria-disabled']).toBe(true);
     expect(() => next(graph)).toThrow(DomainError);
     apply(graph, command('play'));
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.model.terms).toBe(SEQUENCE_MAX_TERMS);
     // Reset returns to one term and makes the iteration usable again
     controls(graph).reset.props.onClick();
@@ -296,17 +296,17 @@ test('Next step takes over from playback, and Reset returns to one term and stop
     const graph = makeGraph();
     apply(graph, command('play'));
     playSteps(graph, 2);
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     next(graph);
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.model.terms).toBe(4);
     apply(graph, command('play'));
     apply(graph, command('reset'));
     expect(graph.model).toEqual({example: 'reciprocal', epsilon: 0.1, limit: 0, threshold: 5, terms: 1, certificateVisible: false});
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
     apply(graph, command('replay'));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     expect(graph.model.terms).toBe(1);
     playSteps(graph, 2);
     expect(graph.model.terms).toBe(3);
@@ -335,10 +335,10 @@ test('editing epsilon, L, N or the example pauses playback; only the example rel
         next(graph, 3);
         apply(graph, reveal(true));
         apply(graph, command('play'));
-        expect(graph.controller.isPlaying(), name).toBe(true);
+        expect(graph.playback.isPlaying, name).toBe(true);
         edit(graph);
         expect(graph.model, name).toEqual({...SEQUENCE_EXAMPLE_MODELS.reciprocal, ...expected});
-        expect(graph.controller.isPlaying(), name).toBe(false);
+        expect(graph.playback.isPlaying, name).toBe(false);
         expect(graph.frames.callbacks.size, name).toBe(0);
         // the iteration continues from the revealed terms: the next step adds exactly one
         const before = graph.model.terms;
@@ -352,11 +352,11 @@ test('editing epsilon, L, N or the example pauses playback; only the example rel
     apply(graph, parameter('sequence-epsilon', 0.1));
     apply(graph, parameter('sequence-limit', 0));
     apply(graph, parameter('sequence-threshold', 5));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     expect(graph.model.terms).toBe(3);
     // showing or hiding the certificate does not stop playback
     apply(graph, reveal(true));
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
 });
 
 test('controls and lesson actions give equivalent models', () => {
@@ -595,14 +595,14 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     expect(graph.model.terms).toBe(2);
     expect(controls(graph).reset.props['aria-disabled']).toBe(false);
     controls(graph).play.props.onClick();
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     const playing = controls(graph);
     expect(playing.play.props.children).toBe('Premor');
     // the label swap is the one state cue: a toggle with a swapped label has no aria-pressed (it would be announced twice)
     expect(playing.play.props['aria-pressed']).toBeUndefined();
     expect(playing.next.props['aria-disabled']).toBe(true);
     playing.play.props.onClick();
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(controls(graph).play.props.children).toBe('Predvajaj');
     controls(graph).toggle.props.onClick();
     expect(graph.model.certificateVisible).toBe(true);
@@ -632,10 +632,10 @@ test('presets save the model with the terms and the reveal, reopen paused and ne
 
     const reopened = makeGraph();
     apply(reopened, command('play'));
-    expect(reopened.controller.isPlaying()).toBe(true);
+    expect(reopened.playback.isPlaying).toBe(true);
     reopened.importPreset({id: 'sequence', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
-    expect(reopened.controller.isPlaying()).toBe(false);
+    expect(reopened.playback.isPlaying).toBe(false);
     expect(reopened.frames.callbacks.size).toBe(0);
     expect(caption(reopened)[2]).toBe('prikazani členi: 6, v pasu: 0');
     // continuing from the loaded terms gives the same state as never having left them
@@ -646,11 +646,11 @@ test('presets save the model with the terms and the reveal, reopen paused and ne
     // a missing optional property and extra properties are sanitized; a full set of terms reopens as a finished iteration
     reopened.importPreset({id: 'stored', data: {example: 'natural', epsilon: 1.25, limit: -0.5, threshold: 40, terms: 40, certificateVisible: false, extra: true}});
     expect(reopened.model).toEqual({example: 'natural', epsilon: 1.25, limit: -0.5, threshold: 40, terms: 40, certificateVisible: false});
-    expect(reopened.controller.isComplete()).toBe(true);
+    expect(reopened.playback.isPlaying).toBe(false);
     expect(controls(reopened).next.props['aria-disabled']).toBe(true);
     expect(() => next(reopened)).toThrow(DomainError);
     reopened.importPreset({id: 'stored', data: {...exported.data, terms: 3}});
-    expect(reopened.controller.isComplete()).toBe(false);
+    expect(reopened.playback['controller'].isComplete()).toBe(false);
     next(reopened);
     expect(reopened.model.terms).toBe(4);
 });
@@ -673,7 +673,7 @@ test('malformed preset data is rejected to the default model with a warning', ()
     for (const entry of bad) {
         graph.importPreset({id: 'stored', data: entry});
         expect(graph.model, JSON.stringify(entry)).toEqual(valid);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
     }
     // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
     expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
@@ -694,7 +694,7 @@ test('capture and restore bring back the synchronous model and leave playback pa
     apply(graph, command('play'));
     graph.restoreLessonState(checkpoint);
     expect(graph.model).toEqual(checkpoint.value.data);
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
     expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({example: 'alternating-reciprocal', epsilon: 0.25, terms: 4})}));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, false);
@@ -717,9 +717,9 @@ test('lesson lifecycle, figure capture, export and scene replacement pause playb
         const graph = makeGraph();
         next(graph, 2);
         apply(graph, command('play'));
-        expect(graph.controller.isPlaying(), name).toBe(true);
+        expect(graph.playback.isPlaying, name).toBe(true);
         pause(graph);
-        expect(graph.controller.isPlaying(), name).toBe(false);
+        expect(graph.playback.isPlaying, name).toBe(false);
         expect(graph.frames.callbacks.size, name).toBe(0);
     }
     // the base graph calls the capture hook before a single figure export and before a figure batch
@@ -731,7 +731,7 @@ test('lesson lifecycle, figure capture, export and scene replacement pause playb
         const hook = vi.spyOn(graph, 'beforeFigureCapture');
         exportFigure(graph);
         expect(hook).toHaveBeenCalledTimes(1);
-        expect(graph.controller.isPlaying()).toBe(false);
+        expect(graph.playback.isPlaying).toBe(false);
     }
 });
 
@@ -742,7 +742,7 @@ test('a capture in progress blocks Next step and Play so the export shows one se
     next(graph);
     apply(graph, command('play'));
     expect(graph.model.terms).toBe(1);
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     releaseBatch?.();
     next(graph);
     expect(graph.model.terms).toBe(2);
@@ -754,7 +754,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     apply(graph, command('play'));
     graph.frames.frame(0);
     expect(graph.frames.callbacks.size).toBe(1);
-    const controller = graph.controller;
+    const controller = graph.playback['controller'];
     graph.unmount();
     const disposedModel = graph.model;
     expect(graph.frames.callbacks.size).toBe(0);
@@ -893,10 +893,10 @@ test('Fit restores the example view instead of a canvas-aspect box, because the 
 test('a scene replaced while playing pauses the iteration and requests a render so Play/Pause updates', () => {
     const graph = makeGraph();
     controls(graph).play.props.onClick();
-    expect(graph.controller.isPlaying()).toBe(true);
+    expect(graph.playback.isPlaying).toBe(true);
     graph.requestRender = vi.fn();
     graph.onSceneRemoved();
-    expect(graph.controller.isPlaying()).toBe(false);
+    expect(graph.playback.isPlaying).toBe(false);
     expect(graph.requestRender).toHaveBeenCalled();
 });
 

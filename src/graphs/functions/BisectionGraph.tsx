@@ -84,10 +84,6 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         return BISECTION_STEP_INTERVAL_MS;
     }
 
-    protected maxIterations(): number {
-        return BISECTION_MAX_STEPS;
-    }
-
     protected iterationIndex(model: BisectionModel): number {
         return model.step;
     }
@@ -270,7 +266,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     protected renderControls(): React.ReactNode {
         const {example, a, b, step} = this.model;
         const history = this.historyOf(this.model);
-        const playing = this.controller.isPlaying();
+        const playing = this.playback.isPlaying;
         const canAdvance = history.termination === undefined;
         return <>
             <div className="inspector-group">
@@ -348,7 +344,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         ];
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("bisection_note")}/>
-            <FunctionStatus className="bisection-status" dataAttribute="bisection-status" lines={this.statuses(model, language)} muted={this.controller.isPlaying()}/>
+            <FunctionStatus className="bisection-status" dataAttribute="bisection-status" lines={this.statuses(model, language)} muted={this.playback.isPlaying}/>
         </>;
     }
 }

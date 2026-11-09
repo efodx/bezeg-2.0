@@ -4,6 +4,7 @@ import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {LessonAction} from "../../learning/model";
@@ -373,6 +374,9 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const state = this.model;
         const exampleOptions: LinearMapExampleChoice[] = [...EXAMPLE_IDS_OFFERED];
         if (!exampleOptions.includes(state.exampleId)) exampleOptions.push(state.exampleId);
+        // Reset also names the identity example and clears the message, so it is unavailable only when all of that already holds.
+        const atIdentity = state.exampleId === "identity" && this.notice === undefined
+            && state.matrix.every((row, r) => row.every((value, c) => value === IDENTITY[r][c]));
         const entry = (row: Row, column: Column) => (
             <NumberInput label={this.entryLabel(row, column)} value={state.matrix[row][column]} step={MATRIX_ENTRY_STEP} decimals={2}
                          describedBy="linear-map-entries-help linear-map-notice"
@@ -405,7 +409,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     </p>}
                 </div>
                 <div className="demo-actions" role="group" aria-label={t("linear_map_actions_label")}>
-                    <button type="button" data-action="linear-map-reset" onClick={() => this.resetToIdentity()}>{t("linear_map_reset")}</button>
+                    <UnavailableButton data-action="linear-map-reset" reason={atIdentity ? t("linear_map_at_identity") : undefined}
+                                       onPress={() => this.resetToIdentity()}>{t("linear_map_reset")}</UnavailableButton>
                 </div>
                 {toggle("squareVisible", t("linear_map_toggle_square"))}
                 {toggle("probeVisible", t("linear_map_toggle_probe"))}

@@ -1,6 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
+import {CountSetter} from "../../inputs/CountSetter";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
@@ -327,8 +328,11 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                 <div className="function-points-grid">
                     {coordinate(t("complex_w_re_label"), state.wRe, value => this.setW(value, this.model.wIm))}
                     {coordinate(t("complex_w_im_label"), state.wIm, value => this.setW(this.model.wRe, value))}
-                    <NumberInput label={t("complex_roots_degree_label")} value={state.degree} min={COMPLEX_ROOT_DEGREE_MIN} max={COMPLEX_ROOT_DEGREE_MAX} step={1} decimals={0}
-                                 rejectedHint={t("complex_roots_degree_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
+                    <CountSetter label={t("complex_roots_degree_label")} n={state.degree} min={COMPLEX_ROOT_DEGREE_MIN} max={COMPLEX_ROOT_DEGREE_MAX}
+                                 rejectedHint={t("complex_roots_degree_rejected_hint")}
+                                 onPlus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree + 1))}
+                                 onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree - 1))}
+                                 onSet={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
                 </div>
                 <p className="inspector-help">{t("complex_roots_fields_help")}</p>
             </div>

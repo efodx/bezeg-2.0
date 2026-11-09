@@ -47,7 +47,7 @@ class ObservedBisectionGraph extends BisectionGraph {
     }
 
     playing() {
-        return this['controller'].isPlaying();
+        return this.playback.isPlaying;
     }
 }
 
