@@ -28,6 +28,40 @@ async function playing(entry, hover = true, {loop = true} = {}) {
     return video;
 }
 
+// Batched form of `playing` for the catalogue-wide loops: one in-page pass per run scrolls each card into view, raises
+// the pointer-enter that real hover would, waits for its video to decode and play, then releases the pointer. Failures
+// name the card id and its last observed state (one browser round trip instead of about ten per card).
+async function expectAllClipsPlaying(page, ids) {
+    const failures = await page.evaluate(async (cardIds) => {
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const state = entry => {
+            const videos = entry.querySelectorAll('video[src]');
+            if (videos.length !== 1) return {problem: `expected 1 video[src], found ${videos.length}`};
+            const v = videos[0];
+            const observed = {ready: v.readyState >= 2, playing: !v.paused, width: v.videoWidth, height: v.videoHeight};
+            const problem = !observed.ready || !observed.playing || observed.width !== 720 || observed.height !== 440 ? 'not decoding/playing 720x440'
+                : !(v.muted && v.playsInline && !v.controls) ? 'not muted/inline/controlless'
+                : !v.loop ? 'not looping'
+                : v.getAttribute('aria-hidden') !== 'true' ? 'aria-hidden is not true' : '';
+            return {problem, observed};
+        };
+        const failed = [];
+        for (const id of cardIds) {
+            const entry = document.getElementById('demonstration-card-' + id);
+            const media = entry?.querySelector('.demonstration-preview-media');
+            if (!media) {failed.push(`${id}: card or preview media missing`); continue;}
+            media.scrollIntoView({block: 'center'});
+            media.dispatchEvent(new PointerEvent('pointerover', {bubbles: true, pointerType: 'mouse'}));
+            let last = state(entry);
+            for (const deadline = Date.now() + 15_000; last.problem && Date.now() < deadline;) {await sleep(50); last = state(entry);}
+            if (last.problem) failed.push(`${id}: ${last.problem} ${JSON.stringify(last.observed ?? {})}`);
+            media.dispatchEvent(new PointerEvent('pointerout', {bubbles: true, pointerType: 'mouse'}));
+        }
+        return failed;
+    }, ids);
+    expect(failures, 'clips that did not decode and play').toEqual([]);
+}
+
 test('visible previews wait for hover and loop without buttons or unhovered media requests', async ({page}) => {
     const requests = [], types = [];
     page.on('request', r => {if (/\.webm(?:\?|$)/.test(r.url())) requests.push(r.url());});
@@ -55,11 +89,7 @@ test('visible previews wait for hover and loop without buttons or unhovered medi
 
 test('every clip decodes as it enters view and unloads offscreen', async ({page}) => {
     await openEnglish(page);
-    for (const id of clips) {
-        const entry = card(page, id);
-        await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
-        await playing(entry);
-    }
+    await expectAllClipsPlaying(page, clips);
     await page.evaluate(() => window.scrollTo(0, 0));
     const lastEntry = card(page, clips.at(-1));
     await expect.poll(() => lastEntry.evaluate(entry => entry.getBoundingClientRect().top > innerHeight)).toBe(true);
@@ -69,11 +99,7 @@ test('every clip decodes as it enters view and unloads offscreen', async ({page}
 test('every preview decodes at 390px without horizontal overflow', async ({page}) => {
     await page.setViewportSize({width:390, height:900});
     await openEnglish(page);
-    for (const id of clips) {
-        const entry = card(page, id);
-        await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
-        await playing(entry);
-    }
+    await expectAllClipsPlaying(page, clips);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 

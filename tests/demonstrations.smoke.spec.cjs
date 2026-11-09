@@ -8,10 +8,6 @@ async function openEnglish(page, pathname) {
     await page.goto(pathname, {waitUntil: 'domcontentloaded'});
 }
 
-async function pathFromLink(link, page) {
-    return new URL(await link.getAttribute('href'), page.url()).pathname;
-}
-
 async function expectRenderedWorkspace(page, demonstration) {
     await expect(page.locator('.workspace-heading h1')).toHaveText(demonstration.heading);
 
@@ -82,35 +78,52 @@ test('the catalogue shows every demonstration in teaching order with useful card
     // Vite may deduplicate byte-identical PNGs into one browser URL, so URL
     // uniqueness is not a valid catalog invariant here.
 
-    for (let index = 0; index < catalogEntries.length; index += 1) {
-        const demonstration = catalogEntries[index];
-        const card = cards.nth(index);
-        const preview = card.locator('.demonstrations-catalog-preview');
-        if (!demonstration.hasPoster) await expect(preview).toHaveCount(0);
-        else await expect(preview).toHaveAttribute('width', '360');
-        if (demonstration.hasPoster) {
-            await expect(preview).toHaveAttribute('height', '220');
-            await expect(preview).toHaveAttribute('alt', '');
-            await expect(preview).toHaveAttribute('loading', index < 3 ? 'eager' : 'lazy');
+    // One in-page pass over every card (a Playwright round trip per assertion per card made this the slowest catalogue test).
+    // Each failure names the demonstration id and the check that failed.
+    const expectations = catalogEntries.map((demonstration, index) => ({
+        id: demonstration.id, index, title: demonstration.title, path: demonstration.path, hasPoster: demonstration.hasPoster, hasLesson: demonstration.hasLesson,
+        familyTitle: demonstrations.families.find(family => family.id === demonstration.family).title,
+    }));
+    const failures = await cards.first().evaluate(async (first, entries) => {
+        const list = [...first.parentElement.querySelectorAll(':scope > .demonstrations-catalog-card')];
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const text = element => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
+        const bad = [];
+        const check = (entry, ok, what) => {if (!ok) bad.push(`${entry.id}: ${what}`);};
+        if (list.length !== entries.length) return [`catalogue: expected ${entries.length} cards in one container, found ${list.length}`];
+        for (const entry of entries) {
+            const card = list[entry.index];
+            const preview = card.querySelector('.demonstrations-catalog-preview');
+            const previewCount = card.querySelectorAll('.demonstrations-catalog-preview').length;
+            if (!entry.hasPoster) check(entry, previewCount === 0, `expected no poster, found ${previewCount}`);
+            else {
+                check(entry, previewCount === 1, `expected 1 poster, found ${previewCount}`);
+                check(entry, preview?.getAttribute('width') === '360', `poster width ${preview?.getAttribute('width')}`);
+                check(entry, preview?.getAttribute('height') === '220', `poster height ${preview?.getAttribute('height')}`);
+                check(entry, preview?.getAttribute('alt') === '', 'poster alt is not empty');
+                check(entry, preview?.getAttribute('loading') === (entry.index < 3 ? 'eager' : 'lazy'), `poster loading ${preview?.getAttribute('loading')}`);
+            }
+            check(entry, text(card.querySelector('.demonstrations-catalog-title')) === entry.title, `title is "${text(card.querySelector('.demonstrations-catalog-title'))}"`);
+            check(entry, text(card.querySelector('.demonstrations-catalog-family')).includes(entry.familyTitle), `family label lacks "${entry.familyTitle}"`);
+            check(entry, text(card.querySelector('.demonstrations-catalog-copy p')) !== '', 'description is empty');
+            const graph = card.querySelector('.demonstrations-catalog-graph');
+            check(entry, graph?.getAttribute('aria-label') === `Open demonstration: ${entry.title}`, `graph aria-label "${graph?.getAttribute('aria-label')}"`);
+            if (graph instanceof HTMLAnchorElement) check(entry, new URL(graph.getAttribute('href'), location.href).pathname === entry.path, `graph href ${graph.getAttribute('href')}`);
+            const lessons = card.querySelectorAll('.demonstrations-catalog-lesson');
+            if (entry.hasLesson) {
+                const lesson = lessons[0];
+                check(entry, lessons.length === 1, `expected 1 guided example link, found ${lessons.length}`);
+                check(entry, lesson?.getAttribute('aria-label') === `Guided example: ${entry.title}`, `lesson aria-label "${lesson?.getAttribute('aria-label')}"`);
+                if (lesson instanceof HTMLAnchorElement) check(entry, lesson.getAttribute('href') === entry.path + '?learn=1', `lesson href ${lesson.getAttribute('href')}`);
+            } else check(entry, lessons.length === 0, `unexpected guided example link (${lessons.length})`);
+            if (!entry.hasPoster || !preview) continue;
+            preview.scrollIntoView({block: 'center'});
+            for (const deadline = Date.now() + 15_000; !(preview.complete && preview.naturalWidth > 0) && Date.now() < deadline;) await sleep(25);
+            check(entry, preview.complete && preview.naturalWidth > 0, 'poster image did not load');
         }
-        await expect(card.locator('.demonstrations-catalog-title')).toHaveText(demonstration.title);
-        await expect(card.locator('.demonstrations-catalog-family')).toContainText(demonstrations.families.find(family => family.id === demonstration.family).title);
-        await expect(card.locator('.demonstrations-catalog-copy p')).not.toBeEmpty();
-
-        const graph = card.locator('.demonstrations-catalog-graph');
-        await expect(graph).toHaveAttribute('aria-label', `Open demonstration: ${demonstration.title}`);
-        if (await graph.evaluate(element => element instanceof HTMLAnchorElement)) expect(await pathFromLink(graph, page)).toBe(demonstration.path);
-        if (demonstration.hasLesson) {
-            const lesson = card.locator('.demonstrations-catalog-lesson');
-            await expect(lesson).toHaveAttribute('aria-label', `Guided example: ${demonstration.title}`);
-            if (await lesson.evaluate(element => element instanceof HTMLAnchorElement)) await expect(lesson).toHaveAttribute('href', demonstration.path + '?learn=1');
-        } else {
-            await expect(card.locator('.demonstrations-catalog-lesson')).toHaveCount(0);
-        }
-        if (!demonstration.hasPoster) continue;
-        await preview.scrollIntoViewIfNeeded();
-        await expect.poll(() => preview.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
-    }
+        return bad;
+    }, expectations);
+    expect(failures, 'catalogue card checks that failed').toEqual([]);
 });
 
 test('generated preview mapping and provenance cover the active catalog without a fixed route total', async () => {
