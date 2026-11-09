@@ -60,7 +60,14 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
 - Phase 1 item 1 is complete: the gate's delta path also runs the always-run unit tier (`6a39ac59`). A rerun's first pass now uses a matching verified-base record (`dbabef1e`; see Follow-ups).
 - `55c05845` fixes a tooling-test fragility: fixtures nested in the repository read the host branch's changes through `git diff`.
 - Regrowth guard: `just test-cost` (`5029e1df`). The baseline is a local snapshot saved with `--save` in `.command-logs`, because no master run's `results.json` is recorded anywhere to compare against.
-- Phase 1 item 4 is not started. Phase 6 first slice (smoke runner: `settle()`, timeouts, `maxFailures`, Exit rows) is in progress with handler 3.
+- Phase 6, first slice ([phase6a-notes.md](../reviews/verification-throughput/phase6a-notes.md)):
+  - `settle()` is one in-page `waitForFunction` with rAF polling, and repeated settles inside frame walks are dropped.
+  - Lesson timeouts went from 150 s to 60 s, and to 90 s for Exit tests. The slowest observed on CI was 32.2 s for an Exit test and 15.8 s for a walk.
+  - `maxFailures: 10` on CI.
+  - Exit tests are interleaved between rows, so `--shard=N/3` gets 3 / 2 / 2 Exit rows instead of 0 / 6 / 1.
+  - A five-lesson subset fell from 162.8 s to 124.7 s of test time locally. The full guided-lessons spec passed locally, apart from one local socket error that passed on rerun.
+  - Hosted lesson-shard times are not yet observed.
+- Not started: phase 1 item 4, and phase 6 scoping of lesson walks by change (`ci-change-scope.cjs`) and catalogue batching.
 
 **Follow-ups:**
 
