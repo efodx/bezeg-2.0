@@ -20,7 +20,7 @@ Written 2026-11-09 by handler 5. Source: [spec](../../specs/verification-through
 ## Next slices (brief inputs)
 
 1. **Hosted runs, confirmed by handler 5:** 42562519206 (`4a20683e`), 42564120472 (`afbe6a72`) and 42566070968 (`854b8add`, carrying `e5b7ef34`) were green. The last one walked every lesson row (98 / 97 / 97), as designed: `scripts/transient-state-scope.cjs` is in `SHARED_PATHS`, so it is also a lesson-shared path. Check this correction's own run with `just ci <sha>`.
-2. **Gate timings week**: from 2026-11-14, rerun the scratch parsers or rewrite them from the method in `gate-timings.md`. Extend the per-day table to the full week and close the spec Follow-up with a verdict. Until then this stream has no other required work.
+2. **Gate timings: closed.** On 2026-11-09 the owner accepted the three-day record as the verdict ([gate-timings.md](gate-timings.md)). This stream has no required work left. Start a handler only for the optional items below or for a new owner request.
 3. **Optional:**
    - Run one real sweep with a family selected: a scratch edit to a projective model file not in SHARED_PATHS, then `just unit src/graphs/base/GraphTransientState.part1`. The placeholder count should drop by the projective family. Revert the scratch edit.
    - Save a `just test-cost --save` baseline after a clean full local run.

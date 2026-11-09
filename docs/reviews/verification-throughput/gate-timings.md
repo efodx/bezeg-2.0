@@ -1,6 +1,8 @@
-# Gate timings, partial record (2026-11-07 to 2026-11-09)
+# Gate timings (2026-11-07 to 2026-11-09)
 
-Partial record for the spec follow-up "record gate timings for a week against the 2026-11-07 baseline". The week is incomplete: data runs through 2026-11-09 (about 05:40 local) and this file is to be extended, not treated as the result.
+Record for the spec follow-up "record gate timings for a week against the 2026-11-07 baseline". The data runs through 2026-11-09 (about 05:40 local), three days, not the planned week.
+
+Verdict (owner decision, 2026-11-09): this record closes the follow-up, with no extension to a full week. After the phase-1 publish-gate changes, no push race appears. Full-check slices take about half the gate time (median 18.9 against 38.7 min) and half the attempts (1.20 against 2.36). The sample is small: 5 full-check slices after the change, from few checkouts, with lock and slot waits included in wall time. The direction is clear enough, and no open decision depends on a larger sample.
 
 ## Method
 
