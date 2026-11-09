@@ -4,7 +4,7 @@
  * the report (C1 is equal derivatives, G1 only agreeing tangent planes), the Preset collection's DTO rules, and Reset,
  * Preset restore and a language switch.
  */
-import {act, fireEvent, render, screen} from "@testing-library/react";
+import {act, fireEvent, render, screen, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
@@ -37,13 +37,15 @@ const note = () => document.querySelector('[role="note"]')!.textContent!;
 /** The paragraph the alpha slider points at with aria-describedby (its help, which carries the reason while disabled). */
 const alphaDescription = () => alphaSlider().getAttribute("aria-describedby")!.split(" ")
     .map(id => document.getElementById(id)!.textContent!).join(" ");
-const degreeU = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_degree_u"));
-const degreeV = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_degree_v"));
+const degreeField = (key: "patch_join_b_degree_u" | "patch_join_b_degree_v") => within(screen.getByRole("group", {name: t(key)})).getByRole<HTMLInputElement>("spinbutton");
+const degreeU = () => degreeField("patch_join_b_degree_u");
+const degreeV = () => degreeField("patch_join_b_degree_v");
 const rowSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_index_i"));
 const columnSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_index_j"));
 const derivedNote = () => document.querySelector(".patch-join-derived-note");
 const bEditor = () => document.querySelector(".patch-join-b-point .patch-point-editor");
-const sceneButton = (id: string) => document.querySelector<HTMLButtonElement>(`[data-join-scene="${id}"]`)!;
+const sceneSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_scenes_heading"));
+const useScene = (id: string) => fireEvent.change(sceneSelect(), {target: {value: String(joinStartingScenes.findIndex(scene => scene.id === id))}});
 const degreeGroup = () => document.querySelector(".patch-join-degree")!.textContent!;
 
 describe("mode select and the report", () => {
@@ -86,13 +88,13 @@ describe("the ratio alpha", () => {
         const {graph} = mount();
         for (const mode of ["none", "c0", "c1"] as const) {
             fireEvent.change(modeSelect(), {target: {value: mode}});
-            expect(alphaSlider().disabled).toBe(true);
-            expect(alphaField().disabled).toBe(true);
+            expect(alphaSlider().getAttribute("aria-disabled")).toBe("true");
+            expect(alphaField().getAttribute("aria-disabled")).toBe("true");
             expect(alphaDescription()).toContain(t("patch_join_alpha_disabled"));
         }
         fireEvent.change(modeSelect(), {target: {value: "g1"}});
-        expect(alphaSlider().disabled).toBe(false);
-        expect(alphaField().disabled).toBe(false);
+        expect(alphaSlider().getAttribute("aria-disabled")).toBeNull();
+        expect(alphaField().getAttribute("aria-disabled")).toBeNull();
         expect(alphaDescription()).not.toContain(t("patch_join_alpha_disabled"));
         expect(alphaDescription()).toContain(t("patch_join_alpha_help"));
         enterNumber(alphaField(), "1,5");
@@ -127,8 +129,7 @@ describe("patch B", () => {
         expect(graph.selectedBIndex()).toEqual([2, 1]);
         expect(bEditor()).not.toBeNull();
         expect(derivedNote()).toBeNull();
-        enterNumber(screen.getByLabelText("Q₂₁ x"), "7");
-        fireEvent.click(screen.getAllByRole("button", {name: t("apply_coordinates")}).at(-1)!);
+        enterNumber(screen.getByRole("spinbutton", {name: "Q₂₁, x"}), "7");
         expect(graph.bNet()[2][1][0]).toBe(7);
         fireEvent.change(modeSelect(), {target: {value: "c0"}});
         enterNumber(rowSelect(), "1");
@@ -171,18 +172,18 @@ describe("report wording", () => {
     it("states the pair cases honestly and lets the teapot Preset replace them", () => {
         const {graph} = mount();
         expect(joinReportCase(graph.joinReport())).toBe("c1");
-        fireEvent.click(sceneButton("join-g1"));
+        useScene("join-g1");
         expect(graph.state).toMatchObject({joinContinuity: "g1", joinAlpha: 2});
         expect(graph.joinReport()).toMatchObject({c0: true, c1: false, g1: true});
         expect(joinReportCase(graph.joinReport())).toBe("g1");
         expect(state()).toBe(t("patch_join_state_g1"));
-        fireEvent.click(sceneButton("join-c0-kink"));
+        useScene("join-c0-kink");
         expect(graph.state.joinContinuity).toBe("c0");
         expect(graph.joinReport()).toMatchObject({c0: true, c1: false, g1: false});
         expect(joinReportCase(graph.joinReport())).toBe("c0");
         expect(state()).toBe(t("patch_join_state_c0"));
         expect(note()).toBe(t("patch_join_report_c0"));
-        fireEvent.click(sceneButton("join-c1"));
+        useScene("join-c1");
         expect(graph.joinReport()).toMatchObject({c0: true, c1: true});
         expect(joinReportCase(graph.joinReport())).toBe("c1");
         expect(state()).toBe(t("patch_join_state_c1"));
@@ -190,7 +191,7 @@ describe("report wording", () => {
 
     it("the G1 text says the tangent planes agree and the derivatives differ by alpha, never that they match", () => {
         mount();
-        fireEvent.click(sceneButton("join-g1"));
+        useScene("join-g1");
         const sl = note();
         expect(sl).toContain("tangentni ravnini ob robu sovpadata");
         expect(sl).toContain("odvoda S_u pa nista enaka");
@@ -208,7 +209,7 @@ describe("report wording", () => {
     it("the C1 text says the derivatives are equal, the C0-only text that it is neither C1 nor G1", () => {
         mount();
         expect(note()).toMatch(/\bsta enaka/);
-        fireEvent.click(sceneButton("join-c0-kink"));
+        useScene("join-c0-kink");
         expect(note()).toContain("ni C1 in ni G1");
         expect(note()).not.toContain("tangentni ravnini ob robu sovpadata");
         act(() => setLanguage("en"));
@@ -267,23 +268,23 @@ describe("report wording", () => {
 describe("Reset, Preset restore and language", () => {
     it("Reset restores the default C1 scene", async () => {
         const {graph} = mount();
-        fireEvent.click(sceneButton("join-g1"));
+        useScene("join-g1");
         act(() => { graph.setJoinV(0.8); graph.setBDegree("u", 2); });
         await settle(() => graph.reset());
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5, m: 3, n: 3, mB: 3, nB: 3});
         expect(modeSelect().value).toBe("c1");
-        expect(alphaSlider().disabled).toBe(true);
+        expect(alphaSlider().getAttribute("aria-disabled")).toBe("true");
         expect(degreeU().value).toBe("3");
         expect(state()).toBe(t("patch_join_state_c1"));
     });
 
     it("a saved Preset restores mode, ratio, joinV and B", async () => {
         const {graph} = mount();
-        fireEvent.click(sceneButton("join-g1"));
+        useScene("join-g1");
         act(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.2); graph.setBDegree("u", 2); });
         const saved = {net: graph.state.net, netB: graph.bNet()};
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
-        fireEvent.click(sceneButton("join-c0-kink"));
+        useScene("join-c0-kink");
         expect(state()).toBe(t("patch_join_state_c0"));
         await settle(() => graph.selectPreset("mine"));
         expect(graph.state).toMatchObject({joinContinuity: "g1", joinAlpha: 1.5, joinV: 0.2, mB: 2});
@@ -297,7 +298,7 @@ describe("Reset, Preset restore and language", () => {
 
     it("a saved teapot Preset restores the capstone scene, camera and read-only panel", async () => {
         const {graph, view} = mount();
-        fireEvent.click(sceneButton("join-teapot"));
+        useScene("join-teapot");
         act(() => graph.setCameraAngle("az", 61));
         const savedCamera = {...graph.state.camera, target: [...graph.state.camera.target]};
         graph.presetService!.savePreset({...graph.exportPreset(), id: "teapot-mine"});
@@ -321,7 +322,7 @@ describe("Reset, Preset restore and language", () => {
 
     it("Reset from the active teapot capstone restores the default pair and its controls", async () => {
         const {graph, view} = mount();
-        fireEvent.click(sceneButton("join-teapot"));
+        useScene("join-teapot");
         expect(graph.state.joinCapstone).toBe("teapot");
         expect(view.last.interaction.editable).toBe(false);
         expect(document.querySelector(".patch-join-degree")).toBeNull();
@@ -340,7 +341,7 @@ describe("Reset, Preset restore and language", () => {
 
     it("a language switch relabels the controls and the report and keeps the state", () => {
         const {graph} = mount();
-        fireEvent.click(sceneButton("join-g1"));
+        useScene("join-g1");
         const heading = t("patch_join_report_heading");
         act(() => setLanguage("en"));
         expect(t("patch_join_report_heading")).not.toBe(heading);
@@ -357,7 +358,7 @@ describe("Reset, Preset restore and language", () => {
 
     it("shows the read-only teapot explanation, relabels it, and returns to the default pair", () => {
         const {graph, view} = mount();
-        fireEvent.click(sceneButton("join-teapot"));
+        useScene("join-teapot");
         expect(graph.state.joinCapstone).toBe("teapot");
         expect(view.last.interaction.editable).toBe(false);
         expect(screen.getByText(t("patch_join_capstone_heading"))).toBeTruthy();
@@ -391,7 +392,7 @@ describe("patch-joins Preset collection", () => {
         expect(collection.key).toBe("patch-joins");
         expect(joinStartingScenes.map(scene => scene.id)).toEqual(["join-c1", "join-g1", "join-c0-kink", "join-teapot"]);
         const {graph} = mount();
-        fireEvent.click(sceneButton("join-g1"));
+        useScene("join-g1");
         const data = JSON.parse(JSON.stringify(graph.exportPresetData()));
         expect(data[0][1].state).toMatchObject({joinContinuity: "g1", joinAlpha: 2, mB: 3, nB: 3});
         expect(data[0][1].state.netB).toHaveLength(16);

@@ -32,6 +32,7 @@ const slider = (key: "patch_split_value_u" | "patch_split_value_v") => screen.ge
 const field = (key: "patch_split_value_u" | "patch_split_value_v") => screen.getByRole<HTMLInputElement>("spinbutton", {name: t("number_field_label", {value0: t(key)})});
 const direction = () => screen.getByLabelText<HTMLSelectElement>(t("patch_split_direction"));
 const elevateButton = (axis: "u" | "v") => document.querySelector<HTMLButtonElement>(`[data-elevate="${axis}"]`)!;
+const unavailable = (axis: "u" | "v") => elevateButton(axis).getAttribute("aria-disabled") === "true";
 const reason = (axis: "u" | "v") => document.querySelector(`[data-elevate-reason="${axis}"]`);
 const piecesSwitch = () => screen.getByLabelText<HTMLInputElement>(t("patch_show_pieces"));
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)!.textContent;
@@ -115,7 +116,7 @@ describe("editing the original points", () => {
         fireEvent.click(piecesSwitch());
         expect(screen.getByLabelText<HTMLSelectElement>(t("patch_index_i")).value).toBe("1");
         expect(editor()).toBeNull();
-        expect(screen.queryByRole("button", {name: t("apply_coordinates")})).toBeNull();
+        expect(screen.queryByRole("spinbutton", {name: /^P[₀-₉]+, x$/})).toBeNull();
         expect(pointLocked()!.textContent).toBe(t("patch_pieces_locked"));
         act(() => graph.selectIndex(2, 0));
         expect(editor()).toBeNull();
@@ -144,20 +145,22 @@ describe("degree elevation", () => {
         eval3(graph, 0.3, 0.6).forEach((c, k) => expect(c).toBeCloseTo(before[k], 12));
     });
 
-    it("is disabled at degree 4 with the reason, per direction, and enabled again after a lower degree", () => {
+    it("is unavailable (not disabled) at degree 4 with the reason, per direction, and enabled again after a lower degree", () => {
         const {graph} = mount();
-        expect(elevateButton("u").disabled).toBe(false);
+        expect(unavailable("u")).toBe(false);
         expect(reason("u")).toBeNull();
         fireEvent.click(elevateButton("u"));
-        expect(elevateButton("u").disabled).toBe(true);
-        expect(elevateButton("v").disabled).toBe(false);
+        expect(unavailable("u")).toBe(true);
+        expect(elevateButton("u").disabled).toBe(false);
+        expect(elevateButton("u")).toHaveAccessibleDescription(t("patch_elevate_maximum", {value0: "u"}));
+        expect(unavailable("v")).toBe(false);
         expect(reason("u")!.textContent).toBe(t("patch_elevate_maximum", {value0: "u"}));
         expect(reason("v")).toBeNull();
         const net = graph.state.net;
         fireEvent.click(elevateButton("u"));
         expect(graph.state.net).toBe(net);
         act(() => graph.setDegree("u", 3));
-        expect(elevateButton("u").disabled).toBe(false);
+        expect(unavailable("u")).toBe(false);
         expect(reason("u")).toBeNull();
     });
 });

@@ -119,7 +119,7 @@ describe("editing (acceptance 2 and 4)", () => {
         close(vertex(view.last, 8, 8), [1.5, 1.5, 0.75 + 2 * 0.1875], 6);
     });
 
-    it("unlinking and moving d1's end point reports u1v1 and refuses to claim interpolation", () => {
+    it("unlinking and moving d1's end point reports u1v1 and refuses to claim interpolation", async () => {
         const {graph, view} = mount();
         act(() => graph.setLinkedCorners(false));
         expect(coonsMismatches(graph.state.boundaries)).toEqual([]);
@@ -130,11 +130,10 @@ describe("editing (acceptance 2 and 4)", () => {
         const {container} = render(<>{graph.edit()}</>);
         expect(container.querySelector('[data-corner-status="mismatch"]')).not.toBeNull();
         expect(container.querySelector('[data-corner="u1v1"]')!.textContent).toBe(t("coons_corner_mismatch", {value0: "(1, 1)", value1: "1"}));
-        const live = container.querySelectorAll('[role="status"]');
-        expect(live).toHaveLength(1);
+        expect(container.querySelector('[data-corner-status] [role="status"]')).toBeNull();
         expect(container.querySelector('[role="alert"]')).toBeNull();
-        expect(live[0].contains(container.querySelector('[data-corner="u1v1"]'))).toBe(true);
-        expect(live[0].textContent).toContain(t("coons_no_interpolation"));
+        expect(container.querySelector('[data-corner="u1v1"]')!.textContent).toContain(t("coons_corner_mismatch", {value0: "(1, 1)", value1: "1"}));
+        await waitFor(() => expect(container.querySelector('[data-coons-live]')!.textContent).toContain(t("coons_no_interpolation")));
         expect(t("coons_no_interpolation")).toContain("S");
         const helpId = within(container).getByLabelText(t("coons_linked_corners")).getAttribute("aria-describedby");
         expect(helpId).toBeTruthy();

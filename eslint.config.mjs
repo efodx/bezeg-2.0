@@ -13,7 +13,6 @@ const sharedControlMessage = 'Use the shared controls in src/inputs/ (NumberInpu
 // (Likely exceptions). "unmigrated" entries go when their family sweep (task 3) lands.
 const controlExemptions = [
     {files: ['src/graphs/base/PresetImportDialog.tsx', 'src/graphs/base/PresetSelector.tsx'], reason: 'host chrome, not a graph control'},
-    {files: ['src/graphs/patches/TensorPatchPanels.tsx'], reason: 'unmigrated: patches sweep (task 3)'},
     {
         files: ['src/learning/playground/collisions/CollisionPlayground.tsx', 'src/learning/playground/LookUnderneath.tsx'],
         reason: 'unmigrated: learning sweep (task 3)',

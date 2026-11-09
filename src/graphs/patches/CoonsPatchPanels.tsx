@@ -1,20 +1,20 @@
 import {useId} from "react";
-import {Button} from "react-bootstrap";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
 import type {CoonsCornerMismatch} from "../../bezeg/impl/kernels/coons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {COONS_BOUNDARY_NAMES, COONS_SHOWN, type CoonsBoundaryName, type CoonsShown} from "./coonsScene";
-import {azimuthDegrees, PointEditor, subscriptDigits} from "./TensorPatchPanels";
-import {CAMERA_PRESETS, CameraPresetName} from "./surface-view/surfaceMath";
+import {PatchPointChooser} from "./PatchPointChooser";
+import {PatchPointEditor} from "./PatchPointEditor";
+import {subscriptDigits} from "./TensorPatchPanels";
+import {SurfaceCameraPanel} from "./SurfaceCameraPanel";
+import type {CameraPresetName} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
 
-const NO_SELECTION = "";
-const radToDeg = (radians: number) => radians * 180 / Math.PI;
-const MAX_ELEVATION_DEGREES = radToDeg(CAMERA_PRESETS.top.el);
 
 /** The selected boundary control point as the editor shows it. */
 export interface CoonsSelection {
@@ -56,8 +56,6 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
     const t = useT();
     const linkedHelpId = useId();
     const shownOptions = COONS_SHOWN.map(value => ({value, text: t(`coons_shown_${value}`)}));
-    const boundaryOptions = [{value: NO_SELECTION, text: t("patch_no_selection")}, ...COONS_BOUNDARY_NAMES.map(value => ({value, text: t(`coons_boundary_${value}`)}))];
-    const indexOptions = [{value: NO_SELECTION, text: t("patch_no_selection")}, ...[0, 1, 2, 3].map(k => ({value: String(k), text: String(k)}))];
     const asShown = (value: string): CoonsShown => COONS_SHOWN.find(name => name === value) ?? "s";
     const asBoundary = (value: string): CoonsBoundaryName | undefined => COONS_BOUNDARY_NAMES.find(name => name === value);
     return <>
@@ -70,14 +68,15 @@ export function CoonsEditPanel({state, selection, actions}: {state: CoonsPanelSt
             <p id={linkedHelpId} className="inspector-help">{t("coons_linked_help")}</p>
         </div>
         <div className="inspector-group"><h3>{t("coons_point_heading")}</h3>
-            <ChoiceSelect label={t("coons_boundary")} value={selection?.name ?? NO_SELECTION} options={boundaryOptions}
-                          onChange={value => actions.selectBoundaryPoint(asBoundary(value), asBoundary(value) ? selection?.index : undefined)}/>
-            <ChoiceSelect label={t("coons_index")} value={selection ? String(selection.index) : NO_SELECTION} options={indexOptions}
-                          onChange={value => value === NO_SELECTION ? actions.selectBoundaryPoint(undefined, undefined) : actions.selectBoundaryPoint(selection?.name, Number(value))}/>
+            <PatchPointChooser noneText={t("patch_no_selection")} selection={selection && [selection.name, String(selection.index)]}
+                               axes={[{label: t("coons_boundary"), options: COONS_BOUNDARY_NAMES.map(value => ({value, text: t(`coons_boundary_${value}`)}))},
+                                   {label: t("coons_index"), options: [0, 1, 2, 3].map(k => ({value: String(k), text: String(k)}))}]}
+                               onChange={chosen => chosen === undefined ? actions.selectBoundaryPoint(undefined, undefined)
+                                   : actions.selectBoundaryPoint(asBoundary(chosen[0] ?? ""), chosen[1] === undefined ? undefined : Number(chosen[1]))}/>
             {selection
                 ? <>
-                    <PointEditor key={`${selection.name}-${selection.index}-${selection.xyz.join(",")}`} name={coonsPointName(selection.name, selection.index)} xyz={selection.xyz}
-                                 onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
+                    <PatchPointEditor key={`${selection.name}-${selection.index}`} name={coonsPointName(selection.name, selection.index)} xyz={selection.xyz}
+                                 onCommit={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                     {selection.shared && <p className="inspector-help" role="note">{t("coons_corner_shared")}</p>}
                 </>
                 : <p className="inspector-help">{t("coons_select_help")}</p>}
@@ -102,20 +101,24 @@ export function CoonsReadoutPanel({readouts}: {readouts: CoonsReadouts}) {
         {id: "centre", label: t("coons_centre"), value: triple(readouts.centre)},
     ];
     const language = currentLanguage();
+    const mismatchLines = readouts.mismatches.map(mismatch =>
+        t("coons_corner_mismatch", {value0: CORNER_COORDINATES[mismatch.corner], value1: formatNumber(mismatch.distance, language, 3)}));
+    // A corner mismatch changes while a boundary point is dragged, so the announcement waits until it settles; a met status is not announced.
+    const liveReadout = useStatusReadout(mismatchLines.length === 0 ? "" : [...mismatchLines, t("coons_no_interpolation")].join(" "), true);
     return <>
         <FunctionReadout title={t("coons_interior_heading")} rows={rows} note={t("coons_interior_note")}/>
         <div className="inspector-group" data-corner-status={readouts.mismatches.length === 0 ? "met" : "mismatch"}>
             <h3>{t("coons_corner_status_heading")}</h3>
-            <div role="status">
+            <div>
                 {readouts.mismatches.length === 0
                     ? <p className="inspector-help">{t("coons_corners_met")}</p>
                     : <>
-                        {readouts.mismatches.map(mismatch => <p key={mismatch.corner} className="inspector-help" data-corner={mismatch.corner}>
-                            {t("coons_corner_mismatch", {value0: CORNER_COORDINATES[mismatch.corner], value1: formatNumber(mismatch.distance, language, 3)})}</p>)}
+                        {readouts.mismatches.map((mismatch, k) => <p key={mismatch.corner} className="inspector-help" data-corner={mismatch.corner}>{mismatchLines[k]}</p>)}
                         <p className="inspector-help">{t("coons_no_interpolation")}</p>
                     </>}
             </div>
         </div>
+        <LiveReadout readout={liveReadout} dataAttribute="coons-live"/>
     </>;
 }
 
@@ -126,20 +129,9 @@ export function CoonsDisplayPanel({state, actions}: {state: CoonsPanelState; act
             <OnOffSwitch label={t("patch_show_control_net")} checked={state.showControlNet} onChange={on => actions.setVisibility("showControlNet", on)}/>
             <OnOffSwitch label={t("patch_show_shading")} checked={state.showShading} onChange={on => actions.setVisibility("showShading", on)}/>
         </div>
-        <div className="inspector-group"><h3>{t("patch_camera_heading")}</h3>
-            <div className="workspace-curve-picker">
-                <Button onClick={() => actions.applyCameraPreset("front")}>{t("patch_view_front")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("top")}>{t("patch_view_top")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("side")}>{t("patch_view_side")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("isometric")}>{t("patch_view_isometric")}</Button>
-                <Button onClick={() => actions.resetView()}>{t("patch_view_reset")}</Button>
-            </div>
-            <Slider customText={t("patch_camera_azimuth")} min={-180} max={180} step={1} decimals={0} value={azimuthDegrees(state.camera.az)}
-                    onChange={degrees => actions.setCameraAngle("az", degrees)}/>
-            <Slider customText={t("patch_camera_elevation")} min={-MAX_ELEVATION_DEGREES} max={MAX_ELEVATION_DEGREES} step={1} decimals={1}
-                    value={radToDeg(state.camera.el)} onChange={degrees => actions.setCameraAngle("el", degrees)}/>
+        <SurfaceCameraPanel camera={state.camera} actions={actions}>
             <OnOffSwitch label={t("patch_move_height")} checked={state.zMode} onChange={on => actions.setZMode(on)}/>
             <p className="inspector-help">{t("patch_move_height_help")}</p>
-        </div>
+        </SurfaceCameraPanel>
     </>;
 }

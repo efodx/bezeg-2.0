@@ -1,5 +1,5 @@
-import {Button} from "react-bootstrap";
 import {formatNumber} from "../../analysis/format";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
@@ -7,10 +7,14 @@ import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {defaultTriangularPatchPresets} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
-import {azimuthDegrees, ParameterInset, PointEditor, subscriptDigits} from "./TensorPatchPanels";
+import {PatchPointChooser} from "./PatchPointChooser";
+import {PatchPointEditor} from "./PatchPointEditor";
+import {ParameterInset, subscriptDigits} from "./TensorPatchPanels";
 import {parseTriangularPointId, triangularIndices, triangularPointId} from "./TriangularPatchLattice";
+import {MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE} from "./TriangularPatchDegree";
 import {isInteriorPoint} from "./TriangularPatchScene";
-import {CAMERA_PRESETS, CameraPresetName} from "./surface-view/surfaceMath";
+import {SurfaceCameraPanel} from "./SurfaceCameraPanel";
+import type {CameraPresetName} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 /** What the triangular patch panels show; read from the scene store on every render. */
@@ -47,6 +51,8 @@ export type TriangularVisibilityKey = "showControlNet" | "showIsoCurves" | "show
 /** What the controls ask the graph to do; the graph owns every change. */
 export interface TriangularPatchPanelActions {
     useStartingPatch(index: number): void;
+    /** The index of the starting patch the net equals (degree and every point), or undefined while it matches none. */
+    startingPatchIndex(): number | undefined;
     setDegree(degree: number): void;
     setParameter(parameter: "u" | "v", value: number): void;
     setSubdivisionPreview(visible: boolean): void;
@@ -65,32 +71,38 @@ export interface TriangularPatchPanelActions {
     setInsetContainer(container: HTMLElement | null): void;
 }
 
-const radToDeg = (radians: number) => radians * 180 / Math.PI;
-const MAX_ELEVATION_DEGREES = radToDeg(CAMERA_PRESETS.top.el);
-const DEGREES = [1, 2, 3, 4].map(degree => ({value: String(degree), text: String(degree)}));
+const CUSTOM_PATCH = "custom";
+const startingPatchOptions = (t: ReturnType<typeof useT>, custom: boolean) =>
+    [...defaultTriangularPatchPresets.map((preset, index) => ({value: String(index), text: t(preset.name)})),
+        ...(custom ? [{value: CUSTOM_PATCH, text: t("patch_starting_custom")}] : [])];
 const DENSITIES = [8, 16].map(density => ({value: String(density), text: String(density)}));
 const asDensity = (value: string): PatchDensity => value === "16" ? 16 : 8;
 
 /** The third barycentric coordinate; the clamp absorbs a rounding error of `1 - u - v` just below 0. */
 export const barycentricW = (u: number, v: number): number => Math.max(0, 1 - u - v);
 
-const NO_INDEX = "";
 
 /** One option per valid triple `(i, j, k)` with `i + j + k = n`, in the canonical net order, after the "none" choice. */
-const indexOptions = (degree: number, none: string) =>
-    [{value: NO_INDEX, text: none}, ...triangularIndices(degree).map(index => ({value: triangularPointId(...index), text: `(${index.join(", ")})`}))];
+const indexOptions = (degree: number) =>
+    [...triangularIndices(degree).map(index => ({value: triangularPointId(...index), text: `(${index.join(", ")})`}))];
 
 export function TriangularPatchEditPanel({state, selection, actions}: {state: TriangularPatchPanelState; selection?: TriangularSelection; actions: TriangularPatchPanelActions}) {
     const t = useT();
     const interior = isInteriorPoint(state.u, state.v);
+    const matching = actions.startingPatchIndex();
+    const shownPatch = matching === undefined ? CUSTOM_PATCH : String(matching);
     return <>
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
-            <div className="workspace-curve-picker">{defaultTriangularPatchPresets.map((preset, index) =>
-                <Button key={preset.id} onClick={() => actions.useStartingPatch(index)}>{t(preset.name)}</Button>)}</div>
+            <ChoiceSelect label={t("patch_starting_heading")} value={shownPatch} options={startingPatchOptions(t, matching === undefined)}
+                          onChange={value => { if (value !== shownPatch && value !== CUSTOM_PATCH) actions.useStartingPatch(Number(value)); }}/>
         </div>
         <div className="inspector-group"><h3>{t("patch_degree_heading")}</h3>
-            <ChoiceSelect label={t("patch_triangular_degree")} value={String(state.n)} options={DEGREES}
-                          onChange={value => actions.setDegree(Number(value))} help={t("patch_triangular_degree_help")}/>
+            <CountSetter label={t("patch_triangular_degree")} n={state.n} min={MIN_TRIANGULAR_DEGREE} max={MAX_TRIANGULAR_DEGREE} help={t("patch_triangular_degree_help")}
+                         onMinus={() => actions.setDegree(state.n - 1)} onPlus={() => actions.setDegree(state.n + 1)}
+                         onSet={degree => {
+                             if (!Number.isInteger(degree) || degree < MIN_TRIANGULAR_DEGREE || degree > MAX_TRIANGULAR_DEGREE) return false;
+                             actions.setDegree(degree);
+                         }}/>
         </div>
         <div className="inspector-group"><h3>{t("patch_point_heading")}</h3>
             <Slider customText={t("patch_parameter_u")} min={0} max={Math.max(0, 1 - state.v)} step={0.01} value={state.u}
@@ -103,12 +115,12 @@ export function TriangularPatchEditPanel({state, selection, actions}: {state: Tr
         <FunctionReadout title={t("patch_parameter_w")} rows={[{id: "parameter-w", label: "w", value: formatNumber(barycentricW(state.u, state.v), currentLanguage(), 2)}]}
                          note={t("patch_parameter_w_help")}/>
         <div className="inspector-group"><h3>{t("patch_control_point_heading")}</h3>
-            <ChoiceSelect label={t("patch_triangular_index")} value={selection ? triangularPointId(...selection.index) : NO_INDEX}
-                          options={indexOptions(state.n, t("patch_no_selection"))} help={t("patch_triangular_index_help")}
-                          onChange={value => actions.selectIndex(value === NO_INDEX ? undefined : parseTriangularPointId(value))}/>
+            <PatchPointChooser noneText={t("patch_no_selection")} selection={selection && [triangularPointId(...selection.index)]}
+                               axes={[{label: t("patch_triangular_index"), help: t("patch_triangular_index_help"), options: indexOptions(state.n)}]}
+                               onChange={chosen => actions.selectIndex(chosen?.[0] === undefined ? undefined : parseTriangularPointId(chosen[0]))}/>
             {selection
-                ? <PointEditor key={`${selection.index.join("-")}-${selection.xyz.join(",")}`} name={`P${selection.index.map(subscriptDigits).join("")}`} xyz={selection.xyz}
-                               onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
+                ? <PatchPointEditor key={selection.index.join("-")} name={`P${selection.index.map(subscriptDigits).join("")}`} xyz={selection.xyz}
+                               onCommit={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_triangular_select_point_help")}</p>}
         </div>
         {selection && <FunctionReadout title={t("patch_bernstein_heading")} rows={[{
@@ -150,20 +162,9 @@ export function TriangularPatchDisplayPanel({state, actions}: {state: Triangular
             <ChoiceSelect label={t("patch_shading_density")} value={String(state.shadingDensity)} options={DENSITIES}
                           onChange={value => actions.setDensity("shading", asDensity(value))}/>
         </div>
-        <div className="inspector-group"><h3>{t("patch_camera_heading")}</h3>
-            <div className="workspace-curve-picker">
-                <Button onClick={() => actions.applyCameraPreset("front")}>{t("patch_view_front")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("top")}>{t("patch_view_top")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("side")}>{t("patch_view_side")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("isometric")}>{t("patch_view_isometric")}</Button>
-                <Button onClick={() => actions.resetView()}>{t("patch_view_reset")}</Button>
-            </div>
-            <Slider customText={t("patch_camera_azimuth")} min={-180} max={180} step={1} decimals={0} value={azimuthDegrees(state.camera.az)}
-                    onChange={degrees => actions.setCameraAngle("az", degrees)}/>
-            <Slider customText={t("patch_camera_elevation")} min={-MAX_ELEVATION_DEGREES} max={MAX_ELEVATION_DEGREES} step={1} decimals={1}
-                    value={radToDeg(state.camera.el)} onChange={degrees => actions.setCameraAngle("el", degrees)}/>
+        <SurfaceCameraPanel camera={state.camera} actions={actions}>
             <OnOffSwitch label={t("patch_move_height")} checked={state.zMode} onChange={on => actions.setZMode(on)}/>
             <p className="inspector-help">{t("patch_move_height_help")}</p>
-        </div>
+        </SurfaceCameraPanel>
     </>;
 }

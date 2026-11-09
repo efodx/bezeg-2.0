@@ -1,4 +1,4 @@
-import {act, fireEvent, render, screen} from "@testing-library/react";
+import {act, fireEvent, render, screen, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
@@ -28,6 +28,20 @@ const select = (label: Key) => screen.getByLabelText<HTMLSelectElement>(t(label)
 const range = (label: Key) => screen.getByLabelText<HTMLInputElement>(t(label));
 const toggle = (label: Key) => screen.getByLabelText<HTMLInputElement>(t(label));
 const press = (label: Key) => fireEvent.click(screen.getByRole("button", {name: t(label), hidden: true}));
+/** The starting-patch select: the entries are the starting patches in order. */
+const startingPatches: Record<"preset_bilinear_saddle" | "preset_bicubic_dome", string> = {preset_bilinear_saddle: "0", preset_bicubic_dome: "1"};
+const startingSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_starting_heading"));
+const startWith = (name: keyof typeof startingPatches) => fireEvent.change(startingSelect(), {target: {value: startingPatches[name]}});
+/** A degree stepper (CountSetter): its shown value, and a change to a target by pressing + or -. */
+type DegreeLabel = "patch_degree_u" | "patch_degree_v";
+const degreeGroup = (label: DegreeLabel) => screen.getByRole("group", {name: t(label)});
+const degree = (label: DegreeLabel) => Number(degreeGroup(label).querySelector("output")!.textContent);
+const setDegree = (label: DegreeLabel, target: number) => {
+    while (degree(label) !== target) {
+        const button = within(degreeGroup(label)).getAllByRole("button")[degree(label) < target ? 1 : 0];
+        fireEvent.click(button);
+    }
+};
 const count = (view: FakeSurfaceView, role: string) => view.last.polylines.filter(line => line.role === role).length;
 const evaluated = (graph: TensorPatchGraph, u: number, v: number): Xyz => {
     const p = patchFromNet(graph.state.net).eval(u, v);
@@ -37,8 +51,8 @@ const evaluated = (graph: TensorPatchGraph, u: number, v: number): Xyz => {
 /** Every control shows what the store holds. */
 function expectControlsToMatch(graph: TensorPatchGraph) {
     const s = graph.state;
-    expect(select("patch_degree_u").value).toBe(String(s.m));
-    expect(select("patch_degree_v").value).toBe(String(s.n));
+    expect(degree("patch_degree_u")).toBe(s.m);
+    expect(degree("patch_degree_v")).toBe(s.n);
     expect(Number(range("patch_parameter_u").value)).toBeCloseTo(s.u, 12);
     expect(Number(range("patch_parameter_v").value)).toBeCloseTo(s.v, 12);
     expect(toggle("patch_show_control_net").checked).toBe(s.showControlNet);
@@ -54,12 +68,12 @@ describe("Uredi panel", () => {
     it("a degree choice changes the net and the reconciled points and net lines", () => {
         const {graph, view} = mount();
         expect(view.last.points).toHaveLength(16);
-        fireEvent.change(select("patch_degree_u"), {target: {value: "2"}});
+        setDegree("patch_degree_u", 2);
         expect(graph.state.m).toBe(2);
         expect(graph.state.net).toHaveLength(3);
         expect(view.last.points).toHaveLength(3 * 4);
         expect(view.last.polylines.filter(line => line.id.startsWith("net-row-"))).toHaveLength(3);
-        fireEvent.change(select("patch_degree_v"), {target: {value: "1"}});
+        setDegree("patch_degree_v", 1);
         expect(graph.state.n).toBe(1);
         expect(view.last.points).toHaveLength(3 * 2);
         expectControlsToMatch(graph);
@@ -80,15 +94,46 @@ describe("Uredi panel", () => {
 
     it("a starting patch button imports that default Preset, camera included", () => {
         const {graph, view} = mount();
-        press("preset_bilinear_saddle");
+        startWith("preset_bilinear_saddle");
         expect(graph.state).toMatchObject({m: 1, n: 1});
         expect(view.last.points).toHaveLength(4);
         expectControlsToMatch(graph);
         const saddleCamera = graph.state.camera;
-        press("preset_bicubic_dome");
+        startWith("preset_bicubic_dome");
         expect(graph.state).toMatchObject({m: 3, n: 3});
         expect(graph.state.camera).not.toEqual(saddleCamera);
         expect(view.last.points).toHaveLength(16);
+    });
+});
+
+describe("Uredi panel: starting patch select and degree steppers", () => {
+    it("shows custom only while the net matches no starting patch, and choosing the shown entry does nothing", () => {
+        const {graph} = mount();
+        expect([...startingSelect().options].map(option => option.value)).toEqual(["0", "1"]);
+        expect(startingSelect().value).toBe("1");
+        act(() => graph.setState({u: 0.2}));
+        startWith("preset_bicubic_dome");
+        expect(graph.state.u).toBe(0.2);
+        act(() => graph.setState({net: graph.state.net.map((row, i) => row.map((point, j) => i === 1 && j === 1 ? [point[0], point[1], point[2] + 1] as Xyz : point))}));
+        expect([...startingSelect().options].map(option => option.value)).toEqual(["0", "1", "custom"]);
+        expect(startingSelect().value).toBe("custom");
+        fireEvent.change(startingSelect(), {target: {value: "custom"}});
+        expect(graph.state.u).toBe(0.2);
+        startWith("preset_bicubic_dome");
+        expect(graph.state.u).toBe(0.5);
+        expect(startingSelect().value).toBe("1");
+    });
+
+    it("degrees step from 1 to 4 and say why a bound is unavailable", () => {
+        const {graph} = mount();
+        setDegree("patch_degree_u", 4);
+        expect(graph.state.m).toBe(4);
+        const plus = within(degreeGroup("patch_degree_u")).getAllByRole("button")[1];
+        expect(plus.getAttribute("aria-disabled")).toBe("true");
+        setDegree("patch_degree_v", 1);
+        expect(graph.state.n).toBe(1);
+        expect(within(degreeGroup("patch_degree_v")).getAllByRole("button")[0].getAttribute("aria-disabled")).toBe("true");
+        expect(screen.getByText(t("patch_degree_help"))).toBeTruthy();
     });
 });
 
@@ -164,13 +209,13 @@ describe("controls follow the store", () => {
         act(() => graph.setState({m: 2, n: 1, net: [[[0, 0, 0], [0, 1, 0]], [[1, 0, 1], [1, 1, 1]], [[2, 0, 0], [2, 1, 0]]],
             u: 0.1, v: 0.9, showIsoCurves: false, isoDensity: 16, shadingDensity: 8, zMode: true}));
         expectControlsToMatch(graph);
-        expect(select("patch_degree_u").value).toBe("2");
+        expect(degree("patch_degree_u")).toBe(2);
         expect(toggle("patch_show_iso_curves").checked).toBe(false);
     });
 
     it("after Reset, which brings back the default scene", async () => {
         const {graph} = mount();
-        fireEvent.change(select("patch_degree_u"), {target: {value: "1"}});
+        setDegree("patch_degree_u", 1);
         fireEvent.change(range("patch_parameter_u"), {target: {value: "0.9"}});
         fireEvent.click(toggle("patch_show_shading"));
         await settle(() => graph.reset());
@@ -180,18 +225,18 @@ describe("controls follow the store", () => {
 
     it("after a Preset is restored and after a lesson checkpoint is restored", async () => {
         const {graph} = mount();
-        fireEvent.change(select("patch_degree_v"), {target: {value: "2"}});
+        setDegree("patch_degree_v", 2);
         fireEvent.change(range("patch_parameter_v"), {target: {value: "0.2"}});
         fireEvent.click(toggle("patch_show_control_net"));
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         const checkpoint = graph.getLessonCapabilities().captureState();
-        press("preset_bilinear_saddle");
-        expect(select("patch_degree_v").value).toBe("1");
+        startWith("preset_bilinear_saddle");
+        expect(degree("patch_degree_v")).toBe(1);
         await settle(() => graph.selectPreset("mine"));
         expect(graph.state).toMatchObject({n: 2, v: 0.2, showControlNet: false});
         expectControlsToMatch(graph);
 
-        press("preset_bilinear_saddle");
+        startWith("preset_bilinear_saddle");
         act(() => graph.getLessonCapabilities().restoreState(checkpoint));
         expect(graph.state).toMatchObject({n: 2, v: 0.2, showControlNet: false});
         expectControlsToMatch(graph);
@@ -199,7 +244,7 @@ describe("controls follow the store", () => {
 
     it("across a language switch: labels change, values do not", () => {
         const {graph} = mount();
-        fireEvent.change(select("patch_degree_u"), {target: {value: "4"}});
+        setDegree("patch_degree_u", 4);
         fireEvent.change(range("patch_parameter_u"), {target: {value: "0.3"}});
         fireEvent.click(toggle("patch_show_iso_curves"));
         const before = [t("patch_degree_u"), t("patch_show_iso_curves")];
@@ -207,7 +252,7 @@ describe("controls follow the store", () => {
         expect([t("patch_degree_u"), t("patch_show_iso_curves")]).not.toEqual(before);
         expect(screen.getByRole("button", {name: t("patch_view_reset"), hidden: true})).toBeTruthy();
         expectControlsToMatch(graph);
-        expect(select("patch_degree_u").value).toBe("4");
+        expect(degree("patch_degree_u")).toBe(4);
         expect(toggle("patch_show_iso_curves").checked).toBe(false);
     });
 });

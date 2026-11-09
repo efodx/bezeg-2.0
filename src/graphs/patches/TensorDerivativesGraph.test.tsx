@@ -1,4 +1,4 @@
-import {act, fireEvent, render, screen, within} from "@testing-library/react";
+import {act, fireEvent, render, screen, waitFor, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
@@ -36,10 +36,13 @@ function expectSceneFollows(graph: TensorDerivativesGraph, view: FakeSurfaceView
     expect(view.last.planes ?? []).toEqual(expected.planes);
 }
 
-const button = (corner: string) => document.querySelector<HTMLButtonElement>(`[data-corner="${corner}"]`)!;
+const cornerSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_derivatives_corners"));
+const chooseCorner = (corner: string) => fireEvent.change(cornerSelect(), {target: {value: corner}});
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)!.textContent;
-const status = () => screen.queryByRole("status");
-const startingPatch = (name: "preset_bilinear_saddle" | "preset_bicubic_dome" | "preset_collapsed_edge" | "preset_parallel_corner") => screen.getByRole("button", {name: t(name)});
+const status = () => document.querySelector<HTMLElement>("[data-reason]");
+const live = () => document.querySelector("[data-derivatives-live]")!;
+const startingPatch = (name: "preset_bilinear_saddle" | "preset_bicubic_dome" | "preset_collapsed_edge" | "preset_parallel_corner") => screen.getByRole<HTMLOptionElement>("option", {name: t(name)});
+const chooseStarting = (name: Parameters<typeof startingPatch>[0]) => fireEvent.change(screen.getByLabelText(t("patch_starting_heading")), {target: {value: startingPatch(name).value}});
 const sw = (key: "patch_show_tangent_plane" | "patch_show_normal" | "patch_show_twist") => screen.getByLabelText<HTMLInputElement>(t(key));
 
 describe("starting scene", () => {
@@ -68,10 +71,10 @@ function formatted(vector: Xyz, language: "sl" | "en"): string {
     return language === "sl" ? `(${parts.join("; ")})` : `(${parts.join(", ")})`;
 }
 
-describe("corner buttons and the readout", () => {
+describe("corner select and the readout", () => {
     it.each([["00", 0, 0], ["10", 1, 0], ["01", 0, 1], ["11", 1, 1]] as const)("corner %s sets (u, v) and the readout matches the corner identities", (corner, cu, cv) => {
         const {graph, view} = mount();
-        fireEvent.click(button(corner));
+        chooseCorner(corner);
         expect(graph.state).toMatchObject({u: cu, v: cv});
         expectSceneFollows(graph, view);
         // S_u at a corner is m (b_1j - b_0j) at u = 0 and m (b_mj - b_{m-1,j}) at u = 1; likewise S_v with n.
@@ -81,11 +84,19 @@ describe("corner buttons and the readout", () => {
         expect(readout("su")).toBe(formatted(edge(net[i1][j0], net[i0][j0], m, cu === 0 ? 1 : -1), "sl"));
         expect(readout("sv")).toBe(formatted(edge(net[i0][j1], net[i0][j0], n, cv === 0 ? 1 : -1), "sl"));
     });
-    it("names the corner buttons for assistive technology", () => {
-        mount();
-        const group = screen.getByRole("group", {name: t("patch_derivatives_corners")});
-        expect(within(group).getAllByRole("button")).toHaveLength(4);
-        expect(screen.getByRole("button", {name: t("patch_derivatives_corner", {value0: "1", value1: "0"})})).toBe(button("10"));
+    it("shows the corner (u, v) is at and a none entry elsewhere, and choosing the shown corner changes nothing", () => {
+        const {graph} = mount();
+        expect(cornerSelect().value).toBe("");
+        expect(within(cornerSelect()).getByRole("option", {name: t("patch_derivatives_corner_none")})).toBeTruthy();
+        chooseCorner("10");
+        expect(cornerSelect().value).toBe("10");
+        expect(within(cornerSelect()).queryByRole("option", {name: t("patch_derivatives_corner_none")})).toBeNull();
+        expect(within(cornerSelect()).getByRole("option", {name: t("patch_derivatives_corner", {value0: "1", value1: "0"})})).toBeTruthy();
+        const state = graph.state;
+        chooseCorner("10");
+        expect(graph.state).toBe(state);
+        act(() => graph.setParameter("u", 0.5));
+        expect(cornerSelect().value).toBe("");
     });
     it("shows a unit normal with decimal commas in Slovenian and points in English", () => {
         const {graph} = mount();
@@ -173,24 +184,28 @@ describe("switches", () => {
 });
 
 describe("degenerate normals", () => {
-    it("the collapsed-edge starting patch explains the zero S_v, draws no normal or plane, and has a normal next to the edge", () => {
+    it("the collapsed-edge starting patch explains the zero S_v, draws no normal or plane, and has a normal next to the edge", async () => {
         const {graph, view} = mount();
-        fireEvent.click(startingPatch("preset_collapsed_edge"));
+        chooseStarting("preset_collapsed_edge");
         expect(graph.state).toMatchObject({u: 0, v: 0.5});
         expect(status()!.getAttribute("data-reason")).toBe("zero-sv");
         expect(status()!.textContent).toBe(t("patch_derivatives_degenerate_zero_sv"));
+        expect(status()!.getAttribute("role")).toBeNull();
+        expect(document.querySelectorAll("[data-derivatives-live]")).toHaveLength(1);
+        await waitFor(() => expect(live().textContent).toBe(t("patch_derivatives_degenerate_zero_sv")));
         expect(readout("normal")).toBe(t("patch_derivatives_normal_undefined"));
         expect(hasRole(view.last, "normal")).toBe(false);
         expect(view.last.planes ?? []).toEqual([]);
         expectSceneFollows(graph, view);
         act(() => graph.setParameter("u", 0.1));
         expect(status()).toBeNull();
+        await waitFor(() => expect(live().textContent).toBe(""));
         expect(hasRole(view.last, "normal")).toBe(true);
         expect(view.last.planes).toHaveLength(1);
     });
     it("the parallel-corner starting patch gives the parallel reason in both languages", () => {
         const {view} = mount();
-        fireEvent.click(startingPatch("preset_parallel_corner"));
+        chooseStarting("preset_parallel_corner");
         expect(status()!.getAttribute("data-reason")).toBe("parallel");
         const sl = status()!.textContent;
         expect(sl).toBe(t("patch_derivatives_degenerate_parallel"));
@@ -202,7 +217,7 @@ describe("degenerate normals", () => {
     it("a starting patch keeps the switches the student chose", () => {
         const {graph} = mount();
         fireEvent.click(sw("patch_show_twist"));
-        fireEvent.click(startingPatch("preset_collapsed_edge"));
+        chooseStarting("preset_collapsed_edge");
         expect(graph.state).toMatchObject({showTwist: false, m: 3, n: 3});
         expect(sw("patch_show_twist").checked).toBe(false);
     });
@@ -210,14 +225,14 @@ describe("degenerate normals", () => {
         const {graph} = mount();
         fireEvent.click(sw("patch_show_normal"));
         const setState = vi.spyOn(graph, "setState");
-        fireEvent.click(startingPatch("preset_collapsed_edge"));
+        chooseStarting("preset_collapsed_edge");
         expect(setState).toHaveBeenCalledTimes(1);
         expect(graph.state).toMatchObject({showNormal: false, showTangentPlane: true, m: 3, n: 3});
     });
 });
 
 describe("language", () => {
-    it("relabels the switches, the readout and the corner buttons, keeping the state", () => {
+    it("relabels the switches, the readout and the corner select, keeping the state", () => {
         const {graph} = mount();
         const slSwitch = t("patch_show_tangent_plane");
         act(() => setLanguage("en"));
@@ -225,7 +240,7 @@ describe("language", () => {
         for (const key of ["patch_show_tangent_plane", "patch_show_normal", "patch_show_twist"] as const) expect(sw(key)).toBeTruthy();
         expect(screen.getByText(t("patch_derivatives_readout_heading"))).toBeTruthy();
         expect(screen.getByText(t("patch_derivatives_legend"))).toBeTruthy();
-        expect(screen.getByRole("group", {name: t("patch_derivatives_corners")})).toBeTruthy();
+        expect(cornerSelect()).toBeTruthy();
         expect(graph.state).toMatchObject({u: 0.3, v: 0.65});
     });
 });

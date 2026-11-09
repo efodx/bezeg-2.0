@@ -26,15 +26,21 @@ function mount() {
 }
 
 const select = () => screen.getByLabelText<HTMLSelectElement>(t("patch_triangular_index"));
-const input = (name: string) => screen.getByLabelText<HTMLInputElement>(name);
+/** A coordinate field by "P₂₁₀ x"; the field is named "P₂₁₀, x". `fieldText` reads its text with a decimal point whatever the language. */
+const input = (name: string) => screen.getByRole<HTMLInputElement>("spinbutton", {name: name.replace(/ (\w)$/, ", $1")});
+const fieldText = (field: HTMLInputElement) => field.value.replace(",", ".").replace("−", "-");
 const choose = (i: number, j: number, k: number) => fireEvent.change(select(), {target: {value: triangularPointId(i, j, k)}});
 const highlights = (view: FakeSurfaceView) => view.last.polylines.filter(line => line.role === "highlight");
 const weightText = () => document.querySelector('[data-readout="bernstein-weight"] dd')?.textContent;
+const typeAxis = (name: string, axis: string, value: string) => {
+    fireEvent.change(input(`${name} ${axis}`), {target: {value}});
+    fireEvent.keyDown(input(`${name} ${axis}`), {key: "Enter"});
+};
+/** Each coordinate commits on its own Enter. */
 const apply = (name: string, x: string, y: string, z: string) => {
-    fireEvent.change(input(`${name} x`), {target: {value: x}});
-    fireEvent.change(input(`${name} y`), {target: {value: y}});
-    fireEvent.change(input(`${name} z`), {target: {value: z}});
-    fireEvent.submit(input(`${name} x`).closest("form")!);
+    typeAxis(name, "x", x);
+    typeAxis(name, "y", y);
+    typeAxis(name, "z", z);
 };
 const netPoint = (graph: TriangularPatchGraph, i: number, j: number): Xyz => graph.state.net[triangularIndex(graph.state.n, i, j)];
 /** The net point of the lattice index `(i, j, k)`; k is implied by i and j and only documents the triple. */
@@ -57,11 +63,11 @@ describe("index selection", () => {
         choose(2, 1, 0);
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["t-2-1-0"]);
         const [x, y, z] = netPoint(graph, 2, 1);
-        expect([input("P₂₁₀ x").value, input("P₂₁₀ y").value, input("P₂₁₀ z").value]).toEqual([String(x), String(y), String(z)]);
+        expect([fieldText(input("P₂₁₀ x")), fieldText(input("P₂₁₀ y")), fieldText(input("P₂₁₀ z"))]).toEqual([String(x), String(y), String(z)]);
 
         view.emit({kind: "select", pointId: "t-1-1-1"});
         expect(select().value).toBe("t-1-1-1");
-        expect(input("P₁₁₁ z").value).toBe(String(netPoint(graph, 1, 1)[2]));
+        expect(fieldText(input("P₁₁₁ z"))).toBe(String(netPoint(graph, 1, 1)[2]));
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["t-1-1-1"]);
 
         fireEvent.change(select(), {target: {value: ""}});
@@ -88,20 +94,20 @@ describe("numeric xyz editor", () => {
         apply("P₂₁₀", "0.5", "-1.25", "3");
         expect(netPoint(graph, 2, 1)).toEqual([0.5, -1.25, 3]);
         expect(view.last.points.find(p => p.id === "t-2-1-0")?.xyz).toEqual([0.5, -1.25, 3]);
-        expect(input("P₂₁₀ y").value).toBe("-1.25");
+        expect(fieldText(input("P₂₁₀ y"))).toBe("-1.25");
     });
 
-    it("rejects a non-finite or empty coordinate with the localized message and leaves the net alone", () => {
+    it("refuses a non-finite or empty coordinate in the field's hint and leaves the net alone", () => {
         const {graph} = mount();
         choose(2, 1, 0);
         for (const invalid of ["abc", "", "Infinity"]) {
             const current = graph.state.net;
-            apply("P₂₁₀", invalid, "1", "1");
+            typeAxis("P₂₁₀", "x", invalid);
             expect(graph.state.net).toBe(current);
-            expect(screen.getByRole("alert").textContent).toBe(t("enter_finite_numeric_coordinates"));
-            apply("P₂₁₀", "1", "2", "3");
-            expect(netPoint(graph, 2, 1)).toEqual([1, 2, 3]);
-            expect(screen.queryByRole("alert")).toBeNull();
+            expect(input("P₂₁₀ x").getAttribute("aria-invalid")).toBe("true");
+            typeAxis("P₂₁₀", "x", "1");
+            expect(netPoint(graph, 2, 1)[0]).toBe(1);
+            expect(input("P₂₁₀ x").getAttribute("aria-invalid")).toBeNull();
         }
     });
 
@@ -109,13 +115,13 @@ describe("numeric xyz editor", () => {
         const {graph, view} = mount();
         choose(1, 1, 1);
         view.emit({kind: "point", pointId: "t-1-1-1", xyz: [0.75, 0.5, 4], phase: "move"});
-        expect([input("P₁₁₁ x").value, input("P₁₁₁ z").value]).toEqual(["0.75", "4"]);
+        expect([fieldText(input("P₁₁₁ x")), fieldText(input("P₁₁₁ z"))]).toEqual(["0.75", "4"]);
 
         act(() => graph.setState({net: graph.state.net.map((): Xyz => [9, 8, 7])}));
-        expect(input("P₁₁₁ x").value).toBe("9");
+        expect(fieldText(input("P₁₁₁ x"))).toBe("9");
 
         act(() => setLanguage("en"));
-        expect(input("P₁₁₁ x").value).toBe("9");
+        expect(fieldText(input("P₁₁₁ x"))).toBe("9");
         expect(select().value).toBe("t-1-1-1");
         expect(screen.getByLabelText("Point indices (i, j, k)")).toBe(select());
 
@@ -126,7 +132,7 @@ describe("numeric xyz editor", () => {
         });
         expect(netPoint(graph, 2, 0)).toEqual([1, 2, 3]);
         expect(view.last.points.find(p => p.id === "t-2-0-1")).toMatchObject({xyz: [1, 2, 3], selected: true});
-        expect(input("P₂₀₁ y").value).toBe("2");
+        expect(fieldText(input("P₂₀₁ y"))).toBe("2");
         // 3 * 0.5^2 * 0.25 (w = 0.25)
         expect(weightText()).toBe("0.1875");
 
@@ -141,12 +147,12 @@ describe("numeric xyz editor", () => {
         act(() => graph.setSelectedCoordinates([4, 5, 6]));
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         act(() => graph.setSelectedCoordinates([0, 0, 0]));
-        expect(input("P₁₂₀ x").value).toBe("0");
+        expect(fieldText(input("P₁₂₀ x"))).toBe("0");
         await settle(() => graph.selectPreset("mine"));
         expect(netPoint(graph, 1, 2)).toEqual([4, 5, 6]);
         expect(select().value).toBe("");
         choose(1, 2, 0);
-        expect(input("P₁₂₀ x").value).toBe("4");
+        expect(fieldText(input("P₁₂₀ x"))).toBe("4");
     });
 });
 
@@ -232,7 +238,7 @@ describe("JSX surface view", () => {
         }
         if (selected) {
             const name = `P${selected.map(sub).join("")}`;
-            expect([input(`${name} x`).value, input(`${name} y`).value, input(`${name} z`).value])
+            expect([fieldText(input(`${name} x`)), fieldText(input(`${name} y`)), fieldText(input(`${name} z`))])
                 .toEqual(jsx.shown(triangularPointId(...selected)).map(value => String(Number(value.toFixed(4)))));
         }
     }

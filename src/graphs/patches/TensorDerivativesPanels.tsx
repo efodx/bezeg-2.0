@@ -1,20 +1,35 @@
-import {Button} from "react-bootstrap";
 import {formatNumber, type NumberLanguage} from "../../analysis/format";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, useT} from "../../localization";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import type {NormalDegeneracy, TensorDifferentials} from "./tensorDerivatives";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 export const DERIVATIVES_CORNERS: ReadonlyArray<readonly [0 | 1, 0 | 1]> = [[0, 0], [1, 0], [0, 1], [1, 1]];
 
-/** The Uredi buttons that set (u, v) to a corner of the parameter square. */
-export function DerivativesCornerButtons({onCorner}: {onCorner: (u: 0 | 1, v: 0 | 1) => void}) {
+const NOT_A_CORNER = "";
+const cornerId = (u: number, v: number) => `${u}${v}`;
+
+/**
+ * The Uredi select that sets (u, v) to a corner of the parameter square. It shows the corner (u, v) is at, and a "none" entry
+ * while (u, v) is elsewhere; choosing the corner already shown does nothing.
+ */
+export function DerivativesCornerSelect({u, v, onCorner}: {u: number; v: number; onCorner: (u: 0 | 1, v: 0 | 1) => void}) {
     const t = useT();
-    return <div className="patch-derivatives-corners" role="group" aria-label={t("patch_derivatives_corners")}>
-        <div className="workspace-curve-picker">{DERIVATIVES_CORNERS.map(([u, v]) =>
-            <Button key={`${u}${v}`} data-corner={`${u}${v}`} aria-label={t("patch_derivatives_corner", {value0: String(u), value1: String(v)})}
-                    onClick={() => onCorner(u, v)}>{`(${u}, ${v})`}</Button>)}</div>
+    const atCorner = DERIVATIVES_CORNERS.find(([cornerU, cornerV]) => cornerU === u && cornerV === v);
+    const shown = atCorner ? cornerId(...atCorner) : NOT_A_CORNER;
+    const options = [...(atCorner ? [] : [{value: NOT_A_CORNER, text: t("patch_derivatives_corner_none")}]),
+        ...DERIVATIVES_CORNERS.map(([cornerU, cornerV]) => ({value: cornerId(cornerU, cornerV), text: `(${cornerU}, ${cornerV})`,
+            ariaLabel: t("patch_derivatives_corner", {value0: String(cornerU), value1: String(cornerV)})}))];
+    return <div className="patch-derivatives-corners">
+        <ChoiceSelect label={t("patch_derivatives_corners")} value={shown} options={options}
+                      onChange={value => {
+                          const corner = DERIVATIVES_CORNERS.find(([cornerU, cornerV]) => cornerId(cornerU, cornerV) === value);
+                          if (corner && value !== shown) onCorner(...corner);
+                      }}/>
     </div>;
 }
 
@@ -38,6 +53,9 @@ export function DerivativesReadout({differentials}: {differentials: TensorDiffer
     const t = useT();
     const language = currentLanguage();
     const {normal} = differentials;
+    const reason = normal.kind === "degenerate" ? t(REASON_KEYS[normal.reason]) : "";
+    // Dragging u or v can cross a degenerate point many times a second, so a change is announced only once it settles.
+    const liveReadout = useStatusReadout(reason, true);
     const rows = [
         {id: "su", label: <var>S<sub>u</sub></var>, value: vectorText(differentials.su, language)},
         {id: "sv", label: <var>S<sub>v</sub></var>, value: vectorText(differentials.sv, language)},
@@ -46,7 +64,8 @@ export function DerivativesReadout({differentials}: {differentials: TensorDiffer
     ];
     return <>
         <FunctionReadout title={t("patch_derivatives_readout_heading")} rows={rows} note={t("patch_derivatives_legend")}/>
-        {normal.kind === "degenerate" && <p className="inspector-help patch-derivatives-status" role="status" data-reason={normal.reason}>{t(REASON_KEYS[normal.reason])}</p>}
+        {normal.kind === "degenerate" && <p className="inspector-help patch-derivatives-status" data-reason={normal.reason}>{reason}</p>}
+        <LiveReadout readout={liveReadout} dataAttribute="derivatives-live"/>
     </>;
 }
 

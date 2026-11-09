@@ -1,6 +1,6 @@
 import type React from "react";
 import type {PresetCollection} from "../base/presets/PresetCollection";
-import {DerivativesCornerButtons, DerivativesReadout, DerivativesVisibilityControls} from "./TensorDerivativesPanels";
+import {DerivativesCornerSelect, DerivativesReadout, DerivativesVisibilityControls} from "./TensorDerivativesPanels";
 import {buildDerivativesScene} from "./TensorDerivativesScene";
 import TensorPatchGraph, {TensorPatchGraphState} from "./TensorPatchGraph";
 import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
@@ -101,7 +101,7 @@ export default class TensorDerivativesGraph extends TensorPatchGraph {
             {this.unavailableNotice()}
             <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}
                                   pointExtra={<>
-                                      <DerivativesCornerButtons onCorner={(cornerU, cornerV) => this.setParameters(cornerU, cornerV)}/>
+                                      <DerivativesCornerSelect u={u} v={v} onCorner={(cornerU, cornerV) => this.setParameters(cornerU, cornerV)}/>
                                       {/* Next to the controls that change it, not after the Bernstein readout. */}
                                       <DerivativesReadout differentials={tensorDifferentials(patchFromNet(net), u, v)}/>
                                   </>}/>

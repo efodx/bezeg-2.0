@@ -146,9 +146,9 @@ describe("starting patch", () => {
         chooseOrder("columns");
         fireEvent.click(screen.getByLabelText(t("de_casteljau_construction")));
         const setState = vi.spyOn(graph, "setState");
-        fireEvent.click(screen.getByRole("button", {name: t("preset_bicubic_dome")}));
+        fireEvent.change(screen.getByLabelText(t("patch_starting_heading")), {target: {value: screen.getByRole<HTMLOptionElement>("option", {name: t("preset_bilinear_saddle")}).value}});
         expect(setState).toHaveBeenCalledTimes(1);
-        expect(graph.state).toMatchObject({showDeCasteljau: false, decasteljauOrder: "columns", m: 3, n: 3});
+        expect(graph.state).toMatchObject({showDeCasteljau: false, decasteljauOrder: "columns", m: 1, n: 1});
         expect(constructionLines(view.last)).toEqual([]);
     });
 });

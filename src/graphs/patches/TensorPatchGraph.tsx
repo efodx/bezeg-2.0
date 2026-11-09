@@ -339,10 +339,22 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         this.selectPoint(this.selectedPointId);
     }
 
+    /** The starting patch whose net, with its degrees, the patch has now; undefined (the "custom" entry) when it matches none. */
+    startingPatchIndex(): number | undefined {
+        const {m, n, net} = this.state;
+        const index = this.startingPatches().findIndex(preset => {
+            const entry = preset.data()[0];
+            if (entry?.[0] !== "TensorProductBezierPatch" || entry[1].m !== m || entry[1].n !== n) return false;
+            return entry[1].net.every((point, k) => point.every((coordinate, axis) => coordinate === net[Math.floor(k / (n + 1))][k % (n + 1)][axis]));
+        });
+        return index < 0 ? undefined : index;
+    }
+
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     protected readonly panelActions: TensorPatchPanelActions = {
         useStartingPatch: index => this.useStartingPatch(index),
+        startingPatchIndex: () => this.startingPatchIndex(),
         setDegree: (direction, degree) => this.setDegree(direction, degree),
         setParameter: (parameter, value) => this.setParameter(parameter, value),
         setVisibility: (key, visible) => this.setVisibility(key, visible),

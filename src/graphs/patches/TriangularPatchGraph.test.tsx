@@ -3,11 +3,12 @@
  * restore, a language switch and several synchronous actions in one tick) the model, the reconciled scene and the
  * controls agree.
  */
-import {act, fireEvent, render, screen} from "@testing-library/react";
+import {act, fireEvent, render, screen, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
 import {appStorage} from "../../storage/appStorage";
+import {enterNumber} from "../../inputs/testEntry";
 import {formatNumber} from "../../analysis/format";
 import {currentLanguage, setLanguage, t} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
@@ -15,6 +16,7 @@ import TriangularPatchGraph from "./TriangularPatchGraph";
 import {triangularFromNet} from "./TriangularPatchDegree";
 import {triangularIndices, triangularNetLength, triangularPointId, triangularRows} from "./TriangularPatchLattice";
 import {defaultTriangularPatchPresets, patchPresetCollections} from "./patchPresetCollections";
+import {CAMERA_PRESETS} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 beforeAll(installBoardShims);
@@ -32,7 +34,7 @@ function mount() {
     return {graph, view, rendered};
 }
 
-type Key = "patch_triangular_degree" | "patch_parameter_u" | "patch_parameter_v" | "patch_show_control_net" | "patch_show_iso_curves"
+type Key = "patch_parameter_u" | "patch_parameter_v" | "patch_show_control_net" | "patch_show_iso_curves"
     | "patch_show_boundary_curves" | "patch_show_shading" | "patch_iso_density" | "patch_shading_density" | "patch_move_height"
     | "patch_subdivision_show" | "de_casteljau_construction";
 const control = <T extends HTMLElement>(label: Key) => screen.getByLabelText<T>(t(label));
@@ -64,7 +66,7 @@ function expectAgreement(graph: TriangularPatchGraph, view: FakeSurfaceView) {
     expect(s.v).toBeGreaterThanOrEqual(0);
     expect(s.u + s.v).toBeLessThanOrEqual(1 + 1e-12);
     // The controls.
-    expect(control<HTMLSelectElement>("patch_triangular_degree").value).toBe(String(s.n));
+    expect(within(screen.getByRole("group", {name: t("patch_triangular_degree")})).getByRole("spinbutton")).toHaveProperty("value", String(s.n));
     expect(Number(control<HTMLInputElement>("patch_parameter_u").value)).toBeCloseTo(s.u, 12);
     expect(Number(control<HTMLInputElement>("patch_parameter_v").value)).toBeCloseTo(s.v, 12);
     const w = document.querySelector('[data-readout="parameter-w"] dd')!.textContent;
@@ -159,6 +161,47 @@ describe("degree changes", () => {
         expect(graph.state.net).toEqual(defaultTriangularPatchPresets[3].data()[0][1].net);
         expect(graph.state.camera.distance).toBeCloseTo(defaultTriangularPatchPresets[3].data()[0][1].state!.camera!.distance, 12);
         expectAgreement(graph, view);
+    });
+});
+
+describe("shared controls in the panels", () => {
+    const degreeGroup = () => screen.getByRole("group", {name: t("patch_triangular_degree")});
+    const startingSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_starting_heading"));
+    const azimuth = () => screen.getByLabelText<HTMLInputElement>(t("patch_camera_azimuth"));
+
+    it("the degree stepper and its typed field reach the model, and a typed degree outside 1 to 4 is refused", () => {
+        const {graph} = mount();
+        fireEvent.click(within(degreeGroup()).getByRole("button", {name: t("increase_count")}));
+        expect(graph.state.n).toBe(4);
+        expect(within(degreeGroup()).getByRole("button", {name: t("increase_count")}).getAttribute("aria-disabled")).toBe("true");
+        enterNumber(within(degreeGroup()).getByRole("spinbutton"), "2");
+        expect(graph.state.n).toBe(2);
+        enterNumber(within(degreeGroup()).getByRole("spinbutton"), "7");
+        expect(graph.state.n).toBe(2);
+    });
+    it("the starting-patch select shows the matching patch, gains a custom entry for an edited net, and choosing the shown patch changes nothing", () => {
+        const {graph} = mount();
+        expect(startingSelect().value).toBe("2");
+        expect(within(startingSelect()).queryByRole("option", {name: t("patch_starting_custom")})).toBeNull();
+        fireEvent.change(startingSelect(), {target: {value: "3"}});
+        expect(graph.state.n).toBe(4);
+        expect(startingSelect().value).toBe("3");
+        const net = graph.state.net;
+        fireEvent.change(startingSelect(), {target: {value: "3"}});
+        expect(graph.state.net).toBe(net);
+        act(() => graph.selectIndex([2, 1, 1]));
+        act(() => graph.setSelectedCoordinates([5, 5, 5]));
+        expect(startingSelect().value).toBe("custom");
+        expect(within(startingSelect()).getByRole("option", {name: t("patch_starting_custom")})).toBeTruthy();
+        fireEvent.change(startingSelect(), {target: {value: "3"}});
+        expect(graph.state.net).toEqual(defaultTriangularPatchPresets[3].data()[0][1].net);
+    });
+    it("the shared camera panel writes the azimuth in degrees and a preset button moves the camera", () => {
+        const {graph} = mount();
+        fireEvent.change(azimuth(), {target: {value: "90"}});
+        expect(graph.state.camera.az).toBeCloseTo(Math.PI / 2, 12);
+        fireEvent.click(screen.getByRole("button", {name: t("patch_view_top"), hidden: true}));
+        expect(graph.state.camera.el).toBeCloseTo(CAMERA_PRESETS.top.el, 12);
     });
 });
 
@@ -308,7 +351,7 @@ describe("Reset, Presets, language and one tick", () => {
         const net = graph.state.net;
         act(() => setLanguage("en"));
         expect(view.labels[view.labels.length - 1]).toBe("Three-dimensional view of the patch");
-        expect(screen.getByLabelText(t("patch_triangular_degree"))).toBeTruthy();
+        expect(screen.getByRole("group", {name: t("patch_triangular_degree")})).toBeTruthy();
         expect(graph.state.net).toBe(net);
         expectAgreement(graph, view);
         act(() => setLanguage("sl"));

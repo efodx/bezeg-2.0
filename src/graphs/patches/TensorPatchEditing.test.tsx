@@ -9,7 +9,7 @@ import {FakeSurfaceView} from "./FakeSurfaceView";
 import {newJsxHandle, type JsxHandle} from "./jsxPatchEditing.test-helper";
 import {patchBernsteinWeight} from "./patchBernstein";
 import TensorPatchGraph from "./TensorPatchGraph";
-import {azimuthDegrees} from "./TensorPatchPanels";
+import {azimuthDegrees} from "./SurfaceCameraPanel";
 
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
@@ -32,7 +32,9 @@ function mount() {
 }
 
 const select = (label: "patch_index_i" | "patch_index_j") => screen.getByLabelText<HTMLSelectElement>(t(label));
-const input = (name: string) => screen.getByLabelText<HTMLInputElement>(name);
+/** A coordinate field by "P₂₁ x"; the field is named "P₂₁, x". `shown` reads its text with a decimal point whatever the language. */
+const input = (name: string) => screen.getByRole<HTMLInputElement>("spinbutton", {name: name.replace(/ (\w)$/, ", $1")});
+const shown = (field: HTMLInputElement) => field.value.replace(",", ".").replace("−", "-");
 const range = (label: "patch_parameter_u" | "patch_parameter_v" | "patch_camera_azimuth" | "patch_camera_elevation") =>
     screen.getByLabelText<HTMLInputElement>(t(label));
 const choose = (i: number, j: number) => {
@@ -41,11 +43,15 @@ const choose = (i: number, j: number) => {
 };
 const highlights = (view: FakeSurfaceView) => view.last.polylines.filter(line => line.role === "highlight");
 const weightText = () => document.querySelector('[data-readout="bernstein-weight"] dd')?.textContent;
+const typeAxis = (axis: string, value: string, name = "P₂₁") => {
+    fireEvent.change(input(`${name} ${axis}`), {target: {value}});
+    fireEvent.keyDown(input(`${name} ${axis}`), {key: "Enter"});
+};
+/** Each coordinate commits on its own Enter. */
 const apply = (x: string, y: string, z: string, name = "P₂₁") => {
-    fireEvent.change(input(`${name} x`), {target: {value: x}});
-    fireEvent.change(input(`${name} y`), {target: {value: y}});
-    fireEvent.change(input(`${name} z`), {target: {value: z}});
-    fireEvent.submit(input(`${name} x`).closest("form")!);
+    typeAxis("x", x, name);
+    typeAxis("y", y, name);
+    typeAxis("z", z, name);
 };
 const degrees = (radians: number) => radians * 180 / Math.PI;
 
@@ -56,12 +62,12 @@ describe("index selection", () => {
         choose(2, 1);
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["p-2-1"]);
         const [x, y, z] = graph.state.net[2][1];
-        expect([input("P₂₁ x").value, input("P₂₁ y").value, input("P₂₁ z").value]).toEqual([String(x), String(y), String(z)]);
+        expect([shown(input("P₂₁ x")), shown(input("P₂₁ y")), shown(input("P₂₁ z"))]).toEqual([String(x), String(y), String(z)]);
 
         view.emit({kind: "select", pointId: "p-1-3"});
         expect(select("patch_index_i").value).toBe("1");
         expect(select("patch_index_j").value).toBe("3");
-        expect(input("P₁₃ z").value).toBe(String(graph.state.net[1][3][2]));
+        expect(shown(input("P₁₃ z"))).toBe(String(graph.state.net[1][3][2]));
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["p-1-3"]);
 
         fireEvent.change(select("patch_index_i"), {target: {value: ""}});
@@ -88,40 +94,46 @@ describe("numeric xyz editor", () => {
         apply("0.5", "-1.25", "3");
         expect(graph.state.net[2][1]).toEqual([0.5, -1.25, 3]);
         expect(view.last.points.find(p => p.id === "p-2-1")?.xyz).toEqual([0.5, -1.25, 3]);
-        expect(input("P₂₁ y").value).toBe("-1.25");
+        expect(shown(input("P₂₁ y"))).toBe("-1.25");
     });
 
-    it("rejects a non-finite or empty coordinate with the localized message and leaves the net alone", () => {
+    it("refuses a non-finite or empty coordinate in the field's hint and leaves the net alone", () => {
         const {graph} = mount();
         choose(2, 1);
-        const before = graph.state.net;
         for (const invalid of ["abc", "", "Infinity"]) {
             const current = graph.state.net;
-            apply(invalid, "1", "1");
+            typeAxis("x", invalid);
             expect(graph.state.net).toBe(current);
-            expect(screen.getByRole("alert").textContent).toBe(t("enter_finite_numeric_coordinates"));
-            // A valid entry clears the message, so each invalid entry must raise it again.
-            apply("1", "2", "3");
-            expect(graph.state.net[2][1]).toEqual([1, 2, 3]);
-            expect(screen.queryByRole("alert")).toBeNull();
-            act(() => graph.setSelectedCoordinates(before[2][1]));
+            expect(input("P₂₁ x").getAttribute("aria-invalid")).toBe("true");
+            // A valid entry clears the hint, so each invalid entry must raise it again.
+            typeAxis("x", "1");
+            expect(graph.state.net[2][1][0]).toBe(1);
+            expect(input("P₂₁ x").getAttribute("aria-invalid")).toBeNull();
         }
+    });
+
+    it("an axis left as shown keeps its exact unrounded value when another axis is committed", () => {
+        const {graph} = mount();
+        choose(2, 1);
+        act(() => graph.setSelectedCoordinates([0.123456789, 0.987654321, 2]));
+        typeAxis("z", "5");
+        expect(graph.state.net[2][1]).toEqual([0.123456789, 0.987654321, 5]);
     });
 
     it("follows drags, degree changes, scene writes, a language switch and Reset", async () => {
         const {graph, view} = mount();
         choose(1, 1);
         view.emit({kind: "point", pointId: "p-1-1", xyz: [0.75, 0.5, 4], phase: "move"});
-        expect([input("P₁₁ x").value, input("P₁₁ z").value]).toEqual(["0.75", "4"]);
+        expect([shown(input("P₁₁ x")), shown(input("P₁₁ z"))]).toEqual(["0.75", "4"]);
 
         act(() => graph.setDegree("v", 4));
-        expect(input("P₁₁ z").value).toBe(String(graph.state.net[1][1][2]));
+        expect(shown(input("P₁₁ z"))).toBe(String(graph.state.net[1][1][2]));
 
         act(() => graph.setState({net: graph.state.net.map(row => row.map((): [number, number, number] => [9, 8, 7]))}));
-        expect(input("P₁₁ x").value).toBe("9");
+        expect(shown(input("P₁₁ x"))).toBe("9");
 
         act(() => setLanguage("en"));
-        expect(input("P₁₁ x").value).toBe("9");
+        expect(shown(input("P₁₁ x"))).toBe("9");
         expect(select("patch_index_i").value).toBe("1");
 
         await settle(() => graph.reset());
@@ -135,12 +147,12 @@ describe("numeric xyz editor", () => {
         act(() => graph.setSelectedCoordinates([4, 5, 6]));
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         act(() => graph.setSelectedCoordinates([0, 0, 0]));
-        expect(input("P₁₂ x").value).toBe("0");
+        expect(shown(input("P₁₂ x"))).toBe("0");
         await settle(() => graph.selectPreset("mine"));
         expect(graph.state.net[1][2]).toEqual([4, 5, 6]);
         expect(select("patch_index_i").value).toBe("");
         choose(1, 2);
-        expect(input("P₁₂ x").value).toBe("4");
+        expect(shown(input("P₁₂ x"))).toBe("4");
     });
 });
 
@@ -315,7 +327,7 @@ describe("JSX surface view", () => {
         }
         if (selected) {
             const [i, j] = selected, name = `P${sub(i)}${sub(j)}`;
-            expect([input(`${name} x`).value, input(`${name} y`).value, input(`${name} z`).value]).toEqual(jsx.shown(`p-${i}-${j}`).map(value => String(Number(value.toFixed(4)))));
+            expect([shown(input(`${name} x`)), shown(input(`${name} y`)), shown(input(`${name} z`))]).toEqual(jsx.shown(`p-${i}-${j}`).map(value => String(Number(value.toFixed(4)))));
         }
     }
 

@@ -1,8 +1,8 @@
-import {Button} from "react-bootstrap";
 import {formatNumber, type NumberLanguage} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import type {PatchDirection} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
@@ -40,13 +40,15 @@ export function SubdivisionElevateControls({canElevateU, canElevateV, onElevate}
         {direction: "u", enabled: canElevateU, label: t("patch_elevate_u")},
         {direction: "v", enabled: canElevateV, label: t("patch_elevate_v")},
     ] as const satisfies ReadonlyArray<{direction: PatchDirection; enabled: boolean; label: string}>;
+    const reasonOf = (direction: PatchDirection) => t("patch_elevate_maximum", {value0: direction});
     return <div className="inspector-group patch-elevate-controls"><h3>{t("patch_elevate_heading")}</h3>
         <div className="workspace-curve-picker">{entries.map(({direction, enabled, label}) =>
-            <Button key={direction} data-elevate={direction} disabled={!enabled} onClick={() => onElevate(direction)}>{label}</Button>)}</div>
+            <UnavailableButton key={direction} className="btn btn-primary" data-elevate={direction} reason={enabled ? undefined : reasonOf(direction)}
+                               onPress={() => onElevate(direction)}>{label}</UnavailableButton>)}</div>
         <p className="inspector-help">{t("patch_elevate_help")}</p>
         {entries.filter(entry => !entry.enabled).map(({direction}) =>
-            <p key={direction} className="inspector-help patch-elevate-reason" role="status" data-elevate-reason={direction}>
-                {t("patch_elevate_maximum", {value0: direction})}</p>)}
+            <p key={direction} className="inspector-help patch-elevate-reason" data-elevate-reason={direction}>
+                {reasonOf(direction)}</p>)}
     </div>;
 }
 

@@ -236,6 +236,23 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         this.selectPoint(this.selectedPointId);
     }
 
+    /** The index of the starting scene the pair equals (both nets, mode, ratio and join `v`; the capstone is its own scene), or undefined for an edited pair. */
+    joinSceneIndex(): number | undefined {
+        const sameNet = (x?: ReadonlyArray<ReadonlyArray<Xyz>>, y?: ReadonlyArray<ReadonlyArray<Xyz>>) =>
+            x !== undefined && y !== undefined && x.length === y.length && x.every((row, i) => row.length === y[i].length && row.every((p, j) => p.every((value, axis) => value === y[i][j][axis])));
+        const current = this.state;
+        const index = joinStartingScenes.findIndex(scene => {
+            const entry = scene.data()[0];
+            if (entry?.[0] !== "TensorProductBezierPatch") return false;
+            const target = this.stateOf(entry[1]);
+            if ((target.joinCapstone !== undefined) !== this.capstone()) return false;
+            if (this.capstone()) return true;
+            return (target.joinContinuity ?? DEFAULT_JOIN_CONTINUITY) === this.mode() && (target.joinAlpha ?? DEFAULT_JOIN_ALPHA) === this.alpha()
+                && (target.joinV ?? DEFAULT_JOIN_V) === (current.joinV ?? DEFAULT_JOIN_V) && sameNet(target.net, current.net) && sameNet(target.netB, current.netB);
+        });
+        return index < 0 ? undefined : index;
+    }
+
     /** The starting patches replace `A`; the join settings stay and `B` becomes the continuation of the new `A`, joined in the current mode. */
     override useStartingPatch(index: number): void {
         const entry = this.startingPatches()[index]?.data()[0];
@@ -311,7 +328,7 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         const netB = this.bNet();
         return <>
             {this.unavailableNotice()}
-            <JoinScenesControls scenes={joinStartingScenes} onUse={index => this.useJoinScene(index)}/>
+            <JoinScenesControls scenes={joinStartingScenes} current={this.joinSceneIndex()} onUse={index => this.useJoinScene(index)}/>
             <JoinModeControls mode={this.mode()} alpha={this.alpha()} joinV={this.state.joinV ?? DEFAULT_JOIN_V}
                               onMode={mode => this.setJoinContinuity(mode)} onAlpha={alpha => this.setJoinAlpha(alpha)} onJoinV={v => this.setJoinV(v)}/>
             <JoinReportPanel report={this.joinReport()}/>

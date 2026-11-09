@@ -13,7 +13,7 @@ import {defaultTriangularPatchPresets, patchPresetCollections} from "./patchPres
 import type {PatchDensity} from "./patchSceneBuilder";
 import {barycentricW, TriangularPatchDisplayPanel, TriangularPatchEditPanel, TriangularPatchPanelActions, TriangularSelection, TriangularVisibilityKey} from "./TriangularPatchPanels";
 import {triangularBernsteinWeight} from "./patchBernstein";
-import {changeTriangularDegree, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
+import {changeTriangularDegree, defaultTriangularNet, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
 import {parseTriangularPointId, triangularIndex, triangularPointId} from "./TriangularPatchLattice";
 import {buildTriangularScene} from "./TriangularPatchScene";
 import {mountParameterInset, ParameterInset} from "./parameterInset";
@@ -301,10 +301,20 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         this.selectPoint(this.selectedPointId);
     }
 
+    /** The starting patch the current net equals exactly (degree and every point), or undefined for an edited or imported net. */
+    startingPatchIndex(): number | undefined {
+        const {n, net} = this.state;
+        const index = defaultTriangularPatchPresets.findIndex(preset => preset.degree === n);
+        if (index < 0) return undefined;
+        const canonical = defaultTriangularNet(n);
+        return net.length === canonical.length && net.every((point, k) => point.every((value, axis) => value === canonical[k][axis])) ? index : undefined;
+    }
+
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     private readonly panelActions: TriangularPatchPanelActions = {
         useStartingPatch: index => this.useStartingPatch(index),
+        startingPatchIndex: () => this.startingPatchIndex(),
         setDegree: degree => this.setDegree(degree),
         setParameter: (parameter, value) => this.setParameter(parameter, value),
         setSubdivisionPreview: visible => this.setSubdivisionPreview(visible),

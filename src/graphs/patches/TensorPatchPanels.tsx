@@ -1,14 +1,17 @@
-import {type ReactNode, useCallback, useState} from "react";
-import {Button} from "react-bootstrap";
+import {type ReactNode, useCallback} from "react";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
+import {PatchPointChooser} from "./PatchPointChooser";
+import {PatchPointEditor} from "./PatchPointEditor";
 import {defaultPatchPresets, type DerivativesStartingPatch} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
-import {CAMERA_PRESETS, CameraPresetName} from "./surface-view/surfaceMath";
+import {SurfaceCameraPanel} from "./SurfaceCameraPanel";
+import type {CameraPresetName} from "./surface-view/surfaceMath";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 /** What the tensor patch panels show; read from the scene store on every render. */
@@ -42,6 +45,8 @@ export type PatchVisibilityKey = "showControlNet" | "showIsoCurves" | "showBound
 /** What the controls ask the graph to do; the graph owns every change. */
 export interface TensorPatchPanelActions {
     useStartingPatch(index: number): void;
+    /** The index of the starting patch whose net the patch has now, or undefined while it matches none (the "custom" entry). */
+    startingPatchIndex(): number | undefined;
     setDegree(direction: "u" | "v", degree: number): void;
     setParameter(parameter: "u" | "v", value: number): void;
     setVisibility(key: PatchVisibilityKey, visible: boolean): void;
@@ -58,12 +63,10 @@ export interface TensorPatchPanelActions {
     setInsetContainer(container: HTMLElement | null): void;
 }
 
-const radToDeg = (radians: number) => radians * 180 / Math.PI;
-/** The azimuth in degrees, wrapped to [-180, 180) so repeated orbiting stays on the slider. */
-export const azimuthDegrees = (radians: number) => ((radToDeg(radians) + 180) % 360 + 360) % 360 - 180;
-const MAX_ELEVATION_DEGREES = radToDeg(CAMERA_PRESETS.top.el);
-
-const DEGREES = [1, 2, 3, 4].map(degree => ({value: String(degree), text: String(degree)}));
+const MIN_DEGREE = 1;
+const MAX_DEGREE = 4;
+/** The select value of the "custom" starting-patch entry; the others are indices into the starting patches. */
+const CUSTOM_PATCH = "custom";
 const DENSITIES = [8, 16].map(density => ({value: String(density), text: String(density)}));
 const asDensity = (value: string): PatchDensity => value === "16" ? 16 : 8;
 
@@ -76,62 +79,33 @@ export function ParameterInset({attach, label}: {attach: (container: HTMLElement
     return <div className="patch-parameter-inset" ref={ref} role="group" aria-label={label}/>;
 }
 
-const AXES = ["x", "y", "z"] as const;
-const NO_INDEX = "";
+
+const startingPatchOptions = (patches: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>, t: ReturnType<typeof useT>, custom: boolean) =>
+    [...patches.map((preset, index) => ({value: String(index), text: t(preset.name)})), ...(custom ? [{value: CUSTOM_PATCH, text: t("patch_starting_custom")}] : [])];
 
 /**
- * The coordinates of the selected control point `name`; remounts (and so shows the store's values) whenever they change
- * elsewhere. Shared by the tensor and triangular patch panels.
- */
-export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApply: (xyz: Xyz) => void}) {
-    const t = useT();
-    const [error, setError] = useState(false);
-    // A drag leaves long decimals. The field rounds them; an axis left as shown keeps its exact value on Apply.
-    const shown = xyz.map(value => Number(value.toFixed(4)));
-    return <div className="point-coordinate-editor patch-point-editor"><form className="point-coordinate-form" onSubmit={event => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        const next = AXES.map(axis => Number(data.get(axis)));
-        // An empty field is Number("") = 0, so it is checked as text as well.
-        if (next.some(value => !Number.isFinite(value)) || AXES.some(axis => String(data.get(axis)).trim() === "")) {
-            setError(true);
-            return;
-        }
-        setError(false);
-        const [x, y, z] = next.map((value, k) => value === shown[k] ? xyz[k] : value);
-        onApply([x, y, z]);
-    }}>
-        <fieldset className="point-coordinate-row"><legend><span className="point-coordinate-name" aria-hidden="true">{name}</span><span className="visually-hidden">{name}</span></legend>
-            <div className="point-coordinate-values patch-xyz-values">
-                {AXES.map((axis, k) => <label key={axis}><span className="point-coordinate-axis" aria-hidden="true">{axis}</span>
-                    <input aria-label={`${name} ${axis}`} name={axis} type="number" step="any" required defaultValue={shown[k]}/></label>)}
-            </div>
-        </fieldset>
-        <button className="point-coordinate-submit" type="submit">{t("apply_coordinates")}</button>
-        {error && <p role="alert">{t("enter_finite_numeric_coordinates")}</p>}
-    </form></div>;
-}
-
-/**
- * `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. `startingPatches` are the buttons
- * of the "Starting patch" group (the two tensor Presets unless the Demonstration offers more). `pointLocked` is the reason the
- * selected point cannot be edited right now; it replaces the coordinate editor so that no Apply is offered that does nothing.
+ * `pointExtra` is shown in the "Point on the patch" group, below the u and v sliders. `startingPatches` are the entries of the "Starting
+ * patch" select (the two tensor Presets unless the Demonstration offers more); a "custom" entry shows only while the net matches none
+ * of them (`actions.startingPatchIndex`), and choosing the entry already shown does nothing. `pointLocked` is the reason the selected
+ * point cannot be edited right now; it replaces the coordinate editor so that nothing is offered that does nothing.
  */
 export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, startingPatches = defaultPatchPresets}: {
     state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string;
     startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>;
 }) {
     const t = useT();
+    const matching = actions.startingPatchIndex();
+    const shownPatch = matching === undefined ? CUSTOM_PATCH : String(matching);
     return <>
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
-            <div className="workspace-curve-picker">{startingPatches.map((preset, index) =>
-                <Button key={preset.id} onClick={() => actions.useStartingPatch(index)}>{t(preset.name)}</Button>)}</div>
+            <ChoiceSelect label={t("patch_starting_heading")} value={shownPatch} options={startingPatchOptions(startingPatches, t, matching === undefined)}
+                          onChange={value => { if (value !== shownPatch && value !== CUSTOM_PATCH) actions.useStartingPatch(Number(value)); }}/>
         </div>
         <div className="inspector-group"><h3>{t("patch_degree_heading")}</h3>
-            <ChoiceSelect label={t("patch_degree_u")} value={String(state.m)} options={DEGREES}
-                          onChange={value => actions.setDegree("u", Number(value))} help={t("patch_degree_help")}/>
-            <ChoiceSelect label={t("patch_degree_v")} value={String(state.n)} options={DEGREES}
-                          onChange={value => actions.setDegree("v", Number(value))}/>
+            <CountSetter label={t("patch_degree_u")} n={state.m} min={MIN_DEGREE} max={MAX_DEGREE} help={t("patch_degree_help")}
+                         onMinus={() => actions.setDegree("u", state.m - 1)} onPlus={() => actions.setDegree("u", state.m + 1)}/>
+            <CountSetter label={t("patch_degree_v")} n={state.n} min={MIN_DEGREE} max={MAX_DEGREE}
+                         onMinus={() => actions.setDegree("v", state.n - 1)} onPlus={() => actions.setDegree("v", state.n + 1)}/>
         </div>
         <div className="inspector-group"><h3>{t("patch_point_heading")}</h3>
             <Slider customText={t("patch_parameter_u")} min={0} max={1} step={0.01} value={state.u}
@@ -143,15 +117,15 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
             <p className="inspector-help">{t("patch_parameter_inset_help")}</p>
         </div>
         <div className="inspector-group"><h3>{t("patch_control_point_heading")}</h3>
-            <ChoiceSelect label={t("patch_index_i")} value={selection ? String(selection.i) : NO_INDEX} options={indexOptions(state.m, t("patch_no_selection"))}
-                          onChange={value => value === NO_INDEX ? actions.selectIndex(undefined, undefined) : actions.selectIndex(Number(value), selection?.j)}/>
-            <ChoiceSelect label={t("patch_index_j")} value={selection ? String(selection.j) : NO_INDEX} options={indexOptions(state.n, t("patch_no_selection"))}
-                          onChange={value => value === NO_INDEX ? actions.selectIndex(undefined, undefined) : actions.selectIndex(selection?.i, Number(value))}/>
+            <PatchPointChooser noneText={t("patch_no_selection")} selection={selection && [String(selection.i), String(selection.j)]}
+                               axes={[{label: t("patch_index_i"), options: indexOptions(state.m)}, {label: t("patch_index_j"), options: indexOptions(state.n)}]}
+                               onChange={chosen => chosen === undefined ? actions.selectIndex(undefined, undefined)
+                                   : actions.selectIndex(chosen[0] === undefined ? undefined : Number(chosen[0]), chosen[1] === undefined ? undefined : Number(chosen[1]))}/>
             {selection && pointLocked !== undefined
                 ? <p className="inspector-help patch-point-locked" role="note">{pointLocked}</p>
                 : selection
-                ? <PointEditor key={`${selection.i}-${selection.j}-${selection.xyz.join(",")}`} name={`P${subscriptDigits(selection.i)}${subscriptDigits(selection.j)}`} xyz={selection.xyz}
-                             onApply={coordinates => actions.setSelectedCoordinates(coordinates)}/>
+                ? <PatchPointEditor key={`${selection.i}-${selection.j}`} name={`P${subscriptDigits(selection.i)}${subscriptDigits(selection.j)}`} xyz={selection.xyz}
+                                    onCommit={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_select_point_help")}</p>}
         </div>
         {selection && <FunctionReadout title={t("patch_bernstein_heading")} rows={[{
@@ -161,8 +135,7 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
     </>;
 }
 
-const indexOptions = (degree: number, none: string) =>
-    [{value: NO_INDEX, text: none}, ...Array.from({length: degree + 1}, (_, k) => ({value: String(k), text: String(k)}))];
+const indexOptions = (degree: number) => Array.from({length: degree + 1}, (_, k) => ({value: String(k), text: String(k)}));
 
 /** `visibilityExtra` is shown at the end of the "Shown elements" group. */
 export function TensorPatchDisplayPanel({state, actions, visibilityExtra, readOnly = false}: {
@@ -187,22 +160,11 @@ export function TensorPatchDisplayPanel({state, actions, visibilityExtra, readOn
             <ChoiceSelect label={t("patch_shading_density")} value={String(state.shadingDensity)} options={DENSITIES}
                           onChange={value => actions.setDensity("shading", asDensity(value))}/>
         </div>}
-        <div className="inspector-group"><h3>{t("patch_camera_heading")}</h3>
-            <div className="workspace-curve-picker">
-                <Button onClick={() => actions.applyCameraPreset("front")}>{t("patch_view_front")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("top")}>{t("patch_view_top")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("side")}>{t("patch_view_side")}</Button>
-                <Button onClick={() => actions.applyCameraPreset("isometric")}>{t("patch_view_isometric")}</Button>
-                <Button onClick={() => actions.resetView()}>{t("patch_view_reset")}</Button>
-            </div>
-            <Slider customText={t("patch_camera_azimuth")} min={-180} max={180} step={1} decimals={0} value={azimuthDegrees(state.camera.az)}
-                    onChange={degrees => actions.setCameraAngle("az", degrees)}/>
-            <Slider customText={t("patch_camera_elevation")} min={-MAX_ELEVATION_DEGREES} max={MAX_ELEVATION_DEGREES} step={1} decimals={1}
-                    value={radToDeg(state.camera.el)} onChange={degrees => actions.setCameraAngle("el", degrees)}/>
+        <SurfaceCameraPanel camera={state.camera} actions={actions}>
             {readOnly ? null : <>
                 <OnOffSwitch label={t("patch_move_height")} checked={state.zMode} onChange={on => actions.setZMode(on)}/>
                 <p className="inspector-help">{t("patch_move_height_help")}</p>
             </>}
-        </div>
+        </SurfaceCameraPanel>
     </>;
 }

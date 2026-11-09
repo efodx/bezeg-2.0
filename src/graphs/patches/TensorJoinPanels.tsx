@@ -1,24 +1,35 @@
 import {useState} from "react";
 import {Button} from "react-bootstrap";
+import {CountSetter} from "../../inputs/CountSetter";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
 import {FunctionReadout} from "../functions/FunctionReadout";
-import {PointEditor, subscriptDigits} from "./TensorPatchPanels";
+import {PatchPointChooser} from "./PatchPointChooser";
+import {PatchPointEditor} from "./PatchPointEditor";
+import {subscriptDigits} from "./TensorPatchPanels";
 import type {JoinStartingScene} from "./patchPresetCollections";
 import {JOIN_ALPHA_RANGE, type JoinContinuity, type JoinReport} from "./tensorJoins";
 import type {Xyz} from "./surface-view/surfaceScene";
 
-const DEGREES = [1, 2, 3, 4].map(degree => ({value: String(degree), text: String(degree)}));
-const NO_INDEX = "";
+const MIN_DEGREE = 1;
+const MAX_DEGREE = 4;
+const CUSTOM_SCENE = "custom";
 
 /** The "Join examples" group of Uredi: whole scenes (both patches, continuity and ratio). */
-export function JoinScenesControls({scenes, onUse}: {scenes: ReadonlyArray<Pick<JoinStartingScene, "id" | "name">>; onUse: (index: number) => void}) {
+export function JoinScenesControls({scenes, current, onUse}: {
+    scenes: ReadonlyArray<Pick<JoinStartingScene, "id" | "name">>;
+    /** The index of the scene the model equals, or undefined while it matches none (an edited or imported pair). */
+    current: number | undefined; onUse: (index: number) => void;
+}) {
     const t = useT();
+    const shown = current === undefined ? CUSTOM_SCENE : String(current);
+    const options = [...scenes.map((scene, index) => ({value: String(index), text: t(scene.name)})),
+        ...(current === undefined ? [{value: CUSTOM_SCENE, text: t("patch_join_scene_custom")}] : [])];
     return <div className="inspector-group patch-join-scenes"><h3>{t("patch_join_scenes_heading")}</h3>
-        <div className="workspace-curve-picker">{scenes.map((scene, index) =>
-            <Button key={scene.id} data-join-scene={scene.id} onClick={() => onUse(index)}>{t(scene.name)}</Button>)}</div>
+        <ChoiceSelect label={t("patch_join_scenes_heading")} value={shown} options={options}
+                      onChange={value => { if (value !== shown && value !== CUSTOM_SCENE) onUse(Number(value)); }}/>
     </div>;
 }
 
@@ -53,7 +64,7 @@ export function JoinModeControls({mode, alpha, joinV, onMode, onAlpha, onJoinV}:
         <ChoiceSelect label={t("patch_join_mode")} value={mode} options={options} help={t("patch_join_mode_help")}
                       onChange={next => onMode(next === "c0" || next === "c1" || next === "g1" ? next : "none")}/>
         <Slider customText={t("patch_join_alpha")} min={JOIN_ALPHA_RANGE.min} max={JOIN_ALPHA_RANGE.max} step={0.05} value={alpha}
-                disabled={!g1} help={g1 ? t("patch_join_alpha_help") : `${t("patch_join_alpha_help")} ${t("patch_join_alpha_disabled")}`}
+                unavailableReason={g1 ? undefined : t("patch_join_alpha_disabled")} help={t("patch_join_alpha_help")}
                 onChange={onAlpha}/>
         <Slider customText={t("patch_join_v")} min={0} max={1} step={0.01} value={joinV} help={t("patch_join_v_help")} onChange={onJoinV}/>
     </div>;
@@ -64,10 +75,15 @@ export function JoinBDegreeControls({mode, mB, nB, onDegree}: {
     mode: JoinContinuity; mB: number; nB: number; onDegree: (direction: "u" | "v", degree: number) => void;
 }) {
     const t = useT();
+    const setDegree = (direction: "u" | "v", degree: number) => {
+        if (!Number.isInteger(degree) || degree < MIN_DEGREE || degree > MAX_DEGREE) return false;
+        onDegree(direction, degree);
+    };
     return <div className="inspector-group patch-join-degree"><h3>{t("patch_join_b_heading")}</h3>
-        <ChoiceSelect label={t("patch_join_b_degree_u")} value={String(mB)} options={DEGREES} onChange={value => onDegree("u", Number(value))}/>
-        <ChoiceSelect label={t("patch_join_b_degree_v")} value={String(nB)} options={DEGREES} onChange={value => onDegree("v", Number(value))}
-                      help={t(mode === "none" ? "patch_join_b_degree_free" : "patch_join_b_degree_shared")}/>
+        <CountSetter label={t("patch_join_b_degree_u")} n={mB} min={MIN_DEGREE} max={MAX_DEGREE}
+                     onMinus={() => onDegree("u", mB - 1)} onPlus={() => onDegree("u", mB + 1)} onSet={degree => setDegree("u", degree)}/>
+        <CountSetter label={t("patch_join_b_degree_v")} n={nB} min={MIN_DEGREE} max={MAX_DEGREE} help={t(mode === "none" ? "patch_join_b_degree_free" : "patch_join_b_degree_shared")}
+                     onMinus={() => onDegree("v", nB - 1)} onPlus={() => onDegree("v", nB + 1)} onSet={degree => setDegree("v", degree)}/>
     </div>;
 }
 
@@ -94,9 +110,9 @@ function JoinBPointControlsBody({netB, isDerivedRow, selected, onSelect, onApply
     const focus = chosen && chosen[0] <= mB && chosen[1] <= nB && isDerivedRow(chosen[0]) ? chosen : undefined;
     const index = selected ?? focus;
     const nameOf = (i: number, j: number) => `Q${subscriptDigits(i)}${subscriptDigits(j)}`;
-    const rowOptions = [{value: NO_INDEX, text: t("patch_no_selection")}, ...netB.map((_, k) =>
-        ({value: String(k), text: isDerivedRow(k) ? t("patch_join_b_option_derived", {value0: String(k)}) : String(k)}))];
-    const columnOptions = [{value: NO_INDEX, text: t("patch_no_selection")}, ...netB[0].map((_, k) => ({value: String(k), text: String(k)}))];
+    const rowOptions = netB.map((_, k) =>
+        ({value: String(k), text: isDerivedRow(k) ? t("patch_join_b_option_derived", {value0: String(k)}) : String(k)}));
+    const columnOptions = netB[0].map((_, k) => ({value: String(k), text: String(k)}));
     const choose = (i: number | undefined, j: number | undefined) => {
         if (i === undefined && j === undefined) {
             setChosen(undefined);
@@ -108,13 +124,13 @@ function JoinBPointControlsBody({netB, isDerivedRow, selected, onSelect, onApply
         onSelect(next[0], next[1]);
     };
     return <div className="inspector-group patch-join-b-point"><h3>{t("patch_join_b_point_heading")}</h3>
-        <ChoiceSelect label={t("patch_join_b_index_i")} value={index ? String(index[0]) : NO_INDEX} options={rowOptions}
-                      onChange={value => value === NO_INDEX ? choose(undefined, undefined) : choose(Number(value), index?.[1])}/>
-        <ChoiceSelect label={t("patch_join_b_index_j")} value={index ? String(index[1]) : NO_INDEX} options={columnOptions}
-                      onChange={value => value === NO_INDEX ? choose(undefined, undefined) : choose(index?.[0], Number(value))}/>
+        <PatchPointChooser noneText={t("patch_no_selection")} selection={index && [String(index[0]), String(index[1])]}
+                           axes={[{label: t("patch_join_b_index_i"), options: rowOptions}, {label: t("patch_join_b_index_j"), options: columnOptions}]}
+                           onChange={picked => picked === undefined ? choose(undefined, undefined)
+                               : choose(picked[0] === undefined ? undefined : Number(picked[0]), picked[1] === undefined ? undefined : Number(picked[1]))}/>
         {selected
-            ? <PointEditor key={`${selected.join("-")}-${netB[selected[0]][selected[1]].join(",")}`} name={nameOf(selected[0], selected[1])}
-                           xyz={netB[selected[0]][selected[1]]} onApply={onApply}/>
+            ? <PatchPointEditor key={selected.join("-")} name={nameOf(selected[0], selected[1])}
+                           xyz={netB[selected[0]][selected[1]]} onCommit={onApply}/>
             : focus
                 ? <p className="inspector-help patch-join-derived-note" role="status">{t("patch_join_b_derived_note", {value0: nameOf(focus[0], focus[1])})}</p>
                 : <p className="inspector-help">{t("patch_join_b_point_help")}</p>}
