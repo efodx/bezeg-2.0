@@ -14,7 +14,16 @@ interface CountSetterProps {
     onPlus: () => void;
     onMinus: () => void;
     /** When given, the middle is an editable integer field that calls `onSet` with the typed whole number; otherwise it shows `n` read-only. */
-    onSet?: (value: number) => void;
+    onSet?: (value: number) => void | boolean;
+    /** A count that is not whole (for example a rational weight): digits shown, which makes the typed field accept decimals. `n` is then formatted with these digits. */
+    decimals?: number;
+    /** What an arrow key adds in the typed field; defaults to one. Only with `decimals`. */
+    step?: number;
+    /** Why `onSet` returned false; replaces the generic rejection hint of the typed field. */
+    rejectedHint?: string;
+    /** Names of the buttons when "Decrease the number" and "Increase the number" do not fit the quantity. */
+    minusLabel?: string;
+    plusLabel?: string;
     /** The change of Shift with an arrow, PageUp and PageDown in the field; defaults to ten. */
     bigStep?: number;
     min?: number | (() => number);
@@ -38,6 +47,7 @@ export function CountSetter(props: CountSetterProps) {
     const {n} = props;
     const min = typeof props.min === "function" ? props.min() : props.min;
     const max = typeof props.max === "function" ? props.max() : props.max;
+    const digits = props.decimals ?? 0;
     const atMin = min !== undefined && n <= min;
     const atMax = max !== undefined && n >= max;
 
@@ -57,15 +67,16 @@ export function CountSetter(props: CountSetterProps) {
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
              aria-describedby={joinIds(props.help && `${id}-help`)}>
-            <UnavailableButton aria-label={t("decrease_count")} className="btn btn-primary count-setter-button" reason={minusReason}
+            <UnavailableButton aria-label={props.minusLabel ?? t("decrease_count")} className="btn btn-primary count-setter-button" reason={minusReason}
                                onPress={() => { setPressed(undefined); props.onMinus(); }} onBlockedPress={() => blocked("min")}>−</UnavailableButton>
             {props.onSet
-                ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, 0)})} hideLabel compact
-                               value={n} min={min} max={max} step={1} bigStep={props.bigStep} decimals={0} integer
+                ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, digits)})} hideLabel compact
+                               value={n} min={min} max={max} step={props.step ?? 1} bigStep={props.bigStep} decimals={digits}
+                               integer={props.decimals === undefined} rejectedHint={props.rejectedHint}
                                onChange={value => props.onSet?.(value)}/>
-                : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, 0)})}>
-                    {formatNumber(n, language, 0)}</output>}
-            <UnavailableButton aria-label={t("increase_count")} className="btn btn-primary count-setter-button" reason={plusReason}
+                : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, digits)})}>
+                    {formatNumber(n, language, digits)}</output>}
+            <UnavailableButton aria-label={props.plusLabel ?? t("increase_count")} className="btn btn-primary count-setter-button" reason={plusReason}
                                onPress={() => { setPressed(undefined); props.onPlus(); }} onBlockedPress={() => blocked("max")}>+</UnavailableButton>
         </div>
         {props.help && <p id={`${id}-help`} className="count-setter-help">{props.help}</p>}

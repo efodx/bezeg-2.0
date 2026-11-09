@@ -121,3 +121,19 @@ test('a repeated blocked press announces again: the reason line is a new element
     expect(second).toHaveTextContent('Najmanj 1.');
     expect(second).not.toBe(first);
 });
+
+test('with decimals the typed field takes fractional values, shows them, names its buttons and explains a refusal', () => {
+    const onSet = vi.fn((value: number) => value > 0);
+    render(<CountSetter label="Utež" n={1.25} decimals={2} step={0.25} rejectedHint="Utež mora biti pozitivna." minusLabel="Zmanjšaj utež"
+                        plusLabel="Povečaj utež" onPlus={() => undefined} onMinus={() => undefined} onSet={onSet}/>);
+    const field = screen.getByRole('spinbutton', {name: 'Utež'}) as HTMLInputElement;
+    expect(field.value).toBe('1,25');
+    expect(screen.getByRole('button', {name: 'Zmanjšaj utež'})).toBeInTheDocument();
+    expect(screen.getByRole('button', {name: 'Povečaj utež'})).toBeInTheDocument();
+    fireEvent.input(field, {target: {value: '0,5'}, inputType: 'insertText'});
+    fireEvent.keyDown(field, {key: 'Enter'});
+    expect(onSet).toHaveBeenLastCalledWith(0.5);
+    fireEvent.input(field, {target: {value: '-1'}, inputType: 'insertText'});
+    fireEvent.keyDown(field, {key: 'Enter'});
+    expect(document.querySelector('.number-input-hint')).toHaveTextContent('Utež mora biti pozitivna.');
+});
