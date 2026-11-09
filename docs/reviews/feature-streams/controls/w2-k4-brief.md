@@ -1,0 +1,15 @@
+# Wave 2 slice K4: typed point paths for the remaining curve boards, and the workspace hint
+
+Read `w2-fc-common-brief.md` first; it holds role, scope limits, shared files, test rules, checks and return format. Read `w2-k1.md` (typed-path table, whole-curve move finding) and, if present, `w2-k2.md` (how K2 wired a coordinate-only `PointListInput` on the B-spline boards).
+
+**Owned:** `src/graphs/curves/bezier/**`, `reduction/**`, `arclength/**`, `parametric/**`, `ph/**`, `spline/**`, `rational/**`, their tests; `src/graphs/base/BaseCurveGraph.tsx` and `src/graphs/base/CurvePointControls.tsx` for the hint and for an opt-in, if that is the smallest seam. Do not edit `BaseGraph.tsx` or `src/inputs/**`.
+
+**Handler decisions (2026-11-09):**
+1. **Typed paths (task 0 decision 4).** Every curve board whose control points can be dragged gets a coordinate-only typed path: the shared `PointListInput` (task 2 decision 29) with one row per draggable point, no add or remove unless the board already offers them, typed values outside ±10⁶ refused (decision 30), commit on Enter or blur (decision 2). Boards: Decasteljau, Decasteljau2, Elevation, Extrapolation, Subdivision, Subdivision1, AffineTransforms, DegreeReduction (the original cubic), ArcLengthParametrization (curve control points), the rational boards (RationalBezier, RationalDecasteljau, RationalSubdivision2, RationalElevation, RationalExtrapolation, FarinPoints, RationalCircleN if its points drag), and the C1, C2, Cn, G1 and G1Symmetric splines (free points only; function-bound junctions are not rows). Rejected: opting these boards into the full workspace list with add and remove, which K1 found needs per-point weight semantics (a model change). Prefer one shared seam (for example an opt-in on `BaseCurveGraph`/`CurvePointControls` that renders an edit-only list of a curve's free points) over a copy per board. A typed move must go through the same model path as a drag, so constraints and readouts follow. If a board needs a model change, stop for it and report.
+2. **Whole-curve move is intended** (K1: `CurveEditingFeature.ts:88-100`, the "Manipulate curve" mode). The workspace hint (`en.ts` key `drag_a_control_point_drag_inside_the_frame_…`) lists "Drag a control point" first, which is false while a curve is selected. Reword it in both languages so it says that a selected curve moves, scales or rotates from its frame, and that clearing the selection lets a single point move. New key named after the new text, old key deleted.
+
+**Out of scope:** De Casteljau animation buttons (C12), Elevate/Extrapolate/Subdivide buttons (C15), affine buttons (listed exception), reveal buttons (C11).
+
+**Checks:** one thin wiring test per board group (a typed coordinate reaches the model and the drawn point), plus one real-graph case for the shared seam; an observed failure first for each. Run the lesson unit tests for the boards' lessons (bezier, rational, spline, reduction, arc-length, parametric lessons) and `src/graphs/base/sharedControls.graphs.test.tsx`.
+
+**Evidence file:** `w2-k4.md`. **Handoff note:** `w2-k4-handoff.md`.

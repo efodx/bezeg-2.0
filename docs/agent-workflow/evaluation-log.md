@@ -2582,3 +2582,22 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Rejected at acceptance: the scene replacement split. It was correct, with an injected failure caught. But the handler's per-file read of the latest hosted run showed the file was no longer heaviest (107 s against 183 s for `GraphTransientState.part1`), and the split added about 50% summed time for an unchanged predicted maximum shard. The brief carried the handoff's 157 s premise without asking the worker to re-derive it from the newest run.
 - Coverage gap: family reach was not run through a real sweep with a selected family; the worker ran the scope script end to end only.
 - Brief lesson: for an optimisation slice, state the decision criterion (critical-path gain against the newest hosted per-file times) in the acceptance, so the worker can stop early when the premise no longer holds.
+## 2026-11-09: controls Wave 2, functions and curves sweeps (controls stream, handler)
+
+- Scope: controls task 3 for functions (about 38 panels) and curves (about 45 panels plus the curve base controls): status groups, private notices, hand steppers, local Resets, view buttons, unavailable controls, degree choosers, typed point paths on every curve board. Class/size: L. Handler: Opus `medium`, 1.5x budget scale. Up to four workers at once in one checkout; a common brief (`w2-fc-common-brief.md`) plus slice briefs, each sized to about half a worker budget after Wave 2's first pair.
+- Handler-owned before dispatch: the status helpers moved to `src/graphs/base/controls/` and a shared `FunctionStatus` component with its test, so three function slices could share one pattern without sharing a file.
+- Dispatch, all Sonnet `medium`:
+  - Slices: F1 (141k, partial) and F1b (90k), F2 (142k, partial) and F2b (57k), F3 (91k), K1 (61k), K2 (109k), K3 (109k), K4 (73k).
+  - Reviews: functions engineering (95k), curves engineering K1/K2/K4 (74k), UI and accessibility (54k). Repairs RF (101k) and RK (103k).
+  - Smokes: six Sonnet groups of six routes (37k–78k); the handler ran 161 guided-lesson smoke rows for 70 lessons.
+- Outcome: `b09c6de8`, `bf77d72e`, `e4457b0d`, `d7752af6`, `3373d7da`, `5e2bfc47`, `f3292c0a` plus the docs commit; spec decisions 41–49.
+- Defects caught after the workers' own checks:
+  - Review: typed-field refusals shown twice (field hint and graph notice) on seven graphs, fixed with `guardField` (decision 46); lost specific typed-count hints; the rational weight's − could reach zero; the typed point list named no curve on multi-curve boards; thin typed-path tests (no junction, weight or refit check); ungrammatical Slovenian count phrase; three switches still natively disabled, fixed with a shared `unavailableReason`.
+  - Handler: RK's weight minimum also refused typed weights below 0.25 (a mathematical regression), fixed with `CountSetter` `typedMin` and a mutation-checked test.
+  - Broad smoke: Darboux's limit reason shown twice at n = 128 (predated the sweep).
+  - A worker's heredoc put a literal line break in a string and broke every Vitest run in the shared checkout for about 20 minutes; another worker found and fixed it.
+- Lessons:
+  - Half-size slices finished in one worker in five of seven cases; the two that ran out (F1, F2) were the ones with the most test rewrites. Plan a continuation for any slice that rewrites many host tests.
+  - A handler-built shared component before dispatch (`FunctionStatus`) kept three parallel slices consistent and cost the handler little.
+  - Workers' own runs rarely gave an observed failure before the change; the review and the repair round supplied mutation checks. Ask for mutations explicitly in every brief, as the repair briefs did.
+  - `check-changed` selector warnings were all false positives this time (markers built from a computed `data-*` key); the lesson smoke settled them.
