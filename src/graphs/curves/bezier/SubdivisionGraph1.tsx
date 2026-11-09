@@ -2,10 +2,9 @@ import {t} from "../../../localization";
 import React from 'react';
 
 import {GraphPalette} from "../../styles/GraphPalette";
-import {Button} from "react-bootstrap";
+import {CurveOperation} from "../../base/controls/BezierCurveControls";
 import {BaseGraphStates} from '../../base/BaseCurveGraph';
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
-import Slider from "../../../inputs/Slider";
 import {Attributes} from "../../attributes/Attributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
@@ -160,10 +159,9 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat([
-            <Slider customText={t("subdivision_parameter_t")} min={SUBDIVISION_T_MIN} max={SUBDIVISION_T_MAX}
-                    value={this.state.t}
-                    onChange={(t) => this.setT(t, this.state)}></Slider>,
-            <Button onClick={() => this.subdivide()}>{t("subdivide")}</Button>]) : [];
+            <CurveOperation key="subdivision" curve={this.getFirstJxgCurve()} tool="subdivision" permanentPreview
+                            parameter={{value: this.state.t, min: SUBDIVISION_T_MIN, max: SUBDIVISION_T_MAX, onChange: value => this.setT(value, this.state)}}
+                            onChanged={() => undefined} onApply={() => this.subdivide()}/>]) : [];
     }
 
     private subdivide() {

@@ -48,9 +48,10 @@ describe('Subdivision graphs', () => {
     test('the subdivision parameter is named, not shown as an embedded value', () => {
         const graph = makeGraph(SubdivisionGraph1.prototype, {t: 0.37, v: 1});
         graph.getFirstJxgCurve = () => ({isShowingDecasteljauScheme: () => false});
-        const sliders = commandProps(graph).filter(props => 'customText' in props);
-        expect(sliders).toHaveLength(1);
-        expect(sliders[0].customText).toBe(t('subdivision_parameter_t'));
+        // The slider is the subdivision operation's parameter; the shared operation tool names it (CurveOperationPanel.test.tsx).
+        const operations = commandProps(graph).filter(props => props.tool === 'subdivision');
+        expect(operations).toHaveLength(1);
+        expect((operations[0].parameter as {value: number}).value).toBe(0.37);
     });
 
     test('the scheme switch lives in Display and not in Edit', () => {
@@ -65,6 +66,7 @@ describe('Subdivision graphs', () => {
         const graph = makeGraph(SubdivisionGraph.prototype, {});
         graph.getFirstJxgCurve = () => ({isShowingControlPolygon: () => true});
         graph.getSelectedCurve = () => undefined;
+        graph.jxgCurves = [];
         displayOf(graph);
         expect(screen.getByRole('checkbox', {name: t('control_polygons')})).toBeChecked();
         expect(screen.queryByRole('checkbox', {name: t('de_casteljau_scheme')})).toBeNull();

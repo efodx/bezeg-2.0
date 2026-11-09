@@ -1,8 +1,7 @@
-import {t} from "../../../localization";
 import React from 'react';
 
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
-import {Button} from "react-bootstrap";
+import {CurveOperation} from "../../base/controls/BezierCurveControls";
 import {Attributes} from "../../attributes/Attributes";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -29,7 +28,8 @@ class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
     }
 
     override getGraphCommands(): JSX.Element[] {
-        return super.getGraphCommands().concat([<Button onClick={() => this.elevate()}>{t("elevate_degree")}</Button>]);
+        return super.getGraphCommands().concat([<CurveOperation key="elevation" curve={this.getFirstJxgCurve()} tool="elevation" permanentPreview
+            onChanged={() => this.store.notify()} onApply={() => this.elevate()}/>]);
     }
 
     defaultPreset(): CurveCollectionPresetData {

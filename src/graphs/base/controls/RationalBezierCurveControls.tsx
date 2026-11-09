@@ -4,6 +4,7 @@ import React from "react";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {CountSetter} from "../../../inputs/CountSetter";
+import {UnavailableButton} from "../../../inputs/UnavailableButton";
 import {CurveControlsProps} from "./CurveDisplayControls";
 
 const SUBSCRIPT_DIGITS = "₀₁₂₃₄₅₆₇₈₉";
@@ -30,9 +31,9 @@ export function RationalBezierCurveControls({curve, curveNumber, onChanged}: Rat
         onChanged();
     };
     const identity = t("rational_weight_identity", {value0: String(curveNumber), value1: subscript(index)});
-    return <div className="rational-weight-controls">
-        <p className="rational-weight-identity">{identity}</p>
-        <div className="rational-weight-stepper" role="group" aria-label={identity}>
+    return <div>
+        <p>{identity}</p>
+        <div role="group" aria-label={identity}>
             {/* A weight of zero or less is refused here: the rational curve is not defined by such a weight. */}
             <CountSetter label={t("weight_value")} n={weight} decimals={2} step={0.25} min={0.25} typedMin={0} minReason={t("weight_must_be_positive")}
                          minusLabel={t("decrease_weight")} plusLabel={t("increase_weight")}
@@ -44,10 +45,11 @@ export function RationalBezierCurveControls({curve, curveNumber, onChanged}: Rat
                              change(() => curve.setWeight(value));
                          }}/>
         </div>
-        <div className="rational-weight-navigation">
+        <div>
             <Button onClick={() => change(() => curve.prevWeight())}>{t("previous_weight")}</Button>
             <Button onClick={() => change(() => curve.nextWeight())}>{t("next_weight")}</Button>
-            <Button onClick={() => change(() => curve.resetWeight())}>{t("reset_weight")}</Button>
+            <UnavailableButton className="btn btn-primary" reason={weight === 1 ? t("weight_already_one") : undefined}
+                               onPress={() => change(() => curve.resetWeight())}>{t("reset_weight")}</UnavailableButton>
         </div>
         <OnOffSwitch checked={curve.inStandardForm()} label={t("standard_form")}
                      onChange={checked => {curve.setStandardForm(checked); onChanged();}}/>

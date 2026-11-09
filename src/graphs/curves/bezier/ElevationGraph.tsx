@@ -1,7 +1,7 @@
 import {t} from "../../../localization";
 import React from 'react';
 
-import {Button} from "react-bootstrap";
+import {CurveOperation} from "../../base/controls/BezierCurveControls";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
@@ -102,10 +102,9 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     override getGraphCommands(): JSX.Element[] {
-        return super.getGraphCommands().concat([<Button className="degree-elevation-action" onClick={() => this.elevate()}>
-            <span className="degree-elevation-action-icon" aria-hidden="true">↑</span>
-            {t("elevate_degree")}
-        </Button>]);
+        return super.getGraphCommands().concat([<CurveOperation key="elevation" curve={this.getFirstJxgCurve()} tool="elevation" permanentPreview
+            onChanged={() => this.store.notify()} onApply={() => this.elevate()} applyClassName="btn btn-primary degree-elevation-action"
+            applyIcon={<span className="degree-elevation-action-icon" aria-hidden="true">↑</span>}/>]);
     }
 }
 

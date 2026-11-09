@@ -1,7 +1,7 @@
 import {t, useT} from "../../../localization";
 import React from 'react';
 
-import {Button} from "react-bootstrap";
+import {CurveOperation} from "../../base/controls/BezierCurveControls";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
@@ -117,8 +117,9 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat([<Button
-            onClick={() => this.subdivide()}>{t("subdivide")}</Button>]) : [];
+        return this.state.initialized ? super.getGraphCommands().concat([<CurveOperation key="subdivision" curve={this.getFirstJxgCurve()} tool="subdivision" permanentPreview parameter={null}
+            onChanged={() => this.store.notify()} onApply={() => this.subdivide()}
+            applyReason={this.stepsDone >= MAX_SUBDIVISION_STEPS ? t("subdivision_steps_limit", {value0: String(MAX_SUBDIVISION_STEPS)}) : undefined}/>]) : [];
     }
 
     private hideControlPolygons() {

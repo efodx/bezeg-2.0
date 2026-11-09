@@ -126,11 +126,6 @@
       "count": 1
     }
   },
-  "src/graphs/base/CurveWorkspaceControls.tsx": {
-    "react-hooks/refs": {
-      "count": 2
-    }
-  },
   "src/graphs/base/DemonstrationWorkspace.tsx": {
     "react-hooks/immutability": {
       "count": 2

@@ -145,16 +145,17 @@ test('the De Casteljau switch of the selected curve follows a lesson action and 
     const graph = new SelectableBezierGraph();
     const view = renderGraph(graph);
     act(() => graph.selectFirst());
-    const scheme = () => view.getByLabelText(t('de_casteljau_construction'), {selector: 'input'}) as HTMLInputElement;
-    expect(scheme().checked).toBe(false);
+    const scheme = () => view.getByRole('button', {name: t('preview_decasteljau_scheme')});
+    const shown = () => scheme().getAttribute('aria-pressed') === 'true';
+    expect(shown()).toBe(false);
 
     act(() => graph.getLessonCapabilities().apply({kind: 'curve-visibility', target: 'decasteljau-scheme', visible: true}));
     expect(graph.getFirstJxgCurve().isShowingDecasteljauScheme()).toBe(true);
-    expect(scheme().checked).toBe(true);
+    expect(shown()).toBe(true);
 
     fireEvent.click(scheme());
     expect(graph.getFirstJxgCurve().isShowingDecasteljauScheme()).toBe(false);
-    expect(scheme().checked).toBe(false);
+    expect(shown()).toBe(false);
     view.unmount();
 });
 
