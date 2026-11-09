@@ -40,7 +40,8 @@ test('Reset weight at weight 1 shows its reason on a press; a weight that is 1 u
 
 test('the shared Apply class has the coarse-pointer 44px rule (layout is not measurable in jsdom, so the CSS source is read)', () => {
     const css = readFileSync(join(__dirname, 'BezierCurveControls.css'), 'utf8');
-    expect(css).toMatch(/@media \(pointer: coarse\), \(max-width: 700px\)\s*\{\s*\.operation-apply \{ min-height: 44px; \}/);
+    // The selectors must outrank the workspace's 34px button rules (`.workspace-inspector .tools .btn`, `.demonstration-workspace button`).
+    expect(css).toMatch(/@media \(pointer: coarse\), \(max-width: 700px\)\s*\{[^}]*\.demonstration-workspace button\.operation-apply, \.workspace-inspector \.tools \.btn\.operation-apply \{ min-height: 44px; \}/);
     render(<OperationTool curve={elevateCurve()} tool="elevation" onChanged={vi.fn()} previews={null}/>);
     expect(screen.getByRole('button', {name: /.+/})).toHaveClass('operation-apply');
 });
