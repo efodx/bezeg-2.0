@@ -21,7 +21,7 @@ A+B full run: 849 s wall, Duration 847.9 s (tests 59%, import 17%, environment 1
 Always-run step (12 files): baseline wrapper 66.0 s (Vitest Duration 14.56 s); after A+B 27.8 s wrapper. Wrapper time includes the memory-wait, so treat as indicative only.
 
 ## Checks
-`just typecheck`, `just lint vite.config.mts src/setupTests.ts`, `just tooling-test` pass. Sharding: `--shard=1/2` and `2/2` over 95 files ran 48 + 47 = 95, each file once. 
+`just typecheck`, `just lint vite.config.mts src/setupTests.ts`, `just tooling-test` pass. Sharding: `--shard=1/2` and `2/2` over 95 files ran 48 + 47 = 95, each file once.
 
 ## Not verified
 - A clean full-run wall comparison (needs a quiet machine and a committed setup change, or `BEZEG_SWEEPS` fixed).
