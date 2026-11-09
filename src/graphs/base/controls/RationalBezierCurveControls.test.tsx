@@ -33,3 +33,25 @@ test('the weight is one shared stepper: plus and minus change it by a quarter, a
     expect(document.querySelector('.number-input-hint')).toHaveTextContent('Utež mora biti pozitivna.');
     expect(onChanged).toHaveBeenCalledTimes(3);
 });
+
+test('minus at the smallest quarter step (w = 0.25) leaves the weight positive and shows the positive-weight reason', () => {
+    const curve = stubCurve();
+    curve.weight = 0.25;
+    render(<RationalBezierCurveControls curve={curve as unknown as JXGRationalBezierCurve} curveNumber={1} onChanged={vi.fn()}/>);
+    const minus = screen.getByRole('button', {name: 'Zmanjšaj utež'});
+    expect(minus).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(minus);
+    expect(curve.changeWeight).not.toHaveBeenCalled();
+    expect(curve.weight).toBe(0.25);
+    expect(document.querySelector('[data-count-reason]')).toHaveTextContent('Utež mora biti pozitivna.');
+});
+
+test('a positive weight below the quarter step can still be typed', () => {
+    const curve = stubCurve();
+    render(<RationalBezierCurveControls curve={curve as unknown as JXGRationalBezierCurve} curveNumber={1} onChanged={vi.fn()}/>);
+    const field = screen.getByRole('spinbutton') as HTMLInputElement;
+    fireEvent.input(field, {target: {value: '0,1'}, inputType: 'insertText'});
+    fireEvent.keyDown(field, {key: 'Enter'});
+    expect(curve.setWeight).toHaveBeenLastCalledWith(0.1);
+    expect(curve.weight).toBe(0.1);
+});

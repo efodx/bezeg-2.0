@@ -14,6 +14,8 @@ interface BooleanFieldProps {
     describedBy?: string;
     /** A short explanation shown under the row and linked by aria-describedby. */
     help?: string;
+    /** Why the switch cannot change now: it stays focusable with aria-disabled, ignores changes and shows the reason as linked help (no native disabled). */
+    unavailableReason?: string;
 }
 
 /**
@@ -23,15 +25,18 @@ interface BooleanFieldProps {
 export function BooleanField(props: BooleanFieldProps) {
     const id = useId();
     const helpId = `${id}-help`;
+    const reasonId = `${id}-reason`;
     return <div className={`bool-field bool-field-${props.variant}`}>
         <div className="bool-field-row">
             <input id={id} type="checkbox" className="bool-field-input" checked={props.checked} disabled={props.disabled}
-                   aria-describedby={joinIds(props.describedBy, props.help && helpId)}
+                   aria-describedby={joinIds(props.describedBy, props.help && helpId, props.unavailableReason && reasonId)}
+                   aria-disabled={props.unavailableReason !== undefined ? true : undefined}
                    // Enter on a checkbox would otherwise submit an enclosing form; Space is the key that toggles it.
                    onKeyDown={event => { if (event.key === "Enter") event.preventDefault(); }}
-                   onChange={event => props.onChange(event.target.checked)}/>
+                   onChange={event => { if (props.unavailableReason === undefined) props.onChange(event.target.checked); }}/>
             <label htmlFor={id} className="bool-field-label">{props.label}</label>
         </div>
+        {props.unavailableReason && <p id={reasonId} className="bool-field-help">{props.unavailableReason}</p>}
         {props.help && <p id={helpId} className="bool-field-help">{props.help}</p>}
     </div>;
 }

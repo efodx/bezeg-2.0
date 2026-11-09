@@ -9,6 +9,7 @@
     background-repeat: no-repeat; background-size: contain;
 }
 .bool-field-input:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
+.bool-field-input[aria-disabled="true"] { opacity: .5; cursor: default; }
 .bool-field-input:disabled, .bool-field-input:disabled ~ .bool-field-label { cursor: default; }
 .bool-field-input:disabled { opacity: .5; }
 .bool-field .bool-field-input:checked { background-color: var(--workspace-green, #3b6704); border-color: var(--workspace-green, #3b6704); }

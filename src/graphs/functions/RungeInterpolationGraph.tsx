@@ -3,7 +3,7 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCu
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
@@ -221,9 +221,10 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
             <div className="inspector-group">
                 <CountSetter label={t("interp_runge_degree_label")} n={state.degree} min={RUNGE_DEGREE_MIN} max={RUNGE_DEGREE_MAX}
                              help={t("interp_runge_degree_help", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
+                             rejectedHint={t("interp_runge_degree_rejected", {value0: RUNGE_DEGREE_MIN, value1: RUNGE_DEGREE_MAX})}
                              onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
                              onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
-                             onSet={next => this.guarded(() => this.setDegree(next))}/>
+                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
             </div>
             <div className="inspector-group">
                 <ChoiceSelect label={t("interp_runge_rule_label")} value={state.nodeRule} help={t("interp_runge_rule_help")}
@@ -232,9 +233,10 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.showError} label={t("interp_runge_show_error")} onChange={checked => this.setShowError(checked)}/>
-                <OnOffSwitch checked={state.showSemicircle} label={t("interp_runge_show_semicircle")} disabled={!semicircleAvailable}
-                             describedBy="interp-runge-semicircle-help" onChange={checked => this.setShowSemicircle(checked)}/>
-                <p id="interp-runge-semicircle-help" className="inspector-help">{t("interp_runge_semicircle_help")}</p>
+                <OnOffSwitch checked={state.showSemicircle} label={t("interp_runge_show_semicircle")}
+                             help={semicircleAvailable ? t("interp_runge_semicircle_help") : undefined}
+                             unavailableReason={semicircleAvailable ? undefined : t("interp_runge_semicircle_help")}
+                             onChange={checked => this.setShowSemicircle(checked)}/>
             </div>
         </>;
     }

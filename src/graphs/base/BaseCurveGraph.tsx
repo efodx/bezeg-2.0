@@ -187,6 +187,11 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     }
 
     /** Adds a point to `curve` from the count control: without coordinates one unit right of the last (decision 1), else exactly there. */
+    /** The number a multi-curve board names the listed curve by (with nothing selected the list shows curve 1, named as such); undefined on one curve. */
+    private listedCurveNumber(curve: EditableCurve): number | undefined {
+        return this.jxgCurves.length > 1 ? this.jxgCurves.indexOf(curve) + 1 : undefined;
+    }
+
     private addTypedPoint(curve: EditableCurve, at?: readonly number[]): string | undefined {
         const [x, y] = placeNewPoint(curve.getCurve().getPoints().map(point => [point.X(), point.Y()] as const), at ? {at: [at[0], at[1]]} : {});
         curve.addPoint(x, y);
@@ -222,7 +227,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             const typed = this.workspaceTypedPoints() ? this.getSelectedCurve() ?? this.jxgCurves[0] : undefined;
             return <>{this.workspaceCurveSelection()}
                 {typed && <CurvePointControls key={`points-${this.jxgCurves.indexOf(typed)}-${this.replacementRevision}`}
-                    points={() => this.typedPointsOf(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)}/>}
+                    points={() => this.typedPointsOf(typed)} curveNumber={this.listedCurveNumber(typed)} boards={() => [this.board]} onEdit={(_, to) => this.afterTypedPointEdit(to)}/>}
                 {super.workspaceEdit()}</>;
         }
         const selected = this.getSelectedCurve();
@@ -233,7 +238,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
             {this.workspaceCurveSelection()}
             {selected && this.workspacePointEditing() && <CurveWorkspaceOperations key={`${this.jxgCurves.indexOf(selected)}-${this.workspaceRevision}`} curve={selected as JXGBezierCurve} onChanged={() => this.refreshWorkspace()}/>}
             {selected && this.workspacePointEditing() && <CurvePointControls key={`points-${this.jxgCurves.indexOf(selected)}-${this.replacementRevision}`}
-                points={() => selected.getCurve().getPoints()} boards={() => [this.board]}
+                points={() => selected.getCurve().getPoints()} curveNumber={this.listedCurveNumber(selected)} boards={() => [this.board]}
                 onEdit={(_, to) => this.afterTypedPointEdit(to)}
                 collection={{label: t("control_points"), onAdd: at => this.addTypedPoint(selected, at), onRemove: () => this.removePointAt(selected, -1),
                     onRemoveAt: index => this.removePointAt(selected, index)}}/>}

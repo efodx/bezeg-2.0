@@ -36,8 +36,7 @@ export function PhOffsetDisplayControls({curve, onChanged}: CurveControlsProps<J
             label={t("offset_curve_control_points")}
             checked={showControlPoints}/>
           <OnOffSwitch
-            disabled={!showControlPoints}
-            help={showControlPoints ? undefined : t("lines_need_offset_control_points")}
+            unavailableReason={showControlPoints ? undefined : t("lines_need_offset_control_points")}
             onChange={checked => {
                 curve.setShowOffsetCurveControlPointsLines(checked);
                 onChanged();

@@ -456,7 +456,7 @@ const conicLesson: GuidedLesson = {
                 'With end weights \\(1\\), \\(w_1<1\\) gives an ellipse, \\(w_1=1\\) a parabola and \\(w_1>1\\) a hyperbola. Now \\(w_1=1\\): the arc is a piece of a parabola and therefore no longer on the ellipse, and the deviation is clearly above \\(0\\). Move the slider below \\(1\\) (ellipse) and above \\(1\\) (hyperbola), and press Matched weight to bring the arc back onto the conic. Then change \\(\\varepsilon\\), \\(\\ell\\) and \\(\\varphi\\) freely: the kind by weight always matches the kind of the conic.',
             ),
             formulaIds: ['conic-rational-bezier'],
-            observationPrompt: text('Premakni \\(w_1\\) pod \\(1\\) in nad \\(1\\) in preberi vrsto po uteži; nato pritisni Prilegajoča se utež.', 'Move \\(w_1\\) below \\(1\\) and above \\(1\\) and read the kind by weight; then press Matched weight.'),
+            observationPrompt: text('Premakni \\(w_1\\) pod \\(1\\) in nad \\(1\\) in preberi vrsto po uteži; nato pritisni Nastavi prilegajočo utež.', 'Move \\(w_1\\) below \\(1\\) and above \\(1\\) and read the kind by weight; then press Set the matching weight.'),
             expectedObservations: [text('Utež pod \\(1\\) da elipso, nad \\(1\\) hiperbolo, natanko \\(1\\) parabolo; lok leži na stožnici le pri prilegajoči se uteži.', 'A weight below \\(1\\) gives an ellipse, above \\(1\\) a hyperbola and exactly \\(1\\) a parabola; the arc lies on the conic only at the matching weight.')],
             scene: conicScene('conic-weight-scene', 'ellipse', {weight: 1},
                 'Elipsa z Bézierjevim lokom in srednjo utežjo \\(w_1=1\\): vrsta po uteži je parabola, lok ne leži na elipsi.',

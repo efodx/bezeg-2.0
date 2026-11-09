@@ -374,10 +374,9 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                               min={-SUBDIVISION_COORDINATE_LIMIT} max={SUBDIVISION_COORDINATE_LIMIT}
                                               onCommit={(index, value) => this.editPoint(index, value)}/></div>,
-            <div key="limit"><OnOffSwitch checked={showLimit} label={t("subdiv_show_limit")} disabled={rule !== 'chaikin'}
-                                          describedBy={rule !== 'chaikin' ? "subdiv-limit-reason" : undefined}
-                                          onChange={checked => this.setShowLimit(checked)}/>
-                {rule !== 'chaikin' ? <p id="subdiv-limit-reason" className="inspector-help">{t("subdiv_limit_disabled")}</p> : null}</div>,
+            <div key="limit"><OnOffSwitch checked={showLimit} label={t("subdiv_show_limit")}
+                                          unavailableReason={rule !== 'chaikin' ? t("subdiv_limit_disabled") : undefined}
+                                          onChange={checked => this.setShowLimit(checked)}/></div>,
             <div key="playback" className="inspector-group">
                 <PlaybackButtons groupLabel={t("subdiv_controls")} nextLabel={t("subdiv_next_step")} resetLabel={t("subdiv_reset")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}

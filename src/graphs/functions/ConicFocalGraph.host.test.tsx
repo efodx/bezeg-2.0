@@ -164,7 +164,7 @@ test('the bridge is off by default; a moved weight departs from the matched one,
     expect(readout('weight-kind')).toBe('hiperbola');
     expect(() => graph.editWeight(0)).toThrow();
     expect(() => graph.editWeight(6)).toThrow();
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Prilegajoča se utež'})); });
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Nastavi prilegajočo utež'})); });
     expect(graph.modelNow().weight).toBeNull();
     expect(num('weight')).toBeCloseTo(Math.SQRT1_2, 3);
     expect(num('deviation')).toBeLessThan(1e-9);
@@ -253,17 +253,18 @@ describe('Preset collection', () => {
 describe('unavailable weight controls (F1)', () => {
     const needsBridge = 'Utež velja za Bézierjev lok: najprej ga pokaži.';
     const alreadyMatched = 'Utež je že prilegajoča se: lok leži na stožnici.';
-    const matchedButton = () => screen.getByRole('button', {name: 'Prilegajoča se utež'});
+    const matchedButton = () => screen.getByRole('button', {name: 'Nastavi prilegajočo utež'});
 
     test('the weight slider and the matched-weight button are unavailable with the reason until the bridge is shown', () => {
         const {graph} = mountGraph();
         expect(matchedButton()).toHaveAttribute('aria-disabled', 'true');
         expect(matchedButton()).toHaveAttribute('title', needsBridge);
-        expect(screen.getAllByText(needsBridge).length).toBeGreaterThan(1);
         const before = graph.modelNow();
         act(() => { fireEvent.click(matchedButton()); });
         expect(graph.modelNow()).toBe(before);
-        expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe(needsBridge);
+        // the reason is shown once, with the slider; the blocked press does not repeat it in the refusal notice
+        expect(screen.getAllByText(needsBridge).filter(element => !element.hidden)).toHaveLength(1);
+        expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe('');
     });
 
     test('with the bridge on and the matched weight in use the button names the reason; a moved weight makes it available again', () => {

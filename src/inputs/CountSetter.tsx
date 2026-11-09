@@ -28,6 +28,8 @@ interface CountSetterProps {
     bigStep?: number;
     min?: number | (() => number);
     max?: number | (() => number);
+    /** The typed field's lower bound when it differs from the − limit: a rational weight steps down to 0.25 but any positive weight may be typed. Only with `decimals`. */
+    typedMin?: number;
     /** A short explanation shown under the stepper and linked to its group by aria-describedby. */
     help?: string;
     /** Why minus is unavailable at the lower bound; defaults to "At least {min}.". */
@@ -71,7 +73,7 @@ export function CountSetter(props: CountSetterProps) {
                                onPress={() => { setPressed(undefined); props.onMinus(); }} onBlockedPress={() => blocked("min")}>−</UnavailableButton>
             {props.onSet
                 ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, digits)})} hideLabel compact
-                               value={n} min={min} max={max} step={props.step ?? 1} bigStep={props.bigStep} decimals={digits}
+                               value={n} min={props.decimals !== undefined && props.typedMin !== undefined ? props.typedMin : min} max={max} step={props.step ?? 1} bigStep={props.bigStep} decimals={digits}
                                integer={props.decimals === undefined} rejectedHint={props.rejectedHint}
                                onChange={value => props.onSet?.(value)}/>
                 : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, digits)})}>

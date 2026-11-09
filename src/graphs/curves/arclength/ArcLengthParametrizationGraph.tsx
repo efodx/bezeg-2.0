@@ -399,13 +399,14 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
                           options={ARC_MOVER_MODES.map(value => ({value, text: value === 'arc' ? t("arcparam_mode_arc") : t("arcparam_mode_parameter")}))}
                           onChange={value => { if (isArcMoverMode(value)) this.setArcMoverMode(value); }}/>
             <Slider min={0} max={1} step={0.001} value={this.moverPosition()} customText={t("arcparam_mover_position")}
-                    disabled={this.playing} onChange={value => this.setArcMoverPosition(value)}/>
-            <button type="button" className="inspector-playback-primary" disabled={reduced} data-testid="arc-play-toggle"
+                    unavailableReason={this.playing ? t("arcparam_position_while_playing") : undefined}
+                    onChange={value => this.setArcMoverPosition(value)}/>
+            <button type="button" className="inspector-playback-primary" disabled={reduced} aria-describedby={reduced ? "arc-reduced-motion-reason" : undefined} data-testid="arc-play-toggle"
                     aria-pressed={this.playing} aria-label={this.playing ? t("arcparam_pause_label") : t("arcparam_play_label")}
                     onClick={() => { if (this.playing) this.pause(); else this.play(); }}>
                 {this.playing ? t("pause") : t("play")}
             </button>
-            {reduced && <p className="inspector-help">{t("arcparam_reduced_motion")}</p>}
+            {reduced && <p id="arc-reduced-motion-reason" className="inspector-help">{t("arcparam_reduced_motion")}</p>}
             <OnOffSwitch label={t("arcparam_speed_plot_shown")} checked={this.state.arcSpeedPlotShown}
                          onChange={checked => this.setArcSpeedPlotShown(checked)}/>
             {this.state.arcSpeedPlotShown && <ArcSpeedPlot controller={this.plot} fontSize={this.displaySettings.fontSize}/>}

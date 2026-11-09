@@ -4,7 +4,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
@@ -350,20 +350,21 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                              rejectedHint={t("uniform_r_rejected_hint", {
                                  value0: formatNumber(UNIFORM_R_MIN, language), value1: formatNumber(UNIFORM_R_MAX, language), value2: formatNumber(state.x, language),
                              })}
-                             onChange={next => this.guarded(() => this.setR(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setR(next))}/>
                 <NumberInput label={t("uniform_x_label")} value={state.x} min={0} max={state.r} step={UNIFORM_X_STEP} decimals={2}
                              rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
-                             onChange={next => this.guarded(() => this.setX(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setX(next))}/>
                 <NumberInput label={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP} decimals={2}
                              rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
-                             onChange={next => this.guarded(() => this.setEpsilon(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
                 <p className="inspector-help">{t("uniform_fields_help")}</p>
             </div>
             <div className="inspector-group">
                 <CountSetter label={t("uniform_n_label")} n={state.n} min={UNIFORM_N_MIN} max={UNIFORM_MAX_N} help={t("uniform_n_help")}
+                             rejectedHint={t("uniform_n_rejected_hint", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N})}
                              onPlus={() => this.guarded(() => this.setN(this.model.n + 1))}
                              onMinus={() => this.guarded(() => this.setN(this.model.n - 1))}
-                             onSet={next => this.guarded(() => this.setN(next))}/>
+                             onSet={next => guardField(this.refusals, () => this.setN(next))}/>
             </div>
         </>;
     }

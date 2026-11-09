@@ -1,5 +1,5 @@
 import React from "react";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -289,10 +289,10 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
                 <ChoiceSelect label={t("polynomial_zeros_example_label")} value={current ?? "custom"} help={t("polynomial_zeros_example_help")}
                               options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
                 <NumberInput label={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
-                             rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guard(this.refusals, () => this.setK(next))}/>
+                             rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
             </div>
             <ZeroListEditor zeros={state.zeros} maxDegree={MAX_POLY_DEGREE}
-                            onMove={(index, next) => guard(this.refusals, () => this.setZeroPosition(index, next))}
+                            onMove={(index, next) => guardField(this.refusals, () => this.setZeroPosition(index, next))}
                             onMultiplicity={(index, next) => { guard(this.refusals, () => this.setMultiplicity(index, next)); }}
                             onAdd={() => { guard(this.refusals, () => this.addZero()); }}
                             onRemove={index => { guard(this.refusals, () => this.removeZero(index)); }}

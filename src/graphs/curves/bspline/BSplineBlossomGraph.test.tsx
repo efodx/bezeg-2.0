@@ -257,6 +257,20 @@ describe('controls', () => {
         view.unmount();
     });
 
+    test('the host Reset path (graph.reset, what the Ponastavi button calls) returns the example to its defaults', async () => {
+        const {graph, view} = mount();
+        act(() => { graph.setDegree(3); graph.setSegment(3); graph.setShowBezier(false); });
+        expect(graph.state.degree).toBe(3);
+        act(() => { void graph.reset(); });
+        await vi.waitFor(() => expect(graph.state.degree).toBe(2));
+        expect(graph.state.degree).toBe(2);
+        expect(graph.state.knots).toEqual([0, 0, 0, 1, 2, 2, 2]);
+        expect(graph.state.points).toEqual(DEBOOR_DEFAULT_POINTS);
+        expect(graph.state.segment).toBe(2);
+        expect(graph.state.showBezier).toBe(true);
+        view.unmount();
+    });
+
     test('a control-point drag moves the state, the triangle and the readout', () => {
         const {graph, view} = mount();
         const before = readout('value');
@@ -365,7 +379,7 @@ describe('language', () => {
 describe('shared controls wiring', () => {
     test('a typed control point reaches the model and out-of-range values are refused', () => {
         const {graph, view} = mount();
-        const x = screen.getByLabelText('Točka 2, x');
+        const x = screen.getByLabelText('p₁, x');
         enterNumber(x, '1.5');
         expect(graph.state.points[1][0]).toBe(1.5);
         enterNumber(x, '2000000');

@@ -76,7 +76,9 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     const inputR = field(/^Konec območja r/);
     act(() => { enterNumber(inputR, '0.4'); });
     expect(graph.modelNow()).toMatchObject({r: 0.8, x: 0.5});
-    expect(document.querySelector('[data-refusal-notice]')?.textContent).toMatch(/Najprej premakni točko x/);
+    // one place (decision 14): the field's hint carries the reason, the shared refusal channel stays empty
+    expect([...document.querySelectorAll('.number-input-hint')].map(hint => hint.textContent)).toEqual([expect.stringMatching(/Najprej premakni točko x/)]);
+    expect(document.querySelector('[data-refusal-notice]')?.textContent ?? '').toBe('');
     act(() => { enterNumber(field(/^Točka x$/), '0.3'); });
     act(() => { enterNumber(inputR, '0.45'); });
     expect(graph.modelNow()).toMatchObject({r: 0.45, x: 0.3, supremumVisible: true});

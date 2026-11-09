@@ -15,6 +15,7 @@ import {
 import {
     chooseDarbouxExample, DARBOUX_EXAMPLE_MODELS, DarbouxEdit, DarbouxModel, moveDarbouxEndpoint, refineDarbouxPartition, setDarbouxCount,
 } from "../../analysis/darbouxModel";
+import {guard, guardField} from "../base/controls/guard";
 import {darbouxEditMessage} from "./darbouxMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
@@ -284,14 +285,14 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
             </div>
             <div className="inspector-group">
                 <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
-                             onPlus={() => this.ignoreOutOfDomain(() => this.setCount(n + 1))}
-                             onMinus={() => this.ignoreOutOfDomain(() => this.setCount(n - 1))}
-                             onSet={next => this.ignoreOutOfDomain(() => this.setCount(next))}/>
+                             rejectedHint={t("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})}
+                             onPlus={() => guard(this.refusals, () => this.setCount(n + 1))}
+                             onMinus={() => guard(this.refusals, () => this.setCount(n - 1))}
+                             onSet={next => guardField(this.refusals, () => this.setCount(next))}/>
                 <div className="darboux-actions" role="group" aria-label={t("darboux_partition_label")}>
                     <UnavailableButton data-action="refine" aria-describedby="darboux-refine-help"
                                        reason={refinable ? undefined : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}
-                                       onBlockedPress={reason => this.refusals.refuse(reason, true)}
-                                       onPress={() => { if (this.ignoreOutOfDomain(() => this.refinePartition())) this.refusals.clear(); }}>{t("darboux_refine")}</UnavailableButton>
+                                       onPress={() => { guard(this.refusals, () => this.refinePartition()); }}>{t("darboux_refine")}</UnavailableButton>
                 </div>
                 <p id="darboux-refine-help" className="inspector-help">{refinable ? t("darboux_refine_help") : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}</p>
             </div>

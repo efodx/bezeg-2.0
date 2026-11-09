@@ -309,6 +309,7 @@ describe('playback', () => {
             act(() => graph.play());
             expect(graph.isPlaying()).toBe(false);
             expect(graph.clock.requests).toBe(0);
+            expect(document.querySelector('[data-testid="arc-play-toggle"]')).toHaveAccessibleDescription(/predvajanje ni na voljo/);
             act(() => graph.setArcMoverPosition(0.3));
             expect(graph.arcOverlay()!.mover()!.t).toBeCloseTo(0.3, 12);
         } finally { view.unmount(); }
@@ -375,19 +376,20 @@ describe('the board caption and the details list', () => {
         } finally { view.unmount(); }
     });
 
-    test('the slider is disabled while playing, the Play button is named and pressed, and both reset after Pause', () => {
+    test('the slider is unavailable (with its reason) while playing, the Play button is named and pressed, and both reset after Pause', () => {
         const {graph, view} = mount();
         try {
             const button = () => document.querySelector('[data-testid="arc-play-toggle"]') as HTMLButtonElement;
-            expect(rangeSlider().disabled).toBe(false);
+            expect(rangeSlider().getAttribute('aria-disabled')).toBeNull();
             expect(button().getAttribute('aria-label')).toBe('Predvajaj premikanje točke');
             expect(button().getAttribute('aria-pressed')).toBe('false');
             act(() => graph.play());
-            expect(rangeSlider().disabled).toBe(true);
+            expect(rangeSlider().getAttribute('aria-disabled')).toBe('true');
+            expect(rangeSlider()).toHaveAccessibleDescription(/Točko premika predvajanje/);
             expect(button().getAttribute('aria-label')).toBe('Ustavi premikanje točke');
             expect(button().getAttribute('aria-pressed')).toBe('true');
             act(() => graph.pause());
-            expect(rangeSlider().disabled).toBe(false);
+            expect(rangeSlider().getAttribute('aria-disabled')).toBeNull();
             expect(button().getAttribute('aria-pressed')).toBe('false');
         } finally { view.unmount(); }
     });

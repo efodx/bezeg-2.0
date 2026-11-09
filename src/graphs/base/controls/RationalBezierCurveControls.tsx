@@ -34,7 +34,7 @@ export function RationalBezierCurveControls({curve, curveNumber, onChanged}: Rat
         <p className="rational-weight-identity">{identity}</p>
         <div className="rational-weight-stepper" role="group" aria-label={identity}>
             {/* A weight of zero or less is refused here: the rational curve is not defined by such a weight. */}
-            <CountSetter label={t("weight_value")} n={weight} decimals={2} step={0.25}
+            <CountSetter label={t("weight_value")} n={weight} decimals={2} step={0.25} min={0.25} typedMin={0} minReason={t("weight_must_be_positive")}
                          minusLabel={t("decrease_weight")} plusLabel={t("increase_weight")}
                          rejectedHint={t("weight_must_be_positive")}
                          onMinus={() => change(() => curve.changeWeight(-0.25))}

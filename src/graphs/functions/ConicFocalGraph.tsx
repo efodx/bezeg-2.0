@@ -274,8 +274,8 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
                         onChange={next => this.ignoreOutOfDomain(() => this.setWeight(next))}/>
                 <div className="demo-actions">
                     <UnavailableButton data-action="matched-weight" reason={matchedReason}
-                                       onBlockedPress={reason => this.refusals.refuse(reason, true)}
-                                       onPress={() => { if (this.ignoreOutOfDomain(() => this.setWeight(null))) this.refusals.clear(); }}>{t("conic_weight_matched")}</UnavailableButton>
+                                       onBlockedPress={reason => { if (state.bridge) this.refusals.refuse(reason, true); }}
+                                       onPress={() => { if (this.ignoreOutOfDomain(() => this.setWeight(null))) this.refusals.clear(); }}>{t("conic_weight_set_matching")}</UnavailableButton>
                 </div>
                 <p className="inspector-help">{t("conic_weight_help")}</p>
             </div>

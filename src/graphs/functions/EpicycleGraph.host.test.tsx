@@ -483,7 +483,7 @@ test('Reset while playing stops, returns to t = 0, cancels the frame and clears 
     expect(scheduler.pending).toBe(0);
     expect(playButton().textContent).toBe(PLAY_LABEL);
     drag(graph.vertexPoint(0), 9, 9);
-    expect(refusal()).not.toBe('');
+    expect(refusal()).toMatch(/^Premik ni mogoč, točka ostane na zadnjem veljavnem mestu\. /);
     await settle(() => graph.reset());
     expect(refusal()).toBe('');
 });
@@ -502,7 +502,7 @@ test('a lesson checkpoint restore while playing stops, takes the saved time, can
     expect(scheduler.pending).toBe(0);
     expect(playButton().textContent).toBe(PLAY_LABEL);
     drag(graph.vertexPoint(0), 9, 9);
-    expect(refusal()).not.toBe('');
+    expect(refusal()).toMatch(/^Premik ni mogoč, točka ostane na zadnjem veljavnem mestu\. /);
     act(() => { capabilities.restoreState(checkpoint); });
     expect(refusal()).toBe('');
     expect(graph.time).toBe(2);

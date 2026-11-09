@@ -1,7 +1,7 @@
 import {DomainError} from '../../functions/BaseFunctionGraph';
 import {message} from '../../../localization';
 import {RefusalChannel} from '../../../inputs/RefusalChannel';
-import {guard} from './guard';
+import {guard, guardField} from './guard';
 
 test('an accepted edit runs, returns true and leaves the channel empty', () => {
     const channel = new RefusalChannel();
@@ -33,4 +33,19 @@ test('anything but a DomainError is rethrown and leaves the channel as it was', 
     channel.refuse('Staro.');
     expect(() => guard(channel, () => { throw new TypeError('hrošč'); })).toThrow(TypeError);
     expect(channel.refusal).toBe('Staro.');
+});
+
+test('guardField refuses a typed value in the field only: false, and the channel keeps what it had', () => {
+    const channel = new RefusalChannel();
+    channel.refuse('Staro.');
+    expect(guardField(channel, () => { throw new DomainError('Pregrobo.'); })).toBe(false);
+    expect(channel.refusal).toBe('Staro.');
+});
+
+test('guardField clears the channel on an accepted value and rethrows a bug', () => {
+    const channel = new RefusalChannel();
+    channel.refuse('Staro.');
+    expect(guardField(channel, () => undefined)).toBe(true);
+    expect(channel.refusal).toBeUndefined();
+    expect(() => guardField(channel, () => { throw new TypeError('hrošč'); })).toThrow(TypeError);
 });

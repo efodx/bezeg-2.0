@@ -8,7 +8,8 @@ export function OnOffSwitch(props: {
     label: string,
     disabled?: boolean,
     describedBy?: string,
-    help?: string
+    help?: string,
+    unavailableReason?: string
 }) {
     return <BooleanField variant="switch" {...props}/>;
 }

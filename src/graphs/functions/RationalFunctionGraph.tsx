@@ -1,5 +1,5 @@
 import React from "react";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, LABEL_STYLE, mathTextHtml} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -476,7 +476,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         const lists = (["numerator", "denominator"] as const).map(part => <ZeroListEditor key={part}
             scope={part === "numerator" ? t("rational_function_numerator") : t("rational_function_denominator")}
             zeros={state[part]} maxDegree={MAX_POLY_DEGREE}
-            onMove={(index, next) => guard(this.refusals, () => this.setZeroPosition(part, index, next))}
+            onMove={(index, next) => guardField(this.refusals, () => this.setZeroPosition(part, index, next))}
             onMultiplicity={(index, next) => { guard(this.refusals, () => this.setMultiplicity(part, index, next)); }}
             onAdd={() => { guard(this.refusals, () => this.addZero(part)); }}
             onRemove={index => { guard(this.refusals, () => this.removeZero(part, index)); }}
@@ -486,10 +486,10 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
                 <ChoiceSelect label={t("rational_function_example_label")} value={current ?? "custom"} help={t("rational_function_example_help")}
                               options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
                 <NumberInput label={t("rational_function_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
-                             rejectedHint={t("rational_function_k_hint", kRange)} onChange={next => guard(this.refusals, () => this.setK(next))}/>
+                             rejectedHint={t("rational_function_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
                 <Slider customText={t("rational_function_probe_label")} min={PROBE_BOUNDS[0]} max={PROBE_BOUNDS[1]} step={PROBE_STEP} value={state.probe}
                         help={t("rational_function_probe_help")} rejectedHint={t("rational_function_probe_hint", probeRange)}
-                        onChange={next => guard(this.refusals, () => this.setProbe(next))}/>
+                        onChange={next => guardField(this.refusals, () => this.setProbe(next))}/>
             </div>
             {lists}
             <ZeroListNoticeView store={this.notices} describe={describeNotice}/>

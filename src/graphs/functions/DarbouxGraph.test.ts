@@ -229,7 +229,8 @@ test('Refine doubles n through the button, is the same as the lesson action, and
     const help = collect([viaButton.renderControls(), viaButton.renderReveals()]).p.find((element: any) => element.props.id === 'darboux-refine-help');
     expect(String(help.props.children)).toContain(String(DARBOUX_N_MAX));
     expect(statusIds(viaButton)).toEqual(['trapped', 'limit']);
-    expect(() => atLimit.refine.props.onBlockedPress(atLimit.refine.props.reason)).not.toThrow();
+    // the reason is shown once, in the help paragraph: a blocked press does not also refuse into the channel
+    expect(atLimit.refine.props.onBlockedPress).toBeUndefined();
     expect(viaButton.model.n).toBe(DARBOUX_N_MAX);
     expect(() => viaButton.refinePartition()).toThrow(DomainError);
     expect(viaButton.model.n).toBe(DARBOUX_N_MAX);
@@ -320,6 +321,8 @@ test('the number fields carry their ranges, report rejection with a hint and sho
     expect(inputN.props.onSet(0)).toBe(false);
     expect(graph.model).toMatchObject({a: 0, b: 2, n: 4});
     expect(inputA.props.rejectedHint).toMatch(/a < b/);
+    expect(inputN.props.rejectedHint).toMatch(/Število delov n mora biti celo število od 1 do 128/);
+    expect(graph.refusals.refusal).toBeUndefined();
     expect(inputA.props.onChange(1.5)).toBe(true);
     expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');

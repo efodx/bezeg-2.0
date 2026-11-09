@@ -86,3 +86,18 @@ test('OnOffSwitch is the switch variant, has no form of its own and cannot submi
     expect(onChange).toHaveBeenCalledTimes(1); // Space toggled, Enter did not
     expect(onChange).toHaveBeenLastCalledWith(true);
 });
+
+test('an unavailable switch stays focusable, ignores changes and shows its reason as linked help', () => {
+    const onChange = vi.fn();
+    render(<OnOffSwitch label="Prikaži" checked={false} onChange={onChange} unavailableReason="Najprej dodajte točko."/>);
+    const box = screen.getByRole('checkbox', {name: 'Prikaži'});
+    expect(box).not.toBeDisabled();
+    expect(box).toHaveAttribute('aria-disabled', 'true');
+    expect(box).toHaveAccessibleDescription('Najprej dodajte točko.');
+    userEvent.tab();
+    expect(box).toHaveFocus();
+    userEvent.click(box);
+    userEvent.keyboard(' ');
+    expect(onChange).not.toHaveBeenCalled();
+    expect(box).not.toBeChecked();
+});

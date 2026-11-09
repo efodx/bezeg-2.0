@@ -47,7 +47,7 @@ describe('PH offset controls', () => {
         render(<PhOffsetDisplayControls curve={curve as any} onChanged={() => undefined}/>);
         expect(screen.getByRole('checkbox', {name: t('curve_offsets')})).toBeChecked();
         expect(screen.getByRole('checkbox', {name: t('offset_curve_control_points')})).not.toBeChecked();
-        expect(screen.getByRole('checkbox', {name: t('lines_through_offset_control_points')})).toBeDisabled();
+        expect(screen.getByRole('checkbox', {name: t('lines_through_offset_control_points')})).toHaveAttribute('aria-disabled', 'true');
         expect(screen.queryByRole('slider')).toBeNull();
     });
 

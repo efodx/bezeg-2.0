@@ -4,7 +4,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
@@ -330,18 +330,19 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                 <NumberInput label={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} decimals={PRECISE}
                              unavailableReason={fixedCenter ? t("taylor_center_fixed_help") : undefined} reasonShownElsewhere describedBy={fixedCenter ? "taylor-center-help" : undefined}
                              rejectedHint={t("taylor_center_rejected_hint", {value0: formatNumber(example.centerMin, language), value1: formatNumber(example.centerMax, language)})}
-                             onChange={next => this.guarded(() => this.setCenter(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setCenter(next))}/>
                 {fixedCenter && <p id="taylor-center-help" className="inspector-help">{t("taylor_center_fixed_help")}</p>}
                 <NumberInput label={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} decimals={PRECISE}
                              rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
-                             onChange={next => this.guarded(() => this.setX(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setX(next))}/>
                 <p className="inspector-help">{t("taylor_points_help")}</p>
             </div>
             <div className="inspector-group">
                 <CountSetter label={t("taylor_degree_label")} n={state.degree} min={TAYLOR_DEGREE_MIN} max={TAYLOR_DEGREE_MAX} help={t("taylor_degree_help")}
+                             rejectedHint={t("taylor_degree_rejected_hint", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX})}
                              onPlus={() => this.guarded(() => this.setDegree(this.model.degree + 1))}
                              onMinus={() => this.guarded(() => this.setDegree(this.model.degree - 1))}
-                             onSet={next => this.guarded(() => this.setDegree(next))}/>
+                             onSet={next => guardField(this.refusals, () => this.setDegree(next))}/>
             </div>
         </>;
     }

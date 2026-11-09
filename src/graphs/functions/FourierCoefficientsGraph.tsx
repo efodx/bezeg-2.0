@@ -3,7 +3,7 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCu
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FourierSpectrumBars} from "./FourierSpectrumBars";
 import {FourierDecaySpectra} from "./FourierDecaySpectra";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -409,7 +409,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                                                               onChange={next => this.guarded(() => this.setSelection(slot, next))}/>)}
             <NumberInput label={t("fourier_decay_n_label")} integer value={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX} step={1} decimals={0}
                          rejectedHint={t("fourier_coef_issue_n", {value0: FOURIER_DECAY_N_MIN, value1: FOURIER_DECAY_N_MAX})}
-                         onChange={next => this.guarded(() => this.setDecayN(next))}/>
+                         onChange={next => guardField(this.refusals, () => this.setDecayN(next))}/>
             <ChoiceSelect label={t("fourier_decay_scale_label")} value={state.scale} options={FOURIER_DECAY_SCALES.map(id => ({value: id, text: scaleText[id]}))}
                           onChange={next => this.guarded(() => this.setScale(next))}/>
             <p className="inspector-help">{t("fourier_decay_help")}</p>
@@ -432,19 +432,19 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 {slots.map(slot => <NumberInput key={slot.index} label={this.slotLabel(slot)} value={state.values[slot.index]} min={FOURIER_VALUE_MIN} max={FOURIER_VALUE_MAX}
                                                 step={FOURIER_VALUE_STEP} bigStep={FOURIER_VALUE_BIG_STEP} decimals={2}
                                                 rejectedHint={t("fourier_coef_issue_value", {value0: FOURIER_VALUE_MIN, value1: FOURIER_VALUE_MAX})}
-                                                onChange={next => this.guarded(() => this.setValue(slot.index, next))}/>)}
+                                                onChange={next => guardField(this.refusals, () => this.setValue(slot.index, next))}/>)}
                 <p className="inspector-help">{t("fourier_coef_handles_help")}</p>
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("fourier_coef_k_label")} integer value={state.K} min={FOURIER_K_MIN} max={FOURIER_K_MAX} step={1} decimals={0}
                              rejectedHint={t("fourier_coef_issue_k", {value0: FOURIER_K_MIN, value1: FOURIER_K_MAX})}
-                             onChange={next => this.guarded(() => this.setK(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setK(next))}/>
                 <ChoiceSelect label={t("fourier_coef_term_label")} value={state.selected.term}
                               options={FOURIER_COEFFICIENT_TERMS.map(id => ({value: id, text: id === "a" ? t("fourier_coef_term_a") : t("fourier_coef_term_b")}))}
                               onChange={next => this.guarded(() => this.setTerm(next))}/>
                 <NumberInput label={t("fourier_coef_harmonic_label")} integer value={state.selected.k} min={0} max={state.K} step={1} decimals={0}
                              rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
-                             onChange={next => this.guarded(() => this.setHarmonic(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setHarmonic(next))}/>
                 <p className="inspector-help">{t("fourier_coef_harmonic_help", {value0: formatNumber(state.K, language, 0)})}</p>
                 <OnOffSwitch checked={state.overlay} label={t("fourier_coef_overlay_label")} onChange={next => this.guarded(() => this.setOverlay(next))}/>
             </div>

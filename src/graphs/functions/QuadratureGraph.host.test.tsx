@@ -84,6 +84,7 @@ test('Simpson: odd n is refused, a switch from odd n is adjusted with a stated m
     // The adjustment is one more line of the status group, not a live region of its own.
     expect(document.querySelector('.quadrature-status [data-quadrature-status="adjusted"]')).not.toBeNull();
     expect(document.querySelector('[role="status"] [data-quadrature-status]')).toBeNull();
+    expect(document.querySelector('[role="status"][data-refusal-notice]')).not.toBeNull();
     expect(range().step).toBe('2');
     expect(range().min).toBe('2');
 

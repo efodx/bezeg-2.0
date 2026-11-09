@@ -5,7 +5,7 @@ import {FunctionLegend} from "./FunctionReadout";
 import {TransientState} from "../base/BaseGraph";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus, FunctionStatusLine} from "./FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
@@ -291,7 +291,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             action();
         } catch (error) {
             if (!(error instanceof DomainError)) throw error;
-            this.refusals.refuse(error.reason ? message("epicycle_rejected", {value0: error.reason}) : error.message);
+            if (error.reason) this.refusals.refuse(message("epicycle_rejected", {value0: error.reason}));
             return false;
         }
         this.refusals.clear();
@@ -478,7 +478,8 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             <div className="inspector-group">
                 <Slider customText={t("epicycle_n_label")} min={0} max={EPICYCLE_MAX_N} step={1} value={state.N}
                         rejectedHint={renderMessage(epicycleIssueMessage({kind: "n", min: 0, max: EPICYCLE_MAX_N}))}
-                        onChange={(next: number) => this.attempt(() => this.setN(next))}/>
+                        onChange={(next: number) => this.attempt(() => this.setN(next))}
+                        onTypedChange={(next: number) => guardField(this.refusals, () => this.setN(next))}/>
                 {state.N >= EPICYCLE_MAX_N && <p className="inspector-help" data-testid="epicycle-n-cap">
                     {t("epicycle_n_cap", {value0: EPICYCLE_MAX_N, value1: 2 * EPICYCLE_MAX_N})}</p>}
             </div>
@@ -500,7 +501,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         const hint = renderMessage(epicycleIssueMessage({kind: "coordinate", min: EPICYCLE_COORDINATE_MIN, max: EPICYCLE_COORDINATE_MAX}));
         const field = (key: string, label: string, value: number, apply: (value: number) => void) =>
             <NumberInput key={key} label={label} value={value} min={EPICYCLE_COORDINATE_MIN} max={EPICYCLE_COORDINATE_MAX} step={EPICYCLE_VALUE_STEP}
-                         bigStep={EPICYCLE_VALUE_BIG_STEP} decimals={2} rejectedHint={hint} onChange={next => this.attempt(() => apply(next))}/>;
+                         bigStep={EPICYCLE_VALUE_BIG_STEP} decimals={2} rejectedHint={hint} onChange={next => guardField(this.refusals, () => apply(next))}/>;
         const vertex = (i: number, axis: "x" | "y") => field(
             `v${i}${axis}`, t("epicycle_vertex_coordinate", {value0: i + 1, value1: axis}), state.vertices[i][axis],
             next => this.setVertex(i, axis === "x" ? next : this.model.vertices[i].x, axis === "y" ? next : this.model.vertices[i].y));

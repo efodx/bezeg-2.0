@@ -62,7 +62,7 @@ test('defaults: Runge function, degree 10, equispaced, error shown, semicircle o
     expect(ruleSelect().value).toBe('equispaced');
     expect(errorSwitch().checked).toBe(true);
     expect(semicircleSwitch().checked).toBe(false);
-    expect(semicircleSwitch().disabled).toBe(true);
+    expect(semicircleSwitch().getAttribute('aria-disabled')).toBe('true');
     const [left, top, right, bottom] = box(graph);
     const [, , p] = graph.longCurves();
     const overshoot = Math.max(...p.y);
@@ -109,9 +109,12 @@ test('the drawn p interpolates the nodes and the semicircle appears only for Che
         expect(p.y[i]).toBeCloseTo(f.y[i], 9);
     }
     const before = graph.visibleNodeCount();
-    expect(semicircleSwitch().disabled).toBe(true);
+    expect(semicircleSwitch().getAttribute('aria-disabled')).toBe('true');
+    expect(semicircleSwitch()).toHaveAccessibleDescription(/Chebyshev|Čebišev/);
+    act(() => { fireEvent.click(semicircleSwitch()); });
+    expect(graph.modelNow().showSemicircle).toBe(false);
     setRule('chebyshev');
-    expect(semicircleSwitch().disabled).toBe(false);
+    expect(semicircleSwitch().getAttribute('aria-disabled')).toBeNull();
     act(() => { fireEvent.click(semicircleSwitch()); });
     expect(graph.modelNow()).toMatchObject({nodeRule: 'chebyshev', showSemicircle: true});
     expect(graph.visibleNodeCount()).toBe(before + 5);

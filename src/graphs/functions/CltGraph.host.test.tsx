@@ -41,6 +41,7 @@ type BoardObject = { elType?: string; dataX?: number[]; dataY?: number[] };
 
 class ObservedCltGraph extends CltGraph {
     modelNow() { return this.model; }
+    refuseNow(text: string) { this.refusals.refuse(text); }
     liveBoard() { return this.board; }
     ownedObjects() { return this.generatedObjectCount; }
     playing() { return this.controller.isPlaying(); }
@@ -56,8 +57,9 @@ class ObservedCltGraph extends CltGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = (id: string) => (id === 'refused'
-    ? document.querySelector('[data-refusal-notice]')?.textContent || undefined
+    ? document.querySelector('.number-input-hint')?.textContent || undefined
     : document.querySelector(`[data-prob-clt-status="${id}"]`)?.textContent);
+const notice = () => document.querySelector('[data-refusal-notice]')?.textContent || undefined;
 const field = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
 const typeIn = (label: RegExp, value: number) => act(() => {
     fireEvent.change(field(label), {target: {value: String(value)}});
@@ -260,38 +262,38 @@ describe('refused edits', () => {
         expect(graph.modelNow().heights).toEqual([0, 0, 0, 0, 1]);
         expect(status('refused')).toMatch(/Vsaj ena višina mora ostati večja od 0/);
         expectReadouts(graph.modelNow());
-        typeHeight(0, 1);
+        typeHeight(4, 1);
         expect(status('refused')).toBeUndefined();
     });
 
-    test('wiring: the refusal appears once in the shared refusal channel, outside the status group, and the next accepted edit clears it', () => {
+    test('wiring: a typed refusal appears once, in the field, not in the shared refusal channel, and the next accepted edit clears it', () => {
         const {graph} = mount();
         for (const index of [0, 1, 2, 3, 4]) typeHeight(index, 0);
-        const notices = document.querySelectorAll('[data-refusal-notice]');
-        expect(notices).toHaveLength(1);
-        expect(notices[0].textContent).toMatch(/Vsaj ena višina mora ostati večja od 0/);
-        expect(notices[0].closest('[data-prob-clt-status]')).toBeNull();
-        typeHeight(0, 1);
+        const hints = document.querySelectorAll('.number-input-hint');
+        expect(hints).toHaveLength(1);
+        expect(hints[0].textContent).toMatch(/Vsaj ena višina mora ostati večja od 0/);
         expect(document.querySelector('[data-refusal-notice]')?.textContent ?? '').toBe('');
-        expect(graph.modelNow().heights[0]).toBe(1);
+        typeHeight(4, 1);
+        expect(document.querySelector('.number-input-hint')).toBeNull();
+        expect(graph.modelNow().heights[4]).toBe(1);
     });
 
     test('Reset clears a refusal notice', () => {
         const {graph} = mount();
         click('Dodaj še eno kopijo');
-        for (const index of [0, 1, 2, 3, 4]) typeHeight(index, 0);
-        expect(status('refused')).toMatch(/Vsaj ena višina mora ostati večja od 0/);
+        act(() => { graph.refuseNow('Pregrobo.'); });
+        expect(notice()).toBe('Pregrobo.');
         click('Nazaj na n = 1');
         expect(graph.modelNow().n).toBe(1);
-        expect(status('refused')).toBeUndefined();
+        expect(notice()).toBeUndefined();
     });
 
     test('an import that keeps the same model still clears a refusal notice from the screen', () => {
         const {graph} = mount();
-        for (const index of [0, 1, 2, 3, 4]) typeHeight(index, 0);
-        expect(status('refused')).toMatch(/Vsaj ena višina mora ostati večja od 0/);
+        act(() => { graph.refuseNow('Pregrobo.'); });
+        expect(notice()).toBe('Pregrobo.');
         act(() => { graph.importPresetData(graph.modelNow()); });
-        expect(status('refused')).toBeUndefined();
+        expect(notice()).toBeUndefined();
     });
 
     test('a negative height is clamped to 0 by the model, an oversized one is refused', () => {

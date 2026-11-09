@@ -130,6 +130,7 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
             <div className="inspector-control"><BooleanField variant="switch" checked={off} onChange={setOff} label={text.longLabel} help={text.help}/></div>
             <div className="inspector-control"><BooleanField variant="checkbox" checked={on} onChange={setOn} label={text.longWord}/></div>
             <div className="inspector-control"><BooleanField variant="checkbox" checked={off} onChange={setOff} label={text.longLabel} help={text.help}/></div>
+            <div className="inspector-control"><BooleanField variant="switch" checked={off} onChange={noop} label={text.bounded} unavailableReason={text.reason}/></div>
             <div className="inspector-control"><BooleanField variant="switch" checked={on} onChange={noop} label={text.bounded} disabled describedBy={`${p}bool-reason`}/>
                 <p id={`${p}bool-reason`} className="inspector-help">{text.reason}</p></div>
         </div>

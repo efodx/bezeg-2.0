@@ -5,7 +5,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, Message, message, renderMessage, t} from "../../localization";
@@ -225,7 +225,8 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
             </div>
             <div className="inspector-group">
                 <Slider customText={t("prob_clt_n_label")} min={1} max={CLT_N_MAX} step={1} value={state.n}
-                        rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}/>
+                        rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}
+                        onTypedChange={next => guardField(this.refusals, () => this.setN(next))}/>
                 <PlaybackButtons groupLabel={t("prob_clt_iteration_controls")} className="bisection-actions" playing={playing}
                                  nextLabel={t("prob_clt_next_step")} resetLabel={t("prob_clt_reset")}
                                  {...playbackBlocks({atStart: state.n === 1, atEnd: atMax, playing})}
@@ -238,7 +239,8 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                 {state.heights.map((height, index) => <Slider key={index}
                     customText={t("prob_clt_height_label", {value0: index + 1, value1: formatNumber(index / (CLT_HEIGHT_COUNT - 1), language, 2)})}
                     min={0} max={CLT_HEIGHT_MAX} step={0.05} value={height}
-                    rejectedHint={t("prob_clt_zero_rejected")} onChange={next => this.guarded(() => this.setHeight(index, next))}/>)}
+                    rejectedHint={t("prob_clt_zero_rejected")} onChange={next => this.guarded(() => this.setHeight(index, next))}
+                    onTypedChange={next => guardField(this.refusals, () => this.setHeight(index, next))}/>)}
                 <p className="inspector-help">{t("prob_clt_heights_help")}</p>
             </div>
             <div className="inspector-group">

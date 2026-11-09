@@ -4,7 +4,7 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
-import {guard} from "../base/controls/guard";
+import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus} from "./FunctionStatus";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
@@ -326,17 +326,18 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
             </div>
             <div className="inspector-group">
                 <CountSetter label={t("fourier_n_label")} n={state.n} min={FOURIER_N_MIN} max={FOURIER_N_MAX} help={nHelp}
+                             rejectedHint={t("fourier_n_rejected_hint", {value0: FOURIER_N_MIN, value1: FOURIER_N_MAX})}
                              onPlus={() => this.guarded(() => this.setN(this.model.n + 1))}
                              onMinus={() => this.guarded(() => this.setN(this.model.n - 1))}
-                             onSet={next => this.guarded(() => this.setN(next))}/>
+                             onSet={next => guardField(this.refusals, () => this.setN(next))}/>
             </div>
             <div className="inspector-group">
                 <NumberInput label={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP} decimals={2}
                              rejectedHint={t("fourier_x_rejected_hint", {value0: formatNumber(FOURIER_X_MIN, language), value1: formatNumber(FOURIER_X_MAX, language)})}
-                             onChange={next => this.guarded(() => this.setX(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setX(next))}/>
                 <NumberInput label={t("fourier_epsilon_label")} value={state.epsilon} min={FOURIER_EPSILON_MIN} max={FOURIER_EPSILON_MAX} step={FOURIER_EPSILON_STEP} decimals={2}
                              rejectedHint={t("fourier_epsilon_rejected_hint", {value0: formatNumber(FOURIER_EPSILON_MIN, language), value1: formatNumber(FOURIER_EPSILON_MAX, language)})}
-                             onChange={next => this.guarded(() => this.setEpsilon(next))}/>
+                             onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
                 <p className="inspector-help">{t("fourier_fields_help")}</p>
             </div>
         </>;

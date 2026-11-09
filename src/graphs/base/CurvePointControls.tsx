@@ -37,6 +37,8 @@ export interface CurvePointControlsProps {
     /** Boards whose "up" event means a dragged point: the list shows its coordinates again. */
     boards: () => readonly (JXG.Board | undefined)[];
     prefix?: string;
+    /** The 1-based number of the listed curve, given on boards with several curves: it names the curve in the list title, as the curve picker does. */
+    curveNumber?: number;
     /** Applies a typed coordinate pair to point `index` (the point is already set); the graph redraws. */
     onEdit: (index: number, to: readonly [number, number]) => void;
     /** Present when the number of points can change; the PH hodograph has none. */
@@ -63,7 +65,7 @@ export function CurvePointControls(props: CurvePointControlsProps) {
         {collection && <PointCollection label={collection.label} count={points.length} min={CURVE_POINTS_MIN} max={CURVE_POINTS_MAX}
                                         onAdd={collection.onAdd} removal={{kind: "last", onRemove: collection.onRemove}}
                                         typedEntry={{axisLabels: ["x", "y"], min: -CURVE_COORDINATE_LIMIT, max: CURVE_COORDINATE_LIMIT}}/>}
-        <PointListInput title={t("point_coordinates_keyboard_editing")} points={points} pointLabel={i => curvePointName(props.prefix, i)} min={-CURVE_COORDINATE_LIMIT} max={CURVE_COORDINATE_LIMIT}
+        <PointListInput title={props.curveNumber === undefined ? t("point_coordinates_keyboard_editing") : t("curve_points_title", {value0: props.curveNumber})} points={points} pointLabel={i => curvePointName(props.prefix, i)} min={-CURVE_COORDINATE_LIMIT} max={CURVE_COORDINATE_LIMIT}
                         onRemove={collection ? collection.onRemoveAt : undefined} minCount={CURVE_POINTS_MIN}
                         onCommit={(index, value) => { props.points()[index].setX(value[0]); props.points()[index].setY(value[1]); props.onEdit(index, value); setRevision(r => r + 1); }}/>
     </div>;

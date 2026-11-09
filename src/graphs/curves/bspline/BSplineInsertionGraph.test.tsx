@@ -381,7 +381,7 @@ describe('disposal', () => {
 describe('shared controls wiring', () => {
     test('a typed control point reaches the model and out-of-range values are refused', () => {
         const {graph, view} = mount();
-        const x = screen.getByLabelText('Točka 2, x');
+        const x = screen.getByLabelText('p₁, x');
         enterNumber(x, '1.5');
         expect(graph.state.points[1][0]).toBe(1.5);
         enterNumber(x, '2000000');
