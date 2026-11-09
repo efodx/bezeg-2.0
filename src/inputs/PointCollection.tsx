@@ -71,18 +71,18 @@ export function PointCollection(props: PointCollectionProps) {
     // (a counter makes a repeat announce again). A change from elsewhere (a scene, an example, a restore) clears it: the announcement
     // belongs to the press, not to the state, so a restored graph and one that reached the same state otherwise look the same.
     const [changed, setChanged] = useState<number | null>(null);
-    const pressedChange = useRef(false);
-    const own = (action: () => void) => () => { pressedChange.current = true; action(); };
+    // Set by a press of this panel's own Add, Remove or Clear until the count it causes arrives (batched with the owner's update).
+    const [pressedChange, setPressedChange] = useState(false);
+    const own = (action: () => void) => () => { setPressedChange(true); action(); };
     const countText = t("pointset_point_count", {value0: formatNumber(count, language, 0), value1: formatNumber(max, language, 0)});
     if (seenCount !== count) {
         setSeenCount(count);
         setPressed(undefined);
-        const byPress = pressedChange.current;
-        pressedChange.current = false;
-        setChanged(current => byPress ? (current ?? 0) + 1 : null);
+        setPressedChange(false);
+        setChanged(current => pressedChange ? (current ?? 0) + 1 : null);
     }
     const blocked = (reason: (now: Reasons) => string) => {
-        pressedChange.current = false;
+        setPressedChange(false);
         setPressed(current => ({reason, count: (current?.count ?? 0) + 1}));
     };
     const add = (at?: readonly number[]): boolean => {
@@ -162,7 +162,7 @@ export function PointCollection(props: PointCollectionProps) {
                                  setValues(next);
                              }}/>
             </div>)}
-            <UnavailableButton className="btn" reason={addAtReason} onPress={own(addAt)} onBlockedPress={stored("addAt")}>{t("point_controls_add_at")}</UnavailableButton>
+            <UnavailableButton className="btn" reason={addAtReason} onPress={() => { setPressedChange(true); addAt(); }} onBlockedPress={stored("addAt")}>{t("point_controls_add_at")}</UnavailableButton>
         </div>}
         <div role="status" aria-live="polite" data-point-collection-status>
             {pressed ? <p key={pressed.count} className="point-collection-reason" data-point-collection-reason>{pressed.reason(reasons)}</p>
