@@ -9,7 +9,7 @@ import type {IntervalEventInfo, IntervalRun, IntervalView} from "./intervalSweep
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {stepCounterText} from "./stepCounter";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 export interface IntervalSweepControlActions {
     nextStep(): void;
@@ -102,7 +102,7 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
             {refusal && <p className="inspector-help" role="alert" data-interval-sweep="refusal">{refusal}</p>}
             {!refusal && n === 0 && <p className="inspector-help" data-interval-sweep="empty">{t("intervalsweep_no_intervals")}</p>}
             {!refusal && n > 0 && <>
-                <p className="inspector-help" data-interval-sweep="step">{stepText}</p>
+                <StepCounter step={step} length={run.length} hooks={{"data-interval-sweep": "step"}}/>
                 {noteLine && <p className="inspector-help" data-interval-sweep="note">{noteLine}</p>}
                 <p className="inspector-help" data-interval-sweep="open">{t("intervalsweep_open_count", {value0: view.open.length})}</p>
                 <p className="inspector-help" data-interval-sweep="counts">{t("intervalsweep_counts", {value0: view.counts.join(", ")})}</p>

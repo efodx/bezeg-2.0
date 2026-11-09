@@ -1,5 +1,6 @@
 import React, {useMemo, useRef, useState} from "react";
 import {useLanguage, useT} from "../../localization";
+import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {formatNumber} from "../../analysis/format";
 import {GridPoint} from "../../compgeo/grid";
 import {intervalLetter, intervalsOf, PointSetMode, PointSetModel} from "../../compgeo/pointSetModel";
@@ -92,7 +93,7 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
     const root = useRef<HTMLDivElement>(null);
     const requestRemoveFocus = useRemoveFocus(root, ".pointset-remove", () => root.current?.querySelector<HTMLElement>(":scope > button"));
     return <div className="inspector-group" ref={root}>
-        <h3 className="inspector-reveals-title">{t("pointset_segment_list")}</h3>
+        <ReadoutHeading>{t("pointset_segment_list")}</ReadoutHeading>
         {model.points.length === 0 && <p className="inspector-help">{t("pointset_no_segments")}</p>}
         <ol className="pointset-list">
             {Array.from({length: model.points.length >> 1}, (_, k) => {
@@ -125,7 +126,7 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
     const root = useRef<HTMLDivElement>(null);
     const requestRemoveFocus = useRemoveFocus(root, ".pointset-remove", () => root.current?.querySelector<HTMLElement>(":scope > button"));
     return <div className="inspector-group" ref={root}>
-        <h3 className="inspector-reveals-title">{t("pointset_interval_list")}</h3>
+        <ReadoutHeading>{t("pointset_interval_list")}</ReadoutHeading>
         {intervals.length === 0 && <p className="inspector-help">{t("pointset_no_intervals")}</p>}
         <ol className="pointset-list">
             {intervals.map(({lo, hi}, k) => {

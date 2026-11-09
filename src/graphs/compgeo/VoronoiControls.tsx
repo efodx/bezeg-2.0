@@ -5,6 +5,7 @@ import {ResetExampleButton} from "../../inputs/ResetExampleButton";
 import {PointListInput} from "../../inputs/PointListInput";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading, ReadoutList} from "../base/controls/ReadoutParts";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
@@ -119,7 +120,7 @@ function DegenerateModes(props: VoronoiControlsProps) {
     if (!status.modeSwitch && status.examples.length === 0) return null;
     return <div className="inspector-group">
         {status.modeSwitch && <>
-            <h3 className="inspector-reveals-title">{t("deg_title")}</h3>
+            <ReadoutHeading>{t("deg_title")}</ReadoutHeading>
             <ChoiceSelect label={t("deg_mode_group")} value={status.mode} onChange={mode => actions.setMode(mode === "four-point" ? "four-point" : "sites")}
                           options={[{value: "sites", text: t("deg_mode_sites")}, {value: "four-point", text: t("deg_mode_four")}]}/>
             {status.modeRefused && <p className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
@@ -198,15 +199,15 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 </ul>}
                 {four.verdict && <p className="inspector-help" data-fourpoint="verdict">{four.verdict}</p>}
             </div>}
-            {!refusal && status.diagramShown && <ul aria-label={t("vor_readout_label")} data-voronoi="readout">
-                <li data-readout="sites">{t("vor_count_sites", {value0: counts.sites})}</li>
-                <li data-readout="vertices">{t("vor_count_vertices", {value0: counts.vertices})}</li>
-                <li data-readout="edges">{t("vor_count_edges", {value0: counts.finite})}</li>
-                <li data-readout="rays">{t("vor_count_rays", {value0: counts.rays})}</li>
-                {counts.lines > 0 && <li data-readout="lines">{t("vor_count_lines", {value0: counts.lines})}</li>}
-                <li data-readout="bounded">{t("vor_count_bounded", {value0: counts.bounded})}</li>
-                <li data-readout="unbounded">{t("vor_count_unbounded", {value0: counts.unbounded})}</li>
-            </ul>}
+            {!refusal && status.diagramShown && <ReadoutList label={t("vor_readout_label")} hooks={{"data-voronoi": "readout"}} rows={[
+                {id: "sites", value: t("vor_count_sites", {value0: counts.sites})},
+                {id: "vertices", value: t("vor_count_vertices", {value0: counts.vertices})},
+                {id: "edges", value: t("vor_count_edges", {value0: counts.finite})},
+                {id: "rays", value: t("vor_count_rays", {value0: counts.rays})},
+                ...(counts.lines > 0 ? [{id: "lines", value: t("vor_count_lines", {value0: counts.lines})}] : []),
+                {id: "bounded", value: t("vor_count_bounded", {value0: counts.bounded})},
+                {id: "unbounded", value: t("vor_count_unbounded", {value0: counts.unbounded})},
+            ]}/>}
             {!refusal && status.diagramShown && status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
                 {status.vertices.map((vertex, index) => (
                     <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>

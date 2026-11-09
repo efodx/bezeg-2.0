@@ -1,6 +1,6 @@
 import {matchingExample} from "./ExampleSelect";
 import {boardFrameOf, fitFrame} from "./frameFit";
-import {stepCounterText} from "./stepCounter";
+import {stepCounterText} from "../base/controls/StepCounter";
 import {Rational} from "../../compgeo/rational";
 
 const examples = [

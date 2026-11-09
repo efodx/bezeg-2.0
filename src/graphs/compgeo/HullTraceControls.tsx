@@ -6,6 +6,7 @@ import {GridPoint} from "../../compgeo/grid";
 import {HULL_ALGORITHMS, HullAlgorithm, HullEventInfo, HullNote, parseHullAlgorithm} from "./hullTraceRun";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 export interface HullTraceControlActions {
     setAlgorithm(algorithm: HullAlgorithm): void;
@@ -95,7 +96,7 @@ export function HullTraceControls(props: HullTraceControlsProps) {
     }
     /** Ends a status piece with one full stop; the notes already carry their own. */
     const sentence = (text: string | false | undefined) => text && /[.!?]$/.test(text) ? text : `${text}.`;
-    const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: length});
+    const stepText = stepCounterText(t, step, length);
     const countText = event ? t("hulltrace_predicate_count", {value0: event.predicateCount}) : undefined;
     const liveText = [stepText, event && noteText(t, event.note, collinearKept), detail, countText].filter(Boolean).map(sentence).join(" ");
     // Each step is a discrete state, so the readout publishes it at once; the mute while Play runs is the region's.
@@ -116,7 +117,7 @@ export function HullTraceControls(props: HullTraceControlsProps) {
             <p className="inspector-help">{t("hulltrace_playback_note")}</p>
         </div>
         <div className="inspector-group" data-hull-trace-status="">
-            <p className="inspector-help" data-hull-trace="step">{stepText}</p>
+            <StepCounter step={step} length={length} hooks={{"data-hull-trace": "step"}}/>
             {event && <p className="inspector-help" data-hull-trace="note">{noteText(t, event.note, collinearKept)}</p>}
             {detail && <p className="inspector-help" data-hull-trace="detail">{detail}</p>}
             {event && <p className="inspector-help" data-hull-trace="count">{countText}</p>}

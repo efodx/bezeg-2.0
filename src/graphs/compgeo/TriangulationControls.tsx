@@ -5,6 +5,9 @@ import {useLanguage, useT} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutList} from "../base/controls/ReadoutParts";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {TriangulationEvent, TriangulationReadout, TriangulationRefusal} from "./TriangulationGraph";
 
 export interface TriangulationControlActions {
@@ -82,6 +85,8 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         if (refusalSentence) next.refuse(refusalSentence, true);
         return next;
     }, [refusalSentence]);
+    // The one announcement: the last event, except a refusal (its own alert announces it). No Play here, so never muted.
+    const liveReadout = useStatusReadout(refusalSentence === eventSentence ? "" : eventSentence);
     return <>
         {triangulationShown && <div className="inspector-group" data-triangulation="edge-flip">
             <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>
@@ -104,24 +109,22 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         <div className="inspector-group" data-triangulation="status">
             <div data-triangulation="refusal-slot"><RefusalNotice channel={channel}/></div>
             {eventSentence && refusalSentence !== eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
-            {readout && <ul aria-label={t("tri_readout_label")} data-triangulation="readout">
-                <li data-readout="n">{t("tri_readout_points", {value0: readout.n})}</li>
-                <li data-readout="k">{t("tri_readout_boundary", {value0: readout.boundary.k})}</li>
-                {readout.boundary.collinear > 0 &&
-                    <li data-readout="collinear">{t("tri_readout_collinear", {value0: readout.boundary.collinear})}</li>}
-                {triangulationShown && <>
-                <li data-readout="triangles">{t("tri_readout_triangles", {value0: readout.counts.triangles, value1: readout.n, value2: readout.boundary.k})}</li>
-                <li data-readout="edges">{t("tri_readout_edges", {
-                    value0: readout.counts.edges, value1: readout.n, value2: readout.boundary.k,
-                    value3: readout.counts.interiorEdges, value4: readout.counts.hullEdges})}</li>
-                <li data-readout="angle">{t("tri_readout_angle_now", {value0: formatDegrees(readout.minAngle, language)})}</li>
-                <li data-readout="angle-before">{readout.minAngleBefore === undefined
-                    ? t("tri_readout_angle_before_none")
-                    : t("tri_readout_angle_before", {value0: formatDegrees(readout.minAngleBefore, language)})}</li>
-                </>}
-            </ul>}
-            <p className="visually-hidden" role="status" aria-live="polite" data-triangulation="live">
-                {refusalSentence === eventSentence ? "" : eventSentence}</p>
+            {readout && <ReadoutList label={t("tri_readout_label")} hooks={{"data-triangulation": "readout"}} rows={[
+                {id: "n", value: t("tri_readout_points", {value0: readout.n})},
+                {id: "k", value: t("tri_readout_boundary", {value0: readout.boundary.k})},
+                ...(readout.boundary.collinear > 0 ? [{id: "collinear", value: t("tri_readout_collinear", {value0: readout.boundary.collinear})}] : []),
+                ...(triangulationShown ? [
+                    {id: "triangles", value: t("tri_readout_triangles", {value0: readout.counts.triangles, value1: readout.n, value2: readout.boundary.k})},
+                    {id: "edges", value: t("tri_readout_edges", {
+                        value0: readout.counts.edges, value1: readout.n, value2: readout.boundary.k,
+                        value3: readout.counts.interiorEdges, value4: readout.counts.hullEdges})},
+                    {id: "angle", value: t("tri_readout_angle_now", {value0: formatDegrees(readout.minAngle, language)})},
+                    {id: "angle-before", value: readout.minAngleBefore === undefined
+                        ? t("tri_readout_angle_before_none")
+                        : t("tri_readout_angle_before", {value0: formatDegrees(readout.minAngleBefore, language)})},
+                ] : []),
+            ]}/>}
+            <LiveReadout readout={liveReadout} dataAttribute="triangulation-live"/>
         </div>
     </>;
 }

@@ -4,6 +4,8 @@ import {EarEventInfo, EarRefusal, EarSummary} from "./earClippingRun";
 import type {EarClippingNote} from "../../compgeo/earClipping";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading, ReadoutHelp} from "../base/controls/ReadoutParts";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 
@@ -68,7 +70,8 @@ export function EarClippingControls(props: EarClippingControlsProps) {
         detail = t("earclip_detail_triangle", {value0: previous + 1, value1: apex + 1, value2: next + 1});
         if (typeof event.rejected === "number") detail += ` ${t("earclip_detail_blocker", {value0: event.rejected + 1})}`;
     }
-    const stepText = traced ? t("hulltrace_step_counter", {value0: step + 1, value1: length}) : undefined;
+    const stepText = traced ? stepCounterText(t, step, length) : undefined;
+    const reversedText = traced && reversed ? t("earclip_reversed_note") : undefined;
     const countText = traced && event ? t("hulltrace_predicate_count", {value0: event.predicateCount}) : undefined;
     const resultText = summary ? [
         t("earclip_result_title"),
@@ -79,7 +82,7 @@ export function EarClippingControls(props: EarClippingControlsProps) {
     const trianglesText = traced ? t("earclip_triangles_so_far", {value0: trianglesSoFar}) : undefined;
     const noteSentence = traced && event ? noteText(t, event.note) : undefined;
     // Silent while Play runs (the region's mute); announces the status once on Pause or at the end.
-    const liveReadout = useStatusReadout(!traced ? "" : [stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". "));
+    const liveReadout = useStatusReadout(!traced ? "" : [reversedText, stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". "));
     return <>
         <div className="inspector-group">
             <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}
@@ -93,15 +96,15 @@ export function EarClippingControls(props: EarClippingControlsProps) {
         </div>
         <div className="inspector-group" data-ear-clipping-status="">
             {refusal && <p className="inspector-help" role="alert" data-ear-clipping="refusal">{refusalText(t, refusal)}</p>}
-            {traced && reversed && <p className="inspector-help" role="status" data-ear-clipping="reversed">{t("earclip_reversed_note")}</p>}
-            {stepText && <p className="inspector-help" data-ear-clipping="step">{stepText}</p>}
+            {reversedText && <ReadoutHelp hooks={{"data-ear-clipping": "reversed"}}>{reversedText}</ReadoutHelp>}
+            {traced && <StepCounter step={step} length={length} hooks={{"data-ear-clipping": "step"}}/>}
             {noteSentence && <p className="inspector-help" data-ear-clipping="note">{noteSentence}</p>}
             {detail && <p className="inspector-help" data-ear-clipping="detail">{detail}</p>}
             {trianglesText && <p className="inspector-help" data-ear-clipping="triangles">{trianglesText}</p>}
             {countText && <p className="inspector-help" data-ear-clipping="count">{countText}</p>}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="ear-clipping-live"/>
             {summary && <>
-                <h3 className="inspector-help">{t("earclip_result_title")}</h3>
+                <ReadoutHeading>{t("earclip_result_title")}</ReadoutHeading>
                 <ul data-ear-clipping="result">
                     <li data-result="triangles">{t("earclip_result_triangles", {value0: summary.triangles, value1: summary.triangles + 2})}</li>
                     <li data-result="diagonals">{t("earclip_result_diagonals", {value0: summary.diagonals})}</li>

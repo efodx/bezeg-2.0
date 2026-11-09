@@ -82,7 +82,7 @@ test('the default scene is the checked acute triangle with exact O and H, chip, 
     expect(graph.model.points).toEqual(DEFAULT_NOTABLE_MODEL.points);
     expect(graph.pointLimit).toBe(3);
     expect(text('[data-notable-chip]')).toBe('Vrsta trikotnika: ostrokotni');
-    expect(document.querySelector('[data-notable-chip]')?.getAttribute('role')).toBe('status');
+    expect(document.querySelector('[data-notable-chip]')?.getAttribute('role')).toBeNull();
     showAllCentres(graph);
     expect(centreRow('centroid')?.textContent).toBe('G = (3, 5/3), znotraj trikotnika');
     expect(centreRow('circumcentre')?.textContent).toContain('O = (7/2, 3/2)');

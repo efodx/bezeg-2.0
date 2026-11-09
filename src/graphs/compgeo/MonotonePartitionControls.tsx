@@ -8,7 +8,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {stepCounterText} from "./stepCounter";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 /** The named examples, in the order of the chooser. */
 export type MonotonePartitionExampleId = "example-1" | "example-2";
@@ -131,7 +131,7 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
             {refusal && <p className="inspector-help" role="alert" data-monotone-partition="refusal">{refusal}</p>}
             {traced && <>
                 {run.reversed && <p className="inspector-help" data-monotone-partition="reversed">{t("monotonepartition_reversed_note")}</p>}
-                <p className="inspector-help" data-monotone-partition="step">{stepText}</p>
+                <StepCounter step={step} length={run.length} hooks={{"data-monotone-partition": "step"}}/>
                 {noteLine && <p className="inspector-help" data-monotone-partition="note">{noteLine}</p>}
                 {view.vertex !== null && view.type !== null && <>
                     <p className="inspector-help" data-monotone-partition="vertex">

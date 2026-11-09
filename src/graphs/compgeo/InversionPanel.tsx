@@ -7,6 +7,8 @@ import {GridPoint} from "../../compgeo/grid";
 import {
     CircleSpec, INVERSION_COORDINATE_MAX, INVERSION_EXAMPLES, INVERSION_RADIUS_MAX, InversionExampleId, InversionSource,
 } from "../../compgeo/inversionModel";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {INVERSION_FOCI, InversionFocus, isInversionFocus} from "./inversionPresetCollection";
 import {inversionTexts} from "./inversionText";
 import {InversionPlaceId, InversionView} from "./inversionView";
@@ -53,9 +55,11 @@ export function InversionPanel(props: InversionPanelProps) {
     const {language} = useLanguage();
     const {fields} = props;
     const texts = inversionTexts(props.view, t, language, props.outside, fields.radius);
+    // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
+    const liveReadout = useStatusReadout(texts.chip, true);
     return <div className="inspector-group inversion-panel" data-inversion-state={texts.state} data-inversion-focus-now={fields.focus}>
         <ExampleAndFocus {...props}/>
-        <p className="inspector-help pointset-status" role="status" data-inversion-chip>{texts.chip}</p>
+        <p className="inspector-help pointset-status" data-inversion-chip>{texts.chip}</p>
         {fields.hasCentre && <>
             {fields.focus !== "power" && <IntField label={t("inversion_radius_label")} field="radius" value={fields.radius} min={1} max={INVERSION_RADIUS_MAX}
                                                    onValue={props.onRadius}/>}
@@ -64,6 +68,7 @@ export function InversionPanel(props: InversionPanelProps) {
                 {texts.rows.map(row => <li key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
             </ul>
         </>}
+        <LiveReadout readout={liveReadout} dataAttribute="inversion-live"/>
     </div>;
 }
 

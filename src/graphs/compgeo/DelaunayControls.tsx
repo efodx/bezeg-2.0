@@ -4,6 +4,8 @@ import {useLanguage, useT} from "../../localization";
 import type {LawsonNote} from "../../compgeo/delaunay";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutList} from "../base/controls/ReadoutParts";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 
@@ -106,7 +108,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
     const {status, playing, exampleId, actions} = props;
     const traced = status !== undefined;
     const atEnd = traced && status.step >= status.length - 1;
-    const stepText = traced ? t("hulltrace_step_counter", {value0: status.step + 1, value1: status.length}) : undefined;
+    const stepText = traced ? stepCounterText(t, status.step, status.length) : undefined;
     const noteSentence = traced ? noteText(t, status.note) : undefined;
     const detail = status?.test
         ? t("del_detail_edge", {value0: status.test.edge[0] + 1, value1: status.test.edge[1] + 1, value2: status.test.apexes[0] + 1, value3: status.test.apexes[1] + 1})
@@ -138,18 +140,18 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             <p className="inspector-help">{t("del_playback_note")}</p>
         </div>
         {status && <div className="inspector-group" data-delaunay-status="">
-            <p className="inspector-help" data-delaunay="step">{stepText}</p>
+            <StepCounter step={status.step} length={status.length} hooks={{"data-delaunay": "step"}}/>
             <p className="inspector-help" data-delaunay="note">{noteSentence}</p>
             {detail && <p className="inspector-help" data-delaunay="detail">{detail}</p>}
             {incircle && <p className="inspector-help" data-delaunay="incircle">{incircle}</p>}
-            <ul aria-label={t("del_readout_label")} data-delaunay="readout">
-                <li data-readout="flips">{t("del_flips", {value0: status.flips})}</li>
-                <li data-readout="illegal">{t("del_illegal_count", {value0: status.illegalCount})}</li>
-                <li data-readout="min-now">{t("del_min_now", {value0: formatDegrees(status.minNow, language)})}</li>
-                <li data-readout="min-start">{t("del_min_start", {value0: formatDegrees(status.minStart, language)})}</li>
-                <li data-readout="angles-now">{angleLine(t, language, status.anglesNow, "del_angles_now")}</li>
-                <li data-readout="angles-start">{angleLine(t, language, status.anglesStart, "del_angles_start")}</li>
-            </ul>
+            <ReadoutList label={t("del_readout_label")} hooks={{"data-delaunay": "readout"}} rows={[
+                {id: "flips", value: t("del_flips", {value0: status.flips})},
+                {id: "illegal", value: t("del_illegal_count", {value0: status.illegalCount})},
+                {id: "min-now", value: t("del_min_now", {value0: formatDegrees(status.minNow, language)})},
+                {id: "min-start", value: t("del_min_start", {value0: formatDegrees(status.minStart, language)})},
+                {id: "angles-now", value: angleLine(t, language, status.anglesNow, "del_angles_now")},
+                {id: "angles-start", value: angleLine(t, language, status.anglesStart, "del_angles_start")},
+            ]}/>
             <div className="inspector-playback" role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
                 {status.triangles.map((corners, index) => (
                     <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedIndex === index}
@@ -162,8 +164,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             {selectedText && <p className="inspector-help" data-delaunay="selected-triangle">{selectedText}</p>}
             {neighbourTexts.length > 0 && <ul aria-label={t("del_tri_neighbours_label")} data-delaunay="neighbours">
                 {neighbourTexts.map((text, index) => <li key={index} data-neighbour={index}>{text}</li>)}
-            </ul>}
-            {hullText && <p className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
+            </ul>}            {hullText && <p className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
             {doneText && <p className="inspector-help" data-delaunay="done">{doneText}</p>}
             {cocircularText && <p className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="delaunay-live"/>

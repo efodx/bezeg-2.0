@@ -2,6 +2,9 @@ import React from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {useLanguage, useT} from "../../localization";
 import {EULER_EXAMPLES, EulerAnalysis, EulerExampleId} from "../../compgeo/eulerLineModel";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading} from "../base/controls/ReadoutParts";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {EulerPlaceId, eulerChip, eulerTexts, eulerVertexTexts} from "./eulerLineText";
 
 export interface EulerLinePanelProps {
@@ -21,29 +24,36 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
     const t = useT();
     const {language} = useLanguage();
     const {analysis} = props;
+    const texts = analysis.kind === "missing" || analysis.kind === "degenerate" ? undefined : eulerTexts(analysis, t, language, props.outsideView);
+    // The one announcement of the graph: the state sentence the chip shows (decision 63).
+    const stateText = analysis.kind === "missing" ? t("notable_missing", {value0: 3 - analysis.have})
+        : analysis.kind === "degenerate" ? eulerChip(analysis, t) : texts?.chip ?? "";
+    const liveReadout = useStatusReadout(stateText, true);
     if (analysis.kind === "missing") {
         return <div className="inspector-group" data-euler-state="missing">
-            <p className="inspector-help pointset-status" role="status">{t("notable_missing", {value0: 3 - analysis.have})}</p>
+            <p className="inspector-help pointset-status">{stateText}</p>
             <ExampleSelect {...props}/>
+            <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
         </div>;
     }
     if (analysis.kind === "degenerate") {
         return <div className="inspector-group euler-panel" data-euler-state="degenerate">
             <ExampleSelect {...props}/>
-            <p className="inspector-help pointset-status" role="status" data-euler-chip>{eulerChip(analysis, t)}</p>
+            <p className="inspector-help pointset-status" data-euler-chip>{stateText}</p>
             <p className="inspector-help" data-euler-degenerate>{t("euler_degenerate_why")}</p>
-            <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
+            <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-euler-coordinates>
                 {eulerVertexTexts(analysis.vertices, t).map((text, i) => <li key={i}>{text}</li>)}
             </ul>
+            <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
         </div>;
     }
-    const texts = eulerTexts(analysis, t, language, props.outsideView);
+    if (!texts) return null;
     return <div className="inspector-group euler-panel" data-euler-state={analysis.line === undefined ? "equilateral" : "line"}>
         <ExampleSelect {...props}/>
-        <p className="inspector-help pointset-status" role="status" data-euler-chip>{texts.chip}</p>
+        <p className="inspector-help pointset-status" data-euler-chip>{texts.chip}</p>
         {texts.equilateralNote && <p className="inspector-help" data-euler-equilateral>{texts.equilateralNote}</p>}
-        <h3 className="inspector-reveals-title">{t("notable_readouts_heading")}</h3>
+        <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list euler-readouts">
             {texts.rows.map(row => <li key={row.id} data-euler-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
             <li data-euler-readout="r2-quarter">{texts.r2Quarter}</li>
@@ -52,10 +62,11 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
         <p className="inspector-help" data-euler-relation>{texts.relation}</p>
         <p className="inspector-help" data-euler-distinct>{texts.distinct}</p>
         {texts.tooFar.map(note => <p key={note} className="inspector-help" data-euler-too-far>{note}</p>)}
-        <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
+        <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
         <ul className="pointset-list" data-euler-coordinates>
             {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
         </ul>
+        <LiveReadout readout={liveReadout} dataAttribute="euler-live"/>
     </div>;
 }
 

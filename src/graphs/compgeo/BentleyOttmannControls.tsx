@@ -10,7 +10,7 @@ import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./Swe
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {stepCounterText} from "./stepCounter";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 export interface BentleyOttmannControlActions {
     nextStep(): void;
@@ -132,7 +132,7 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
             {refusal && <p className="inspector-help" role="alert" data-bentley-ottmann="refusal">{refusal}</p>}
             {!refusal && n === 0 && <p className="inspector-help" data-bentley-ottmann="empty">{t("bentleyottmann_no_segments")}</p>}
             {!refusal && n > 0 && <>
-                <p className="inspector-help" data-bentley-ottmann="step">{stepText}</p>
+                <StepCounter step={step} length={run.length} hooks={{"data-bentley-ottmann": "step"}}/>
                 {noteLine && <p className="inspector-help" data-bentley-ottmann="note">{noteLine}</p>}
                 {view.position && <p className="inspector-help" data-bentley-ottmann="position">
                     {t("bentleyottmann_position", {value0: coordinateText(view.position.y, exponent, language)})}</p>}

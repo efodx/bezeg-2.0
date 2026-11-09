@@ -11,7 +11,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {stepCounterText} from "./stepCounter";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 export interface FortuneControlActions {
     nextStep(): void;
@@ -194,7 +194,7 @@ export function FortuneControls(props: FortuneControlsProps) {
         <div className="inspector-group" data-fortune-status="">
             {refusal && <p className="inspector-help" role="alert" data-fortune="refusal">{refusal}</p>}
             {!refusal && view && <>
-                <p className="inspector-help" data-fortune="step">{stepText}</p>
+                <StepCounter step={step} length={run.length} hooks={{"data-fortune": "step"}}/>
                 {lines.map((line, k) => <p className="inspector-help" key={k} data-fortune="note">{line}</p>)}
                 <MathParagraph text={heightMessage(t, view, language)} name="height"/>
                 {!view.done && <p className="inspector-help" data-fortune="beach">{beachText}</p>}

@@ -53,7 +53,7 @@ const readout = (name: string) => document.querySelector(`[data-readout="${name}
 // The refusal is the shared refusal region's text: absent (undefined) while it is empty.
 const part = (name: string) => name === 'refusal'
     ? document.querySelector('[data-triangulation="refusal-slot"]')?.textContent || undefined
-    : document.querySelector(`[data-triangulation="${name}"]`)?.textContent;
+    : document.querySelector(name === 'live' ? '[data-triangulation-live]' : `[data-triangulation="${name}"]`)?.textContent;
 const button = () => document.querySelector('button[data-action="flip-edge"]') as HTMLButtonElement;
 const list = () => document.querySelector('[data-triangulation="edge-flip"] select') as HTMLSelectElement;
 const choose = (a: number, b: number) => act(() => { fireEvent.change(list(), {target: {value: `${a}-${b}`}}); });

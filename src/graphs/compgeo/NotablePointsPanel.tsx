@@ -2,6 +2,9 @@ import React from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {useLanguage, useT} from "../../localization";
 import {CentreId, NOTABLE_EXAMPLES, NotableAnalysis, NotableExampleId} from "../../compgeo/notablePointsModel";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading} from "../base/controls/ReadoutParts";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {notableTexts} from "./notablePointsText";
 
 export interface NotablePointsPanelProps {
@@ -21,18 +24,22 @@ export function NotablePointsPanel(props: NotablePointsPanelProps) {
     const t = useT();
     const {language} = useLanguage();
     const {analysis} = props;
-    if (analysis.kind === "missing") {
+    const texts = analysis.kind === "missing" ? undefined : notableTexts(analysis, t, language, props.outsideView);
+    // The one announcement of the graph: the state sentence the chip shows (decision 63).
+    const stateText = analysis.kind === "missing" ? t("notable_missing", {value0: 3 - analysis.have}) : texts?.chip ?? "";
+    const liveReadout = useStatusReadout(stateText, true);
+    if (analysis.kind === "missing" || !texts) {
         return <div className="inspector-group" data-notable-state="missing">
-            <p className="inspector-help pointset-status" role="status">{t("notable_missing", {value0: 3 - analysis.have})}</p>
+            <p className="inspector-help pointset-status">{stateText}</p>
             <ExampleSelect {...props}/>
+            <LiveReadout readout={liveReadout} dataAttribute="notable-live"/>
         </div>;
     }
-    const texts = notableTexts(analysis, t, language, props.outsideView);
     return <div className="inspector-group notable-panel" data-notable-state={analysis.classification.kind === "degenerate" ? "degenerate" : analysis.classification.shape}>
         <ExampleSelect {...props}/>
-        <p className="inspector-help pointset-status" role="status" data-notable-chip>{texts.chip}</p>
+        <p className="inspector-help pointset-status" data-notable-chip>{texts.chip}</p>
         {texts.degenerateWhy && <p className="inspector-help" data-notable-degenerate>{texts.degenerateWhy}</p>}
-        <h3 className="inspector-reveals-title">{t("notable_readouts_heading")}</h3>
+        <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list notable-readouts">
             <li data-notable-readout="area">{texts.area}</li>
             {texts.circumradius && <li data-notable-readout="R">{texts.circumradius}</li>}
@@ -40,10 +47,11 @@ export function NotablePointsPanel(props: NotablePointsPanelProps) {
             {texts.rows.map(row => <li key={row.id} data-notable-centre={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
         </ul>
         {texts.tooFar.map(note => <p key={note} className="inspector-help" data-notable-too-far>{note}</p>)}
-        <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
+        <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
         <ul className="pointset-list" data-notable-coordinates>
             {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
         </ul>
+        <LiveReadout readout={liveReadout} dataAttribute="notable-live"/>
     </div>;
 }
 

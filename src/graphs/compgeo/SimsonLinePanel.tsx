@@ -10,6 +10,9 @@ import AngleSlider from "../../inputs/AngleSlider";
 import {
     SIMSON_EXAMPLES, SIMSON_OFFSETS, SimsonAnalysis, SimsonExampleId, SimsonMode, SimsonSettings, isSimsonMode, resolveOffset,
 } from "../../compgeo/simsonLineModel";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading} from "../base/controls/ReadoutParts";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {SimsonPlaceId, simsonChip, simsonTexts, simsonVertexTexts} from "./simsonLineText";
 
 export interface SimsonLinePanelProps {
@@ -36,31 +39,38 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
     const t = useT();
     const {language} = useLanguage();
     const {analysis, settings} = props;
+    const texts = analysis.kind === "missing" || analysis.kind === "degenerate" ? undefined : simsonTexts(analysis, t, language, props.outsideView);
+    // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
+    const stateText = analysis.kind === "missing" ? t("notable_missing", {value0: 3 - analysis.have})
+        : analysis.kind === "degenerate" ? simsonChip(analysis, t) : texts?.chip ?? "";
+    const liveReadout = useStatusReadout(stateText, true);
     if (analysis.kind === "missing") {
         return <div className="inspector-group" data-simson-state="missing">
-            <p className="inspector-help pointset-status" role="status">{t("notable_missing", {value0: 3 - analysis.have})}</p>
+            <p className="inspector-help pointset-status">{stateText}</p>
             <ExampleAndMode {...props}/>
+            <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
         </div>;
     }
     if (analysis.kind === "degenerate") {
         return <div className="inspector-group simson-panel" data-simson-state="degenerate">
             <ExampleAndMode {...props}/>
-            <p className="inspector-help pointset-status" role="status" data-simson-chip>{simsonChip(analysis, t)}</p>
+            <p className="inspector-help pointset-status" data-simson-chip>{stateText}</p>
             <p className="inspector-help" data-simson-degenerate>{t("simson_degenerate_why")}</p>
-            <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
+            <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-simson-coordinates>
                 {simsonVertexTexts(analysis.vertices, t).map((text, i) => <li key={i}>{text}</li>)}
             </ul>
+            <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
         </div>;
     }
-    const texts = simsonTexts(analysis, t, language, props.outsideView);
+    if (!texts) return null;
     return <div className="inspector-group simson-panel" data-simson-state={texts.state} data-simson-status={analysis.status}>
         <ExampleAndMode {...props}/>
-        <p className="inspector-help pointset-status" role="status" data-simson-chip>{texts.chip}</p>
+        <p className="inspector-help pointset-status" data-simson-chip>{texts.chip}</p>
         {settings.mode === "glider"
             ? <GliderControls t={normaliseDegrees(settings.t)} epsilon={resolveOffset(settings.epsilon)} onT={props.onT} onEpsilon={props.onEpsilon}/>
             : <PPrimeFields point={settings.pPrime} onPPrime={props.onPPrime}/>}
-        <h3 className="inspector-reveals-title">{t("notable_readouts_heading")}</h3>
+        <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list simson-readouts">
             <li data-simson-readout="circle">{texts.circle}</li>
             {texts.rows.map(row => <li key={row.id} data-simson-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
@@ -70,10 +80,11 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
         {texts.onCircle && <p className="inspector-help" data-simson-on-circle>{texts.onCircle}</p>}
         {texts.distinct && <p className="inspector-help" data-simson-distinct>{texts.distinct}</p>}
         {texts.tooFar.map(note => <p key={note} className="inspector-help" data-simson-too-far>{note}</p>)}
-        <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
+        <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
         <ul className="pointset-list" data-simson-coordinates>
             {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
         </ul>
+        <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
     </div>;
 }
 
@@ -131,7 +142,7 @@ function GliderControls(props: GliderControlsProps) {
 function PPrimeFields(props: {point: GridPoint; onPPrime(point: GridPoint): void}) {
     const t = useT();
     return <div className="simson-pprime">
-        <h3 className="inspector-reveals-title">{t("simson_pprime_heading")}</h3>
+        <ReadoutHeading>{t("simson_pprime_heading")}</ReadoutHeading>
         <NumberInput label={t("simson_pprime_x")} value={props.point.x} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} step={1} integer
                      onChange={x => { props.onPPrime({x, y: props.point.y}); }}/>
         <NumberInput label={t("simson_pprime_y")} value={props.point.y} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} step={1} integer

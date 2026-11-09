@@ -11,7 +11,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {stepCounterText} from "./stepCounter";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 /** The named examples, in the order of the chooser. */
 export type MonotoneTriangulationExampleId = "example-1" | "example-2" | "example-3";
@@ -123,7 +123,7 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
             {refusal && <p className="inspector-help" role="alert" data-monotone-triangulation="refusal">{refusal}</p>}
             {traced && <>
                 {run.reversed && <p className="inspector-help" data-monotone-triangulation="reversed">{t("monotonepartition_reversed_note")}</p>}
-                <p className="inspector-help" data-monotone-triangulation="step">{stepText}</p>
+                <StepCounter step={step} length={run.length} hooks={{"data-monotone-triangulation": "step"}}/>
                 <p className="inspector-help" data-monotone-triangulation="phase">{phaseText}</p>
                 {noteLine && <p className="inspector-help" data-monotone-triangulation="note">{noteLine}</p>}
                 {piece === null && partitionView.vertex !== null && partitionView.type !== null && <>

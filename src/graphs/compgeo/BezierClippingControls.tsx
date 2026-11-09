@@ -9,7 +9,7 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {stepCounterText} from "./stepCounter";
+import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 
 export interface BezierClippingControlsProps {
     /** What the shown step knows (the graph's `clipState`). */
@@ -93,7 +93,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
             <p className="inspector-help">{t("bezierclipping_playback_note")}</p>
         </div>
         <div className="inspector-group" data-bezier-clipping="readout">
-            <p className="inspector-help" data-bezier-clipping="step">{stepText}</p>
+            <StepCounter step={step} length={length} hooks={{"data-bezier-clipping": "step"}}/>
             <p className="inspector-help" data-bezier-clipping="status" data-status={readout.status}>{status}</p>
             <p className="inspector-help" data-bezier-clipping="clips">{count}</p>
             {widest !== null && <p className="inspector-help" data-bezier-clipping="widest">{widest}</p>}

@@ -3,6 +3,9 @@ import {useLanguage, useT} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import AngleSlider from "../../inputs/AngleSlider";
 import {INSCRIBED_EXAMPLES, InscribedAnalysis, InscribedExampleId} from "../../compgeo/inscribedAngleModel";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ReadoutHeading} from "../base/controls/ReadoutParts";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {inscribedTexts} from "./inscribedAngleText";
 
 export interface InscribedAnglePanelProps {
@@ -24,11 +27,13 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
     const {analysis} = props;
     const texts = inscribedTexts(analysis, t, language);
     const glider = analysis.kind === "circle" ? analysis.glider : undefined;
+    // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
+    const liveReadout = useStatusReadout(texts.chip, true);
     return <div className="inspector-group inscribed-panel" data-inscribed-state={texts.state}>
         <ExampleSelect {...props}/>
         <p className="inspector-help pointset-status" data-inscribed-chip>{texts.chip}</p>
         {texts.acb && <>
-            <h3 className="inspector-reveals-title">{t("inscribed_readouts_heading")}</h3>
+            <ReadoutHeading>{t("inscribed_readouts_heading")}</ReadoutHeading>
             <ul className="pointset-list inscribed-readouts">
                 <li data-inscribed-readout="acb">{texts.acb}</li>
                 {texts.apb && <li data-inscribed-readout="apb">{texts.apb}</li>}
@@ -40,18 +45,19 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
         </>}
         {glider && <GliderControls t={glider.t} onT={props.onT}/>}
         {texts.vertices.length > 0 && <>
-            <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
+            <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-inscribed-coordinates>
                 {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
             </ul>
         </>}
+        <LiveReadout readout={liveReadout} dataAttribute="inscribed-live"/>
     </div>;
 }
 
 function GliderControls(props: {t: number; onT(value: number, direction: number): void}) {
     const t = useT();
     return <div className="inscribed-glider" data-inscribed-t>
-        <h3 className="inspector-reveals-title">{t("inscribed_glider_heading")}</h3>
+        <ReadoutHeading>{t("inscribed_glider_heading")}</ReadoutHeading>
         <AngleSlider customText={t("inscribed_t_label")} value={props.t}
                 // A drag or key moves in its direction around the circle (the shorter way); a typed value goes to the nearer edge of a gap.
                 onChange={value => props.onT(value, Math.sign(((value - props.t + 540) % 360) - 180))}
