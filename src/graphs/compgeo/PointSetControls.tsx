@@ -205,7 +205,7 @@ export function PointSetControls(props: PointSetControlsProps) {
                 addMode={{on: props.addMode, onToggle: () => actions.setAddMode(!props.addMode)}}/>}
             {!fixed && paired && <>
                 <button type="button" className={button} aria-pressed={props.addMode} onClick={() => actions.setAddMode(!props.addMode)}>{t("pointset_add_mode")}</button>
-                <UnavailableButton className={button} reason={selected === undefined ? t("pointset_no_selection") : undefined} onPress={() => actions.removeSelected()}
+                <UnavailableButton className={button} reason={selected === undefined ? t(segments ? "pointset_no_segment_selected" : "pointset_no_interval_selected") : undefined} onPress={() => actions.removeSelected()}
                                    onBlockedPress={reason => blockedPress(reason)}>{t(segments ? "pointset_remove_segment" : "pointset_remove_interval")}</UnavailableButton>
                 <UnavailableButton className={button} reason={model.points.length === 0 ? t("pointset_no_points") : undefined} onPress={() => actions.clear()}
                                    onBlockedPress={reason => blockedPress(reason)}>{t("pointset_clear")}</UnavailableButton>
@@ -213,7 +213,8 @@ export function PointSetControls(props: PointSetControlsProps) {
                     ? t("pointset_segment_count", {value0: model.points.length >> 1, value1: props.segmentLimit ?? 0})
                     : t("pointset_interval_count", {value0: model.points.length >> 1, value1: props.intervalLimit ?? 0})}</p>
             </>}
-            <p className="inspector-help" data-pointset-selection>{selected === undefined ? t("pointset_no_selection")
+            <p className="inspector-help" data-pointset-selection>{selected === undefined
+                ? t(segments ? "pointset_no_segment_selected" : intervals ? "pointset_no_interval_selected" : "pointset_no_selection")
                 : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1})
                 : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: pointName(selected)})}</p>
             {paired && <><p className="inspector-help" data-pointset-pending={props.pending ? "" : undefined}>{pendingText}</p><StatusLive text={pendingText}/></>}

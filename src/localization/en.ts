@@ -2161,6 +2161,8 @@ export const en: Record<keyof typeof sl, string> = {
     "pointset_no_points": "No points yet.",
     "pointset_selected_point": "Selected point: {value0}",
     "pointset_no_selection": "No point is selected.",
+    "pointset_no_segment_selected": "No segment is selected.",
+    "pointset_no_interval_selected": "No interval is selected.",
     "pointset_point_count": "Points: {value0} of at most {value1}",
     "pointset_mode_label": "Display",
     "pointset_mode_points": "Points",

@@ -177,7 +177,7 @@ export function FortuneControls(props: FortuneControlsProps) {
     const verticesText = t("fortune_vertices", {value0: view?.done ? expected : found, value1: expected});
     // The announcement follows the step, Play/Pause and a refusal, never a drag frame: a drag recomputes the run at the same
     // step, and a screen reader must not hear every move. Silent while Play runs (the region's mute).
-    const announcement = !view || refusal ? "" : [stepText, ...lines, view.done ? "" : beachText].filter(Boolean).join(". ");
+    const announcement = !view || refusal ? "" : [stepText, ...lines, view.done ? "" : beachText].filter(Boolean).map(part => /[.!?:]$/.test(part) ? part : `${part}.`).join(" ");
     const liveReadout = useStatusReadout(announcement, true);
     return <>
         <div className="inspector-group">

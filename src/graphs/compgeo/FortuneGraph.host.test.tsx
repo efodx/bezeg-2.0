@@ -210,6 +210,9 @@ test('the live region announces the step, the event and the beach line in Sloven
     await quietPeriod();
     expect(live()).toContain(`Korak ${dStep} od ${graph.run().length}`);
     expect(live()).toContain('Obalna črta (od leve proti desni): A, B, A, C, A');
+    // Sentences that end in a period are not given a second one.
+    expect(live()).toMatch(/\. \S/);
+    expect(live()).not.toContain('..');
     act(() => { setLanguage('en'); });
     await quietPeriod();
     expect(live()).toContain(`Step ${dStep} of ${graph.run().length}`);

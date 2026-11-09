@@ -2160,6 +2160,8 @@ export const sl = {
     "pointset_no_points": "Ni točk.",
     "pointset_selected_point": "Izbrana točka: {value0}",
     "pointset_no_selection": "Nobena točka ni izbrana.",
+    "pointset_no_segment_selected": "Nobena daljica ni izbrana.",
+    "pointset_no_interval_selected": "Noben interval ni izbran.",
     "pointset_point_count": "Točk: {value0} od največ {value1}",
     "pointset_mode_label": "Prikaz",
     "pointset_mode_points": "Točke",

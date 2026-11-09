@@ -160,6 +160,9 @@ test('Delete and the remove buttons remove the whole segment, with its label and
     expect(segmentObjects(graph)).toHaveLength(1);
     expect(labelObjects(graph)).toHaveLength(1);
     expectBoardMatchesModel(graph);
+    // With nothing selected the remove button names a segment, not a point (Wave 2 smoke).
+    expect(screen.getByRole('button', {name: 'Odstrani izbrano daljico'})).toHaveAccessibleDescription(expect.stringContaining('Nobena daljica ni izbrana.'));
+    expect(document.querySelector('[data-pointset-selection]')?.textContent).toBe('Nobena daljica ni izbrana.');
     act(() => { graph.select(0); });
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Odstrani izbrano daljico'})); });
     expect(graph.model.points).toHaveLength(0);
