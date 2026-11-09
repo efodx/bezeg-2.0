@@ -26,6 +26,18 @@ The row and a useful graph view must fit together in the phone viewport. Account
 | Fixed toolbar over the graph or screen bottom | Reachable, but may obscure geometry, conflict with lesson controls, or remain detached from an offscreen graph. Avoid as the initial design. |
 | Scroll to the graph when Play is pressed | Fallback only: causes a context jump and leaves Pause/Reset below the viewport. If ultimately selected, return to the graph before starting playback, respect reduced motion, and explicitly solve access to Pause. |
 
+### Layout decision (prototype, 2026-11-09)
+
+Decided by the controls handler from the prototype in [graph-adjacent-controls.prototype.md](../tasks/mobile-graph-playback/graph-adjacent-controls.prototype.md) and the before measurements in [graph-adjacent-controls.screenshots.md](../tasks/mobile-graph-playback/graph-adjacent-controls.screenshots.md) (Chromium emulation of a `fc9680af` production build; no real phone yet). Before: at 390 × 844 and 360 × 640 the playback button and the graph were never visible together on 11 of 13 representative routes.
+
+- **Placement:** at `max-width: 700px`, and on short landscape screens (`max-height: 500px`), the graph's one existing playback group moves (not a copy) into a row directly after the board, in normal flow, no sticky positioning. The prototype moved the live DOM node; Play then Pause kept working and the page did not scroll.
+- **Sizing (variant A):** the board takes the viewport height (`svh`) minus its top offset and the row, with a floor of about 200 px, through a CSS custom property or flex layout rather than a one-time JS measurement. Measured: 390 × 844 gives a 473–478 px board (about 53 % of the viewport, from 295 px) with every button visible; 360 × 640 gives 164–218 px (borderline, still together); 320 × 640 and 200 % text keep all buttons visible with a 120–267 px board; no horizontal overflow; every button at least 44 × 44.
+- **Live parameter and speed controls:** stay in the inspector by default. A route whose motion needs one live control (De Casteljau `t` and speed) may opt in to a compact closed disclosure under the row (variant B). It costs about 52 px, so it is per route, never the default.
+- **Short landscape:** the header alone fills most of 844 × 390 (board 53 px visible at scroll 0). The row still follows the board and the user scrolls once to the board; collapsing the heading on short viewports is left to implementation to measure, not assumed.
+- **Several playback groups** (Voronoi has more than one `.inspector-playback` and no `play-pause`): the graph names which group is its playback group for the slot; the others stay in the inspector.
+
+Rejected: variant B as the default (55 svh board plus disclosure), which did not fit at 360 × 640, 320 × 640 or 200 % text; a fixed bottom toolbar and scroll-on-Play, as assessed above.
+
 ## Scope
 
 Cover all active demonstrations with user-operated animation or iterative playback through a shared workspace placement contract. Inventory every affected route, its supported actions and live controls, and its graph/host integration before implementation. Fixed-point may be the first prototype, but completion requires rollout to every inventoried playback route, including polynomial and rational variants where exposed. Do not add playback to demonstrations that do not support it. Keep the task bounded to playback accessibility rather than redesigning the whole inspector.
