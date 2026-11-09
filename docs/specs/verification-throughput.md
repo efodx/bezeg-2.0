@@ -83,12 +83,14 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - The Windows launch fix (`ff37bc26`) works live: `just publish --background` returned in 9 s from the Bash tool and pushed `ba4d421b`. Hosted runs 42557268766 (`65a9a2eb`) and 42559644939 (`ba4d421b`) are green.
   - 42559644939 was the first scoped lesson run, with 25 / 25 / 24 tests and lessons job walls of about 2 min against 3:31–5:15 ([phase4-6a-hosted.md](../reviews/verification-throughput/phase4-6a-hosted.md)). Unit shard 1 (7:55) now bounds the run, at 8:39 from trigger to deploy.
   - The handler card and the feature-streams README now offer `--background` to every stream.
+  - Gate timings, partial record ([gate-timings.md](../reviews/verification-throughput/gate-timings.md)). Across 35 published slices from 2026-11-07 to 11-09, full-check slices had a median of 38.7 min and 2.36 attempts before the phase-1 landing, and 18.9 min and 1.20 attempts after it. No push race appears after the landing. The record covers 3 days, not the planned week.
+  - The `sceneReplacementContract` split was implemented, then rejected. On run 42559644939 the file took 107 s and was only the sixth-heaviest file; the `GraphTransientState` and `lessonRestoration` parts took up to 183 s. Four split files summed 197 s locally against 133 s for the single file. The predicted largest shard was unchanged. Shard 1 led at 847 file-s against 608–638, driven by `GraphTransientState.part1` at 183 s. That part holds the same number of tests as part 2 (111 s), so the gap is per-graph cost or the runner, not the split. The worker's support module is kept in `.command-logs/scene-replacement-split-support.tsx.txt` for reuse.
 
 **Follow-ups:**
 
 - Done (`dbabef1e`): a fresh `just publish` invocation now uses a matching verified-base record on its first pass, as the retry loop does. A record on the fetched master itself also takes the delta path.
 - Done: the scope job's `gh api` lookup works with `actions: read`. The documentation-only run 42546128156 (`1247d217`) skipped its checks, and the script reaches that decision only after a successful lookup; a failed lookup falls back to full verification.
-- Record gate timings for a week against the 2026-11-07 baseline.
+- Record gate timings for a week against the 2026-11-07 baseline. The partial record through 2026-11-09 is in `gate-timings.md`; extend it from 2026-11-14.
 
 **Scheduling.**
 
