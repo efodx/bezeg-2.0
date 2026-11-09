@@ -180,7 +180,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const playing = props.playing ?? false;
     const backUnavailable = !construction || construction.count <= 0;
     const liveReadout = useStatusReadout([overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer,
-        ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "));
+        ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "), true);
     return <>
         <DegenerateModes status={status} actions={actions}/>
         <div className="inspector-group">

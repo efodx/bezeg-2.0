@@ -127,7 +127,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
     })) ?? [];
     const hullText = selection && selection.hullCount > 0 ? t("del_tri_hull", {value0: selection.hullCount}) : undefined;
     // Silent while Play runs (the region's mute); announces the status once on Pause or at the end.
-    const liveReadout = useStatusReadout(status ? [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText].filter(Boolean).join(". ") : "");
+    const liveReadout = useStatusReadout(status ? [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
             <ExampleSelect label={t("del_example_group")} current={exampleId} onChoose={actions.loadExample} options={[

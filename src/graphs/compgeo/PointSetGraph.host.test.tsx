@@ -209,7 +209,7 @@ test('at the point limit Add shows a visible message and adds nothing', () => {
     const graph = new Observed({pointLimit: 3});
     mount(graph);
     load(graph, model([[0, 0], [1, 1], [2, 0]]));
-    expect(screen.getByText('Točk: 3 od največ 3')).toBeInTheDocument();
+    expect(document.querySelector('.point-collection-count')).toHaveTextContent('Točk: 3 od največ 3');
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'})); });
     expect(graph.model.points).toHaveLength(3);
     expect(objects(graph, 'point')).toHaveLength(3);

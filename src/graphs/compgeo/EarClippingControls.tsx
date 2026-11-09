@@ -82,7 +82,7 @@ export function EarClippingControls(props: EarClippingControlsProps) {
     const trianglesText = traced ? t("earclip_triangles_so_far", {value0: trianglesSoFar}) : undefined;
     const noteSentence = traced && event ? noteText(t, event.note) : undefined;
     // Silent while Play runs (the region's mute); announces the status once on Pause or at the end.
-    const liveReadout = useStatusReadout(!traced ? "" : [reversedText, stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". "));
+    const liveReadout = useStatusReadout(!traced ? "" : [reversedText, stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". "), true);
     return <>
         <div className="inspector-group">
             <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}

@@ -114,7 +114,7 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
         value3: counts.end, value4: counts.merge, value5: counts.end + counts.merge,
     }) : undefined;
     // Silent while Play runs (the region's mute); announces once on Pause or at the end.
-    const liveReadout = useStatusReadout(traced ? [stepText, noteLine, summary].filter(Boolean).join(". ") : "");
+    const liveReadout = useStatusReadout(traced ? [stepText, noteLine, summary].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("monotonepartition_controls_label")} nextLabel={t("monotonepartition_next_step")} playing={playing}

@@ -89,7 +89,7 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
         : t("intervalsweep_pairs_none");
     const comparison = view.done ? t("intervalsweep_comparison", {value0: view.pairs.length, value1: (n * (n - 1)) / 2}) : undefined;
     const announcement = refusal || n === 0 ? "" : [stepText, noteLine, comparison].filter(Boolean).join(". ");
-    const liveReadout = useStatusReadout(announcement);
+    const liveReadout = useStatusReadout(announcement, true);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("intervalsweep_controls_label")} nextLabel={t("intervalsweep_next_step")} playing={playing}

@@ -8,6 +8,7 @@ import Slider from "../../../inputs/Slider";
 import {InspectorDisclosure} from "../../../inputs/InspectorDisclosure";
 import {CurveControlsProps} from "./CurveDisplayControls";
 import {UnavailableButton} from "../../../inputs/UnavailableButton";
+import "./BezierCurveControls.css";
 
 export type BezierAdapter = JXGBezierCurve | JXGRationalBezierCurve;
 export type BezierToolName = "subdivision" | "extrapolation" | "shrink" | "decasteljau" | "elevation";
@@ -120,6 +121,7 @@ interface OperationToolProps {
  */
 export function OperationTool({curve, tool, onChanged, onApplied = onChanged, previews, parameter, onApply, applyReason, applyClassName, applyIcon}: OperationToolProps) {
     const t = useT();
+    const [blocked, setBlocked] = useState(0);
     const apply = (action: () => void) => {
         previews?.clear();
         (onApply ?? action)();
@@ -154,9 +156,11 @@ export function OperationTool({curve, tool, onChanged, onApplied = onChanged, pr
     return <>
         {slider}
         {previews && <Button aria-pressed={previews.preview === tool} onClick={() => previews.toggle(tool)}>{previewLabel}</Button>}
-        <UnavailableButton className={applyClassName ?? "btn btn-primary"} reason={applyReason} onPress={() => apply(action)}>
+        <UnavailableButton className={`${applyClassName ?? "btn btn-primary"} operation-apply`} reason={applyReason}
+                           onPress={() => { setBlocked(0); apply(action); }} onBlockedPress={() => setBlocked(count => count + 1)}>
             {applyIcon}{label}
         </UnavailableButton>
+        <div role="status" aria-live="polite">{applyReason !== undefined && blocked > 0 && <p key={blocked} className="inspector-help" data-apply-reason>{applyReason}</p>}</div>
     </>;
 }
 

@@ -105,7 +105,7 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
         : undefined;
     const counts = tri?.done ? run.counts : null;
     // Silent while Play runs (the region's mute); announces once on Pause or at the end.
-    const liveReadout = useStatusReadout(traced ? [stepText, phaseText, noteLine, triangleLine].filter(Boolean).join(". ") : "");
+    const liveReadout = useStatusReadout(traced ? [stepText, phaseText, noteLine, triangleLine].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("monotonetri_controls_label")} nextLabel={t("monotonepartition_next_step")} playing={playing}

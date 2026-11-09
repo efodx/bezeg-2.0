@@ -119,7 +119,7 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
         ? t("bentleyottmann_summary", {value0: run.eventCount, value1: view.reports.length, value2: view.neighbourTests, value3: run.pairTotal})
         : undefined;
     const announcement = refusal || n === 0 ? "" : [stepText, noteLine, summary].filter(Boolean).join(". ");
-    const liveReadout = useStatusReadout(announcement);
+    const liveReadout = useStatusReadout(announcement, true);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("bentleyottmann_controls_label")} nextLabel={t("bentleyottmann_next_step")} playing={playing}

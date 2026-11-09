@@ -1,0 +1,4 @@
+/* The Apply button of every curve operation: a coarse pointer gets a 44px tall hit area (the same rule the inputs use). */
+@media (pointer: coarse), (max-width: 700px) {
+    .operation-apply { min-height: 44px; }
+}

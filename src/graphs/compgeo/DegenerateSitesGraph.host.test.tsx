@@ -1,5 +1,6 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {MemoryRouter} from 'react-router-dom';
 import {DegenerateSitesGraph} from './DegenerateSitesGraph';
 import {VoronoiGraph} from './VoronoiGraph';
@@ -11,6 +12,8 @@ import {serializePointSetModel} from '../../compgeo/pointSetModel';
 import {enterNumber} from '../../inputs/testEntry';
 import {incircleValue} from '../../compgeo/predicates';
 import {setLanguage, t} from '../../localization';
+/** The readouts of a point-set trace graph publish after a quiet period; wait it out. */
+const settled = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
 
 // Counts the live subscriptions of the language listener, so unmount can be checked to release it.
 const languageListeners = vi.hoisted(() => ({live: 0}));
@@ -138,7 +141,7 @@ test('a clockwise first triple is read counter-clockwise', () => {
     expect(four('incircle')).toContain(`D = ${incircleValue({x: 0, y: 0}, {x: 4, y: 0}, {x: 0, y: 4}, {x: 1, y: 1})}`);
 });
 
-test('five collinear sites: four parallel lines, no vertices, no Delaunay triangles, and a visible, announced explanation in both languages', () => {
+test('five collinear sites: four parallel lines, no vertices, no Delaunay triangles, and a visible, announced explanation in both languages', async () => {
     const graph = new Observed();
     mount(graph);
     chooseExample('collinear');
@@ -154,9 +157,11 @@ test('five collinear sites: four parallel lines, no vertices, no Delaunay triang
     expect(named(graph, 'voronoi-edges')).toHaveLength(1);
     expect(graph.drawingStats()).toMatchObject({lines: 4, vertexMarkers: 0});
     expect(part('collinear')).toContain('triangulacije ni');
+    await settled();
     expect(live()).toContain('triangulacije ni');
     act(() => { setLanguage('en'); });
     expect(part('collinear')).toContain('there is no triangulation');
+    await settled();
     expect(live()).toContain('there is no triangulation');
 });
 
@@ -372,7 +377,7 @@ describe('Presets', () => {
     });
 });
 
-test('a live language switch re-renders the readout, the mode switch and the examples', () => {
+test('a live language switch re-renders the readout, the mode switch and the examples', async () => {
     const graph = new Observed();
     mount(graph);
     expect(languageListeners.live).toBeGreaterThan(0);
@@ -382,6 +387,7 @@ test('a live language switch re-renders the readout, the mode switch and the exa
     expect(four('verdict')).toContain('not unique');
     expect(optionText(modeSelect(), 'four-point')).toBe('Four points');
     expect(optionText(exampleSelect(), 'collinear')).toBe('Five collinear points');
+    await settled();
     expect(live()).toContain('on the circle');
 });
 
@@ -408,7 +414,7 @@ describe('four-point readout group and live region', () => {
         expect(group.querySelector('[data-fourpoint="incircle"]')).not.toBeNull();
     });
 
-    test('the live text changes when the sign changes, not when only the determinant does', () => {
+    test('the live text changes when the sign changes, not when only the determinant does', async () => {
         const graph = new Observed();
         mount(graph);
         act(() => { graph.select(2); });
@@ -416,6 +422,7 @@ describe('four-point readout group and live region', () => {
         expect(onCircle).toContain(t('deg_say_on'));
         expect(onCircle).not.toContain('D = ');
         act(() => { fireEvent.keyDown(boardContainer(), {key: 'ArrowUp'}); });
+        await settled();
         const inside = live();
         expect(inside).toContain(t('deg_say_inside'));
         expect(inside).not.toBe(onCircle);

@@ -86,7 +86,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         return next;
     }, [refusalSentence]);
     // The one announcement: the last event, except a refusal (its own alert announces it). No Play here, so never muted.
-    const liveReadout = useStatusReadout(refusalSentence === eventSentence ? "" : eventSentence);
+    const liveReadout = useStatusReadout(refusalSentence === eventSentence ? "" : eventSentence, true);
     return <>
         {triangulationShown && <div className="inspector-group" data-triangulation="edge-flip">
             <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>

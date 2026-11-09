@@ -141,6 +141,17 @@ describe('PointCollection', () => {
         expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe('Najmanj 1.');
     });
 
+    test('the visible count line is not live; a count change is announced once through the status region', () => {
+        const onRemove = vi.fn();
+        const view = render(<PointCollection {...base} count={2} onAdd={() => undefined} removal={{kind: 'selected', onRemove, hasSelection: true}}/>);
+        expect(document.querySelector('.point-collection-count')).not.toHaveAttribute('role');
+        const region = document.querySelector('[data-point-collection-status]')!;
+        expect(region.textContent).toBe('');
+        view.rerender(<PointCollection {...base} count={3} onAdd={() => undefined} removal={{kind: 'selected', onRemove, hasSelection: true}}/>);
+        expect(region.textContent).toContain('3');
+        expect(document.querySelector('.point-collection-count')).not.toHaveAttribute('role');
+    });
+
     test('a pressed reason is shown again in the new language after a switch', () => {
         const props = {label: 'p', min: 0, max: 3, count: 3, onAdd: () => undefined, removal: {kind: 'selected', onRemove: () => undefined, hasSelection: false} as const};
         render(<PointCollection {...props}/>);

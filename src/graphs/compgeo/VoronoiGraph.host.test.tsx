@@ -1,5 +1,6 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {enterNumber} from '../../inputs/testEntry';
 import {MemoryRouter} from 'react-router-dom';
 import {VoronoiGraph} from './VoronoiGraph';
@@ -13,6 +14,8 @@ import {Rational, RationalPoint} from '../../compgeo/rational';
 import {edges as triangulationEdges} from '../../compgeo/triangulation';
 import {clipCell, nearestSites, voronoiFromDelaunay} from '../../compgeo/voronoi';
 import {setLanguage, t} from '../../localization';
+/** The readouts of a point-set trace graph publish after a quiet period; wait it out. */
+const settled = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
 
 // Counts the live subscriptions of the language listener, so unmount can be checked to release it.
 const languageListeners = vi.hoisted(() => ({live: 0}));
@@ -115,7 +118,7 @@ test('the B4 example shows the 7 spec vertices as exact text, 8 finite edges, 5 
     expect(graph.diagram()!.cells.filter(cell => cell.bounded).map(cell => cell.site)).toEqual([5, 6]);
 });
 
-test('the overlay is off after load, toggles on and off, and hull and interior edges differ without colour', () => {
+test('the overlay is off after load, toggles on and off, and hull and interior edges differ without colour', async () => {
     const graph = new Observed();
     mount(graph);
     expect(graph.overlayShown('delaunay')).toBe(false);
@@ -133,11 +136,13 @@ test('the overlay is off after load, toggles on and off, and hull and interior e
     expect(interior.length).toBeGreaterThan(0);
     expect(hull[0].visProp?.strokewidth).not.toBe(interior[0].visProp?.strokewidth);
     expect(hull[0].visProp?.dash).not.toBe(interior[0].visProp?.dash);
+    await settled();
     expect(live()).toContain('Dualnost je vklopljena');
     act(() => { fireEvent.click(overlaySwitch()); });
     expect(graph.overlayShown('delaunay')).toBe(false);
     expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
     expect(named(graph, 'voronoi-delaunay-interior')).toHaveLength(0);
+    await settled();
     expect(live()).toContain('Dualnost je izklopljena');
 });
 
@@ -691,12 +696,13 @@ describe('review fixes', () => {
         expect([graph.cellSite, graph.construction, graph.queryTextOf()]).toEqual([null, 0, VORONOI_DEFAULT_QUERY]);
     });
 
-    test('the query answer is announced; a move beyond the coordinate limit is refused without a notice', () => {
+    test('the query answer is announced; a move beyond the coordinate limit is refused without a notice', async () => {
         const graph = new Observed();
         mount(graph);
         expect(live()).toContain('Točka poizvedbe: (4, 2).');
         expect(live()).toContain(part('query-nearest')!);
         click('query-right');
+        await settled();
         expect(live()).toContain('(9/2, 2)');
         act(() => { graph.setQueryText(String(graph.coordinateLimit), '0'); });
         click('query-right');

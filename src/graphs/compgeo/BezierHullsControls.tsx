@@ -47,7 +47,7 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
     const atEnd = step >= length - 1;
     const lines = bezierHullsReadout(state).lines;
     const stepText = stepCounterText(t, step, length);
-    const liveReadout = useStatusReadout([stepText, ...lines.map(line => lineText(t, line))].join("\n"));
+    const liveReadout = useStatusReadout([stepText, ...lines.map(line => lineText(t, line))].join("\n"), true);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("bezierhulls_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}

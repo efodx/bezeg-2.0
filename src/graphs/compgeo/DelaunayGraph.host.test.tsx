@@ -1,6 +1,7 @@
 import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {MemoryRouter} from 'react-router-dom';
 import {DELAUNAY_STEP_INTERVAL_MS, DelaunayGraph} from './DelaunayGraph';
 import {DELAUNAY_EXAMPLES, DELAUNAY_PRESET_KEY, DELAUNAY_QUAD} from './delaunayPresetCollection';
@@ -10,6 +11,8 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
+/** The readouts of a point-set trace graph publish after a quiet period; wait it out. */
+const settled = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
 
 // Counts the live subscriptions of the language listener, so unmount can be checked to release it.
 const languageListeners = vi.hoisted(() => ({live: 0}));
@@ -403,13 +406,14 @@ const neighbourTexts = () => [...document.querySelectorAll('[data-neighbour]')].
 const selectedCircles = (graph: Observed) => named(graph, 'delaunay-selected-circle');
 const live = () => document.querySelector('[data-delaunay-live]')?.textContent ?? '';
 
-test('example 1: abc shows +64 for d before the flip, and after the flip each of abd and bcd shows -64 outside for the other vertex', () => {
+test('example 1: abc shows +64 for d before the flip, and after the flip each of abd and bcd shows -64 outside for the other vertex', async () => {
     const graph = new Observed();
     mount(graph);
     pick('P1, P2, P3');
     expect(neighbourTexts()).toEqual(['Čez rob P1–P3: nasprotna točka P4, determinanta preizkusa krožnice = +64: točka je znotraj očrtane krožnice']);
     expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.');
     expect(triangleButton('P1, P2, P3').getAttribute('aria-pressed')).toBe('true');
+    await settled();
     expect(live()).toContain('determinanta preizkusa krožnice = +64');
     toEnd(graph);
     expect(graph.selectedTriangle()).toBeUndefined();

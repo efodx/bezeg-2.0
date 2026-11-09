@@ -1,6 +1,6 @@
 import {useT} from "../../../localization";
 import {Button} from "react-bootstrap";
-import React from "react";
+import React, {useState} from "react";
 import {JXGRationalBezierCurve} from "../../curves/object/JXGRationalBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {CountSetter} from "../../../inputs/CountSetter";
@@ -23,6 +23,7 @@ interface RationalBezierCurveControlsProps extends CurveControlsProps<JXGRationa
  */
 export function RationalBezierCurveControls({curve, curveNumber, onChanged}: RationalBezierCurveControlsProps) {
     const t = useT();
+    const [blocked, setBlocked] = useState(0);
     const index = curve.getWeightNumber();
     const weight = curve.getCurrentWeight();
     const change = (action: () => void) => {
@@ -30,6 +31,8 @@ export function RationalBezierCurveControls({curve, curveNumber, onChanged}: Rat
         curve.board.update();
         onChanged();
     };
+    // A weight that only differs from 1 by rounding error is already 1 (the smoke saw Reset weight enabled at weight 1 on the first render).
+    const resetReason = Math.abs(weight - 1) < 1e-9 ? t("weight_already_one") : undefined;
     const identity = t("rational_weight_identity", {value0: String(curveNumber), value1: subscript(index)});
     return <div>
         <p>{identity}</p>
@@ -48,9 +51,11 @@ export function RationalBezierCurveControls({curve, curveNumber, onChanged}: Rat
         <div>
             <Button onClick={() => change(() => curve.prevWeight())}>{t("previous_weight")}</Button>
             <Button onClick={() => change(() => curve.nextWeight())}>{t("next_weight")}</Button>
-            <UnavailableButton className="btn btn-primary" reason={weight === 1 ? t("weight_already_one") : undefined}
-                               onPress={() => change(() => curve.resetWeight())}>{t("reset_weight")}</UnavailableButton>
+            <UnavailableButton className="btn btn-primary" reason={resetReason}
+                               onPress={() => { setBlocked(0); change(() => curve.resetWeight()); }}
+                               onBlockedPress={() => setBlocked(count => count + 1)}>{t("reset_weight")}</UnavailableButton>
         </div>
+        <div role="status" aria-live="polite">{resetReason !== undefined && blocked > 0 && <p key={blocked} className="inspector-help" data-reset-weight-reason>{resetReason}</p>}</div>
         <OnOffSwitch checked={curve.inStandardForm()} label={t("standard_form")}
                      onChange={checked => {curve.setStandardForm(checked); onChanged();}}/>
     </div>;
