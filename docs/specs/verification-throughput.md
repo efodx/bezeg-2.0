@@ -67,7 +67,18 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - Exit tests are interleaved between rows, so `--shard=N/3` gets 3 / 2 / 2 Exit rows instead of 0 / 6 / 1.
   - A five-lesson subset fell from 162.8 s to 124.7 s of test time locally. The full guided-lessons spec passed locally, apart from one local socket error that passed on rerun.
   - Hosted lesson-shard times are not yet observed.
-- Not started: phase 1 item 4, and phase 6 scoping of lesson walks by change (`ci-change-scope.cjs`) and catalogue batching.
+- Hosted judgement, handler 4 ([phase4-6a-hosted.md](../reviews/verification-throughput/phase4-6a-hosted.md)). Two of three runs so far (42541468552, 42545997964):
+  - Unit non-test time (setup + environment + import, summed over shards) was 320 and 296 s, against 364 and 357 before phase 4. Phase 4 holds so far.
+  - Unit critical path was 8:33 and 8:30, at the bar of about 8:30, so the shard map is not yet shown to beat it.
+  - Phase 6a: lesson test steps were 3.0 / 3.2 / 2.7 min, against 4.4 / 5.2 / 3.4. other-specs stayed at 5.5 min, now the slowest Chromium job. Neither `maxFailures` nor the 60 s timeout fired.
+- Phase 6, catalogue batching: the catalogue card loop and the two all-clips decode loops each run as one in-page pass, and failures name the card id. Locally the tests took 31.0 → 0.9 s, 22.1 → 10.5 s and 20.6 → 17.5 s. The 390 px test is bound by decoding, not round trips. Five injected faults each failed and named their card. Hover in the batched clip loops is a synthetic `pointerover`; real-mouse hover stays covered by the file's first and last tests.
+- Phase 6, lesson-walk scoping: `scripts/ci-change-scope.cjs` emits `lesson_grep` for the lessons-N shards.
+  - All rows run when the change touches the lesson runtime or shared paths, the smoke helpers, the Playwright config or the workflow, and on dispatch or an undecidable scope.
+  - A lesson-content change walks the rows it quotes; a content file that quotes none walks all.
+  - Any other change walks 24 representative rows, which include all Exit samples, plus the spec's standalone extras describes: 74 of 292 tests.
+  - Deploying pushes use the scoped set, because the unit sweeps and other-specs still run in full.
+  - A shard left without rows passes (`--pass-with-no-tests`).
+- Phase 1 item 4: [ADR 0043](../adr/0043-background-publish-worktree.md) decides on a background publish from a detached per-publish worktree. Implementation is in progress.
 
 **Follow-ups:**
 
@@ -143,7 +154,7 @@ Acceptance: master's latest full run is green; a fault-injected red full run fol
    This removes the rejection that the original spec gave for skipping ("the verified base isn't recorded").
 2. **Machine-wide publish lock** around rebase, delta check and push. Gates on one machine stop invalidating each other, and the second gate's delta check sees the first gate's push.
 3. **Narrow slot holding.** Take the test slot only around Vitest/Playwright, not tsc, lint or build. Exempt `typecheck` and `lint` from the 60 s start spacing but keep the memory floor.
-4. **Later, needs an ADR:** publish from a dedicated worktree in the background, so the stream continues the next slice while its gate runs. The publication spec currently says the gate does not choose a worktree.
+4. **Later, needs an ADR:** publish from a dedicated worktree in the background, so the stream continues the next slice while its gate runs. The publication spec currently says the gate does not choose a worktree. Decided in [ADR 0043](../adr/0043-background-publish-worktree.md): `just publish --background` runs the unchanged gate in a detached per-publish worktree and reports through a result file.
 
 Acceptance: `publish-gate.test.cjs` covers rejected-push → delta path, overlapping-incoming → full rerun, and lock contention. A recorded week of gates shows median gate time and reruns per published slice against the 2026-11-07 baseline (16–50 min, up to 3 reruns).
 
