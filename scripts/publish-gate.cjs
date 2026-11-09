@@ -557,8 +557,22 @@ function removeStaleWorktrees(root, now) {
     }
 }
 
-function launchGate({cwd, args}) {
-    const child = spawn(process.execPath, [__filename, ...args], {cwd, detached: true, windowsHide: true, stdio: 'ignore', env: {...process.env, GIT_EDITOR: 'true'}});
+function launchGate({cwd, args, script = __filename}) {
+    const env = {...process.env, GIT_EDITOR: 'true'};
+    if (process.platform === 'win32') {
+        // A node-spawned child inherits the caller's pipe handles (observed through `just`), so a captured `just publish --background`
+        // would wait for the whole gate. Start-Process goes through ShellExecute-style creation without handle inheritance.
+        const command = '$a = ConvertFrom-Json $env:BZ_LAUNCH_ARGS; $q = @($a | ForEach-Object { \'"\' + $_ + \'"\' }); '
+            + '(Start-Process -PassThru -WindowStyle Hidden -FilePath $env:BZ_LAUNCH_EXE -WorkingDirectory $env:BZ_LAUNCH_CWD -ArgumentList $q).Id';
+        const result = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', command], {
+            encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'],
+            env: {...env, BZ_LAUNCH_EXE: process.execPath, BZ_LAUNCH_CWD: cwd, BZ_LAUNCH_ARGS: JSON.stringify([script, ...args])},
+        });
+        const pid = Number(String(result.stdout).trim());
+        if (!Number.isInteger(pid) || pid <= 0) throw new Error(`background gate did not start: ${String(result.stdout).trim() || result.error?.message || 'no pid'}`);
+        return pid;
+    }
+    const child = spawn(process.execPath, [script, ...args], {cwd, detached: true, stdio: 'ignore', env});
     child.unref();
     return child.pid;
 }
@@ -697,4 +711,4 @@ ${USAGE}`);
 
 if (require.main === module) cli(process.argv.slice(2));
 
-module.exports = {PRODUCTION_ORIGINS, RECIPES, backgroundStatus, cli, formatReport, publish, publishBackground, removePublishWorktree, spawnExec};
+module.exports = {PRODUCTION_ORIGINS, RECIPES, backgroundStatus, cli, formatReport, launchGate, publish, publishBackground, removePublishWorktree, spawnExec};

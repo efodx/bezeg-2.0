@@ -10,6 +10,7 @@ A `runtime` gate takes about 16–50 minutes on a loaded machine (2026-11-07 bas
 
 ## Decision
 
+- On Windows the gate is started through PowerShell `Start-Process -PassThru`, because a node-spawned detached child inherited the caller's stdout pipe under `just` and kept a captured `just publish --background` open for the whole gate (22 s against 3 s measured).
 - `--background` takes the same `--recipe`, `--base` and `--commits` arguments. The handler's checkout must still hold the declared commits, but it no longer needs to stay clean or unchanged after the command returns.
 - The gate creates `.claude/worktrees/publish-<short sha>-<random>` with `git worktree add --detach` at the last declared commit and junctions its `node_modules` to the main checkout's. It spawns the ordinary foreground gate there, detached, with the same arguments, and prints the worktree path, the log path and a result-file path (`.command-logs/publish-<id>.json` in the handler's checkout).
 - The foreground gate is unchanged: clean checkout, fetch, rebase onto `origin/master`, delta or full checks, the machine-wide publish lock, fast-forward push. Its rebase moves the publish worktree's detached `HEAD` only, never the handler's branch.

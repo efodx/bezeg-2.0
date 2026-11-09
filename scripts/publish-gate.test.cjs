@@ -693,3 +693,31 @@ test('stale cleanup removes only publish worktrees older than a day', async t =>
     assert.equal(fs.existsSync(path.join(dir, 'publish-new')), true);
     assert.equal(fs.existsSync(path.join(dir, 'other-dir')), true);
 });
+
+// The detached gate must not inherit the caller's stdout pipe, or a captured `just publish --background` waits for the whole gate.
+test('launchGate returns the gate pid and releases a captured stdout pipe at once', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'launch-'));
+    const sleeper = path.join(dir, 'sleeper.cjs');
+    const pidFile = path.join(dir, 'pid');
+    fs.writeFileSync(sleeper, `require('node:fs').writeFileSync(${JSON.stringify(pidFile)}, String(process.pid)); setTimeout(() => {}, 20000);`);
+    const caller = path.join(dir, 'caller.cjs');
+    fs.writeFileSync(caller, `const {launchGate} = require(${JSON.stringify(path.join(__dirname, 'publish-gate.cjs'))}); console.log(launchGate({cwd: ${JSON.stringify(dir)}, args: [], script: ${JSON.stringify(sleeper)}}));`);
+    const child = require('node:child_process').spawn(process.execPath, [caller], {stdio: ['ignore', 'pipe', 'pipe']});
+    let out = '';
+    child.stdout.on('data', d => { out += d; });
+    let pid = 0;
+    try {
+        await new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error('stdout pipe still open after 5 s: launched child inherited it')), 5000);
+            child.stdout.on('close', () => { clearTimeout(timer); resolve(); });
+        });
+        pid = Number(out.trim());
+        for (let i = 0; i < 50 && !fs.existsSync(pidFile); i++) await new Promise(r => setTimeout(r, 100));
+        assert.equal(Number(fs.readFileSync(pidFile, 'utf8')), pid, 'returned pid is the sleeper');
+        process.kill(pid, 0);
+    } finally {
+        child.kill();
+        pid = pid || Number(out.trim()) || 0;
+        if (pid) try { process.kill(pid); } catch { /* already gone */ }
+    }
+});
