@@ -67,15 +67,24 @@ export function PointCollection(props: PointCollectionProps) {
     // function that produces the text and called while rendering, so a language switch shows it in the new language.
     const [pressed, setPressed] = useState<{reason: (now: Reasons) => string; count: number}>();
     const [seenCount, setSeenCount] = useState(count);
-    // How often the count changed (Add, Remove, Clear); the visible count line is not live, so a change is announced in the status region.
-    const [changed, setChanged] = useState(0);
+    // The visible count line is not live, so a count change made by this panel's Add, Remove or Clear is announced in the status region
+    // (a counter makes a repeat announce again). A change from elsewhere (a scene, an example, a restore) clears it: the announcement
+    // belongs to the press, not to the state, so a restored graph and one that reached the same state otherwise look the same.
+    const [changed, setChanged] = useState<number | null>(null);
+    const pressedChange = useRef(false);
+    const own = (action: () => void) => () => { pressedChange.current = true; action(); };
     const countText = t("pointset_point_count", {value0: formatNumber(count, language, 0), value1: formatNumber(max, language, 0)});
     if (seenCount !== count) {
         setSeenCount(count);
         setPressed(undefined);
-        setChanged(current => current + 1);
+        const byPress = pressedChange.current;
+        pressedChange.current = false;
+        setChanged(current => byPress ? (current ?? 0) + 1 : null);
     }
-    const blocked = (reason: (now: Reasons) => string) => setPressed(current => ({reason, count: (current?.count ?? 0) + 1}));
+    const blocked = (reason: (now: Reasons) => string) => {
+        pressedChange.current = false;
+        setPressed(current => ({reason, count: (current?.count ?? 0) + 1}));
+    };
     const add = (at?: readonly number[]): boolean => {
         const refusal = at ? props.onAdd(at) : props.onAdd();
         if (typeof refusal !== "string") return true;
@@ -123,12 +132,12 @@ export function PointCollection(props: PointCollectionProps) {
             : <>
                 <p className="point-collection-count">{countText}</p>
                 <div className="point-collection-buttons">
-                    <UnavailableButton className="btn btn-primary" reason={addReason} onPress={() => { add(); }} onBlockedPress={stored("add")}>{t("pointset_add_point")}</UnavailableButton>
-                    <UnavailableButton className="btn" reason={removeSelectedReason} onPress={removal.onRemove} onBlockedPress={stored("remove")}>{t("point_controls_remove_selected")}</UnavailableButton>
+                    <UnavailableButton className="btn btn-primary" reason={addReason} onPress={own(() => { add(); })} onBlockedPress={stored("add")}>{t("pointset_add_point")}</UnavailableButton>
+                    <UnavailableButton className="btn" reason={removeSelectedReason} onPress={own(removal.onRemove)} onBlockedPress={stored("remove")}>{t("point_controls_remove_selected")}</UnavailableButton>
                 </div>
             </>}
         {(props.onClear || props.addMode) && <div className="point-collection-buttons">
-            {props.onClear && <UnavailableButton className="btn" reason={clearReason} onPress={() => props.onClear?.()} onBlockedPress={stored("clear")}>{t("point_controls_clear_all")}</UnavailableButton>}
+            {props.onClear && <UnavailableButton className="btn" reason={clearReason} onPress={own(() => props.onClear?.())} onBlockedPress={stored("clear")}>{t("point_controls_clear_all")}</UnavailableButton>}
             {props.addMode && <button type="button" className="btn point-collection-mode" aria-pressed={props.addMode.on} onClick={props.addMode.onToggle}>{t("pointset_add_mode")}</button>}
         </div>}
         {entry && <div className="point-collection-entry" role="group" aria-label={t("new_point")}
@@ -153,11 +162,11 @@ export function PointCollection(props: PointCollectionProps) {
                                  setValues(next);
                              }}/>
             </div>)}
-            <UnavailableButton className="btn" reason={addAtReason} onPress={addAt} onBlockedPress={stored("addAt")}>{t("point_controls_add_at")}</UnavailableButton>
+            <UnavailableButton className="btn" reason={addAtReason} onPress={own(addAt)} onBlockedPress={stored("addAt")}>{t("point_controls_add_at")}</UnavailableButton>
         </div>}
         <div role="status" aria-live="polite" data-point-collection-status>
             {pressed ? <p key={pressed.count} className="point-collection-reason" data-point-collection-reason>{pressed.reason(reasons)}</p>
-                : changed > 0 && removal.kind !== "last" && <p key={`count-${changed}`} className="visually-hidden" data-point-collection-announce>{countText}</p>}
+                : changed !== null && removal.kind !== "last" && <p key={`count-${changed}`} className="visually-hidden" data-point-collection-announce>{countText}</p>}
         </div>
     </div>;
 }

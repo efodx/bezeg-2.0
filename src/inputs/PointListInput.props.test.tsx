@@ -141,15 +141,30 @@ describe('PointCollection', () => {
         expect(document.querySelector('[data-point-collection-reason]')?.textContent).toBe('Najmanj 1.');
     });
 
-    test('the visible count line is not live; a count change is announced once through the status region', () => {
+    test('the visible count line is not live; a count change from this panel\'s Add is announced once through the status region', () => {
         const onRemove = vi.fn();
-        const view = render(<PointCollection {...base} count={2} onAdd={() => undefined} removal={{kind: 'selected', onRemove, hasSelection: true}}/>);
+        const view = render(<PointCollection {...base} count={1} onAdd={() => undefined} removal={{kind: 'selected', onRemove, hasSelection: true}}/>);
         expect(document.querySelector('.point-collection-count')).not.toHaveAttribute('role');
         const region = document.querySelector('[data-point-collection-status]')!;
         expect(region.textContent).toBe('');
-        view.rerender(<PointCollection {...base} count={3} onAdd={() => undefined} removal={{kind: 'selected', onRemove, hasSelection: true}}/>);
-        expect(region.textContent).toContain('3');
+        fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'}));
+        view.rerender(<PointCollection {...base} count={2} onAdd={() => undefined} removal={{kind: 'selected', onRemove, hasSelection: true}}/>);
+        expect(region.textContent).toContain('2');
         expect(document.querySelector('.point-collection-count')).not.toHaveAttribute('role');
+    });
+
+    test('a count change from elsewhere (scene, example, restore) is not announced and clears an earlier announcement', () => {
+        const onRemove = vi.fn();
+        const props = {...base, onAdd: () => undefined, removal: {kind: 'selected', onRemove, hasSelection: true} as const};
+        const view = render(<PointCollection {...props} count={1}/>);
+        const region = document.querySelector('[data-point-collection-status]')!;
+        view.rerender(<PointCollection {...props} count={3}/>);
+        expect(region.textContent).toBe('');
+        fireEvent.click(screen.getByRole('button', {name: 'Odstrani izbrano točko'}));
+        view.rerender(<PointCollection {...props} count={2}/>);
+        expect(region.textContent).toContain('2');
+        view.rerender(<PointCollection {...props} count={1}/>);
+        expect(region.textContent).toBe('');
     });
 
     test('a pressed reason is shown again in the new language after a switch', () => {
