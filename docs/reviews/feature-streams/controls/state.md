@@ -6,7 +6,7 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 - **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`, rebased on `origin/master`. Run state: **active**. Wave 2 (step 4, family sweeps) is complete and pushed: `controlExemptions` lists only the host chrome (`PresetImportDialog`, `PresetSelector`). Wave 3 (step 5) is next. The previous handler handed off at this boundary.
 - **Clean publish worktree:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached HEAD, its own `npm ci`. Check out `origin/master`, cherry-pick the slice, run `just check-changed origin/master` (about 9–10 min, includes the build), `just smoke-lesson <ids>` for affected lessons, serve with `just preview 4327` for browser smoke. Publish from the stream worktree with `just publish --background --recipe runtime --base <commit before the slice> --commits <ids>` and check `just publish --status` (ADR 0043); then `just ci <pushed sha>`.
-- **Hosted CI:** `81300d01` failed (Taylor smoke locator matched both parts of the new `CountSetter`); fixed in `6ee72917`, green. `7e14b51c` (patches) green. Check the learning push with `just ci` first.
+- **Hosted CI:** `81300d01` failed (Taylor smoke locator matched both parts of the new `CountSetter`); fixed in `6ee72917`, green. `7e14b51c` (patches) green. `050612c4` (learning) green: run 42618777343, Browser smoke success.
 - **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Verification-throughput phase 5 applies to every sweep.
 
 ## Accepted in Wave 2 (on `master`)
