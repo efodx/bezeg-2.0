@@ -2566,3 +2566,19 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Review value: the reviewer found a blocking defect the worker's 30 tests missed. The internal `--result-file`/`--origin` flags let a foreground run `rmSync` its own checkout. It also found a start race and leaked worktrees.
 - Live-use value: the first real background publish showed that a `just`-captured caller waited for the whole gate (Windows pipe-handle inheritance). No unit test could reproduce it, because the leak needs `just` as the parent. The worker's guard test passes on old code too, so it was reported as non-guarding instead of claimed.
 - Brief lesson: for a tool whose contract is about process lifetime, require one live invocation through the real entry point (`just …` from the agent shell) in the acceptance, not only injected-launch tests.
+
+## 2026-11-09 — verification throughput: hosted confirmation, gate timings, family reach (verification-throughput stream, handler 5)
+
+- Class/size: tooling, CI measurement and test scoping / M. Source: [spec](../specs/verification-throughput.md), handoff 4.
+- Dispatch: three `bezeg-worker` runs (Sonnet `medium`), at most two at a time, all in the handler's worktree:
+  - `sceneReplacementContract` split. Observed: 45k tokens, 30 min.
+  - Gate timings extraction. Observed: 48k, 20 min.
+  - Directory-to-family sweep reach. Observed: 35k, 13 min.
+- Outcome:
+  - Hosted runs 42557268766 (`65a9a2eb`) and 42559644939 (`ba4d421b`) were green. The latter was the first scoped lesson run (25 / 25 / 24 tests).
+  - Gate timings partial record: median for full slices 38.7 → 18.9 min, attempts 2.36 → 1.20, no push race after phase 1.
+  - Family reach is committed (`e5b7ef34`), with 4 of 16 tests observed failing on the old script.
+  - Docs: `--background` is now offered to all streams through the handler card and the feature-streams README.
+- Rejected at acceptance: the scene replacement split. It was correct, with an injected failure caught. But the handler's per-file read of the latest hosted run showed the file was no longer heaviest (107 s against 183 s for `GraphTransientState.part1`), and the split added about 50% summed time for an unchanged predicted maximum shard. The brief carried the handoff's 157 s premise without asking the worker to re-derive it from the newest run.
+- Coverage gap: family reach was not run through a real sweep with a selected family; the worker ran the scope script end to end only.
+- Brief lesson: for an optimisation slice, state the decision criterion (critical-path gain against the newest hosted per-file times) in the acceptance, so the worker can stop early when the premise no longer holds.
