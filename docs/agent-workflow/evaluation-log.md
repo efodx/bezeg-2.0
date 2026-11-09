@@ -2503,3 +2503,24 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Smoke catches remount and refresh defects that jsdom tests miss. Keep a browser pass before accepting control changes.
   - Haiku smoke handles about five routes with five checks each. Split larger lists, or use Sonnet.
   - A parallel wave in one worktree needs a separate clean worktree for verification and publish.
+
+## 2026-11-09: controls Wave 2, compgeo and projective sweeps (controls stream, handler)
+
+- Scope: controls task 3 for compgeo and projective: 13 exempt files, PointSet segment and interval rows, ten trace live paragraphs, Voronoi construction onto `TracePlayback`, the Pascal readout. Class/size: L. Handler: Opus `medium`, 1.5x budget scale. Up to four workers at once in one checkout, under the parallel plan; a common brief plus slice briefs (`docs/reviews/feature-streams/controls/w2-*-brief.md`).
+- Dispatch, all Sonnet `medium`:
+  - First round, four slices: C1 triangle panels (131k, complete), C2 PointSet family (141k, partial), C3 trace panels (144k, partial, about half done), P projective (140k, partial).
+  - Continuations from handoff notes: C2b (49k), C3b (113k), C3c Voronoi (121k), P2 (42k). All complete.
+  - Shared-control slice S (`Slider` props: cyclic, typed precision, grid, `unavailableReason`, value text, typed-only callback), 65k. Repairs R1 (51k) and R2 (54k) from review findings.
+  - Reviews: engineering C2+P (57k), C1+S with mathematics (55k), C3 trace and Voronoi (70k), UI and accessibility (32k).
+  - Smokes: three Sonnet groups of six routes (38k, 51k, 60k); the handler ran 22 guided-lesson smoke rows.
+- Outcome: `2cb0f397`, `4361fd7f`, `07a8f40d`, `a474efb2`, `f957284b` plus the docs commit; spec decisions 32–40.
+- Defects caught after the workers' own checks:
+  - Review: a stale Reverse refusal that reappeared without a press; FivePoint and PolePolar spinner steps fell to 1; vacuous `getAllByText(...)[0]` and `not.toContain` assertions; slider field arrow keys routed as typed text (InscribedAngle could stall at a gap edge).
+  - Handler: the slider reason was shown twice (field hint inside a live region plus the slider's paragraph); the cyclic wrap returned 360 for values just below the period (found by the handler's own noise test); the empty compgeo exemption entry broke ESLint config loading.
+  - `check-changed` selector warnings and the lesson smoke: the BezierClipping tolerance hook and both Monotone step tables in `tests/guided-lessons.smoke.spec.cjs`. Unit tests and reviews had passed; the reviewer flagged the Monotone tables independently.
+  - Broad smoke: segment and interval lists said "no point is selected"; Fortune's readout had a doubled period.
+- Lessons:
+  - Four slices of about 10k lines each ran out at 135k with half the work done, even with the 10k sizing note. Read-heavy migration slices with test rewrites need about half that, or plan a continuation per slice from the start.
+  - Workers proposed shared-control props instead of forking local copies when the brief said so; one shared-control slice (S) then fixed regressions in two families at once.
+  - Workers in one checkout repeatedly reported each other's half-edited files as failures. The common brief's "report only your paths" rule kept that from blocking them.
+  - Run the affected guided-lesson smoke rows before broad smoke; they catch renamed hooks and changed numbering in seconds.
