@@ -4,13 +4,13 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`, rebased on `origin/master`. Run state: **active**. Wave 2's first pair (compgeo, projective) closed 2026-11-09; functions with curves is next.
+- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`, rebased on `origin/master`. Run state: **active**. Wave 2's first pair (compgeo, projective) closed 2026-11-09; functions with curves is next. The previous handler handed off at this boundary rather than start the pair mid-budget.
 - **Clean publish worktree:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached HEAD, its own `npm ci`. Check out the commit there, run `just check-changed` (about 12 min now), `just build`, `just smoke-lesson <ids>` for affected lessons, serve with `just preview 4327` for browser smoke, then publish. Untracked logs there make builds "dirty"; that is harmless.
 - **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Verification-throughput phase 5 applies to every sweep.
 
 ## Accepted in Wave 2 so far (on `master`)
 
-- Compgeo and projective sweeps: `2cb0f397` (shared input additions: `Slider` cyclic/typed precision/grid/`unavailableReason`/value text/`onTypedChange`, `NumberInput` `onStepChange` and `reasonShownElsewhere`, `PointListInput` step, `ChoiceSelect` option names), `4361fd7f` (the sweep), `07a8f40d` and `a474efb2` (lesson smoke spec), `f957284b` (smoke fixes). Spec decisions 32–40 in `docs/specs/shared-graph-controls.md`. Both families are out of `controlExemptions`.
+- Compgeo and projective sweeps: `2cb0f397` (shared input additions: `Slider` cyclic/typed precision/grid/`unavailableReason`/value text/`onTypedChange`, `NumberInput` `onStepChange` and `reasonShownElsewhere`, `PointListInput` step, `ChoiceSelect` option names), `4361fd7f` (the sweep), `07a8f40d` and `a474efb2` (lesson smoke spec), `f957284b` (smoke fixes). Spec decisions 32–40 in `docs/specs/shared-graph-controls.md`. Both families are out of `controlExemptions`. Published as `1682b238` (rebased; the docs commit); hosted CI green on `1682b238`.
 - Evidence: `w2-c1.md`, `w2-c2.md`, `w2-c3.md`, `w2-c3c.md`, `w2-p.md`, `w2-s.md`; smokes `w2-smoke-a.md`, `w2-smoke-b.md`, `w2-smoke-p.md`; 22 guided-lesson rows passed on `a474efb2`.
 - Reusable briefs: `w2-common-brief.md` (role, shared files, phase 5 rules, checks, return) and `w2-smoke-brief.md`. Copy them for the next pair and change only the family details.
 
