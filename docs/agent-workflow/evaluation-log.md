@@ -2524,3 +2524,27 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Workers proposed shared-control props instead of forking local copies when the brief said so; one shared-control slice (S) then fixed regressions in two families at once.
   - Workers in one checkout repeatedly reported each other's half-edited files as failures. The common brief's "report only your paths" rule kept that from blocking them.
   - Run the affected guided-lesson smoke rows before broad smoke; they catch renamed hooks and changed numbering in seconds.
+
+## 2026-11-09 — verification throughput: CI shards, gate delta, test-cost, phases 4 and 6a (verification-throughput stream, handler 3)
+
+- Class/size: tooling, test configuration and smoke mechanics / L (independently verifiable slices). Source: [spec](../specs/verification-throughput.md), handoff 2.
+- Dispatch: seven `bezeg-worker` runs (Sonnet `medium`), all in the handler's worktree, two at a time at most:
+  - CI shard measurement. Observed: 56k tokens, 39 min.
+  - Gate delta always-run tier. Observed: 42k, 35 min.
+  - Gate first-pass record. Observed: 36k, 23 min.
+  - `just test-cost`. Observed: 23k, 15 min.
+  - Post-pin shard analysis, gh only. Observed: 34k, 27 min.
+  - Phase 4 measurement. Observed: 73k, 118 min.
+  - Phase 6a smoke. Observed: 77k, 44 min.
+- Outcome: `b1b5598a`, `55c05845`, `6a39ac59`, `dbabef1e`, `5029e1df`, `56063d5e`, `8f1f2c4d`, `e1ebd2df` and docs.
+  - Hosted CI was green on every push observed: 42524584056, 42527684457 and 42541468552.
+  - The gate's new delta path ran live on the last publish: master moved, and the gate ran typecheck, lint, the always-run tier and build.
+- Handler repairs at acceptance:
+  - `commands.test.cjs` fixtures sit inside the repository, so the gate worker's two failures were caused by the host branch's own `vite.config.mts` commit. A `GIT_CEILING_DIRECTORIES` attempt broke provenance. `git diff --relative` fixed it, after reading the real assertion first.
+  - With `extends: true`, a Vitest project's `setupFiles: []` does not remove the root's setup file, because arrays merge. `setupFiles` moved into the `dom` project.
+  - `test-cost.test.cjs` was not in the `tooling-test` list.
+  - The phase 4 notes had a trailing space, which the gate's whitespace check caught.
+- Measurement lessons:
+  - A single post-change hosted run misled twice: the shard-3 pin looked like a win and then lost. Hosted unit jobs vary about 1.6× by runner, so judge CI-time changes on three runs.
+  - A local full-run comparison is invalid when the change touches a sweep shared path (`setupTests.ts` widens the local sample).
+- Briefs: a worker that stops "waiting on its own background work" can hold the checkout's run claim. Stop it before running checks yourself.
