@@ -2,7 +2,12 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const {transientStateScope} = require('./transient-state-scope.cjs');
 
-const scope = (env, paths) => transientStateScope({env, changedPaths: () => {
+const classes = [
+    {name: 'BisectionGraph', dir: 'src/graphs/functions'}, {name: 'NewtonGraph', dir: 'src/graphs/functions'},
+    {name: 'BezierCurveGraph', dir: 'src/graphs/curves/bezier'}, {name: 'CurveGraph', dir: 'src/graphs/curves'},
+    {name: 'OrientationGraph', dir: 'src/graphs/compgeo'},
+];
+const scope = (env, paths, graphClasses = () => classes) => transientStateScope({env, graphClasses, changedPaths: () => {
     if (paths instanceof Error) throw paths;
     return paths;
 }});
@@ -29,7 +34,7 @@ test('a change to a shared non-test file runs every Demonstration', () => {
 test('changed tests and graph files keep the sample and name the changed graph files', () => {
     assert.deepEqual(scope({}, ['src/graphs/base/GraphHost.test.tsx', 'src/graphs/functions/BisectionGraph.tsx',
         'src/graphs/functions/bisectionModel.ts', 'docs/commands.md', 'src/graphs/functions/BisectionGraph.tsx']),
-    {all: false, reason: 'sample', ids: null, changedNames: ['BisectionGraph', 'bisectionModel'],
+    {all: false, reason: 'sample', ids: null, changedNames: ['BisectionGraph', 'NewtonGraph', 'bisectionModel'],
         changedFiles: ['src/graphs/functions/BisectionGraph.tsx', 'src/graphs/functions/bisectionModel.ts']});
 });
 
@@ -85,4 +90,38 @@ test('a changed lesson content file and a changed graph file are reported for se
     assert.equal(result.all, false);
     assert.deepEqual(result.changedFiles, ['src/graphs/bspline/BsplineBasisGraph.tsx', 'src/learning/content/bsplineBasisGuidedLessons.ts']);
     assert.deepEqual(result.changedNames, ['BsplineBasisGraph', 'bsplineBasisGuidedLessons']);
+});
+
+test('family reach: a helper file under a graph directory selects the graph classes of that directory', () => {
+    const result = scope({}, ['src/graphs/functions/rootModel.ts']);
+    assert.equal(result.all, false);
+    assert.deepEqual(result.changedNames, ['BisectionGraph', 'NewtonGraph', 'rootModel']);
+});
+
+test('family reach: subdirectories count below the changed directory, not above it', () => {
+    assert.deepEqual(scope({}, ['src/graphs/curves/helper.ts']).changedNames, ['BezierCurveGraph', 'CurveGraph', 'helper']);
+    assert.deepEqual(scope({}, ['src/graphs/curves/bezier/helper.ts']).changedNames, ['BezierCurveGraph', 'helper']);
+});
+
+test('family reach: a graph class file and a test file do not widen the selection', () => {
+    assert.deepEqual(scope({}, ['src/graphs/functions/NewtonGraph.tsx']).changedNames, ['NewtonGraph']);
+    assert.deepEqual(scope({}, ['src/graphs/functions/rootModel.test.ts']).changedNames, []);
+});
+
+test('family reach: shared paths still run everything', () => {
+    assert.equal(scope({}, ['src/graphs/projective/crossRatioModel.ts']).all, true);
+    assert.equal(scope({}, ['src/graphs/base/helper.ts']).all, true);
+});
+
+test('family reach: a directory without a Demonstration keeps the sample', () => {
+    const result = scope({}, ['src/graphs/attributes/helper.ts']);
+    assert.equal(result.all, false);
+    assert.deepEqual(result.changedNames, ['helper']);
+});
+
+test('family reach reads the class files from the imports of graphFactories.ts', () => {
+    const {graphClassFiles} = require('./transient-state-scope.cjs');
+    const found = graphClassFiles();
+    assert.ok(found.some(({name, dir}) => name === 'OrientationGraph' && dir === 'src/graphs/compgeo'));
+    assert.ok(found.some(({name, dir}) => name === 'BezierCurveGraph' && dir === 'src/graphs/curves/bezier'));
 });

@@ -28,7 +28,7 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
     - mixed lesson and activity id lists;
     - the shared-path additions `setupTests`, `utils`, `types` and the scene helpers' model files;
     - the publish gate's delta list now uses the lesson sweeps' shared paths.
-  - Accepted risk, as for the transient-state sample: a changed non-class helper or model file under a graph directory reaches no entry by name, so only the sample runs locally. A lesson content file that quotes one id but feeds several lessons under-selects. CI runs everything.
+  - Accepted risk, as for the transient-state sample: a changed non-class helper or model file under a graph directory selects the family (the graph classes in that directory and below), and one in a directory without graph classes runs only the sample locally. A lesson content file that quotes one id but feeds several lessons under-selects. CI runs everything.
 - Phase 2, structural slice ([phase2b-notes.md](../reviews/verification-throughput/phase2b-notes.md)).
   - Guided-scene acceptance is folded into the restoration walk. An injected rejected action still fails.
   - Restoration is split into eight parts, and CI moves to four Vitest shards. The predicted longest shard is 858 file-seconds, against 1200 with three.
