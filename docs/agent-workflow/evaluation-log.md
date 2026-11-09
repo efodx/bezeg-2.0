@@ -2602,3 +2602,19 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Workers' own runs rarely gave an observed failure before the change; the review and the repair round supplied mutation checks. Ask for mutations explicitly in every brief, as the repair briefs did.
   - `check-changed` selector warnings were all false positives this time (markers built from a computed `data-*` key); the lesson smoke settled them.
 - Owner follow-up, same session (handler-only, no workers): the gate-timings follow-up was closed on the three-day record. Handler 5 then ran a real family-reach sweep, saved a clean `test-cost` baseline and messaged four peer handlers about `--background`. Integration finding: Vitest's results cache kept 7 deleted test files, and `test-cost --save` recorded them. They were removed by hand, and a script follow-up is noted in the spec.
+
+## 2026-11-09: controls Wave 2, patches sweep (controls stream, handler)
+
+- Scope: controls task 3 for the seven patch panels (Tensor, Subdivision, Join, Coons, Triangular, De Casteljau, Derivatives) and two shared parts (point chooser and editor, camera panel). Class/size: M. Handler: Opus `medium`, 1.5x budget scale. Two workers at once in one checkout; a common brief (`w2-pa-common-brief.md`) plus two slice briefs split by region inside one shared file (`TensorPatchPanels.tsx`) instead of the state note's three sequential slices.
+- Before the sweep: hosted CI was red on `81300d01` (a Taylor smoke locator matched both parts of the new `CountSetter`); fixed and pushed as `6ee72917`, CI green.
+- Dispatch, all Sonnet `medium`: PA1 (105k, then a phase-B continuation to 139k, partial), PA2 (135k, then a follow-up to 140k, partial), mutation worker PAM (87k), engineering/UI/maths review (64k), repair PAR (51k), two smoke groups of three or four routes (65k, 68k). The handler ran `check-changed`, the build and 24 patch lesson smoke rows.
+- Outcome: `3c4be65e` (sweep), the repair commit and the docs commit; spec decisions 50–54. `TensorPatchPanels.tsx` left `controlExemptions`.
+- Defects caught after the workers' own checks:
+  - Review: a leftover `role="status"` on Join's derived note; Subdivision's unavailable Elevate announced nothing on press (both medium; smoke B confirmed the second); the tensor degree had no typed field (smoke A and B confirmed).
+  - Mutation pass: `joinSceneIndex` and the Join custom entry had no test.
+  - An unbounded `while` in a test helper hung one Vitest run for 35 minutes; the orphaned process, and one from the previous handler's session, kept running until the handler stopped them.
+- Test time: the 10 pre-existing touched patch test files took 37.3 s at master; the 12 files after the sweep (two new) took 45.3 s.
+- Lessons:
+  - Splitting one file by region between two concurrent workers worked; neither reported the other's half-edits once the briefs named the regions.
+  - Both slice workers ran out of budget on their follow-ups and skipped the mutation step when the budget ran low. A separate mutation worker on a committed snapshot, with reviewers reading the commit, kept the evidence step from blocking review.
+  - Ask for bounded loops in test helpers: a stuck stepper should fail, not hang a shared test slot.
