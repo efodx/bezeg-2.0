@@ -363,7 +363,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
                                           unavailableReason={rule !== 'chaikin' ? t("subdiv_limit_disabled") : undefined}
                                           onChange={checked => this.setShowLimit(checked)}/></div>,
             <div key="playback" className="inspector-group">
-                <PlaybackButtons groupLabel={t("subdiv_controls")} nextLabel={t("next_step")} resetLabel={t("subdiv_reset")} playing={playing}
+                <PlaybackButtons placement="graph" groupLabel={t("subdiv_controls")} nextLabel={t("next_step")} resetLabel={t("subdiv_reset")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
                                  onReset={() => this.resetRounds()}
                                  {...playbackBlocks({atStart: round === 0 && this.isStartPolygon(), atEnd: complete, playing})}/>

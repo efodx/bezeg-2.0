@@ -111,7 +111,7 @@ export function HullTraceControls(props: HullTraceControlsProps) {
                           help={algorithm === "slow-edge-test" ? t("hulltrace_slow_note", {value0: length}) : undefined}/>
         </div>}
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("hulltrace_controls_label")} nextLabel={t("next_step")} playing={playing}
+            <PlaybackButtons placement="graph" groupLabel={t("hulltrace_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("hulltrace_playback_note")}</p>

@@ -181,7 +181,7 @@ export function FortuneControls(props: FortuneControlsProps) {
     const liveReadout = useStatusReadout(announcement, true);
     return <>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("fortune_controls_label")} nextLabel={t("next_step")} playing={playing}
+            <PlaybackButtons placement="graph" groupLabel={t("fortune_controls_label")} nextLabel={t("next_step")} playing={playing}
                              {...playbackBlocks({ready: Boolean(result), atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}
                              onNext={actions.nextStep} onPlayPause={actions.playPause}
                              onReset={() => actions.reset()}/>

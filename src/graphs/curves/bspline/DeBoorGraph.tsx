@@ -326,7 +326,7 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
             <div key="position"><Slider min={start} max={end} step={0.01} value={Math.min(end, Math.max(start, position))}
                                         customText={t("bsb_slider_t")} help={t("bsd_slider_help")} onChange={value => this.setT(value)}/></div>,
             <div key="playback" className="inspector-group">
-                <PlaybackButtons groupLabel={t("bsd_controls")} nextLabel={t("bsd_next_level")} resetLabel={t("bsd_reset_levels")} playing={playing}
+                <PlaybackButtons placement="graph" groupLabel={t("bsd_controls")} nextLabel={t("bsd_next_level")} resetLabel={t("bsd_reset_levels")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
                                  onReset={() => this.resetLevels()}
                                  {...playbackBlocks({atStart: level === 0, atEnd: !this.canAdvance, playing})} playBlock={undefined}/>

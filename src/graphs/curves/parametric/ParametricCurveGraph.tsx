@@ -295,7 +295,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             ...(curve === 'cycloid' ? [<div key="radius"><Slider min={CYCLOID_RADIUS_MIN} max={CYCLOID_RADIUS_MAX} step={0.05} value={radius}
                                                                  customText={t("parametric_radius_label")}
                                                                  onChange={value => this.setRadius(value)}/></div>] : []),
-            <div key="roll"><PlaybackButtons groupLabel={t("parametric_roll_group")} playing={this.rolling}
+            <div key="roll"><PlaybackButtons placement="graph" groupLabel={t("parametric_roll_group")} playing={this.rolling}
                                              playBlock={this.reducedMotion() ? 'reduced-motion' : undefined}
                                              onPlayPause={() => { if (this.rolling) this.stopRoll(); else this.playRoll(); this.requestRender(); }}/></div>,
         );

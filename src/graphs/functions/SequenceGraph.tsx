@@ -372,7 +372,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                 <p className="inspector-help">{t("sequence_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("sequence_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}
+                <PlaybackButtons placement="graph" groupLabel={t("sequence_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.terms <= 1, atEnd: !canAdvance, playing})}/>

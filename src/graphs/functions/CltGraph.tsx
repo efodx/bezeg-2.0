@@ -222,7 +222,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                 <Slider customText={t("prob_clt_n_label")} min={1} max={CLT_N_MAX} step={1} value={state.n}
                         rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}
                         onTypedChange={next => guardField(this.refusals, () => this.setN(next))}/>
-                <PlaybackButtons groupLabel={t("prob_clt_iteration_controls")} playing={playing}
+                <PlaybackButtons placement="graph" groupLabel={t("prob_clt_iteration_controls")} playing={playing}
                                  nextLabel={t("prob_clt_next_step")} resetLabel={t("prob_clt_reset")}
                                  {...playbackBlocks({atStart: state.n === 1, atEnd: atMax, playing})}
                                  onNext={() => this.guarded(() => this.nextStep())}

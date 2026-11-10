@@ -108,7 +108,7 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
     const liveReadout = useStatusReadout(traced ? [stepText, phaseText, noteLine, triangleLine].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("monotonetri_controls_label")} nextLabel={t("next_step")} playing={playing}
+            <PlaybackButtons placement="graph" groupLabel={t("monotonetri_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({ready: traced, atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("monotonetri_playback_note")}</p>

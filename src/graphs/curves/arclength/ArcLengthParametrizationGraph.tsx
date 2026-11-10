@@ -402,7 +402,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
             <Slider min={0} max={1} step={0.001} value={this.moverPosition()} customText={t("arcparam_mover_position")}
                     unavailableReason={this.playing ? t("arcparam_position_while_playing") : undefined}
                     onChange={value => this.setArcMoverPosition(value)}/>
-            <PlaybackButtons groupLabel={t("arcparam_playback_group")} className="arc-playback" playing={this.playing}
+            <PlaybackButtons placement="graph" groupLabel={t("arcparam_playback_group")} className="arc-playback" playing={this.playing}
                              playBlock={reduced ? 'reduced-motion' : undefined}
                              onPlayPause={() => { if (this.playing) this.pause(); else this.play(); }}/>
             <OnOffSwitch label={t("arcparam_speed_plot_shown")} checked={this.state.arcSpeedPlotShown}

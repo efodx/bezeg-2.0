@@ -88,6 +88,26 @@ describe("graph-adjacent playback slot", () => {
         expect(mounts.count).toBe(1);
     });
 
+    test("a focused button keeps focus, by its data-action, when the group moves between inspector and slot", () => {
+        const media = installMedia(false);
+        const {container} = render(workspace(<Group/>));
+        const next = container.querySelector<HTMLElement>('[data-action="next-step"]')!;
+        act(() => next.focus());
+        expect(document.activeElement).toBe(next);
+        media.flip(true);
+        expect(document.activeElement).toBe(slot(container).querySelector('[data-action="next-step"]'));
+        media.flip(false);
+        expect(document.activeElement).toBe(container.querySelector("#workspace-inspector")!.querySelector('[data-action="next-step"]'));
+    });
+
+    test("a group that had no focus does not take it when it moves", () => {
+        const media = installMedia(false);
+        const {container} = render(workspace(<Group/>));
+        media.flip(true);
+        expect(document.activeElement).toBe(document.body);
+        expect(slot(container).contains(document.activeElement)).toBe(false);
+    });
+
     test("a second claimant warns and renders inline", () => {
         installMedia(true);
         const warn = vi.spyOn(console, "warn").mockImplementation(() => {});

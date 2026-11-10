@@ -1,4 +1,4 @@
-import React, {useContext, useLayoutEffect, useState, useSyncExternalStore} from "react";
+import React, {useContext, useLayoutEffect, useRef, useState, useSyncExternalStore} from "react";
 import {createPortal} from "react-dom";
 import {PlaybackSlotContext} from "../PlaybackSlotContext";
 import {useT} from "../../../localization";
@@ -89,6 +89,17 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         claimed.set(true);
         return () => { release(); claimed.set(false); };
     }, [slotElement, slot, claimed]);
+    // Moving between inspector and slot re-creates the group's DOM; a button that had focus keeps it, by its data-action.
+    const group = useRef<HTMLDivElement>(null);
+    const focusedAction = useRef<string>();
+    const wasInSlot = useRef(inSlot);
+    useLayoutEffect(() => {
+        if (wasInSlot.current === inSlot) return;
+        wasInSlot.current = inSlot;
+        const action = focusedAction.current;
+        if (!action || (document.activeElement && document.activeElement !== document.body)) return;
+        group.current?.querySelector<HTMLElement>(`[data-action="${action}"]`)?.focus();
+    }, [inSlot]);
     const [pressed, setPressed] = useState<PlaybackAction>();
     const reasons: Record<PlaybackBlock, string> = {
         'no-more-steps': t("playback_block_no_more_steps"),
@@ -105,7 +116,9 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     const buttons = all.flatMap(({run, ...rest}) => run ? [{...rest, run}] : []);
     const shownBlock = buttons.find(button => button.action === pressed)?.block;
     const content = <>
-        <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel}>
+        <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel} ref={group}
+             onFocus={event => { focusedAction.current = (event.target as HTMLElement).dataset.action; }}
+             onBlur={event => { if (event.relatedTarget) focusedAction.current = undefined; }}>
             {leading}
             {buttons.map(({action, block, label, run}) =>
                 <UnavailableButton key={action} data-action={action} data-playing={action === 'play-pause' ? String(playing) : undefined} reason={block && reasons[block]} onPress={() => { setPressed(undefined); run(); }}

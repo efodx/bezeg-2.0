@@ -50,7 +50,7 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
     const liveReadout = useStatusReadout([stepText, ...lines.map(line => lineText(t, line))].join("\n"), true);
     return <>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("bezierhulls_controls_label")} nextLabel={t("next_step")} playing={playing}
+            <PlaybackButtons placement="graph" groupLabel={t("bezierhulls_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("bezierhulls_playback_note")}</p>

@@ -588,7 +588,7 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
     const language = currentLanguage();
     return <div className="inspector-group">
-        <PlaybackButtons groupLabel={text("epicycle_playback_group")} playing={graph.playing}
+        <PlaybackButtons placement="graph" groupLabel={text("epicycle_playback_group")} playing={graph.playing}
                          playBlock={!graph.playing && graph.reducedMotion() ? "reduced-motion" : undefined}
                          onPlayPause={() => (graph.playing ? graph.pause() : graph.play())}/>
         <Slider customText={text("epicycle_time_label")} min={0} max={6.28} step={0.01} value={Math.min(graph.time, 6.28)}
