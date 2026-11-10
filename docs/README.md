@@ -17,6 +17,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 ## Direction and work queue
 - [Lesson content pilot](specs/lesson-content-pilot.md): four lessons rewritten through blind student-persona review; [results and owner decisions](reviews/lesson-content-pilot.md) await owner review before any source change.
 
+- [November architecture follow-ups](tasks/architecture-followups-2026-11/README.md): three planned tasks selected from the 2026-11-10 review: board-unit projection, applied collision settings and chapter reading restoration; the preview recommendation overlaps existing registration work.
 - [Lesson-authoring architecture](specs/lesson-authoring-architecture.md): lead-reviewed plan for five bounded workstreams covering controls, lesson lookup, registration, scene ownership and persistence; implementation unstarted.
 - [JSXGraph surface view](tasks/jsxgraph-surface-view/README.md): complete. Patch views drawn with JSXGraph instead of Three.js ([spec](specs/jsxgraph-surface-view.md), [acceptance record](reviews/jsxgraph-surface-view/switch-over.md)).
 - [Bézier drawing playground](specs/bezier-drawing-playground.md): approved, unstarted. A pen-tool drawing in the Bézier chapter (Draw at the start, Look underneath at the end), drawn with plain SVG ([ADR 0020](adr/0020-svg-drawing-playground.md)).
