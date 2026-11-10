@@ -139,7 +139,7 @@ describe('double binomialPmf against the exact ratio', () => {
                 }
             }
         }
-        
+
         expect(max).toBeLessThan(BOUND);
     });
 });
