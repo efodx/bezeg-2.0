@@ -46,7 +46,7 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | 3 | Combinatorics and Pascal's triangle | [combinatorics-lessons.md](../../specs/combinatorics-lessons.md) | spec, F0, F1 (BigInt binomials, path enumeration) | spec accepted |
 | 4 | Randomness and simulation | [randomness-simulation-lessons.md](../../specs/randomness-simulation-lessons.md) | spec, F0, F1 (seeded integer PRNG, samplers, exact comparators) | spec accepted |
 | 5 | Isometries, similarity and symmetry | [isometries-lessons.md](../../specs/isometries-lessons.md) | spec, F0, F1 (isometry classification, frieze tiling), F2a | spec accepted |
-| 6 | Circle geometry and constructions | [circle-geometry-lessons.md](../../specs/circle-geometry-lessons.md) | spec, F0, F1 (power of a point, radical axis, Apollonius, common tangents; reuse `src/compgeo/circle.ts`), F2a | spec accepted |
+| 6 | Circle geometry and constructions | [circle-geometry-lessons.md](../../specs/circle-geometry-lessons.md) | spec, F0, F1 (power of a point, radical axis, Apollonius, common tangents; reuse `src/compgeo/circle.ts`), F2a | spec accepted; F0 done ([tasks](../circle-geometry/README.md), ADR 0045) |
 | 7 | Kinematics on curves | [kinematics-lessons.md](../../specs/kinematics-lessons.md) | spec, F0, F1 (velocity and acceleration from the curve kernel) | spec accepted |
 | 8 | Solids and volumes | [solids-volumes-lessons.md](../../specs/solids-volumes-lessons.md) | spec, F0, F1 (solid meshes, plane section clipping, revolve) | spec accepted |
 | 9 | Recursion and growth models | [recursion-growth-lessons.md](../../specs/recursion-growth-lessons.md) | spec, F0, F1 (cobweb iterator reusing fixed-point playback logic) | spec accepted |

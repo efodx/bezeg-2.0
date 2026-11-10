@@ -1,6 +1,6 @@
 # Circle geometry and constructions (Geometrija krožnice in načrtovalne naloge)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/circle-geometry](../tasks/circle-geometry/README.md). Decisions 1–3: [ADR 0045](../adr/0045-circle-construction-graph-and-exact-tangency.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #6 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md)); details below are proposals for owner review.
 **Source:** the research note's entry 6 (opening lesson, lesson list, risks) and the matura catalogue M-MAT-2026, text extraction read for this spec: §4.6 (page 13; *Točke, premice in krožnice v ravnini*, *Središčni in obodni koti*, *Kot v polkrogu*, *Središčni razteg, podobnost*, *Načrtovalne naloge*; page footers follow the page text in the extraction), §4.7 (page 14; *Polmer trikotniku včrtanega in ocrtanega kroga*) and §4.11 *Stožnice* (page 19; *Krožnica v središčni in premaknjeni legi*, *Tangente stožnic*). The catalogue text has **no** *potenca točke*, *potenčna premica*, *Apolonijeva krožnica* or common-tangent item (searched *potenc*, *tangent*, *tetiv*, *sekant*), so CG2–CG4 are enrichment beyond the matura. Level markers (VR) were not verified. FMF pages and textbooks are not opened. Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
