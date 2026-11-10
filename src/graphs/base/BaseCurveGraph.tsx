@@ -267,8 +267,9 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
 
     override importPreset(preset: Preset) {
         this.checkPersistedPreset(preset); // the stored `graphState` is checked as stored, before the forced selection state replaces part of it
-        // A freshly imported preset never starts with a selected curve. The argument is left untouched.
-        const graphState = {...preset.graphState, initialized: true, curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE};
+        // A freshly imported preset never starts with a selected curve. The argument is left untouched; an omitted state stays
+        // omitted, so the base starts it from the initial state (which has no selected curve).
+        const graphState = preset.graphState && {...preset.graphState, initialized: true, curveSelected: false, selectedCurveOption: SelectedCurveOption.MOVE_CURVE};
         super.importPreset({...preset, graphState});
     }
 

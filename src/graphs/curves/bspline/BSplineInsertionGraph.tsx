@@ -77,6 +77,11 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         return deBoorPresetData(insertionExample(example && example !== 'custom' ? example : 'quadratic'));
     }
 
+    /** A persisted Preset without data starts from the quadratic whatever example is chosen; only Reset follows the chosen example. */
+    protected override persistedDefaultData(): BSplinePresetData {
+        return deBoorPresetData(insertionExample('quadratic'));
+    }
+
     override exportPresetData(): BSplinePresetData {
         return deBoorPresetData(this.state);
     }

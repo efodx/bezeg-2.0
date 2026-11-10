@@ -29,7 +29,7 @@ type SamplePreset = Omit<Preset, "graphState"> & {graphState?: object};
 /** What the entry paths touch, reached through a structural view so the protected members can be spied. */
 type Probe = {
     importPresetData(data: unknown): void;
-    setBaseState(patch: object): void;
+    replaceState(next: object): void;
     /** Typed as the identity on its argument so a test can hand it raw (even malformed) values and read the checked copy back. */
     checkPersistedPreset<T>(preset: T): T;
     board?: unknown;
@@ -38,7 +38,7 @@ type Probe = {
 interface Observed {
     /** Bounding box writes made by `importPreset` before it finished or threw. */
     bounds: number;
-    /** Scene state writes (`setBaseState`) made by `importPreset`. */
+    /** Scene state writes (`replaceState`) made by `importPreset`. */
     state: number;
     /** `none`: Preset data never imported; `checked`: the collection-checked data; `default`: the graph default (after a warning); `threw`: the consumer refused. */
     data: "none" | "checked" | "default" | "threw";
@@ -58,8 +58,8 @@ function entry(graph: AnyGraph, preset: SamplePreset, refuseInConsumer: boolean)
         }
         data = JSON.stringify(imported) === defaults && JSON.stringify(preset.data) !== defaults ? "default" : "checked";
     };
-    const baseState = probe.setBaseState.bind(graph);
-    probe.setBaseState = (patch: object) => { log.state++; baseState(patch); };
+    const replace = probe.replaceState.bind(graph);
+    probe.replaceState = (next: object) => { log.state++; replace(next); };
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try { graph.importPreset(preset as Preset); } catch { /* the consumer refusal is recorded in `data` */ }
     const warned = warn.mock.calls.length > 0;
@@ -116,7 +116,8 @@ const samples: Sample[] = [
         file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     // Interpolation: custom state checker (the six fields are re-checked against the data rules).
     {name: "interpolation: valid", graph: () => new InterpolationGraph(), preset: g => ok(g, {graphState: {initialized: true, t: 0.5, notice: ""}}),
-        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
+        // Slice 3: the omitted view starts from the initial view, one more bounding-box write.
+        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 2, state: 1, data: "checked", warned: false}},
     {name: "interpolation: custom state out of range", graph: () => new InterpolationGraph(), preset: g => ok(g, {graphState: {t: 2}}),
         file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "interpolation: unknown notice", graph: () => new InterpolationGraph(), preset: g => ok(g, {graphState: {notice: "boom"}}),
@@ -125,7 +126,7 @@ const samples: Sample[] = [
         file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     // Projective strict state: only `initialized` is allowed, `model` belongs to `data`.
     {name: "five-point: valid", graph: () => new FivePointGraph(), preset: g => ok(g, {graphState: {initialized: true}}),
-        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
+        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
     {name: "five-point: forbidden model in graphState", graph: () => new FivePointGraph(), preset: g => ok(g, {graphState: {initialized: true, model: g.defaultPreset()}}),
         file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "five-point: forbidden extra field", graph: () => new FivePointGraph(), preset: g => ok(g, {graphState: {lastUnique: 1}}),
@@ -134,10 +135,10 @@ const samples: Sample[] = [
         file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     // The shared B-spline collection (degrees other than 2/3 are collection-valid), and consumer limits.
     {name: "nurbs: valid degree-2 curve", graph: () => new BSplineNurbsGraph(), preset: () => ({id: "p", data: bsplineOk(2, [[0, 0], [1, 1], [2, 0]])}),
-        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "checked", warned: false}},
+        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
     {name: "nurbs: degree-1 curve is accepted by file, storage and the compatible graph", graph: () => new BSplineNurbsGraph(),
         preset: () => ({id: "p", data: bsplineOk(1, [[0, 0], [1, 1]])}),
-        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "checked", warned: false}},
+        file: "accept", storageParity: true, entryParity: true, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
     {name: "blossom: the same degree-1 curve is refused by this consumer",
         graph: () => new BSplineBlossomGraph(), preset: () => ({id: "p", data: bsplineOk(1, [[0, 0], [1, 1]]), boardState: {boundingBox: [-1, 1, 1, -1]}, graphState: {initialized: true}}),
         file: "accept", consumerRefuses: true, storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},

@@ -300,7 +300,7 @@ test('the caption follows the language, and a language change notifies subscribe
     unsubscribe();
 });
 
-test('importing a model with another function and no view shows that function view; a stored view or the same function keeps the view', () => {
+test('importing a model without a view shows the initial view of its function (also for the same function); a stored view wins', () => {
     const graph = makeGraph();
     const model = (fn: string) => ({fn, a: 0, b: 2, n: 4, method: 'left'});
     graph.board.setBoundingBox.mockClear();
@@ -309,13 +309,14 @@ test('importing a model with another function and no view shows that function vi
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(SIN_BOX, true);
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'definite-integral', data: model('sin')});
-    expect(graph.board.setBoundingBox).not.toHaveBeenCalled();
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(SIN_BOX, true);
+    graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'definite-integral', data: model('exp'), boardState: {boundingBox: [-1, 2, 3, -4]}});
     expect(graph.model.fn).toBe('exp');
     expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 3, -4], true);
     graph.importPreset({id: 'definite-integral', data: model('exp')});
-    expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
+    expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(EXP_BOX, true);
     graph.importPreset({id: 'definite-integral', data: model('square')});
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(BOX, true);
 });

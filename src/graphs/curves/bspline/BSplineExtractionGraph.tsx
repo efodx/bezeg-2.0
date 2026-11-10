@@ -64,6 +64,11 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         return deBoorPresetData(insertionExample(example && example !== 'custom' ? example : 'quadratic'));
     }
 
+    /** A persisted Preset without data starts from the quadratic whatever example is chosen; only Reset follows the chosen example. */
+    protected override persistedDefaultData(): BSplinePresetData {
+        return deBoorPresetData(insertionExample('quadratic'));
+    }
+
     override exportPresetData(): BSplinePresetData {
         return deBoorPresetData(this.state);
     }

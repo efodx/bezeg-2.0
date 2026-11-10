@@ -76,8 +76,10 @@ describe('ParametricCurveGraph state and Presets', () => {
     test('a Preset without a saved view is fitted to its curve; one with a saved view keeps it', () => {
         const graph = makeGraph();
         graph.importPreset({id: 'rose', data: {curve: 'rose', radius: 1, parameter: 1}});
-        expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
-        const fitted = graph.board.setBoundingBox.mock.calls[0][0];
+        // The view-less Preset first shows the initial view (slice 3), then the fit to its curve decides the final view.
+        const calls = graph.board.setBoundingBox.mock.calls;
+        expect(calls).toHaveLength(2);
+        const fitted = calls[1][0];
         const roseBox = curveViewBox({curve: 'rose', radius: 1});
         expect(fitted).toEqual(roseBox);
         expect(roseBox).not.toEqual(curveViewBox({curve: 'cycloid', radius: 1}));

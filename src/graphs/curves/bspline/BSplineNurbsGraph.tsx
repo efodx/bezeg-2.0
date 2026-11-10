@@ -78,6 +78,11 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         return presetOf(nurbsExample(example && example !== 'custom' ? example : 'circle'));
     }
 
+    /** A persisted Preset without data starts from the circle whatever example is chosen; only Reset follows the chosen example. */
+    protected override persistedDefaultData(): BSplinePresetData {
+        return presetOf(nurbsExample('circle'));
+    }
+
     override exportPresetData(): BSplinePresetData {
         return presetOf(this.state);
     }
@@ -119,8 +124,10 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineNurbsState {
         const merged = super.figurePresetGraphState(graphState);
-        const {degree, knots, points, weights, origin, example, t} = this.state;
-        return {...merged, ...copyNurbs({degree, knots, points, weights}), origin, example, t, refusal: null};
+        const {degree, knots, points, weights, origin, example} = this.state;
+        // The parameter is the Preset's (or the initial one) held in the new domain, not the preceding scene's.
+        const [start, end] = domain(knots, degree, points.length - 1);
+        return {...merged, ...copyNurbs({degree, knots, points, weights}), origin, example, t: Math.min(end, Math.max(start, merged.t)), refusal: null};
     }
 
     protected override initialView(): [number, number, number, number] {

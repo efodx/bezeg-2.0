@@ -675,7 +675,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     /** Imports preset data without replacing the board or its lifetime resources. */
     protected importFigurePresetData(preset: Preset): void {
-        this.importPresetData(preset.data === undefined ? cloneLessonValue(this.defaultPreset()) : preset.data as D);
+        this.importPresetData(preset.data === undefined ? this.persistedDefaultData() : preset.data as D);
     }
 
     /**
@@ -898,7 +898,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private startingBox(container: HTMLElement | string): [number, number, number, number] {
         const view = this.initialView();
         if (!view) return [...DEFAULT_BOUNDING_BOX];
-        if (!this.equalAxisUnits) return [...view];
+        if (!this.equalAxisUnits || !container) return [...view];
         const [left, top, right, bottom] = view;
         const {width, height} = JXG.getDimensions(container, document);
         return fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height))) ?? [...view];
@@ -1007,19 +1007,35 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     /**
      * Applies a persisted Preset. The Preset is checked first (`checkPersistedPreset`); a refusal throws before the
-     * view, the scene state or the data change. Omitted parts keep the current scene (unchanged in this slice).
+     * view, the scene state or the data change. An omitted part starts from the graph's defaults, never from the
+     * preceding scene: no `boardState` is the initial view, no `graphState` the fresh initial state, no `data` the fixed
+     * default data (`persistedDefaultData`).
      */
     importPreset(preset: Preset) {
         const checked = this.checkPersistedPreset(preset);
         if (checked.boardState) {
             this.importBoardState(checked.boardState);
+        } else if (this.hasBoard) {
+            this.showInitialView();
+            this.board.fullUpdate();
         }
-        if (checked.graphState) {
-            this.setBaseState({...checked.graphState, initialized: true});
-        }
-        if (checked.data !== undefined) {
-            this.importPresetData(checked.data as D);
-        }
+        // The checked state over the fresh initial state, never over the live scene: a partial graphState leaves the
+        // omitted fields at their defaults, so the result does not depend on the preceding scene.
+        this.replaceState({...this.getInitialState(), ...(checked.graphState ?? {}), initialized: true} as S);
+        this.importPresetData(checked.data === undefined ? this.persistedDefaultData() : checked.data as D);
+    }
+
+    /** Shows the view a persisted Preset without `boardState` starts from: the graph's initial view, as a new board has it. */
+    protected showInitialView(): void {
+        this.board.setBoundingBox(this.startingBox(this.board.container), true);
+    }
+
+    /**
+     * The data a persisted Preset without `data` starts from. It must not read the live scene, unlike `defaultPreset()`,
+     * which may follow a chosen example so that Reset returns to it.
+     */
+    protected persistedDefaultData(): D {
+        return cloneLessonValue(this.defaultPreset());
     }
 
     /** The visible box of the board; undefined when the main view is not a board. */

@@ -207,6 +207,11 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     protected abstract defaultBoundingBox(): BoundingBox;
 
+    /** The view a persisted Preset without one starts from: the default box (or the current example's), as `initialize` sets it. */
+    protected override showInitialView(): void {
+        this.board.setBoundingBox([...(this.exampleView()?.box ?? this.defaultBoundingBox())], this.equalAxisUnits);
+    }
+
     /** Closures over the live display settings, for JSXGraph attributes that must follow them. */
     protected readonly displayStrokeWidth = (): number => this.displaySettings.strokeWidth;
     protected readonly displayFontSize = (): number => this.displaySettings.fontSize;
