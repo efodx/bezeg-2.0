@@ -368,7 +368,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
         if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), true);
-        return this.applyFigurePreset(session, stored ?? {id: ""}, session.signal)
+        // No stored Preset (Reset, a deleted selection): the default scene, which follows the chosen example. A stored
+        // Preset that omits its data starts from `persistedDefaultData()` instead (see `importFigurePresetData`).
+        return this.applyFigurePreset(session, stored ?? {id: "", data: cloneLessonValue(this.defaultPreset())}, session.signal)
             .catch(error => console.error("The preset could not be loaded.", error));
     }
 
@@ -1192,7 +1194,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                     // data to check against the Preset collection; a missing payload is the default scene.
                     importData: () => {
                         if (checked) this.importFigurePresetData(checked);
-                        else if (entry) this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
+                        else if (entry) this.importPresetData(entry.preset.data == null ? this.persistedDefaultData() : cloneLessonValue(entry.preset.data));
                     },
                     workspaceRevisionAfterImport: true,
                     state: {

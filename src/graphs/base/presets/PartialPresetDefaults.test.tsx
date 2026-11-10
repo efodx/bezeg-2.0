@@ -4,6 +4,8 @@
  */
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {BSplineNurbsGraph} from '../../curves/bspline/BSplineNurbsGraph';
+import {BSplineInsertionGraph} from '../../curves/bspline/BSplineInsertionGraph';
+import {BSplineExtractionGraph} from '../../curves/bspline/BSplineExtractionGraph';
 import {LinearFunctionGraph} from '../../functions/LinearFunctionGraph';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../realGraphTestHarness';
@@ -199,5 +201,44 @@ describe('partial Presets outside NURBS (linear function)', () => {
         near(viewOf(graph), expectedView);
         view.unmount();
         freshView.unmount();
+    });
+});
+
+describe('host Reset with no Preset selected follows the chosen example', () => {
+    const CUBIC = {degree: 3, knots: [0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3], points: [[0, 0], [1, 2], [2, 3], [3, 1], [4, 1], [5, 3], [6, 0]]};
+
+    test('NURBS: Reset returns to the chosen non-first example, not the fixed circle', async () => {
+        const graph = new Nurbs();
+        const view = mountGraph(graph).view;
+        graph.selectExample('unit');
+        graph.editPoint(2, [5, 5]);
+        await graph.reset();
+        expect(graph.state.example).toBe('unit');
+        expect(graph.state.weights).toEqual(Array(9).fill(1));
+        expect(graph.state.points).toEqual(CIRCLE.points);
+        view.unmount();
+    });
+
+    test('Insertion: Reset returns to the chosen cubic, not the fixed quadratic', async () => {
+        const graph = new BSplineInsertionGraph();
+        const view = mountGraph(graph).view;
+        graph.selectExample('cubic');
+        await graph.reset();
+        expect(graph.state.example).toBe('cubic');
+        expect(graph.state.degree).toBe(CUBIC.degree);
+        expect(graph.state.knots).toEqual(CUBIC.knots);
+        expect(graph.state.points).toEqual(CUBIC.points);
+        view.unmount();
+    });
+
+    test('Extraction: Reset returns to the chosen cubic, not the fixed quadratic', async () => {
+        const graph = new BSplineExtractionGraph();
+        const view = mountGraph(graph).view;
+        graph.selectExample('cubic');
+        await graph.reset();
+        expect(graph.state.degree).toBe(CUBIC.degree);
+        expect(graph.state.knots).toEqual(CUBIC.knots);
+        expect(graph.state.points).toEqual(CUBIC.points);
+        view.unmount();
     });
 });
