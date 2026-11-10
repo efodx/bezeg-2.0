@@ -1,6 +1,6 @@
 # Combinatorics and Pascal's triangle (Kombinatorika in Pascalov trikotnik)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/combinatorics](../tasks/combinatorics/README.md). Decisions 1–3: [ADR 0048](../adr/0048-combinatorics-bigint-counts-and-two-graphs.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #3 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md)); details below are proposals for owner review.
 **Source:** the research note's entry 3 (opening lesson, lesson list, risks) and the matura catalogue M-MAT-2026, text extraction read for this spec: §4.15 *Kombinatorika* (table of contents page 22; extraction lines 1073–1086: *Osnovni izrek kombinatorike, kombinatorično drevo, Pravilo vsote, Permutacije, Permutacije s ponavljanjem, Variacije, Variacije s ponavljanjem, Kombinacije, Binomski izrek, Pascalov trikotnik*; objectives "izračuna \(n!\)", "loči posamezne kombinatorične pojme", "izračuna vrednost binomskega simbola", "razvije potenco dvočlenika"). The page comes from the table of contents, not from a page footer. Level markers (VR) were not verified. Textbooks and FMF pages are not opened. Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
