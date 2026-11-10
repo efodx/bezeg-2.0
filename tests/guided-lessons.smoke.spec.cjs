@@ -2854,6 +2854,7 @@ test.describe('Observation flow', () => {
     const locked = async page => (await graph(page).getAttribute('data-lesson-locked')) === 'true';
     const pressOn = async (page, locator) => { await locator.focus(); await page.keyboard.press('Enter'); await settle(page); };
     const panelFocused = page => page.evaluate(() => document.activeElement?.matches('section.guided-lesson'));
+    const nextFocused = page => nextButton(page).evaluate(element => document.activeElement === element);
     const reopenFocused = page => h.reopenButton(page).evaluate(element => document.activeElement === element);
     async function toFirstObservation(page) {
         for (let guard = 0; guard < 10; guard += 1) {
@@ -2868,7 +2869,7 @@ test.describe('Observation flow', () => {
         await toFirstObservation(page);
         const observationLabel = await progress(page);
         expect(await locked(page), 'graph locked while the observation overlay is open').toBe(true);
-        expect(await panelFocused(page), 'overlay keeps focus').toBe(true);
+        expect(await nextFocused(page), 'Next keeps focus after the activation that reached the frame').toBe(true);
 
         await pressOn(page, h.hideButton(page));
         await expect(lessonPanel(page)).toHaveCount(0);
@@ -2917,7 +2918,7 @@ test.describe('Observation flow', () => {
         expect(after, 'Next advanced past the observation frame').not.toBe(observationLabel);
         expect(stepNumber(after)).toBe(stepNumber(observationLabel) + 1);
         expect(await locked(page), 'graph locked on the next frame').toBe(true);
-        expect(await panelFocused(page), 'focus on the next overlay').toBe(true);
+        expect(await nextFocused(page), 'Next keeps focus after advancing').toBe(true);
         // Back from the next frame returns to the observation frame.
         await back(page);
         expect(await progress(page)).toBe(observationLabel);
