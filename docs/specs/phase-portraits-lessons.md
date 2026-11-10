@@ -152,7 +152,7 @@ Search of `src/localization/sl.ts` found *Fazni zamik* (trigonometry, a differen
 - Linearization decides hyperbolic equilibria only; `weak-spiral` is the counter-example.
 - Separatrix orbits take unbounded time to reach the saddle; the integrator stops at a time cap and says so.
 - Chaos plots are finite-precision artefacts beyond short horizons (step 52 for \(r=4\)); the diagram is statistical (long-run distribution), not a claim about any single orbit.
-- Period detection uses a tolerance and a transient; near \(r_\infty\) convergence is slow, so "no period found" is a legitimate answer.
+- Period detection uses a tolerance and a transient; near \(r_\infty\) convergence is slow, so "no period found" is a legitimate answer. At the period-doubling points themselves (\(r=3\), \(r=1+\sqrt6\), …) convergence is algebraic, so "no period found" is also the expected answer there (noted at F1, 2026-11-10).
 - Degenerate matrices (\(\delta=0\)) have non-isolated equilibria; the portrait shows the line and the status names it.
 
 ## Out of Scope
