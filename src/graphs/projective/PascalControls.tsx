@@ -1,3 +1,4 @@
+import {CONTROL_ROW} from "../../inputs/controlRow";
 import React from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {SelectablePointButton} from "../../inputs/PointListInput";
@@ -84,7 +85,7 @@ export function PascalControls(props: PascalControlsProps) {
                 {selected === undefined ? t("projective_k1_no_selection") : t("projective_k1_selected", {value0: scene.names[selected]})}
             </p>
             {scene.names.map((name, handle) =>
-                <div key={name} className="pointset-row" data-selected={selected === handle} data-pascal-handle={handle}>
+                <div key={name} className={CONTROL_ROW} data-selected={selected === handle} data-pascal-handle={handle}>
                     <SelectablePointButton label={name} pressed={selected === handle} onToggle={() => actions.select(selected === handle ? undefined : handle)}/>
                     <button type="button" className={button} aria-label={t("projective_k2_step_back", {value0: name})} onClick={() => actions.step(handle, -1)}>◀</button>
                     <button type="button" className={button} aria-label={t("projective_k2_step_forward", {value0: name})} onClick={() => actions.step(handle, 1)}>▶</button>

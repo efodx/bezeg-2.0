@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React, {useState} from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
@@ -365,9 +366,9 @@ function EulerRevealButtons(props: { nextReason: string | undefined; showAllReas
     const [pressed, setPressed] = useState<"next-step" | "show-all">();
     const shown = pressed === "next-step" ? props.nextReason : pressed === "show-all" ? props.showAllReason : undefined;
     return <>
-        <div className="inspector-playback" role="group" aria-label={t("euler_ode_steps_controls")}>
+        <div className={CONTROL_ROW_FILL} role="group" aria-label={t("euler_ode_steps_controls")}>
             <UnavailableButton data-action="next-step" reason={props.nextReason} onPress={() => { setPressed(undefined); props.onNext(); }}
-                               onBlockedPress={() => setPressed("next-step")}>{t("euler_ode_next_step")}</UnavailableButton>
+                               onBlockedPress={() => setPressed("next-step")}>{t("next_step")}</UnavailableButton>
             <UnavailableButton data-action="show-all" reason={props.showAllReason} onPress={() => { setPressed(undefined); props.onShowAll(); }}
                                onBlockedPress={() => setPressed("show-all")}>{t("euler_ode_show_all")}</UnavailableButton>
         </div>

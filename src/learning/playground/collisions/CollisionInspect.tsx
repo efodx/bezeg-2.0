@@ -233,7 +233,7 @@ export default function CollisionInspect({initialCount = INSPECT_DEFAULT, initia
                   if (next !== count) reset(next, seed)
                 }}/>
         <PlaybackButtons groupLabel={t('collision_inspect_playback_group')} className="collision-playground__buttons" playing={playing}
-                         nextLabel={t('collision_inspect_next')} nextBlock={blocks.nextBlock} onNext={() => { setPreviousPressed(false); goTo(shown + 1) }}
+                         nextLabel={t('next_step')} nextBlock={blocks.nextBlock} onNext={() => { setPreviousPressed(false); goTo(shown + 1) }}
                          onPlayPause={() => { setPreviousPressed(false); togglePlay() }}
                          leading={<UnavailableButton data-action="previous-step" reason={previousReason} onBlockedPress={() => setPreviousPressed(true)}
                                                      onPress={() => { setPreviousPressed(false); goTo(shown - 1) }}>{t('collision_inspect_prev')}</UnavailableButton>}>

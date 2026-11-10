@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
@@ -455,7 +456,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
             <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
         );
         return <>
-            <div className="demo-actions" role="group" aria-label={t("complex_recip_actions_label")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("complex_recip_actions_label")}>
                 {toggle("toggle-complex-reciprocal", state.reciprocalVisible, t("complex_recip_show_reciprocal"), t("complex_recip_hide_reciprocal"), v => this.setReciprocalVisible(v))}
                 {toggle("toggle-complex-quotient", state.quotientVisible, t("complex_recip_show_quotient"), t("complex_recip_hide_quotient"), v => this.setQuotientVisible(v))}
                 {toggle("toggle-complex-circle", state.circleVisible, t("complex_recip_show_circle"), t("complex_recip_hide_circle"), v => this.setCircleVisible(v))}

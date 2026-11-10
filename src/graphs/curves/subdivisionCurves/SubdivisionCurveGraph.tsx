@@ -363,14 +363,14 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
                                           unavailableReason={rule !== 'chaikin' ? t("subdiv_limit_disabled") : undefined}
                                           onChange={checked => this.setShowLimit(checked)}/></div>,
             <div key="playback" className="inspector-group">
-                <PlaybackButtons groupLabel={t("subdiv_controls")} nextLabel={t("subdiv_next_step")} resetLabel={t("subdiv_reset")} playing={playing}
+                <PlaybackButtons groupLabel={t("subdiv_controls")} nextLabel={t("next_step")} resetLabel={t("subdiv_reset")} playing={playing}
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
                                  onReset={() => this.resetRounds()}
                                  {...playbackBlocks({atStart: round === 0 && this.isStartPolygon(), atEnd: complete, playing})}/>
                 <p className="inspector-help">{t("subdiv_playback_note", {value0: MAX_SUBDIVISION_ROUNDS})}</p>
             </div>,
             <SubdivisionStatus key="status" muted={playing} lines={[
-                {id: "step", text: t("subdiv_step_readout", {value0: round, value1: MAX_SUBDIVISION_ROUNDS})},
+                {id: "step", text: t("step_counter", {value0: round, value1: MAX_SUBDIVISION_ROUNDS})},
                 {id: "vertices", text: t("subdiv_vertex_count", {value0: stageOf(this.state).length})},
                 ...(complete ? [{id: "complete", text: t("subdiv_complete", {value0: MAX_SUBDIVISION_ROUNDS})}] : []),
             ]}/>,

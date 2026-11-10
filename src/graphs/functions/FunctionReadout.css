@@ -40,14 +40,8 @@
 .function-legend-cross { width: 12px; height: 12px; margin: 0 5px; opacity: 1; border-radius: 0; background: linear-gradient(45deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%), linear-gradient(-45deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%); }
 .function-legend-plus { width: 12px; height: 12px; margin: 0 5px; opacity: 1; border-radius: 0; background: linear-gradient(90deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%), linear-gradient(0deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%); }
 /* Bisection iteration controls: Next step, Play/Pause and Reset as native buttons of one group. */
-.bisection-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
-.bisection-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
-.bisection-actions button[aria-disabled="true"] { opacity: .45; cursor: default; }
 .bisection-status p { margin: 0; }
 .bisection-status p + p { margin-top: 6px; }
-@media (pointer: coarse), (max-width: 700px) {
-    .bisection-actions button { min-height: 44px; }
-}
 /* Mean value theorem: the Show matching point toggle and the statuses, styled like the bisection controls. */
 .mean-value-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 6px; }
 .mean-value-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
@@ -104,15 +98,8 @@
     .taylor-actions button { min-height: 44px; }
 }
 /* Batch C demonstrations (sequence, uniform convergence, fixed point, complex multiplication): action buttons and statuses. */
-.demo-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 6px; }
-.demo-actions button { min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
-.demo-actions button[aria-disabled="true"] { opacity: .45; cursor: default; }
-.demo-actions button[data-revealed="true"] { border-color: var(--workspace-green); }
 .demo-status p { margin: 0; }
 .demo-status p + p { margin-top: 6px; }
-@media (pointer: coarse), (max-width: 700px) {
-    .demo-actions button { min-height: 44px; }
-}
 /* Complex multiplication: a tip label is a one-line MathJax block whose vertical margins would lift it off its marker, and the
    modulus field of the w grid must keep the height of its sibling fields (it would stretch to the taller grid row). */
 .complex-point-label mjx-container[display="true"] { margin: 0 !important; }

@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import {AxisAttributes} from "jsxgraph";
 import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, escapeHtml, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
@@ -371,7 +372,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                 <p className="inspector-help">{t("sequence_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("sequence_iteration_controls")} className="demo-actions" nextLabel={t("sequence_next_step")} resetLabel={t("sequence_reset")} playing={playing}
+                <PlaybackButtons groupLabel={t("sequence_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.terms <= 1, atEnd: !canAdvance, playing})}/>
@@ -383,7 +384,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
         return <>
-            <div className="demo-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("sequence_certificate_actions_label")}>
                 <RevealButton action="toggle-sequence-certificate" revealed={state.certificateVisible} showLabel={t("sequence_show_certificate")} hideLabel={t("sequence_hide_certificate")}
                               onToggle={() => this.setCertificateVisible(!this.model.certificateVisible)}/>
             </div>

@@ -6,6 +6,7 @@
  * a `bezier-extraction` `move-point` action. Opening a piece in the Bezier Demonstration is a router handoff (ADR 0038): no scene
  * action navigates, step 3 only points at the inspector button.
  */
+import {BSPLINE_EXAMPLE_CUBIC, BSPLINE_EXAMPLE_QUADRATIC} from '../../graphs/curves/bspline/bsplineInsertionModel';
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
@@ -13,10 +14,8 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
 
 /** The L2 quadratic and the L3 cubic, as in the spec. */
-export const EXTRACTION_QUADRATIC_FIXTURE: LessonCurveFixture = {degree: 2, knots: [0, 0, 0, 1, 2, 2, 2], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
-export const EXTRACTION_CUBIC_FIXTURE: LessonCurveFixture = {
-    degree: 3, knots: [0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3], points: [[0, 0], [1, 2], [2, 3], [3, 1], [4, 1], [5, 3], [6, 0]],
-};
+export const EXTRACTION_QUADRATIC_FIXTURE: LessonCurveFixture = BSPLINE_EXAMPLE_QUADRATIC;
+export const EXTRACTION_CUBIC_FIXTURE: LessonCurveFixture = BSPLINE_EXAMPLE_CUBIC;
 /** The control point step 4 moves: index 2 of the cubic, from (2, 3) to this position. Its support is (0, 2): pieces 1 and 2 change, piece 3 does not. */
 export const EXTRACTION_MOVED_INDEX = 2;
 export const EXTRACTION_MOVED_TO: readonly [number, number] = [2, 4];

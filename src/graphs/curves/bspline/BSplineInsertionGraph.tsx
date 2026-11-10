@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../../inputs/controlRow";
 import React from "react";
 import {currentLanguage, renderMessage, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
@@ -284,7 +285,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
             <div key="insert" className="inspector-group">
                 <NumberInput label={t("bsi_insert_value")} value={insertValue} step={0.01} decimals={4} min={-KNOT_LIMIT} max={KNOT_LIMIT}
                              onChange={value => { this.setInsertValue(value); }}/>
-                <div className="inspector-playback">
+                <div className={CONTROL_ROW_FILL}>
                     <button type="button" data-action="insert-knot" onClick={() => { this.insert(); }}>{t("bsi_insert")}</button>
                 </div>
                 <p className="inspector-help">{t("bsi_insert_help")}</p>

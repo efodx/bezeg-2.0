@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
@@ -351,7 +352,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
                                 onRemove={index => this.guarded(() => this.removeValue(index))}
                                 removeLabel={i => t("prob_summary_value_remove", {value0: i + 1})}
                                 removeText={t("prob_summary_remove_text")} canRemove={state.values.length > SUMMARY_VALUES_MIN}/>
-                <div className="bisection-actions" role="group" aria-label={t("prob_summary_values_title")}>
+                <div className={CONTROL_ROW_FILL} role="group" aria-label={t("prob_summary_values_title")}>
                     <UnavailableButton data-action="add-value"
                                        reason={state.values.length >= SUMMARY_VALUES_MAX ? renderMessage(summaryEditMessage({kind: "full", max: SUMMARY_VALUES_MAX})) : undefined}
                                        onPress={() => this.guarded(() => this.addValue())}

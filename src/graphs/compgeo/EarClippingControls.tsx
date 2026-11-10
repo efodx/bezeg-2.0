@@ -89,7 +89,7 @@ export function EarClippingControls(props: EarClippingControlsProps) {
                            options={[{id: "example-1", text: t("earclip_example_1")}, {id: "example-2", text: t("earclip_example_2")}]}/>
         </div>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("earclip_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+            <PlaybackButtons groupLabel={t("earclip_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({ready: traced, atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("earclip_playback_note")}</p>

@@ -5,6 +5,7 @@
  * Scenes are `lesson-fixture` scenes whose fixture carries the degree, the knot vector and the control points, followed by
  * `knot-insertion` actions (`set-comb` the curvature comb, then `insert` a knot value).
  */
+import {BSPLINE_EXAMPLE_CUBIC, BSPLINE_EXAMPLE_QUADRATIC} from '../../graphs/curves/bspline/bsplineInsertionModel';
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
@@ -12,10 +13,8 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
 
 /** The L2 quadratic (the graph's own quadratic example) and the L3 continuity cubic, as in the spec. */
-export const INSERTION_QUADRATIC_FIXTURE: LessonCurveFixture = {degree: 2, knots: [0, 0, 0, 1, 2, 2, 2], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
-export const INSERTION_CUBIC_FIXTURE: LessonCurveFixture = {
-    degree: 3, knots: [0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3], points: [[0, 0], [1, 2], [2, 3], [3, 1], [4, 1], [5, 3], [6, 0]],
-};
+export const INSERTION_QUADRATIC_FIXTURE: LessonCurveFixture = BSPLINE_EXAMPLE_QUADRATIC;
+export const INSERTION_CUBIC_FIXTURE: LessonCurveFixture = BSPLINE_EXAMPLE_CUBIC;
 
 const VIEW: LessonViewBox = [-1.5, 3.5, 6.5, -1.5];
 

@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import {useT} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -138,7 +139,7 @@ export function VoronoiTriangles(props: VoronoiControlsProps) {
     const vertexText = vertexTextOf(t, selectedVertex);
     if (!status.overlayShown || status.triangles.length === 0) return null;
     return <div className="inspector-group">
-        <div className="inspector-playback" role="group" aria-label={t("vor_triangles_label")} data-voronoi="triangles">
+        <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_triangles_label")} data-voronoi="triangles">
             {status.triangles.map((corners, index) => (
                 <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedTriangle === index}
                         onClick={() => actions.selectTriangle(status.selectedTriangle === index ? undefined : index)}>
@@ -215,7 +216,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             </ul>}
         </div>
         {!refusal && <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("vor_sites_label")} data-voronoi="sites">
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_sites_label")} data-voronoi="sites">
                 {Array.from({length: counts.sites}, (_, site) => (
                     <button type="button" key={site} data-site={site} aria-pressed={status.cellSite === site}
                             onClick={() => actions.selectSite(status.cellSite === site ? null : site)}>{t("vor_site_item", {value0: site + 1})}</button>
@@ -226,7 +227,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                              {...playbackBlocks({ready: construction !== undefined && construction.total > 0, atStart: (construction?.count ?? 0) <= 0,
                                  atEnd: !construction || construction.count >= construction.total, playing, stepsWhilePlaying: true})}>
                 <UnavailableButton data-action="construct-back" reason={backUnavailable ? t("playback_block_at_start") : undefined}
-                                   onPress={() => actions.constructBack()}>{t("vor_construct_back")}</UnavailableButton>
+                                   onPress={() => actions.constructBack()}>{t("back")}</UnavailableButton>
             </PlaybackButtons>
             <p className="inspector-help" data-voronoi="construction">{stepText}</p>
         </div>}
@@ -235,7 +236,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             <PointListInput title={t("vor_query_group")} points={[status.query.value]} pointLabel={() => "q"}
                             min={-status.coordinateLimit} max={status.coordinateLimit} grid={0.25} decimals={2}
                             onCommit={(_, [x, y]) => { actions.setQuery(x, y); }}/>
-            <div className="inspector-playback" role="group" aria-label={t("vor_query_move_group")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("vor_query_move_group")}>
                 <button type="button" data-action="query-left" onClick={() => actions.moveQuery(-1, 0)}>{t("vor_query_left")}</button>
                 <button type="button" data-action="query-right" onClick={() => actions.moveQuery(1, 0)}>{t("vor_query_right")}</button>
                 <button type="button" data-action="query-up" onClick={() => actions.moveQuery(0, 1)}>{t("vor_query_up")}</button>

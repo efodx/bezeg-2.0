@@ -38,6 +38,6 @@ describe("frame fit helpers", () => {
 
 test("the step counter shows the 0-based step from 1 and never an empty run as 0", () => {
     const t = ((key: string, values?: Record<string, unknown>) => `${key}:${values?.value0}/${values?.value1}`) as never;
-    expect(stepCounterText(t, 0, 5)).toBe("hulltrace_step_counter:1/5");
-    expect(stepCounterText(t, 0, 0)).toBe("hulltrace_step_counter:1/1");
+    expect(stepCounterText(t, 0, 5)).toBe("step_counter:1/5");
+    expect(stepCounterText(t, 0, 0)).toBe("step_counter:1/1");
 });

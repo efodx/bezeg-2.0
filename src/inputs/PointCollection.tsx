@@ -132,7 +132,7 @@ export function PointCollection(props: PointCollectionProps) {
             : <>
                 <p className="point-collection-count">{countText}</p>
                 <div className="point-collection-buttons">
-                    <UnavailableButton className="btn btn-primary" reason={addReason} onPress={own(() => { add(); })} onBlockedPress={stored("add")}>{t("pointset_add_point")}</UnavailableButton>
+                    <UnavailableButton className="btn btn-primary" reason={addReason} onPress={own(() => { add(); })} onBlockedPress={stored("add")}>{t("add_point")}</UnavailableButton>
                     <UnavailableButton className="btn" reason={removeSelectedReason} onPress={own(removal.onRemove)} onBlockedPress={stored("remove")}>{t("point_controls_remove_selected")}</UnavailableButton>
                 </div>
             </>}

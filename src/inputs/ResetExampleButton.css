@@ -1,2 +1,0 @@
-/* Reuses the inspector action-button look (`inspector-playback`); the hidden reason span stops `:only-child`, so span one column. */
-.reset-example .inspector-playback { grid-template-columns: minmax(0, 1fr); }

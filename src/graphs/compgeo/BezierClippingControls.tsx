@@ -89,7 +89,7 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
             <p className="inspector-help">{t("bezierclipping_tolerance_help")}</p>
         </div>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("bezierclipping_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+            <PlaybackButtons groupLabel={t("bezierclipping_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("bezierclipping_playback_note")}</p>

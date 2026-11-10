@@ -417,7 +417,7 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
                     <UnavailableButton onPress={redo} reason={canRedo(history) ? undefined : t('playground_redo_unavailable')} onBlockedPress={blocked}>{t('playground_redo')}</UnavailableButton>
                 </span>
                 <span className="playground__group" role="group" aria-label={t('playground_shape_actions')}>
-                    <UnavailableButton onPress={() => commit(clearDrawing())} reason={present.anchors.length === 0 ? t('playground_clear_unavailable') : undefined} onBlockedPress={blocked}>{t('playground_clear')}</UnavailableButton>
+                    <UnavailableButton onPress={() => commit(clearDrawing())} reason={present.anchors.length === 0 ? t('playground_clear_unavailable') : undefined} onBlockedPress={blocked}>{t('clear')}</UnavailableButton>
                     <UnavailableButton onPress={() => commit(addPointAfterLast(present))} reason={addReason} onBlockedPress={blocked}>{t('add_point')}</UnavailableButton>
                     <UnavailableButton onPress={() => commit(closeDrawing(present))} reason={closeReason} onBlockedPress={blocked}>{t('playground_close')}</UnavailableButton>
                     <button type="button" onClick={loadExample}>{t('playground_load_example')}</button>

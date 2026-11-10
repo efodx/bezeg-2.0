@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
@@ -370,7 +371,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                 <p className="inspector-help">{t("fixed_point_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("fixed_point_iteration_controls")} className="demo-actions" nextLabel={t("fixed_point_next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
+                <PlaybackButtons groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.step === 0, atEnd: !canAdvance, playing})}/>
@@ -382,8 +383,8 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
         return <>
-            <div className="demo-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
-                <RevealButton action="toggle-fixed-point-bound" revealed={state.boundVisible} showLabel={t("fixed_point_show_bound")} hideLabel={t("fixed_point_hide_bound")}
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("fixed_point_bound_actions_label")}>
+                <RevealButton action="toggle-fixed-point-bound" revealed={state.boundVisible} showLabel={t("show_error_bound")} hideLabel={t("hide_error_bound")}
                               onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
             <p className="inspector-help">{t("fixed_point_bound_help")}</p>

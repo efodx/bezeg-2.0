@@ -16,10 +16,19 @@ export interface InsertionData {
 export type InsertionExampleId = 'quadratic' | 'cubic';
 export const INSERTION_EXAMPLE_IDS: readonly InsertionExampleId[] = ['quadratic', 'cubic'];
 
-/** The L2 quadratic and the L3 continuity cubic, exactly as in the L3 spec section. The cubic already has the double knot u = 2. */
-export const insertionExample = (id: InsertionExampleId): InsertionData => id === 'quadratic'
-    ? {degree: DEBOOR_DEFAULT_DEGREE, knots: [...DEBOOR_DEFAULT_KNOTS], points: DEBOOR_DEFAULT_POINTS.map(p => [p[0], p[1]] as const)}
-    : {degree: 3, knots: [0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3], points: [[0, 0], [1, 2], [2, 3], [3, 1], [4, 1], [5, 3], [6, 0]]};
+/** The one B-spline example set shared by the graph and its guided lessons: the L2 quadratic and the L3 continuity cubic. The cubic already has the double knot u = 2. */
+export const BSPLINE_EXAMPLE_QUADRATIC = {
+    degree: DEBOOR_DEFAULT_DEGREE, knots: DEBOOR_DEFAULT_KNOTS, points: DEBOOR_DEFAULT_POINTS,
+} as const;
+export const BSPLINE_EXAMPLE_CUBIC = {
+    degree: 3, knots: [0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3], points: [[0, 0], [1, 2], [2, 3], [3, 1], [4, 1], [5, 3], [6, 0]],
+} as const satisfies { readonly degree: number; readonly knots: readonly number[]; readonly points: readonly (readonly [number, number])[] };
+
+/** The L2 quadratic and the L3 continuity cubic, exactly as in the L3 spec section. */
+export const insertionExample = (id: InsertionExampleId): InsertionData => {
+    const e = id === 'quadratic' ? BSPLINE_EXAMPLE_QUADRATIC : BSPLINE_EXAMPLE_CUBIC;
+    return {degree: e.degree, knots: [...e.knots], points: e.points.map(p => [p[0], p[1]] as const)};
+};
 
 /** The first value in the insertion field: the spec's first insertion (u = 1). */
 export const INSERTION_DEFAULT_VALUE = 1;

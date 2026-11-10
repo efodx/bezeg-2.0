@@ -1,0 +1,12 @@
+/* The one row of buttons and fields that is not a playback group (decision 68). `control-row--fill` makes direct buttons equal wide. */
+.control-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.control-row--fill > button { flex: 1 1 7.5rem; min-height: 38px; padding: 6px 8px; font-size: .86rem; line-height: 1.25; }
+.control-row--fill > button[aria-disabled="true"] { opacity: .45; cursor: default; }
+.control-row--fill > button[data-revealed="true"] { border-color: var(--workspace-green); }
+.is-presenting .control-row--fill > button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
+/* A coarse pointer gets a 44px tall hit area. Specific enough to win over the workspace's 34px button rules
+   (`.workspace-inspector .tools .btn`, `.demonstration-workspace button`). */
+@media (pointer: coarse), (max-width: 700px) {
+    .control-row button, .demonstration-workspace .control-row button, .workspace-inspector .tools .control-row .btn,
+    .control-row--fill > button, .demonstration-workspace .control-row--fill > button { min-height: 44px; }
+}

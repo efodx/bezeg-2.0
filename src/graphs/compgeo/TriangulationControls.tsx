@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import {formatDegrees} from "../../analysis/format";
 import {useMemo} from "react";
@@ -89,7 +90,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
     const liveReadout = useStatusReadout(refusalSentence === eventSentence ? "" : eventSentence, true);
     return <>
         {triangulationShown && <div className="inspector-group" data-triangulation="edge-flip">
-            <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("tri_flip_group")}>
                 {/* No edges: the list offers only "none" and says why (the shared select's unavailable reason). */}
                 <ChoiceSelect label={t("tri_edge_select")} value={selected ? key(selected[0], selected[1]) : ""}
                               reason={edges.length === 0 ? t("tri_edges_unavailable") : undefined}

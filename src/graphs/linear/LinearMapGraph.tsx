@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
@@ -409,7 +410,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                         {t(notice.kind === "clamped" ? "linear_map_notice_clamped" : "linear_map_notice_snapped", {value0: this.entryLabel(notice.row, notice.column)})}
                     </p>}
                 </div>
-                <div className="demo-actions" role="group" aria-label={t("linear_map_actions_label")}>
+                <div className={CONTROL_ROW_FILL} role="group" aria-label={t("linear_map_actions_label")}>
                     <UnavailableButton data-action="linear-map-reset" reason={atIdentity ? t("linear_map_at_identity") : undefined}
                                        onPress={() => this.resetToIdentity()}>{t("linear_map_reset")}</UnavailableButton>
                 </div>

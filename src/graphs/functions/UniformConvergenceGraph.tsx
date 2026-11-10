@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
@@ -373,7 +374,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
         return <>
-            <div className="demo-actions" role="group" aria-label={t("uniform_actions_label")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("uniform_actions_label")}>
                 <RevealButton action="toggle-uniform-supremum" revealed={state.supremumVisible} showLabel={t("uniform_show_supremum")} hideLabel={t("uniform_hide_supremum")}
                               onToggle={() => this.setSupremumVisible(!this.model.supremumVisible)}/>
             </div>

@@ -1,6 +1,6 @@
+import {CONTROL_ROW_FILL} from "./controlRow";
 import {useState} from "react";
 import {useT} from "../localization";
-import "./ResetExampleButton.css";
 import {UnavailableButton} from "./UnavailableButton";
 
 interface ResetExampleButtonProps {
@@ -18,7 +18,7 @@ export function ResetExampleButton({onReset, atExample, action = "reset-example"
     const [blocked, setBlocked] = useState(0);
     const reason = atExample ? t("reset_example_already") : undefined;
     return <div className="reset-example">
-        <div className="inspector-playback">
+        <div className={CONTROL_ROW_FILL}>
             <UnavailableButton data-action={action} reason={reason} onPress={() => { setBlocked(0); onReset(); }}
                                onBlockedPress={() => setBlocked(count => count + 1)}>{t("reset_example")}</UnavailableButton>
         </div>

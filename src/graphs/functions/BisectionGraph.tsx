@@ -282,7 +282,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("bisection_iteration_controls")} className="bisection-actions" nextLabel={t("bisection_next_step")} resetLabel={t("bisection_reset")} playing={playing}
+                <PlaybackButtons groupLabel={t("bisection_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("bisection_reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: step === 0, atEnd: !canAdvance, playing})}/>

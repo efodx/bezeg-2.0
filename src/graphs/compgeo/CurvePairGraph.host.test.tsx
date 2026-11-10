@@ -195,7 +195,7 @@ test('the inspector offers no add, remove, clear, Add mode, count or mode choice
     const graph = new Observed();
     mount(graph);
     const labels = buttonLabels();
-    for (const key of ['pointset_add_mode', 'point_controls_remove_selected', 'point_controls_clear_all', 'pointset_clear', 'pointset_add_point', 'pointset_mode_polygon', 'pointset_mode_points'] as const) {
+    for (const key of ['pointset_add_mode', 'point_controls_remove_selected', 'point_controls_clear_all', 'clear', 'add_point', 'pointset_mode_polygon', 'pointset_mode_points'] as const) {
         expect(labels).not.toContain(t(key));
     }
     expect(document.querySelector('.point-collection')).toBeNull();

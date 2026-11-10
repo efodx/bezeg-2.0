@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
@@ -432,7 +433,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
         return <>
-            <div className="demo-actions" role="group" aria-label={t("complex_actions_label")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("complex_actions_label")}>
                 <RevealButton action="toggle-complex-product" revealed={state.productVisible} showLabel={t("complex_show_product")} hideLabel={t("complex_hide_product")}
                               onToggle={() => this.setProductVisible(!this.model.productVisible)}/>
                 <RevealButton action="toggle-complex-arguments" revealed={state.anglesVisible} showLabel={t("complex_show_arguments")} hideLabel={t("complex_hide_arguments")}

@@ -352,7 +352,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const state = this.model;
         return <>
             <div className="taylor-actions" role="group" aria-label={t("taylor_actions_label")}>
-                <RevealButton action="toggle-taylor-bound" revealed={state.boundVisible} showLabel={t("taylor_show_bound")} hideLabel={t("taylor_hide_bound")}
+                <RevealButton action="toggle-taylor-bound" revealed={state.boundVisible} showLabel={t("show_error_bound")} hideLabel={t("hide_error_bound")}
                               onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
             <p className="inspector-help">{t("taylor_bound_help")}</p>

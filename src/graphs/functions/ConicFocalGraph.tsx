@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
@@ -272,7 +273,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
                 <Slider customText={t("conic_weight_label")} min={CONIC_WEIGHT_MIN} max={CONIC_WEIGHT_MAX} step={0.01} value={weightShown} unavailableReason={state.bridge ? undefined : t("conic_weight_needs_bridge")}
                         rejectedHint={t("conic_weight_rejected_hint", rangeHint(CONIC_WEIGHT_MIN, CONIC_WEIGHT_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setWeight(next))}/>
-                <div className="demo-actions">
+                <div className={CONTROL_ROW_FILL}>
                     <UnavailableButton data-action="matched-weight" reason={matchedReason}
                                        onBlockedPress={reason => { if (state.bridge) this.refusals.refuse(reason, true); }}
                                        onPress={() => { if (this.ignoreOutOfDomain(() => this.setWeight(null))) this.refusals.clear(); }}>{t("conic_weight_set_matching")}</UnavailableButton>

@@ -61,7 +61,7 @@ pointCollectionBehaviour('PointSet point collection', {
         const start = graph.model.points.length;
         const button = (name: string) => screen.getByRole('button', {name});
         return {
-            get add() { return button(t('pointset_add_point')); }, get remove() { return button(t('point_controls_remove_selected')); },
+            get add() { return button(t('add_point')); }, get remove() { return button(t('point_controls_remove_selected')); },
             get addAt() { return button(t('point_controls_add_at')); },
             // With nothing left to select, the reason of Remove-selected is "no point is selected" (it comes before the count bound).
             refusalText: () => document.querySelector('[data-point-collection-reason]')?.textContent?.trim() || null,

@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import {formatDegrees, type NumberLanguage} from "../../analysis/format";
 import {useLanguage, useT} from "../../localization";
@@ -134,7 +135,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                 {id: "quad", text: t("del_example_quad")}, {id: "seven", text: t("del_example_seven")}, {id: "square", text: t("del_example_square")}]}/>
         </div>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("del_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+            <PlaybackButtons groupLabel={t("del_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({ready: traced, atStart: traced && status.step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("del_playback_note")}</p>
@@ -152,7 +153,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                 {id: "angles-now", value: angleLine(t, language, status.anglesNow, "del_angles_now")},
                 {id: "angles-start", value: angleLine(t, language, status.anglesStart, "del_angles_start")},
             ]}/>
-            <div className="inspector-playback" role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
                 {status.triangles.map((corners, index) => (
                     <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedIndex === index}
                             onClick={() => actions.selectTriangle(status.selectedIndex === index ? undefined : index)}>

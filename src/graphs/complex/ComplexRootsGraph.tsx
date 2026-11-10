@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
@@ -352,7 +353,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
             <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
         );
         return <>
-            <div className="demo-actions" role="group" aria-label={t("complex_roots_actions_label")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("complex_roots_actions_label")}>
                 {toggle("toggle-complex-roots", state.rootsVisible, t("complex_roots_show_roots"), t("complex_roots_hide_roots"), v => this.setRootsVisible(v))}
                 {toggle("toggle-complex-polygon", state.polygonVisible, t("complex_roots_show_polygon"), t("complex_roots_hide_polygon"), v => this.setPolygonVisible(v))}
                 {toggle("toggle-complex-test", state.testVisible, t("complex_roots_show_test"), t("complex_roots_hide_test"), v => this.setTestVisible(v))}

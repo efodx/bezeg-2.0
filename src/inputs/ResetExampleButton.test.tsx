@@ -20,3 +20,9 @@ test('at the example it is aria-disabled with a reason, does nothing and announc
     expect(onReset).not.toHaveBeenCalled();
     expect(document.querySelector('[data-reset-example-reason]')).not.toBeNull();
 });
+
+test('the button sits in a shared control row, not a playback group', () => {
+    const {container} = render(<ResetExampleButton atExample={false} onReset={() => undefined}/>);
+    expect(container.querySelector('.control-row.control-row--fill')).not.toBeNull();
+    expect(container.querySelector('.inspector-playback')).toBeNull();
+});

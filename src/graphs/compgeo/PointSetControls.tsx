@@ -1,3 +1,4 @@
+import {CONTROL_ROW} from "../../inputs/controlRow";
 import React, {useMemo, useRef, useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {ReadoutHeading} from "../base/controls/ReadoutParts";
@@ -99,7 +100,7 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
             {Array.from({length: model.points.length >> 1}, (_, k) => {
                 const [a, b] = [model.points[2 * k], model.points[2 * k + 1]];
                 const on = selected !== undefined && selected >> 1 === k;
-                return <li key={k} className="pointset-row" data-selected={on}>
+                return <li key={k} className={CONTROL_ROW} data-selected={on}>
                     <SelectablePointButton label={`s${k + 1}`} accessibleName={t("pointset_select_segment", {value0: k + 1})} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
                     {field(t("pointset_segment_x", {value0: k + 1, value1: 1}), a.x, x => actions.movePoint(2 * k, {x, y: a.y}))}
                     {field(t("pointset_segment_y", {value0: k + 1, value1: 1}), a.y, y => actions.movePoint(2 * k, {x: a.x, y}))}
@@ -135,7 +136,7 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
                 // lo and hi are the sorted ends; each field edits the stored endpoint that currently has that value.
                 const loIndex = model.points[2 * k].x <= model.points[2 * k + 1].x ? 2 * k : 2 * k + 1;
                 const hiIndex = 4 * k + 1 - loIndex;
-                return <li key={k} className="pointset-row" data-selected={on}>
+                return <li key={k} className={CONTROL_ROW} data-selected={on}>
                     <SelectablePointButton label={letter} accessibleName={t("pointset_select_interval", {value0: letter})} pressed={on} onToggle={() => actions.select(on ? undefined : 2 * k)}/>
                     {field(t("pointset_interval_lo", {value0: letter}), lo, x => actions.movePoint(loIndex, {x, y: model.points[loIndex].y}))}
                     {field(t("pointset_interval_hi", {value0: letter}), hi, x => actions.movePoint(hiIndex, {x, y: model.points[hiIndex].y}))}
@@ -209,7 +210,7 @@ export function PointSetControls(props: PointSetControlsProps) {
                 <UnavailableButton className={button} reason={selected === undefined ? t(segments ? "pointset_no_segment_selected" : "pointset_no_interval_selected") : undefined} onPress={() => actions.removeSelected()}
                                    onBlockedPress={reason => blockedPress(reason)}>{t(segments ? "pointset_remove_segment" : "pointset_remove_interval")}</UnavailableButton>
                 <UnavailableButton className={button} reason={model.points.length === 0 ? t("pointset_no_points") : undefined} onPress={() => actions.clear()}
-                                   onBlockedPress={reason => blockedPress(reason)}>{t("pointset_clear")}</UnavailableButton>
+                                   onBlockedPress={reason => blockedPress(reason)}>{t("clear")}</UnavailableButton>
                 <p className="inspector-help" data-pointset-count>{segments
                     ? t("pointset_segment_count", {value0: model.points.length >> 1, value1: props.segmentLimit ?? 0})
                     : t("pointset_interval_count", {value0: model.points.length >> 1, value1: props.intervalLimit ?? 0})}</p>

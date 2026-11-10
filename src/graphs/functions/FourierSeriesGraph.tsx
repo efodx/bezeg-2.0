@@ -1,3 +1,4 @@
+import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
@@ -345,7 +346,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
 
     protected override renderReveals(): React.ReactNode {
         return <>
-            <div className="demo-actions" role="group" aria-label={t("fourier_actions_label")}>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("fourier_actions_label")}>
                 <button type="button" data-action="fourier-zoom-peak" onClick={() => this.zoomToPeak()}>{t("fourier_zoom_peak")}</button>
             </div>
             <p className="inspector-help">{t("fourier_zoom_help")}</p>

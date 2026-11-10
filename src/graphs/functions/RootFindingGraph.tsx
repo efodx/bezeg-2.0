@@ -279,7 +279,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                 <p className="inspector-help">{t("root_finding_starts_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("root_finding_iteration_controls")} className="bisection-actions" nextLabel={t("root_finding_next_step")} resetLabel={t("root_finding_reset")} playing={playing}
+                <PlaybackButtons groupLabel={t("root_finding_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("root_finding_reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: step === 0, atEnd: !canAdvance, playing})}/>

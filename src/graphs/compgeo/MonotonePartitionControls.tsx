@@ -117,7 +117,7 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
     const liveReadout = useStatusReadout(traced ? [stepText, noteLine, summary].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("monotonepartition_controls_label")} nextLabel={t("monotonepartition_next_step")} playing={playing}
+            <PlaybackButtons groupLabel={t("monotonepartition_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({ready: traced, atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("monotonepartition_playback_note")}</p>

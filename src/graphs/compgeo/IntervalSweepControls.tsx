@@ -92,7 +92,7 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
     const liveReadout = useStatusReadout(announcement, true);
     return <>
         <div className="inspector-group">
-            <PlaybackButtons groupLabel={t("intervalsweep_controls_label")} nextLabel={t("intervalsweep_next_step")} playing={playing}
+            <PlaybackButtons groupLabel={t("intervalsweep_controls_label")} nextLabel={t("next_step")} playing={playing}
                              onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
                              {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("intervalsweep_playback_note")}</p>

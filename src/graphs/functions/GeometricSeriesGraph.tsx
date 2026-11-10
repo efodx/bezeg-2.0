@@ -278,7 +278,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
                 <p className="inspector-help">{t("series_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("series_iteration_controls")} className="demo-actions" nextLabel={t("series_next_step")} resetLabel={t("series_reset")} playing={playing}
+                <PlaybackButtons groupLabel={t("series_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.terms <= SERIES_TERMS_MIN, atEnd: !canAdvance, playing})}/>
