@@ -101,8 +101,11 @@ export function drawableRejection(data: BSplinePresetData, maxPoints: number): M
     if (data.degree < BASIS_MIN_DEGREE || data.degree > BASIS_MAX_DEGREE) {
         return message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE});
     }
-    if (data.points.length < data.degree + 1 || data.points.length > maxPoints) {
+    if (data.points.length < data.degree + 1) {
         return message("bspline_too_few_points", {value0: data.degree, value1: data.degree + 1, value2: data.points.length});
+    }
+    if (data.points.length > maxPoints) {
+        return message("bspline_too_many_points", {value0: maxPoints, value1: data.points.length});
     }
     const problem = knotProblem(data.knots, data.degree);
     if (problem) return problem;

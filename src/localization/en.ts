@@ -318,6 +318,7 @@ export const en: Record<keyof typeof sl, string> = {
     "bspline_invalid_data": "B-spline data must be a record with a degree, knots and points",
     "bspline_invalid_degree": "the B-spline degree must be an integer of at least 1",
     "bspline_too_few_points": "a B-spline of degree {value0} needs at least {value1} control points, the preset has {value2}",
+    "bspline_too_many_points": "this view accepts a B-spline with at most {value0} control points, the preset has {value1}",
     "bspline_knots_wrong_length": "the knot vector needs {value0} knots (points + degree + 1), the preset has {value1}",
     "bspline_knots_decreasing": "knots must not decrease: knot {value0} is smaller than the one before it",
     "bspline_knots_multiplicity_too_high": "a knot may repeat at most {value0} times; lower the knot multiplicity",

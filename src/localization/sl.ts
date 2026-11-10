@@ -317,6 +317,7 @@ export const sl = {
     "bspline_invalid_data": "podatki B-zlepka morajo biti zapis s stopnjo, vozli in točkami",
     "bspline_invalid_degree": "stopnja B-zlepka mora biti celo število, vsaj 1",
     "bspline_too_few_points": "B-zlepek stopnje {value0} potrebuje vsaj {value1} kontrolnih točk, prednastavitev jih ima {value2}",
+    "bspline_too_many_points": "ta prikaz sprejme B-zlepek z največ {value0} kontrolnimi točkami, prednastavitev jih ima {value1}",
     "bspline_knots_wrong_length": "vozelni vektor mora imeti {value0} vozlov (število točk + stopnja + 1), prednastavitev jih ima {value1}",
     "bspline_knots_decreasing": "vozli ne smejo padati: vozel {value0} je manjši od prejšnjega",
     "bspline_knots_multiplicity_too_high": "vozel se sme ponoviti največ {value0}-krat; zmanjšaj večkratnost vozla",
