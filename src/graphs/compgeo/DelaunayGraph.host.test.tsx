@@ -647,12 +647,13 @@ test('Next step to the end and Play to the end give the same nonempty final tria
     expect(byPlay.isPlaying).toBe(false);
 });
 
-test('the point-set controls add no always-speaking region: only the trace and the inherited triangulation readout remain (decision 18)', () => {
+test('Delaunay keeps exactly one live readout region: the trace one, which also carries the point-set event (decision 18)', () => {
     const graph = new Observed();
     mount(graph);
-    // KNOWN OPEN: the inherited TriangulationControls readout is a second region next to the Delaunay trace one; folding it is a separate change.
     const marks = () => Array.from(document.querySelectorAll('[data-readout-live]')).map(e => e.hasAttribute('data-delaunay-live') ? 'delaunay' : e.hasAttribute('data-triangulation-live') ? 'triangulation' : 'other');
-    expect(marks()).toEqual(['delaunay', 'triangulation']);
+    expect(marks()).toEqual(['delaunay']);
     load(graph, {mode: 'polygon', closed: true, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 4, y: 0}, {x: 2, y: 3}]});
-    expect(marks()).toEqual(['delaunay', 'triangulation']);
+    expect(marks()).toEqual(['delaunay']);
+    // The inherited panel still shows its readout list and event text, only without a second live region.
+    expect(document.querySelector('[data-triangulation="readout"]')).not.toBeNull();
 });

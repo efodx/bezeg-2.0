@@ -30,6 +30,8 @@ export interface TriangulationControlsProps {
     selected: readonly [number, number] | undefined;
     /** False while the triangulation overlay is hidden: the panel then shows only n and k, so a hidden triangulation is not given away by its counts or edge list. */
     triangulationShown: boolean;
+    /** False when a host panel (Delaunay) announces the event in its own readout, so the inspector keeps one live region (decision 18). The event paragraph stays visible. Default true. */
+    announce?: boolean;
     actions: TriangulationControlActions;
 }
 
@@ -74,7 +76,7 @@ export function eventText(t: Translate, event: TriangulationEvent): string {
 export function TriangulationControls(props: TriangulationControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const {readout, refusal, event, edges, selected, triangulationShown, actions} = props;
+    const {readout, refusal, event, edges, selected, triangulationShown, actions, announce = true} = props;
     const key = (a: number, b: number) => `${a}-${b}`;
     const eventSentence = event ? eventText(t, event) : "";
     const flipUnavailable = selected === undefined;
@@ -125,7 +127,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                         : t("tri_readout_angle_before", {value0: formatDegrees(readout.minAngleBefore, language)})},
                 ] : []),
             ]}/>}
-            <LiveReadout readout={liveReadout} dataAttribute="triangulation-live"/>
+            {announce && <LiveReadout readout={liveReadout} dataAttribute="triangulation-live"/>}
         </div>
     </>;
 }

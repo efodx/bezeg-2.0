@@ -8,6 +8,8 @@ import {LiveReadout} from "../base/controls/LiveReadout";
 import {ReadoutList} from "../base/controls/ReadoutParts";
 import {StepCounter, stepCounterText} from "../base/controls/StepCounter";
 import {ExampleSelect} from "./ExampleSelect";
+import {eventText} from "./TriangulationControls";
+import type {TriangulationEvent} from "./TriangulationGraph";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 
 /** The named examples, in the order of the chooser. */
@@ -56,6 +58,8 @@ export interface DelaunayControlsProps {
     playing: boolean;
     /** The example the points are now, or undefined for a custom set. */
     exampleId: DelaunayExampleId | undefined;
+    /** The last point-set event; its non-refusal sentence joins this panel's one live readout (the inherited triangulation panel does not announce it). */
+    event?: TriangulationEvent;
     actions: DelaunayControlActions;
 }
 
@@ -106,7 +110,7 @@ function angleLine(t: Translate, language: NumberLanguage, angles: readonly numb
 export function DelaunayControls(props: DelaunayControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const {status, playing, exampleId, actions} = props;
+    const {status, playing, exampleId, actions, event} = props;
     const traced = status !== undefined;
     const atEnd = traced && status.step >= status.length - 1;
     const stepText = traced ? stepCounterText(t, status.step, status.length) : undefined;
@@ -128,7 +132,8 @@ export function DelaunayControls(props: DelaunayControlsProps) {
     })) ?? [];
     const hullText = selection && selection.hullCount > 0 ? t("del_tri_hull", {value0: selection.hullCount}) : undefined;
     // Silent while Play runs (the region's mute); announces the status once on Pause or at the end.
-    const liveReadout = useStatusReadout(status ? [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText].filter(Boolean).join(". ") : "", true);
+    const eventSentence = event && event.kind !== "flip-refused" && event.kind !== "flip-needs-edge" ? eventText(t, event) : undefined;
+    const liveReadout = useStatusReadout(status || eventSentence ? [eventSentence, ...(status ? [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText] : [])].filter(Boolean).join(". ") : "", true);
     return <>
         <div className="inspector-group">
             <ExampleSelect label={t("del_example_group")} current={exampleId} onChoose={actions.loadExample} options={[

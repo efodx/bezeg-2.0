@@ -525,6 +525,11 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
+    /** Whether the triangulation panel announces the last event itself; a subclass with its own readout folds the event in and returns false. */
+    protected announcesEvents(): boolean {
+        return true;
+    }
+
     protected override showsModeToggle(): boolean {
         return false;
     }
@@ -540,7 +545,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             <TriangulationControls readout={this.readout()} refusal={this.refusal()} event={this.eventValue}
                                    edges={tri ? edges(tri).map(e => ({a: e.a, b: e.b, interior: e.interior})) : []}
                                    selected={selected ? [selected.a, selected.b] : undefined}
-                                   triangulationShown={this.overlayShown("triangulation")}
+                                   triangulationShown={this.overlayShown("triangulation")} announce={this.announcesEvents()}
                                    actions={{selectEdge: (a, b) => this.selectEdge(a, b), flip: () => { this.flipSelected(); }}}/>
             {super.workspaceEdit()}
         </>;

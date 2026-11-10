@@ -412,9 +412,13 @@ export class DelaunayGraph extends TriangulationGraph {
         };
     }
 
+    protected override announcesEvents(): boolean {
+        return false;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <DelaunayControls status={this.status()} playing={this.playback.isPlaying} exampleId={matchingExample(this.model, DELAUNAY_EXAMPLES.map(example => ({id: example.id, ...example.data})))} actions={this.delaunayActions}/>
+            <DelaunayControls status={this.status()} event={this.event} playing={this.playback.isPlaying} exampleId={matchingExample(this.model, DELAUNAY_EXAMPLES.map(example => ({id: example.id, ...example.data})))} actions={this.delaunayActions}/>
             {super.workspaceEdit()}
         </>;
     }
