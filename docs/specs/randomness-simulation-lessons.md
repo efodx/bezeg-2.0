@@ -1,6 +1,6 @@
 # Randomness and simulation (Naključje in simulacija)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/randomness](../tasks/randomness/README.md). Decisions 1–3: [ADR 0049](../adr/0049-randomness-pcg32-integer-decisions-and-prefix-replay.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #4 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md)); the owner rule "seeded sampling with a fixed, visible seed and replay, the exact distribution always drawn alongside" is settled; the rest are proposals for owner review.
 **Source:** the research note's entry 4 (opening lesson, six lessons, engine, risks) and the matura catalogue M-MAT-2026, text extraction read for this spec: §4.16 *Verjetnostni račun* (page 22; *empirična verjetnost*, *matematična verjetnost*, *Zaporedje neodvisnih poskusov*, *Normalna porazdelitev*; objective "razume in poveže empirično in matematično verjetnost") and §4.17 *Statistika* (page 23; sampling, population, standard deviation). Simulation, Markov chains and confidence intervals are not named in the extraction (searched `zaupan`, `simulac`, `markov`: none), so RS5 and RS6 are enrichment, not matura core. Level markers (VR) not verified. Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
