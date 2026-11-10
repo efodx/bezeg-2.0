@@ -2672,3 +2672,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - A writer at 135k tokens (pair F) was not resumed; the handler repaired instead.
   - The worker for pair C declared its family's F2a ungated, against the owner's boundary; handler review caught it. Briefs should quote the gating list verbatim.
   - The handler committed once with `--no-verify`, which was a mistake. No hook is configured, so nothing was skipped.
+## 2026-11-10: controls Wave 3, smoke E repairs, R1b, C29/C30, task 4 closeout and step 6 start (controls stream, handler)
+
+- **Pipelining held:** three workers at a time most of the session (R1b, smoke E, step 6 screenshots/prototype; then repair 3, R1b continuation, C29/C30 inventory). Publishes ran in the background while the next slice was written; four pushes (`68771cb0`, `de8b05c4`, `62730f3d`, each CI green).
+- **Smoke caught what unit tests missed:** O1 Apply reason only in `title`, 34 px Apply (a correct rule losing on specificity, missed again by the repair worker's CSS-source test), mid-drag announcements. The repair's point-count announcement broke eight lesson-restoration contracts (`check-changed` caught it): an announcement must follow the press, not the state.
+- **Review value:** the Haiku UI review found two blocking R1b regressions the worker did not report (a deleted keyboard test block, a lost polite region); the Sonnet engineering reviews found none blocking on four diffs.
+- **Worker misses:** two workers returned partial at HANDOFF and a fresh worker continued from the note without trouble; one smoke worker did not write its evidence file (the next briefs said "MUST write"); one worker left a whole checkout CRLF, and the handler's bulk re-checkout deleted files one by one on Windows (stopped; restored with `git checkout-index`, the classifier blocked `git checkout --`). Prefer leaving clean-status CRLF copies alone.
+- **Cost:** the handler reached BUDGET SOFT after ~20 dispatches; the main context drivers were reading diffs for small handler repairs.
