@@ -371,7 +371,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                 <p className="inspector-help">{t("fixed_point_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <PlaybackButtons groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
+                <PlaybackButtons placement="graph" groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}
                                  onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
                                  {...playbackBlocks({atStart: state.step === 0, atEnd: !canAdvance, playing})}/>

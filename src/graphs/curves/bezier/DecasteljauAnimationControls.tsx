@@ -43,7 +43,7 @@ export function DecasteljauAnimationControls(props: DecasteljauAnimationControls
             <output aria-live="off">{readoutText}</output>
             <LiveReadout readout={readout} muted={playing}/>
         </div>
-        <PlaybackButtons groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}
+        <PlaybackButtons placement="graph" groupLabel={t("animation_controls")} className="decasteljau-animation-actions" playing={playing}
                          {...playbackBlocks({atStart: props.status === "ready" && props.parameter === 0, atEnd: false, playing})}
                          onPlayPause={playing ? props.onPause : props.onPlay} onReset={props.onStop}/>
         <div className="decasteljau-animation-slider">

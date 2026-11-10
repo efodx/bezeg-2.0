@@ -374,3 +374,11 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
     .is-presenting { grid-template-areas: "heading" "graph" "inspector"; }
     .workspace-gesture-hint { display: none; }
 }
+
+/* Graph-adjacent playback (docs/specs/mobile-graph-playback.md): with a filled slot the board and the slot fit one viewport. */
+@media (max-width: 700px), (max-height: 500px) {
+    .workspace-graph[data-playback-filled] #jgbox {
+        height: max(200px, calc(100svh - var(--playback-board-top) - var(--playback-slot-height))) !important;
+        min-height: 0;
+    }
+}

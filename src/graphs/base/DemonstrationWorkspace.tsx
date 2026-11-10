@@ -12,6 +12,8 @@ import "./DemonstrationWorkspace.css";
 import "./WorkspaceControls.css";
 import "./DemonstrationWorkspaceIdentity.css";
 import {LearningPrompt} from './LearningPrompt';
+import {PlaybackSlotContext, type PlaybackSlot} from './PlaybackSlotContext';
+import {useGraphAdjacentPlayback} from './useGraphAdjacentPlayback';
 import {GuidedLesson} from '../../learning/runtime/GuidedLesson';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import type {LessonGraphCapabilities} from '../../learning/model';
@@ -125,6 +127,51 @@ export function DemonstrationWorkspace(props: {
         else if (hostContainerRef) (hostContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = element;
     }, [hostContainerRef]);
     const fullScreen = presentation.fullScreen;
+    // Graph-adjacent playback slot (docs/specs/mobile-graph-playback.md): active on narrow or short viewports, never in Presentation.
+    const slotWanted = useGraphAdjacentPlayback() && !fullScreen;
+    const [slotElement, setSlotElement] = useState<HTMLDivElement | null>(null);
+    const graphSection = useRef<HTMLElement>(null);
+    const headerElement = useRef<HTMLElement>(null);
+    const slotClaimed = useRef(false);
+    const slotElementActive = slotWanted ? slotElement : null;
+    const playbackSlot = useMemo<PlaybackSlot>(() => ({
+        element: slotElementActive,
+        claim: () => {
+            if (slotClaimed.current) return undefined;
+            slotClaimed.current = true;
+            return () => { slotClaimed.current = false; };
+        },
+    }), [slotElementActive]);
+    // Sizing: the board takes the viewport below its top minus the filled slot. The board itself resizes through the existing
+    // GraphSession.observeResize (a ResizeObserver on #jgbox); this only sets CSS custom properties.
+    useEffect(() => {
+        const section = graphSection.current;
+        const slot = slotElementActive;
+        if (!section || !slot || typeof ResizeObserver === "undefined") return;
+        const update = () => {
+            const slotHeight = slot.getBoundingClientRect().height;
+            const board = graphContainer.current;
+            if (slotHeight <= 0 || !board) {
+                section.removeAttribute("data-playback-filled");
+                section.style.removeProperty("--playback-slot-height");
+                return;
+            }
+            section.style.setProperty("--playback-slot-height", `${slotHeight}px`);
+            section.style.setProperty("--playback-board-top", `${board.getBoundingClientRect().top + window.scrollY}px`);
+            section.setAttribute("data-playback-filled", "true");
+        };
+        const observer = new ResizeObserver(update);
+        observer.observe(slot);
+        if (headerElement.current) observer.observe(headerElement.current);
+        if (workspaceRoot.current) observer.observe(workspaceRoot.current);
+        update();
+        return () => {
+            observer.disconnect();
+            section.removeAttribute("data-playback-filled");
+            section.style.removeProperty("--playback-slot-height");
+            section.style.removeProperty("--playback-board-top");
+        };
+    }, [slotElementActive]);
     const inspectorVisible = !fullScreen || presentationControls;
     const workspaceTitle = demonstration?.workspaceTitle ?? 'Bezeg';
     // A requested lesson may arrive before a graph has finished creating its
@@ -139,9 +186,9 @@ export function DemonstrationWorkspace(props: {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
-    return <PresetLockContext.Provider value={lessonActive}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
+    return <PresetLockContext.Provider value={lessonActive}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
-        <header className="workspace-heading">
+        <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
                 <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={forwardedState}>{t('demonstrations')}</Link>
                 {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
@@ -223,9 +270,10 @@ export function DemonstrationWorkspace(props: {
                 }
                 setTimeout(() => learnButton.current?.focus(), 0);
             }}/>}
-        <section className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
+        <section ref={graphSection} className="workspace-graph" aria-label={t("interactive_graph")} data-lesson-locked={lessonActive && lessonMode === 'content' ? 'true' : undefined}>
             <div className="workspace-graph-heading"><span className="workspace-eyebrow">{t("graph_eyebrow")}</span></div>
             <JGBox ref={setGraphContainer}/>
+            <div ref={setSlotElement} data-playback-slot=""/>
             {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
                     if (action === 'fit') return <button key={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
@@ -264,5 +312,5 @@ export function DemonstrationWorkspace(props: {
                     aria-label={tab.label}>{props[tab.id === "edit" ? "edit" : tab.id === "display" ? "display" : "save"]}</section>)}
             </div>
         </aside>
-    </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PresetLockContext.Provider>;
+    </main>{pickerOpen && demonstration && <DemonstrationPicker current={demonstration} onClose={closePicker} onSelect={selectDemonstration}/>}</PlaybackSlotContext.Provider></PresetLockContext.Provider>;
 }

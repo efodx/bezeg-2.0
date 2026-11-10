@@ -1,4 +1,6 @@
-import React, {useState} from "react";
+import React, {useContext, useLayoutEffect, useState, useSyncExternalStore} from "react";
+import {createPortal} from "react-dom";
+import {PlaybackSlotContext} from "../PlaybackSlotContext";
 import {useT} from "../../../localization";
 import {UnavailableButton} from "../../../inputs/UnavailableButton";
 
@@ -42,6 +44,8 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
     /** Defaults to the shared Reset label. */
     readonly resetLabel?: string;
     readonly playing: boolean;
+    /** "graph" asks for the graph-adjacent slot under the board where the workspace offers one; default "inspector". */
+    readonly placement?: "graph" | "inspector";
     /** A continuous run has no step: leave `onNext` out and the Next step button is not shown. */
     readonly onNext?: () => void;
     readonly onPlayPause: () => void;
@@ -58,9 +62,33 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
  * disabled), because a focused button must not lose focus when it becomes unavailable, and it says why it is blocked: in its
  * title, in its description, and in the status line once pressed.
  */
-export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, nextBlock, playBlock, resetBlock,
+export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, placement = "inspector", nextBlock, playBlock, resetBlock,
                                     onNext, onPlayPause, onReset, leading, children}: PlaybackButtonsProps) {
     const t = useT();
+    const slot = useContext(PlaybackSlotContext);
+    const slotElement = placement === "graph" ? slot.element : null;
+    // A one-flag store keeps the claim result out of effect-driven state; the claim itself is the workspace's.
+    const [claimed] = useState(() => {
+        let value = false;
+        const listeners = new Set<() => void>();
+        return {
+            get: () => value,
+            subscribe: (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; },
+            set: (next: boolean) => { value = next; listeners.forEach(listener => listener()); },
+        };
+    });
+    const inSlot = useSyncExternalStore(claimed.subscribe, claimed.get);
+    // One instance, moved: claiming the slot never remounts this component; only its group (and status line) change parent.
+    useLayoutEffect(() => {
+        if (!slotElement) return;
+        const release = slot.claim();
+        if (!release) {
+            if (import.meta.env.DEV) console.warn("PlaybackButtons: the graph playback slot is already claimed; rendering inline.");
+            return;
+        }
+        claimed.set(true);
+        return () => { release(); claimed.set(false); };
+    }, [slotElement, slot, claimed]);
     const [pressed, setPressed] = useState<PlaybackAction>();
     const reasons: Record<PlaybackBlock, string> = {
         'no-more-steps': t("playback_block_no_more_steps"),
@@ -76,7 +104,7 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     ];
     const buttons = all.flatMap(({run, ...rest}) => run ? [{...rest, run}] : []);
     const shownBlock = buttons.find(button => button.action === pressed)?.block;
-    return <>
+    const content = <>
         <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel}>
             {leading}
             {buttons.map(({action, block, label, run}) =>
@@ -88,4 +116,5 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
             {shownBlock && <p className="inspector-help" data-playback-reason={shownBlock}>{reasons[shownBlock]}</p>}
         </div>
     </>;
+    return inSlot && slotElement ? createPortal(content, slotElement) : content;
 }
