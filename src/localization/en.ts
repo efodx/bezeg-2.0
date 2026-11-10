@@ -554,6 +554,7 @@ export const en: Record<keyof typeof sl, string> = {
     "inspector_reveals": "Reveals",
     "function_legend": "Legend",
     "number_range_hint": "Enter a value between {value0} and {value1}.",
+    "number_integer_range_hint": "Enter a whole number between {value0} and {value1}.",
     "polynomial_degree_label": "Polynomial degree",
     "number_field_label": "{value0}, value",
     "number_rejected_hint": "This value cannot be used.",

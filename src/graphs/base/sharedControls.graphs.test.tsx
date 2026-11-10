@@ -33,7 +33,7 @@ async function mountWith(id: DemonstrationId, labelKey: PlainKey, fieldLabel = f
 
 const reading = (field: () => HTMLElement) => () => Number(field().getAttribute('aria-valuenow'));
 
-const numeric = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; max: number; step: number; valid: number; outOfRange: number; bigStep?: number}) =>
+const numeric = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; max: number; step: number; valid: number; outOfRange: number; bigStep?: number; integer?: boolean}) =>
     numericFieldBehaviour(`${id} ${labelKey}`, {
         ...bounds, section: 'edit',
         mount: async () => {
@@ -66,7 +66,7 @@ const count = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; ma
         },
     });
 
-numeric('geometric-series', 'series_terms_label', {min: SERIES_TERMS_MIN, max: SERIES_TERMS_MAX, step: 1, valid: 20, outOfRange: SERIES_TERMS_MAX + 1});
+numeric('geometric-series', 'series_terms_label', {min: SERIES_TERMS_MIN, max: SERIES_TERMS_MAX, step: 1, valid: 20, outOfRange: SERIES_TERMS_MAX + 1, integer: true});
 numeric('accumulation', 'accumulation_a_label', {min: ACCUMULATION_BOUND_MIN, max: ACCUMULATION_BOUND_MAX, step: 0.1, valid: -3, outOfRange: ACCUMULATION_BOUND_MAX + 1});
 
 slider('geometric-series', 'series_a_label', {min: SERIES_A_MIN, max: SERIES_A_MAX, step: 0.1, valid: 2, outOfRange: SERIES_A_MAX + 1});

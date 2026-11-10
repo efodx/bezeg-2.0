@@ -262,15 +262,28 @@ describe('decimal entry', () => {
         expect(input).toHaveAttribute('aria-valuenow', '2');
     });
 
-    test('integer fields reject a non-integer with the range hint and accept whole numbers', () => {
+    test('integer fields reject a non-integer with a whole-number range hint and accept whole numbers', () => {
         const onChange = vi.fn();
         render(<NumberInput label="n" value={3} min={1} max={9} integer decimals={0} onChange={onChange}/>);
         const input = screen.getByLabelText('n');
         enterNumber(input, '2,5');
         expect(onChange).not.toHaveBeenCalled();
-        expect(hint()).toHaveTextContent('Vnesi vrednost med 1 in 9.');
+        expect(hint()).toHaveTextContent('Vnesi celo število med 1 in 9.');
+        enterNumber(input, '12');
+        expect(hint()).toHaveTextContent('Vnesi celo število med 1 in 9.');
         enterNumber(input, '5');
         expect(onChange).toHaveBeenLastCalledWith(5);
+    });
+
+    test('the whole-number range hint is localized', () => {
+        setLanguage('en');
+        try {
+            render(<NumberInput label="n" value={3} min={1} max={9} integer decimals={0} onChange={vi.fn()}/>);
+            enterNumber(screen.getByLabelText('n'), '2.5');
+            expect(hint()).toHaveTextContent('Enter a whole number between 1 and 9.');
+        } finally {
+            setLanguage('sl');
+        }
     });
 });
 

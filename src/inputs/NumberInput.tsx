@@ -182,7 +182,7 @@ export function NumberInput(props: NumberInputProps) {
     const hintText = unavailableReason !== undefined ? (props.reasonShownElsewhere ? undefined : unavailableReason)
         : hint === "snapped" && snappedTo !== undefined ? t("number_snapped_hint", {value0: formatNumber(snappedTo, language, Math.max(decimals, grid !== undefined && grid > 0 ? gridDecimals(grid) : 0))})
         : (hint === "range" || hint === "invalid") && min !== undefined && max !== undefined
-        ? t("number_range_hint", {value0: formatNumber(min, language), value1: formatNumber(max, language)})
+        ? t(integer ? "number_integer_range_hint" : "number_range_hint", {value0: formatNumber(min, language), value1: formatNumber(max, language)})
         : hint === "invalid" ? t("number_rejected_hint")
         : hint ? props.rejectedHint ?? t("number_rejected_hint") : undefined;
     return <div className={props.compact ? "number-input number-input-compact" : "number-input"}>

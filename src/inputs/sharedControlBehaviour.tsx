@@ -54,6 +54,8 @@ export interface NumericSpec {
     valid: number;
     /** A value to type that must be refused (outside [min, max]). */
     outOfRange: number;
+    /** The field accepts whole numbers only, so its range refusal names them. */
+    integer?: boolean;
     /**
      * A reported finding the control does not meet yet. The case then runs with `it.fails`, so the suite stays green and
      * fails the moment the finding is fixed (remove the entry then).
@@ -109,8 +111,8 @@ function registerPlacement(spec: {section?: 'edit' | 'display'; mount(): Anchor 
     });
 }
 
-const rangeHint = (min: number, max: number, language: Language) =>
-    t('number_range_hint', {value0: formatNumber(min, language), value1: formatNumber(max, language)});
+const rangeHint = (min: number, max: number, language: Language, integer = false) =>
+    t(integer ? 'number_integer_range_hint' : 'number_range_hint', {value0: formatNumber(min, language), value1: formatNumber(max, language)});
 
 /** The typed-field cases shared by the numeric field and the slider's number field. */
 function typedFieldCases(spec: NumericSpec | SliderSpec) {
@@ -142,7 +144,7 @@ function typedFieldCases(spec: NumericSpec | SliderSpec) {
         const reason = handle.refusalText ? handle.refusalText() : hintOf(handle.field);
         expect(reason).toBeTruthy();
         if (!handle.refusalText) {
-            expect(reason).toBe(rangeHint(spec.min, spec.max, language));
+            expect(reason).toBe(rangeHint(spec.min, spec.max, language, spec.integer));
             expect(handle.field).toHaveAttribute('aria-invalid', 'true');
         }
     });
@@ -486,7 +488,7 @@ export interface PointCollectionSpec {
     min: number;
     max: number;
     /** Typed entry: the coordinate range, a valid value inside it with room for one step up, and a value outside it. */
-    entry?: {min: number; max: number; step: number; valid: number; outOfRange: number};
+    entry?: {min: number; max: number; step: number; valid: number; outOfRange: number; integer?: boolean};
 }
 
 /**
@@ -579,7 +581,7 @@ export function pointCollectionBehaviour(name: string, spec: PointCollectionSpec
                 await flush();
                 expect(handle.read()).toBe(start);
                 expect(handle.lastAddedAt?.()).toBeUndefined();
-                expect(hintOf(field)).toBe(rangeHint(entry.min, entry.max, language));
+                expect(hintOf(field)).toBe(rangeHint(entry.min, entry.max, language, entry.integer));
                 expect(field).toHaveAttribute('aria-invalid', 'true');
                 expect(modelOf(field)).toBeNull();
             });

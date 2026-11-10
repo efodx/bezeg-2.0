@@ -41,7 +41,7 @@ const named = (graph: Observed, name: string) => (graph.liveBoard().objectsList 
 const WIDE: [number, number, number, number] = [-50, 50, 50, -50];
 
 pointListBehaviour('PointSet point list', {
-    section: 'edit', min: -GRID_COORD_LIMIT, max: GRID_COORD_LIMIT, step: 1, valid: 7, outOfRange: GRID_COORD_LIMIT + 1,
+    section: 'edit', min: -GRID_COORD_LIMIT, max: GRID_COORD_LIMIT, step: 1, valid: 7, outOfRange: GRID_COORD_LIMIT + 1, integer: true,
     mount: async () => {
         const graph = new Observed();
         mount(graph);
@@ -54,7 +54,7 @@ pointListBehaviour('PointSet point list', {
 
 pointCollectionBehaviour('PointSet point collection', {
     section: 'edit', min: 0, max: 6,
-    entry: {min: -GRID_COORD_LIMIT, max: GRID_COORD_LIMIT, step: 1, valid: 7, outOfRange: GRID_COORD_LIMIT + 1},
+    entry: {min: -GRID_COORD_LIMIT, max: GRID_COORD_LIMIT, step: 1, valid: 7, outOfRange: GRID_COORD_LIMIT + 1, integer: true},
     mount: async () => {
         const graph = new Observed({pointLimit: 6});
         mount(graph);

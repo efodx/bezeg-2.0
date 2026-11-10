@@ -23,7 +23,7 @@ const spin = () => screen.getByRole('spinbutton');
 const model = () => Number(spin().getAttribute('aria-valuenow'));
 
 numericFieldBehaviour('NumberInput', {
-    min: 0, max: 100, step: 1, valid: 50, outOfRange: 101,
+    min: 0, max: 100, step: 1, valid: 50, outOfRange: 101, integer: true,
     mount: () => {
         const {reset} = bare(({value, set}) => <NumberInput label="n" value={value} min={0} max={100} step={1} decimals={0} integer onChange={set}/>, 5);
         return {get field() { return spin(); }, read: model, reset};

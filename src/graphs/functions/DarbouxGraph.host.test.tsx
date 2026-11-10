@@ -72,7 +72,7 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(graph.modelNow()).toMatchObject({n: 64});
     act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
-    expect(screen.getByText('Vnesi vrednost med 1 in 128.')).toBeInTheDocument();
+    expect(screen.getByText('Vnesi celo število med 1 in 128.')).toBeInTheDocument();
 
     // at the limit Refine is an aria-disabled button that points at its explanation
     act(() => { fireEvent.click(refine()); });

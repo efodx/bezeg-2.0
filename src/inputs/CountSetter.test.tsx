@@ -66,11 +66,11 @@ test('with onSet the middle is an integer field: whole numbers commit, non-integ
     fireEvent.input(field, {target: {value: '2,5'}, inputType: 'insertText'});
     fireEvent.keyDown(field, {key: 'Enter'});
     expect(onSet).toHaveBeenCalledTimes(1);
-    expect(document.querySelector('.number-input-hint')).toHaveTextContent('Vnesi vrednost med 0 in 5.');
+    expect(document.querySelector('.number-input-hint')).toHaveTextContent('Vnesi celo število med 0 in 5.');
     fireEvent.input(field, {target: {value: '9'}, inputType: 'insertText'});
     fireEvent.keyDown(field, {key: 'Enter'});
     expect(onSet).toHaveBeenCalledTimes(1);
-    expect(document.querySelector('.number-input-hint')).toHaveTextContent('Vnesi vrednost med 0 in 5.');
+    expect(document.querySelector('.number-input-hint')).toHaveTextContent('Vnesi celo število med 0 in 5.');
 });
 
 test('without onSet the value is read-only and shown as an integer', () => {

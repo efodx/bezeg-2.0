@@ -553,6 +553,7 @@ export const sl = {
     "inspector_reveals": "Razkritja",
     "function_legend": "Legenda",
     "number_range_hint": "Vnesi vrednost med {value0} in {value1}.",
+    "number_integer_range_hint": "Vnesi celo število med {value0} in {value1}.",
     "polynomial_degree_label": "Stopnja polinomov",
     "number_field_label": "{value0}, vrednost",
     "number_rejected_hint": "Te vrednosti ni mogoče uporabiti.",
