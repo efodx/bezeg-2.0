@@ -9,7 +9,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Circle construction kernel](01-construction-kernel.md) | 0 | F1 | none | — | done |
-| [02 State model and construction graph](02-construction-graph.md) | A, B | F2a | none | 01 | planned |
+| [02 State model and construction graph](02-construction-graph.md) | A, B | F2a | none | 01 | done |
 | [03 Release batches A–B](03-release-batches.md) | A, B | F2b–F6 | Controls step 7 | 02 | planned |
 
 ## Slovenian terms (F0 decision)
@@ -26,3 +26,4 @@ These come from the spec's table, checked against `sl.ts` (which has *tangenta*,
 | common tangent (external / internal) | skupna tangenta (zunanja / notranja) | Transparent wording |
 | centre of similarity | središče raztega | PIK §4.6 *središčni razteg* |
 | chord of contact | tetiva dotikališč | Built on the existing *tetiva*; glossed on first use |
+| division point (internal / external) | delilna točka (notranja / zunanja) | Transparent standard wording from *delilno razmerje*; no source consulted, no web access in the run that chose it |
