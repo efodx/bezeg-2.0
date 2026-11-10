@@ -27,7 +27,7 @@ test('every compgeo trace readout that a point drag can change is settled', () =
     for (const file of ['BentleyOttmann', 'BezierHulls', 'Delaunay', 'EarClipping', 'IntervalSweep', 'MonotonePartition', 'MonotoneTriangulation', 'Voronoi', 'Triangulation']) {
         const source = readFileSync(join(dir, `${file}Controls.tsx`), 'utf8');
         const start = source.indexOf('useStatusReadout(');
-        const end = source.indexOf(';\n', start);
+        const end = start + source.slice(start).search(/;\r?\n/);
         expect(source.slice(start, end), file).toMatch(/, true\)$/);
     }
 });
