@@ -1,0 +1,3 @@
+# F1 circle kernel math review
+Unit run green (just unit src/compgeo/circleConstructions). Derivations checked: chord (P-O).(X-O)=r2; axis 2e.X = |O2|^2-|O1|^2-r2_2+r2_1; Cramer centre; Apollonius centre (mB-A)/(m-1), rho2=m|AB|^2/(m-1)^2, internal (A+kB)/(1+k), external A+e k/(k-1); homothety centres (r1O2-r2O1)/(r1-r2), (r2O1+r1O2)/(r1+r2); none-case sign of k separates 4 (d>r1+r2 => k>2r1r2) from 0 (k<-2r1r2).
+CG4 wording: spec line 104 "tangent segments sqrt(100-4), sqrt(100-16)" = |T1T2| between contacts (sqrt(d^2-(r1-r2)^2), sqrt(d^2-(r1+r2)^2)); tangent length from X to c1 is sqrt(225-9)=sqrt216, from I sqrt(56.25-9)=sqrt47.25. Test lines 316-318 use contact distance (sqrt96, sqrt84).
