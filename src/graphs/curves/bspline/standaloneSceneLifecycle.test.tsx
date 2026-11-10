@@ -5,7 +5,7 @@
  * elements and language subscription go inactive; that the new scene responds; same-tick scene sequences with rollback;
  * and the NURBS difference between an ordinary same-shape commit and a replacement with different knots.
  *
- * `test.fails` marks a known defect (a released scene's drag handler is not inert); flip it to `test` when the handler is guarded.
+ * A released scene's drag handler is inert (the defect pinned in slice 1 is fixed).
  */
 import {act} from '@testing-library/react';
 import {afterEach, beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
@@ -271,8 +271,27 @@ describe.each(SUBJECTS)('$name standalone scene lifecycle', subject => {
         watch.stop();
     });
 
-    // Pinned defect for step 8 slice 2 (owned standalone scene slot): flip to `test` once a released scene's handlers are inert.
-    test.fails('KNOWN DEFECT: after a replacement a released scene\'s drag handler is inert (it currently writes empty points and throws)', () => {
+    test('a construction failure releases what the half-built scene acquired and publishes no scene', () => {
+        const checkpoint = graph.getLessonCapabilities().captureState();
+        importStructural();
+        const board = boardOf(graph);
+        const created: unknown[] = [];
+        const create = board.create.bind(board);
+        let calls = 0;
+        vi.spyOn(board, 'create').mockImplementation(((...args: Parameters<typeof create>) => {
+            // Fail late enough that the curve layer and some scene elements already exist.
+            if (++calls === 4) throw new Error('board refused an element');
+            const element = create(...args);
+            created.push(element);
+            return element;
+        }) as typeof board.create);
+        expect(() => act(() => graph.getLessonCapabilities().restoreState(checkpoint))).toThrow('board refused an element');
+        expect(created.length).toBeGreaterThan(0);
+        expect((graph as unknown as {scene?: unknown}).scene).toBeUndefined();
+        expect(created.filter(element => board.objectsList.includes(element as JXG.GeometryElement))).toEqual([]);
+    });
+
+    test('after a replacement a released scene\'s drag handler is inert (it neither throws nor writes the state)', () => {
         importStructural();
         const old = [...sceneOf(graph).curve.getJxgPoints()];
         act(() => internals(graph).importPresetData(subject.sameShape(defaultData)));

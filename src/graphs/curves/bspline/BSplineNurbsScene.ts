@@ -71,8 +71,11 @@ export class BSplineNurbsScene {
         this.marker = this.create<Point>('point', [() => this.settings.marker()?.[0] ?? NaN, () => this.settings.marker()?.[1] ?? NaN], {
             ...quiet, size: 4, strokeColor: GraphPalette.constructionAccent, fillColor: GraphPalette.constructionAccent,
         });
-        this.curve.getJxgPoints().forEach(point => point.on('drag', () => this.settings.onPointsDrag(
-            this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint))));
+        // A released scene's handler is inert: its points are gone and must never write the state.
+        this.curve.getJxgPoints().forEach(point => point.on('drag', () => {
+            if (this.disposed) return;
+            this.settings.onPointsDrag(this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint));
+        }));
     }
 
     /** Brings the model curve in line with the state (a typed weight, a Preset that kept the shape). */

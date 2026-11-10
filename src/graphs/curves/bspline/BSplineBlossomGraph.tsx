@@ -9,6 +9,7 @@ import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import {BSplineBlossomScene} from "./BSplineBlossomScene";
 import {BSplinePointList} from "./BSplinePointList";
 import {isClamped, rebuiltKnots} from "./bsplineBasisModel";
@@ -44,9 +45,7 @@ const initialData = (): Omit<BSplineBlossomState, 'initialized'> => {
  * knots, points, segment, arguments) is the only copy of the data; the owned {@link BSplineBlossomScene} reads it lazily. It offers
  * degree 2 and 3 only. Its Preset collection is `bsplinePresetCollection`; a degree other than 2 or 3 is refused on import.
  */
-export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplinePresetData> {
-    private scene?: BSplineBlossomScene;
-
+export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplinePresetData, BSplineBlossomScene> {
     override getInitialState(): BSplineBlossomState {
         return {initialized: false, ...initialData()};
     }
@@ -91,7 +90,7 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         assertBlossomCurve(data);
         const points = data.points.map(point => [point[0], point[1]] as const);
         this.setState(this.freshChoice(data.degree, [...data.knots], points));
-        this.ensureScene();
+        this.rebuildOwnedScene();
     }
 
     /**
@@ -108,50 +107,41 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         return [-1.5, 3.5, 5.5, -1.5];
     }
 
+    /** The host builds the declared scene right after this; nothing else is initialized. */
     override initialize() {
-        this.ensureScene();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new BSplineBlossomScene({
-            board: this.board,
-            degree: () => this.state.degree,
-            knots: () => this.state.knots,
-            points: () => this.state.points,
-            segment: () => this.state.segment,
-            args: () => this.state.args,
-            showBezier: () => this.state.showBezier,
-            fontSize: () => this.displaySettings.fontSize,
-            onPointsDrag: points => this.setState({points}),
-        });
+    /** The scene reads the state lazily; its knots and points are synchronized, a changed degree or point count rebuilds it. */
+    protected override sceneDeclaration(): SceneDeclaration<BSplineBlossomScene> {
+        return {
+            create: board => constructOrSweep(board, () => new BSplineBlossomScene({
+                board,
+                degree: () => this.state.degree,
+                knots: () => this.state.knots,
+                points: () => this.state.points,
+                segment: () => this.state.segment,
+                args: () => this.state.args,
+                showBezier: () => this.state.showBezier,
+                fontSize: () => this.displaySettings.fontSize,
+                onPointsDrag: points => this.setState({points}),
+            })),
+            sync: scene => {
+                const {degree, points} = this.state;
+                if (!scene.fits(degree, points.length)) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
-    }
-
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        this.scene?.sync();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
+    /** Test seam: the characterization tests read the live scene through it. */
+    private get scene(): BSplineBlossomScene | undefined {
+        return this.ownedScene;
     }
 
     protected override onStateChange(prevState: Readonly<BSplineBlossomState>) {
         if (prevState === this.state || !this.board) return;
-        const {state} = this;
-        if (this.scene && !this.scene.fits(state.degree, state.points.length)) this.ensureScene();
-        else this.scene?.sync();
         this.boardUpdate();
     }
 
@@ -210,7 +200,7 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
     /** Back to the default curve, segment, arguments and Bezier points. */
     resetToDefaults() {
         this.setState(initialData());
-        this.ensureScene();
+        this.rebuildOwnedScene();
     }
 
     // ---- Lesson actions ----------------------------------------------------------------------------------------------

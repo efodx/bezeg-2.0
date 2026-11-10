@@ -25,6 +25,7 @@ import type {FigureCaptureTarget} from "./export/FigureCapture";
 import {FigureExportScope} from "./export/FigureExportOperation";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
+import {SceneSlot, type SceneDeclaration} from "./OwnedScene";
 
 
 function cloneLessonValue<T>(value: T): T {
@@ -97,7 +98,7 @@ export interface GraphWorkspacePanels {
  * `S` is the scene state; `D` is the Preset data of the graph's family (curve entries, a function model), which the
  * graph's Preset collection checks whenever stored data enters the graph.
  */
-abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
+abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown> {
     private sceneStore?: SceneStore<S>;
     private presetServiceInstance?: PresetService;
     private lessonActionRegistry?: LessonActionRegistry;
@@ -128,6 +129,28 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
+
+    /** The standalone scene slot of the current session (see {@link sceneDeclaration}); replaced on every mount. */
+    private sceneSlot?: SceneSlot<Scene>;
+
+    /**
+     * A graph that owns one standalone scene on its board declares it here. The host then builds it in lifecycle work
+     * (mount, figure entry), synchronizes or rebuilds it after committed state changes and replacements, and releases it
+     * on figure disposal and session disposal. Called once per mount.
+     */
+    protected sceneDeclaration(): SceneDeclaration<Scene> | undefined {
+        return undefined;
+    }
+
+    /** The live standalone scene, or undefined before it is built or after it was released. */
+    protected get ownedScene(): Scene | undefined {
+        return this.sceneSlot?.current;
+    }
+
+    /** Releases the live scene and builds a new one from the current state. */
+    protected rebuildOwnedScene(): void {
+        this.sceneSlot?.rebuild();
+    }
 
     /**
      * The element a figure export captures and locks against input while a batch runs, or undefined when this graph has
@@ -213,7 +236,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                 failure ??= {error};
             }
         };
-        if (previous !== undefined) run(() => this.onStateChange(previous));
+        if (previous !== undefined) {
+            run(() => {
+                if (previous !== this.state) this.sceneSlot?.reconcile();
+                this.onStateChange(previous);
+            });
+        }
         for (const callback of callbacks) run(callback);
         if (failure) throw failure.error;
     }
@@ -611,7 +639,10 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     /** The adapter the replacement module drives; `session` guards the figure path's board resume. */
     private sceneReplacementHost(session?: GraphSession): SceneReplacementHost<S, TransientState> {
         return {
-            disposeScene: () => this.disposeFigureScene(),
+            disposeScene: () => {
+                this.disposeFigureScene();
+                this.sceneSlot?.release();
+            },
             suspendBoard: () => { if (this.hasBoard) this.board.suspendUpdate(); },
             resumeBoard: () => {
                 if ((!session || (this.graphSession === session && session.isAlive)) && this.hasBoard) this.board.unsuspendUpdate();
@@ -619,8 +650,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             replaceState: state => this.replaceState(state),
             replaceSceneState: (next, afterCommit) => this.replaceSceneState(next, afterCommit),
             restoreTransientState: saved => this.restoreTransientState(saved),
-            initialize: () => this.initialize(),
-            syncReplacedScene: () => this.syncReplacedScene(),
+            initialize: () => {
+                this.initialize();
+                this.sceneSlot?.rebuild();
+            },
+            syncReplacedScene: () => {
+                this.syncReplacedScene();
+                this.sceneSlot?.reconcile();
+            },
             bumpWorkspaceRevision: () => { this.workspaceRevision++; },
         };
     }
@@ -816,6 +853,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         this.board.setBoundingBox([left + dx, top + dy, right + dx, bottom + dy], false);
     }
 
+    /** Graph-specific mount/figure-entry work; a declared standalone scene is built by the host right after it. */
     abstract initialize(): void;
 
     /**
@@ -832,6 +870,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             this.initialFigureGraphState = cloneLessonValue(this.state);
             // JXG.Options.text.display = 'internal';
             this.createMainView(session, container);
+            const declaration = this.hasBoard ? this.sceneDeclaration() : undefined;
+            this.sceneSlot = declaration ? new SceneSlot(session, this.board, declaration) : undefined;
 
             this.setBaseState({initialized: true});
             const stored = this.presetService?.loadPresets();

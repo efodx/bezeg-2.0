@@ -11,6 +11,7 @@ import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BSplinePresetData, bsplinePresetCollection, weightsRejection} from "./bsplinePresetCollection";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import {BSplineNurbsScene} from "./BSplineNurbsScene";
 import {BSplinePointList} from "./BSplinePointList";
 import {assertDrawableCurve, drawableRejection, ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
@@ -61,9 +62,7 @@ export const errorText = (value: number): string => formatScientific(value, curr
  * inspector. The scene state is the only copy of the data; the owned {@link BSplineNurbsScene} reads it lazily. Lesson L5 drives it through `nurbs-circle` scene actions. Its Preset
  * collection is `bsplinePresetCollection` (weights round-trip; a stored curve without weights loads with unit weights).
  */
-export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePresetData> {
-    private scene?: BSplineNurbsScene;
-
+export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePresetData, BSplineNurbsScene> {
     override getInitialState(): BSplineNurbsState {
         return {initialized: false, ...initialData()};
     }
@@ -134,54 +133,40 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         return [-2, 2, 2, -2];
     }
 
+    /** The host builds the declared scene right after this; nothing else is initialized. */
     override initialize() {
-        this.ensureScene();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new BSplineNurbsScene({
-            board: this.board,
-            degree: () => this.state.degree,
-            knots: () => this.state.knots,
-            points: () => this.state.points,
-            weights: () => this.state.weights,
-            showCircle: () => this.state.showCircle,
-            marker: () => this.markerPoint(),
-            onPointsDrag: points => this.setState({points}),
-        });
+    /** `sync` takes points and weights only: another degree, knots or point count rebuilds the scene (also on import and checkpoint restore). */
+    protected override sceneDeclaration(): SceneDeclaration<BSplineNurbsScene> {
+        return {
+            create: board => constructOrSweep(board, () => new BSplineNurbsScene({
+                board,
+                degree: () => this.state.degree,
+                knots: () => this.state.knots,
+                points: () => this.state.points,
+                weights: () => this.state.weights,
+                showCircle: () => this.state.showCircle,
+                marker: () => this.markerPoint(),
+                onPointsDrag: points => this.setState({points}),
+            })),
+            sync: scene => {
+                const {degree, knots, points} = this.state;
+                if (!scene.fits(degree, knots, points.length)) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
-    }
-
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        this.syncScene();
-    }
-
-    /** Shows the state on the board: a scene that cannot show it by `sync` (other degree, knots or point count) is rebuilt. */
-    private syncScene() {
-        const {degree, knots, points} = this.state;
-        if (this.scene && !this.scene.fits(degree, knots, points.length)) this.ensureScene();
-        else this.scene?.sync();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
+    /** Test seam: the characterization tests read the live scene through it. */
+    private get scene(): BSplineNurbsScene | undefined {
+        return this.ownedScene;
     }
 
     protected override onStateChange(prevState: Readonly<BSplineNurbsState>) {
         if (prevState === this.state || !this.board) return;
-        this.syncScene();
         this.boardUpdate();
     }
 
