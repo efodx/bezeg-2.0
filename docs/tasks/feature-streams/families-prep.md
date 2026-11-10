@@ -55,6 +55,6 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | 12 | Complex maps continued | [complex-maps-lessons.md](../../specs/complex-maps-lessons.md) Batches B–C (M3–M5) already specified; add de Moivre and Euler's formula as a batch there | spec amendment, F0 task files, F1 (Möbius and sampled-image kernels if missing) | spec amendment accepted (Batch D: M6 de Moivre, M7 Euler); Möbius and sampled-image kernels already exist; F0 done ([tasks](../complex-maps/README.md), ADR 0058) |
 | 13 | Phase portraits and dynamics (E5) | [phase-portraits-lessons.md](../../specs/phase-portraits-lessons.md) | spec, F0, F1 (RK4, trace–determinant classification, bifurcation sampling) | spec accepted; F0 done ([tasks](../phase-portraits/README.md), ADR 0054); F1 task 01 done |
 | 14 | Waves, beats and sampling | [waves-sampling-lessons.md](../../specs/waves-sampling-lessons.md) | spec, F0, F1 (superposition, sampler, alias frequency) | spec accepted; F0 done ([tasks](../waves/README.md), ADR 0055); F1 done |
-| 15 | Mechanical curves (E10) | [mechanical-curves-lessons.md](../../specs/mechanical-curves-lessons.md) | spec, F0, F1 (descent-time integrator with the endpoint substitution) | spec accepted; F0 done ([tasks](../mechanical-curves/README.md), ADR 0056) |
+| 15 | Mechanical curves (E10) | [mechanical-curves-lessons.md](../../specs/mechanical-curves-lessons.md) | spec, F0, F1 (descent-time integrator with the endpoint substitution) | spec accepted; F0 done ([tasks](../mechanical-curves/README.md), ADR 0056); F1 done |
 
 ## Notes
