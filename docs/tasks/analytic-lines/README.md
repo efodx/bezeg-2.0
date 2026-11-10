@@ -8,7 +8,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Line kernel](01-line-kernel.md) | 0 | F1 | none | — | planned |
+| [01 Line kernel](01-line-kernel.md) | 0 | F1 | none | — | done |
 | [02 State model and line graph](02-line-graph.md) | A–C | F2a | none | 01 | planned |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 02 | planned |
 
