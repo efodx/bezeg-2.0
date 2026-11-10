@@ -52,20 +52,24 @@ export function clampOffset(candidate: DragOffset, base: Box, bounds: Box): Drag
     };
 }
 
-function measureGeometry(bounds: HTMLElement | null, element: HTMLElement | null, offset: DragOffset) {
-    if (!bounds || !element) return undefined;
-    const graph = measure(bounds);
-    const box = measure(element);
+/**
+ * The element's untranslated box and the box it may be dragged within. The bounds are the visible window,
+ * not the graph, so a lesson card can be parked on the inspector or page margins; `clampOffset` still keeps
+ * its top-left grip on screen when the card is larger than the window.
+ */
+export function computeGeometry(graph: Box, box: Box, offset: DragOffset, viewport: {width: number; height: number}) {
     // Unlaid-out hosts (including tests without layout) report empty boxes; leave the offset untouched.
     if (graph.right <= graph.left || box.right <= box.left) return undefined;
-    // A graph taller than the window must not let the element be dropped below the fold.
-    const visible = {left: Math.max(graph.left, 0), top: Math.max(graph.top, 0), right: Math.min(graph.right, window.innerWidth), bottom: Math.min(graph.bottom, window.innerHeight)};
-    const usable = visible.right > visible.left && visible.bottom > visible.top ? visible : graph;
-    return {base: untranslated(box, offset), bounds: usable};
+    return {base: untranslated(box, offset), bounds: {left: 0, top: 0, right: viewport.width, bottom: viewport.height}};
+}
+
+function measureGeometry(bounds: HTMLElement | null, element: HTMLElement | null, offset: DragOffset) {
+    if (!bounds || !element) return undefined;
+    return computeGeometry(measure(bounds), measure(element), offset, {width: window.innerWidth, height: window.innerHeight});
 }
 
 /**
- * Lets a floating overlay be moved within a bounding element by pointer drag or arrow keys.
+ * Lets a floating overlay be moved within the window by pointer drag or arrow keys.
  * The offset is applied by the caller as a translate, so the element's CSS placement stays its home;
  * the offset survives the element unmounting and returns to the home placement when `resetKey` changes.
  */
@@ -109,9 +113,15 @@ export function useDraggableOffset(boundsRef: RefObject<HTMLElement | null>, ele
             offsetRef.current = next;
             setHeld({key: resetKey, offset: next});
         });
-        if (boundsRef.current) observer.observe(boundsRef.current);
-        if (elementRef.current) observer.observe(elementRef.current);
-        return () => observer.disconnect();
+        const observeAll = () => {
+            if (boundsRef.current) observer.observe(boundsRef.current);
+            if (elementRef.current) observer.observe(elementRef.current);
+        };
+        observeAll();
+        // The bounds are the window: re-observing delivers a fresh notification, which re-clamps after a window resize.
+        const onResize = () => { observer.disconnect(); observeAll(); };
+        window.addEventListener('resize', onResize);
+        return () => { window.removeEventListener('resize', onResize); observer.disconnect(); };
     }, [present, boundsRef, elementRef, resetKey]);
 
     const geometry = () => measureGeometry(boundsRef.current, elementRef.current, offsetRef.current);

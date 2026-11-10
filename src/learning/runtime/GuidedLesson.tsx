@@ -68,6 +68,7 @@ export function GuidedLesson(props: {
     const [exitRequested, setExitRequested] = useState(false);
     const [exitError, setExitError] = useState(false);
     const layerRef = useRef<HTMLDivElement>(null);
+    const navigationFocus = useRef<'back' | 'next'>();
     const lessonRef = useRef<HTMLElement>(null);
     const completionHeadingRef = useRef<HTMLHeadingElement>(null);
     const compactTabRef = useRef<HTMLButtonElement>(null);
@@ -376,7 +377,13 @@ export function GuidedLesson(props: {
         if (lessonRef.current && (snapshot.status === 'complete' || window.matchMedia?.('(max-height: 520px)').matches)) {
             lessonRef.current.scrollTop = 0;
         }
-        (completionHeadingRef.current ?? lessonRef.current)?.focus({preventScroll: true});
+        // Activating Next or Back keeps focus on that control while it stays enabled, so repeated Enter keeps
+        // advancing; the change itself is announced by the role=status progress region, not by a focus move.
+        const navigated = navigationFocus.current;
+        navigationFocus.current = undefined;
+        const navigationButton = navigated && lessonRef.current?.querySelector<HTMLButtonElement>(`.guided-lesson-nav-${navigated}`);
+        if (navigationButton && !navigationButton.disabled) navigationButton.focus({preventScroll: true});
+        else (completionHeadingRef.current ?? lessonRef.current)?.focus({preventScroll: true});
         // Align a newly entered lesson once. Even a fractionally clipped navigation button can
         // be clicked; realigning the page after that click would move it away from the pointer.
         if (enteringLesson && lessonRef.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
@@ -530,10 +537,10 @@ export function GuidedLesson(props: {
             </div>
         </div>
         <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => { navigationFocus.current = 'back'; refresh(() => session.back()); }}>
                 {t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => refresh(() => session.next())}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => { navigationFocus.current = 'next'; refresh(() => session.next()); }}>
                 {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
             </button>
         </nav>

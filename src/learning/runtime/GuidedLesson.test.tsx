@@ -736,6 +736,9 @@ test('the panel and the compact tab can each be moved over the graph without tri
         const match = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec((element as HTMLElement).style.transform);
         return DOMRect.fromRect({x: left + Number(match?.[1] ?? 0), y: top + Number(match?.[2] ?? 0), width, height});
     };
+    // Drag bounds are the window; make it as large as the graph layer so the expected offsets stay readable.
+    const previousSize = {width: window.innerWidth, height: window.innerHeight};
+    Object.assign(window, {innerWidth: 1000, innerHeight: 600});
     const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
         if (this.classList.contains('guided-lesson-layer')) return DOMRect.fromRect({x: 0, y: 0, width: 1000, height: 600});
         if (this.classList.contains('guided-lesson')) return translated(this, 100, 20, 500, 300);
@@ -761,7 +764,7 @@ test('the panel and the compact tab can each be moved over the graph without tri
         fireEvent.pointerUp(heading, {pointerId: 1, isPrimary: true, clientX: 320, clientY: 90});
         expect(panel().style.transform).toBe('translate(120px, 60px)');
 
-        // Dragging far past the graph stops just inside its edge.
+        // Dragging far past the window stops just inside its edge.
         fireEvent.pointerDown(heading, {pointerId: 2, isPrimary: true, button: 0, clientX: 320, clientY: 90});
         fireEvent.pointerMove(heading, {pointerId: 2, isPrimary: true, clientX: 5000, clientY: 90});
         fireEvent.pointerUp(heading, {pointerId: 2, isPrimary: true, clientX: 5000, clientY: 90});
@@ -802,6 +805,7 @@ test('the panel and the compact tab can each be moved over the graph without tri
         expect(panel().style.transform).toBe('translate(394px, 244px)');
         expect(caps.apply).not.toHaveBeenCalled();
     } finally {
+        Object.assign(window, {innerWidth: previousSize.width, innerHeight: previousSize.height});
         rect.mockRestore();
         vi.unstubAllGlobals();
         act(() => setLanguage('sl'));
@@ -862,4 +866,39 @@ describe('expected observations disclosure', () => {
             act(() => setLanguage('sl'));
         }
     });
+});
+
+test('repeated Next keeps focus on Next, and completion moves focus to the completion heading', () => {
+    vi.useFakeTimers();
+    setLanguage('sl');
+    try {
+        render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const next = screen.getByRole('button', {name: 'Naprej: naslednji okvir'});
+        next.focus();
+        fireEvent.click(next);
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 2 od 3');
+        expect(next).toHaveFocus();
+        fireEvent.click(next);
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 3 od 3');
+        expect(screen.getByRole('button', {name: 'Končaj in raziskuj graf'})).toHaveFocus();
+        // Back stays focused too, until it is disabled at the first frame.
+        const back = screen.getByRole('button', {name: 'Nazaj: prejšnji okvir'});
+        back.focus();
+        fireEvent.click(back);
+        expect(back).toHaveFocus();
+        fireEvent.click(back);
+        expect(back).toBeDisabled();
+        expect(back).not.toHaveFocus();
+        expect(document.activeElement).toBe(document.querySelector('.guided-lesson'));
+        const finish = screen.getByRole('button', {name: 'Naprej: naslednji okvir'});
+        fireEvent.click(finish);
+        fireEvent.click(finish);
+        fireEvent.click(screen.getByRole('button', {name: 'Končaj in raziskuj graf'}));
+        act(() => vi.advanceTimersByTime(250));
+        expect(document.querySelector('.guided-lesson-complete')).toBeInTheDocument();
+        expect(document.activeElement).toBe(document.querySelector('.guided-lesson-completion-title'));
+    } finally {
+        vi.useRealTimers();
+        act(() => setLanguage('sl'));
+    }
 });
