@@ -2728,3 +2728,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Opening each brief with the earlier review findings cut repeat findings in engineering, but the UI review still found something new on every graph.
   - Graph slices take two or three worker contexts: model, then graph, then verification. Brief each successor from the note.
   - With concurrent slices sharing the locale files, a hunk filter plus `git apply --cached` kept each commit to its own block.
+## 2026-11-10: controls step 7 closeout, steps 8, 9 and 5a, two open items (controls stream, handler)
+
+- **Integrated review earned its place:** the step 7 closeout review (Sonnet) found a regression all four per-slice reviews missed: slice 3 sent host Reset through the persisted default, so NURBS, Insertion and Extraction reset to their first example. The slice's own test exercised a contextual reset, not `graph.reset()`. Fixed test-first and published before the closeout smoke.
+- **Pipelining:** up to three workers plus smoke/review; step 8 and step 9 ran in disjoint files beside the step 7 smoke. Merging `origin/master` into the stream branch (not rebasing) gave workers current code with no conflicts. Four publishes, CI green on all reported.
+- **Design-first worker for registration:** a read-only inventory/design pass (step 9) found hidden source-text parsers (`transient-state-scope.cjs`, `smoke-catalog.cjs`, the clip probe) before implementation; the implementation worker then fixed all three.
+- **Partial returns:** two workers and three smokes hit HANDOFF; continuations from notes finished them. Smoke "failures" needed handler reading three times (harness filling a hidden slider, a playback status region counted as a readout, an overlay scrolling with the page by design).
+- **Recheck before fixing (step 5a)** confirmed all three findings on current master; one was decided as no change with a recorded reason.
