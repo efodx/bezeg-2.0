@@ -7,7 +7,7 @@ Scope: new `src/linear/iterate2.ts` and `src/linear/stability2.ts` (including `c
 Acceptance:
 
 1. `orbit(A, v0, n)` has a step cap and an `overflow` result. Its power-method readouts are the angle to the dominant direction, the stretch ratio and \(|\lambda_2/\lambda_1|\). It matches chains of `multiply`, and the closed form where the spec gives one.
-2. `iterationOutcome(A)` returns `dominant`, `equal-moduli`, `rotating`, `scalar` or `defective` from \(\tau\) and \(\Delta\) only. It is exact on snapped entries and checked over a grid of snapped matrices against `classifyEigen`.
+2. `iterationOutcome(A)` returns `dominant`, `equal-moduli`, `rotating`, `scalar` or `defective` from \(\tau\) and \(\Delta\), using the entries only to separate `scalar` from `defective` when \(\tau^2=4\Delta\). It is exact on snapped entries and checked over a grid of snapped matrices against `classifyEigen`.
 3. `discreteStability(A)` returns `inside`, `edge` (with the edge name) or `outside`. `flowStability(A)` is \(\tau<0\wedge\delta>0\). Both are exact. The 2000-matrix stability-triangle check passes against eigenvalue moduli computed independently.
 4. `companion(τ, δ)` has the given trace and determinant.
 5. The L6 and L7 numbers match. The continuous-time type names are not duplicated here.
