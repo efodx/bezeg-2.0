@@ -50,10 +50,10 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | 7 | Kinematics on curves | [kinematics-lessons.md](../../specs/kinematics-lessons.md) | spec, F0, F1 (velocity and acceleration from the curve kernel) | spec accepted |
 | 8 | Solids and volumes | — | spec, F0, F1 (solid meshes, plane section clipping, revolve) | not started |
 | 9 | Recursion and growth models | [recursion-growth-lessons.md](../../specs/recursion-growth-lessons.md) | spec, F0, F1 (cobweb iterator reusing fixed-point playback logic) | spec accepted |
-| 10 | Level sets, gradient and optimization (E9) | — | spec, F0, F1 (marching squares, gradient, LP vertex enumeration) | not started |
+| 10 | Level sets, gradient and optimization (E9) | [level-sets-optimization-lessons.md](../../specs/level-sets-optimization-lessons.md) | spec, F0, F1 (marching squares, gradient, LP vertex enumeration) | spec accepted |
 | 11 | Eigen-directions and iterated maps | [linear-maps-lessons.md](../../specs/linear-maps-lessons.md) Batches B–C (L3–L5) already specified; add the power-method and trace–determinant lessons as a batch there | spec amendment, F0 task files, F1 (any kernel gap) | not started |
 | 12 | Complex maps continued | [complex-maps-lessons.md](../../specs/complex-maps-lessons.md) Batches B–C (M3–M5) already specified; add de Moivre and Euler's formula as a batch there | spec amendment, F0 task files, F1 (Möbius and sampled-image kernels if missing) | not started |
-| 13 | Phase portraits and dynamics (E5) | — | spec, F0, F1 (RK4, trace–determinant classification, bifurcation sampling) | not started |
+| 13 | Phase portraits and dynamics (E5) | [phase-portraits-lessons.md](../../specs/phase-portraits-lessons.md) | spec, F0, F1 (RK4, trace–determinant classification, bifurcation sampling) | spec accepted |
 | 14 | Waves, beats and sampling | [waves-sampling-lessons.md](../../specs/waves-sampling-lessons.md) | spec, F0, F1 (superposition, sampler, alias frequency) | spec accepted |
 | 15 | Mechanical curves (E10) | — | spec, F0, F1 (descent-time integrator with the endpoint substitution) | not started |
 
