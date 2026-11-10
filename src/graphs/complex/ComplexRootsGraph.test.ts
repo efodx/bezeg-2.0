@@ -398,15 +398,17 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
         [{...valid, degree: 1}, 'degree'], [{...valid, degree: 9}, 'degree'], [{...valid, degree: 2.5}, 'degree'], [{...valid, degree: '3'}, 'degree'],
         [{...valid, rootsVisible: 'yes'}, 'visibility'], [{...valid, testVisible: 1}, 'visibility'], [{...valid, wIm: '1'}, 'generic'], [{}, 'generic'], [[], 'generic'],
     ];
+    // Malformed persisted data is refused before anything changes: the live (default) scene stays, no console fallback.
+    other.importPreset({id: 'stored', data: valid});
     for (const [entry] of bad) {
         const checked = complexRootsPresetCollection.check(entry);
         expect('rejection' in checked, JSON.stringify(entry)).toBe(true);
-        other.importPreset({id: 'stored', data: entry});
+        expect(() => other.importPreset({id: 'stored', data: entry}), JSON.stringify(entry)).toThrow(/complex-roots/);
         expect(other.model, JSON.stringify(entry)).toEqual(valid);
         expect(shownRoots(other)).toEqual([]);
         expect(at(points(other)[W_POINT])).toEqual([0, 2]);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
     // the exact localized text of one rejection per kind, in both languages
     expect(renderMessage(rejectionOf({...valid, example: 'cubic'}))).toBe('polje example mora biti eno od: two-i, one-plus-i, negative-real, unity, zero; popravi vrednost v datoteki');

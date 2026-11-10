@@ -13,7 +13,9 @@ const preflightRejection = (key: string, data: unknown): Message | undefined => 
         return undefined;
     } catch (error) {
         if (!(error instanceof LocalizedError)) throw error;
-        const detail = error.description.params.value0;
+        const wrapped = error.description.params.value0;
+        // The file diagnosis names collection, Preset and field around the collection's own rejection.
+        const detail = typeof wrapped === "object" && wrapped.key === "preset_check_in_preset" ? wrapped.params.value3 : wrapped;
         return typeof detail === "object" ? detail : undefined;
     }
 };

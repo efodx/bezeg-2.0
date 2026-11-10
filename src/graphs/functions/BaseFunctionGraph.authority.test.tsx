@@ -213,15 +213,16 @@ describe('linear function: Preset import with a model in both graphState and dat
         act(() => { graph.importPreset({id: 'no-data', graphState: FLAT} as unknown as Preset); });
         expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);
         typeLinear('y₁', 3);
-        act(() => { graph.importPreset({id: 'null-data', graphState: FLAT, data: null} as unknown as Preset); });
-        expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);
+        // Explicit null is not omission: it is refused and the scene stays as it was.
+        expect(() => graph.importPreset({id: 'null-data', graphState: FLAT, data: null} as unknown as Preset)).toThrow();
+        expect(linearShown(graph)).not.toEqual(LINEAR_DEFAULT_SHOWN);
     });
 
-    test('data the collection rejects falls back to the default model and not to the flat fields', () => {
+    test('data the collection rejects is refused, and neither the data nor the flat fields are shown', () => {
         const {graph} = mountLinear();
-        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-        act(() => { graph.importPreset({id: 'bad', graphState: FLAT, data: {...DATA, x1: 99999}} as unknown as Preset); });
-        expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);
+        const before = linearShown(graph);
+        expect(() => graph.importPreset({id: 'bad', graphState: FLAT, data: {...DATA, x1: 99999}} as unknown as Preset)).toThrow();
+        expect(linearShown(graph)).toEqual(before);
     });
 
     test('a Preset whose graphState has no model fields shows its data', () => {

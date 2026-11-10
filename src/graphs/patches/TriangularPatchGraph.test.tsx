@@ -338,11 +338,12 @@ describe("Reset, Presets, language and one tick", () => {
         expect(graph.state.v).toBe(0.5);
         expectAgreement(graph, view);
     });
-    it("a hostile graphState cannot inject surface state", () => {
+    it("a hostile graphState cannot inject surface state: it is refused and the scene stays", () => {
         const {graph} = mount();
-        act(() => graph.importPreset(JSON.parse('{"id": "hostile", "graphState": {"n": 99, "u": 7, "isoDensity": 100000}}')));
+        const u = graph.state.u;
+        expect(() => act(() => graph.importPreset(JSON.parse('{"id": "hostile", "graphState": {"n": 99, "u": 7, "isoDensity": 100000}}')))).toThrow();
         expect(graph.state.n).toBe(3);
-        expect(graph.state.u).not.toBe(7);
+        expect(graph.state.u).toBe(u);
         expect(graph.state.isoDensity).toBe(8);
     });
     it("a language switch relabels the view and the panel and keeps the scene", () => {

@@ -301,7 +301,7 @@ test('controls: endpoint inputs and an n slider 1-100', () => {
     expect(graph.model.n).toBe(1);
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 1));
     apply(graph, parameter('b', -1));
@@ -315,15 +315,13 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointB(graph).x).toBe(3);
     graph.importPreset({id: 'stored', data: {a: 0, b: 1, n: 5}});
     expect(graph.model).toEqual({a: 0, b: 1, n: 5});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {a: 8, b: 0, n: 2}, {a: 0, b: -8, n: 2}, {a: 0, b: 1, n: 0}, {a: 0, b: 1, n: 101}, {a: 0, b: 1, n: 2.5}, {a: 0, b: 1}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual(DEFAULT);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
     graph.importPreset({id: 'arc-length', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 3, n: 6}});
     expect(graph.model).toEqual({a: 0, b: 3, n: 6});
     graph.importPreset({id: 'arc-length'});

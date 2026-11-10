@@ -4079,4 +4079,8 @@ export const en: Record<keyof typeof sl, string> = {
     "reduction_readout_l2_error": "L² error: {value0}.",
     "reduction_readout_bound": "Control-point bound: {value0}.",
     "reduction_preset_needs_four_points": "the degree reduction curve must be a cubic Bézier curve with four control points",
+    "preset_check_in_collection": "collection {value0}: {value1}",
+    "preset_check_in_preset": "collection {value0}, Preset {value1}, field {value2}: {value3}",
+    "preset_entry_refused": "The Preset could not be loaded, so the previous figure is still shown: {value0}.",
+    "preset_entry_refused_default_shown": "The Preset could not be loaded, so the default figure is shown: {value0}.",
 };

@@ -19,10 +19,14 @@ beforeEach(() => {
 /** A graph of the sweep family: it opts in to intervals mode through the documented hook. */
 class IntervalGraph extends PointSetGraph {
     protected override allowsIntervals() { return true; }
+    /** A host with its own Preset key, as the real sweep graphs have: the shared point-set key allows neither mode, so a stored read would refuse it. */
+    override presetCollection() { return {...super.presetCollection(), key: 'test-intervals-host'}; }
     liveBoard() { return this.board; }
 }
 class SegmentOnlyGraph extends PointSetGraph {
     protected override allowsSegments() { return true; }
+    /** A host with its own Preset key, as the real sweep graphs have: the shared point-set key allows neither mode, so a stored read would refuse it. */
+    override presetCollection() { return {...super.presetCollection(), key: 'test-segments-only-host'}; }
 }
 
 type Live = {liveBoard(): {objectsList: unknown[]}};

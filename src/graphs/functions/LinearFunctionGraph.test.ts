@@ -195,7 +195,7 @@ test('the caption follows the language, and a language change notifies subscribe
     expect(listener).toHaveBeenCalledTimes(1);
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, parameter('x2', 4));
     const exported = graph.exportPreset();
@@ -206,14 +206,14 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(points(graph)).toEqual([[5, 6], [7, 8]]);
     graph.importPreset({id: 'stored', data: {x1: 1, y1: 2, x2: 3, y2: 4}});
     expect(graph.model).toEqual({x1: 1, y1: 2, x2: 3, y2: 4});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    for (const bad of [undefined, null, 'not json', {x1: 1}, {x1: 1, y1: 2, x2: 3, y2: NaN}, [], {x1: 1e12, y1: 0, x2: 0, y2: 0}]) {
-        graph.importPreset({id: 'stored', data: bad});
-        expect(graph.model).toEqual({x1: 0, y1: 1, x2: 2, y2: 5});
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays.
+    for (const bad of [null, 'not json', {x1: 1}, {x1: 1, y1: 2, x2: 3, y2: NaN}, [], {x1: 1e12, y1: 0, x2: 0, y2: 0}]) {
+        expect(() => graph.importPreset({id: 'stored', data: bad})).toThrow();
+        expect(graph.model).toEqual({x1: 1, y1: 2, x2: 3, y2: 4});
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(5);
-    warn.mockRestore();
+    // A Preset without data shows the default model.
+    graph.importPreset({id: 'stored', data: undefined});
+    expect(graph.model).toEqual({x1: 0, y1: 1, x2: 2, y2: 5});
     graph.importPreset({id: 'linear-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {x1: 2, y1: 2, x2: 4, y2: 8}});
     expect(graph.model).toEqual({x1: 2, y1: 2, x2: 4, y2: 8});
     graph.importPreset({id: 'linear-function'});

@@ -299,20 +299,19 @@ test('presets save the model with the step, reopen paused at that step and never
     expect(reopened.model).toEqual({method: 'newton', example: 'cubic-three-roots', x0: 0, x1: 1, step: 0});
 });
 
-test('malformed preset data is rejected to the default model with a warning', () => {
+test('malformed preset data is refused and the model on show stays', () => {
     const graph = makeGraph();
     next(graph, 2);
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const shown = {...graph.model};
     const valid = {method: 'newton', example: 'square-minus-two', x0: 1, x1: 2, step: 0};
     const bad = [{}, [], 'not json', {...valid, method: 'halley'}, {...valid, example: 'quartic'}, {...valid, x0: 5}, {...valid, x1: -5}, {...valid, x0: '1'},
         {...valid, method: 'secant', x0: 2}, {...valid, step: -1}, {...valid, step: 1.5}, {...valid, step: ROOT_FINDING_MAX_STEPS + 1}, {...valid, step: '2'}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
-        expect(graph.model).toEqual(valid);
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
+        expect(graph.model).toEqual(shown);
         expect(graph.playback.isPlaying).toBe(false);
     }
-    expect(warn).toHaveBeenCalledTimes(bad.length);
-    warn.mockRestore();
 });
 
 test('the reference roots used by the readout are the stored ones', () => {

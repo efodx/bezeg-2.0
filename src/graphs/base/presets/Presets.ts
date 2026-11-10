@@ -1,7 +1,6 @@
 import {message, LocalizedError, Message} from "../../../localization";
 import {BaseGraphState, BoardState} from "../BaseGraph";
-import {commitPresetImport, preflightPresetImport} from "./PresetImport";
-import {isPresetCollectionEnvelope, isRecord} from "./PresetCollection";
+import {checkPresetCollection, commitPresetImport, preflightPresetImport, presetCollectionForStorageKey} from "./PresetImport";
 import {appStorage} from "../../../storage/appStorage";
 
 const PRESETS_PREFIX = "preset-";
@@ -36,13 +35,17 @@ const UNAVAILABLE = () => message("presets_storage_unavailable");
 const UNREADABLE = () => message("stored_presets_unreadable_left_unchanged");
 const QUOTA = () => message("cannot_save_presets_free_browser_storage_space_and_try_again");
 
-/** Parses one stored collection with the envelope rules of the Preset file; every Preset needs a text name. */
-function parseCollection(raw: string): Presets | undefined {
+/**
+ * Parses one stored collection with the complete check of the Preset file (`checkPresetCollection`): envelope, names, and
+ * every Preset's data, view and state. A collection that fails stays unread; the returned Presets are the stored values,
+ * unchanged, so a later save rewrites nothing the check did not accept. A key the app defines no collection for (never
+ * read by a graph) gets the envelope and name rules only.
+ */
+function parseCollection(id: string, raw: string): Presets | undefined {
     let parsed: unknown;
     try { parsed = JSON.parse(raw); } catch { return undefined; }
-    if (!isPresetCollectionEnvelope(parsed)) return undefined;
-    if (!parsed.data.every(preset => isRecord(preset) && typeof preset.id === "string")) return undefined;
-    return parsed as unknown as Presets;
+    const collection = presetCollectionForStorageKey(PRESETS_PREFIX + id) ?? {key: id, check: (data: unknown) => ({data}), checkGraphState: () => undefined};
+    return "rejection" in checkPresetCollection(collection, parsed) ? undefined : parsed as Presets;
 }
 
 
@@ -70,7 +73,7 @@ export class PresetService {
                 const key = appStorage.key(index);
                 const value = key === null ? null : appStorage.getItem(key);
                 if (key?.startsWith(PRESETS_PREFIX) && value !== null) {
-                    const collection = parseCollection(value);
+                    const collection = parseCollection(key.slice(PRESETS_PREFIX.length), value);
                     if (collection) exportDto[key] = collection; else skipped.push(key);
                 }
             }
@@ -96,7 +99,7 @@ export class PresetService {
         try { raw = appStorage.getItem(PRESETS_PREFIX + this.id); }
         catch { return {data: [], problem: UNAVAILABLE()}; }
         if (!raw) return {data: []};
-        return parseCollection(raw) ?? {data: [], problem: UNREADABLE()};
+        return parseCollection(this.id, raw) ?? {data: [], problem: UNREADABLE()};
     }
 
     /** Writes the collection; a failed write leaves the stored value as it was and reports the problem. */

@@ -309,7 +309,7 @@ test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips
     expect(graph.model.tangent).toBe(true);
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, choice('exp'));
     apply(graph, parameter('x0', 0.5));
@@ -323,16 +323,14 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointP(graph).y).toBeCloseTo(Math.sin(-2), 12);
     graph.importPreset({id: 'stored', data: {fn: 'square', x0: 3, h: 2}});
     expect(graph.model).toEqual({fn: 'square', x0: 3, h: 2, tangent: false});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const bad = [undefined, null, 'not json', {}, [], {fn: 'cos', x0: 1, h: 1}, {fn: 'square', x0: 5, h: 1}, {fn: 'square', x0: 1, h: 0},
         {fn: 'square', x0: 1, h: 0.001}, {fn: 'square', x0: 1, h: 1, tangent: 1}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual({fn: 'square', x0: 1, h: 1, tangent: false});
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
     graph.importPreset({id: 'derivative', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'sin', x0: 1, h: 0.2, tangent: true}});
     expect(graph.model).toEqual({fn: 'sin', x0: 1, h: 0.2, tangent: true});
     graph.importPreset({id: 'derivative'});

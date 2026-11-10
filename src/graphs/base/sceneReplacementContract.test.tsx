@@ -383,10 +383,15 @@ describe('figure path with a stored scene state that disagrees with the Preset d
     it.each([['hermite', 'interp-hermite'], ['interpolation', 'interp-lagrange']] as const)('%s rebuilds for the state\'s point count', async (_family, id) => {
         const rig = open(() => graphFactories[id]());
         try {
-            const graph = rig.graph as unknown as {state: {points: Array<readonly [number, number]>}; scene?: {pointCount: number}};
+            const graph = rig.graph as unknown as {state: {points: Array<readonly [number, number]>; tangents?: Array<readonly [number, number]>}; scene?: {pointCount: number}};
             const points = graph.state.points;
             const last = points[points.length - 1];
-            await loadFigure(rig.graph, {points: [...points, [last[0] + 1, last[1]]]});
+            // The persisted state must itself be valid (one Hermite tangent per point), so it differs from the Preset data only in the point count.
+            const tangents = graph.state.tangents;
+            await loadFigure(rig.graph, {
+                points: [...points, [last[0] + 1, last[1]]],
+                ...(tangents ? {tangents: [...tangents, [0, 0]]} : {}),
+            });
             expect(graph.state.points).toHaveLength(points.length + 1);
             expect(graph.scene?.pointCount).toBe(points.length + 1);
         } finally {

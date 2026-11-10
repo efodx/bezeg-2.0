@@ -173,3 +173,33 @@ test('a selection made before mounting is loaded by the mount', () => {
     expect(graph.pointCount()).toBe(defaultCount + 1);
     view.unmount();
 });
+
+class RefusingBezierGraph extends TestBezierGraph {
+    /** Refuses the Preset named "refused" as a consumer would; every other Preset passes the ordinary check. */
+    protected override checkPersistedPreset(preset: Parameters<TestBezierGraph['checkPersistedPreset']>[0]) {
+        if (preset.id === 'refused') throw new Error('refused for the test');
+        return super.checkPersistedPreset(preset);
+    }
+}
+
+test('selecting a refused stored Preset keeps the selection, the view and the scene, and says why', async () => {
+    const graph = new RefusingBezierGraph();
+    const view = renderGraph(graph);
+    act(() => graph.saveCurrentPreset('refused'));
+    act(() => graph.addPoint());
+    act(() => graph.saveCurrentPreset('mine'));
+    expect(graph.selectedPresetId).toBe('mine');
+    act(() => graph.addPoint());
+    const count = graph.pointCount();
+    const panned: [number, number, number, number] = [-3, 7, 9, -5];
+    act(() => { graph.liveBoard().setBoundingBox(panned, false); });
+    const box = graph.liveBoard().getBoundingBox();
+
+    await settle(() => graph.selectPreset('refused'));
+
+    expect(graph.selectedPresetId).toBe('mine');
+    expect(graph.pointCount()).toBe(count);
+    expect(graph.liveBoard().getBoundingBox()).toEqual(box);
+    expect(screen.getByText(/refused for the test/)).toBeInTheDocument();
+    view.unmount();
+});

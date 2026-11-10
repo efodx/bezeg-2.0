@@ -427,11 +427,13 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
         [{...valid, radius: 0}, /radius.*0\.05.*2/], [{...valid, radius: 2.05}, /radius/], [{...valid, circleVisible: 'yes'}, /circleVisible.*true.*false/],
         [{...valid, quotientVisible: 1}, /quotientVisible/], [{...valid, wIm: '1'}, /./], [{}, /./], [[], /./],
     ];
+    // Malformed persisted data is refused before anything changes: the live (default) scene stays, no console fallback.
+    other.importPreset({id: 'stored', data: valid});
     for (const [entry, pattern] of bad) {
         const checked = complexReciprocalPresetCollection.check(entry);
         expect('rejection' in checked, JSON.stringify(entry)).toBe(true);
         if ('rejection' in checked) expect(renderMessage(checked.rejection), JSON.stringify(entry)).toMatch(pattern);
-        other.importPreset({id: 'stored', data: entry});
+        expect(() => other.importPreset({id: 'stored', data: entry}), JSON.stringify(entry)).toThrow(/complex-reciprocal/);
         expect(other.model, JSON.stringify(entry)).toEqual(valid);
         expect(shown(points(other)[RECIPROCAL])).toBe(false);
         expect(at(points(other)[Z_POINT])).toEqual([1, 1]);
@@ -440,7 +442,7 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
     setLanguage('en');
     expect(renderMessage(rejectionOf({...valid, radius: 3}))).toBe('the field radius must be a multiple of 0.05 between 0.05 and 2; correct the value in the file');
     setLanguage('sl');
-    expect(warn).toHaveBeenCalledTimes(bad.length);
+    expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
 
     // capture, then Reset (the demonstration default), then restore: the model and the board return together

@@ -629,22 +629,20 @@ test('a preset of another example without a view of its own shows that example\'
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1.4, 1.6, 3.4, -0.6], true);
 });
 
-test('malformed or out-of-domain preset data is rejected to the default model with a warning', () => {
+test('malformed or out-of-domain preset data is refused and the model on show stays', () => {
     const graph = makeGraph();
     apply(graph, parameter('taylor-degree', 4));
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {example: 'exp', center: 0, degree: 1, x: 1, boundVisible: false};
     const bad = [undefined, null, 'not json', {}, [], {...valid, example: 'cos'}, {...valid, center: 2.5}, {...valid, x: 3.5}, {...valid, degree: 11}, {...valid, degree: -1},
         {...valid, degree: 1.5}, {...valid, degree: '1'}, {...valid, center: '0'}, {...valid, boundVisible: 'yes'}, {...valid, boundVisible: 1},
         {example: 'exp', center: 0, degree: 1, x: 1}, {...valid, example: 'flat', center: 0.5}, {...valid, example: 'geometric', x: 1},
         {...valid, example: 'geometric', center: 1}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual(valid);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
 });
 
 test('capture and restore bring back the synchronous model, including the reveal flag', () => {

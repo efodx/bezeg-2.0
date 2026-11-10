@@ -380,7 +380,7 @@ test('controls: function select, bound inputs, n slider 1-150 and method select'
     expect(graph.model.n).toBe(1);
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, fnChoice('exp'));
     apply(graph, parameter('a', 1));
@@ -396,17 +396,15 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointB(graph).x).toBe(3);
     graph.importPreset({id: 'stored', data: {fn: 'square', a: 0, b: 1, n: 5, method: 'left'}});
     expect(graph.model).toEqual({fn: 'square', a: 0, b: 1, n: 5, method: 'left'});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const good = {fn: 'square', a: 0, b: 2, n: 4, method: 'left'};
     const bad = [undefined, null, 'not json', {}, [], {...good, fn: 'cos'}, {...good, a: 8}, {...good, b: -8}, {...good, n: 0}, {...good, n: 200}, {...good, n: 2.5},
         {...good, method: 'upper'}, {fn: 'square', a: 0, b: 2, n: 4}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual(good);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
     graph.importPreset({id: 'definite-integral', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'sin', a: 0, b: 3, n: 6, method: 'trapezoid'}});
     expect(graph.model).toEqual({fn: 'sin', a: 0, b: 3, n: 6, method: 'trapezoid'});
     graph.importPreset({id: 'definite-integral'});

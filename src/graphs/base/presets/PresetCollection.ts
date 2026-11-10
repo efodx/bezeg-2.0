@@ -37,6 +37,8 @@ export function checkSceneState(value: unknown, allowed: readonly string[] = [])
     if (!isRecord(value)) return message("invalid_state");
     for (const [key, item] of Object.entries(value)) {
         if (allowed.includes(key)) continue;
+        // JSON drops an undefined field, so an in-memory export (figure batch, lesson capture) means the same as the saved file.
+        if (item === undefined) continue;
         if (typeof item === "number" && !Number.isFinite(item)) return message("invalid_number", {value0: key});
         if (BOOLEAN_OPTION.test(key) && typeof item !== "boolean") return message("invalid_option", {value0: key});
         if (typeof item !== "number" && typeof item !== "boolean" && typeof item !== "string") return message("invalid_value", {value0: key});

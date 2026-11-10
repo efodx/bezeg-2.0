@@ -267,7 +267,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return {...this.model};
     }
 
-    /** Shows a model: the default model, a checkpoint's, or a stored one the Preset collection checked (`storedPresetData`). */
+    /** Shows a model: the default model, a checkpoint's, or a stored one the Preset collection checked (`checkPersistedPreset`). */
     override importPresetData(data: M): void {
         this.refusals.clear();
         this.commitModel({...data});
@@ -282,6 +282,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     }
 
     override importPreset(preset: Preset): void {
+        this.checkPersistedPreset(preset); // a refusal precedes the flag below; `graphState` is replaced before `super` sees it
         const previousExample = this.exampleView()?.key;
         // Only a preset applied before the scene exists is followed by the `initialize()` that would reset the view; one
         // applied to a live scene sets its own view directly, and a stale flag would make a later initialize skip the default.

@@ -488,21 +488,19 @@ test('a preset of another example without a view of its own shows that example\'
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 7.6, -4.6], true);
 });
 
-test('malformed or misordered preset data is rejected to the default model with a warning', () => {
+test('malformed or misordered preset data is refused and the model on show stays', () => {
     const graph = makeGraph();
     apply(graph, parameter('darboux-n', 16));
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {example: 'square', a: 0, b: 2, n: 4, lowerVisible: true, upperVisible: true};
     const bad = [undefined, null, 'not json', {}, [], {...valid, example: 'quartic'}, {...valid, a: 2, b: 0}, {...valid, a: 1, b: 1}, {...valid, a: -7.5}, {...valid, b: 7.5},
         {...valid, a: '0'}, {...valid, n: 0}, {...valid, n: 129}, {...valid, n: 2.5}, {...valid, n: NaN}, {...valid, lowerVisible: 'yes'}, {...valid, upperVisible: 1},
         {example: 'square', a: 0, b: 2, n: 4}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual(valid);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
 });
 
 test('capture and restore bring back the synchronous model, including the visibility', () => {

@@ -1,7 +1,7 @@
 /**
  * Characterization (controls step 7, slice 1a) of every persisted entry path on one set of P1 samples: the file
  * preflight, a stored collection read, the graph's explicit `importPreset` (also the initial-mount path) and the
- * stored-Preset figure entry (`storedPresetData` / `figurePresetGraphState`).
+ * stored-Preset figure entry (`checkPersistedPreset` / `figurePresetGraphState`).
  *
  * `observed` tests pin what each path decides TODAY. `parity` tests state the target of slice 1b (every path takes the same
  * collection decision, and a refusal precedes every mutation). A parity test that does not hold yet is marked
@@ -10,6 +10,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {preflightPresetImport} from "./PresetImport";
 import {PresetService, Preset} from "./Presets";
+import {LocalizedError, setLanguage} from "../../../localization";
 import {appStorage} from "../../../storage/appStorage";
 import BezierCurveGraph from "../../curves/bezier/BezierCurveGraph";
 import InterpolationGraph from "../../curves/interpolation/InterpolationGraph";
@@ -29,8 +30,8 @@ type SamplePreset = Omit<Preset, "graphState"> & {graphState?: object};
 type Probe = {
     importPresetData(data: unknown): void;
     setBaseState(patch: object): void;
-    storedPresetData(data: unknown): unknown;
-    figurePresetGraphState(state: object | undefined): object;
+    /** Typed as the identity on its argument so a test can hand it raw (even malformed) values and read the checked copy back. */
+    checkPersistedPreset<T>(preset: T): T;
     board?: unknown;
 };
 
@@ -92,9 +93,9 @@ interface Sample {
     file: "accept" | "refuse";
     /** The consumer refuses this collection-valid Preset (checked in the real `importPresetData`). */
     consumerRefuses?: boolean;
-    /** Today the stored read gives the same decision as the file. Flip when slice 1b checks stored collections. */
+    /** The stored read gives the same decision as the file (slice 1b: one collection check). */
     storageParity: boolean;
-    /** Today a refused Preset mutates nothing at `importPreset`, and an accepted one applies its checked data. */
+    /** A refused Preset mutates nothing at `importPreset`, and an accepted one applies its checked data. Still false only for consumer refusals (slice 2). */
     entryParity: boolean;
     observed: Observed;
 }
@@ -106,31 +107,31 @@ const samples: Sample[] = [
     {name: "bezier: valid", graph: () => new BezierCurveGraph(), preset: () => ({id: "p", data: bezierData, boardState: {boundingBox: [-5, 5, 5, -5]}, graphState: {initialized: true, curveSelected: false}}),
         file: "accept", storageParity: true, entryParity: true, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
     {name: "bezier: invalid model data", graph: () => new BezierCurveGraph(), preset: () => ({id: "p", data: [["unknown", {}]]}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 1, data: "default", warned: true}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "bezier: invalid bounds", graph: () => new BezierCurveGraph(), preset: () => ({id: "p", data: bezierData, boardState: {boundingBox: [5, 5, -5, -5]}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "bezier: generic state of the wrong type", graph: () => new BezierCurveGraph(), preset: () => ({id: "p", data: bezierData, graphState: {showControlPolygon: "yes"}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "bezier: graphState not a record", graph: () => new BezierCurveGraph(), preset: () => ({id: "p", data: bezierData, graphState: "x" as unknown as object}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     // Interpolation: custom state checker (the six fields are re-checked against the data rules).
     {name: "interpolation: valid", graph: () => new InterpolationGraph(), preset: g => ok(g, {graphState: {initialized: true, t: 0.5, notice: ""}}),
         file: "accept", storageParity: true, entryParity: true, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
     {name: "interpolation: custom state out of range", graph: () => new InterpolationGraph(), preset: g => ok(g, {graphState: {t: 2}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "interpolation: unknown notice", graph: () => new InterpolationGraph(), preset: g => ok(g, {graphState: {notice: "boom"}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 1, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "interpolation: invalid model data", graph: () => new InterpolationGraph(), preset: () => ({id: "p", data: {points: [[0, 0]], parameterRule: "nope", showHull: true, showBezier: true, t: 0}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 1, state: 0, data: "default", warned: true}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     // Projective strict state: only `initialized` is allowed, `model` belongs to `data`.
     {name: "five-point: valid", graph: () => new FivePointGraph(), preset: g => ok(g, {graphState: {initialized: true}}),
         file: "accept", storageParity: true, entryParity: true, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
     {name: "five-point: forbidden model in graphState", graph: () => new FivePointGraph(), preset: g => ok(g, {graphState: {initialized: true, model: g.defaultPreset()}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "five-point: forbidden extra field", graph: () => new FivePointGraph(), preset: g => ok(g, {graphState: {lastUnique: 1}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "five-point: invalid model data", graph: () => new FivePointGraph(), preset: () => ({id: "p", data: {}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 0, data: "default", warned: true}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     // The shared B-spline collection (degrees other than 2/3 are collection-valid), and consumer limits.
     {name: "nurbs: valid degree-2 curve", graph: () => new BSplineNurbsGraph(), preset: () => ({id: "p", data: bsplineOk(2, [[0, 0], [1, 1], [2, 0]])}),
         file: "accept", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "checked", warned: false}},
@@ -145,10 +146,10 @@ const samples: Sample[] = [
         file: "accept", consumerRefuses: true, storageParity: true, entryParity: false, observed: {bounds: 1, state: 0, data: "threw", warned: false}},
     {name: "nurbs: bspline graphState of the wrong shape", graph: () => new BSplineNurbsGraph(),
         preset: () => ({id: "p", data: bsplineOk(2, [[0, 0], [1, 1], [2, 0]]), graphState: {points: [["x"]]}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 1, data: "checked", warned: false}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "nurbs: bspline model data with a bad knot vector", graph: () => new BSplineNurbsGraph(),
         preset: () => ({id: "p", data: {degree: 2, points: [[0, 0], [1, 1], [2, 0]], knots: [0, 0, 1, 1]}}),
-        file: "refuse", storageParity: false, entryParity: false, observed: {bounds: 0, state: 0, data: "default", warned: true}},
+        file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
 ];
 
 beforeEach(() => appStorage.clear());
@@ -190,36 +191,65 @@ describe("persisted entry paths on P1 samples", () => {
         }
     });
 
-    describe("figure entry (storedPresetData and figurePresetGraphState)", () => {
-        it.each(samples.filter(s => s.name.includes("invalid model data") || s.name.includes("bad knot")))("collection-invalid data falls back to the default scene with a console warning: $name", s => {
+    describe("figure entry (checkPersistedPreset and figurePresetGraphState)", () => {
+        it.each(samples.filter(s => s.name.includes("invalid model data") || s.name.includes("bad knot")))("collection-invalid data is a visible refusal, not a default scene: $name", s => {
             const graph = s.graph();
             const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-            const data = (graph as unknown as Probe).storedPresetData(s.preset(graph).data);
-            expect(JSON.stringify(data)).toBe(JSON.stringify(graph.defaultPreset()));
-            expect(warn).toHaveBeenCalledTimes(1);
+            expect(() => (graph as unknown as Probe).checkPersistedPreset(s.preset(graph))).toThrow(LocalizedError);
+            expect(warn).not.toHaveBeenCalled();
         });
-        it.fails("collection-invalid data is a refusal, not a default (target of 1b)", () => {
+        it("an unknown graphState field (strict projective state) is refused before the figure scene state is built", () => {
             const graph = new FivePointGraph();
-            vi.spyOn(console, "warn").mockImplementation(() => undefined);
-            expect(() => (graph as unknown as Probe).storedPresetData({})).toThrow();
+            expect(() => (graph as unknown as Probe).checkPersistedPreset({id: "p", graphState: {initialized: true, bogus: "x"}})).toThrow(LocalizedError);
         });
-        it("an unknown graphState field (strict projective state) is merged into the figure scene state unchecked", () => {
+        it("a checked Preset is a normalized copy that shares nothing with the raw value", () => {
             const graph = new FivePointGraph();
-            const state = (graph as unknown as Probe).figurePresetGraphState({initialized: true, bogus: "x"});
-            expect(state).toMatchObject({bogus: "x"});
+            const raw = {id: "p", data: graph.defaultPreset(), graphState: {initialized: true}, boardState: {boundingBox: [-1, 1, 1, -1] as [number, number, number, number]}};
+            const checked = (graph as unknown as Probe).checkPersistedPreset(raw);
+            expect(checked).toEqual(raw);
+            expect(checked.boardState).not.toBe(raw.boardState);
+            expect(checked.graphState).not.toBe(raw.graphState);
         });
-        it.fails("an unknown graphState field (strict projective state) is refused before the figure scene state is built (target of 1b)", () => {
-            const graph = new FivePointGraph();
-            expect(() => (graph as unknown as Probe).figurePresetGraphState({initialized: true, bogus: "x"})).toThrow();
+    });
+
+    describe("explicit null and refusal context", () => {
+        it("explicit null data is not omission: file and graph entry agree", () => {
+            const graph = new BezierCurveGraph();
+            const preset: SamplePreset = {id: "p", data: null};
+            expect(fileDecision("bezier-curve", preset)).toBe("refuse");
+            expect(storageDecision("bezier-curve", [preset])).toBe("refuse");
+            expect(entry(graph, preset, false)).toEqual({bounds: 0, state: 0, data: "none", warned: false});
+        });
+        it("the file refusal names the collection, the Preset and the field, in both languages", () => {
+            const contents = FILE("bezier-curve", {id: "Moja", data: bezierData, boardState: {boundingBox: [5, 5, -5, -5]}});
+            expect(() => preflightPresetImport(contents)).toThrow("zbirka bezier-curve, prednastavitev Moja, polje boardState: neveljavne meje grafa");
+            setLanguage("en");
+            expect(() => preflightPresetImport(contents)).toThrow("collection bezier-curve, Preset Moja, field boardState: invalid graph bounds");
+            setLanguage("sl");
+        });
+        it("a name problem names the collection", () => {
+            const contents = JSON.stringify({"preset-bezier-curve": {data: [{id: "a"}, {id: "a"}]}});
+            expect(() => preflightPresetImport(contents)).toThrow("zbirka bezier-curve: manjkajoče ali podvojeno ime prednastavitve");
+        });
+        it("a stored collection that fails the check keeps its raw value; save and remove refuse; backup skips it", () => {
+            const raw = JSON.stringify({data: [{id: "a", data: [["unknown", {}]]}]});
+            appStorage.setItem("preset-bezier-curve", raw);
+            const service = new PresetService("bezier-curve");
+            expect(service.loadPresets().problem).toBeDefined();
+            expect(service.getPreset("a")).toBeUndefined();
+            expect(service.savePreset({id: "x"}).problem).toBeDefined();
+            expect(service.removePreset("a").problem).toBeDefined();
+            expect(appStorage.getItem("preset-bezier-curve")).toBe(raw);
+            expect(service.exportAll().skipped).toEqual(["preset-bezier-curve"]);
         });
     });
 
     describe("collection envelopes", () => {
         const rows: {name: string; ids: unknown[]; file: "accept" | "refuse"; storage: "accept" | "refuse"}[] = [
             {name: "unique nonblank names", ids: ["a", "b"], file: "accept", storage: "accept"},
-            {name: "blank name", ids: ["  "], file: "refuse", storage: "accept"},
-            {name: "empty name", ids: [""], file: "refuse", storage: "accept"},
-            {name: "duplicate names", ids: ["a", "a"], file: "refuse", storage: "accept"},
+            {name: "blank name", ids: ["  "], file: "refuse", storage: "refuse"},
+            {name: "empty name", ids: [""], file: "refuse", storage: "refuse"},
+            {name: "duplicate names", ids: ["a", "a"], file: "refuse", storage: "refuse"},
             {name: "non-text name", ids: [1], file: "refuse", storage: "refuse"},
         ];
         it.each(rows)("observed file and storage decision: $name", row => {
@@ -230,11 +260,6 @@ describe("persisted entry paths on P1 samples", () => {
             expect(decision).toBe(row.file);
             expect(storageDecision("bezier-curve", presets)).toBe(row.storage);
         });
-        for (const row of rows.filter(r => r.file !== r.storage)) {
-            it.fails(`storage read refuses what the file refuses: ${row.name}`, () => {
-                expect(storageDecision("bezier-curve", row.ids.map(id => ({id, data: bezierData})))).toBe(row.file);
-            });
-        }
         it("storage that is not an envelope is unreadable and its raw value stays", () => {
             appStorage.setItem("preset-bezier-curve", "{not json");
             const service = new PresetService("bezier-curve");
@@ -242,11 +267,13 @@ describe("persisted entry paths on P1 samples", () => {
             service.savePreset({id: "x"});
             expect(appStorage.getItem("preset-bezier-curve")).toBe("{not json");
         });
-        it("a collection with a blank name is still read, and saving rewrites it (no unreadable guard)", () => {
-            appStorage.setItem("preset-bezier-curve", JSON.stringify({data: [{id: " ", data: bezierData}]}));
+        it("a collection with a blank name is unreadable and saving does not rewrite it", () => {
+            const raw = JSON.stringify({data: [{id: " ", data: bezierData}]});
+            appStorage.setItem("preset-bezier-curve", raw);
             const service = new PresetService("bezier-curve");
-            expect(service.loadPresets().problem).toBeUndefined();
-            expect(service.savePreset({id: "x"}).problem).toBeUndefined();
+            expect(service.loadPresets().problem).toBeDefined();
+            expect(service.savePreset({id: "x"}).problem).toBeDefined();
+            expect(appStorage.getItem("preset-bezier-curve")).toBe(raw);
         });
     });
 });

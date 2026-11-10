@@ -439,7 +439,7 @@ test('the inspector shows the default bounds as 0.78 and 3.22 while the model ke
     expect([text(graph.model.a), text(graph.model.b)]).toEqual(['0.78', '3.22']);
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, mode('under-f'));
     apply(graph, parameter('a', 1));
@@ -453,16 +453,14 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(pointB(graph).x).toBe(3);
     graph.importPreset({id: 'stored', data: {a: 0, b: 4, mode: 'between'}});
     expect(graph.model).toEqual({a: 0, b: 4, mode: 'between'});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const good = {a: 2 - S, b: 2 + S, mode: 'between'};
     const bad = [undefined, null, 'not json', {}, [], {a: 0, b: 4, mode: 'under'}, {a: 5.5, b: 0, mode: 'between'}, {a: 0, b: -2, mode: 'between'}, {a: '0', b: 4, mode: 'between'}, {a: 0, b: 4}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual(good);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
     graph.importPreset({id: 'area-between-curves', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 3, mode: 'under-g'}});
     expect(graph.model).toEqual({a: 0, b: 3, mode: 'under-g'});
     graph.importPreset({id: 'area-between-curves'});

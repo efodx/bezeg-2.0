@@ -178,7 +178,7 @@ test('the caption follows the language, shows the mirror line only while the mir
     unsubscribe();
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 3));
     apply(graph, mirror(true));
@@ -189,14 +189,12 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({a: 0.25, mirror: false});
     graph.importPreset({id: 'stored', data: {a: 4}});
     expect(graph.model).toEqual({a: 4, mirror: false});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     for (const bad of [undefined, null, 'not json', {}, {a: 0}, {a: -3}, {a: 1e9}, {a: NaN}, {a: 2, mirror: 'yes'}, []]) {
-        graph.importPreset({id: 'stored', data: bad});
+        if (bad === undefined) graph.importPreset({id: 'stored', data: bad});
+        else expect(() => graph.importPreset({id: 'stored', data: bad})).toThrow();
         expect(graph.model).toEqual({a: 2, mirror: false});
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(8);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
     graph.importPreset({id: 'exponential-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1.5, mirror: true}});
     expect(graph.model).toEqual({a: 1.5, mirror: true});
     graph.importPreset({id: 'exponential-function'});

@@ -222,9 +222,9 @@ describe("Presets (acceptance 6)", () => {
         expect(graph.state.boundaries).toEqual(defaultCoonsBoundaries());
     });
 
-    it("a stored graphState cannot inject scene state", () => {
+    it("a stored graphState cannot inject scene state: it is refused and the scene stays", () => {
         const {graph} = mount();
-        act(() => graph.importPreset(JSON.parse('{"id": "patch-coons", "graphState": {"shown": "b", "linkedCorners": false}}')));
+        expect(() => act(() => graph.importPreset(JSON.parse('{"id": "patch-coons", "graphState": {"shown": "b", "linkedCorners": false}}')))).toThrow();
         expect(graph.state.shown).toBe("s");
         expect(graph.state.linkedCorners).toBe(true);
     });

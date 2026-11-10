@@ -200,6 +200,7 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
 
     /** A Preset that names no step (or an invalid one) shows step 0, never the step the graph happened to be at. */
     override importPreset(preset: Preset): void {
+        this.checkPersistedPreset(preset); // a refusal precedes the step reset below
         const named = preset.graphState && "step" in preset.graphState ? parseBezierHullsStep(preset.graphState.step) : undefined;
         if (named === undefined) this.setState(this.patch({step: 0}));
         super.importPreset(preset);

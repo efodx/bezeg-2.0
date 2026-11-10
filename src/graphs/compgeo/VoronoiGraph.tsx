@@ -777,6 +777,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
 
     /** A Preset that names no site, count or query starts without them: nothing stale survives from the previous scene. */
     override importPreset(preset: Preset): void {
+        this.checkPersistedPreset(preset); // checked as stored, before the defaults below are merged into `graphState`
         const graphState = preset.graphState && {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: "sites", ...preset.graphState};
         this.carried = graphState && {cellSite: graphState.cellSite, construction: graphState.construction, query: graphState.query, mode: graphState.mode};
         try {

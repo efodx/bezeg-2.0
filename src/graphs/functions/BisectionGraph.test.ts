@@ -514,21 +514,19 @@ test('presets save the model with the step, reopen paused at that step and never
     expect(reopened.model).toEqual({example: 'sign-step', a: -1, b: 1, step: 2});
 });
 
-test('malformed preset data is rejected to the default model with a warning', () => {
+test('malformed preset data is refused and the model on show stays', () => {
     const graph = makeGraph();
     next(graph, 2);
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {example: 'square-minus-two', a: 1, b: 2, step: 0};
     const bad = [undefined, null, 'not json', {}, [], {...valid, example: 'quartic'}, {...valid, a: 2, b: 1}, {...valid, a: 1, b: 1}, {...valid, a: -5},
         {...valid, b: 4.5}, {...valid, a: '1'}, {...valid, step: -1}, {...valid, step: 1.5}, {...valid, step: BISECTION_MAX_STEPS + 1}, {...valid, step: '2'}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual(valid);
         expect(graph.playback.isPlaying).toBe(false);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
 });
 
 test('capture and restore bring back the synchronous model and leave playback paused', () => {

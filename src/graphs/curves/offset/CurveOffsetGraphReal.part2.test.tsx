@@ -141,7 +141,7 @@ describe('Preset round trip and Reset', () => {
         } finally { view.unmount(); }
     });
 
-    test('out-of-range stored values are clamped when read, not drawn out of range', async () => {
+    test('out-of-range stored values are refused and the scene on show stays; live out-of-range state is clamped when read', async () => {
         const {graph, view} = mount();
         try {
             act(() => graph.saveCurrentPreset('wild'));
@@ -150,10 +150,12 @@ describe('Preset round trip and Reset', () => {
             stored.data[0].graphState.offsetD = 99;
             stored.data[0].graphState.offsetSamples = 9999;
             localStorage.setItem(key, JSON.stringify(stored));
+            const shown = graph.trace().dataX?.slice();
+            const distance = (screen.getByRole('slider', {name: t('offset_distance')}) as HTMLInputElement).value;
+            // The collection refuses offsetD and offsetSamples outside their ranges, as the file import does; nothing is drawn from them.
             await settle(() => graph.selectPreset('wild'));
-            expect(graph.trace().dataX).toEqual(offsetTrace(OFFSET_PARABOLA_POINTS, 3, OFFSET_SAMPLES_MAX).x);
-            expect(graph.trace().dataX).toHaveLength(OFFSET_SAMPLES_MAX);
-            expect(screen.getByRole('slider', {name: t('offset_distance')})).toHaveValue('3');
+            expect(graph.trace().dataX).toEqual(shown);
+            expect(screen.getByRole('slider', {name: t('offset_distance')})).toHaveValue(distance);
             act(() => graph.setState({offsetD: NaN, offsetSamples: 100.4}));
             expect(graph.trace().dataX).toEqual(offsetTrace(OFFSET_PARABOLA_POINTS, OFFSET_DISTANCE_DEFAULT, 100).x);
         } finally { view.unmount(); }

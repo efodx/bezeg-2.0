@@ -220,14 +220,15 @@ describe("Presets", () => {
         expect(other.view.last.mesh).toBeUndefined();
         expect(other.view.last.polylines.filter(p => p.id.startsWith("iso-u-"))).toHaveLength(17);
     });
-    it("a Preset's graphState cannot inject surface state", () => {
+    it("a Preset's graphState cannot inject surface state: it is refused and the scene stays", () => {
         const {graph} = mount();
         const net = graph.state.net;
-        act(() => graph.importPreset(JSON.parse('{"id": "hostile", "graphState": {"m": 99, "isoDensity": 100000, "u": 7}}')));
+        const u = graph.state.u;
+        expect(() => act(() => graph.importPreset(JSON.parse('{"id": "hostile", "graphState": {"m": 99, "isoDensity": 100000, "u": 7}}')))).toThrow();
         expect(graph.state.m).toBe(3);
         expect(graph.state.isoDensity).toBe(8);
-        expect(graph.state.u).not.toBe(7);
-        expect(graph.state.net).toHaveLength(net.length);
+        expect(graph.state.u).toBe(u);
+        expect(graph.state.net).toBe(net);
     });
     it("a figure Preset keeps the imported surface", () => {
         const {graph} = mount();

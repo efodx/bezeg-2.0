@@ -342,6 +342,7 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
      * is ignored, so it cannot put a degree or density into the state that the net does not match.
      */
     override importPreset(preset: Preset): void {
+        this.checkPersistedPreset(preset); // the stored `graphState` is checked as stored, although only `initialized` is applied
         super.importPreset({...preset, graphState: {initialized: true}});
     }
 

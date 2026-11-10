@@ -354,7 +354,7 @@ test('controls: a labelled native select, four sliders, the reference switch, an
     expect(graph.model.reference).toBe(true);
 });
 
-test('presets export the model, import it again, and sanitize bad data to the default model', () => {
+test('presets export the model, import it again, and refuse bad data', () => {
     const graph = makeGraph();
     apply(graph, choice('tan'));
     apply(graph, parameter('omega', 2));
@@ -366,16 +366,14 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({fn: 'cos', A: -2, omega: 0.5, phi: -Math.PI / 3, B: 1, reference: false});
     graph.importPreset({id: 'stored', data: {fn: 'sin', A: 1, omega: 4, phi: 0, B: 0, reference: true}});
     expect(graph.model).toMatchObject({fn: 'sin', omega: 4, reference: true});
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const base = {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0};
     const bad = [undefined, null, 'not json', {}, [], {...base, fn: 'sec'}, {...base, omega: 0}, {...base, omega: -2}, {...base, A: 4}, {...base, phi: 4}, {...base, B: NaN}, {...base, reference: 'yes'}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual({fn: 'sin', A: 1, omega: 1, phi: 0, B: 0, reference: false});
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
     graph.importPreset({id: 'trigonometric-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'cos', A: 1, omega: 1, phi: 0, B: 0, reference: true}});
     expect(graph.model.fn).toBe('cos');
     graph.importPreset({id: 'trigonometric-function'});

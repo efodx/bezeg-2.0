@@ -1,4 +1,4 @@
-import {Message, onLanguageChange, renderMessage, t} from "../../localization";
+import {LocalizedError, message, Message, onLanguageChange, renderMessage, t} from "../../localization";
 import React from 'react';
 
 
@@ -7,6 +7,7 @@ import {fitBoundingBox} from "./fitBoundingBox";
 import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
 import type {PresetCollection} from "./presets/PresetCollection";
+import {checkPreset, type CheckedPreset, isBoundingBox} from "./presets/PresetImport";
 import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
@@ -288,8 +289,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             this.requestRender();
             return Promise.resolve();
         }
+        const previous = this.selectedPresetIdValue;
         this.selectedPresetIdValue = id;
-        return this.reloadSelectedScene();
+        return this.reloadSelectedScene(previous);
     }
 
     /** Reloads the selected preset, or the default scene, into the live board. */
@@ -332,10 +334,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         }
         this.selectedPresetIdValue = remaining.data[0]?.id ?? "";
         this.presetListVersionValue++;
-        return this.reloadSelectedScene();
+        return this.reloadSelectedScene("");
     }
 
-    private reloadSelectedScene(): Promise<void> {
+    /**
+     * `previousId` is the selection to return to when the newly selected Preset is refused: the refusal happens before the
+     * selection, view or scene change, so the live scene stays as it was (slice 1b of persisted scene validation).
+     */
+    private reloadSelectedScene(previousId: string = this.selectedPresetIdValue): Promise<void> {
         const session = this.getActiveGraphSession();
         if (!session) {
             // Not mounted: the selection is applied by the next mount().
@@ -348,6 +354,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         }
         const stored = this.presetService?.getPreset(this.selectedPresetIdValue);
         if (!stored) this.selectedPresetIdValue = "";
+        if (stored) {
+            try { this.checkPersistedPreset(stored); } catch (error) {
+                this.selectedPresetIdValue = previousId;
+                this.presetNoticeValue = message("preset_entry_refused", {value0: error instanceof LocalizedError ? error.description : String(error)});
+                this.requestRender();
+                return Promise.resolve();
+            }
+        }
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
         if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), true);
@@ -658,21 +672,23 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     /** Imports preset data without replacing the board or its lifetime resources. */
     protected importFigurePresetData(preset: Preset): void {
-        this.importPresetData(this.storedPresetData(preset.data));
+        this.importPresetData(preset.data === undefined ? cloneLessonValue(this.defaultPreset()) : preset.data as D);
     }
 
     /**
-     * Stored Preset data as this graph imports it: checked by the graph's Preset collection, the same definition the
-     * file importer uses. Missing data, data the collection rejects, and data for a graph without a collection (which
-     * stores no Presets) give the default scene's data.
+     * The one check every persisted entry (a stored Preset, an explicit import, a figure) passes before anything changes:
+     * the graph's Preset collection decides on the Preset's data, view and state, the same definition the file importer
+     * uses. Returns a normalized copy (missing parts stay missing: missing data is the default scene's) or throws the
+     * localized reason. A graph without a collection stores no Presets and takes none of the Preset's data.
      */
-    protected storedPresetData(data: unknown): D {
+    protected checkPersistedPreset(preset: Preset): CheckedPreset {
         const collection = this.presetCollection();
-        if (data === undefined || data === null || !collection) return cloneLessonValue(this.defaultPreset());
-        const checked = collection.check(cloneLessonValue(data));
-        if ("data" in checked) return checked.data;
-        console.warn(`Ignoring invalid Preset data of the ${collection.key} collection; using the default scene.`);
-        return cloneLessonValue(this.defaultPreset());
+        if (!collection) {
+            return {...preset, data: preset.data === undefined ? undefined : cloneLessonValue(this.defaultPreset())};
+        }
+        const checked = checkPreset(collection, preset);
+        if ("rejection" in checked) throw new LocalizedError(checked.rejection);
+        return checked.preset;
     }
 
     /** The scene state a figure scene starts with: the graph's initial state with the Preset's stored state over it. */
@@ -796,7 +812,16 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             this.createMainView(session, container);
 
             this.setBaseState({initialized: true});
-            const preset = this.presetService?.getPreset(this.selectedPresetIdValue);
+            const stored = this.presetService?.loadPresets();
+            let preset = stored?.data.find(candidate => candidate.id === this.selectedPresetIdValue);
+            // A collection that fails the check is not read at all; the default scene is shown with the reason.
+            if (stored?.problem) this.presetNoticeValue = stored.problem;
+            if (preset) {
+                try { this.checkPersistedPreset(preset); } catch (error) {
+                    this.presetNoticeValue = message("preset_entry_refused_default_shown", {value0: error instanceof LocalizedError ? error.description : String(error)});
+                    preset = undefined;
+                }
+            }
             // A selection whose preset no longer exists shows the default scene, so it is not a selection any more.
             if (!preset) this.selectedPresetIdValue = "";
             // A remount on this instance starts with fresh transient state.
@@ -955,21 +980,27 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     exportPreset(): Preset<D> {
         return {
             id: this.presets()!,
-            ...(this.hasBoard ? {boardState: this.boardState()} : {}),
+            // A view the board cannot show (a hidden or zero-size container) is left out: the check would refuse the whole collection.
+            ...(this.hasBoard && isBoundingBox(this.board.getBoundingBox()) ? {boardState: this.boardState()} : {}),
             graphState: this.savedGraphState(),
             data: this.exportPresetData()
         };
     }
 
+    /**
+     * Applies a persisted Preset. The Preset is checked first (`checkPersistedPreset`); a refusal throws before the
+     * view, the scene state or the data change. Omitted parts keep the current scene (unchanged in this slice).
+     */
     importPreset(preset: Preset) {
-        if (preset.boardState) {
-            this.importBoardState(preset.boardState);
+        const checked = this.checkPersistedPreset(preset);
+        if (checked.boardState) {
+            this.importBoardState(checked.boardState);
         }
-        if (preset.graphState) {
-            this.setBaseState({...preset.graphState, initialized: true});
+        if (checked.graphState) {
+            this.setBaseState({...checked.graphState, initialized: true});
         }
-        if (preset.data) {
-            this.importPresetData(this.storedPresetData(preset.data));
+        if (checked.data !== undefined) {
+            this.importPresetData(checked.data as D);
         }
     }
 
@@ -1081,6 +1112,16 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         entry?: FigureBatchScene<D>,
     ): Promise<void> {
         const transientState = entry?.transientState;
+        // A persisted Preset is checked before the scene is touched. The entry scene is a trusted capture of the live graph.
+        let checked: CheckedPreset | undefined;
+        if (!entry) {
+            try { checked = this.checkPersistedPreset(preset); } catch (error) {
+                const reason = error instanceof LocalizedError ? error.description : message("preset_entry_refused", {value0: String(error)});
+                this.presetNoticeValue = message("preset_entry_refused", {value0: reason});
+                this.requestRender();
+                throw error;
+            }
+        }
         const generation = ++this.figureSceneGeneration;
         const isCurrent = () => this.graphSession === session && session.isAlive &&
             !operationSignal.aborted && generation === this.figureSceneGeneration;
@@ -1097,13 +1138,13 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                     // `restoreEntryState` imports the entry scene captured from the live graph, so there is no stored
                     // data to check against the Preset collection; a missing payload is the default scene.
                     importData: () => {
-                        if (!entry) this.importFigurePresetData(preset);
-                        else this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
+                        if (checked) this.importFigurePresetData(checked);
+                        else if (entry) this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
                     },
                     workspaceRevisionAfterImport: true,
                     state: {
                         mode: 'deferred',
-                        next: () => this.figurePresetGraphState(preset.graphState),
+                        next: () => this.figurePresetGraphState((checked ?? preset).graphState),
                         isCurrent,
                         signal: operationSignal,
                         onCancel: () => { if (generation === this.figureSceneGeneration) this.figureSceneGeneration++; },
@@ -1112,7 +1153,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                     transientState: cloneLessonValue(transientState),
                     initialize: true,
                     finish: () => {
-                        if (preset.boardState && this.hasBoard) this.board.setBoundingBox(preset.boardState.boundingBox, this.equalAxisUnits);
+                        const boardState = (checked ?? preset).boardState;
+                        if (boardState && this.hasBoard) this.board.setBoundingBox(boardState.boundingBox, this.equalAxisUnits);
                         this.boardUpdate();
                         session.requestFullUpdate();
                     },

@@ -4078,4 +4078,8 @@ export const sl = {
     "reduction_readout_l2_error": "Napaka L²: {value0}.",
     "reduction_readout_bound": "Meja iz kontrolnih točk: {value0}.",
     "reduction_preset_needs_four_points": "krivulja nižanja stopnje mora biti kubična Bézierova krivulja s štirimi kontrolnimi točkami",
+    "preset_check_in_collection": "zbirka {value0}: {value1}",
+    "preset_check_in_preset": "zbirka {value0}, prednastavitev {value1}, polje {value2}: {value3}",
+    "preset_entry_refused": "Prednastavitve ni mogoče naložiti, prikazana je ostala prejšnja slika: {value0}.",
+    "preset_entry_refused_default_shown": "Prednastavitve ni mogoče naložiti, zato je prikazana privzeta slika: {value0}.",
 } as const;

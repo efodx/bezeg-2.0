@@ -523,17 +523,16 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
     other.importPreset({id: 'stored', data: exported});
     expect(other.model).toEqual(exported);
     expect(graph.defaultPreset()).toEqual(({example: 'power', r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false}));
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {example: 'power', r: 0.8, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false};
     const bad = [null, [], {}, {...valid, example: 'cubic'}, {...valid, r: 0.82}, {...valid, r: 1.05}, {...valid, n: 0}, {...valid, n: 51}, {...valid, n: 2.5}, {...valid, x: 0.85},
         {...valid, x: -0.01}, {...valid, x: 0.505}, {...valid, epsilon: 0}, {...valid, epsilon: 1.5}, {...valid, epsilon: 0.005}, {...valid, supremumVisible: 'yes'}, {...valid, x: '0.5'}];
     for (const entry of bad) {
-        other.importPreset({id: 'stored', data: entry});
-        expect(other.model, JSON.stringify(entry)).toEqual(valid);
+        expect(() => other.importPreset({id: 'stored', data: entry}), JSON.stringify(entry)).toThrow();
+        expect(other.model, JSON.stringify(entry)).toEqual(exported);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
+    other.importPreset({id: 'stored', data: undefined});
+    expect(other.model).toEqual(valid);
     // capture and restore
     const checkpoint = graph.captureLessonState();
     expect(checkpoint.value.data).toEqual(exported);

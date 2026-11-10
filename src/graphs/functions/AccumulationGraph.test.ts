@@ -629,20 +629,18 @@ test('presets save the model with the reveal state and reopen the same scene', (
     expect(other.board.setBoundingBox).toHaveBeenLastCalledWith([-5, 10, 9.6, -1.5], true);
 });
 
-test('malformed, out-of-domain or incomplete preset data is rejected to the default model with a warning', () => {
+test('malformed, out-of-domain or incomplete preset data is refused and the model on show stays', () => {
     const graph = makeGraph();
     apply(graph, parameter('accum-x', 3));
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const valid = {fn: 'sin', a: 0, x: 2, accumulationVisible: false};
     const bad = [undefined, null, 'not json', {}, [], {...valid, fn: 'cos'}, {...valid, a: -7.01}, {...valid, x: 7.01}, {...valid, x: 100}, {...valid, a: '0'}, {...valid, x: NaN},
         {...valid, x: Infinity}, {...valid, accumulationVisible: 'yes'}, {...valid, accumulationVisible: 1}, {fn: 'sin', a: 0, x: 2}, {fn: 'sin', x: 2, accumulationVisible: true}];
     for (const entry of bad) {
-        graph.importPreset({id: 'stored', data: entry});
+        if (entry === undefined) graph.importPreset({id: 'stored', data: entry});
+        else expect(() => graph.importPreset({id: 'stored', data: entry})).toThrow();
         expect(graph.model).toEqual({fn: 'sin', a: 0, x: 2, accumulationVisible: false});
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
-    warn.mockRestore();
+    // Data the collection rejects (null included) is refused before anything changes: the model on show stays. A Preset without data shows the default model.
 });
 
 test('capture and restore bring back the synchronous model, including the reveal', () => {

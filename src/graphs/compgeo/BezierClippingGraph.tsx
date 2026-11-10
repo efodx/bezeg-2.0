@@ -210,6 +210,7 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
 
     /** A Preset that names no tolerance (or an invalid one) shows the default 6, never the tolerance the graph happened to have. */
     override importPreset(preset: Preset): void {
+        this.checkPersistedPreset(preset); // a refusal precedes the tolerance reset below
         const named = preset.graphState && "clipToleranceExponent" in preset.graphState ? parseClipToleranceExponent(preset.graphState.clipToleranceExponent) : undefined;
         if (named === undefined) this.setState(this.clipPatch({clipToleranceExponent: DEFAULT_CLIP_TOLERANCE_EXPONENT}));
         super.importPreset(preset);

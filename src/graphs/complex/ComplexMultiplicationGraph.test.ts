@@ -573,12 +573,12 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
     const valid = {...DEFAULT_COMPLEX_MODEL};
     const bad = [null, [], {}, {...valid, example: 'cubic'}, {...valid, zRe: 2.05}, {...valid, zIm: -2.5}, {...valid, wRe: 0.123}, {...valid, wIm: '1'}, {...valid, wIm: Number.NaN},
         {...valid, productVisible: 'yes'}, {...valid, anglesVisible: 1}, {example: 'zero', zRe: 1, zIm: 1, wRe: 0, wIm: 0}];
+    // Malformed persisted data (explicit null included) is refused before anything changes: the live model stays, no console fallback.
     for (const entry of bad) {
-        other.importPreset({id: 'stored', data: entry});
-        expect(other.model, JSON.stringify(entry)).toEqual(valid);
+        expect(() => other.importPreset({id: 'stored', data: entry}), JSON.stringify(entry)).toThrow(/complex-multiplication/);
+        expect(other.model, JSON.stringify(entry)).toEqual(exported);
     }
-    // A Preset without data (undefined, null) shows the default model without a warning; rejected data warns.
-    expect(warn).toHaveBeenCalledTimes(bad.filter(entry => entry !== undefined && entry !== null).length);
+    expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
     // capture and restore
     const checkpoint = graph.captureLessonState();

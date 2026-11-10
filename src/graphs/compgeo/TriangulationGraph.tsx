@@ -364,7 +364,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
 
     /**
      * A stored triangle list is imported as it is. A list that is not a valid counter-clockwise triangulation of the stored
-     * points is refused (the file importer and `storedPresetData` check first, with a localized message), and the scene stays
+     * points is refused (the file importer and `checkPersistedPreset` check first, with a localized message), and the scene stays
      * as it was. Data without a list (a plain point set) is triangulated by the starting rule.
      */
     override importPresetData(data: PointSetModel): void {
