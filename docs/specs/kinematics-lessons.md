@@ -1,6 +1,6 @@
 # Kinematics on curves (Kinematika na krivuljah)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/kinematics](../tasks/kinematics/README.md). Decisions 1–3: [ADR 0050](../adr/0050-kinematics-graph-si-units-and-arrow-scale.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #7 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md)); details below are proposals for owner review.
 **Source:** the research note's entry 7 (opening lesson, lesson list, risks) and the matura catalogue M-MAT-2026, text extraction read for this spec: §4.13 *Diferencialni račun* (page 21; *Uporaba odvoda*, *Drugi odvod funkcije*, *Modeliranje realnih problemov in njihovo reševanje z uporabo metod diferencialnega računa*, objectives "zapiše enačbi tangente in normale v dani točki krivulje" and "povezuje lastnosti funkcij in njen odvod"). Vector-valued derivatives, speed along a parametrized curve and acceleration components are not named in the extraction, so they are **enrichment** beyond the matura; the anchor covers the derivative, the second derivative, the tangent and normal, and modelling. Level markers (VR) were not verified. Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
