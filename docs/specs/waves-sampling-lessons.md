@@ -1,6 +1,6 @@
 # Waves, beats and sampling (Valovanje, utripanje in vzorčenje)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/waves](../tasks/waves/README.md). Decisions 1–3: [ADR 0055](../adr/0055-waves-one-graph-integer-frequencies-drawn-sampler.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #14 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md), the runner-up that took the freed slot); details below are proposals for owner review.
 **Source:** the research note's entry 14 (opening lesson, lesson list, risks) and the matura catalogue M-MAT-2026, text extraction read for this spec: §4.10.9 *Kotne funkcije* (page 19; contents *Transformacije grafov kotnih funkcij*, *Adicijski izreki*, *Faktorizacija in razčlenitev produkta*, *Kotne funkcije v tehniki in naravoslovju*; objectives "uporabi transformacije grafov kotnih funkcij" and "uporabi adicijske izreke"). Superposition and beats are the product-to-sum identity in use and the amplitude, frequency and phase transformations in an applied setting; **sampling, aliasing and the Nyquist rate are not in the extraction and are enrichment**. Level markers (VR) were not verified. Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
