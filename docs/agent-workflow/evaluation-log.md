@@ -2659,3 +2659,16 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Pipelining worked: O1 ran in files disjoint from both repair workers, and its commit was separated by explicit staging. Localization keys from an in-progress slice ride with whichever commit stages `sl.ts`/`en.ts` first; harmless but noted in the message.
   - Workers still skip observed failures for some new assertions unless a repair brief demands them one by one.
 - Addendum (same handler, before handoff): R1f (shared readout parts, compgeo readouts; Sonnet `medium`, about 59 min, 151k tokens) and O1's repair (Sonnet `medium`) integrated as `7e925b59` and `6e27a812`; `check-changed` over all unpushed work passed (896 s). The O1 repair worker again recorded no observed failures; a single handler mutation (remove the preview clear on Apply) confirmed the key test in about one minute, cheaper than another worker round. Handoff came at BUDGET SOFT with seven verified commits unpushed, because O1 and R1f still lacked browser smoke and `just publish` cannot push a prefix that interleaves them.
+
+### 2026-11-10 families-prep handler 1 (Opus, auto, medium; budget scale 1.5): 15 family specs, F0 ×3, trigonometry F1
+
+- Role/class: stream handler, L. Scope: draft specs for the top-15 lesson families (13 new, 2 Batch D amendments), F0 for #1, #6 and #2 (ADRs 0044–0046), and the trigonometry F1 kernel.
+- Dispatch: 7 spec-writer workers (Sonnet `medium`, two specs each, one shared brief file `docs/reviews/feature-streams/families-prep/spec-brief.md`), 8 mathematical reviewers (Sonnet `medium`), 3 F1 workers (Sonnet `medium`), and 1 kernel reviewer. Dispatch about 23:24Z on 2026-11-09; last acceptance 02:19Z. Writers took 10–38 min each, with 79k–135k tokens each.
+- Outcome: all 15 spec items accepted and pushed; F0 for 3 families pushed; trigonometry F1 accepted and pushed as `6af77364` after `just unit src/trig`, a whole-repo `tsc` and `just lint`. The circle-construction F1 (#6) is implemented but has not been reviewed yet; it is handed off.
+- Reviews: every spec review found real errors. Two were blockers: the frieze `p2mg` generators were wrong, and a Markov chain with \(a+b=2\) was said to have no unique stationary distribution. Others were a quoted SSA gap at the wrong angle, a coaxal case missing from the radical centre, tautological oracles (\(\kappa v^2\) vs \(a_N\); `lineValue`), and tolerances worded as if exact. About 95% of quoted numbers recomputed correctly; most errors were in claims and oracle independence, not arithmetic.
+- Repairs: handler-made for pairs A, B, C, F and G (wording, short); sent back to the writer for D and E (many recomputed numbers). The resumed writers kept their context and repaired in 10–20 min.
+- Lessons:
+  - A shared brief file plus a short per-dispatch prompt kept handler dispatch cost low. "Recompute every number with node" in reviewer prompts caught the wrong claims.
+  - A writer at 135k tokens (pair F) was not resumed; the handler repaired instead.
+  - The worker for pair C declared its family's F2a ungated, against the owner's boundary; handler review caught it. Briefs should quote the gating list verbatim.
+  - The handler committed once with `--no-verify`, which was a mistake. No hook is configured, so nothing was skipped.
