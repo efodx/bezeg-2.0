@@ -127,6 +127,11 @@ Search of `src/localization/sl.ts` found *Zrcaljenje* (`affine_reflection`, line
 
 - **Gating** ([Boundary with the Controls stream](../tasks/feature-streams/families-prep.md)). Ungated now: this spec, the F0 plan, the ADRs, the F1 kernel (`src/isometry/*` as new pure files with oracle tests) and F2a (`IsometryGraph` as a new class using the shared controls of `src/inputs/` as they are, with no route). Waiting on Controls step 7: F2b registration, F3 lessons, F4 chapter, F5 media. This spec plans no edits to `BaseGraph.tsx`, `GraphSession.ts`, `src/inputs/` or existing graph panels or to `LinearMapGraph`. A shared control (for example a symmetry checkbox group) is a dependency on the Controls stream if it does not exist.
 - State: mirror grid points, mode, dilation centre and ratio, rosette \(n\) and mirror flag, frieze feature set and period; derived values are recomputed from validated state.
+- State details (handler decisions at F2a, 2026-11-10):
+  - For L3 step 4, the similarity state adds a rotation about the dilation centre, chosen from \(0^\circ, 90^\circ, 180^\circ, 270^\circ\) and the Pythagorean pair \((\tfrac35,\tfrac45)\) or its inverse. Every choice is a rational unit pair, so readouts stay exact, and the composite's fixed point is the centre. The L3 checked fixed point \((-\tfrac{46}{29},\tfrac{28}{29})\) with \(t=(1,2)\) stays a kernel test.
+  - L4 gets a draggable motif point (`rosettePoint`).
+  - Dilation by \(k=1\) is the identity, so its fixed-point readout is "every point".
+  - The frieze period is an integer from 4 to 8, so the mirror positions at \(L/4\) never overlap the motif.
 - Typed scene actions (`set-mirrors`, `set-dilation`, `set-frieze`, `set-mode`); multi-action scenes run in one synchronous tick and are tested that way. No playback.
 - Routes and Presets additive; `/bezier/affine` and `linear-map` unchanged.
 - Lesson text is one-shot ([rule](new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31)).

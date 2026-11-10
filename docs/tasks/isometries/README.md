@@ -10,7 +10,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | --- | --- | --- | --- | --- | --- |
 | [01 Isometry and similarity kernel](01-isometry-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; tests strengthened) |
 | [02 Rosette and frieze kernel](02-rosette-frieze-kernel.md) | 0 | F1 | none | 01 | done 2026-11-10 (mathematical review, Sonnet; low findings fixed) |
-| [03 State model and isometry graph](03-isometry-graph.md) | A–C | F2a | none | 01, 02 | planned |
+| [03 State model and isometry graph](03-isometry-graph.md) | A–C | F2a | none | 01, 02 | done |
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 03 | planned |
 
 ## Slovenian terms (F0 decision)
@@ -29,3 +29,7 @@ These come from the spec's table: reuse from `sl.ts` first, then the PIK, then U
 | rosette; cyclic and dihedral group | rozeta; ciklična in diedrska grupa | *ciklična grupa* is the UL algebra term (dlib.si lecture notes). *diedrska grupa* is the matching adjective form. *rozeta* is the transparent everyday word and is glossed by its group |
 | frieze pattern; frieze group | friz; frizna grupa | RUL thesis *Frizne grupe* (2021) |
 | period | perioda | Standard |
+| fixed point | negibna točka | Standard in Slovenian school and university geometry (task-03 graph readout); not checked against a named source this session |
+| ratio of lengths; ratio of areas | razmerje dolžin; razmerje ploščin | Plain compounds of *razmerje*, the term of the similarity chapter (PIK §4.6); readout rows of the task-03 graph |
+| order of a group | red grupe | Standard algebra term (UL algebra notes); readout row of the rosette mode |
+| symmetries of the pattern; frieze type; translation vector | simetrije vzorca; tip friza; vektor premika | Group label, board caption and readout of the task-03 graph. *simetrija* is standard, *vzorec* is the plain word the status already uses, *tip friza* follows *frizna grupa*, *vektor premika* follows *vzporedni premik*; no named source checked this session |
