@@ -9,7 +9,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Isometry and similarity kernel](01-isometry-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; tests strengthened) |
-| [02 Rosette and frieze kernel](02-rosette-frieze-kernel.md) | 0 | F1 | none | 01 | planned |
+| [02 Rosette and frieze kernel](02-rosette-frieze-kernel.md) | 0 | F1 | none | 01 | done 2026-11-10 (mathematical review, Sonnet; low findings fixed) |
 | [03 State model and isometry graph](03-isometry-graph.md) | A–C | F2a | none | 01, 02 | planned |
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 03 | planned |
 
