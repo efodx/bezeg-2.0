@@ -236,9 +236,9 @@ test('a bow-tie is reported as not simple in words, a square as simple', () => {
     expect(objects(graph, 'segment')).toHaveLength(3);
     expect(status().textContent).toBe('Lomljena črta je enostavna.');
     load(graph, model([[0, 0], [1, 1]], {mode: 'points'}));
-    // the live region stays mounted (so its text change is announced) and is empty outside polygon mode
-    expect(document.querySelector('[data-readout-live]')!.getAttribute('role')).toBe('status');
-    expect(document.querySelector('[data-readout-live]')!.textContent).toBe('');
+    // the notice region stays mounted and is empty outside polygon mode; it is not a readout region
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(0);
+    expect(document.querySelector('[data-pointset-announce]')!.textContent).toBe('');
     expect(document.querySelectorAll('[data-pointset-status]')).toHaveLength(1);
 });
 
@@ -372,4 +372,14 @@ test('a language switch updates the controls and the board label and keeps model
     expect(graph.model).toBe(before.model);
     expect(graph.selectedIndex).toBe(2);
     expect(pointCoordinates(graph)).toEqual(before.coords);
+});
+
+test('a polygon-mode point-set graph exposes at most one always-speaking region, and its status sentence is announced after it changes (decision 18)', () => {
+    const graph = new Observed();
+    mount(graph);
+    load(graph, model([[0, 0], [2, 2], [2, 0], [0, 2]], {mode: 'polygon', closed: true}));
+    expect(document.querySelectorAll('[data-readout-live]').length).toBeLessThanOrEqual(1);
+    load(graph, model([[0, 0], [2, 0], [2, 2], [0, 2]], {mode: 'polygon', closed: true}));
+    expect(document.querySelectorAll('[data-readout-live]').length).toBeLessThanOrEqual(1);
+    expect(document.querySelector('[data-pointset-announce]')!.textContent).toBe('Večkotnik je enostaven.');
 });

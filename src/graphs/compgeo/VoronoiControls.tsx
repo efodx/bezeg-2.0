@@ -223,6 +223,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 ))}
             </div>
             <PlaybackButtons placement="graph" groupLabel={t("vor_construct_group")} nextLabel={t("vor_construct_next")} resetLabel={t("vor_construct_reset")} playing={playing}
+                             noRunReason={status.cellSite === null ? t("vor_construct_choose_first") : undefined}
                              onNext={() => actions.constructNext()} onPlayPause={() => actions.constructPlayPause()} onReset={() => actions.constructReset()}
                              {...playbackBlocks({ready: construction !== undefined && construction.total > 0, atStart: (construction?.count ?? 0) <= 0,
                                  atEnd: !construction || construction.count >= construction.total, playing, stepsWhilePlaying: true})}>

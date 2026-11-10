@@ -44,6 +44,8 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
     /** Defaults to the shared Reset label. */
     readonly resetLabel?: string;
     readonly playing: boolean;
+    /** Replaces the generic "no run" reason when the graph knows why there are no steps and what to do (for example choose a site first). */
+    readonly noRunReason?: string;
     /** "graph" asks for the graph-adjacent slot under the board where the workspace offers one; default "inspector". */
     readonly placement?: "graph" | "inspector";
     /** A continuous run has no step: leave `onNext` out and the Next step button is not shown. */
@@ -62,7 +64,7 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
  * disabled), because a focused button must not lose focus when it becomes unavailable, and it says why it is blocked: in its
  * title, in its description, and in the status line once pressed.
  */
-export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, placement = "inspector", nextBlock, playBlock, resetBlock,
+export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, noRunReason, placement = "inspector", nextBlock, playBlock, resetBlock,
                                     onNext, onPlayPause, onReset, leading, children}: PlaybackButtonsProps) {
     const t = useT();
     const slot = useContext(PlaybackSlotContext);
@@ -105,7 +107,7 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         'no-more-steps': t("playback_block_no_more_steps"),
         'playing': t("playback_block_playing"),
         'at-start': t("playback_block_at_start"),
-        'no-run': t("playback_block_no_run"),
+        'no-run': noRunReason ?? t("playback_block_no_run"),
         'reduced-motion': t("playback_block_reduced_motion"),
     };
     const all: readonly {action: PlaybackAction, block: PlaybackBlock | undefined, label: string, run: (() => void) | undefined}[] = [

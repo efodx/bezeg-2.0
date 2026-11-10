@@ -2672,6 +2672,7 @@ export const en: Record<keyof typeof sl, string> = {
     "vor_construct_next": "Show bisector",
     "vor_construct_reset": "Reset construction",
     "vor_construct_none": "Choose a site to show how its cell is built.",
+    "vor_construct_choose_first": "Choose a site in the site list first.",
     "vor_construct_start": "Cell of site P{value0}: start, no bisectors yet (0 of {value1}).",
     "vor_construct_step": "Bisector {value0} of {value1}: the half-plane nearer to site P{value2} than to site P{value3}.",
     "vor_construct_done": "All bisectors ({value1}) are applied: the intersection of the half-planes is the cell of site P{value0}.",

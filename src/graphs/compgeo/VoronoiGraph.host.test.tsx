@@ -750,3 +750,16 @@ test('a reset after a grid step change draws the exact frame again, as a newly m
     act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
     expect(frameOf(graph.box()!)).toEqual(frameOf(fresh));
 });
+
+test('with no site chosen the blocked Next and Play say to choose a site; with a site chosen that reason is gone', () => {
+    const graph = new Observed();
+    mount(graph);
+    const reason = () => document.querySelector('[data-playback-reason]')?.textContent;
+    for (const action of ['next-step', 'play-pause']) {
+        click(action);
+        expect(reason()).toBe('Najprej izberi mesto v seznamu mest.');
+    }
+    act(() => { fireEvent.click(siteButton(0)); });
+    click('next-step');
+    expect(reason() ?? '').not.toBe('Najprej izberi mesto v seznamu mest.');
+});

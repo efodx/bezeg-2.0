@@ -2671,6 +2671,7 @@ export const sl = {
     "vor_construct_next": "Pokaži simetralo",
     "vor_construct_reset": "Ponastavi gradnjo",
     "vor_construct_none": "Izberi mesto, da pokažeš gradnjo njegove celice.",
+    "vor_construct_choose_first": "Najprej izberi mesto v seznamu mest.",
     "vor_construct_start": "Celica mesta P{value0}: začetek, še brez simetral (0 od {value1}).",
     "vor_construct_step": "Simetrala {value0} od {value1}: polravnina, ki je bližje mestu P{value2} kot mestu P{value3}.",
     "vor_construct_done": "Vse simetrale ({value1}) so uporabljene: presek polravnin je celica mesta P{value0}.",

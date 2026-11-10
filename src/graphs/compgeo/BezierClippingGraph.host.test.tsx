@@ -328,3 +328,10 @@ test('Next step to the end and Play to the end give the same nonempty final draw
     tick(frames, byPlay.run().length + 5);
     expect(snapshot(byPlay)).toEqual(expected);
 });
+
+test('the panel has at most one always-speaking readout region, at mount and after a step (decision 18)', () => {
+    const {graph} = setup();
+    expect(document.querySelectorAll('[data-readout-live]').length).toBeLessThanOrEqual(1);
+    act(() => { graph.nextStep(); });
+    expect(document.querySelectorAll('[data-readout-live]').length).toBeLessThanOrEqual(1);
+});

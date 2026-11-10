@@ -1,5 +1,5 @@
 import {CONTROL_ROW} from "../../inputs/controlRow";
-import React, {useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {formatNumber} from "../../analysis/format";
@@ -10,7 +10,6 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
-import {StatusLive} from "../base/controls/StatusLive";
 import {NumberInput} from "../../inputs/NumberInput";
 import {PointCollection} from "../../inputs/PointCollection";
 import {PointListInput, SelectablePointButton, useRemoveFocus} from "../../inputs/PointListInput";
@@ -69,10 +68,25 @@ export interface PointSetControlsProps {
     pointLabel?: (index: number) => string;
 }
 
+/**
+ * A notice region for a visible status sentence: empty at mount, then it speaks the sentence each time it changes. It is not
+ * `data-readout-live`, so it stays outside the graph's one readout region (decision 18) and never speaks on state alone.
+ */
+function ChangeNotice({text}: {text: string}) {
+    const [spoken, setSpoken] = useState("");
+    const previous = useRef(text);
+    useEffect(() => {
+        if (previous.current === text) return;
+        previous.current = text;
+        setSpoken(text);
+    }, [text]);
+    return <p className="visually-hidden" role="status" aria-live="polite" data-pointset-announce="">{spoken}</p>;
+}
+
 function Status({simplicity, model}: {simplicity: PolygonSimplicity | undefined, model: PointSetModel}) {
     const t = useT();
     // The announcement region stays mounted so a change of the text is announced; it is empty outside polygon mode.
-    if (model.mode !== "polygon") return <><p className="inspector-help pointset-status" data-pointset-status=""></p><StatusLive text=""/></>;
+    if (model.mode !== "polygon") return <><p className="inspector-help pointset-status" data-pointset-status=""></p><ChangeNotice text=""/></>;
     const closed = model.closed;
     let text: string;
     if (closed && model.points.length < 3) text = t("pointset_status_too_few_vertices");
@@ -81,7 +95,7 @@ function Status({simplicity, model}: {simplicity: PolygonSimplicity | undefined,
     else text = t(closed ? "pointset_status_not_simple_closed" : "pointset_status_not_simple_open",
         {value0: simplicity.edges[0] + 1, value1: simplicity.edges[1] + 1});
     const simple = simplicity?.simple === true && !(closed && model.points.length < 3);
-    return <><p className="inspector-help pointset-status" data-pointset-status={simple ? "simple" : "not-simple"}>{text}</p><StatusLive text={text}/></>;
+    return <><p className="inspector-help pointset-status" data-pointset-status={simple ? "simple" : "not-simple"}>{text}</p><ChangeNotice text={text}/></>;
 }
 
 /** Segments mode: one row per segment with its four endpoint fields, a select and a remove button, and the Add segment action. */
@@ -219,7 +233,7 @@ export function PointSetControls(props: PointSetControlsProps) {
                 ? t(segments ? "pointset_no_segment_selected" : intervals ? "pointset_no_interval_selected" : "pointset_no_selection")
                 : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1})
                 : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: pointName(selected)})}</p>
-            {paired && <><p className="inspector-help" data-pointset-pending={props.pending ? "" : undefined}>{pendingText}</p><StatusLive text={pendingText}/></>}
+            {paired && <><p className="inspector-help" data-pointset-pending={props.pending ? "" : undefined}>{pendingText}</p><ChangeNotice text={pendingText}/></>}
             <div data-pointset-notice={notice?.kind ?? ""}><RefusalNotice channel={channel}/></div>
         </div>
         <Status simplicity={props.simplicity} model={model}/>
