@@ -8,6 +8,8 @@
  * accept the grid form (ADR 0051 section 2).
  */
 
+import {REVOLVE_K, revolve} from "./revolve";
+
 export type Vec3 = readonly [number, number, number];
 
 export interface Solid {
@@ -208,4 +210,12 @@ export function isConvex(solid: Solid): boolean {
         }
     }
     return true;
+}
+
+/** Cone with the base disc (radius r) at z = 0 and the apex at z = h, as an inscribed k-gon mesh. */
+export function cone(r: number, h: number, k: number = REVOLVE_K): Solid {
+    if (!(r > 0) || !(h > 0)) {
+        throw new RangeError("Cone needs r > 0 and h > 0");
+    }
+    return revolve([[0, r], [h, 0]], k, "z");
 }

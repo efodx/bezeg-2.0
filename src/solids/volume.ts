@@ -1,4 +1,6 @@
 import {realCoords, vertexCount, type Solid, type Vec3} from "./solid";
+import {FUNCTION_CATALOG} from "../analysis/functions";
+import {riemannSum, type SumMethod} from "../analysis/riemann";
 
 /**
  * Volume of a closed mesh by signed tetrahedra (fan triangles against the first vertex as origin).
@@ -46,4 +48,82 @@ export function newellVector(points: ReadonlyArray<Vec3>): Vec3 {
 export function sectionAreaFromLoop(points: ReadonlyArray<Vec3>): number {
     const [x, y, z] = newellVector(points);
     return Math.hypot(x, y, z) / 2;
+}
+
+/** Prism volume: base area times height. */
+export function prismVolume(baseArea: number, height: number): number {
+    return baseArea * height;
+}
+
+/** Pyramid volume: one third of base area times height. */
+export function pyramidVolume(baseArea: number, height: number): number {
+    return baseArea * height / 3;
+}
+
+/** Exact cone volume pi r^2 h / 3. */
+export function coneVolume(radius: number, height: number): number {
+    return Math.PI * radius * radius * height / 3;
+}
+
+/** Exact sphere volume 4 pi r^3 / 3. */
+export function sphereVolume(radius: number): number {
+    return 4 * Math.PI * radius ** 3 / 3;
+}
+
+/**
+ * Disc sum pi * (Riemann sum of f^2) over [a, b] with n discs by the given rule, using the
+ * `riemannSum` of the integral demonstration unchanged. An approximation of pi * integral f^2.
+ */
+export function discVolume(f: (x: number) => number, a: number, b: number, n: number, rule: SumMethod): number {
+    const squared = {...FUNCTION_CATALOG.square, value: (x: number) => f(x) ** 2};
+    return Math.PI * riemannSum(squared, a, b, n, rule);
+}
+
+/**
+ * Area of the horizontal cross-section z = height of a closed outward mesh, by Green's theorem on
+ * the oriented cut segments of the fan triangles. A vertex at exactly the height counts as above.
+ * Shares no code with `sectionConvex`; also valid for non-convex meshes. Throws RangeError unless
+ * the height is strictly between the lowest and highest vertex; a vertex at an interior height
+ * counts as above the cut.
+ */
+export function sliceAreaAt(solid: Solid, height: number): number {
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (let i = 0; i < vertexCount(solid); i++) {
+        const z = realCoords(solid, i)[2];
+        lo = Math.min(lo, z);
+        hi = Math.max(hi, z);
+    }
+    if (!(height > lo && height < hi)) {
+        throw new RangeError("Slice height must lie strictly between the lowest and highest vertex");
+    }
+    let twice = 0;
+    for (const f of solid.faces) {
+        const p0 = realCoords(solid, f[0]);
+        for (let k = 1; k + 1 < f.length; k++) {
+            const tri = [p0, realCoords(solid, f[k]), realCoords(solid, f[k + 1])];
+            let down: Vec3 | undefined;
+            let up: Vec3 | undefined;
+            for (let i = 0; i < 3; i++) {
+                const p = tri[i];
+                const q = tri[(i + 1) % 3];
+                const pa = p[2] >= height;
+                const qa = q[2] >= height;
+                if (pa === qa) {
+                    continue;
+                }
+                const s = (height - p[2]) / (q[2] - p[2]);
+                const c: Vec3 = [p[0] + s * (q[0] - p[0]), p[1] + s * (q[1] - p[1]), height];
+                if (pa) {
+                    down = c;
+                } else {
+                    up = c;
+                }
+            }
+            if (down && up) {
+                twice += down[0] * up[1] - up[0] * down[1];
+            }
+        }
+    }
+    return twice / 2;
 }
