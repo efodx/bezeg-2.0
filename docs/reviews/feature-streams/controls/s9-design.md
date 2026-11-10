@@ -1,0 +1,66 @@
+# Step 9 design: feature-local registration, projective conics pilot (read-only inventory, 2026-11-10)
+
+Task: docs/tasks/lesson-authoring-architecture/03-feature-local-registration.md; spec docs/specs/lesson-authoring-architecture.md:107-133 (R1-R5).
+Paths relative to the repo root. Only this note was written. Not verified: no test run; the "primary navigation-map" rows were not located by that name (see 1.7); `just tooling-test` scope not checked.
+
+## 1. Inventory of central projective knowledge
+
+1. `src/demonstrations.ts`
+   - `families` row `{id:'projective', title:'projective_conics'}` at :24 (last family; `FamilyId` derived :26; family order is catalog order; asserted in demonstrations.test.ts:152-154).
+   - Five definition rows :151-155 (id, path `/bezeg-2.0/projective/{cross-ratio,pascal,pole-polar,five-point,three-views}`, family, title key, two prompt keys). They are the LAST rows of `definitions` (:37-156), i.e. the tail of catalog order. None sets `lesson:false`, so all are in `LESSON_DEMONSTRATION_IDS` (:167) and `GUIDED_LESSON_AVAILABLE_IDS`.
+   - `DemonstrationId = typeof definitions[number]['id']` at :157 (derived from the hand-written `as const satisfies readonly Definition[]` array; no separate hand union). `Definition.id` is `string` (:28), `title/prompts` are `TextKey`.
+   - `getDemonstrationCatalog()` :196 maps `definitions` in order; `findDemonstration` :190 exact path lookup.
+2. `src/learning/runtime/lessonAvailability.ts` :1-13: pure derivation from `LESSON_DEMONSTRATION_IDS`; no projective rows. No edit needed while that stays derived from the composed definitions.
+3. `src/Routes.tsx` :7-13 `graphRoute(id)` lazily imports `./graphs/base/GraphRoute` AND `./graphs/graphFactories` (the all-graph table) and returns `<GraphRoute create={graphFactories[id]}/>`; routes :35-37 derive from `getDemonstrationCatalog()`. So today a projective route loads every graph.
+4. `src/graphs/graphFactories.ts` (243 lines): imports :116-120; type `Record<DemonstrationId, () => BaseGraph<BaseGraphState>>` :124; rows :238-242. Constructors are synchronous; a lazy loader must resolve to a factory after `await import()`.
+5. `src/graphs/base/presets/PresetImport.ts`: import :22 of five accessors from `src/graphs/projective/projectivePresetCollection.ts`; composition array `presetCollections` :28-34 (projective at :33); `collectionsByStorageKey` :35 maps `preset-${key}` (a Map built from entries, so a duplicate key silently overwrites). Definitions: `projectivePresetCollection.ts` :35-64 (keys `projective-cross-ratio|pascal|pole-polar|five-point|three-views`, accessors return singletons). `PresetCatalog.test.tsx:36-37` has its own `PROJECTIVE_KEYS`.
+6. Owner rows: `src/learning/content/chapterOwnedLessons.ts` :85 (imports :10, :22); `chapterOwnerRows()` :97-101. Section-to-Demonstration map `sectionDemonstrations` at `projectiveConicsChapterRegistry.ts` :10-16 (section id equals Demonstration id). Leaf id `projectiveConicsChapterId.ts:2`. Other projective content wiring: `familyChapters.ts:11,320`, `chapter/guidedExamplePreviews.ts:18,59`, `LearningPage.tsx:30,46`.
+7. Probable "primary navigation-map rows": `src/learning/chapter/guidedLessonOwnership.ts` `guidedLessonOwners` :11 (Record over `GuidedLessonDemonstrationId`), projective rows :32-38 (`'projective-x': {chapterId:'projective-conics', sectionId:'projective-x'}`), derivable from `chapterOwnerRows()`; also read by `patchChapter.test.ts`. A search for "primary navigation"/"navigation map" found no table by that name in src/scripts, so confirm with the handler which table is meant before deleting.
+8. Preview tooling (CJS under `scripts/`; there is no `tools/` projective code):
+   - `scripts/capture-guided-example-previews.cjs:69` `chapterFamilies['projective-conics']` with a hand-written route regex and `routeText` (the duplicated route list; 14 sibling families :60-76). This file has no Vite bridge today.
+   - `scripts/generate-guided-example-inventory.cjs:238-243` chapter config (`module: '/src/learning/content/projectiveConicsChapterRegistry.ts'`, `registryExport`, `pathExport`, `expectedFor`); independent expectation functions :753-879 (keep outside descriptors). Vite bridge at :122-128, :175-186, :1652-1661 (`createServer({configFile: vite.config.mts, server:{middlewareMode:true}, appType:'custom'})` then `server.ssrLoadModule(config.module)` at :1655).
+   - Other projective mentions: `scripts/demonstration-preview-recipes.cjs:142-146, :326`; `scripts/demonstration-clip-rows/projective.cjs`; `scripts/ci-change-scope.cjs:17`; `scripts/projective-browser-perf.cjs`; and a hidden consumer: `scripts/transient-state-scope.cjs:65-68` regex-parses `graphFactories.ts` imports (test `.test.cjs:26,122`), so removing projective imports there changes its "family reach".
+
+## 2. DemonstrationId and narrowness consumers
+
+Derived from the literal `definitions` array (`demonstrations.ts:157`), a narrow union; `LessonlessDemonstrationId` :159 and `GuidedLessonDemonstrationId` :161 derive from it. About 181 mentions in 48 non-test files. Exhaustive-Record or `satisfies` dependents: `graphFactories.ts:124`, `guidedLessonOwnership.ts:11`, `demonstrationMotionAssets.ts`, `demonstrationMotionPending.ts`, `demonstrationPosterPending.ts`, `demonstrationPreviewAssets.ts`, `previewPoster.ts`, the chapter registries (`satisfies Record<string, DemonstrationId>`, e.g. projectiveConicsChapterRegistry.ts:16), `catalogSweepScope.ts`, `lessonRestorationContract.tsx`, `graphTransientStateContract.tsx` (casts `Object.keys(graphFactories) as DemonstrationId[]` :158,168), `lessonOwnerIntegrity.ts`. Widening to `string` would silently drop exhaustiveness in all of them.
+
+## 3. Existing guards
+
+- `src/demonstrations.test.ts:121-125` (catalog rows incl. projective), :152-154 (family order, 'projective' last).
+- `src/Routes.test.tsx:95-114`: every catalog path has a lazy route; resolves each and asserts `routeElement.props.create === graphFactories[id]` (:107). That identity assertion encodes the legacy table and must become "the loader-derived factory builds the expected constructor" for migrated ids.
+- `PresetCatalog.test.tsx:36-37`, `PersistedEntryParity.test.ts`, `projectivePresetCollection.test.ts`.
+- `lessonOwnerIntegrity.test.ts:14` (real table, zero content reads) plus synthetic cases :54-124; checker is `lessonOwnerIntegrity.ts`. `lessonImportGraph.test.ts:96-115` (TS-compiler import walker; no content file except composition reaches `runtime/lessonCatalog.ts` or `chapterOwnedLessons.ts`). Its walker helpers `importChain/buildGraph/localImports` (:12-92) are file-local; `localImports` follows static and dynamic imports.
+- `DemonstrationsPage.test.tsx:11` mocks `./graphs/graphFactories` to `{}`.
+- Tooling Node suites: `scripts/generate-guided-example-inventory.test.cjs`, `capture-guided-example-previews.test.cjs`, `transient-state-scope.test.cjs`, `commands.test.cjs`. `just --list` shows `tooling-test` ("focused Node tests for this command runner", possibly commands.cjs only), `unit`, `typecheck`, `lint`, `check`, `smoke`, `smoke-built`. The generator/capture suites likely have their own runner (spec: "the generator's own runner"); check docs/commands.md before slice 2.
+
+## 4. Slice 1 proposal (R1-R3)
+
+New files under `src/graphs/projective/`:
+
+1. `registration.ts` (cheap metadata; imports no graph, React, lesson or localization-catalog values). Exports `projectiveDemonstrationRows = [...] as const satisfies readonly Definition[]` in current order (id, path, family 'projective', title, prompts), `projectiveOwnerRows` (chapterId from leaf `projectiveConicsChapterId.ts`, sectionId, demonstrationId), and a map id to collection key. Export the `Definition` type from `demonstrations.ts` (`import type`, erased, so no cycle) to keep the diff small.
+2. `collections.ts`: array of the five collections referencing the existing definitions in `projectivePresetCollection.ts` (canonical; not redefined).
+3. `runtime.ts` (never imported by registration.ts): `projectiveGraphLoaders` with one entry per id, each `() => import('./XGraph').then(m => () => new m.XGraph())`, plus collection references via `collections.ts`.
+
+Root composition (explicit family imports, no discovery):
+- `demonstrations.ts`: `definitions = [...legacyRows, ...projectiveDemonstrationRows]`; delete :151-155. Both are `as const` tuples, so literal ids survive the spread and `DemonstrationId` stays derived and narrow. Projective stays the tail, preserving order. One comment: a new family adds one spread here.
+- New `src/graphs/graphLoaders.ts` (runtime root): `registeredGraphLoaders = {...projectiveGraphLoaders}`. `Routes.tsx` `graphRoute`: if `id in registeredGraphLoaders` await that loader, else dynamic-import `graphFactories` as today. Delete projective rows/imports from `graphFactories.ts` (:116-120, :238-242) and retype it `Record<Exclude<DemonstrationId, RegisteredId>, ...>`.
+- Eager test adapter (derived `{...graphFactories, ...resolved registered loaders}`) for the existing all-graph consumers (Routes.test, guidedExampleScenes.test, sceneContentAgainstGraphs.test, PhAuxiliaryBoardLifetime.test, graphTransientStateContract.tsx, GraphTransientState.test, sceneReplacementContract.test, ...): one import-path change each. Without it the projective graphs silently leave every contract sweep (`graphTransientStateContract.tsx:158,168`, `catalogSweepScope.ts`).
+- `PresetImport.ts`: replace :22 and the five calls at :33 with `...projectiveCollections` from `collections.ts` (which imports only models/validation; the static import-graph test below proves it pulls no graph/React). Legacy array unchanged.
+- `chapterOwnedLessons.ts:85` stays (read only here). The new registry must not import it or `runtime/lessonCatalog.ts`; owner identities are plain ids compared against `chapterOwnerRows()` in the integrity test. `guidedLessonOwnership.ts:32-38` is the deletion-test candidate (1.7), done in slice 2/3 once confirmed.
+
+Integrity: `src/graphs/registrationIntegrity.ts` (pure function over rows, loaders, collections, owner rows; issues name family/id) with `registrationIntegrity.test.ts`: synthetic cases for R1 (missing loader, duplicate id/path, owner row with no provider in `chapterOwnerRows()`, unknown collection key, two different collection objects on one storage key fails, the same canonical object referenced repeatedly passes) and a real-table test that also checks disjointness: no projective id in `legacyRows`, `graphFactories` keys, or the legacy `presetCollections` entries (add a duplicate storage-key assertion since `PresetImport.ts:35` silently overwrites).
+
+## 5. Observing module evaluation (R2)
+
+- Static: extract the import walker to an exported test helper (e.g. `src/testing/importGraph.ts`) rather than duplicating it; add a `staticOnly` option because `localImports` also follows dynamic imports. Assert: from `demonstrations.ts`, `registration.ts`, `lessonAvailability.ts`, and `collections.ts` plus `PresetImport.ts`, no chain reaches any `*Graph.tsx`, `graphFactories.ts`, `chapterOwnedLessons.ts`, `runtime/lessonCatalog.ts`; from `Routes.tsx` (static edges only) none reaches `graphFactories.ts` or `runtime.ts`.
+- Runtime: vitest with `vi.mock` factories that push to an `evaluated` array (a factory runs on first evaluation of that module) for the five projective graph modules, `graphs/graphFactories`, and one unrelated graph (e.g. a Bezier graph). `vi.resetModules()` between cases. Import `demonstrations` and call the projective route's `lazy()` from `routes`: expect only the selected projective module evaluated, legacy table and unrelated graph not evaluated; then call a legacy route's `lazy()` and expect the table evaluated. Home/catalog case: importing `demonstrations` and `lessonAvailability` evaluates nothing in `evaluated`. This observes evaluation, not constructor calls.
+
+## 6. Risks
+
+- CJS tooling: scripts must not `require()` TS. Slice 2 uses `ssrLoadModule('/src/graphs/projective/registration.ts')` via the generator's existing bridge; the capture tool needs a bounded `createServer` closed in `finally`. Out of slice 1.
+- `transient-state-scope.cjs` parses `graphFactories.ts` text (see 1.8); run `transient-state-scope.test.cjs` after removing projective imports and decide whether it also reads the loaders file.
+- Order: projective must stay the tail of `definitions`; `demonstrations.test.ts:121-125` guards it.
+- Types: confirm the spread plus `satisfies` keeps literal `id`s; add a type test that `DemonstrationId` is not `string` (precedent `src/analysis/conicTypeContracts.typecheck.ts`). `registration.ts` takes types only from `demonstrations.ts`; `demonstrations.ts` imports values from `registration.ts`.
+- Conflict surface with other streams: `demonstrations.ts` (:151-155 delete, one spread), `Routes.tsx` (graphRoute body), `graphFactories.ts` (:116-120, :238-242), `PresetImport.ts` (:22, :33). Keep edits to those lines; put everything else in new files. `scripts/check-changed-always-run.cjs:9` notes that importing graphFactories selects PresetCatalog.test, so the adapter's location affects change-scope selection.
+- No generated manifest, directory discovery or wrapper over the old tables; the legacy tables only shrink by the five ids.

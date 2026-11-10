@@ -8,7 +8,7 @@ import {act, render, RenderResult} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
-import {graphFactories} from '../graphFactories';
+import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import TensorDeCasteljauGraph from '../patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from '../patches/TensorDerivativesGraph';

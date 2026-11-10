@@ -7,7 +7,7 @@
  * Tier: sampled locally, full in CI. The activity sweep checks the activities of the lesson sample plus what the branch
  * reaches; BEZEG_SCENE_CONTENT=all or BEZEG_SWEEPS=all runs every one. The limit probes are fixed.
  */
-import {graphFactories} from '../../graphs/graphFactories';
+import {allGraphFactories as graphFactories} from '../../graphs/allGraphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction} from '../model';
 import {activities} from '../chapter/activities';

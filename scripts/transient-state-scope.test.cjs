@@ -125,3 +125,13 @@ test('family reach reads the class files from the imports of graphFactories.ts',
     assert.ok(found.some(({name, dir}) => name === 'OrientationGraph' && dir === 'src/graphs/compgeo'));
     assert.ok(found.some(({name, dir}) => name === 'BezierCurveGraph' && dir === 'src/graphs/curves/bezier'));
 });
+
+test('family reach also reads the registered projective graphs from their runtime loaders', () => {
+    const {graphClassFiles, familyClassNames} = require('./transient-state-scope.cjs');
+    const found = graphClassFiles();
+    for (const name of ['CrossRatioGraph', 'PascalGraph', 'PolePolarGraph', 'FivePointGraph', 'ThreeViewsGraph']) {
+        assert.ok(found.some(entry => entry.name === name && entry.dir === 'src/graphs/projective'), name);
+    }
+    assert.deepEqual(familyClassNames(['src/graphs/projective/idealMarker.ts'], found).sort(),
+        ['CrossRatioGraph', 'FivePointGraph', 'PascalGraph', 'PolePolarGraph', 'ThreeViewsGraph']);
+});

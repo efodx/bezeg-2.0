@@ -7,7 +7,7 @@ import {StrictMode} from 'react';
 import {MemoryRouter} from 'react-router-dom';
 import {act, render} from '@testing-library/react';
 import {GraphHost} from '../../base/GraphHost';
-import {graphFactories} from '../../graphFactories';
+import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import type {DemonstrationId} from '../../../demonstrations';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {setLanguage} from '../../../localization';

@@ -18,7 +18,7 @@
 import {act} from '@testing-library/react';
 import {inject} from 'vitest';
 import JXG from 'jsxgraph';
-import {graphFactories} from '../graphFactories';
+import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {appStorage} from '../../storage/appStorage';
 import {createGraph, installBoardShims, mountGraph, type MountedGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from './realGraphTestHarness';

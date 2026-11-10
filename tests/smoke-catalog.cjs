@@ -75,10 +75,31 @@ function parseSource(relativePath) {
 }
 
 const demonstrationSource = parseSource('src/demonstrations.ts');
-const definitions = variableInitializer(demonstrationSource, 'definitions');
-if (!ts.isArrayLiteralExpression(definitions) || definitions.elements.length === 0) {
-    throw new Error('The demonstrations catalog must remain a non-empty array literal.');
+/**
+ * The row object literals of `name`: an array literal whose elements are rows or `...identifier` spreads, each resolved
+ * to a variable of the same file or of the module it imports (feature-registered families, see src/graphs/graphLoaders.ts).
+ */
+function rowElements(sourceFile, name) {
+    const array = variableInitializer(sourceFile, name);
+    if (!ts.isArrayLiteralExpression(array) || array.elements.length === 0) {
+        throw new Error(`${name} in ${path.basename(sourceFile.fileName)} must remain a non-empty array literal.`);
+    }
+    return array.elements.flatMap(element => {
+        if (!ts.isSpreadElement(element)) return [element];
+        const spread = unwrapExpression(element.expression);
+        if (!ts.isIdentifier(spread)) throw new Error(`Unsupported catalog spread: ${element.getText()}`);
+        const local = sourceFile.statements.some(statement => ts.isVariableStatement(statement) &&
+            statement.declarationList.declarations.some(declaration => ts.isIdentifier(declaration.name) && declaration.name.text === spread.text));
+        if (local) return rowElements(sourceFile, spread.text);
+        const imported = sourceFile.statements.find(statement => ts.isImportDeclaration(statement) && !statement.importClause?.isTypeOnly &&
+            statement.importClause?.namedBindings && ts.isNamedImports(statement.importClause.namedBindings) &&
+            statement.importClause.namedBindings.elements.some(binding => binding.name.text === spread.text));
+        if (!imported) throw new Error(`Could not resolve catalog spread ${spread.text} in ${path.basename(sourceFile.fileName)}.`);
+        const target = path.join(path.dirname(sourceFile.fileName), `${imported.moduleSpecifier.text}.ts`);
+        return rowElements(parseSource(target), spread.text);
+    });
 }
+const definitionElements = rowElements(demonstrationSource, 'definitions');
 const familyDefinitions = variableInitializer(demonstrationSource, 'families');
 if (!ts.isArrayLiteralExpression(familyDefinitions) || familyDefinitions.elements.length === 0) {
     throw new Error('The demonstration family catalog must remain a non-empty array literal.');
@@ -99,7 +120,7 @@ function coordinateContextPolicy(demonstration) {
 
 const messages = stringProperties(variableInitializer(parseSource('src/localization/en.ts'), 'en'));
 // A Demonstration offers a guided lesson unless its definition opts out with `lesson: false` (LESSON_DEMONSTRATION_IDS in src/demonstrations.ts).
-const availableLessonIds = new Set(definitions.elements.filter(element => {
+const availableLessonIds = new Set(definitionElements.filter(element => {
     const object = unwrapExpression(element);
     if (!ts.isObjectLiteralExpression(object)) throw new Error(`Expected object literal: ${object.getText()}`);
     return !object.properties.some(property => ts.isPropertyAssignment(property) && propertyName(property.name) === 'lesson' &&
@@ -113,7 +134,7 @@ if (!ts.isArrayLiteralExpression(pendingDefinition) || !pendingDefinition.elemen
     throw new Error('POSTER_PENDING must remain an array literal of Demonstration ids.');
 }
 const posterPendingIds = new Set(pendingDefinition.elements.map(element => element.text));
-const demonstrations = definitions.elements.map(element => {
+const demonstrations = definitionElements.map(element => {
     const entry = stringProperties(unwrapExpression(element), false);
     for (const required of ['id', 'path', 'family', 'title']) {
         if (!entry[required]) throw new Error(`A demonstration definition is missing ${required}: ${element.getText()}`);

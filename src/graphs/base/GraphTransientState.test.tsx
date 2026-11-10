@@ -3,7 +3,7 @@
  * `graphTransientStateContract.tsx`, run by the `GraphTransientState.part*.test.tsx` files.
  */
 import {act} from '@testing-library/react';
-import {graphFactories} from '../graphFactories';
+import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {appStorage} from '../../storage/appStorage';
 import {capturePNGBlob} from './export/FigureCapture';

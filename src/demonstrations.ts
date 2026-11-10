@@ -1,5 +1,6 @@
 import {MessageKey, renderMessage, t} from './localization';
 import type {sl} from './localization/sl';
+import {projectiveDemonstrationRows} from './graphs/projective/registration';
 
 type TextKey = {[K in MessageKey]: typeof sl[K] extends `${string}{${string}` ? never : K}[MessageKey];
 export type NavigationAction = 'left' | 'up' | 'down' | 'right' | 'in' | 'out' | 'fit';
@@ -24,7 +25,7 @@ const families = [
     {id: 'projective', title: 'projective_conics'},
 ] as const;
 export type FamilyId = typeof families[number]['id'];
-type Definition = {
+export type Definition = {
     id: string; path: string; family: FamilyId; title: TextKey; heading?: TextKey;
     prompts: readonly [TextKey, TextKey]; fit?: false;
     /** `'surface'` marks a demonstration whose main view is orbited, not panned: it has no pan or zoom actions. */
@@ -34,7 +35,7 @@ type Definition = {
 };
 
 // Order is the teaching catalog order, independent of wording and graph imports.
-const definitions = [
+export const legacyDemonstrationRows = [
     {id: 'bernstein', path: '/bezeg-2.0/bernstein', family: 'basics', title: 'bernstein_polynomials', prompts: ['prompt_bernstein', 'prompt_compare'], fit: false},
     {id: 'complex-multiplication', path: '/bezeg-2.0/complex-multiplication', family: 'basics', title: 'complex_multiplication', prompts: ['prompt_complex_multiplication', 'prompt_compare']},
     {id: 'bezier', path: '/bezeg-2.0/bezier/curve', family: '/bezeg-2.0/bezier', title: 'bezier_curve_209', heading: 'bezier_curve', prompts: ['prompt_control_points', 'prompt_control_polygon']},
@@ -148,12 +149,9 @@ const definitions = [
     {id: 'monotone-partition', path: '/bezeg-2.0/compgeo/monotone-partition', family: 'computational-geometry', title: 'compgeo_monotone_partition_title', prompts: ['prompt_compgeo_monotone_partition_vertex_types', 'prompt_compgeo_monotone_partition_diagonals']},
     {id: 'monotone-triangulation', path: '/bezeg-2.0/compgeo/monotone-triangulation', family: 'computational-geometry', title: 'compgeo_monotone_triangulation_title', prompts: ['prompt_compgeo_monotone_triangulation_stack', 'prompt_compgeo_monotone_triangulation_chains']},
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
-    {id: 'projective-cross-ratio', path: '/bezeg-2.0/projective/cross-ratio', family: 'projective', title: 'projective_cross_ratio_title', prompts: ['prompt_projective_cross_ratio_preserved', 'prompt_projective_cross_ratio_infinity']},
-    {id: 'projective-pascal', path: '/bezeg-2.0/projective/pascal', family: 'projective', title: 'projective_pascal_title', prompts: ['prompt_projective_pascal_collinear', 'prompt_projective_pascal_degenerate']},
-    {id: 'projective-pole-polar', path: '/bezeg-2.0/projective/pole-polar', family: 'projective', title: 'projective_pole_polar_title', prompts: ['prompt_projective_pole_polar_tangents', 'prompt_projective_pole_polar_infinity']},
-    {id: 'projective-five-point', path: '/bezeg-2.0/projective/five-point', family: 'projective', title: 'projective_five_point_title', prompts: ['prompt_projective_five_point_unique', 'prompt_compare']},
-    {id: 'projective-three-views', path: '/bezeg-2.0/projective/three-views', family: 'projective', title: 'projective_three_views_title', prompts: ['prompt_projective_three_views_type', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
+// Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
+const definitions = [...legacyDemonstrationRows, ...projectiveDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

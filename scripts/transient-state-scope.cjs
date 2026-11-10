@@ -15,7 +15,7 @@ const path = require('node:path');
 /** Changed files that every graph's scene, restoration or drawing depends on: their change runs the whole contract. */
 const SHARED_PATHS = [
     /^src\/graphs\/base\//,
-    /^src\/graphs\/graphFactories\.ts$/,
+    /^src\/graphs\/(graphFactories|graphLoaders|allGraphFactories)\.ts$/,
     /^src\/graphs\/curves\/object\//,
     /^src\/graphs\/styles\//,
     /^src\/bezeg\//,
@@ -62,7 +62,8 @@ const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
 
 /**
  * The graph classes the Demonstrations instantiate and the directory of each class file, read from the imports of
- * src/graphs/graphFactories.ts (`import X from './dir/X'` or `import {X} from './dir/X'`): [{name, dir: 'src/graphs/dir'}].
+ * src/graphs/graphFactories.ts (`import X from './dir/X'` or `import {X} from './dir/X'`) and the runtime loaders of
+ * feature-registered families (src/graphs/graphLoaders.ts): [{name, dir: 'src/graphs/dir'}].
  */
 function graphClassFiles(root = path.join(__dirname, '..')) {
     const source = fs.readFileSync(path.join(root, 'src/graphs/graphFactories.ts'), 'utf8');
@@ -71,6 +72,16 @@ function graphClassFiles(root = path.join(__dirname, '..')) {
         const dir = path.posix.join('src/graphs', path.posix.dirname(match[3]));
         const names = match[1] ? [match[1]] : match[2].split(',').map(name => name.trim().split(/\s+as\s+/).pop()).filter(Boolean);
         for (const name of names) classes.push({name, dir});
+    }
+    // Feature-registered families: src/graphs/graphLoaders.ts imports `./<dir>/runtime`, whose lazy loaders read
+    // `import('./X').then(m => () => new m.X())`.
+    const loaders = fs.readFileSync(path.join(root, 'src/graphs/graphLoaders.ts'), 'utf8');
+    for (const family of loaders.matchAll(/from\s+'\.\/([^']+)\/runtime'/g)) {
+        const runtimeDir = path.posix.join('src/graphs', family[1]);
+        const runtime = fs.readFileSync(path.join(root, runtimeDir, 'runtime.ts'), 'utf8');
+        for (const match of runtime.matchAll(/import\('\.\/([^']+)'\)\.then\(\w+\s*=>\s*\(\)\s*=>\s*new\s+\w+\.(\w+)\(/g)) {
+            classes.push({name: match[2], dir: path.posix.join(runtimeDir, path.posix.dirname(match[1]))});
+        }
     }
     return classes;
 }

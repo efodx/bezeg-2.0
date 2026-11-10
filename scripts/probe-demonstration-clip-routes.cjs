@@ -34,7 +34,9 @@ function parseArgs(argv) {
 }
 
 function deriveIds() {
-    const demonstrations = [...fs.readFileSync(path.join(root, 'src/demonstrations.ts'), 'utf8').matchAll(/^\s*\{id: '([^']+)', path: '([^']+)'/gm)].map(m => ({id: m[1], route: m[2]}));
+    // Rows live in src/demonstrations.ts and in each registered family's registration.ts (src/graphs/projective/).
+    const rowSource = ['src/demonstrations.ts', 'src/graphs/projective/registration.ts'].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+    const demonstrations = [...rowSource.matchAll(/^\s*\{id: '([^']+)', path: '([^']+)'/gm)].map(m => ({id: m[1], route: m[2]}));
     const clips = new Set([...fs.readFileSync(path.join(root, 'src/demonstrationMotionAssets.ts'), 'utf8').matchAll(/^\s*'([^']+)': \{src: /gm)].map(m => m[1]));
     return {all: demonstrations, clipCount: clips.size, targets: demonstrations.filter(d => !clips.has(d.id))};
 }

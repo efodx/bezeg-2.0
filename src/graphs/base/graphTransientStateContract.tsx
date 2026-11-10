@@ -7,7 +7,7 @@
  * Tier: sampled locally, full in CI (`catalogSweepScope.ts`).
  */
 import {act} from '@testing-library/react';
-import {graphFactories} from '../graphFactories';
+import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import BaseFunctionGraph from '../functions/BaseFunctionGraph';

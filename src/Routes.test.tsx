@@ -2,6 +2,11 @@ import React from 'react';
 import routes from './Routes';
 import {graphFactories} from './graphs/graphFactories';
 import {GraphRoute} from './graphs/base/GraphRoute';
+import {CrossRatioGraph} from './graphs/projective/CrossRatioGraph';
+import {PascalGraph} from './graphs/projective/PascalGraph';
+import {PolePolarGraph} from './graphs/projective/PolePolarGraph';
+import {FivePointGraph} from './graphs/projective/FivePointGraph';
+import {ThreeViewsGraph} from './graphs/projective/ThreeViewsGraph';
 import {getDemonstrationCatalog} from './demonstrations';
 import { BernsteinGraph } from './graphs/bernstein/BernsteinGraph';
 import TensorDeCasteljauGraph from './graphs/patches/TensorDeCasteljauGraph';
@@ -104,7 +109,7 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
         const routeElement = RouteComponent() as React.ReactElement<{create: () => object}>;
         expect(routeElement.type).toBe(GraphRoute);
         const create = routeElement.props.create;
-        expect(create).toBe(graphFactories[id]);
+        if (id in graphFactories) expect(create).toBe(graphFactories[id as keyof typeof graphFactories]);
         return [path, create().constructor] as const;
     })));
     const graphFor = (path: string) => routeFactories.get(path);
@@ -186,4 +191,10 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
     expect(graphFor('/bezeg-2.0/compgeo/monotone-partition')).toBe(MonotonePartitionGraph);
     expect(graphFor('/bezeg-2.0/compgeo/monotone-triangulation')).toBe(MonotoneTriangulationGraph);
     expect(graphFor('/bezeg-2.0/compgeo/fortune')).toBe(FortuneGraph);
+    // Registered family: resolved through its loaders, not the legacy table.
+    expect(graphFor('/bezeg-2.0/projective/cross-ratio')).toBe(CrossRatioGraph);
+    expect(graphFor('/bezeg-2.0/projective/pascal')).toBe(PascalGraph);
+    expect(graphFor('/bezeg-2.0/projective/pole-polar')).toBe(PolePolarGraph);
+    expect(graphFor('/bezeg-2.0/projective/five-point')).toBe(FivePointGraph);
+    expect(graphFor('/bezeg-2.0/projective/three-views')).toBe(ThreeViewsGraph);
 });

@@ -1,5 +1,5 @@
 import {act} from '@testing-library/react';
-import {graphFactories} from '../../graphs/graphFactories';
+import {allGraphFactories as graphFactories} from '../../graphs/allGraphFactories';
 import {installBoardShims, mountGraph} from '../../graphs/base/realGraphTestHarness';
 import type {DemonstrationId} from '../../demonstrations';
 import baseline from '../../../docs/reviews/illustrated-chapter-examples/baseline-examples.json';

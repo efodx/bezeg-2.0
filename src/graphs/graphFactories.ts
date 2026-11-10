@@ -113,15 +113,11 @@ import BSplineInsertionGraph from './curves/bspline/BSplineInsertionGraph';
 import BSplineExtractionGraph from './curves/bspline/BSplineExtractionGraph';
 import {BSplineNurbsGraph} from './curves/bspline/BSplineNurbsGraph';
 import {BSplineBlossomGraph} from './curves/bspline/BSplineBlossomGraph';
-import {CrossRatioGraph} from './projective/CrossRatioGraph';
-import {PascalGraph} from './projective/PascalGraph';
-import {PolePolarGraph} from './projective/PolePolarGraph';
-import {FivePointGraph} from './projective/FivePointGraph';
-import {ThreeViewsGraph} from './projective/ThreeViewsGraph';
 import type {DemonstrationId} from '../demonstrations';
+import type {RegisteredDemonstrationId} from './graphLoaders';
 
-/** Executable graph constructors live behind graph-route lazy imports. */
-export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphState>> = {
+/** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
+export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
     'bernstein': () => new BernsteinGraph(),
     'patch-tensor': () => new TensorPatchGraph(),
     'patch-decasteljau': () => new TensorDeCasteljauGraph(),
@@ -235,9 +231,4 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'monotone-partition': () => new MonotonePartitionGraph(),
     'monotone-triangulation': () => new MonotoneTriangulationGraph(),
     'fortune': () => new FortuneGraph(),
-    'projective-cross-ratio': () => new CrossRatioGraph(),
-    'projective-pascal': () => new PascalGraph(),
-    'projective-pole-polar': () => new PolePolarGraph(),
-    'projective-five-point': () => new FivePointGraph(),
-    'projective-three-views': () => new ThreeViewsGraph(),
 };

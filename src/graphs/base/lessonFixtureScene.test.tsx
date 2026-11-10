@@ -4,7 +4,7 @@
  * free-exploration default intact.
  */
 import {act} from '@testing-library/react';
-import {graphFactories} from '../graphFactories';
+import {allGraphFactories as graphFactories} from '../allGraphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../../learning/model';
 import {installBoardShims, MountedGraph, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT} from './realGraphTestHarness';
