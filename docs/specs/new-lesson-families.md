@@ -32,6 +32,8 @@ All families follow the current learning model: a bilingual chapter in Learn wit
 | Projektivna geometrija stožnic / Projective geometry of conics | [projective-conics-lessons.md](projective-conics-lessons.md) | University | Medium | **Homogeneous-coordinate kernel** |
 | Napredne Bézierjeve teme / Advanced Bézier topics | [advanced-bezier-lessons.md](advanced-bezier-lessons.md) | University | Medium–high | — |
 | Trigonometrija na enotski krožnici in v trikotniku / Trigonometry of the unit circle and triangle (top-15 #1, prep only) | [trigonometry-lessons.md](trigonometry-lessons.md) | Upper secondary | Low–medium | Trigonometry kernel (unit circle, triangle solver incl. SSA) |
+| Analitična geometrija premice / Analytic geometry of lines (top-15 #2, prep only) | [analytic-lines-lessons.md](analytic-lines-lessons.md) | Upper secondary | Low–medium | Exact line-form kernel (forms, projection, distance, intersections) |
+| Izometrije, podobnost in simetrija / Isometries, similarity and symmetry (top-15 #5, prep only) | [isometries-lessons.md](isometries-lessons.md) | Upper secondary, enrichment | Medium | Rational affine-map kernel (isometry classification, frieze closure) |
 | Geometrija krožnice in načrtovalne naloge / Circle geometry and constructions (top-15 #6, prep only) | [circle-geometry-lessons.md](circle-geometry-lessons.md) | Upper secondary, enrichment | Low–medium | Circle construction kernel (tangents, radical axis, Apollonius, common tangents) |
 
 Slovenian titles are working names. Each spec settles its terms by [choosing new terms](../localization.md#choosing-new-terms).

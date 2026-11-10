@@ -42,10 +42,10 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | # | Family | Spec | Ungated now | Status |
 | --- | --- | --- | --- | --- |
 | 1 | Trigonometry of the unit circle and triangle | [trigonometry-lessons.md](../../specs/trigonometry-lessons.md) | spec, F0, F1 (triangle solver incl. SSA), F2a | spec accepted |
-| 2 | Analytic geometry of lines | — | spec, F0, F1 (exact line forms, projection, distance), F2a | not started |
+| 2 | Analytic geometry of lines | [analytic-lines-lessons.md](../../specs/analytic-lines-lessons.md) | spec, F0, F1 (exact line forms, projection, distance), F2a | spec accepted |
 | 3 | Combinatorics and Pascal's triangle | — | spec, F0, F1 (BigInt binomials, path enumeration) | not started |
 | 4 | Randomness and simulation | — | spec, F0, F1 (seeded integer PRNG, samplers, exact comparators) | not started |
-| 5 | Isometries, similarity and symmetry | — | spec, F0, F1 (isometry classification, frieze tiling), F2a | not started |
+| 5 | Isometries, similarity and symmetry | [isometries-lessons.md](../../specs/isometries-lessons.md) | spec, F0, F1 (isometry classification, frieze tiling), F2a | spec accepted |
 | 6 | Circle geometry and constructions | [circle-geometry-lessons.md](../../specs/circle-geometry-lessons.md) | spec, F0, F1 (power of a point, radical axis, Apollonius, common tangents; reuse `src/compgeo/circle.ts`), F2a | spec accepted |
 | 7 | Kinematics on curves | — | spec, F0, F1 (velocity and acceleration from the curve kernel) | not started |
 | 8 | Solids and volumes | — | spec, F0, F1 (solid meshes, plane section clipping, revolve) | not started |
