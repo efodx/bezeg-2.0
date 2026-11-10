@@ -1,6 +1,6 @@
 # Playback controls within reach of the graph on phones
 
-**Status:** scheduled; approved 2026-11-06 and queued in [Controls](../tasks/feature-streams/controls.md) step 6.
+**Status:** implemented 2026-11-10 in [Controls](../tasks/feature-streams/controls.md) step 6; evidence and limitations in [the task file](../tasks/mobile-graph-playback/graph-adjacent-controls.md#completion-evidence).
 **Reported:** 2026-10-20
 **Related:** [workspace usability](tools-usability-redesign.md), [lesson graph access](lesson-graph-access.md), [guardrails](../guardrails.md).
 

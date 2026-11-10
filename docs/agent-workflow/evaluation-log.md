@@ -2691,3 +2691,8 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Specs' own gating claims conflict with the stream boundary (#9, #3). The task README states which one wins.
   - A regex replacement string with `\b` wrote a backspace into an ADR, and two in-place rewrites failed silently on Windows. Literal Edit was reliable.
   - The handler reached SOFT at 266k with about 30 F0 files written by hand. Delegating F0 for the larger specs would have saved handler context.
+## 2026-11-10: controls step 6 verification and acceptance (controls stream, handler)
+
+- **Flow:** `check-changed` in the clean worktree at the step 6 head (675 s, green), one preview, two parallel Sonnet smokes from the prepared brief (group A route matrix, group B conditions plus Baseline); the handler wrote item 5 guidance while they ran. No repairs needed.
+- **Smoke value:** both groups confirmed the slot on 25 routes and the shared shell; their only findings were pre-existing (Voronoi blocked until a site is chosen, with a generic reason) or within the recorded borderline (200 px board floor at 360 × 640). Handler triage of the Voronoi finding took two greps into `constructionLength`, not a worker.
+- **Evidence:** "MUST write" in the prompt held; both evidence files arrived. Smoke runs were long (32 and 49 min) for ~30 routes × 2 viewports; a Haiku pass would likely have done group A.
