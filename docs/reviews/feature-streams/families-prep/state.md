@@ -22,11 +22,15 @@ Handler 3 handed off at BUDGET SOFT (2026-11-10, about 11:10Z). Successor: handl
 
 1. **Trigonometry task 05** (triangle solver graph, F2a). A Sonnet worker is running; its note will be `notes/f2a-trig-05.md`. When it returns, run an engineering (Sonnet) review, a UI and accessibility (Haiku) review and a mathematical review of the readouts, in parallel, with the same brief shapes as task 04 (see commit `18367459`). Then repairs, recheck (tsc, `just unit src/graphs/trig src/trig`, lint, build) and commit.
 
+2. **Handler 4 (started 2026-11-10):** published state confirmed (`82beec19` pushed as `60eb961f`). Dispatched a fresh Sonnet worker for trig 05 (locale drafts copied to ignored `.command-logs/trig05-{sl,en}_block.txt`) and a Sonnet worker for **circle-geometry 02** (`src/compgeo/circleConstructionModel.ts`, `src/graphs/compgeo/CircleConstructionGraph.tsx`, locale block after the triangle-geometry keys; note `notes/f2a-circle-02.md`). Both edit `sl.ts`/`en.ts` in separate blocks: stage each slice's block alone (`git diff` the file, filter the hunk, `git apply --cached`).
+   - Trig 05 implementation done (14 tests, 10 mutations). Engineering, UI/a11y and maths reviews done: no high findings. Handler decisions, now with a repair worker: solve mode fits the view to the solution and extends the ray past the largest c (the spec SSA a=9 example left the fixed view); sides and circle modes clamp user-input vertices to x in [-2, 8] (left of the bars) without changing the kernel's `snapVertexInput`. Repairs also cover a vacuous rebuild test, key help on every vertex field, B₁/B₂ in the two-solution status, "right angle at B" and the solve-row separators. After the repairs: recheck, commit, publish.
+   - Circle 02: the first worker handed off after the model, its 49 tests and 70 locale keys. A second worker is writing the graph from the note. Settled: coordinate range [-16,16]; degenerate states give a status, not a parse error; the graph checks all three radical axes (the kernel checks only 12 and 13). For the maths review, ask whether the kernel labelling the single tangent of an internal contact `external` is wrong.
+
 If the handler that started these workers is gone, the reports may not reach you. Check the notes and the working tree. If a slice is complete per its note, recheck and commit it. Otherwise dispatch a fresh worker from the note.
 
 ## Next, in order
 
-1. The item above. `src/graphs/trig/TriangleSolverGraph.tsx` had 55 tsc errors in progress at handoff.
+1. The item above. The worker stopped at handoff with a partial draft: untracked `src/graphs/trig/TriangleSolverGraph.tsx` has 55 tsc errors, because the locale block was drafted in git-bash `/tmp/sl_block.txt` and `/tmp/en_block.txt` but never inserted. There are no tests yet. Dispatch a fresh Sonnet worker from `notes/f2a-trig-05.md`. If the /tmp drafts are gone, it rewrites the block.
 2. F2a, one worker each, with engineering, UI and accessibility reviews and a jsdom drag placeholder (no route, so no smoke): circle 02, lines 02, isometries 03.
 3. When only gated work remains, set `Run state: stopped: preparation done; F2a (playback, 3D) waits on Controls step 5 and F2b–F5 on Controls step 7` in `docs/tasks/feature-streams/families-prep.md`, push, and end.
 
