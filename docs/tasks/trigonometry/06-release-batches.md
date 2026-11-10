@@ -4,7 +4,7 @@ Gate: Controls step 7 `accepted` in [controls.md](../feature-streams/controls.md
 
 Per batch (A: TR1–TR2; B: TR3–TR4; C: TR5), following the [family template](../feature-streams/README.md#family-template):
 
-- F2b: route, catalog entry and Demonstration registration, kept minimal and pushed promptly.
+- F2b: route, catalog entry and Demonstration registration, kept minimal and pushed promptly. Batch A F2b also owes the browser drag measurement of the unit-circle graph per [the performance plan's measurement protocol](../../performance-plan.md); task 04 recorded only a jsdom placeholder.
 - F3: scene actions and [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31) per lesson.
 - F4: bilingual chapter in Learn with chapter-owned guided examples.
 - F5: catalog clip and example cards.

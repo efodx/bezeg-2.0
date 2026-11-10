@@ -11,7 +11,7 @@ Gates come from the stream's [boundary with Controls](../feature-streams/familie
 | [01 Angle and unit-circle kernel](01-angle-unit-circle-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; two identity bounds 2.5e-15 for paired double evaluations) |
 | [02 Triangle solver kernel](02-triangle-solver-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; full SSA grid enumerated against an independent oracle; handler removed casts) |
 | [03 State models and Presets](03-state-models.md) | A, B | F2a | none | 01, 02 | done 2026-11-10 (engineering review, Haiku; clamped flag and casts fixed) |
-| [04 Unit-circle graph](04-unit-circle-graph.md) | A | F2a | none | 03 | planned |
+| [04 Unit-circle graph](04-unit-circle-graph.md) | A | F2a | none | 03 | done |
 | [05 Triangle solver graph](05-triangle-solver-graph.md) | B, C | F2a | none | 03 | planned |
 | [06 Release batches A–C](06-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 04, 05 | planned |
 
@@ -31,3 +31,4 @@ These come from the spec's table, checked against `sl.ts` and the PIK M-MAT-2026
 | arc | lok | PIK §4.6 ("nad istim lokom") |
 | quadrant | kvadrant | `sl.ts` already uses *kvadrant* (complex reciprocal prompt) |
 | ambiguous case (SSA) | dvoumni primer (podatki SSK) | Transparent wording. *SSK* is the school congruence abbreviation (stranica, stranica, kot), glossed on first use because it is not yet in the repository |
+| reflection in the origin | zrcalna slika čez izhodišče | Transparent wording: *zrcalna slika čez os* is the school phrase for a reflection in a line, and the origin extends it to a point (central reflection, *središčna zrcalitev*, is the formal name; the shorter phrase fits the readout label) || signs (of cosine and sine) | predznaka | Dual of *predznak*: two quantities, so the dual form is correct Slovenian || position (of the point on the circle) | lega | Standard word for position in school geometry; used for the quadrant or axis readout |
