@@ -1,6 +1,6 @@
 # 4. Owned standalone scenes
 
-Status: pending; task file written 2026-11-08 by the Controls stream (step 8 of [controls.md](../feature-streams/controls.md)). Source: [lesson-authoring architecture, section 4](../../specs/lesson-authoring-architecture.md#4-owned-standalone-scenes), acceptance S1–S5 (canonical there), plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Starts after task 5 is accepted: the two must not change `BaseGraph` replacement hooks at the same time. May run beside task 3, which does not touch those hooks.
+Status: slices 1–3 implemented and reviewed 2026-11-10 (`s8-1.md`, `s8-2.md`, `s8-2-review.md` in `docs/reviews/feature-streams/controls/`); closeout pending: browser smoke (`s89-smoke.md`). Task file written 2026-11-08 by the Controls stream (step 8 of [controls.md](../feature-streams/controls.md)). Source: [lesson-authoring architecture, section 4](../../specs/lesson-authoring-architecture.md#4-owned-standalone-scenes), acceptance S1–S5 (canonical there), plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Starts after task 5 is accepted: the two must not change `BaseGraph` replacement hooks at the same time. May run beside task 3, which does not touch those hooks.
 
 ## Scope and entry points
 
