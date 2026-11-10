@@ -1,5 +1,5 @@
 import {CONTROL_ROW} from "../../inputs/controlRow";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useMemo, useRef, useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {formatNumber} from "../../analysis/format";
@@ -69,18 +69,12 @@ export interface PointSetControlsProps {
 }
 
 /**
- * A notice region for a visible status sentence: empty at mount, then it speaks the sentence each time it changes. It is not
- * `data-readout-live`, so it stays outside the graph's one readout region (decision 18) and never speaks on state alone.
+ * A notice region for a visible status sentence: it holds the current sentence, so a screen reader speaks it when it changes
+ * (content present at mount is not announced). It is not `data-readout-live`, so it stays outside the graph's one readout region
+ * (decision 18). It keeps no history, so a replaced scene shows the same region as a fresh mount.
  */
 function ChangeNotice({text}: {text: string}) {
-    const [spoken, setSpoken] = useState("");
-    const previous = useRef(text);
-    useEffect(() => {
-        if (previous.current === text) return;
-        previous.current = text;
-        setSpoken(text);
-    }, [text]);
-    return <p className="visually-hidden" role="status" aria-live="polite" data-pointset-announce="">{spoken}</p>;
+    return <p className="visually-hidden" role="status" aria-live="polite" data-pointset-announce="">{text}</p>;
 }
 
 function Status({simplicity, model}: {simplicity: PolygonSimplicity | undefined, model: PointSetModel}) {
