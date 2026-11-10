@@ -41,7 +41,7 @@ Order is the research note's rank. Specs can be written in any order or in paral
 
 | # | Family | Spec | Ungated now | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Trigonometry of the unit circle and triangle | [trigonometry-lessons.md](../../specs/trigonometry-lessons.md) | spec, F0, F1 (triangle solver incl. SSA), F2a | spec accepted; F0 done ([tasks](../trigonometry/README.md), ADR 0044); F1 done |
+| 1 | Trigonometry of the unit circle and triangle | [trigonometry-lessons.md](../../specs/trigonometry-lessons.md) | spec, F0, F1 (triangle solver incl. SSA), F2a | spec accepted; F0 done ([tasks](../trigonometry/README.md), ADR 0044); F1 done; F2a task 03 done |
 | 2 | Analytic geometry of lines | [analytic-lines-lessons.md](../../specs/analytic-lines-lessons.md) | spec, F0, F1 (exact line forms, projection, distance), F2a | spec accepted; F0 done ([tasks](../analytic-lines/README.md), ADR 0046); F1 task 01 done |
 | 3 | Combinatorics and Pascal's triangle | [combinatorics-lessons.md](../../specs/combinatorics-lessons.md) | spec, F0, F1 (BigInt binomials, path enumeration) | spec accepted; F0 done ([tasks](../combinatorics/README.md), ADR 0048) |
 | 4 | Randomness and simulation | [randomness-simulation-lessons.md](../../specs/randomness-simulation-lessons.md) | spec, F0, F1 (seeded integer PRNG, samplers, exact comparators) | spec accepted; F0 done ([tasks](../randomness/README.md), ADR 0049) |

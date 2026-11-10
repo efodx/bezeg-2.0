@@ -10,7 +10,7 @@ Gates come from the stream's [boundary with Controls](../feature-streams/familie
 | --- | --- | --- | --- | --- | --- |
 | [01 Angle and unit-circle kernel](01-angle-unit-circle-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; two identity bounds 2.5e-15 for paired double evaluations) |
 | [02 Triangle solver kernel](02-triangle-solver-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; full SSA grid enumerated against an independent oracle; handler removed casts) |
-| [03 State models and Presets](03-state-models.md) | A, B | F2a | none | 01, 02 | planned |
+| [03 State models and Presets](03-state-models.md) | A, B | F2a | none | 01, 02 | done 2026-11-10 (engineering review, Haiku; clamped flag and casts fixed) |
 | [04 Unit-circle graph](04-unit-circle-graph.md) | A | F2a | none | 03 | planned |
 | [05 Triangle solver graph](05-triangle-solver-graph.md) | B, C | F2a | none | 03 | planned |
 | [06 Release batches A–C](06-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 04, 05 | planned |
