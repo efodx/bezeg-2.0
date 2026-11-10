@@ -1,6 +1,6 @@
 # Mechanical curves: the fastest descent (Mehanske krivulje: najhitrejši spust)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/mechanical-curves](../tasks/mechanical-curves/README.md). Decisions 1–2: [ADR 0056](../adr/0056-mechanical-curves-descent-graph-quarter-grid-tracks.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #15 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md), engine family); details below are proposals for owner review.
 **Source:** the research note's entry 15 and [expansion research E10](../research/lesson-family-candidates-2026-10-31-expansion.md#e10-variacijski-račun-in-mehanske-krivulje--brachistochrone-and-mechanical-curves-u-s-enrichment) (lessons, pitfalls, sample checks). Matura catalogue M-MAT-2026: searched the text extraction for *cikloida*, *brahistohrona*, *parametrični* and found none, so this family has **no matura anchor** (university enrichment: FMF *Analiza 3*, *Matematično modeliranje*, cited from the research note, not opened). Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
