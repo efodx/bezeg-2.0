@@ -47,14 +47,14 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | 4 | Randomness and simulation | — | spec, F0, F1 (seeded integer PRNG, samplers, exact comparators) | not started |
 | 5 | Isometries, similarity and symmetry | [isometries-lessons.md](../../specs/isometries-lessons.md) | spec, F0, F1 (isometry classification, frieze tiling), F2a | spec accepted |
 | 6 | Circle geometry and constructions | [circle-geometry-lessons.md](../../specs/circle-geometry-lessons.md) | spec, F0, F1 (power of a point, radical axis, Apollonius, common tangents; reuse `src/compgeo/circle.ts`), F2a | spec accepted |
-| 7 | Kinematics on curves | — | spec, F0, F1 (velocity and acceleration from the curve kernel) | not started |
+| 7 | Kinematics on curves | [kinematics-lessons.md](../../specs/kinematics-lessons.md) | spec, F0, F1 (velocity and acceleration from the curve kernel) | spec accepted |
 | 8 | Solids and volumes | — | spec, F0, F1 (solid meshes, plane section clipping, revolve) | not started |
 | 9 | Recursion and growth models | [recursion-growth-lessons.md](../../specs/recursion-growth-lessons.md) | spec, F0, F1 (cobweb iterator reusing fixed-point playback logic) | spec accepted |
 | 10 | Level sets, gradient and optimization (E9) | — | spec, F0, F1 (marching squares, gradient, LP vertex enumeration) | not started |
 | 11 | Eigen-directions and iterated maps | [linear-maps-lessons.md](../../specs/linear-maps-lessons.md) Batches B–C (L3–L5) already specified; add the power-method and trace–determinant lessons as a batch there | spec amendment, F0 task files, F1 (any kernel gap) | not started |
 | 12 | Complex maps continued | [complex-maps-lessons.md](../../specs/complex-maps-lessons.md) Batches B–C (M3–M5) already specified; add de Moivre and Euler's formula as a batch there | spec amendment, F0 task files, F1 (Möbius and sampled-image kernels if missing) | not started |
 | 13 | Phase portraits and dynamics (E5) | — | spec, F0, F1 (RK4, trace–determinant classification, bifurcation sampling) | not started |
-| 14 | Waves, beats and sampling | — | spec, F0, F1 (superposition, sampler, alias frequency) | not started |
+| 14 | Waves, beats and sampling | [waves-sampling-lessons.md](../../specs/waves-sampling-lessons.md) | spec, F0, F1 (superposition, sampler, alias frequency) | spec accepted |
 | 15 | Mechanical curves (E10) | — | spec, F0, F1 (descent-time integrator with the endpoint substitution) | not started |
 
 ## Notes
