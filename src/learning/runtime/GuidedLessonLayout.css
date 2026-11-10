@@ -26,6 +26,11 @@
     opacity: .7;
 }
 
+/* The graph-adjacent playback row (phones) is locked with the inspector it came from, so it looks locked too. */
+.demonstration-workspace.lesson-content .workspace-graph [data-playback-slot] {
+    opacity: .7;
+}
+
 /* Keep the instruction panel above JSXGraph HTML labels while it is open. */
 .demonstration-workspace.lesson-open .workspace-graph {
     z-index: 0;
