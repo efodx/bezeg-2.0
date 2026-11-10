@@ -2679,3 +2679,15 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Review value:** the Haiku UI review found two blocking R1b regressions the worker did not report (a deleted keyboard test block, a lost polite region); the Sonnet engineering reviews found none blocking on four diffs.
 - **Worker misses:** two workers returned partial at HANDOFF and a fresh worker continued from the note without trouble; one smoke worker did not write its evidence file (the next briefs said "MUST write"); one worker left a whole checkout CRLF, and the handler's bulk re-checkout deleted files one by one on Windows (stopped; restored with `git checkout-index`, the classifier blocked `git checkout --`). Prefer leaving clean-status CRLF copies alone.
 - **Cost:** the handler reached BUDGET SOFT after ~20 dispatches; the main context drivers were reading diffs for small handler repairs.
+
+### 2026-11-10 families-prep handler 2 (Opus, auto, medium; budget scale 1.5): F0 ×12, F1 ×4 families, trigonometry F2a task 03
+
+- Role/class: stream handler, L. Scope: F0 for #3–#5, #7–#10 and #13–#15, plus Batch D F0 for #11 and #12 (ADRs 0047–0058, all handler-written); F1 for circle, lines, isometries ×2 and combinatorics; trigonometry F2a task 03.
+- Dispatch: 7 workers and 5 reviewers, all Sonnet `medium` except one Haiku engineering review. Up to two ran at once while the handler wrote F0 documents. 5 low-cost repairs were made by resuming the same worker through SendMessage.
+- Outcome: 18 commits, published in 4 background publishes (`just publish --background`), all ok. Combinatorics F1 is implemented and awaits its mathematical review. The unit-circle graph worker was stopped at SOFT before any edits and left a plan note.
+- Reviews: no mathematical defect in any kernel. Every review found real test gaps that a mutation could survive: near-tangency on the grid gap, glide vector and orientation, the mirror oracle in rosettes, and one-to-one line matching. The workers also found 4 real spec errors: CG4 tangent-segment wording, the `classifyEigen` quarter-grid limit in L2, the L1 double formula left unnamed, and C(60,30) being exactly representable as a double. The Haiku review found a `clamped`-flag semantics bug and casts.
+- Lessons:
+  - F0 is cheap (about 8k tokens per family) when the handler reads only the spec's batches, decisions, kernel, terms and gating sections.
+  - Specs' own gating claims conflict with the stream boundary (#9, #3). The task README states which one wins.
+  - A regex replacement string with `\b` wrote a backspace into an ADR, and two in-place rewrites failed silently on Windows. Literal Edit was reliable.
+  - The handler reached SOFT at 266k with about 30 F0 files written by hand. Delegating F0 for the larger specs would have saved handler context.
