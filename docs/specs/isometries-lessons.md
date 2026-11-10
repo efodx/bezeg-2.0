@@ -115,12 +115,12 @@ Search of `src/localization/sl.ts` found *Zrcaljenje* (`affine_reflection`, line
 | translation | vzporedni premik | L1, L2 | PIK |
 | reflection; mirror | zrcaljenje; zrcalo (os zrcaljenja) | L1, L2 | PIK; `sl.ts` |
 | rotation | vrtež | L1, L2 | PIK (the app's buttons say *Rotiraj*) |
-| glide reflection | drsno zrcaljenje* | L2, L5 | proposal, to verify |
+| glide reflection | zrcalni zdrs | L2, L5 | F0: UL FMF *Analitična in projektivna geometrija* uses *zrcalni zdrs*; replaces the proposal *drsno zrcaljenje* |
 | orientation | orientacija | L2 | PIK |
 | central dilation | središčni razteg | L3 | PIK |
 | similarity | podobnost | L3 | PIK |
-| rosette; cyclic and dihedral group | rozeta*; ciklična in diedrska grupa* | L4 | proposal, to verify |
-| frieze pattern | friz* | L5 | proposal, to verify |
+| rosette; cyclic and dihedral group | rozeta; ciklična in diedrska grupa | L4 | F0: *ciklična grupa* from UL algebra notes; *rozeta* glossed by its group |
+| frieze pattern; frieze group | friz; frizna grupa | L5 | F0: RUL thesis *Frizne grupe* (2021) |
 | period | perioda | L5 | proposal |
 
 ## Implementation Decisions
