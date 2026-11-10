@@ -9,7 +9,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Line kernel](01-line-kernel.md) | 0 | F1 | none | — | done |
-| [02 State model and line graph](02-line-graph.md) | A–C | F2a | none | 01 | planned |
+| [02 State model and line graph](02-line-graph.md) | A–C | F2a | none | 01 | done |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 02 | planned |
 
 ## Slovenian terms (F0 decision)
@@ -26,3 +26,7 @@ These come from the spec's table: reuse from `sl.ts` first, then the PIK. They e
 | foot of the perpendicular | nožišče pravokotnice | Standard; glossed on first use |
 | orthogonal projection | pravokotna projekcija | PIK §4.6, §4.8 |
 | intersection; tangent | presečišče; tangenta | Existing |
+| two-point form | dvotočkovna oblika | Follows *odsekovna oblika*; used in the line graph (task 02) |
+| discriminant | diskriminanta | Existing quadratic vocabulary (PIK §4.10.1 circle and line) |
+| law of cosines | kosinusni izrek | Existing |
+| relative position of lines | lega premic | Standard school name |
