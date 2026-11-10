@@ -1,6 +1,6 @@
 # 3. Feature-local registration (projective conics pilot)
 
-Status: pending; task file written 2026-11-08 by the Controls stream (step 9 of [controls.md](../feature-streams/controls.md)). Source: [lesson-authoring architecture, section 3](../../specs/lesson-authoring-architecture.md#3-feature-local-registration), acceptance R1–R5 (canonical there), plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Starts after task 5 (whose collection definitions it references) and consumes task 2's owner identities ([02-lesson-lookup](02-lesson-lookup.md)). Projective conics only, then stop.
+Status: implemented 2026-11-10 (slices 1-3: commits cdef00d6, 9886724a, and slice 3 pending commit); closeout pending: smoke and engineering review. Task file written 2026-11-08 by the Controls stream (step 9 of [controls.md](../feature-streams/controls.md)). Source: [lesson-authoring architecture, section 3](../../specs/lesson-authoring-architecture.md#3-feature-local-registration), acceptance R1–R5 (canonical there), plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Starts after task 5 (whose collection definitions it references) and consumes task 2's owner identities ([02-lesson-lookup](02-lesson-lookup.md)). Projective conics only, then stop.
 
 ## Scope and entry points
 

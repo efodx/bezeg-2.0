@@ -35,13 +35,39 @@ The [curve architecture deep dive](curve-architecture-deep-dive.md) traces evalu
 
 The production catalogue displays all entries in metadata order without family disclosures. Search matches all terms across the active language's title, family, and investigation text, ignoring case and diacritics. Desktop topic buttons and the narrow-screen labeled selector apply the same filter. Graph entry is available through preview, title, and a green action; supported lessons have a separate ochre action. The catalogue mounts no JSXGraph boards.
 
+## Feature-local registration
+
+Only **projective conics** is migrated ([ADR 0059](adr/0059-feature-local-registration.md), [spec section 3](specs/lesson-authoring-architecture.md#3-feature-local-registration)). Every other family still uses legacy central composition: its rows in `src/demonstrations.ts`, its constructors in `graphFactories.ts`, its collections in `PresetImport.ts` and its owner rows in `guidedLessonOwnership.ts`. A disjointness check ([`registrationIntegrity.test.ts`](../src/graphs/registrationIntegrity.test.ts)) rejects an id registered both ways.
+
+The projective family exports three separate loading surfaces from `src/graphs/projective/`:
+
+- `registration.ts`: cheap metadata (Demonstration rows in catalog order, collection keys). It imports no graph, React, lesson provider or localization value. `DemonstrationId` derives from it.
+- `collections.ts`: Preset collection definitions, loadable by persistence without graph constructors.
+- `runtime.ts`: lazy graph loaders. Cheap metadata never imports it.
+
+Each root spreads the family export explicitly (no directory discovery, generated manifest or JSON mirror): `demonstrations.ts` (rows), `graphLoaders.ts` (`registeredGraphLoaders`), `PresetImport.ts` (collections). A projective route evaluates only its own graph module. `allGraphFactories.ts` is a test-only eager adapter (legacy table plus resolved registered loaders) so all-graph contract sweeps keep covering registered families; production code never imports it. The primary lesson owner of a registered Demonstration is derived from `chapterOwnerRows()`, so it has no row in `guidedLessonOwnership.ts`.
+
+The preview tooling (`generate-guided-example-inventory.cjs`, `capture-guided-example-previews.cjs`, `probe-demonstration-clip-routes.cjs`) reads the same rows through the generator's Vite `ssrLoadModule` bridge (`identities: {module, rows}`); the CJS scripts never `require()` TypeScript. Independently authored expectations (`demonstration-preview-recipes.cjs`, lesson content, preview and motion assets) still name ids: they are per-behaviour artifacts, not registrations.
+
+### Contributor example: where to edit
+
+Adding a Demonstration to the projective family:
+
+1. A row in `projectiveDemonstrationRows` (`registration.ts`) and, if it stores Presets, its key in `projectiveCollectionKeys` and definition in `collections.ts`.
+2. The graph and a loader entry in `projectiveGraphLoaders` (`runtime.ts`).
+3. The artifacts its behaviour needs: titles and prompts in `sl.ts` and `en.ts`, lesson content, an independently authored preview recipe, catalog preview or motion assets.
+
+Adding a section lesson: its definition and provider in `src/learning/content/`, and a chapter-owned section naming the Demonstration (the ownership row is derived), with independently authored expectations for the inventory. No central per-Demonstration edit (`demonstrations.ts`, `graphFactories.ts`, `PresetImport.ts`, `guidedLessonOwnership.ts`, capture or generator config) is needed; [`registrationDeletion.test.ts`](../src/graphs/projective/registrationDeletion.test.ts) fails if one is added.
+
+A **new family** needs one explicit root inclusion per loading surface: the rows spread in `demonstrations.ts`, the loaders spread in `graphLoaders.ts`, the collections spread in `PresetImport.ts`, and the `identities` entry for its family in the capture and generator tools.
+
 ## App shell and deployment
 
 The manifest declares React 18, TypeScript 5.9, React Router 6, Bootstrap 5, React Bootstrap 2, JSXGraph 1.14, Vite 8 with `@vitejs/plugin-react`, and Vitest 5 with jsdom, on Node.js 24 ([`.nvmrc`](../.nvmrc)). Create React App was replaced on 2026-10-13; see [ADR 0009](adr/0009-vite-build-and-vitest.md). These are declared dependency ranges, not a claim about every resolved package version.
 
 [`src/index.tsx`](../src/index.tsx) creates a browser router from [`src/Routes.tsx`](../src/Routes.tsx) and mounts it in React Strict Mode. Routes and navigation explicitly include `/bezeg-2.0`. [`src/AppHeader.tsx`](../src/AppHeader.tsx) provides the shared brand row, a link to the dedicated demonstrations page, and real compact language selector on every app page. [`src/App.tsx`](../src/App.tsx) supplies presentation mode through `SiteContext`; the workspace heading is the route's Demonstration title, resolved once by `DemonstrationWorkspace`. Each lazy demonstration route supplies its own component identity and renders a [`GraphRoute`](../src/graphs/base/GraphRoute.tsx), which waits for label support before mounting [`GraphHost`](../src/graphs/base/GraphHost.tsx). Prototype variants are archived at commit `1a90bf1`; query parameters no longer swap headers.
 
-Graph routes load `GraphHost` and the executable [`graphFactories`](../src/graphs/graphFactories.ts) map lazily, while learning pages load their content on route entry. Homepage and catalog lesson links use the lightweight [`lessonAvailability`](../src/learning/runtime/lessonAvailability.ts) registry; lesson prose stays with the learning runtime. Graph entry, formula-bearing chapter and lesson content, and figure export share the retryable on-demand MathJax loader. The homepage and catalog do not request MathJax.
+Graph routes load `GraphHost` and their constructor lazily, while learning pages load their content on route entry. A family-registered Demonstration (today only projective conics) resolves its own loader from [`graphLoaders.ts`](../src/graphs/graphLoaders.ts); every other Demonstration resolves through the legacy [`graphFactories`](../src/graphs/graphFactories.ts) table. See [Feature-local registration](#feature-local-registration). Homepage and catalog lesson links use the lightweight [`lessonAvailability`](../src/learning/runtime/lessonAvailability.ts) registry; lesson prose stays with the learning runtime. Graph entry, formula-bearing chapter and lesson content, and figure export share the retryable on-demand MathJax loader. The homepage and catalog do not request MathJax.
 
 [`vite.config.mts`](../vite.config.mts) sets the base path `/bezeg-2.0/`, the `build` output directory, and the Vitest configuration. The `build` script creates a production bundle; its separate `deploy` script publishes `build` to the explicit remote `https://github.com/efodx/bezeg-2.0.git` using `gh-pages`, with `predeploy` running the build first. The separate site was initially published on 2026-10-09 at `https://efodx.github.io/bezeg-2.0/` through its `gh-pages` branch. Pages now uses native GitHub Actions deployment; the manual publishing branch is retained for rollback. See [initial release verification](reviews/separate-project-site.md) and [CD verification](reviews/continuous-deployment.md). The original site's `/bezeg/` route and repository are independent and are not targeted by this release copy.
 
