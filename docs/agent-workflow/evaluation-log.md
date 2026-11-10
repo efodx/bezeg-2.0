@@ -2696,3 +2696,15 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Flow:** `check-changed` in the clean worktree at the step 6 head (675 s, green), one preview, two parallel Sonnet smokes from the prepared brief (group A route matrix, group B conditions plus Baseline); the handler wrote item 5 guidance while they ran. No repairs needed.
 - **Smoke value:** both groups confirmed the slot on 25 routes and the shared shell; their only findings were pre-existing (Voronoi blocked until a site is chosen, with a generic reason) or within the recorded borderline (200 px board floor at 360 × 640). Handler triage of the Voronoi finding took two greps into `constructionLength`, not a worker.
 - **Evidence:** "MUST write" in the prompt held; both evidence files arrived. Smoke runs were long (32 and 49 min) for ~30 routes × 2 viewports; a Haiku pass would likely have done group A.
+
+### 2026-11-10 families-prep handler 3 (Opus, auto, medium; budget scale 1.5): F1 ×16 tasks, trigonometry F2a task 04
+
+- Role/class: stream handler, L. Scope: F1 for combinatorics, randomness ×2, kinematics, solids ×2, recursion, level-sets ×3, phase-portraits ×2, waves, mechanical-curves, linear-maps 10, complex-maps 08; trigonometry F2a task 04 (unit-circle graph).
+- Dispatch: about 16 Sonnet workers (one F2a continuation after a worker HANDOFF), 17 Sonnet mathematical or engineering reviews and one Haiku UI review. Two workers at a time, sometimes three for short repair overlaps. Low findings went back to the same worker through SendMessage, which was cheap (2–10 minutes).
+- Outcome: 17 commits, 11 background publishes. One failed on trailing whitespace and was republished after a fix commit. At handoff, linear-maps 10 and complex-maps 08 were in review repairs, and trigonometry 05 was in implementation.
+- Reviews: no mathematical defect in any kernel. Every review found a test gap that a mutation could survive, or an unasserted claim (row 57 in Pascal, a vacuous uniformity test, exactness checked only to 1e-12). Spec errors were found in 8 families: SV1 example normal out of range, RG2 example off the grid, PP2 H(0,2)=2, WV5 truncated number and lost markup, LS3 claim past the escape stop, M7 1e-15 not achievable in doubles, MC1 cusp accuracy, L6 "from τ and Δ only".
+- Lessons:
+  - Asking the reviewer to verify the worker's spec claims, then checking the numbers by hand before editing the spec, caught one handler slip (the f value at the wrong step).
+  - Control characters from escape sequences had corrupted two specs earlier (`\v`, `\a`). Exact-match Edit fails on such lines, so replace them by line number.
+  - The F2a graph exhausted one worker's budget before verification; a fresh continuation from its note worked.
+  - Shell latency rose to about 2 minutes per call with three agents running.
