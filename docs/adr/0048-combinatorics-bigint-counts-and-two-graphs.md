@@ -6,7 +6,7 @@ Accepted on 2026-11-10 (F0 of the [combinatorics spec](../specs/combinatorics-le
 
 Every count (factorial, binomial, variations, multinomial, lattice paths, Pascal rows, expansion coefficients) is a `bigint`. Readouts show the exact digits, with thousands separators added only for display. Presets store counts nowhere. Where a number must be stored, such as an input, it is a small validated integer, and any large value is a decimal string. Doubles are used only for probabilities and bar heights, which are labelled computed.
 
-The reason is that a double Pascal recurrence is exact only up to row 56. From row 57 entries pass \(2^{53}\), and \(\binom{60}{30}=118264581564861424\) comes out as \(118264581564861420\). The tests include this value.
+The reason is that a double Pascal recurrence is exact only up to row 56; from row 57 some entries pass \(2^{53}\) and are rounded. Even where a double happens to hold the exact count, it does not show it: \(\binom{60}{30}=118264581564861424\) is a double exactly, but its shortest decimal prints as \(118264581564861420\) (corrected at F1). The tests include both facts.
 
 Alternatives:
 

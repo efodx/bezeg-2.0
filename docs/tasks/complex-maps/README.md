@@ -13,6 +13,8 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`, except task 01 at `high` (Möbius 
 | [05 Image sampler kernel](05-image-sampler.md) | B | F1 | none | — | done 2026-10-31 (handler review; spec M3 stress figures corrected: deviation is about the tolerance) |
 | [06 Batch B](06-batch-b.md) | B | measurement, F2a–F6 | `G-REG` | 04, 05 | planned |
 | [07 Batch C](07-batch-c.md) | C | ADR, F2a–F6 | `G-REG` | 01, 06 | planned |
+| [08 Batch D kernel: powers and Euler's circle](08-batch-d-kernel.md) | D | F1 | none | — | planned (families-prep, ADR 0058) |
+| [09 Batch D: de Moivre and Euler's formula](09-batch-d.md) | D | F2a–F6 | Controls step 5; step 7 | 04, 08 | planned |
 
 Task 01 also provides circle inversion to the triangle geometry family (T5).
 
