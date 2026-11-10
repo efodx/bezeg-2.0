@@ -8,8 +8,8 @@ Gates come from the stream's [boundary with Controls](../feature-streams/familie
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Angle and unit-circle kernel](01-angle-unit-circle-kernel.md) | 0 | F1 | none | — | planned |
-| [02 Triangle solver kernel](02-triangle-solver-kernel.md) | 0 | F1 | none | — | planned |
+| [01 Angle and unit-circle kernel](01-angle-unit-circle-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; two identity bounds 2.5e-15 for paired double evaluations) |
+| [02 Triangle solver kernel](02-triangle-solver-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; full SSA grid enumerated against an independent oracle; handler removed casts) |
 | [03 State models and Presets](03-state-models.md) | A, B | F2a | none | 01, 02 | planned |
 | [04 Unit-circle graph](04-unit-circle-graph.md) | A | F2a | none | 03 | planned |
 | [05 Triangle solver graph](05-triangle-solver-graph.md) | B, C | F2a | none | 03 | planned |
