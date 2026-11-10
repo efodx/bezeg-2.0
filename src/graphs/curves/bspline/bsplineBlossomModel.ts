@@ -1,9 +1,9 @@
 import {formatNumber} from "../../../analysis/format";
-import {currentLanguage, LocalizedError, message} from "../../../localization";
+import {currentLanguage, LocalizedError, message, Message} from "../../../localization";
 import {blossom, domain, evaluate} from "../../../bezeg/impl/curve/bspline";
 import type {BSplinePresetData} from "./bsplinePresetCollection";
 import {DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS} from "./bsplineBasisModel";
-import {assertDrawableCurve, ControlPoint, DEBOOR_DEFAULT_POINTS, DEBOOR_MAX_POINTS} from "./bsplineDeBoorModel";
+import {drawableRejection, ControlPoint, DEBOOR_DEFAULT_POINTS, DEBOOR_MAX_POINTS} from "./bsplineDeBoorModel";
 
 /** The degrees the blossom lesson offers (L6 scope); the kernel refuses others. */
 export const BLOSSOM_DEGREES: readonly number[] = Object.freeze([2, 3]);
@@ -36,9 +36,14 @@ export const blossomPresetData = (data: BlossomData): BSplinePresetData =>
     ({degree: data.degree, knots: [...data.knots], points: data.points.map(p => [p[0], p[1]] as const)});
 
 /** Rejects a Preset the blossom graph cannot show: a degree other than 2 or 3, or curve data the graphs cannot draw. */
+export function blossomRejection(data: BSplinePresetData): Message | undefined {
+    if (!BLOSSOM_DEGREES.includes(data.degree)) return message("bsl_degree_unsupported", {value0: data.degree});
+    return drawableRejection(data, BLOSSOM_MAX_POINTS);
+}
+
 export function assertBlossomCurve(data: BSplinePresetData): void {
-    if (!BLOSSOM_DEGREES.includes(data.degree)) throw new LocalizedError(message("bsl_degree_unsupported", {value0: data.degree}));
-    assertDrawableCurve(data, BLOSSOM_MAX_POINTS);
+    const rejection = blossomRejection(data);
+    if (rejection) throw new LocalizedError(rejection);
 }
 
 /** The indices j of the nonempty spans [u_j, u_{j+1}) with k <= j <= n. */

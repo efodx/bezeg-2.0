@@ -95,7 +95,7 @@ interface Sample {
     consumerRefuses?: boolean;
     /** The stored read gives the same decision as the file (slice 1b: one collection check). */
     storageParity: boolean;
-    /** A refused Preset mutates nothing at `importPreset`, and an accepted one applies its checked data. Still false only for consumer refusals (slice 2). */
+    /** A refused Preset mutates nothing at `importPreset`, and an accepted one applies its checked data. */
     entryParity: boolean;
     observed: Observed;
 }
@@ -138,12 +138,12 @@ const samples: Sample[] = [
     {name: "nurbs: degree-1 curve is accepted by file, storage and the compatible graph", graph: () => new BSplineNurbsGraph(),
         preset: () => ({id: "p", data: bsplineOk(1, [[0, 0], [1, 1]])}),
         file: "accept", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "checked", warned: false}},
-    {name: "blossom: the same degree-1 curve is refused by this consumer, after state and bounds were written",
+    {name: "blossom: the same degree-1 curve is refused by this consumer",
         graph: () => new BSplineBlossomGraph(), preset: () => ({id: "p", data: bsplineOk(1, [[0, 0], [1, 1]]), boardState: {boundingBox: [-1, 1, 1, -1]}, graphState: {initialized: true}}),
-        file: "accept", consumerRefuses: true, storageParity: true, entryParity: false, observed: {bounds: 1, state: 1, data: "threw", warned: false}},
+        file: "accept", consumerRefuses: true, storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "nurbs: collection-valid 17 points exceed the consumer limit of 16", graph: () => new BSplineNurbsGraph(),
         preset: () => ({id: "p", data: bsplineOk(2, Array.from({length: 17}, (_, i) => [i, i % 3])), boardState: {boundingBox: [-1, 1, 1, -1]}}),
-        file: "accept", consumerRefuses: true, storageParity: true, entryParity: false, observed: {bounds: 1, state: 0, data: "threw", warned: false}},
+        file: "accept", consumerRefuses: true, storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},
     {name: "nurbs: bspline graphState of the wrong shape", graph: () => new BSplineNurbsGraph(),
         preset: () => ({id: "p", data: bsplineOk(2, [[0, 0], [1, 1], [2, 0]]), graphState: {points: [["x"]]}}),
         file: "refuse", storageParity: true, entryParity: true, observed: {bounds: 0, state: 0, data: "none", warned: false}},

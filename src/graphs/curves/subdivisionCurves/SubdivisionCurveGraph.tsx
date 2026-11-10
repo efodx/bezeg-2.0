@@ -107,6 +107,11 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         return {initialized: true, points, closed, rule, round, showLimit, notice: ''};
     }
 
+    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
+    protected override consumerRefusal(data: SubdivisionPresetData) {
+        return subdivisionRejection(data);
+    }
+
     /** Rejects data the model cannot draw before touching the state; a Preset never starts playback and becomes the polygon Reset returns to. */
     override importPresetData(data: SubdivisionPresetData) {
         const rejection = subdivisionRejection(data);

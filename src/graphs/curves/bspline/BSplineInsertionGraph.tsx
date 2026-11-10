@@ -17,7 +17,7 @@ import {BSplineInsertionScene} from "./BSplineInsertionScene";
 import {BSplinePointList} from "./BSplinePointList";
 import {KnotEditor} from "./KnotEditor";
 import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
-import {assertDrawableCurve, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
+import {assertDrawableCurve, drawableRejection, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {
     INSERTION_DEFAULT_VALUE, INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, InsertionRefusal,
     insertionExample, insertionRefusalMessage, joinReports, jumpReadoutLines, multiplicityRows, planInsertion,
@@ -91,6 +91,11 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
     protected override lessonDefaultState(): BSplineInsertionState {
         const {degree, knots, points, origin, example} = this.state;
         return {initialized: true, ...initialData(), ...copyData({degree, knots, points}), origin, example};
+    }
+
+    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
+    protected override consumerRefusal(data: BSplinePresetData) {
+        return drawableRejection(data, INSERTION_MAX_POINTS);
     }
 
     /** The imported curve becomes the state and the Reset target; the ghost is cleared. */

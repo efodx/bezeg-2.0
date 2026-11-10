@@ -13,7 +13,7 @@ import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry"
 import {BSplinePresetData, bsplinePresetCollection, weightsRejection} from "./bsplinePresetCollection";
 import {BSplineNurbsScene} from "./BSplineNurbsScene";
 import {BSplinePointList} from "./BSplinePointList";
-import {assertDrawableCurve, ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
+import {assertDrawableCurve, drawableRejection, ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
 import {
     angleDegrees, copyNurbs, maxRadialError, NURBS_EXAMPLE_IDS, NURBS_MAX_POINTS, NurbsData, NurbsExampleId, nurbsExample, nurbsPointAt,
     planWeight, WeightRefusal,
@@ -97,6 +97,11 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
     protected override lessonDefaultState(): BSplineNurbsState {
         const {degree, knots, points, weights, origin, example} = this.state;
         return {initialized: true, ...initialData(), ...copyNurbs({degree, knots, points, weights}), origin, example};
+    }
+
+    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
+    protected override consumerRefusal(data: BSplinePresetData) {
+        return drawableRejection(data, NURBS_MAX_POINTS) ?? (data.weights ? weightsRejection(data.weights, data.points.length) : undefined);
     }
 
     /** The imported curve becomes the state and the Reset target; a Preset without weights has unit weights. */

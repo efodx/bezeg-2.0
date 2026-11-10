@@ -14,7 +14,7 @@ import {BSplinePointList} from "./BSplinePointList";
 import {isClamped, rebuiltKnots} from "./bsplineBasisModel";
 import {ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
 import {
-    assertBlossomCurve, BLOSSOM_ARG_STEP, BLOSSOM_DEFAULT_ARGS, BLOSSOM_DEGREES, BlossomSnapshot, blossomDomain, blossomPresetData, blossomSegments,
+    assertBlossomCurve, blossomRejection, BLOSSOM_ARG_STEP, BLOSSOM_DEFAULT_ARGS, BLOSSOM_DEGREES, BlossomSnapshot, blossomDomain, blossomPresetData, blossomSegments,
     blossomSnapshot, CurveCheck, curveCheck, defaultBlossomData, snapArgument,
     blossomArgumentText,
 } from "./bsplineBlossomModel";
@@ -80,6 +80,10 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         const [start, end] = blossomDomain(knots, degree);
         return {degree, knots, points, segment: blossomSegments(knots, degree)[0],
             args: BLOSSOM_DEFAULT_ARGS.map(a => Math.min(end, Math.max(start, a))), showBezier: true};
+    }
+
+    protected override consumerRefusal(data: BSplinePresetData) {
+        return blossomRejection(data);
     }
 
     /** Refuses data the graph cannot show (degree other than 2 or 3 included) before touching the state. */

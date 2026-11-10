@@ -100,6 +100,11 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         this.fit();
     }
 
+    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
+    protected override consumerRefusal(data: InterpolationPresetData) {
+        return interpolationRejection(data.points, data.parameterRule);
+    }
+
     /** Rejects data the model cannot interpolate before touching the state, then rebuilds the scene. */
     override importPresetData(data: InterpolationPresetData) {
         const rejection = interpolationRejection(data.points, data.parameterRule);

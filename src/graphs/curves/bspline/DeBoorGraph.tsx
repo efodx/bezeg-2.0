@@ -16,7 +16,7 @@ import {KnotEditor} from "./KnotEditor";
 import {BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, isClamped, KNOT_LIMIT, knotProblem, lastIndexOf} from "./bsplineBasisModel";
 import {
     appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
-    assertDrawableCurve, deBoorPresetData, defaultDeBoorData, knotsForCount,
+    assertDrawableCurve, drawableRejection, deBoorPresetData, defaultDeBoorData, knotsForCount,
 } from "./bsplineDeBoorModel";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
@@ -95,6 +95,11 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
     protected override lessonDefaultState(): DeBoorGraphState {
         const {degree, knots, points} = this.state;
         return {initialized: true, ...initialData(), degree, knots, points};
+    }
+
+    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
+    protected override consumerRefusal(data: BSplinePresetData) {
+        return drawableRejection(data, DEBOOR_MAX_POINTS);
     }
 
     /** Rejects data the graph cannot draw before touching the state, then rebuilds the scene and returns the iteration to level 0. */

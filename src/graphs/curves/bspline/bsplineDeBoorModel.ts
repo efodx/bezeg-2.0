@@ -1,4 +1,4 @@
-import {Language, LocalizedError, message, t} from "../../../localization";
+import {Language, LocalizedError, message, Message, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {domain, projectHomogeneous} from "../../../bezeg/impl/curve/bspline";
 import type {DeBoorEntry, DeBoorTriangle} from "../../../bezeg/impl/curve/bspline";
@@ -97,16 +97,22 @@ export function deBoorReadoutLines(triangle: DeBoorTriangle, knots: readonly num
  * Rejects curve data a point-controlled B-spline graph cannot draw (degree range, point count up to `maxPoints`, knot vector and its
  * length against the points) with a localized error. Shared by the de Boor and insertion graphs' `importPresetData`.
  */
-export function assertDrawableCurve(data: BSplinePresetData, maxPoints: number): void {
+export function drawableRejection(data: BSplinePresetData, maxPoints: number): Message | undefined {
     if (data.degree < BASIS_MIN_DEGREE || data.degree > BASIS_MAX_DEGREE) {
-        throw new LocalizedError(message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE}));
+        return message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE});
     }
     if (data.points.length < data.degree + 1 || data.points.length > maxPoints) {
-        throw new LocalizedError(message("bspline_too_few_points", {value0: data.degree, value1: data.degree + 1, value2: data.points.length}));
+        return message("bspline_too_few_points", {value0: data.degree, value1: data.degree + 1, value2: data.points.length});
     }
     const problem = knotProblem(data.knots, data.degree);
-    if (problem) throw new LocalizedError(problem);
+    if (problem) return problem;
     if (lastIndexOf(data.knots, data.degree) + 1 !== data.points.length) {
-        throw new LocalizedError(message("bspline_knots_wrong_length", {value0: data.points.length + data.degree + 1, value1: data.knots.length}));
+        return message("bspline_knots_wrong_length", {value0: data.points.length + data.degree + 1, value1: data.knots.length});
     }
+    return undefined;
+}
+
+export function assertDrawableCurve(data: BSplinePresetData, maxPoints: number): void {
+    const rejection = drawableRejection(data, maxPoints);
+    if (rejection) throw new LocalizedError(rejection);
 }

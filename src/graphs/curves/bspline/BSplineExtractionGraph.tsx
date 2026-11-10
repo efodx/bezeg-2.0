@@ -13,7 +13,7 @@ import {BSplineExtractionScene} from "./BSplineExtractionScene";
 import {BSplinePointList} from "./BSplinePointList";
 import {KnotEditor} from "./KnotEditor";
 import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
-import {assertDrawableCurve, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
+import {assertDrawableCurve, drawableRejection, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, insertionExample} from "./bsplineInsertionModel";
 import {affectedPieces, movedIndices, pieceColor, pieceReadoutLines, piecesOf} from "./bsplineExtractionModel";
 
@@ -72,6 +72,11 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
     protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
         const degree = curve.degree ?? this.defaultPreset().degree;
         return {degree, knots: curve.knots ? [...curve.knots] : knotsForCount(degree, true, curve.points.length), points: curve.points.map(point => [point[0], point[1]] as const)};
+    }
+
+    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
+    protected override consumerRefusal(data: BSplinePresetData) {
+        return drawableRejection(data, INSERTION_MAX_POINTS);
     }
 
     /** The imported curve becomes the state and the Reset target. */

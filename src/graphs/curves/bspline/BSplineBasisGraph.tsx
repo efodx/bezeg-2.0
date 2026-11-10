@@ -98,12 +98,14 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
     }
 
     /** Rejects data the plot cannot draw before touching the state, then rebuilds the scene. */
+    protected override consumerRefusal(data: BSplinePresetData) {
+        if (data.degree < BASIS_MIN_DEGREE || data.degree > BASIS_MAX_DEGREE) return message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE});
+        return knotProblem(data.knots, data.degree);
+    }
+
     override importPresetData(data: BSplinePresetData) {
-        if (data.degree < BASIS_MIN_DEGREE || data.degree > BASIS_MAX_DEGREE) {
-            throw new LocalizedError(message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE}));
-        }
-        const problem = knotProblem(data.knots, data.degree);
-        if (problem) throw new LocalizedError(problem);
+        const refusal = this.consumerRefusal(data);
+        if (refusal) throw new LocalizedError(refusal);
         this.setState({degree: data.degree, knots: [...data.knots]});
         this.ensureScene();
     }

@@ -353,6 +353,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             return Promise.resolve();
         }
         const stored = this.presetService?.getPreset(this.selectedPresetIdValue);
+        // An unreadable collection shows the default scene with its reason, not silently.
+        const collectionProblem = this.presetService?.loadPresets().problem;
+        if (collectionProblem) this.presetNoticeValue = collectionProblem;
         if (!stored) this.selectedPresetIdValue = "";
         if (stored) {
             try { this.checkPersistedPreset(stored); } catch (error) {
@@ -683,12 +686,27 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
      */
     protected checkPersistedPreset(preset: Preset): CheckedPreset {
         const collection = this.presetCollection();
-        if (!collection) {
-            return {...preset, data: preset.data === undefined ? undefined : cloneLessonValue(this.defaultPreset())};
-        }
-        const checked = checkPreset(collection, preset);
+        // A graph without a collection still has its view and scene state checked by the shared rules.
+        const checked = checkPreset(collection ?? {key: "graph", check: () => ({data: undefined})}, preset);
         if ("rejection" in checked) throw new LocalizedError(checked.rejection);
+        if (!collection) {
+            return {...checked.preset, data: preset.data === undefined ? undefined : cloneLessonValue(this.defaultPreset())};
+        }
+        // Consumer preparation: the family's own limits, checked on the plain data before anything is written.
+        if (checked.preset.data !== undefined) {
+            const refusal = this.consumerRefusal(checked.preset.data as D);
+            if (refusal) throw new LocalizedError(message("preset_check_in_preset", {value0: collection.key, value1: checked.preset.id, value2: "data", value3: refusal}));
+        }
         return checked.preset;
+    }
+
+    /**
+     * Side-effect-free consumer guard: the reason this graph cannot show checked Preset data (a degree it does not offer, a point
+     * count over its limit), or undefined. Runs inside `checkPersistedPreset`, so every persisted entry path refuses before
+     * the selection, view, scene state, disposal or drawing change. It must not read or write the live scene.
+     */
+    protected consumerRefusal(_data: D): Message | undefined {
+        return undefined;
     }
 
     /** The scene state a figure scene starts with: the graph's initial state with the Preset's stored state over it. */
@@ -1046,6 +1064,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const session = this.getActiveGraphSession();
         const boardContainer = this.figureContainer();
         if (!session || !boardContainer) return Promise.resolve();
+        // Every selected entry is checked and prepared before the batch touches any scene; one refusal refuses the batch.
+        for (const preset of presets) {
+            try { this.checkPersistedPreset(preset); } catch (error) {
+                this.presetNoticeValue = message("preset_entry_refused", {value0: error instanceof LocalizedError ? error.description : String(error)});
+                this.requestRender();
+                return Promise.resolve();
+            }
+        }
         const releaseBatch = this.figureExports.admitBatch();
         if (!releaseBatch) return Promise.resolve();
 
