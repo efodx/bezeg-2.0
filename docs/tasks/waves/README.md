@@ -8,7 +8,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
-| [01 Waves kernel](01-waves-kernel.md) | 0 | F1 | none | — | planned |
+| [01 Waves kernel](01-waves-kernel.md) | 0 | F1 | none | — | done |
 | [02 State model and waves graph](02-waves-graph.md) | A–C | F2a | Controls step 5 | 01 | planned |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 02 | planned |
 
