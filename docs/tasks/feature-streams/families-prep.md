@@ -1,5 +1,5 @@
 # Stream: Families prep
-Run state: active
+Run state: stopped: preparation done; F2a (playback, 3D) waits on Controls step 5 and F2b–F5 on Controls step 7
 
 Preparation of the fifteen families ranked in the [top-15 research note](../../research/lesson-family-candidates-2026-11-09.md), specs first. The owner scheduled the preparation on 2026-11-10, including the parked E5, E9 and E10. Rules and slice template: [feature streams](README.md). Port 4321. Handoffs and state note: `docs/reviews/feature-streams/families-prep/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
@@ -45,7 +45,7 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | 2 | Analytic geometry of lines | [analytic-lines-lessons.md](../../specs/analytic-lines-lessons.md) | spec, F0, F1 (exact line forms, projection, distance), F2a | spec accepted; F0 done ([tasks](../analytic-lines/README.md), ADR 0046); F1 task 01 done; F2a task 02 done |
 | 3 | Combinatorics and Pascal's triangle | [combinatorics-lessons.md](../../specs/combinatorics-lessons.md) | spec, F0, F1 (BigInt binomials, path enumeration) | spec accepted; F0 done ([tasks](../combinatorics/README.md), ADR 0048); F1 done |
 | 4 | Randomness and simulation | [randomness-simulation-lessons.md](../../specs/randomness-simulation-lessons.md) | spec, F0, F1 (seeded integer PRNG, samplers, exact comparators) | spec accepted; F0 done ([tasks](../randomness/README.md), ADR 0049); F1 done (tasks 01–02) |
-| 5 | Isometries, similarity and symmetry | [isometries-lessons.md](../../specs/isometries-lessons.md) | spec, F0, F1 (isometry classification, frieze tiling), F2a | spec accepted; F0 done ([tasks](../isometries/README.md), ADR 0047); F1 done |
+| 5 | Isometries, similarity and symmetry | [isometries-lessons.md](../../specs/isometries-lessons.md) | spec, F0, F1 (isometry classification, frieze tiling), F2a | spec accepted; F0 done ([tasks](../isometries/README.md), ADR 0047); F1 done; F2a task 03 done |
 | 6 | Circle geometry and constructions | [circle-geometry-lessons.md](../../specs/circle-geometry-lessons.md) | spec, F0, F1 (power of a point, radical axis, Apollonius, common tangents; reuse `src/compgeo/circle.ts`), F2a | spec accepted; F0 done ([tasks](../circle-geometry/README.md), ADR 0045); F1 task 01 done; F2a task 02 done |
 | 7 | Kinematics on curves | [kinematics-lessons.md](../../specs/kinematics-lessons.md) | spec, F0, F1 (velocity and acceleration from the curve kernel) | spec accepted; F0 done ([tasks](../kinematics/README.md), ADR 0050); F1 done |
 | 8 | Solids and volumes | [solids-volumes-lessons.md](../../specs/solids-volumes-lessons.md) | spec, F0, F1 (solid meshes, plane section clipping, revolve) | spec accepted; F0 done ([tasks](../solids/README.md), ADR 0051); F1 done |

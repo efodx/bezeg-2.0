@@ -2715,3 +2715,16 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Partial returns:** 1b and 3 hit worker HANDOFF; fresh Sonnet continuations from the handoff note finished both. Stop the stale worker first: it still had background work.
 - **Review value:** Sonnet reviews found one blocking defect (selection and view changed before the check on Preset selection) and confirmed math equivalence for the projection pilot. Smokes found a wrong refusal message (17-point NURBS "needs at least 2") and a transient-state regression from the handler's own notice change was caught by the publish gate's `check-changed`, not by the focused unit run.
 - **Misses:** Haiku smokes twice wrote harness scripts that crashed on JSXGraph internals; a Sonnet retry fixed one. A handler `git rebase origin/master` on the stream branch conflicted deep in old history (aborted; branch left as a work log).
+
+### 2026-11-10 families-prep handler 4 (Opus, auto, medium; budget scale 1.5): F2a ×4 graphs, stream stopped
+
+- Role/class: stream handler, L. Scope: trigonometry 05 (triangle solver), circle-geometry 02, analytic-lines 02 and isometries 03 graphs, each with a model, tests, a locale block and no route. The stream stopped with only gated work left.
+- Dispatch: 13 Sonnet implementation or repair workers (continuations from notes after HANDOFF: trig 1, circle 2, lines 1, isometries 2; one repair worker per graph), 8 Sonnet reviews (engineering and maths) and 4 Haiku UI/accessibility reviews. At most two agents in the stream at once, so the three reviews of a graph ran in two or three waves.
+- Outcome: 4 feature commits and 4 background publishes, all clean on the first attempt. None of the 12 reviews found a high-severity issue in mathematics or engineering. UI/accessibility found high or medium issues on every graph: help linked to only one field, ranges not shown, elements told apart only by colour, missing captions. Engineering found two derived-cache costs, which roughly halved the jsdom drag time on isometries (p95 14.9 to 4.2 ms).
+- Failures:
+  - Tool: a worker restored a mutation from a stale `/tmp/orig.tsx` and lost the circle graph; a fresh worker rewrote it from the note's spec and the surviving tests.
+  - Tool: one repair worker returned "placeholder" as its report, and a follow-up report was refused (one report per result). The note held the real state, and the handler reran the checks.
+- Lessons:
+  - Opening each brief with the earlier review findings cut repeat findings in engineering, but the UI review still found something new on every graph.
+  - Graph slices take two or three worker contexts: model, then graph, then verification. Brief each successor from the note.
+  - With concurrent slices sharing the locale files, a hunk filter plus `git apply --cached` kept each commit to its own block.
