@@ -1,6 +1,6 @@
 # Phase portraits and dynamics (Fazni portreti in dinamični sistemi)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/phase-portraits](../tasks/phase-portraits/README.md). Decisions 1–4: [ADR 0054](../adr/0054-phase-portraits-separate-graphs-rk4-integer-classification.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #13 of the [top-15 note](../research/lesson-family-candidates-2026-11-09.md); engine family).
 **Source:** [expansion candidates, E5](../research/lesson-family-candidates-2026-10-31-expansion.md#e5-fazni-portreti-in-dinamični-sistemi--phase-portraits-and-dynamics-u) (anchors FMF Analiza 3, Mehanika 1, Dinamični sistemi 2Mate, five lessons, pitfalls; cited, not opened) and the top-15 entry 13 (opening lesson, engine). Builds on #11 (eigen-directions, [linear maps](linear-maps-lessons.md) Batches B–C) and #9 ([recursion and growth](recursion-growth-lessons.md), lesson RG4, which stops at \(r\le2{,}9\) and leaves chaos to this family). PIK M-MAT-2026: no section covers differential equations, phase planes or chaos (searched the extraction for *dinami*, *logist*, *rekurz*). The only contact is §4.12 *Zaporedja in vrste*, p. 20, "zapiše člene zaporedja pri danih začetnih členih in rekurzivni formuli" (writing out terms from a recursive formula, the idea behind iterating a map); level marker not verified. This family is university content except that idea.
 
