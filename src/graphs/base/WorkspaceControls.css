@@ -281,7 +281,6 @@
 }
 .inspector-playback button span { color: var(--workspace-green); font-size: .9rem; line-height: 1; }
 .inspector-playback > :only-child { grid-column: 1 / -1; }
-.inspector-playback button:disabled { opacity: .42; }
 .inspector-playback button[aria-disabled="true"] { opacity: .45; cursor: default; }
 .is-presenting .inspector-playback button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
 .is-presenting .inspector-playback button span { color: #d9b461; }
