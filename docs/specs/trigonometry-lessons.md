@@ -1,6 +1,6 @@
 # Trigonometry of the unit circle and triangle (Trigonometrija na enotski krožnici in v trikotniku)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/trigonometry](../tasks/trigonometry/README.md). Decisions 1–3: [ADR 0044](../adr/0044-trigonometry-graphs-and-snapped-inputs.md).
 **Agreed:** owner scheduled preparation 2026-11-10 (family #1 of the [top-15 research note](../research/lesson-family-candidates-2026-11-09.md)); details below are proposals for owner review.
 **Source:** the research note's entry 1 (opening lesson, lesson list, risks) and the matura catalogue M-MAT-2026, text extraction read for this spec: §4.6 (page 13; page footers follow the page text in the extraction; *Središčni in obodni koti*, *Kot v polkrogu*, *Kosinusni in sinusni izrek*, objective "uporablja zveze med stranicami in koti v poljubnem trikotniku, pri tem uporablja kosinusni in sinusni izrek"), §4.7 (page 14; *Polmer trikotniku včrtanega in ocrtanega kroga*) and §4.10.9 *Kotne funkcije* (page 19; *Definicije kotnih funkcij na enotski krožnici*, *Adicijski izreki*, "izpelje vrednosti kotnih funkcij za kote 0, 30, 45, 60, 90"). Level markers (VR) were not verified in the extraction. Textbooks and FMF pages are not opened. Part of the [new lesson families](new-lesson-families.md) (the index entry is added by the handler).
 
