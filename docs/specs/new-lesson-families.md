@@ -31,6 +31,8 @@ All families follow the current learning model: a bilingual chapter in Learn wit
 | Fourierove vrste / Fourier series | [fourier-series-lessons.md](fourier-series-lessons.md) | University, secondary enrichment | Medium | Fourier coefficient kernel |
 | Projektivna geometrija stožnic / Projective geometry of conics | [projective-conics-lessons.md](projective-conics-lessons.md) | University | Medium | **Homogeneous-coordinate kernel** |
 | Napredne Bézierjeve teme / Advanced Bézier topics | [advanced-bezier-lessons.md](advanced-bezier-lessons.md) | University | Medium–high | — |
+| Trigonometrija na enotski krožnici in v trikotniku / Trigonometry of the unit circle and triangle (top-15 #1, prep only) | [trigonometry-lessons.md](trigonometry-lessons.md) | Upper secondary | Low–medium | Trigonometry kernel (unit circle, triangle solver incl. SSA) |
+| Geometrija krožnice in načrtovalne naloge / Circle geometry and constructions (top-15 #6, prep only) | [circle-geometry-lessons.md](circle-geometry-lessons.md) | Upper secondary, enrichment | Low–medium | Circle construction kernel (tangents, radical axis, Apollonius, common tangents) |
 
 Slovenian titles are working names. Each spec settles its terms by [choosing new terms](../localization.md#choosing-new-terms).
 
