@@ -2708,3 +2708,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
   - Control characters from escape sequences had corrupted two specs earlier (`\v`, `\a`). Exact-match Edit fails on such lines, so replace them by line number.
   - The F2a graph exhausted one worker's budget before verification; a fresh continuation from its note worked.
   - Shell latency rose to about 2 minutes per call with three agents running.
+## 2026-11-10: controls open items and step 7 slices 1–4 (controls stream, handler)
+
+- **Pipelining:** two workers at a time throughout (implementation slice plus smoke or review); every slice published from the clean worktree by cherry-pick while the next ran. Five pushes (`c9951438`, `ff7413f6`, `5d5dabab`, `460359af`, then slices 3–4); CI green where reported.
+- **Characterize first paid off:** slice 1a's 31 `it.fails` parity rows gave 1b a mechanical target; 1b's continuation found two real defects through them (undefined state fields failing in-memory figure entry; keys without an app collection getting the wrong state rule).
+- **Partial returns:** 1b and 3 hit worker HANDOFF; fresh Sonnet continuations from the handoff note finished both. Stop the stale worker first: it still had background work.
+- **Review value:** Sonnet reviews found one blocking defect (selection and view changed before the check on Preset selection) and confirmed math equivalence for the projection pilot. Smokes found a wrong refusal message (17-point NURBS "needs at least 2") and a transient-state regression from the handler's own notice change was caught by the publish gate's `check-changed`, not by the focused unit run.
+- **Misses:** Haiku smokes twice wrote harness scripts that crashed on JSXGraph internals; a Sonnet retry fixed one. A handler `git rebase origin/master` on the stream branch conflicted deep in old history (aborted; branch left as a work log).

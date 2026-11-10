@@ -1,6 +1,6 @@
 # 5. Persisted scene validation and projection
 
-Status: pending; task file written 2026-11-08 by the Controls stream (step 7 of [controls.md](../feature-streams/controls.md)). Source: [lesson-authoring architecture, section 5](../../specs/lesson-authoring-architecture.md#5-persisted-scene-validation-and-projection), acceptance P1–P5 (canonical there), plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Runs alone in Controls Wave 4 and owns the `BaseGraph` import/replacement path while active; task 4 follows it.
+Status: slices 1–4 implemented 2026-11-10 (evidence `docs/reviews/feature-streams/controls/s7-*.md`); closeout pending: integrated `just check`, full workspace/lesson-runtime checklist smoke, integrated engineering review. Task file written 2026-11-08 by the Controls stream (step 7 of [controls.md](../feature-streams/controls.md)). Source: [lesson-authoring architecture, section 5](../../specs/lesson-authoring-architecture.md#5-persisted-scene-validation-and-projection), acceptance P1–P5 (canonical there), plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Runs alone in Controls Wave 4 and owns the `BaseGraph` import/replacement path while active; task 4 follows it.
 
 ## Scope and entry points
 

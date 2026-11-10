@@ -1,49 +1,50 @@
 # Controls stream state
 
-Read this and the [handler card](../../../agent-workflow/handler-card.md), then the [parallel plan](../../../tasks/feature-streams/controls.md#parallel-plan). Evaluation records: the "controls Wave 3, …" entries at the end of [evaluation-log.md](../../../agent-workflow/evaluation-log.md).
+Read this and the [handler card](../../../agent-workflow/handler-card.md), then the [parallel plan](../../../tasks/feature-streams/controls.md#parallel-plan). Evaluation records: the "controls …" entries at the end of [evaluation-log.md](../../../agent-workflow/evaluation-log.md).
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`. Run state: **active**. Step 5 (task 4) is **accepted** and on `master`. Step 6 (phone playback) is in progress.
-- **Local, not pushed (step 6):** `3aff64e3` (s6a: slot core, pilots fixed point and De Casteljau), `a2af3f47` (s6a review fix: slot dimmed in lesson-content mode), `64e2c0c2` (s6b: rollout to 21 more playback groups), then the handoff docs commit. The handoff docs commit was also pushed alone (cherry-picked onto `origin/master` from the clean worktree), so its patch is already upstream. When you publish step 6, declare `--base 72d7d578` and every commit in `72d7d578..HEAD` (the three step 6 commits, the handoff docs commit, and yours); the rebase drops the already-applied docs patch. If `just publish` refuses that, read its recovery section in `docs/commands.md`.
-- **Clean worktree for checks and previews:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached; it may still be serving `72d7d578` on port 4327 (a background `just preview` of the previous handler; stop any process on 4327 first, then `git checkout --detach <commit>`, `just check-changed <base>`, `just preview 4327`). Publish from the stream worktree with `just publish --background --recipe runtime --base <commit> --commits <ids>`, then `just publish --status` / the result JSON, then `just ci <pushed sha>`.
-- **Hosted CI:** `68771cb0` (Wave 3 through repair 3) green, run 42717545564. `de8b05c4` (R1b, Apply 44 px) green, run 42734495527. `62730f3d` (C29/C30) green, run 42740748799.
+- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`. Run state: **active**. Step 6 (phone playback) **accepted** and on `master`. Step 7 (lesson-authoring workstream 5, persisted scene validation): slices 1–4 implemented and on `master` (if the last publish below succeeded); **closeout pending**.
+- **Do not rebase the stream branch.** It carries old commits that were published as rewritten copies; `git rebase origin/master` conflicts deep in Wave 3 history. Publish by cherry-picking new commits onto `origin/master` in the clean worktree and running `just publish` there (below). The stream branch is a work log; its tip has the same tree content as master for this stream's files.
+- **Clean worktree for checks, previews and publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, `just build`, `just preview 4327` (background), smoke, stop the preview, `just publish --background --recipe runtime --base <origin/master sha> --commits <cherry-picked ids>`; result JSON in that worktree's `.command-logs/publish-*.json`; then `just ci <pushed sha>`. A run cancelled by a later push is covered by the next master run whose jobs include unit and browser shards (check `gh run view <id> --json jobs`; docs-only runs still ran the full pipeline on 2026-11-10).
+- **Hosted CI this session:** `c9951438` (step 6) green, run 42762103792. `ff7413f6` (1a, open items) covered by `7caa352b` run 42781936298 green. `5d5dabab` (1b) covered by `60eb961f` run 42807394992 green (full unit and browser shards). `460359af` (slice 2 + limit message) green, run 42823765009. Slices 3–4 and this docs commit: see the last publish (`just publish --status` in the clean worktree, then `just ci <sha>`); record the result here.
 - **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Pipeline slices in disjoint files instead of waiting on publish and CI.
 
-## Done in this session (2026-11-09/10)
+## Done in this session (2026-11-10)
 
-- Smoke E (O1 operation panel, compgeo readouts) found four defects; repair 3 (`441a42a2`, `7d699050`, `2f0017c0`, `88d01b2e`, `bf0f384b`) fixed them: Apply/Reset weight reasons visible on press, 44 px Apply (a rule losing on specificity), settled trace readouts (decision 66), point count announced only after this panel's own press. Smokes `w3-smoke-e.md`, `w3-smoke-r3.md`, `w3-smoke-f.md`.
-- R1b (`f72c6526`): readouts outside compgeo on the shared parts; C27-12 board labels exempt (decision 65 note). Reviews found two blocking regressions in Collision Inspect, fixed by the handler. Evidence `w3-r1b.md`.
-- C29/C30 (`7dcdc1cf`): one key per shared label (decision 67), shared `control-row` (decision 68). Evidence `w3-c29.md`, `w3-c30.md`, `w3-smoke-g.md`.
-- Task 4 closeout: `just check` passed at `72d7d578`; full checklist in both languages `w3-closeout-smoke.md`; queue row 5 accepted.
-- Step 6 items 1–2: `graph-adjacent-controls.screenshots.md` (before: playback and graph never visible together in portrait on 11 of 13 routes), `graph-adjacent-controls.prototype.md`, layout decision in `docs/specs/mobile-graph-playback.md` ("Layout decision").
+- Step 6 verified (`check-changed`, smokes A and B: `w3-s6-smoke-a.md`, `w3-s6-smoke-b.md`), item 5 guidance (`docs/ui-functionality.md`, task completion evidence, spec status), accepted and published.
+- Open items: point-set status and pending lines are notice regions (mirror their sentence, not `data-readout-live`); Voronoi's blocked construction says to choose a site first (`noRunReason` on `PlaybackButtons`). Evidence `ctl-open-items.md`, `oi-smoke.md`.
+- Step 7 slices: 1a characterization (`s7-1a-inventory.md`, `PersistedEntryParity.test.ts`); 1b one complete check on every entry path (`s7-1b.md`, smoke `s7-1b-smoke.md`); 2 consumer refusal before mutation and batch preflight (`s7-2.md`, smoke `s7-2-smoke.md`); 3 deterministic defaults for omitted and partial fields (`s7-3.md`, smoke `s7-3-smoke.md`); 4 FivePoint/ThreeViews projection (`s7-4.md`). User impact for 1–4 in `docs/specs/lesson-authoring-architecture.md` section 5 ("Implemented, slice …").
 
 ## Next
 
-1. **Verify step 6 s6a + s6b:** in the clean worktree, `just check-changed 72d7d578` at the step 6 head (the three commits), serve it, then two smoke workers from `w3-s6-smoke-brief.md` (group A route matrix: Sonnet; group B conditions plus baseline: Sonnet). Fix red, then publish and `just ci`. The shared workspace changed, so group B includes the baseline checklist.
-2. Step 6 item 5: update workspace guidance (`docs/ui-functionality.md` playback section, if any; `graph-adjacent-controls.md` completion evidence with the route/action matrix), then mark queue row 6 done.
-3. Then the open items below as one small slice, or step 7 (Wave 4) per the parallel plan; step 5a stays gated on Codex's lesson navigation (check `origin/master`).
+1. **Step 7 closeout:** in the clean worktree at the step 7 head on master, `just check` once (integrated change); full workspace/lesson-runtime checklist smoke in both languages (`docs/smoke-tests.md`, BaseGraph/session paths changed), including save/reopen, file exchange, malformed refusal, figure export/return, Blossom and NURBS routes, FivePoint and ThreeViews save/reopen; one integrated engineering review of `460359af~..master` for step 7 files (Sonnet). Then mark the task file and queue row 7 accepted.
+2. Then Wave 4: steps 8 and 9 in parallel (task files linked from `controls.md` rows 8, 9). Step 5a stays gated on Codex's lesson navigation (check `origin/master`).
+3. The open items below as small slices between them.
 
 ## Open items
 
-- **Live-region count on point-set graphs:** `PointSetControls.tsx:75,84,222` mounts `StatusLive` for its status and pending lines, so Delaunay has three `[data-readout-live]` and Bezier clipping two, against decision 18's one region per graph. Fold them into the graph's `LiveReadout` or make them notice regions that stay empty until something happens.
-- Step 6 risks: focus kept across the breakpoint only when focus fell to the body (`PlaybackButtons.tsx`); Euler method has no Play and stays inline; collision playgrounds and lesson-only patch sweeps stay inline; the Epicycle time slider is a candidate for a per-route live disclosure (variant B); `100svh` with real browser chrome and scrolled pages unverified.
+- **Step 7 review leftovers (non-blocking):** production casts in `checkPreset` (`as BaseGraphState`, `as BoardState[...]`), `as D` in `importPreset`/`consumerRefusal` path, `as S` in `importPreset`'s `replaceState`; point-set instance collections (overlays/options) vs the file path's canonical collections; `presetNoticeValue` not cleared on a later clean mount; `TriangulationGraph.tsx:374` throws inside `importPresetData` (collection check probably catches it first, unconfirmed); Hermite `consumerRefusal` redundant with its collection check; consumer limits in point-set/function/patch/projective `importPresetData` not audited; `ConsumerPreparation.test.tsx` `undefined as never`; no FivePoint degenerate-model `lastUnique` test; figure-batch `finish` no longer sets an initial view for a view-less Preset (removed: it broke Reset contracts).
+- **Delaunay** still has two readout regions (its trace `LiveReadout` plus the inherited `TriangulationControls` one, `TriangulationControls.tsx:128`); decision 18 wants one.
+- **Curve `importPreset` on a live scene appends curves** (slice 3 worker note, Bezier): check whether intended.
+- Step 6 risks: focus kept across the breakpoint only when focus fell to the body (`PlaybackButtons.tsx`); Euler method has no Play and stays inline; collision playgrounds and lesson-only patch sweeps stay inline; Epicycle time slider candidate for a per-route live disclosure; `100svh` with real browser chrome unverified; 360 × 640 board at its 200 px floor with Reset below the fold at scroll 0 on 20 routes.
 - `ReadoutHeading` relies on `.inspector-reveals-title` in `functions/FunctionReadout.css`; empty `FunctionReadout` rows render an empty `ul`; `ChapterPage.tsx:135` keeps `role="note"` (learn-ui stream).
 - Decision 57 gaps: De Casteljau curve commands and Preset load leave a run going; lesson `play` of parametric roll and Epicycle ignores reduced motion. Collision playground autoplays in view; Play out of view does nothing.
 - `.inspector-playback button:disabled` rule: check whether any native `disabled` remains in Voronoi/Delaunay (C6).
 - `NumberInput` integer hint lacks "whole numbers"; `UnavailableButton` `title` plus hidden description can be read twice.
 - Patches (low): Derivatives corner `aria-label`; `PatchPointEditor` new `points` array each render; Insertion refusal separator after a language switch; knot editor drag refusal reasons unchecked.
-- Test debts: `VoronoiGraph.host.test.tsx` "schedules no timers" predates `TracePlayback`; duplicates in `frameFit.test.ts`/`exampleAndFrame.test.ts`; `sharedControls.graphs.test.tsx` per-graph restore; three compgeo host tests wait 600 ms real time for the settle period (fake timers would be faster).
+- Test debts: `VoronoiGraph.host.test.tsx` "schedules no timers" predates `TracePlayback`; duplicates in `frameFit.test.ts`/`exampleAndFrame.test.ts`; `sharedControls.graphs.test.tsx` per-graph restore; three compgeo host tests wait 600 ms real time.
 - Carried: `ChoiceSelect` clipped at 200 % text (one `test.fail`); the count setter's refusal ignores `ReplacementRevision`; no screen-reader run, Chromium only. Curve workspace `onAdd` never refuses; no De Casteljau export check.
 
 ## Risks and working notes
 
-- Line endings: about 1,400 files in this worktree have CRLF working copies with clean status (an earlier worker rewrote them; the checkout should be LF per `.gitattributes`). Leave them: a bulk delete-and-checkout runs file by file on Windows and the classifier blocks `git checkout --`. Edits through the Edit tool and `git add` normalise to LF.
-- Workers that share a checkout: name owned regions (worked for C29 labels vs C30 classes in the same tsx files). A worker that stages a deletion (`git rm`) puts it in the index: commit other docs with a path-limited `git commit -- <paths>`.
+- The machine is slow while a worker runs `check-changed`: shell calls time out at 120 s and move to the background; read results with the Read tool on the task output or the `.command-logs` file.
+- Haiku smoke workers wrote broken harness scripts twice (reading JSXGraph internals); a working Playwright pattern is `.command-logs/s7-2-smoke/run.cjs` (storage key `bezeg-2.0:preset-<collection>` with `{data:[…]}`, Preset save under "Shrani", points are SVG ellipses; NURBS draws one extra ellipse, its marker at `t`).
+- Workers that hit HANDOFF and leave background work: stop them (TaskStop) before a continuation worker edits the same files.
+- Line endings: many files have CRLF working copies with clean status; leave them. Edits and `git add` normalise to LF.
 - Smoke workers sometimes skip their evidence file; say "MUST write" in the prompt.
 - CSS-source tests do not prove the cascade: check specificity against `.workspace-inspector .tools .btn` (0,3,0) and `.demonstration-workspace button` (0,1,1), and smoke-measure.
 - `check-changed` "selector removed" warnings for `.visually-hidden` and fixture `data-testid` are false positives.
-- `just publish` needs the declared commits to be exactly `<base>..HEAD`.
 - Ports: 4317 Codex, 4327 previews, 4328 the controls fixture.
 
 ## Settings
