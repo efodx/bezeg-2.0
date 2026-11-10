@@ -1,6 +1,6 @@
 # Analytic geometry of lines (Analitična geometrija premice)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/analytic-lines](../tasks/analytic-lines/README.md). Decisions 1–3: [ADR 0046](../adr/0046-line-geometry-graph-and-integer-lines.md).
 **Agreed:** owner scheduled preparation 2026-11-10; owner ranking rule: lines with the dot product as a tool, not a standalone vectors lesson.
 **Source:** [top-15 research note, family 2](../research/lesson-family-candidates-2026-11-09.md) (opening lesson, lessons, kernel, risks). Read for this spec: the matura catalogue M-MAT-2026 §4.6 (page 13: *pravokotna projekcija*), §4.8 (pages 14–15: *skalarni produkt, kot med vektorjema in dolžina vektorja*, *pravokotna projekcija vektorja na drug vektor*, *povezava med skalarnim produktom in kosinusnim izrekom*, *utemelji pravokotnost in vzporednost vektorjev*), §4.9 (page 15: *razdalja med točkama*, *ploščina trikotnika*), §4.10.1 (page 16: *enačbe premice v ravnini*, *kot med premicama*) and the formula sheet (page 40: *razdalja točke od premice*, \(d=|ax_0+by_0+c|/\sqrt{a^2+b^2}\)). The catalogue has no level marker check here: level markers not verified. Part of the [new lesson families](new-lesson-families.md); the index entry is added by the handler.
 
