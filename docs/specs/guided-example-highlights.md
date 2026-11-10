@@ -25,7 +25,7 @@ The owner accepted every recommendation of the [redone audit](../reviews/guided-
 - **D4:** the 4×3 net from *curve to patch* stays prose only.
 - **D5:** where no example prompt reaches a figure's exact state (figures 6, 7, 8, 9 and 11, and the PH catalog curves), the example's own state is shown, and the remaining distinctions move into prose.
 - **D6:** `tensor-joins` shows the C0 join, `properties` shows the hull and affine case, and `curve-to-patch` shows the start scene.
-- **D8:** task 01 samples: the quintic PH offset, the rational weight (multi-frame) example, and weighted parameterization with \(lpha=0{,}25\).
+- **D8:** task 01 samples: the quintic PH offset, the rational weight (multi-frame) example, and weighted parameterization with \(\alpha=0{,}25\).
 - **D9:** `quartic-interpolation` shows its start scene; `decasteljau-parameter` shows \(t=	frac14\).
 - **D10:** task 01 computes a distance \(d\) for the PH singularity cards (about 1.5 times the minimum radius of curvature) and checks the self-intersection numerically. Start plus offset is accepted if no robust \(d\) exists. The quintic comparison of lengths stays in prose.
 - **D11:** figure 25's point is carried by the start scene with the tangent switch. Figure 26 uses \(n=4\), and the six-rectangle sentence at `familyChapters.ts:409` is rewritten.
