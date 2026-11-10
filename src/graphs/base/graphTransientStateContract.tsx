@@ -90,8 +90,6 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'euler-line': ['model'],
     'simson-line': ['model'],
     inversion: ['model'],
-    'projective-five-point': ['model', 'lastUnique'],
-    'projective-three-views': ['model'],
     'projective-cross-ratio': ['model'],
     'projective-pascal': ['model'],
     'projective-pole-polar': ['model'],
@@ -364,7 +362,16 @@ export function describeGraphTransientState(part: number): void {
                     ? ['initialized', ...Object.keys((graph.state as {model: object}).model)]
                     : Object.keys(graph.state);
                 for (const key of dataKeys) expect(graph.state).toHaveProperty(key);
-                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(savedKeys.filter(key => !dataKeys.includes(key)).sort());
+                const projected = internals(graph).projectPersistedScene?.();
+                if (projected) {
+                    // A graph with a projection declaration: the exported file is exactly its public projection, and the
+                    // model it holds once (in data) is not also in the state.
+                    expect(preset.graphState).toEqual(projected.graphState);
+                    expect(preset.data).toEqual(projected.data);
+                    expect(preset.graphState).not.toHaveProperty('model');
+                } else {
+                    expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(savedKeys.filter(key => !dataKeys.includes(key)).sort());
+                }
             } else {
                 // All surface state is Preset data; the Preset's graphState only marks the graph initialized.
                 expect(Object.keys(preset).sort()).toEqual(['data', 'graphState', 'id']);

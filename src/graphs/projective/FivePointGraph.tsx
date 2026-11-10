@@ -3,7 +3,6 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {Conic} from "../../projective/conic";
 import {sampleConic} from "../../projective/conicSampler";
@@ -16,6 +15,7 @@ import {FivePointControls} from "./FivePointControls";
 import {describeFivePoint} from "./fivePointText";
 import {definingPoints} from "./definingPoints";
 import {fivePointPresetCollection} from "./projectivePresetCollection";
+import {fivePointPersistence} from "./projectivePersistence";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
@@ -247,15 +247,13 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         return serializeFivePointModel(DEFAULT_FIVE_POINT_MODEL);
     }
 
-    /** A Preset carries the model once, as `data`; its `graphState` omits `model` and `lastUnique`, which the collection's `checkGraphState` rejects. */
-    override exportPreset(): Preset<FivePointModel> {
-        const preset = super.exportPreset();
-        const {model: _model, lastUnique: _last, ...graphState} = preset.graphState as FivePointGraphState;
-        return {...preset, graphState};
+    /** A Preset carries the model once, as `data` (`fivePointPersistence`); its `graphState` is only `initialized`. */
+    protected override projectPersistedScene(): {data: FivePointModel; graphState: BaseGraphState} {
+        return fivePointPersistence.project(this.state);
     }
 
     override exportPresetData(): FivePointModel {
-        return serializeFivePointModel(this.model);
+        return fivePointPersistence.project(this.state).data;
     }
 
     /** An import or the app-level Reset replaces the model; the selection, the last nudge, the extrapolation toggle and the stale conic belong to the old one and are cleared. */
@@ -263,16 +261,17 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         this.selected = undefined;
         this.nudged = false;
         this.extrapolation = false;
-        const next = serializeFivePointModel(data);
-        this.setState({model: next, lastUnique: nextLastUnique(undefined, next, evaluateFivePoint(next))});
+        const {model, lastUnique} = fivePointPersistence.reconstruct(data, undefined, this.state);
+        this.setState({model, lastUnique});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): FivePointGraphState {
-        return {...super.figurePresetGraphState(graphState), model: this.model, lastUnique: this.state.lastUnique};
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): FivePointGraphState {
+        const defaults = super.figurePresetGraphState(undefined);
+        return {...fivePointPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as FivePointModel, graphState, defaults), initialized: true};
     }
 
-    protected override lessonDefaultState(): FivePointGraphState {
-        return {...this.getInitialState(), initialized: true, model: this.model, lastUnique: this.state.lastUnique};
+    protected override lessonDefaultState(data?: FivePointModel): FivePointGraphState {
+        return {...fivePointPersistence.reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
     }
 
     protected override captureTransientState(): TransientState {

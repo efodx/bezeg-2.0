@@ -26,6 +26,7 @@ export type Internals = {
     jxgCurves?: Array<{getJxgPoints(): unknown[]}>;
     exportPresetFigures(presets: Preset[]): Promise<void>;
     captureTransientState?: () => unknown;
+    projectPersistedScene?: () => {data: unknown; graphState: Record<string, unknown>} | undefined;
     lessonFunctionActions?: () => {visibility?: Record<string, unknown>};
     exportPresetData(): unknown;
     importPresetData(data: unknown): void;

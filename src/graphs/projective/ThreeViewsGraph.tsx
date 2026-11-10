@@ -3,7 +3,6 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -16,6 +15,7 @@ import {nudgeC, setAngle, setC, setPointOn} from "./threeViewsEdit";
 import {ThreeViewsControls} from "./ThreeViewsControls";
 import {describeThreeViews} from "./threeViewsText";
 import {threeViewsPresetCollection} from "./projectivePresetCollection";
+import {threeViewsPersistence} from "./projectivePersistence";
 
 /**
  * The "one conic, three views" graph (K5 of projective-conics-lessons, ADR 0033), two panels on one board: the source plane on the
@@ -154,28 +154,27 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         return serializeThreeViewsModel(DEFAULT_THREE_VIEWS_MODEL);
     }
 
-    /** A Preset carries the model once, as `data`; its `graphState` omits `model`, which the collection's `checkGraphState` rejects. */
-    override exportPreset(): Preset<ThreeViewsModel> {
-        const preset = super.exportPreset();
-        const {model: _model, ...graphState} = preset.graphState as ThreeViewsGraphState;
-        return {...preset, graphState};
+    /** A Preset carries the model once, as `data` (`threeViewsPersistence`); its `graphState` is only `initialized`. */
+    protected override projectPersistedScene(): {data: ThreeViewsModel; graphState: BaseGraphState} {
+        return threeViewsPersistence.project(this.state);
     }
 
     override exportPresetData(): ThreeViewsModel {
-        return serializeThreeViewsModel(this.model);
+        return threeViewsPersistence.project(this.state).data;
     }
 
     /** An import or the app-level Reset replaces the model. */
     override importPresetData(data: ThreeViewsModel): void {
-        this.setState({model: serializeThreeViewsModel(data)});
+        this.setState({model: threeViewsPersistence.reconstruct(data, undefined, this.state).model});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): ThreeViewsGraphState {
-        return {...super.figurePresetGraphState(graphState), model: this.model};
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): ThreeViewsGraphState {
+        const defaults = super.figurePresetGraphState(undefined);
+        return {...threeViewsPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as ThreeViewsModel, graphState, defaults), initialized: true};
     }
 
-    protected override lessonDefaultState(): ThreeViewsGraphState {
-        return {...this.getInitialState(), initialized: true, model: this.model};
+    protected override lessonDefaultState(data?: ThreeViewsModel): ThreeViewsGraphState {
+        return {...threeViewsPersistence.reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

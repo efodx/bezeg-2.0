@@ -565,7 +565,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             importData: () => this.importPresetData(checked.data),
             afterImport: () => { if (view) this.applyLessonView(view); },
             // Replaced, not merged, as in the default scene.
-            state: () => ({...this.getInitialState(), ...this.lessonDefaultState()}),
+            state: () => ({...this.getInitialState(), ...this.lessonDefaultState(checked.data)}),
             transientState: undefined,
         });
     }
@@ -587,10 +587,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     /** Restores a static lesson scene through the graph's own preset importer, with fresh transient state. */
     protected prepareLessonDefaultScene(): void {
         if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
+        const data = cloneLessonValue(this.defaultPreset());
         this.runLessonReplacement({
-            importData: () => this.importPresetData(cloneLessonValue(this.defaultPreset())),
+            importData: () => this.importPresetData(data),
             // Replaced, not merged: an optional key an earlier scene set must not survive into the default scene.
-            state: () => ({...this.getInitialState(), ...this.lessonDefaultState()}),
+            state: () => ({...this.getInitialState(), ...this.lessonDefaultState(data)}),
             transientState: undefined,
         });
     }
@@ -649,7 +650,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         });
     }
 
-    protected lessonDefaultState(): S {
+    /** The state of a fresh lesson scene over the initial state; `data` is the Preset data just imported (fixture or default). */
+    protected lessonDefaultState(_data?: D): S {
         return {initialized: true} as S;
     }
 
@@ -710,7 +712,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     /** The scene state a figure scene starts with: the graph's initial state with the Preset's stored state over it. */
-    protected figurePresetGraphState(graphState: BaseGraphState | undefined): S {
+    protected figurePresetGraphState(graphState: BaseGraphState | undefined, _data?: unknown): S {
         return {
             ...(this.initialFigureGraphState ?? this.state),
             ...(graphState ? cloneLessonValue(graphState) : {}),
@@ -996,13 +998,22 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     exportPreset(): Preset<D> {
+        const projected = this.projectPersistedScene();
         return {
             id: this.presets()!,
             // A view the board cannot show (a hidden or zero-size container) is left out: the check would refuse the whole collection.
             ...(this.hasBoard && isBoundingBox(this.board.getBoundingBox()) ? {boardState: this.boardState()} : {}),
-            graphState: this.savedGraphState(),
-            data: this.exportPresetData()
+            graphState: projected ? projected.graphState : this.savedGraphState(),
+            data: projected ? projected.data : this.exportPresetData()
         };
+    }
+
+    /**
+     * A graph family that declares a `ScenePersistence` returns its projection of the live scene here: the one source of a
+     * persisted Preset's `data` and `graphState`. Checkpoints do not use it (they capture the full runtime state).
+     */
+    protected projectPersistedScene(): {data: D; graphState: BaseGraphState} | undefined {
+        return undefined;
     }
 
     /**
@@ -1186,7 +1197,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                     workspaceRevisionAfterImport: true,
                     state: {
                         mode: 'deferred',
-                        next: () => this.figurePresetGraphState((checked ?? preset).graphState),
+                        next: () => this.figurePresetGraphState((checked ?? preset).graphState, (checked ?? preset).data),
                         isCurrent,
                         signal: operationSignal,
                         onCancel: () => { if (generation === this.figureSceneGeneration) this.figureSceneGeneration++; },
