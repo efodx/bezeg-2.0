@@ -1,6 +1,6 @@
 # Isometries, similarity and symmetry (Izometrije, podobnost in simetrija)
 
-**Status:** draft, 2026-11-10 (stream families-prep); not scheduled for release.
+**Status:** draft, 2026-11-10 (stream families-prep); prepared, not scheduled for release. Tasks: [docs/tasks/isometries](../tasks/isometries/README.md). Decisions 1–3: [ADR 0047](../adr/0047-isometry-graph-rational-maps-and-frieze-closure.md).
 **Agreed:** owner scheduled preparation 2026-11-10.
 **Source:** [top-15 research note, family 5](../research/lesson-family-candidates-2026-11-09.md) (opening lesson, lessons, kernel, risks: wallpaper groups are U-level). Read for this spec: the matura catalogue M-MAT-2026 §4.6 (page 13: *togi premiki in skladnost*; *vzporedni premik, zrcaljenje, vrtež, orientacija trikotnika*; *središčni razteg, podobnost*). The extraction contains no occurrence of *friz*, *rozet* or *drsn* (searched), so rosette groups, frieze groups and glide reflections are not matura content; they are enrichment, and the level of the §4.6 items is not verified. Part of the [new lesson families](new-lesson-families.md); the index entry is added by the handler.
 
@@ -69,7 +69,7 @@ All numbers below were computed with `node` and are listed with their inputs in 
 - Scene: a motion given by composing up to three mirrors, or by a short list of presets; the kernel classifies and draws centre or axis, glide vector and a fixed-point count. Illustration.
 - Steps: (1) predict whether a single reflection keeps counterclockwise order; (2) two mirrors; (3) three mirrors give a glide; (4) read the fixed points: none (translation, glide), one (rotation), a line (reflection); (5) free.
 - Checked numbers: rotation by \(90^\circ\) with \(t=(3,1)\) has centre \((1,2)\); \((x,y)\mapsto(y+2,x+2)\) is a glide along \((1,1)\) with vector \((2,2)\); \((x,y)\mapsto(y+1,x-1)\) is the pure reflection in \(y=x-1\) (glide vector \((0,0)\), fixes \((2,1)\)).
-- Acceptance: the three classifications match the numbers; `classifyEigen` on the double linear part (an approximate oracle: its discriminant is a double, exact only on the quarter grid, so entries such as \(3/5\) are compared as computed values) gives complex for rotations other than the half-turn, repeated scalar \(-1\) for the half-turn (special-cased in the test), distinct real \(\pm1\) for reflections and glides, repeated scalar \(+1\) for translations; every composition of \(\le3\) mirrors from a grid test set is one of the four classes.
+- Acceptance: the three classifications match the numbers; `classifyEigen` on the linear part (it accepts only quarter-grid entries and throws `RangeError` otherwise, corrected at F1; maps with entries such as \(3/5\) are compared through the computed discriminant \(\operatorname{tr}^2-4\det\) instead) gives complex for rotations other than the half-turn, repeated scalar \(-1\) for the half-turn (special-cased in the test), distinct real \(\pm1\) for reflections and glides, repeated scalar \(+1\) for translations; every composition of \(\le3\) mirrors from a grid test set is one of the four classes.
 
 ### L3. Central dilation and similarity
 
