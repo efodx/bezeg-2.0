@@ -1,5 +1,7 @@
 import type {DemonstrationId, GuidedLessonDemonstrationId, LessonlessDemonstrationId} from '../../demonstrations';
 import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
+import type {ProjectiveDemonstrationId} from '../../graphs/projective/registration';
+import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
@@ -7,8 +9,11 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
-/** Authored chapter destination for each reviewed lesson. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
-export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
+/** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
+type DerivedOwnerId = ProjectiveDemonstrationId;
+
+/** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
+export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
     bezier: {chapterId: 'bezier-curves', sectionId: 'control-points'},
     decasteljau: {chapterId: 'bezier-curves', sectionId: 'interpolation'},
     affine: {chapterId: 'bezier-curves', sectionId: 'affine-transformations'},
@@ -29,13 +34,6 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'decasteljau-alternative': {chapterId: 'bezier-curves', sectionId: 'interpolation'},
     farin: {chapterId: 'rational-curves', sectionId: 'operations'},
     circle: {chapterId: 'rational-curves', sectionId: 'worked-conic'},
-    // Projective conics K1 (cross-ratio), K2 (Pascal) and K3 (pole and polar): one section each of the Projective geometry of conics chapter (F4).
-    'projective-cross-ratio': {chapterId: 'projective-conics', sectionId: 'projective-cross-ratio'},
-    'projective-pascal': {chapterId: 'projective-conics', sectionId: 'projective-pascal'},
-    'projective-pole-polar': {chapterId: 'projective-conics', sectionId: 'projective-pole-polar'},
-    // K4 (five-point conic) and K5 (three views): sections of the same chapter (07g).
-    'projective-five-point': {chapterId: 'projective-conics', sectionId: 'projective-five-point'},
-    'projective-three-views': {chapterId: 'projective-conics', sectionId: 'projective-three-views'},
     'spline-cn': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c1': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c2': {chapterId: 'splines', sectionId: 'continuity-levels'},
@@ -156,11 +154,18 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     bernstein: [{chapterId: 'bezier-curves', sectionId: 'bernstein-form'}],
 };
 
+const derivedOwnerIds: ReadonlySet<string> = new Set(projectiveDemonstrationRows.map(row => row.id));
+
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = guidedLessonOwners;
 
 /** The reviewed owner of a Demonstration with a guided lesson; undefined for a Demonstration with `lesson: false`, even when it pre-registers a future destination. */
 function primaryOwner(id: DemonstrationId): GuidedLessonOwner | undefined {
-    return LESSON_DEMONSTRATION_IDS.includes(id) ? ownersById[id] : undefined;
+    if (!LESSON_DEMONSTRATION_IDS.includes(id)) return undefined;
+    if (derivedOwnerIds.has(id)) {
+        const row = chapterOwnerRows().find(item => item.demonstrationId === id);
+        return row && {chapterId: row.chapterId, sectionId: row.sectionId};
+    }
+    return ownersById[id];
 }
 
 export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLessonOwner[] {

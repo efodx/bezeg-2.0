@@ -3,7 +3,28 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {assertPresentationGeometryStable, assertInventoryFamily, captureOutputPath, captureRecipeForEntry, destinationForFamily, parseArgs, presentationFingerprint, presentationHelpers,
     resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame} = require('./capture-guided-example-previews.cjs');
+const {loadFamilyIdentities, applyFamilyRoutes, chapterFamilies} = require('./capture-guided-example-previews.cjs');
 const {fakeSurfaceHost} = require('./surface-view-fixture.cjs');
+
+// Registration-backed family routes come from the real Vite ssrLoadModule bridge, once for the whole file.
+test.before(() => loadFamilyIdentities());
+
+test('registration-backed family routes are derived from the registered rows, load only the metadata module and fail loudly on a bad export', async () => {
+    const info = chapterFamilies['projective-conics'];
+    assert.equal(info.routeText, ['cross-ratio', 'pascal', 'pole-polar', 'five-point', 'three-views'].map(slug => `/bezeg-2.0/projective/${slug}`).join(', '));
+    const closed = [];
+    const failing = async modules => { closed.push(modules); throw new Error('load failed'); };
+    await assert.rejects(loadFamilyIdentities(failing), /load failed/);
+    assert.deepEqual(closed, [['/src/graphs/projective/registration.ts']]);
+    await assert.rejects(loadFamilyIdentities(async () => [{}]), /does not export projectiveDemonstrationRows/);
+    const before = info.routeText;
+    applyFamilyRoutes(info, [...before.split(', '), '/bezeg-2.0/projective/sixth']);
+    assert.ok(info.route.test('/bezeg-2.0/projective/sixth'));
+    await loadFamilyIdentities();
+    assert.equal(info.routeText, before);
+    assert.ok(!info.route.test('/bezeg-2.0/projective/sixth'));
+    assert.throws(() => applyFamilyRoutes(info, []), /no usable paths/);
+});
 const {readPublishedSurfaceEvidence: readSurface, validateSurfaceEvidence: validateSurface} = require('./guided-example-surface-evidence.cjs');
 
 test('linear-maps capture family is isolated from the retained manifest and the patches destination', () => {

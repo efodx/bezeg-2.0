@@ -393,6 +393,18 @@ test('projective conics expectations are authored from the example numbers and w
     assert.ok(chapterInventories['projective-conics']);
 });
 
+test('a family-backed chapter inventory covers exactly the registered Demonstration rows on their registered routes', () => {
+    const {assertFamilyIdentities} = require('./generate-guided-example-inventory.cjs');
+    const rows = [{id: 'a', path: '/bezeg-2.0/f/a'}, {id: 'b', path: '/bezeg-2.0/f/b'}];
+    const examples = [{id: 'c.a.a', demonstrationId: 'a', path: '/bezeg-2.0/f/a?example=x'}, {id: 'c.b.b', demonstrationId: 'b', path: '/bezeg-2.0/f/b?example=y'}];
+    assert.doesNotThrow(() => assertFamilyIdentities('c', examples, rows));
+    assert.throws(() => assertFamilyIdentities('c', examples.slice(1), rows), /registered Demonstration a has no example/);
+    assert.throws(() => assertFamilyIdentities('c', [...examples, {id: 'c.z.z', demonstrationId: 'z', path: '/bezeg-2.0/f/z'}], rows), /z is not a registered c Demonstration/);
+    assert.throws(() => assertFamilyIdentities('c', [{...examples[0], path: '/bezeg-2.0/f/b'}, examples[1]], rows), /registered route/);
+    assert.throws(() => assertFamilyIdentities('c', examples, undefined), /rows are missing/);
+    assert.ok(chapterInventories['projective-conics'].identities.module.endsWith('/projective/registration.ts'));
+});
+
 test('curve geometry expectations are authored from the cycloid and the cubic', () => {
     const prepared = {kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'};
     const fixture = {kind: 'prepared-scene', sceneId: 'x', source: 'lesson-fixture', curve: {points: [[0, 0], [1, 0], [2, 1], [3, 3]]}};

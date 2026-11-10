@@ -240,6 +240,8 @@ const chapterInventories = {
         registryExport: 'projectiveConicsGuidedExampleLessons',
         pathExport: 'projectiveConicsGuidedExamplePath',
         expectedFor: projectiveConicsExpectedFor,
+        // Shared registered Demonstration rows (ids and paths) of the family; the examples must cover exactly these and open on their routes.
+        identities: {module: '/src/graphs/projective/registration.ts', rows: 'projectiveDemonstrationRows'},
     },
     'curve-geometry': {
         module: '/src/learning/content/curveGeometryChapterRegistry.ts',
@@ -1646,6 +1648,17 @@ function bsplineExpectedFor(id, step) {
     return author(id, step);
 }
 
+/** Fails unless the examples cover exactly the family's registered Demonstration rows, each opening on its registered path. */
+function assertFamilyIdentities(chapterId, examples, rows) {
+    assert.ok(Array.isArray(rows) && rows.length > 0, `${chapterId}: the registered Demonstration rows are missing`);
+    const registered = new Map(rows.map(row => [row.id, row.path]));
+    for (const example of examples) {
+        assert.ok(registered.has(example.demonstrationId), `${example.id}: ${example.demonstrationId} is not a registered ${chapterId} Demonstration`);
+        assert.equal(new URL(example.path, 'https://bezeg.invalid').pathname, registered.get(example.demonstrationId), `${example.id}: the example does not open on the registered route`);
+    }
+    for (const id of registered.keys()) assert.ok(examples.some(example => example.demonstrationId === id), `${chapterId}: registered Demonstration ${id} has no example`);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1670,6 +1683,7 @@ async function generateChapterInventory(chapterId) {
             return withRecipe(record, {kind: 'start'});
         });
         assert.ok(examples.length > 0, `${chapterId}: registry has no lessons`);
+        if (config.identities) assertFamilyIdentities(chapterId, examples, (await server.ssrLoadModule(config.identities.module))[config.identities.rows]);
         validateInventory(examples);
         return {examples};
     } finally {
@@ -1700,4 +1714,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, assertExpectation};

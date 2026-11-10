@@ -66,7 +66,8 @@ const chapterFamilies = {
     'numerical-methods': {label: 'numerical-methods', idPrefix: 'numerical-methods.', route: /^\/bezeg-2\.0\/analysis\/(?:root-finding|quadrature|euler-method)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/root-finding, /bezeg-2.0/analysis/quadrature or /bezeg-2.0/analysis/euler-method'},
     'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse|polynomial-zeros|rational-functions|geometric-series|conics)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations, /inverse, /polynomial-zeros, /rational-functions, /geometric-series or /conics'},
     'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/(?:fourier-(?:series|coefficients)|epicycles)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series, /bezeg-2.0/analysis/fourier-coefficients or /bezeg-2.0/analysis/epicycles'},
-    'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar|five-point|three-views)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal, /pole-polar, /five-point or /three-views'},
+    // Routes come from the family's registered Demonstration rows (loadFamilyIdentities), never a hand-written list.
+    'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', identities: {module: '/src/graphs/projective/registration.ts', rows: 'projectiveDemonstrationRows'}},
     'curve-geometry': {label: 'curve-geometry', idPrefix: 'curve-geometry.', route: /^\/bezeg-2\.0\/curve-geometry\/(?:parametric|curvature|comb|evolute|offset|envelope)(?:\/|$)/, routeText: '/bezeg-2.0/curve-geometry/parametric, /curvature, /comb, /evolute, /offset or /envelope'},
     'convexity-hulls': {label: 'convexity-hulls', idPrefix: 'convexity-hulls.', route: /^\/bezeg-2\.0\/compgeo\/(?:orientation|polygon-area|point-in-polygon|convex-hull|hull-robustness|bezier-hulls)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/orientation, /polygon-area, /point-in-polygon, /convex-hull, /hull-robustness or /bezier-hulls'},
     'triangulations-voronoi': {label: 'triangulations-voronoi', idPrefix: 'triangulations-voronoi.', route: /^\/bezeg-2\.0\/compgeo\/(?:ear-clipping|point-set-triangulation|delaunay|voronoi|voronoi-degenerate)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/ear-clipping, /point-set-triangulation, /delaunay, /voronoi or /voronoi-degenerate'},
@@ -76,6 +77,38 @@ const chapterFamilies = {
     'b-splines': {label: 'b-splines', idPrefix: 'b-splines.', route: /^\/bezeg-2\.0\/bspline\/(?:basis|deboor|insertion|extraction|nurbs|blossom)(?:\/|$)/, routeText: '/bezeg-2.0/bspline/basis, /deboor, /insertion, /extraction, /nurbs or /blossom'},
     'triangle-geometry': {label: 'triangle-geometry', idPrefix: 'triangle-geometry.', route: /^\/bezeg-2\.0\/(?:triangle-centres|inscribed-angle|euler-line|simson-line|inversion)(?:\/|$)/, routeText: '/bezeg-2.0/triangle-centres, /inscribed-angle, /euler-line, /simson-line or /inversion'},
 };
+
+const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Defines `route` and `routeText` on a registration-backed family from its Demonstration row paths. */
+function applyFamilyRoutes(info, paths) {
+    assert.ok(paths.length > 0 && paths.every(item => typeof item === 'string' && item.startsWith('/')), `${info.label}: registered Demonstration rows have no usable paths`);
+    const route = new RegExp(`^(?:${paths.map(escapeRegExp).join('|')})(?:/|$)`);
+    Object.defineProperties(info, {route: {value: route, configurable: true, enumerable: true}, routeText: {value: paths.join(', '), configurable: true, enumerable: true}});
+}
+
+/** The default bridge: a temporary Vite server loads only the named cheap metadata module and is closed in `finally`. */
+async function loadViteModules(modules) {
+    const {createServer} = await import('vite');
+    const server = await createServer({configFile: path.join(root, 'vite.config.mts'), server: {middlewareMode: true}, appType: 'custom'});
+    try {
+        return await Promise.all(modules.map(module => server.ssrLoadModule(module)));
+    } finally {
+        await server.close();
+    }
+}
+
+/** Resolves `route` of every registration-backed family (`identities`), in one bounded metadata load. Call before `assertInventoryFamily`. */
+async function loadFamilyIdentities(loadModules = loadViteModules) {
+    const backed = Object.values(chapterFamilies).filter(info => info.identities);
+    if (!backed.length) return;
+    const modules = await loadModules(backed.map(info => info.identities.module));
+    backed.forEach((info, index) => {
+        const rows = modules[index]?.[info.identities.rows];
+        assert.ok(Array.isArray(rows), `${info.label}: ${info.identities.module} does not export ${info.identities.rows}`);
+        applyFamilyRoutes(info, rows.map(row => row.path));
+    });
+}
 
 function parseArgs(argv) {
     const [inventoryPath, ...rest] = argv;
@@ -102,7 +135,11 @@ function destinationForFamily(family) {
 }
 
 const entryPathname = entry => new URL(entry.path, 'https://bezeg.invalid').pathname;
-const belongsToFamily = (entry, info) => entry.id.startsWith(info.idPrefix) || info.route.test(entryPathname(entry));
+function familyRoute(info) {
+    assert.ok(info.route, `${info.label}: family routes are not loaded; await loadFamilyIdentities() first`);
+    return info.route;
+}
+const belongsToFamily = (entry, info) => entry.id.startsWith(info.idPrefix) || familyRoute(info).test(entryPathname(entry));
 
 function assertInventoryFamily(inventory, family) {
     if (family === 'retained') {
@@ -114,7 +151,7 @@ function assertInventoryFamily(inventory, family) {
     }
     assert.ok(Object.hasOwn(chapterFamilies, family), `Unsupported capture family: ${family}`);
     const info = chapterFamilies[family];
-    assert.ok(inventory.length > 0 && inventory.every(entry => entry.id.startsWith(info.idPrefix) && info.route.test(entryPathname(entry))),
+    assert.ok(inventory.length > 0 && inventory.every(entry => entry.id.startsWith(info.idPrefix) && familyRoute(info).test(entryPathname(entry))),
         `The ${family} destination requires a ${info.label} inventory (${info.idPrefix}* ids on ${info.routeText})`);
 }
 
@@ -570,6 +607,7 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
 async function main(argv = process.argv.slice(2)) {
     const {inventoryPath, ids, family} = parseArgs(argv);
     const inventory = readInventory(inventoryPath);
+    await loadFamilyIdentities();
     assertInventoryFamily(inventory, family);
     const destination = destinationForFamily(family);
     const manifestPath = path.join(destination, 'manifest.json');
@@ -625,7 +663,7 @@ async function main(argv = process.argv.slice(2)) {
     console.log(`Wrote ${allCaptures.length} guided-example previews to ${path.relative(root, destination)}.`);
 }
 
-module.exports = {reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, fingerprintEntries, inspectBoard, isViewportSpanningHorizontalCurve,
+module.exports = {loadFamilyIdentities, applyFamilyRoutes, chapterFamilies, reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, fingerprintEntries, inspectBoard, isViewportSpanningHorizontalCurve,
     isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
     verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
     prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample, assertSurfaceRecipeSteps};

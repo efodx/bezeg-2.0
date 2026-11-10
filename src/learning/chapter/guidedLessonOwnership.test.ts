@@ -2,7 +2,9 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {familyChapters} from '../content/familyChapters';
 import {bezierChapter} from '../content/bezierChapter';
-import {authoredGuidedLessonIds, getGuidedLessonOwner, guidedLessonLaunchPath, guidedLessonReturnPath, resolveGuidedLessonOwner} from './guidedLessonOwnership';
+import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
+import {chapterOwnerRows} from '../content/chapterOwnedLessons';
+import {authoredGuidedLessonIds, getGuidedLessonOwner, guidedLessonOwners, guidedLessonLaunchPath, guidedLessonReturnPath, resolveGuidedLessonOwner} from './guidedLessonOwnership';
 
 test('every reviewed guided lesson has a real chapter section owner and a stable launch/return route', () => {
     for (const id of GUIDED_LESSON_AVAILABLE_IDS) {
@@ -14,6 +16,19 @@ test('every reviewed guided lesson has a real chapter section owner and a stable
         expect(section, id).toBeDefined();
         expect(guidedLessonLaunchPath(id)).toContain(`learnChapter=${owner.chapterId}`);
         expect(guidedLessonReturnPath(owner)).toBe(`/bezeg-2.0/learn/${owner.chapterId}#${owner.sectionId}`);
+    }
+});
+
+test('family-registered projective Demonstrations derive their primary owner from the chapter owner rows, with no central row', () => {
+    for (const row of projectiveDemonstrationRows) {
+        expect(Object.hasOwn(guidedLessonOwners, row.id), row.id).toBe(false);
+        const owned = chapterOwnerRows().find(item => item.demonstrationId === row.id);
+        expect(owned, row.id).toBeDefined();
+        const owner = {chapterId: owned!.chapterId, sectionId: owned!.sectionId};
+        expect(getGuidedLessonOwner(row.id)).toEqual(owner);
+        expect(resolveGuidedLessonOwner('?learn=1', row.id)).toEqual(owner);
+        expect(guidedLessonReturnPath(owner)).toBe(`/bezeg-2.0/learn/projective-conics#${row.id}`);
+        expect(guidedLessonLaunchPath(row.id)).toBe(`${row.path}?learn=1&learnChapter=projective-conics&learnSection=${row.id}`);
     }
 });
 
