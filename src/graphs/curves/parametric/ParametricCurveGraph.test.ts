@@ -319,6 +319,31 @@ describe('roll animation', () => {
         view.unmount();
     });
 
+    test('lesson play and replay under reduced motion show the completed roll and start no driver', () => {
+        const {callbacks} = withFrames();
+        const graph = makeGraph();
+        graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0});
+        vi.spyOn(graph, 'reducedMotion').mockReturnValue(true);
+        graph['rollCommand']('play');
+        expect(graph.rolling).toBe(false);
+        expect(graph.state.parameter).toBeCloseTo(2 * Math.PI, 9);
+        graph['rollCommand']('reset');
+        expect(graph.state.parameter).toBe(0);
+        graph['rollCommand']('replay');
+        expect(graph.rolling).toBe(false);
+        expect(graph.state.parameter).toBeCloseTo(2 * Math.PI, 9);
+        expect(callbacks.size).toBe(0);
+    });
+
+    test('lesson play without reduced motion rolls', () => {
+        withFrames();
+        const graph = makeGraph();
+        graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0});
+        vi.spyOn(graph, 'reducedMotion').mockReturnValue(false);
+        graph['rollCommand']('play');
+        expect(graph.rolling).toBe(true);
+    });
+
     test('unmount cancels a running roll', () => {
         const {callbacks} = withFrames();
         const graph = makeGraph();

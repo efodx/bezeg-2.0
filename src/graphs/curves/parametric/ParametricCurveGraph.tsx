@@ -259,12 +259,17 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
 
     /** `play` rolls on, `pause` keeps the parameter, `stop` and `reset` return to the start of the domain, `replay` does that and rolls. */
     private rollCommand(command: LessonAnimationCommand): void {
-        if (command === 'play') this.playRoll();
+        // Reduced motion: lesson play/replay show the completed roll statically instead of animating (decision 57).
+        const play = () => {
+            if (this.reducedMotion()) this.setParameter(PARAMETRIC_CATALOGUE[this.state.curve].domain[1]);
+            else this.playRoll();
+        };
+        if (command === 'play') play();
         else if (command === 'pause') this.stopRoll();
         else if (command === 'stop' || command === 'reset') this.rewindRoll();
         else if (command === 'replay') {
             this.rewindRoll();
-            this.playRoll();
+            play();
         }
         this.requestRender();
     }
