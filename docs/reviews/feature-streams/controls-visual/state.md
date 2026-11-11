@@ -4,7 +4,7 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-visual`, `worktree-stream-visual`, own `npm ci`. Run state: **active**. Stream port 4327 for previews of this worktree's `build/` (the Vite output dir is `build/`, not `dist/`); 4322 serves master `bf843c25` from the clean worktree as the "before" reference; `just controls-fixture` uses 4328.
+- **Worktree and branch:** `.claude/worktrees/stream-visual`, `worktree-stream-visual`, own `npm ci`. Run state: **active**. Stream port 4327 for previews of this worktree's `build/` (the Vite output dir is `build/`, not `dist/`); 4322 for a "before" preview of master from the clean worktree (both previews were stopped at handoff; restart with `just preview <port>` after `just build`); `just controls-fixture` uses 4328.
 - **Clean worktree for publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, then `just publish --background --recipe runtime --base <origin/master sha> --commits <ids, oldest first>`; `just publish --status`; then `just ci <pushed sha>`. Browser smoke is run from the stream worktree against 4327 before publishing.
 - **Branch updates:** `git merge origin/master`, never rebase. Conflicts in files that master holds only as cherry-picked copies resolve to the stream side (`git checkout --ours`) after `git log <merge-base>..origin/master -- <file>` shows only our own commits.
 - **Owner directions:** handlers decide and record, with no confirmation. Launch successors with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium` at budget handoff, passing this rule on; end without a successor when no actionable work is left.
@@ -16,17 +16,20 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 - **Step 5 slices 1–2:** net −10 tests, helpers `src/graphs/base/selectedPointKeyBehaviour.tsx`, `resetAvailabilityBehaviour.ts`, `unavailableFocusBehaviour.ts`, `src/graphs/projective/projectiveInspectorBehaviour.tsx`. Published (`81963a73`, `83cc0fe4`).
 - Master browser smoke was red from families-prep `219ec048` (catalogue order, counting-tree smoke); the families-prep handler took the fix.
 
-## In flight at this rewrite
+- **Step 3a** (stream `04a229da`): checkbox 20 × 20, switch 36 × 20, slider track and thumb on the tokens; disabled boolean is a dashed border, not yet seen in a browser (no route has one). Range thumb fill goes through `--range-thumb-bg` read by the global rule in `src/bootstrap-overrides.scss`.
+- **Step 5 slice 3** (stream `ed4e9d00`): hit-zone group, net −8 tests, helper `src/graphs/base/handleHitZoneBehaviour.ts`. Total so far net −18.
 
-- Step 3a (booleans and sliders), Sonnet worker; note path `3a-note.md` here if it stopped early.
-- Step 5 slice 3 (44 px hit-zone group), Sonnet worker; note path `tests-slice3-note.md`.
+## Not yet published (handler 1 stopped at BUDGET SOFT)
+
+- Prototype publish `publish-396e0935-58adff` was still pending at handoff: check `just publish --status` in the clean worktree; if it failed, read its log and republish `fe0f0d3d`. Then `just ci <sha>`.
+- Then cherry-pick and publish, oldest first: `e9d2eff5` (docs), `ed4e9d00` (tests), `04a229da` (3a CSS), plus this state commit. 3a was smoked by its worker on six routes and passed `just controls-fixture`; no further smoke needed before publishing.
 
 ## Next
 
 1. **Step 3b:** count setters (`CountSetter.css`, 47 px → token on desktop, 44 on touch), `.point-collection .btn` fixed 44 px (`PointCollection.css:5`), disclosures (`summary` 24 px on `/analysis/fourier-coefficients`), `pointset-remove` 31–32 × 44 on `/compgeo/interval-sweep`, select chevron dark on navy in Presentation, the transparent "Strni" ghost button, disabled look not by opacity alone (`.btn` aria-disabled, `.inspector-playback`).
 2. **Step 3c:** per-graph overrides: `src/graphs/functions/FunctionReadout.css:46-97` action buttons (2 px, 1.48 : 1, 28 routes), `PascalControls.css:3`, `affine-action-button`, list-row buttons still under 3 : 1 (`control-row`, `value-list-row`, `zero-list-row`, `convexity-actions`; list in `cv-proto-all/summary.txt`); Presentation text residuals: caption "Obsegi parametra t" on `/bezier/clipping`, `p.form-text` on `/isometries`, h4 "Animacija konstrukcije" on `/bezier/decasteljau*` and `/rational/rational-decasteljau`; no focus ring on "Premakni" and "Za ta način izberi krivuljo." (`/bezier/curve`, `/curve-geometry/curvature`).
 3. **Step 4** carried controls items (stream file), independent of styling.
-4. **Step 5** after slice 3: the unassessed areas in the inventory (appearance contracts, 195 unmount/dispose and 84 language-switch tests in `src/graphs`).
+4. **Step 5** next: the unassessed areas in the inventory (appearance contracts, 195 unmount/dispose and 84 language-switch tests in `src/graphs`).
 5. Close-out of step 3: rerun the audit script on all routes (Haiku smoke, `cv-proto-all` pattern) and criterion 4 views via `just controls-fixture`.
 
 ## Risks and working notes
