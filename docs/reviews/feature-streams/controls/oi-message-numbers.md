@@ -18,3 +18,9 @@
 
 ## Checks
 `just typecheck`, `just lint` (localization, graphs/functions, graphs/complex, inputs) passed. `just unit` on localization, functions, inputs, curves, base passed. Logs: .command-logs/oi-msgnum-*.log.
+
+## Second pass
+- Euler: `MessageNumberList {kind:'numbers', values, maxDecimals?}` + `messageNumberList()` + `isMessageNumberList()` in src/localization/index.ts; `renderMessage` joins the formatted values with ", " (the old separator). A separate kind was the smaller honest change than a joined string or one param per step (the step count varies and the template has one placeholder). `isMessageNumber` now checks `kind === 'number'`. `sameRefusal` (RefusalChannel.tsx) compares lists element-wise. eulerMessages.ts:34 converted; `currentLanguage` import dropped.
+- Test: messageNumbers.test.ts "euler step refusal ..." (sl "0,25, 0,5" -> en "0.25, 0.5"). Observed failing with the site reverted (`expected ... to contain '0.1, 0.5'`, log oi-msgnum2-fail.log), restored, passes.
+- NOT converted, deliberately: leastSquaresMessages.ts:47,52 (`leastSquaresNumber`/`leastSquaresCoefficient`) and rungeInterpolationMessages.ts:37 (`rungeNumber`). They are not Message builders: they return text used only in LeastSquaresGraph/RungeInterpolationGraph readouts and board captions (`text: () => t(...)`, re-evaluated per draw/render), never stored in a Message or refusal. No significant-digits MessageNumber was added (it would have no caller). Whether those captions redraw on a language switch is a graph-redraw question, not decision 70.
+- `currentLanguage()` inside `*Messages.ts` after this pass: leastSquaresMessages.ts:47,52 and rungeInterpolationMessages.ts:37 only (the helpers above).
