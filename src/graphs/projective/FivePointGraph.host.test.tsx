@@ -8,6 +8,7 @@ import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption, typeNumber} from './controlsTest';
+import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -255,9 +256,7 @@ test('unmount removes the listener, the attributes and every scene object; a Str
 test('a typed coordinate outside the range is refused with a message, not clamped, and one off the 1/15 grid is rounded', () => {
     const graph = new Observed();
     mount(graph);
-    const before = graph.model.points[2];
-    typeNumber('Točka C, x', '99');
-    expect(graph.model.points[2]).toEqual(before);
+    expectTypedRefusals(typeNumber, [{field: 'Točka C, x', read: () => graph.model.points[2], min: -10, max: 10}]);
     expect(screen.getAllByText(/./).some(node => /območj|med/i.test(node.textContent ?? ''))).toBe(true);
     typeNumber('Točka C, x', '0.5');
     expect(graph.model.points[2].x).toBe(8);

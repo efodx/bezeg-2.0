@@ -1,3 +1,4 @@
+import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -345,8 +346,9 @@ describe('numeric input per handle', () => {
 
     test('a value outside the range is refused, a value off the grid is rounded to it, NaN is refused on every edit path', () => {
         const {graph} = mountGraph();
-        act(() => { enterNumber(field(mirrorX(1, 'P')), '17'); });
-        expect(graph.state.mirrors[0].p.x).toBe(0);
+        expectTypedRefusals((label, text) => act(() => { enterNumber(field(label), text); }), [
+            {field: mirrorX(1, 'P'), read: () => graph.state.mirrors[0].p.x, min: -16, max: 16},
+        ]);
         act(() => { enterNumber(field(mirrorX(1, 'Q')), '2,4'); });
         expect(graph.state.mirrors[0].q.x).toBe(2);
         const before = graph.state;

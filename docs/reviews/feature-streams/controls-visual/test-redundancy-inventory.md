@@ -58,3 +58,20 @@ Verdicts: DELETE (fully implied), CONSOLIDATE (same assertion repeated across gr
 ## Not yet covered / uncertain
 - parametricCatalogue:114 and most host test bodies were not read; "implied" judgements for arrow-key and live-region tests rest on names and on pointKeys.test.ts being a key-map test.
 - Rendered appearance contracts, the 195 unmount/dispose tests and 84 language-switch tests in src/graphs, and non-graph src/learning tests were not assessed.
+
+## Slice 4 assessment (2026-11-11)
+
+Part A done: `src/graphs/base/typedRefusalBehaviour.ts` (`expectTypedRefusals`: one row per field with min, max, whole, optional edit path; drives max+1, min-1 and a fraction through the edit path, and checks nothing is stored or clamped) now replaces the ad hoc out-of-range lines in CountingTreeGraph (2 tests), LatticePathGraph (1), FivePointGraph.host (1) and IsometryGraph (1). The two typed-fraction cases are edit-path only: the field itself rounds a fraction to its grid, and Isometry's edit path clamps, so its row has no edit. Both DELETE rows were already done in earlier slices (CurvatureBezierCurveGraph keeps only the collection identity and rejection asserts; parametricCatalogue has no default round trip test). The names LatticePath :570 and CountingTree :668 no longer exist.
+
+Part B (name-pattern counts by grep over src/graphs test files; they are rough: 256 unmount/dispose/cleanup/teardown names, 307 language/English names, many with `test.each` expanding further):
+
+| Group | Count (approx) | Covering catalogue-wide test | Verdict |
+|---|---|---|---|
+| "StrictMode mounts, unmounts and mounts again" without duplicating board objects (identical or near-identical names) | 16 (11 + 5 names) | none: graphTransientStateContract and GraphTransientState.part* only call `unmount()` to clean up and compare restored state, they do not count objects or listeners | KEEP; propose sweep |
+| "a scene change and unmount pause playback and leave no board objects, listeners or timers" / "Back ... state restore and unmount leave no scheduler callback" | about 12 | none (sceneReplacementContract checks replacement, not teardown) | KEEP; propose sweep |
+| "unmount releases objects, listeners and board label"; "generated objects disposed and not duplicated" | about 25 | none; the object lists are graph-specific | KEEP |
+| Language switch: "caption follows the language" (14), "switching the language renames board, labels, captions" (6+), "no NaN/Infinity/undefined in either language" (6), lesson action refusals localized (9) | about 35 repeated names | none: no all-graph language sweep exists (only DemonstrationsPage catalogue copy and shared input tests) | KEEP; propose sweep |
+
+Deleted in Part B: none. Every group asserts graph-specific objects, texts or counts, and no all-graph test implies them.
+
+Proposed sweeps (not built): (1) `graphTeardownContract`: for every catalogue Demonstration, mount in StrictMode, snapshot board object count and listener spies, change state, unmount, assert the board holds no object of the graph, no listener remains and the object count after StrictMode equals a plain mount. This would let the 16 StrictMode and about 12 scene-change tests shrink to graph-specific extras. (2) `graphLanguageContract`: for every Demonstration, mount in Slovenian, switch to English, assert the board text and the controls change, no NaN/Infinity/undefined appears in the visible text in either language, and unmount leaves no language subscription. It would cover the roughly 35 repeated tests plus the 27 unmount names mentioning language.

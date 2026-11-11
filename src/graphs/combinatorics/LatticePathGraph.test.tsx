@@ -6,6 +6,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
 import {
     BAR_BASE, CELL_POOL, HANDLE_TOUCH_RADIUS, HIT_SLACK, LatticePathGraph, triangleRows, triangleX, triangleY, VIEW_BOX,
 } from './LatticePathGraph';
@@ -373,10 +374,13 @@ describe('target, keyboard and touch', () => {
         const {graph} = mountGraph();
         enterNumber(field(lattice('a')), '7');
         expect(graph.state.a).toBe(7);
-        enterNumber(field(lattice('b')), '21');
-        expect(graph.state.b).toBe(3);
         enterNumber(field(lattice('b')), 'tri');
         expect(graph.state.b).toBe(3);
+        const targets = graph as unknown as {editTarget(field: 'a' | 'b', value: number): boolean};
+        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
+            {field: lattice('a'), read: () => graph.state.a, min: 0, max: 20, whole: true, edit: value => targets.editTarget('a', value)},
+            {field: lattice('b'), read: () => graph.state.b, min: 0, max: 20, whole: true, edit: value => targets.editTarget('b', value)},
+        ]);
         enterNumber(field(lattice('route')), '0');
         expect(graph.state.route).toBe(0);
         enterNumber(field(lattice('route')), '121');
@@ -387,13 +391,12 @@ describe('target, keyboard and touch', () => {
         enterNumber(field(lattice('n')), '4');
         enterNumber(field(lattice('c')), '-3');
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
-        enterNumber(field(lattice('n')), '13');
-        expect(graph.state.n).toBe(4);
-        // Out of range or not whole: refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
+        // Refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
         const edits = graph as unknown as {editTarget(field: 'a' | 'b', value: number): boolean; editExpansion(field: 'n' | 'c', value: number): boolean};
-        expect([edits.editTarget('a', 21), edits.editTarget('a', -1), edits.editTarget('b', 2.5), edits.editTarget('b', Number.NaN)]).toEqual([false, false, false, false]);
-        expect([graph.state.a, graph.state.b]).toEqual([7, 3]);
-        expect([edits.editExpansion('n', 21), edits.editExpansion('n', 1.5), edits.editExpansion('c', -10), edits.editExpansion('c', 10)]).toEqual([false, false, false, false]);
+        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
+            {field: lattice('n'), read: () => graph.state.n, min: 0, max: 12, whole: true, edit: value => edits.editExpansion('n', value)},
+            {field: lattice('c'), read: () => graph.state.c, min: -9, max: 9, whole: true, edit: value => edits.editExpansion('c', value)},
+        ]);
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
         expect(edits.editTarget('a', 8)).toBe(true);
         expect(graph.state.a).toBe(8);

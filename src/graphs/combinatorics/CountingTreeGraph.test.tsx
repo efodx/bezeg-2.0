@@ -5,6 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
 import {BAR_BASE, BAR_HEIGHT, CountingTreeGraph, LETTER_POOL, TABLE_FIRST_ROW_Y, TREE_BOTTOM, TREE_LEFT, TREE_TOP, TREE_WIDTH, VIEW_BOX} from './CountingTreeGraph';
 
 beforeAll(installBoardShims);
@@ -404,8 +405,6 @@ describe('numeric input and keyboard', () => {
         expect(graph.state.k).toBe(8);
         enterNumber(field(nLabel()), '5');
         expect([graph.state.n, graph.state.k]).toEqual([5, 5]); // n below k pulls k down
-        enterNumber(field(nLabel()), '21');
-        expect(graph.state.n).toBe(5);
         enterNumber(field(nLabel()), 'tri');
         expect(graph.state.n).toBe(5);
         click(t('combinatorics_counting_repetition'));
@@ -416,17 +415,12 @@ describe('numeric input and keyboard', () => {
         expect([graph.state.repetition, graph.state.k]).toEqual([false, 5]);
         click(t('combinatorics_counting_ordered'));
         expect(graph.state.ordered).toBe(false);
-        // Out of range or not whole: refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
-        for (const [label, texts, read] of [[nLabel(), ['21', '-1'], () => graph.state.n], [kLabel(), ['7', '-1'], () => graph.state.k]] as const) {
-            for (const text of texts) {
-                const before = read();
-                enterNumber(field(label), text);
-                expect([label, text, read()]).toEqual([label, text, before]);
-            }
-        }
-        // The edit path refuses too (the field already did): a refused value is neither stored nor clamped.
+        // Refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's. Here n is 5 and k is 5 without repetition.
         const edits = graph as unknown as {editN(value: number): boolean; editK(value: number): boolean};
-        expect([edits.editN(21), edits.editN(4.5), edits.editN(Number.NaN), edits.editK(7), edits.editK(2.5)]).toEqual([false, false, false, false, false]);
+        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
+            {field: nLabel(), read: () => graph.state.n, min: 0, max: 20, whole: true, edit: value => edits.editN(value)},
+            {field: kLabel(), read: () => graph.state.k, min: 0, max: 5, whole: true, edit: value => edits.editK(value)},
+        ]);
         expect([graph.state.n, graph.state.k]).toEqual([5, 5]);
         expect([edits.editN(8), edits.editK(2)]).toEqual([true, true]);
     });
@@ -436,10 +430,10 @@ describe('numeric input and keyboard', () => {
         chooseView('multiset');
         enterNumber(field(letterLabel('S')), '7');
         expect(graph.state.counts).toEqual([1, 4, 7, 2]);
-        enterNumber(field(letterLabel('S')), '13');
-        expect(graph.state.counts).toEqual([1, 4, 7, 2]);
-        enterNumber(field(letterLabel('M')), '-1');
-        expect(graph.state.counts[0]).toBe(1);
+        expectTypedRefusals((label, text) => enterNumber(field(label), text), [
+            {field: letterLabel('S'), read: () => graph.state.counts, min: 0, max: 12, whole: true},
+            {field: letterLabel('M'), read: () => graph.state.counts, min: 0, max: 12, whole: true},
+        ]);
         chooseView('row');
         enterNumber(field(rowNLabel()), '14');
         enterNumber(field(rowKLabel()), '15');
@@ -447,8 +441,7 @@ describe('numeric input and keyboard', () => {
         enterNumber(field(rowKLabel()), '14');
         enterNumber(field(rowNLabel()), '9');
         expect([graph.state.n, graph.state.k]).toEqual([9, 9]);
-        enterNumber(field(rowNLabel()), '21');
-        expect(graph.state.n).toBe(9);
+        expectTypedRefusals((label, text) => enterNumber(field(label), text), [{field: rowNLabel(), read: () => graph.state.n, min: 0, max: 20, whole: true}]);
         enterNumber(field(tLabel()), '1,5');
         expect(graph.state.t).toBe(50);
         enterNumber(field(tLabel()), '0,07');
