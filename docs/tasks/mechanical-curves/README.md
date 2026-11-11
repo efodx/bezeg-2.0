@@ -9,7 +9,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Mechanics kernel](01-mechanics-kernel.md) | 0 | F1 | none | — | done |
-| [02 State model and descent graph](02-descent-graph.md) | A–B | F2a | Controls step 5 | 01 | planned |
+| [02 State model and descent graph](02-descent-graph.md) | A–B | F2a | Controls step 5 | 01 | in review |
 | [03 Release batches A–B](03-release-batches.md) | A–B | F2b–F6 | Controls step 7 | 02 | planned |
 
 ## Slovenian terms (F0 decision)

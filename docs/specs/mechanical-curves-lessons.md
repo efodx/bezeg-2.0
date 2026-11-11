@@ -115,6 +115,11 @@ Searched `src/localization/sl.ts`: it has *Cikloid* (line 2120) and *spust* only
 
 ## Implementation Decisions
 
+- F2a decisions (handler, 2026-11-11):
+  - The mode label is "Poskus", because "Prikaz" collides with a shell label.
+  - Typed input is refused off the grid, and dragging snaps to it. The bead parameter \(\theta=\pi\) (the lowest point) is the one stored value off the 0,05 grid. It is reached by dragging, or with the arrow key from 3,1, and the help text says so.
+  - The track-admissibility status names the conservative rule (a control point above the start), not a claim that the curve rises.
+  - With no bead to run (an inadmissible track without the cycloid), Play shows the `no-run` reason.
 - **Gating** ([boundary with the Controls stream](../tasks/feature-streams/families-prep.md)): ungated now: this spec, F0 (ADRs, terms, tasks), F1 kernel (new pure files under `src/mechanics/` with oracle tests). Gated: F2a (graph, scene, lessons) waits on Controls step 5 for the bead playback; until then no graph code is planned. No edits to `BaseGraph.tsx`, `GraphSession.ts`, `src/inputs/` or existing graph panels; the graph is new. Dependency on the Controls stream: play/step controls (step 5).
 - Pure kernel in `src/mechanics/`; typed results (`ok`, `never-starts`, `above-start`) instead of infinities.
 - Handler decision, reversible: \(g=9{,}81\) is fixed (a tuning slider adds nothing: \(T\propto1/\sqrt g\)); depth axis flipped once in the adapter. Reason: simplest kernel contract.

@@ -1,5 +1,7 @@
 # 02 State model and descent graph (F2a, gated on Controls step 5)
 
+Status: in review (state model, `DescentGraph` and tests written, no route; evidence in `docs/reviews/feature-streams/families-prep/notes/f2a-mech-02.md`).
+
 Gate: Controls step 5 `accepted` in [controls.md](../feature-streams/controls.md). Step 5 supplies play and step controls. Before dispatch, recheck this file against them.
 
 Spec: Implementation Decisions; MC1–MC3 "Scene"; Testing Decisions. Decisions: ADR 0056 §1–2.
