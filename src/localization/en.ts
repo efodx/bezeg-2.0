@@ -610,6 +610,7 @@ export const en: Record<keyof typeof sl, string> = {
     "line_geometry_status_coincident_circle": "Points O and B coincide, so the radius is 0 and there is no circle.",
     "line_geometry_status_off_view": "An intersection outside the view is not drawn.",
     "line_geometry_status_arc_off_view": "The lines meet outside the view, so the angle is not drawn.",
+    "line_geometry_status_foot_off_view": "A foot of the perpendicular outside the view is not drawn.",
     "line_geometry_status_forms_vertical": "Vertical line {value0}: there is no explicit form because the slope is undefined.",
     "line_geometry_status_forms_origin": "The line {value0} passes through the origin, so there is no intercept form.",
     "line_geometry_status_forms_axis": "The line {value0} is parallel to an axis, so there is no intercept form.",

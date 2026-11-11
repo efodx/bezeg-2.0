@@ -6,7 +6,7 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {GraphPalette} from '../styles/GraphPalette';
-import {CLASSIFY_EXAMPLES, DEFAULT_ISOMETRY_STATE, VIEW_HALF, type IsometryMode, type IsometryState} from '../../isometry/isometryModel';
+import {CLASSIFY_EXAMPLES, DEFAULT_ISOMETRY_STATE, VIEW_HALF, INITIAL_VIEW_HALF, type IsometryMode, type IsometryState} from '../../isometry/isometryModel';
 import {
     COORDINATE_BIG_STEP, COORDINATE_STEP, handlesFor, HANDLE_TOUCH_RADIUS, HIT_SLACK, IsometryGraph, mergedPoly, RATIO_STEP, rosetteMirrorPoly,
 } from './IsometryGraph';
@@ -70,14 +70,39 @@ test('every point on the board has finite coordinates in every mode', () => {
     }
 });
 
-test('the start view contains everything the model counts as in view', () => {
+test('the captions of the default scene do not overlap on a narrow board (about 12 px per unit, as at 390 px)', () => {
+    const {graph} = mountGraph();
+    const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; update(): void};
+    board.unitX = 12;
+    board.unitY = 12;
+    act(() => { board.update(); });
+    const boxes = probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible')).map(o => {
+        const text = (o as unknown as {plaintext: string}).plaintext;
+        // a text is anchored at its left baseline: about 6 px per character wide and 14 px high at the 12 px font, in pixels
+        return {text, left: o.X!() * 12, right: o.X!() * 12 + 6 * text.length, bottom: o.Y!() * 12, top: o.Y!() * 12 + 14};
+    }).filter(b => b.text.length > 0 && !/^[-−0-9,.]+$/.test(b.text));
+    expect(boxes.length).toBeGreaterThanOrEqual(5);
+    for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+            const a = boxes[i];
+            const b = boxes[j];
+            const overlap = a.left < b.right && b.left < a.right && a.bottom < b.top && b.bottom < a.top;
+            expect(overlap, `${a.text} / ${b.text}`).toBe(false);
+        }
+    }
+});
+
+test('the start view is about [-10, 10]^2, smaller than the model bound, so the default figure fills the board', () => {
     const {graph} = mountGraph();
     const box = graph.liveBoard().getBoundingBox();
-    // The host widens the box to the canvas aspect, so it contains the square [-VIEW_HALF, VIEW_HALF]^2.
-    expect(box[0]).toBeLessThanOrEqual(-VIEW_HALF);
-    expect(box[1]).toBeGreaterThanOrEqual(VIEW_HALF);
-    expect(box[2]).toBeGreaterThanOrEqual(VIEW_HALF);
-    expect(box[3]).toBeLessThanOrEqual(-VIEW_HALF);
+    // The host widens the box to the canvas aspect, so it contains the square [-10, 10]^2 but not much more of the height.
+    expect(box[0]).toBeLessThanOrEqual(-INITIAL_VIEW_HALF);
+    expect(box[1]).toBeGreaterThanOrEqual(INITIAL_VIEW_HALF);
+    expect(box[2]).toBeGreaterThanOrEqual(INITIAL_VIEW_HALF);
+    expect(box[3]).toBeLessThanOrEqual(-INITIAL_VIEW_HALF);
+    expect(INITIAL_VIEW_HALF).toBe(10);
+    expect(box[1] - box[3]).toBeLessThan(2 * VIEW_HALF);
+    expect(VIEW_HALF).toBeGreaterThan(INITIAL_VIEW_HALF);
 });
 
 describe('the five modes draw their spec elements and read the exact kernel', () => {
@@ -659,7 +684,7 @@ describe('review repairs', () => {
         expect(Number.isNaN(poly.x[4])).toBe(true);
         expect(poly.x.slice(0, 4)).toEqual([0, 1, 1, 0]);
         expect(rosetteMirrorPoly(3).x.filter(Number.isNaN).length).toBe(2);
-        expect(Math.max(...rosetteMirrorPoly(3).y.filter(Number.isFinite))).toBeLessThanOrEqual(VIEW_HALF);
+        expect(Math.max(...rosetteMirrorPoly(3).y.filter(Number.isFinite))).toBeLessThanOrEqual(2 * VIEW_HALF);
     });
 });
 

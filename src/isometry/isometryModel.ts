@@ -27,8 +27,10 @@ export const ROSETTE_N_MIN = 1;
 export const ROSETTE_N_MAX = 12;
 export const PERIOD_MIN = 4;
 export const PERIOD_MAX = 8;
-/** Half-width of the board view the graph starts with; drawn points beyond it are counted as off view. */
+/** Half-width of the area the model counts as in view (inputs reach 16, a frieze window 19); drawn points beyond it are counted as off view. */
 export const VIEW_HALF = 20;
+/** Half-height of the board the graph opens with. Smaller than `VIEW_HALF` so the default figure fills the board; the user can zoom out to the model bound. */
+export const INITIAL_VIEW_HALF = 10;
 /** The frieze is drawn for the copies that lie fully inside `[-FRIEZE_WINDOW, FRIEZE_WINDOW]`. */
 export const FRIEZE_WINDOW = 19;
 

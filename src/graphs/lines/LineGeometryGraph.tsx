@@ -32,11 +32,11 @@ export const POINT_STEP = 1;
 export const POINT_BIG_STEP = 5;
 
 /**
- * The fixed view [left, top, right, bottom]. The handles fill [-8, 8]^2; the foot of the perpendicular from T on a line through
- * two grid points reaches 15,5 at most (checked over the whole grid in the model test), so the view holds [-17, 17]^2.
- * Lines run to the board edge. Intersection points outside the view are not drawn; the status says so.
+ * The fixed view [left, top, right, bottom]. The handles fill [-8, 8]^2, so [-10, 10]^2 keeps every handle and label on the board
+ * with a margin and the figure large. A foot or intersection farther out (a foot reaches 15,5 on the grid) is not drawn; the status
+ * says so. Lines run to the board edge. The view stays fixed: it is not refitted under the pointer.
  */
-export const VIEW_HALF = 17;
+export const VIEW_HALF = 10;
 export const FIXED_VIEW: readonly [number, number, number, number] = [-VIEW_HALF, VIEW_HALF, VIEW_HALF, -VIEW_HALF];
 /** Length of the drawn normal arrow (the direction is exact, the length is for drawing only), the angle arc radius, the right-angle square. */
 export const NORMAL_ARROW_LENGTH = 3;
@@ -92,6 +92,7 @@ interface View {
     readonly pair: readonly [GridXY | undefined, GridXY | undefined];
     /** An intersection point exists but lies outside the view. */
     readonly offView: boolean;
+    readonly footNotDrawn: boolean;
 }
 
 function buildView(state: LineGeometryState): View {
@@ -118,12 +119,14 @@ function buildView(state: LineGeometryState): View {
     let distanceLabel: GridXY | undefined;
     let projectionLabel: GridXY | undefined;
     let pointVectorLabel: GridXY | undefined;
+    let footNotDrawn = false;
     if (derived.distance && first) {
         const d = derived.distance;
         foot = {x: d.foot.x.toNumber(), y: d.foot.y.toNumber()};
+        const footOff = !inView(foot.x, foot.y);
         const along = unit(first.u.x.toNumber(), first.u.y.toNumber());
         const across = unit(state.T.x - foot.x, state.T.y - foot.y);
-        if (!d.onLine) {
+        if (!d.onLine && !footOff) {
             const s = RIGHT_ANGLE_SIZE;
             rightAngle = [
                 {x: foot.x + s * along.x, y: foot.y + s * along.y},
@@ -134,6 +137,10 @@ function buildView(state: LineGeometryState): View {
             projectionLabel = {x: (foot.x + state.T.x) / 2 - 0.8 * along.x, y: (foot.y + state.T.y) / 2 - 0.8 * along.y};
         }
         pointVectorLabel = {x: (state.P.x + state.T.x) / 2 - 0.8 * across.x, y: (state.P.y + state.T.y) / 2 - 0.8 * across.y};
+        if (footOff) {
+            foot = undefined;
+            footNotDrawn = true;
+        }
     }
     let crossing: GridXY | undefined;
     let arc: View["arc"];
@@ -175,7 +182,7 @@ function buildView(state: LineGeometryState): View {
         secondLabel: second ? labelAt(state.R, state.S, second.line.a, second.line.b) : undefined,
         normalArrow, secondNormalArrow, foot, rightAngle, distanceLabel, projectionLabel, pointVectorLabel, crossing, arc,
         radius: derived.circle ? Math.sqrt(derived.circle.circle.r2.toNumber()) : 0,
-        tangent, pair, offView,
+        tangent, pair, offView, footNotDrawn,
     };
 }
 
@@ -557,7 +564,8 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         }
         if (distance) {
             if (distance.onLine) return t("line_geometry_status_distance_on_line");
-            return t("line_geometry_status_distance", {value0: signed(distance.distanceSquared), value1: this.num(distance.distance, language)});
+            return t("line_geometry_status_distance", {value0: signed(distance.distanceSquared), value1: this.num(distance.distance, language)})
+                + (view.footNotDrawn ? ` ${t("line_geometry_status_foot_off_view")}` : "");
         }
         if (lines) {
             if (lines.kind === "same") return t("line_geometry_status_lines_same");

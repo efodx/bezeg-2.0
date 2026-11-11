@@ -609,6 +609,7 @@ export const sl = {
     "line_geometry_status_coincident_circle": "Točki O in B sovpadata, zato je polmer 0 in krožnice ni.",
     "line_geometry_status_off_view": "Presečišče zunaj prikaza ni narisano.",
     "line_geometry_status_arc_off_view": "Presečišče premic je zunaj prikaza, zato kot ni narisan.",
+    "line_geometry_status_foot_off_view": "Nožišče zunaj prikaza ni narisano.",
     "line_geometry_status_forms_vertical": "Navpična premica {value0}: eksplicitne oblike ni, ker smerni koeficient ni določen.",
     "line_geometry_status_forms_origin": "Premica {value0} gre skozi izhodišče, zato odsekovne oblike ni.",
     "line_geometry_status_forms_axis": "Premica {value0} je vzporedna z osjo, zato odsekovne oblike ni.",

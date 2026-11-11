@@ -15,7 +15,7 @@ import {
     CLASSIFY_EXAMPLES, CLASSIFY_EXAMPLE_IDS, COORD_LIMIT, DEFAULT_ISOMETRY_STATE, deriveIsometry, DILATION_TURNS, FRIEZE_MOTIF_TENTHS, type DilationTurn,
     type FriezeFeatures, type IsometryDerived, type IsometryMode, type IsometryState, ISOMETRY_MODES, K_MAX, K_MIN, matchingClassifyExample, type MirrorSpec,
     type MotionDerived, type MotionLength, PERIOD_MAX, PERIOD_MIN, ROSETTE_N_MAX, ROSETTE_N_MIN, snapCoordinateInput, snapPeriodInput, snapRatioInput,
-    snapRosetteNInput, VIEW_HALF, type FixedPoints, type FriezePolygon, parseIsometryState, serializeIsometryState,
+    snapRosetteNInput, VIEW_HALF, INITIAL_VIEW_HALF, type FixedPoints, type FriezePolygon, parseIsometryState, serializeIsometryState,
 } from "../../isometry/isometryModel";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
@@ -114,8 +114,8 @@ export function rosetteMirrorPoly(n: number): Poly {
     for (let j = 0; j < n; j++) {
         const angle = (Math.PI * j) / n;
         if (x.length) { x.push(Number.NaN); y.push(Number.NaN); }
-        x.push(-VIEW_HALF * Math.cos(angle), VIEW_HALF * Math.cos(angle));
-        y.push(-VIEW_HALF * Math.sin(angle), VIEW_HALF * Math.sin(angle));
+        x.push(-2 * VIEW_HALF * Math.cos(angle), 2 * VIEW_HALF * Math.cos(angle));
+        y.push(-2 * VIEW_HALF * Math.sin(angle), 2 * VIEW_HALF * Math.sin(angle));
     }
     return {x, y};
 }
@@ -210,9 +210,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
-    /** Large enough for everything the model counts as in view (`VIEW_HALF`). */
+    /** The board opens on [-10, 10]^2 so the default figure fills it; the model counts points to `VIEW_HALF` as in view, and the user can zoom out. */
     protected override initialView(): [number, number, number, number] {
-        return [-VIEW_HALF, VIEW_HALF, VIEW_HALF, -VIEW_HALF];
+        return [-INITIAL_VIEW_HALF, INITIAL_VIEW_HALF, INITIAL_VIEW_HALF, -INITIAL_VIEW_HALF];
     }
 
     // ---- Derived numbers ---------------------------------------------------------------------------------------------
@@ -351,9 +351,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             this.own(board.create("segment", [a, b], {
                 strokeColor: color, strokeWidth: width, dash, fixed: true, highlight: false, visible, withLabel: false,
             }));
+        /** Captions shrink on a narrow board (few pixels per unit, read when the board is built) so they stay apart. */
+        const captionFont = () => (board.unitX < 20 ? 12 : 15);
         const caption = (text: string | (() => string), x: Coordinate, y: Coordinate, color: string, visible: Visible = true) =>
             this.own(board.create("text", [x, y, text], {
-                strokeColor: color, fontSize: 15, fixed: true, highlight: false, withLabel: false, visible,
+                strokeColor: color, fontSize: captionFont(), fixed: true, highlight: false, withLabel: false, visible,
             }));
         /** A curve whose data come from `data()`; NaN entries break it. */
         const curveOf = (data: () => Poly, color: string, width: number, dash: number, visible: Visible = true) => {
@@ -378,8 +380,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             this.handleMap.set(id, point);
             return point;
         };
-        const label = (name: () => string, id: HandleId, color: string, visible: Visible = true) =>
-            caption(name, () => this.handleTarget(id)[0] + 0.4, () => this.handleTarget(id)[1] + 0.4, color, visible);
+        const label = (name: () => string, id: HandleId, color: string, visible: Visible = true, lift: () => number = () => 0, shift: () => number = () => 0.4) =>
+            caption(name, () => this.handleTarget(id)[0] + shift(), () => this.handleTarget(id)[1] + 0.4 + lift(), color, visible);
+        /** A vertical gap of at least one caption line, in units: 0.9 on a wide board, more where a unit is few pixels (narrow boards). */
+        const lineGap = (units: number) => Math.max(0.9 * units, (captionFont() * 1.2 * units) / board.unitY);
         const numberAt = (read: () => number | undefined) => () => {
             const value = read();
             return value !== undefined && Number.isFinite(value) ? value : 0;
@@ -407,7 +411,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const colors = [GraphPalette.referenceCurve, GraphPalette.comparisonCurve, GraphPalette.primaryCurve] as const;
             for (let i = 0; i < count; i++) {
                 curveOf(poly(stepImage(i)), colors[i], i === count - 1 ? 3 : 2, i === count - 1 ? 0 : 2, ok);
-                caption(imageText(i + 1), numberAt(() => stepImage(i)()?.[0].x.toNumber()), numberAt(() => (stepImage(i)()?.[0].y.toNumber() ?? 0) - 0.9),
+                caption(imageText(i + 1), numberAt(() => stepImage(i)()?.[0].x.toNumber()), numberAt(() => (stepImage(i)()?.[0].y.toNumber() ?? 0) - lineGap(1)),
                     colors[i], ok);
             }
             caption(text("isometry_graph_cap_motif"), numberAt(() => {
@@ -415,7 +419,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 return m?.status === "ok" ? m.motif[0].x.toNumber() : undefined;
             }), numberAt(() => {
                 const m = this.motion();
-                return m?.status === "ok" ? m.motif[0].y.toNumber() - 0.9 : undefined;
+                return m?.status === "ok" ? m.motif[0].y.toNumber() - lineGap(1.6) : undefined;
             }), GraphPalette.label, ok);
             // The mirrors: lines through the owned handle points, hidden while the two points coincide.
             for (let i = 0; i < count; i++) {
@@ -426,7 +430,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                     straightFirst: true, straightLast: true, visible: () => this.state.mirrors[i].p.x !== this.state.mirrors[i].q.x
                         || this.state.mirrors[i].p.y !== this.state.mirrors[i].q.y,
                 }));
-                label(() => t("isometry_graph_cap_mirror", {value0: String(i + 1)}), MIRROR_HANDLES[i][0], mirrorColors[i]);
+                // Mirrors often share a handle position (the defaults both start at the origin): stack their captions left of the handle so they do not overlap each other, the centre caption or the image captions.
+                label(() => t("isometry_graph_cap_mirror", {value0: String(i + 1)}), MIRROR_HANDLES[i][0], mirrorColors[i], true, () => lineGap(1) * i, () => -Math.max(3.4, (captionFont() * 4.3) / board.unitX));
             }
             // The composite's centre (rotation) or axis (reflection and glide).
             const classOf = (): IsometryClass | undefined => {
@@ -520,8 +525,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             };
             const period = () => this.state.friezePeriod;
             // The base line and a period bracket, then the pattern as three curves: the base copy, its translates and the other symmetry images.
-            const left = hidden(-VIEW_HALF, 0);
-            const right = hidden(VIEW_HALF, 0);
+            const left = hidden(-2 * VIEW_HALF, 0);
+            const right = hidden(2 * VIEW_HALF, 0);
             segment(left, right, GraphPalette.constructionLevels[1], 1, 3);
             const bracketA = hidden(0, -0.8);
             const bracketB = hidden(() => period(), -0.8);

@@ -280,7 +280,20 @@ test('an intersection outside the view is not drawn and the status says so', () 
     set(graph, {mode: 'angle'});
     expect(status()).toMatch(/Presečišče premic je zunaj prikaza, zato kot ni narisan\.$/);
     expect(shownCurves(graph)).toHaveLength(0);
-    expect(VIEW_HALF).toBe(17);
+    expect(VIEW_HALF).toBe(10);
+    NO_NAN();
+});
+
+test('a foot of the perpendicular beyond the view is not drawn and the status says so', () => {
+    const {graph} = mountGraph();
+    // the line through (-8,-7) and (-7,-8) and T = (-8, 8): the foot is (-15.5, 0.5), outside [-10, 10]^2
+    set(graph, {mode: 'distance', P: pt(-8, -7), Q: pt(-7, -8), T: pt(-8, 8)});
+    expect(pointNamed(graph, 'F')).toBeUndefined();
+    expect(shownSegments(graph, GraphPalette.constructionAccent)).toHaveLength(0);
+    expect(status()).toMatch(/Nožišče zunaj prikaza ni narisano\.$/);
+    expect(readout('foot')).toBeDefined();
+    set(graph, {T: pt(-7, -5)});
+    expect(pointNamed(graph, 'F')).toBeDefined();
     NO_NAN();
 });
 
@@ -475,17 +488,15 @@ test('the status, labels and readouts follow a language switch (point format, de
 /** The board's bounding box [left, top, right, bottom] and whether a user-space point lies inside it. */
 const boxOf = (graph: Observed) => graph.liveBoard().getBoundingBox() as [number, number, number, number];
 
-test('the fixed view holds the worst-case foot of the perpendicular and the whole [-8, 8] grid', () => {
+test('the fixed view holds the whole [-8, 8] grid; the worst-case foot of the perpendicular lies beyond it and is not drawn', () => {
     const {graph} = mountGraph();
     const box = boxOf(graph);
     const inBox = (x: number, y: number) => x >= box[0] && x <= box[2] && y >= box[3] && y <= box[1];
     for (const [x, y] of [[-8, -8], [8, 8], [-8, 8], [8, -8]]) expect(inBox(x, y)).toBe(true);
     // P(-8,-7) Q(-7,-8) is x + y = -15; T(-8,8) is 15 / 2 along the normal from it, so the foot is (-15.5, 0.5)
     set(graph, {mode: 'distance', P: pt(-8, -7), Q: pt(-7, -8), T: pt(-8, 8)});
-    const foot = pointNamed(graph, 'F')!;
-    expect([foot.x, foot.y]).toEqual([expect.closeTo(-15.5, 12), expect.closeTo(0.5, 12)]);
-    expect(inBox(foot.x, foot.y)).toBe(true);
+    expect(pointNamed(graph, 'F')).toBeUndefined(); // (-15.5, 0.5) is beyond the view: not drawn, but exact in the readout
     expect(readout('foot')).toBe('(−31/2; 1/2)');
-    expect(status()).toMatch(/^Razdalja točke T od premice: d² = 225\/2, /);
+    expect(status()).toMatch(/^Razdalja točke T od premice: d² = 225\/2, .*Nožišče zunaj prikaza ni narisano\.$/);
     NO_NAN();
 });

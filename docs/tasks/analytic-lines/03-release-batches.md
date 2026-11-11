@@ -8,4 +8,6 @@ Owed from task 02: F2b registration restores Presets through the parser and seri
 
 F2b done 2026-11-11 (route `/line-geometry`; Presets through the model parser; [evidence](../../reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md)). First F3 item, handler 7 decision 2026-11-11: shrink the fixed view from \([-17,17]^2\) to \([-10,10]^2\). At the route the default scene filled a few units of a board about 67 units wide ([diagnosis](../../reviews/feature-streams/families-prep/notes/f2b-initial-view.md)), against the guardrail that the graph stays prominent. Keep the view fixed (no refit under the pointer); a foot or intersection outside it is not drawn and the status says so, as the spec already provides. Rejected: a refitting view (jumps while dragging) and keeping ±17 with larger markers (the construction stays small). Update the spec's graph-view bullet and the view test with it.
 
+Done 2026-11-11 (F3): `VIEW_HALF = 10` in `LineGeometryGraph.tsx`; spec bullet and view test updated.
+
 Batch A drag measurement done 2026-11-11 (desktop and 390×844 at 4× CPU, no budget miss): [results](../../bezier-performance-results.md#f2b-geometry-routes-drag-baseline--2026-11-11).
