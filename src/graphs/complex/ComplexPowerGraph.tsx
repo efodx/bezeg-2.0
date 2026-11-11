@@ -3,6 +3,7 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {SceneStateUpdate} from "../base/SceneStore";
 import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import {DomainError} from "../functions/BaseFunctionGraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
@@ -82,6 +83,17 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
 
     override defaultPreset(): ComplexPowerPresetData {
         return complexPowerPresetData(DEFAULT_COMPLEX_POWER_STATE);
+    }
+
+    /** A Preset keeps the whole state in `data`; its `graphState` only marks it initialized (the collection refuses any other field). */
+    override exportPreset(): Preset<ComplexPowerPresetData> {
+        return {...super.exportPreset(), graphState: {initialized: true}};
+    }
+
+    /** A figure scene, Preset selection and Reset take the state from the data just imported, not from the stored `graphState`. */
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): ComplexPowerGraphState {
+        const {A, B, n} = this.state;
+        return {...super.figurePresetGraphState(graphState, data), A, B, n, initialized: true};
     }
 
     override exportPresetData(): ComplexPowerPresetData {

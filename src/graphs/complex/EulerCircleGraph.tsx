@@ -3,6 +3,7 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {SceneStateUpdate} from "../base/SceneStore";
 import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import {DomainError} from "../functions/BaseFunctionGraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
@@ -101,6 +102,17 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
 
     override defaultPreset(): EulerCirclePresetData {
         return eulerCirclePresetData(DEFAULT_EULER_CIRCLE_STATE);
+    }
+
+    /** A Preset keeps the whole state in `data`; its `graphState` only marks it initialized (the collection refuses any other field). */
+    override exportPreset(): Preset<EulerCirclePresetData> {
+        return {...super.exportPreset(), graphState: {initialized: true}};
+    }
+
+    /** A figure scene, Preset selection and Reset take the state from the data just imported, not from the stored `graphState`. */
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): EulerCircleGraphState {
+        const {degrees, omega, degree, velocity, acceleration, mode, b} = this.state;
+        return {...super.figurePresetGraphState(graphState, data), degrees, omega, degree, velocity, acceleration, mode, b, initialized: true};
     }
 
     override exportPresetData(): EulerCirclePresetData {
