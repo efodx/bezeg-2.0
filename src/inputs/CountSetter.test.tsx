@@ -1,6 +1,7 @@
 import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
 import {CountSetter} from './CountSetter';
+import {ReplacementRevision} from './replacementRevision';
 const countStatus = () => document.querySelector('[data-count-status]')!;
 
 test('the stepper is ordered minus, value, plus and never hides the value behind a reset action', () => {
@@ -136,4 +137,18 @@ test('with decimals the typed field takes fractional values, shows them, names i
     fireEvent.input(field, {target: {value: '-1'}, inputType: 'insertText'});
     fireEvent.keyDown(field, {key: 'Enter'});
     expect(document.querySelector('.number-input-hint')).toHaveTextContent('Utež mora biti pozitivna.');
+});
+
+test('a scene replacement drops the shown refusal; an ordinary re-render keeps it', () => {
+    const field = (revision: number) => <ReplacementRevision.Provider value={revision}>
+        <CountSetter n={5} min={1} max={5} onPlus={() => undefined} onMinus={() => undefined}/>
+    </ReplacementRevision.Provider>;
+    const {rerender} = render(field(0));
+    fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'}));
+    expect(countStatus()).toHaveTextContent('Največ 5.');
+    rerender(field(0));
+    expect(countStatus()).toHaveTextContent('Največ 5.');
+    rerender(field(1));
+    expect(countStatus()).not.toHaveTextContent('Največ 5.');
+    expect(screen.getByText('5')).toBeInTheDocument();
 });

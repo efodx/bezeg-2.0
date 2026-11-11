@@ -1,5 +1,6 @@
 import {currentLanguage, useT} from "../localization";
-import React, {useId, useState} from "react";
+import React, {useContext, useId, useState} from "react";
+import {ReplacementRevision} from "./replacementRevision";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
 import {joinIds} from "./describedBy";
@@ -56,8 +57,12 @@ export function CountSetter(props: CountSetterProps) {
     // The reason of a blocked press: a counter makes a repeated press announce again; any change of the count drops it.
     const [pressed, setPressed] = useState<{side: "min" | "max", count: number}>();
     const [seenN, setSeenN] = useState(n);
-    if (seenN !== n) {
+    // A scene replacement (Reset, Preset load, lesson restore) also drops the reason, as NumberInput drops its hint.
+    const revision = useContext(ReplacementRevision);
+    const [seenRevision, setSeenRevision] = useState(revision);
+    if (seenN !== n || seenRevision !== revision) {
         setSeenN(n);
+        setSeenRevision(revision);
         setPressed(undefined);
     }
     const blocked = (side: "min" | "max") => setPressed(current => ({side, count: (current?.count ?? 0) + 1}));
