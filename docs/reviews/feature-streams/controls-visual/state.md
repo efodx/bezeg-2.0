@@ -1,28 +1,41 @@
 # Controls visual stream state
 
-Read this and the [handler card](../../../agent-workflow/handler-card.md), then the [stream file](../../../tasks/feature-streams/controls-visual.md) and the [spec](../../../specs/control-visual-polish.md).
+Read this and the [handler card](../../../agent-workflow/handler-card.md), then the [stream file](../../../tasks/feature-streams/controls-visual.md) and the [spec](../../../specs/control-visual-polish.md) (sections Acceptance criteria, Tokens, Decisions).
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-visual`, `worktree-stream-visual`, created 2026-11-11 from `origin/master`, own `npm ci`. Run state: **active**. Port 4322.
-- **Clean worktree for checks, previews and publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached; shared with the closed controls stream. It holds a production build of `dc746cff` in `dist/`. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, `just build`, `just preview 4322` (background), smoke, `just publish --background --recipe runtime --base <origin/master sha> --commits <ids, oldest first>`; `just publish --status`; then `just ci <pushed sha>`.
-- **Branch updates:** bring the stream branch up to date with `git merge origin/master`, not rebase, so published cherry-picks never conflict with a rewritten branch (the controls stream's practice). Conflicts in files that master holds only as cherry-picked copies resolve to the stream side after `git log <merge-base>..origin/master -- <files>` confirms no other change.
+- **Worktree and branch:** `.claude/worktrees/stream-visual`, `worktree-stream-visual`, own `npm ci`. Run state: **active**. Stream port 4327 for previews of this worktree's `build/` (the Vite output dir is `build/`, not `dist/`); 4322 serves master `bf843c25` from the clean worktree as the "before" reference; `just controls-fixture` uses 4328.
+- **Clean worktree for publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, then `just publish --background --recipe runtime --base <origin/master sha> --commits <ids, oldest first>`; `just publish --status`; then `just ci <pushed sha>`. Browser smoke is run from the stream worktree against 4327 before publishing.
+- **Branch updates:** `git merge origin/master`, never rebase. Conflicts in files that master holds only as cherry-picked copies resolve to the stream side (`git checkout --ours`) after `git log <merge-base>..origin/master -- <file>` shows only our own commits.
 - **Owner directions:** handlers decide and record, with no confirmation. Launch successors with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium` at budget handoff, passing this rule on; end without a successor when no actionable work is left.
 
-## Started (2026-11-11, by the controls stream's eighth handler)
+## Done (handler 1, 2026-11-11)
 
-- The owner closed the controls stream and asked for (a) a visual pass over the shared controls, many of which "are still quite bad looking", and (b) removal of per-Demonstration tests that shared controls now make redundant.
-- Spec, stream file and README row written; nothing implemented yet.
-- **Test inventory** ([test-redundancy-inventory.md](test-redundancy-inventory.md), Sonnet worker, read-only on `dc746cff`): little can be deleted outright. `sharedControls.graphs.test.tsx` runs the full control contract on only two graphs per control kind, and `PresetRoundTrip.contract.test.tsx` uses mount-default data, so per-graph wiring and non-default Preset tests are KEEP. DELETE: 2 (`CurvatureBezierCurveGraph.test.ts:261` default-Preset round trip; `parametricCatalogue.test.ts:114` probably, unread). CONSOLIDATE: about 43 tests in 7 groups: board arrow keys move the selected point (about 10, compgeo and projective), 44 px handle hit zone (8), typed out-of-range refused (7), Reset unavailable at origin (6), focused control becomes `aria-disabled` and keeps focus (3 + 3 near), and CrossRatio/Pascal/PolePolar live-region and select-focus repeats (2 × 3). Time saving is a guess of 10–30 s of about 1800 s; the gain is mainly maintenance. Not assessed: appearance contracts, 195 unmount/dispose and 84 language-switch tests in `src/graphs`, non-graph `src/learning` tests; the arrow-key and live-region verdicts rest on names, not full reads.
+- **Step 1 audit:** [audit.md](audit.md), 122 routes × three views on master `bf843c25`. Scripts and measurements: clean worktree `.command-logs/cv-audit/` (`run.cjs`, `agg.cjs`, `pres-text.cjs`, `measurements.json`).
+- **Step 2:** spec criteria and tokens finalised, DESIGN.md "Graph controls" section, `src/inputs/controlTokens.css`; shared buttons, groups, fields, selects, curve picker, modes, playback, focus ring and Presentation colours on the tokens; pressed/selected states and inspector tabs on the selected tokens. Published as master `396e0935` (check `just publish --status`; stream commit `fe0f0d3d`). After-measurement of all 122 routes: stream `.command-logs/cv-proto-all/summary.md`.
+- **Step 5 slices 1–2:** net −10 tests, helpers `src/graphs/base/selectedPointKeyBehaviour.tsx`, `resetAvailabilityBehaviour.ts`, `unavailableFocusBehaviour.ts`, `src/graphs/projective/projectiveInspectorBehaviour.tsx`. Published (`81963a73`, `83cc0fe4`).
+- Master browser smoke was red from families-prep `219ec048` (catalogue order, counting-tree smoke); the families-prep handler took the fix.
+
+## In flight at this rewrite
+
+- Step 3a (booleans and sliders), Sonnet worker; note path `3a-note.md` here if it stopped early.
+- Step 5 slice 3 (44 px hit-zone group), Sonnet worker; note path `tests-slice3-note.md`.
 
 ## Next
 
-1. **Step 1, audit:** dispatch `bezeg-smoke` (Sonnet `medium`) against `just preview 4322` in the clean worktree (rebuild first if master moved). Every Demonstration route (catalog list in `src/demonstrations.ts`), at 1440 × 900, 360 × 640 with touch, and Presentation mode, Slovenian. Screenshot the controls area; write a ranked findings table (route, control, problem kind, measurement, screenshot path) to `audit.md` here, screenshots under the clean worktree's `.command-logs/cv-audit/`. Skill: `.agents/skills/smoke-tester/SKILL.md`; checklist `docs/smoke-tests.md`. Include the known items: inspector `NumberInput` 40 px on touch (`src/graphs/base/WorkspaceControls.css:54` vs `src/inputs/NumberInput.css:26`), projective checkboxes 13 px (`/projective/five-point`, `/projective/three-views`).
-2. **In parallel, step 5 first slice:** the two DELETE rows and the largest CONSOLIDATE group (arrow keys) as one `bezeg-worker` slice: read the full test bodies first, keep every graph-specific wiring assertion, observe each new helper failing on a broken graph, report `just test-cost` before and after.
-3. Then step 2 (finalise the spec's criteria from the audit, tokens, `/bezier/curve` prototype with before/after screenshots and a UI/accessibility review).
+1. **Step 3b:** count setters (`CountSetter.css`, 47 px → token on desktop, 44 on touch), `.point-collection .btn` fixed 44 px (`PointCollection.css:5`), disclosures (`summary` 24 px on `/analysis/fourier-coefficients`), `pointset-remove` 31–32 × 44 on `/compgeo/interval-sweep`, select chevron dark on navy in Presentation, the transparent "Strni" ghost button, disabled look not by opacity alone (`.btn` aria-disabled, `.inspector-playback`).
+2. **Step 3c:** per-graph overrides: `src/graphs/functions/FunctionReadout.css:46-97` action buttons (2 px, 1.48 : 1, 28 routes), `PascalControls.css:3`, `affine-action-button`, list-row buttons still under 3 : 1 (`control-row`, `value-list-row`, `zero-list-row`, `convexity-actions`; list in `cv-proto-all/summary.txt`); Presentation text residuals: caption "Obsegi parametra t" on `/bezier/clipping`, `p.form-text` on `/isometries`, h4 "Animacija konstrukcije" on `/bezier/decasteljau*` and `/rational/rational-decasteljau`; no focus ring on "Premakni" and "Za ta način izberi krivuljo." (`/bezier/curve`, `/curve-geometry/curvature`).
+3. **Step 4** carried controls items (stream file), independent of styling.
+4. **Step 5** after slice 3: the unassessed areas in the inventory (appearance contracts, 195 unmount/dispose and 84 language-switch tests in `src/graphs`).
+5. Close-out of step 3: rerun the audit script on all routes (Haiku smoke, `cv-proto-all` pattern) and criterion 4 views via `just controls-fixture`.
 
 ## Risks and working notes
 
-- The controls stream's [state note](../controls/state.md#risks-and-working-notes) has the working Playwright patterns, port notes and smoke-reading advice; read that section by range when briefing smoke.
-- CSS-source tests do not prove the cascade: check specificity and measure in a browser (the 40 px inspector field is the standing example).
+- Look at before/after screenshots yourself: numeric checks missed a lost selected-button fill (worker measured Presentation text only). Ask for both themes and pressed states.
+- A new shared rule at (0,2,0)+ outranks Bootstrap and component state rules; check pressed, active, disabled and hover after each slice.
+- `--bezeg-*` palette variables are not on `:root`; tokens use literals.
+- `just controls-fixture` takes about 10 minutes and caught a select clip from a font change; run it for any change to fonts, padding or widths.
+- Haiku smoke cannot Write its summary file (tool refuses); ask for the summary in the return text or written by a script.
+- The controls stream's [state note](../controls/state.md#risks-and-working-notes) has more Playwright patterns.
+- CSS-source tests do not prove the cascade; measure in a browser.
 - Line endings: many files have CRLF working copies; edit by hand rather than with `\s*` regexes.

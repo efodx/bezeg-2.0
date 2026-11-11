@@ -2777,3 +2777,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Worker encoding slip:** a worker wrote `é` as a Latin-1 byte into a UTF-8 file. `git diff` showed `B�zier`; `file`/`od` confirmed it. Check non-ASCII characters in worker diffs.
 - **Contract test scope:** a sampled run shows "all" when the branch itself changes a shared path (the scoping change touched `vite.config.mts`); a sample-only default cannot be observed on such a branch.
 - **Open list exhausted:** the remaining open items are by design, carried, or need hardware the handler lacks (real browser chrome, a screen reader). The handler stopped instead of launching an idle successor.
+
+## 2026-11-11: controls-visual audit, token prototype and two test-consolidation slices (controls-visual stream, first handler)
+
+- **Scope and size:** L. Step 1 audit (122 routes, three views), step 2 tokens and prototype, step 5 slices 1 and 2. Handler Opus `medium`, about 17:35–19:10 UTC.
+- **Workers (9):** audit smoke (Sonnet), test slices 1 and 2 (Sonnet), prototype (Sonnet, two rounds), UI/accessibility reviewer (Sonnet), all-route re-measure smoke (Haiku), pressed-state smoke (Haiku). Four publishes through cherry-pick in the clean worktree.
+- **Outcome:** audit committed; tokens live on all shared buttons, fields, selects, focus and Presentation colours; tests net −10 with three new shared helpers.
+- **Repairs:** slice 1 first added 7 tests (residual per-graph tests beside the helper); a one-line instruction (an `extra` callback in the same mount) brought it to net −1. The prototype lost the selected-button fill (a new shared rule outranked pressed states) and read palette variables not declared on `:root`; one round fixed both. The reviewer caught the fixture missing the token import and a 1.2 : 1 pressed edge in Presentation; the pressed-state smoke caught the selected tabs; `just controls-fixture` caught a select clip from the 0.875rem font. Handler fixed those directly.
+- **Positive:** reusing the audit's own script for the after-measurement gave a like-for-like 122-route comparison cheaply (Haiku). Looking at one before/after screenshot pair found the regression the worker's numeric checks missed (it measured Presentation text only).
+- **Tooling:** a Haiku smoke's Write of its summary was refused ("subagents should return findings as text"); a subagent's second hand-back report was refused, so the handler re-derived its result from the diff.
