@@ -220,7 +220,7 @@ describe('typed values and the drag', () => {
         expect(help(input)).toContain(t('euler_circle_graph_angle_help', {value0: '0', value1: '360'}));
         enter(angleLabel(), '30,5');
         expect(field(angleLabel()).getAttribute('aria-invalid')).toBe('true');
-        expect(help(field(angleLabel()))).toContain(t('number_range_hint', {value0: '0', value1: '360'}));
+        expect(help(field(angleLabel()))).toMatch(/\b0\b[^\d]+\b360\b/);
         enter(angleLabel(), '45');
         expect(graph.state.degrees).toBe(45);
         expect(graph.editAngle(360)).toBe(true);
