@@ -1,4 +1,4 @@
-import {writeFileSync} from 'node:fs';
+import {mkdirSync, writeFileSync} from 'node:fs';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -756,6 +756,7 @@ describe('redraw timing (JSDOM PLACEHOLDER, not a browser measurement)', () => {
         measure('race', i => { act(() => { graph.editNumber('radius', 0.25 + 0.25 * (i % 12)); }); });
         measure('track', i => dragHandleTo(graph.handlePoints()[P1], 0.25 * (i % 20), -(0.25 * (i % 16))));
         measure('tautochrone', i => dragHandleTo(graph.handlePoints()[TH2], 0, -(1 - Math.cos(0.05 * (i % 60)))));
+        mkdirSync('.command-logs', {recursive: true});
         writeFileSync('.command-logs/mech02b-redraw.log', `${lines.join('\n')}\n`);
         expect(lines).toHaveLength(3);
         expect(FIELD_RANGES.radius.max).toBe(3);
