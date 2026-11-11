@@ -155,8 +155,11 @@ test('SSA a = 5, b = 8, A = 30 degrees draws two triangles in two colours, measu
     expect(m2.c).toBeCloseTo(8 * Math.cos(Math.PI / 6) - 3, 9);
     expect(m1.angleB + m2.angleB).toBeCloseTo(Math.PI, 9);
     // the readout rows come from the same drawn vertices
-    expect(readout('solved-sides-1')).toBe(`a = 5; b = 8; c = ${m1.c.toFixed(5).replace('.', ',').replace(/0+$/, '')}`);
-    expect(readout('solved-sides-2')).toBe(`a = 5; b = 8; c = ${m2.c.toFixed(5).replace('.', ',').replace(/0+$/, '')}`);
+    // the irrational side is rounded, so it is introduced by the approximation sign; the whole sides keep the equals sign
+    expect(readout('solved-sides-1')).toBe(`a = 5; b = 8; c ≈ ${m1.c.toFixed(5).replace('.', ',').replace(/0+$/, '')}`);
+    expect(readout('solved-sides-2')).toBe(`a = 5; b = 8; c ≈ ${m2.c.toFixed(5).replace('.', ',').replace(/0+$/, '')}`);
+    expect(readout('solved-angles-1')).toMatch(/^A = 30°; B ≈ \d+,\d+°; C ≈ \d+,\d+°$/);
+    expect(readout('solved-angles-2')).toMatch(/^A = 30°; B ≈ \d+,\d+°; C ≈ \d+,\d+°$/);
     expect(readout('solved-area-1')).toMatch(/^1\d,\d+$/);
     expect(readout('height')).toBe('≈ 4');
     expect(status()).toBe('Dve rešitvi (dvoumni primer): dva trikotnika, B₁ (polna črta) s c ≈ 9,9282 in B₂ (črtkana) s c ≈ 3,9282.');
@@ -188,7 +191,7 @@ test('SSA with a = 3,5 has no triangle and a = 4 is the tangent case with one ri
 test('the other data types solve and draw: SSS, SAS and ASA', () => {
     const {graph} = mountGraph();
     solve(graph, {mode: 'solve', data: {type: 'sas', b: 5, c: 7, angleA: 60}});
-    expect(readout('solved-sides-1')).toMatch(/^a = 6,245; b = 5; c = 7$/);
+    expect(readout('solved-sides-1')).toMatch(/^a ≈ 6,245; b = 5; c = 7$/);
     solve(graph, {data: {type: 'asa', angleA: 40, angleB: 60, c: 8}});
     expect(readout('solved-angles-1')).toBe('A = 40°; B = 60°; C = 80°');
     solve(graph, {data: {type: 'sss', a: 1, b: 1, c: 5}});
@@ -440,7 +443,7 @@ test('the approximation sign and the list separator come from the catalogue in b
     solve(graph, {mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}});
     expect(readout('height')).toBe('≈ 4');
     act(() => { setLanguage('en'); });
-    expect(readout('solved-sides-1')).toBe('a = 5, b = 8, c = 9.9282');
+    expect(readout('solved-sides-1')).toBe('a = 5, b = 8, c ≈ 9.9282');
     expect(readout('height')).toBe('≈ 4');
     solve(graph, {mode: 'sides'});
     expect(readout('ratio-a')).toMatch(/^≈ /);
@@ -480,7 +483,7 @@ describe('the legend states the style of the circumcircle, the point A′, the S
         const {graph} = mountGraph();
         solve(graph, {mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}});
         expect(legendOf(graph)).toEqual([
-            ['ssa-arc', 'line', 'Polna črta: krožni lok s središčem C in polmerom a'],
+            ['ssa-arc', 'line', 'Polna črta: krožnica s središčem C in polmerom a'],
             ['height', 'dashed-line', 'Črtkana črta: višina h'],
         ]);
         const [arc, height] = graph.legendItems();

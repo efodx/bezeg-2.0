@@ -308,9 +308,12 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
         // ---- Primitives. Every one is owned; the accessors return finite numbers whatever the mode of the cached view is. ----
         const hidden = (x: Coordinate, y: Coordinate) =>
             this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: ""}));
+        // A cross or plus face has no fill: JSXGraph draws it with the stroke alone, so the stroke carries the colour.
+        const strokeOnly = (face: PointFace) => face === "cross" || face === "plus" || face === "x" || face === "+";
         const marker = (x: Coordinate, y: Coordinate, face: PointFace, color: string, size: number, visible: Visible = true) =>
             this.own(board.create("point", [x, y], {
-                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, strokeColor: GraphPalette.pointOutline, visible,
+                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, visible,
+                ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
         const segment = (a: JXG.Point, b: JXG.Point, color: string, width: number, dash: number, visible: Visible = true) =>
             this.own(board.create("segment", [a, b], {
@@ -892,7 +895,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
                                            onChange={value => this.editPeriod(value)}/>);
                 break;
         }
-        commands.push(<p key="help" id={this.helpId}className="form-text">{t("isometry_graph_input_help", {
+        commands.push(<p key="help" id={this.helpId} className="form-text">{t("isometry_graph_input_help", {
             value0: dec(-COORD_LIMIT), value1: dec(COORD_LIMIT), value2: dec(K_MIN), value3: dec(K_MAX), value4: dec(ROSETTE_N_MIN),
             value5: dec(ROSETTE_N_MAX), value6: dec(PERIOD_MIN), value7: dec(PERIOD_MAX),
         })}</p>);

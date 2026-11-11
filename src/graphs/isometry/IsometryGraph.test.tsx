@@ -5,6 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {GraphPalette} from '../styles/GraphPalette';
 import {CLASSIFY_EXAMPLES, DEFAULT_ISOMETRY_STATE, VIEW_HALF, type IsometryMode, type IsometryState} from '../../isometry/isometryModel';
 import {
     COORDINATE_BIG_STEP, COORDINATE_STEP, handlesFor, HANDLE_TOUCH_RADIUS, HIT_SLACK, IsometryGraph, mergedPoly, RATIO_STEP, rosetteMirrorPoly,
@@ -108,6 +109,15 @@ describe('the five modes draw their spec elements and read the exact kernel', ()
         expect(readout('fixed')).toBe(t('isometry_graph_fixed_none'));
         expect(readout('angle')).toBeUndefined();
         expect(shown(graph, 'line')).toBe(2);
+    });
+
+    test('the rotation centre cross is stroked in its colour (a cross has no fill, so a white outline would hide it)', () => {
+        const {graph} = mountGraph();
+        chooseMode('classify');
+        act(() => { graph.setState({...CLASSIFY_EXAMPLES.rotation}); });
+        const crosses = probes(graph).filter(o => o.elType === 'point' && o.evalVisProp('visible') && String(o.evalVisProp('face')) === 'cross');
+        expect(crosses).toHaveLength(1);
+        expect(String(crosses[0].evalVisProp('strokecolor'))).toBe(GraphPalette.constructionAccent);
     });
 
     test('L2 classify: the three examples are a rotation about (1,2), a glide with vector (2,2) and the reflection y = x - 1', () => {

@@ -492,14 +492,74 @@ test('the status, the labels and the board name follow a language switch', () =>
     expect(document.querySelector(`[aria-label="${t('circle_construction_board_label')}"]`)).not.toBeNull();
 });
 
+describe('the legend also states the chord of contact and the Apollonius locus, and the marker faces are drawn in their colour', () => {
+    const drawn = (graph: ObservedGraph, elType: string, color: string, dashed: boolean) => probes(graph).filter(o => o.elType === elType
+        && o.evalVisProp('visible') && String(o.evalVisProp('strokecolor')) === color && (Number(o.evalVisProp('dash')) > 0) === dashed).length;
+    const ids = (graph: ObservedGraph) => graph.legendItems().map(i => i.id);
+
+    test('the chord entry is shown exactly while the chord is drawn (P outside the circle)', () => {
+        const {graph} = mountGraph();
+        const chord = graph.legendItems().find(i => i.id === 'chord')!;
+        expect(chord.kind).toBe('dashed-line');
+        expect(drawn(graph, 'segment', chord.color, true)).toBe(1);
+        act(() => { graph.setState({p: {x: 3, y: 0}}); }); // on the circle: no chord
+        expect(ids(graph)).not.toContain('chord');
+        expect(drawn(graph, 'segment', chord.color, true)).toBe(0);
+        act(() => { graph.setState({p: {x: 0, y: 0}}); }); // inside
+        expect(ids(graph)).not.toContain('chord');
+    });
+
+    test('the locus entry follows the locus status and matches the drawn element', () => {
+        const {graph} = mountGraph();
+        chooseMode('apollonius');
+        let items = graph.legendItems();
+        expect(items.map(i => [i.id, i.kind, i.label])).toEqual([['locus', 'line', t('circle_construction_legend_locus_circle')]]);
+        expect(drawn(graph, 'circle', items[0].color, false)).toBe(1);
+        act(() => { graph.setState({k: 1}); });
+        items = graph.legendItems();
+        expect(items.map(i => [i.id, i.kind, i.label])).toEqual([['locus', 'line', t('circle_construction_legend_locus_line')]]);
+        expect(drawn(graph, 'line', items[0].color, false)).toBe(1);
+        act(() => { graph.setState({b: graph.state.a}); });
+        expect(ids(graph)).toEqual([]);
+    });
+
+    test('the pair of circles in the axis entries comes from the pair key', () => {
+        const {graph} = mountGraph();
+        chooseMode('radical');
+        const axis = graph.legendItems().filter(i => i.id.startsWith('axis'));
+        expect(axis.map(i => i.label)).toEqual([
+            t('circle_construction_legend_axis_solid', {value0: t('circle_construction_pair', {value0: 1, value1: 2})}),
+            t('circle_construction_legend_axis_dashed', {value0: t('circle_construction_pair', {value0: 1, value1: 3})}),
+            t('circle_construction_legend_axis_dashed', {value0: t('circle_construction_pair', {value0: 2, value1: 3})}),
+        ]);
+        act(() => { setLanguage('en'); });
+        expect(graph.legendItems()[0].label).toBe('Solid line: radical axis of circles 1, 2');
+    });
+
+    test('a cross or plus marker is stroked in the colour its legend entry states', () => {
+        const {graph} = mountGraph();
+        for (const mode of ['radical', 'common'] as const) {
+            chooseMode(mode);
+            const faced = graph.legendItems().filter(i => i.kind === 'cross' || i.kind === 'plus');
+            expect(faced.length).toBeGreaterThan(0);
+            for (const item of faced) {
+                const found = probes(graph).filter(o => o.elType === 'point' && String(o.evalVisProp('face')) === item.kind
+                    && o.evalVisProp('visible') && String(o.evalVisProp('strokecolor')) === item.color);
+                expect(found).toHaveLength(1);
+            }
+        }
+    });
+});
+
 describe('the legend states the style of the Thales circle, the radical axes and the common tangents', () => {
     const lines = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'line' && o.evalVisProp('visible'));
     test('every entry matches a drawn element of that colour and dash', () => {
         const {graph} = mountGraph();
         const drawn = (elType: string, color: string, dashed: boolean) => probes(graph).filter(o => o.elType === elType && o.evalVisProp('visible')
             && String(o.evalVisProp('strokecolor')) === color && (Number(o.evalVisProp('dash')) > 0) === dashed).length;
-        expect(graph.legendItems().map(i => [i.id, i.kind])).toEqual([['thales', 'dashed-line']]);
+        expect(graph.legendItems().map(i => [i.id, i.kind])).toEqual([['thales', 'dashed-line'], ['chord', 'dashed-line']]);
         expect(drawn('circle', graph.legendItems()[0].color, true)).toBe(1);
+        expect(drawn('segment', graph.legendItems()[1].color, true)).toBe(1);
         chooseMode('radical');
         const items = graph.legendItems();
         expect(items.filter(i => i.id.startsWith('axis')).map(i => i.kind)).toEqual(['line', 'dashed-line', 'dashed-line']);

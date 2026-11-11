@@ -523,11 +523,17 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         return `${formatNumber(toDegrees(radians), language, 4)}°`;
     }
 
-    /** A side from its exact squared length: an integer when the square is perfect, otherwise the radical with its rounded value. */
     private approx(value: number, language: NumberLanguage): string {
         return t("triangle_solver_approx_value", {value0: this.num(value, language)});
     }
 
+    /** A measured quantity as `name = value` when the shown (rounded) value is the value itself, otherwise `name ≈ value`. */
+    private measured(name: string, value: number, shown: string, decimals: number): string {
+        const exact = !Number.isFinite(value) || Math.abs(value - Number(value.toFixed(decimals))) < 1e-9;
+        return exact ? `${name} = ${shown}` : `${name} ${t("triangle_solver_approx_value", {value0: shown})}`;
+    }
+
+    /** A side from its exact squared length: an integer when the square is perfect, otherwise the radical with its rounded value. */
     private sideText(square: bigint, language: NumberLanguage): string {
         const root = Math.round(Math.sqrt(Number(square)));
         if (BigInt(root) * BigInt(root) === square) return `${root}`;
@@ -629,11 +635,13 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         drawn.map(measureDrawn).forEach((m, index) => {
             const n = `${index + 1}`;
             const separator = t("triangle_solver_list_separator");
+            const sides: Array<[string, number]> = [["a", m.a], ["b", m.b], ["c", m.c]];
+            const angles: Array<[string, number]> = [["A", m.angleA], ["B", m.angleB], ["C", m.angleC]];
             rows.push(
                 {id: `solved-sides-${n}`, label: t("triangle_solver_readout_solved_sides", {value0: n}),
-                    value: [`a = ${this.num(m.a, language)}`, `b = ${this.num(m.b, language)}`, `c = ${this.num(m.c, language)}`].join(separator)},
+                    value: sides.map(([name, side]) => this.measured(name, side, this.num(side, language), 5)).join(separator)},
                 {id: `solved-angles-${n}`, label: t("triangle_solver_readout_solved_angles", {value0: n}),
-                    value: [`A = ${this.degrees(m.angleA, language)}`, `B = ${this.degrees(m.angleB, language)}`, `C = ${this.degrees(m.angleC, language)}`].join(separator)},
+                    value: angles.map(([name, angle]) => this.measured(name, toDegrees(angle), this.degrees(angle, language), 4)).join(separator)},
                 {id: `solved-area-${n}`, label: t("triangle_solver_readout_solved_area", {value0: n}), value: this.num(m.area, language)},
             );
         });

@@ -70,6 +70,8 @@ export const AXIS_STYLES = [
 export const ORTHOGONAL_STYLE = {color: GraphPalette.constructionAccent, dash: 3} as const;
 export const EXTERNAL_TANGENT_STYLE = {color: GraphPalette.primaryCurve, dash: 0} as const;
 export const INTERNAL_TANGENT_STYLE = {color: GraphPalette.constructionAccent, dash: 3} as const;
+export const CHORD_STYLE = {color: GraphPalette.constructionAccent, dash: 2} as const;
+export const LOCUS_STYLE = {color: GraphPalette.primaryCurve, dash: 0} as const;
 
 const numberOf = (value: Rational | number): number => (typeof value === "number" ? value : value.toNumber());
 
@@ -255,9 +257,12 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         // ---- Primitives. Every one is owned; the accessors return finite numbers whatever the mode of the cached view is. ----
         const hidden = (x: Coordinate, y: Coordinate) =>
             this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: ""}));
+        // A cross or plus face has no fill: JSXGraph draws it with the stroke alone, so the stroke carries the colour.
+        const strokeOnly = (face: PointFace) => face === "cross" || face === "plus" || face === "x" || face === "+";
         const marker = (x: Coordinate, y: Coordinate, face: PointFace, color: string, size: number, visible: Visible = true) =>
             this.own(board.create("point", [x, y], {
-                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, strokeColor: GraphPalette.pointOutline, visible,
+                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, visible,
+                ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
         const segment = (a: JXG.Point, b: JXG.Point, color: string, width: number, dash: number, visible: Visible = true) =>
             this.own(board.create("segment", [a, b], {
@@ -327,7 +332,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             const t2 = marker(contact(1, "x"), contact(1, "y"), "square", GraphPalette.primaryCurve, 5, outside);
             segment(p, t1, GraphPalette.primaryCurve, 2, 0, outside);
             segment(p, t2, GraphPalette.primaryCurve, 2, 0, outside);
-            segment(t1, t2, GraphPalette.constructionAccent, 1, 2, outside);
+            segment(t1, t2, CHORD_STYLE.color, 1, CHORD_STYLE.dash, outside);
             segment(centre, p, GraphPalette.label, 1, 2, flag(f => !(tangents(f)?.atCentre ?? true)));
             caption("T1", () => contact(0, "x")() + 0.3, () => contact(0, "y")() + 0.3, GraphPalette.label, outside);
             caption("T2", () => contact(1, "x")() + 0.3, () => contact(1, "y")() + 0.3, GraphPalette.label, outside);
@@ -389,11 +394,11 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             circleAbout(locusCentre, numberAt(f => {
                 const l = apollonius(f)?.locus;
                 return l?.status === "circle" ? Math.sqrt(l.circle.r2.toNumber()) : undefined;
-            }), GraphPalette.primaryCurve, 2, 0, flag(f => apollonius(f)?.locus.status === "circle"));
+            }), LOCUS_STYLE.color, 2, LOCUS_STYLE.dash, flag(f => apollonius(f)?.locus.status === "circle"));
             lineAlong(() => {
                 const d = this.view();
                 return d.mode === "apollonius" && d.locus.status === "line" ? coefficientsOf(d.locus.line) : null;
-            }, GraphPalette.primaryCurve, 2, 0);
+            }, LOCUS_STYLE.color, 2, LOCUS_STYLE.dash);
             const division = (kind: "internal" | "external", axis: "x" | "y") => numberAt(f => {
                 const l = apollonius(f)?.locus;
                 if (!l || l.status === "degenerate") return undefined;
@@ -576,15 +581,29 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         const d = this.view();
         const dash = (style: {dash: number}) => (style.dash > 0 ? "dashed-line" : "line") as "dashed-line" | "line";
         switch (d.mode) {
-            case "tangents":
-                return d.thales ? [{id: "thales", color: THALES_STYLE.color, kind: dash(THALES_STYLE), label: t("circle_construction_legend_thales")}] : [];
+            case "tangents": {
+                const items: LegendItem[] = [];
+                if (d.thales) items.push({id: "thales", color: THALES_STYLE.color, kind: dash(THALES_STYLE), label: t("circle_construction_legend_thales")});
+                if (d.result.status === "outside") {
+                    items.push({id: "chord", color: CHORD_STYLE.color, kind: dash(CHORD_STYLE), label: t("circle_construction_legend_chord")});
+                }
+                return items;
+            }
+            case "apollonius": {
+                if (d.locus.status === "circle") {
+                    return [{id: "locus", color: LOCUS_STYLE.color, kind: dash(LOCUS_STYLE), label: t("circle_construction_legend_locus_circle")}];
+                }
+                return d.locus.status === "line"
+                    ? [{id: "locus", color: LOCUS_STYLE.color, kind: dash(LOCUS_STYLE), label: t("circle_construction_legend_locus_line")}]
+                    : [];
+            }
             case "radical": {
                 const items: LegendItem[] = [];
-                const pairs = ["1, 2", "1, 3", "2, 3"] as const;
+                const pairs = [[1, 2], [1, 3], [2, 3]] as const;
                 AXIS_STYLES.forEach((style, index) => {
                     if (d.axes[index].axis.status !== "line") return;
                     items.push({id: `axis-${index}`, color: style.color, kind: dash(style),
-                        label: t(style.dash > 0 ? "circle_construction_legend_axis_dashed" : "circle_construction_legend_axis_solid", {value0: pairs[index]})});
+                        label: t(style.dash > 0 ? "circle_construction_legend_axis_dashed" : "circle_construction_legend_axis_solid", {value0: t("circle_construction_pair", {value0: pairs[index][0], value1: pairs[index][1]})})});
                 });
                 if (d.centre.status === "centre") {
                     items.push({id: "centre", color: GraphPalette.constructionAccent, kind: "cross", label: t("circle_construction_legend_centre")});
