@@ -21,3 +21,7 @@ Acceptance:
 5. `npx tsc --noEmit --pretty false`, `just lint` and the production build pass.
 
 Review: engineering plus UI and accessibility, and a mathematical review of the readouts.
+
+## Status
+
+Built (uncommitted, no route): `src/kinematics/kinematicsModel.ts`, `src/graphs/curves/kinematics/KinematicsGraph.tsx`, tests and the `kinematics_graph_*` locale block. Acceptance 1–3 and 5 are covered by tests and checks. Acceptance 4 is a jsdom placeholder only; the browser measurement is owed at F2b (route). Evidence and open doubts: `docs/reviews/feature-streams/families-prep/notes/f2a-kin-02.md`.

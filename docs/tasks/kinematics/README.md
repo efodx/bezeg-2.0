@@ -9,7 +9,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Kinematics kernel](01-kinematics-kernel.md) | 0 | F1 | none | — | done |
-| [02 State model and kinematics graph](02-kinematics-graph.md) | A–C | F2a | Controls step 5 | 01 | planned |
+| [02 State model and kinematics graph](02-kinematics-graph.md) | A–C | F2a | Controls step 5 | 01 | built, review pending (no route) |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 02 | planned |
 
 ## Slovenian terms (F0 decision)
@@ -24,3 +24,10 @@ These are checked against `sl.ts`, which has *hitrost*, *ukrivljenost*, *tangent
 | uniform circular motion; angular velocity | enakomerno kroženje; kotna hitrost | Standard |
 | projectile motion | poševni met | Standard |
 | time; parameter | čas; parameter | Existing |
+| period of revolution | obhodni čas | Standard for circular motion |
+| gravitational acceleration g | težni pospešek | Standard (school physics) |
+| circling | kroženje | Standard; used as the motion name |
+| reference point | primerjalna točka | Plain description; the uniformly circling comparison point |
+| launch angle | izstrelni kot | Standard for projectile motion |
+| long dashes (line style of a_N) | dolge črtice | Distinct from "črtkano" (a); chosen so each line style has its own word |
+| sign of a_N and kappa | predznak; "tir zavija levo/desno" | Positive: the path turns left; negative: right |

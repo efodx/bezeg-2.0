@@ -145,6 +145,12 @@ Searched `src/localization/sl.ts`: *hitrost* ("Hitrost r′ = …", line 2128; "
 
 ## Implementation Decisions
 
+- F2a decisions (handler, 2026-11-11):
+  - The reparametrization \(b\) applies only to circular motion. Leaving circular motion resets it to 0 and the change notice says so.
+  - Every stored-field change pauses playback, including lesson and restore writes.
+  - A velocity arrow too short to draw shows the standstill caption, as at the cusp itself.
+  - \(a_N\) and \(\kappa\) are signed on the left normal, and a hint says that a negative value means the path turns right.
+  - Arrow scales come from a 720-sample maximum, checked in tests against dense sampling.
 - The kernel is new pure TypeScript (`src/kinematics/`) built on `curvatureAt` and `DerivativeSource`; the existing curvature, catalogue and `ParametricCurveGraph` code is not edited.
 - Graph state: curve or motion id, its parameters (snapped to the stated steppers), reparametrization \(b\), and \(t\). Time and the playing flag are host state and are not stored in a Preset (as for `EpicycleGraph`). Derived values are recomputed from validated state.
 - Lesson scenes use typed actions (`set-motion`, `set-time`, `set-params`) through the lesson-action registry as in the [linear-maps spec](linear-maps-lessons.md#reuse-and-new-modules); multi-action scenes run synchronously in one tick and are unit tested that way.
