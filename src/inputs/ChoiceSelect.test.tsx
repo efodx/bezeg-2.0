@@ -32,3 +32,29 @@ test('without a reason the select is enabled and reports changes', () => {
     fireEvent.change(select, {target: {value: 'a'}});
     expect(onChange).toHaveBeenCalledWith('a');
 });
+
+describe('a selected text wider than the closed select', () => {
+    const options = [{value: 'a', text: 'Short'}, {value: 'b', text: 'A much longer option text'}];
+    let width = 100;
+    beforeEach(() => {
+        // JSDOM has no layout or canvas: 1 px per character, and a closed select 100 px wide minus the arrow room.
+        vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation((() => ({font: '', measureText: (text: string) => ({width: text.length * 5})})) as never);
+        vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(() => width);
+    });
+    afterEach(() => vi.restoreAllMocks());
+
+    test('is shown in full under the select, follows the value, and is hidden when it fits', () => {
+        width = 100; // room 76: "Short" (25) fits, the long text (125) does not
+        const {container, rerender} = render(<ChoiceSelect label="L" value="a" onChange={() => undefined} options={options}/>);
+        expect(container.querySelector('[data-choice-full]')).toBeNull();
+        rerender(<ChoiceSelect label="L" value="b" onChange={() => undefined} options={options}/>);
+        const line = container.querySelector('[data-choice-full]');
+        expect(line).toHaveTextContent('A much longer option text');
+        expect(line).toHaveAttribute('aria-hidden', 'true');
+        expect(line).toHaveClass('inspector-help');
+        rerender(<ChoiceSelect label="L" value="b" onChange={() => undefined} options={[options[0], {value: 'b', text: 'Another long text here too'}]}/>);
+        expect(container.querySelector('[data-choice-full]')).toHaveTextContent('Another long text here too');
+        rerender(<ChoiceSelect label="L" value="a" onChange={() => undefined} options={options}/>);
+        expect(container.querySelector('[data-choice-full]')).toBeNull();
+    });
+});

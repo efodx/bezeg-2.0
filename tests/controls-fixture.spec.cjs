@@ -84,7 +84,9 @@ function findClipping() {
                 canvas.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
                 const shown = el.selectedOptions[0] ? el.selectedOptions[0].textContent : '';
                 const room = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 24; // the dropdown arrow
-                if (canvas.measureText(shown).width > room + 1) fail(el, `selected text is clipped (${Math.round(canvas.measureText(shown).width)} > ${Math.round(room)})`);
+                // ChoiceSelect repeats a clipped selected text in full under the select; that line is measured as help text below.
+                const repeated = el.closest('form')?.querySelector('[data-choice-full]');
+                if (canvas.measureText(shown).width > room + 1 && !(repeated && visible(repeated) && repeated.textContent === shown)) fail(el, `selected text is clipped (${Math.round(canvas.measureText(shown).width)} > ${Math.round(room)})`);
                 continue;
             }
             const own = [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim());
@@ -156,15 +158,24 @@ for (const lang of LANGUAGES) {
                 for (const [kind, count] of Object.entries(result.kinds)) expect(count, `measured ${kind}`).toBeGreaterThan(0);
                 fs.mkdirSync(SHOTS, {recursive: true});
                 await page.screenshot({path: path.join(SHOTS, `${view.name}-${lang}.png`), fullPage: true});
-                // A native select shows its option on one line, so at 200% text a longer option cannot fit the 310 px
-                // inspector (slice 5d finding); that case is held by the expected failure below, every other clip still fails here.
-                expect(result.violations.filter(v => !(view.text200 && SELECT_CLIP.test(v)))).toEqual([]);
+                expect(result.violations).toEqual([]);
             });
 
-            if (view.text200) test.fail('a longer select option fits at 200% text (known: a native select does not wrap)', async ({page}) => {
+            // A native select shows its option on one line, so a longer option is clipped at 200% text; ChoiceSelect then
+            // repeats the selected text in full under the select ([data-choice-full]).
+            test('a clipped select repeats its selected text in full, and none at normal text size', async ({page}) => {
                 await openFixture(page, lang, view);
                 const result = await page.evaluate(findClipping);
                 expect(result.kinds.select, 'measured selects').toBeGreaterThan(0);
+                const lines = await page.locator('[data-testid^="inspector-"] [data-choice-full]').count();
+                if (!view.text200) expect(lines, 'full-text lines at normal size').toBe(0);
+                // The main test fails on any clip left; here every clipped select needs its own visible, unclipped full line.
+                const shown = await page.evaluate(() => [...document.querySelectorAll('[data-testid^="inspector-"] select')].map(select => {
+                    const line = select.closest('form')?.querySelector('[data-choice-full]');
+                    return {selected: select.selectedOptions[0]?.textContent ?? '', line: line ? line.textContent : null, wide: line ? line.scrollWidth > line.clientWidth + 1 : false};
+                }));
+                for (const entry of shown) if (entry.line !== null) { expect(entry.line).toBe(entry.selected); expect(entry.wide, 'full line clipped').toBe(false); }
+                if (view.text200) expect(lines, 'full-text lines at 200% text').toBeGreaterThan(0);
                 expect(result.violations.filter(v => SELECT_CLIP.test(v))).toEqual([]);
             });
 
