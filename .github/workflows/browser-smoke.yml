@@ -6,6 +6,9 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+  # The daily full run: every catalog sweep entry and every lesson row, on master as it stands. It does not deploy.
+  schedule:
+    - cron: '17 3 * * *'
 
 permissions:
   contents: read
@@ -13,7 +16,7 @@ permissions:
 # The checks run as parallel jobs: static checks, four Vitest shards, and the build feeding four Chromium smoke shards;
 # the `smoke` job gates them as one check.
 # Each job cancels the same job of an obsolete run; the group names a shard so shards of one run never cancel each other.
-# The deploy job is not cancelled.
+# The daily run has its own groups, so a push and the daily run never cancel each other. The deploy job is not cancelled.
 
 jobs:
   scope:
@@ -23,12 +26,17 @@ jobs:
       contents: read
       actions: read
     concurrency:
-      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-scope
+      group: browser-smoke-${{ github.event_name == 'schedule' && 'daily' || github.event.pull_request.number || github.ref }}-scope
       cancel-in-progress: true
     outputs:
       full_verification: ${{ steps.scope.outputs.full_verification }}
       # Playwright --grep for the guided-lesson rows the lessons-N shards walk; empty means every row.
       lesson_grep: ${{ steps.scope.outputs.lesson_grep }}
+      # Catalog sweeps (scripts/transient-state-scope.cjs): a push or pull request checks the sample, the entries reached
+      # since sweep_base and rotation slice sweep_rotation; both are empty, meaning every entry, for the daily run, a
+      # manual dispatch, after a red full run, or whenever the scope is uncertain.
+      sweep_rotation: ${{ steps.scope.outputs.sweep_rotation }}
+      sweep_base: ${{ steps.scope.outputs.sweep_base }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -48,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
-      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-checks
+      group: browser-smoke-${{ github.event_name == 'schedule' && 'daily' || github.event.pull_request.number || github.ref }}-checks
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
@@ -73,10 +81,13 @@ jobs:
         # The PartSequencer in vite.config.mts spreads the *.partN.test.* files over the shards.
         shard: [1, 2, 3, 4]
     concurrency:
-      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-unit-${{ matrix.shard }}
+      group: browser-smoke-${{ github.event_name == 'schedule' && 'daily' || github.event.pull_request.number || github.ref }}-unit-${{ matrix.shard }}
       cancel-in-progress: true
     steps:
+      # Full history, so the catalog sweeps can diff against sweep_base.
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
@@ -86,6 +97,8 @@ jobs:
         run: npm test -- --shard=${{ matrix.shard }}/4
         env:
           CI: 'true'
+          BEZEG_SWEEP_ROTATION: ${{ needs.scope.outputs.sweep_rotation }}
+          BEZEG_SWEEP_BASE: ${{ needs.scope.outputs.sweep_base }}
 
   build:
     needs: scope
@@ -93,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
-      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-build
+      group: browser-smoke-${{ github.event_name == 'schedule' && 'daily' || github.event.pull_request.number || github.ref }}-build
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
@@ -138,7 +151,7 @@ jobs:
           - shard: other-specs
             ignore: '**/guided-lessons.smoke.spec.cjs'
     concurrency:
-      group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-chromium-${{ matrix.shard }}
+      group: browser-smoke-${{ github.event_name == 'schedule' && 'daily' || github.event.pull_request.number || github.ref }}-chromium-${{ matrix.shard }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6

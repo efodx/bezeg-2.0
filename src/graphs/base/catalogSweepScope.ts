@@ -1,5 +1,5 @@
 /**
- * Test support: which entries a catalog sweep runs. Tier: sampled locally, full in CI.
+ * Test support: which entries a catalog sweep runs. Tier: sampled locally, rotated in CI with a daily full run.
  * `scripts/transient-state-scope.cjs` decides (CI, BEZEG_SWEEPS=all, a sweep's own variable, shared paths) and
  * `vite.config.mts` provides the result; this module applies it to a sweep's entries.
  * The sweeps: the transient state contract, the lesson restoration contract, the scene content test, the scene
@@ -8,7 +8,10 @@
 import {test} from 'vitest';
 import {getDemonstrationCatalog, type DemonstrationId} from '../../demonstrations';
 
-export type SweepScope = {all: boolean; reason: string; ids: string[] | null; changedNames: string[]; changedFiles: string[]};
+/** `rotation`: a CI push or pull request also checks the entries at positions `index`, `index + count`, ... of the sweep. */
+export type SweepScope = {
+    all: boolean; reason: string; ids: string[] | null; changedNames: string[]; changedFiles: string[]; rotation?: {index: number; count: number};
+};
 
 declare module 'vitest' {
     interface ProvidedContext {
@@ -30,9 +33,9 @@ export function classNames(graph: object): string[] {
 }
 
 /**
- * The entries of `all` this run checks: every one without a scope, in CI or after a shared change; the listed ones for an
- * explicit list (unknown ids throw); otherwise `sample` plus the entries `reached` by the changed files.
- * `reached` runs only when the branch changed a source file.
+ * The entries of `all` this run checks: every one without a scope, in the daily CI run or after a shared change; the
+ * listed ones for an explicit list (unknown ids throw); otherwise `sample` plus the entries `reached` by the changed
+ * files, plus, in a CI push or pull request, the rotation slice. `reached` runs only when the branch changed a source file.
  */
 export function selectEntries<Id extends string>(
     scope: SweepScope | undefined, variable: string, all: readonly Id[], sample: readonly Id[], reached: (id: Id, scope: SweepScope) => boolean,
@@ -43,12 +46,15 @@ export function selectEntries<Id extends string>(
         if (unknown.length) throw new Error(`${variable} names unknown entries: ${unknown.join(', ')}. Use ids from the catalog, or "all".`);
         return all.filter(id => scope.ids!.includes(id));
     }
-    return all.filter(id => sample.includes(id) || (scope.changedFiles.length > 0 && reached(id, scope)));
+    const {rotation} = scope;
+    return all.filter((id, index) => sample.includes(id)
+        || (rotation !== undefined && index % rotation.count === rotation.index)
+        || (scope.changedFiles.length > 0 && reached(id, scope)));
 }
 
 /** Names the entries a sampled run left out and how to run them all, in the skipped count. */
 export function skippedPlaceholder(left: number, noun: string, variable: string): void {
-    if (left > 0) test.skip(`${left} more ${noun}: set ${variable}=all or BEZEG_SWEEPS=all (CI runs every one)`, () => undefined);
+    if (left > 0) test.skip(`${left} more ${noun}: set ${variable}=all or BEZEG_SWEEPS=all (the daily CI run checks every one)`, () => undefined);
 }
 
 /**

@@ -213,3 +213,46 @@ test('the Preset round trip adds the graph of a changed class file', () => {
     assert.equal(result.all, false);
     assert.deepEqual(result.changedNames, ['NewtonGraph']);
 });
+
+// CI rotation (docs/specs/verification-throughput.md, phase 7): a push or pull request keeps the sample and the reached
+// entries and adds one slice of the catalog; the daily run, which sets no rotation, checks every entry.
+const {parseRotation, gitChangedPaths} = require('./transient-state-scope.cjs');
+
+test('parseRotation reads index/count and rejects malformed or out-of-range slices', () => {
+    assert.deepEqual(parseRotation('3/7'), {index: 3, count: 7});
+    assert.deepEqual(parseRotation(' 0/7 '), {index: 0, count: 7});
+    for (const value of [undefined, '', '7/7', '1/0', 'a/7', '-1/7', '3', '3/7/1']) assert.equal(parseRotation(value), null, String(value));
+});
+
+test('CI with a rotation keeps the sample and the reached entries and names its slice', () => {
+    for (const name of Object.keys(SWEEPS)) {
+        const result = sweepScope(SWEEPS[name], {env: {CI: 'true', BEZEG_SWEEP_ROTATION: '2/7'}, graphClasses: () => classes,
+            changedPaths: () => ['src/graphs/functions/NewtonGraph.tsx']});
+        assert.equal(result.all, false, name);
+        assert.deepEqual(result.rotation, {index: 2, count: 7}, name);
+        assert.equal(result.reason, 'CI rotation 2/7', name);
+        assert.deepEqual(result.changedNames, ['NewtonGraph'], name);
+    }
+});
+
+test('CI with a rotation still runs everything after a shared change or when the changed files are unknown', () => {
+    const env = {CI: 'true', BEZEG_SWEEP_ROTATION: '2/7'};
+    assert.equal(scope(env, ['src/graphs/base/BaseGraph.tsx']).all, true);
+    assert.equal(scope(env, new Error('bad base')).all, true);
+});
+
+test('CI without a valid rotation, an explicit variable and BEZEG_SWEEPS=all ignore the rotation', () => {
+    assert.equal(scope({CI: 'true', BEZEG_SWEEP_ROTATION: '9/7'}, []).all, true);
+    assert.equal(scope({CI: 'true', BEZEG_SWEEP_ROTATION: '1/7', BEZEG_SWEEPS: 'all'}, []).all, true);
+    assert.equal(scope({CI: 'true', BEZEG_SWEEP_ROTATION: '1/7', BEZEG_TRANSIENT_STATE: 'all'}, []).all, true);
+    assert.equal(scope({CI: 'true', BEZEG_SWEEP_ROTATION: '1/7', BEZEG_TRANSIENT_STATE: 'sample'}, []).rotation, undefined);
+    assert.equal(scope({BEZEG_SWEEP_ROTATION: '1/7'}, []).rotation, undefined, 'a local run never rotates');
+});
+
+test('gitChangedPaths rejects an unknown base, so the sweep falls back to every entry', () => {
+    const root = require('node:path').join(__dirname, '..');
+    assert.throws(() => gitChangedPaths(root, '0'.repeat(40)));
+    const result = sweepScope(SWEEPS.transientState, {env: {CI: 'true', BEZEG_SWEEP_ROTATION: '0/7'}, changedPaths: () => gitChangedPaths(root, '0'.repeat(40))});
+    assert.equal(result.all, true);
+    assert.match(result.reason, /the changed files are unknown/);
+});

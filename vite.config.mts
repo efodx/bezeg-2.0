@@ -7,12 +7,12 @@ import {fileURLToPath} from 'node:url';
 
 const require = createRequire(import.meta.url);
 const testSlots = require('./scripts/test-slots.cjs') as {machineBudget: () => {workers: number}};
-type TransientStateScope = {all: boolean; reason: string; ids: string[] | null; changedNames: string[]; changedFiles: string[]};
+type TransientStateScope = {all: boolean; reason: string; ids: string[] | null; changedNames: string[]; changedFiles: string[]; rotation?: {index: number; count: number}};
 const transientState = require('./scripts/transient-state-scope.cjs') as {
     transientStateScope: (input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
     sweepScope: (sweep: {variable: string; shared: RegExp[]}, input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
     SWEEPS: Record<'lessonRestoration' | 'sceneContent' | 'sceneReplacement' | 'presetRoundTrip', {variable: string; shared: RegExp[]}>;
-    gitChangedPaths: (cwd: string) => string[];
+    gitChangedPaths: (cwd: string, since?: string) => string[];
 };
 
 /** Directories whose tests import no React, DOM or JSXGraph; see the `projects` entry below. */
@@ -114,9 +114,10 @@ export default defineConfig({
             ? {maxWorkers: Number(process.env.BEZEG_TEST_WORKERS)}
             : process.env.CI ? {} : {maxWorkers: testSlots.machineBudget().workers}),
         sequence: {sequencer: PartSequencer},
-        // A local run mounts a sample of the graphs and lessons the catalog sweeps cover, plus what the branch changed.
+        // A local run mounts a sample of the graphs and lessons the catalog sweeps cover, plus what the branch changed; a
+        // CI push or pull request adds a rotating slice and diffs against the base its scope job chose (BEZEG_SWEEP_BASE).
         provide: (() => {
-            const changedPaths = () => transientState.gitChangedPaths(fileURLToPath(new URL('.', import.meta.url)));
+            const changedPaths = () => transientState.gitChangedPaths(fileURLToPath(new URL('.', import.meta.url)), process.env.BEZEG_SWEEP_BASE);
             const scopeOf = (sweep: {variable: string; shared: RegExp[]}) => transientState.sweepScope(sweep, {env: process.env, changedPaths});
             return {
                 transientStateScope: transientState.transientStateScope({env: process.env, changedPaths}),

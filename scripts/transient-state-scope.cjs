@@ -1,12 +1,14 @@
 'use strict';
-// Decides which entries the catalog sweeps run. Tier: sampled locally, full in CI.
+// Decides which entries the catalog sweeps run. Tier: sampled locally, rotated in CI with a daily full run.
 //   transient state    src/graphs/base/graphTransientStateContract.tsx  (BEZEG_TRANSIENT_STATE)
 //   lesson restoration src/learning/runtime/lessonRestorationContract.tsx  (BEZEG_LESSON_RESTORATION)
 //   scene content      src/learning/content/sceneContentAgainstGraphs.test.tsx  (BEZEG_SCENE_CONTENT)
 //   scene replacement  src/graphs/base/sceneReplacementContract.test.tsx  (BEZEG_SCENE_REPLACEMENT)
 //   preset round trip  src/graphs/PresetRoundTrip.contract.test.tsx  (BEZEG_PRESET_ROUNDTRIP)
 // Each sweep mounts many graphs on real boards, so a local run checks a representative sample plus the entries the
-// branch's changed files reach; CI, BEZEG_SWEEPS=all and the sweep's own variable =all check every entry.
+// branch's changed files reach. A CI run given BEZEG_SWEEP_ROTATION (a push or pull request) checks the same sample, the
+// entries reached since BEZEG_SWEEP_BASE, and one rotating slice of the catalog; the daily scheduled run, a CI run
+// without a rotation, BEZEG_SWEEPS=all and the sweep's own variable =all check every entry.
 // See docs/commands.md, "Catalog sweep scope".
 
 const {execFileSync} = require('node:child_process');
@@ -71,6 +73,21 @@ const SWEEPS = {
     presetRoundTrip: {variable: 'BEZEG_PRESET_ROUNDTRIP', shared: PRESET_SHARED_PATHS},
 };
 
+/** CI rotation slices: odd, so a slice spreads over the 4 transient state and 8 lesson restoration part files. */
+const ROTATION_SLICES = 7;
+
+/**
+ * The CI rotation slice from BEZEG_SWEEP_ROTATION, `index/count` with 0 <= index < count, or null when unset or malformed.
+ * @returns {{index: number, count: number} | null}
+ */
+function parseRotation(value) {
+    const match = /^(\d+)\/(\d+)$/.exec((value ?? '').trim());
+    if (!match) return null;
+    const index = Number(match[1]);
+    const count = Number(match[2]);
+    return count > 0 && index < count ? {index, count} : null;
+}
+
 const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
 
 /**
@@ -119,11 +136,12 @@ function familyClassNames(changedFiles, classes) {
 
 /**
  * Which entries of a catalog sweep run. `BEZEG_SWEEPS=all` forces every sweep to all. The sweep's own variable takes
- * `all`, `sample` (keeps the sample even after a shared change, even in CI) or a comma list of ids; unset, CI and a
- * change to a shared path run everything, else the sample plus what the changed files reach.
+ * `all`, `sample` (keeps the sample even after a shared change, even in CI) or a comma list of ids; unset, a change to
+ * a shared path runs everything, else the sample plus what the changed files reach. In CI, a valid BEZEG_SWEEP_ROTATION
+ * adds its slice of the catalog (`rotation`) to that selection; CI without one runs everything.
  * @param {{variable: string, shared: RegExp[]}} sweep
  * @param {{env: Record<string, string | undefined>, changedPaths: () => string[], graphClasses?: () => {name: string, dir: string}[]}} input
- * @returns {{all: boolean, reason: string, ids: string[] | null, changedNames: string[], changedFiles: string[]}}
+ * @returns {{all: boolean, reason: string, ids: string[] | null, changedNames: string[], changedFiles: string[], rotation?: {index: number, count: number}}}
  *   `ids` is an explicit selection; otherwise the sweep adds the entries whose class (or a superclass) is named like a
  *   file in `changedNames` (which also lists the graph classes of a changed helper's directory, see `familyClassNames`),
  *   or that a file in `changedFiles` (changed non-test sources under src/) defines.
@@ -137,7 +155,8 @@ function sweepScope(sweep, {env, changedPaths, graphClasses = graphClassFiles}) 
         const ids = setting.split(',').map(id => id.trim()).filter(Boolean);
         return {all: false, reason: `${sweep.variable} lists ${ids.length}`, ids, ...none};
     }
-    if (setting === '' && env.CI) return {all: true, reason: 'CI', ids: null, ...none};
+    const rotation = setting === '' && env.CI ? parseRotation(env.BEZEG_SWEEP_ROTATION) : null;
+    if (setting === '' && env.CI && !rotation) return {all: true, reason: 'CI', ids: null, ...none};
     let paths;
     try {
         paths = changedPaths();
@@ -153,6 +172,7 @@ function sweepScope(sweep, {env, changedPaths, graphClasses = graphClassFiles}) 
     let family = [];
     try { family = familyClassNames(changedFiles, graphClasses()); } catch { /* unreadable factories: keep name matching only */ }
     const changedNames = [...new Set([...fileNames, ...family])].sort();
+    if (rotation) return {all: false, reason: `CI rotation ${rotation.index}/${rotation.count}`, ids: null, changedNames, changedFiles, rotation};
     return {all: false, reason: 'sample', ids: null, changedNames, changedFiles};
 }
 
@@ -161,10 +181,14 @@ const transientStateScope = input => sweepScope(SWEEPS.transientState, input);
 
 const git = (args, cwd) => execFileSync('git', args, {cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']}).trim();
 
-/** Files changed since the branch left master, committed or not, including untracked files. */
-function gitChangedPaths(cwd) {
-    let base;
-    for (const ref of ['origin/master', 'master']) {
+/**
+ * Files changed since the branch left master, committed or not, including untracked files. `since` (CI's
+ * BEZEG_SWEEP_BASE: the last verified master commit, or a pull request's merge base) replaces the merge base.
+ */
+function gitChangedPaths(cwd, since) {
+    let base = since?.trim() || undefined;
+    if (base) git(['cat-file', '-e', `${base}^{commit}`], cwd);
+    for (const ref of base ? [] : ['origin/master', 'master']) {
         try { base = git(['merge-base', 'HEAD', ref], cwd); break; } catch { /* try the next ref */ }
     }
     if (!base) throw new Error('no merge base with master');
@@ -172,4 +196,4 @@ function gitChangedPaths(cwd) {
     return [...lines(git(['diff', '--name-only', base], cwd)), ...lines(git(['ls-files', '--others', '--exclude-standard'], cwd))];
 }
 
-module.exports = {transientStateScope, sweepScope, graphClassFiles, familyClassNames, SWEEPS, gitChangedPaths, SHARED_PATHS, LESSON_SHARED_PATHS, PRESET_SHARED_PATHS};
+module.exports = {transientStateScope, sweepScope, parseRotation, ROTATION_SLICES, graphClassFiles, familyClassNames, SWEEPS, gitChangedPaths, SHARED_PATHS, LESSON_SHARED_PATHS, PRESET_SHARED_PATHS};

@@ -321,3 +321,97 @@ test('main writes the lesson_grep output and a summary line naming the decision'
     assert.match(fs.readFileSync(summary, 'utf8'), new RegExp(`Guided lesson rows: ${REPRESENTATIVE_LESSON_IDS.length} representative`));
   });
 });
+
+// Catalog sweeps (phase 7): which rotation slice and base the unit shards get.
+function codePush({ lookupLastVerifiedRun, runNumber = 23, verifiedIs = 'before' }) {
+  let decision;
+  let shas;
+  withRepo(({ root, write, commit }) => {
+    write('README.md', 'base\n');
+    const verified = commit('verified');
+    write('src/a.ts', 'a\n');
+    const before = commit('cancelled push');
+    write('src/b.ts', 'b\n');
+    const after = commit('this push');
+    shas = { verified, before, after };
+    const lookup = lookupLastVerifiedRun && (() => lookupLastVerifiedRun(shas[verifiedIs] ?? verifiedIs));
+    decision = determineScope({ eventName: 'push', before, after, cwd: root, runNumber, lookupLastVerifiedRun: lookup });
+  });
+  return { decision, shas };
+}
+
+const verifiedRun = (conclusion = 'success') => (headSha) => ({ id: 7, headSha, conclusion });
+
+test('a code push rotates the sweeps from the last verified master commit, so a cancelled push stays in the diff', () => {
+  const { decision, shas } = codePush({ lookupLastVerifiedRun: verifiedRun(), verifiedIs: 'verified' });
+  assert.equal(decision.sweeps.rotation, '2/7');
+  assert.equal(decision.sweeps.base, shas.verified);
+  assert.match(decision.sweeps.reason, /rotation slice 2\/7/);
+});
+
+test('a code push checks every sweep entry when the last verified run is red, missing or unknown, or the run number is', () => {
+  for (const lookupLastVerifiedRun of [verifiedRun('failure'), () => null, () => { throw new Error('API 500'); }]) {
+    const { decision } = codePush({ lookupLastVerifiedRun });
+    assert.deepEqual([decision.sweeps.rotation, decision.sweeps.base], ['', ''], decision.sweeps.reason);
+  }
+  assert.equal(codePush({ lookupLastVerifiedRun: verifiedRun(), verifiedIs: 'f'.repeat(40) }).decision.sweeps.rotation, '');
+  assert.equal(codePush({ lookupLastVerifiedRun: verifiedRun(), verifiedIs: 'after', runNumber: 23 }).decision.sweeps.rotation, '2/7',
+    'the pushed head itself is an ancestor of itself');
+  assert.equal(codePush({ lookupLastVerifiedRun: verifiedRun() }).decision.sweeps.rotation, '2/7');
+  for (const runNumber of ['', null, 'x']) {
+    assert.equal(codePush({ lookupLastVerifiedRun: verifiedRun(), runNumber }).decision.sweeps.rotation, '', String(runNumber));
+  }
+  assert.equal(codePush({}).decision.sweeps.rotation, '');
+});
+
+test('a pull request rotates from its merge base; docs-only, dispatch and the daily schedule check every entry', () => {
+  withRepo(({ root, write, commit }) => {
+    write('README.md', 'base\n');
+    const base = commit('base');
+    write('src/a.ts', 'a\n');
+    const head = commit('change');
+    const decision = determineScope({ eventName: 'pull_request', eventPayload: { pull_request: { base: { sha: base }, head: { sha: head } } }, cwd: root, runNumber: '15' });
+    assert.deepEqual([decision.sweeps.rotation, decision.sweeps.base], ['1/7', base]);
+  });
+  const daily = determineScope({ eventName: 'schedule' });
+  assert.equal(daily.fullVerification, true);
+  assert.equal(daily.sweeps.rotation, '');
+  assert.equal(daily.lessons.all, true);
+  assert.equal(determineScope({ eventName: 'workflow_dispatch', runNumber: 3 }).sweeps.rotation, '');
+  assert.equal(docsPush(greenLookup).sweeps.rotation, '');
+});
+
+test('findLastFullRun with skipCancelled passes over cancelled runs to the latest finished one', () => {
+  const ran = [{ name: 'checks', conclusion: 'success' }, { name: 'unit', conclusion: 'cancelled' }];
+  const runs = [
+    { id: 30, status: 'completed', conclusion: 'cancelled', head_sha: 'cancel', event: 'push' },
+    { id: 20, status: 'completed', conclusion: 'success', head_sha: 'daily', event: 'schedule' },
+  ];
+  const api = { listRuns: () => runs, listJobs: () => ran };
+  assert.deepEqual(findLastFullRun({ api, currentRunId: '40', skipCancelled: true }), { id: 20, headSha: 'daily', conclusion: 'success' });
+});
+
+test('main writes the sweep outputs and a catalog sweep summary line', () => {
+  withRepo(({ root, write, commit }) => {
+    write('README.md', 'base\n');
+    const base = commit('base');
+    write('src/components/Unrelated.tsx', 'x\n');
+    const head = commit('change');
+    const dir = fs.mkdtempSync(path.join(root, 'out-'));
+    const event = path.join(dir, 'event.json');
+    const output = path.join(dir, 'output');
+    const summary = path.join(dir, 'summary');
+    fs.writeFileSync(event, JSON.stringify({ pull_request: { base: { sha: base }, head: { sha: head } } }));
+    const cwd = process.cwd();
+    process.chdir(root);
+    try {
+      main({ GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: event, GITHUB_OUTPUT: output, GITHUB_STEP_SUMMARY: summary, GITHUB_RUN_NUMBER: '8' });
+    } finally {
+      process.chdir(cwd);
+    }
+    const written = fs.readFileSync(output, 'utf8');
+    assert.match(written, /^sweep_rotation=1\/7$/m);
+    assert.match(written, new RegExp(`^sweep_base=${base}$`, 'm'));
+    assert.match(fs.readFileSync(summary, 'utf8'), /Catalog sweeps: sample, entries reached since [0-9a-f]{12}, rotation slice 1\/7\./);
+  });
+});

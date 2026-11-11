@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { LESSON_SHARED_PATHS } = require('./transient-state-scope.cjs');
+const { LESSON_SHARED_PATHS, ROTATION_SLICES } = require('./transient-state-scope.cjs');
 const { lessonGrep } = require('./commands.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -28,6 +28,8 @@ const LESSON_SPEC_PATHS = [
 ];
 
 const allLessons = (reason) => ({ all: true, ids: null, grep: '', reason });
+// The unit catalog sweeps (scripts/transient-state-scope.cjs): empty rotation and base mean every entry.
+const allSweeps = (reason) => ({ rotation: '', base: '', reason });
 
 function git(args, cwd) {
   const result = spawnSync('git', args, {
@@ -56,7 +58,9 @@ function isDocumentationPath(filePath) {
 }
 
 function full(reason, changedPaths = []) {
-  return { fullVerification: true, reason, changedPaths, lessons: allLessons('the verification scope is full') };
+  return {
+    fullVerification: true, reason, changedPaths, lessons: allLessons('the verification scope is full'), sweeps: allSweeps('the verification scope is full'),
+  };
 }
 
 function documentationOnly(paths) {
@@ -68,7 +72,34 @@ function documentationOnly(paths) {
     reason: `All ${paths.length} changed path${paths.length === 1 ? ' is' : 's are'} recognized documentation.`,
     changedPaths: paths,
     lessons: allLessons('no browser smoke runs'),
+    sweeps: allSweeps('no unit tests run'),
   };
+}
+
+// Which catalog sweep entries the unit shards check for a push or pull request with code changes: the sample, the entries
+// the changes since `base` reach, and rotation slice `runNumber % ROTATION_SLICES`. A push diffs against the head of the
+// latest finished (not cancelled) full run on master, so code whose run was cancelled stays in the diff; when that run did
+// not succeed, or anything is uncertain, every entry runs. The daily scheduled run checks every entry.
+function sweepScope({ eventName, base, head, runNumber, lookupLastVerifiedRun, cwd }) {
+  try {
+    if (!/^\d+$/.test(String(runNumber ?? '').trim())) return allSweeps('the run number is unknown');
+    const number = Number(String(runNumber).trim());
+    let sweepBase = base;
+    if (eventName === 'push') {
+      if (typeof lookupLastVerifiedRun !== 'function') return allSweeps('no lookup of the last verified run is available');
+      const last = lookupLastVerifiedRun();
+      if (!last) return allSweeps(`no finished full verification run was found among the last ${MAX_RUNS_LOOKED_BACK} master runs`);
+      if (last.conclusion !== 'success') {
+        return allSweeps(`the latest full verification run on master (run ${last.id}, commit ${last.headSha}) concluded ${last.conclusion}`);
+      }
+      sweepBase = commit(last.headSha, cwd);
+      git(['merge-base', '--is-ancestor', sweepBase, head], cwd);
+    }
+    const rotation = `${number % ROTATION_SLICES}/${ROTATION_SLICES}`;
+    return { rotation, base: sweepBase, reason: `sample, entries reached since ${sweepBase.slice(0, 12)}, rotation slice ${rotation}` };
+  } catch (error) {
+    return allSweeps(`the sweep base could not be decided (${error.message.split('\n')[0]})`);
+  }
 }
 
 const isTestFile = (filePath) => /\.test\.[jt]sx?$/.test(filePath);
@@ -142,15 +173,16 @@ const MAX_RUNS_LOOKED_BACK = 50;
 const FULL_VERIFICATION_JOBS = ['checks', 'unit'];
 
 // Walks completed master runs newest first and returns the latest one that ran full verification, or null.
-// `api.listRuns()` returns runs newest first; `api.listJobs(runId)` returns that run's jobs.
-function findLastFullRun({ api, currentRunId, limit = MAX_RUNS_LOOKED_BACK }) {
+// `api.listRuns()` returns runs newest first; `api.listJobs(runId)` returns that run's jobs. `skipCancelled` passes over
+// cancelled runs (the catalog sweep base: a later diff still covers their code).
+function findLastFullRun({ api, currentRunId, limit = MAX_RUNS_LOOKED_BACK, skipCancelled = false }) {
   const current = Number(currentRunId);
   const runs = api.listRuns()
     .filter((run) => run.event !== 'pull_request' && (!current || run.id < current))
     .slice(0, limit);
   for (const run of runs) {
     // A cancelled run that started checks or unit is returned: its code was never verified, so it selects full.
-    if (run.status !== 'completed') continue;
+    if (run.status !== 'completed' || (skipCancelled && run.conclusion === 'cancelled')) continue;
     const jobs = api.listJobs(run.id);
     const ran = jobs.some((job) => FULL_VERIFICATION_JOBS.includes(job.name) && job.conclusion !== 'skipped');
     if (ran) return { id: run.id, headSha: run.head_sha, conclusion: run.conclusion };
@@ -165,13 +197,14 @@ function ghJson(path, env) {
   return JSON.parse(result.stdout);
 }
 
-function lookupLastFullRunViaGh(env = process.env) {
+function lookupLastFullRunViaGh(env = process.env, { skipCancelled = false } = {}) {
   if (!env.GH_TOKEN && !env.GITHUB_TOKEN) throw new Error('no GitHub token is available');
   if (!env.GITHUB_REPOSITORY) throw new Error('GITHUB_REPOSITORY is not set');
   const ghEnv = { ...env, GH_TOKEN: env.GH_TOKEN || env.GITHUB_TOKEN };
   const repo = env.GITHUB_REPOSITORY;
   const workflow = env.GITHUB_WORKFLOW_FILE || 'browser-smoke.yml';
   return findLastFullRun({
+    skipCancelled,
     currentRunId: env.GITHUB_RUN_ID,
     api: {
       listRuns: () => ghJson(
@@ -202,8 +235,9 @@ function guardDocumentationOnly(decision, lookupLastFullRun) {
   }
 }
 
-function determineScope({ eventName, eventPayload, before, after, cwd = process.cwd(), lookupLastFullRun }) {
+function determineScope({ eventName, eventPayload, before, after, cwd = process.cwd(), lookupLastFullRun, runNumber, lookupLastVerifiedRun }) {
   if (eventName === 'workflow_dispatch') return full('Manual dispatch always runs full verification.');
+  if (eventName === 'schedule') return full('The daily scheduled run checks every catalog sweep entry and every lesson row.');
 
   try {
     let base;
@@ -225,7 +259,10 @@ function determineScope({ eventName, eventPayload, before, after, cwd = process.
 
     const paths = diffPaths(base, head, cwd);
     const decision = documentationOnly(paths);
-    if (decision.fullVerification && paths.length > 0) decision.lessons = lessonScope(paths, cwd);
+    if (decision.fullVerification && paths.length > 0) {
+      decision.lessons = lessonScope(paths, cwd);
+      decision.sweeps = sweepScope({ eventName, base, head, runNumber, lookupLastVerifiedRun, cwd });
+    }
     // Applied to pushes only; pull requests do not change master's state.
     return eventName === 'push' ? guardDocumentationOnly(decision, lookupLastFullRun) : decision;
   } catch (error) {
@@ -250,10 +287,16 @@ function appendSummary(filePath, decision) {
   const paths = decision.changedPaths.length
     ? `\n\nChanged paths:\n${decision.changedPaths.map((item) => `- \`${item.replaceAll('`', '\\`')}\``).join('\n')}`
     : '';
-  fs.appendFileSync(filePath, `## Browser smoke scope\n\n**${mode}.** ${decision.reason}${decision.fullVerification ? `\n\n${lessonSummary(decision.lessons)}` : ''}${paths}\n`);
+  const sweeps = decision.sweeps.rotation ? `Catalog sweeps: ${decision.sweeps.reason}.` : `Catalog sweeps: every entry (${decision.sweeps.reason}).`;
+  const scoped = decision.fullVerification ? `\n\n${lessonSummary(decision.lessons)}\n\n${sweeps}` : '';
+  fs.appendFileSync(filePath, `## Browser smoke scope\n\n**${mode}.** ${decision.reason}${scoped}${paths}\n`);
 }
 
-function main(env = process.env, lookupLastFullRun = () => lookupLastFullRunViaGh(env)) {
+function main(
+  env = process.env,
+  lookupLastFullRun = () => lookupLastFullRunViaGh(env),
+  lookupLastVerifiedRun = () => lookupLastFullRunViaGh(env, { skipCancelled: true }),
+) {
   let eventPayload;
   let decision;
   try {
@@ -264,6 +307,8 @@ function main(env = process.env, lookupLastFullRun = () => lookupLastFullRunViaG
       before: env.GITHUB_EVENT_BEFORE,
       after: env.GITHUB_SHA,
       lookupLastFullRun,
+      runNumber: env.GITHUB_RUN_NUMBER,
+      lookupLastVerifiedRun,
     });
   } catch (error) {
     decision = full(`The event comparison information could not be read (${error.message}); running full verification.`);
@@ -272,6 +317,8 @@ function main(env = process.env, lookupLastFullRun = () => lookupLastFullRunViaG
     full_verification: String(decision.fullVerification),
     reason: decision.reason.replace(/[\r\n]/g, ' '),
     lesson_grep: decision.lessons.grep.replace(/[\r\n]/g, ' '),
+    sweep_rotation: decision.sweeps.rotation,
+    sweep_base: decision.sweeps.base,
   });
   appendSummary(env.GITHUB_STEP_SUMMARY, decision);
   return decision;
@@ -282,4 +329,4 @@ if (require.main === module) {
   process.stdout.write(`${result.fullVerification ? 'full' : 'documentation-only'}: ${result.reason}\n`);
 }
 
-module.exports = { REPRESENTATIVE_LESSON_IDS, determineScope, findLastFullRun, isDocumentationPath, lessonScope, main, readPullRequestRange };
+module.exports = { REPRESENTATIVE_LESSON_IDS, determineScope, sweepScope, findLastFullRun, isDocumentationPath, lessonScope, main, readPullRequestRange };
