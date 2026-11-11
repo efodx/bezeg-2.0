@@ -6,10 +6,15 @@
 .slider-label output { font-size: .8rem; font-variant-numeric: tabular-nums; padding: 1px 6px; background: var(--workspace-canvas-deep); border: 1px solid var(--workspace-rule); border-radius: 2px; align-self: start; }
 .slider-range { display: flex; justify-content: space-between; color: var(--workspace-ink-soft); font-size: .75rem; line-height: 1.4; font-variant-numeric: tabular-nums; margin-top: 2px; margin-bottom: 6px; }
 .slider-field .form-range { display: block; margin-bottom: 0; }
-/* Keyboard focus ring for range sliders (Bootstrap removes the outline): the workspace's focus colour on the track and the thumb. */
+/* Track and thumb (the thumb fill goes through --range-thumb-bg, which the global !important rule in bootstrap-overrides.scss reads): the track's edge uses the border token, the thumb the selected surface with a border-token edge; the focus ring shows on the thumb and the field. */
+.slider-field .form-range { background: transparent; --range-thumb-bg: var(--bezeg-control-selected-surface); }
+.slider-field .form-range::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: var(--bezeg-control-surface); border: var(--bezeg-control-border); box-sizing: border-box; }
+.slider-field .form-range::-moz-range-track { height: 6px; border-radius: 999px; background: var(--bezeg-control-surface); border: var(--bezeg-control-border); box-sizing: border-box; }
+.slider-field .form-range::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -8px; border-radius: 50%; border: 2px solid var(--bezeg-control-border-color); box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+.slider-field .form-range::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--bezeg-control-border-color); box-sizing: border-box; }
 .slider-field .form-range:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); border-radius: 4px; }
-.slider-field .form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--bezeg-control-focus-color); }
-.slider-field .form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--bezeg-control-focus-color); }
+.slider-field .form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--bezeg-control-surface), 0 0 0 5px var(--bezeg-control-focus-color); }
+.slider-field .form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(--bezeg-control-surface), 0 0 0 5px var(--bezeg-control-focus-color); }
 /* The range track is thin; a coarse pointer gets a 44px tall hit area. */
 @media (pointer: coarse), (max-width: 700px) {
     .slider-field .form-range { min-height: 44px; }

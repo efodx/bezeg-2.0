@@ -88,15 +88,15 @@ input[type] {
 
 input[type="range"] {
   &::-webkit-slider-thumb {
-    background: var(--bezeg-primary) !important;
+    background: var(--range-thumb-bg, var(--bezeg-primary)) !important;
   }
 
   &::-moz-range-thumb {
-    background: var(--bezeg-primary) !important;
+    background: var(--range-thumb-bg, var(--bezeg-primary)) !important;
   }
 
   &::-ms-thumb {
-    background: var(--bezeg-primary) !important;
+    background: var(--range-thumb-bg, var(--bezeg-primary)) !important;
   }
 }
 

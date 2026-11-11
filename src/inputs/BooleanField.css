@@ -2,38 +2,40 @@
 .bool-field { margin: 0; font-size: .88rem; line-height: 1.4; }
 .bool-field-row { display: flex; align-items: stretch; justify-content: space-between; gap: 12px; min-height: var(--bool-field-min-height, 38px); }
 /* The label fills the row, so the whole row is the hit area. */
-.bool-field-label { flex: 1; min-width: 0; order: 1; display: flex; align-items: center; padding: var(--bool-field-pad, 6px) 0; overflow-wrap: anywhere; cursor: pointer; }
+.bool-field-label { flex: 1; min-width: 0; order: 1; display: flex; align-items: center; padding: var(--bool-field-pad, 6px) 0; overflow-wrap: anywhere; cursor: pointer; color: var(--bezeg-control-ink); }
 .bool-field-input {
     order: 2; flex-shrink: 0; align-self: center; box-sizing: border-box; margin: 0; cursor: pointer;
-    appearance: none; -webkit-appearance: none; background-color: #e5e9e0; border: 1px solid #8b9786;
-    background-repeat: no-repeat; background-size: contain;
+    appearance: none; -webkit-appearance: none; background-color: var(--bezeg-control-surface); border: var(--bezeg-control-border);
+    background-repeat: no-repeat;
 }
 .bool-field-input:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
-.bool-field-input[aria-disabled="true"] { opacity: .5; cursor: default; }
-.bool-field-input:disabled, .bool-field-input:disabled ~ .bool-field-label { cursor: default; }
-.bool-field-input:disabled { opacity: .5; }
-.bool-field .bool-field-input:checked { background-color: var(--workspace-green, #3b6704); border-color: var(--workspace-green, #3b6704); }
+/* Unavailable: a dashed edge and softer ink say so without relying on opacity alone. */
+.bool-field-input[aria-disabled="true"], .bool-field-input:disabled { border-style: dashed; opacity: .6; cursor: default; }
+.bool-field-input:disabled ~ .bool-field-label, .bool-field-input[aria-disabled="true"] ~ .bool-field-label { cursor: default; color: var(--bezeg-control-help-ink, var(--workspace-ink-soft, #5b675a)); }
+.bool-field .bool-field-input:checked { background-color: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); }
 .bool-field-switch .bool-field-input {
-    width: 32px; height: 18px; border-radius: 2em; background-position: left center; transition: background-position .15s ease-in-out;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23526152'/%3e%3c/svg%3e");
+    width: 36px; height: 20px; border-radius: 999px; background-size: 14px 14px; background-position: 2px center; transition: background-position .15s ease-in-out;
+    background-image: radial-gradient(circle closest-side, var(--bezeg-control-border-color) 94%, transparent 100%);
 }
 .bool-field.bool-field-switch .bool-field-input:checked {
-    background-position: right center;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='white'/%3e%3c/svg%3e");
+    background-position: calc(100% - 2px) center;
+    background-image: radial-gradient(circle closest-side, var(--bezeg-control-selected-ink) 94%, transparent 100%);
 }
-.bool-field-checkbox .bool-field-input { width: 18px; height: 18px; border-radius: 3px; background-position: center; }
+.bool-field-checkbox .bool-field-input { width: 20px; height: 20px; border-radius: 4px; background-position: center; background-size: contain; }
 .bool-field.bool-field-checkbox .bool-field-input:checked {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m5 10 3.5 3.5L15 6.5'/%3e%3c/svg%3e");
+}
+.is-presenting .bool-field.bool-field-checkbox .bool-field-input:checked {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%2317243b' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m5 10 3.5 3.5L15 6.5'/%3e%3c/svg%3e");
 }
 .bool-field-help { margin: 2px 0 0; color: var(--workspace-ink-soft, #5b675a); font-size: .82rem; line-height: 1.5; }
 /* The whole row is the hit area (the label is clickable), at least 44px under a coarse pointer. */
 @media (pointer: coarse), (max-width: 700px) {
     .bool-field-row { min-height: 44px; }
 }
-/* Presenting (night) theme: a light edge keeps the track visible on the navy panel in both states, and help text stays readable. */
-.is-presenting .bool-field .bool-field-input, .is-presenting .bool-field .bool-field-input:checked { border-color: #b5bfd0; }
-.is-presenting .bool-field-help { color: #b5bfd0; }
+/* Presenting (night) theme: the re-bound tokens carry the edge; help text stays readable. */
+.is-presenting .bool-field-help { color: var(--bezeg-control-help-ink); }
 /* High contrast: the system draws the native checkbox, because forced colours drop the custom track and thumb colours and the on state lost its thumb. */
 @media (forced-colors: active) {
-    .bool-field .bool-field-input { appearance: auto; -webkit-appearance: auto; background: none; width: 18px; height: 18px; border-radius: 0; }
+    .bool-field .bool-field-input { appearance: auto; -webkit-appearance: auto; background: none; width: 20px; height: 20px; border-radius: 0; }
 }
