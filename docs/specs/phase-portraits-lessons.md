@@ -131,6 +131,12 @@ Search of `src/localization/sl.ts` found *Fazni zamik* (trigonometry, a differen
 - **Gating.** Ungated now: this spec, F0 plan, F1 kernels as new pure TypeScript files with oracle tests (Batch 0). Waits on Controls step 5: F2a for #13 (playback, steppers, step counters: PP4 play, trajectory animation) and the portrait-drawing measurement; waits on step 7: F2b, F3 lessons, F4 chapters, F5 media. Dependencies on other streams, not planned here: the `LinearMapGraph` extensions of #11 (eigen-direction mode), the recursion cobweb kernel of #9 (optional), playback controls from Controls.
 - Graph state: matrix entries (snapped), seeds, system id, \(R\), \(x_0\), zoom; derived values (type, trajectories, raster) recomputed from validated state, never from a Preset.
 - Scene actions (`set-matrix`, `set-system`, `set-seed`, `set-r`, `set-zoom`) in one tick; unit-tested as a synchronous sequence. Routes and Presets additive; notation, `t()` and locale lockstep as in the other family specs.
+- F2a decisions (handler, 2026-11-11):
+  - The portrait measurement is compute-only with a jsdom placeholder (ADR 0054 §2); browser frame times on a desktop and a phone are owed at F2b, when a route exists.
+  - `LogisticMapGraph` uses a 400 × 200 raster, not 800 × 400: the drawn diagram stays near 25 000 points and one column is about one pixel at the board width. The diagram is drawn once and is not redrawn when \(r\) changes.
+  - The \(r\) cursor is not draggable; the slider and the numeric field set \(R\), and the cursor snaps to the nearest raster column and reports that column's \(r\). Only grid values of \(R\) reach the period cache.
+  - Matrix handles are the two columns of \(A\), draggable only for the linear system; drags snap and clamp, typed off-grid values are refused.
+  - Review repairs: Reset uses the shared `reset` key; under reduced motion Play is blocked with a reason in both graphs (no silent jump); the \((\tau,\delta)\) inset shows its scale; legend rows carry the dash, not only colour; Slovenian counts are phrased count-neutrally; the period claim reads \(r>3{,}56995\).
 
 ## Testing Decisions
 

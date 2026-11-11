@@ -10,7 +10,7 @@ F1 is ungated. F2a waits for Controls step 5 and the trajectory measurement, and
 | --- | --- | --- | --- | --- | --- |
 | [01 RK4, systems and classification](01-rk4-classification.md) | 0 | F1 | none | — | done |
 | [02 Logistic map and bifurcation raster](02-logistic-bifurcation.md) | 0 | F1 | none | — | done |
-| [03 Measurement, state model and graphs](03-graphs.md) | A–C | F2a | Controls step 5 | 01, 02 | planned |
+| [03 Measurement, state model and graphs](03-graphs.md) | A–C | F2a | Controls step 5 | 01, 02 | done pending review (measurement, state model, PhasePortraitGraph and LogisticMapGraph with tests; no route, browser numbers owed at F2b) |
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 03 | planned |
 
 ## Slovenian terms (F0 decision)

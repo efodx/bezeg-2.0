@@ -20,6 +20,22 @@ Alternatives:
 - A JSXGraph curve per trajectory. This means up to 48 elements, each updated on every drag.
 - An overlay canvas. This would be a second renderer, not justified before a measurement.
 
+### Measurement results (F2a, 2026-11-11; JSDOM PLACEHOLDER / compute-only)
+
+No route exists yet, so this measures the pure RK4 cost and the JSXGraph curve update in a jsdom SVG board (node v24.20.0, no paint, no browser). These are not frame times. **Browser rendering numbers on a desktop and a phone are owed at F2b**, when the graph has a route; the threshold stays 16 ms per frame ([performance plan](../performance-plan.md)).
+
+Method: `src/dynamics/phaseDrawing.perf.test.ts` (opt-in, `BEZEG_PERF=1 just unit src/dynamics/phaseDrawing.perf`). Seeds on a ring of radius 1,5, view \([-4,4]^2\), 500 RK4 steps of \(h=0.02\) each, 60 updates per cell. Matrix-handle drag: the damping entry changes, every trajectory is recomputed and the NaN-separated polyline rebuilt. Seed drag: one trajectory recomputed, the polyline rebuilt from cached orbits. The curve update is `updateDataArray` plus `board.update()` for one NaN-separated curve and for one curve per trajectory.
+
+| Trajectories | Matrix drag, compute (median / p95) | Seed drag, compute (median / p95) | JSXGraph update, one curve (median / p95) | JSXGraph update, one curve per trajectory (median / p95) |
+| --- | --- | --- | --- | --- |
+| 12 | 0,70 / 5,35 ms | 0,11 / 0,44 ms | 11,5 / 16,7 ms | 9,0 / 17,9 ms |
+| 24 | 1,63 / 7,09 ms | 0,22 / 1,05 ms | 20,9 / 36,4 ms | 19,8 / 37,1 ms |
+| 48 | 3,87 / 13,85 ms | 1,13 / 2,81 ms | 40,3 / 56,1 ms | 39,4 / 51,0 ms |
+
+Reading: compute alone is inside 16 ms at every size, including the p95 at 48 trajectories (13,9 ms, with little margin on a slower machine). The jsdom curve update is larger than compute and grows with the number of points, not with the number of curves: one curve and one curve per trajectory cost the same within noise, so the choice of §2 (one NaN-separated curve) loses nothing and creates one element instead of up to 48. jsdom SVG path work is not representative of a browser; if the browser measurement at F2b exceeds the budget, the options are fewer default trajectories (12 to 24), drawing only moved trajectories, or fewer plotted points per trajectory. No decision to change §2 is taken here.
+
+Logistic graph (same date, same JSDOM PLACEHOLDER limits): `src/graphs/dynamics/LogisticMapGraph.perf.test.tsx` (opt-in, `BEZEG_PERF=1 just unit src/graphs/dynamics/LogisticMapGraph.perf`). The bifurcation diagram is a 400 × 200 raster (not the spec's 800 × 400), drawn as one NaN-separated curve of 9111 points that is built once per page and not redrawn when r changes. Cold build of the raster and polyline: 4,9 ms. Mount of the whole graph with the diagram built: 202 ms. An r change (cursor, map, markers, captions, readouts) in jsdom: median / p95 3,9 / 6,7 ms for the first visit of each R (the 200000-step period detector runs) and 3,1 / 3,5 ms for a visited R (period cached); a step change 2,8 / 3,3 ms (n = 60 each). All of this is inside 16 ms in jsdom; the browser numbers are owed at F2b together with the phase-plane ones.
+
 ## 3. Its own `LogisticMapGraph`
 
 `LogisticMapGraph` shares only pure iteration code with #9. If `src/recursion/logistic.ts` exists, this kernel imports its map and leaves it unrestricted. No sibling graph is edited.

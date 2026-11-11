@@ -2,6 +2,8 @@
 
 Gate: Controls step 5 `accepted` in [controls.md](../feature-streams/controls.md). Before dispatch, recheck this file against the playback and stepper controls step 5 settles, and check whether #11's `LinearMapGraph` eigen-direction mode has landed.
 
+Status: done pending review. Step 1 (measurement, [ADR 0054](../../adr/0054-phase-portraits-separate-graphs-rk4-integer-classification.md) section 2, jsdom placeholder for both graphs; browser numbers owed at F2b), step 2 (`src/dynamics/phaseModel.ts`) and steps 3 and 4 for both graphs (`src/graphs/dynamics/PhasePortraitGraph.tsx` and `LogisticMapGraph.tsx` with their tests) are done. Not done: any browser, touch or screen-reader check (no route yet). Evidence: `docs/reviews/feature-streams/families-prep/notes/f2a-phase-03.md`.
+
 Spec: Implementation Decisions (state, actions); PP1–PP5 "Scene"; Testing Decisions (performance). Decisions: ADR 0054 §1–3.
 
 Scope, in order:
