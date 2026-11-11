@@ -88,6 +88,11 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         super.unmount();
     }
 
+    /** An export captures one settled scene, so playback stops first. */
+    protected override beforeFigureCapture(): void {
+        this.pauseSweeps();
+    }
+
     override pausePlayback(): void {
         this.pauseSweeps();
         super.pausePlayback();

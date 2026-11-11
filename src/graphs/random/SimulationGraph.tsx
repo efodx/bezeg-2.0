@@ -330,6 +330,11 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
         this.driver = undefined;
     }
 
+    /** An export captures one settled scene, so playback stops first. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     /** Stops the playback; the position stays where it is. */
     override pausePlayback(): void {
         this.stopDriver();

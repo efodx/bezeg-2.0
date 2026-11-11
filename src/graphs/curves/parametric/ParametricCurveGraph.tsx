@@ -277,6 +277,11 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
     }
 
+    /** An export captures one settled scene, so playback stops first. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     override pausePlayback(): void {
         this.stopRoll();
     }

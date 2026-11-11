@@ -311,6 +311,11 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
         return this.controller;
     }
 
+    /** An export captures one settled scene, so playback stops first. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     /** Stops the playback; the step stays where it is. */
     override pausePlayback(): void {
         if (!this.controller?.isPlaying()) return;

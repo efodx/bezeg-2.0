@@ -203,6 +203,11 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         this.animation.pause();
     }
 
+    /** An export captures one settled scene, so playback stops first. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     /** Publishes the drawn parameter and pauses without resetting it. */
     override pausePlayback(): void {
         if (this.animation.isRunning() || this.state.animationStatus === "playing") this.pauseAnimation();
