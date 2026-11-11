@@ -1,11 +1,15 @@
 import {describe, expect, test} from 'vitest';
 import {DemonstrationId, getDemonstrationCatalog, legacyDemonstrationRows} from '../demonstrations';
+import type {PresetCollection} from './base/presets/PresetCollection';
 import {presetCollections} from './base/presets/PresetImport';
 import {graphFactories} from './graphFactories';
 import {registeredGraphLoaders} from './graphLoaders';
 import {projectiveCollections} from './projective/collections';
 import {projectiveCollectionKeys, projectiveDemonstrationRows} from './projective/registration';
 import {projectiveGraphLoaders} from './projective/runtime';
+import {trigCollections} from './trig/collections';
+import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
+import {trigGraphLoaders} from './trig/runtime';
 import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
@@ -61,24 +65,36 @@ describe('registration integrity checker (synthetic)', () => {
     });
 });
 
-describe('the real projective registration', () => {
-    const legacyCollections = presetCollections.filter(collection => !projectiveCollections.includes(collection));
-    test('is complete and disjoint from the legacy rows, factories and collections', () => {
-        const issues = checkRegistrations([{
-            family: 'projective', rows: projectiveDemonstrationRows, loaderIds: Object.keys(projectiveGraphLoaders),
-            collectionKeys: projectiveCollectionKeys, collections: projectiveCollections,
-        }], {rows: legacyDemonstrationRows, factoryIds: Object.keys(graphFactories), collections: legacyCollections});
+interface RealFamily {
+    readonly family: string; readonly rows: readonly {readonly id: string; readonly path: string}[]; readonly loaders: object;
+    readonly collectionKeys: Readonly<Record<string, string>>; readonly collections: readonly PresetCollection<unknown>[];
+}
+const realFamilies: readonly RealFamily[] = [
+    {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
+    {family: 'trigonometry', rows: trigDemonstrationRows, loaders: trigGraphLoaders, collectionKeys: trigCollectionKeys, collections: trigCollections},
+];
+const registeredRows = realFamilies.flatMap(entry => entry.rows);
+
+describe('the real registered families', () => {
+    const registeredCollections = realFamilies.flatMap(entry => entry.collections);
+    const legacyCollections = presetCollections.filter(collection => !registeredCollections.includes(collection));
+    test('each is complete and disjoint from the legacy rows, factories, collections and the other families', () => {
+        const issues = checkRegistrations(realFamilies.map(entry => ({
+            family: entry.family, rows: entry.rows, loaderIds: Object.keys(entry.loaders), collectionKeys: entry.collectionKeys, collections: entry.collections,
+        })), {rows: legacyDemonstrationRows, factoryIds: Object.keys(graphFactories), collections: legacyCollections});
         expect(issues).toEqual([]);
     });
-    test('the root composition holds the registered loaders and the composed collections have unique storage keys', () => {
-        expect(Object.keys(registeredGraphLoaders).sort()).toEqual(projectiveDemonstrationRows.map(row => row.id).sort());
+    test('the root composition holds the union of the family loaders and the composed collections have unique storage keys', () => {
+        expect(Object.keys(registeredGraphLoaders).sort()).toEqual(realFamilies.flatMap(entry => Object.keys(entry.loaders)).sort());
+        expect(Object.keys(registeredGraphLoaders).sort()).toEqual(registeredRows.map(row => row.id).sort());
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
-        expect(projectiveCollections.every(collection => presetCollections.includes(collection))).toBe(true);
+        expect(registeredCollections.every(collection => presetCollections.includes(collection))).toBe(true);
     });
-    test('projective rows stay last in the catalog, in registration order', () => {
+    test('registered rows stay after the legacy rows in the catalog, in family registration order', () => {
         const ids = getDemonstrationCatalog().demonstrations.map(({id}) => id);
-        expect(ids.slice(-projectiveDemonstrationRows.length)).toEqual(projectiveDemonstrationRows.map(row => row.id));
+        expect(ids.slice(-registeredRows.length)).toEqual(registeredRows.map(row => row.id));
+        expect(ids.slice(0, -registeredRows.length)).toEqual(legacyDemonstrationRows.map(row => row.id));
     });
 });
 

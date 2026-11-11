@@ -41,7 +41,7 @@ Order is the research note's rank. Specs can be written in any order or in paral
 
 | # | Family | Spec | Ungated now | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Trigonometry of the unit circle and triangle | [trigonometry-lessons.md](../../specs/trigonometry-lessons.md) | spec, F0, F1 (triangle solver incl. SSA), F2a | spec accepted; F0 done ([tasks](../trigonometry/README.md), ADR 0044); F1 done; F2a done (tasks 03–05) |
+| 1 | Trigonometry of the unit circle and triangle | [trigonometry-lessons.md](../../specs/trigonometry-lessons.md) | spec, F0, F1 (triangle solver incl. SSA), F2a | spec accepted; F0 done ([tasks](../trigonometry/README.md), ADR 0044); F1 done; F2a done (tasks 03–05); F2b done (routes `/functions/unit-circle`, `/triangle-solver`, lessons pending) |
 | 2 | Analytic geometry of lines | [analytic-lines-lessons.md](../../specs/analytic-lines-lessons.md) | spec, F0, F1 (exact line forms, projection, distance), F2a | spec accepted; F0 done ([tasks](../analytic-lines/README.md), ADR 0046); F1 task 01 done; F2a task 02 done |
 | 3 | Combinatorics and Pascal's triangle | [combinatorics-lessons.md](../../specs/combinatorics-lessons.md) | spec, F0, F1 (BigInt binomials, path enumeration) | spec accepted; F0 done ([tasks](../combinatorics/README.md), ADR 0048); F1 done |
 | 4 | Randomness and simulation | [randomness-simulation-lessons.md](../../specs/randomness-simulation-lessons.md) | spec, F0, F1 (seeded integer PRNG, samplers, exact comparators) | spec accepted; F0 done ([tasks](../randomness/README.md), ADR 0049); F1 done (tasks 01–02) |
@@ -58,3 +58,5 @@ Order is the research note's rank. Specs can be written in any order or in paral
 | 15 | Mechanical curves (E10) | [mechanical-curves-lessons.md](../../specs/mechanical-curves-lessons.md) | spec, F0, F1 (descent-time integrator with the endpoint substitution) | spec accepted; F0 done ([tasks](../mechanical-curves/README.md), ADR 0056); F1 done |
 
 ## Notes
+
+- **F2b pattern** (handler 7, 2026-11-11, from trigonometry): each family registers feature-locally per ADR 0059, adds Preset collections when F2a shipped none, and ships its rows with `lesson: false` and explicit pending entries (lesson catalog, poster, clip, chapter link) that F3–F5 remove. Registration puts the graphs into the shared scene sweeps, which can expose lesson-path defects; fix them in the graph. Recipe: `docs/reviews/feature-streams/families-prep/notes/f2b-trig.md`.

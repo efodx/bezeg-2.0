@@ -13,7 +13,7 @@ Gates come from the stream's [boundary with Controls](../feature-streams/familie
 | [03 State models and Presets](03-state-models.md) | A, B | F2a | none | 01, 02 | done 2026-11-10 (engineering review, Haiku; clamped flag and casts fixed) |
 | [04 Unit-circle graph](04-unit-circle-graph.md) | A | F2a | none | 03 | done |
 | [05 Triangle solver graph](05-triangle-solver-graph.md) | B, C | F2a | none | 03 | done |
-| [06 Release batches A–C](06-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 04, 05 | planned |
+| [06 Release batches A–C](06-release-batches.md) | A–C | F2b–F6 | Controls step 7 (accepted) | 04, 05 | F2b done 2026-11-11 for both graphs (engineering review, smoke; [evidence](../../reviews/feature-streams/families-prep/notes/f2b-trig.md)); browser drag measurements still owed; F3–F6 next |
 
 ## Slovenian terms (F0 decision)
 

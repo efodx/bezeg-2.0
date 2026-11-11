@@ -5,6 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {appStorage} from '../../storage/appStorage';
 import {GraphPalette} from '../styles/GraphPalette';
 import {
     BAR_ROW_AB, BAR_ROW_C, BAR_X, HANDLE_TOUCH_RADIUS, HIT_SLACK, measureDrawn, RAY_OVERSHOOT, TriangleSolverGraph, VERTEX_BIG_STEP, VERTEX_STEP,
@@ -498,3 +499,87 @@ describe('the legend states the style of the circumcircle, the point A′, the S
 function vp(element: unknown, name: string): unknown {
     return (element as {evalVisProp(attribute: string): unknown}).evalVisProp(name);
 }
+
+test('restoring a checkpoint keeps the stored view instead of refitting the solved triangle', () => {
+    const {graph} = mountGraph();
+    const capabilities = graph.getLessonCapabilities();
+    const base = graph.exportPresetData();
+    act(() => { graph.importPresetData({...base, mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
+    act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+    const checkpoint = capabilities.captureState();
+    const stored = graph.liveBoard().getBoundingBox();
+    act(() => { graph.importPresetData({...base, mode: 'circle', C: {x: 3, y: 5}}); });
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(graph.liveBoard().getBoundingBox()).toEqual(stored);
+});
+
+describe('a replaced scene frames the solve data only when it brings no view of its own', () => {
+    const SOLVE = {type: 'ssa', a: 5, b: 8, angleA: 30} as const;
+    const mountSelected = (id: string) => {
+        const graph = new ObservedTriangleSolverGraph();
+        void graph.selectPreset(id);
+        const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        return {graph, view};
+    };
+    beforeEach(() => appStorage.clear());
+
+    test('Reset from a solve view returns to the default sides mode and its fixed view', async () => {
+        const {graph} = mountGraph();
+        const fixed = boxOf(graph);
+        act(() => { graph.importPresetData({...graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
+        act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        let pending: Promise<void> = Promise.resolve();
+        act(() => { pending = graph.reset(); });
+        await act(async () => { await pending; });
+        expect(graph.state.mode).toBe('sides');
+        expect(boxOf(graph)).toEqual(fixed);
+    });
+
+    test('the first mount with a stored solve Preset selected shows the Preset\'s stored view, not a refit', () => {
+        const first = mountGraph();
+        act(() => { first.graph.importPresetData({...first.graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
+        act(() => { first.graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        const stored = boxOf(first.graph);
+        act(() => first.graph.saveCurrentPreset('mine'));
+        first.view.unmount();
+        const {graph} = mountSelected('mine');
+        expect(graph.state.mode).toBe('solve');
+        expect(boxOf(graph)).toEqual(stored);
+    });
+
+    test('selecting a stored solve Preset on a live graph shows the Preset\'s stored view, not a refit', async () => {
+        const {graph} = mountGraph();
+        act(() => { graph.importPresetData({...graph.exportPresetData(), mode: 'solve', data: SOLVE}); });
+        act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        const stored = boxOf(graph);
+        act(() => graph.saveCurrentPreset('mine'));
+        let pending: Promise<void> = Promise.resolve();
+        act(() => { pending = graph.selectPreset(''); });
+        await act(async () => { await pending; });
+        expect(graph.state.mode).toBe('sides');
+        act(() => { pending = graph.selectPreset('mine'); });
+        await act(async () => { await pending; });
+        expect(graph.state.mode).toBe('solve');
+        expect(boxOf(graph)).toEqual(stored);
+    });
+
+    test('a solve Preset without a view is framed to the solve data on selection, not left at the previous view', async () => {
+        const reference = mountGraph();
+        // a = 9: the far end of the ray lies past the fixed view, so framing differs from the initial view.
+        solve(reference.graph, {mode: 'solve', data: {type: 'ssa', a: 9, b: 8, angleA: 30}});
+        const framed = boxOf(reference.graph);
+        expect(framed).not.toEqual(boxOf(mountGraph().graph));
+        const {boardState: _view, ...withoutView} = reference.graph.exportPreset();
+        expect(_view).toBeDefined();
+        reference.view.unmount();
+        const {graph} = mountGraph();
+        graph.presetService?.savePreset({...withoutView, id: 'bare'});
+        act(() => { graph.liveBoard().setBoundingBox([-9, 7, 11, -5], true); });
+        let pending: Promise<void> = Promise.resolve();
+        act(() => { pending = graph.selectPreset('bare'); });
+        await act(async () => { await pending; });
+        expect(graph.selectedPresetId).toBe('bare');
+        expect(graph.state.mode).toBe('solve');
+        expect(boxOf(graph)).toEqual(framed);
+    });
+});

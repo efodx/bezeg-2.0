@@ -34,8 +34,8 @@ function parseArgs(argv) {
 }
 
 function deriveIds(read = file => fs.readFileSync(path.join(root, file), 'utf8')) {
-    // Rows live in src/demonstrations.ts and in each registered family's registration.ts (src/graphs/projective/).
-    const rowSource = ['src/demonstrations.ts', 'src/graphs/projective/registration.ts'].map(read).join('\n');
+    // Rows live in src/demonstrations.ts and in each registered family's registration.ts; a new family adds its module here.
+    const rowSource = ['src/demonstrations.ts', 'src/graphs/projective/registration.ts', 'src/graphs/trig/registration.ts'].map(read).join('\n');
     const demonstrations = [...rowSource.matchAll(/^\s*\{id: '([^']+)', path: '([^']+)'/gm)].map(m => ({id: m[1], route: m[2]}));
     const clips = new Set([...read('src/demonstrationMotionAssets.ts').matchAll(/^\s*'([^']+)': \{src: /gm)].map(m => m[1]));
     // The rows and clips are read by regex: fail loudly when a source shape change makes them vanish or stop matching.

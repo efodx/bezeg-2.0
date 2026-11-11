@@ -35,6 +35,7 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle", "compgeo-euler-line", "compgeo-simson-line", "compgeo-inversion", "compgeo-triangulation", "compgeo-delaunay", "compgeo-voronoi", "compgeo-voronoi-degenerate", "compgeo-monotone-partition", "compgeo-monotone-triangulation", "compgeo-fortune"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar", "projective-five-point", "projective-three-views"];
+const TRIG_KEYS = ["unit-circle", "triangle-solver"];
 /** Collections registered with the importer before their Demonstration exists; the registration slice removes its key when it adds the route. */
 const PENDING_ROUTE_KEYS: string[] = [];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
@@ -52,7 +53,7 @@ describe('Preset collection definitions', () => {
         expect(new Set(keys).size).toBe(keys.length);
         // The key lists are deliberate per-collection decisions (a file contract); failures name the missing and extra keys.
         const wanted = [...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
-            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS, ...PENDING_ROUTE_KEYS];
+            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS, ...TRIG_KEYS, ...PENDING_ROUTE_KEYS];
         expect({missing: wanted.filter(key => !keys.includes(key)), extra: keys.filter(key => !wanted.includes(key))}).toEqual({missing: [], extra: []});
     });
 

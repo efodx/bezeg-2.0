@@ -21,6 +21,7 @@ import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdiv
 import {bsplinePresetCollection} from "../../curves/bspline/bsplinePresetCollection";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
+import {trigCollections} from "../../trig/collections";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -33,6 +34,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
     coonsPresetCollection, bsplinePresetCollection,
     ...projectiveCollections,
+    ...trigCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

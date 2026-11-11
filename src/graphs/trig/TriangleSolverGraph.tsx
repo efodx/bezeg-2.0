@@ -1,5 +1,8 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {triangleSolverPresetCollection} from "./trigPresetCollection";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -15,7 +18,7 @@ import type {TriangleShape} from "../../compgeo/triangle";
 import {angleAtAntipode, CosineRule, SineRule} from "../../trig/sineCosineRules";
 import {SolveResult, triangleFromSolution, Vertices} from "../../trig/triangleSolver";
 import {
-    DEFAULT_SOLVE_DATA, DEFAULT_TRIANGLE_STATE, deriveTriangle, parseTriangleState, SIDE_MAX, SIDE_MIN, SOLVE_DATA_TYPES, SOLVER_ANGLE_MAX,
+    DEFAULT_SOLVE_DATA, DEFAULT_TRIANGLE_STATE, deriveTriangle, parseTriangleState, serializeTriangleState, SIDE_MAX, SIDE_MIN, SOLVE_DATA_TYPES, SOLVER_ANGLE_MAX,
     SOLVER_ANGLE_MIN, snapSideInput, snapSolverAngleInput, snapVertexInput, TRIANGLE_MODES, TriangleDerived, TriangleState,
 } from "../../trig/trigModel";
 
@@ -153,7 +156,7 @@ const FIELD_SYMBOL: Readonly<Record<string, string>> = {a: "a", b: "b", c: "c", 
  * `disposeScene` removes the listeners and then the objects; it runs on a rebuild, on a scene dispose and, through a session cleanup,
  * on unmount.
  */
-export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, null> {
+export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, TriangleState> {
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private handles_: Partial<Record<Vertex, JXG.Point>> = {};
@@ -173,8 +176,34 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): TriangleState {
+        return serializeTriangleState(DEFAULT_TRIANGLE_STATE);
+    }
+
+    override presetCollection(): PresetCollection<TriangleState> {
+        return triangleSolverPresetCollection();
+    }
+
+    override exportPreset(): Preset<TriangleState> {
+        const preset = super.exportPreset();
+        const {mode: _mode, A: _a, B: _b, C: _c, data: _data, ...graphState} = preset.graphState as TriangleSolverGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): TriangleState {
+        return serializeTriangleState(this.state);
+    }
+
+    override importPresetData(data: TriangleState): void {
+        this.setState(serializeTriangleState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): TriangleSolverGraphState {
+        const parsed = parseTriangleState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -246,6 +275,8 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
+        // A replacement (checkpoint restore, Preset import) brings its own view; only a later change of the solve data refits.
+        this.framedKey = this.state.mode === "solve" ? this.stateKey() : "fixed";
         this.syncBoard();
     }
 
@@ -429,8 +460,8 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
 
         for (const vertex of VERTICES) this.wireDrag(vertex);
         this.drawnKey = this.stateKey();
+        // The view is framed by the sync that follows the build: a replacement may bring a stored view, which a frame here would overwrite.
         this.framedKey = this.state.mode === "solve" ? "" : "fixed";
-        this.frameBoard();
     }
 
     /** Snaps a dragged vertex handle to the nearest integer point and writes it to the scene state. */

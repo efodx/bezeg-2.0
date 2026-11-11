@@ -132,9 +132,9 @@ describe('fallback and unavailable lessons', () => {
     });
 
     it('returns undefined for every Demonstration that opts out of lessons', () => {
-        // No Demonstration opts out at 2e76896d, so this loop is vacuous until one does; the unknown id covers the missing case.
+        // Only the trigonometry rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual([]);
+        expect(lessonless).toEqual(['unit-circle', 'triangle-solver']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();

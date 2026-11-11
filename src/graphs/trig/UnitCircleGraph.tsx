@@ -1,5 +1,8 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {unitCirclePresetCollection} from "./trigPresetCollection";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -11,7 +14,8 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {addAngles, Angle, angleFromHalfDegrees, degreesOf, Quadrant, toRadians} from "../../trig/angle";
 import {pointInRotatedFrame, pointOnCircle, Point, rotationFrame, sumPoint, symmetricImages} from "../../trig/unitCircle";
 import {
-    DEFAULT_UNIT_CIRCLE_STATE, deriveUnitCircle, snapAngleInput, snapPiMultipleInput, UnitCircleDerived, UnitCircleState,
+    DEFAULT_UNIT_CIRCLE_STATE, deriveUnitCircle, parseUnitCircleState, serializeUnitCircleState, snapAngleInput, snapPiMultipleInput, UnitCircleDerived,
+    UnitCircleState,
 } from "../../trig/trigModel";
 
 /** The scene state: the stored unit-circle fields plus the display switch of the TR2 second angle. */
@@ -118,7 +122,7 @@ const whereText = (q: Quadrant | undefined): string => {
  * `disposeScene` removes the listeners and then the objects; it runs on a rebuild, on a scene dispose and, through a session cleanup,
  * on unmount.
  */
-export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
+export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleState> {
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private handle?: JXG.Point;
@@ -126,6 +130,8 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
     private viewCache?: {angle: number; second: number; view: View};
     /** The state key the board was last drawn for; a sync that finds the same key draws nothing. */
     private drawnKey = "";
+    /** The fields behind the function-valued `visible` attributes, as last drawn; only a change here needs fullUpdate(). */
+    private drawnVisibility = "";
     /** The value a typed angle was stored as when that differs from what was typed; shown until the next edit. */
     private adjustedTo?: number;
     /** The state key the note `adjustedTo` belongs to: any other stored-state change drops the note. */
@@ -140,8 +146,34 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps `initialized` and the `showAddition` switch.
+
+    override defaultPreset(): UnitCircleState {
+        return serializeUnitCircleState(DEFAULT_UNIT_CIRCLE_STATE);
+    }
+
+    override presetCollection(): PresetCollection<UnitCircleState> {
+        return unitCirclePresetCollection();
+    }
+
+    override exportPreset(): Preset<UnitCircleState> {
+        const preset = super.exportPreset();
+        const {angle: _angle, secondAngle: _second, showSymmetries: _symmetries, showCosine: _cosine, ...graphState} = preset.graphState as UnitCircleGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): UnitCircleState {
+        return serializeUnitCircleState(this.state);
+    }
+
+    override importPresetData(data: UnitCircleState): void {
+        this.setState(serializeUnitCircleState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): UnitCircleGraphState {
+        const parsed = parseUnitCircleState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -183,6 +215,12 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
         return `${s.angle}/${s.secondAngle}/${s.showSymmetries}/${s.showCosine}/${s.showAddition}`;
     }
 
+    /** Every field a function-valued `visible` attribute reads: the three switches and whether the arc highlight is empty (angle 0). */
+    private visibilityKey(): string {
+        const s = this.state;
+        return `${s.showSymmetries}/${s.showCosine}/${s.showAddition}/${s.angle > 0}`;
+    }
+
     // ---- Board -------------------------------------------------------------------------------------------------------
 
     initialize(): void {
@@ -221,7 +259,15 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
         const key = this.stateKey();
         if (key !== this.drawnKey) {
             this.drawnKey = key;
-            this.board.update();
+            // update() does not re-evaluate function-valued `visible` attributes (showCosine, showAddition); fullUpdate() does.
+            // Angle-only changes (typed or restored) keep every visibility, so they take the cheaper update().
+            const visibility = this.visibilityKey();
+            if (visibility !== this.drawnVisibility) {
+                this.drawnVisibility = visibility;
+                this.board.fullUpdate();
+            } else {
+                this.board.update();
+            }
         }
         this.status.report(this.statusText());
     }
@@ -248,9 +294,12 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
 
         const hidden = (x: Coordinate, y: Coordinate) =>
             this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: ""}));
+        // A cross or plus face has no fill: JSXGraph draws it with the stroke alone, so the stroke carries the colour.
+        const strokeOnly = (face: PointFace) => face === "cross" || face === "plus" || face === "x" || face === "+";
         const marker = (x: Coordinate, y: Coordinate, face: PointFace, color: string, size: number, visible: Visible = true) =>
             this.own(board.create("point", [x, y], {
-                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, strokeColor: GraphPalette.pointOutline, visible,
+                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, visible,
+                ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
         const segment = (a: JXG.Point, b: JXG.Point, color: string, width: number, dash: number, visible: Visible = true, lastArrow = false) =>
             this.own(board.create("segment", [a, b], {
@@ -327,6 +376,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
         this.wireDrag(handle, "angle");
         this.wireDrag(second, "secondAngle");
         this.drawnKey = this.stateKey();
+        this.drawnVisibility = this.visibilityKey();
     }
 
     /** Snaps a dragged handle to the nearest half-degree on the circle and writes the angle to the scene state. */
@@ -369,6 +419,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
         this.handle = undefined;
         this.secondHandle = undefined;
         this.drawnKey = "";
+        this.drawnVisibility = "";
     }
 
     // ---- Text and controls ---------------------------------------------------------------------------------------------

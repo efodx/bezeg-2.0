@@ -1,4 +1,5 @@
 import React from 'react';
+import {vi} from 'vitest';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
@@ -170,7 +171,9 @@ describe('the legend of the symmetric points and the second radius', () => {
         ]);
         expect(document.querySelectorAll('[data-legend]')).toHaveLength(4);
         for (const item of graph.legendItems().slice(0, 3)) {
-            const drawn = points(graph).filter(p => String(vp(p, 'face')) === item.kind && String(vp(p, 'fillcolor')) === item.color);
+            // A cross or plus face is drawn by its stroke alone, so the stroke must carry the stated colour.
+            const colour = item.kind === 'cross' || item.kind === 'plus' ? 'strokecolor' : 'fillcolor';
+            const drawn = points(graph).filter(p => String(vp(p, 'face')) === item.kind && String(vp(p, colour)) === item.color);
             expect(drawn).toHaveLength(1);
         }
         // the second radius is the dashed segment in the comparison colour
@@ -389,3 +392,29 @@ test('exactPlain turns the closed-table LaTeX into plain text', () => {
 function vp(element: unknown, name: string): unknown {
     return (element as {evalVisProp(attribute: string): unknown}).evalVisProp(name);
 }
+
+test('a scene restore hides the cosine trace in the same tick, with no later board update', () => {
+    const {graph} = mountGraph();
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    act(() => { graph.setState({showCosine: true}); });
+    const cosineShown = () => curves(graph).filter(c => c.visPropCalc.visible && c.visProp.dash === 2).length;
+    expect(cosineShown()).toBe(1);
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(graph.state.showCosine).toBe(false);
+    expect(cosineShown()).toBe(0);
+});
+
+test('a drag or a typed angle change redraws without fullUpdate; a visibility switch still calls it', () => {
+    const {graph} = mountGraph();
+    const board = graph.liveBoard();
+    const fullUpdate = vi.spyOn(board, 'fullUpdate');
+    const target = pointOnCircle(angleFromHalfDegrees(100));
+    dragHandleTo(handleOf(graph), target[0], target[1]);
+    expect(graph.state.angle).toBe(100);
+    act(() => { enterNumber(field('Kot θ (°)'), '200'); });
+    expect(graph.state.angle).toBe(400);
+    expect(fullUpdate).not.toHaveBeenCalled();
+    act(() => { graph.setState({showCosine: true}); });
+    expect(fullUpdate).toHaveBeenCalledTimes(1);
+});

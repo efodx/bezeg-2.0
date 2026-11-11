@@ -97,6 +97,11 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
         case 'projective-cross-ratio': g.importPresetData(CROSS_RATIO_EXAMPLES[pick('harmonic', 'infinity')]); return;
         case 'projective-pascal': g.importPresetData(PASCAL_EXAMPLES[pick('pappus', 'infinity')]); return;
         case 'projective-pole-polar': g.importPresetData(POLE_POLAR_EXAMPLES[pick('inside', 'infinity')]); return;
+        // Triangle solver: the model is nested (mode, grid vertices, solver data), so switch the mode and its inputs.
+        case 'triangle-solver':
+            g.importPresetData({...exported as object, ...(variant === 'a' ?
+                {mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}} : {mode: 'circle', C: {x: 3, y: 5}})});
+            return;
         // Summary statistics: the data are a list (no numeric field to nudge), so switch to another example's values.
         case 'prob-summary': g.importPresetData({...exported as object, values: SUMMARY_EXAMPLES[pick('even', 'outlier')]}); return;
         // Correlation: the points are a list (no numeric field to nudge), so switch to another example's points.

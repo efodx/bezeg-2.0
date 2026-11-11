@@ -69,6 +69,8 @@ const NO_PRESET_DATA = new Set<DemonstrationId>(['bernstein']);
 /** Scene state a Preset carries once, as its `data`, so the Preset's `graphState` omits it (the collection rejects a duplicate). */
 const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>> = {
     orientation: ['model'],
+    'unit-circle': ['angle', 'secondAngle', 'showSymmetries', 'showCosine'],
+    'triangle-solver': ['mode', 'A', 'B', 'C', 'data'],
     'polygon-area': ['model'],
     'convex-hull': ['model'],
     'point-in-polygon': ['model'],

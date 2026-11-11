@@ -5,4 +5,5 @@ import type {DemonstrationId} from './demonstrations';
  * image. Remove an id when its capture lands in src/demonstrationPreviewAssets.ts; the unit test and the browser smoke
  * catalog (tests/smoke-catalog.cjs, which parses this array literal) both fail on a stale entry.
  */
-export const POSTER_PENDING: readonly DemonstrationId[] = [];
+// unit-circle and triangle-solver: media is families-prep F5.
+export const POSTER_PENDING: readonly DemonstrationId[] = ['unit-circle', 'triangle-solver'];
