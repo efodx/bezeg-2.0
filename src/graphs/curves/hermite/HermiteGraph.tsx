@@ -81,11 +81,6 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         this.fit();
     }
 
-    /** Refuses persisted data this graph cannot show, before anything changes; same limits as importPresetData. */
-    protected override consumerRefusal(data: HermitePresetData) {
-        return hermiteRejection(data);
-    }
-
     /** Rejects data the model cannot draw before touching the state, then rebuilds the scene. */
     override importPresetData(data: HermitePresetData) {
         const rejection = hermiteRejection(data);

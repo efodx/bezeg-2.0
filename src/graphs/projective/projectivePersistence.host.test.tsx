@@ -3,7 +3,7 @@ import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {FivePointGraph} from './FivePointGraph';
 import {ThreeViewsGraph} from './ThreeViewsGraph';
-import {FIVE_POINT_EXAMPLES, FivePointModel} from './fivePointModel';
+import {evaluateFivePoint, FIVE_POINT_EXAMPLES, FivePointModel} from './fivePointModel';
 import {fivePointPersistence, threeViewsPersistence} from './projectivePersistence';
 import {fivePointPresetCollection, threeViewsPresetCollection} from './projectivePresetCollection';
 import {GraphHost} from '../base/GraphHost';
@@ -87,6 +87,31 @@ describe('FivePoint projection', () => {
         const rebuilt = fivePointPersistence.reconstruct(MOVED_HYPERBOLA,{initialized: true, model: FIVE_POINT_EXAMPLES.ellipse, lastUnique: []}, target.getInitialState());
         expect(rebuilt.model).toEqual(MOVED_HYPERBOLA);
         expect(rebuilt.lastUnique).toEqual(MOVED_HYPERBOLA.points);
+    });
+
+    test('lastUnique keeps the previous unique conic through a degenerate move and is undefined for a loaded degenerate Preset', () => {
+        const graph = new FivePoint();
+        mount(graph);
+        act(() => { graph.loadExample('parabola'); });
+        const parabola = FIVE_POINT_EXAMPLES.parabola.points;
+        expect(evaluateFivePoint(graph.model).status).toBe('unique');
+        expect(graph.state.lastUnique).toEqual(parabola);
+        // (0,0), (60,60)/15 and (30,30)/15 lie on y = x: three collinear points, no unique conic.
+        act(() => { graph.placeNumerators(2, 30, 30); });
+        expect(evaluateFivePoint(graph.model).status).not.toBe('unique');
+        expect(graph.state.lastUnique).toEqual(parabola);
+        // A fourth point on y = x (45,45)/15: four collinear points, a whole family of conics.
+        act(() => { graph.placeNumerators(3, 45, 45); });
+        expect(evaluateFivePoint(graph.model).status).not.toBe('unique');
+        expect(graph.state.lastUnique).toEqual(parabola);
+        // Loading a model whose five points are themselves degenerate leaves nothing stale to show.
+        const fourCollinear = FIVE_POINT_EXAMPLES['four-collinear'];
+        expect(evaluateFivePoint(fourCollinear).status).not.toBe('unique');
+        act(() => { graph.importPreset({id: 'degenerate', data: wire(fourCollinear)}); });
+        expect(graph.model).toEqual(fourCollinear);
+        expect(graph.state.lastUnique).toBeUndefined();
+        act(() => { graph.loadExample('four-collinear'); });
+        expect(graph.state.lastUnique).toBeUndefined();
     });
 
     test('a lesson checkpoint keeps the full trusted state, transient values and display settings; the default scene starts fresh', () => {

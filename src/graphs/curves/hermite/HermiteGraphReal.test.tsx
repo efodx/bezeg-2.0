@@ -210,6 +210,18 @@ describe('HermiteGraph on a real board', () => {
         view.unmount();
     });
 
+    test('a Preset breaking the Hermite limits is refused by the collection check before the state or the scene change', () => {
+        const {graph, view} = mount();
+        const before = graph.state;
+        const owned = graph.ownedElements();
+        const equal: HermitePresetData = {...DEFAULT_HERMITE_PRESET, points: [[0, 0], [0, 0], [3, 3], [4, 0]]};
+        expect(() => graph.importPreset({id: 'bad', data: equal})).toThrow();
+        expect(() => graph.importPreset({id: 'bad', data: {...DEFAULT_HERMITE_PRESET, tangents: [[1, 2], [1.5, 1.5], [1.5, -1], [1, 5000]]}})).toThrow();
+        expect(graph.state).toBe(before);
+        expect(graph.ownedElements()).toEqual(owned);
+        view.unmount();
+    });
+
     test('switching to Hermite mode copies the tension-scaled Catmull-Rom tangents and the curve does not jump; back leaves them stored', () => {
         const {graph, view} = mount();
         act(() => graph.setTension(0.5));
