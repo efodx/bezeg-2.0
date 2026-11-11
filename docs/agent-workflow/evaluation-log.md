@@ -2741,3 +2741,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Pipelining:** two workers at a time in disjoint files (compgeo tests ∥ parametric roll; De Casteljau ∥ readout; preset notice ∥ smoke). Seven slices in about five hours of wall time. The machine restart lost only background shells; worker edits on disk survived.
 - **Handler checks that mattered:** one worker reported a new test without observing its failure, so the handler ran it against the old file (it failed). The handler also sent a shared-spec sed edit back, because it had flagged non-integer point lists as integer. A smoke worker overwrote an existing evidence file of the same name; restored. Give smoke workers a unique file name.
 - **Smoke reading:** a heading-margin difference (8 vs 10 px) was pre-existing specificity (`.inspector-group h3` beats the moved class rule), not a regression from the move.
+
+## 2026-11-11: controls open items, second batch (controls stream, fourth handler)
+
+- **Handler kept small slices:** heading swap, test dedupe and the bounding-box type guard were each a few lines, done in the main chat while one worker took the four low patch items. Handler work and the worker ran in parallel in disjoint files.
+- **Scope trimmed on evidence:** removing `as BaseGraphState` in `checkPreset` would have touched about 30 `figurePresetGraphState` overrides, some in the worker's files; the handler did the safe half and recorded the rest as its own slice.
+- **Worker outcome:** one pass, three of four items with observed pre-fix failures, one closed as correct with file:line. The worker could not run `check-changed` because the handler's run held the checkout lock; the handler's later run covered both. Tell workers when a check-changed is already running, or have them use focused `just unit`.
+- **Worker found a wider pattern:** the Insertion separator defect (numbers formatted at refusal time) likely exists in other graphs; recorded as an open item instead of widening the slice.
