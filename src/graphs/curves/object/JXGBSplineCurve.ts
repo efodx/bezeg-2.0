@@ -24,15 +24,12 @@ export class JXGBSplineCurve extends AbstractJXGPointControlledCurve<BSplineCurv
     constructor(points: number[][], degree: number, knots: readonly number[], weights: readonly number[] | undefined, board: Board) {
         BSplineCurve.check(points.length, degree, knots, weights);
         super(points, board);
-        try {
+        this.finishConstruction(() => {
             this.pointControlledCurve.setSpline(this.pointControlledCurve.getPoints(), degree, knots, weights);
             const curve = this.pointControlledCurve;
             this.setIntervalStart(() => curve.getDomain()[0]);
             this.setIntervalEnd(() => curve.getDomain()[1]);
-        } catch (error) {
-            this.dispose();
-            throw error;
-        }
+        });
     }
 
     static toDto(curve: JXGBSplineCurve): JXGBSplineCurveConstructorParams {

@@ -44,7 +44,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
 
     constructor(points: number[][], board: Board, attributes?: BezierCurveAttributes) {
         super(points, board, attributes);
-        this.setAttributes({...Attributes.bezierDisabled, allowShowConvexHull: false});
+        this.finishConstruction(() => this.setAttributes({...Attributes.bezierDisabled, allowShowConvexHull: false}));
     }
 
     /**

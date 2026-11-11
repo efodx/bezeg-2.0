@@ -12,15 +12,17 @@ export class JXGGenericSplineCurve extends AbstractJXGSplineCurve<GenericBezierS
 
     constructor(points: number[][], continuity: number, degree: number, board: Board) {
         super(points, board);
-        this.board.suspendUpdate();
-        try {
-            // A stored Preset may hold a degree above the change limit, so it restores rather than changes.
-            if (this.pointControlledCurve.restore(degree, continuity)) {
-                this.reconcileSplineDrawing();
+        this.finishConstruction(() => {
+            this.board.suspendUpdate();
+            try {
+                // A stored Preset may hold a degree above the change limit, so it restores rather than changes.
+                if (this.pointControlledCurve.restore(degree, continuity)) {
+                    this.reconcileSplineDrawing();
+                }
+            } finally {
+                this.board.unsuspendUpdate();
             }
-        } finally {
-            this.board.unsuspendUpdate();
-        }
+        });
     }
 
     static toDto(curve: JXGGenericSplineCurve): JSXGenericSplineConstructorParams {

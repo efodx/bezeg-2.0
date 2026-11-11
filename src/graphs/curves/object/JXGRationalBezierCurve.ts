@@ -29,7 +29,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
 
     constructor(points: number[][], weights: number[], board: Board) {
         super(points, board);
-        this.pointControlledCurve.setWeights(weights);
+        this.finishConstruction(() => this.pointControlledCurve.setWeights(weights));
     }
 
     static toDto(curve: JXGRationalBezierCurve): JSXRationalBezierCurveConstructorParams {

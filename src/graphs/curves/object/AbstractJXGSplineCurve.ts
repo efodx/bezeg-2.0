@@ -23,8 +23,10 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
 
     constructor(points: number[][], board: Board) {
         super(points, board);
-        this.pointControlledCurve.generateBezierCurves();
-        this.reconcileSplineDrawing();
+        this.finishConstruction(() => {
+            this.pointControlledCurve.generateBezierCurves();
+            this.reconcileSplineDrawing();
+        });
     }
 
     /** Redraws the computed points and relabels every point once, after the model's spans changed. */

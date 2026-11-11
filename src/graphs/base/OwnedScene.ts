@@ -42,7 +42,7 @@ export function constructOrSweep<T>(board: Board, construct: () => T): T {
 }
 
 /** Removes every board object not in `before` (a snapshot of `board.objectsList`), newest first. */
-export function sweepObjectsSince(board: Board, before: ReadonlySet<unknown>): void {
+export function sweepObjectsSince(board: Board, before: {has(object: object): boolean}): void {
     const leftover = board.objectsList.filter((object): object is GeometryElement => typeof object === "object" && object !== null && !before.has(object)).reverse();
     if (leftover.length) board.removeObject(leftover);
 }

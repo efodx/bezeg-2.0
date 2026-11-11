@@ -98,6 +98,8 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     private attributes: Attr = {allowShowControlPolygon: true} as Attr;
     private readonly editablePointBindings = new Map<PointImpl, ModelPointBinding>();
     private readonly editablePointsByJxgPoint = new Map<JXG.Point, PointImpl>();
+    /** The board's objects before construction began; weak, so the curve never keeps objects the board later removes alive. */
+    private readonly boardBeforeConstruction: WeakSet<object>;
 
     constructor(points: number[][], board: Board, attributes?: Attr) {
         if (points.some(point => point.length > 2 && point[2] !== 0)) {
@@ -106,6 +108,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         this.board = board;
         // A step that throws after points exist must not leave them on the board: nothing owns them yet.
         const before = new Set(board.objectsList);
+        this.boardBeforeConstruction = new WeakSet<object>(board.objectsList as object[]);
         try {
             this.setAttributes(this.getDefaultAttributes());
             if (attributes) {
@@ -140,6 +143,23 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
         } catch (error) {
             this.jxgPoints = [];
             sweepObjectsSince(board, before);
+            throw error;
+        }
+    }
+
+    /**
+     * Runs the rest of a subclass constructor (everything after `super(...)`). If it throws, the caller never gets an
+     * instance to dispose, so this disposes the curve and sweeps every board object created since construction began.
+     */
+    protected finishConstruction(step: () => void): void {
+        try {
+            step();
+        } catch (error) {
+            try {
+                this.dispose();
+            } finally {
+                sweepObjectsSince(this.board, this.boardBeforeConstruction);
+            }
             throw error;
         }
     }
@@ -384,6 +404,7 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     /** Remove the base JSXGraph objects owned by this curve before its scene is replaced. */
     dispose(): void {
         this.disposeEditableInputPoints();
+        this.board.off('update', this.convexHullRefresher);
         if (!this.board.renderer) {
             this.convexHull = undefined;
             this.evaluationPoint = undefined;
@@ -394,7 +415,6 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             this.jxgPoints = [];
             return;
         }
-        this.board.off('update', this.convexHullRefresher);
         const ownedObjects = [
             this.convexHull,
             this.evaluationPoint,
