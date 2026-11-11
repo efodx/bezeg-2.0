@@ -293,18 +293,6 @@ describe('playback', () => {
         expect(() => setLanguage('en')).not.toThrow();
     });
 
-    test('StrictMode mounts, unmounts and mounts again with the same objects as a plain mount, and no frame stays pending', () => {
-        const plain = mountGraph();
-        const expected = {owned: plain.graph.ownedObjectCount(), board: plain.graph.liveBoard().objectsList.length};
-        plain.view.unmount();
-        const strict = mountGraph(true);
-        expect(strict.graph.ownedObjectCount()).toBe(expected.owned);
-        expect(strict.graph.liveBoard().objectsList.length).toBe(expected.board);
-        press(t('play'));
-        strict.view.unmount();
-        expect(strict.graph.clock.pending()).toBe(false);
-        expect(strict.graph.ownedObjectCount()).toBe(0);
-    });
 });
 
 describe('rebuild and disposal', () => {

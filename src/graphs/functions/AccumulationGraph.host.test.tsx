@@ -33,7 +33,6 @@ class ObservedAccumulationGraph extends AccumulationGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-accumulation-status]')].map(element => element.getAttribute('data-accumulation-status'));
-const boardObjects = (graph: ObservedAccumulationGraph) => graph.liveBoard().objectsList.length;
 
 test('a real board hides A until the reveal button is pressed; the inputs move a and x, including x left of a, and the labels follow the language', () => {
     const graph = new ObservedAccumulationGraph();
@@ -94,19 +93,4 @@ test('the label of A(x) follows the point: hidden before the reveal, shown after
     expect(accumulationPoint()).toEqual([{point: true, label: true}]);
     act(() => { fireEvent.click(screen.getByRole('button', {name: /akumulacijo A/})); });
     expect(accumulationPoint()).toEqual([{point: false, label: false}]);
-});
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedAccumulationGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži akumulacijo A'})); });
-    act(() => { enterNumber(screen.getByLabelText('Točka x'), '4.5'); });
-    act(() => { fireEvent.change(screen.getByLabelText('Funkcija f'), {target: {value: 'exp'}}); });
-    expect(graph.modelNow()).toMatchObject({fn: 'exp', x: 4.5, accumulationVisible: true});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
 });

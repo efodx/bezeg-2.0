@@ -33,7 +33,6 @@ class ObservedMeanValueGraph extends MeanValueGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-mean-value-status]')].map(element => element.getAttribute('data-mean-value-status'));
-const boardObjects = (graph: ObservedMeanValueGraph) => graph.liveBoard().objectsList.length;
 
 test('a real board shows the secant, the tangent and the slopes: the inputs move c without moving a or b, and the reveal button shows the match', () => {
     const graph = new ObservedMeanValueGraph();
@@ -89,18 +88,4 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     expect(screen.getByRole('button', {name: 'Hide matching point'})).toBeInTheDocument();
     expect(screen.getByLabelText('Point of tangency c')).toBeInTheDocument();
     expect(readout('tangent-slope')).toBe('does not exist');
-});
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedMeanValueGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži ujemajočo točko'})); });
-    act(() => { enterNumber(screen.getByLabelText('Točka dotika c'), '1.5'); });
-    expect(graph.modelNow()).toMatchObject({c: 1.5, revealed: true});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
 });

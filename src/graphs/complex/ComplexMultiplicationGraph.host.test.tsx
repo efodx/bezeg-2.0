@@ -127,18 +127,3 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     act(() => { setLanguage('sl'); });
     expect(graph.captionPlainLines()).toEqual(['z = 1 + i, w = 0', 'zw = 0', 'krog: z; kvadrat: w; romb: zw']);
 });
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedComplexGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži zmnožek'})); });
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži argumente'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Primer množenja'), {target: {value: 'general'}}); });
-    expect(graph.modelNow()).toMatchObject({example: 'general', productVisible: false, anglesVisible: false});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});

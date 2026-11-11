@@ -5,6 +5,7 @@
 //   scene content      src/learning/content/sceneContentAgainstGraphs.test.tsx  (BEZEG_SCENE_CONTENT)
 //   scene replacement  src/graphs/base/sceneReplacementContract.test.tsx  (BEZEG_SCENE_REPLACEMENT)
 //   preset round trip  src/graphs/PresetRoundTrip.contract.test.tsx  (BEZEG_PRESET_ROUNDTRIP)
+//   graph teardown     src/graphs/base/graphTeardownContract.test.tsx  (BEZEG_GRAPH_TEARDOWN)
 // Each sweep mounts many graphs on real boards, so a local run checks a representative sample plus the entries the
 // branch's changed files reach. A CI run given BEZEG_SWEEP_ROTATION (a push or pull request) checks the same sample, the
 // entries reached since BEZEG_SWEEP_BASE, and one rotating slice of the catalog; the daily scheduled run, a CI run
@@ -71,6 +72,7 @@ const SWEEPS = {
     sceneContent: {variable: 'BEZEG_SCENE_CONTENT', shared: LESSON_SHARED_PATHS},
     sceneReplacement: {variable: 'BEZEG_SCENE_REPLACEMENT', shared: SHARED_PATHS},
     presetRoundTrip: {variable: 'BEZEG_PRESET_ROUNDTRIP', shared: PRESET_SHARED_PATHS},
+    graphTeardown: {variable: 'BEZEG_GRAPH_TEARDOWN', shared: SHARED_PATHS},
 };
 
 /** CI rotation slices: odd, so a slice spreads over the 4 transient state and 8 lesson restoration part files. */

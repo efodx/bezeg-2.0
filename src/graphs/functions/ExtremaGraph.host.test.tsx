@@ -84,17 +84,3 @@ test('a real board shows the candidates: the fields, the example and the Show cl
     expect(screen.getByLabelText('Left endpoint a')).toBeInTheDocument();
     expect(readout('candidate-1')).toBe("f = 0, f′ = does not exist");
 });
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedExtremaGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži klasifikacijo'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Primer funkcije'), {target: {value: 'sine'}}); });
-    expect(graph.modelNow()).toMatchObject({example: 'sine', revealed: false});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});

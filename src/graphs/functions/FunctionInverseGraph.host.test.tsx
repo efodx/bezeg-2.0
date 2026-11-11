@@ -281,16 +281,6 @@ test('Reset, a restored Preset and the language switch restore every field, the 
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
 
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedInverseGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    const baseline = boardObjects(graph);
-    act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value: 'natural'}}); });
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});
-
 test('a multi-action lesson scene runs in one synchronous sequence; x0 range follows the base; a rejected value is refused, not clamped', () => {
     const graph = mount();
     for (const action of [

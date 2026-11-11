@@ -120,17 +120,3 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     expect(screen.getByRole('spinbutton', {name: 'Degree n'})).toBeInTheDocument();
     expect(readout('convergence')).toMatch(/x is outside/);
 });
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedTaylorGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži oceno napake'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Primer funkcije'), {target: {value: 'sine'}}); });
-    expect(graph.modelNow()).toMatchObject({example: 'sine', boundVisible: false});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});

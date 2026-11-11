@@ -115,17 +115,3 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     act(() => { setLanguage('sl'); });
     expect(graph.captionPlainLines()[3]).toBe('sup |fₙ − f| = 1, ni dosežen');
 });
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedUniformGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži supremum'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Primer zaporedja funkcij'), {target: {value: 'scaled'}}); });
-    expect(graph.modelNow()).toMatchObject({example: 'scaled', supremumVisible: false});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});

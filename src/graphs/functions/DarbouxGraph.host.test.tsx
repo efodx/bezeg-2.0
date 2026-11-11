@@ -104,20 +104,6 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(readout('lower')).toBe('−3.1416');
 });
 
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedDarbouxGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: /Zgosti razdelitev/})); });
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Skrij spodnjo vsoto'})); });
-    expect(graph.modelNow()).toMatchObject({n: 8, lowerVisible: false});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});
-
 test('a live language switch re-evaluates the board texts and the numbers the board shows', () => {
     const graph = new ObservedDarbouxGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);

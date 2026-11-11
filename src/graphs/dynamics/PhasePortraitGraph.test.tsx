@@ -738,21 +738,6 @@ describe('ownership, rebuild and StrictMode', () => {
         expect(board.objectsList.length).toBe(total);
     });
 
-    test('StrictMode mounts, unmounts and mounts again with the same objects as a plain mount; no frame or timer stays', () => {
-        vi.useFakeTimers();
-        const plain = mountGraph();
-        const expected = {owned: plain.graph.ownedObjectCount(), board: plain.graph.liveBoard().objectsList.length, listeners: plain.graph.ownedListenerCount()};
-        plain.view.unmount();
-        const strict = mountGraph(true);
-        expect(strict.graph.ownedObjectCount()).toBe(expected.owned);
-        expect(strict.graph.liveBoard().objectsList.length).toBe(expected.board);
-        expect(strict.graph.ownedListenerCount()).toBe(expected.listeners);
-        press(t('play'));
-        strict.view.unmount();
-        expect(strict.graph.clock.pending()).toBe(false);
-        expect(strict.graph.ownedObjectCount()).toBe(0);
-    });
-
     test('the eigen-direction lines run through owned hidden points: two lines for a node, one for a defective matrix, none for a spiral', () => {
         const {graph} = mountGraph();
         const lines = () => ofType(graph, 'line').filter(visible).length;

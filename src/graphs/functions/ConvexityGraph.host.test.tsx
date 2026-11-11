@@ -92,17 +92,3 @@ test('a real board shows chord and tangent: the fields, the example and the Show
     expect(readout('verdict')).toBe("no claim: f″ changes sign on [a, b]");
     expect(readout('inflection')).toBe('at x = 0');
 });
-
-test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {
-    const graph = new ObservedConvexityGraph();
-    const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
-    expect(graph.state.initialized).toBe(true);
-    const baseline = boardObjects(graph);
-    expect(graph.ownedObjects()).toBeGreaterThan(0);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži drugi odvod'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Primer funkcije'), {target: {value: 'quartic'}}); });
-    expect(graph.modelNow()).toMatchObject({example: 'quartic', secondDerivativeVisible: false});
-    expect(boardObjects(graph)).toBe(baseline);
-    view.unmount();
-    expect(graph.ownedObjects()).toBe(0);
-});

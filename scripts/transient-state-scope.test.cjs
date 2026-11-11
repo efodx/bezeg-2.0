@@ -208,6 +208,14 @@ test('the Preset round trip has its own variable and runs everything after a Pre
     assert.equal(sweep('sceneReplacement', {}, ['src/graphs/functions/functionPresetCollections.ts']).all, false);
 });
 
+test('the graph teardown has its own variable and runs everything after a shared change', () => {
+    assert.deepEqual(sweep('graphTeardown', {BEZEG_GRAPH_TEARDOWN: 'bezier'}, []).ids, ['bezier']);
+    assert.equal(sweep('graphTeardown', {BEZEG_GRAPH_TEARDOWN: 'all'}, []).all, true);
+    assert.equal(sweep('graphTeardown', {BEZEG_SCENE_REPLACEMENT: 'all'}, []).all, false);
+    assert.equal(sweep('graphTeardown', {}, ['src/graphs/base/GraphHost.tsx']).all, true);
+    assert.equal(sweep('graphTeardown', {}, ['src/graphs/functions/NewtonGraph.tsx']).all, false);
+});
+
 test('the Preset round trip adds the graph of a changed class file', () => {
     const result = sweepScope(SWEEPS.presetRoundTrip, {env: {}, graphClasses: () => classes, changedPaths: () => ['src/graphs/functions/NewtonGraph.tsx']});
     assert.equal(result.all, false);

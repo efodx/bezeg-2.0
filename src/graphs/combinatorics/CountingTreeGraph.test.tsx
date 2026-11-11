@@ -553,16 +553,6 @@ describe('ownership', () => {
         expect(document.querySelector(`[aria-label="${t('combinatorics_counting_board_label')}"]`)).toBeNull();
     });
 
-    test('StrictMode mounts, unmounts and mounts again with the same number of objects as a plain mount', () => {
-        const plain = mountGraph();
-        const expected = {owned: plain.graph.ownedObjectCount(), board: plain.graph.liveBoard().objectsList.length};
-        plain.view.unmount();
-        const strict = mountGraph(true);
-        expect(strict.graph.ownedObjectCount()).toBe(expected.owned);
-        expect(strict.graph.liveBoard().objectsList.length).toBe(expected.board);
-        strict.view.unmount();
-        expect(strict.graph.ownedObjectCount()).toBe(0);
-    });
 });
 
 describe('language', () => {

@@ -11,7 +11,7 @@ type TransientStateScope = {all: boolean; reason: string; ids: string[] | null; 
 const transientState = require('./scripts/transient-state-scope.cjs') as {
     transientStateScope: (input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
     sweepScope: (sweep: {variable: string; shared: RegExp[]}, input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
-    SWEEPS: Record<'lessonRestoration' | 'sceneContent' | 'sceneReplacement' | 'presetRoundTrip', {variable: string; shared: RegExp[]}>;
+    SWEEPS: Record<'lessonRestoration' | 'sceneContent' | 'sceneReplacement' | 'presetRoundTrip' | 'graphTeardown', {variable: string; shared: RegExp[]}>;
     gitChangedPaths: (cwd: string, since?: string) => string[];
 };
 
@@ -125,6 +125,7 @@ export default defineConfig({
                 sceneContentScope: scopeOf(transientState.SWEEPS.sceneContent),
                 sceneReplacementScope: scopeOf(transientState.SWEEPS.sceneReplacement),
                 presetRoundTripScope: scopeOf(transientState.SWEEPS.presetRoundTrip),
+                graphTeardownScope: scopeOf(transientState.SWEEPS.graphTeardown),
             };
         })(),
     },

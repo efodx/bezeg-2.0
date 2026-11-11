@@ -3,7 +3,7 @@
  * `scripts/transient-state-scope.cjs` decides (CI, BEZEG_SWEEPS=all, a sweep's own variable, shared paths) and
  * `vite.config.mts` provides the result; this module applies it to a sweep's entries.
  * The sweeps: the transient state contract, the lesson restoration contract, the scene content test, the scene
- * replacement contract and the Preset round trip contract (docs/commands.md, "Catalog sweep scope").
+ * replacement contract, the Preset round trip contract and the graph teardown contract (docs/commands.md, "Catalog sweep scope").
  */
 import {test} from 'vitest';
 import {getDemonstrationCatalog, type DemonstrationId} from '../../demonstrations';
@@ -20,6 +20,7 @@ declare module 'vitest' {
         sceneContentScope: SweepScope;
         sceneReplacementScope: SweepScope;
         presetRoundTripScope: SweepScope;
+        graphTeardownScope: SweepScope;
     }
 }
 
