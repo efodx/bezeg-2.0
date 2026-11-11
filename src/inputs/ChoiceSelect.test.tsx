@@ -1,5 +1,5 @@
 import React from 'react';
-import {fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {ChoiceSelect} from './ChoiceSelect';
 
 test('an option may carry its own accessible name, and options without one keep their text as the name', () => {
@@ -56,5 +56,52 @@ describe('a selected text wider than the closed select', () => {
         expect(container.querySelector('[data-choice-full]')).toHaveTextContent('Another long text here too');
         rerender(<ChoiceSelect label="L" value="a" onChange={() => undefined} options={options}/>);
         expect(container.querySelector('[data-choice-full]')).toBeNull();
+    });
+
+    describe('with a ResizeObserver', () => {
+        let callbacks: (() => void)[];
+        let disconnect: () => void;
+        let measured: number;
+        beforeEach(() => {
+            callbacks = [];
+            disconnect = vi.fn<() => void>();
+            measured = 0;
+            // The canvas context is shared module-wide, so a measurement is counted where it reads the select's width.
+            vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(() => { measured++; return width; });
+            vi.stubGlobal('ResizeObserver', class {
+                constructor(callback: () => void) { callbacks.push(callback); }
+                observe() { /* the test fires the callback itself */ }
+                disconnect() { disconnect(); }
+            });
+        });
+        afterEach(() => vi.unstubAllGlobals());
+
+        test('the full text appears when the select shrinks below the text and disappears when it grows back', () => {
+            width = 400; // room 376: the long text (125) fits
+            const {container} = render(<ChoiceSelect label="L" value="b" onChange={() => undefined} options={options}/>);
+            expect(container.querySelector('[data-choice-full]')).toBeNull();
+            width = 100;
+            act(() => callbacks.forEach(callback => callback()));
+            expect(container.querySelector('[data-choice-full]')).toHaveTextContent('A much longer option text');
+            width = 400;
+            act(() => callbacks.forEach(callback => callback()));
+            expect(container.querySelector('[data-choice-full]')).toBeNull();
+        });
+
+        test('a re-render that changes neither value, options nor size does not measure again', () => {
+            width = 100;
+            const {rerender} = render(<ChoiceSelect label="L" value="b" onChange={() => undefined} options={options}/>);
+            const before = measured;
+            expect(before).toBeGreaterThan(0);
+            rerender(<ChoiceSelect label="L" value="b" onChange={() => undefined} options={[...options]} help="Pomoč"/>);
+            expect(measured).toBe(before);
+        });
+
+        test('the observer is disconnected on unmount, and not before', () => {
+            const {unmount} = render(<ChoiceSelect label="L" value="a" onChange={() => undefined} options={options}/>);
+            expect(disconnect).not.toHaveBeenCalled();
+            unmount();
+            expect(disconnect).toHaveBeenCalledTimes(1);
+        });
     });
 });
