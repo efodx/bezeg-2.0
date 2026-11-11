@@ -132,4 +132,22 @@ describe('pauses a run (decision 57)', () => {
         try { graph.onStateChange({...graph.state, selectedCurveOption: 0}); } catch { /* the pause precedes any redraw */ }
         expect(graph.pausePlayback).toHaveBeenCalledTimes(1);
     });
+
+    test('an applied curve command or a new curve (workspace refresh) pauses', () => {
+        const graph = Object.create(DecasteljauGraph.prototype) as any;
+        graph.pausePlayback = vi.fn();
+        graph.graphSession = {isAlive: false};
+        graph.refreshWorkspace();
+        expect(graph.pausePlayback).toHaveBeenCalledTimes(1);
+    });
+
+    test('a Preset load ends a run: playback stops and the status is not playing', () => {
+        const graph = Object.create(DecasteljauGraph.prototype) as any;
+        graph.store.replaceState({t: 0.3, v: 1, animationStatus: 'playing', wholeCurve: false});
+        graph.lessonAnimation = {stop: vi.fn(), pause: vi.fn()};
+        const restore = vi.spyOn(BaseCurveGraph.prototype as any, 'restoreTransientState').mockImplementation(() => undefined);
+        try { graph.restoreTransientState(undefined); } finally { restore.mockRestore(); }
+        expect(graph.lessonAnimation.stop.mock.calls.length + graph.lessonAnimation.pause.mock.calls.length).toBeGreaterThan(0);
+        expect(graph.state.animationStatus).not.toBe('playing');
+    });
 });

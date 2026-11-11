@@ -179,6 +179,15 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         });
     }
 
+    /**
+     * The workspace refreshes after a model change (an applied curve command, a subdivision that adds a curve, a point edit),
+     * never for a display switch, so it pauses a run (decision 57).
+     */
+    protected override refreshWorkspace(): void {
+        this.pausePlayback();
+        super.refreshWorkspace();
+    }
+
     override mount(container: HTMLElement) {
         super.mount(container);
         // A press on the board (a drag, adding or deleting a point, or a pan) pauses the run (decision 57).
