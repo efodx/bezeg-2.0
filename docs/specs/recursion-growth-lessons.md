@@ -147,6 +147,12 @@ Searched `src/localization/sl.ts`: the app already has *iteracija*, *negibna toÄ
 
 ## Implementation Decisions
 
+- F2a decisions (handler, 2026-11-11):
+  - `GrowthGraph` (RG1, RG3, RG5) has no stepper or playback; stored `step` and playback belong to the cobweb (RG2, RG4).
+  - Preset restore for both graphs is owed at F2b, as for the earlier F2a graphs. The model's parse and serialize round trip is tested at F2a.
+  - The RG5 panel plots \(\ln y\) against \(n\) on a linear axis, and its caption says so (ADR 0052 Â§3).
+  - The logistic shape (staircase or spiral) is the sign of the slope at the fixed point, and the caption says it holds near \(x^*\).
+  - The playback Reset of the cobweb uses "Ponastavi" (shared controls C29).
 - The kernel is new pure TypeScript (`src/recursion/`); graphs adapt it. No graph-global cache state. `FixedPointGraph`, `fixedPoint.ts` and the `fixed-point-*` lessons are not changed.
 - Graph state: map and parameters as integers per ADR 2, \(x_0\) on the \(1/100\) grid, `step` (stored), playback not stored (a reopened Preset is paused), derived values recomputed from validated state.
 - Lesson scenes use typed actions (`set-map`, `set-params`, `set-start`, `set-step`, `set-interest`) registered through the lesson-action registry as in the [linear-maps spec](linear-maps-lessons.md#reuse-and-new-modules); multi-action scenes run synchronously in one tick and are unit tested that way.

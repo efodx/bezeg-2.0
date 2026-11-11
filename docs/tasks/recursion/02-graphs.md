@@ -1,5 +1,7 @@
 # 02 State model and graphs (F2a, gated on Controls step 5)
 
+Status: written and checked by the worker, awaiting handler review and smoke. Both graphs (`RecursionCobwebGraph`, `GrowthGraph`) with their state models, scenes and locale blocks exist and are unit-tested; neither has a route (F2b onward). Evidence: `docs/reviews/feature-streams/families-prep/notes/f2a-rec-02.md`. Not done: browser smoke, route, lessons. Owed at F2b (as for the earlier F2a graphs): the cobweb and growth Preset (`defaultPreset`, a reopened Preset paused, the RG1 Reset/Preset/restore test); the model's parse/serialize round trip stays tested here.
+
 Gate: Controls step 5 `accepted` in [controls.md](../feature-streams/controls.md). Step 5 supplies the stepper and playback. Before dispatch, recheck this file against them.
 
 Spec: Implementation Decisions (state, stored `step`, playback not stored); RG1–RG5 "Scene"; Testing Decisions (performance). Decisions: ADR 0052 §1–3.

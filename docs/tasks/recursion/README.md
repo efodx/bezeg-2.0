@@ -9,7 +9,7 @@ F1 is ungated. F2a waits for Controls step 5, by the stream's binding boundary. 
 | Task | Batch | Slice | Gate | Depends on | Status |
 | --- | --- | --- | --- | --- | --- |
 | [01 Recursion kernel](01-recursion-kernel.md) | 0 | F1 | none | — | done |
-| [02 State model and graphs](02-graphs.md) | A–C | F2a | Controls step 5 | 01 | planned |
+| [02 State model and graphs](02-graphs.md) | A–C | F2a | Controls step 5 | 01 | graphs written and checked by the worker (cobweb + growth, no route); awaiting handler review |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 02 | planned |
 
 ## Slovenian terms (F0 decision)
@@ -25,3 +25,14 @@ These are checked against `sl.ts`, which has *iteracija*, *negibna točka*, *Paj
 | relative, conformal rate | relativna, konformna obrestna mera | PIK §4.12; standard school finance terms |
 | doubling time | čas podvojitve | Transparent standard wording |
 | Euler's number | Eulerjevo število \(e\) | Standard. Match the wording of the existing exponential lessons when they name \(e\) |
+| iterate (the value after a step) | iterat; \(x_n\) | Existing `fixed_point_*` family says *iteracija* for the process; the value is the transparent noun *iterat* |
+| staircase, spiral (cobweb shapes) | stopnice, spirala | Transparent picture words for slope \(> 0\) and slope \(< 0\) |
+| attracting, repelling fixed point | privlačna, odbojna negibna točka | Standard wording; same family as the existing fixed-point lessons |
+| 2-cycle | dvojni cikel | Transparent standard wording |
+| extinction (logistic, \(r < 1\)) | izumrtje | Standard population-model term |
+| closed form (a formula for the \(n\)-th term or a limit, as against the recursive rule) | zaprta oblika | Transparent standard wording; used in growth captions and the limit note |
+| limit of the sum \(a_1/(1-q)\) | limita vsote | Standard school wording (PIK §4.12 names the geometric series) |
+| logarithm panel (the points \((n, \ln y)\) on an ordinary axis) | Logaritem y; točke \((n, \ln y)\) | Worker's choice: names the plotted quantity, and the axis caption says \(\ln y\), not \(y\) (ADR 0052 §3) |
+| line through the first and the last point | premica skozi prvo in zadnjo točko | Transparent description of the chord drawn in the logarithm panel |
+| exact (whole numbers) / computed (decimals) | natančno / izračunano | Worker's choice; says whether a value is a BigInt or a double result |
+| continuous compounding | zvezno obrestovanje | Transparent next to navadno/obrestno; the spec table does not list it |

@@ -1,0 +1,567 @@
+import React from 'react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
+import {MemoryRouter} from 'react-router-dom';
+import {GraphHost} from '../base/GraphHost';
+import {installBoardShims} from '../base/realGraphTestHarness';
+import {setLanguage, t} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
+import {DEFAULT_GROWTH_STATE, deriveGrowth, GrowthPanel} from '../../recursion/recursionModel';
+import {barsPath, chord, sampleCurve} from './growthScene';
+import {GrowthGraph, LOG_POINTS} from './GrowthGraph';
+
+beforeAll(installBoardShims);
+beforeEach(() => setLanguage('sl'));
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+
+/** Exposes the board and the disposal and rebuild the scene replacement calls. */
+class ObservedGraph extends GrowthGraph {
+    liveBoard() { return this.board; }
+    disposeNow() { this.disposeFigureScene(); }
+    rebuildNow() { this.syncReplacedScene(); }
+}
+
+function mountGraph(strict = false) {
+    const graph = new ObservedGraph();
+    const tree = <MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>;
+    const view = render(strict ? <React.StrictMode>{tree}</React.StrictMode> : tree);
+    return {graph, view};
+}
+
+type Probe = {id: string; elType: string; dataX?: number[]; dataY?: number[]; plaintext?: string; evalVisProp(name: string): unknown};
+const probes = (graph: ObservedGraph) => graph.liveBoard().objectsList as unknown as Probe[];
+const curves = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'curve');
+const markers = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'point');
+const texts = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'text' && o.plaintext !== '0,0');
+/** Ids of the objects of the scene: tick labels come and go with the window of the panel and are not the scene's. */
+const ownIds = (graph: ObservedGraph) => probes(graph).filter(o => !o.id.includes('_ticks_')).map(o => o.id);
+const visible = (list: Probe[]) => list.filter(o => o.evalVisProp('visible'));
+const shown = (graph: ObservedGraph) => visible(texts(graph)).map(o => o.plaintext ?? '');
+/** The owned objects: 12 curves (2 sequence, 4 interest + 4 legend, 2 logarithm), 32 points (n-th term, 31 logarithm points), 11 captions. */
+const CURVES = 12;
+const SCENE_OBJECTS = CURVES + (1 + LOG_POINTS) + 11;
+/** Curve indices in creation order. */
+const BARS = 0, LIMIT = 1, SIMPLE = 2, COMPOUND = 3, RELATIVE = 4, CONTINUOUS = 5, LEGEND = 6, LOG_LINE = 10, CHORD = 11;
+
+const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
+const status = () => document.querySelector('[data-recursion-status]')!.textContent!;
+const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+const select = (label: string) => screen.getByRole('combobox', {name: label}) as HTMLSelectElement;
+const choose = (label: string, value: string) => act(() => { fireEvent.change(select(label), {target: {value}}); });
+const panel = (value: GrowthPanel) => choose(t('recursion_graph_growth_panel_label'), value);
+const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+const described = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean)
+    .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
+const near = (actual: number | undefined, expected: number, digits = 6) => expect(actual).toBeCloseTo(expected, digits);
+const board = (graph: ObservedGraph) => (graph.liveBoard().containerObj as HTMLElement).getAttribute('aria-label');
+
+describe('mount and the sequence panel', () => {
+    test('the default is the spec example: a1 = 3, d = 2, n = 10, so a10 = 21 and S10 = 120, exact', () => {
+        const {graph} = mountGraph();
+        expect(graph.state).toMatchObject({panel: 'sequence', kind: 'arithmetic', a1: 3, d: 2, n: 10});
+        expect(readout('first')).toBe('3');
+        expect(readout('difference')).toBe('2');
+        expect(readout('terms')).toBe('3; 5; 7; 9; 11; 13; …');
+        expect(readout('nth')).toBe('21');
+        expect(readout('sum')).toBe('120');
+        expect(readout('precision')).toBe(t('recursion_graph_growth_precision_exact'));
+        expect(document.querySelector('[data-readout="nth"] dt')!.textContent).toBe(t('recursion_graph_growth_r_nth', {value0: '₁₀'}));
+        expect(status()).toBe(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
+        expect(board(graph)).toBe(t('recursion_graph_growth_board_sequence'));
+        expect(graph.ownedObjectCount()).toBe(SCENE_OBJECTS);
+        noBadText();
+    });
+
+    test('the bars curve holds the scene data, the n-th term is marked, and every shown caption names an element', () => {
+        const {graph} = mountGraph();
+        const [bars] = curves(graph);
+        const hand = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
+        const path = barsPath(hand);
+        expect([bars.dataX, bars.dataY]).toEqual([path.x, path.y]);
+        expect(bars.dataY!.slice(0, 5)).toEqual([0, 3, 3, 0, 0]);
+        expect(bars.dataY!.slice(-5)).toEqual([0, 21, 21, 0, 0]);
+        expect(bars.dataX!.slice(-5)).toEqual([9.64, 9.64, 10.36, 10.36, 9.64]);
+        expect(visible(curves(graph))).toHaveLength(1); // no limit line for an arithmetic sequence
+        expect(visible(markers(graph))).toHaveLength(1);
+        expect(shown(graph)).toEqual([
+            t('recursion_graph_growth_cap_bars', {value0: 10}), t('recursion_graph_growth_cap_nth', {value0: '₁₀', value1: '21'}),
+            t('recursion_graph_growth_cap_x_sequence'), t('recursion_graph_growth_cap_y_sequence'),
+        ]);
+    });
+
+    test('geometric with q = 2: a10 = 1536, S10 = 3069 exact, no limit line', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({kind: 'geometric', a1: 3, q: 20, n: 10}); });
+        expect(readout('ratio')).toBe('2');
+        expect(readout('nth')).toBe('1536');
+        expect(readout('sum')).toBe('3069');
+        expect(readout('precision')).toBe(t('recursion_graph_growth_precision_exact'));
+        expect(readout('limit')).toBe(t('recursion_graph_growth_limit_none'));
+        expect(visible(curves(graph))).toHaveLength(1);
+        expect(status()).toBe(t('recursion_graph_growth_status_geometric_exact', {value0: '₁₀', value1: '1536', value2: '3069'}));
+        expect(shown(graph)).toHaveLength(4);
+        expect(screen.queryByLabelText(t('recursion_graph_growth_d_label'))).toBeNull();
+    });
+
+    test('geometric with q = 0,5: the sum is computed, the limit 6 is a line and a caption, and the status says it is not the last term', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({kind: 'geometric', a1: 3, q: 5, n: 10}); });
+        expect(readout('sum')).toBe('5,994141'); // 5,994140625 at six decimals
+        expect(readout('nth')).toBe('0,005859'); // 3 * 0,5^9
+        expect(readout('precision')).toBe(t('recursion_graph_growth_precision_computed'));
+        expect(readout('limit')).toBe(t('recursion_graph_growth_limit_value', {value0: '6'}));
+        const line = curves(graph)[LIMIT];
+        expect(line.evalVisProp('visible')).toBe(true);
+        expect(line.dataY).toEqual([6, 6]);
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_limit', {value0: '6'}));
+        expect(status()).toContain(t('recursion_graph_growth_status_limit', {value0: '6'}));
+        act(() => { graph.setState({q: 10}); }); // |q| = 1: no limit
+        expect(readout('limit')).toBe(t('recursion_graph_growth_limit_none'));
+        expect(curves(graph)[LIMIT].evalVisProp('visible')).toBe(false);
+        act(() => { graph.setState({q: -5}); }); // |q| < 1 with a negative ratio: the limit is a1/(1 - q) = 2
+        expect(readout('limit')).toBe(t('recursion_graph_growth_limit_value', {value0: '2'}));
+    });
+
+    test('whole ratio (Q % 10 = 0) stays exact in BigInt beyond 2^53, with the true minus', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({kind: 'geometric', a1: 99, q: 30, n: 30}); });
+        expect(readout('nth')).toBe('6794407359123417'); // 99 * 3^29
+        expect(readout('sum')).toBe('10191611038685076'); // 99 * (3^30 - 1) / 2, above 2^53
+        expect(readout('precision')).toBe(t('recursion_graph_growth_precision_exact'));
+        act(() => { graph.setState({a1: 100, q: -20}); });
+        expect(readout('nth')).toBe('−53687091200'); // 100 * (-2)^29
+        expect(readout('sum')).toBe('−35791394100'); // 100 * (1 - (-2)^30) / 3
+        act(() => { graph.setState({q: -30, a1: -100}); });
+        expect(readout('first')).toBe('−100');
+        expect(readout('nth')).toBe('6863037736488300'); // -100 * (-3)^29 = 100 * 3^29
+        noBadText();
+    });
+
+    test('a ratio with a decimal part is computed with doubles, and the status says so', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({kind: 'geometric', a1: 1, q: 25, n: 3}); });
+        expect(readout('nth')).toBe('6,25');
+        expect(readout('sum')).toBe('9,75');
+        expect(readout('terms')).toBe('1; 2,5; 6,25');
+        expect(readout('precision')).toBe(t('recursion_graph_growth_precision_computed'));
+        expect(status()).toContain(t('recursion_graph_growth_status_geometric_computed', {value0: '₃', value1: '6,25', value2: '9,75'}));
+    });
+
+    test('the board window follows the panel and the data: a negative sequence reaches below the axis', () => {
+        const {graph} = mountGraph();
+        const before = graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)));
+        act(() => { graph.setState({a1: -50, d: -10}); });
+        const after = graph.liveBoard().getBoundingBox();
+        expect(after[3]).toBeLessThan(-140); // the lowest term, with room below it
+        expect(after[3]).toBeLessThan(before[3]);
+        expect(readout('nth')).toBe('−140');
+        expect(readout('sum')).toBe('−950');
+    });
+});
+
+describe('the interest panel', () => {
+    test('the spec example: 1000 at 5 % for 10 years, 12 parts', () => {
+        const {graph} = mountGraph();
+        panel('interest');
+        expect(board(graph)).toBe(t('recursion_graph_growth_board_interest'));
+        expect(readout('capital')).toBe('1000');
+        expect(readout('rate')).toBe('5 %');
+        expect(readout('simple')).toBe('1500');
+        expect(readout('compound')).toBe('1628,89');
+        expect(readout('relative')).toBe('1647,01');
+        expect(readout('continuous')).toBe('1648,72');
+        expect(readout('conformal')).toBe('0,407412 %');
+        expect(readout('doubling')).toBe(t('recursion_graph_growth_years_value', {value0: '14,2067'}));
+        expect(readout('rule72')).toBe(t('recursion_graph_growth_years_value', {value0: '14,4'}));
+        expect(status()).toBe(t('recursion_graph_growth_status_interest', {
+            value0: 10, value1: '1500', value2: '1628,89', value3: 12, value4: '1647,01', value5: '1648,72',
+        }));
+        noBadText();
+    });
+
+    test('four curves at t = 0 .. years: each ends at its value; four distinct legend lines; captions name the four models', () => {
+        const {graph} = mountGraph();
+        panel('interest');
+        const list = curves(graph);
+        const ends = [SIMPLE, COMPOUND, RELATIVE, CONTINUOUS].map(index => list[index].dataY![list[index].dataY!.length - 1]);
+        near(ends[0], 1500, 9);
+        near(ends[1], 1000 * Math.pow(1.05, 10), 9);
+        near(ends[2], 1000 * Math.pow(1 + 0.05 / 12, 120), 9);
+        near(ends[3], 1000 * Math.exp(0.5), 9);
+        near(ends[1], 1628.894627, 6);
+        near(ends[2], 1647.009498, 6);
+        near(ends[3], 1648.721271, 6);
+        for (const index of [SIMPLE, COMPOUND, RELATIVE, CONTINUOUS]) {
+            expect(list[index].dataX![0]).toBe(0);
+            expect(list[index].dataX![list[index].dataX!.length - 1]).toBe(10);
+            expect(list[index].dataY![0]).toBe(1000);
+        }
+        const reference = sampleCurve(time => 1000 * (1 + 0.05 * time), 0, 10);
+        expect([list[SIMPLE].dataX, list[SIMPLE].dataY]).toEqual([reference.x, reference.y]);
+        expect(visible(list)).toHaveLength(8);
+        const styles = list.slice(SIMPLE, LEGEND + 4).filter(o => o.evalVisProp('visible'));
+        const key = (o: Probe) => [o.evalVisProp('strokeColor'), o.evalVisProp('strokeWidth'), o.evalVisProp('dash')].join('|');
+        const first = styles.slice(0, 4).map(key);
+        expect(new Set(first).size).toBe(4);
+        expect(styles.slice(4).map(key)).toEqual(first); // the legend draws a sample of each curve in its style
+        expect(shown(graph)).toEqual([
+            t('recursion_graph_growth_cap_simple', {value0: '1500'}), t('recursion_graph_growth_cap_compound', {value0: '1628,89'}),
+            t('recursion_graph_growth_cap_relative', {value0: 12, value1: '1647,01'}), t('recursion_graph_growth_cap_continuous', {value0: '1648,72'}),
+            t('recursion_graph_growth_cap_x_interest'), t('recursion_graph_growth_cap_y_interest'),
+        ]);
+        expect(visible(markers(graph))).toHaveLength(0);
+    });
+
+    test('the number of parts changes the relative curve and the conformal rows; 365 parts is named in words', () => {
+        const {graph} = mountGraph();
+        panel('interest');
+        choose(t('recursion_graph_growth_parts_label'), '1');
+        expect(graph.state.parts).toBe(1);
+        expect(readout('relative')).toBe('1628,89'); // m = 1 is the compound value
+        expect(readout('conformal')).toBe('5 %');
+        choose(t('recursion_graph_growth_parts_label'), '365');
+        expect(readout('relative')).toBe('1648,66');
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_relative', {value0: 365, value1: '1648,66'}));
+    });
+
+    test('the table of (1 + 1/n)^n and e', () => {
+        mountGraph();
+        panel('interest');
+        expect(readout('e-1')).toBe('2');
+        expect(readout('e-10')).toBe('2,593742');
+        expect(readout('e-100')).toBe('2,704814');
+        expect(readout('e-1000')).toBe('2,716924');
+        expect(readout('e-1000000')).toBe('2,71828');
+        expect(readout('e')).toBe('2,718282');
+        expect(document.querySelector('[data-readout="e-10"] dt')!.textContent).toBe(t('recursion_graph_growth_r_e_n', {value0: '10'}));
+    });
+
+    test('the window grows to hold the largest curve', () => {
+        const {graph} = mountGraph();
+        panel('interest');
+        const small = graph.liveBoard().getBoundingBox()[1];
+        act(() => { graph.setState({capital: 50000, rate: 80, years: 40}); });
+        expect(graph.liveBoard().getBoundingBox()[1]).toBeGreaterThan(small * 100);
+        expect(graph.liveBoard().getBoundingBox()[2]).toBeGreaterThan(40);
+    });
+});
+
+describe('the logarithm panel (n, ln y) on an ordinary axis', () => {
+    test('exponential y = 1000 * 1,05^n: the points lie on a line of slope ln 1,05, said as the logarithm', () => {
+        const {graph} = mountGraph();
+        panel('log');
+        expect(board(graph)).toBe(t('recursion_graph_growth_board_log'));
+        expect(readout('model')).toBe(t('recursion_graph_growth_model_exponential'));
+        expect(readout('factor')).toBe('1,05');
+        expect(readout('slope')).toBe('0,04879');
+        expect(readout('slope-first')).toBe('0,04879');
+        expect(readout('slope-last')).toBe('0,04879');
+        expect(readout('ln-q')).toBe(t('recursion_graph_growth_computed_value', {value0: '0,04879'}));
+        expect(readout('q-from-slope')).toBe(t('recursion_graph_growth_computed_value', {value0: '1,05'}));
+        expect(readout('line')).toBe(t('recursion_graph_growth_line_yes'));
+        expect(readout('last-y')).toBe('1628,894627');
+        expect(status()).toBe(t('recursion_graph_growth_status_log_line', {value0: '0,04879', value1: '0,04879', value2: '1,05'}));
+        const line = curves(graph)[LOG_LINE];
+        expect(line.dataX).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        near(line.dataY![0], Math.log(1000), 12);
+        near(line.dataY![10], Math.log(1000) + 10 * Math.log(1.05), 9);
+        near(line.dataY![10], 7.395657, 6);
+        const derived = deriveGrowth(graph.state);
+        const expected = chord(derived.log.ns, derived.log.lnY);
+        expect([curves(graph)[CHORD].dataX, curves(graph)[CHORD].dataY]).toEqual([expected.x, expected.y]);
+        expect(curves(graph)[CHORD].dataX).toEqual([0, 10]);
+        expect(visible(markers(graph))).toHaveLength(11);
+        noBadText();
+    });
+
+    test('the axis caption says ln y (the logarithm), never plain y; the board label says the axis is not a logarithmic scale', () => {
+        const {graph} = mountGraph();
+        panel('log');
+        const caption = t('recursion_graph_growth_cap_y_log');
+        expect(shown(graph)).toContain(caption);
+        expect(caption).toMatch(/^ln y/);
+        expect(shown(graph)).not.toContain('y');
+        expect(shown(graph)).toEqual([
+            t('recursion_graph_growth_cap_points_exponential'), t('recursion_graph_growth_cap_chord', {value0: '0,04879'}),
+            t('recursion_graph_growth_cap_x_log'), caption,
+        ]);
+        expect(t('recursion_graph_growth_board_log')).toMatch(/ln y/);
+    });
+
+    test('power y = 1000 * n^2: n = 1 .. 11, the slope differs along the run, the points are not a line', () => {
+        const {graph} = mountGraph();
+        panel('log');
+        choose(t('recursion_graph_growth_model_label'), 'power');
+        expect(curves(graph)[LOG_LINE].dataX).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+        near(curves(graph)[LOG_LINE].dataY![10], Math.log(121000), 12);
+        expect(readout('slope')).toBe('0,479579'); // ln 121 / 10
+        expect(readout('slope-first')).toBe('1,386294'); // ln 4
+        expect(readout('slope-last')).toBe('0,19062'); // ln (121 / 100)
+        expect(readout('line')).toBe(t('recursion_graph_growth_line_no'));
+        expect(readout('ln-q')).toBeUndefined();
+        expect(readout('factor')).toBeUndefined();
+        expect(screen.queryByLabelText(t('recursion_graph_growth_logq_label'))).toBeNull();
+        expect(status()).toBe(t('recursion_graph_growth_status_log_curve', {value0: '1,386294', value1: '0,19062'}));
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_points_power'));
+        expect(visible(markers(graph))).toHaveLength(11);
+    });
+
+    test('the number of visible points follows n, from 2 (n = 1) to all 31 (n = 30)', () => {
+        const {graph} = mountGraph();
+        panel('log');
+        act(() => { graph.setState({n: 1}); });
+        expect(visible(markers(graph))).toHaveLength(2);
+        expect(readout('slope')).toBe('0,04879');
+        act(() => { graph.setState({n: 30}); });
+        expect(visible(markers(graph))).toHaveLength(LOG_POINTS);
+        expect(graph.ownedObjectCount()).toBe(SCENE_OBJECTS);
+    });
+});
+
+describe('panels', () => {
+    test('a panel change shows its own objects, hides the others, changes the board label, and builds nothing', () => {
+        const {graph} = mountGraph();
+        const ids = new Set(ownIds(graph));
+        const counts = {} as Record<GrowthPanel, number>;
+        for (const name of ['sequence', 'interest', 'log'] as const) {
+            panel(name);
+            expect(new Set(ownIds(graph))).toEqual(ids);
+            expect(graph.ownedObjectCount()).toBe(SCENE_OBJECTS);
+            counts[name] = visible(curves(graph)).length;
+            expect(board(graph)).toBe(t(`recursion_graph_growth_board_${name}`));
+            expect(document.querySelector('[data-recursion-note]')!.textContent).toBe(t(`recursion_graph_growth_note_${name}`));
+        }
+        expect(counts).toEqual({sequence: 1, interest: 8, log: 2});
+    });
+
+    test('the control set follows the panel', () => {
+        mountGraph();
+        const labels = () => [...document.querySelectorAll('label')].map(l => l.textContent);
+        expect(labels()).toEqual(expect.arrayContaining([t('recursion_graph_growth_a1_label'), t('recursion_graph_growth_d_label'), t('recursion_graph_growth_n_label')]));
+        panel('interest');
+        expect(labels()).toEqual(expect.arrayContaining([
+            t('recursion_graph_growth_capital_label'), t('recursion_graph_growth_rate_label'), t('recursion_graph_growth_years_label'), t('recursion_graph_growth_parts_label'),
+        ]));
+        expect(labels()).not.toContain(t('recursion_graph_growth_a1_label'));
+        panel('log');
+        expect(labels()).toEqual(expect.arrayContaining([t('recursion_graph_growth_y0_label'), t('recursion_graph_growth_logq_label'), t('recursion_graph_growth_steps_label')]));
+    });
+});
+
+describe('fields: ranges, help, refusal, program-changed values', () => {
+    test('every field is linked to a help that states its range and step', () => {
+        mountGraph();
+        const help = (label: string, text: string) => expect(described(field(label)), label).toBe(text);
+        expect(described(select(t('recursion_graph_growth_panel_label')))).toBe(t('recursion_graph_growth_panel_help'));
+        expect(described(select(t('recursion_graph_growth_kind_label')))).toBe(t('recursion_graph_growth_kind_help'));
+        help(t('recursion_graph_growth_a1_label'), t('recursion_graph_growth_a1_help', {value0: '−100', value1: '100'}));
+        help(t('recursion_graph_growth_d_label'), t('recursion_graph_growth_d_help', {value0: '−20', value1: '20'}));
+        help(t('recursion_graph_growth_n_label'), t('recursion_graph_growth_n_help', {value0: '1', value1: '30'}));
+        choose(t('recursion_graph_growth_kind_label'), 'geometric');
+        help(t('recursion_graph_growth_q_label'), t('recursion_graph_growth_q_help', {value0: '−3', value1: '3', value2: '0,1'}));
+        panel('interest');
+        help(t('recursion_graph_growth_capital_label'), t('recursion_graph_growth_capital_help', {value0: '1', value1: '100000'}));
+        help(t('recursion_graph_growth_rate_label'), t('recursion_graph_growth_rate_help', {value0: '0,5', value1: '40', value2: '0,5'}));
+        help(t('recursion_graph_growth_years_label'), t('recursion_graph_growth_years_help', {value0: '1', value1: '40'}));
+        expect(described(select(t('recursion_graph_growth_parts_label')))).toBe(t('recursion_graph_growth_parts_help'));
+        panel('log');
+        help(t('recursion_graph_growth_y0_label'), t('recursion_graph_growth_y0_help', {value0: '1', value1: '1000'}));
+        help(t('recursion_graph_growth_logq_label'), t('recursion_graph_growth_logq_help', {value0: '0,5', value1: '3', value2: '0,01'}));
+        help(t('recursion_graph_growth_steps_label'), t('recursion_graph_growth_steps_help', {value0: '1', value1: '30'}));
+        expect(described(select(t('recursion_graph_growth_model_label')))).toBe(t('recursion_graph_growth_model_help'));
+    });
+
+    test('typed values on the grid are taken; values outside the range are refused (aria-invalid) and never clamped', () => {
+        const {graph} = mountGraph();
+        enter(t('recursion_graph_growth_a1_label'), '-7');
+        enter(t('recursion_graph_growth_d_label'), '4');
+        enter(t('recursion_graph_growth_n_label'), '12');
+        expect(graph.state).toMatchObject({a1: -7, d: 4, n: 12});
+        const kept = graph.state;
+        enter(t('recursion_graph_growth_a1_label'), '101');
+        expect(field(t('recursion_graph_growth_a1_label')).getAttribute('aria-invalid')).toBe('true');
+        enter(t('recursion_graph_growth_d_label'), '-21');
+        expect(field(t('recursion_graph_growth_d_label')).getAttribute('aria-invalid')).toBe('true');
+        enter(t('recursion_graph_growth_n_label'), '31');
+        expect(field(t('recursion_graph_growth_n_label')).getAttribute('aria-invalid')).toBe('true');
+        expect(graph.state).toBe(kept);
+        expect(readout('nth')).toBe('37'); // -7 + 11 * 4
+    });
+
+    test('every edit method refuses without changing the state object, and writes exactly its own stored field', () => {
+        const {graph} = mountGraph();
+        const kept = graph.state;
+        for (const refused of [
+            graph.editFirstTerm(101), graph.editFirstTerm(-100.5), graph.editFirstTerm(NaN), graph.editDifference(21), graph.editRatio(3.1), graph.editRatio(-3.1),
+            graph.editRatio(0.25), graph.editTerms(0), graph.editTerms(31), graph.editTerms(Infinity), graph.editCapital(0), graph.editCapital(100001),
+            graph.editRate(0), graph.editRate(40.5), graph.editRate(0.25), graph.editYears(0), graph.editYears(41), graph.editStartValue(0), graph.editStartValue(1001),
+            graph.editGrowthFactor(0.49), graph.editGrowthFactor(3.01), graph.editGrowthFactor(1.005), graph.editParts(3), graph.editParts(0),
+        ]) expect(refused).toBe(false);
+        expect(graph.state).toBe(kept);
+        // The computed-key patch: each accepted edit writes one field, the stored integer, and no other.
+        const edits: Array<[string, boolean, Record<string, number>]> = [
+            ['a1', graph.editFirstTerm(-100), {a1: -100}], ['d', graph.editDifference(-20), {d: -20}], ['q', graph.editRatio(-3), {q: -30}],
+            ['n', graph.editTerms(30), {n: 30}], ['capital', graph.editCapital(100000), {capital: 100000}], ['rate', graph.editRate(40), {rate: 80}],
+            ['years', graph.editYears(40), {years: 40}], ['y0', graph.editStartValue(1000), {y0: 1000}], ['logQ', graph.editGrowthFactor(3), {logQ: 300}],
+            ['parts', graph.editParts(365), {parts: 365}],
+        ];
+        for (const [, accepted] of edits) expect(accepted).toBe(true);
+        const all = Object.assign({}, ...edits.map(([, , patch]) => patch));
+        expect(graph.state).toMatchObject({...DEFAULT_GROWTH_STATE, ...all});
+        expect(graph.editRate(0.5)).toBe(true);
+        expect(graph.state.rate).toBe(1);
+        expect(graph.editGrowthFactor(0.5)).toBe(true);
+        expect(graph.state.logQ).toBe(50);
+        expect(Object.keys(graph.state).sort()).toEqual(['initialized', ...Object.keys(DEFAULT_GROWTH_STATE)].sort());
+    });
+
+    test('a value changed by the program (setState from outside) updates the picture and is announced in the live status', () => {
+        vi.useFakeTimers();
+        const {graph} = mountGraph();
+        const live = () => document.querySelector('[data-readout-live]')!.textContent!;
+        expect(live()).toContain(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
+        act(() => { graph.setState({n: 20}); });
+        expect(field(t('recursion_graph_growth_n_label')).value).toBe('20');
+        expect(readout('nth')).toBe('41');
+        expect(curves(graph)[BARS].dataX!.length).toBe(20 * 5 + 19);
+        act(() => { vi.advanceTimersByTime(1000); });
+        expect(live()).toContain(t('recursion_graph_growth_status_arithmetic', {value0: '₂₀', value1: '41', value2: '440'}));
+        act(() => { graph.setState({a1: 4, d: 3, n: 5}); }); // one synchronous write of several fields
+        expect(readout('nth')).toBe('16');
+        expect(readout('sum')).toBe('50');
+        act(() => { graph.setState({panel: 'interest', rate: 20}); });
+        expect(readout('rate')).toBe('10 %');
+        expect(readout('simple')).toBe('2000');
+        act(() => { vi.advanceTimersByTime(1000); });
+        expect(live()).toContain(t('recursion_graph_growth_status_interest', {
+            value0: 10, value1: '2000', value2: '2593,74', value3: 12, value4: '2707,04', value5: '2718,28',
+        }));
+    });
+
+    test('decimal comma in Slovenian, decimal point in English; the true minus in both', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({kind: 'geometric', a1: -3, q: 25, n: 3}); });
+        expect(readout('ratio')).toBe('2,5');
+        expect(readout('nth')).toBe('−18,75');
+        act(() => { setLanguage('en'); });
+        expect(readout('ratio')).toBe('2.5');
+        expect(readout('nth')).toBe('−18.75');
+        expect(field(t('recursion_graph_growth_q_label')).value).toMatch(/2\.5/);
+    });
+});
+
+describe('ownership', () => {
+    test('a state change does not rebuild; dispose and rebuild replace every owned object and return to the pre-mount count', () => {
+        const {graph, view} = mountGraph();
+        const count = () => probes(graph).filter(o => o.elType !== 'label').length;
+        const owned = graph.ownedObjectCount();
+        expect(owned).toBe(SCENE_OBJECTS);
+        const base = count() - owned;
+        const ids = new Set(ownIds(graph));
+        act(() => { graph.setState({n: 20, d: -3}); });
+        panel('log');
+        expect(new Set(ownIds(graph))).toEqual(ids);
+        expect(graph.ownedObjectCount()).toBe(owned);
+
+        graph.disposeNow();
+        expect(graph.ownedObjectCount()).toBe(0);
+        expect(graph.ownedListenerCount()).toBe(0);
+        expect(count()).toBe(base);
+        const remaining = new Set(probes(graph).map(o => o.id));
+        const gone = [...ids].filter(id => !remaining.has(id));
+        expect(gone.length).toBeGreaterThanOrEqual(owned); // the scene's objects (tick labels may go with them)
+
+        act(() => { graph.rebuildNow(); });
+        expect(graph.ownedObjectCount()).toBe(owned);
+        expect(count()).toBe(base + owned);
+        expect(probes(graph).some(o => gone.includes(o.id))).toBe(false); // every old scene object is gone, none reused
+        expect(curves(graph)[LOG_LINE].dataX!.length).toBe(21); // the rebuilt curve draws the state again
+        expect(visible(markers(graph))).toHaveLength(21);
+        graph.disposeNow();
+        graph.disposeNow(); // a second disposal is harmless
+        expect(count()).toBe(base);
+
+        view.unmount();
+        expect(graph.ownedObjectCount()).toBe(0);
+    });
+
+    test('unmount removes the board label, the language listener and every timer of this graph', () => {
+        vi.useFakeTimers();
+        // JSXGraph leaves timers of its own for redrawn texts; the same changes on a second mount must leave the same number.
+        const change = (graph: ObservedGraph) => { act(() => { graph.setState({n: 11}); }); act(() => { graph.setState({n: 12}); }); };
+        const before = vi.getTimerCount();
+        const reference = mountGraph();
+        change(reference.graph);
+        reference.view.unmount();
+        const plainDelta = vi.getTimerCount() - before;
+        const afterPlain = vi.getTimerCount();
+        const {graph, view} = mountGraph();
+        change(graph);
+        const live = vi.getTimerCount();
+        view.unmount();
+        expect(vi.getTimerCount()).toBeLessThan(live); // the pending 500 ms status settle is cancelled
+        expect(vi.getTimerCount() - afterPlain).toBe(plainDelta);
+        expect(() => act(() => { vi.runOnlyPendingTimers(); })).not.toThrow();
+        expect(graph.ownedObjectCount()).toBe(0);
+        expect(document.querySelector(`[aria-label="${t('recursion_graph_growth_board_sequence')}"]`)).toBeNull();
+        expect(() => setLanguage('en')).not.toThrow();
+    });
+
+    test('StrictMode: the same number of objects as a plain mount, and no timer left after unmount', () => {
+        vi.useFakeTimers();
+        const change = (graph: ObservedGraph) => { act(() => { graph.setState({n: 3}); }); };
+        const strictBefore = vi.getTimerCount();
+        const first = mountGraph(true);
+        change(first.graph);
+        first.view.unmount();
+        const strictDelta = vi.getTimerCount() - strictBefore;
+        const afterStrictPlain = vi.getTimerCount();
+        const plain = mountGraph();
+        const expected = {owned: plain.graph.ownedObjectCount(), board: plain.graph.liveBoard().objectsList.length};
+        change(plain.graph);
+        plain.view.unmount();
+        const plainLeak = vi.getTimerCount() - afterStrictPlain;
+        const strict = mountGraph(true);
+        expect(strict.graph.ownedObjectCount()).toBe(expected.owned);
+        expect(strict.graph.liveBoard().objectsList.length).toBe(expected.board);
+        change(strict.graph);
+        strict.view.unmount();
+        expect(strict.graph.ownedObjectCount()).toBe(0);
+        expect(vi.getTimerCount() - afterStrictPlain - plainLeak).toBe(strictDelta);
+    });
+
+    test('the derived values are computed once per state object, not at every redraw', () => {
+        const {graph} = mountGraph();
+        const first = graph.derived();
+        act(() => { graph.liveBoard().update(); });
+        act(() => { graph.liveBoard().update(); });
+        expect(graph.derived()).toBe(first);
+        act(() => { graph.setState({n: 11}); });
+        expect(graph.derived()).not.toBe(first);
+    });
+
+    test('there is no playback and no animation timer: the graph has no play control and writes only stored fields', () => {
+        const {graph} = mountGraph();
+        expect(screen.queryByRole('button', {name: t('play')})).toBeNull();
+        expect(Object.keys(graph.state).sort()).toEqual(['initialized', ...Object.keys(DEFAULT_GROWTH_STATE)].sort());
+    });
+});
+
+describe('language', () => {
+    test('switching to English renames the board, the labels, the captions and the status in every panel', () => {
+        const {graph} = mountGraph();
+        act(() => { setLanguage('en'); });
+        expect(board(graph)).toBe(t('recursion_graph_growth_board_sequence'));
+        expect(field(t('recursion_graph_growth_a1_label')).labels![0].textContent).toBe(t('recursion_graph_growth_a1_label'));
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_nth', {value0: '₁₀', value1: '21'}));
+        expect(status()).toBe(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
+        panel('interest');
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_compound', {value0: '1628.89'}));
+        expect(status()).toContain('1647.01');
+        panel('log');
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_y_log'));
+        expect(board(graph)).toBe(t('recursion_graph_growth_board_log'));
+        expect(document.body.textContent).not.toMatch(/recursion_graph_/);
+        noBadText();
+    });
+});
