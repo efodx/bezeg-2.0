@@ -131,6 +131,21 @@ Existing terms reused: *porazdelitev*, *binomska*, *normalna* (probability chapt
 
 ## Implementation Decisions
 
+- F2a decisions (handler, 2026-11-10):
+  - The accepted F1 runners return tallies only. The one-ball path (RS1), the point scatter (RS3) and the overlaid walks and their funnel (RS4) come from a new pure module beside the kernel. It draws from the same seeded generator. Its oracle: for every seed, its tallies equal the kernel runners' tallies. The kernel stays unchanged.
+  - An invalid seed is refused with a message, not snapped to 42, following the shared "refuse, never clamp" input rule.
+  - The exact fair-coin band for \(n\) above 1000 comes from an exact mass sum, tested against `binomialMasses` up to \(n=1000\).
+  - The walk sign convention is the kernel's, so only sign-invariant RS4 numbers are compared with the reference script.
+  - Any asymptotic spread shown for the Markov share of time is labelled approximate.
+  - The graph draws the first 10 balls or walks, 300 points and 100 intervals of a run. Tallies and readouts always cover the whole run. The generator uses `BigInt`, so skipping ahead to the latest objects would cost \(O(n)\) per frame.
+  - Under reduced motion, Play shows the whole run at once.
+  - Every element named in a lesson's Scene is drawn at F2a. The task 03 completion adds the ones the first draft left out: RS6's exact binomial bars of misses, the Markov box diagram, RS3's second shape, the RS2 second plot, overlaid seeds, and a speed control (the shared `Slider`).
+  - Changing the speed does not pause playback. Speed is a playback setting, not a scene edit, and pausing on every slider step would make the control unusable.
+  - The RS3 whole-circle picture reflects one quarter-disc sample into the four quarters, and its caption says so. The share, and with it the \(\pi/4\) estimate, is unchanged by symmetry.
+  - The RS2 band is named the 95 % band. "Običajno odstopanje" names only the one-standard-deviation readout.
+  - Overlays cover the Galton, frequency, walk and Markov modes with one extra seed, run with the same parameters.
+  - Each stop recomputes its run prefix (in jsdom, about 108 ms at the last stop of a Galton run with \(n=10^5\)). Advancing tallies incrementally is left to the F2b browser measurement.
+
 - Gating (per the stream's [boundary with the Controls stream](../tasks/feature-streams/families-prep.md)). **Ungated now:** this spec; F0 plan and ADRs 1–3; F1 kernels `src/random/` as new pure TypeScript files with oracle tests; the batch-drawing measurement as a `node`/benchmark script. **Waits on Controls step 5:** the seed field, the Replay action and playback/speed controls (F2a), because they are shared controls; this spec plans no edit to `BaseGraph.tsx`, `GraphSession.ts`, `src/inputs/` or existing graph panels. Dependency on the Controls stream: a numeric field with validation, a Replay button and a playback control with reduced-motion behaviour.
 - Performance: drag-free playback of at most a few hundred drawn balls per frame; batch sizes up to \(10^5\) trials (\(10^4\) intervals of 36 draws is \(3.6\cdot10^5\) draws). Measure per [the performance plan](../performance-plan.md) before choosing between `BigInt` and a two-halves implementation and between SVG and canvas for the heap: tally cost, time to first frame at \(n=10^4\) and \(10^5\), and playback frame time on a phone. The exact bars are computed once per parameter change.
 - State: seed, \(n\), mode parameters and the playback position are serialised in the preset; import validates ranges and the generator version tag (so a future generator change cannot silently alter stored runs).

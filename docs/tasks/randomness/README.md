@@ -26,3 +26,18 @@ These are checked against `sl.ts`, which already has `replay` *Ponovi* and `play
 | random walk | slučajni sprehod | Standard probability term, as used in UL FMF *Verjetnost* teaching |
 | Markov chain; stationary distribution | markovska veriga; stacionarna porazdelitev | Standard |
 | confidence interval; covers; misses | interval zaupanja; pokrije; zgreši | Standard; plain words |
+| heads (coin) | grb | The Slovenian coin side that is called *grb* (the other is *cifra*); "Število grbov" |
+| slot (Galton board) | predal | Plain word for the compartment a ball falls into |
+| second seed | drugo seme | Ordinal plus the glossed *seme* |
+| dotted line | pikčasta črta | Plain description of the second run's line style |
+| whole circle | cel krog | Plain; contrasts the quarter circle |
+| time between steps | čas med koraki | Plain label of the playback speed slider (milliseconds) |
+| state (Markov chain) | stanje | Standard term for a chain's state |
+| misses by the law | zgrešenih po zakonu | Count of missed intervals as the binomial law predicts; *zgreši* as in the row above |
+| expected (count by the law) | pričakovano | Standard probability wording; "pričakovana vrednost" for the expected value |
+| ball; peg | kroglica; klin | Plain words for the Galton board parts |
+| sample size | velikost vzorca | Standard statistics wording |
+| second eigenvalue | druga lastna vrednost | Standard linear algebra term; shown for the Markov chain |
+| typical deviation | običajno odstopanje | Plain wording for the standard deviation of a share, to avoid unexplained *standardni odklon*; used for the 1 sd readouts only |
+| 95 % band | pas 95 % | The central band holding 95 % of the outcomes (exact binomial, not 1 sd); captions and the readout "Pas 95 % za število grbov" use this name, never *običajno odstopanje* |
+| root mean square | koren povprečja kvadratov | Spelled out, because *korensko povprečje* is not standard |

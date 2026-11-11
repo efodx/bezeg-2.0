@@ -1,5 +1,5 @@
 # Stream: Families prep
-Run state: stopped: preparation done; F2a (playback, 3D) waits on Controls step 5 and F2b–F5 on Controls step 7
+Run state: active (restarted 2026-11-10 after Controls steps 5 and 7 were accepted: gated F2a, then F2b–F6)
 
 Preparation of the fifteen families ranked in the [top-15 research note](../../research/lesson-family-candidates-2026-11-09.md), specs first. The owner scheduled the preparation on 2026-11-10, including the parked E5, E9 and E10. Rules and slice template: [feature streams](README.md). Port 4321. Handoffs and state note: `docs/reviews/feature-streams/families-prep/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
