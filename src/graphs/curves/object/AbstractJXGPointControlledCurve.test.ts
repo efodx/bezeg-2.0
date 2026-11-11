@@ -1,5 +1,5 @@
-import {Board} from 'jsxgraph';
-import {AbstractJXGPointControlledCurve, evaluationPointLabel, refreshAfterControlPointDrag} from './AbstractJXGPointControlledCurve';
+import JXG, {Board} from 'jsxgraph';
+import {AbstractJXGPointControlledCurve, evaluationPointLabel, PointControlledCurveAttributes, refreshAfterControlPointDrag} from './AbstractJXGPointControlledCurve';
 import {PolynomialBezierCurve} from '../../../bezeg/impl/curve/polynomial-bezier-curve';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 import {GraphSession, GraphSessionDependencies} from '../../base/GraphSession';
@@ -72,4 +72,24 @@ test('a resize step that would collapse the box to zero width leaves the curve u
     expect(points[0].X()).toBeCloseTo(-1, 9);
     expect(points[2].X()).toBeCloseTo(5, 9);
     expect(points[1].Y()).toBeCloseTo(3, 9);
+});
+
+test('a construction that throws after creating control points leaves no objects on the board', () => {
+    const host = document.createElement('div');
+    host.id = 'construct-leak';
+    document.body.appendChild(host);
+    const board = JXG.JSXGraph.initBoard(host.id, {boundingbox: [-2, 6, 8, -2], renderer: 'no', showCopyright: false, showNavigation: false});
+    class ThrowingCurve extends AbstractJXGPointControlledCurve<PolynomialBezierCurve, PointControlledCurveAttributes> {
+        protected getInitialCurve(points: number[][]): PolynomialBezierCurve {
+            points.forEach(([x, y]) => this.createEditableInputPoint(x, y));
+            throw new Error('construction failed');
+        }
+    }
+    const before = board.objectsList.length;
+
+    expect(() => new ThrowingCurve([[0, 0], [1, 2], [3, 0]], board)).toThrow('construction failed');
+
+    expect(board.objectsList.length).toBe(before);
+    JXG.JSXGraph.freeBoard(board);
+    document.body.innerHTML = '';
 });

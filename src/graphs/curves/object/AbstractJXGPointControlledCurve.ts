@@ -8,6 +8,7 @@ import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {Point} from "../../../bezeg/api/point/point";
 import {ModelPointBinding} from "./ModelPointBinding";
 import {graphSessionForBoard} from "../../base/GraphSession";
+import {sweepObjectsSince} from "../../base/OwnedScene";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 import {resizeScale, rotationAngle} from "../../../bezeg/impl/curve/gesture-transforms";
@@ -103,36 +104,44 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
             throw new Error("JSXGraph curve adapters only support planar points (z must be 0).");
         }
         this.board = board;
-        this.setAttributes(this.getDefaultAttributes());
-        if (attributes) {
-            this.setAttributes(attributes);
+        // A step that throws after points exist must not leave them on the board: nothing owns them yet.
+        const before = new Set(board.objectsList);
+        try {
+            this.setAttributes(this.getDefaultAttributes());
+            if (attributes) {
+                this.setAttributes(attributes);
+            }
+            this.pointControlledCurve = this.getInitialCurve(points);
+            // TODO the starting curve is hardly ever actually used... Maybe think differently about this.
+            this.jxgCurve = this.board.create('curve',
+                [(t: number) => {
+                    return this.pointControlledCurve.eval(t).X();
+                },
+                    (t: number) => {
+                        return this.pointControlledCurve.eval(t).Y();
+                    },
+                    () => {
+                        if (typeof this.intervalStart == "number") {
+                            return this.intervalStart;
+                        }
+                        return this.intervalStart();
+                    },
+                    () => {
+                        if (typeof this.intervalEnd == "number") {
+                            return this.intervalEnd;
+                        }
+                        return this.intervalEnd();
+                    }],
+                this.styles.curve.default
+            );
+            this.addBoundingBox();
+            this.hideBoundingBox();
+            this.board.on("update", this.convexHullRefresher);
+        } catch (error) {
+            this.jxgPoints = [];
+            sweepObjectsSince(board, before);
+            throw error;
         }
-        this.pointControlledCurve = this.getInitialCurve(points);
-        // TODO the starting curve is hardly ever actually used... Maybe think differently about this.
-        this.jxgCurve = this.board.create('curve',
-            [(t: number) => {
-                return this.pointControlledCurve.eval(t).X();
-            },
-                (t: number) => {
-                    return this.pointControlledCurve.eval(t).Y();
-                },
-                () => {
-                    if (typeof this.intervalStart == "number") {
-                        return this.intervalStart;
-                    }
-                    return this.intervalStart();
-                },
-                () => {
-                    if (typeof this.intervalEnd == "number") {
-                        return this.intervalEnd;
-                    }
-                    return this.intervalEnd();
-                }],
-            this.styles.curve.default
-        );
-        this.addBoundingBox();
-        this.hideBoundingBox();
-        this.board.on("update", this.convexHullRefresher);
     }
 
     getDefaultAttributes(): Attr {
