@@ -12,11 +12,14 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {StepCounter} from "../base/controls/StepCounter";
 import {GraphPalette} from "../styles/GraphPalette";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {randomPresetCollection} from "./randomPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {
     AREA_SHAPES, AreaShape, CHAIN_MAX, CHAIN_MIN, DEFAULT_RANDOM_STATE, exactFor, fairCoinBandHalfWidth, frequencySd, largestBarDifference, markovShareSd,
-    N_MAX, N_MIN, nextStop, OVERLAY_MODES, P_MAX, P_MIN, PERCENT_STEP, piStandardError, RANDOM_MODES, RandomExact, RandomMode, RandomSim, RandomState,
-    ROWS_MAX, ROWS_MIN, SAMPLE_SIZE_MAX, SAMPLE_SIZE_MIN, SEED_MAX, SEED_MIN, simulate, snapChainInput, snapPercentInput, snapRowsInput,
+    N_MAX, N_MIN, nextStop, OVERLAY_MODES, P_MAX, P_MIN, PERCENT_STEP, piStandardError, parseRandomState, RANDOM_MODES, RandomExact, RandomMode, RandomSim, RandomState,
+    ROWS_MAX, ROWS_MIN, SAMPLE_SIZE_MAX, SAMPLE_SIZE_MIN, SEED_MAX, SEED_MIN, serializeRandomState, simulate, snapChainInput, snapPercentInput, snapRowsInput,
     snapSampleSizeInput, snapSeedInput, snapStopInput, snapTrialsInput, snapWalkStepsInput, STOP_MS_DEFAULT, STOP_MS_MAX, STOP_MS_MIN, STOP_MS_STEP, stopPosition,
     WALK_STEPS_MAX, WALK_STEPS_MIN, withMode,
 } from "../../random/randomModel";
@@ -159,7 +162,7 @@ interface DrawnCurve {
  * Ownership: every board object is created in `buildScene` and recorded in `objects`; `disposeScene` removes them. The playback driver
  * is created by `play`, stopped by every edit and disposed with the scene; the settled readout's timer is cancelled with the session.
  */
-export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
+export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
     private objects: JXG.GeometryElement[] = [];
     private viewCache?: {state: RandomGraphState; key: string; view: RunView};
     private exactCache?: {key: string; exact: RandomExact};
@@ -179,12 +182,44 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): RandomState {
+        return serializeRandomState(DEFAULT_RANDOM_STATE);
+    }
+
+    override presetCollection(): PresetCollection<RandomState> {
+        return randomPresetCollection();
+    }
+
+    override exportPreset(): Preset<RandomState> {
+        const preset = super.exportPreset();
+        const {generator: _generator, mode: _mode, seed: _seed, n: _n, shown: _shown, rows: _rows, pPercent: _pPercent, walkSteps: _walkSteps, markovA: _markovA, markovB: _markovB, markovStart: _markovStart, sampleSize: _sampleSize, areaShape: _areaShape, overlay: _overlay, seed2: _seed2, stopMs: _stopMs, ...graphState} = preset.graphState as RandomGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): RandomState {
+        return serializeRandomState(this.state);
+    }
+
+    override importPresetData(data: RandomState): void {
+        this.setState(serializeRandomState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): RandomGraphState {
+        const parsed = parseRandomState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
+    }
+
+    /** The axes mean different things (counts, probabilities, rounds): every scene frame is applied exactly, as a mount shows the default frame. */
+    protected override get equalAxisUnits(): boolean {
+        return false;
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [-1, 0.4, DEFAULT_RANDOM_STATE.rows + 1, -0.4];
+        const [left, top, right, bottom] = sceneFor(DEFAULT_RANDOM_STATE, simulate(DEFAULT_RANDOM_STATE), exactFor(DEFAULT_RANDOM_STATE)).frame;
+        return [left, top, right, bottom];
     }
 
     // ---- Derived numbers ------------------------------------------------------------------------------------------------
@@ -228,6 +263,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
 
     initialize(): void {
         this.buildScene();
+        // A mount frames the scene once (a board starts with the canvas-aspect box); replacements never call initialize and keep their view.
+        if (this.hasBoard) this.applyFrame();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -244,6 +281,11 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
         this.pausePlayback();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build a changed scene first, then mark its frame as drawn.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.drawnMode !== this.state.mode || this.drawnCaptions !== this.view().scene.captions.length) this.buildScene();
+            this.drawnFrame = this.frameKey();
+        }
         this.syncBoard();
     }
 
@@ -260,9 +302,14 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
         this.status.report(this.statusText());
     }
 
+    private frameKey(): string {
+        return `${this.state.mode}/${this.view().scene.frame.map(value => value.toFixed(4)).join(",")}`;
+    }
+
+    /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
         const frame = this.view().scene.frame;
-        const key = `${this.state.mode}/${frame.map(value => value.toFixed(4)).join(",")}`;
+        const key = this.frameKey();
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
         this.board.setBoundingBox([...frame], false);
@@ -300,7 +347,6 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, null> {
             }], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", fixed: true, highlight: false, withLabel: false}));
         }
         this.drawnFrame = "";
-        this.applyFrame();
     }
 
     private disposeScene(): void {

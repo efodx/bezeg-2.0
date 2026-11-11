@@ -28,4 +28,4 @@ Review: engineering plus UI and accessibility, and a mathematical review of the 
 - [x] `SimulationGraph.tsx` with all six modes, the overlay switch with the second seed, the area shape select, the speed slider, captions for every element a readout names.
 - [x] Tests: scene (oracle values by hand), graph (controls, playback on a fake clock, language, rebuild and disposal), model.
 - [x] `tsc`, `just lint`, `just build`, unit tests pass; JSDOM placeholder timings in the [evidence note](../../reviews/feature-streams/families-prep/notes/f2a-rand-03.md).
-- [ ] Owed at F2b: browser and phone timings, the `BigInt` against two halves and SVG against canvas choices, a look at caption overlaps, and the route.
+- [x] Route and caption overlaps done at F2b (handler 8, 2026-11-11). Browser and phone timings and the `BigInt`/SVG choices move to the first release batch (`04-release-batches.md`).

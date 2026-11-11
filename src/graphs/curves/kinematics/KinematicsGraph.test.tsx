@@ -8,8 +8,8 @@ import {setLanguage, t} from '../../../localization';
 import {enterNumber} from '../../../inputs/testEntry';
 import type {TransientState} from '../../base/BaseGraph';
 import type {AnimationScheduler} from '../../../learning/runtime/animation';
-import {FIELD_RANGES, MOTION_IDS, parseKinematicsState, serializeKinematicsState, type MotionChoice} from '../../../kinematics/kinematicsModel';
-import {KinematicsGraph, MAX_FRAME_MS, TIME_STEP} from './KinematicsGraph';
+import {DEFAULT_KINEMATICS_STATE, deriveKinematics, FIELD_RANGES, MOTION_IDS, parseKinematicsState, serializeKinematicsState, withMotion, type MotionChoice} from '../../../kinematics/kinematicsModel';
+import {frameFor, KinematicsGraph, MAX_FRAME_MS, TIME_STEP} from './KinematicsGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -632,4 +632,98 @@ describe('review repairs', () => {
             expect(speed / d.scales.velocity.step).toBeLessThanOrEqual(1 + 1e-4);
             expect(acceleration / d.scales.acceleration.step).toBeLessThanOrEqual(1 + 1e-4);
         });
+});
+
+describe('a scene replacement (families-prep F2b registration)', () => {
+    // The drawn state of every element (visPropCalc is what the renderer shows), read in the same tick as the restore.
+    const shownKinds = (graph: ObservedGraph) => ['curve', 'arrow', 'text', 'point', 'segment', 'line'].map(type => probes(graph).filter(o => o.elType === type
+        && (o as unknown as {visPropCalc: {visible: boolean}}).visPropCalc.visible === true).length);
+
+    test('a restore shows the switched-off elements again in the same tick, with no later board update', () => {
+        const {graph} = mountGraph();
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        const shown = shownKinds(graph);
+        act(() => { graph.setState({trace: false, showVelocity: false, showAcceleration: false}); });
+        expect(shownKinds(graph)).not.toEqual(shown);
+        // The test renderer re-evaluates `visible` on update(), JSXGraph's real one does not: the restore must call fullUpdate itself.
+        const fullUpdate = vi.spyOn(graph.liveBoard(), 'fullUpdate');
+        act(() => { capabilities.restoreState(checkpoint); });
+        expect(graph.state.trace).toBe(true);
+        expect(shownKinds(graph)).toEqual(shown);
+        expect(fullUpdate).toHaveBeenCalled();
+    });
+
+    test('a switch redraws with fullUpdate, a time change that shows the same elements does not', () => {
+        const {graph} = mountGraph();
+        go(graph, 0.4);
+        const fullUpdate = vi.spyOn(graph.liveBoard(), 'fullUpdate');
+        go(graph, 0.5);
+        go(graph, 0.6);
+        expect(fullUpdate).not.toHaveBeenCalled();
+        act(() => { graph.setState({trace: false}); });
+        expect(fullUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test('restoring a checkpoint keeps the stored view instead of refitting', () => {
+        const {graph} = mountGraph();
+        const capabilities = graph.getLessonCapabilities();
+        act(() => { graph.setState(withMotion(graph.state, 'projectile')); });
+        act(() => { graph.liveBoard().setBoundingBox([-9, 40, 90, -20], true); });
+        const checkpoint = capabilities.captureState();
+        const stored = graph.liveBoard().getBoundingBox();
+        act(() => { graph.setState(withMotion(graph.state, 'cardioid')); });
+        act(() => { capabilities.restoreState(checkpoint); });
+        expect(graph.state.motion).toBe('projectile');
+        expect(graph.liveBoard().getBoundingBox()).toEqual(stored);
+    });
+
+    test('importing a Preset without a stored view frames the scene of its motion as a switch does', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState(withMotion(graph.state, 'projectile')); });
+        const framed = graph.liveBoard().getBoundingBox();
+        act(() => { graph.setState(withMotion(graph.state, 'cycloid')); });
+        const {boardState: _boardState, ...preset} = graph.exportPreset();
+        act(() => { graph.importPreset({...preset, data: serializeKinematicsState(withMotion(graph.state, 'projectile'))}); });
+        expect(graph.state.motion).toBe('projectile');
+        expect(graph.liveBoard().getBoundingBox()).toEqual(framed);
+    });
+});
+
+describe('opening view and caption rows (families-prep F2b fix pass)', () => {
+    /** The board of the narrowest and of the widest layout the graph is checked at, in pixels. */
+    const DESKTOP = {width: 850, height: 530};
+    const CAPTION_ROWS_PX = 10 + 5 * 20; // point, path, trace, v and a: the captions a mount shows
+
+    test.each([...MOTION_IDS])('%s: the figure fills the board on its limiting side, an arrow at its largest stays in view, and the captions have room', motion => {
+        const derived = deriveKinematics(withMotion(DEFAULT_KINEMATICS_STATE, motion));
+        const [left, top, right, bottom] = frameFor(derived);
+        const [minX, maxX, minY, maxY] = derived.box;
+        const scale = Math.min(DESKTOP.width / (right - left), DESKTOP.height / (top - bottom));
+        // An arrow of the full length `unit` at any point of the path ends inside the frame.
+        expect(minX - left).toBeGreaterThanOrEqual(derived.scales.unit);
+        expect(right - maxX).toBeGreaterThanOrEqual(derived.scales.unit);
+        expect(minY - bottom).toBeGreaterThanOrEqual(derived.scales.unit);
+        expect(top - maxY).toBeGreaterThanOrEqual(derived.scales.unit);
+        // The captions stand in the top left: the room above the path holds all five rows.
+        expect((top - maxY) * scale).toBeGreaterThanOrEqual(CAPTION_ROWS_PX);
+        // The figure takes nearly half of the limiting side of the board.
+        const fill = Math.max(((maxX - minX) * scale) / DESKTOP.width, ((maxY - minY) * scale) / DESKTOP.height);
+        expect(fill, motion).toBeGreaterThanOrEqual(0.45);
+    });
+
+    test('a caption wider than the board takes two rows: the row below it starts at least 40 px lower', () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard();
+        board.canvasWidth = 340;
+        act(() => { board.update(); });
+        const texts = ofType(graph, 'text').filter(o => o.plaintext !== '0,0' && visible(o)) as unknown as Array<Probe & {Y(): number}>;
+        const scale = board.unitY;
+        const at = (prefix: string) => texts.findIndex(o => (o.plaintext ?? '').startsWith(prefix));
+        const [point, path, v, a] = [t('kinematics_graph_cap_point'), t('kinematics_graph_cap_path'), 'v (polna', 'a (črtkano'].map(at);
+        expect([point, path, v, a].every(i => i > -1)).toBe(true);
+        expect((texts[v].Y() - texts[a].Y()) * scale).toBeGreaterThanOrEqual(40);
+        // A short caption keeps its single row.
+        expect((texts[point].Y() - texts[path].Y()) * scale).toBeCloseTo(20, 5);
+    });
 });

@@ -6,13 +6,15 @@ import {lineGraphLoaders} from './lines/runtime';
 import {isometryGraphLoaders} from './isometry/runtime';
 import {circleConstructionGraphLoaders} from './compgeo/circleConstruction/runtime';
 import {combinatoricsGraphLoaders} from './combinatorics/runtime';
+import {randomGraphLoaders} from './random/runtime';
+import {kinematicsGraphLoaders} from './curves/kinematics/runtime';
 
 /**
  * Runtime root composition of the feature-registered families (explicit imports, no discovery). A new registered family
  * adds one spread here, one in `src/demonstrations.ts` and one in `PresetImport.ts`. Demonstrations not listed here still
  * use the legacy table `graphFactories.ts`.
  */
-export const registeredGraphLoaders = {...projectiveGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders};
+export const registeredGraphLoaders = {...projectiveGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders};
 export type RegisteredDemonstrationId = keyof typeof registeredGraphLoaders;
 
 export const isRegisteredDemonstrationId = (id: string): id is RegisteredDemonstrationId => Object.prototype.hasOwnProperty.call(registeredGraphLoaders, id);

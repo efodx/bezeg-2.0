@@ -37,7 +37,7 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar", "projective-five-point", "projective-three-views"];
 const TRIG_KEYS = ["unit-circle", "triangle-solver"];
 const LINE_ISOMETRY_KEYS = ["line-geometry", "isometries"];
-const CIRCLE_COMBINATORICS_KEYS = ["circle-construction", "lattice-paths", "counting-tree"];
+const CIRCLE_COMBINATORICS_KEYS = ["circle-construction", "lattice-paths", "counting-tree", "prob-simulation", "curve-kinematics"];
 /** Collections registered with the importer before their Demonstration exists; the registration slice removes its key when it adds the route. */
 const PENDING_ROUTE_KEYS: string[] = [];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */

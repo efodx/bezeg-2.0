@@ -156,13 +156,23 @@ function galtonScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
             latest,
         },
         captions: [
-            {key: 'heap', x: -0.9, y: height * 1.08},
-            {key: 'bars', x: -0.9, y: height * 0.98},
-            {key: 'path', x: -0.9, y: -height * 0.015, count: drawn},
-            ...seedCaptions(state, sim2, -0.9, height * 0.88, height * 0.1),
+            // Right of the vertical axis, and the path caption under the axis labels: no axis line strikes through a caption.
+            {key: 'heap', x: 0.1, y: height * 1.08},
+            {key: 'bars', x: 0.1, y: height * 0.98},
+            {key: 'path', x: 0.1, y: -height * 0.15, count: drawn},
+            ...seedCaptions(state, sim2, 0.1, height * 0.88, height * 0.1),
         ],
     };
 }
+
+/** Height of one caption row above a plot, in plot units, and the top of the plot the captions stay clear of: the captions get their own band, the data lines never run through them. */
+export const CAPTION_ROW = 0.11;
+export const PLOT_TOP = 1.08;
+/** The title of a logarithmic axis: under the tick labels (about 0.1 below the axis on the narrowest board), clear of the rows below it. */
+export const LOG_TITLE_Y = -0.17;
+
+/** Centres of `rows` caption rows stacked above `PLOT_TOP`, the first row on top. */
+const bandRow = (rows: number, i: number) => PLOT_TOP + CAPTION_ROW * (rows - i);
 
 /** Position of the second plot (heads minus half the tosses) under the running frequency: centre line and half height. */
 const DIFF_CENTRE = -0.75;
@@ -192,8 +202,9 @@ function frequencyScene(state: RandomState, sim: RandomSim, sim2?: RandomSim): S
     const other = second ? gap(second.curve) : {x: [], y: []};
     const scale = Math.max(width[width.length - 1] ?? 1, ...own.y.map(Math.abs), ...other.y.map(Math.abs));
     const place = (d: number) => DIFF_CENTRE + (DIFF_HALF * d) / scale;
+    const rows = 3 + (second ? 2 : 0);
     return {
-        frame: [-0.12 * xmax - 0.1, 1.08, xmax * 1.05 + 0.1, -1.42],
+        frame: [-0.12 * xmax - 0.1, PLOT_TOP + CAPTION_ROW * rows + 0.07, xmax * 1.05 + 0.1, -1.42],
         layers: {
             running: running(sim.curve),
             running2: second ? running(second.curve) : EMPTY_LAYER,
@@ -205,13 +216,13 @@ function frequencyScene(state: RandomState, sim: RandomSim, sim2?: RandomSim): S
             diffZero: {x: [0, xmax], y: [DIFF_CENTRE, DIFF_CENTRE]},
         },
         captions: [
-            {key: 'running', x: 0.05 * xmax, y: 1.04},
-            {key: 'half', x: 0.05 * xmax, y: 0.96},
-            {key: 'band', x: 0.05 * xmax, y: 0.88},
-            {key: 'logAxis', x: xmax * 0.35, y: -0.035},
-            ...seedCaptions(state, second, 0.05 * xmax, 0.8, 0.08),
-            {key: 'diff', x: 0.05 * xmax, y: -0.12},
-            {key: 'diffBand', x: 0.05 * xmax, y: -0.2},
+            {key: 'running', x: 0.05 * xmax, y: bandRow(rows, 0)},
+            {key: 'half', x: 0.05 * xmax, y: bandRow(rows, 1)},
+            {key: 'band', x: 0.05 * xmax, y: bandRow(rows, 2)},
+            {key: 'logAxis', x: xmax * 0.25, y: LOG_TITLE_Y},
+            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW),
+            {key: 'diff', x: 0.05 * xmax, y: LOG_TITLE_Y - 0.13},
+            {key: 'diffBand', x: 0.05 * xmax, y: LOG_TITLE_Y - 0.13 - CAPTION_ROW},
             {key: 'diffScale', x: 0.05 * xmax, y: -1.34, values: [scale]},
         ],
     };
@@ -306,9 +317,11 @@ function walkScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?
         captions: [
             {key: 'walks', x: 0.02 * steps, y: reach * 1.12, count: drawn},
             {key: 'funnel', x: 0.02 * steps, y: reach * 1.0},
-            {key: 'walkHeap', x: base, y: reach * 1.12},
-            {key: 'walkExact', x: base, y: reach * 1.0},
-            ...seedCaptions(state, sim2, base, reach * 0.88, reach * 0.12),
+            // All rows stand in the clear top left, left of the heap axis (at `base`): beside the axis the heap column is too narrow for a caption
+            // (it wraps over the next one, and the axis line strikes through the first letters). The walks are narrow there (within the funnel).
+            {key: 'walkHeap', x: 0.02 * steps, y: reach * 0.88},
+            {key: 'walkExact', x: 0.02 * steps, y: reach * 0.76},
+            ...seedCaptions(state, sim2, 0.02 * steps, reach * 0.64, reach * 0.12),
         ],
     };
 }
@@ -317,27 +330,30 @@ function walkScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?
 const rectangle = (x0: number, x1: number, y0: number, y1: number): {x: number[]; y: number[]} => ({x: [x0, x1, x1, x0, x0], y: [y0, y0, y1, y1, y0]});
 
 /** The two-box diagram under the plot, in units of the board width `s`: boxes A and B, the arrows between them and the loops over them. */
-function markovDiagram(s: number, a: number, b: number, start: 0 | 1): {boxes: Layer; arrows: Layer; captions: Caption[]} {
+function markovDiagram(s: number, a: number, b: number, start: 0 | 1, drop: number): {boxes: Layer; arrows: Layer; captions: Caption[]} {
     const cap = (from: 0 | 1, to: 0 | 1, percent: number, x: number, y: number): Caption => {
         const {num, den} = percentFraction(percent);
         return {key: 'move', x, y, values: [from, to, num, den]};
     };
-    const arrowRight = [{x: [0.3 * s, 0.7 * s], y: [-0.43, -0.43]}, {x: [0.66 * s, 0.7 * s, 0.66 * s], y: [-0.39, -0.43, -0.47]}];
-    const arrowLeft = [{x: [0.7 * s, 0.3 * s], y: [-0.57, -0.57]}, {x: [0.34 * s, 0.3 * s, 0.34 * s], y: [-0.53, -0.57, -0.61]}];
-    const loop = (x0: number, x1: number) => [{x: [x0, x0, x1, x1], y: [-0.35, -0.24, -0.24, -0.35]}, {x: [x1 - 0.015 * s, x1, x1 + 0.015 * s], y: [-0.31, -0.35, -0.31]}];
+    const arrowRight = [{x: [0.3 * s, 0.7 * s], y: [-0.43 - drop, -0.43 - drop]}, {x: [0.66 * s, 0.7 * s, 0.66 * s], y: [-0.39 - drop, -0.43 - drop, -0.47 - drop]}];
+    const arrowLeft = [{x: [0.7 * s, 0.3 * s], y: [-0.57 - drop, -0.57 - drop]}, {x: [0.34 * s, 0.3 * s, 0.34 * s], y: [-0.53 - drop, -0.57 - drop, -0.61 - drop]}];
+    const loop = (x0: number, x1: number) => [{x: [x0, x0, x1, x1], y: [-0.35 - drop, -0.24 - drop, -0.24 - drop, -0.35 - drop]}, {x: [x1 - 0.015 * s, x1, x1 + 0.015 * s], y: [-0.31 - drop, -0.35 - drop, -0.31 - drop]}];
     return {
-        boxes: join([rectangle(0.04 * s, 0.3 * s, -0.65, -0.35), rectangle(0.7 * s, 0.96 * s, -0.65, -0.35)]),
+        boxes: join([rectangle(0.04 * s, 0.3 * s, -0.65 - drop, -0.35 - drop), rectangle(0.7 * s, 0.96 * s, -0.65 - drop, -0.35 - drop)]),
         arrows: join([...arrowRight, ...arrowLeft, ...loop(0.12 * s, 0.22 * s), ...loop(0.78 * s, 0.88 * s)]),
         captions: [
-            {key: start === 0 ? 'boxStart' : 'box', x: 0.06 * s, y: -0.5, values: [0]},
-            {key: start === 1 ? 'boxStart' : 'box', x: 0.72 * s, y: -0.5, values: [1]},
-            cap(0, 1, a, 0.31 * s, -0.37),
-            cap(1, 0, b, 0.31 * s, -0.63),
-            cap(0, 0, 100 - a, 0.04 * s, -0.19),
-            cap(1, 1, 100 - b, 0.7 * s, -0.19),
+            {key: start === 0 ? 'boxStart' : 'box', x: 0.06 * s, y: -0.5 - drop, values: [0]},
+            {key: start === 1 ? 'boxStart' : 'box', x: 0.72 * s, y: -0.5 - drop, values: [1]},
+            cap(0, 1, a, 0.31 * s, -0.37 - drop),
+            cap(1, 0, b, 0.31 * s, -0.63 - drop),
+            cap(0, 0, 100 - a, 0.04 * s, -0.19 - drop),
+            cap(1, 1, 100 - b, 0.7 * s, -0.19 - drop),
         ],
     };
 }
+
+/** The diagram hangs this far below the axis title (it moved down to leave a row for it under the tick labels). */
+const DIAGRAM_DROP = 0.12;
 
 function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?: RandomSim): SceneData {
     if (sim.kind !== 'markov' || exact.kind !== 'markov') throw new Error('markov scene needs markov data');
@@ -345,9 +361,10 @@ function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
     const span = Math.max(xmax, 2);
     const ks = curveCounts(state.n).filter(c => c >= 1);
     const second = sim2?.kind === 'markov' ? sim2 : undefined;
-    const diagram = markovDiagram(span, state.markovA, state.markovB, state.markovStart);
+    const diagram = markovDiagram(span, state.markovA, state.markovB, state.markovStart, DIAGRAM_DROP);
+    const rows = 3 + (second ? 2 : 0);
     return {
-        frame: [-0.12 * span - 0.1, 1.08, span * 1.05 + 0.1, -0.9],
+        frame: [-0.12 * span - 0.1, PLOT_TOP + CAPTION_ROW * rows + 0.07, span * 1.05 + 0.1, -0.9 - DIAGRAM_DROP],
         layers: {
             share: running(sim.curve),
             share2: second ? running(second.curve) : EMPTY_LAYER,
@@ -357,11 +374,11 @@ function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
             arrows: diagram.arrows,
         },
         captions: [
-            {key: 'share', x: 0.05 * xmax, y: 1.04},
-            {key: 'exactA', x: 0.05 * xmax, y: 0.96},
-            {key: 'stationary', x: 0.05 * xmax, y: 0.88},
-            {key: 'logAxis', x: xmax * 0.35, y: -0.035},
-            ...seedCaptions(state, second, 0.05 * xmax, 0.8, 0.08),
+            {key: 'share', x: 0.05 * xmax, y: bandRow(rows, 0)},
+            {key: 'exactA', x: 0.05 * xmax, y: bandRow(rows, 1)},
+            {key: 'stationary', x: 0.05 * xmax, y: bandRow(rows, 2)},
+            {key: 'logAxis', x: xmax * 0.25, y: LOG_TITLE_Y},
+            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW),
             ...diagram.captions,
         ],
     };

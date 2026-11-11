@@ -76,6 +76,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'circle-construction': ['mode', 'c1', 'c2', 'c3', 'p', 'a', 'b', 'k'],
     'lattice-paths': ['view', 'a', 'b', 'route', 'showCounts', 'split', 'n', 'c'],
     'counting-tree': ['view', 'n', 'k', 'ordered', 'repetition', 'counts', 't'],
+    'prob-simulation': ['generator', 'mode', 'seed', 'n', 'shown', 'rows', 'pPercent', 'walkSteps', 'markovA', 'markovB', 'markovStart', 'sampleSize', 'areaShape', 'overlay', 'seed2', 'stopMs'],
+    'curve-kinematics': ['motion', 'v0', 'alpha', 'radius', 'omega', 'b', 'showVelocity', 'showAcceleration', 'split', 'trace'],
     'polygon-area': ['model'],
     'convex-hull': ['model'],
     'point-in-polygon': ['model'],

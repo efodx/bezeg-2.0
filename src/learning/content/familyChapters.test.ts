@@ -37,8 +37,8 @@ function withoutMath(source: string) {
 // bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-evolute with its L4 lesson and section (CG-B2-4); curve-offset with its L5 lesson and section (CG-B3-3); curve-envelope with its L6 lesson and section (CG-B3-4); epicycles with its F5 lesson and section (Fourier 06 F3, F4).
 // patch-coons, reduction and arc-length-param joined the advanced-bezier chapter with AB-A-4.
 // bezier-clipping joined it with AB-B-4.
-// The trigonometry, line-geometry, isometry, circle-construction and combinatorics rows ship without a chapter link or lesson until families-prep F3.
-const CHAPTER_LINK_PENDING: readonly string[] = ['unit-circle', 'triangle-solver', 'line-geometry', 'isometries', 'circle-construction', 'lattice-paths', 'counting-tree'];
+// The trigonometry, line-geometry, isometry, circle-construction, combinatorics, simulation and kinematics rows ship without a chapter link or lesson until families-prep F3.
+const CHAPTER_LINK_PENDING: readonly string[] = ['unit-circle', 'triangle-solver', 'line-geometry', 'isometries', 'circle-construction', 'lattice-paths', 'counting-tree', 'prob-simulation', 'curve-kinematics'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

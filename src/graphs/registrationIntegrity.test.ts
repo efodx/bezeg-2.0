@@ -22,6 +22,12 @@ import {circleConstructionGraphLoaders} from './compgeo/circleConstruction/runti
 import {combinatoricsCollections} from './combinatorics/collections';
 import {combinatoricsCollectionKeys, combinatoricsDemonstrationRows} from './combinatorics/registration';
 import {combinatoricsGraphLoaders} from './combinatorics/runtime';
+import {randomCollections} from './random/collections';
+import {randomCollectionKeys, randomDemonstrationRows} from './random/registration';
+import {randomGraphLoaders} from './random/runtime';
+import {kinematicsCollections} from './curves/kinematics/collections';
+import {kinematicsCollectionKeys, kinematicsDemonstrationRows} from './curves/kinematics/registration';
+import {kinematicsGraphLoaders} from './curves/kinematics/runtime';
 import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
@@ -88,6 +94,8 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'isometries', rows: isometryDemonstrationRows, loaders: isometryGraphLoaders, collectionKeys: isometryCollectionKeys, collections: isometryCollections},
     {family: 'circle-construction', rows: circleConstructionDemonstrationRows, loaders: circleConstructionGraphLoaders, collectionKeys: circleConstructionCollectionKeys, collections: circleConstructionCollections},
     {family: 'combinatorics', rows: combinatoricsDemonstrationRows, loaders: combinatoricsGraphLoaders, collectionKeys: combinatoricsCollectionKeys, collections: combinatoricsCollections},
+    {family: 'random', rows: randomDemonstrationRows, loaders: randomGraphLoaders, collectionKeys: randomCollectionKeys, collections: randomCollections},
+    {family: 'kinematics', rows: kinematicsDemonstrationRows, loaders: kinematicsGraphLoaders, collectionKeys: kinematicsCollectionKeys, collections: kinematicsCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

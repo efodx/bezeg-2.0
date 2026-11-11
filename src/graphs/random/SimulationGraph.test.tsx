@@ -6,7 +6,7 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
-import {DEFAULT_RANDOM_STATE, nextStop, RANDOM_MODES, type RandomMode} from '../../random/randomModel';
+import {DEFAULT_RANDOM_STATE, nextStop, RANDOM_MODES, serializeRandomState, type RandomMode} from '../../random/randomModel';
 import {PATHS_DRAWN, POINTS_DRAWN} from './simulationScene';
 import {PLAYBACK_STEP_MS, SimulationGraph} from './SimulationGraph';
 
@@ -751,5 +751,31 @@ describe('review repairs', () => {
         expect(document.querySelector('[data-playback-reason]')).toBeNull();
         press(t('next_step'));
         expect(document.querySelector('[data-playback-reason="no-more-steps"]')?.textContent).toBe(t('playback_block_no_more_steps'));
+    });
+});
+
+describe('a scene replacement (families-prep F2b registration)', () => {
+    test('restoring a checkpoint taken before another mode keeps the stored view instead of refitting', () => {
+        const {graph} = mountGraph();
+        const capabilities = graph.getLessonCapabilities();
+        act(() => { graph.liveBoard().setBoundingBox([-3, 0.6, 15, -0.6], true); });
+        const checkpoint = capabilities.captureState();
+        const stored = graph.liveBoard().getBoundingBox();
+        act(() => { graph.setState({mode: 'walk'}); });
+        act(() => { capabilities.restoreState(checkpoint); });
+        expect(graph.state.mode).toBe('galton');
+        const rounded = (box: number[]) => box.map(value => Math.round(value * 1e6) / 1e6);
+        expect(rounded(graph.liveBoard().getBoundingBox())).toEqual(rounded(stored));
+    });
+
+    test('importing a Preset without a stored view frames the scene of its mode as a switch does', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({mode: 'walk'}); });
+        const framed = graph.liveBoard().getBoundingBox();
+        act(() => { graph.setState({mode: 'galton'}); });
+        const {boardState: _boardState, ...preset} = graph.exportPreset();
+        act(() => { graph.importPreset({...preset, data: serializeRandomState({...graph.state, mode: 'walk'})}); });
+        expect(graph.state.mode).toBe('walk');
+        expect(graph.liveBoard().getBoundingBox()).toEqual(framed);
     });
 });

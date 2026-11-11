@@ -12,11 +12,14 @@ import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../../base/controls/R
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 import {GraphPalette} from "../../styles/GraphPalette";
+import {PresetCollection} from "../../base/presets/PresetCollection";
+import {Preset} from "../../base/presets/Presets";
+import {kinematicsPresetCollection} from "./kinematicsPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../../learning/runtime/animation";
 import {circularSource} from "../../../kinematics/motion";
 import {
     arrowEnd, componentVectors, DEFAULT_KINEMATICS_STATE, deriveKinematics, Evaluation, evaluateAt, FIELD_RANGES, GRAVITY,
-    KinematicsDerived, KinematicsState, MotionChoice, MOTION_IDS, NumericField, SAMPLES, snapField, ToggleField, withMotion,
+    KinematicsDerived, KinematicsState, MotionChoice, MOTION_IDS, NumericField, parseKinematicsState, SAMPLES, serializeKinematicsState, snapField, ToggleField, withMotion,
 } from "../../../kinematics/kinematicsModel";
 
 /** The scene state: the stored fields of `KinematicsState`, nothing derived. The time and the playing flag are host state, never stored. */
@@ -50,12 +53,25 @@ interface DrawnCurve {
     updateDataArray: () => void;
 }
 
+/** Room above the path for the captions, as a fraction of the path extent (about 100 px at the opening view on a desktop board); the captions stand in the top left corner, over the margin and this room. */
+const CAPTION_ROOM = 0.25;
+
+/** One text row of a caption, in pixels (14 px type), and the widest an average character of it is. */
+const CAPTION_ROW_PX = 20;
+const CAPTION_CHAR_PX = 7.5;
+
+/** The lines a caption takes on a board `width` px wide (with a 10 px margin each side): the browser wraps the text at the edge of the board. */
+export function captionLines(text: string, width: number): number {
+    const room = Math.max(width - 20, 100);
+    return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / room));
+}
+
 /** The board rectangle [left, top, right, bottom] for a motion: the path box, a margin of one full arrow, and room on top for the captions. */
 export function frameFor(derived: KinematicsDerived): [number, number, number, number] {
     const [minX, maxX, minY, maxY] = derived.box;
     const extent = Math.max(maxX - minX, maxY - minY, 1e-6);
     const margin = derived.scales.unit + 0.05 * extent;
-    return [minX - margin, maxY + margin + 0.9 * extent, maxX + margin, minY - margin];
+    return [minX - margin, maxY + margin + CAPTION_ROOM * extent, maxX + margin, minY - margin];
 }
 
 /**
@@ -67,11 +83,14 @@ export function frameFor(derived: KinematicsDerived): [number, number, number, n
  * owned hidden end points. The playback driver is created by `play`, stopped by every edit and by disposal; the settled readout's
  * timer is cancelled with the session.
  */
-export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
+export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsState> {
     private objects: JXG.GeometryElement[] = [];
     private derivedCache?: {state: KinematicsGraphState; key: string; value: KinematicsDerived};
     private evaluationCache?: {derived: KinematicsDerived; t: number; value: Evaluation};
     private drawnFrame = "";
+    /** The function-valued `visible` of the owned elements; JSXGraph's `update()` does not re-evaluate them, so a change of any result needs `fullUpdate()`. */
+    private visibilityProbes: (() => boolean)[] = [];
+    private visibilityKey = "";
     private derivations = 0;
     private notice?: {readonly state: KinematicsGraphState; readonly text: () => string};
     private reconciledFor?: KinematicsGraphState;
@@ -92,8 +111,34 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): KinematicsState {
+        return serializeKinematicsState(DEFAULT_KINEMATICS_STATE);
+    }
+
+    override presetCollection(): PresetCollection<KinematicsState> {
+        return kinematicsPresetCollection();
+    }
+
+    override exportPreset(): Preset<KinematicsState> {
+        const preset = super.exportPreset();
+        const {motion: _motion, v0: _v0, alpha: _alpha, radius: _radius, omega: _omega, b: _b, showVelocity: _showVelocity, showAcceleration: _showAcceleration, split: _split, trace: _trace, ...graphState} = preset.graphState as KinematicsGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): KinematicsState {
+        return serializeKinematicsState(this.state);
+    }
+
+    override importPresetData(data: KinematicsState): void {
+        this.setState(serializeKinematicsState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): KinematicsGraphState {
+        const parsed = parseKinematicsState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -186,6 +231,11 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
         this.halt();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the frame as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.objects.length === 0) this.buildScene();
+            this.drawnFrame = this.frameKey();
+        }
         this.syncBoard();
     }
 
@@ -198,14 +248,29 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
         if (this.objects.length === 0) this.buildScene();
         this.applyFrame();
-        this.board.update();
+        this.boardUpdate();
         this.status.report(this.statusText());
         this.notifyHost();
     }
 
+    /** Redraws; a change of what any element shows (a switch, the motion, an arrow shrinking to nothing) needs the full update. */
+    override boardUpdate(): void {
+        if (!this.graphSession?.isAlive || !this.hasBoard) return;
+        const key = this.visibilityProbes.map(probe => probe() ? "1" : "0").join("");
+        if (key !== this.visibilityKey) {
+            this.visibilityKey = key;
+            this.board.fullUpdate();
+        } else this.board.update();
+    }
+
+    private frameKey(): string {
+        return frameFor(this.derived()).map(value => value.toFixed(4)).join(",");
+    }
+
+    /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
         const frame = frameFor(this.derived());
-        const key = frame.map(value => value.toFixed(4)).join(",");
+        const key = this.frameKey();
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
         this.board.setBoundingBox([...frame], true);
@@ -227,8 +292,10 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
     private buildScene(): void {
         this.disposeScene();
         const board = this.board;
+        this.visibilityProbes = [];
+        const watch = (probe: () => boolean): (() => boolean) => { this.visibilityProbes.push(probe); return probe; };
         const dot = (x: () => number, y: () => number, visible: () => boolean, attributes: Partial<JXG.PointAttributes> = {}) => this.own(board.create("point", [x, y], {
-            name: "", withLabel: false, fixed: true, highlight: false, size: 3, visible, ...attributes,
+            name: "", withLabel: false, fixed: true, highlight: false, size: 3, visible: watch(visible), ...attributes,
         }));
         const curve = (data: () => [number[], number[]], attributes: Partial<JXG.CurveAttributes>) => {
             const element = this.own(board.create("curve", [[], []], {fixed: true, highlight: false, withLabel: false, ...attributes})) as unknown as DrawnCurve & JXG.GeometryElement;
@@ -246,7 +313,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
             const e = ev();
             const count = Math.min(SAMPLES, Math.floor(e.t / derived.tEnd * SAMPLES));
             return [[...derived.pathX.slice(0, count + 1), e.point[0]], [...derived.pathY.slice(0, count + 1), e.point[1]]];
-        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, visible: () => state().trace});
+        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, visible: watch(() => state().trace)});
 
         // The moving point, and for the circular motion with a changing speed the point of the uniform motion.
         const mover = dot(() => ev().point[0], () => ev().point[1], () => true, {size: 5, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
@@ -280,7 +347,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
             {name: "an", key: "tip_an", color: GraphPalette.additionalCurves[2], dash: 4, width: 2, shown: () => state().split && regular()},
         ];
         for (const arrow of arrows) {
-            const visible = () => arrow.shown() && longEnough(arrow.name)();
+            const visible = watch(() => arrow.shown() && longEnough(arrow.name)());
             const end = dot(() => endOf(arrow.name)()[0], () => endOf(arrow.name)()[1], () => false);
             this.own(board.create("arrow", [mover, end], {
                 strokeColor: arrow.color, strokeWidth: arrow.width, dash: arrow.dash, fixed: true, highlight: false, withLabel: false, visible,
@@ -305,15 +372,14 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
             {text: () => t("kinematics_graph_cap_cusp"), visible: () => noDirection(), color: GraphPalette.label},
         ];
         captions.forEach((caption, index) => {
-            const row = () => captions.slice(0, index).filter(other => other.visible()).length;
+            // A caption wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
+            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), board.canvasWidth), 0);
             this.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + row() * 20) / uy; },
+                () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * CAPTION_ROW_PX) / uy; },
                 () => caption.text(),
-            ], {strokeColor: caption.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: caption.visible}));
+            ], {strokeColor: caption.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: watch(caption.visible)}));
         });
-        this.drawnFrame = "";
-        this.applyFrame();
     }
 
     /** The unit of a scale in the current language, resolved when it is drawn (the derived data holds no language). */
@@ -334,7 +400,8 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, null> {
             if (alive.length) board.removeObject(alive);
         }
         this.objects = [];
-        this.drawnFrame = "";
+        this.visibilityProbes = [];
+        this.visibilityKey = "";
     }
 
     // ---- Playback and the time -------------------------------------------------------------------------------------------

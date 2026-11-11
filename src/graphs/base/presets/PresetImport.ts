@@ -26,6 +26,8 @@ import {lineCollections} from "../../lines/collections";
 import {isometryCollections} from "../../isometry/collections";
 import {circleConstructionCollections} from "../../compgeo/circleConstruction/collections";
 import {combinatoricsCollections} from "../../combinatorics/collections";
+import {randomCollections} from "../../random/collections";
+import {kinematicsCollections} from "../../curves/kinematics/collections";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -43,6 +45,8 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...isometryCollections,
     ...circleConstructionCollections,
     ...combinatoricsCollections,
+    ...randomCollections,
+    ...kinematicsCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

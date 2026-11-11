@@ -15,4 +15,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'circle-construction', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
     {id: 'lattice-paths', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
     {id: 'counting-tree', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
+    {id: 'prob-simulation', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-random-kinematics.md).'},
+    {id: 'curve-kinematics', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-random-kinematics.md).'},
 ];

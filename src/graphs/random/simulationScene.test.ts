@@ -2,7 +2,7 @@ import {binomialMasses} from '../../analysis/distributions';
 import {DEFAULT_RANDOM_STATE, exactFor, simulate, type RandomState} from '../../random/randomModel';
 import {intervalHalfWidth} from '../../random/samplePaths';
 import {runFrequency, runGalton} from '../../random/runners';
-import {INTERVALS_DRAWN, LAW_HEIGHT, LAW_LEFT, LAW_WIDTH, OUTSIDE_MARK, PATHS_DRAWN, POINTS_DRAWN, sceneFor, type Layer, type SceneData} from './simulationScene';
+import {CAPTION_ROW, INTERVALS_DRAWN, LAW_HEIGHT, LAW_LEFT, LAW_WIDTH, OUTSIDE_MARK, PATHS_DRAWN, POINTS_DRAWN, sceneFor, type Layer, type SceneData} from './simulationScene';
 
 const stateOf = (patch: Partial<RandomState>): RandomState => {
     const base = {...DEFAULT_RANDOM_STATE, ...patch};
@@ -92,6 +92,64 @@ describe('galton', () => {
         expect(scene.layers.heap.y.every(y => y === 0)).toBe(true);
         expect(scene.layers.bars.y.some(y => y > 0)).toBe(true);
         expect(scene.captions[2].count).toBe(0);
+    });
+});
+
+describe('galton captions', () => {
+    test('the captions sit right of the vertical axis, and the path caption below the axis labels (no caption is struck through by an axis)', () => {
+        for (const rows of [4, 10, 16]) {
+            const {scene} = build({mode: 'galton', rows, n: 500});
+            const height = scene.frame[1] / 1.12;
+            scene.captions.forEach(c => { expect(c.x).toBeGreaterThan(0); });
+            const path = scene.captions.find(c => c.key === 'path')!;
+            expect(path.y).toBeLessThanOrEqual(-0.12 * height);
+        }
+    });
+});
+
+describe('walk captions', () => {
+    test.each([false, true])('all captions stand left of the heap axis, in rows a line apart on the 390 px board (second seed %s)', second => {
+        const {scene} = second ? buildOverlay({mode: 'walk', walkSteps: 100}) : build({mode: 'walk', walkSteps: 100});
+        const axis = 100 * 1.06;
+        const [, top, , bottom] = scene.frame;
+        expect(scene.captions.length).toBe(second ? 6 : 4);
+        for (const c of scene.captions) expect(c.x, c.key).toBeLessThan(axis);
+        const ys = scene.captions.map(c => c.y).sort((p, q) => q - p);
+        ys.slice(1).forEach((y, i) => expect((ys[i] - y) * (440 / (top - bottom)), 'row gap in px').toBeGreaterThanOrEqual(15));
+    });
+});
+
+describe('captions on the narrowest board (390 px: about 330 x 440 px of plot)', () => {
+    const HEIGHT_PX = 440;
+    const ROW_PX = 15; // a 14 px line
+
+    test.each([['frequency', false], ['frequency', true], ['markov', false], ['markov', true]] as const)('%s (second seed %s): no two long captions closer than a row, none inside the data band', (mode, second) => {
+        const {scene} = second ? buildOverlay({mode, n: 1000}) : build({mode, n: 1000});
+        const [left, top, right, bottom] = scene.frame;
+        const perUnit = HEIGHT_PX / (top - bottom);
+        const span = right - left;
+        const caps = scene.captions;
+        for (let i = 0; i < caps.length; i++) for (let j = i + 1; j < caps.length; j++) {
+            if (Math.abs(caps[i].x - caps[j].x) > 0.45 * span) continue; // texts this far apart start beside each other
+            expect(Math.abs(caps[i].y - caps[j].y) * perUnit, `${caps[i].key} / ${caps[j].key}`).toBeGreaterThanOrEqual(ROW_PX - 1e-9);
+        }
+        // The plot lines run up to 1; the caption rows above it stand in the frame.
+        const rows = caps.filter(c => ['running', 'half', 'band', 'share', 'exactA', 'stationary', 'seedOne', 'seedTwo'].includes(c.key));
+        for (const c of rows) {
+            expect(c.y - CAPTION_ROW / 2, c.key).toBeGreaterThan(1.0);
+            expect(c.y + 0.05, c.key).toBeLessThanOrEqual(top);
+        }
+        for (const c of caps) { expect(c.y).toBeGreaterThan(bottom); expect(c.x).toBeGreaterThan(left); }
+    });
+});
+
+describe('log axis caption', () => {
+    test('the title of the logarithmic axis sits under the tick labels of the horizontal axis, not on them', () => {
+        for (const mode of ['frequency', 'markov'] as const) {
+            const {scene} = build({mode, n: 1000});
+            const caption = scene.captions.find(c => c.key === 'logAxis')!;
+            expect(caption.y, mode).toBeLessThanOrEqual(-0.08);
+        }
     });
 });
 
@@ -435,7 +493,7 @@ describe('RS2 second plot: heads minus n/2', () => {
         const all = [...scene.layers.diff.y, ...scene.layers.diffBand.y.filter(v => !Number.isNaN(v))];
         all.forEach(v => { expect(v).toBeLessThanOrEqual(-0.25 + 1e-12); expect(v).toBeGreaterThanOrEqual(-1.25 - 1e-12); });
         expect(bottom).toBeLessThan(-1.25);
-        expect(top).toBe(1.08);
+        expect(top).toBeGreaterThan(1.08); // the caption rows stand above the plot
         expect(scene.captions.map(c => c.key)).toEqual(expect.arrayContaining(['diff', 'diffBand', 'diffScale']));
     });
 
