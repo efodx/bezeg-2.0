@@ -144,9 +144,9 @@ function checkGraphClassFiles(found, root, sources) {
     }
     const fs = require('node:fs');
     const path = require('node:path');
-    // Default imports may be aliased (the class name differs from the file), so require the directory to hold sources.
-    const noFile = found.filter(({dir}) => !fs.existsSync(path.join(root, dir)) ||
-        !fs.readdirSync(path.join(root, dir)).some(entry => /\.tsx?$/.test(entry))).map(({name}) => name);
+    // Default imports may be aliased (the class name differs from the file), so the file is the import's stem, not the name.
+    const noFile = found.filter(({dir, stem}) => !['.tsx', '.ts'].some(extension => fs.existsSync(path.join(root, dir, `${stem}${extension}`))))
+        .map(({name}) => name);
     return {missing, noFile};
 }
 
@@ -179,6 +179,9 @@ test('the drift guard fails when the parser returns fewer classes or a wrong dir
     const sources = realSources(root);
     assert.notDeepEqual(checkGraphClassFiles(found.slice(1), root, sources).missing, []);
     assert.notDeepEqual(checkGraphClassFiles(found.map(entry => ({...entry, dir: 'src/graphs/nowhere'})), root, sources).noFile, []);
+    // A stem the directory does not hold (a parser that kept the alias instead of the file name) is drift too.
+    const aliased = found.map(entry => entry.name === 'DecasteljauGraph3' ? {...entry, stem: entry.name} : entry);
+    assert.deepEqual(checkGraphClassFiles(aliased, root, sources).noFile, ['DecasteljauGraph3']);
 });
 
 test('a change to the file of an aliased graph class is a class file, not a helper of its directory', () => {
