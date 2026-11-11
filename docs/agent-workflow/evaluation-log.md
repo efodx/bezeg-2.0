@@ -2768,3 +2768,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Handler review caught two worker costs:** per-render canvas measurement with a forced style read in a shared input (ChoiceSelect), and a strong `Set` of every board object kept for a curve's lifetime. Both were fixed in review. Workers optimise for the acceptance criterion; render and memory cost needs a named criterion or handler review.
 - **No-route graphs:** a smoke brief for two graphs came back blocked because no route mounts them. Check routes before briefing a smoke.
 - **Merging master brought new graphs that repeated today's two defects.** After a merge, rerun the contract tests that guard a pattern.
+
+## 2026-11-11: controls open items, seventh batch (controls stream, seventh handler)
+
+- **Throughput:** about two hours: two merges of master, three Sonnet workers (Preset contract scoping, ChoiceSelect resize test, legacy-panel apply pause), one Haiku smoke against the deployed site, three items closed by reading code or docs. Two publishes, both green in the gate.
+- **Smoking the deployed master instead of a build:** the English Preset-import refusal was already on master, so the smoke ran against GitHub Pages with no preview build. It also reported a 404 on every page, which is the documented Pages SPA fallback for deep routes (`current-architecture.md`), not a defect.
+- **A fix whose path was unreachable:** the legacy selected-curve panel worker found De Casteljau shows no operations there (`bezierDisabled`), so the "gap" in decision 57 could not occur. The wiring was kept as a guard with a test that enables operations. Before briefing a fix, check that the path renders on the route.
+- **Worker encoding slip:** a worker wrote `é` as a Latin-1 byte into a UTF-8 file. `git diff` showed `B�zier`; `file`/`od` confirmed it. Check non-ASCII characters in worker diffs.
+- **Contract test scope:** a sampled run shows "all" when the branch itself changes a shared path (the scoping change touched `vite.config.mts`); a sample-only default cannot be observed on such a branch.
+- **Open list exhausted:** the remaining open items are by design, carried, or need hardware the handler lacks (real browser chrome, a screen reader). The handler stopped instead of launching an idle successor.
