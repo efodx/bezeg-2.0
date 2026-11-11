@@ -95,13 +95,22 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
     }
 
     /**
-     * The just-imported curve wins over the mount-time defaults and over a stale stored curve; the stored segment, arguments
-     * and Bezier switch stay, as loading the Preset keeps them.
+     * The just-imported curve wins over the mount-time defaults and over a stale stored curve. The segment and arguments come
+     * from the Preset's stored state only when it holds a valid choice for the imported knots; otherwise they are the fresh
+     * choice. The merge's base is the mount-time default scene, whose segment index belongs to the default degree: kept, it
+     * selects an empty or missing segment of another degree's knots and every blossom coordinate is NaN.
      */
     protected override figurePresetGraphState(graphState: StoredGraphState | undefined): BSplineBlossomState {
         const merged = super.figurePresetGraphState(graphState);
         const {degree, knots, points} = this.state;
-        return {...merged, degree, knots: [...knots], points: points.map(point => [point[0], point[1]] as const)};
+        const fresh = this.freshChoice(degree, knots, points);
+        const [start, end] = blossomDomain(knots, degree);
+        const stored = graphState as Partial<BSplineBlossomState> | undefined;
+        const segment = stored?.segment !== undefined && blossomSegments(knots, degree).includes(stored.segment) ? stored.segment : fresh.segment;
+        const storedArgs: unknown = stored?.args;
+        const args = Array.isArray(storedArgs) && storedArgs.length === fresh.args.length && storedArgs.every(a => typeof a === 'number' && Number.isFinite(a))
+            ? (storedArgs as number[]).map(a => Math.min(end, Math.max(start, a))) : fresh.args;
+        return {...merged, degree, knots: [...knots], points: points.map(point => [point[0], point[1]] as const), segment, args};
     }
 
     protected override initialView(): [number, number, number, number] {
