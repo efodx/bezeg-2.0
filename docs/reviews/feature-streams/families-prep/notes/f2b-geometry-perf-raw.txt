@@ -1,0 +1,13 @@
+browser 156.0.8078.4 steps 60 dragMs 1000 runs 5
+desktop 1280x800, mouse, no throttle | unit circle, angle handle, default | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.7 16.8 16.7 16.7 16.7 | max 16.8 | >25ms/run 0/0/0/0/0 | frames/run 123/124/126/124/127 | updates/run 61/61/61/61/61
+desktop 1280x800, mouse, no throttle | unit circle, angle handle, symmetries + cosine + second angle | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.8 16.8 16.8 16.7 16.8 | max 16.8 | >25ms/run 0/0/0/0/0 | frames/run 127/122/124/126/127 | updates/run 61/61/61/61/61
+desktop 1280x800, mouse, no throttle | triangle solver, vertex A, sides mode | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.8 16.8 16.7 16.7 16.7 | max 16.8 | >25ms/run 0/0/0/0/0 | frames/run 121/124/122/121/125 | updates/run 59/59/59/59/59
+desktop 1280x800, mouse, no throttle | line geometry, point P | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.7 16.7 16.7 16.8 16.8 | max 16.8 | >25ms/run 0/0/0/0/0 | frames/run 122/123/124/125/122 | updates/run 61/61/61/61/61
+desktop 1280x800, mouse, no throttle | isometries, mirror 1 end point Q (P coincides with mirror 2), mirrors mode | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.7 16.8 16.7 16.8 16.7 | max 16.8 | >25ms/run 0/0/0/0/0 | frames/run 121/124/124/126/124 | updates/run 112/112/112/112/112
+phone 390x844, touch, 4x CPU | unit circle, angle handle, default | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.7 16.7 16.7 16.7 16.7 | max 16.8 | >25ms/run 0/0/0/0/0 | frames/run 140/145/141/145/144 | updates/run 62/62/61/62/62
+phone 390x844, touch, 4x CPU | unit circle, angle handle, symmetries + cosine + second angle | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.7 16.7 16.7 16.8 16.8 | max 33.4 | >25ms/run 0/0/0/0/1 | frames/run 132/132/134/132/132 | updates/run 62/62/62/62/62
+phone 390x844, touch, 4x CPU | triangle solver, vertex A, sides mode | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.8 16.7 16.8 33.3 16.7 | max 33.4 | >25ms/run 1/4/5/10/3 | frames/run 126/131/129/128/127 | updates/run 60/60/60/60/60
+phone 390x844, touch, 4x CPU | line geometry, point P | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.8 16.8 16.8 16.8 16.7 | max 33.4 | >25ms/run 2/2/0/1/1 | frames/run 131/136/136/133/129 | updates/run 62/62/62/62/62
+phone 390x844, touch, 4x CPU | isometries, mirror 1 end point Q (P coincides with mirror 2), mirrors mode | median/run 16.7 16.7 16.7 16.7 16.7 | p95/run 16.8 16.7 16.8 16.8 16.8 | max 33.4 | >25ms/run 3/1/2/6/3 | frames/run 142/140/143/140/142 | updates/run 110/110/110/110/110
+screenshot docs/reviews/feature-streams/families-prep/notes/f2b-perf-shots/triangle-solve-1280x800.png
+screenshot docs/reviews/feature-streams/families-prep/notes/f2b-perf-shots/triangle-solve-390x844.png

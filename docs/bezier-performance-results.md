@@ -523,3 +523,28 @@ The polygon pipeline adds little to naive (the box stage dominates: 12.5 million
 - **Change kept.** `polygonSprites.ts` rasterises each template once per scale, DPR, overlay and colours; a body is one `drawImage` ([spec](specs/collision-playground.md#containment)). The throttled draw still grew with the body count, and naive at 4 000 left frames over 50 ms, so the polygon limits were lowered for drawing cost to 3 000 (naive) and 3 500 (sweep). This supersedes the limits in the polygon step-cost section above.
 - **Other rows (kept run).** Link-click p95 16 ms desktop, 32 ms mobile 4×. Lifecycle: off-screen 0 snapshots in 2 s and resumes when scrolled back; after client-side navigation 0 worker targets and 0 messages in 2 s. The hidden tab was not measurable headless (unit evidence only, as for circles).
 - **Noise.** Repeated runs at the same limits varied by about ±15 % in the throttled draw median; the kept run's margin to 33.3 ms is about half.
+
+## F2b geometry routes drag baseline — 2026-11-11
+
+Browser drag frame times for four routes that were previously only jsdom placeholders: `/functions/unit-circle`, `/triangle-solver`, `/line-geometry`, `/isometries`. Script: [scripts/f2b-geometry-browser-perf.cjs](../scripts/f2b-geometry-browser-perf.cjs) (method of `function-browser-perf.cjs`: rAF deltas inside the drag, first 5 frames dropped). Production build recorded at revision `680dbc37` with the working tree dirty (lines/isometries F2b; `git rev-parse HEAD` read `58160d20` when the report was written, after another commit landed), served by `just preview`. Chromium 156.0.8078.4 headless via Playwright, 60 Hz. Raw output: [f2b-geometry-perf-raw.txt](reviews/feature-streams/families-prep/notes/f2b-geometry-perf-raw.txt).
+
+Method: 60 pointer moves 16.7 ms apart (about 1 s of input; the drag lasts about 2 s of wall time because each move round-trips), 5 runs per case in fresh contexts. Desktop 1280×800, mouse, no throttle. Phone 390×844, CDP touch events (`Input.dispatchTouchEvent`), `Emulation.setCPUThrottlingRate` 4. Dragged point: unit circle, the angle handle on its orbit (with all three options on, the angle β handle, which sits on θ and is on top); triangle solver, vertex A (sides mode) on a small Lissajous path; line geometry, point P; isometries, mirror 1 point Q in mirrors mode (the P ends of both mirrors coincide at the origin, so Q is the unambiguous handle). The isometries route has no feature toggles; mirrors mode was used as the one with the most draggable points. Dropped = frames over 25 ms. Board updates = calls of `board.update` during the drag.
+
+| Profile | Scene | Median ms per run | p95 ms per run | Max | Dropped per run | Board updates |
+|---|---|---|---|---|---|---|
+| Desktop | unit circle, default | 16.7 ×5 | 16.7–16.8 | 16.8 | 0/0/0/0/0 | 61 |
+| Desktop | unit circle, symmetries + cosine + second angle | 16.7 ×5 | 16.7–16.8 | 16.8 | 0/0/0/0/0 | 61 |
+| Desktop | triangle solver, vertex A, sides | 16.7 ×5 | 16.7–16.8 | 16.8 | 0/0/0/0/0 | 59 |
+| Desktop | line geometry, point P | 16.7 ×5 | 16.7–16.8 | 16.8 | 0/0/0/0/0 | 61 |
+| Desktop | isometries, mirror 1 Q | 16.7 ×5 | 16.7–16.8 | 16.8 | 0/0/0/0/0 | 112 |
+| Phone 4× | unit circle, default | 16.7 ×5 | 16.7–16.8 | 16.8 | 0/0/0/0/0 | 61–62 |
+| Phone 4× | unit circle, symmetries + cosine + second angle | 16.7 ×5 | 16.7–16.8 | 33.4 | 0/0/0/0/1 | 62 |
+| Phone 4× | triangle solver, vertex A, sides | 16.7 ×5 | 16.7 / 16.8 / 33.3 (run 4) | 33.4 | 1/4/5/10/3 | 60 |
+| Phone 4× | line geometry, point P | 16.7 ×5 | 16.7–16.8 | 33.4 | 2/2/0/1/1 | 62 |
+| Phone 4× | isometries, mirror 1 Q | 16.7 ×5 | 16.7–16.8 | 33.4 | 3/1/2/6/3 | 110 |
+
+Triangle solver in solve mode (default SSS example), screenshots [1280×800](reviews/feature-streams/families-prep/notes/f2b-perf-shots/triangle-solve-1280x800.png) and [390×844](reviews/feature-streams/families-prep/notes/f2b-perf-shots/triangle-solve-390x844.png): the view fit keeps the whole triangle with its vertex labels and both axes visible, on desktop and on the phone viewport. No bars were present in the default SSS solve view, so none could be judged. The isometries drag issues about twice the board updates (110–112) of the other routes, from its two mirrors and their images.
+
+Conclusion: no median above 16.7 ms and no run with a p95 above 33.3 ms, so no desktop or throttled-phone miss against the budgets. The tail on the 4× phone profile is a few single 33 ms frames per run (worst: triangle solver, up to 10 of about 128 frames, one run with p95 exactly 33.3 ms).
+
+Limits: rAF intervals saturate at 16.7 ms, so the medians show only that no sustained slowdown occurs; the 4× throttle is a desktop slowdown, not a phone; touch is synthetic CDP input; the timer-driven input (move every 16.7 ms plus round trips) is lighter than a real finger or mouse at the device sample rate; the isometries rosette, frieze and similarity modes, the triangle circle and solve modes under drag, and other line modes were not dragged; load from other sessions was not controlled.
