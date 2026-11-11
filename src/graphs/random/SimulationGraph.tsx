@@ -204,7 +204,21 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         return serializeRandomState(this.state);
     }
 
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the next frame (after the host commits the imported state and the scene is built) is marked as drawn without being applied. */
+    private keepImportedView = false;
+    private keepNextFrame = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
     override importPresetData(data: RandomState): void {
+        if (this.keepImportedView) this.keepNextFrame = true;
         this.setState(serializeRandomState(data));
     }
 
@@ -311,6 +325,11 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
     private applyFrame(): void {
         const frame = this.view().scene.frame;
         const key = this.frameKey();
+        if (this.keepNextFrame) {
+            this.keepNextFrame = false;
+            this.drawnFrame = key;
+            return;
+        }
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
         this.board.setBoundingBox([...frame], false);

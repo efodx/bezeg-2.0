@@ -50,7 +50,7 @@ describe('windows and view test', () => {
     test('the windows are the stated boxes', () => {
         expect(VIEW_BOXES.affine).toEqual([-10, 10, 10, -10]);
         expect(VIEW_BOXES.cosine).toEqual([-2, 2, 2, -2]);
-        expect(VIEW_BOXES.logistic).toEqual([-0.1, 1.1, 1.1, -0.1]);
+        expect(VIEW_BOXES.logistic).toEqual([-0.1, 1.15, 1.1, -0.2]);
     });
     test('inView: the edges are inside, just beyond is outside, not finite is outside', () => {
         expect(inView('affine', 10)).toBe(true);
@@ -108,13 +108,23 @@ describe('captionPlace', () => {
         expect(fixed.y).toBeCloseTo(-7.8, 12);
         expect(iterate.y).toBeCloseTo(-6.6, 12);
     });
-    test('logistic window (width 1.2): the legend stands in the lower left, the diagonal caption below the diagonal', () => {
+    test('logistic window (width 1.2, height 1.35): the legend stands in the lower left, the diagonal caption under the map caption, right of the y axis', () => {
         const legend = captionPlace('logistic', 'legend');
         expect(legend.x).toBeCloseTo(-0.076, 12);
-        expect(legend.y).toBeCloseTo(-0.04, 12);
+        expect(legend.y).toBeCloseTo(-0.2 + 0.05 * 1.35, 12);
         const diagonal = captionPlace('logistic', 'diagonal');
-        expect(diagonal.x).toBeCloseTo(0.8, 12); // 1.1 - 0.25*1.2
-        expect(diagonal.y).toBeCloseTo(0.8 - 0.072, 12); // below the diagonal at that x
+        expect(diagonal.x).toBeCloseTo(0.024, 12); // right of the y axis at x = 0 (the axis would cut a caption starting at the left edge)
+        expect(diagonal.y).toBeCloseTo(captionPlace('logistic', 'map').y - 0.07 * 1.35, 12); // one row under the map caption
+    });
+    test('the legend stands below the number row of the x axis on the shortest board (380 px)', () => {
+        // the number row spans 4 to 22 px under the axis; the caption is 20 px high, centred on its place
+        const BOARD = 380;
+        for (const map of ['logistic'] as const) {
+            const [, top, , bottom] = VIEW_BOXES[map];
+            const px = (y: number) => (y - bottom) / (top - bottom) * BOARD; // from the lower edge
+            const rowFloor = px(0) - 22;
+            expect(px(captionPlace(map, 'legend').y) + 10).toBeLessThanOrEqual(rowFloor);
+        }
     });
     test('an unreachable iterate (not finite) is placed at the bottom too', () => {
         expect(captionPlace('cosine', 'iterate', NaN).x).toBeCloseTo(-2 + 0.3 * 4, 12);

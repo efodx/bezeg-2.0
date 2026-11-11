@@ -28,6 +28,12 @@ import {randomGraphLoaders} from './random/runtime';
 import {kinematicsCollections} from './curves/kinematics/collections';
 import {kinematicsCollectionKeys, kinematicsDemonstrationRows} from './curves/kinematics/registration';
 import {kinematicsGraphLoaders} from './curves/kinematics/runtime';
+import {recursionCollections} from './recursion/collections';
+import {recursionCollectionKeys, recursionDemonstrationRows} from './recursion/registration';
+import {recursionGraphLoaders} from './recursion/runtime';
+import {wavesCollections} from './functions/waves/collections';
+import {wavesCollectionKeys, wavesDemonstrationRows} from './functions/waves/registration';
+import {wavesGraphLoaders} from './functions/waves/runtime';
 import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
@@ -96,6 +102,8 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'combinatorics', rows: combinatoricsDemonstrationRows, loaders: combinatoricsGraphLoaders, collectionKeys: combinatoricsCollectionKeys, collections: combinatoricsCollections},
     {family: 'random', rows: randomDemonstrationRows, loaders: randomGraphLoaders, collectionKeys: randomCollectionKeys, collections: randomCollections},
     {family: 'kinematics', rows: kinematicsDemonstrationRows, loaders: kinematicsGraphLoaders, collectionKeys: kinematicsCollectionKeys, collections: kinematicsCollections},
+    {family: 'recursion', rows: recursionDemonstrationRows, loaders: recursionGraphLoaders, collectionKeys: recursionCollectionKeys, collections: recursionCollections},
+    {family: 'waves', rows: wavesDemonstrationRows, loaders: wavesGraphLoaders, collectionKeys: wavesCollectionKeys, collections: wavesCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

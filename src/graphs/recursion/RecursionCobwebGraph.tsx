@@ -12,14 +12,17 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {recursionCobwebPresetCollection} from "./recursionPresetCollection";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {ITERATION_MAX_STEPS} from "../../recursion/iteration";
 import {
     C_RANGE, C_SCALE, CobwebDerived, COBWEB_MAPS, CobwebMap, CobwebState, DEFAULT_COBWEB_STATE, deriveCobweb, M_RANGE, M_SCALE, R_RANGE, R_SCALE,
-    snapDragInteger, startOf, startRange, typedInteger, withMap, X_SCALE,
+    parseCobwebState, serializeCobwebState, snapDragInteger, startOf, startRange, typedInteger, withMap, X_SCALE,
 } from "../../recursion/recursionModel";
-import {affineEquation, captionPlace, cobwebPath, inView, mapSamples, Polyline, subscript, VIEW_BOXES} from "./cobwebScene";
+import {affineEquation, captionPlace, CaptionScale, cobwebPath, inView, mapSamples, Polyline, subscript, VIEW_BOXES} from "./cobwebScene";
 import {SceneObjects} from "./SceneObjects";
 
 /** The scene state: the stored cobweb fields (`CobwebState`), nothing derived and no playback. */
@@ -54,7 +57,7 @@ const sameParameters = (a: CobwebState, b: CobwebState): boolean => a.map === b.
  * Ownership: every board object goes through `scene`, which removes the objects and the drag listeners with the scene. The playback is an
  * `IterationController` created on demand and disposed with the scene, on a speed change and on unmount; it is not stored.
  */
-export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, null> {
+export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, CobwebState> {
     private readonly scene = new SceneObjects();
     private handle?: JXG.Point;
     private built = false;
@@ -74,8 +77,58 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`. Playback and the speed are not stored.
+
+    override defaultPreset(): CobwebState {
+        return serializeCobwebState(DEFAULT_COBWEB_STATE);
+    }
+
+    override presetCollection(): PresetCollection<CobwebState> {
+        return recursionCobwebPresetCollection();
+    }
+
+    override exportPreset(): Preset<CobwebState> {
+        const preset = super.exportPreset();
+        const {map: _map, M: _M, C: _C, R: _R, X: _X, step: _step, ...graphState} = preset.graphState as RecursionCobwebGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): CobwebState {
+        return serializeCobwebState(this.state);
+    }
+
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the frame of the imported data is marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    override importPresetData(data: CobwebState): void {
+        const imported = serializeCobwebState(data);
+        if (this.keepImportedView) this.drawnMap = imported.map;
+        this.setState(imported);
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): RecursionCobwebGraphState {
+        const parsed = parseCobwebState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
+    }
+
+    /** The map window is framed exactly by `VIEW_BOXES`, so a stored or reset view is applied exactly, as the frame of a mount is. */
+    protected override get equalAxisUnits(): boolean {
+        return false;
+    }
+
+    /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen a window the graph frames exactly. */
+    protected override showInitialView(): void {
+        this.board.setBoundingBox([...this.initialView()], false);
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -112,6 +165,8 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
 
     initialize(): void {
         this.buildScene();
+        // A mount frames the scene once; a rebuild or a replacement (checkpoint restore, Preset import) never frames over the stored view.
+        if (this.hasBoard) this.applyFrame();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -144,6 +199,11 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
         this.pausePlayback();
+        // A replacement brings its own view: build first, then mark the frame as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (!this.built) this.buildScene();
+            this.drawnMap = this.state.map;
+        }
         this.syncBoard();
     }
 
@@ -185,8 +245,14 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
         return curve;
     }
 
-    private caption(text: () => string, place: () => {x: number; y: number}, visible: () => boolean = () => true): JXG.Text {
-        return this.scene.own(this.board.create("text", [() => place().x, () => place().y, text], {
+    /** The board in pixels for caption places, or undefined while it has no size. */
+    private captionScale(): CaptionScale | undefined {
+        const {unitX, unitY, canvasWidth} = this.board;
+        return unitX > 0 && unitY > 0 && canvasWidth > 0 ? {unitX, unitY, width: canvasWidth} : undefined;
+    }
+
+    private caption(text: () => string, place: (chars: number) => {x: number; y: number}, visible: () => boolean = () => true): JXG.Text {
+        return this.scene.own(this.board.create("text", [() => place(text().length).x, () => place(text().length).y, text], {
             strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
         }));
     }
@@ -222,20 +288,18 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
         this.wireDrag(handle);
         // A caption for every element a readout names: the map, the diagonal, the cobweb steps, the start, the fixed point, the iterate.
         const map = () => this.state.map;
-        this.caption(() => this.mapCaption(), () => captionPlace(map(), "map"));
-        this.caption(() => t("recursion_graph_cap_diagonal"), () => captionPlace(map(), "diagonal"));
-        this.caption(() => t("fixed_point_legend_cobweb"), () => captionPlace(map(), "legend"));
-        this.caption(() => t("recursion_graph_cap_start", {value0: num(startOf(this.state.X))}), () => captionPlace(map(), "start", startOf(this.state.X)));
+        this.caption(() => this.mapCaption(), () => captionPlace(map(), "map", 0, 0, this.captionScale()));
+        this.caption(() => t("recursion_graph_cap_diagonal"), () => captionPlace(map(), "diagonal", 0, 0, this.captionScale()));
+        this.caption(() => t("fixed_point_legend_cobweb"), () => captionPlace(map(), "legend", 0, 0, this.captionScale()));
+        this.caption(() => t("recursion_graph_cap_start", {value0: num(startOf(this.state.X))}), chars => captionPlace(map(), "start", startOf(this.state.X), chars, this.captionScale()));
         this.caption(() => {
             const star = fixed();
             if (star === null) return "";
             return t(inView(map(), star) ? "recursion_graph_cap_fixed" : "recursion_graph_cap_fixed_off", {value0: num(star)});
-        }, () => captionPlace(map(), "fixed", fixed() ?? NaN), () => fixed() !== null);
+        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale()), () => fixed() !== null);
         this.caption(() => t(inView(map(), iterate() ?? NaN) ? "recursion_graph_cap_iterate" : "recursion_graph_cap_iterate_off",
                 {value0: subscript(this.state.step), value1: num(iterate() ?? NaN)}),
-            () => captionPlace(map(), "iterate", iterate() ?? NaN), () => this.state.step > 0);
-        this.drawnMap = undefined;
-        this.applyFrame();
+            chars => captionPlace(map(), "iterate", iterate() ?? NaN, chars, this.captionScale()), () => this.state.step > 0);
     }
 
     private mapCaption(): string {
@@ -249,7 +313,6 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
         this.scene.dispose(this.hasBoard ? this.board : undefined);
         this.handle = undefined;
         this.built = false;
-        this.drawnMap = undefined;
     }
 
     // ---- Dragging: the handle moves along the diagonal and snaps to the start grid ---------------------------------------------

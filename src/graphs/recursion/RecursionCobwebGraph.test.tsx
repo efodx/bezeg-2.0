@@ -2,7 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, settle} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
@@ -526,6 +526,27 @@ describe('playback', () => {
     });
 });
 
+describe('the view of a replaced scene', () => {
+    const view = (graph: ObservedGraph) => graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)));
+
+    test('a rebuild after a disposal keeps the view the board has (a restore brings its own)', () => {
+        const {graph} = mountGraph();
+        const stored: [number, number, number, number] = [-3, 7, 9, -5];
+        act(() => { graph.liveBoard().setBoundingBox(stored, false); });
+        graph.disposeNow();
+        act(() => { graph.rebuildNow(); });
+        expect(view(graph)).toEqual(stored);
+    });
+
+    test('a reset shows the exact opening window of the map, not one widened to the canvas', async () => {
+        const {graph} = mountGraph();
+        chooseMap('logistic');
+        act(() => { graph.liveBoard().setBoundingBox([-3, 7, 9, -5], false); });
+        await settle(() => graph.reset());
+        expect(view(graph)).toEqual([...VIEW_BOXES.affine]);
+    });
+});
+
 describe('ownership', () => {
     test('a state change does not rebuild; dispose and rebuild replace every owned object and return to the pre-mount count', () => {
         const {graph, view} = mountGraph();
@@ -639,4 +660,67 @@ describe('language', () => {
         expect(document.body.textContent).not.toMatch(/recursion_graph_/);
         noBadText();
     });
+});
+
+describe('the captions on a narrow board (about 390 px wide)', () => {
+    const WIDTH = 390;
+    const CHAR = 6.2; // pixels per character of a 14 px caption (measured: the longest caption is 6 px per character)
+    const marked = (text: string) => /^(začetek|start) |^x[₀-₉]+ = /.test(text);
+    type Box = {text: string; left: number; right: number; bottom: number; top: number};
+
+    /** The shown captions as pixel boxes on a board of WIDTH x 360 px; a caption is anchored at its left end, centred on its height. */
+    function boxes(graph: ObservedGraph, map: 'affine' | 'cosine' | 'logistic'): Box[] {
+        const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; canvasWidth: number; update(): void};
+        const [xmin, ymax, xmax, ymin] = VIEW_BOXES[map];
+        board.canvasWidth = WIDTH;
+        board.unitX = WIDTH / (xmax - xmin);
+        board.unitY = 360 / (ymax - ymin);
+        act(() => { board.update(); });
+        return probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible') && (o.plaintext ?? '').length > 0 && o.plaintext !== '0,0').map(o => {
+            const text = o.plaintext ?? '';
+            const at = o as unknown as {X(): number; Y(): number};
+            const left = (at.X() - xmin) * board.unitX;
+            const y = (ymax - at.Y()) * board.unitY;
+            return {text, left, right: left + CHAR * text.length, bottom: y + 7, top: y - 7};
+        });
+    }
+
+    for (const language of ['sl', 'en'] as const) {
+        for (const map of ['affine', 'cosine', 'logistic'] as const) {
+            test(`no caption overlaps another, leaves the board or crosses the y axis (${map}, ${language})`, () => {
+                setLanguage(language);
+                const {graph} = mountGraph();
+                chooseMap(map);
+                press(t('next_step'));
+                const all = boxes(graph, map);
+                expect(all.length).toBeGreaterThanOrEqual(6);
+                for (const box of all) expect(box.right, box.text).toBeLessThanOrEqual(WIDTH);
+                for (let i = 0; i < all.length; i++) {
+                    for (let j = i + 1; j < all.length; j++) {
+                        const a = all[i];
+                        const b = all[j];
+                        // the start and iterate captions stand beside markers that may lie a few pixels apart; not a caption-band question
+                        if (marked(a.text) && marked(b.text)) continue;
+                        const overlap = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+                        expect(overlap, `${a.text} / ${b.text}`).toBe(false);
+                    }
+                }
+                const [xmin, , xmax] = VIEW_BOXES[map];
+                const axis = (0 - xmin) * (WIDTH / (xmax - xmin));
+                const mapCaption = all.find(box => box.text.startsWith(language === 'sl' ? 'preslikava' : 'map'))!;
+                expect(mapCaption.left < axis && axis < mapCaption.right, mapCaption.text).toBe(false);
+            });
+
+            test(`no caption stands over the numbers of the x axis (${map}, ${language})`, () => {
+                setLanguage(language);
+                const {graph} = mountGraph();
+                chooseMap(map);
+                press(t('next_step'));
+                const all = boxes(graph, map);
+                const [, ymax, , ymin] = VIEW_BOXES[map];
+                const axisY = ymax * (360 / (ymax - ymin));
+                for (const box of all) expect(box.top < axisY + 20 && box.bottom > axisY + 2, box.text).toBe(false);
+            });
+        }
+    }
 });

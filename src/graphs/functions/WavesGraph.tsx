@@ -13,12 +13,15 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {wavesPresetCollection} from "./waves/wavesPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {travelling} from "../../waves/standing";
 import {valueAt} from "../../waves/sinusoid";
 import {envelope} from "../../waves/beats";
 import {
-    DEFAULT_WAVES_STATE, POINTS_PER_SECOND, snapWavesField, WAVES_FIELD_RANGES, WAVES_MODES, windowOf, type WavesMode, type WavesNumericField,
+    DEFAULT_WAVES_STATE, parseWavesState, POINTS_PER_SECOND, serializeWavesState, snapWavesField, WAVES_FIELD_RANGES, WAVES_MODES, windowOf, type WavesMode, type WavesNumericField,
     type WavesState, type WavesToggleField,
 } from "../../waves/wavesModel";
 import {
@@ -68,13 +71,32 @@ interface DrawnCurve {
 type Box = [number, number, number, number];
 
 /** The board rectangle [left, top, right, bottom] for the derived data: the plot, the panel on the left where a mode has one, room above for the captions. */
-export function frameFor(derived: WavesDerived): Box {
+export function frameFor(derived: WavesDerived, captions?: {readonly roomPx: number; readonly heightPx: number}): Box {
     const span = derived.xs[derived.xs.length - 1];
     const peak = 1.1 * derived.yPeak;
     const hasPanel = derived.mode === "sum" || derived.mode === "sampling";
     const bottom = derived.mode === "sampling" ? -2 * peak : -1.25 * peak;
-    return [hasPanel ? -0.66 * span : -0.1 * span, 2.3 * peak, 1.06 * span, bottom];
+    let top = 2.3 * peak;
+    // On a narrow board the captions wrap and take more rows than the fixed room holds: keep `roomPx` clear above the plot
+    // (with the "y" title above its top end) and give the rest of the board's height to the plot.
+    if (captions && Number.isFinite(captions.heightPx)) {
+        const need = Math.min(captions.roomPx + Y_TITLE_PX, captions.heightPx - MIN_PLOT_PX);
+        if (need > 0) top = Math.max(top, peak + (need * (peak - bottom)) / (captions.heightPx - need));
+    }
+    return [hasPanel ? -0.66 * span : -0.1 * span, top, 1.06 * span, bottom];
 }
+
+const CAPTION_ROW_PX = 20;
+const CAPTION_CHAR_PX = 7.5;
+
+/** The lines a caption takes on a board `width` px wide (10 px margin each side): the browser wraps the text at the edge of the board (as in the kinematics graph). */
+export function captionLines(text: string, width: number): number {
+    const room = Math.max(width - 20, 100);
+    return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / room));
+}
+/** The height of the "y" axis title and the gap above it, in pixels. */
+const Y_TITLE_PX = 22;
+const MIN_PLOT_PX = 140;
 
 /** Where a strip of instants lies under the plot (sampling mode), in units of the vertical half extent. */
 const stripLevel = (derived: WavesDerived): number => -1.55 * 1.1 * derived.yPeak;
@@ -93,12 +115,13 @@ const ALWAYS = (): unknown => ({});
  * through owned hidden end points. The playback driver is created by `play`, stopped by every edit and by disposal; the settled
  * readout's timer is cancelled with the session.
  */
-export class WavesGraph extends BaseGraph<WavesGraphState, null> {
+export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
     private objects: JXG.GeometryElement[] = [];
     private derivedCache?: {state: WavesGraphState; key: string; value: WavesDerived};
     private standingCache?: {derived: WavesDerived; t: number; value: ReturnType<typeof standingCurves>};
     private drawnFrame = "";
     private builtMode?: WavesMode;
+    private captionSources: (() => string)[] = [];
     private derivations = 0;
     private notice?: {readonly state: WavesGraphState; readonly text: () => string};
     private reconciledFor?: WavesGraphState;
@@ -119,8 +142,49 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`. Time and playing are host state.
+
+    override defaultPreset(): WavesState {
+        return serializeWavesState(DEFAULT_WAVES_STATE);
+    }
+
+    override presetCollection(): PresetCollection<WavesState> {
+        return wavesPresetCollection();
+    }
+
+    override exportPreset(): Preset<WavesState> {
+        const preset = super.exportPreset();
+        const {mode: _mode, a1: _a1, p1: _p1, a2: _a2, p2: _p2, f1: _f1, f2: _f2, fs: _fs, halfWaves: _halfWaves, extra: _extra, showPhasors: _showPhasors, showEnvelope: _showEnvelope, showAlias: _showAlias, showJoin: _showJoin, showSinc: _showSinc, ...graphState} = preset.graphState as WavesGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): WavesState {
+        return serializeWavesState(this.state);
+    }
+
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the next frame (after the host commits the imported state and the scene is built) is marked as drawn without being applied. */
+    private keepImportedView = false;
+    private keepNextFrame = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    override importPresetData(data: WavesState): void {
+        const imported = serializeWavesState(data);
+        if (this.keepImportedView) this.keepNextFrame = true;
+        this.setState(imported);
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): WavesGraphState {
+        const parsed = parseWavesState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     /** The time axis (seconds) and the amplitude axis have different scales, so a stored box is applied exactly. */
@@ -132,12 +196,16 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
     protected override defaultAxesAttributes() {
         const axis = this.styles.axis;
         return {
-            x: {...axis.defaultX, visible: false, ticks: {...axis.defaultX.ticks, visible: false}},
-            y: {...axis.defaultY, visible: false, ticks: {...axis.defaultY.ticks, visible: false}},
+            x: {...axis.defaultX, visible: false, ticks: {...axis.defaultX.ticks, visible: false, drawLabels: false}},
+            y: {...axis.defaultY, visible: false, ticks: {...axis.defaultY.ticks, visible: false, drawLabels: false}},
         };
     }
 
+    private reframeOnBuild = false;
+
+    /** The bare frame; every use of the initial view (a new board, Reset, a Preset without a view) is framed again with the room of the captions once the scene stands. */
     protected override initialView(): Box {
+        this.reframeOnBuild = true;
         return frameFor(deriveWaves(DEFAULT_WAVES_STATE));
     }
 
@@ -213,7 +281,20 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
 
     initialize(): void {
         this.buildScene();
+        // A mount frames the scene once; a rebuild or a replacement never frames over the stored view.
+        if (this.hasBoard) this.applyFrame();
         const session = this.graphSession;
+        const container = this.hasBoard ? this.board.containerObj as HTMLElement | undefined : undefined;
+        if (session && container && typeof ResizeObserver !== "undefined") {
+            // The board follows a resize after a short delay of its own, so the frame waits for the board's new size.
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const observer = new ResizeObserver(() => {
+                clearTimeout(timer);
+                timer = setTimeout(() => this.reframeToSize(), RESIZE_SETTLE_MS);
+            });
+            observer.observe(container);
+            session.registerCleanup(() => { clearTimeout(timer); observer.disconnect(); });
+        }
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => {
@@ -237,6 +318,15 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
         this.halt();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the frame as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.objects.length === 0 || this.builtMode !== this.state.mode) this.buildScene();
+            if (this.reframeOnBuild) {
+                this.reframeOnBuild = false;
+                this.showFrame(this.frame());
+            }
+            this.drawnFrame = this.frameKey();
+        }
         this.syncBoard();
     }
 
@@ -254,12 +344,57 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
         this.notifyHost();
     }
 
+    private frameKey(): string {
+        return this.frame().map(value => value.toFixed(4)).join(",");
+    }
+
+    /** The frame of the derived data with the room the captions of this board width take (all of the mode's captions, so a switch never reframes). */
+    private frame(derived: WavesDerived = this.derived()): Box {
+        const width = this.board.canvasWidth;
+        const height = this.board.canvasHeight;
+        if (!(width > 0) || !(height > 0) || this.captionSources.length === 0) return frameFor(derived);
+        const rows = this.captionSources.reduce((sum, source) => sum + captionLines(source(), width), 0);
+        return frameFor(derived, {roomPx: 10 + rows * CAPTION_ROW_PX, heightPx: height});
+    }
+
     private applyFrame(): void {
-        const frame = frameFor(this.derived());
-        const key = frame.map(value => value.toFixed(4)).join(",");
+        const frame = this.frame();
+        const key = this.frameKey();
+        if (this.reframeOnBuild) {
+            // The board was just set to the bare initial view: show the framing with the caption room, whatever was drawn before.
+            this.reframeOnBuild = false;
+            this.drawnFrame = key;
+            this.showFrame(frame);
+            return;
+        }
+        if (this.keepNextFrame) {
+            this.keepNextFrame = false;
+            this.drawnFrame = key;
+            return;
+        }
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
+        this.showFrame(frame);
+    }
+
+    private shownFrame: Box | undefined;
+
+    private showFrame(frame: Box): void {
+        this.shownFrame = frame;
         this.board.setBoundingBox([...frame], false);
+    }
+
+    /** The board's height settles after the first frame (the layout finishes): a view still on the frame we drew is framed again for the final size, so a load and a Reset agree. A view the user moved is left alone. */
+    private reframeToSize(): void {
+        if (!this.hasBoard || !this.graphSession?.isAlive || !this.shownFrame) return;
+        const box = this.board.getBoundingBox();
+        const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
+        if (!box.every((value, index) => near(value, this.shownFrame![index]))) return;
+        const key = this.frameKey();
+        if (key === this.drawnFrame) return;
+        this.drawnFrame = key;
+        this.showFrame(this.frame());
+        this.board.update();
     }
 
     private own<E extends JXG.GeometryElement>(element: E): E {
@@ -342,7 +477,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
         text(() => -6 / this.scaleOf().ux, () => d().yPeak, () => dec(d().yPeak, 2), {anchorX: "right", anchorY: "middle", fontSize: 12});
         text(() => -6 / this.scaleOf().ux, () => -d().yPeak, () => `${dec(-d().yPeak, 2)}`, {anchorX: "right", anchorY: "middle", fontSize: 12});
         text(() => span() - 4 / this.scaleOf().ux, () => 6 / this.scaleOf().uy, () => t(mode === "standing" ? "waves_graph_axis_x" : "waves_graph_axis_t"), {anchorX: "right", anchorY: "bottom"});
-        text(() => 6 / this.scaleOf().ux, () => peak(), () => t("waves_graph_axis_y"), {anchorX: "left", anchorY: "top"});
+        text(() => 6 / this.scaleOf().ux, () => peak() + 2 / this.scaleOf().uy, () => t("waves_graph_axis_y"), {anchorX: "left", anchorY: "bottom"});
 
         const playhead = (): number => this.clock();
         const timeCursor = () => {
@@ -477,8 +612,10 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
             const filmTip = dot(() => filmEnd()[0], () => filmEnd()[1], () => false);
             this.own(board.create("arrow", [origin, trueTip], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2, fixed: true, highlight: false, withLabel: false}));
             this.own(board.create("arrow", [origin, filmTip], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4, fixed: true, highlight: false, withLabel: false}));
-            text(() => trueEnd()[0] + 6 / this.scaleOf().ux, () => trueEnd()[1] + 8 / this.scaleOf().uy, () => t("waves_graph_tip_true"), {strokeColor: GraphPalette.comparisonCurve, anchorX: "left"});
-            text(() => filmEnd()[0] + 6 / this.scaleOf().ux, () => filmEnd()[1] - 8 / this.scaleOf().uy, () => t("waves_graph_tip_film"), {strokeColor: GraphPalette.primaryCurve, anchorX: "left"});
+            // The two arrows often coincide, so their names stand in two fixed rows under the circle (never on a tip or shaft).
+            const nameRow = (row: number) => () => -(this.panel().k * this.derived().yPeak + (8 + 16 * row)) / this.scaleOf().uy;
+            text(() => this.panelOrigin()[0], nameRow(0), () => t("waves_graph_tip_true"), {strokeColor: GraphPalette.comparisonCurve, anchorX: "middle", anchorY: "top"});
+            text(() => this.panelOrigin()[0], nameRow(1), () => t("waves_graph_tip_film"), {strokeColor: GraphPalette.primaryCurve, anchorX: "middle", anchorY: "top"});
             caption(() => t("waves_graph_cap_axes_time"));
             caption(() => t("waves_graph_cap_wave"), GraphPalette.comparisonCurve);
             caption(() => t("waves_graph_cap_dots"), GraphPalette.primaryCurve);
@@ -492,16 +629,16 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
         caption(() => t(mode === "standing" ? "waves_graph_cap_resolution_space" : "waves_graph_cap_resolution", {value0: POINTS_PER_SECOND}));
 
         // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
+        this.captionSources = captions.map(entry => entry.text);
         captions.forEach((entry, index) => {
-            const row = () => captions.slice(0, index).filter(other => other.visible()).length;
+            // A caption wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
+            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), board.canvasWidth), 0);
             this.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + row() * 20) / uy; },
+                () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * CAPTION_ROW_PX) / uy; },
                 () => entry.text(),
             ], {strokeColor: entry.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: entry.visible}));
         });
-        this.drawnFrame = "";
-        this.applyFrame();
     }
 
     /** The circle of the panel (the largest arrow) as an ellipse in board units, so that it is round on the screen. */
@@ -527,8 +664,8 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
             if (alive.length) board.removeObject(alive);
         }
         this.objects = [];
-        this.drawnFrame = "";
         this.builtMode = undefined;
+        this.captionSources = [];
     }
 
     // ---- Playback and the time -------------------------------------------------------------------------------------------
@@ -843,6 +980,9 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
     }
 }
 
+const RESIZE_SETTLE_MS = 150;
+const REDUCED_REASON_ID = "waves-play-reduced-reason";
+
 /** Play or pause, reset and the time slider: host state, so only this part re-renders on a frame. */
 function WavesPlayback(props: {graph: WavesGraph}) {
     const text = useT();
@@ -854,11 +994,13 @@ function WavesPlayback(props: {graph: WavesGraph}) {
     const playing = graph.playing;
     const params = {value0: dec(end, 2), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
+    const reduced = !playing && graph.reducedMotion();
     return <div className="inspector-group">
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("waves_graph_playback_group")} resetLabel={text("reset")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
-                         {...blocks} playBlock={!playing && graph.reducedMotion() ? "reduced-motion" : undefined}/>
+                         {...blocks} playBlock={reduced ? "reduced-motion" : undefined} describedBy={reduced ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
+        {reduced && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
         <Slider customText={text("waves_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 help={text("waves_graph_time_help", params)} rejectedHint={text("waves_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("waves_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>

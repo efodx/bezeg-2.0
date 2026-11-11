@@ -8,10 +8,13 @@ import {NumberInput} from "../../inputs/NumberInput";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {growthPresetCollection} from "./recursionPresetCollection";
 import {
     A1_RANGE, CAPITAL_RANGE, D_RANGE, DEFAULT_GROWTH_STATE, deriveGrowth, GROWTH_PANELS, GrowthDerived, GrowthPanel, GrowthState, INTEREST_PARTS,
     IntegerRange, LOG_MODELS, LOG_Q_RANGE, LOG_Q_SCALE, LogModel, Q_RANGE, Q_SCALE, RATE_RANGE, RATE_SCALE, SEQUENCE_KINDS, SequenceKind, SeqValue,
-    TERMS_RANGE, typedInteger, Y0_RANGE, YEARS_RANGE,
+    parseGrowthState, serializeGrowthState, TERMS_RANGE, typedInteger, Y0_RANGE, YEARS_RANGE,
 } from "../../recursion/recursionModel";
 import {subscript, Polyline} from "./cobwebScene";
 import {at, Box, barsPath, chord, interestBox, logBox, sameBox, sampleCurve, sequenceBox} from "./growthScene";
@@ -97,7 +100,7 @@ function boxOf(state: GrowthState, derived: GrowthDerived): Box {
  * state object. All board objects are created once and shown or hidden by the panel, so a panel change rebuilds nothing; they go through
  * `scene`, which removes them with the scene. The graph owns no timer and no playback.
  */
-export class GrowthGraph extends BaseGraph<GrowthGraphState, null> {
+export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
     private readonly scene = new SceneObjects();
     private built = false;
     private drawnBox?: Box;
@@ -113,8 +116,58 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): GrowthState {
+        return serializeGrowthState(DEFAULT_GROWTH_STATE);
+    }
+
+    override presetCollection(): PresetCollection<GrowthState> {
+        return growthPresetCollection();
+    }
+
+    override exportPreset(): Preset<GrowthState> {
+        const preset = super.exportPreset();
+        const {panel: _panel, kind: _kind, a1: _a1, d: _d, q: _q, n: _n, capital: _capital, rate: _rate, years: _years, parts: _parts, y0: _y0, logQ: _logQ, logModel: _logModel, ...graphState} = preset.graphState as GrowthGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): GrowthState {
+        return serializeGrowthState(this.state);
+    }
+
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the frame of the imported data is marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    override importPresetData(data: GrowthState): void {
+        const imported = serializeGrowthState(data);
+        if (this.keepImportedView) this.drawnBox = boxOf(imported, deriveGrowth(imported));
+        this.setState(imported);
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): GrowthGraphState {
+        const parsed = parseGrowthState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
+    }
+
+    /** The axes mean different things (index or time against value) and every panel frames its own box, so a stored or reset view is applied exactly. */
+    protected override get equalAxisUnits(): boolean {
+        return false;
+    }
+
+    /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen a window the graph frames exactly. */
+    protected override showInitialView(): void {
+        this.board.setBoundingBox([...this.initialView()], false);
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -161,6 +214,8 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, null> {
 
     initialize(): void {
         this.buildScene();
+        // A mount frames the scene once; a rebuild or a replacement (checkpoint restore, Preset import) never frames over the stored view.
+        if (this.hasBoard) this.applyFrame();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -179,6 +234,11 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, null> {
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
+        // A replacement brings its own view: build first, then mark the frame as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (!this.built) this.buildScene();
+            this.drawnBox = this.current().box;
+        }
         this.syncBoard();
     }
 
@@ -219,6 +279,13 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, null> {
         return this.scene.own(this.board.create("text", [() => place().x, () => place().y, text], {
             strokeColor: GraphPalette.label, fontSize: 14, anchorX, anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
         }));
+    }
+
+    /** The vertical axis title starts a few pixels right of the axis, where no tick label stands (they are left of it). */
+    private axisTitleX(): number {
+        const [xmin, , xmax] = this.current().box;
+        const {unitX} = this.board;
+        return (xmin < 0 && xmax > 0 ? 0 : xmin) + 6 / (unitX > 0 ? unitX : 1);
     }
 
     private marker(x: () => number, y: () => number, visible: () => boolean, face: string, color: string): JXG.Point {
@@ -295,15 +362,12 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, null> {
         this.caption(() => t(state().panel === "sequence" ? "recursion_graph_growth_cap_x_sequence" : state().panel === "interest"
             ? "recursion_graph_growth_cap_x_interest" : "recursion_graph_growth_cap_x_log"), place(0.99, 0.035), () => true, "right");
         this.caption(() => t(state().panel === "sequence" ? "recursion_graph_growth_cap_y_sequence" : state().panel === "interest"
-            ? "recursion_graph_growth_cap_y_interest" : "recursion_graph_growth_cap_y_log"), place(0.01, ROW_Y), () => true);
-        this.drawnBox = undefined;
-        this.applyFrame();
+            ? "recursion_graph_growth_cap_y_interest" : "recursion_graph_growth_cap_y_log"), () => ({x: this.axisTitleX(), y: at(box(), 0, ROW_Y).y}), () => true);
     }
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
         this.built = false;
-        this.drawnBox = undefined;
     }
 
     // ---- Editing from the panel: typed values are refused when invalid, never clamped ----------------------------------------

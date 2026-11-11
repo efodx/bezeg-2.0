@@ -28,6 +28,8 @@ import {circleConstructionCollections} from "../../compgeo/circleConstruction/co
 import {combinatoricsCollections} from "../../combinatorics/collections";
 import {randomCollections} from "../../random/collections";
 import {kinematicsCollections} from "../../curves/kinematics/collections";
+import {recursionCollections} from "../../recursion/collections";
+import {wavesCollections} from "../../functions/waves/collections";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -47,6 +49,8 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...combinatoricsCollections,
     ...randomCollections,
     ...kinematicsCollections,
+    ...recursionCollections,
+    ...wavesCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

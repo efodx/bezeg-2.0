@@ -3,7 +3,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, settle} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {TransientState} from '../base/BaseGraph';
@@ -32,6 +32,7 @@ class ObservedGraph extends WavesGraph {
     override reducedMotion() { return this.reduced; }
     liveBoard() { return this.board; }
     disposeNow() { this.disposeFigureScene(); }
+    rebuildNow() { this.syncReplacedScene(); }
     capture(): TransientState { return this.captureTransientState(); }
     restore(saved: TransientState | undefined) { this.restoreTransientState(saved); }
 }
@@ -243,6 +244,19 @@ describe('the standing wave', () => {
 });
 
 describe('sampling', () => {
+    test('the names of the two wheel arrows stand under the circle in separate rows, never at an arrow tip', () => {
+        const {graph} = mountGraph();
+        choose('sampling');
+        const board = graph.liveBoard() as unknown as {unitY: number};
+        const circle = curves(graph).filter(o => o.dataY?.length === 97);
+        expect(circle).toHaveLength(1);
+        const bottom = Math.min(...circle[0].dataY!);
+        const named = (key: 'waves_graph_tip_true' | 'waves_graph_tip_film') => ofType(graph, 'text').find(o => o.plaintext === t(key))!;
+        const rows = [named('waves_graph_tip_true'), named('waves_graph_tip_film')].map(o => o.Y());
+        for (const y of rows) expect(y).toBeLessThan(bottom);
+        expect((rows[0] - rows[1]) * board.unitY).toBeGreaterThanOrEqual(14); // a caption is 14 px high
+    });
+
     const wheel = (graph: ObservedGraph) => ofType(graph, 'point').filter(o => visible(o) && o.evalVisProp('size') === 6);
 
     test('the samples at the instants n / 12 of a 3 Hz tone are cos(n pi / 2); the wheel and the strip are captioned', () => {
@@ -347,6 +361,64 @@ describe('sampling', () => {
         expect(curves(graph).some(o => o.dataY?.length === values.length && o.dataY.every((y, i) => y === values[i]))).toBe(true);
         expect(field(t('waves_graph_extra_label'))).toBeTruthy();
     });
+});
+
+describe('the captions on a narrow board (390 x 480 px)', () => {
+    const CHAR = 7.5;
+    const lines = (text: string) => Math.max(1, Math.ceil((text.length * CHAR) / (390 - 20)));
+    type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
+
+    // The shims give every element 600 x 400 px; this board is 390 x 480 px from its creation on.
+    const sizes = {clientWidth: 390, offsetWidth: 390, clientHeight: 480, offsetHeight: 480} as const;
+    beforeEach(() => {
+        for (const [name, size] of Object.entries(sizes)) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 390, bottom: 480, width: 390, height: 480, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) {
+            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        }
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    test('Reset gives the view the first load gave', async () => {
+        setLanguage('sl');
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as Board;
+        const mounted = [...board.getBoundingBox()];
+        await settle(() => graph.reset());
+        expect(board.getBoundingBox()).toEqual(mounted);
+    });
+
+    for (const language of ['sl', 'en'] as const) {
+        for (const mode of WAVES_MODES) {
+            test(`the captions do not overlap, clear the plot and the "y" title stands clear of the top number (${mode}, ${language})`, () => {
+                setLanguage(language);
+                const {graph} = mountGraph();
+                const board = graph.liveBoard() as unknown as Board;
+                expect([board.canvasWidth, board.canvasHeight]).toEqual([390, 480]);
+                choose(mode === 'beats' ? 'standing' : 'beats');
+                choose(mode);
+                const [left, top] = board.getBoundingBox();
+                const captions = ofType(graph, 'text').filter(o => visible(o) && o.evalVisProp('fixed') !== false && Math.abs(o.X() - (left + 10 / board.unitX)) < 1e-6)
+                    .sort((a, b) => b.Y() - a.Y());
+                expect(captions.length).toBeGreaterThanOrEqual(4);
+                captions.slice(1).forEach((caption, index) => {
+                    const above = captions[index];
+                    expect((above.Y() - caption.Y()) * board.unitY, above.plaintext).toBeGreaterThanOrEqual(lines(above.plaintext ?? '') * 20 - 0.01);
+                });
+                const last = captions[captions.length - 1];
+                const blockBottom = (top - last.Y()) * board.unitY + lines(last.plaintext ?? '') * 20;
+                const yTitle = ofType(graph, 'text').find(o => o.plaintext === t('waves_graph_axis_y'))!;
+                const titleBottom = (yTitle.evalVisProp('anchory') === 'top' ? yTitle.Y() - 16 / board.unitY : yTitle.Y());
+                const titleTop = (top - titleBottom) * board.unitY - 16;
+                expect(blockBottom).toBeLessThanOrEqual(titleTop);
+                // the top number "1" is 12 px high, centred on the peak; the title stands above it
+                const peakLabel = ofType(graph, 'text').find(o => visible(o) && o.plaintext === (o.plaintext ?? '') && o.evalVisProp('anchorx') === 'right' && o.Y() > 0 && o.X() < 0 && !captions.includes(o))!;
+                expect((titleBottom - peakLabel.Y()) * board.unitY).toBeGreaterThanOrEqual(6);
+            });
+        }
+    }
 });
 
 describe('controls', () => {
@@ -484,6 +556,10 @@ describe('playback', () => {
         expect(graph.playing).toBe(false);
         expect(graph.frames.requests).toBe(0);
         expect(document.body.textContent).toContain(t('playback_block_reduced_motion_time'));
+        const reason = document.getElementById('waves-play-reduced-reason')!;
+        expect(reason.textContent).toBe(t('playback_block_reduced_motion_time'));
+        expect(reason.closest('[hidden]')).toBeNull();
+        expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-describedby')?.split(' ')).toContain(reason.id);
         act(() => { fireEvent.change(slider(), {target: {value: '0.5'}}); });
         expect(graph.time).toBe(0.5);
     });
@@ -593,6 +669,24 @@ describe('ownership and disposal', () => {
         strict.view.unmount();
         expect(strict.graph.frames.pending()).toBe(false);
         expect(strict.graph.ownedObjectCount()).toBe(0);
+    });
+
+    test('a replaced scene keeps the view the board has, also when the mode of the scene changes (a restore brings its own)', () => {
+        const {graph} = mountGraph();
+        const stored: [number, number, number, number] = [-1, 3, 2, -3];
+        act(() => { graph.setState({mode: 'standing'}); });
+        act(() => { graph.liveBoard().setBoundingBox(stored, false); });
+        graph.disposeNow();
+        act(() => { graph.rebuildNow(); });
+        expect(graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(stored);
+    });
+
+    test('the hidden default axes draw no tick labels (their numbers would stand over the phasor circle)', () => {
+        const {graph} = mountGraph();
+        const labels = (graph.liveBoard().objectsList as unknown as {elType: string; evalVisProp(name: string): unknown; visPropCalc: {visible: boolean}}[])
+            .filter(o => o.elType === 'ticks');
+        expect(labels.length).toBeGreaterThan(0);
+        for (const ticks of labels) expect(ticks.evalVisProp('drawlabels')).toBe(false);
     });
 
     test('disposal removes every owned object back to the pre-scene count, and the next state change rebuilds the same scene', () => {

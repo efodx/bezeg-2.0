@@ -12,7 +12,7 @@ import {kinematicsPresetCollection} from './kinematicsPresetCollection';
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
 
-const mountGraph = (graph: KinematicsGraph): KinematicsGraph => {
+const mountGraph = <G extends KinematicsGraph>(graph: G): G => {
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return graph;
 };
@@ -50,5 +50,19 @@ describe('curve-kinematics Preset collection', () => {
     });
     test('an unknown data field is dropped, never trusted (the time and the playing flag does not enter a Preset)', () => {
         expect(kinematicsPresetCollection().check({...DEFAULT_KINEMATICS_STATE, time: 2, playing: true})).toEqual({data: DEFAULT_KINEMATICS_STATE});
+    });
+});
+
+describe('a Preset file with a stored view keeps that view', () => {
+    const view: [number, number, number, number] = [-3, 4, 6, -2]; // 3:2 like the 600 x 400 board: this graph keeps equal axis units
+    class ViewedGraph extends KinematicsGraph { liveBoard() { return this.board; } }
+
+    test('the stored boardState is kept with data that frames another view', () => {
+        const source = mountGraph(new ViewedGraph());
+        act(() => { source.setState(circular); });
+        const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
+        const fresh = mountGraph(new ViewedGraph());
+        act(() => { fresh.importPreset(preset); });
+        expect(fresh.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(view);
     });
 });

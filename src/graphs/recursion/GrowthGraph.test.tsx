@@ -2,7 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, settle} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {DEFAULT_GROWTH_STATE, deriveGrowth, GrowthPanel} from '../../recursion/recursionModel';
@@ -563,5 +563,39 @@ describe('language', () => {
         expect(board(graph)).toBe(t('recursion_graph_growth_board_log'));
         expect(document.body.textContent).not.toMatch(/recursion_graph_/);
         noBadText();
+    });
+});
+
+describe('the view of a replaced scene', () => {
+    const view = (graph: ObservedGraph) => graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)));
+
+    test('a rebuild after a disposal keeps the view the board has (a restore brings its own)', () => {
+        const {graph} = mountGraph();
+        const stored: [number, number, number, number] = [-3, 70, 19, -5];
+        act(() => { graph.liveBoard().setBoundingBox(stored, false); });
+        graph.disposeNow();
+        act(() => { graph.rebuildNow(); });
+        expect(view(graph)).toEqual(stored);
+    });
+
+    test('a reset shows the exact opening window, not one widened to the canvas', async () => {
+        const {graph} = mountGraph();
+        const opening = view(graph);
+        act(() => { graph.setState({a1: -50, d: -10}); });
+        act(() => { graph.liveBoard().setBoundingBox([-3, 70, 19, -5], false); });
+        await settle(() => graph.reset());
+        expect(view(graph)).toEqual(opening);
+    });
+});
+
+describe('the vertical axis title', () => {
+    test('stands right of the vertical axis, where no tick label of any panel stands', () => {
+        const {graph} = mountGraph();
+        for (const value of ['sequence', 'interest', 'log'] as const) {
+            panel(value);
+            const title = visible(texts(graph)).find(o => (o.plaintext ?? '').startsWith(t(`recursion_graph_growth_cap_y_${value}`)))! as Probe & {X(): number};
+            expect(title, value).toBeDefined();
+            expect(title.X(), value).toBeGreaterThan(0);
+        }
     });
 });

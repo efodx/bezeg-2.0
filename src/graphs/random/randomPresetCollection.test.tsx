@@ -12,7 +12,7 @@ import {randomPresetCollection} from './randomPresetCollection';
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
 
-const mountGraph = (graph: SimulationGraph): SimulationGraph => {
+const mountGraph = <G extends SimulationGraph>(graph: G): G => {
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return graph;
 };
@@ -49,5 +49,19 @@ describe('prob-simulation Preset collection', () => {
     });
     test('an unknown data field is dropped, never trusted (a tally or the playing flag does not enter a Preset)', () => {
         expect(randomPresetCollection().check({...DEFAULT_RANDOM_STATE, playing: true, counts: [1]})).toEqual({data: DEFAULT_RANDOM_STATE});
+    });
+});
+
+describe('a Preset file with a stored view keeps that view', () => {
+    const view: [number, number, number, number] = [-3.5, 4.25, 6.5, -2.75];
+    class ViewedGraph extends SimulationGraph { liveBoard() { return this.board; } }
+
+    test('the stored boardState is kept with data that frames another view', () => {
+        const source = mountGraph(new ViewedGraph());
+        act(() => { source.setState(walk); });
+        const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
+        const fresh = mountGraph(new ViewedGraph());
+        act(() => { fresh.importPreset(preset); });
+        expect(fresh.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(view);
     });
 });

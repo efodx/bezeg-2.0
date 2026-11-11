@@ -133,8 +133,22 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return serializeKinematicsState(this.state);
     }
 
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the frame of the imported data is marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
     override importPresetData(data: KinematicsState): void {
-        this.setState(serializeKinematicsState(data));
+        const imported = serializeKinematicsState(data);
+        if (this.keepImportedView) this.drawnFrame = frameFor(deriveKinematics(imported)).map(value => value.toFixed(4)).join(",");
+        this.setState(imported);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): KinematicsGraphState {
