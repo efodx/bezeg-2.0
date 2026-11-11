@@ -12,11 +12,19 @@ import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {LessonAction} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {AnimationScheduler} from "../../learning/runtime/animation";
+import {IterationController} from "../../learning/runtime/iterationController";
 import {
-    applySetExample, applySetMatrix, applySetMode, applySetTestVector, changeMode, DEFAULT_LINEAR_MAP_STATE, editMatrixEntry,
-    LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample, serializeLinearMapState, snapEntryInput,
-    validateSetExample, validateSetMatrix, validateSetMode, validateSetTestVector,
+    applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applyStep, changeMode, DEFAULT_LINEAR_MAP_STATE, editMatrixEntry,
+    ITERATE_STEP_MAX, LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample, serializeLinearMapState, snapEntryInput, snapStartInput,
+    startOf, stepOf, validateSetExample, validateSetMatrix, validateSetMode, validateSetStart, validateSetTestVector, validateStep,
 } from "../../linear/linearMapModel";
+import {
+    companionOfDrag, deriveIteration, deriveTraceDet, estimatesDominant, iterateAt, IterationView, SETTLED_ANGLE_DEGREES, TRACE_DET_DRAG_LIMIT, TRACE_DET_VIEW, TraceDetView,
+} from "./iterationScene";
+import {createIterationCurves, createIterationPoints, ITERATION_COLORS, IterationBoardContext, legendKindFor, TRACE_DET_DRAWING} from "./iterationBoard";
+import {StepCounter} from "./StepCounter";
 import {
     apply, det, IDENTITY, isLinearMapExampleId, MATRIX_ENTRY_STEP, type Mat2, orientationSign, unitSquareImage, type Vec2,
 } from "../../linear/matrix2";
@@ -44,9 +52,19 @@ const LINEAR_MAP_COLORS = {
     squareFill: "#f1dfcd",
 } as const;
 
+/** The Batch D operations; the shared `LessonAction` union gains them with the lesson wiring, so this graph accepts them locally. */
+export interface LinearMapIterationAction {
+    readonly kind: "linear-map";
+    readonly operation: "set-start" | "step";
+    readonly start?: readonly [number, number];
+    readonly count?: number;
+}
+
 type Column = 0 | 1;
 type Row = 0 | 1;
-type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse-point";
+type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse-point"
+    | "zero-start" | "zero-iterate" | "start-to-zero" | "collapses" | "dominant" | "other-eigenvector" | "equal-moduli" | "rotating" | "scalar" | "defective" | "settled"
+    | "td-inside" | "td-edge" | "td-outside" | "flow-stable" | "flow-unstable" | "companion" | "td-range";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -73,6 +91,12 @@ interface EntryNotice {
 
 const EXAMPLE_IDS_OFFERED = ["identity", "basis-default", "orientation-reversing", "singular"] as const;
 const SOURCE_GRID = sourceGridPolyline();
+let nextInstance = 0;
+
+/** Milliseconds between two steps of the played iteration. */
+export const STEP_INTERVAL_MS = 600;
+const planeOf = (mode: LinearMapGraphMode): "plane" | "trace-det" => mode === "tracedet" ? "trace-det" : "plane";
+const sameStored = (a: LinearMapState, b: LinearMapState): boolean => JSON.stringify(serializeLinearMapState(a)) === JSON.stringify(serializeLinearMapState(b));
 
 const sameMatrix = (a: Mat2, b: Mat2): boolean => a[0][0] === b[0][0] && a[0][1] === b[0][1] && a[1][0] === b[1][0] && a[1][1] === b[1][1];
 
@@ -89,7 +113,18 @@ const sameMatrix = (a: Mat2, b: Mat2): boolean => a[0][0] === b[0][0] && a[0][1]
 export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     protected handle1?: JXG.Point;
     protected handle2?: JXG.Point;
+    protected startHandle?: JXG.Point;
+    protected traceDetHandle?: JXG.Point;
     private notice?: EntryNotice;
+    private readonly uid = nextInstance++;
+    /** The matrix a drag of the (tau, delta) handle produced; while it is the stored matrix, the companion status is stated. */
+    private companionMatrix?: Mat2;
+    private iterationMemo?: { model: LinearMapState; view: IterationView };
+    private traceDetMemo?: { matrix: Mat2; view: TraceDetView };
+    /** The view the board currently shows, so only a change between the planes resets the box. */
+    private boardPlane: "plane" | "trace-det" = "plane";
+    private controller?: IterationController;
+    private ticking = false;
 
     override presetCollection() {
         return linearMapPresetCollection;
@@ -100,7 +135,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     }
 
     protected defaultBoundingBox(): BoundingBox {
-        return [...BOARD_VIEW];
+        return [...(this.model.mode === "tracedet" ? TRACE_DET_VIEW : BOARD_VIEW)];
     }
 
     override exportPresetData(): LinearMapState {
@@ -136,7 +171,143 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         });
     }
 
+    /** The orbit and its exact classification for the stored matrix and start; cached on the model's identity. */
+    private iterationOf(model: LinearMapState): IterationView {
+        if (this.iterationMemo?.model !== model) this.iterationMemo = {model, view: deriveIteration(model.matrix, startOf(model))};
+        return this.iterationMemo.view;
+    }
+
+    private traceDetOf(model: LinearMapState): TraceDetView {
+        if (this.traceDetMemo?.matrix !== model.matrix) this.traceDetMemo = {matrix: model.matrix, view: deriveTraceDet(model.matrix)};
+        return this.traceDetMemo.view;
+    }
+
     // ---- Model operations (read and write the synchronous model) ---------------------------------------
+
+    /**
+     * The playback rule on every write, including a direct `setState` and a restored scene: a change of the stored content from
+     * anywhere but the playback's own tick pauses a playing iteration. A write that changes nothing stored (a refreshed message) leaves it playing.
+     */
+    override setState(...args: Parameters<BaseFunctionGraph<LinearMapState>["setState"]>): void {
+        const before = this.model;
+        super.setState(...args);
+        if (!this.ticking && this.isPlaying() && !sameStored(before, this.model)) this.pausePlayback();
+    }
+
+    /** A drag of the start handle: each coordinate snaps to the quarter grid inside [-4, 4]. */
+    protected dragStart(x: number, y: number): Vec2 | undefined {
+        const [sx, sy] = [snapStartInput(x, "x"), snapStartInput(y, "y")];
+        if (!sx.ok || !sy.ok) throw new DomainError("The handle position must be finite.");
+        const next: Vec2 = [sx.value.value, sy.value.value];
+        const current = startOf(this.model);
+        this.notice = undefined;
+        if (next[0] !== current[0] || next[1] !== current[1]) this.commitModel({...this.model, start: next}, {syncScene: false});
+        return next;
+    }
+
+    /** Typed start coordinate: refused (false) unless it is on the grid inside [-4, 4]; the other coordinate stays. */
+    protected setStartFromInput(axis: 0 | 1, input: number): boolean {
+        const snapped = snapStartInput(input, "start");
+        if (!snapped.ok || snapped.value.adjusted) return false;
+        const current = startOf(this.model);
+        const next: Vec2 = axis === 0 ? [snapped.value.value, current[1]] : [current[0], snapped.value.value];
+        this.notice = undefined;
+        this.commitModel({...this.model, start: next});
+        return true;
+    }
+
+    /** A drag of the (tau, delta) handle: the companion matrix of the snapped point becomes the matrix. */
+    protected dragTraceDet(tau: number, delta: number): Vec2 | undefined {
+        const [st, sd] = [snapStartInput(tau, "tau"), snapStartInput(delta, "delta")];
+        if (!st.ok || !sd.ok) throw new DomainError("The handle position must be finite.");
+        const matrix = companionOfDrag(st.value.value, sd.value.value);
+        this.notice = undefined;
+        if (!sameMatrix(matrix, this.model.matrix)) {
+            this.companionMatrix = matrix;
+            this.commitModel({...this.model, matrix, exampleId: "custom"}, {syncScene: false});
+        }
+        return [st.value.value, sd.value.value];
+    }
+
+    // ---- Playback of the iteration (as the logistic map's) ---------------------------------------------------------------
+
+    isPlaying(): boolean {
+        return this.controller?.isPlaying() ?? false;
+    }
+
+    /** Read at the time of the call, so a changed system setting applies at the next Play. */
+    reducedMotion(): boolean {
+        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+    }
+
+    private disposeController(): void {
+        this.controller?.dispose();
+        this.controller = undefined;
+    }
+
+    /** The frame scheduler of the playback; tests substitute a fake clock. */
+    protected animationScheduler(): AnimationScheduler | undefined {
+        return undefined;
+    }
+
+    private syncedController(): IterationController {
+        this.controller ??= new IterationController({
+            transition: () => {
+                const step = Math.min(ITERATE_STEP_MAX, stepOf(this.model) + 1);
+                this.ticking = true;
+                try { this.commitModel({...this.model, step}); } finally { this.ticking = false; }
+                this.requestRender();
+                return step >= ITERATE_STEP_MAX ? "complete" : "continue";
+            },
+            stepIntervalMs: STEP_INTERVAL_MS,
+            maxIterations: ITERATE_STEP_MAX,
+            onComplete: () => this.requestRender(),
+            scheduler: this.animationScheduler(),
+        });
+        if (this.controller.iteration !== stepOf(this.model)) this.controller.reset(stepOf(this.model));
+        return this.controller;
+    }
+
+    /** Stops the playback; the step stays where it is. */
+    override pausePlayback(): void {
+        if (!this.controller?.isPlaying()) return;
+        this.controller.pause();
+        if (this.graphSession?.isAlive) this.requestRender();
+    }
+
+    /** Plays from the step on. Under reduced motion nothing plays: the button says why and Next step stays available. */
+    play(): void {
+        if (this.isPlaying() || !this.graphSession?.isAlive || stepOf(this.model) >= ITERATE_STEP_MAX || this.reducedMotion()) return;
+        this.syncedController().play();
+        this.requestRender();
+    }
+
+    stepOnce(): void {
+        this.pausePlayback();
+        if (stepOf(this.model) >= ITERATE_STEP_MAX) return;
+        this.commitModel(applyStep(this.model, {count: 1}));
+    }
+
+    resetRun(): void {
+        this.pausePlayback();
+        if (stepOf(this.model) !== 0) this.commitModel({...this.model, step: 0});
+        this.controller?.reset(0);
+    }
+
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.pausePlayback();
+    }
+
+    protected override disposeFigureScene(): void {
+        this.pausePlayback();
+        super.disposeFigureScene();
+    }
+
+    override unmount(): void {
+        this.disposeController();
+        super.unmount();
+    }
 
     /** Writes one entry from typed input: snaps to 1/4, clamps to [-4, 4] and records the message. */
     protected setEntryFromInput(row: Row, column: Column, input: number): void {
@@ -187,7 +358,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
      * Applies one `linear-map` scene action. The payload is validated strictly by the kernel (scene data is never snapped);
      * an invalid payload is a lesson-content error and throws a `DomainError` naming the field.
      */
-    applyLinearMapAction(action: Extract<LessonAction, { kind: "linear-map" }>): void {
+    applyLinearMapAction(action: Extract<LessonAction, { kind: "linear-map" }> | LinearMapIterationAction): void {
         const unwrap = <P,>(result: LinearMapResult<P>): P => {
             if (!result.ok) throw new DomainError(`${result.error.field}: ${result.error.message}`);
             return result.value;
@@ -204,6 +375,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             }
             case "set-test-vector": return this.commitModel(applySetTestVector(this.model, unwrap(validateSetTestVector(payload))));
             case "set-example": return this.commitModel(applySetExample(this.model, unwrap(validateSetExample(payload))));
+            case "set-start": return this.commitModel(applySetStart(this.model, unwrap(validateSetStart(payload))));
+            case "step": return this.commitModel(applyStep(this.model, unwrap(validateStep(payload))));
         }
     }
 
@@ -256,6 +429,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         switch (mode) {
             case "basis": return t("linear_map_mode_basis");
             case "determinant": return t("linear_map_mode_determinant");
+            case "iterate": return t("linear_map_mode_iterate");
+            case "tracedet": return t("linear_map_mode_tracedet");
         }
     }
 
@@ -267,14 +442,17 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     protected createScene(): void {
+        this.boardPlane = planeOf(this.model.mode as LinearMapGraphMode);
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.6);
-        const squareShown = () => model().squareVisible;
-        const curveShown = () => model().curveVisible;
-        const probeShown = () => model().probeVisible;
+        const basisLike = () => model().mode === "basis" || model().mode === "determinant";
+        const squareShown = () => basisLike() && model().squareVisible;
+        const curveShown = () => basisLike() && model().curveVisible;
+        const probeShown = () => basisLike() && model().probeVisible;
+        const gridsShown = () => model().mode !== "tracedet";
         const colors = {...LINEAR_MAP_COLORS, polygon: GraphPalette.controlPolygon};
 
         // A curve whose points come from a function; NaN entries break the polyline (grid), finite everywhere else.
@@ -290,8 +468,23 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         };
 
         // Layers, lowest first: the source grid, the image grid (one curve), the square, the Bezier curves and polygons, the points.
-        polyline(() => SOURCE_GRID, {strokeColor: colors.sourceGrid, strokeOpacity: 0.72, strokeWidth: thin});
-        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin});
+        polyline(() => SOURCE_GRID, {strokeColor: colors.sourceGrid, strokeOpacity: 0.72, strokeWidth: thin, visible: gridsShown});
+        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin, visible: gridsShown});
+
+        // The Batch D layers sit above the grids and below the square, the curves and the basis handles.
+        const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
+        const iterationContext: IterationBoardContext = {
+            board, own: object => this.own(object), mode: () => model().mode as LinearMapGraphMode, step: () => stepOf(model()),
+            iteration: () => this.iterationOf(this.model), traceDet: () => this.traceDetOf(this.model), start: () => startOf(this.model),
+            strokeWidth, thin, markerSize, fontSize: this.displayFontSize,
+            fixedPointAttributes: this.styles.point.fixed, handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
+            pointLabel: (placement, distance, shown) => this.pointLabel(placement, distance, shown),
+            dragStart: (x, y) => this.dragStart(x, y), dragTraceDet: (tau, delta) => this.dragTraceDet(tau, delta),
+            text: {
+                triangle: () => t("linear_map_area_triangle"), flow: () => t("linear_map_area_flow"), parabola: () => t("linear_map_area_parabola"),
+            },
+        };
+        createIterationCurves(iterationContext);
 
         polyline(() => closedPolyline(unitSquareImage(IDENTITY)), {strokeColor: colors.sourcePoint, strokeWidth: strokeWidth, visible: squareShown});
         polyline(() => closedPolyline(view().square), {
@@ -307,7 +500,6 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         bezier(() => FIXTURE_CONTROL_POINTS, colors.sourceCurve);
         bezier(() => view().imageControl, colors.imageCurve);
 
-        const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
         const fixedPoint = (x: () => number, y: () => number, name: string | (() => string), placement: LabelPlacement | (() => LabelPlacement),
                             color: string, shown: () => boolean, labelShown: () => boolean = shown) =>
             this.own(board.create("point", [x, y], {
@@ -334,8 +526,9 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const handle = (column: Column, name: string, placement: LabelPlacement, color: string) => {
             const m = this.model.matrix;
             const point = this.own(board.create("point", [m[0][column], m[1][column]], {
-                ...this.styles.point.default, name, label: this.pointLabel(placement, 1.1), size: markerSize,
+                ...this.styles.point.default, name, label: this.pointLabel(placement, 1.1, gridsShown), size: markerSize,
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
+                visible: gridsShown,
             })) as JXG.Point;
             point.on("drag", () => {
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;
@@ -348,9 +541,27 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.handle1 = handle(0, "$$a_1=Ae_1$$", "below-right", colors.imageHandle);
         this.handle2 = handle(1, "$$a_2=Ae_2$$", "above-left", colors.imageHandle);
 
+        const iterationHandles = createIterationPoints(iterationContext);
+        this.startHandle = iterationHandles.startHandle;
+        this.traceDetHandle = iterationHandles.tdHandle;
+
         // The basis images and the determinant stay on the board; the narrow board drops the orientation line.
         this.caption("bottom-left", [
-            {text: () => t("linear_map_board_columns", {value0: this.vector(view().a1), value1: this.vector(view().a2)}), scale: 1.1, math: true},
+            {text: () => t("linear_map_board_columns", {value0: this.vector(view().a1), value1: this.vector(view().a2)}), scale: 1.1, math: true, visible: gridsShown},
+            {
+                text: () => {
+                    const at = iterateAt(this.iterationOf(this.model), this.model.matrix, stepOf(this.model));
+                    return t("linear_map_board_iterate", {value0: String(at.step), value1: this.vector(at.point)});
+                },
+                scale: 1.1, math: true, visible: () => model().mode === "iterate",
+            },
+            {
+                text: () => {
+                    const td = this.traceDetOf(this.model);
+                    return t("linear_map_board_trace_det", {value0: this.num(td.tau, 4), value1: this.num(td.delta, 4)});
+                },
+                scale: 1.1, math: true, visible: () => model().mode === "tracedet",
+            },
             {text: () => t("linear_map_board_det", {value0: this.num(view().determinant, 4)}), visible: () => model().mode === "determinant", math: true},
             {
                 text: () => t("linear_map_board_orientation", {value0: this.orientationText(view().sign)}),
@@ -363,11 +574,25 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const m = this.model.matrix;
         this.handle1?.moveTo([m[0][0], m[1][0]]);
         this.handle2?.moveTo([m[0][1], m[1][1]]);
+        const start = startOf(this.model);
+        this.startHandle?.moveTo([start[0], start[1]]);
+        const td = this.traceDetOf(this.model);
+        this.traceDetHandle?.moveTo([td.tau, td.delta]);
+        // The trace-determinant plane has its own view; a change between the two planes shows the new one.
+        const plane = planeOf(this.model.mode as LinearMapGraphMode);
+        if (plane !== this.boardPlane) {
+            this.boardPlane = plane;
+            this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+        }
     }
 
     protected override onSceneRemoved(): void {
         this.handle1 = undefined;
         this.handle2 = undefined;
+        this.startHandle = undefined;
+        this.traceDetHandle = undefined;
+        this.iterationMemo = undefined;
+        this.traceDetMemo = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -385,6 +610,18 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                          onChange={next => this.ignoreOutOfDomain(() => this.setEntryFromInput(row, column, next))}/>
         );
         const notice = this.notice;
+        const iterating = state.mode === "iterate";
+        const basisLike = state.mode === "basis" || state.mode === "determinant";
+        const startHelpId = `linear-map-start-help-${this.uid}`;
+        const start = startOf(state);
+        const startEntry = (axis: 0 | 1) => (
+            <NumberInput label={axis === 0 ? t("linear_map_start_x_label") : t("linear_map_start_y_label")} value={start[axis]} step={MATRIX_ENTRY_STEP}
+                         decimals={2} min={-4} max={4} describedBy={startHelpId} rejectedHint={t("linear_map_start_rejected")}
+                         onChange={next => this.setStartFromInput(axis, next)}/>
+        );
+        const playing = this.isPlaying();
+        const step = stepOf(state);
+        const blocks = playbackBlocks({atStart: step === 0, atEnd: step >= ITERATE_STEP_MAX, playing});
         const toggle = (field: "probeVisible" | "curveVisible" | "squareVisible", label: string) => (
             <OnOffSwitch checked={state[field]} label={label} onChange={checked => this.setToggle(field, checked)}/>
         );
@@ -414,14 +651,49 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     <UnavailableButton data-action="linear-map-reset" reason={atIdentity ? t("linear_map_at_identity") : undefined}
                                        onPress={() => this.resetToIdentity()}>{t("linear_map_reset")}</UnavailableButton>
                 </div>
-                {toggle("squareVisible", t("linear_map_toggle_square"))}
-                {toggle("probeVisible", t("linear_map_toggle_probe"))}
-                {toggle("curveVisible", t("linear_map_toggle_curve"))}
+                {basisLike && toggle("squareVisible", t("linear_map_toggle_square"))}
+                {basisLike && toggle("probeVisible", t("linear_map_toggle_probe"))}
+                {basisLike && toggle("curveVisible", t("linear_map_toggle_curve"))}
+                {!basisLike && <p className="inspector-help" data-linear-map-toggles-hidden="">{t("linear_map_toggles_hidden")}</p>}
             </div>
+            {iterating && <div className="inspector-group">
+                <p className="inspector-help" data-linear-map-iterate-gloss="">{t("linear_map_note_iterate")}</p>
+                <div className="function-points-grid">
+                    {startEntry(0)}
+                    {startEntry(1)}
+                </div>
+                <p id={startHelpId} className="inspector-help">{t("linear_map_start_help")}</p>
+                <PlaybackButtons placement="graph" groupLabel={t("linear_map_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
+                                 playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
+                                 onReset={() => this.resetRun()} {...blocks}
+                                 playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}>
+                    <StepCounter id={`linear-map-step-counter-${this.uid}`}>{t("step_counter", {value0: step, value1: ITERATE_STEP_MAX})}</StepCounter>
+                </PlaybackButtons>
+            </div>}
         </>;
     }
 
     protected override renderLegend(): React.ReactNode {
+        const mode = this.model.mode;
+        const colors = ITERATION_COLORS;
+        if (mode === "tracedet") {
+            return <FunctionLegend items={[
+                {id: "parabola", color: colors.parabola, label: t("linear_map_legend_parabola"), kind: legendKindFor(TRACE_DET_DRAWING.parabola)},
+                {id: "triangle", color: colors.triangle, label: t("linear_map_legend_triangle"), kind: legendKindFor(TRACE_DET_DRAWING.triangle)},
+                {id: "flow", color: colors.flow, label: t("linear_map_legend_flow"), kind: legendKindFor(TRACE_DET_DRAWING.flow)},
+                {id: "point", color: colors.handle, label: t("linear_map_legend_point"), kind: "dot"},
+            ]}/>;
+        }
+        if (mode === "iterate") {
+            return <FunctionLegend items={[
+                {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
+                {id: "image-grid", color: LINEAR_MAP_COLORS.imageGrid, label: t("linear_map_legend_image_grid"), kind: "line"},
+                {id: "iterates", color: colors.orbit, label: t("linear_map_legend_iterates"), kind: "dot"},
+                {id: "unit", color: colors.unit, label: t("linear_map_legend_unit"), kind: "line"},
+                {id: "dominant", color: colors.dominant, label: t("linear_map_legend_dominant"), kind: "line"},
+                {id: "other", color: colors.other, label: t("linear_map_legend_other"), kind: "dashed-line"},
+            ]}/>;
+        }
         return <FunctionLegend items={[
             {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
             {id: "image-grid", color: LINEAR_MAP_COLORS.imageGrid, label: t("linear_map_legend_image_grid"), kind: "line"},
@@ -434,6 +706,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     /** The statuses to state in words; each has a stable id for tests and assistive technology. Zero never says positive or negative. */
     private statuses(model: LinearMapState, view: View): { id: StatusKind; text: string }[] {
         const result: { id: StatusKind; text: string }[] = [];
+        if (model.mode === "iterate") return this.iterationStatuses(model);
+        if (model.mode === "tracedet") return this.traceDetStatuses(model);
         if (model.mode === "determinant") {
             if (view.sign > 0) result.push({id: "positive", text: t("linear_map_status_positive")});
             else if (view.sign < 0) result.push({id: "negative", text: t("linear_map_status_negative")});
@@ -444,15 +718,99 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
-        const model = this.model;
-        const view = this.viewOf(model);
+    /** Exact statements come from the kernel's exact tests; only "settled" is a computed claim and says so. */
+    private iterationStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+        const run = this.iterationOf(model);
+        const start = startOf(model);
+        if (start[0] === 0 && start[1] === 0) return [{id: "zero-start", text: t("linear_map_status_zero_start")}];
+        const at = iterateAt(run, model.matrix, stepOf(model));
+        const result: { id: StatusKind; text: string }[] = [];
+        if (run.collapsed) result.push({id: "collapses", text: t("linear_map_status_collapses")});
+        else if (run.outcome === "dominant") {
+            result.push(run.startToZero ? {id: "start-to-zero", text: t("linear_map_status_start_to_zero")}
+                : run.otherEigenvector
+                ? {id: "other-eigenvector", text: t("linear_map_status_other_eigenvector")}
+                : {id: "dominant", text: t("linear_map_status_dominant")});
+        } else if (run.outcome === "equal-moduli") result.push({id: "equal-moduli", text: t("linear_map_status_equal_moduli")});
+        else if (run.outcome === "rotating") result.push({id: "rotating", text: t("linear_map_status_rotating")});
+        else if (run.outcome === "scalar") result.push({id: "scalar", text: t("linear_map_status_scalar")});
+        else result.push({id: "defective", text: t("linear_map_status_defective")});
+        if (at.zero && !run.collapsed) result.push({id: "zero-iterate", text: t("linear_map_status_zero_iterate")});
+        const approaches = (run.outcome === "dominant" && !run.otherEigenvector) || run.outcome === "defective";
+        if (!run.collapsed && !at.zero && approaches && at.angleError !== undefined && at.angleError <= SETTLED_ANGLE_DEGREES) {
+            result.push({id: "settled", text: t("linear_map_status_settled", {value0: this.num(SETTLED_ANGLE_DEGREES, 0)})});
+        }
+        return result;
+    }
+
+    private traceDetStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+        const td = this.traceDetOf(model);
+        const result: { id: StatusKind; text: string }[] = [];
+        const {stability} = td;
+        if (stability.kind === "inside") result.push({id: "td-inside", text: t("linear_map_status_td_inside")});
+        else if (stability.kind === "outside") result.push({id: "td-outside", text: t("linear_map_status_td_outside")});
+        else {
+            const text = stability.edge === "determinant-one" ? t("linear_map_status_td_edge_determinant_one")
+                : stability.edge === "eigenvalue-one" ? t("linear_map_status_td_edge_eigenvalue_one") : t("linear_map_status_td_edge_eigenvalue_minus_one");
+            result.push({id: "td-edge", text});
+        }
+        result.push(td.flowStable ? {id: "flow-stable", text: t("linear_map_status_flow_stable")} : {id: "flow-unstable", text: t("linear_map_status_flow_unstable")});
+        if (this.companionMatrix === model.matrix) result.push({id: "companion", text: t("linear_map_status_companion")});
+        if (Math.abs(td.tau) > TRACE_DET_DRAG_LIMIT || Math.abs(td.delta) > TRACE_DET_DRAG_LIMIT) result.push({id: "td-range", text: t("linear_map_status_td_range")});
+        return result;
+    }
+
+    private readoutRows(model: LinearMapState, view: View): { id: string; label: string; value: string }[] {
         const [[a, b], [c, d]] = view.matrix;
-        const rows = [
+        const none = t("linear_map_value_none");
+        const optional = (value: number | undefined, decimals = 4) => value === undefined ? none : this.num(value, decimals);
+        const matrixRows = [
             {id: "row1", label: t("linear_map_readout_row1"), value: `${this.num(a)}   ${this.num(b)}`},
             {id: "row2", label: t("linear_map_readout_row2"), value: `${this.num(c)}   ${this.num(d)}`},
+        ];
+        const basisRows = [
             {id: "a1", label: t("linear_map_readout_a1"), value: this.vector(view.a1)},
             {id: "a2", label: t("linear_map_readout_a2"), value: this.vector(view.a2)},
+        ];
+        const start = startOf(model);
+        const stepRows = (at: ReturnType<typeof iterateAt>) => [
+            {id: "start", label: t("linear_map_readout_start"), value: this.vector(start)},
+            {id: "step", label: t("linear_map_readout_step"), value: t("linear_map_readout_step_value", {value0: at.step, value1: ITERATE_STEP_MAX})},
+        ];
+        if (model.mode === "tracedet") {
+            const td = this.traceDetOf(model);
+            const stability = td.stability.kind === "inside" ? t("linear_map_stability_inside")
+                : td.stability.kind === "edge" ? t("linear_map_stability_edge") : t("linear_map_stability_outside");
+            return [
+                ...matrixRows,
+                {id: "tau", label: t("linear_map_readout_tau"), value: this.num(td.tau, 4)},
+                {id: "delta", label: t("linear_map_readout_delta"), value: this.num(td.delta, 4)},
+                {id: "discriminant", label: t("linear_map_readout_discriminant"), value: this.num(td.discriminant, 4)},
+                {id: "stability", label: t("linear_map_readout_stability"), value: stability},
+                {id: "flow", label: t("linear_map_readout_flow"), value: td.flowStable ? t("linear_map_flow_stable") : t("linear_map_flow_unstable")},
+            ];
+        }
+        if (model.mode === "iterate") {
+            const run = this.iterationOf(model);
+            const at = iterateAt(run, model.matrix, stepOf(model));
+            return [
+                ...matrixRows, ...basisRows, ...stepRows(at),
+                {id: "iterate", label: t("linear_map_readout_iterate"), value: this.vector(at.point)},
+                {id: "norm", label: t("linear_map_readout_norm"), value: this.num(at.norm, 4)},
+                {id: "unit", label: t("linear_map_readout_unit"), value: at.unit ? this.vector(at.unit) : none},
+                {id: "angle", label: t("linear_map_readout_angle"), value: at.angleError === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(at.angleError, 2)})},
+                {id: "stretch", label: t("linear_map_readout_stretch"), value: optional(at.stretch)},
+                estimatesDominant(run)
+                    ? {id: "rayleigh", label: t("linear_map_readout_rayleigh"), value: optional(at.rayleigh)}
+                    : {id: "rayleigh", label: t("linear_map_readout_rayleigh_plain"), value: optional(at.rayleigh)},
+                {
+                    id: "ratio", value: optional(run.orbit.modulusRatio),
+                    label: estimatesDominant(run) ? t("linear_map_readout_ratio") : t("linear_map_readout_ratio_plain"),
+                },
+            ];
+        }
+        return [
+            ...matrixRows, ...basisRows,
             {id: "probe", label: t("linear_map_readout_probe"), value: this.vector(view.probeImage)},
             ...(model.mode === "determinant" ? [
                 {id: "det-formula", label: t("linear_map_readout_det_formula"), value: this.formula(view)},
@@ -461,9 +819,15 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "orientation", label: t("linear_map_readout_orientation"), value: this.orientationText(view.sign)},
             ] : []),
         ];
+    }
+
+    protected renderReadout(): React.ReactNode {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const notes = [t("linear_map_note"), ...(model.mode === "tracedet" ? [t("linear_map_note_tracedet")] : [])];
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("linear_map_note")}/>
-            <FunctionStatus className="demo-status" dataAttribute="linear-map-status" lines={this.statuses(model, view)}/>
+            <FunctionReadout title={t("function_readouts")} rows={this.readoutRows(model, view)} note={notes}/>
+            <FunctionStatus className="demo-status" dataAttribute="linear-map-status" lines={this.statuses(model, view)} muted={this.isPlaying()}/>
         </>;
     }
 }

@@ -1,5 +1,7 @@
 # 11 Batch D: power method and stability (F2a–F6, gated)
 
+Status: F2a done 2026-11-11 (families-prep stream, not yet committed): `iterate` and `tracedet` modes, start and step state, playback; evidence in [the F2a note](../../reviews/feature-streams/families-prep/notes/f2a-lm-11.md). F2b–F6 open, gated on Controls step 7 and Batch B.
+
 Gates:
 
 - F2a waits for Controls step 5 `accepted` in [controls.md](../feature-streams/controls.md).

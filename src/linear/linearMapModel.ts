@@ -1,6 +1,6 @@
 import {
     IDENTITY, isLinearMapExampleId, isMatrixEntry, LINEAR_MAP_EXAMPLE_IDS, LINEAR_MAP_EXAMPLES, LinearMapExampleId, Mat2,
-    MATRIX_ENTRY_MAX, MATRIX_ENTRY_MIN, snapMatrixEntry,
+    MATRIX_ENTRY_MAX, MATRIX_ENTRY_MIN, snapMatrixEntry, Vec2,
 } from './matrix2';
 
 /**
@@ -12,7 +12,7 @@ import {
  * Imported entries are never snapped or clamped: an off-grid or out-of-range entry rejects the whole state. Numeric input
  * from the UI uses `snapEntryInput`, which snaps and reports whether it clamped.
  */
-export const LINEAR_MAP_MODES = ['basis', 'determinant', 'eigen', 'ellipse', 'composition'] as const;
+export const LINEAR_MAP_MODES = ['basis', 'determinant', 'eigen', 'ellipse', 'composition', 'iterate', 'tracedet'] as const;
 export type LinearMapMode = typeof LINEAR_MAP_MODES[number];
 export const isLinearMapMode = (value: unknown): value is LinearMapMode =>
     typeof value === 'string' && (LINEAR_MAP_MODES as readonly string[]).includes(value);
@@ -34,7 +34,18 @@ export interface LinearMapState {
     readonly probeVisible: boolean;
     readonly curveVisible: boolean;
     readonly squareVisible: boolean;
+    /** Start vector v0 of the iterate and tracedet modes (Batch D); absent means `DEFAULT_START`. Coordinates are multiples of 1/4 in [-4, 4]. */
+    readonly start?: Vec2;
+    /** Iteration step k of those modes, an integer in [0, ITERATE_STEP_MAX]; absent means 0. */
+    readonly step?: number;
 }
+
+/** The start vector of a state that stores none: the first L6 example, v0 = (1, 0). */
+export const DEFAULT_START: Vec2 = [1, 0];
+/** The number of iteration steps the iterate modes offer (lesson L6: the first N <= 30 iterates). */
+export const ITERATE_STEP_MAX = 30;
+export const startOf = (state: Pick<LinearMapState, 'start'>): Vec2 => state.start ?? DEFAULT_START;
+export const stepOf = (state: Pick<LinearMapState, 'step'>): number => state.step ?? 0;
 
 export const DEFAULT_LINEAR_MAP_STATE: LinearMapState = {
     matrix: IDENTITY,
@@ -48,7 +59,7 @@ export const DEFAULT_LINEAR_MAP_STATE: LinearMapState = {
 
 export type LinearMapErrorReason =
     | 'not-an-object' | 'not-a-matrix' | 'not-finite' | 'off-grid' | 'out-of-range'
-    | 'unknown-value' | 'not-boolean' | 'angle-out-of-range';
+    | 'unknown-value' | 'not-boolean' | 'angle-out-of-range' | 'not-a-vector' | 'not-a-step';
 
 /** A structured rejection: `field` names the offending field (for example `matrix[1][0]`), `reason` is a stable code. */
 export interface LinearMapError {
@@ -98,6 +109,24 @@ function parseAngle(data: unknown, field: string): LinearMapResult<number> {
     return ok(data === 0 ? 0 : data);
 }
 
+/** Strict start vector: two grid coordinates (multiples of 1/4 in [-4, 4]); the zero vector is allowed. */
+export function parseStart(data: unknown, field: string): LinearMapResult<Vec2> {
+    if (!Array.isArray(data) || data.length !== 2) return fail(field, 'not-a-vector', `${field} must be an array of two numbers.`);
+    const x = parseEntry(data[0], `${field}[0]`);
+    if (!x.ok) return x;
+    const y = parseEntry(data[1], `${field}[1]`);
+    if (!y.ok) return y;
+    return ok([x.value, y.value] as const);
+}
+
+/** Strict step: an integer from 0 to ITERATE_STEP_MAX. */
+export function parseStep(data: unknown, field: string): LinearMapResult<number> {
+    if (typeof data !== 'number' || !Number.isInteger(data) || data < 0 || data > ITERATE_STEP_MAX) {
+        return fail(field, 'not-a-step', `${field} must be a whole number from 0 to ${ITERATE_STEP_MAX}.`);
+    }
+    return ok(data === 0 ? 0 : data);
+}
+
 function parseExampleChoice(data: unknown, field: string): LinearMapResult<LinearMapExampleChoice> {
     if (data === 'custom' || isLinearMapExampleId(data)) return ok(data);
     return fail(field, 'unknown-value', `${field} must be 'custom' or one of: ${LINEAR_MAP_EXAMPLE_IDS.join(', ')}.`);
@@ -129,9 +158,24 @@ export function parseLinearMapState(data: unknown): LinearMapResult<LinearMapSta
     for (const field of TOGGLES) {
         if (typeof data[field] !== 'boolean') return fail(field, 'not-boolean', `${field} must be true or false.`);
     }
+    // The Batch D fields are optional: a Preset stored before them has neither and loads unchanged.
+    let start: Vec2 | undefined;
+    if (data.start !== undefined && data.start !== null) {
+        const parsed = parseStart(data.start, 'start');
+        if (!parsed.ok) return parsed;
+        start = parsed.value;
+    }
+    let step: number | undefined;
+    if (data.step !== undefined && data.step !== null) {
+        const parsed = parseStep(data.step, 'step');
+        if (!parsed.ok) return parsed;
+        step = parsed.value;
+    }
     return ok({
         matrix: matrix.value,
         ...(secondMatrix ? {secondMatrix} : {}),
+        ...(start ? {start} : {}),
+        ...(step !== undefined ? {step} : {}),
         mode: data.mode,
         testAngle: testAngle.value,
         // A named example must match its matrix; otherwise the imported matrix is a custom one.
@@ -148,6 +192,8 @@ export function parseLinearMapState(data: unknown): LinearMapResult<LinearMapSta
 export const serializeLinearMapState = (state: LinearMapState): LinearMapState => ({
     matrix: state.matrix,
     ...(state.secondMatrix ? {secondMatrix: state.secondMatrix} : {}),
+    ...(state.start ? {start: state.start} : {}),
+    ...(state.step !== undefined ? {step: state.step} : {}),
     mode: state.mode,
     testAngle: state.testAngle,
     exampleId: state.exampleId,
@@ -250,3 +296,36 @@ export const applySetTestVector = (state: LinearMapState, payload: SetTestVector
     ({...state, testAngle: payload.angle});
 export const applySetExample = (state: LinearMapState, payload: SetExamplePayload): LinearMapState =>
     selectExample(state, payload.exampleId);
+
+// ---- Batch D: start vector and iteration step ----
+
+export interface SetStartPayload {readonly start: Vec2}
+export interface StepPayload {readonly count: number}
+
+/** `{start}`: two grid coordinates; scene data is strict, so an off-grid start is rejected, never snapped. */
+export function validateSetStart(payload: unknown): LinearMapResult<SetStartPayload> {
+    if (!isRecord(payload)) return fail('payload', 'not-an-object', 'set-start needs an object payload.');
+    const start = parseStart(payload.start, 'start');
+    if (!start.ok) return start;
+    return ok({start: start.value});
+}
+
+/** `{count?}`: how many steps to advance, a whole number from 1 to ITERATE_STEP_MAX; the default is 1. */
+export function validateStep(payload: unknown): LinearMapResult<StepPayload> {
+    if (!isRecord(payload)) return fail('payload', 'not-an-object', 'step needs an object payload.');
+    const count = payload.count ?? 1;
+    if (typeof count !== 'number' || !Number.isInteger(count) || count < 1 || count > ITERATE_STEP_MAX) {
+        return fail('count', 'not-a-step', `count must be a whole number from 1 to ${ITERATE_STEP_MAX}.`);
+    }
+    return ok({count});
+}
+
+/** The start vector changes; the step stays, so the picture follows the start (as it follows the matrix). */
+export const applySetStart = (state: LinearMapState, payload: SetStartPayload): LinearMapState => ({...state, start: payload.start});
+
+/** Advances the step by `count`, stopping at ITERATE_STEP_MAX. */
+export const applyStep = (state: LinearMapState, payload: StepPayload): LinearMapState =>
+    ({...state, step: Math.min(ITERATE_STEP_MAX, stepOf(state) + payload.count)});
+
+/** Snaps a typed or dragged start coordinate like a matrix entry (nearest quarter, clamped). */
+export const snapStartInput = (input: number, field = 'start'): LinearMapResult<SnappedEntry> => snapEntryInput(input, field);

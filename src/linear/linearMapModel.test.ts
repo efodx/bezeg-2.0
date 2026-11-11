@@ -1,7 +1,8 @@
 import {describe, expect, it} from 'vitest';
 import {LINEAR_MAP_EXAMPLES} from './matrix2';
 import {
-    applySetExample, applySetMatrix, applySetMode, applySetTestVector, changeMode, DEFAULT_LINEAR_MAP_STATE, editMatrixEntry,
+    applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applyStep, changeMode, DEFAULT_LINEAR_MAP_STATE, DEFAULT_START,
+    editMatrixEntry, ITERATE_STEP_MAX, startOf, stepOf, validateSetStart, validateStep,
     LinearMapState, parseLinearMapState, selectExample, serializeLinearMapState, snapEntryInput, validateSetExample,
     validateSetMatrix, validateSetMode, validateSetTestVector,
 } from './linearMapModel';
@@ -194,5 +195,54 @@ describe('scene-action payload validators', () => {
             matrix: [[2, 1], [0, 1]], secondMatrix: [[0, 1], [1, 0]], mode: 'composition', testAngle: 90, exampleId: 'custom',
         });
         expect(parseLinearMapState(serializeLinearMapState(state)).ok).toBe(true);
+    });
+});
+
+describe('Batch D: start vector and step', () => {
+    const stored = (extra: Record<string, unknown>) => ({...valid(), mode: 'iterate', ...extra});
+
+    it('a state stored before Batch D has neither field, loads unchanged and serializes without them', () => {
+        const old = valid();
+        const parsed = parseLinearMapState(old);
+        if (!parsed.ok) throw new Error('expected the old state to load');
+        expect(parsed.value).not.toHaveProperty('start');
+        expect(parsed.value).not.toHaveProperty('step');
+        expect(JSON.parse(JSON.stringify(serializeLinearMapState(parsed.value)))).toEqual(old);
+        expect(startOf(parsed.value)).toEqual(DEFAULT_START);
+        expect(stepOf(parsed.value)).toBe(0);
+    });
+
+    it('stores a start on the quarter grid and a whole step, and round-trips both', () => {
+        const parsed = parseLinearMapState(stored({start: [-1.25, 4], step: 30}));
+        if (!parsed.ok) throw new Error('expected the state to load');
+        expect(parsed.value).toMatchObject({mode: 'iterate', start: [-1.25, 4], step: 30});
+        expect(JSON.parse(JSON.stringify(serializeLinearMapState(parsed.value)))).toEqual(stored({start: [-1.25, 4], step: 30}));
+    });
+
+    it('rejects an off-grid or out-of-range start and a bad step, naming the field', () => {
+        expect(errorOf(stored({start: [0.3, 0]})).field).toBe('start[0]');
+        expect(errorOf(stored({start: [0, 4.25]})).field).toBe('start[1]');
+        expect(errorOf(stored({start: [1]})).field).toBe('start');
+        expect(errorOf(stored({step: 31})).field).toBe('step');
+        expect(errorOf(stored({step: 1.5})).field).toBe('step');
+        expect(errorOf(stored({step: -1})).field).toBe('step');
+    });
+
+    it('set-start is strict (never snapped) and leaves the step; step advances and stops at the end', () => {
+        const base: LinearMapState = {...DEFAULT_LINEAR_MAP_STATE, mode: 'iterate', step: 5};
+        const start = validateSetStart({start: [2, -0.5]});
+        if (!start.ok) throw new Error('expected a valid start');
+        expect(applySetStart(base, start.value)).toMatchObject({start: [2, -0.5], step: 5});
+        expect(validateSetStart({start: [0.3, 0]}).ok).toBe(false);
+        expect(validateSetStart(null).ok).toBe(false);
+        const two = validateStep({count: 2});
+        if (!two.ok) throw new Error('expected a valid count');
+        expect(applyStep(base, two.value).step).toBe(7);
+        expect(applyStep({...base, step: 29}, two.value).step).toBe(ITERATE_STEP_MAX);
+        const defaulted = validateStep({});
+        expect(defaulted.ok && defaulted.value.count).toBe(1);
+        expect(validateStep({count: 0}).ok).toBe(false);
+        expect(validateStep({count: 2.5}).ok).toBe(false);
+        expect(validateStep({count: 31}).ok).toBe(false);
     });
 });
