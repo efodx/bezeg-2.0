@@ -23,6 +23,7 @@ import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
 import {Memo} from "./Memo";
 import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {Preset, StoredGraphState} from "../base/presets/Presets";
 
 /** The scene state: the stored fields of `LpState`, nothing derived. */
 export interface LinearProgramGraphState extends BaseGraphState, LpState {}
@@ -110,6 +111,19 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     override exportPresetData(): LpPresetData {
         return [["LinearProgram", serializeLpState(this.state)]];
+    }
+
+    /**
+     * A Preset keeps the whole state in `data`, so its `graphState` only marks it initialized: the collection refuses any other
+     * field. Checkpoints still capture the full state (`savedGraphState`).
+     */
+    override exportPreset(): Preset<LpPresetData> {
+        return {...super.exportPreset(), graphState: {initialized: true}};
+    }
+
+    /** A figure scene, Preset selection and Reset take the state from the data just imported, not from the stored `graphState`. */
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): LinearProgramGraphState {
+        return {...super.figurePresetGraphState(graphState, data), ...serializeLpState(this.state), initialized: true};
     }
 
     override importPresetData(data: LpPresetData): void {

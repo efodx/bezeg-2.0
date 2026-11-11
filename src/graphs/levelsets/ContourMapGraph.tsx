@@ -33,6 +33,7 @@ import {ContourPlayback, ContourReadout, ContourSurfacePanel} from "./ContourPan
 import {Memo} from "./Memo";
 import {contourPresetCollection, type ContourPresetData} from "./contourPresetCollection";
 import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import {SurfaceCameraPanel, type SurfaceCameraActions} from "../patches/SurfaceCameraPanel";
 import {CAMERA_PRESETS, clamp, presetCamera, type CameraPresetName} from "../patches/surface-view/surfaceMath";
 import {createDefaultSurfaceView} from "../patches/surface-view/defaultSurfaceView";
@@ -183,6 +184,19 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     override exportPresetData(): ContourPresetData {
         return [["Contour", serializeContourState(this.state)]];
+    }
+
+    /**
+     * A Preset keeps the whole state in `data`, so its `graphState` only marks it initialized: the collection refuses any other
+     * field. Checkpoints still capture the full state (`savedGraphState`).
+     */
+    override exportPreset(): Preset<ContourPresetData> {
+        return {...super.exportPreset(), graphState: {initialized: true}};
+    }
+
+    /** A figure scene, Preset selection and Reset take the state from the data just imported, not from the stored `graphState`. */
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): ContourMapGraphState {
+        return {...super.figurePresetGraphState(graphState, data), ...serializeContourState(this.state), initialized: true};
     }
 
     override importPresetData(data: ContourPresetData): void {
