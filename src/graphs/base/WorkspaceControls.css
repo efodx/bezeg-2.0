@@ -49,7 +49,7 @@
 .workspace-inspector .btn-group > .btn:first-child { border-top-left-radius:var(--bezeg-control-radius); border-bottom-left-radius:var(--bezeg-control-radius); }
 .workspace-inspector .btn-group > .btn:last-child { border-top-right-radius:var(--bezeg-control-radius); border-bottom-right-radius:var(--bezeg-control-radius); }
 /* Shared button, field and select look: every value is a control token (docs/specs/control-visual-polish.md). */
-.workspace-inspector .btn, .control-row .btn, .workspace-curve-picker button, .workspace-modes button {
+.workspace-inspector .btn, .control-row .btn, .control-row button, :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button, .workspace-curve-picker button, .workspace-modes button {
     min-height:var(--bezeg-control-height);
     border:var(--bezeg-control-border);
     border-radius:var(--bezeg-control-radius);
@@ -57,21 +57,21 @@
     color:var(--bezeg-control-ink);
     font-size:var(--bezeg-control-font-size);
 }
-.workspace-inspector .btn:hover, .control-row .btn:hover, .workspace-curve-picker button:hover, .workspace-modes button:hover { background:var(--workspace-canvas-deep); }
-.workspace-inspector .btn:focus-visible, .control-row .btn:focus-visible, .workspace-curve-picker button:focus-visible, .workspace-modes button:focus-visible { outline:var(--bezeg-control-focus); outline-offset:var(--bezeg-control-focus-offset); }
+.workspace-inspector .btn:hover, .control-row .btn:hover, .control-row button:hover, :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button:hover, .workspace-curve-picker button:hover, .workspace-modes button:hover { background:var(--workspace-canvas-deep); }
+.workspace-inspector .btn:focus-visible, .control-row .btn:focus-visible, .control-row button:focus-visible, :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button:focus-visible, .workspace-curve-picker button:focus-visible, .workspace-modes button:focus-visible { outline:var(--bezeg-control-focus); outline-offset:var(--bezeg-control-focus-offset); }
 .workspace-inspector .btn-group > .btn:focus-visible { position:relative; z-index:1; }
 /* Selected state after the shared look: pressed, active and toggled buttons keep the dark fill. */
-.workspace-inspector .btn[aria-pressed="true"], .workspace-inspector .btn.active, .control-row .btn[aria-pressed="true"], .control-row .btn.active, .workspace-curve-picker button[aria-pressed="true"], .workspace-modes button[aria-pressed="true"] { background:var(--bezeg-control-selected-surface); border-color:var(--bezeg-control-selected-surface); color:var(--bezeg-control-selected-ink); }
+.workspace-inspector .btn[aria-pressed="true"], .workspace-inspector .btn.active, .control-row .btn[aria-pressed="true"], .control-row button[aria-pressed="true"], :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button[aria-pressed="true"], .control-row .btn.active, .control-row button.active, :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button.active, .workspace-curve-picker button[aria-pressed="true"], .workspace-modes button[aria-pressed="true"] { background:var(--bezeg-control-selected-surface); border-color:var(--bezeg-control-selected-surface); color:var(--bezeg-control-selected-ink); }
 .workspace-inspector .point-list-select { min-height:max(2.75rem, var(--bezeg-control-height)); border:var(--bezeg-control-border); border-radius:var(--bezeg-control-radius); }
 /* The collapse button was transparent; it now has the token boundary so it reads as a button in both themes. */
 .workspace-inspector .inspector-heading button { min-height:var(--bezeg-control-height); border:var(--bezeg-control-border); border-radius:var(--bezeg-control-radius); background:var(--bezeg-control-surface); color:var(--bezeg-control-ink); }
 .workspace-inspector .inspector-heading button:hover { background:var(--workspace-canvas-deep); }
 .workspace-inspector .inspector-heading button:focus-visible { outline:var(--bezeg-control-focus); outline-offset:var(--bezeg-control-focus-offset); }
 /* Unavailable buttons: dashed border and muted ink rather than opacity alone. Pressed buttons keep their selected ink. */
-.workspace-inspector .btn[aria-disabled="true"], .control-row .btn[aria-disabled="true"], .workspace-inspector .inspector-playback button[aria-disabled="true"] { border-style:dashed; cursor:default; }
-.workspace-inspector .btn[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .control-row .btn[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .workspace-inspector .inspector-playback button[aria-disabled="true"]:not([aria-pressed="true"]) { color:var(--bezeg-control-help-ink, var(--workspace-ink-soft)); }
+.workspace-inspector .btn[aria-disabled="true"], .workspace-modes button[aria-disabled="true"], .workspace-curve-picker button[aria-disabled="true"], .control-row .btn[aria-disabled="true"], .control-row button[aria-disabled="true"], :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button[aria-disabled="true"], .workspace-inspector .inspector-playback button[aria-disabled="true"] { border-style:dashed; cursor:default; }
+.workspace-inspector .btn[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .workspace-modes button[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .workspace-curve-picker button[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .control-row .btn[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .control-row button[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button[aria-disabled="true"]:not([aria-pressed="true"]):not(.active), .workspace-inspector .inspector-playback button[aria-disabled="true"]:not([aria-pressed="true"]) { color:var(--bezeg-control-help-ink, var(--workspace-ink-soft)); }
 @media (forced-colors: active) {
-    .workspace-inspector .btn[aria-disabled="true"], .control-row .btn[aria-disabled="true"], .workspace-inspector .inspector-playback button[aria-disabled="true"] { color:GrayText; border-color:GrayText; }
+    .workspace-inspector .btn[aria-disabled="true"], .control-row .btn[aria-disabled="true"], .control-row button[aria-disabled="true"], :is(.value-list-row, .zero-list-row, .mean-value-actions, .accumulation-actions, .darboux-actions, .extrema-actions, .convexity-actions, .taylor-actions) button[aria-disabled="true"], .workspace-inspector .inspector-playback button[aria-disabled="true"] { color:GrayText; border-color:GrayText; }
 }
 /* A light chevron on the Presentation navy; Bootstrap reads the icon from this variable. */
 .is-presenting .form-select { --bs-form-select-bg-img:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f8f0d7' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"); }
@@ -228,7 +228,7 @@
     align-items: center;
     justify-content: flex-start;
     min-width: 0;
-    min-height: 44px !important;
+    min-height: var(--bezeg-control-height) !important;
     gap: 7px;
     padding: 7px 8px !important;
     text-align: left;
@@ -240,7 +240,6 @@
 .is-presenting .workspace-inspector .affine-transform-group { border-color: #50617b; }
 .is-presenting .workspace-inspector .affine-action-symbol { color: #d9b461; }
 .is-presenting .workspace-inspector .card-title { color: var(--bezeg-control-ink); }
-.workspace-inspector .affine-action-button { border-color: var(--bezeg-control-border-color); }
 .is-presenting .workspace-inspector .affine-action-copy small { color: #b5bfd0; }
 .workspace-inspector .curve-operations { border: 0; background: transparent; padding: 0; }
 

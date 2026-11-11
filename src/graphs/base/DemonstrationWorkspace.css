@@ -345,6 +345,9 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting .workspace-inspector .form-label, .is-presenting .inspector-group h3 { color: var(--bezeg-night-panel); }
 .is-presenting .inspector-group { border-color: #50617b; }
 .is-presenting .inspector-group p, .is-presenting .inspector-help, .is-presenting .slider-range { color: #b5bfd0; }
+/* Bootstrap draws form text and table captions in dark grey and h4 in black: 1.0 to 1.4 : 1 on the Presentation navy. */
+.is-presenting .workspace-inspector .form-text, .is-presenting .workspace-inspector caption { color: var(--bezeg-control-help-ink); }
+.is-presenting .workspace-inspector h4, .is-presenting .decasteljau-animation-panel h4 { color: var(--bezeg-control-ink); }
 /* Presentation text on the navy inspector: the workspace ink variables read the re-bound control tokens, so every label, index, legend and hint inherits readable ink (a per-class list left dark ink behind). */
 .is-presenting .workspace-inspector {
     --workspace-ink: var(--bezeg-control-ink);
