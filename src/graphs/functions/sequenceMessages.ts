@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {SequenceEditIssue, SequenceIssue} from "../../analysis/sequenceModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -25,11 +25,10 @@ export function sequenceFileMessage(issue: SequenceIssue): Message {
  * `DomainError` a learner can see is localized. The bounds are formatted as the fields' own hints format them.
  */
 export function sequenceEditMessage(issue: SequenceEditIssue): Message {
-    const language = currentLanguage();
     switch (issue.kind) {
         case "example": return message("sequence_example_rejected", {value0: issue.allowed.join(", ")});
-        case "epsilon": return message("sequence_epsilon_rejected_hint", {value0: formatNumber(issue.min, language, 2), value1: formatNumber(issue.max, language, 2)});
-        case "limit": return message("sequence_limit_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
+        case "epsilon": return message("sequence_epsilon_rejected_hint", {value0: messageNumber(issue.min, 2), value1: messageNumber(issue.max, 2)});
+        case "limit": return message("sequence_limit_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
         case "threshold": return message("sequence_threshold_rejected_hint", {value0: issue.min, value1: issue.max});
     }
 }

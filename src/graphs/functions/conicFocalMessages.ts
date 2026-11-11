@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {ConicFileIssue, ConicIssue} from "../../analysis/conicFocalModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -25,8 +25,7 @@ export function conicFocalFileMessage(issue: ConicFileIssue): Message {
 
 /** The words for a rule that an edit (number field, slider or lesson action) would break; bounds are formatted as the fields show them. */
 export function conicFocalEditMessage(issue: ConicIssue): Message {
-    const language = currentLanguage();
-    const range = (min: number, max: number) => ({value0: formatNumber(min, language), value1: formatNumber(max, language)});
+    const range = (min: number, max: number) => ({value0: messageNumber(min), value1: messageNumber(max)});
     switch (issue.kind) {
         case "epsilon": return message("conic_epsilon_rejected_hint", range(issue.min, issue.max));
         case "ell": return message("conic_ell_rejected_hint", range(issue.min, issue.max));

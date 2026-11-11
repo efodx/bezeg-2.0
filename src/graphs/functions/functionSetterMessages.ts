@@ -1,5 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
-import {formatNumber} from "../../analysis/format";
+import {message, Message, messageNumber} from "../../localization";
 
 /** The labels (keys without placeholders) that name a field in a refusal: the same terms the inspector shows. */
 type FieldLabel =
@@ -8,7 +7,7 @@ type FieldLabel =
     | "integral_a_label" | "integral_b_label" | "integral_n_label" | "area_mode_label" | "area_a_label" | "area_b_label"
     | "arc_a_label" | "arc_b_label" | "arc_n_label" | "prob_density_example_label";
 
-const shown = (value: number) => formatNumber(value, currentLanguage());
+const shown = (value: number) => messageNumber(value);
 
 /**
  * The words a function graph's setter gives a `DomainError` when a lesson action or file value is refused, so the text a learner can

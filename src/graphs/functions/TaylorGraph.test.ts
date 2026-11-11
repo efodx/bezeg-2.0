@@ -3,7 +3,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {TAYLOR_EXAMPLE_IDS, TAYLOR_EXAMPLES, TaylorExampleId} from '../../analysis/taylor';
 import {TAYLOR_EXAMPLE_MODELS} from '../../analysis/taylorModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -845,5 +845,5 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('taylor-x', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'taylor_x_rejected_hint', params: {value0: '−3', value1: '3'}});
+    expect(reason).toEqual({key: 'taylor_x_rejected_hint', params: {value0: messageNumber(-3), value1: messageNumber(3)}});
 });

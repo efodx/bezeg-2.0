@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {ConvexityEditIssue, ConvexityIssue} from "../../analysis/convexityModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -28,7 +28,7 @@ export function convexityEditMessage(issue: ConvexityEditIssue): Message {
         case "range": {
             // Edit messages are read in the app, so bounds follow the current language like the fields' own hints.
             const [point] = issue.points;
-            const min = formatNumber(issue.min, currentLanguage()), max = formatNumber(issue.max, currentLanguage());
+            const min = messageNumber(issue.min), max = messageNumber(issue.max);
             return point === "t"
                 ? message("convexity_t_rejected_hint", {value0: min, value1: max})
                 : message("convexity_endpoint_range_rejected", {value0: point, value1: min, value2: max});

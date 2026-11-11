@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {TaylorEditIssue, TaylorIssue} from "../../analysis/taylorModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -27,14 +27,13 @@ export function taylorFileMessage(issue: TaylorIssue): Message {
  * `DomainError` a learner can see is localized. Bounds follow the current language like the fields' own hints.
  */
 export function taylorEditMessage(issue: TaylorEditIssue): Message {
-    const language = currentLanguage();
     switch (issue.kind) {
         case "example": return message("taylor_example_rejected", {value0: issue.allowed.join(", ")});
         case "center":
             return issue.min === issue.max
-                ? message("taylor_center_fixed_rejected", {value0: formatNumber(issue.min, language)})
-                : message("taylor_center_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
+                ? message("taylor_center_fixed_rejected", {value0: messageNumber(issue.min)})
+                : message("taylor_center_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
         case "degree": return message("taylor_degree_rejected_hint", {value0: issue.min, value1: issue.max});
-        case "x": return message("taylor_x_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
+        case "x": return message("taylor_x_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
     }
 }

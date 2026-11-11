@@ -3,7 +3,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {COMPLEX_EXAMPLE_MODELS, DEFAULT_COMPLEX_MODEL} from '../../analysis/complexModel';
 import {COMPLEX_MAX_PRODUCT_MODULUS, complexModulus, complexMultiply, snapComplexCoordinate} from '../../analysis/complex';
-import {setLanguage, onLanguageChange} from '../../localization';
+import {setLanguage, onLanguageChange, messageNumber} from '../../localization';
 import {DomainError} from '../functions/BaseFunctionGraph';
 import {revealButton} from "../functions/revealElementTree";
 
@@ -706,5 +706,5 @@ test('a refused edit throws a DomainError whose text is localized in both langua
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('complex-w-argument', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'complex_argument_rejected_hint', params: {value0: '−6.28', value1: '6.28'}});
+    expect(reason).toEqual({key: 'complex_argument_rejected_hint', params: {value0: messageNumber(-2 * Math.PI, 2), value1: messageNumber(2 * Math.PI, 2)}});
 });

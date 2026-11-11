@@ -1,5 +1,5 @@
 import React from "react";
-import {Message, renderMessage, useT} from "../localization";
+import {isMessageNumber, Message, renderMessage, useT} from "../localization";
 import "./RefusalChannel.css";
 
 /** What a graph tells the learner when the model refused an edit: a localizable message, or a plain text when only that exists. */
@@ -16,7 +16,11 @@ function sameRefusal(a: Refusal, b: Refusal): boolean {
     return a.key === b.key && keys.length === Object.keys(b.params).length
         && keys.every(name => {
             const left = a.params[name], right = b.params[name];
-            return typeof left === "object" && typeof right === "object" ? sameRefusal(left, right) : left === right;
+            if (typeof left !== "object" || typeof right !== "object") return left === right;
+            if (isMessageNumber(left) || isMessageNumber(right)) {
+                return isMessageNumber(left) && isMessageNumber(right) && left.value === right.value && left.maxDecimals === right.maxDecimals;
+            }
+            return sameRefusal(left, right);
         });
 }
 

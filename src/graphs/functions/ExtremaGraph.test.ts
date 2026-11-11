@@ -3,7 +3,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {analyzeExtrema, EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, extremaExample} from '../../analysis/extrema';
 import {EXTREMA_EXAMPLE_MODELS} from '../../analysis/extremaModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -631,5 +631,5 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('extrema-b', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'extrema_endpoint_range_rejected', params: {value0: 'b', value1: '−4', value2: '4'}});
+    expect(reason).toEqual({key: 'extrema_endpoint_range_rejected', params: {value0: 'b', value1: messageNumber(-4), value2: messageNumber(4)}});
 });

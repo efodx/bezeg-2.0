@@ -1,5 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
-import {formatNumber} from "../../analysis/format";
+import {message, Message, messageNumber} from "../../localization";
 import {ZeroListIssue} from "../../analysis/zeroListModel";
 
 /**
@@ -8,7 +7,7 @@ import {ZeroListIssue} from "../../analysis/zeroListModel";
  * The texts are sentence fragments without a final full stop, so the file wrapper can append its instruction.
  */
 export function zeroListIssueMessage(issue: ZeroListIssue): Message {
-    const number = (value: number) => formatNumber(value, currentLanguage());
+    const number = (value: number) => messageNumber(value);
     switch (issue.kind) {
         case "zero-range": return message("zero_list_range", {value0: number(issue.min), value1: number(issue.max)});
         case "zero-grid": return message("zero_list_grid", {value0: number(issue.step)});

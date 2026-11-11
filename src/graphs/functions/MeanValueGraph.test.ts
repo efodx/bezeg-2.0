@@ -3,7 +3,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {MEAN_VALUE_EXAMPLE_IDS, MEAN_VALUE_EXAMPLES, MVT_X_MAX, MVT_X_MIN} from '../../analysis/meanValue';
 import {MEAN_VALUE_EXAMPLE_MODELS} from '../../analysis/meanValueModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
@@ -733,5 +733,5 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('mvt-c', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'mean_value_c_range_rejected', params: {value0: '−4', value1: '4'}});
+    expect(reason).toEqual({key: 'mean_value_c_range_rejected', params: {value0: messageNumber(-4), value1: messageNumber(4)}});
 });

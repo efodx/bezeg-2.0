@@ -425,3 +425,14 @@ test('the refusals of a lesson action are localized in Slovenian and English', (
         en: 'The step h must be a number between −2 and 2, with |h| of at least 0.01 (h = 0 gives the undefined quotient 0/0).',
     });
 });
+
+test('a step refusal raised in Slovenian reads with the English decimal point after a language switch', () => {
+    const graph = makeGraph();
+    let caught: unknown;
+    try { apply(graph, parameter('h', 0)); } catch (error) { caught = error; }
+    if (!(caught instanceof Error)) throw new Error('expected a refusal');
+    expect(caught.message).toContain('0,01');
+    setLanguage('en');
+    expect(caught.message).toContain('0.01');
+    expect(caught.message).not.toContain('0,01');
+});

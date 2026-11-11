@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
 import {RationalFunctionIssue} from "../../analysis/rationalFunctionModel";
 import {polyText} from "../../analysis/polynomial";
@@ -7,7 +7,7 @@ import {zeroListFileMessage, zeroListIssueMessage} from "./zeroListMessages";
 
 /** The reason a value was refused, in the current language (used by the graph's setters, so a learner never sees English by accident). */
 export function rationalFunctionEditMessage(issue: RationalFunctionIssue): Message {
-    const number = (value: number) => formatNumber(value, currentLanguage());
+    const number = (value: number) => messageNumber(value);
     switch (issue.kind) {
         case "k-zero": return message("rational_function_k_zero");
         case "k-range": return message("rational_function_k_range", {value0: number(issue.min), value1: number(issue.max)});

@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {FunctionInverseIssue} from "../../analysis/functionInverseModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -24,7 +24,7 @@ export function functionInverseEditMessage(issue: FunctionInverseIssue): Message
         case "restriction": return message("function_inverse_restriction_rejected", {value0: issue.allowed.join(", ")});
         case "base-one": return message("function_inverse_base_one_rejected");
         case "range": return message("function_inverse_range_rejected", {
-            value0: issue.field, value1: formatNumber(issue.min, currentLanguage()), value2: formatNumber(issue.max, currentLanguage()),
+            value0: issue.field, value1: messageNumber(issue.min), value2: messageNumber(issue.max),
         });
         case "visibility": return message("invalid_function_inverse_visibility", {value0: issue.field});
     }

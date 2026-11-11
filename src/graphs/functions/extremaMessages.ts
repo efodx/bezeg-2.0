@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {ExtremaEditIssue, ExtremaIssue} from "../../analysis/extremaModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -29,7 +29,7 @@ export function extremaEditMessage(issue: ExtremaEditIssue): Message {
             // Edit messages are read in the app, so bounds follow the current language like the fields' own hints.
             const [point] = issue.points;
             return message("extrema_endpoint_range_rejected", {
-                value0: point, value1: formatNumber(issue.min, currentLanguage()), value2: formatNumber(issue.max, currentLanguage()),
+                value0: point, value1: messageNumber(issue.min), value2: messageNumber(issue.max),
             });
         }
         case "order": return message(issue.moving === "b" ? "extrema_b_rejected_hint" : "extrema_a_rejected_hint");

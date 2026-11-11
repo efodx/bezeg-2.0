@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {FourierSeriesIssue, FourierTerm, FourierTermList} from "../../analysis/fourierSeriesModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -23,12 +23,11 @@ export function fourierSeriesFileMessage(issue: FourierSeriesIssue): Message {
  * learner can see is localized. Numbers follow the current language like the fields' own hints.
  */
 export function fourierSeriesEditMessage(issue: FourierSeriesIssue): Message {
-    const language = currentLanguage();
     switch (issue.kind) {
         case "example": return message("fourier_example_rejected", {value0: issue.allowed.join(", ")});
         case "n": return message("fourier_n_rejected_hint", {value0: issue.min, value1: issue.max});
-        case "x": return message("fourier_x_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
-        case "epsilon": return message("fourier_epsilon_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
+        case "x": return message("fourier_x_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
+        case "epsilon": return message("fourier_epsilon_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
     }
 }
 

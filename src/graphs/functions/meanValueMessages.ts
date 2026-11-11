@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {MeanValueEditIssue, MeanValueIssue} from "../../analysis/meanValueModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -28,7 +28,7 @@ export function meanValueEditMessage(issue: MeanValueEditIssue): Message {
         case "range": {
             // Edit messages are read in the app, so bounds follow the current language like the fields' own hints.
             const [point] = issue.points;
-            const min = formatNumber(issue.min, currentLanguage()), max = formatNumber(issue.max, currentLanguage());
+            const min = messageNumber(issue.min), max = messageNumber(issue.max);
             return point === "c"
                 ? message("mean_value_c_range_rejected", {value0: min, value1: max})
                 : message("mean_value_endpoint_range_rejected", {value0: point, value1: min, value2: max});

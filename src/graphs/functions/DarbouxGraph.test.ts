@@ -4,7 +4,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DARBOUX_N_MAX, DARBOUX_X_MAX, DARBOUX_X_MIN, DARBOUX_EXAMPLE_IDS, darbouxExample, darbouxSubintervals, darbouxTotals, canRefine} from '../../analysis/darboux';
 import {DARBOUX_EXAMPLE_MODELS} from '../../analysis/darbouxModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -662,5 +662,5 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('darboux-b', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'darboux_endpoint_range_rejected', params: {value0: 'b', value1: '−7', value2: '7'}});
+    expect(reason).toEqual({key: 'darboux_endpoint_range_rejected', params: {value0: 'b', value1: messageNumber(-7), value2: messageNumber(7)}});
 });

@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ComplexEditIssue, ComplexIssue} from "../../analysis/complexModel";
 import {ComplexReciprocalEditIssue, ComplexReciprocalIssue} from "../../analysis/complexReciprocalModel";
@@ -32,15 +32,14 @@ const exampleEditMessage = (issue: ExampleEditIssue): Message => message("comple
 
 /** The words for a rule an edit of the multiplication model would break. */
 export function complexEditMessage(issue: ComplexEditIssue): Message {
-    const language = currentLanguage();
     switch (issue.kind) {
         case "example": return exampleEditMessage(issue);
         case "coordinate": return message("complex_coordinate_rejected_hint");
         case "modulus-range":
-        case "modulus-grid": return message("complex_modulus_rejected_hint", {value0: formatNumber(issue.max, language, 2)});
+        case "modulus-grid": return message("complex_modulus_rejected_hint", {value0: messageNumber(issue.max, 2)});
         case "argument-range":
         case "argument-grid": return message("complex_argument_rejected_hint", {
-            value0: formatNumber(-issue.max, language, 2), value1: formatNumber(issue.max, language, 2),
+            value0: messageNumber(-issue.max, 2), value1: messageNumber(issue.max, 2),
         });
         case "argument-zero": return message("complex_argument_zero_rejected");
     }

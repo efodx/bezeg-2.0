@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {currentLanguage, message, Message, messageNumber} from "../../localization";
 import {EulerIssue} from "../../analysis/eulerModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -28,8 +28,8 @@ export function eulerFileMessage(issue: EulerIssue): Message {
 export function eulerEditMessage(issue: EulerIssue): Message {
     switch (issue.kind) {
         case "example": return message("euler_ode_example_rejected", {value0: issue.allowed.join(", ")});
-        case "x-range": return message("euler_ode_x_range_rejected", {value0: formatNumber(issue.min, currentLanguage(), 4), value1: formatNumber(issue.max, currentLanguage(), 4)});
-        case "y-range": return message("euler_ode_y_range_rejected", {value0: formatNumber(issue.min, currentLanguage(), 4), value1: formatNumber(issue.max, currentLanguage(), 4)});
+        case "x-range": return message("euler_ode_x_range_rejected", {value0: messageNumber(issue.min, 4), value1: messageNumber(issue.max, 4)});
+        case "y-range": return message("euler_ode_y_range_rejected", {value0: messageNumber(issue.min, 4), value1: messageNumber(issue.max, 4)});
         case "order": return message(issue.moving === "xEnd" ? "euler_ode_end_order_rejected" : "euler_ode_x0_order_rejected");
         case "step": return message("euler_ode_step_rejected", {value0: issue.allowed.map(step => formatNumber(step, currentLanguage(), 4)).join(", ")});
         // Only stored data can carry these two: the toggle and step-reveal setters take typed values and return no issue.

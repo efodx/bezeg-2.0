@@ -5,7 +5,7 @@ import {
     chordLineOf, CONVEXITY_EXAMPLE_IDS, CONVEXITY_EXAMPLES, CONVEXITY_X_MAX, CONVEXITY_X_MIN, convexityExample, secondDerivativePieces, tangentLineAt,
 } from '../../analysis/convexity';
 import {CONVEXITY_EXAMPLE_MODELS} from '../../analysis/convexityModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
 
@@ -362,7 +362,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('convexity-t', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'convexity_t_rejected_hint', params: {value0: '−2', value1: '2'}});
+    expect(reason).toEqual({key: 'convexity_t_rejected_hint', params: {value0: messageNumber(-2), value1: messageNumber(2)}});
 });
 
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {

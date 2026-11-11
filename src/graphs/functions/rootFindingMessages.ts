@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {RootFindingEditIssue, RootFindingIssue} from "../../analysis/rootFindingModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -31,7 +31,7 @@ export function rootFindingEditMessage(issue: RootFindingEditIssue): Message {
             // Edit messages are read in the app, so bounds follow the current language like the fields' own hints.
             const [start] = issue.starts;
             return message("root_finding_start_range_rejected", {
-                value0: start, value1: formatNumber(issue.min, currentLanguage()), value2: formatNumber(issue.max, currentLanguage()),
+                value0: start, value1: messageNumber(issue.min), value2: messageNumber(issue.max),
             });
         }
         case "equal-starts": return message("root_finding_equal_starts_rejected");

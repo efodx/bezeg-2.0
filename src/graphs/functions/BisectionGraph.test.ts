@@ -3,7 +3,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {BISECTION_MAX_STEPS, bisectionHistory} from '../../analysis/bisection';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
@@ -713,7 +713,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('bisect-a', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'bisection_endpoint_range_rejected', params: {value0: 'a', value1: '−4', value2: '4'}});
+    expect(reason).toEqual({key: 'bisection_endpoint_range_rejected', params: {value0: 'a', value1: messageNumber(-4), value2: messageNumber(4)}});
 });
 
 test('the refusal of a further Next step is localized in Slovenian and English', () => {

@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {AccumulationEditIssue, AccumulationIssue} from "../../analysis/accumulationModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -26,7 +26,7 @@ export function accumulationEditMessage(issue: AccumulationEditIssue): Message {
         case "function": return message("accumulation_function_rejected", {value0: issue.allowed.join(", ")});
         case "range": {
             // Edit messages are read in the app, so bounds follow the current language.
-            const min = formatNumber(issue.min, currentLanguage()), max = formatNumber(issue.max, currentLanguage());
+            const min = messageNumber(issue.min), max = messageNumber(issue.max);
             return issue.points[0] === "x"
                 ? message("accumulation_x_range_rejected", {value0: min, value1: max})
                 : message("accumulation_a_range_rejected", {value0: min, value1: max});

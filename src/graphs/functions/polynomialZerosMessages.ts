@@ -1,5 +1,5 @@
-import {currentLanguage, message, Message} from "../../localization";
-import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
+import {message, Message, messageNumber} from "../../localization";
+import {MINUS_SIGN, NumberLanguage} from "../../analysis/format";
 import {PolynomialZerosIssue} from "../../analysis/polynomialZerosModel";
 import {polyText} from "../../analysis/polynomial";
 import {PolySpec} from "../../analysis/schoolFunctions";
@@ -10,7 +10,7 @@ export function polynomialZerosEditMessage(issue: PolynomialZerosIssue): Message
     switch (issue.kind) {
         case "k-zero": return message("polynomial_zeros_k_zero");
         case "k-range": return message("polynomial_zeros_k_range", {
-            value0: formatNumber(issue.min, currentLanguage()), value1: formatNumber(issue.max, currentLanguage()),
+            value0: messageNumber(issue.min), value1: messageNumber(issue.max),
         });
         case "example": return message("polynomial_zeros_example_rejected", {value0: issue.allowed.join(", ")});
         case "visibility": return message("polynomial_zeros_visibility");

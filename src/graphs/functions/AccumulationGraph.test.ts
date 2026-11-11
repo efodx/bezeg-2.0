@@ -3,7 +3,7 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, accumulation} from '../../analysis/accumulation';
 import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
@@ -783,5 +783,5 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('accum-x', 9)); } catch (error) { reason = (error as DomainError).reason; }
-    expect(reason).toEqual({key: 'accumulation_x_range_rejected', params: {value0: '−7', value1: '7'}});
+    expect(reason).toEqual({key: 'accumulation_x_range_rejected', params: {value0: messageNumber(-7), value1: messageNumber(7)}});
 });

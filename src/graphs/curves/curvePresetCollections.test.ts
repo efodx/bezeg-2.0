@@ -3,7 +3,7 @@
  * expects, and the G1 shape parameters. Exercised both directly (the graph's import) and through the file importer.
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
-import {LocalizedError, Message} from "../../localization";
+import {isMessage, LocalizedError, Message} from "../../localization";
 import {arcLengthParamPresetCollection, curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections, reductionPresetCollection} from "./curvePresetCollections";
 beforeEach(() => localStorage.clear());
 
@@ -15,8 +15,8 @@ const preflightRejection = (key: string, data: unknown): Message | undefined => 
         if (!(error instanceof LocalizedError)) throw error;
         const wrapped = error.description.params.value0;
         // The file diagnosis names collection, Preset and field around the collection's own rejection.
-        const detail = typeof wrapped === "object" && wrapped.key === "preset_check_in_preset" ? wrapped.params.value3 : wrapped;
-        return typeof detail === "object" ? detail : undefined;
+        const detail = isMessage(wrapped) && wrapped.key === "preset_check_in_preset" ? wrapped.params.value3 : wrapped;
+        return isMessage(detail) ? detail : undefined;
     }
 };
 

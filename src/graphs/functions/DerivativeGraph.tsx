@@ -5,7 +5,7 @@ import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, t} from "../../localization";
+import {currentLanguage, message, t, messageNumber} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {catalogFunction, FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
 import {
@@ -61,7 +61,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     protected setStep(value: number): void {
         if (!isStep(value)) {
             throw new DomainError(message("derivative_h_rejected", {
-                value0: formatNumber(H_MIN, currentLanguage()), value1: formatNumber(H_MAX, currentLanguage()), value2: formatNumber(H_MIN_ABS, currentLanguage()),
+                value0: messageNumber(H_MIN), value1: messageNumber(H_MAX), value2: messageNumber(H_MIN_ABS),
             }));
         }
         this.commitModel({...this.model, h: cleanNumber(value)});
@@ -166,8 +166,8 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
 
     protected renderReadout(): React.ReactNode {
         const {fn, x0, h} = this.model;
+            const entry = catalogFunction(fn);
         const language = currentLanguage();
-        const entry = catalogFunction(fn);
         const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
         const quotient = differenceQuotient(entry, x0, h);
         const exact = entry.derivative(x0);

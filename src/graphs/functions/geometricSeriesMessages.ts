@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {SeriesFileIssue, SeriesIssue} from "../../analysis/geometricSeriesModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -22,11 +22,10 @@ export function geometricSeriesFileMessage(issue: SeriesFileIssue): Message {
 
 /** The words for a rule that an edit (number field, slider or lesson action) would break; bounds are formatted as the fields show them. */
 export function geometricSeriesEditMessage(issue: SeriesIssue): Message {
-    const language = currentLanguage();
     switch (issue.kind) {
-        case "a": return message("series_a_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
-        case "q": return message("series_q_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
-        case "tolerance": return message("series_tolerance_rejected_hint", {value0: formatNumber(issue.min, language), value1: formatNumber(issue.max, language)});
+        case "a": return message("series_a_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
+        case "q": return message("series_q_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
+        case "tolerance": return message("series_tolerance_rejected_hint", {value0: messageNumber(issue.min), value1: messageNumber(issue.max)});
         case "terms": return message("series_terms_rejected_hint", {value0: issue.min, value1: issue.max});
         case "example": return message("series_example_rejected", {value0: issue.allowed.join(", ")});
     }

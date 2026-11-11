@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {FunctionTransformationIssue} from "../../analysis/functionTransformationModel";
 import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
 import {TransformParams} from "../../analysis/transformation";
@@ -28,7 +28,7 @@ export function functionTransformationEditMessage(issue: FunctionTransformationI
         case "base": return message("function_transformation_base_rejected", {value0: issue.allowed.join(", ")});
         case "b-zero": return message("function_transformation_b_zero_rejected");
         case "range": return message("function_transformation_range_rejected", {
-            value0: issue.field, value1: formatNumber(issue.min, currentLanguage()), value2: formatNumber(issue.max, currentLanguage()),
+            value0: issue.field, value1: messageNumber(issue.min), value2: messageNumber(issue.max),
         });
         case "visibility": return message("invalid_function_transformation_visibility");
     }

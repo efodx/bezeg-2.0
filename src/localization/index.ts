@@ -2,14 +2,18 @@ import {useSyncExternalStore} from 'react';
 import {sl} from './sl';
 import {en} from './en';
 import {appStorage} from '../storage/appStorage';
+import {formatNumber} from '../analysis/format';
 
 export type Language = 'sl' | 'en';
 export type MessageKey = keyof typeof sl;
-export interface Message {key: MessageKey; params: Record<string, string | number | Message>}
+/** A number formatted when the message renders, so a language switch changes its decimal separator. */
+export interface MessageNumber {kind: 'number'; value: number; maxDecimals?: number}
+export type MessageParameter = string | number | Message | MessageNumber;
+export interface Message {key: MessageKey; params: Record<string, MessageParameter>}
 type Parameters<S extends string> = S extends `${string}{${infer P}}${infer Rest}` ? P | Parameters<Rest> : never;
 type Args<K extends MessageKey> = [Parameters<typeof sl[K]>] extends [never] ? [] : [Record<Parameters<typeof sl[K]>, string | number>];
 type TranslationArguments = {[K in MessageKey]: [key: K, ...args: Args<K>]}[MessageKey];
-type MessageArguments = {[K in MessageKey]: [Parameters<typeof sl[K]>] extends [never] ? [key: K] : [key: K, params: Record<Parameters<typeof sl[K]>, string | number | Message>]}[MessageKey];
+type MessageArguments = {[K in MessageKey]: [Parameters<typeof sl[K]>] extends [never] ? [key: K] : [key: K, params: Record<Parameters<typeof sl[K]>, MessageParameter>]}[MessageKey];
 const preferenceKey = 'bezeg-language';
 const listeners = new Set<() => void>();
 let language: Language = 'sl';
@@ -53,11 +57,23 @@ export function t(...[key, parameters]: TranslationArguments): string {
 export function message(...[key, parameters]: MessageArguments): Message {
     return {key, params: parameters ?? {}};
 }
+export function messageNumber(value: number, maxDecimals?: number): MessageNumber {
+    return maxDecimals === undefined ? {kind: 'number', value} : {kind: 'number', value, maxDecimals};
+}
+export function isMessageNumber(parameter: MessageParameter): parameter is MessageNumber {
+    return typeof parameter === 'object' && 'kind' in parameter;
+}
+/** True for a nested message (not text, a plain number or a `MessageNumber`). */
+export function isMessage(parameter: MessageParameter): parameter is Message {
+    return typeof parameter === 'object' && 'key' in parameter;
+}
 export function renderMessage(value: Message): string {
     const template: string = (language === 'en' ? en[value.key] : sl[value.key]) ?? sl[value.key];
     return template.replace(/\{(\w+)\}/g, (match, name) => {
         const parameter = value.params[name];
-        return typeof parameter === 'object' ? renderMessage(parameter) : String(parameter ?? match);
+        if (parameter === undefined) return match;
+        if (typeof parameter !== 'object') return String(parameter);
+        return isMessageNumber(parameter) ? formatNumber(parameter.value, language, parameter.maxDecimals) : renderMessage(parameter);
     });
 }
 export class LocalizedError extends Error {

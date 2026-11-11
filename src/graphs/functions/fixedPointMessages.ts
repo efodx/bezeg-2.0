@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {FixedPointEditIssue, FixedPointIssue} from "../../analysis/fixedPointModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -27,7 +27,7 @@ export function fixedPointEditMessage(issue: FixedPointEditIssue): Message {
     switch (issue.kind) {
         case "example": return message("fixed_point_example_rejected", {value0: issue.allowed.join(", ")});
         case "x0": return message("fixed_point_x0_rejected_hint", {
-            value0: formatNumber(issue.min, currentLanguage()), value1: formatNumber(issue.max, currentLanguage()),
+            value0: messageNumber(issue.min), value1: messageNumber(issue.max),
         });
         case "digits": return message("fixed_point_digits_rejected_hint", {value0: issue.min, value1: issue.max});
     }

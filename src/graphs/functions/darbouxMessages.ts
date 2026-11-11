@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {DarbouxEditIssue, DarbouxIssue} from "../../analysis/darbouxModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -30,7 +30,7 @@ export function darbouxEditMessage(issue: DarbouxEditIssue): Message {
             // Edit messages are read in the app, so bounds follow the current language like the fields' own hints.
             const [endpoint] = issue.endpoints;
             return message("darboux_endpoint_range_rejected", {
-                value0: endpoint, value1: formatNumber(issue.min, currentLanguage()), value2: formatNumber(issue.max, currentLanguage()),
+                value0: endpoint, value1: messageNumber(issue.min), value2: messageNumber(issue.max),
             });
         }
         case "order": return message(issue.moving === "b" ? "darboux_b_rejected_hint" : "darboux_a_rejected_hint");
