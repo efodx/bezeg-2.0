@@ -24,8 +24,10 @@ for (const width of [390, 614, 1280]) {
                 const box = await control.boundingBox();
                 expect(box.x).toBeGreaterThanOrEqual(rowBox.x);
                 expect(box.x + box.width).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
-                expect(box.width).toBeGreaterThanOrEqual(44);
-                expect(box.height).toBeGreaterThanOrEqual(44);
+                // --bezeg-control-height: 44 px on coarse pointers and at 700 px or narrower, 38 px on a wide fine-pointer view.
+                const target = width <= 700 ? 44 : 38;
+                expect(box.width).toBeGreaterThanOrEqual(target);
+                expect(box.height).toBeGreaterThanOrEqual(target);
                 expect(await control.evaluate(el => {
                     const rect = el.getBoundingClientRect();
                     return el.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
