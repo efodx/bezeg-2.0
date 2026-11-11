@@ -16,7 +16,6 @@ import {BasisPlot} from "./BasisPlot";
 import {basisPlotData} from "./interpolationBasis";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN, Point2} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import {Preset} from "../../base/presets/Presets";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     DEFAULT_INTERPOLATION_PRESET, INTERPOLATION_COORDINATE_LIMIT, interpolationRejection, InterpolationPresetData,
@@ -118,9 +117,8 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     }
 
     /** A Preset without a saved view is fitted to its points (the saved view is applied before the data, so not in `importPresetData`). */
-    override importPreset(preset: Preset) {
-        super.importPreset(preset);
-        if (!preset.boardState && preset.data) this.fit();
+    protected override fitPresetView(data: unknown) {
+        if (data) this.fit();
     }
 
     override initialize() {

@@ -412,3 +412,33 @@ describe('figure path with a stored scene state that disagrees with the Preset d
         }
     });
 });
+
+/**
+ * A view-less Preset figure shows the view that selecting the Preset (or Reset) shows, not the view the preceding figure left on the
+ * board (controls stream, Step 7 review leftover).
+ */
+describe('figure path view for a Preset without boardState', () => {
+    type ViewPath = {
+        graphSession: {signal: AbortSignal};
+        applyFigurePreset(session: unknown, preset: unknown, signal: AbortSignal): Promise<void>;
+        board: JXG.Board;
+    };
+    const box = (graph: GraphLike) => (graph as unknown as ViewPath).board.getBoundingBox().map(value => Math.round(value * 1e6) / 1e6);
+
+    it.each([['hermite', 'interp-hermite'], ['bezier', 'bezier']] as const)('%s', async (_name, id) => {
+        const rig = open(() => graphFactories[id]());
+        try {
+            const path = rig.graph as unknown as ViewPath;
+            const viewless = {...rig.graph.exportPreset(), id: 'viewless', boardState: undefined};
+            await settle(() => rig.graph.reset());
+            const loaded = box(rig.graph);
+            const apply = (preset: unknown) => settle(() => path.applyFigurePreset(path.graphSession, preset, path.graphSession.signal));
+            await apply({...viewless, id: 'framed', boardState: {boundingBox: [-500, 400, 500, -400]}});
+            expect(box(rig.graph)).not.toEqual(loaded);
+            await apply(viewless);
+            expect(box(rig.graph)).toEqual(loaded);
+        } finally {
+            rig.mounted.view.unmount();
+        }
+    });
+});

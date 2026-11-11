@@ -10,7 +10,6 @@ import {LiveReadout} from "../../base/controls/LiveReadout";
 import {useStatusReadout} from "../../base/controls/useStatusReadout";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import type {LessonCurveFixture} from "../../../learning/model";
-import {Preset} from "../../base/presets/Presets";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {BSplineBasisScene} from "./BSplineBasisScene";
 import {KnotEditor} from "./KnotEditor";
@@ -121,9 +120,8 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
     }
 
     /** A Preset without a saved view is fitted to its knots (the saved view is applied before the data, so not in `importPresetData`). */
-    override importPreset(preset: Preset) {
-        super.importPreset(preset);
-        if (!preset.boardState && preset.data) this.fit();
+    protected override fitPresetView(data: unknown) {
+        if (data) this.fit();
     }
 
     override initialize() {

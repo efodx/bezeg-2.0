@@ -1084,6 +1084,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         // omitted fields at their defaults, so the result does not depend on the preceding scene.
         this.replaceState({...this.getInitialState(), ...(checked.graphState ?? {}), initialized: true});
         this.importPresetData(checked.data === undefined ? this.persistedDefaultData() : checked.data);
+        if (!checked.boardState && this.hasBoard) this.fitPresetView(checked.data);
+    }
+
+    /**
+     * Refines the initial view of a Preset without `boardState` once its data is imported (a point-set graph fits its
+     * points). Used by `importPreset` (a Preset file); Preset selection, Reset and figure scenes keep the initial view.
+     */
+    protected fitPresetView(_data: D | undefined): void {
     }
 
     /** Shows the view a persisted Preset without `boardState` starts from: the graph's initial view, as a new board has it. */
@@ -1241,7 +1249,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                     // `restoreEntryState` imports the entry scene captured from the live graph, so there is no stored
                     // data to check against the Preset collection; a missing payload is the default scene.
                     importData: () => {
-                        if (checked) this.importFigurePresetData(checked);
+                        if (checked) {
+                            // A view-less Preset figure starts from the initial view, as selecting the Preset does
+                            // (`reloadSelectedScene`), not from the preceding figure's view. No `fitPresetView`: Reset and
+                            // Preset selection share this path and keep the initial view. The entry scene is a live capture
+                            // and keeps the board's view.
+                            if (!checked.boardState && this.hasBoard) this.showInitialView();
+                            this.importFigurePresetData(checked);
+                        }
                         else if (entry) this.importPresetData(entry.preset.data == null ? this.persistedDefaultData() : cloneLessonValue(entry.preset.data));
                     },
                     workspaceRevisionAfterImport: true,

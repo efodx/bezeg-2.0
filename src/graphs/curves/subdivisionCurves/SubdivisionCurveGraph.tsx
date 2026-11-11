@@ -10,7 +10,6 @@ import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {TracePlayback} from "../../base/tracePlayback";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {Preset} from "../../base/presets/Presets";
 import {
     DEFAULT_SUBDIVISION_PRESET, isSubdivisionRule, MAX_SUBDIVISION_ROUNDS, Row, stageOf, SUBDIVISION_ANIMATION_ID, SUBDIVISION_CLOSED_POINTS_MIN,
     SUBDIVISION_COORDINATE_LIMIT, SUBDIVISION_POINTS_MAX, SUBDIVISION_POINTS_MIN, SUBDIVISION_STEP_INTERVAL_MS, SubdivisionPresetData,
@@ -125,9 +124,8 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
     }
 
     /** A Preset without a saved view is fitted to its points (the saved view is applied before the data, so not in `importPresetData`). */
-    override importPreset(preset: Preset) {
-        super.importPreset(preset);
-        if (!preset.boardState && preset.data) this.fit();
+    protected override fitPresetView(data: unknown) {
+        if (data) this.fit();
     }
 
     override initialize() {

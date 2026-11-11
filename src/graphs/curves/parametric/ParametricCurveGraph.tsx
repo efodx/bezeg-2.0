@@ -4,7 +4,6 @@ import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import {Preset} from "../../base/presets/Presets";
 import {AnimationDriver} from "../../../learning/runtime/animation";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import type {LessonAnimationCommand} from "../../../learning/model";
@@ -105,9 +104,8 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
      * curve, so the new curve is not shown in the previous curve's view box. `BaseGraph` applies the saved view before the
      * data, so the fit cannot live in `importPresetData`.
      */
-    override importPreset(preset: Preset) {
-        super.importPreset(preset);
-        if (!preset.boardState && preset.data) this.fitToCurve();
+    protected override fitPresetView(data: unknown) {
+        if (data) this.fitToCurve();
     }
 
     /**

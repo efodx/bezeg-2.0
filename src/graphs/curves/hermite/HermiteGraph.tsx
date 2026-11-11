@@ -12,7 +12,6 @@ import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import {catmullRomTangents} from "../../../analysis/hermite";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import {Preset} from "../../base/presets/Presets";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     catmullRomStored, DEFAULT_HERMITE_PRESET, firstCoincidentPair, HERMITE_COORDINATE_LIMIT, HERMITE_TANGENT_LIMIT, HERMITE_TENSION_MAX,
@@ -94,9 +93,8 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     }
 
     /** A Preset without a saved view is fitted to its points (the saved view is applied before the data, so not in `importPresetData`). */
-    override importPreset(preset: Preset) {
-        super.importPreset(preset);
-        if (!preset.boardState && preset.data) this.fit();
+    protected override fitPresetView(data: unknown) {
+        if (data) this.fit();
     }
 
     override initialize() {
