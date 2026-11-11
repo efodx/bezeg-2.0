@@ -21,3 +21,7 @@ Acceptance:
 5. `npx tsc --noEmit --pretty false`, `just lint` and the production build pass.
 
 Review: engineering plus UI and accessibility, and a mathematical review of the readouts.
+
+## Status
+
+Implemented, uncommitted, awaiting review. Evidence: [f2a-waves-02](../../reviews/feature-streams/families-prep/notes/f2a-waves-02.md). Not smoke-tested in a browser (no route); the playback measurement is a jsdom placeholder.
