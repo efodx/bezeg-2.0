@@ -4,6 +4,8 @@ import {projectiveDemonstrationRows} from './graphs/projective/registration';
 import {trigDemonstrationRows} from './graphs/trig/registration';
 import {lineDemonstrationRows} from './graphs/lines/registration';
 import {isometryDemonstrationRows} from './graphs/isometry/registration';
+import {circleConstructionDemonstrationRows} from './graphs/compgeo/circleConstruction/registration';
+import {combinatoricsDemonstrationRows} from './graphs/combinatorics/registration';
 
 type TextKey = {[K in MessageKey]: typeof sl[K] extends `${string}{${string}` ? never : K}[MessageKey];
 export type NavigationAction = 'left' | 'up' | 'down' | 'right' | 'in' | 'out' | 'fit';
@@ -22,6 +24,7 @@ const families = [
     {id: '/bezeg-2.0/functions', title: 'functions_and_calculus'},
     {id: 'analysis', title: 'analysis'},
     {id: '/bezeg-2.0/probability', title: 'probability_and_statistics'},
+    {id: 'combinatorics', title: 'combinatorics'},
     {id: 'maps', title: 'maps_of_the_plane'},
     {id: 'plane-geometry', title: 'plane_geometry'},
     {id: 'computational-geometry', title: 'computational_geometry'},
@@ -154,7 +157,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

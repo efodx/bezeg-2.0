@@ -8,15 +8,19 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow, ReadoutScrollTable} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphSession} from "../base/GraphSession";
+import {fitBoundingBox} from "../base/fitBoundingBox";
 import {GraphPalette} from "../styles/GraphPalette";
 import {binomial} from "../../combinatorics/binomial";
 import {ENUMERATION_CAP} from "../../combinatorics/latticePaths";
 import {pascalRow} from "../../combinatorics/pascal";
 import {
     DEFAULT_LATTICE_STATE, deriveExpansion, deriveLattice, EXPANSION_C_RANGE, EXPANSION_N_RANGE, ExpansionDerived, gridCounts, LATTICE_VIEWS,
-    LatticeDerived, LatticeState, LatticeView, ROUTES_PER_PAGE, routePoints, routeString, selectableRoutes, snapInput, STRINGS_MAX_N,
-    TARGET_RANGE, TRIANGLE_ROW_LIMIT, withTarget,
+    LatticeDerived, LatticeState, LatticeView, parseLatticeState, ROUTES_PER_PAGE, routePoints, routeString, selectableRoutes,
+    serializeLatticeState, snapInput, STRINGS_MAX_N, TARGET_RANGE, TRIANGLE_ROW_LIMIT, withTarget,
 } from "../../combinatorics/combinatoricsModel";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {latticePathsPresetCollection} from "./combinatoricsPresetCollection";
 import {
     addPolyline, binomialText, binomText, boxPoints, countText, emptyPoly, HANDLE_MOUSE_RADIUS, HANDLE_TOUCH_RADIUS, listText, Poly, pointText,
     routeLetters, SceneObjects, smallText, stepRightText, stepUpText, superscript,
@@ -29,6 +33,15 @@ export interface LatticePathGraphState extends BaseGraphState, LatticeState {}
 
 /** The fixed view box: the grid is 0..20, the triangle and the bars sit inside it, and the captions are above and below. */
 export const VIEW_BOX: [number, number, number, number] = [-1.5, 24.5, 21.5, -2.2];
+/**
+ * The box the paths view frames for the target (a, b): the grid with the start label below and the three captions above
+ * (they sit at b + 1.4, b + 2.4 and b + 3.4); at least 9 wide so the captions fit beside a small grid.
+ */
+export const pathsBox = (a: number, b: number): [number, number, number, number] => [-1.5, b + 4.2, Math.max(a + 1.5, 9), -2.2];
+/** The three caption lines above the grid sit this far above the target's row. */
+const CAPTION_ABOVE = [3.4, 2.4, 1.4] as const;
+/** The captions start right of the y axis, whose tick labels lie to its left. */
+const CAPTION_X = 0.3;
 /** Keyboard steps of the numeric fields (arrow keys and Page keys). */
 export const STEP = 1;
 export const TARGET_BIG_STEP = 5;
@@ -82,10 +95,12 @@ export function triangleRows(): readonly (readonly bigint[])[] {
 }
 
 /** Everything the board draws is computed from the scene state by the `src/combinatorics` kernel; the target is snapped while it is dragged. */
-export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
+export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeState> {
     private readonly scene = new SceneObjects();
     private handle?: JXG.Point;
     private builtView?: LatticeView;
+    private framedKey = "";
+    private dragging = false;
     private cache?: {state: LatticePathGraphState; lattice?: LatticeDerived; cells?: Cell[]; triangle?: TriangleView; expansion?: ExpansionDerived};
     private routeCache?: {key: string; data: RouteData};
     private readonly status = new SettledReadout();
@@ -100,12 +115,72 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): LatticeState {
+        return serializeLatticeState(DEFAULT_LATTICE_STATE);
+    }
+
+    override presetCollection(): PresetCollection<LatticeState> {
+        return latticePathsPresetCollection();
+    }
+
+    override exportPreset(): Preset<LatticeState> {
+        const preset = super.exportPreset();
+        const {view: _view, a: _a, b: _b, route: _route, showCounts: _showCounts, split: _split, n: _n, c: _c, ...graphState} = preset.graphState as LatticePathGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): LatticeState {
+        return serializeLatticeState(this.state);
+    }
+
+    override importPresetData(data: LatticeState): void {
+        this.setState(serializeLatticeState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): LatticePathGraphState {
+        const parsed = parseLatticeState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [...VIEW_BOX];
+        return pathsBox(DEFAULT_LATTICE_STATE.a, DEFAULT_LATTICE_STATE.b);
+    }
+
+    /** The key of the frame the board shows: the grid size in the paths view, one fixed box in the other views. */
+    private frameKey(): string {
+        return this.state.view === "paths" ? `${this.state.a},${this.state.b}` : "fixed";
+    }
+
+    /**
+     * Frames the board to the drawn grid (paths view) or to the fixed box (triangle and expansion). It refits only when the frame key
+     * changed, never while the target is dragged: a drag that leaves the box is refitted when it ends (see `endDrag`).
+     */
+    private frameBoard(): void {
+        const key = this.frameKey();
+        if (key === this.framedKey) return;
+        if (this.dragging) {
+            this.framedKey = key;
+            return;
+        }
+        this.framedKey = key;
+        const {width, height} = JXG.getDimensions(this.board.container, document);
+        const box = this.state.view === "paths" ? pathsBox(this.state.a, this.state.b) : VIEW_BOX;
+        const fitted = fitBoundingBox([[box[0], box[1]], [box[2], box[3]]], parseFloat(String(width)), parseFloat(String(height)));
+        if (fitted) this.board.setBoundingBox(fitted, true);
+    }
+
+    /** The drag ended: a target dragged out of the box (or its captions out of it) refits once; a target inside leaves the view alone. */
+    private endDrag(): void {
+        this.dragging = false;
+        if (this.state.view !== "paths") return;
+        const [left, top, right, bottom] = this.board.getBoundingBox();
+        const [boxLeft, boxTop, boxRight, boxBottom] = pathsBox(this.state.a, this.state.b);
+        if (left <= boxLeft && top >= boxTop && right >= boxRight && bottom <= boxBottom) return;
+        this.framedKey = "";
+        this.frameBoard();
     }
 
     // ---- Derived numbers: caches keyed by the state object, so a new state recomputes and the same state never does ----------
@@ -225,6 +300,10 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
+        // A replacement (checkpoint restore, Preset import) brings its own view; only a later change of the grid refits. Build a
+        // changed view first: the build clears `framedKey`, so marking the view framed before it would refit over the stored view.
+        if (this.hasBoard && this.graphSession?.isAlive && this.builtView !== this.state.view) this.buildScene();
+        this.framedKey = this.frameKey();
         this.syncBoard();
     }
 
@@ -237,6 +316,7 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
         if (this.builtView !== this.state.view) this.buildScene();
         this.placeHandle();
+        this.frameBoard();
         this.board.update();
         this.status.report(this.statusText());
     }
@@ -249,6 +329,9 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
     private buildScene(): void {
         this.disposeScene();
         this.builtView = this.state.view;
+        // The view is framed by the sync that follows the build: a replacement may bring a stored view, which a frame here would overwrite.
+        this.framedKey = "";
+        this.dragging = false;
         switch (this.state.view) {
             case "paths": this.buildPaths(); break;
             case "triangle": this.buildTriangle(); break;
@@ -304,13 +387,15 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
         this.handle = handle;
         this.wireDrag(handle);
         // Captions: the target and the start, the selected route, the split legend and the cap message.
-        this.caption(() => t("combinatorics_lattice_cap_target", {value0: pointText(this.state.a, this.state.b)}), -1.2, 23.4, GraphPalette.controlPoint);
+        // The captions sit above the target's row, so a framed small grid keeps them near it.
+        const above = (line: number) => () => this.state.b + CAPTION_ABOVE[line];
+        this.caption(() => t("combinatorics_lattice_cap_target", {value0: pointText(this.state.a, this.state.b)}), CAPTION_X, above(0), GraphPalette.controlPoint);
         this.caption(() => t("combinatorics_lattice_cap_start", {value0: pointText(0, 0)}), 0.3, -0.9, GraphPalette.label);
-        this.caption(() => t("combinatorics_lattice_cap_route", {value0: routeLetters(this.selectedRoute()?.letters ?? "")}), -1.2, 22.4,
+        this.caption(() => t("combinatorics_lattice_cap_route", {value0: routeLetters(this.selectedRoute()?.letters ?? "")}), CAPTION_X, above(1),
             GraphPalette.constructionAccent, () => this.selectedRoute() !== undefined);
-        this.caption(() => t("combinatorics_lattice_cap_split", {value0: stepRightText(), value1: stepUpText()}), -1.2, 21.4, GraphPalette.label,
+        this.caption(() => t("combinatorics_lattice_cap_split", {value0: stepRightText(), value1: stepUpText()}), CAPTION_X, above(2), GraphPalette.label,
             () => split() && enumerable());
-        this.caption(() => this.capMessage(), -1.2, 21.4, GraphPalette.warningText, () => !enumerable(), {fontSize: 14});
+        this.caption(() => this.capMessage(), CAPTION_X, above(2), GraphPalette.warningText, () => !enumerable(), {fontSize: 14});
     }
 
     private capMessage(): string {
@@ -384,14 +469,16 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, null> {
     // ---- Dragging: one snapping path for the target ---------------------------------------------------------------------
 
     private wireDrag(point: JXG.Point): void {
-        const onDrag = () => this.dragTo(point);
+        const onDrag = () => { this.dragging = true; this.dragTo(point); };
+        const onUp = () => { if (this.dragging) this.endDrag(); };
         const board = this.board;
         const onOver = () => { board.containerObj.style.cursor = "pointer"; };
         const onOut = () => { board.containerObj.style.cursor = "default"; };
         point.on("drag", onDrag);
+        point.on("up", onUp);
         point.on("over", onOver);
         point.on("out", onOut);
-        this.scene.listen(() => { point.off("drag", onDrag); point.off("over", onOver); point.off("out", onOut); });
+        this.scene.listen(() => { point.off("drag", onDrag); point.off("up", onUp); point.off("over", onOver); point.off("out", onOut); });
     }
 
     /** Drag only: the handle snaps to the nearest whole point inside the range (typed values are refused instead, see `typed`). */

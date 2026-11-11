@@ -14,8 +14,12 @@ import {InexactLine} from "../../compgeo/circleConstructions";
 import {Rational, RationalPoint} from "../../compgeo/rational";
 import {
     CIRCLE_MODES, CircleConstructionDerived, CircleConstructionState, CircleMode, CircleSpec, COORD_LIMIT, DEFAULT_CIRCLE_CONSTRUCTION_STATE,
-    deriveCircleConstruction, exampleState, RADIUS_MAX, RADIUS_MIN, RATIO_MAX, RATIO_MIN, snapCoordinateInput, snapRadiusInput, snapRatioInput,
+    deriveCircleConstruction, exampleState, parseCircleConstructionState, RADIUS_MAX, RADIUS_MIN, RATIO_MAX, RATIO_MIN,
+    serializeCircleConstructionState, snapCoordinateInput, snapRadiusInput, snapRatioInput,
 } from "../../compgeo/circleConstructionModel";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {circleConstructionPresetCollection} from "./circleConstruction/circleConstructionPresetCollection";
 
 /** The scene state is the stored circle construction state (ADR 0045 sections 1 and 2); everything else is derived from it. */
 export interface CircleConstructionGraphState extends BaseGraphState, CircleConstructionState {}
@@ -125,9 +129,9 @@ interface Frame {
  * that `removeObject` does not remove.
  *
  * Choosing a mode loads that mode's example state; edits made in the previous mode are discarded, by design (the spec's default
- * examples). `parse` and `serialize` have no consumer until the graph is registered (task 03).
+ * examples). A Preset keeps the stored fields once, as `data` (checked by `parseCircleConstructionState`).
  */
-export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphState, null> {
+export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphState, CircleConstructionState> {
     readonly helpId = `circle-construction-input-help-${++helpInstances}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
@@ -145,8 +149,34 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): CircleConstructionState {
+        return serializeCircleConstructionState(DEFAULT_CIRCLE_CONSTRUCTION_STATE);
+    }
+
+    override presetCollection(): PresetCollection<CircleConstructionState> {
+        return circleConstructionPresetCollection();
+    }
+
+    override exportPreset(): Preset<CircleConstructionState> {
+        const preset = super.exportPreset();
+        const {mode: _mode, c1: _c1, c2: _c2, c3: _c3, p: _p, a: _a, b: _b, k: _k, ...graphState} = preset.graphState as CircleConstructionGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): CircleConstructionState {
+        return serializeCircleConstructionState(this.state);
+    }
+
+    override importPresetData(data: CircleConstructionState): void {
+        this.setState(serializeCircleConstructionState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): CircleConstructionGraphState {
+        const parsed = parseCircleConstructionState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {

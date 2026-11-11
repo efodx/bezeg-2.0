@@ -5,7 +5,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
-import {BAR_BASE, BAR_HEIGHT, CountingTreeGraph, LETTER_POOL, TREE_BOTTOM, TREE_LEFT, TREE_TOP, TREE_WIDTH, VIEW_BOX} from './CountingTreeGraph';
+import {BAR_BASE, BAR_HEIGHT, CountingTreeGraph, LETTER_POOL, TABLE_FIRST_ROW_Y, TREE_BOTTOM, TREE_LEFT, TREE_TOP, TREE_WIDTH, VIEW_BOX} from './CountingTreeGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -67,11 +67,11 @@ describe('choices: the table above the tree limit', () => {
         expect(status()).toBe('Variacije pri n = 6, k = 3: 120.');
         expect(graph.table().map(row => row.count)).toEqual([120n, 216n, 20n, 56n]); // 6!/3!, 6^3, C(6, 3), C(8, 3)
         const captions = shownCaptions(graph);
-        for (const text of ['120', '216', '20', '56']) expect(captions).toContain(text);
+        for (const text of ['120', '216', '20', '56']) expect(captions.some(caption => caption.endsWith(` = ${text}`))).toBe(true);
         const markers = shown(graph).filter(o => (o as unknown as {plaintext: string}).plaintext === '▶');
         expect(markers.length).toBe(1);
-        expect(markers[0].Y!()).toBe(16);
-        expect(captions).toContain(t('combinatorics_counting_table_note', {value0: '64'}));
+        expect(markers[0].Y!()).toBe(TABLE_FIRST_ROW_Y);
+        expect(captions.join(' ')).toContain(t('combinatorics_counting_table_note', {value0: '64'})); // wrapped into lines
         expect(curves(graph).length).toBe(0);
         noBadText();
     });
@@ -81,11 +81,11 @@ describe('choices: the table above the tree limit', () => {
         set(graph, {n: 4, k: 3, repetition: true});
         expect(graph.drawnKey()).toBe('choices-tree');
         expect(4 ** 3).toBe(64);
-        expect(shownCaptions(graph)).not.toContain(t('combinatorics_counting_table_note', {value0: '64'}));
+        expect(shownCaptions(graph).join(' ')).not.toContain(t('combinatorics_counting_table_note', {value0: '64'}));
         set(graph, {n: 5});
         expect(graph.drawnKey()).toBe('choices-table');
         expect(digits(readout('count'))).toBe('125');
-        expect(shownCaptions(graph)).toContain(t('combinatorics_counting_table_note', {value0: '64'}));
+        expect(shownCaptions(graph).join(' ')).toContain(t('combinatorics_counting_table_note', {value0: '64'}));
         set(graph, {n: 4});
         expect(graph.drawnKey()).toBe('choices-tree');
         set(graph, {repetition: false, n: 5, k: 3}); // V(5, 3) = 60
@@ -108,7 +108,7 @@ describe('choices: the table above the tree limit', () => {
         expect(readout('orderings')).toBe('3! = 6');
         expect(digits(readout('division'))).toBe('120/6=20');
         expect(readout('orderings-list')).toBe('123, 132, 213, 231, 312, 321');
-        expect(shown(graph).filter(o => (o as unknown as {plaintext: string}).plaintext === '▶')[0].Y!()).toBe(10);
+        expect(shown(graph).filter(o => (o as unknown as {plaintext: string}).plaintext === '▶')[0].Y!()).toBe(TABLE_FIRST_ROW_Y - 2 * 3);
     });
 
     test('combinations with repetition C(8, 3) = 56 have no product and no orderings row; k! rows vanish for k = 0', () => {
@@ -719,5 +719,50 @@ describe('review repairs', () => {
         const low = shown(graph).filter(o => textOf(o) === 'k = 2');
         expect(low.length).toBe(1);
         expect(low[0].Y!()).toBeCloseTo(BAR_BASE + (45 / 252) * BAR_HEIGHT + gap, 9); // C(10, 2) / C(10, 5)
+    });
+});
+
+describe('the table is legible: no text runs into another', () => {
+    const PX_PER_UNIT = 9; // the narrowest board (390 px wide): the 27 units of the view box, with the fit margin, are about 250 px tall
+    const PX_PER_UNIT_Y = 9;
+    const boxes = (graph: ObservedGraph) => shown(graph).map(o => {
+        const text = (o as unknown as {plaintext: string}).plaintext;
+        const size = Number(o.evalVisProp('fontsize'));
+        const x = o.X!();
+        const y = o.Y!();
+        return {text, left: x, right: x + (text.length * size * 0.6) / PX_PER_UNIT, bottom: y - size / 2 / PX_PER_UNIT_Y, top: y + size / 2 / PX_PER_UNIT_Y};
+    });
+    const overlaps = (graph: ObservedGraph) => {
+        const all = boxes(graph).filter(box => box.text.length > 0);
+        const found: string[] = [];
+        for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) {
+            const a = all[i];
+            const b = all[j];
+            if (a.left < b.right && b.left < a.right && a.bottom < b.top && b.bottom < a.top) found.push(`${a.text} | ${b.text}`);
+        }
+        return found;
+    };
+
+    test.each(['sl', 'en'] as const)('the four rows do not overlap each other or the captions in %s', language => {
+        setLanguage(language);
+        const {graph} = mountGraph();
+        expect(graph.drawnKey()).toBe('choices-table');
+        expect(overlaps(graph)).toEqual([]);
+        for (const text of ['120', '216', '20', '56']) expect(shownCaptions(graph).some(caption => caption.endsWith(` = ${text}`))).toBe(true);
+    });
+
+    test('the table fits inside the view box width in both languages', () => {
+        for (const language of ['sl', 'en'] as const) {
+            setLanguage(language);
+            const {graph, view} = mountGraph();
+            const widest = Math.max(...boxes(graph).map(box => box.right));
+            expect((widest - VIEW_BOX[0]) * PX_PER_UNIT).toBeLessThanOrEqual(330); // the narrowest board is about 340 px wide
+            view.unmount();
+        }
+    });
+
+    test('the axes are off by default: the board is not a coordinate plane', () => {
+        const {graph} = mountGraph();
+        expect(graph.displaySettings.getAxisSelect()).toBe('none');
     });
 });

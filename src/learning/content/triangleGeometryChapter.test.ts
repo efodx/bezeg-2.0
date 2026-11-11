@@ -56,9 +56,9 @@ describe('triangle geometry reading chapter', () => {
         for (const section of triangleGeometryChapter.sections) {
             for (const id of section.demonstrationIds ?? []) expect(demonstrations.find(demo => demo.id === id)?.family).toBe('plane-geometry');
         }
-        // triangle-solver and line-geometry ship without a chapter link until families-prep F3.
+        // triangle-solver, line-geometry and circle-construction ship without a chapter link until families-prep F3.
         const linked = triangleGeometryChapter.sections.flatMap(section => section.demonstrationIds ?? []);
-        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry' && demo.id !== 'triangle-solver' && demo.id !== 'line-geometry').map(demo => demo.id).sort());
+        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry' && demo.id !== 'triangle-solver' && demo.id !== 'line-geometry' && demo.id !== 'circle-construction').map(demo => demo.id).sort());
     });
 
     test('puts each section example at its end and keeps both languages complete', () => {

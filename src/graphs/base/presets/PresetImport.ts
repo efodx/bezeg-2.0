@@ -24,6 +24,8 @@ import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
 import {lineCollections} from "../../lines/collections";
 import {isometryCollections} from "../../isometry/collections";
+import {circleConstructionCollections} from "../../compgeo/circleConstruction/collections";
+import {combinatoricsCollections} from "../../combinatorics/collections";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -39,6 +41,8 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...trigCollections,
     ...lineCollections,
     ...isometryCollections,
+    ...circleConstructionCollections,
+    ...combinatoricsCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

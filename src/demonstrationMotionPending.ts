@@ -12,4 +12,7 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'triangle-solver', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-trig.md).'},
     {id: 'line-geometry', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md).'},
     {id: 'isometries', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md).'},
+    {id: 'circle-construction', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
+    {id: 'lattice-paths', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
+    {id: 'counting-tree', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
 ];

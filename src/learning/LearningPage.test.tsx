@@ -25,8 +25,8 @@ beforeEach(() => {
     Element.prototype.scrollIntoView = vi.fn();
 });
 
-// Families registered before their chapter exists. Each family's F4 chapter slice removes its entry; none is pending now.
-const FAMILY_CHAPTER_PENDING: readonly string[] = [];
+// Families registered before their chapter exists. Each family's F4 chapter slice removes its entry; only `combinatorics` is pending now (families-prep F2b registered it without a chapter).
+const FAMILY_CHAPTER_PENDING: readonly string[] = ['combinatorics'];
 
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);

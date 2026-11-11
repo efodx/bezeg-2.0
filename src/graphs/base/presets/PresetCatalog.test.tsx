@@ -37,6 +37,7 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar", "projective-five-point", "projective-three-views"];
 const TRIG_KEYS = ["unit-circle", "triangle-solver"];
 const LINE_ISOMETRY_KEYS = ["line-geometry", "isometries"];
+const CIRCLE_COMBINATORICS_KEYS = ["circle-construction", "lattice-paths", "counting-tree"];
 /** Collections registered with the importer before their Demonstration exists; the registration slice removes its key when it adds the route. */
 const PENDING_ROUTE_KEYS: string[] = [];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
@@ -54,7 +55,7 @@ describe('Preset collection definitions', () => {
         expect(new Set(keys).size).toBe(keys.length);
         // The key lists are deliberate per-collection decisions (a file contract); failures name the missing and extra keys.
         const wanted = [...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
-            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS, ...TRIG_KEYS, ...LINE_ISOMETRY_KEYS, ...PENDING_ROUTE_KEYS];
+            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS, ...TRIG_KEYS, ...LINE_ISOMETRY_KEYS, ...CIRCLE_COMBINATORICS_KEYS, ...PENDING_ROUTE_KEYS];
         expect({missing: wanted.filter(key => !keys.includes(key)), extra: keys.filter(key => !wanted.includes(key))}).toEqual({missing: [], extra: []});
     });
 

@@ -10,7 +10,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | --- | --- | --- | --- | --- | --- |
 | [01 Circle construction kernel](01-construction-kernel.md) | 0 | F1 | none | — | done |
 | [02 State model and construction graph](02-construction-graph.md) | A, B | F2a | none | 01 | done |
-| [03 Release batches A–B](03-release-batches.md) | A, B | F2b–F6 | Controls step 7 | 02 | planned |
+| [03 Release batches A–B](03-release-batches.md) | A, B | F2b–F6 | Controls step 7 (accepted) | 02 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md)); F3–F6 next |
 
 ## Slovenian terms (F0 decision)
 

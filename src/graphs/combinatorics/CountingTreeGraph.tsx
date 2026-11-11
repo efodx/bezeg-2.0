@@ -8,12 +8,16 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphSession} from "../base/GraphSession";
+import {AxisSelect} from "../base/DisplaySettings";
 import {GraphPalette} from "../styles/GraphPalette";
 import {
     COUNT_K_RANGE, COUNT_N_RANGE, CountingDerived, CountingKind, CountingState, CountingView, COUNTING_VIEWS, DEFAULT_COUNTING_STATE, deriveCounting,
-    deriveMultiset, deriveRow, keepKValid, MULTISET_COUNT_RANGE, MultisetDerived, OrderingGroup, orderingGroups, ROW_N_RANGE, RowDerived, snapInput, T_DENOMINATOR,
-    T_RANGE, treeLeaves, TREE_LEAF_LIMIT,
+    deriveMultiset, deriveRow, keepKValid, MULTISET_COUNT_RANGE, MultisetDerived, OrderingGroup, orderingGroups, parseCountingState, ROW_N_RANGE, RowDerived,
+    serializeCountingState, snapInput, T_DENOMINATOR, T_RANGE, treeLeaves, TREE_LEAF_LIMIT,
 } from "../../combinatorics/combinatoricsModel";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {countingTreePresetCollection} from "./combinatoricsPresetCollection";
 import {addPolyline, binomText, countText, emptyPoly, Poly, SceneObjects, smallText, superscript} from "./combinatoricsText";
 
 /** The scene state: the stored counting fields. */
@@ -55,6 +59,28 @@ export const GROUP_ROW_STEP = 0.62;
 const GROUP_COLUMN_STEP = 2;
 const GROUP_ENTRY_POOL = 24;
 
+/** The table rows: the first row's line and the distance between rows (each row has the name and, one unit below, the formula with the count). */
+export const TABLE_FIRST_ROW_Y = 16.6;
+export const TABLE_ROW_STEP = 3;
+/** The note above the table (up to NOTE_LINES lines of NOTE_CHARS characters) and the title under it. */
+const TABLE_NOTE_Y = 24.2;
+const TABLE_TITLE_Y = 19.8;
+const NOTE_LINES = 3;
+const NOTE_CHARS = 38;
+const TITLE_LINES = 2;
+const TITLE_CHARS = 34;
+
+/** Breaks a sentence at spaces into lines of at most `maxChars` characters (a longer single word keeps its own line). */
+function wrapWords(text: string, maxChars: number): string[] {
+    const lines: string[] = [];
+    for (const word of text.split(" ")) {
+        const last = lines[lines.length - 1];
+        if (last !== undefined && last.length + 1 + word.length <= maxChars) lines[lines.length - 1] = `${last} ${word}`;
+        else lines.push(word);
+    }
+    return lines;
+}
+
 const KINDS: readonly CountingKind[] = ["variations", "variationsRepetition", "combinations", "combinationsRepetition"];
 const KIND_FLAGS: Readonly<Record<CountingKind, readonly [boolean, boolean]>> = {
     variations: [true, false], variationsRepetition: [true, true], combinations: [false, false], combinationsRepetition: [false, true],
@@ -95,7 +121,7 @@ interface TableRow {
 }
 
 /** Everything the board draws is computed from the scene state by the `src/combinatorics` kernel; the board has no handles, the values are typed. */
-export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, null> {
+export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, CountingState> {
     private readonly scene = new SceneObjects();
     private builtKey?: string;
     private cache?: {
@@ -106,6 +132,12 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, null> {
     /** A clause for the status text, valid only for the state it was made for: a later state change makes it stale by itself. */
     private notice?: {readonly state: CountingTreeGraphState; readonly text: () => string};
 
+    constructor() {
+        super();
+        // None of the scenes is a coordinate plane: the axes and grid would run through the table, the tree and the bars.
+        this.displaySettings.setAxisSelect(AxisSelect.NONE);
+    }
+
     override getInitialState(): CountingTreeGraphState {
         return {initialized: false, ...DEFAULT_COUNTING_STATE, counts: [...DEFAULT_COUNTING_STATE.counts]};
     }
@@ -114,8 +146,34 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): CountingState {
+        return serializeCountingState(DEFAULT_COUNTING_STATE);
+    }
+
+    override presetCollection(): PresetCollection<CountingState> {
+        return countingTreePresetCollection();
+    }
+
+    override exportPreset(): Preset<CountingState> {
+        const preset = super.exportPreset();
+        const {view: _view, n: _n, k: _k, ordered: _ordered, repetition: _repetition, counts: _counts, t: _t, ...graphState} = preset.graphState as CountingTreeGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): CountingState {
+        return serializeCountingState(this.state);
+    }
+
+    override importPresetData(data: CountingState): void {
+        this.setState(serializeCountingState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): CountingTreeGraphState {
+        const parsed = parseCountingState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -328,21 +386,23 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, null> {
     }
 
     private buildTable(): void {
-        const rowY = (index: number) => 16 - 3 * index;
-        this.caption(() => t("combinatorics_counting_cap_table_kind"), 1.4, 19, GraphPalette.axis, true, {fontSize: 14});
-        this.caption(() => t("combinatorics_counting_cap_table_formula"), 9.6, 19, GraphPalette.axis, true, {fontSize: 14});
-        this.caption(() => t("combinatorics_counting_cap_table_count"), 16.6, 19, GraphPalette.axis, true, {fontSize: 14});
+        // Each row is two lines, the name of the kind and "formula = count": a line is one text, so no label can run into another
+        // column whatever the language or the width of the board.
+        const rowY = (index: number) => TABLE_FIRST_ROW_Y - TABLE_ROW_STEP * index;
         KINDS.forEach((kind, index) => {
             this.caption("▶", -0.2, rowY(index), GraphPalette.constructionAccent, () => this.counting().kind === kind);
-            this.caption(() => this.kindName(kind), 0.9, rowY(index), GraphPalette.label);
-            this.caption(KIND_FORMULAS[kind], 9.6, rowY(index), GraphPalette.label);
-            this.caption(() => countText(this.table()[index].count), 16.6, rowY(index), GraphPalette.label);
+            this.caption(() => this.kindName(kind), 0.9, rowY(index), GraphPalette.label, true, {fontSize: 13});
+            this.caption(() => `${KIND_FORMULAS[kind]} = ${countText(this.table()[index].count)}`, 0.9, rowY(index) - 1.4, GraphPalette.axis, true, {fontSize: 12});
         });
-        this.caption(() => t("combinatorics_counting_cap_current"), -0.2, () => (this.groups().length > 0 ? 5.6 : 3.4), GraphPalette.constructionAccent);
+        this.caption(() => t("combinatorics_counting_cap_current"), -0.2, () => (this.groups().length > 0 ? -2 : 4), GraphPalette.constructionAccent, true, {fontSize: 12});
         this.buildGroups();
-        this.caption(() => t("combinatorics_counting_table_note", {value0: smallText(TREE_LEAF_LIMIT)}), -0.3, 23.4, GraphPalette.warningText,
-            () => this.counting().ordered > BigInt(TREE_LEAF_LIMIT), {fontSize: 14});
-        this.caption(() => this.treeTitle(), -0.3, 22.2, GraphPalette.primaryCurve);
+        // The long sentences wrap into lines of at most NOTE_CHARS / TITLE_CHARS characters, which fit the narrowest board (390 px wide).
+        const note = () => wrapWords(t("combinatorics_counting_table_note", {value0: smallText(TREE_LEAF_LIMIT)}), NOTE_CHARS);
+        for (let line = 0; line < NOTE_LINES; line++) {
+            this.caption(() => note()[line] ?? "", -0.3, TABLE_NOTE_Y - 1.5 * line, GraphPalette.warningText, () => this.counting().ordered > BigInt(TREE_LEAF_LIMIT), {fontSize: 12});
+        }
+        const title = () => wrapWords(this.treeTitle(), TITLE_CHARS);
+        for (let line = 0; line < TITLE_LINES; line++) this.caption(() => title()[line] ?? "", -0.3, TABLE_TITLE_Y - 1.55 * line, GraphPalette.primaryCurve, true, {fontSize: 13});
     }
 
     /** Below the table: each of the first combinations as a labelled group of its k! orderings, then "x C(n, k) groups = V(n, k) / k!" with the numbers. */

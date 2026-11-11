@@ -132,9 +132,9 @@ describe('fallback and unavailable lessons', () => {
     });
 
     it('returns undefined for every Demonstration that opts out of lessons', () => {
-        // Only the trigonometry, line-geometry and isometry rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
+        // Only the trigonometry, line-geometry, isometry, circle-construction and combinatorics rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['unit-circle', 'triangle-solver', 'line-geometry', 'isometries']);
+        expect(lessonless).toEqual(['unit-circle', 'triangle-solver', 'line-geometry', 'isometries', 'circle-construction', 'lattice-paths', 'counting-tree']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();

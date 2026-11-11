@@ -593,3 +593,63 @@ describe('review repairs', () => {
         expect(graph.hasRouteCache()).toBe(false);
     });
 });
+
+describe('the opening view frames the grid', () => {
+    const boxOf = (graph: ObservedGraph) => graph.liveBoard().getBoundingBox() as [number, number, number, number];
+    const share = (graph: ObservedGraph) => {
+        const [left, top, right, bottom] = boxOf(graph);
+        return {x: graph.state.a / (right - left), y: graph.state.b / (top - bottom)};
+    };
+
+    test('the default 5 x 3 grid fills a reasonable part of the board, with its captions inside', () => {
+        const {graph} = mountGraph();
+        const [left, top, right, bottom] = boxOf(graph);
+        expect(share(graph).x).toBeGreaterThan(0.2);
+        expect(share(graph).y).toBeGreaterThan(0.2);
+        expect(left).toBeLessThanOrEqual(-1);
+        expect(right).toBeGreaterThanOrEqual(graph.state.a + 1);
+        expect(bottom).toBeLessThanOrEqual(-1);
+        expect(top).toBeGreaterThanOrEqual(graph.state.b + 3.4);
+    });
+
+    test('a typed larger grid refits, the largest grid fits, and returning to another view restores the fixed box', () => {
+        const {graph} = mountGraph();
+        const small = boxOf(graph);
+        act(() => { graph.setState({a: 20, b: 20}); });
+        const [left, top, right, bottom] = boxOf(graph);
+        expect(boxOf(graph)).not.toEqual(small);
+        expect(left).toBeLessThanOrEqual(0);
+        expect(right).toBeGreaterThanOrEqual(20);
+        expect(bottom).toBeLessThanOrEqual(0);
+        expect(top).toBeGreaterThanOrEqual(23.4);
+        chooseView('triangle');
+        const fixed = boxOf(graph);
+        expect(fixed[0]).toBeLessThanOrEqual(VIEW_BOX[0]);
+        expect(fixed[1]).toBeGreaterThanOrEqual(VIEW_BOX[1]);
+    });
+
+    test('restoring a checkpoint taken in another view keeps the stored view instead of refitting', () => {
+        const {graph} = mountGraph();
+        const capabilities = graph.getLessonCapabilities();
+        act(() => { graph.liveBoard().setBoundingBox([-4, 9, 12, -3], true); });
+        const checkpoint = capabilities.captureState();
+        const stored = boxOf(graph);
+        chooseView('triangle');
+        act(() => { capabilities.restoreState(checkpoint); });
+        expect(graph.state.view).toBe('paths');
+        expect(boxOf(graph)).toEqual(stored);
+    });
+
+    test('dragging the target never moves the view', () => {
+        const {graph} = mountGraph();
+        const before = boxOf(graph);
+        const handle = graph.targetHandle()!;
+        dragHandleTo(handle, 6, 4);
+        dragHandleTo(handle, 7, 5);
+        expect([graph.state.a, graph.state.b]).toEqual([7, 5]);
+        expect(boxOf(graph)).toEqual(before);
+        act(() => { (handle as EventedPoint).triggerEventHandlers(['up'], []); });
+        expect(boxOf(graph)).not.toEqual(before); // (7, 5) leaves the box of 5 x 3: refit once, after the drag
+        expect(boxOf(graph)[2]).toBeGreaterThanOrEqual(7);
+    });
+});
