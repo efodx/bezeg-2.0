@@ -1,80 +1,68 @@
 # Families-prep state note
 
-Handler 4 handed off at BUDGET SOFT on 2026-11-11 to handler 5. The stream is active again (see "Restart" below). Two workers dispatched by handler 4 were still running at handoff (combinatorics `CountingTreeGraph`, randomness missing scene elements), and their reports go to handler 4, not to you. Watch their notes (`notes/f2a-comb-02.md`, `notes/f2a-rand-03.md`) and the working tree. Do not dispatch a second worker on either slice until its note shows the worker has stopped (final evidence, or a HANDOFF state). Rewrite this note at your handoff.
+Handler 5 handed off at BUDGET SOFT on 2026-11-11 to handler 6. The worktree is on branch `worktree-stream-families-prep-2`. One worker dispatched by handler 5 may still be running: the phase-portraits `LogisticMapGraph` worker, whose report goes to handler 5, not to you. Watch its note (`notes/f2a-phase-03.md`) and the working tree. Do not dispatch a second worker on that slice until the note shows the worker has stopped (rewritten as FINAL EVIDENCE for the whole slice, or a HANDOFF state). Rewrite this note at your handoff.
 
 ## Setup
 
 - `.claude/settings.local.json` (untracked, budget scale 1.5) and `npm ci` are done in this worktree.
 - Shell calls can take two minutes or more while agents run. Give commits about 300 s and tsc about 200 s, and prefer the file tools for reading.
-- Publish with `just publish --background --recipe runtime --base <last published local commit> --commits <ids oldest first>`, then check `just publish --status`. Pushed hashes differ from local ones, because publish rebases.
-- The publish gate rejects trailing whitespace. Tell workers to check for it, and check yourself before committing.
-- Edit spec text with the Edit tool. Shell or Python replacement strings must not contain `\b`, `\v`, `\a` or `\t`, because they write control characters. Check with `grep -cP '[\x00-\x08\x0b\x0c\x0e-\x1f]' <file>`.
-- When two slices share `sl.ts`/`en.ts`, stage one slice's block alone with `.command-logs/h4-filter.py <keep-prefix> <drop-prefix> <out.patch>`, then `git apply --cached --unidiff-zero <out.patch>`. Confirm afterwards that the staged locale lines carry only the kept prefix.
+- Publish with `just publish --background --recipe runtime --base <last published local commit> --commits <ids oldest first>`, then check `just publish --status`. Pushed hashes differ from local ones, because publish rebases. Wait for a pending publish before you start one that depends on it. A background loop works: `while just publish --status | grep -q 'publish-<id>.*pending'; do sleep 30; done`.
+- The publish gate rejects trailing whitespace. Run `LC_ALL=C.UTF-8 grep -nP ' +\r?$'`, because without the UTF-8 locale grep -P fails.
+- Edit spec text with the Edit tool. Shell or Python replacement strings must not contain `\b`, `\v`, `\a` or `\t`. Check with `grep -cP '[\x00-\x08\x0b\x0c\x0e-\x1f]' <file>`.
+- **Staging one slice's locale lines (changed by handler 5).** Do not use `git apply --unidiff-zero` while another slice has an unstaged block above yours. It placed the recursion block 138 lines late in `fc8fc14f`, which `a811d19e` fixed. Use `python .command-logs/h5-stage-only.py <drop-prefix>` instead. It stages each locale file as the working copy minus the lines that start with `"<drop-prefix>`. Then confirm that `git diff --cached -U0 -- src/localization | grep -E '^[+-][^+-]' | grep -v <your-prefix>` is empty. When the locale diff holds only your block, `git add` both files.
 
 ## Done
 
-- **F0:** all 15 families (ADRs 0044–0058).
-- **F1:** all ungated F1 (handlers 2 and 3).
-- **F2a** (handlers 2–4). Every graph has no route yet. Each passed engineering, UI/accessibility and maths reviews, and its repairs. Evidence is in `notes/f2a-*.md`.
-  - Trigonometry 03–05: unit circle, and the triangle solver (`1a3784a2`).
-  - Circle geometry 02: construction graph (`019b9edd`).
-  - Analytic lines 02: line graph (`bf4c29eb`).
-  - Isometries 03: isometry graph, committed by handler 4 at close.
-- **Handler decisions at F2a** are recorded in the specs:
-  - lines: a fixed [-17,17]² view, a normal arrow of fixed length, the second line through two points;
-  - isometries: the L3 rotation choice, `rosettePoint`, the fixed point for k = 1, period 4–8;
-  - trig 05: a solve-mode view that fits the solution, and vertex input clamped left of the bars (recorded in the task 05 note and commit).
-- **Owed at F2b**, recorded in each family's release task:
-  - browser drag measurements (every F2a drag time is a jsdom placeholder);
-  - Preset restore through the model parsers;
-  - a rendered check that the frieze's NaN breaks render correctly.
-- **Controls-stream gaps** are filed in `docs/tasks/feature-streams/controls.md`: `NumberInput` may stay 40 px on touch in the inspector (a CSS specificity issue), and there is no checkbox group control.
+- F0, and all ungated F1 (handlers 2 and 3).
+- **F2a.** Every graph has no route yet. Each passed engineering, UI/accessibility and maths reviews, and its repairs. Evidence is in `notes/f2a-*.md`, and decisions are in each spec's "F2a decisions" bullet.
+  - Earlier: trigonometry 03–05, circle geometry 02, analytic lines 02, isometries 03.
+  - Committed and published by handler 5 (local id → pushed):
+    - randomness 03 (`a01d39e8` → `2b41f442`), which also carried the stream restart;
+    - combinatorics 02 (`f5510444` → `ef4f2f1c`);
+    - kinematics 02 (`ba08c623` → `098b4b66`);
+    - recursion 02 (`fc8fc14f` → `254b5192`), with its locale-position fix (`a811d19e` → `9c5fbd89`);
+    - waves 02 (`3d5c448f` → `8c1b431f`).
+  - Mechanical-curves 02 is committed as `738cf9a1`; its publish was started in the background from base `3d5c448f`. Check `just publish --status` before calling it published, and use `738cf9a1` as the base for the next publish.
+- **Owed at F2b** (also in each family's spec or task):
+  - browser drag and playback measurements (every F2a figure is a jsdom placeholder);
+  - Preset restore through the model parsers (recursion records it in its task 02 status);
+  - the frieze NaN-break render check;
+  - the waves sinc cost (about 42 ms in jsdom);
+  - a remeasurement of the phase-portraits curve updates (jsdom: 21 ms median at 24 trajectories; compute is fine).
+- **Controls-stream gaps** are filed in `docs/tasks/feature-streams/controls.md`:
+  - `NumberInput` at 40 px in the inspector;
+  - no checkbox group;
+  - (new) the reduced-motion preference is read only at render.
+  - Also seen, but not filed: the `NumberInput` range hint rounds π to 3,14 (descent θ help).
 
-## Restart (handler 4, 2026-11-10 evening)
+## In flight
 
-The owner said "continue". Controls step 5 and step 7 are both `accepted` on master, so the stream is active again (Run state edited, uncommitted; commit it with the first slice). Publish history: the last stop commit `f1764b2c` was pushed as `f957d661`.
+- **Phase-portraits 03** (note `notes/f2a-phase-03.md`):
+  - Done and uncommitted: the measurement, recorded in ADR 0054 §2 ("Measurement results", compute-only). The opt-in perf test is `src/dynamics/phaseDrawing.perf.test.ts` (`BEZEG_PERF=1`); the reviewers should judge whether it stays.
+  - Done and uncommitted: `src/dynamics/phaseModel.ts`(+test).
+  - Done and uncommitted: `src/graphs/dynamics/PhasePortraitGraph.tsx`(+test), with about 60 tests, 7 mutations and all checks passing.
+  - Done and uncommitted: the `phase_graph_*` locale block, which sits right after the `descent_graph_*` block.
+  - In progress: a worker building `LogisticMapGraph` (PP4–PP5). It also removes the unused `phase_graph_entry_rejected`/`_seed_rejected`.
+  - Next: three reviews of the whole slice (engineering Sonnet, maths Sonnet, UI Haiku, at most two at a time), one repair worker, your recheck, then the commit. The locale diff then holds only `phase_graph_*`, so `git add` both files. Then publish with base `738cf9a1`.
 
-The worktree now uses branch `worktree-stream-families-prep-2`, created from `origin/master` at `328c2a2e`. Auto mode blocked `git reset --hard`. The old branch `worktree-stream-families-prep` holds only commits already on master. Publish base for the next slice: `328c2a2e`, or the current `origin/master`.
+Next F2a slices, in rank order, at most two in the stream: solids 03 (3D, measure first), level-sets 04, linear-maps 11, complex-maps 09. Then a Controls-compliance review of the four earlier F2a graphs (trig 04–05, circle 02, lines 02, isometries 03) against `docs/specs/shared-graph-controls.md`. Then F2b–F6 per family release task (read the family template in `docs/tasks/feature-streams/README.md` and its shared-file rules first).
 
-In flight. Both slices are larger than one worker context, so each worker gets one narrow step. Decisions are in each spec's new "F2a decisions" bullet (uncommitted; commit them with the slice).
-- **Combinatorics 02** (note `notes/f2a-comb-02.md`):
-  - Done: the model and its tests pass; the locale block sits before `projective_k1_board_label`.
-  - Done: `LatticePathGraph`, with 27 tests and 12 mutations. Its jsdom placeholder: merged curves 6.5 ms against 23.1 ms per route.
-  - In progress (dispatched by handler 4): a worker is building `CountingTreeGraph`, its tests and `just build`, then rewriting the note as final evidence.
-  - Next: three reviews (engineering Sonnet, maths Sonnet, UI Haiku, at most two at a time), repairs, recheck, then commit with the spec edit, the Run state edit and this note.
-- **Randomness 03** (note `notes/f2a-rand-03.md`):
-  - Done: the model and the new `src/random/samplePaths.ts` are tested; the paths' tallies equal the kernel runners' tallies.
-  - Done: the graph compiles, the 97-key `random_graph_*` block sits before `isometry_graph_board_label`, about 53 tests pass, and 10 mutations ran.
-  - In progress (dispatched by handler 4): a worker is adding the missing scene elements (RS6 exact bars, Markov box, RS3 second shape, RS2 second plot, overlaid seeds, speed slider), the measurements and `just build`.
-  - Next: three reviews, repairs, recheck, commit.
-- **Update after handoff (handler 4): combinatorics 02 is ready for review.**
-  - `CountingTreeGraph` is done: 33 tests and 15 mutations. The whole task passes tsc, `just unit` (122 tests), lint and build (exit 0).
-  - `notes/f2a-comb-02.md` is the final evidence.
-  - Put these doubts in the review briefs:
-    - Unordered kinds always show the table, because `treeShown` needs `ordered`.
-    - The k! orderings per combination are a readout list (k = 1..4), not a drawn grouping.
-    - The weight bars scale to the tallest bar, and the caption does not say so.
-    - `combinatorics_counting_cap_weights` now uses Unicode superscripts, because `^` rendered as `<sup>` markup.
-  - Next: three reviews, repairs, recheck, commit, publish.
-- **Update after handoff (handler 4), randomness:**
-  - The randomness worker stopped at HANDOFF with all six scene elements implemented. Owed: graph tests, mutations, measurements, tsc, lint, build, README term rows, and the final note.
-  - Never restore from `.command-logs/rand03d-*.orig`: those are pre-session copies and would wipe the new work.
-  - Dispatch a fresh worker from `notes/f2a-rand-03.md`.
-- If the workers' reports do not reach the successor, read their notes and the working tree. A note rewritten as final evidence means the slice is ready for review.
+## Pipeline that worked (handler 5)
 
-Next, in rank order, at most two in the stream:
-- F2a: kinematics 02, recursion 02, waves 02, mechanical-curves 02, phase-portraits 03, solids 03 (3D, measure first), level-sets 04, linear-maps 11, complex-maps 09.
-- Then a Controls-compliance review of the four earlier F2a graphs (trig 04–05, circle 02, lines 02, isometries 03) against `docs/specs/shared-graph-controls.md`. Their task files expect a follow-up once Controls R1 settles readouts, and R1 is now accepted.
-- Then F2b–F6 per family release task. Read the family template in `docs/tasks/feature-streams/README.md` and its shared-file rules first.
-
-Shared controls are in `src/inputs/` and `src/graphs/base/controls/` (PlaybackButtons, StepCounter, ReadoutParts, LiveReadout). Rules: `docs/specs/shared-graph-controls.md` and `docs/specs/playback-button-reasons.md`.
-
-## Pipeline that worked
-
-- **F1:** each brief carries the task file, spec sections, ADR, required mutations, independent oracles, `just unit <dir>`, tsc, `just lint <dir>` and a whitespace check. Then a Sonnet maths review, given a checklist that names every spec doubt the worker raised.
-- **F2a graphs:** expect two or three worker handoffs per graph: model, then graph, then verification. Brief each successor from the note. Then run three reviews: engineering (Sonnet), maths (Sonnet) and UI/accessibility (Haiku). Run them one or two at a time, within the two-agent stream limit. One repair worker follows, and the handler rechecks unit, lint, tsc and build.
-- Each brief opens with the previous review findings: help linked to every field, visible ranges, board captions for every element the readouts name, no hard-coded captions, a derived cache keyed on state identity, lines through two owned hidden points, a real rebuild test, and disposal back to the pre-mount count. This cut repeat findings, though the UI review still found new ones on each graph.
-- Mutation backups go in `.command-logs/<slice>-<name>.bak` and never in `/tmp`. A stale `/tmp/orig.tsx` destroyed one graph, which then had to be rewritten.
-- One repair worker sent only "placeholder" as its report. Its note had the real state, and the handler reran the checks.
+- **Slices span workers.** A graph slice takes two to five workers: model, then graph, then compile/tests, then finishing checks. Every one stops at the 135k HANDOFF with a usable note. Brief each successor from the note in about 400 words, and make the last step a short "finishing" worker (lint, build, greps, final note).
+- **Reviews.** Engineering (Sonnet, ≤400 words), maths (Sonnet, ≤350 words, at least six independent re-derivations), UI/accessibility (Haiku, ≤300 words). Give the Haiku reviewer an "already known, do not re-report" list and tell it to read by sections. Then one Sonnet repair worker with numbered, settled decisions. Record the decisions in the spec's F2a bullet yourself.
+- **Lessons each brief carries.** These cut repeat findings:
+  - describedBy help that states the range; a caption for every element a readout names; no hard-coded strings;
+  - a cache keyed on state identity with no language-resolved strings;
+  - typed input refused, while dragging snaps; program-changed values announced; every stored-field change pauses, including a direct `setState`;
+  - readout rows always labelled (an unlabelled row turns `ReadoutList` into a `ul`); decimal comma and true minus; scales stated; colour never the only carrier;
+  - Reset uses the shared `reset` key (C29); continuous runs use the `reduced-motion` play block (C12);
+  - the JSXGraph text-timer baseline in ownership tests (`RecursionCobwebGraph.test.tsx` ~545–560); JSXGraph evaluates `visible` during `create` (a TDZ crash).
+- **Templates.**
+  - `KinematicsGraph` for host-held time and playback;
+  - `LatticePathGraph` for drag handles with numeric fields;
+  - `RecursionCobwebGraph` for stepping.
+- **Locale.** Name the block's anchor key in each brief and forbid sed or scripts on the locale files. One worker removed a space after a colon in a neighbouring key; another inserted keys by script.
+- Mutation backups go in `.command-logs/<slice>-<name>.bak`, never in `/tmp`.
 
 Rules to keep: at most two workers in the stream at once; never edit shared host files. At handoff, launch the successor from this worktree with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium`, and pass this self-spawn rule on.
