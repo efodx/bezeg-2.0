@@ -198,4 +198,29 @@ describe('other entry rules of the same preparation', () => {
         expect((graph as unknown as {presetNoticeValue?: Message}).presetNoticeValue).toBeDefined();
         view.unmount();
     });
+
+    test('a clean remount of the same instance clears the notice a problematic mount set', () => {
+        const noticeOf = (graph: Consumer) => (graph as unknown as {presetNoticeValue?: Message}).presetNoticeValue;
+        const graph = new Blossom();
+        appStorage.setItem(`preset-${graph.presets()}`, JSON.stringify({data: 'not a list'}));
+        const first = mountGraph(graph).view;
+        expect(noticeOf(graph)).toBeDefined();
+        first.unmount();
+        appStorage.clear();
+        const second = mountGraph(graph).view;
+        expect(noticeOf(graph)).toBeUndefined();
+        second.unmount();
+
+        // The same for a selected stored preset the graph refuses.
+        const refusing = new Blossom();
+        store(refusing, [degreeOne()]);
+        (refusing as unknown as {selectedPresetIdValue: string}).selectedPresetIdValue = 'bad';
+        const third = mountGraph(refusing).view;
+        expect(noticeOf(refusing)).toBeDefined();
+        third.unmount();
+        appStorage.clear();
+        const fourth = mountGraph(refusing).view;
+        expect(noticeOf(refusing)).toBeUndefined();
+        fourth.unmount();
+    });
 });

@@ -874,6 +874,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             this.sceneSlot = declaration ? new SceneSlot(session, this.board, declaration) : undefined;
 
             this.setBaseState({initialized: true});
+            // The notice describes this mount's read of storage, so a clean remount shows none.
+            this.presetNoticeValue = undefined;
             const stored = this.presetService?.loadPresets();
             let preset = stored?.data.find(candidate => candidate.id === this.selectedPresetIdValue);
             // A collection that fails the check is not read at all; the default scene is shown with the reason.
