@@ -414,6 +414,12 @@ describe('import and the live scene', () => {
         near(drawn(graph.sceneOf().curve.getJxgPoints()[1] as unknown as {X(): number, Y(): number}), [moved.points[1][0], moved.points[1][1]]);
         act(() => graph.importPresetData({degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]}));
         expect(objects(graph).some(element => first.includes(element))).toBe(false);
+        // The rebuilt degree-3 scene draws its blossom triangle and label too.
+        const rebuilt = graph.sceneOf();
+        expect(graph.snapshot()).toBeDefined();
+        near(drawn(rebuilt.levelElements(3)[0]), graph.snapshot()!.value);
+        expect(rebuilt.labelElement()).toBeDefined();
+        expect(evalVisible(rebuilt.labelElement())).toBe(true);
     });
 
     test('an import of the same shape with other knots and points redraws the curve, the blossom and its label from the new data', () => {
