@@ -1,3 +1,5 @@
+/* Readout heading (ReadoutHeading); also the class of the function inspector reveal-area heading. */
+.inspector-reveals-title { margin: 0 0 8px; font-size: .93rem; font-weight: 750; letter-spacing: -.01em; }
 dl.readout-list { margin: 0; }
 /* The labelled rows of a readout list: the term at the left, the value right-aligned in tabular figures. */
 .readout-list-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; }

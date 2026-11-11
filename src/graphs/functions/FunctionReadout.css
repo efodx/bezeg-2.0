@@ -1,7 +1,6 @@
 .function-inspector { display: contents; }
 /* Reveal area: the results the reader asks to show, set apart from the parameters and before the readout they reveal. */
 .inspector-reveals { margin-bottom: 12px; padding: 0 0 2px 10px; border-left: 2px solid var(--workspace-green); }
-.inspector-reveals-title { margin: 0 0 8px; font-size: .93rem; font-weight: 750; letter-spacing: -.01em; }
 .inspector-reveals .inspector-help { margin: 6px 0 0; }
 /* Caveat notes (finite illustration, signed or unsigned, undefined, approximation) are informative: muted ink, never an error colour. */
 .function-readout .inspector-help { margin: 6px 0 0; }

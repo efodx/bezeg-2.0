@@ -20,7 +20,7 @@ export function FunctionReadout(props: { title: string; rows: readonly ReadoutRo
     const notes = props.note === undefined ? [] : typeof props.note === "string" ? [props.note] : props.note;
     return <div className="inspector-group function-readout">
         <ReadoutHeading>{props.title}</ReadoutHeading>
-        <ReadoutList label={props.title} rows={props.rows}/>
+        {props.rows.length > 0 && <ReadoutList label={props.title} rows={props.rows}/>}
         {notes.map(note => <ReadoutHelp key={note} hooks={{"data-readout-note": ""}}>{note}</ReadoutHelp>)}
     </div>;
 }
