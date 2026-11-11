@@ -2,8 +2,8 @@
  * Test support: which entries a catalog sweep runs. Tier: sampled locally, full in CI.
  * `scripts/transient-state-scope.cjs` decides (CI, BEZEG_SWEEPS=all, a sweep's own variable, shared paths) and
  * `vite.config.mts` provides the result; this module applies it to a sweep's entries.
- * The sweeps: the transient state contract, the lesson restoration contract, the scene content test and the scene
- * replacement contract (docs/commands.md, "Catalog sweep scope").
+ * The sweeps: the transient state contract, the lesson restoration contract, the scene content test, the scene
+ * replacement contract and the Preset round trip contract (docs/commands.md, "Catalog sweep scope").
  */
 import {test} from 'vitest';
 import {getDemonstrationCatalog, type DemonstrationId} from '../../demonstrations';
@@ -16,6 +16,7 @@ declare module 'vitest' {
         lessonRestorationScope: SweepScope;
         sceneContentScope: SweepScope;
         sceneReplacementScope: SweepScope;
+        presetRoundTripScope: SweepScope;
     }
 }
 

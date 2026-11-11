@@ -196,3 +196,20 @@ test('a change to the file of an aliased graph class is a class file, not a help
     const reached = familyClassNames(['src/graphs/curves/bezier/helper.ts'], found);
     assert.ok(reached.includes('DecasteljauGraph3'));
 });
+
+test('the Preset round trip has its own variable and runs everything after a Preset shared change', () => {
+    assert.deepEqual(sweep('presetRoundTrip', {BEZEG_PRESET_ROUNDTRIP: 'bezier'}, []).ids, ['bezier']);
+    assert.equal(sweep('presetRoundTrip', {BEZEG_PRESET_ROUNDTRIP: 'all'}, []).all, true);
+    assert.equal(sweep('presetRoundTrip', {BEZEG_SCENE_REPLACEMENT: 'all'}, []).all, false);
+    for (const path of ['src/graphs/functions/functionPresetCollections.ts', 'src/graphs/base/presets/PresetImport.ts']) {
+        assert.equal(sweep('presetRoundTrip', {}, [path]).all, true, path);
+    }
+    // The function Preset collections are shared by this sweep only.
+    assert.equal(sweep('sceneReplacement', {}, ['src/graphs/functions/functionPresetCollections.ts']).all, false);
+});
+
+test('the Preset round trip adds the graph of a changed class file', () => {
+    const result = sweepScope(SWEEPS.presetRoundTrip, {env: {}, graphClasses: () => classes, changedPaths: () => ['src/graphs/functions/NewtonGraph.tsx']});
+    assert.equal(result.all, false);
+    assert.deepEqual(result.changedNames, ['NewtonGraph']);
+});

@@ -4,6 +4,7 @@
 //   lesson restoration src/learning/runtime/lessonRestorationContract.tsx  (BEZEG_LESSON_RESTORATION)
 //   scene content      src/learning/content/sceneContentAgainstGraphs.test.tsx  (BEZEG_SCENE_CONTENT)
 //   scene replacement  src/graphs/base/sceneReplacementContract.test.tsx  (BEZEG_SCENE_REPLACEMENT)
+//   preset round trip  src/graphs/PresetRoundTrip.contract.test.tsx  (BEZEG_PRESET_ROUNDTRIP)
 // Each sweep mounts many graphs on real boards, so a local run checks a representative sample plus the entries the
 // branch's changed files reach; CI, BEZEG_SWEEPS=all and the sweep's own variable =all check every entry.
 // See docs/commands.md, "Catalog sweep scope".
@@ -50,12 +51,24 @@ const LESSON_SHARED_PATHS = [
     /^src\/storage\//,
 ];
 
+/**
+ * The shared paths of the Preset round trip: SHARED_PATHS already holds the Preset code in src/graphs/base/
+ * (BaseGraph, presets/Presets.ts, presets/PresetImport.ts), plus the one Preset module outside it that many graph
+ * families import: the function graphs' Preset collections. Browser storage (src/storage/) is left out: Presets
+ * are saved through BaseGraph and the contract does not exercise appStorage.
+ */
+const PRESET_SHARED_PATHS = [
+    ...SHARED_PATHS,
+    /^src\/graphs\/functions\/functionPresetCollections\.ts$/,
+];
+
 /** The sweeps that sample locally and run every entry in CI: the env variable that tunes each, and its shared paths. */
 const SWEEPS = {
     transientState: {variable: 'BEZEG_TRANSIENT_STATE', shared: SHARED_PATHS},
     lessonRestoration: {variable: 'BEZEG_LESSON_RESTORATION', shared: LESSON_SHARED_PATHS},
     sceneContent: {variable: 'BEZEG_SCENE_CONTENT', shared: LESSON_SHARED_PATHS},
     sceneReplacement: {variable: 'BEZEG_SCENE_REPLACEMENT', shared: SHARED_PATHS},
+    presetRoundTrip: {variable: 'BEZEG_PRESET_ROUNDTRIP', shared: PRESET_SHARED_PATHS},
 };
 
 const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
@@ -159,4 +172,4 @@ function gitChangedPaths(cwd) {
     return [...lines(git(['diff', '--name-only', base], cwd)), ...lines(git(['ls-files', '--others', '--exclude-standard'], cwd))];
 }
 
-module.exports = {transientStateScope, sweepScope, graphClassFiles, familyClassNames, SWEEPS, gitChangedPaths, SHARED_PATHS, LESSON_SHARED_PATHS};
+module.exports = {transientStateScope, sweepScope, graphClassFiles, familyClassNames, SWEEPS, gitChangedPaths, SHARED_PATHS, LESSON_SHARED_PATHS, PRESET_SHARED_PATHS};
