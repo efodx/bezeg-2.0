@@ -63,7 +63,8 @@ const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
 /**
  * The graph classes the Demonstrations instantiate and the directory of each class file, read from the imports of
  * src/graphs/graphFactories.ts (`import X from './dir/X'` or `import {X} from './dir/X'`) and the runtime loaders of
- * feature-registered families (src/graphs/graphLoaders.ts): [{name, dir: 'src/graphs/dir'}].
+ * feature-registered families (src/graphs/graphLoaders.ts): [{name, dir: 'src/graphs/dir', stem}]; `name` is the import alias or class, `stem` the class file's basename (they differ for
+ * aliased default imports such as `DecasteljauGraph3` from './curves/bezier/SubdivisionGraph1').
  */
 function graphClassFiles(root = path.join(__dirname, '..')) {
     const source = fs.readFileSync(path.join(root, 'src/graphs/graphFactories.ts'), 'utf8');
@@ -71,7 +72,7 @@ function graphClassFiles(root = path.join(__dirname, '..')) {
     for (const match of source.matchAll(/^import\s+(?:(\w+)|\{([^}]*)\})\s+from\s+'\.\/([^']+)'/gm)) {
         const dir = path.posix.join('src/graphs', path.posix.dirname(match[3]));
         const names = match[1] ? [match[1]] : match[2].split(',').map(name => name.trim().split(/\s+as\s+/).pop()).filter(Boolean);
-        for (const name of names) classes.push({name, dir});
+        for (const name of names) classes.push({name, dir, stem: path.posix.basename(match[3])});
     }
     // Feature-registered families: src/graphs/graphLoaders.ts imports `./<dir>/runtime`, whose lazy loaders read
     // `import('./X').then(m => () => new m.X())`.
@@ -80,7 +81,7 @@ function graphClassFiles(root = path.join(__dirname, '..')) {
         const runtimeDir = path.posix.join('src/graphs', family[1]);
         const runtime = fs.readFileSync(path.join(root, runtimeDir, 'runtime.ts'), 'utf8');
         for (const match of runtime.matchAll(/import\('\.\/([^']+)'\)\.then\(\w+\s*=>\s*\(\)\s*=>\s*new\s+\w+\.(\w+)\(/g)) {
-            classes.push({name: match[2], dir: path.posix.join(runtimeDir, path.posix.dirname(match[1]))});
+            classes.push({name: match[2], dir: path.posix.join(runtimeDir, path.posix.dirname(match[1])), stem: path.posix.basename(match[1])});
         }
     }
     return classes;
@@ -92,11 +93,11 @@ function graphClassFiles(root = path.join(__dirname, '..')) {
  * no graph class file adds none (the sweep keeps its sample).
  */
 function familyClassNames(changedFiles, classes) {
-    const classNames = new Set(classes.map(({name}) => name));
+    const stems = new Set(classes.map(({stem}) => stem));
     const names = new Set();
     for (const file of changedFiles) {
         if (!file.startsWith('src/graphs/')) continue;
-        if (classNames.has(file.replace(/^.*\//, '').replace(/\.[^.]+$/, ''))) continue;
+        if (stems.has(file.replace(/^.*\//, '').replace(/\.[^.]+$/, ''))) continue;
         const dir = path.posix.dirname(file);
         for (const {name, dir: classDir} of classes) if (classDir === dir || classDir.startsWith(`${dir}/`)) names.add(name);
     }

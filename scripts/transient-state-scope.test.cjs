@@ -3,9 +3,9 @@ const test = require('node:test');
 const {transientStateScope} = require('./transient-state-scope.cjs');
 
 const classes = [
-    {name: 'BisectionGraph', dir: 'src/graphs/functions'}, {name: 'NewtonGraph', dir: 'src/graphs/functions'},
-    {name: 'BezierCurveGraph', dir: 'src/graphs/curves/bezier'}, {name: 'CurveGraph', dir: 'src/graphs/curves'},
-    {name: 'OrientationGraph', dir: 'src/graphs/compgeo'},
+    {name: 'BisectionGraph', stem: 'BisectionGraph', dir: 'src/graphs/functions'}, {name: 'NewtonGraph', stem: 'NewtonGraph', dir: 'src/graphs/functions'},
+    {name: 'BezierCurveGraph', stem: 'BezierCurveGraph', dir: 'src/graphs/curves/bezier'}, {name: 'CurveGraph', stem: 'CurveGraph', dir: 'src/graphs/curves'},
+    {name: 'OrientationGraph', stem: 'OrientationGraph', dir: 'src/graphs/compgeo'},
 ];
 const scope = (env, paths, graphClasses = () => classes) => transientStateScope({env, graphClasses, changedPaths: () => {
     if (paths instanceof Error) throw paths;
@@ -179,4 +179,17 @@ test('the drift guard fails when the parser returns fewer classes or a wrong dir
     const sources = realSources(root);
     assert.notDeepEqual(checkGraphClassFiles(found.slice(1), root, sources).missing, []);
     assert.notDeepEqual(checkGraphClassFiles(found.map(entry => ({...entry, dir: 'src/graphs/nowhere'})), root, sources).noFile, []);
+});
+
+test('a change to the file of an aliased graph class is a class file, not a helper of its directory', () => {
+    const {graphClassFiles, familyClassNames} = require('./transient-state-scope.cjs');
+    const found = graphClassFiles();
+    // graphFactories.ts imports it as `DecasteljauGraph3`, so the alias differs from the file stem.
+    const entry = found.find(({name}) => name === 'DecasteljauGraph3');
+    assert.ok(entry);
+    assert.equal(entry.stem, 'SubdivisionGraph1');
+    assert.deepEqual(familyClassNames(['src/graphs/curves/bezier/SubdivisionGraph1.tsx'], found), []);
+    // A helper beside it still reaches the directory's classes, by name.
+    const reached = familyClassNames(['src/graphs/curves/bezier/helper.ts'], found);
+    assert.ok(reached.includes('DecasteljauGraph3'));
 });
