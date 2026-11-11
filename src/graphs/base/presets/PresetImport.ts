@@ -46,13 +46,13 @@ export function isBoundingBox(value: unknown): value is BoardState["boundingBox"
 }
 
 /** One Preset after its collection checked it: a normalized copy that shares nothing with the raw value. */
-export interface CheckedPreset {
+export interface CheckedPreset<D = unknown> {
     readonly id: string;
-    readonly data?: unknown;
+    readonly data?: D;
     readonly boardState?: BoardState;
     readonly graphState?: StoredGraphState;
 }
-export type PresetCheck = { readonly preset: CheckedPreset } | { readonly rejection: Message };
+export type PresetCheck<D = unknown> = { readonly preset: CheckedPreset<D> } | { readonly rejection: Message };
 export type PresetCollectionCheck = { readonly presets: CheckedPreset[] } | { readonly rejection: Message };
 
 const clone = <T, >(value: T): T => structuredClone(value);
@@ -66,13 +66,13 @@ const inPreset = (collection: PresetCollection<unknown>, name: string, field: st
  * Names are required and unique only within a collection (`checkPresetCollection`), so a lone Preset may have no name.
  * `at` is the Preset's 1-based position in its collection, used to name a Preset that has no usable name.
  */
-export function checkPreset(collection: PresetCollection<unknown>, raw: unknown, at?: number): PresetCheck {
+export function checkPreset<D>(collection: PresetCollection<D>, raw: unknown, at?: number): PresetCheck<D> {
     if (!isRecord(raw) || (raw.id !== undefined && typeof raw.id !== "string")) {
         return {rejection: message("preset_check_in_collection", {value0: collection.key, value1: message("missing_or_duplicate_preset_name")})};
     }
     const id = raw.id ?? "";
     const name = id || (at === undefined ? "" : `#${at}`);
-    const checked: {id: string; data?: unknown; boardState?: BoardState; graphState?: StoredGraphState} = {id};
+    const checked: {id: string; data?: D; boardState?: BoardState; graphState?: StoredGraphState} = {id};
     if (raw.boardState !== undefined) {
         if (!(isRecord(raw.boardState) && isBoundingBox(raw.boardState.boundingBox))) return {rejection: inPreset(collection, name, "boardState", message("invalid_graph_bounds"))};
         const [left, top, right, bottom] = raw.boardState.boundingBox;

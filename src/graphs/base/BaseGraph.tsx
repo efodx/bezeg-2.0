@@ -717,6 +717,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
 
     /** Imports preset data without replacing the board or its lifetime resources. */
     protected importFigurePresetData(preset: Preset): void {
+        // Callers pass a Preset their own graph's collection checked; its `data` is `unknown` in the type.
         this.importPresetData(preset.data === undefined ? this.persistedDefaultData() : preset.data as D);
     }
 
@@ -726,17 +727,19 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
      * uses. Returns a normalized copy (missing parts stay missing: missing data is the default scene's) or throws the
      * localized reason. A graph without a collection stores no Presets and takes none of the Preset's data.
      */
-    protected checkPersistedPreset(preset: Preset): CheckedPreset {
+    protected checkPersistedPreset(preset: Preset): CheckedPreset<D> {
         const collection = this.presetCollection();
-        // A graph without a collection still has its view and scene state checked by the shared rules.
-        const checked = checkPreset(collection ?? {key: "graph", check: () => ({data: undefined})}, preset);
-        if ("rejection" in checked) throw new LocalizedError(checked.rejection);
         if (!collection) {
-            return {...checked.preset, data: preset.data === undefined ? undefined : cloneLessonValue(this.defaultPreset())};
+            // A graph without a collection still has its view and scene state checked by the shared rules.
+            const bare = checkPreset<undefined>({key: "graph", check: () => ({data: undefined})}, preset);
+            if ("rejection" in bare) throw new LocalizedError(bare.rejection);
+            return {...bare.preset, ...(preset.data === undefined ? {} : {data: cloneLessonValue(this.defaultPreset())})};
         }
+        const checked = checkPreset(collection, preset);
+        if ("rejection" in checked) throw new LocalizedError(checked.rejection);
         // Consumer preparation: the family's own limits, checked on the plain data before anything is written.
         if (checked.preset.data !== undefined) {
-            const refusal = this.consumerRefusal(checked.preset.data as D);
+            const refusal = this.consumerRefusal(checked.preset.data);
             if (refusal) throw new LocalizedError(message("preset_check_in_preset", {value0: collection.key, value1: checked.preset.id, value2: "data", value3: refusal}));
         }
         return checked.preset;
@@ -1079,8 +1082,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         }
         // The checked state over the fresh initial state, never over the live scene: a partial graphState leaves the
         // omitted fields at their defaults, so the result does not depend on the preceding scene.
-        this.replaceState({...this.getInitialState(), ...(checked.graphState ?? {}), initialized: true} as S);
-        this.importPresetData(checked.data === undefined ? this.persistedDefaultData() : checked.data as D);
+        this.replaceState({...this.getInitialState(), ...(checked.graphState ?? {}), initialized: true});
+        this.importPresetData(checked.data === undefined ? this.persistedDefaultData() : checked.data);
     }
 
     /** Shows the view a persisted Preset without `boardState` starts from: the graph's initial view, as a new board has it. */
@@ -1213,7 +1216,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     ): Promise<void> {
         const transientState = entry?.transientState;
         // A persisted Preset is checked before the scene is touched. The entry scene is a trusted capture of the live graph.
-        let checked: CheckedPreset | undefined;
+        let checked: CheckedPreset<D> | undefined;
         if (!entry) {
             try { checked = this.checkPersistedPreset(preset); } catch (error) {
                 const reason = error instanceof LocalizedError ? error.description : message("preset_entry_refused", {value0: String(error)});

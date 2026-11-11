@@ -14,6 +14,7 @@ import {appStorage} from '../../../storage/appStorage';
 import {LocalizedError, type Message, renderMessage} from '../../../localization';
 import {capturePNGBlob} from '../export/FigureCapture';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
+import type {PresetCollection} from './PresetCollection';
 import type {Preset} from './Presets';
 
 vi.mock('../export/FigureCapture', async () => ({
@@ -180,8 +181,9 @@ describe('consumer preparation refuses before any mutation', () => {
 describe('other entry rules of the same preparation', () => {
     test('a graph without a collection still checks the view and the scene state before applying', () => {
         const graph = new Blossom();
-        // A graph that stores no Presets: its collection is absent (the declared type of the hook allows it).
-        vi.spyOn(graph, 'presetCollection').mockReturnValue(undefined as never);
+        // A graph that stores no Presets: its collection is absent.
+        const optionalCollection: {presetCollection(): PresetCollection<unknown> | undefined} = graph;
+        vi.spyOn(optionalCollection, 'presetCollection').mockReturnValue(undefined);
         const view = mountGraph(graph).view;
         const seen = watch(graph);
         expect(() => graph.importPreset({id: 'p', boardState: {boundingBox: [1, 1, 1, 1]}})).toThrow(LocalizedError);
