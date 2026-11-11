@@ -24,3 +24,12 @@ All terms come from the PIK §4.15 text and are checked against `sl.ts`, which h
 | binomial coefficient; binomial theorem | binomski simbol; binomski izrek | PIK §4.15 |
 | Pascal's triangle | Pascalov trikotnik | PIK §4.15 |
 | lattice path | pot po mreži | Transparent wording. No source shows *monotona pot*, so the plain phrase is kept and glossed as "only right and up" on first use |
+| step right; step up (route letters) | D (desno); G (gor) | Spec F2a decision: Slovenian route letters D and G (English R and U); the model keeps R and U internally |
+| custom (example choice) | Po meri | Shared example rule: the select shows it only while no example matches |
+| computed (readout suffix) | (izračunano) | Shared wording of the other families |
+| scene content selector | Vsebina | Not "Prikaz": the inspector tab already carries that name |
+| expansion readout of (x + c)ⁿ | Binomski izrek | The table term above (was "Dvočlenik") |
+| target fields of the lattice | Koraki desno (a); Koraki gor (b) | The letter in brackets names the symbol the board and the formula use |
+| route and page reset notice | Pot in stran sta ponastavljeni na 1. | Status clause when changing the target resets the chosen route |
+| k lowered notice | k je znižan na {k}. | Status clause when n or a switch forces k down |
+| groups of orderings (unordered, no repetition, k from 2 to 4) | Kombinacija …; × C skupin = V / k! | Board caption of the grouping panel |

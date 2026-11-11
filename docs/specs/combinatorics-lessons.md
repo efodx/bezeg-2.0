@@ -147,6 +147,19 @@ Searched `src/localization/sl.ts` and [the glossary](../localization.md): no *ko
 
 ## Implementation Decisions
 
+- F2a decisions (handler, 2026-11-11):
+  - The state ranges are lattice \(a,b\le20\), expansion \(n\le12\) and counting \(n,k\le20\). The spec said only "small integers". 20 keeps \(\binom{40}{20}\) exact in `BigInt` and the grid legible.
+  - The Slovenian step letters are D (desno) and G (gor).
+  - Where the task wording predates Controls step 5, the shared rules win:
+    - the route list is paged with `CountSetter`;
+    - a triangle entry is chosen through the numeric \(a,b\) fields, not by clicking;
+    - examples are a select that shows `custom` only while no example matches;
+    - the host Reset covers the scene.
+  - CB2 acceptance 2 is met on the board, because a readout list alone does not show the grouping. For an unordered kind without repetition with \(2\le k\le4\), the board draws the first three combinations, each with its \(k!\) orderings, and a caption "× \(\binom nk\)". The full grouped tree would exceed the 64-leaf limit at the default \(n=6\), \(k=3\) (120 leaves).
+  - Values the program changes are announced in the status: \(k\) lowered when \(n\) drops or a switch changes, and the route and page reset when the target moves. Typed values out of range are refused; only dragging snaps the target to the grid.
+  - Weights are shown to 6 decimals, a nonzero weight below that shows as "< 0,000001", and the bar captions name their scale (the largest bar).
+  - The only keyboard path to the lattice target is the \(a\), \(b\) fields; there is no focusable board handle.
+
 - The kernel is new pure TypeScript (`src/combinatorics/`); graphs adapt it. No graph-global cache state.
 - Graph state: `a`, `b` (CB1, CB3), `n`, `k`, mode (CB2), `n`, `c` (CB4), `n`, `t` on a \(1/100\) grid (CB5), all small integers validated against the stated ranges; derived counts are recomputed from validated state and never trusted from a Preset.
 - Lesson scenes use typed actions (`set-target`, `set-counting-mode`, `set-expansion`, `set-row`) registered through the lesson-action registry as in the [linear-maps spec](linear-maps-lessons.md#reuse-and-new-modules); multi-action scenes run synchronously in one tick and are unit tested that way.
