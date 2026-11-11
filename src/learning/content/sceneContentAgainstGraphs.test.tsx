@@ -4,7 +4,7 @@
  * session applies them. A value a graph rejects fails here, so limits stay a graph-side fact. The Guided example scenes
  * are checked on the lesson restoration walk (`lessonRestorationContract.tsx`), which mounts each lesson once.
  *
- * Tier: sampled locally, full in CI. The activity sweep checks the activities of the lesson sample plus what the branch
+ * Tier: sampled locally, rotated in CI with a daily full run. The activity sweep checks the activities of the lesson sample plus what the branch
  * reaches; BEZEG_SCENE_CONTENT=all or BEZEG_SWEEPS=all runs every one. The limit probes are fixed.
  */
 import {allGraphFactories as graphFactories} from '../../graphs/allGraphFactories';

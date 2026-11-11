@@ -4,7 +4,7 @@
  * through each scene replacement path, and the Preset data, scene state, transient state, curve adapters, drawn board
  * and inspector controls are compared with what was captured. Each test first checks that its change was observable,
  * so no comparison passes because nothing changed.
- * Tier: sampled locally, full in CI (`catalogSweepScope.ts`).
+ * Tier: sampled locally, rotated in CI with a daily full run (`catalogSweepScope.ts`).
  */
 import {act} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../allGraphFactories';
@@ -157,9 +157,10 @@ const DEFAULT_SCENE: LessonAction = {kind: 'prepared-scene', sceneId: 'default',
 
 
 /**
- * The Demonstrations this run checks, from `scripts/transient-state-scope.cjs`: every one in CI, after a change to a
- * shared file, or with BEZEG_TRANSIENT_STATE=all or BEZEG_SWEEPS=all; the listed ones with BEZEG_TRANSIENT_STATE=id,id;
- * otherwise the sample plus the graphs whose class or superclass is named like a changed file.
+ * The Demonstrations this run checks, from `scripts/transient-state-scope.cjs`: every one in the daily CI run, after a
+ * change to a shared file, or with BEZEG_TRANSIENT_STATE=all or BEZEG_SWEEPS=all; the listed ones with
+ * BEZEG_TRANSIENT_STATE=id,id; otherwise the sample plus the graphs whose class or superclass is named like a changed
+ * file, plus the rotation slice in a CI push or pull request.
  */
 export function selectedDemonstrations(): DemonstrationId[] {
     return selectEntries(inject('transientStateScope'), 'BEZEG_TRANSIENT_STATE', Object.keys(graphFactories) as DemonstrationId[],

@@ -3,7 +3,8 @@
  * data, and so does an entry that carries the data but no graphState. Both go through Preset selection and Reset.
  * The data is the mount default; a graph cannot be moved to other data generically.
  * Tier: sampled locally (one graph per family plus the graphs the branch's changed files reach, and the unrouted
- * graphs), every graph in CI, under BEZEG_PRESET_ROUNDTRIP=all or BEZEG_SWEEPS=all (docs/commands.md, "Catalog sweep scope").
+ * graphs), plus a rotating slice in a CI push or pull request; every graph in the daily CI run, under
+ * BEZEG_PRESET_ROUNDTRIP=all or BEZEG_SWEEPS=all (docs/commands.md, "Catalog sweep scope").
  */
 import {afterEach, beforeAll, describe, expect, inject, test} from 'vitest';
 import {act, cleanup} from '@testing-library/react';

@@ -1,4 +1,4 @@
-/** Lesson restoration contract, part 2 of 8. Tier: sampled locally, full in CI (BEZEG_LESSON_RESTORATION=all or BEZEG_SWEEPS=all runs every lesson). */
+/** Lesson restoration contract, part 2 of 8. Tier: sampled locally, rotated in CI with a daily full run (BEZEG_LESSON_RESTORATION=all or BEZEG_SWEEPS=all runs every lesson). */
 import {describeLessonRestoration} from './lessonRestorationContract';
 
 describeLessonRestoration(1);

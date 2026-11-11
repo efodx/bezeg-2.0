@@ -224,15 +224,30 @@ Acceptance: re-running the history in `ci-history.md` against the new tier shows
 - Batch the catalogue and clip-decode tests (about 125 s) into one `evaluateAll`.
 - Lower the lesson timeout from 150 s to 60 s and set `maxFailures`, so a broken selector does not run every row to timeout.
 
+### Phase 7: rotate the catalog sweeps in CI, full daily (owner decision 2026-11-11)
+
+The owner asked why every new Demonstration adds so much CI time when the per-Demonstration tests seem to catch problems only while that Demonstration is being built. The record agrees: the catalog sweeps take over half of unit test time (2,380 of 4,476 file-seconds on 2026-11-11), grow with every Demonstration and lesson, and no fix commit has touched them. The owner chose rotation with a **daily** full run, rather than the weekly run first proposed.
+
+- A CI push or pull request that changes code checks, in every sweep, the sample, the entries reached by changes since a base, and every 7th entry from a rotating slice index (run number mod 7). 7 is odd, so a slice spreads over the 4 transient state and 8 lesson restoration part files and their shards.
+- Push base: the head of the latest finished, not cancelled, full run on master, so a push whose run was cancelled stays in the diff. Pull request base: the merge base.
+- Every entry runs for the daily scheduled run (03:17 UTC, separate concurrency groups, no deploy), a manual dispatch, a shared-path change, after a red latest full run, and when the run number, lookup or base is uncertain.
+- Local runs and the publication gate are unchanged.
+
+Acceptance:
+
+- `scripts/ci-change-scope.test.cjs` and `scripts/transient-state-scope.test.cjs` cover rotation, base choice and every fallback to all entries. Done (56 tests pass).
+- One Vitest part collects the sample plus the slice under rotation and every entry without it. Done locally on `GraphTransientState.part1`: 33 tests sampled, 65 with slice 3/7, 73 with slice 4/7, 256 for the daily run.
+- Hosted: the first rotating push and the first daily run report their unit shard walls against the 8–11 min before. Open.
+
 ### Keeping it from regrowing
 
 - Add `just test-cost` to print the slowest files and summed time from `results.json`, plus the delta against a baseline. Done: the baseline is a local snapshot saved with `just test-cost --save` after a full run. No master run's results are recorded anywhere to compare against.
-- A new catalog-wide or real-graph-per-entry test must state its scope tier (sampled locally, full in CI) in its header comment.
+- A new catalog-wide or real-graph-per-entry test must state its scope tier (sampled locally, rotated in CI with a daily full run) in its header comment.
 - The handler card asks slices that add tests to report the time delta.
 
 ## Decisions taken
 
-- CI stays the full gate before deployment. Making local and gate runs narrower is what speeds streams up; making CI faster only saves runner minutes and the time to notice red.
+- CI stays the full gate before deployment. Making local and gate runs narrower is what speeds streams up; making CI faster only saves runner minutes and the time to notice red. Amended 2026-11-11 by the owner (phase 7): the catalog sweeps rotate per push, so their full check moves to a daily run. A regression only in an unrotated entry can therefore deploy and is found within a day. Every other check stays full per push.
 - No test is deleted for speed alone where history shows it catches bugs. Deletions target duplicated mechanics and literal-count bookkeeping.
 - Rejected for now:
   - pushing on hosted CI alone, because it breaks the fail-fast contract;

@@ -7,7 +7,7 @@
  * view) and leave no extra board objects, child boards or running animations, and the graph must keep responding to
  * later edits like a graph that never ran the lesson. Completion keeps the final scene; a disposed graph is left alone.
  *
- * Tier: sampled locally, full in CI. A local run walks `LESSON_SWEEP_SAMPLE` plus the lessons the branch reaches
+ * Tier: sampled locally, rotated in CI with a daily full run. A local run walks `LESSON_SWEEP_SAMPLE` plus the lessons the branch reaches
  * (`selectedLessons`); BEZEG_LESSON_RESTORATION=all or BEZEG_SWEEPS=all runs every guided lesson.
  */
 import {act} from '@testing-library/react';

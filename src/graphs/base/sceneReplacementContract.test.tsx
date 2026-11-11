@@ -12,7 +12,7 @@
  * its objects (A3 S3). Lesson entries run on the three matrix families through the generic prepared-scene and
  * checkpoint capabilities.
  *
- * Tier: sampled locally, full in CI. The leak loop below checks one Demonstration per family plus the graphs the branch
+ * Tier: sampled locally, rotated in CI with a daily full run. The leak loop below checks one Demonstration per family plus the graphs the branch
  * changed (`catalogSweepScope.ts`); BEZEG_SCENE_REPLACEMENT=all or BEZEG_SWEEPS=all runs every one.
  */
 import {act} from '@testing-library/react';
