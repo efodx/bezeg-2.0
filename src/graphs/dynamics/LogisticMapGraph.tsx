@@ -423,6 +423,11 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
         return this.controller;
     }
 
+    /** A figure export captures the paused step, not a frame of a running cobweb. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     /** Stops the playback; the step stays where it is. */
     override pausePlayback(): void {
         if (!this.controller?.isPlaying()) return;

@@ -11,6 +11,8 @@ import {RecursionCobwebGraph} from './recursion/RecursionCobwebGraph';
 import {SimulationGraph} from './random/SimulationGraph';
 import TensorPatchGraph from './patches/TensorPatchGraph';
 import DecasteljauGraph2 from './curves/bezier/DecasteljauGraph2';
+import {LogisticMapGraph} from './dynamics/LogisticMapGraph';
+import {LinearMapGraph} from './linear/LinearMapGraph';
 
 beforeAll(installBoardShims);
 
@@ -50,6 +52,10 @@ const cases: Case[] = [
         play: g => g.sweeps.apply('v', 'play'), running: g => g.sweeps.isRunning('v'), value: g => g.state.v},
     {name: 'DecasteljauGraph', create: allGraphFactories.decasteljau,
         play: g => g.playAnimation(), running: g => g.lessonAnimation.isRunning(), value: g => g.state.t},
+    {name: 'LogisticMapGraph', create: () => new LogisticMapGraph() as unknown as BaseGraph<BaseGraphState>,
+        play: g => g.play(), running: g => g.isPlaying(), value: g => g.state.step},
+    {name: 'LinearMapGraph', create: () => new LinearMapGraph() as unknown as BaseGraph<BaseGraphState>,
+        play: g => g.play(), running: g => g.isPlaying(), value: g => g.model},
 ];
 
 describe.each(cases)('$name', ({create, play, running, value}) => {
