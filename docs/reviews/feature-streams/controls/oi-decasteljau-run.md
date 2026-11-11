@@ -12,3 +12,9 @@ Logs: `.command-logs/oi-decast-before.txt` (2 failed, 34 passed), `oi-decast-aft
 
 Not covered: the legacy selected-curve panel (`getSelectedCurveCommands`, `onChanged` = `store.notify`) cannot tell an applied operation from a preview, and lives in `BaseCurveGraph` (outside this slice). The Edit tab is the path De Casteljau uses.
 - Handler note: `CurveEditingFeature.ts:135` also refreshes after a board pointer-down in Add-points/Delete-points mode that edits nothing, so such a click pauses a run too. Accepted as minor; Move mode returns early and does not pause.
+
+## Follow-up: the legacy selected-curve panel
+
+`selectedCurveControls(curve, onChanged, curveNumber, onApplied?)` now passes `onApplied` to `BezierCurveControls`, and `BaseCurveGraph.getSelectedCurveCommands` passes `() => this.refreshWorkspace()`, so an applied operation pauses a run on De Casteljau graphs while a preview or a parameter change (`onChanged`) does not. Test: `DecasteljauLegacyPanel.test.tsx` (the elevate Apply assertion failed before the change: `.command-logs/legacy-before-fix.txt`).
+- Reach: the panel renders in the Edit tab (`workspaceEdit` -> `super.workspaceEdit` -> `getGraphCommandsArea` -> `getSelectableCurveArea`) when a curve is selected, but De Casteljau and De Casteljau 2 set `Attributes.bezierDisabled`, so it lists no operation there today. The wiring matters for any curve graph with the panel and for a later enabling; the test enables the attributes to pin it.
+- Other curve graphs: the panel is not keyed by `workspaceRevision` (only `CurveWorkspaceOperations` is, and only in structured editing, where this panel does not render), so the re-key loses no panel state; Apply already clears the preview.

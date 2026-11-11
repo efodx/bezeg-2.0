@@ -440,7 +440,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     getSelectedCurveCommands(): JSX.Element[] {
         if (this.getSelectedCurve()) {
             const curveNumber = this.jxgCurves.indexOf(this.getSelectedCurve()) + 1;
-            return selectedCurveControls(this.getSelectedCurve(), () => this.store.notify(), curveNumber);
+            return selectedCurveControls(this.getSelectedCurve(), () => this.store.notify(), curveNumber, () => this.refreshWorkspace());
         }
         return [];
     }
