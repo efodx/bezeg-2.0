@@ -104,3 +104,20 @@ The Learn landing (`/learn`) matches the shell: shell canvas and the 48px graph 
 ## Guided lesson reading panel
 
 The expanded graph overlay uses the shell's opaque `panel`, `ink`, `ink-secondary`, `rule`, `action` and `focus` roles. Its desktop width is bounded to a reading measure and inset from the graph edge. The current-frame heading leads the explanation. Frame type accompanies step/frame progress in the navigation row above the reading area. The panel's accessible name always includes the full lesson title. Keep 44px action targets and bounded internal prose/formula scrolling, including enlarged text. The minimized graph tab and lesson interaction remain unchanged. See [the refinement spec](docs/specs/lesson-panel-visual-refinement.md).
+
+## Graph controls
+
+Graph controls are the quieter tier below the shell's primary actions. Their values live once, as `--bezeg-control-*` custom properties in `src/inputs/controlTokens.css`; shared components in `src/inputs/` and the inspector rules in `src/graphs/base/WorkspaceControls.css` read them, and graph CSS does not set a control's height, radius, border or focus ring. Presentation mode re-binds only the colour tokens. See [graph control visual polish](docs/specs/control-visual-polish.md) for the reasons and rejected alternatives.
+
+| Token | Normal | Presentation |
+| --- | --- | --- |
+| `height` | 38px; 44px on coarse pointers | same |
+| `radius` | 6px; button groups round only their outer corners | same |
+| `border` | 1px `#767f6c` (4.1 : 1 on the panel) | `#8f9bb3` |
+| `ink` / `surface` | `#20372d` / `#fffdf5` | `#f8f0d7` / `#20304a` |
+| `selected-ink` / `selected-surface` | white / `#19372f` (pressed and selected buttons) | same |
+| `focus` | 3px `#456db0`, offset 2px | `#f2c66d` |
+| `font-size` | 0.875rem; text fields `field-font-size` 1rem so mobile browsers do not zoom | same |
+| `gap` | 8px | same |
+
+Buttons, button groups, number and coordinate fields, selects, the curve picker and mode buttons share height, radius, border and focus. Pressed and selected buttons take the dark selected fill in both themes. Switches mark immediate display toggles and checkboxes mark choices within a set; both use the focus token, and their box sizes, sliders, count setters and disclosures move to the tokens in the stream's later steps. Every control keeps at least 4.5 : 1 text and 3 : 1 boundary and focus contrast in both themes, and at least 44px targets on touch (a checkbox or switch through its full-width label row).

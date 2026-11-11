@@ -16,11 +16,11 @@
     min-height:44px;
     width:100%;
     padding:7px 10px;
-    border:1px solid var(--workspace-rule);
-    border-radius:3px;
-    background:var(--workspace-panel);
-    color:var(--workspace-ink);
-    font-size:.84rem;
+    border:var(--bezeg-control-border);
+    border-radius:var(--bezeg-control-radius);
+    background:var(--bezeg-control-surface);
+    color:var(--bezeg-control-ink);
+    font-size:var(--bezeg-control-font-size);
     line-height:1.35;
     display:flex;
     align-items:center;
@@ -34,27 +34,43 @@
 .curve-editing-mode-marker svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .demonstration-workspace .curve-editing-mode-buttons button:hover { background:var(--workspace-canvas-deep); }
 .demonstration-workspace .curve-editing-mode-buttons button[aria-pressed="true"] {
-    border-color:var(--workspace-green);
-    background:var(--workspace-green);
-    color:white;
+    border-color:var(--bezeg-control-selected-surface);
+    background:var(--bezeg-control-selected-surface);
+    color:var(--bezeg-control-selected-ink);
 }
 .demonstration-workspace .curve-editing-mode-buttons button:focus-visible {
-    outline:3px solid #577cc3;
-    outline-offset:2px;
+    outline:var(--bezeg-control-focus);
+    outline-offset:var(--bezeg-control-focus-offset);
     position:relative;
     z-index:1;
 }
 .workspace-inspector .btn-group { gap:0; }
-.workspace-inspector .btn-group > .btn { margin:0; border-radius:0 !important; }
-.workspace-inspector .btn-group > .btn:first-child { border-radius:2px 0 0 2px !important; }
-.workspace-inspector .btn-group > .btn:last-child { border-radius:0 2px 2px 0 !important; }
+.workspace-inspector .btn-group > .btn { margin:0; border-radius:0; }
+.workspace-inspector .btn-group > .btn:first-child { border-top-left-radius:var(--bezeg-control-radius); border-bottom-left-radius:var(--bezeg-control-radius); }
+.workspace-inspector .btn-group > .btn:last-child { border-top-right-radius:var(--bezeg-control-radius); border-bottom-right-radius:var(--bezeg-control-radius); }
+/* Shared button, field and select look: every value is a control token (docs/specs/control-visual-polish.md). */
+.workspace-inspector .btn, .control-row .btn, .workspace-curve-picker button, .workspace-modes button {
+    min-height:var(--bezeg-control-height);
+    border:var(--bezeg-control-border);
+    border-radius:var(--bezeg-control-radius);
+    background:var(--bezeg-control-surface);
+    color:var(--bezeg-control-ink);
+    font-size:var(--bezeg-control-font-size);
+}
+.workspace-inspector .btn:hover, .control-row .btn:hover, .workspace-curve-picker button:hover, .workspace-modes button:hover { background:var(--workspace-canvas-deep); }
+.workspace-inspector .btn:focus-visible, .control-row .btn:focus-visible, .workspace-curve-picker button:focus-visible, .workspace-modes button:focus-visible { outline:var(--bezeg-control-focus); outline-offset:var(--bezeg-control-focus-offset); }
+.workspace-inspector .btn-group > .btn:focus-visible { position:relative; z-index:1; }
+/* Selected state after the shared look: pressed, active and toggled buttons keep the dark fill. */
+.workspace-inspector .btn[aria-pressed="true"], .workspace-inspector .btn.active, .control-row .btn[aria-pressed="true"], .control-row .btn.active, .workspace-curve-picker button[aria-pressed="true"], .workspace-modes button[aria-pressed="true"] { background:var(--bezeg-control-selected-surface); border-color:var(--bezeg-control-selected-surface); color:var(--bezeg-control-selected-ink); }
+.workspace-inspector .point-list-select { min-height:max(2.75rem, var(--bezeg-control-height)); border:var(--bezeg-control-border); border-radius:var(--bezeg-control-radius); }
+.workspace-inspector .inspector-heading button { min-height:var(--bezeg-control-height); border-radius:var(--bezeg-control-radius); color:var(--bezeg-control-ink); }
 /* Inspector fields share one height (40px, 44px on touch and phones) and one focus ring; labels wrap rather than clip. */
 /* Plain fields keep the browser's default width, which grows with the text. The label counts too: Bootstrap makes it inline-block, so it shrinks to fit and its field's percentage would not bind. */
 .workspace-inspector label, .workspace-inspector input, .workspace-inspector select { max-width:100%; }
-.workspace-inspector .form-select, .workspace-inspector .form-control, .workspace-inspector .number-input input[type="number"] { min-height:40px; }
-.workspace-inspector .form-select { padding-top:5px; padding-bottom:5px; font-size:.85rem; border:1px solid var(--workspace-rule); border-radius:2px; background-color:var(--workspace-panel); color:var(--workspace-ink); }
-.workspace-inspector .form-select:focus-visible, .workspace-inspector .form-control:focus-visible, .workspace-inspector .number-input input[type="number"]:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }
-.point-coordinate-editor input { min-height:40px; padding:4px 7px; border-radius:2px; }
+.workspace-inspector .form-select, .workspace-inspector .form-control, .workspace-inspector .number-input input[type="number"] { min-height:var(--bezeg-control-height); }
+.workspace-inspector .form-select { padding:5px 2rem 5px 8px; background-position:right 8px center; font-size:var(--bezeg-control-font-size); border:var(--bezeg-control-border); border-radius:var(--bezeg-control-radius); background-color:var(--bezeg-control-surface); color:var(--bezeg-control-ink); }
+.workspace-inspector .form-select:focus-visible, .workspace-inspector .form-control:focus-visible, .workspace-inspector .number-input input[type="number"]:focus-visible { outline:var(--bezeg-control-focus); outline-offset:var(--bezeg-control-focus-offset); }
+.point-coordinate-editor input { min-height:var(--bezeg-control-height); padding:4px 7px; border-radius:var(--bezeg-control-radius); border:var(--bezeg-control-border); background:var(--bezeg-control-surface); color:var(--bezeg-control-ink); }
 .workspace-inspector .form-label { margin-bottom:5px; }
 .workspace-learning button { font-size:.8rem; }
 #inspector-display .inspector-group > h3 { margin-bottom:8px; }
@@ -108,8 +124,8 @@
     padding: 8px 6px;
 }
 .workspace-inspector .inspector-tabs button:last-child { border-right: 0; }
-.workspace-inspector .inspector-tabs button[aria-pressed="true"] { background: var(--workspace-green); color: white; }
-.workspace-inspector .inspector-tabs button[aria-pressed="true"] small { color: #dae7bd; }
+.workspace-inspector .inspector-tabs button[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
+.workspace-inspector .inspector-tabs button[aria-pressed="true"] small { color: inherit; opacity: .85; }
 .workspace-inspector .inspector-tabs button span,
 .workspace-inspector .inspector-tabs button small { display: block; }
 .workspace-inspector .inspector-tabs button small {
@@ -135,12 +151,11 @@
 .workspace-inspector .tools .list-group-item:last-child { border-bottom: 0; padding-bottom: 2px; }
 /* Tools rows are a little tighter than the Display rows. */
 .workspace-inspector .tools .bool-field { --bool-field-min-height: 32px; --bool-field-pad: 0px; }
-.workspace-inspector .tools .btn { min-height: 34px; border-color: var(--workspace-rule); border-radius: 4px !important; background: var(--workspace-panel); }
+.workspace-inspector .tools .btn { min-height: var(--bezeg-control-height); }
 .workspace-inspector .tools .count-setter-button { min-height: 44px; }
-.workspace-inspector .tools .btn:hover { background: var(--workspace-canvas-deep); }
 .figure-export-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .workspace-inspector .tools .btn-group { gap: 4px; }
-.workspace-inspector .tools .btn-group > .btn { border-radius: 4px !important; }
+.workspace-inspector .tools .btn-group > .btn { border-radius: var(--bezeg-control-radius); }
 .workspace-inspector .tools .list-group-item:has(.form-range) { padding-top: 11px; padding-bottom: 12px; }
 .workspace-inspector .tools .list-group-item:has(.bool-field) { padding-top: 8px; padding-bottom: 8px; }
 .workspace-inspector .tools .list-group-item > div:has(.form-range) { display: grid; gap: 10px; }
@@ -207,7 +222,9 @@
 .affine-action-copy > span { overflow-wrap: anywhere; font-size: .76rem; font-weight: 700; }
 .affine-action-copy small { color: var(--workspace-ink-soft); font-size: .65rem; font-variant-numeric: tabular-nums; }
 .is-presenting .workspace-inspector .affine-transform-group { border-color: #50617b; }
-.is-presenting .workspace-inspector .affine-action-button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
+.is-presenting .workspace-inspector .affine-action-symbol { color: #d9b461; }
+.is-presenting .workspace-inspector .card-title { color: var(--bezeg-control-ink); }
+.workspace-inspector .affine-action-button { border-color: var(--bezeg-control-border-color); }
 .is-presenting .workspace-inspector .affine-action-copy small { color: #b5bfd0; }
 .workspace-inspector .curve-operations { border: 0; background: transparent; padding: 0; }
 
@@ -242,10 +259,10 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    min-height: 38px;
+    min-height: var(--bezeg-control-height);
     gap: 5px;
     padding: 6px 4px;
-    font-size: .78rem;
+    font-size: var(--bezeg-control-font-size);
     text-align: center;
 }
 .decasteljau-animation-actions button span { color: var(--workspace-green); font-size: .9rem; line-height: 1; }
@@ -273,21 +290,21 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    min-height: 44px;
+    min-height: var(--bezeg-control-height);
     gap: 5px;
     padding: 6px 4px;
-    font-size: .78rem;
+    font-size: var(--bezeg-control-font-size);
     text-align: center;
 }
 .inspector-playback button span { color: var(--workspace-green); font-size: .9rem; line-height: 1; }
 .inspector-playback > :only-child { grid-column: 1 / -1; }
 .inspector-playback button[aria-disabled="true"] { opacity: .45; cursor: default; }
-.is-presenting .inspector-playback button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
+.inspector-playback button { border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--bezeg-control-surface); color: var(--bezeg-control-ink); }
 .is-presenting .inspector-playback button span { color: #d9b461; }
 
 .is-presenting .decasteljau-animation-heading { border-color: #50617b; }
 .is-presenting .decasteljau-animation-heading output { color: var(--bezeg-night-panel); }
-.is-presenting .decasteljau-animation-actions button { border-color: #50617b; background: #20304a; color: var(--bezeg-night-panel); }
+.decasteljau-animation-actions button { border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--bezeg-control-surface); color: var(--bezeg-control-ink); }
 .is-presenting .decasteljau-animation-actions button span { color: #d9b461; }
 
 .workspace-topics summary { list-style: none; }

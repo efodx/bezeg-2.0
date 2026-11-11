@@ -4,8 +4,8 @@
 .point-collection-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
 .point-collection .btn { min-height: 44px; min-width: 44px; }
 .point-collection .btn[aria-disabled="true"] { opacity: .5; cursor: default; border-style: dashed; }
-.point-collection .btn:focus-visible { outline: 3px solid #577cc3; outline-offset: 1px; }
-.point-collection-mode[aria-pressed="true"] { background: var(--workspace-ink); color: #fff; }
+.point-collection .btn:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
+.point-collection-mode[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
 .point-collection-entry { display: flex; flex-wrap: wrap; gap: .4rem; align-items: start; }
 .point-collection-axis { flex: 1 1 auto; display: flex; justify-content: space-between; gap: .25rem; align-items: baseline; }
 .point-collection-axis > span { color: var(--workspace-ink-soft); font-style: italic; }

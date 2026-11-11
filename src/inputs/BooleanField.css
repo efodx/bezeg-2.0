@@ -8,7 +8,7 @@
     appearance: none; -webkit-appearance: none; background-color: #e5e9e0; border: 1px solid #8b9786;
     background-repeat: no-repeat; background-size: contain;
 }
-.bool-field-input:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
+.bool-field-input:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .bool-field-input[aria-disabled="true"] { opacity: .5; cursor: default; }
 .bool-field-input:disabled, .bool-field-input:disabled ~ .bool-field-label { cursor: default; }
 .bool-field-input:disabled { opacity: .5; }

@@ -4,25 +4,24 @@
 .number-input input[type] {
     box-sizing: border-box;
     width: 100%;
-    min-height: 40px;
-    border: 1px solid var(--workspace-rule);
-    border-radius: 2px;
+    min-height: var(--bezeg-control-height);
+    border: var(--bezeg-control-border);
+    border-radius: var(--bezeg-control-radius);
     padding: 4px 7px;
-    background: var(--workspace-panel);
-    color: var(--workspace-ink);
+    background: var(--bezeg-control-surface);
+    color: var(--bezeg-control-ink);
     font: inherit;
     font-variant-numeric: tabular-nums;
     text-align: right;
 }
-.number-input input:focus-visible { outline: 3px solid #577cc3; outline-offset: 1px; }
+.number-input input:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .number-input input:disabled { background: transparent; color: var(--workspace-ink-soft); }
 .number-input-hint { margin: 0; color: #8a4a2e; font-size: .78rem; line-height: 1.35; }
 .number-input-help { margin: 0; color: var(--workspace-ink-soft, #5b675a); font-size: .78rem; line-height: 1.35; }
 .is-presenting .number-input-help { color: #b5bfd0; }
 .is-presenting .number-input-hint { color: #f0b89c; }
 .is-presenting .number-input label { color: #b5bfd0; }
-.is-presenting .number-input input[type] { background: #20304a; border-color: #50617b; color: var(--bezeg-night-panel); }
-@media (pointer: coarse), (max-width: 700px) {
+@media (max-width: 700px) {
     .number-input input[type] { min-height: 44px; }
 }
 

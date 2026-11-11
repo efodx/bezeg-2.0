@@ -69,9 +69,9 @@
 
 .demonstration-workspace .workspace-actions > a { display: inline-flex; box-sizing: border-box; align-items: center; justify-content: center; text-decoration: none; }
 .demonstration-workspace button:hover, .demonstration-workspace .workspace-actions > a:hover { background: color-mix(in srgb, var(--workspace-canvas-deep) 65%, transparent); }
-.demonstration-workspace button[aria-pressed="true"] { background: var(--workspace-green); color: white; border-color: var(--workspace-green); }
+.demonstration-workspace button[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); border-color: var(--bezeg-control-selected-surface); }
 .demonstration-workspace button:disabled { opacity: .5; }
-.demonstration-workspace :focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
+.demonstration-workspace :focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 
 .workspace-breadcrumb { font-size: .8rem; line-height: 1.7; margin-bottom: 10px; overflow-wrap: anywhere; }
 .workspace-breadcrumb a { color: inherit; text-underline-offset: 3px; }
@@ -307,7 +307,7 @@
 }
 .inspector-disclosure[open] > summary::before { transform: rotate(45deg) translate(-1px, -1px); }
 .inspector-disclosure > summary:hover { color: var(--workspace-green); }
-.inspector-disclosure > summary:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
+.inspector-disclosure > summary:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .inspector-disclosure-body { padding: 2px 0 12px; }
 .is-presenting .inspector-disclosure { border-color: #50617b; }
 .is-presenting .inspector-disclosure > summary { color: var(--bezeg-night-panel); }
@@ -340,12 +340,19 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting .workspace-gesture-hint { color: #5e614f; }
 .is-presenting .workspace-inspector { border-color: #50617b; border-top-color: #d9b461; background: var(--bezeg-night); color: var(--bezeg-night-panel); }
 .is-presenting .inspector-toolbar, .is-presenting .inspector-tabs { background: var(--bezeg-night); border-color: #50617b; }
-.is-presenting .workspace-inspector .btn { background: transparent; border-color: #50617b; color: var(--bezeg-night-panel); }
-.is-presenting .workspace-inspector .btn:hover { background: #2a3c58; }
 .is-presenting .workspace-inspector .form-label, .is-presenting .inspector-group h3 { color: var(--bezeg-night-panel); }
 .is-presenting .inspector-group { border-color: #50617b; }
 .is-presenting .inspector-group p, .is-presenting .inspector-help, .is-presenting .slider-range { color: #b5bfd0; }
-.is-presenting .workspace-inspector .form-select, .is-presenting .point-coordinate-editor input { background: #20304a; border-color: #50617b; color: var(--bezeg-night-panel); }
+/* Presentation text on the navy inspector: the workspace ink variables read the re-bound control tokens, so every label, index, legend and hint inherits readable ink (a per-class list left dark ink behind). */
+.is-presenting .workspace-inspector {
+    --workspace-ink: var(--bezeg-control-ink);
+    --workspace-ink-soft: var(--bezeg-control-help-ink);
+    --workspace-panel: var(--bezeg-control-surface);
+    --workspace-canvas-deep: #2a3c58;
+    --workspace-rule: #50617b;
+}
+.is-presenting .workspace-inspector .workspace-inspector-kicker { color: #d9b461; }
+.is-presenting .workspace-inspector .curve-editing-mode-buttons button:not([aria-pressed="true"]) { color: var(--bezeg-control-ink); }
 .is-presenting:has(.workspace-inspector[hidden]) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "heading" "graph"; }
 
 @media (max-width: 1100px) {

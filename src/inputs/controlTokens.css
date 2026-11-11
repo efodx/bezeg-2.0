@@ -1,0 +1,32 @@
+/* Graph control tokens (docs/specs/control-visual-polish.md). Components read these; Presentation re-binds only colours. */
+:root {
+    --bezeg-control-height: 38px;
+    --bezeg-control-radius: 6px;
+    --bezeg-control-border-color: #767f6c;
+    --bezeg-control-border: 1px solid var(--bezeg-control-border-color);
+    --bezeg-control-ink: #20372d;
+    --bezeg-control-surface: #fffdf5;
+    --bezeg-control-selected-surface: #19372f;
+    --bezeg-control-selected-ink: #ffffff;
+    --bezeg-control-focus-color: #456db0;
+    --bezeg-control-focus: 3px solid var(--bezeg-control-focus-color);
+    --bezeg-control-focus-offset: 2px;
+    --bezeg-control-font-size: .875rem;
+    --bezeg-control-field-font-size: 1rem;
+    --bezeg-control-gap: 8px;
+}
+@media (pointer: coarse) {
+    :root { --bezeg-control-height: 44px; }
+}
+.is-presenting {
+    --bezeg-control-border-color: #8f9bb3;
+    --bezeg-control-border: 1px solid var(--bezeg-control-border-color);
+    --bezeg-control-ink: #f8f0d7;
+    --bezeg-control-surface: #20304a;
+    --bezeg-control-focus-color: #f2c66d;
+    --bezeg-control-focus: 3px solid var(--bezeg-control-focus-color);
+    --bezeg-control-help-ink: #b5bfd0;
+    /* Cream fill on navy: a dark selected fill would leave the pressed button's edge at about 1.2 : 1. */
+    --bezeg-control-selected-surface: #f8f0d7;
+    --bezeg-control-selected-ink: #17243b;
+}

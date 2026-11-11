@@ -5,8 +5,8 @@
 .point-list-index { flex: 0 0 4rem; color: var(--workspace-ink); font-weight: 700; padding-top: .35rem; }
 .point-list-axis { flex: 1 1 auto; display: flex; justify-content: space-between; gap: .25rem; align-items: baseline; }
 .point-list-axis > span { color: var(--workspace-ink-soft); font-style: italic; }
-.point-list-select { background: none; border: 1px solid transparent; border-radius: .3rem; text-align: left; cursor: pointer; padding: .25rem .4rem; min-height: 2.75rem; }
-.point-list-select[aria-pressed="true"] { background: var(--workspace-ink); color: #fff; }
-.point-list-select:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.point-list-select { background: none; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); color: var(--bezeg-control-ink); text-align: left; cursor: pointer; padding: .25rem .4rem; min-height: 2.75rem; }
+.point-list-select[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
+.point-list-select:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .point-list-remove { min-width: 2.75rem; min-height: 2.75rem; }
 .point-list-reason { margin: 0; font-size: .82rem; color: var(--workspace-ink-soft); }

@@ -7,6 +7,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import '../../src/index.css';
+import '../../src/inputs/controlTokens.css';
 import '../../src/bootstrap-overrides.scss';
 import '../../src/App.css';
 import '../../src/graphs/base/DemonstrationWorkspace.css';

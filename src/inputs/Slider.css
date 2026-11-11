@@ -7,9 +7,9 @@
 .slider-range { display: flex; justify-content: space-between; color: var(--workspace-ink-soft); font-size: .75rem; line-height: 1.4; font-variant-numeric: tabular-nums; margin-top: 2px; margin-bottom: 6px; }
 .slider-field .form-range { display: block; margin-bottom: 0; }
 /* Keyboard focus ring for range sliders (Bootstrap removes the outline): the workspace's focus colour on the track and the thumb. */
-.slider-field .form-range:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; border-radius: 4px; }
-.slider-field .form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px #fff, 0 0 0 5px #577cc3; }
-.slider-field .form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px #fff, 0 0 0 5px #577cc3; }
+.slider-field .form-range:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); border-radius: 4px; }
+.slider-field .form-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--bezeg-control-focus-color); }
+.slider-field .form-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--bezeg-control-focus-color); }
 /* The range track is thin; a coarse pointer gets a 44px tall hit area. */
 @media (pointer: coarse), (max-width: 700px) {
     .slider-field .form-range { min-height: 44px; }
