@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import {Link} from 'react-router-dom';
 import {getDemonstrationCatalog} from './demonstrations';
 import type {Demonstration, FamilyId} from './demonstrations';
@@ -47,16 +47,15 @@ export function DemonstrationCollection({topic, query, onTopicChange, onQueryCha
     onSelect, onClearQuery, mode = 'catalogue', navigationState, getNavigationState, searchInputRef, className = ''}: DemonstrationCollectionProps) {
     const t = useT();
     const {demonstrations, families} = getDemonstrationCatalog();
-    const filtered = useMemo(() => {
-        const terms = normalize(query.trim()).split(/\s+/).filter(Boolean);
-        // Teaching order: family by family. The flat registry lists feature-registered rows (src/graphs/graphLoaders.ts) after the legacy ones.
-        return families.flatMap(family => family.demonstrations).filter(entry => {
-            if (topic && entry.family !== topic) return false;
-            const family = families.find(item => item.id === entry.family)!;
-            const haystack = normalize(`${entry.catalogTitle} ${family.title} ${investigation(entry, t)}`);
-            return terms.every(term => haystack.includes(term));
-        });
-    }, [families, query, t, topic]);
+    // Teaching order: family by family. The flat registry lists feature-registered rows (src/graphs/graphLoaders.ts) after the legacy ones.
+    const ordered = families.flatMap(family => family.demonstrations);
+    const terms = normalize(query.trim()).split(/\s+/).filter(Boolean);
+    const filtered = ordered.filter(entry => {
+        if (topic && entry.family !== topic) return false;
+        const family = families.find(item => item.id === entry.family)!;
+        const haystack = normalize(`${entry.catalogTitle} ${family.title} ${investigation(entry, t)}`);
+        return terms.every(term => haystack.includes(term));
+    });
 
     const labels = {
         graph: t('open_demonstration'),
