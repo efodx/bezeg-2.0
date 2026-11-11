@@ -1,6 +1,6 @@
 import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
-import {isDecasteljauOrder, isJoinCapstone, isPatchTypeName, PATCH_STATE_FIELDS, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
+import {isDecasteljauOrder, isJoinCapstone, isPatchTypeName, PatchCameraDto, PatchCollectionPresetData, PatchTypeName, Point3Dto, TensorPatchDto, TriangularPatchDto} from "./patchDto";
 import {defaultTriangularNet} from "./TriangularPatchDegree";
 import {collapsedEdgeNet, parallelCornerNet} from "./tensorDerivatives";
 import {SUBDIVISION_RANGE} from "./tensorSubdivision";
@@ -46,9 +46,23 @@ function checkJoinState(value: Record<string, unknown>): Message | undefined {
     return netB.every(isPoint3) ? undefined : message("patch_coordinates_must_be_finite_triples");
 }
 
-function checkState(value: unknown, triangular: boolean): Message | undefined {
+/**
+ * The `state` fields each collection's graph saves (and reads). A field of another Demonstration is refused rather than
+ * silently dropped on load. Every list is a superset of what that graph has ever exported (the lists only ever grew).
+ */
+const BASE_STATE_FIELDS = ["camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "isoDensity", "shadingDensity"];
+const STATE_FIELDS = {
+    "patch-tensor": BASE_STATE_FIELDS,
+    "patch-triangular": [...BASE_STATE_FIELDS, "showDeCasteljau"],
+    "patch-decasteljau": [...BASE_STATE_FIELDS, "showDeCasteljau", "decasteljauOrder"],
+    "patch-derivatives": [...BASE_STATE_FIELDS, "showTangentPlane", "showNormal", "showTwist"],
+    "patch-subdivision": [...BASE_STATE_FIELDS, "subdivisionDirection", "subdivisionValue", "showPieces"],
+    "patch-joins": [...BASE_STATE_FIELDS, "joinContinuity", "joinAlpha", "joinV", "mB", "nB", "netB", "joinCapstone"],
+};
+
+function checkState(value: unknown, triangular: boolean, fields: readonly string[]): Message | undefined {
     if (!isRecord(value)) return message("invalid_state");
-    const unknown = Object.keys(value).find(key => !PATCH_STATE_FIELDS.includes(key));
+    const unknown = Object.keys(value).find(key => !fields.includes(key));
     if (unknown !== undefined) return message("unknown_patch_field", {value0: `state.${unknown}`});
     // The split fields are checked first so that their own reason is given. A position outside the range is rejected, not clamped: the file would otherwise load as a different scene.
     if (value.subdivisionDirection !== undefined && value.subdivisionDirection !== "u" && value.subdivisionDirection !== "v") return message("invalid_patch_subdivision_direction");
@@ -67,7 +81,7 @@ function checkState(value: unknown, triangular: boolean): Message | undefined {
     return value.camera === undefined ? undefined : checkCamera(value.camera);
 }
 
-function checkPatch(type: PatchTypeName, dto: Record<string, unknown>): Message | undefined {
+function checkPatch(type: PatchTypeName, dto: Record<string, unknown>, fields: readonly string[]): Message | undefined {
     const tensor = type === "TensorProductBezierPatch";
     const unknown = Object.keys(dto).find(key => !["n", "net", "state", "weights", ...(tensor ? ["m"] : [])].includes(key));
     if (unknown !== undefined) return message("unknown_patch_field", {value0: unknown});
@@ -79,18 +93,18 @@ function checkPatch(type: PatchTypeName, dto: Record<string, unknown>): Message 
     const expected = tensor ? (Number(m) + 1) * (n + 1) : (n + 1) * (n + 2) / 2;
     if (net.length !== expected) return message("patch_net_length_mismatch", {value0: expected, value1: net.length});
     if (!net.every(isPoint3)) return message("patch_coordinates_must_be_finite_triples");
-    return dto.state === undefined ? undefined : checkState(dto.state, !tensor);
+    return dto.state === undefined ? undefined : checkState(dto.state, !tensor, fields);
 }
 
 /** A collection holds exactly one patch of its type (a Demonstration edits one patch). */
-function patchCollection(key: string, type: PatchTypeName): PresetCollection<PatchCollectionPresetData> {
+function patchCollection(key: keyof typeof STATE_FIELDS, type: PatchTypeName): PresetCollection<PatchCollectionPresetData> {
     const check = (data: unknown): Message | undefined => {
         if (!Array.isArray(data)) return message("invalid_patch_data");
         if (data.length !== 1) return message("preset_has_no_patch");
         const entry: unknown = data[0];
         if (!Array.isArray(entry) || entry.length !== 2 || !isPatchTypeName(entry[0]) || !isRecord(entry[1])) return message("unknown_patch_type");
         if (entry[0] !== type) return message("patch_type_does_not_match_collection", {value0: `preset-${key}`});
-        return checkPatch(entry[0], entry[1]);
+        return checkPatch(entry[0], entry[1], STATE_FIELDS[key]);
     };
     return Object.freeze({
         key,

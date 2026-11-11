@@ -63,9 +63,6 @@ export interface PatchStateDto {
     readonly isoDensity?: 8 | 16;
     readonly shadingDensity?: 8 | 16;
 }
-export const PATCH_STATE_FIELDS: readonly string[] = [
-    "camera", "u", "v", "showControlNet", "showIsoCurves", "showBoundaryCurves", "showShading", "showTangentPlane", "showNormal", "showTwist", "showDeCasteljau", "decasteljauOrder", "subdivisionDirection", "subdivisionValue", "showPieces", "joinContinuity", "joinAlpha", "joinV", "mB", "nB", "netB", "joinCapstone", "isoDensity", "shadingDensity",
-];
 
 /** Row-major: `net[i * (n + 1) + j]` is the control point `b_ij` (i along u, j along v). */
 export interface TensorPatchDto {

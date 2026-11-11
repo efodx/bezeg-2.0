@@ -10,6 +10,12 @@ import {tensorPatchFromDto, tensorPatchToDto, triangularPatchFromDto, triangular
 import {fitCameraTo} from "./surface-view/surfaceMath";
 import {defaultPatchPresets, derivativesStartingPatches, patchPresetCollections} from "./patchPresetCollections";
 import {preflightPresetImport} from "../base/presets/PresetImport";
+import TensorPatchGraph from "./TensorPatchGraph";
+import TriangularPatchGraph from "./TriangularPatchGraph";
+import TensorDeCasteljauGraph from "./TensorDeCasteljauGraph";
+import TensorDerivativesGraph from "./TensorDerivativesGraph";
+import TensorSubdivisionGraph from "./TensorSubdivisionGraph";
+import TensorJoinGraph from "./TensorJoinGraph";
 
 afterEach(() => setLanguage("sl"));
 const collection = patchPresetCollections["patch-tensor"];
@@ -130,7 +136,7 @@ describe("rejections carry exact localized reasons", () => {
         ["v negative", tensor({state: {v: -0.1}}), "parameter v mora biti število med 0 in 1", "parameter v must be a number between 0 and 1"],
         ["iso density 9", tensor({state: {isoDensity: 9}}), "gostota isoDensity mora biti 8 ali 16", "density isoDensity must be 8 or 16"],
         ["shading density string", tensor({state: {shadingDensity: "8"}}), "gostota shadingDensity mora biti 8 ali 16", "density shadingDensity must be 8 or 16"],
-        ["show not boolean", tensor({state: {showNormal: 1}}), "neveljavna možnost showNormal", "invalid option showNormal"],
+        ["show not boolean", tensor({state: {showControlNet: 1}}), "neveljavna možnost showControlNet", "invalid option showControlNet"],
     ])("%s", (_name, data, sl, en) => {
         expect(texts(data)).toEqual({sl, en});
     });
@@ -149,6 +155,14 @@ describe("rejections carry exact localized reasons", () => {
 
     it("an unknown camera field names the field", () => {
         expect(texts(tensor({state: {camera: {...camera, fov: 1}}})).en).toBe("unknown patch field: camera.fov");
+    });
+
+    it("a collection refuses a state field only another patch Demonstration uses", () => {
+        expect(texts(tensor({state: {subdivisionValue: 0.4}}))).toEqual({sl: "neznano polje krpe: state.subdivisionValue", en: "unknown patch field: state.subdivisionValue"});
+        expect(texts(tensor({state: {joinContinuity: "c1"}})).en).toBe("unknown patch field: state.joinContinuity");
+        expect(texts(tensor({state: {decasteljauOrder: "rows"}})).en).toBe("unknown patch field: state.decasteljauOrder");
+        const triangular = patchPresetCollections["patch-triangular"].check([["TriangularBezierPatch", {n: 1, net: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], state: {showTangentPlane: true}}]]);
+        expect("rejection" in triangular).toBe(true);
     });
 });
 
@@ -293,7 +307,15 @@ describe("patch-subdivision collection", () => {
     it("rejects showPieces that is not a boolean as a known field with a wrong value", () => {
         expect(reason({showPieces: "yes"}).en).toContain("invalid option");
     });
-    it("other collections accept the same fields (they are in the shared state list), so a file round trips", () => {
-        expect("data" in collection.check(withState({subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true}))).toBe(true);
+    it("other collections refuse these fields (the graph would drop them)", () => {
+        expect("rejection" in collection.check(withState({subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true}))).toBe(true);
+    });
+});
+
+describe("each patch graph's own export passes its collection's check", () => {
+    const graphs = [new TensorPatchGraph(), new TriangularPatchGraph(), new TensorDeCasteljauGraph(), new TensorDerivativesGraph(), new TensorSubdivisionGraph(), new TensorJoinGraph()];
+    it.each(graphs.map(graph => [graph.presetCollection().key, graph] as const))("%s", (_key, graph) => {
+        const data = JSON.parse(JSON.stringify(graph.exportPresetData()));
+        expect(graph.presetCollection().check(data)).toEqual({data});
     });
 });
