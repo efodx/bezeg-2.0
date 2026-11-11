@@ -8,6 +8,7 @@ import {GraphHost} from '../../base/GraphHost';
 import {setLanguage} from '../../../localization';
 import {combBySpan, joinReports, multiplicityRows} from './bsplineInsertionModel';
 import {enterNumber} from '../../../inputs/testEntry';
+import {expectResetCycle} from '../../base/resetAvailabilityBehaviour';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -324,27 +325,21 @@ describe('L3 acceptance 6: Reset, examples and import', () => {
     test('Reset restores the original knots and points and clears the ghost', () => {
         const {graph, view} = mount();
         const original = {knots: [...graph.state.knots], points: graph.state.points.map(p => [...p])};
-        act(() => { graph.insert(1); graph.insert(0.5); });
-        act(() => graph.setState({points: graph.state.points.map(p => [p[0] + 1, p[1]] as const)}));
-        expect(graph.state.ghost.length).toBeGreaterThan(0);
-        act(() => screen.getByRole('button', {name: 'Ponastavi primer'}).click());
-        graph.boardUpdate();
+        expectResetCycle({
+            reset: () => screen.getByRole('button', {name: 'Ponastavi primer'}),
+            edit: () => {
+                graph.insert(1);
+                graph.insert(0.5);
+                graph.setState({points: graph.state.points.map(p => [p[0] + 1, p[1]] as const)});
+            },
+            afterEdit: () => expect(graph.state.ghost.length).toBeGreaterThan(0),
+            afterReset: () => graph.boardUpdate(),
+        });
         expect(graph.state.knots).toEqual(original.knots);
         expectRows(graph.state.points, original.points);
         expectRows(graph.boardPoints(), original.points);
         expect(graph.state.ghost).toEqual([]);
         expect(graph.sceneOf().ghostElements()).toHaveLength(0);
-        view.unmount();
-    });
-
-    test('Reset is unavailable at the origin, available after an insertion and unavailable again after Reset', () => {
-        const {graph, view} = mount();
-        const reset = () => document.querySelector<HTMLButtonElement>('button[data-action="reset"]')!;
-        expect(reset().getAttribute('aria-disabled')).toBe('true');
-        act(() => { graph.insert(0.5); });
-        expect(reset().getAttribute('aria-disabled')).toBe('false');
-        act(() => { fireEvent.click(reset()); });
-        expect(reset().getAttribute('aria-disabled')).toBe('true');
         view.unmount();
     });
 

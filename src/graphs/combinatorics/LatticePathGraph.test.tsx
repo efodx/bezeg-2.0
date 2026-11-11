@@ -368,7 +368,7 @@ describe('target, keyboard and touch', () => {
         expect(graph.targetHandle()).toBe(handle);
     });
 
-    test('typing a number in a, b, the route, n and c snaps; text and out-of-range values are rejected', () => {
+    test('typing a number in a, b, the route, n and c snaps; text, out-of-range and fractional values are refused', () => {
         const {graph} = mountGraph();
         enterNumber(field(lattice('a')), '7');
         expect(graph.state.a).toBe(7);
@@ -388,6 +388,14 @@ describe('target, keyboard and touch', () => {
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
         enterNumber(field(lattice('n')), '13');
         expect(graph.state.n).toBe(4);
+        // Out of range or not whole: refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
+        const edits = graph as unknown as {editTarget(field: 'a' | 'b', value: number): boolean; editExpansion(field: 'n' | 'c', value: number): boolean};
+        expect([edits.editTarget('a', 21), edits.editTarget('a', -1), edits.editTarget('b', 2.5), edits.editTarget('b', Number.NaN)]).toEqual([false, false, false, false]);
+        expect([graph.state.a, graph.state.b]).toEqual([7, 3]);
+        expect([edits.editExpansion('n', 21), edits.editExpansion('n', 1.5), edits.editExpansion('c', -10), edits.editExpansion('c', 10)]).toEqual([false, false, false, false]);
+        expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
+        expect(edits.editTarget('a', 8)).toBe(true);
+        expect(graph.state.a).toBe(8);
     });
 
     test('arrow keys step by 1, Page keys by 5 (the route by 10, n and c by 3)', () => {
@@ -565,21 +573,6 @@ describe('review repairs', () => {
         expect([graph.state.a, graph.state.b, graph.state.route]).toEqual([3, 3, 0]);
         expect(status()).toContain(NOTICE);
         expect(graph.statusText()).toContain(NOTICE);
-    });
-
-    test('typed a, b, n and c outside the range or not whole are refused, not clamped; a drag still snaps', () => {
-        const {graph} = mountGraph();
-        const edits = graph as unknown as {editTarget(field: 'a' | 'b', value: number): boolean};
-        expect([edits.editTarget('a', 21), edits.editTarget('a', -1), edits.editTarget('b', 2.5), edits.editTarget('b', Number.NaN)]).toEqual([false, false, false, false]);
-        expect([graph.state.a, graph.state.b]).toEqual([5, 3]);
-        const expansion = graph as unknown as {editExpansion(field: 'n' | 'c', value: number): boolean};
-        expect([expansion.editExpansion('n', 21), expansion.editExpansion('n', 1.5), expansion.editExpansion('c', -10), expansion.editExpansion('c', 10)]).toEqual([false, false, false, false]);
-        expect([graph.state.n, graph.state.c]).toEqual([5, 2]);
-        expect(edits.editTarget('a', 7)).toBe(true);
-        expect(graph.state.a).toBe(7);
-        const handle = graph.targetHandle()!;
-        dragHandleTo(handle, 25, -3);
-        expect([graph.state.a, graph.state.b]).toEqual([20, 0]);
     });
 
     test('the Pascal rows are one constant; the route cache is dropped with the scene', () => {

@@ -6,6 +6,7 @@ import {BEZIER_HULLS_PRESET_KEY} from './bezierHullsPresetCollection';
 import {CURVE_PAIR_CROSSING} from './CurvePairGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {expectUnavailableKeepsFocus} from '../base/unavailableFocusBehaviour';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
 
@@ -91,11 +92,9 @@ test('the buttons stay focusable at the end (aria-disabled), Reset returns to st
     mount(graph);
     nextTo(8, graph);
     const next = document.querySelector<HTMLButtonElement>('button[data-action="next-step"]')!;
-    expect([next.getAttribute('aria-disabled'), next.hasAttribute('disabled')]).toEqual(['true', false]);
     next.focus();
-    click('next-step');
+    expectUnavailableKeepsFocus(() => next, () => graph.step);
     expect(graph.step).toBe(8);
-    expect(document.activeElement).toBe(next);
     click('reset');
     expect(lines()[0]).toBe('Korak 1 od 9');
     click('play-pause');

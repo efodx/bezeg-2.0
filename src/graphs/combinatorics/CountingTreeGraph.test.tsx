@@ -394,7 +394,7 @@ describe('rebuild and state change', () => {
 });
 
 describe('numeric input and keyboard', () => {
-    test('n and k snap, are refused outside their range and k never exceeds n without repetition', () => {
+    test('n and k snap, are refused outside their range or when not whole, and k never exceeds n without repetition', () => {
         const {graph} = mountGraph();
         enterNumber(field(nLabel()), '8');
         expect(graph.state.n).toBe(8);
@@ -416,6 +416,19 @@ describe('numeric input and keyboard', () => {
         expect([graph.state.repetition, graph.state.k]).toEqual([false, 5]);
         click(t('combinatorics_counting_ordered'));
         expect(graph.state.ordered).toBe(false);
+        // Out of range or not whole: refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
+        for (const [label, texts, read] of [[nLabel(), ['21', '-1'], () => graph.state.n], [kLabel(), ['7', '-1'], () => graph.state.k]] as const) {
+            for (const text of texts) {
+                const before = read();
+                enterNumber(field(label), text);
+                expect([label, text, read()]).toEqual([label, text, before]);
+            }
+        }
+        // The edit path refuses too (the field already did): a refused value is neither stored nor clamped.
+        const edits = graph as unknown as {editN(value: number): boolean; editK(value: number): boolean};
+        expect([edits.editN(21), edits.editN(4.5), edits.editN(Number.NaN), edits.editK(7), edits.editK(2.5)]).toEqual([false, false, false, false, false]);
+        expect([graph.state.n, graph.state.k]).toEqual([5, 5]);
+        expect([edits.editN(8), edits.editK(2)]).toEqual([true, true]);
     });
 
     test('letter counts, the row n and k and t snap and are refused outside their range', () => {
@@ -663,23 +676,6 @@ describe('review repairs', () => {
         enterNumber(field(rowNLabel()), '3');
         expect([graph.state.n, graph.state.k]).toEqual([3, 3]);
         expect(status()).toContain('k je znižan na 3.');
-    });
-
-    test('typed n and k outside the range or not whole are refused, not clamped', () => {
-        const {graph} = mountGraph();
-        for (const text of ['21', '-1']) {
-            enterNumber(field(nLabel()), text);
-            expect(graph.state.n).toBe(6);
-        }
-        for (const text of ['7', '-1']) {
-            enterNumber(field(kLabel()), text);
-            expect(graph.state.k).toBe(3);
-        }
-        // The edit path refuses too (the field already did): a refused value is neither stored nor clamped.
-        const edits = graph as unknown as {editN(value: number): boolean; editK(value: number): boolean};
-        expect([edits.editN(21), edits.editN(4.5), edits.editN(Number.NaN), edits.editK(7), edits.editK(2.5)]).toEqual([false, false, false, false, false]);
-        expect([graph.state.n, graph.state.k]).toEqual([6, 3]);
-        expect([edits.editN(8), edits.editK(2)]).toEqual([true, true]);
     });
 
     test('a nonzero weight that rounds to zero shows "< 0,000001"; the labels say 6 decimals', () => {

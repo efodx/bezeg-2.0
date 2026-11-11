@@ -6,6 +6,7 @@ import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {expectUnavailableKeepsFocus} from '../base/unavailableFocusBehaviour';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -162,12 +163,9 @@ test('a focused control that becomes unavailable keeps keyboard focus (aria-disa
     // Next step reaches the threshold while it has focus
     nextButton().focus();
     for (let guard = 0; guard < 80 && nextButton().getAttribute('aria-disabled') !== 'true'; guard++) act(() => { fireEvent.click(nextButton()); });
-    expect(nextButton().getAttribute('aria-disabled')).toBe('true');
-    expect(nextButton().hasAttribute('disabled')).toBe(false);
-    expect(document.activeElement).toBe(nextButton());
     expect(graph.modelNow().step).toBe(10);
     expect(statusIds()).toEqual(['threshold', 'bound-hidden']);
-    act(() => { fireEvent.click(nextButton()); });
+    expectUnavailableKeepsFocus(nextButton, () => graph.modelNow().step);
     expect(graph.modelNow().step).toBe(10);
 
     // Reset returns to step 0; Play then runs to the end while the Play button has focus, and keeps it
@@ -183,10 +181,7 @@ test('a focused control that becomes unavailable keeps keyboard focus (aria-disa
     expect(graph.playing()).toBe(false);
     expect(graph.modelNow().step).toBe(10);
     const ended = screen.getByRole('button', {name: 'Predvajaj'}) as HTMLButtonElement;
-    expect(ended.getAttribute('aria-disabled')).toBe('true');
-    expect(ended.hasAttribute('disabled')).toBe(false);
-    expect(document.activeElement).toBe(ended);
-    act(() => { fireEvent.click(ended); });
+    expectUnavailableKeepsFocus(() => ended, () => [graph.playing(), graph.modelNow().step]);
     expect(graph.playing()).toBe(false);
     expect(graph.modelNow().step).toBe(10);
 });

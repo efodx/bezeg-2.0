@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
 import JXG from 'jsxgraph';
@@ -10,6 +10,7 @@ import {BSplinePresetData, bsplinePresetCollection} from './bsplinePresetCollect
 import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt} from './bsplineNurbsModel';
 import {BSplineNurbsScene} from './BSplineNurbsScene';
 import {enterNumber} from '../../../inputs/testEntry';
+import {expectResetCycle} from '../../base/resetAvailabilityBehaviour';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -193,22 +194,13 @@ describe('L5 acceptance 4: scaling the weights', () => {
 describe('controls', () => {
     test('Reset restores the example after a weight edit and a parameter change', () => {
         const {graph, view} = mount();
-        act(() => { graph.setWeight(1, 3); graph.setT(0.5); });
-        fireEvent.click(screen.getByRole('button', {name: 'Ponastavi primer'}));
+        expectResetCycle({
+            reset: () => screen.getByRole('button', {name: 'Ponastavi primer'}),
+            edit: () => { graph.setWeight(1, 3); graph.setT(0.5); },
+        });
         expect(graph.state.weights).toEqual(nurbsExample('circle').weights);
         expect(graph.state.t).toBe(1 / 16);
         expect(graph.radialError()).toBeLessThan(1e-12);
-        view.unmount();
-    });
-
-    test('Reset is unavailable at the origin, available after a weight change and unavailable again after Reset', () => {
-        const {graph, view} = mount();
-        const reset = () => document.querySelector<HTMLButtonElement>('button[data-action="reset"]')!;
-        expect(reset().getAttribute('aria-disabled')).toBe('true');
-        act(() => { graph.setWeight(1, 3); });
-        expect(reset().getAttribute('aria-disabled')).toBe('false');
-        act(() => { fireEvent.click(reset()); });
-        expect(reset().getAttribute('aria-disabled')).toBe('true');
         view.unmount();
     });
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import {enterNumber} from '../../../inputs/testEntry';
+import {expectResetCycle} from '../../base/resetAvailabilityBehaviour';
 import JXG from 'jsxgraph';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
 import BSplineExtractionGraph from './BSplineExtractionGraph';
@@ -248,10 +249,12 @@ describe('moving a control point updates the pieces and highlights the affected 
 
     test('Reset clears the highlight and restores the example', () => {
         const {graph, view} = mount();
-        act(() => graph.drag(0, 0.5, 0.5));
-        expect(graph.emphasized()).toEqual([0]);
-        act(() => screen.getByRole('button', {name: 'Ponastavi primer'}).click());
-        graph.boardUpdate();
+        expectResetCycle({
+            reset: () => screen.getByRole('button', {name: 'Ponastavi primer'}),
+            edit: () => graph.drag(0, 0.5, 0.5),
+            afterEdit: () => expect(graph.emphasized()).toEqual([0]),
+            afterReset: () => graph.boardUpdate(),
+        });
         expect(graph.state.moved).toEqual([]);
         expect(graph.emphasized()).toEqual([]);
         expectRows(graph.state.points, insertionExample('quadratic').points);
@@ -304,19 +307,6 @@ describe('disposal', () => {
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);
-    });
-});
-
-describe('Reset example availability', () => {
-    test('Reset is unavailable at the origin, available after a point edit and unavailable again after Reset', () => {
-        const {graph, view} = mount();
-        const reset = () => document.querySelector<HTMLButtonElement>('button[data-action="reset"]')!;
-        expect(reset().getAttribute('aria-disabled')).toBe('true');
-        act(() => graph.editPoint(1, [graph.state.points[1][0] + 0.5, graph.state.points[1][1]]));
-        expect(reset().getAttribute('aria-disabled')).toBe('false');
-        act(() => { fireEvent.click(reset()); });
-        expect(reset().getAttribute('aria-disabled')).toBe('true');
-        view.unmount();
     });
 });
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {CrossRatioGraph} from './CrossRatioGraph';
 import {CROSS_RATIO_EXAMPLES} from './crossRatioModel';
 import {GraphHost} from '../base/GraphHost';
 import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
-import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
+import {projectiveInspectorBehaviour} from './projectiveInspectorBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption, typeNumber} from './controlsTest';
@@ -174,38 +174,20 @@ test('an import and Reset replace the model, move the handles, update the readou
     expect(graph.selectedHandle).toBeUndefined();
 });
 
-test('the live region holds the status and ratios only; an arrow step announces just the handle position', () => {
+projectiveInspectorBehaviour('cross ratio', () => {
     const graph = new Observed();
     mount(graph);
-    const live = document.querySelector('[data-projective-status]')!;
-    expect(live.getAttribute('role')).toBeNull();
-    expect(live.querySelector('[data-readout-live]')).toBeNull();
-    expect(live.querySelector('[data-projective-line="originals"]')).toBeNull();
-    expect(live.querySelector('[data-projective-line="images"]')).toBeNull();
-    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
-    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
-    const nudge = () => document.querySelector('[data-projective-live]')!.textContent;
-    expect(nudge()).not.toContain('C: x');
-    vi.useFakeTimers();
-    try {
-        act(() => { graph.select(2); });
-        act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 50); });
-        expect(nudge()).toContain('C: x = 4');
-        act(() => { graph.select(4); });
-        act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp'}); });
-        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 50); });
-        expect(nudge()).toContain('O: x = 0, y = 6');
-    } finally { vi.useRealTimers(); }
-});
-
-test('selecting a handle from the inspector moves the focus to the board so the arrow keys work', () => {
-    const graph = new Observed();
-    mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi: Točka B'});
-    button.focus();
-    act(() => { fireEvent.click(button); });
-    expect(document.activeElement).toBe(container(graph));
+    return graph;
+}, {
+    container,
+    inStatus: [],
+    absent: ['originals', 'images'],
+    notYet: /C: x/,
+    steps: [
+        {select: graph => graph.select(2), key: 'ArrowRight', text: /C: x = 4/},
+        {select: graph => graph.select(4), key: 'ArrowUp', text: /O: x = 0, y = 6/},
+    ],
+    selectLabel: 'Izberi: Točka B',
 });
 
 test('both lines carry a text label on the board', () => {

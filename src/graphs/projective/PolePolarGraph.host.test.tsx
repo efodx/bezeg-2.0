@@ -6,7 +6,7 @@ import {PolePolarGraph} from './PolePolarGraph';
 import {POLE_POLAR_EXAMPLES} from './polePolarModel';
 import {GraphHost} from '../base/GraphHost';
 import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
-import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
+import {projectiveInspectorBehaviour} from './projectiveInspectorBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption, typeNumber} from './controlsTest';
@@ -229,36 +229,17 @@ test('an import and Reset replace the model, move P, update the readout and clea
     expect(graph.pSelected).toBe(false);
 });
 
-test('the live region holds the status and the polar only; an arrow step announces just the position of P', () => {
+projectiveInspectorBehaviour('pole and polar', () => {
     const graph = new Observed();
     mount(graph);
-    const live = document.querySelector('[data-projective-status]')!;
-    expect(live.getAttribute('role')).toBeNull();
-    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
-    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
-    expect(live.querySelector('[data-projective-line="status"]')).not.toBeNull();
-    expect(live.querySelector('[data-projective-line="polar"]')).not.toBeNull();
-    expect(live.querySelector('[data-projective-line="tangent-1"]')).toBeNull();
-    expect(live.querySelector('[data-projective-line="tangency-1"]')).toBeNull();
-    expect(live.querySelector('[data-projective-line="centre"]')).toBeNull();
-    const nudge = () => document.querySelector('[data-projective-live]')!.textContent;
-    expect(nudge()).not.toContain('Točka P = (6/5, 21/5)');
-    vi.useFakeTimers();
-    try {
-        act(() => { graph.select(true); });
-        act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 50); });
-        expect(nudge()).toContain('Točka P = (6/5, 21/5)');
-    } finally { vi.useRealTimers(); }
-});
-
-test('selecting P from the inspector moves the focus to the board so the arrow keys work', () => {
-    const graph = new Observed();
-    mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi: P'});
-    button.focus();
-    act(() => { fireEvent.click(button); });
-    expect(document.activeElement).toBe(container(graph));
+    return graph;
+}, {
+    container,
+    inStatus: ['status', 'polar'],
+    absent: ['tangent-1', 'tangency-1', 'centre'],
+    notYet: /Točka P = \(6\/5, 21\/5\)/,
+    steps: [{select: graph => graph.select(true), key: 'ArrowRight', text: /Točka P = \(6\/5, 21\/5\)/}],
+    selectLabel: 'Izberi: P',
 });
 
 const visibleLines = (graph: Observed, name: string) => named(graph, 'line', name).map(o => o.visPropCalc?.visible);

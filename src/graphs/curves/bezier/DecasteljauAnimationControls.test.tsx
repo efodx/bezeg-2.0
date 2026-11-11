@@ -15,9 +15,13 @@ afterEach(() => setLanguage('sl'));
 
 describe('DecasteljauAnimationControls', () => {
     test('the shared playback group has Play and Reset only: no Next step, Stop or Replay', () => {
-        render(controls('paused', 0.5));
+        const {rerender} = render(controls('paused', 0.5));
         expect([...document.querySelectorAll<HTMLButtonElement>('.inspector-playback button')].map(element => element.dataset.action)).toEqual(['play-pause', 'reset']);
         expect(button('reset').textContent).toBe('Ponastavi');
+        expect(button('reset').getAttribute('aria-disabled')).toBe('false');
+        rerender(controls('ready', 0));
+        expect(button('reset').getAttribute('aria-disabled')).toBe('true');
+        expect(button('reset').title).toBe('Prikaz je že na začetku.');
     });
 
     test('Play starts, then the same button pauses; Reset runs the stop action', () => {
@@ -31,14 +35,6 @@ describe('DecasteljauAnimationControls', () => {
         expect(button('play-pause').textContent).toBe('Premor');
         fireEvent.click(button('play-pause'));
         expect(onPause).toHaveBeenCalledTimes(1);
-    });
-
-    test('Reset at the start is unavailable with its reason instead of natively disabled, and stays focusable', () => {
-        render(controls('ready', 0));
-        const reset = button('reset');
-        expect(reset.hasAttribute('disabled')).toBe(false);
-        expect(reset.getAttribute('aria-disabled')).toBe('true');
-        expect(reset.title).toBe('Prikaz je že na začetku.');
     });
 
     test('the t readout uses the language decimal separator and is silent while playing', () => {

@@ -8,7 +8,7 @@ import {nearestIndex} from './pascalEdit';
 import {toAffine} from '../../projective/homogeneous';
 import {GraphHost} from '../base/GraphHost';
 import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
-import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
+import {projectiveInspectorBehaviour} from './projectiveInspectorBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption} from './controlsTest';
@@ -323,37 +323,21 @@ test('an import and Reset replace the model, move the points, update the readout
     expect(graph.selectedHandle).toBeUndefined();
 });
 
-test('the live region holds the state sentence only; an arrow step announces just the position of the point', () => {
+projectiveInspectorBehaviour('Pascal', () => {
     const graph = new Observed();
     mount(graph);
-    const live = document.querySelector('[data-projective-status]')!;
-    expect(live.getAttribute('role')).toBeNull();
-    expect(document.querySelector('[data-projective-status]')!.closest('[role="status"]')).toBeNull();
-    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
-    expect(live.querySelector('[data-projective-line="status"]')).not.toBeNull();
-    expect(live.querySelector('[data-projective-line="determinant"]')).toBeNull();
-    expect(live.querySelector('[data-projective-line="point-1"]')).toBeNull();
-    expect(live.querySelector('[data-projective-line="line"]')).toBeNull();
-    const nudge = () => document.querySelector('[data-projective-live]')!.textContent;
-    expect(nudge()).not.toMatch(/Točka A = \(/);
-    vi.useFakeTimers();
-    try {
-        act(() => { graph.select(0); });
-        act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 50); });
-        expect(nudge()).toMatch(/Točka A = \(/);
-    } finally { vi.useRealTimers(); }
-});
-
-test('selecting a point from the inspector moves the focus to the board so the arrow keys work', () => {
-    const graph = new Observed();
-    mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi: C'});
-    button.focus();
-    act(() => { fireEvent.click(button); });
-    expect(document.activeElement).toBe(container(graph));
-    expect(graph.selectedHandle).toBe(2);
-    expect(document.querySelector('[data-projective-selection]')?.textContent).toBe('Izbrana točka: C');
+    return graph;
+}, {
+    container,
+    inStatus: ['status'],
+    absent: ['determinant', 'point-1', 'line'],
+    notYet: /Točka A = \(/,
+    steps: [{select: graph => graph.select(0), key: 'ArrowRight', text: /Točka A = \(/}],
+    selectLabel: 'Izberi: C',
+    afterSelect: graph => {
+        expect(graph.selectedHandle).toBe(2);
+        expect(document.querySelector('[data-projective-selection]')?.textContent).toBe('Izbrana točka: C');
+    },
 });
 
 /** The board's objects at the moment the scene starts (its first curve), so everything the scene adds, helpers included, is measured. */

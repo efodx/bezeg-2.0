@@ -6,6 +6,7 @@ import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {expectUnavailableKeepsFocus} from '../base/unavailableFocusBehaviour';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -126,12 +127,7 @@ test('a focused control that becomes unavailable keeps keyboard focus (aria-disa
     // Next step reaches the end of the iteration while it has focus
     nextButton().focus();
     for (let guard = 0; guard < 80 && nextButton().getAttribute('aria-disabled') !== 'true'; guard++) act(() => { fireEvent.click(nextButton()); });
-    expect(nextButton().getAttribute('aria-disabled')).toBe('true');
-    expect(nextButton().hasAttribute('disabled')).toBe(false);
-    expect(document.activeElement).toBe(nextButton());
-    const finished = graph.modelNow().step;
-    act(() => { fireEvent.click(nextButton()); });
-    expect(graph.modelNow().step).toBe(finished);
+    expectUnavailableKeepsFocus(nextButton, () => graph.modelNow().step);
 
     // Reset returns to the start; Play then runs to the end while the Play button has focus, and keeps it
     act(() => { fireEvent.click(resetButton()); });
@@ -146,13 +142,8 @@ test('a focused control that becomes unavailable keeps keyboard focus (aria-disa
     for (let guard = 0; guard < 200 && graph.playing(); guard++) act(() => { frames.frame(BISECTION_STEP_INTERVAL_MS); });
     expect(graph.playing()).toBe(false);
     const ended = screen.getByRole('button', {name: 'Predvajaj'}) as HTMLButtonElement;
-    expect(ended.getAttribute('aria-disabled')).toBe('true');
-    expect(ended.hasAttribute('disabled')).toBe(false);
-    expect(document.activeElement).toBe(ended);
-    const endStep = graph.modelNow().step;
-    act(() => { fireEvent.click(ended); });
+    expectUnavailableKeepsFocus(() => ended, () => [graph.playing(), graph.modelNow().step]);
     expect(graph.playing()).toBe(false);
-    expect(graph.modelNow().step).toBe(endStep);
 });
 
 test('StrictMode mounts, unmounts and mounts again: playback still works on the remounted board and nothing runs after the final unmount', () => {
