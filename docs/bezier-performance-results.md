@@ -548,3 +548,40 @@ Triangle solver in solve mode (default SSS example), screenshots [1280×800](rev
 Conclusion: no median above 16.7 ms and no run with a p95 above 33.3 ms, so no desktop or throttled-phone miss against the budgets. The tail on the 4× phone profile is a few single 33 ms frames per run (worst: triangle solver, up to 10 of about 128 frames, one run with p95 exactly 33.3 ms).
 
 Limits: rAF intervals saturate at 16.7 ms, so the medians show only that no sustained slowdown occurs; the 4× throttle is a desktop slowdown, not a phone; touch is synthetic CDP input; the timer-driven input (move every 16.7 ms plus round trips) is lighter than a real finger or mouse at the device sample rate; the isometries rosette, frieze and similarity modes, the triangle circle and solve modes under drag, and other line modes were not dragged; load from other sessions was not controlled.
+
+## F2b simulation and kinematics browser timings — 2026-11-11
+
+Browser timings owed by [randomness task 03](tasks/randomness/03-simulation-graph.md) (acceptance 4) and [kinematics task 02](tasks/kinematics/03-release-batches.md) for `/probability/simulation` and `/curve-geometry/kinematics`. Script: [scripts/f2b-random-kinematics-browser-perf.cjs](../scripts/f2b-random-kinematics-browser-perf.cjs). Production build of revision `5c500930` (clean tree), copied to a private directory and served by a static server so that concurrent rebuilds could not change it. Chromium 156.0.8078.4 headless via Playwright, 60 Hz. Raw output: `.command-logs/f2b-rk-perf-raw.txt` (untracked; per-run values for every cell).
+
+Method: 5 runs per case in fresh contexts; desktop 1280×800 mouse unthrottled; phone 390×844, CDP touch, `Emulation.setCPUThrottlingRate` 4. Frame time = rAF intervals (first 3 dropped); update = duration of one `board.update` call; long task = longest `PerformanceObserver` `longtask` in the window; dropped = frames over 25 ms. The plan sets no numeric budget, so the criteria of the geometry section above are used: **median at most 16.7 ms and p95 at most 33.3 ms**.
+- Simulation: n typed into the trials field plus Enter (edit-to-paint), then Play from 0 at the fastest stop time (100 ms), 4.5 s window. Editing n only redraws the reset frame (0–15 ms), so it is not the cost. The cost of the first frame at n is the last stop of Play, where the whole run of n trials is simulated and drawn; it shows as the longest long task and the largest frame gap. Frequency allows at most 10^4 (the mode default, so the edit changed nothing there); galton and area were run at 10^4 and 10^5, markov at 10^5.
+- Kinematics: default cycloid and projectile; Play for 2.5 s; time slider drag (60 moves over 1 s, mouse or touch); keyboard scrub (60 ArrowRight presses 16 ms apart).
+
+| Profile | Case | Frame median | Frame p95 | Max frame | Dropped per run | Update median / max | Longest long task |
+|---|---|---|---|---|---|---|---|
+| Desktop | galton 10^4 Play | 16.7 | ≤16.8 | 16.8 | 0 | 1.1 / 10.8 | 0 |
+| Desktop | galton 10^5 Play | 16.7 | ≤16.8 | 116.7 | 2 | 1.0 / 10.1 | 113–119 |
+| Desktop | frequency 10^4, area 10^4 and 10^5, markov 10^5 Play | 16.7 | ≤16.8 | 16.8 | 0 | 1.2–1.5 / ≤2.4 | 0 |
+| Phone 4× | galton 10^4 Play | 16.7 | 16.8 | 133.3 | 7–9 | 4.9–5.6 / 53–66 | 79–101 |
+| Phone 4× | galton 10^5 Play | 16.7 | 16.8 (33.3 in 2 runs) | 533.3 | 10–11 | 5.2–5.4 / 52–63 | 508–537 |
+| Phone 4× | frequency 10^4 Play | 16.7 | 16.8 | 66.7 | 2–3 | 7.0–7.7 / ≤9.6 | 0 |
+| Phone 4× | area 10^4 Play | 16.7 | ≤16.8 | 66.8 | 2–4 | 6.6–7.8 / ≤10.4 | 0 |
+| Phone 4× | area 10^5 Play | 16.7 | 16.8 | 133.3 | 5–7 | 7.1–7.4 / ≤11.6 | 127–143 |
+| Phone 4× | markov 10^5 Play | 16.7 | ≤16.8 | 83.4 | 4–7 | 6.1–6.6 / ≤11.0 | 80–87 |
+| Desktop | cycloid and projectile: Play, slider, keyboard | 16.7 | ≤16.8 | 16.8 | 0 | 1.8–2.2 / ≤5.3 | 0 |
+| Phone 4× | cycloid Play | 16.7–33.3 (25.0, 16.7, 33.3 ×3) | 33.4–33.5 | 66.6 | 51–63 of ~100 | 11.1–13.0 / 23–26 | 0 (76 in one run) |
+| Phone 4× | projectile Play | 33.3 ×5 | 33.4 | 50.0 | 59–63 of ~97 | 12.6–12.9 / 16–21 | 0 |
+| Phone 4× | cycloid slider | 16.7 | 33.4 | 66.8 | 34–55 of ~230 | 12.2–12.9 / 27–31 | 69–75 |
+| Phone 4× | projectile slider | 16.7 | 33.4 | 50.1 | 50–56 of ~226 | 12.8–13.4 / ~15 | 0 (50–53 in 2 runs) |
+| Phone 4× | cycloid keyboard | 16.7 | 33.3 | 50.0 | 12–20 of ~204 | 12.4–12.7 / 30–34 | 60–74 |
+| Phone 4× | projectile keyboard | 16.7 | 33.3–33.4 | 50.0 | 16–22 of ~201 | 12.5–13.2 / 15–20 | 0 |
+
+Verdicts against the criteria:
+- **Desktop:** met everywhere. The only visible event is galton 10^5, whose whole-run stop is one frame of about 115 ms.
+- **Simulation, phone 4×:** median and p95 are met in all modes (p95 33.3 in two galton 10^5 runs), because the heavy work is one stop per Play. That stop misses on its own: galton 10^5 blocks for about 0.5 s (one 533 ms frame), area 10^5 about 0.13 s, markov 10^5 about 0.085 s, galton 10^4 about 0.09 s. Galton 10^5 is the **miss**: a half-second freeze at the end of Play, and whenever the run is jumped to its end. The 4× throttle is a desktop slowdown, not a phone.
+- **Kinematics Play, phone 4×:** the median is **missed**: projectile plays at 33.3 ms (30 fps) in every run, cycloid at 16.7–33.3 ms. Each frame does one board update of about 12–13 ms (2 ms on desktop), which with the rest of the frame no longer fits 16.7 ms. Slider and keyboard scrubs meet the median (16.7 ms) with a p95 of 33.3–33.4 ms, at the limit (33.4 is two 16.7 ms intervals); the longest single frame is 66.8 ms.
+- Not measured: a real phone, key repeat on a real keyboard, the prefix re-simulation per stop separately, other kinematics motions, memory. Edit-to-paint can read slightly negative (rAF timestamp precedes the keydown clock); it is not used in the verdicts.
+
+`BigInt` against two 32-bit halves, and SVG against canvas. The code keeps the 64-bit generator state as a `BigInt` ([src/random/pcg32.ts:2](../src/random/pcg32.ts), state update at line 64), and both routes draw on JSXGraph SVG boards (0 canvas elements on either route).
+- **BigInt:** the alternative was not built, so only the cost of the current choice is known. Each stop re-simulates its prefix, so the final stop costs about 10^6 draws for galton 10^5 (10 rows) and about 2·10^5 for area 10^5. The browser times (about 115 ms desktop, 520 ms at 4×, against about 104 ms in jsdom) and the absence of any long task for area and markov 10^5 on desktop fit a cost proportional to the number of draws, about 0.1 µs per draw. The numbers neither prove nor exclude that `BigInt` is the dominant part. They show the current choice is fine on desktop and misses on the throttled phone for galton 10^5 only. Whether two halves or incremental prefix tallies is the better repair is open; no code was changed.
+- **SVG:** simulation board updates cost 1–1.5 ms on desktop and 5–8 ms at 4×, so drawing is not what limits the simulation. In kinematics the update is about 2 ms desktop and 12–13 ms at 4×, and it turns Play into 30 fps on the phone profile. Canvas was not tried, so the data do not show that canvas would fix it; they show SVG is adequate for the simulation and a miss for kinematics Play at 4×.

@@ -28,4 +28,4 @@ Review: engineering plus UI and accessibility, and a mathematical review of the 
 - [x] `SimulationGraph.tsx` with all six modes, the overlay switch with the second seed, the area shape select, the speed slider, captions for every element a readout names.
 - [x] Tests: scene (oracle values by hand), graph (controls, playback on a fake clock, language, rebuild and disposal), model.
 - [x] `tsc`, `just lint`, `just build`, unit tests pass; JSDOM placeholder timings in the [evidence note](../../reviews/feature-streams/families-prep/notes/f2a-rand-03.md).
-- [x] Route and caption overlaps done at F2b (handler 8, 2026-11-11). Browser and phone timings and the `BigInt`/SVG choices move to the first release batch (`04-release-batches.md`).
+- [x] Route and caption overlaps done at F2b (handler 8, 2026-11-11). Browser and phone timings and the `BigInt`/SVG verdicts were done at F2b, 2026-11-11 ([results](../../bezier-performance-results.md#f2b-simulation-and-kinematics-browser-timings--2026-11-11)); the galton \(10^5\) phone miss is open.
