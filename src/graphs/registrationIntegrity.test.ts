@@ -34,6 +34,12 @@ import {recursionGraphLoaders} from './recursion/runtime';
 import {wavesCollections} from './functions/waves/collections';
 import {wavesCollectionKeys, wavesDemonstrationRows} from './functions/waves/registration';
 import {wavesGraphLoaders} from './functions/waves/runtime';
+import {mechanicsCollections} from './mechanics/collections';
+import {mechanicsCollectionKeys, mechanicsDemonstrationRows} from './mechanics/registration';
+import {mechanicsGraphLoaders} from './mechanics/runtime';
+import {dynamicsCollections} from './dynamics/collections';
+import {dynamicsCollectionKeys, dynamicsDemonstrationRows} from './dynamics/registration';
+import {dynamicsGraphLoaders} from './dynamics/runtime';
 import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
@@ -102,7 +108,9 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'combinatorics', rows: combinatoricsDemonstrationRows, loaders: combinatoricsGraphLoaders, collectionKeys: combinatoricsCollectionKeys, collections: combinatoricsCollections},
     {family: 'random', rows: randomDemonstrationRows, loaders: randomGraphLoaders, collectionKeys: randomCollectionKeys, collections: randomCollections},
     {family: 'kinematics', rows: kinematicsDemonstrationRows, loaders: kinematicsGraphLoaders, collectionKeys: kinematicsCollectionKeys, collections: kinematicsCollections},
+    {family: 'mechanics', rows: mechanicsDemonstrationRows, loaders: mechanicsGraphLoaders, collectionKeys: mechanicsCollectionKeys, collections: mechanicsCollections},
     {family: 'recursion', rows: recursionDemonstrationRows, loaders: recursionGraphLoaders, collectionKeys: recursionCollectionKeys, collections: recursionCollections},
+    {family: 'dynamics', rows: dynamicsDemonstrationRows, loaders: dynamicsGraphLoaders, collectionKeys: dynamicsCollectionKeys, collections: dynamicsCollections},
     {family: 'waves', rows: wavesDemonstrationRows, loaders: wavesGraphLoaders, collectionKeys: wavesCollectionKeys, collections: wavesCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);

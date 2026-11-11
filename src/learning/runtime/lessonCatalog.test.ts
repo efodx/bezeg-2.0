@@ -188,8 +188,8 @@ test('every active demonstration route has an available lesson unless it opts ou
     // Every Demonstration has a lesson since the Fortune lesson (sweep task 25) retired fortune from this list.
     // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d; point-in-polygon with convexity lesson 21; hull-robustness with convexity lesson 22; bezier-hulls with convexity lesson 28.
     // curve-evolute ended its opt-out with lesson L4 (CG-B2-4); epicycles with lesson F5 (Fourier 06 F3); curve-offset ended its opt-out with lesson L5 (CG-B3-3); curve-envelope with lesson L6 (CG-B3-4).
-    // The trigonometry, line-geometry, isometry, circle-construction, combinatorics, simulation, kinematics, recursion and waves rows ship without a lesson until families-prep F3 ends their opt-out.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['unit-circle', 'triangle-solver', 'line-geometry', 'isometries', 'circle-construction', 'lattice-paths', 'counting-tree', 'prob-simulation', 'curve-kinematics', 'recursion-cobweb', 'recursion-growth', 'waves']);
+    // The trigonometry, line-geometry, isometry, circle-construction, combinatorics, simulation, kinematics, descent, recursion, phase-portrait, logistic-map and waves rows ship without a lesson until families-prep F3 ends their opt-out.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['unit-circle', 'triangle-solver', 'line-geometry', 'isometries', 'circle-construction', 'lattice-paths', 'counting-tree', 'prob-simulation', 'curve-kinematics', 'mechanics-descent', 'recursion-cobweb', 'recursion-growth', 'phase-portrait', 'logistic-map', 'waves']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

@@ -2,6 +2,9 @@ import React, {useSyncExternalStore} from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {phasePortraitPresetCollection} from "./dynamicsPresetCollection";
 import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -21,7 +24,7 @@ import type {PlaneType} from "../../dynamics/classify2";
 import {RK4_STEP, type StopReason} from "../../dynamics/rk4";
 import {SYSTEM_IDS, type SystemId} from "../../dynamics/systems2";
 import {
-    DEFAULT_PHASE_STATE, derivePhase, ENTRY_RANGE, ENTRY_SCALE, entryOf, equilibriumChoices, halfWidthOf, ORBIT_DURATION, PhaseDerived, PhaseState,
+    DEFAULT_PHASE_STATE, derivePhase, ENTRY_RANGE, ENTRY_SCALE, entryOf, equilibriumChoices, halfWidthOf, ORBIT_DURATION, parsePhaseState, PhaseDerived, PhaseState, serializePhaseState,
     SEEDS_MAX, SEEDS_MIN, SEED_RANGE, SEED_SCALE, seedOf, snapDragInteger, typedInteger, withSystem, ZOOM_RANGE, EnergyStatus, Orbit, SeedState,
 } from "../../dynamics/phaseModel";
 
@@ -117,6 +120,11 @@ interface Drawn {
 const wholeOrbit = (orbit: Orbit): readonly Vec2[] => [...orbit.backward.slice().reverse(), ...orbit.forward.slice(1)];
 
 const SEPARATRIX_SAMPLES = 240;
+/** The seed captions: an estimate of a letter's width, the height of the text box, the clear gap to the trajectory and the points tested of it. */
+const SEED_CAPTION_CHAR_PX = 7.5;
+const SEED_CAPTION_HEIGHT_PX = 18;
+const SEED_CAPTION_CLEAR_PX = 8;
+const SEED_CAPTION_SAMPLES = 200;
 
 function drawnFor(state: PhaseState, derived: PhaseDerived): Drawn {
     const {xMin, xMax, yMin, yMax} = derived.view;
@@ -160,6 +168,14 @@ const viewBox = (derived: PhaseDerived): [number, number, number, number] => {
     return [xMin - margin, yMax + margin, xMax + margin, yMin - margin];
 };
 
+const LEGEND_CHAR_PX = 7.5;
+/** The lines a legend row takes on a board `width` px wide (10 px margin each side): the browser wraps it at the edge of the board. */
+export function legendLines(text: string, width: number): number {
+    return Math.max(1, Math.ceil((text.length * LEGEND_CHAR_PX) / Math.max(width - 20, 100)));
+}
+
+const viewKey = (box: readonly number[]): string => box.map(value => value.toFixed(6)).join(",");
+
 /**
  * The phase-portrait graph (phase-portraits spec PP1 to PP3, ADR 0054): trajectories of a planar system, forward and backward, from
  * seed points that can be dragged or typed; the matrix of the linear system by two draggable columns or four fields; the pendulum
@@ -173,7 +189,7 @@ const viewBox = (derived: PhaseDerived): [number, number, number, number] => {
  * Lines run through owned hidden points. The playback driver is created by `play`, stopped by every edit and by disposal; the
  * settled readout's timer is cancelled with the session.
  */
-export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null> {
+export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, PhaseState> {
     private readonly scene = new SceneObjects();
     /** Per instance, so two mounted graphs never share the id that `aria-describedby` points at. */
     private readonly helpId = `phase-portrait-input-help-${++helpInstances}`;
@@ -202,8 +218,48 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`. Time and playing stay host state.
+
+    override defaultPreset(): PhaseState {
+        return serializePhaseState(DEFAULT_PHASE_STATE);
+    }
+
+    override presetCollection(): PresetCollection<PhaseState> {
+        return phasePortraitPresetCollection();
+    }
+
+    override exportPreset(): Preset<PhaseState> {
+        const preset = super.exportPreset();
+        const {system: _system, A: _A, B: _B, C: _C, D: _D, seeds: _seeds, equilibrium: _equilibrium, zoom: _zoom, ...graphState} = preset.graphState as PhasePortraitGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): PhaseState {
+        return serializePhaseState(this.state);
+    }
+
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the view of the imported data is marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    override importPresetData(data: PhaseState): void {
+        const imported = serializePhaseState(data);
+        if (this.keepImportedView) this.drawnView = viewKey(viewBox(derivePhase(imported)));
+        this.setState(imported);
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): PhasePortraitGraphState {
+        const parsed = parsePhaseState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -305,6 +361,9 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
 
     initialize(): void {
         this.buildScene();
+        // A new board (also the second mount of StrictMode) starts unframed, whatever an earlier board drew.
+        this.drawnView = "";
+        this.applyView();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -328,6 +387,11 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
         this.halt();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the view as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.scene.objectCount() === 0) this.buildScene();
+            this.drawnView = viewKey(viewBox(this.derived()));
+        }
         this.syncBoard();
     }
 
@@ -346,9 +410,10 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
         this.notifyHost();
     }
 
+    /** Frames the board once per view key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyView(): void {
         const box = viewBox(this.derived());
-        const key = box.map(value => value.toFixed(6)).join(",");
+        const key = viewKey(box);
         if (key === this.drawnView) return;
         this.drawnView = key;
         this.board.setBoundingBox([...box], true);
@@ -460,7 +525,8 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
             }));
             this.seedHandles.push(handle);
             this.wireDrag(handle, () => this.dragSeed(i, handle));
-            this.pixelText(() => handle.X(), () => handle.Y(), 10, 10, () => t("phase_graph_cap_seed", {value0: String(i + 1)}), GraphPalette.controlPoint,
+            this.pixelText(() => handle.X(), () => handle.Y(), () => this.seedCaptionOffset(i, handle)[0], () => this.seedCaptionOffset(i, handle)[1],
+                () => t("phase_graph_cap_seed", {value0: String(i + 1)}), GraphPalette.controlPoint,
                 () => this.seedShown(i));
         }
 
@@ -500,22 +566,61 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
                 visible: () => this.stopCounts().stopped > 0, color: GraphPalette.warningText},
         ];
         rows.forEach((row, index) => {
-            const place = () => rows.slice(0, index).filter(other => other.visible()).length;
+            // A row wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
+            const place = () => rows.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + legendLines(other.text(), board.canvasWidth), 0);
             this.scene.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - (10 + place() * 20) / uy; },
                 () => row.text(),
             ], {strokeColor: row.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
         });
-        this.drawnView = "";
-        this.applyView();
     }
 
     /** A caption at a board point plus a pixel offset (up is positive). */
-    private pixelText(x: () => number, y: () => number, dx: number, dy: number, text: () => string, color: string, visible: () => boolean = () => true): void {
+    private pixelText(x: () => number, y: () => number, dx: number | (() => number), dy: number | (() => number), text: () => string, color: string,
+                      visible: () => boolean = () => true): void {
+        const offset = (value: number | (() => number)) => typeof value === "number" ? value : value();
         this.scene.own(this.board.create("text", [
-            () => x() + dx / this.scaleOf().ux, () => y() + dy / this.scaleOf().uy, text,
+            () => x() + offset(dx) / this.scaleOf().ux, () => y() + offset(dy) / this.scaleOf().uy, text,
         ], {strokeColor: color, fontSize: 14, anchorX: "left", fixed: true, highlight: false, withLabel: false, visible}));
+    }
+
+    /**
+     * The pixel offset of the caption of a seed: the first of the four corners around the seed (up right, up left, down right, down
+     * left) whose text box stays clear of the seed's trajectory and of the equilibrium caption, else the clearest one.
+     */
+    private seedCaptionOffset(index: number, handle: JXG.Point): readonly [number, number] {
+        const orbit = this.derived().orbits[index];
+        const {ux, uy} = this.scaleOf();
+        const width = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_seed", {value0: String(index + 1)}).length;
+        const sx = handle.X();
+        const sy = handle.Y();
+        const obstacles: Vec2[] = [];
+        const take = (points: readonly Vec2[]) => {
+            const step = Math.max(1, Math.floor(points.length / SEED_CAPTION_SAMPLES));
+            for (let i = 0; i < points.length; i += step) obstacles.push([(points[i][0] - sx) * ux, (points[i][1] - sy) * uy]);
+        };
+        if (orbit) { take(orbit.forward); take(orbit.backward); }
+        const [cx, cy] = this.derived().centre;
+        const equilibriumWidth = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}).length;
+        for (let along = 0; along <= equilibriumWidth; along += 8) obstacles.push([(cx - sx) * ux + 8 + along, (cy - sy) * uy - 14]);
+        const half = SEED_CAPTION_HEIGHT_PX / 2;
+        const corners: ReadonlyArray<readonly [number, number]> = [
+            [10, 10 + half], [-10 - width, 10 + half], [10, -10 - half], [-10 - width, -10 - half],
+        ];
+        let best = corners[0];
+        let bestClearance = -1;
+        for (const corner of corners) {
+            let clearance = Infinity;
+            for (const [px, py] of obstacles) {
+                const gapX = Math.max(corner[0] - px, 0, px - (corner[0] + width));
+                const gapY = Math.max(corner[1] - half - py, 0, py - (corner[1] + half));
+                clearance = Math.min(clearance, Math.hypot(gapX, gapY));
+            }
+            if (clearance >= SEED_CAPTION_CLEAR_PX) return corner;
+            if (clearance > bestClearance) { best = corner; bestClearance = clearance; }
+        }
+        return best;
     }
 
     private movingFor(index: number): Vec2 {
@@ -527,7 +632,6 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
         this.scene.dispose(this.hasBoard ? this.board : undefined);
         this.seedHandles = [];
         this.columnHandles = [];
-        this.drawnView = "";
     }
 
     // ---- Dragging: snapping for the handles; typed values are refused instead -------------------------------------------------

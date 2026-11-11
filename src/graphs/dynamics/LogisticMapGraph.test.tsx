@@ -92,6 +92,15 @@ function stepsPlayed(graph: ObservedGraph, ticks: number) {
 }
 
 describe('mount and the numbers', () => {
+    test('a new board opens on the exact window, not widened to the board aspect (the diagram and the cobweb use different units)', () => {
+        const {graph} = mountGraph();
+        const box = graph.liveBoard().getBoundingBox().map(value => Number(value.toFixed(6)));
+        expect([box[0], box[2]]).toEqual([VIEW_BOX[0], VIEW_BOX[2]]);
+        // The top and the bottom are the window's, extended only as far as the captions need on this (small) board.
+        expect(box[1]).toBeGreaterThanOrEqual(VIEW_BOX[1]);
+        expect(box[3]).toBeLessThanOrEqual(VIEW_BOX[3]);
+    });
+
     test('the default r = 2,9, x0 = 0,2 shows the exact fixed point and a computed period 1, with the board labelled', () => {
         const {graph} = mountGraph();
         expect(graph.state).toMatchObject(DEFAULT_LOGISTIC_STATE);
@@ -179,6 +188,23 @@ describe('the kind by R and the computed period', () => {
 });
 
 describe('the cursor and the diagram', () => {
+    test('the still curves (frames, diagram, marks) are visible and hold their points on the first mount and after a rebuild', () => {
+        const {graph} = mountGraph();
+        const expectStillDrawn = () => {
+            const still = (graph.liveBoard().objectsList as unknown as Array<{elType: string; visProp: {needsregularupdate: boolean}; visPropCalc: {visible: boolean}; points: unknown[]}>)
+                .filter(object => object.elType === 'curve' && !object.visProp.needsregularupdate);
+            expect(still.length).toBe(3);
+            for (const curve of still) {
+                expect(curve.visPropCalc.visible).toBe(true);
+                expect(curve.points.length).toBeGreaterThan(1);
+            }
+        };
+        expectStillDrawn();
+        graph.disposeNow();
+        act(() => { graph.rebuildNow(); });
+        expectStillDrawn();
+    });
+
     test('the cursor snaps to the nearest column and reports that column\'s r, not R/100', () => {
         const {graph} = mountGraph();
         expect(graph.cursor()).toEqual({column: 106, r: columnR(DIAGRAM_COLUMNS, 106)});
@@ -243,6 +269,16 @@ describe('the cursor and the diagram', () => {
         expect(VIEW_BOX[2]).toBeGreaterThan(diagramX(BIFURCATION_R_MAX));
         expect(VIEW_BOX[3]).toBeLessThan(0);
         expect(VIEW_BOX[1]).toBeGreaterThan(1);
+    });
+
+    test('the y axis writes no number below 0, where the caption rows are', () => {
+        const {graph} = mountGraph();
+        const ticks = (graph.liveBoard() as unknown as {defaultAxes: {y: {defaultTicks: {generateLabelText(tick: unknown, zero: unknown, value: number): string}}}}).defaultAxes.y.defaultTicks;
+        const label = (value: number) => ticks.generateLabelText({usrCoords: [1, 0, value]}, undefined, value);
+        expect(label(-0.2)).toBe('');
+        expect(label(-0.4)).toBe('');
+        expect(label(0.5)).not.toBe('');
+        expect(label(1)).not.toBe('');
     });
 });
 
@@ -502,6 +538,19 @@ describe('captions', () => {
         expect(texts.every(text => !/NaN|undefined/.test(text))).toBe(true);
     });
 
+    test('the captions under the x axis start below its tick numbers and every row stays on the board', () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard();
+        const below = (probes(graph) as unknown as Array<Probe & {Y(): number}>).filter(o => o.elType === 'text' && o.evalVisProp('anchory') === 'top' && o.Y() < 0);
+        expect(below.length).toBeGreaterThanOrEqual(8);
+        const boardBottomPx = -board.getBoundingBox()[3] * board.unitY;
+        for (const text of below) {
+            const topPx = -text.Y() * board.unitY;
+            expect(topPx, String(text.plaintext)).toBeGreaterThanOrEqual(22);
+            expect(topPx + 18, String(text.plaintext)).toBeLessThanOrEqual(boardBottomPx);
+        }
+    });
+
     test('the cycle caption is hidden up to r = 3, the iterate caption at step 0, and the cursor caption makes no claim past the onset', () => {
         const {graph} = mountGraph();
         let texts = captionTexts(graph);
@@ -656,4 +705,44 @@ describe('language and the catalog', () => {
         expect(source).not.toMatch(/<\w+[^<>{}]*>\s*[A-Za-zČŠŽčšž][^<{]*<\//);
         expect(source).not.toMatch(/label=\s*"[A-Za-z]/);
     });
+});
+
+describe('the captions on a narrow board (390 x 480 px)', () => {
+    const sizes = {clientWidth: 390, offsetWidth: 390, clientHeight: 480, offsetHeight: 480} as const;
+    const restore = [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const;
+    beforeEach(() => {
+        for (const [name, size] of Object.entries(sizes)) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 390, bottom: 480, width: 390, height: 480, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of restore) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+        setLanguage('sl');
+    });
+
+    for (const language of ['sl', 'en'] as const) {
+        test(`the wrapped caption rows do not run into each other or off the board (${language})`, () => {
+            setLanguage(language);
+            const {graph} = mountGraph();
+            const board = graph.liveBoard();
+            type Text = Probe & {X(): number; Y(): number};
+            const rows = (ofType(graph, 'text') as unknown as Text[])
+                .filter(o => visible(o) && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() < 0 && o.X() < 0)
+                .sort((a, b) => b.Y() - a.Y());
+            expect(rows).toHaveLength(6);
+            const lines = (text: Text) => Math.max(1, Math.ceil((String(text.plaintext).length * 7.5) / Math.max(390 - 20, 100)));
+            expect(rows.some(row => lines(row) > 1)).toBe(true);
+            for (let i = 0; i + 1 < rows.length; i++) {
+                const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
+                expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(lines(rows[i]) * 18 - 0.5);
+            }
+            const cursor = (ofType(graph, 'text') as unknown as Text[]).find(o => visible(o) && o.evalVisProp('anchorx') === 'right' && o.Y() > 0.9 && o.Y() < 1.5)!;
+            const cursorLines = Math.max(1, Math.ceil((String(cursor.plaintext).length * 7.5) / (390 - 20)));
+            expect(cursorLines).toBeGreaterThan(1);
+            expect((board.getBoundingBox()[1] - cursor.Y()) * board.unitY).toBeGreaterThanOrEqual(cursorLines * 18 - 0.5);
+            const last = rows[rows.length - 1];
+            const roomPx = (last.Y() - board.getBoundingBox()[3]) * board.unitY;
+            expect(roomPx).toBeGreaterThanOrEqual(lines(last) * 18 - 0.5);
+        });
+    }
 });

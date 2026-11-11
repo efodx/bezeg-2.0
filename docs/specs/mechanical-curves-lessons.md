@@ -125,6 +125,7 @@ Searched `src/localization/sl.ts`: it has *Cikloid* (line 2120) and *spust* only
 - Handler decision, reversible: \(g=9{,}81\) is fixed (a tuning slider adds nothing: \(T\propto1/\sqrt g\)); depth axis flipped once in the adapter. Reason: simplest kernel contract.
 - Handler decision, reversible: lessons use three tracks (not Kepler or catenary); reason: one idea (the singular integrator) per family.
 - New routes and Presets only; no breaking change. Preset fields (end point, control points, \(r\), start parameter) validated with actionable messages.
+- **F2b decisions** (worker, 2026-11-11; evidence `docs/reviews/feature-streams/families-prep/notes/f2b-mechanics-phase.md`). `mechanics-descent` at `/curve-geometry/descent` in *Krivulje in geometrija*, after `curve-kinematics`, the last row of the family (feature-registered rows follow the legacy rows). Rejected: *Funkcije in analiza*, because the rows of that family are graphs of functions, while the descent compares tracks of a bead as curves in the plane. Feature-local registration in `src/graphs/mechanics/` with a Preset collection keyed `mechanics-descent`, checked by `parseDescentState`; the stored fields are the mode, the grid-valued parameters and the two display switches, the elapsed time and the playing flag are not. The row ships with `lesson: false` and pending entries until F3–F5. A Preset file with a stored view keeps it.
 
 ## Testing Decisions
 

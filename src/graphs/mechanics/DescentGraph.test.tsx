@@ -11,6 +11,7 @@ import {enterNumber} from '../../inputs/testEntry';
 import type {TransientState} from '../base/BaseGraph';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {deriveDescent, FIELD_RANGES, type DescentMode, type NumericField, type RaceDerived, type TautochroneDerived} from '../../mechanics/trackModel';
+import {DEFAULT_DESCENT_STATE} from '../../mechanics/trackModel';
 import {DescentGraph, HANDLE_TOUCH_RADIUS, MAX_FRAME_MS, TIME_STEP} from './DescentGraph';
 
 beforeAll(installBoardShims);
@@ -633,6 +634,68 @@ describe('ownership, rebuild and the derived data', () => {
         } finally {
             vi.useRealTimers();
         }
+    });
+
+    test('the opening frame holds the lowest point of the arc and both ends; a board resized after the first frame is framed again, a moved view is kept', () => {
+        vi.useFakeTimers();
+        const original = window.ResizeObserver;
+        const observers: Array<(entries: unknown[]) => void> = [];
+        // jsdom lays nothing out: the board re-reads its container size from these.
+        let canvasHeight = 400;
+        for (const name of ['clientHeight', 'offsetHeight'] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => canvasHeight});
+        window.ResizeObserver = class {
+            constructor(callback: (entries: unknown[]) => void) { observers.push(callback); }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        } as unknown as typeof ResizeObserver;
+        try {
+            const {graph} = mountGraph();
+            const board = graph.liveBoard();
+            const race = deriveDescent(DEFAULT_DESCENT_STATE) as RaceDerived;
+            const margin = (box: number[]) => ({left: 0 - box[0], right: box[2] - race.end[0], top: box[1] - 0, bottom: -box[3] - race.arcCentre});
+            const settle = (height: number) => {
+                canvasHeight = height;
+                board.resizeContainer(600, height, true); // what the session's observer does
+                act(() => { for (const callback of observers) callback([{contentRect: {width: 600, height}}]); });
+                act(() => { vi.advanceTimersByTime(200); });
+            };
+            const inside = () => {
+                const m = margin(board.getBoundingBox());
+                expect(Math.min(m.left, m.right, m.top, m.bottom)).toBeGreaterThan(0.05);
+            };
+            expect(observers.length).toBeGreaterThan(0);
+            inside();
+            settle(300);
+            expect(board.canvasHeight).toBe(300);
+            inside();
+            settle(260);
+            inside();
+            // A view the user moved is not reframed.
+            act(() => { board.setBoundingBox([-5, 4, 5, -4], false); });
+            const moved = board.getBoundingBox();
+            settle(300);
+            expect(board.getBoundingBox()).toEqual(expect.arrayContaining(moved.slice(0, 2)));
+        } finally {
+            window.ResizeObserver = original;
+            canvasHeight = 400;
+            vi.useRealTimers();
+        }
+    });
+
+    test('the y axis writes no number above the start A except in the track mode; the arc name sits below the arc, clear of the axis numbers', () => {
+        const {graph} = mountGraph();
+        const ticks = (graph.liveBoard() as unknown as {defaultAxes: {y: {defaultTicks: {generateLabelText(tick: unknown, zero: unknown, value: number): string}}}}).defaultAxes.y.defaultTicks;
+        const label = (value: number) => ticks.generateLabelText({usrCoords: [1, 0, value]}, undefined, value);
+        expect(label(1)).toBe('');
+        expect(label(-1)).not.toBe('');
+        const race = deriveDescent(DEFAULT_DESCENT_STATE) as RaceDerived;
+        const name = (probes(graph).filter(o => o.elType === 'text') as unknown as Array<Probe & {X(): number; Y(): number}>)
+            .find(o => o.plaintext === t('descent_graph_name_arc'))!;
+        expect(name.Y()).toBeLessThan(-race.arcCentre);
+        expect(name.X()).toBeGreaterThan(1);
+        chooseMode('track');
+        expect(label(1)).not.toBe('');
     });
 
     test('disposal removes every owned object back to the pre-scene count, and the next state change rebuilds the same scene', () => {

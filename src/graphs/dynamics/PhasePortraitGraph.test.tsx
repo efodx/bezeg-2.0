@@ -15,7 +15,7 @@ import {DEFAULT_PHASE_STATE, entryOf, ORBIT_DURATION, type PhaseState} from '../
 import {RK4_STEP} from '../../dynamics/rk4';
 import {formatNumber} from '../../analysis/format';
 import {
-    HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
+    HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, legendLines, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
 } from './PhasePortraitGraph';
 
 beforeAll(installBoardShims);
@@ -208,6 +208,34 @@ describe('stops are shown, never clipped silently', () => {
         for (const key of ['phase_graph_cap_ring', 'phase_graph_cap_ring_linear', 'phase_graph_cap_separatrix', 'phase_graph_cap_wrap'] as const) {
             expect(pendulum, key).toContain(t(key));
         }
+    });
+
+    test('a seed caption stays clear of its own trajectory (default seeds, and a dragged seed)', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setSeedCount(3); });
+        const board = graph.liveBoard();
+        const clearance = () => {
+            const result: number[] = [];
+            for (let i = 0; i < 3; i++) {
+                const text = (ofType(graph, 'text') as unknown as Array<Probe & {X(): number; Y(): number}>)
+                    .find(o => o.plaintext === t('phase_graph_cap_seed', {value0: String(i + 1)}))!;
+                const x0 = text.X() * board.unitX;
+                const y0 = text.Y() * board.unitY;
+                const width = 7.5 * String(text.plaintext).length;
+                const orbit = graph.derived().orbits[i];
+                let best = Infinity;
+                for (const [px, py] of [...orbit.forward, ...orbit.backward]) {
+                    const gapX = Math.max(x0 - px * board.unitX, 0, px * board.unitX - (x0 + width));
+                    const gapY = Math.max(y0 - 9 - py * board.unitY, 0, py * board.unitY - (y0 + 9));
+                    best = Math.min(best, Math.hypot(gapX, gapY));
+                }
+                result.push(best);
+            }
+            return result;
+        };
+        for (const gap of clearance()) expect(gap).toBeGreaterThanOrEqual(7.5);
+        act(() => { graph.setState({seeds: [{X: 2, Y: 1}, {X: -3, Y: 2}, {X: 1, Y: -3}]}); });
+        for (const gap of clearance()) expect(gap).toBeGreaterThanOrEqual(7.5);
     });
 
     test('a seed handle and a caption "seed n" exist for each seed and the seed row names the same number', () => {
@@ -803,4 +831,36 @@ describe('language and the catalog', () => {
         }
         expect(Object.keys(en).filter(key => key.startsWith('phase_graph_')).sort()).toEqual(keys.sort());
     });
+});
+
+describe('the legend on a narrow board (390 x 480 px)', () => {
+    const sizes = {clientWidth: 390, offsetWidth: 390, clientHeight: 480, offsetHeight: 480} as const;
+    const restore = [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const;
+    // The shims give every element 600 x 400 px; this board is 390 x 480 px from its creation on.
+    beforeEach(() => {
+        for (const [name, size] of Object.entries(sizes)) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 390, bottom: 480, width: 390, height: 480, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of restore) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    for (const language of ['sl', 'en'] as const) {
+        test(`a legend row that wraps leaves room for its lines, so no row runs into the next (${language})`, () => {
+            setLanguage(language);
+            const {graph} = mountGraph();
+            const board = graph.liveBoard();
+            const top = board.getBoundingBox()[1];
+            const rows = (ofType(graph, 'text') as unknown as Array<Probe & {X(): number; Y(): number}>)
+                .filter(o => visible(o) && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() > top - 200 / board.unitY && o.Y() <= top)
+                .sort((a, b) => b.Y() - a.Y());
+            expect(rows.length).toBeGreaterThanOrEqual(5);
+            expect(rows.some(row => legendLines(String(row.plaintext), 390) > 1)).toBe(true);
+            for (let i = 0; i + 1 < rows.length; i++) {
+                const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
+                expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(legendLines(String(rows[i].plaintext), 390) * 20 - 0.5);
+            }
+        });
+    }
 });

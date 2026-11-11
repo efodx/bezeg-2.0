@@ -3,6 +3,9 @@ import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMo
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {descentPresetCollection} from "./descentPresetCollection";
 import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -14,11 +17,12 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {GraphPalette} from "../styles/GraphPalette";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
+import {fitBoundingBox} from "../base/fitBoundingBox";
 import {G} from "../../mechanics/descentTime";
 import type {Track, Vec2} from "../../mechanics/tracks";
 import {
     beadParameter, checkField, DEFAULT_DESCENT_STATE, DESCENT_MODES, deriveDescent, DescentDerived, DescentMode, DescentState, FIELD_RANGES,
-    NumericField, RaceDerived, RaceTrackId, snapDrag, TautochroneDerived, ThetaField, THETA_FIELDS, ToggleField, TrackDerived,
+    NumericField, parseDescentState, RaceDerived, RaceTrackId, serializeDescentState, snapDrag, TautochroneDerived, ThetaField, THETA_FIELDS, ToggleField, TrackDerived,
 } from "../../mechanics/trackModel";
 
 /** The scene state: the stored fields of `DescentState`, nothing derived. The elapsed time and the playing flag are host state, never stored. */
@@ -55,6 +59,8 @@ const NAME_KEYS = {
 } as const;
 type TrackName = keyof typeof NAME_KEYS;
 
+const RESIZE_SETTLE_MS = 150;
+
 const FIELD_LABEL_KEYS = {
     radius: "descent_graph_radius_label", endX: "descent_graph_end_x_label", endY: "descent_graph_end_y_label", p1x: "descent_graph_p1x_label",
     p1y: "descent_graph_p1y_label", p2x: "descent_graph_p2x_label", p2y: "descent_graph_p2y_label", theta1: "descent_graph_theta1_label",
@@ -83,11 +89,14 @@ function frameAround(x0: number, x1: number, depth0: number, depth1: number): [n
  */
 export function frameFor(state: DescentState, derived: DescentDerived): [number, number, number, number] {
     switch (derived.mode) {
-        case "race": return frameAround(0, derived.end[0], 0, Math.max(derived.end[1], derived.arcCentre));
+        case "race": return frameAround(0, derived.end[0], 0, Math.max(derived.end[1], derived.arcSweep >= Math.PI / 2 ? derived.arcCentre : 0));
         case "track": return frameAround(0, 6, -2, 4.9);
         case "tautochrone": return frameAround(Math.min(0, derived.bottom[0] - 3.5 * state.radius), derived.bottom[0], 0, derived.bottom[1]);
     }
 }
+
+/** The key of the frame of a stored state: what `applyFrame` compares to decide whether the board needs framing. */
+export const frameKeyOf = (state: DescentState): string => frameFor(state, deriveDescent(state)).map(value => value.toFixed(4)).join(",");
 
 interface BeadSpec {
     readonly key: string;
@@ -122,7 +131,7 @@ const flip = (p: Vec2): [number, number] => [p[0], -p[1]];
  * removes them. The playback driver is created by `play`, stopped by every edit and by disposal; the settled readout's timer is
  * cancelled with the session.
  */
-export class DescentGraph extends BaseGraph<DescentGraphState, null> {
+export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     private objects: JXG.GeometryElement[] = [];
     private offs: Array<() => void> = [];
     private handles: {spec: HandleSpec; point: JXG.Point}[] = [];
@@ -131,6 +140,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
     private beadCache?: {specs: readonly BeadSpec[]; time: number; value: readonly (readonly [number, number])[]};
     private readonly sampleCache = new WeakMap<Track, {x: number[]; y: number[]}>();
     private drawnFrame = "";
+    private shownView: number[] | undefined;
     private derivations = 0;
     private notice?: {readonly state: DescentGraphState; readonly text: () => string};
     private reconciledFor?: DescentGraphState;
@@ -151,8 +161,48 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`. Time and playing stay host state.
+
+    override defaultPreset(): DescentState {
+        return serializeDescentState(DEFAULT_DESCENT_STATE);
+    }
+
+    override presetCollection(): PresetCollection<DescentState> {
+        return descentPresetCollection();
+    }
+
+    override exportPreset(): Preset<DescentState> {
+        const preset = super.exportPreset();
+        const {mode: _mode, radius: _radius, endX: _endX, endY: _endY, p1x: _p1x, p1y: _p1y, p2x: _p2x, p2y: _p2y, theta1: _theta1, theta2: _theta2, theta3: _theta3, showCycloid: _showCycloid, showArc: _showArc, ...graphState} = preset.graphState as DescentGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): DescentState {
+        return serializeDescentState(this.state);
+    }
+
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the frame of the imported data is marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    override importPresetData(data: DescentState): void {
+        const imported = serializeDescentState(data);
+        if (this.keepImportedView) this.drawnFrame = frameKeyOf(imported);
+        this.setState(imported);
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): DescentGraphState {
+        const parsed = parseDescentState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -249,6 +299,18 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
 
     // ---- Board ----------------------------------------------------------------------------------------------------------
 
+    /** The y axis is the negative depth: no numbers above the start A, unless the track mode shows points there. */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        const labelOf = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const belowStart = (graph: DescentGraph) => function (this: object, ...label: unknown[]): string {
+            const tick = label[0] as {usrCoords?: number[]} | undefined;
+            if (graph.state.mode !== "track" && tick?.usrCoords && tick.usrCoords[2] > 1e-9) return "";
+            return labelOf ? labelOf.apply(this, label) : "";
+        };
+        return {x: axis.defaultX, y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: belowStart(this)}}};
+    }
+
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         super.createMainView(session, container);
         const previous = container.getAttribute("aria-label");
@@ -263,7 +325,21 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
 
     initialize(): void {
         this.buildScene();
+        // A new board (also the second mount of StrictMode) starts unframed, whatever an earlier board drew.
+        this.drawnFrame = "";
+        this.shownView = undefined;
+        this.applyFrame();
         const session = this.graphSession;
+        const container = this.board.containerObj as HTMLElement | undefined;
+        if (session && container && typeof ResizeObserver !== "undefined") {
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const observer = new ResizeObserver(() => {
+                clearTimeout(timer);
+                timer = setTimeout(() => this.reframeToSize(), RESIZE_SETTLE_MS);
+            });
+            observer.observe(container);
+            session.registerCleanup(() => { clearTimeout(timer); observer.disconnect(); });
+        }
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => {
@@ -287,6 +363,11 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
         this.halt();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the frame as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.objects.length === 0) this.buildScene();
+            this.drawnFrame = frameKeyOf(this.state);
+        }
         this.syncBoard();
     }
 
@@ -305,12 +386,37 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
         this.notifyHost();
     }
 
+    /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
         const frame = frameFor(this.state, this.derived());
         const key = frame.map(value => value.toFixed(4)).join(",");
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
-        this.board.setBoundingBox([...frame], true);
+        this.showFrame(frame);
+    }
+
+    /** Shows the whole frame: the box is widened to the canvas aspect around the frame's centre (a plain keep-aspect box crops one side). */
+    private showFrame(frame: readonly [number, number, number, number]): void {
+        const [left, top, right, bottom] = frame;
+        const box = fitBoundingBox([[left, top], [right, bottom]], this.board.canvasWidth, this.board.canvasHeight);
+        this.board.setBoundingBox(box ? [...box] : [...frame], true);
+        this.shownView = this.viewOf();
+    }
+
+    /** The board's origin corner and scale: a resize keeps these and crops or widens the box, so they tell whether the view is still the framed one. */
+    private viewOf(): number[] {
+        const [left, top] = this.board.getBoundingBox();
+        return [left, top, this.board.unitX, this.board.unitY];
+    }
+
+    /** The board's height settles after the first frame (the layout finishes): a view still on the frame we drew is framed again for the final size. A view the user moved is left alone. */
+    private reframeToSize(): void {
+        if (!this.hasBoard || !this.graphSession?.isAlive || !this.shownView) return;
+        const now = this.viewOf();
+        const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
+        if (!now.every((value, index) => near(value, this.shownView![index]))) return;
+        this.showFrame(frameFor(this.state, this.derived()));
+        this.board.update();
     }
 
     private own<E extends JXG.GeometryElement>(element: E): E {
@@ -402,7 +508,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
         // The names of the tracks, on the tracks.
         const onTrack = (track: Track | undefined, fraction: number): [number, number] => (track ? flip(track.point(track.t0 + fraction * (track.t1 - track.t0))) : [0, 0]);
         this.tagText(() => t("descent_graph_name_line"), () => onTrack(lineTrack(), 0.7), GraphPalette.comparisonCurve, () => this.mode() !== "tautochrone", 6, 12);
-        this.tagText(() => t("descent_graph_name_arc"), () => onTrack(race()?.tracks.arc, 0.35), GraphPalette.additionalCurves[1], () => this.mode() === "race", -64, -4);
+        this.tagText(() => t("descent_graph_name_arc"), () => { const centre = race()?.arcCentre ?? 0; return [centre, -centre]; }, GraphPalette.additionalCurves[1], () => this.mode() === "race", -34, -20);
         this.tagText(() => t("descent_graph_name_arc"), () => onTrack(taut()?.arcGuide, 0.5), GraphPalette.additionalCurves[1], () => this.mode() === "tautochrone" && state().showArc, -64, -4);
         this.tagText(() => t("descent_graph_name_cycloid"), () => onTrack(cycloidTrack(), 0.45), GraphPalette.primaryCurve, () => this.mode() !== "track" || state().showCycloid, 8, -14);
         this.tagText(() => t("descent_graph_name_track"), () => onTrack(track()?.track, 0.5), GraphPalette.controlPoint, () => this.mode() === "track", 8, -14);
@@ -477,8 +583,6 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
                 caption.color, caption.visible, {anchorY: "top"},
             );
         });
-        this.drawnFrame = "";
-        this.applyFrame();
     }
 
     private trackColor(id: TrackName): string {
@@ -528,7 +632,6 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
         }
         this.objects = [];
         this.handles = [];
-        this.drawnFrame = "";
     }
 
     // ---- Dragging: the one place that snaps -------------------------------------------------------------------------------

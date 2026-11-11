@@ -30,6 +30,8 @@ import {randomCollections} from "../../random/collections";
 import {kinematicsCollections} from "../../curves/kinematics/collections";
 import {recursionCollections} from "../../recursion/collections";
 import {wavesCollections} from "../../functions/waves/collections";
+import {mechanicsCollections} from "../../mechanics/collections";
+import {dynamicsCollections} from "../../dynamics/collections";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -51,6 +53,8 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...kinematicsCollections,
     ...recursionCollections,
     ...wavesCollections,
+    ...mechanicsCollections,
+    ...dynamicsCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

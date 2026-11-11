@@ -1,6 +1,9 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {logisticMapPresetCollection} from "./dynamicsPresetCollection";
 import type {SceneStateUpdate} from "../base/SceneStore";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
@@ -18,7 +21,7 @@ import {IterationController} from "../../learning/runtime/iterationController";
 import {BIFURCATION_R_MAX, BIFURCATION_R_MIN, bifurcationRaster, columnR, nearestColumn} from "../../dynamics/bifurcation";
 import {logisticMapAt} from "../../dynamics/logistic";
 import {
-    DEFAULT_LOGISTIC_STATE, deriveLogistic, LogisticDerived, LogisticState, R_RANGE, R_SCALE, rOf, snapDragInteger, startOf, STEP_RANGE, typedInteger,
+    DEFAULT_LOGISTIC_STATE, deriveLogistic, LogisticDerived, LogisticState, parseLogisticState, R_RANGE, R_SCALE, rOf, serializeLogisticState, snapDragInteger, startOf, STEP_RANGE, typedInteger,
     X_RANGE, X_SCALE,
 } from "../../dynamics/phaseModel";
 
@@ -34,11 +37,17 @@ export const DIAGRAM_BINS = 200;
 /** Where the diagram sits on the board: x in [0, 1] is the cobweb panel, r in [2,5; 4] maps to [DIAGRAM_LEFT, DIAGRAM_LEFT + DIAGRAM_WIDTH]. */
 export const DIAGRAM_LEFT = 1.3;
 export const DIAGRAM_WIDTH = 1.5;
-export const VIEW_BOX: readonly [number, number, number, number] = [-0.1, 1.2, 2.9, -0.35];
+export const VIEW_BOX: readonly [number, number, number, number] = [-0.1, 1.2, 2.9, -0.55];
 /** The onset of chaos near 3,56995, cited (not computed here): from this r on the period row makes no claim. */
 export const CHAOS_ONSET = 3.56995;
 export const SECOND_SPLIT = 1 + Math.sqrt(6);
 const ROW_PX = 18;
+/** The caption rows under the x axis start below the row of its tick numbers. */
+const TICK_ROW_PX = 26;
+
+const CAPTION_CHAR_PX = 7.5;
+/** The lines a caption takes on a board `width` px wide (10 px margin each side): the browser wraps it at the edge of the board. */
+const captionLines = (text: string, width: number): number => Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / Math.max(width - 20, 100)));
 
 const dec = (value: number, digits = 6): string => formatNumber(value, currentLanguage(), digits);
 
@@ -93,7 +102,7 @@ const sameParameters = (a: LogisticState, b: LogisticState): boolean => a.R === 
  * Ownership: every board object goes through `scene`, which removes the objects and the drag listeners with the scene. The playback
  * is an `IterationController` created on demand and disposed with the scene and on unmount; it is not stored.
  */
-export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
+export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticState> {
     private readonly scene = new SceneObjects();
     private handle?: JXG.Point;
     private built = false;
@@ -110,8 +119,44 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`. Playback is not stored.
+
+    override defaultPreset(): LogisticState {
+        return serializeLogisticState(DEFAULT_LOGISTIC_STATE);
+    }
+
+    override presetCollection(): PresetCollection<LogisticState> {
+        return logisticMapPresetCollection();
+    }
+
+    override exportPreset(): Preset<LogisticState> {
+        const preset = super.exportPreset();
+        const {R: _R, X: _X, step: _step, ...graphState} = preset.graphState as LogisticMapGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): LogisticState {
+        return serializeLogisticState(this.state);
+    }
+
+    override importPresetData(data: LogisticState): void {
+        this.setState(serializeLogisticState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): LogisticMapGraphState {
+        const parsed = parseLogisticState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
+    }
+
+    /** The cobweb panel and the bifurcation diagram use different units (x against r), so the window is applied exactly, never widened to the canvas aspect. */
+    protected override get equalAxisUnits(): boolean {
+        return false;
+    }
+
+    /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen it. */
+    protected override showInitialView(): void {
+        this.board.setBoundingBox(this.openingWindow(), false);
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -152,6 +197,18 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
 
     // ---- Board ----------------------------------------------------------------------------------------------------------------
 
+    /** The y axis has no numbers below 0: the caption rows under the x axis use that space (x and the map live on [0, 1]). */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        const labelOf = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const aboveZero = function (this: object, ...label: unknown[]): string {
+            const tick = label[0] as {usrCoords?: number[]} | undefined;
+            if (tick?.usrCoords && tick.usrCoords[2] < -1e-9) return "";
+            return labelOf ? labelOf.apply(this, label) : "";
+        };
+        return {x: axis.defaultX, y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: aboveZero}}};
+    }
+
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         super.createMainView(session, container);
         const previous = container.getAttribute("aria-label");
@@ -166,6 +223,8 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
 
     initialize(): void {
         this.buildScene();
+        // A new board is created with keepaspect, which widens this window; the opening view is the exact window, as after a reset.
+        if (this.hasBoard) this.showInitialView();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -247,11 +306,11 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
     }
 
     /** A caption at a board point plus a pixel offset (up is positive); `dy` below the point is negative. */
-    private caption(x: () => number, y: () => number, dx: number, dy: number, text: () => string, color: string, options: {
+    private caption(x: () => number, y: () => number, dx: number, dy: number | (() => number), text: () => string, color: string, options: {
         visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
     } = {}): void {
         this.scene.own(this.board.create("text", [
-            () => x() + dx / this.scaleOf().ux, () => y() + dy / this.scaleOf().uy, text,
+            () => x() + dx / this.scaleOf().ux, () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
         ], {
             strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
             visible: options.visible ?? (() => true),
@@ -263,6 +322,39 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
         return this.scene.own(this.board.create("point", [value, value], {
             fixed: true, highlight: false, withLabel: false, name: "", face, size: 5, fillColor: color, strokeColor: GraphPalette.pointOutline, visible,
         }));
+    }
+
+    /** The captions of the column under the x axis, in order: the map, the diagonal, the cobweb, the diagram, the second split, the onset of chaos. */
+    private columnTexts(): Array<() => string> {
+        const derived = () => this.derived();
+        return [
+            () => t("phase_graph_logistic_cap_map", {value0: dec(derived().r, 2)}),
+            () => t("phase_graph_logistic_cap_diagonal"),
+            () => t("phase_graph_logistic_cap_cobweb"),
+            () => t("phase_graph_logistic_cap_diagram", {value0: dec(BIFURCATION_R_MIN, 1), value1: dec(BIFURCATION_R_MAX, 0)}),
+            () => t("phase_graph_logistic_cap_mark_second", {value0: dec(SECOND_SPLIT)}),
+            () => t("phase_graph_logistic_cap_onset", {value0: dec(CHAOS_ONSET, 5)}),
+        ];
+    }
+
+    /** The opening window for this board: `VIEW_BOX`, lowered and raised where the caption column and the cursor caption need more pixels than the box leaves. */
+    private openingWindow(): [number, number, number, number] {
+        const [left, top, right, bottom] = VIEW_BOX;
+        const height = this.board.canvasHeight;
+        const width = this.board.canvasWidth;
+        const needed = TICK_ROW_PX + ROW_PX * (1 + this.columnTexts().reduce((sum, text) => sum + captionLines(text(), width), 0)) + ROW_PX / 2;
+        const cursor = t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()});
+        const neededTop = 8 + ROW_PX * captionLines(cursor, width) + 4;
+        if (!(height > needed + neededTop)) return [left, top, right, bottom];
+        // A span of `px` pixels is px / unit board units, with unit = height / (top + depth): solved by iteration (it settles in a few steps).
+        let upper = top;
+        let depth = -bottom;
+        for (let i = 0; i < 12; i++) {
+            const unit = height / (upper + depth);
+            depth = Math.max(-bottom, needed / unit);
+            upper = Math.max(top, 1 + neededTop / unit);
+        }
+        return [left, upper, right, -depth];
     }
 
     private buildScene(): void {
@@ -331,12 +423,13 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
 
         // A caption for every element a readout names: the map, the diagonal, the cobweb, the start, the fixed point, the 2-cycle, the
         // iterate, the diagram, the cursor (with its column's r and the period) and the marks.
-        const below = (row: number) => -(8 + row * ROW_PX);
-        this.caption(() => -0.1, () => 0, 4, below(0), () => t("phase_graph_logistic_cap_map", {value0: dec(derived().r, 2)}), GraphPalette.comparisonCurve, {anchorY: "top"});
-        this.caption(() => -0.1, () => 0, 4, below(1), () => t("phase_graph_logistic_cap_diagonal"), GraphPalette.label, {anchorY: "top"});
-        this.caption(() => -0.1, () => 0, 4, below(2), () => t("phase_graph_logistic_cap_cobweb"), GraphPalette.label, {anchorY: "top"});
-        this.caption(() => -0.1, () => 0, 4, below(3), () => t("phase_graph_logistic_cap_diagram",
-            {value0: dec(BIFURCATION_R_MIN, 1), value1: dec(BIFURCATION_R_MAX, 0)}), GraphPalette.label, {anchorY: "top"});
+        // Under the x axis: the row of the r marks, then the long captions in one column, each as tall as its wrapped lines (the browser wraps a
+        // caption at the edge of the board, so on a narrow board a row takes several lines and the next row starts below them).
+        const below = (row: number) => -(TICK_ROW_PX + row * ROW_PX);
+        const column = this.columnTexts();
+        const columnRow = (index: number) => () => -(TICK_ROW_PX + ROW_PX * (1 + column.slice(0, index).reduce((sum, text) => sum + captionLines(text(), this.board.canvasWidth), 0)));
+        const columnColors = [GraphPalette.comparisonCurve, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label];
+        column.forEach((text, index) => this.caption(() => -0.1, () => 0, 4, columnRow(index), text, columnColors[index], {anchorY: "top"}));
         this.caption(() => startOf(this.state.X), () => 0, 6, 8, () => t("phase_graph_logistic_cap_start", {value0: dec(startOf(this.state.X), 2)}), GraphPalette.constructionAccent);
         this.caption(() => derived().fixedPoint, () => derived().fixedPoint, 8, -14, () => t("phase_graph_logistic_cap_fixed", {value0: dec(derived().fixedPoint)}),
             GraphPalette.comparisonCurve, {anchorY: "top"});
@@ -352,10 +445,10 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, null> {
         this.caption(() => diagramX(BIFURCATION_R_MAX), () => 0, 0, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(BIFURCATION_R_MAX, 0)}),
             GraphPalette.label, {anchorY: "top", anchorX: "right"});
         this.caption(() => diagramX(3), () => 0, 3, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(3, 0)}), GraphPalette.label, {anchorY: "top"});
-        this.caption(() => diagramX(SECOND_SPLIT), () => 0, 3, below(1), () => t("phase_graph_logistic_cap_mark_second", {value0: dec(SECOND_SPLIT)}), GraphPalette.label, {anchorY: "top"});
-        this.caption(() => diagramX(CHAOS_ONSET), () => 0, 3, below(2), () => t("phase_graph_logistic_cap_onset", {value0: dec(CHAOS_ONSET, 5)}), GraphPalette.label, {anchorY: "top"});
         this.caption(() => diagramX(BIFURCATION_R_MAX), () => 1, 0, 8, () => t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()}),
             GraphPalette.constructionAccent, {anchorX: "right"});
+        // The still curves are skipped by every regular update, so their visibility is only computed by a full one; once per build.
+        board.fullUpdate();
     }
 
     private disposeScene(): void {
