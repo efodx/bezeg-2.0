@@ -135,3 +135,48 @@ test('family reach also reads the registered projective graphs from their runtim
     assert.deepEqual(familyClassNames(['src/graphs/projective/idealMarker.ts'], found).sort(),
         ['CrossRatioGraph', 'FivePointGraph', 'PascalGraph', 'PolePolarGraph', 'ThreeViewsGraph']);
 });
+
+/** Ground truth for the regex parser: every graph class constructed in the sources is found, and every found class file defines its class. */
+function checkGraphClassFiles(found, root, sources) {
+    const missing = [];
+    for (const {text, pattern} of sources) {
+        for (const match of text.matchAll(pattern)) if (!found.some(({name}) => name === match[1])) missing.push(match[1]);
+    }
+    const fs = require('node:fs');
+    const path = require('node:path');
+    // Default imports may be aliased (the class name differs from the file), so require the directory to hold sources.
+    const noFile = found.filter(({dir}) => !fs.existsSync(path.join(root, dir)) ||
+        !fs.readdirSync(path.join(root, dir)).some(entry => /\.tsx?$/.test(entry))).map(({name}) => name);
+    return {missing, noFile};
+}
+
+const realSources = root => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+    return [
+        {text: read('src/graphs/graphFactories.ts'), pattern: /=>\s*new\s+(\w+)\(/g},
+        {text: read('src/graphs/projective/runtime.ts'), pattern: /new\s+\w+\.(\w+)\(/g},
+    ];
+};
+
+test('graphClassFiles finds every constructed graph class and each class directory holds sources (drift guard)', () => {
+    const path = require('node:path');
+    const root = path.join(__dirname, '..');
+    const {graphClassFiles} = require('./transient-state-scope.cjs');
+    const found = graphClassFiles(root);
+    const sources = realSources(root);
+    assert.ok(sources.every(({text, pattern}) => [...text.matchAll(pattern)].length > 0), 'the ground-truth patterns matched nothing');
+    const result = checkGraphClassFiles(found, root, sources);
+    assert.deepEqual(result, {missing: [], noFile: []});
+});
+
+test('the drift guard fails when the parser returns fewer classes or a wrong directory', () => {
+    const path = require('node:path');
+    const root = path.join(__dirname, '..');
+    const {graphClassFiles} = require('./transient-state-scope.cjs');
+    const found = graphClassFiles(root);
+    const sources = realSources(root);
+    assert.notDeepEqual(checkGraphClassFiles(found.slice(1), root, sources).missing, []);
+    assert.notDeepEqual(checkGraphClassFiles(found.map(entry => ({...entry, dir: 'src/graphs/nowhere'})), root, sources).noFile, []);
+});

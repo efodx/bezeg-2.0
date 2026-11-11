@@ -33,11 +33,16 @@ function parseArgs(argv) {
     return {ids, out, noChange};
 }
 
-function deriveIds() {
+function deriveIds(read = file => fs.readFileSync(path.join(root, file), 'utf8')) {
     // Rows live in src/demonstrations.ts and in each registered family's registration.ts (src/graphs/projective/).
-    const rowSource = ['src/demonstrations.ts', 'src/graphs/projective/registration.ts'].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+    const rowSource = ['src/demonstrations.ts', 'src/graphs/projective/registration.ts'].map(read).join('\n');
     const demonstrations = [...rowSource.matchAll(/^\s*\{id: '([^']+)', path: '([^']+)'/gm)].map(m => ({id: m[1], route: m[2]}));
-    const clips = new Set([...fs.readFileSync(path.join(root, 'src/demonstrationMotionAssets.ts'), 'utf8').matchAll(/^\s*'([^']+)': \{src: /gm)].map(m => m[1]));
+    const clips = new Set([...read('src/demonstrationMotionAssets.ts').matchAll(/^\s*'([^']+)': \{src: /gm)].map(m => m[1]));
+    // The rows and clips are read by regex: fail loudly when a source shape change makes them vanish or stop matching.
+    if (demonstrations.length === 0 || clips.size === 0) throw new Error(`row parser matched ${demonstrations.length} rows and ${clips.size} clips; the source shape changed`);
+    const known = new Set(demonstrations.map(d => d.id));
+    const stray = [...clips].filter(id => !known.has(id));
+    if (stray.length) throw new Error(`clip ids without a parsed Demonstration row (row parser drift?): ${stray.join(', ')}`);
     return {all: demonstrations, clipCount: clips.size, targets: demonstrations.filter(d => !clips.has(d.id))};
 }
 
@@ -271,4 +276,6 @@ async function main() {
     if (entries.length !== selected.length || (!options.ids.length && entries.length !== all.length - clipCount)) { console.error(`entry count ${entries.length} != derived ${selected.length}`); process.exit(1); }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+module.exports = {deriveIds};
+
+if (require.main === module) main().catch(e => { console.error(e); process.exit(1); });
