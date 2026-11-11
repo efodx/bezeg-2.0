@@ -23,11 +23,12 @@ The owner waived the session-usage limit behind the workflow's three-worker cap 
 | Curves | [curves.md](curves.md) | Geometry of curves → B-splines and NURBS → interpolation and approximation → distributions/CLT/correlation → advanced Bézier topics | 4314 | — |
 | Functions | [functions.md](functions.md) | Numerical methods → function graphs for the matura → projective conics → Fourier series | 4315 | — |
 | Maps | [maps.md](maps.md) | Linear maps → complex maps → triangle geometry and inversion | 4316 | — |
-| Controls | [controls.md](controls.md) | Shared graph controls, tasks 0–4 → rendered style contracts → lesson panel findings → phone playback → lesson-authoring workstreams 5, 4 and 3 | 4317 | — |
+| Controls | [controls.md](controls.md) | Shared graph controls, tasks 0–4 → rendered style contracts → lesson panel findings → phone playback → lesson-authoring workstreams 5, 4 and 3 (complete 2026-11-11) | 4317 | — |
 | Contracts | [contracts.md](contracts.md) | Runtime contracts tasks 1, 5 and 4 → lesson-authoring workstream 2 | 4318 | — |
 | Clips | [clips.md](clips.md) | Lesson-guided catalog clips for the 67 Demonstrations without one | 4319 | — |
 | Collision | [collision.md](collision.md) | Collision playground: sweep chapter (batches A, B) → convexity chapter polygons (batch C) | 4320 | — |
 | Families prep | [families-prep.md](families-prep.md) | Specs, plans and kernels for the [top-15 candidates](../../research/lesson-family-candidates-2026-11-09.md); graphs only where Controls allows | 4321 | — |
+| Controls visual | [controls-visual.md](controls-visual.md) | Graph control visual polish → carried controls items → test consolidation (owner request 2026-11-11) | 4322 | — |
 
 Chains follow the [family dependencies](../../specs/new-lesson-families.md#dependencies-and-order): each family's prerequisites sit earlier in its own stream or behind a gate.
 
