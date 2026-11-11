@@ -166,6 +166,16 @@ describe('L3 acceptance 4: refusals change nothing', () => {
         view.unmount();
     });
 
+    test('a refused knot with a decimal is written with the separator of the language shown after a switch', () => {
+        const {graph, view} = mount();
+        act(() => { expect(graph.insert(2.5)).toBe(false); });
+        expect(refusalText()).toContain('2,5');
+        act(() => setLanguage('en'));
+        expect(refusalText()).toContain('knot 2.5 lies');
+        expect(refusalText()).not.toContain('2,5');
+        view.unmount();
+    });
+
     test('the domain ends are inside the domain: u = 0 raises the end knot above k + 1 only after k + 1 copies exist', () => {
         const {graph, view} = mount();
         // u = 0 already has multiplicity 3 = k + 1 in the clamped example, so it is refused for that reason.

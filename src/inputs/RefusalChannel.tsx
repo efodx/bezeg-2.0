@@ -3,10 +3,15 @@ import {Message, renderMessage, useT} from "../localization";
 import "./RefusalChannel.css";
 
 /** What a graph tells the learner when the model refused an edit: a localizable message, or a plain text when only that exists. */
-export type Refusal = Message | string;
+export type Refusal = Message | string | (() => Message | string);
+
+/** The refusal's text now: a function is called at render, so that numbers it formats follow the current language. */
+function resolved(refusal: Refusal): Message | string {
+    return typeof refusal === "function" ? refusal() : refusal;
+}
 
 function sameRefusal(a: Refusal, b: Refusal): boolean {
-    if (typeof a === "string" || typeof b === "string") return a === b;
+    if (typeof a === "string" || typeof b === "string" || typeof a === "function" || typeof b === "function") return a === b;
     const keys = Object.keys(a.params);
     return a.key === b.key && keys.length === Object.keys(b.params).length
         && keys.every(name => {
@@ -58,7 +63,8 @@ export class RefusalChannel {
  */
 export function RefusalNotice({channel}: {readonly channel: RefusalChannel}) {
     useT(); // re-render on a language switch
-    const refusal = channel.refusal;
+    const current = channel.refusal;
+    const refusal = current === undefined ? undefined : resolved(current);
     return <div role="status" aria-live="polite" data-refusal-notice>
         {refusal !== undefined && <p key={channel.announcements} className="inspector-help">{typeof refusal === "string" ? refusal : renderMessage(refusal)}</p>}
     </div>;

@@ -196,7 +196,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         const plan = planInsertion(knots, degree, points, x);
         if (!plan.ok) {
             const refusal = {reason: plan.reason, value: x};
-            this.refusals.refuse(insertionRefusalMessage(refusal, knots, degree, points.length), true);
+            this.refusals.refuse(() => insertionRefusalMessage(refusal, knots, degree, points.length), true);
             this.setState({refusal});
             return false;
         }
