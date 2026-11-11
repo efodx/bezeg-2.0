@@ -10,6 +10,7 @@ import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {ReadoutHeading} from "../base/controls/ReadoutParts";
 
 /**
  * Shared foundation of the function and calculus demonstrations (ADR 0007).
@@ -463,7 +464,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return <div className="function-inspector">
             {this.renderControls()}
             {reveals && <div className="inspector-reveals">
-                <h3 className="inspector-reveals-title">{t("inspector_reveals")}</h3>
+                <ReadoutHeading>{t("inspector_reveals")}</ReadoutHeading>
                 {reveals}
             </div>}
             {this.renderReadout()}

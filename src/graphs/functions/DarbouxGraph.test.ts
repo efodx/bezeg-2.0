@@ -618,7 +618,7 @@ test('Edit order: the reveal area (lower and upper sums) sits between the contro
     expect(children[0].props?.className).toBeUndefined(); // controls
     expect(children[1].props.className).toBe('inspector-reveals');
     const [heading, reveals] = React.Children.toArray(children[1].props.children) as any[];
-    expect(heading.props.className).toBe('inspector-reveals-title');
+    expect(heading.type.name).toBe('ReadoutHeading');
     expect(reveals.props.children[0].props.className).toBe('darboux-actions');
     expect(children[2].props.className).toBeUndefined(); // readout
     expect(children[3].type.name).toBe('RefusalNotice');
