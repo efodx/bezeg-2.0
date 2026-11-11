@@ -319,4 +319,3 @@ export function buildSolidsScene(s: SolidsGeometry & {readonly camera: SurfaceSc
     const {scene} = drawing;
     return {revision, ...scene, camera: {...s.camera, target: [...s.camera.target] as Xyz}, interaction: {zMode: false, editable: false}};
 }
-
