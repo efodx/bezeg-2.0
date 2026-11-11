@@ -1,6 +1,6 @@
 # Graph control visual polish
 
-Status: scheduled 2026-11-11 (stream [controls-visual](../tasks/feature-streams/controls-visual.md)). Acceptance criteria below are a draft; the stream's handler finalises them from the audit (step 1) before any styling slice.
+Status: in progress 2026-11-11 (stream [controls-visual](../tasks/feature-streams/controls-visual.md)). Acceptance criteria finalised from the [audit](../reviews/feature-streams/controls-visual/audit.md) (step 1, `bf843c25`, 122 routes, three views).
 
 ## Problem
 
@@ -20,16 +20,42 @@ Out: the graph drawing itself ([graph visual style](graph-visual-style.md), [ren
 2. **Tokens and prototype.** Name control tokens (spacing, control height, radius, border, focus ring, typography) as CSS custom properties derived from the DESIGN.md palette. Restyle the shared components on one route (`/bezier/curve`), and compare before and after screenshots. Record the chosen look in a "Graph controls" section of DESIGN.md.
 3. **Rollout by component.** One slice per component kind; most changes are shared CSS, so each slice reaches every route. Remove per-graph overrides that the shared style makes unnecessary.
 
-## Acceptance criteria (draft)
+## Audit summary
 
-1. Every shared control kind uses the named tokens; no per-graph CSS sets a control's height, radius, border or focus ring except a recorded exception.
-2. Text and control boundaries meet WCAG 2.2 contrast (4.5:1 text, 3:1 boundaries and focus indicator); every focusable control shows a visible focus ring.
-3. On coarse pointers every interactive target is at least 44 CSS px, including inspector fields and checkboxes.
-4. No control's label, value or hint is clipped at 1440 × 900, 1024 × 768, 390 × 844 and 360 × 640 or at 200 % text (the `just controls-fixture` views), and no new horizontal scroll appears.
-5. The graph stays prominent: at 1440 × 900 the board area is not smaller than before the change on any route.
-6. Before and after screenshots of the audited routes are recorded, and a UI and accessibility review accepts each slice.
+The [audit](../reviews/feature-streams/controls-visual/audit.md) ranked, by routes × severity: (1) Presentation mode keeps dark ink on the navy inspector (text 1.1–2.6 : 1 on 27 of 31 sampled routes); (2) button, field and select borders 1.48 : 1 against the panel on all 122 routes; (3) four button heights (34, 38, 44, 47 px) and fields 40 px beside 34 px buttons; (4) radii 0, 2 and 4 px, `.btn-group` forced with `!important`; (5) checkbox 18 × 18 and switch 32 × 18 side by side; (6) the focus ring literal `#577cc3` repeated in four files with offsets 0–3 px, and no ring on two buttons; (7) a 31 px `pointset-remove` and a 24 px `summary` on touch; (8) sliders with no boundary; (9) disabled shown by opacity alone; (10) seven font sizes in the inspector. No horizontal overflow or clipping was found. The two known items were not reproduced: inspector number fields are 44 px on touch (they render as `type=text`, so `WorkspaceControls.css:54` does not match), and the projective checkboxes are the shared 18 px box.
+
+## Acceptance criteria
+
+1. Every shared control kind reads its height, radius, border, focus ring and font size from the `--bezeg-control-*` tokens; no per-graph CSS sets a control's height, radius, border or focus ring except a recorded exception.
+2. Text meets 4.5 : 1 and control boundaries and the focus indicator 3 : 1 against their surface, in the normal and the Presentation inspector. Disabled (`aria-disabled`) controls are exempt from the text ratio (WCAG 1.4.3) but must still look unavailable without relying on opacity alone. Every focusable control shows the token focus ring.
+3. On coarse pointers every interactive target is at least 44 CSS px in both dimensions. A checkbox or switch whose wrapping `<label>` row is at least 44 px high and as wide as the inspector passes through the label.
+4. No control's label, value or hint is clipped at 1440 × 900, 1024 × 768, 390 × 844 and 360 × 640 or at 200 % text (the `just controls-fixture` views), and no horizontal scroll appears (audit: 0 of 122).
+5. The graph stays prominent: the board is not smaller than the audit baseline on any route, 1002 × 594 at 1440 × 900 and 982 × 620 in Presentation.
+6. Before and after screenshots of the affected routes are recorded under `docs/reviews/feature-streams/controls-visual/` (images stay in the clean worktree's `.command-logs/`), and a UI and accessibility review accepts each slice.
 7. DESIGN.md gains a "Graph controls" section that names the tokens and components.
+
+## Tokens
+
+Defined once in `src/inputs/controlTokens.css` on `:root`, re-bound under `.is-presenting`. Components read the tokens; Presentation changes only the colour tokens.
+
+| Token | Value | Presentation |
+| --- | --- | --- |
+| `--bezeg-control-height` | 38px; 44px on `(pointer: coarse)` | same |
+| `--bezeg-control-radius` | 6px; groups round only their outer corners | same |
+| `--bezeg-control-border` | 1px solid `#767f6c` (4.11 : 1 on the panel `#fffdf5`, 3.66 : 1 on the canvas `#f4f0df`) | `#8f9bb3` (5.55 : 1 on `#17243b`) |
+| `--bezeg-control-ink` | the workspace ink | `#f8f0d7` (13.6 : 1) |
+| `--bezeg-control-surface` | the panel | `#20304a` |
+| `--bezeg-control-focus` | 3px solid `#456db0` (DESIGN `focus`, 5.07 : 1 on the panel), offset 2px | `#f2c66d` (9.67 : 1 on navy) |
+| `--bezeg-control-font-size` | 0.875rem (14px) for buttons, selects and labels; text fields keep 1rem so mobile browsers do not zoom on focus | same |
+| `--bezeg-control-gap` | 8px | same |
+| boolean box | checkbox 20 × 20; switch 36 × 20; both use the border and focus tokens | same |
 
 ## Decisions
 
 Recorded by the stream handler as they are made: choice, reason, rejected alternative.
+
+- 2026-11-11, control height 38 px on fine pointers. It sits between the 34 px buttons and 40 px fields so both kinds align in one row, and the inspector grows only slightly; the board size does not depend on inspector height. Rejected: 44 px everywhere (longer inspector on desktop, DESIGN's 44 px applies to primary shell actions) and 34 px (fields would shrink below a comfortable text box).
+- 2026-11-11, radius 6 px. Softer than the current 2 px and still below the shell's 8 px action and 10 px choice radii, so graph controls read as a quieter tier. Rejected: 8 px (equal to shell primary actions, too heavy for dense groups) and keeping 2 px (the owner's complaint).
+- 2026-11-11, focus colour `#456db0`, not the workspace's `#577cc3`: the DESIGN focus role, 5.07 : 1 on the panel against 4.06; in Presentation the pollen `#f2c66d`, because blue on navy fails 3 : 1.
+- 2026-11-11, both boolean looks stay: the switch for immediate display toggles, the checkbox for choices within a set (existing component variants); only their sizes, borders and focus are unified. Rejected: one look for all (changes component meaning across 82 routes without a behavioural reason).
+- 2026-11-11, prototype scope (step 2): the token file plus buttons and button groups, number fields, selects, the focus ring and the Presentation re-binding, checked on `/bezier/curve` and its Presentation view. These are the kinds visible on that route and cover findings 1, 2, 3, 4, 6 and 10. Steps 3a–3c take booleans, sliders, count setters and disclosures, then per-graph overrides.
