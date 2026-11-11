@@ -415,4 +415,29 @@ describe('import and the live scene', () => {
         act(() => graph.importPresetData({degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]}));
         expect(objects(graph).some(element => first.includes(element))).toBe(false);
     });
+
+    test('an import of the same shape with other knots and points redraws the curve, the blossom and its label from the new data', () => {
+        const {graph, board} = mount();
+        const first = objects(graph);
+        const data = graph.exportPresetData();
+        const other: BSplinePresetData = {degree: data.degree, knots: [0, 0, 0, 0.5, 3, 3, 3], points: [[-1, 1], [0, 3], [2, -1], [5, 1]]};
+        expect(other.points).toHaveLength(data.points.length);
+        expect(other.knots).not.toEqual(data.knots);
+        act(() => graph.importPresetData(other));
+        expect(objects(graph).every((element, i) => element === first[i])).toBe(true);
+        const scene = graph.sceneOf();
+        expect(scene.curve.getCurve().getKnots()).toEqual(other.knots);
+        scene.curve.getJxgPoints().forEach((point, i) => near(drawn(point as unknown as {X(): number, Y(): number}), other.points[i]));
+        const {segment, args} = graph.state;
+        const expected = blossomSnapshot(other.knots, other.degree, other.points, segment, args)!;
+        near(drawn(scene.levelElements(other.degree)[0]), expected.value);
+        near(graph.snapshot()!.value, expected.value);
+        // The drawn curve passes through the model's own evaluation at the domain's start, which the new knots and points set.
+        const curve = scene.curve.getJxgCurve() as unknown as {X(t: number): number, Y(t: number): number};
+        near([curve.X(0), curve.Y(0)], other.points[0], 1e-9);
+        act(() => board.update());
+        const label = scene.labelElement() as unknown as {plaintext: string};
+        expect(label.plaintext).toBe(scene.labelText());
+        expect(scene.labelText()).toContain(String(args[0]).replace('.', ','));
+    });
 });
