@@ -81,11 +81,11 @@ interface Subject {
     structural: unknown;
     /** The default scene's degree and point count with moved points. */
     sameShape(defaults: Data): unknown;
-    /** Whether a Preset import of the same shape keeps the scene (NURBS) or always rebuilds it (Blossom's `importPresetData`). */
+    /** Whether a Preset import of the same shape keeps the scene (NURBS, Blossom). */
     keepsSceneOnSameShapeImport: boolean;
     /** Scenes a remount builds and throws away before the live one. */
     discardedOnRemount: number;
-    /** Scenes released by a figure entry-and-return from a 3-point scene: the entry scene and the figure scene, plus any scene `importPresetData` builds and discards (Blossom always calls `ensureScene`, so it releases 4). */
+    /** Scenes released by a figure entry-and-return from a 3-point scene: the entry scene and the figure scene. */
     figureReleases: number;
     /** Where the dependent drawing shows C or f now, and where the state says it is. */
     dependent(graph: GraphLike): {drawn: number[]; expected: number[]};
@@ -101,9 +101,9 @@ const blossomSubject: Subject = {
     Scene: BSplineBlossomScene as unknown as Subject['Scene'],
     structural: {degree: 2, knots: [0, 0, 0, 1, 1, 1], points: [[0, 0], [1, 2], [3, 0]]},
     sameShape: moved,
-    keepsSceneOnSameShapeImport: false,
-    discardedOnRemount: 1,
-    figureReleases: 4,
+    keepsSceneOnSameShapeImport: true,
+    discardedOnRemount: 0,
+    figureReleases: 2,
     dependent: graph => {
         const {knots, degree, points} = stateOf(graph);
         const b = graph as unknown as BSplineBlossomGraph;

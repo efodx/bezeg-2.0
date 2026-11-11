@@ -90,8 +90,8 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
     override importPresetData(data: BSplinePresetData) {
         assertBlossomCurve(data);
         const points = data.points.map(point => [point[0], point[1]] as const);
+        // The state change synchronizes the live scene, which keeps its board objects when the degree and point count fit.
         this.setState(this.freshChoice(data.degree, [...data.knots], points));
-        this.rebuildOwnedScene();
     }
 
     /**

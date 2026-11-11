@@ -396,3 +396,23 @@ describe('degree stepper wiring', () => {
         view.unmount();
     });
 });
+
+describe('import and the live scene', () => {
+    const objects = (graph: ObservedGraph) => [...graph.sceneOf().ownedElements(), ...graph.sceneOf().curve.getJxgPoints(), graph.sceneOf().curve.getJxgCurve()];
+
+    test('importing the current data keeps the board objects; changed data of the same shape moves them in place; another shape rebuilds', () => {
+        const {graph, board} = mount();
+        const first = objects(graph);
+        const created = board.objectsList.length;
+        act(() => graph.importPresetData(graph.exportPresetData()));
+        expect(objects(graph).every((element, i) => element === first[i])).toBe(true);
+        expect(board.objectsList.length).toBe(created);
+        const data = graph.exportPresetData();
+        const moved = {...data, points: data.points.map(([x, y], i) => i === 1 ? [x + 0.5, y + 0.25] as const : [x, y] as const)};
+        act(() => graph.importPresetData(moved));
+        expect(objects(graph).every((element, i) => element === first[i])).toBe(true);
+        near(drawn(graph.sceneOf().curve.getJxgPoints()[1] as unknown as {X(): number, Y(): number}), [moved.points[1][0], moved.points[1][1]]);
+        act(() => graph.importPresetData({degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]}));
+        expect(objects(graph).some(element => first.includes(element))).toBe(false);
+    });
+});
