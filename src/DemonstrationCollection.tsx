@@ -49,13 +49,14 @@ export function DemonstrationCollection({topic, query, onTopicChange, onQueryCha
     const {demonstrations, families} = getDemonstrationCatalog();
     const filtered = useMemo(() => {
         const terms = normalize(query.trim()).split(/\s+/).filter(Boolean);
-        return demonstrations.filter(entry => {
+        // Teaching order: family by family. The flat registry lists feature-registered rows (src/graphs/graphLoaders.ts) after the legacy ones.
+        return families.flatMap(family => family.demonstrations).filter(entry => {
             if (topic && entry.family !== topic) return false;
             const family = families.find(item => item.id === entry.family)!;
             const haystack = normalize(`${entry.catalogTitle} ${family.title} ${investigation(entry, t)}`);
             return terms.every(term => haystack.includes(term));
         });
-    }, [demonstrations, families, query, t, topic]);
+    }, [families, query, t, topic]);
 
     const labels = {
         graph: t('open_demonstration'),

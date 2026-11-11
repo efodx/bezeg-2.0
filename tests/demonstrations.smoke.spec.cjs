@@ -2,6 +2,8 @@ const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
 const h = require('./lesson-smoke-helpers.cjs');
 const catalogEntries = demonstrations.families.flatMap(family => family.demonstrations);
+/** Demonstrations whose default scene draws only board text (no curve, line, segment or point). */
+const TEXT_SCENE_IDS = ['counting-tree'];
 
 async function openEnglish(page, pathname) {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
@@ -29,18 +31,25 @@ async function expectRenderedWorkspace(page, demonstration) {
             };
         }, declared)}), {timeout: 20_000}).toEqual({drawn: true, framed: true, projected: true});
     } else {
-        await expect.poll(async () => board.evaluate(container => {
+        // A route whose default scene is board text only (counting-tree opens on its table, axes off) counts its non-empty texts instead.
+        const textScene = TEXT_SCENE_IDS.includes(demonstration.id);
+        await expect.poll(async () => board.evaluate((container, textScene) => {
             const boards = Object.values(window.JXG?.boards || {});
             const jxgBoard = boards.find(candidate => candidate.container === container.id || candidate.containerObj === container);
             if (!jxgBoard) return 0;
             return Object.values(jxgBoard.objects || {}).filter(object => {
+                if (textScene) {
+                    if (object.elType !== 'text' || object.visProp?.visible === false || !object.rendNode?.isConnected || !object.rendNode.textContent.trim()) return false;
+                    const textStyle = getComputedStyle(object.rendNode);
+                    return textStyle.display !== 'none' && textStyle.visibility !== 'hidden';
+                }
                 if (!['curve', 'line', 'segment', 'point'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
                 const node = object.rendNode;
                 if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1') || node.getAttribute?.('cx'))) return false; // curves are paths; lines and segments (polygon borders) are SVG lines; points are ellipses (a point-set scene at step 0 draws only points)
                 const style = getComputedStyle(node);
                 return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
             }).length;
-        }), {timeout: 20_000}).toBeGreaterThan(0);
+        }, textScene), {timeout: 20_000}).toBeGreaterThan(0);
     }
 
     const inspector = page.getByRole('complementary', {name: 'Demonstration tools'});

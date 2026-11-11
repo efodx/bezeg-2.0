@@ -35,8 +35,11 @@ test('the catalogue shows the ordered collection and only supported lesson desti
     expect(screen.getByRole('status')).toHaveTextContent(`Prikazanih ${catalog.demonstrations.length} od ${catalog.demonstrations.length}`);
     const cards = [...view.container.querySelectorAll<HTMLLIElement>('.demonstrations-catalog-card')];
     expect(cards).toHaveLength(catalog.demonstrations.length);
+    // Teaching order is family by family, also for rows registered feature-locally (listed last in the flat registry).
+    const ordered = catalog.families.flatMap(family => family.demonstrations);
+    expect(ordered).toHaveLength(catalog.demonstrations.length);
     cards.forEach((card, index) => {
-        const entry = catalog.demonstrations[index];
+        const entry = ordered[index];
         expect(card.querySelector('.demonstrations-catalog-family')).toHaveTextContent(
             catalog.families.find(family => family.id === entry.family)!.title,
         );
