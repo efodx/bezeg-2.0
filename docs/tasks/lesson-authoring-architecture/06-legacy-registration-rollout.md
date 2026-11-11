@@ -6,7 +6,7 @@ Status: planned, 2026-11-11. Source: [rollout scope and R1–R3](../../specs/les
 
 Start from `legacyDemonstrationRows` in `src/demonstrations.ts`, `graphFactories.ts`, `graphLoaders.ts`, `PresetImport.ts`, `guidedLessonOwnership.ts`, `chapterOwnedLessons.ts` and capture/inventory composition. Reuse the projective implementation and [ADR 0059](../../adr/0059-feature-local-registration.md).
 
-The baseline has 113 legacy entries in: basics; polynomial Bézier; rational; splines; PH; parameterization; curve geometry; interpolation; B-splines; patches; functions; analysis; probability; maps; plane geometry; computational geometry. These catalog groupings guide batches, but implementation modules follow real ownership and may serve several groups. Newly registered Families-prep graphs keep their stream owner.
+The baseline has 113 legacy entries in 16 catalog families: basics (2); polynomial Bézier (11); rational (7); splines (5); PH (2); parameterization (3); curve geometry (6); interpolation (5); B-splines (6, including the task 04 pilots); patches (7); functions (14); analysis (16); probability (5); maps (3); plane geometry (5); computational geometry (16). These catalog groupings guide batches, but implementation modules follow real ownership and may serve several groups: `bezier-clipping` is cataloged under polynomial Bézier and implemented in `src/graphs/compgeo`. Newly registered Families-prep graphs keep their stream owner.
 
 ## Steps
 

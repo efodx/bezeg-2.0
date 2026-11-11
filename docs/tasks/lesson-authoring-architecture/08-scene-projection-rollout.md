@@ -6,7 +6,7 @@ Status: planned, 2026-11-11. Source: [rollout scope and P1–P3](../../specs/les
 
 Use `ScenePersistence.ts`, `projectivePersistence.ts`, graph export/import/figure/default-lesson hooks, collection state checks and `PRESET_DATA_STATE_KEYS` in `graphTransientStateContract.tsx`.
 
-First finish the remaining projective consumers: CrossRatio, Pascal and PolePolar. Then cover the baseline legacy model entries in the transient-state inventory: point-set/algorithm graphs, triangle-centres, inscribed-angle, Euler line, Simson line and inversion. Group inherited mappings under `PointSetGraph` where their contracts truly agree; triangulation's extra state needs its own classification. Exclude the newly registered trigonometry, line, isometry, circle-construction and combinatorics entries owned by Families-prep, and its in-flight Random/Kinematics additions.
+First finish the remaining projective consumers: CrossRatio, Pascal and PolePolar. Then cover the baseline legacy model entries in the transient-state inventory: point-set/algorithm graphs, triangle-centres, inscribed-angle, Euler line, Simson line and inversion. That is 25 rows of `PRESET_DATA_STATE_KEYS`: 3 projective and 22 legacy (17 point-set/algorithm rows, with `bezier-clipping` from the Bézier catalog family, and 5 plane-geometry rows). All 22 legacy graphs extend `PointSetGraph`. Group inherited mappings under `PointSetGraph` where their contracts truly agree; triangulation's extra state needs its own classification. Exclude the newly registered trigonometry, line, isometry, circle-construction and combinatorics entries owned by Families-prep, and its Random/Kinematics additions (`prob-simulation` and `curve-kinematics`, on master since `8c106849`).
 
 ## Steps
 
@@ -17,6 +17,6 @@ First finish the remaining projective consumers: CrossRatio, Pascal and PolePola
 
 ## Coordination, verification and completion
 
-Serialize `BaseGraph`/replacement hooks with task 07 and collection-root edits with task 06 or Families-prep. Families-prep currently edits `graphTransientStateContract.tsx` and `PresetCatalog.test.tsx`; integrate removals after its additions land, retaining its coverage. Coordinate shared projective/lifecycle test files with Controls visual.
+Serialize `BaseGraph`/replacement hooks with task 07 and collection-root edits with task 06 or Families-prep. Task 07 also migrates scene ownership in `InscribedAngleGraph`, `SimsonLineGraph` and `InversionGraph`; one task holds those files and `PointSetGraph` at a time. Families-prep currently edits `graphTransientStateContract.tsx` and `PresetCatalog.test.tsx`; integrate removals after its additions land, retaining its coverage. Coordinate shared projective/lifecycle test files with Controls visual.
 
 Meet P1–P3 through independent round trips, partial/malformed inputs, fresh reconstruction after different prior scenes, reset/lesson/figure return and mathematical board observations. Retain legacy valid fixtures and verify no stored key or format changed. Use the current runtime publication recipe and affected browser flows; shared host changes require the full shared checklist. Completion records declarations adopted, duplicate mappings deleted, inventory dispositions and exact coverage.

@@ -10,6 +10,8 @@ Disposition these baseline candidates, found with local scene/ensureScene/remove
 - `InterpolationGraph`, `HermiteGraph`, `SubdivisionCurveGraph`, `ParametricCurveGraph`.
 - `InscribedAngleGraph`, `SimsonLineGraph`, `InversionGraph`.
 
+`SceneDeclaration` and `SceneSlot` are in `src/graphs/base/OwnedScene.ts`; `BSplineBlossomGraph` and `BSplineNurbsGraph` are the migrated references. The eight curve candidates extend `BaseGraph` and hold one optional scene object. The three plane-geometry candidates extend `PointSetGraph` and track lists of board objects instead; task 08 covers the same three graphs.
+
 Inspect each graph's scene and inheritance before selecting it. The slot fits one graph-owned standalone scene; a similarly named mathematical cache alone is not an owned drawing scene. Existing curve-object ownership, auxiliary boards and surface views remain with their appropriate owners. New Families-prep scenes are outside this baseline task.
 
 ## Steps
@@ -21,6 +23,6 @@ Inspect each graph's scene and inheritance before selecting it. The slot fits on
 
 ## Coordination, verification and completion
 
-Serialize host-hook changes with task 08; task 06 may prepare registration metadata independently but must not edit the same graph imports concurrently. Controls visual's disposal-test consolidation is a shared-file dependency only for the affected batch.
+Serialize host-hook changes with task 08, and take `InscribedAngleGraph`, `SimsonLineGraph` and `InversionGraph` only while task 08 is not editing them or `PointSetGraph`; task 06 may prepare registration metadata independently but must not edit the same graph imports concurrently. Controls visual's disposal-test consolidation is a shared-file dependency only for the affected batch.
 
 Meet O1–O3 through real-host lifecycle, lesson/checkpoint/figure restoration and construction-failure checks, plus relevant mathematical observations. Use focused route smoke for consumer-only changes and the full shared checklist when host/lesson-runtime behavior changes. Record exact object/listener assertions retained through any test consolidation and the final disposition of every candidate.
