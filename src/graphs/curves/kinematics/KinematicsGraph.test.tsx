@@ -1,4 +1,4 @@
-import {writeFileSync} from 'node:fs';
+import {mkdirSync, writeFileSync} from 'node:fs';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -463,6 +463,7 @@ describe('redraw timing (JSDOM PLACEHOLDER, not a browser measurement)', () => {
         const sorted = [...times].sort((a, b) => a - b);
         const median = sorted[Math.floor(sorted.length / 2)];
         const p95 = sorted[Math.floor(sorted.length * 0.95)];
+        mkdirSync('.command-logs', {recursive: true});
         writeFileSync('.command-logs/kin02b-redraw.log', `JSDOM PLACEHOLDER kinematics playback frame: n=${times.length} median=${median.toFixed(2)} ms p95=${p95.toFixed(2)} ms (browser measurement owed at F2b)
 `);
         expect(times.length).toBeGreaterThan(30);
