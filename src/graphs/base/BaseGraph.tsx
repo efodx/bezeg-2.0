@@ -964,6 +964,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.graphSession = undefined;
         this.board = undefined as unknown as Board;
         session?.dispose();
+        // The session disposal released the scene; a disposed graph keeps no slot, and `mount` declares a new one.
+        this.sceneSlot = undefined;
         // Nothing renders after this, so onStateChange would only touch a disposed scene. Callbacks (for example a
         // figure batch waiting for its commit) re-check the session and settle their promises.
         this.pendingPreviousState = undefined;

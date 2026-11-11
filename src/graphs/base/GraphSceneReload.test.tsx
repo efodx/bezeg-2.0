@@ -6,6 +6,7 @@ import DecasteljauGraph from '../curves/bezier/DecasteljauGraph';
 import SubdivisionGraph, {MAX_SUBDIVISION_STEPS} from '../curves/bezier/SubdivisionGraph';
 import ExtrapolationGraph from '../curves/bezier/ExtrapolationGraph';
 import G1SplineGraph from '../curves/spline/G1SplineGraph';
+import BSplineBlossomGraph from '../curves/bspline/BSplineBlossomGraph';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
 import {appStorage} from '../../storage/appStorage';
@@ -177,4 +178,21 @@ test('a mount with a selection whose preset no longer exists clears the selectio
     const view = renderGraph(graph);
     expect(graph.selectedPresetId).toBe('');
     view.unmount();
+});
+
+test('an unmounted graph holds no scene slot, and a remount recreates it', () => {
+    const graph = new BSplineBlossomGraph();
+    const view = renderGraph(graph);
+    expect(graph['scene']).toBeDefined();
+
+    view.unmount();
+    expect(graph['scene']).toBeUndefined();
+    expect(graph['sceneSlot']).toBeUndefined();
+
+    const container = document.createElement('div');
+    graph.mount(container);
+    expect(graph['scene']).toBeDefined();
+    graph.unmount();
+    expect(graph['scene']).toBeUndefined();
+    expect(graph['sceneSlot']).toBeUndefined();
 });
