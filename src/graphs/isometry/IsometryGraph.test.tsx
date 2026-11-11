@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
@@ -63,6 +64,10 @@ test('every point on the board has finite coordinates in every mode', () => {
     const {graph} = mountGraph();
     for (const mode of ['mirrors', 'classify', 'similarity', 'rosette', 'frieze'] as const) {
         chooseMode(mode);
+        if (mode !== 'frieze') {
+            act(() => { graph.setState({motionLength: 3}); });
+            expectHandleHitZones(graph.liveBoard(), graph.handles().values(), HANDLE_TOUCH_RADIUS + HIT_SLACK);
+        }
         for (const o of probes(graph).filter(p => p.elType === 'point')) {
             expect(Number.isFinite(o.X!())).toBe(true);
             expect(Number.isFinite(o.Y!())).toBe(true);
@@ -413,25 +418,6 @@ describe('keyboard and touch', () => {
         expect(document.body.textContent).toContain('Puščici gor in dol');
     });
 
-    test('every handle has a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as {_inputDevice: string};
-        expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-        for (const mode of ['mirrors', 'classify', 'similarity', 'rosette'] as const) {
-            chooseMode(mode);
-            act(() => { graph.setState({motionLength: 3}); });
-            expect(graph.handles().size).toBeGreaterThan(0);
-            for (const handle of graph.handles().values()) {
-                const [, x, y] = handle.coords.scrCoords;
-                board._inputDevice = 'touch';
-                expect(handle.hasPoint(x + 25, y)).toBe(true);
-                expect(handle.hasPoint(x, y - 25)).toBe(true);
-                expect(handle.hasPoint(x + 40, y)).toBe(false);
-                board._inputDevice = 'mouse';
-                expect(handle.hasPoint(x + 25, y)).toBe(false);
-            }
-        }
-    });
 });
 
 describe('dragging', () => {

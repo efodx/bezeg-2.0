@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
@@ -417,19 +418,6 @@ describe('target, keyboard and touch', () => {
         expect(graph.state.c).toBe(-1);
     });
 
-    test('the target handle has a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as {_inputDevice: string};
-        const handle = graph.targetHandle()!;
-        expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-        const [, x, y] = handle.coords.scrCoords;
-        board._inputDevice = 'touch';
-        expect(handle.hasPoint(x + 25, y)).toBe(true);
-        expect(handle.hasPoint(x, y - 25)).toBe(true);
-        expect(handle.hasPoint(x + 40, y)).toBe(false);
-        board._inputDevice = 'mouse';
-        expect(handle.hasPoint(x + 25, y)).toBe(false);
-    });
 });
 
 describe('controls', () => {
@@ -465,6 +453,7 @@ describe('controls', () => {
 describe('ownership', () => {
     test('mount, state change, view change, rebuild and unmount: objects and listeners are owned and released', () => {
         const {graph, view} = mountGraph();
+        expectHandleHitZones(graph.liveBoard(), [graph.targetHandle()!], HANDLE_TOUCH_RADIUS + HIT_SLACK);
         const board = graph.liveBoard();
         const owned = graph.ownedObjectCount();
         const base = board.objectsList.length - owned;

@@ -7,6 +7,7 @@ import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {GraphPalette} from '../styles/GraphPalette';
 import {GRID_LIMIT} from './lineGeometryModel';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {ARC_RADIUS, HANDLE_TOUCH_RADIUS, HIT_SLACK, LineGeometryGraph, NORMAL_ARROW_LENGTH, POINT_BIG_STEP, POINT_STEP, VIEW_HALF} from './LineGeometryGraph';
 
 beforeAll(installBoardShims);
@@ -394,24 +395,9 @@ test('dragging a handle snaps it to the grid inside [-8, 8], updates the state a
     expect(graph.handles().Q!.X()).toBe(8);
 });
 
-test('each handle has a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-    const {graph} = mountGraph();
-    const board = graph.liveBoard() as unknown as {_inputDevice: string};
-    expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-    for (const name of ['P', 'Q'] as const) {
-        const handle = graph.handles()[name]!;
-        const [, x, y] = handle.coords.scrCoords;
-        board._inputDevice = 'touch';
-        expect(handle.hasPoint(x + 25, y)).toBe(true);
-        expect(handle.hasPoint(x, y - 25)).toBe(true);
-        expect(handle.hasPoint(x + 40, y)).toBe(false);
-        board._inputDevice = 'mouse';
-        expect(handle.hasPoint(x + 25, y)).toBe(false);
-    }
-});
-
 test('mount, state change and unmount: objects and listeners are owned and released, and a rebuild does not duplicate them', () => {
     const {graph, view} = mountGraph();
+    expectHandleHitZones(graph.liveBoard(), [graph.handles().P!, graph.handles().Q!], HANDLE_TOUCH_RADIUS + HIT_SLACK);
     const preMount = graph.preMountCount;
     expect(preMount).toBeGreaterThan(0);
     const board = graph.liveBoard();

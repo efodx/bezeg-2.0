@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {en} from '../../localization/en';
@@ -14,7 +15,7 @@ import {DEFAULT_PHASE_STATE, entryOf, ORBIT_DURATION, type PhaseState} from '../
 import {RK4_STEP} from '../../dynamics/rk4';
 import {formatNumber} from '../../analysis/format';
 import {
-    HANDLE_MOUSE_RADIUS, HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
+    HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
 } from './PhasePortraitGraph';
 
 beforeAll(installBoardShims);
@@ -298,6 +299,7 @@ describe('the linear handles and numeric input', () => {
 
     test('dragging neither rebuilds the scene nor changes the number of objects; the column handles are shown only for the linear system', () => {
         const {graph} = mountGraph();
+        expectHandleHitZones(graph.liveBoard(), [graph.seedHandle(0)!, graph.columnHandle(0)!, graph.columnHandle(1)!], HANDLE_TOUCH_RADIUS + HIT_SLACK);
         const owned = graph.ownedObjectCount();
         const handle = graph.seedHandle(0)!;
         dragHandleTo(handle, 1, 1);
@@ -308,22 +310,6 @@ describe('the linear handles and numeric input', () => {
         chooseSystem('pendulum');
         expect(visible(column)).toBe(false);
         expect(document.querySelector(`input[aria-label="${labels.a()}"]`)).toBeNull();
-    });
-
-    test('the handles have a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as {_inputDevice: string};
-        expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-        expect(HANDLE_MOUSE_RADIUS).toBeLessThan(HANDLE_TOUCH_RADIUS);
-        for (const handle of [graph.seedHandle(0)!, graph.columnHandle(0)!, graph.columnHandle(1)!]) {
-            const [, x, y] = handle.coords.scrCoords;
-            board._inputDevice = 'touch';
-            expect(handle.hasPoint(x + 25, y)).toBe(true);
-            expect(handle.hasPoint(x, y - 25)).toBe(true);
-            expect(handle.hasPoint(x + 40, y)).toBe(false);
-            board._inputDevice = 'mouse';
-            expect(handle.hasPoint(x + 25, y)).toBe(false);
-        }
     });
 
     test('every numeric field and the zoom slider is described by the help that states the ranges', () => {

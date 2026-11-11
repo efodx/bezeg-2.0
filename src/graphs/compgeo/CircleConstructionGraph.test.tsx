@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
@@ -243,6 +244,8 @@ describe('numeric input per handle', () => {
         expect(handlePosition('c1r')).toEqual([5.5, -2]);
         act(() => { enterNumber(field(pointX('P')), '-7'); enterNumber(field(pointY('P')), '4'); });
         expect(handlePosition('p')).toEqual([-7, 4]);
+        const hitZones = () => expectHandleHitZones(graph.liveBoard(), graph.handles().values(), HANDLE_TOUCH_RADIUS + HIT_SLACK);
+        hitZones();
 
         chooseMode('radical');
         act(() => {
@@ -253,6 +256,7 @@ describe('numeric input per handle', () => {
         expect(handlePosition('c2r')).toEqual([5, 2]);
         expect(handlePosition('c3')).toEqual([-3, 5]);
         expect(handlePosition('c3r')).toEqual([-1.75, 5]);
+        hitZones();
 
         chooseMode('apollonius');
         act(() => {
@@ -263,11 +267,13 @@ describe('numeric input per handle', () => {
         expect(handlePosition('a')).toEqual([-4, 1]);
         expect(handlePosition('b')).toEqual([7, -6]);
         expect(graph.state.k).toBe(3);
+        hitZones();
 
         chooseMode('common');
         act(() => { enterNumber(field(centreX(2)), '9'); enterNumber(field(radiusLabel(2)), '0,25'); });
         expect(handlePosition('c2')).toEqual([9, 0]);
         expect(handlePosition('c2r')).toEqual([9.25, 0]);
+        hitZones();
     });
 
     test('a value outside the range is refused, a value off the grid is rounded to it', () => {
@@ -314,23 +320,6 @@ describe('keyboard and touch', () => {
         expect(document.body.textContent).toContain('Puščici gor in dol');
     });
 
-    test('every handle has a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as {_inputDevice: string};
-        expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-        for (const mode of ['tangents', 'radical', 'apollonius', 'common'] as const) {
-            chooseMode(mode);
-            for (const handle of graph.handles().values()) {
-                const [, x, y] = handle.coords.scrCoords;
-                board._inputDevice = 'touch';
-                expect(handle.hasPoint(x + 25, y)).toBe(true);
-                expect(handle.hasPoint(x, y - 25)).toBe(true);
-                expect(handle.hasPoint(x + 40, y)).toBe(false);
-                board._inputDevice = 'mouse';
-                expect(handle.hasPoint(x + 25, y)).toBe(false);
-            }
-        }
-    });
 });
 
 describe('dragging', () => {

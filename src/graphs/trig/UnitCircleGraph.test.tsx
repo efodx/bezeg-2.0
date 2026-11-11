@@ -2,6 +2,7 @@ import React from 'react';
 import {vi} from 'vitest';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
@@ -252,20 +253,6 @@ test('dragging snaps the handle to the nearest half-degree on the circle and upd
     expect(graph.ownedObjectCount()).toBeGreaterThan(10);
 });
 
-test('the handle has a touch hit zone of at least 44 px across and a mouse zone narrower than that', () => {
-    const {graph} = mountGraph();
-    const handle = handleOf(graph);
-    const board = graph.liveBoard() as unknown as {_inputDevice: string};
-    const [, x, y] = handle.coords.scrCoords;
-    expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-    board._inputDevice = 'touch';
-    expect(handle.hasPoint(x + 25, y)).toBe(true);
-    expect(handle.hasPoint(x, y - 25)).toBe(true);
-    expect(handle.hasPoint(x + 40, y)).toBe(false);
-    board._inputDevice = 'mouse';
-    expect(handle.hasPoint(x + 25, y)).toBe(false);
-});
-
 test('the unrolled traces are the circle point doubles at all 720 half-degrees, and the point reads the same table', () => {
     const trace = unrolledTrace();
     expect(trace.xs).toHaveLength(721);
@@ -323,6 +310,7 @@ test('the toggles show the cosine, the three symmetric points and the second ang
 
 test('mount, state change and unmount: objects and listeners are owned and released, and a rebuild does not duplicate them', () => {
     const {graph, view} = mountGraph();
+    expectHandleHitZones(graph.liveBoard(), [handleOf(graph)], HANDLE_TOUCH_RADIUS + HIT_SLACK);
     const board = graph.liveBoard();
     const owned = graph.ownedObjectCount();
     const boardCount = board.objectsList.length;

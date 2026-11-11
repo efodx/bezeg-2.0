@@ -1,6 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
@@ -225,24 +226,9 @@ test('dragging a vertex snaps it to the nearest grid point and updates the state
     expect(graph.ownedObjectCount()).toBeGreaterThan(20);
 });
 
-test('each vertex handle has a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-    const {graph} = mountGraph();
-    const board = graph.liveBoard() as unknown as {_inputDevice: string};
-    expect(2 * (HANDLE_TOUCH_RADIUS + HIT_SLACK)).toBeGreaterThanOrEqual(44);
-    for (const vertex of ['A', 'B', 'C'] as const) {
-        const handle = graph.handles()[vertex]!;
-        const [, x, y] = handle.coords.scrCoords;
-        board._inputDevice = 'touch';
-        expect(handle.hasPoint(x + 25, y)).toBe(true);
-        expect(handle.hasPoint(x, y - 25)).toBe(true);
-        expect(handle.hasPoint(x + 40, y)).toBe(false);
-        board._inputDevice = 'mouse';
-        expect(handle.hasPoint(x + 25, y)).toBe(false);
-    }
-});
-
 test('mount, state change and unmount: objects and listeners are owned and released, and a rebuild does not duplicate them', () => {
     const {graph, view} = mountGraph();
+    expectHandleHitZones(graph.liveBoard(), (['A', 'B', 'C'] as const).map(vertex => graph.handles()[vertex]!), HANDLE_TOUCH_RADIUS + HIT_SLACK);
     const preMount = graph.preMountCount;
     expect(preMount).toBeGreaterThan(0);
     const board = graph.liveBoard();

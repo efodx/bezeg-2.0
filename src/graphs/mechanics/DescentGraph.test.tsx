@@ -3,6 +3,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import JXG from 'jsxgraph';
+import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
@@ -320,6 +321,7 @@ describe('typed input and dragging', () => {
     test('every control point has a number field for each coordinate; typed values on the grid are stored exactly', () => {
         const {graph} = mountGraph();
         chooseMode('track');
+        expectHandleHitZones(graph.liveBoard(), graph.handlePoints().slice(0, 3), HANDLE_TOUCH_RADIUS);
         const cases: [NumericField, string, number][] = [
             ['endX', '4,5', 4.5], ['endY', '3', 3], ['p1x', '1,25', 1.25], ['p1y', '-1', -1], ['p2x', '5,75', 5.75], ['p2y', '3,5', 3.5],
         ];
@@ -392,22 +394,6 @@ describe('typed input and dragging', () => {
         expect(graph.state.theta1).toBe(Math.PI);
         dragHandleTo(handle, 0, 0.5);
         expect(graph.state.theta1).toBe(0);
-    });
-
-    test('every handle has a touch hit zone of at least 44 px across and a narrower mouse zone', () => {
-        const {graph} = mountGraph();
-        chooseMode('track');
-        const board = graph.liveBoard() as unknown as {_inputDevice: string};
-        expect(2 * HANDLE_TOUCH_RADIUS).toBeGreaterThanOrEqual(44);
-        for (const handle of graph.handlePoints().slice(0, 3)) {
-            const [, x, y] = handle.coords.scrCoords;
-            board._inputDevice = 'touch';
-            expect(handle.hasPoint(x + 24, y), 'touch near').toBe(true);
-            expect(handle.hasPoint(x, y - 24), 'touch above').toBe(true);
-            expect(handle.hasPoint(x + 40, y), 'touch far').toBe(false);
-            board._inputDevice = 'mouse';
-            expect(handle.hasPoint(x + 24, y), 'mouse').toBe(false);
-        }
     });
 
     test('every numeric field, switch and the mode are described by help, and the help states the range; the slider by its range', () => {
