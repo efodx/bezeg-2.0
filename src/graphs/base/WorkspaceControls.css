@@ -188,13 +188,13 @@
     justify-content: center;
     gap: 7px;
     margin: 0;
-    border-color: var(--workspace-green);
-    background: var(--workspace-green);
-    color: white;
+    border-color: var(--bezeg-control-selected-surface);
+    background: var(--bezeg-control-selected-surface);
+    color: var(--bezeg-control-selected-ink);
 }
 .workspace-inspector .tools .degree-elevation-action:hover {
-    border-color: color-mix(in srgb, var(--workspace-green) 85%, black);
-    background: color-mix(in srgb, var(--workspace-green) 85%, black);
+    border-color: color-mix(in srgb, var(--bezeg-control-selected-surface) 85%, black);
+    background: color-mix(in srgb, var(--bezeg-control-selected-surface) 85%, black);
 }
 .degree-elevation-action-icon { font-size: 1rem; line-height: 1; }
 .workspace-inspector .tools .list-group-item:has(.form-range) .slider-label output {

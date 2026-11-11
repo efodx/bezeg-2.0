@@ -286,7 +286,7 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
                         <li key={index} data-affected={affected.includes(index) ? 'true' : 'false'}
                             style={{borderLeft: `4px solid ${pieceColor(index)}`, paddingLeft: '0.4em'}}>{line}
                             {this.hostBridge.openAsBezier
-                                ? <> <button type="button" data-action="open-as-bezier" data-piece={index}
+                                ? <> <button type="button" className="btn" data-action="open-as-bezier" data-piece={index}
                                              aria-label={t("bse_open_as_bezier_piece", {value0: index + 1})}
                                              onClick={() => this.openAsBezier(index)}>{t("bse_open_as_bezier")}</button></>
                                 : null}</li>)}</ul>
