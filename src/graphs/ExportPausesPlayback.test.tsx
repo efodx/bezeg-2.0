@@ -10,6 +10,7 @@ import {ParametricCurveGraph} from './curves/parametric/ParametricCurveGraph';
 import {RecursionCobwebGraph} from './recursion/RecursionCobwebGraph';
 import {SimulationGraph} from './random/SimulationGraph';
 import TensorPatchGraph from './patches/TensorPatchGraph';
+import TriangularPatchGraph from './patches/TriangularPatchGraph';
 import DecasteljauGraph2 from './curves/bezier/DecasteljauGraph2';
 import {LogisticMapGraph} from './dynamics/LogisticMapGraph';
 import {LinearMapGraph} from './linear/LinearMapGraph';
@@ -50,6 +51,8 @@ const cases: Case[] = [
         play: g => g.play(), running: g => g.isPlaying(), value: g => g.state.shown},
     {name: 'TensorPatchGraph (sweeps)', create: () => new TensorPatchGraph() as unknown as BaseGraph<BaseGraphState>,
         play: g => g.sweeps.apply('v', 'play'), running: g => g.sweeps.isRunning('v'), value: g => g.state.v},
+    {name: 'TriangularPatchGraph (sweeps)', create: () => new TriangularPatchGraph() as unknown as BaseGraph<BaseGraphState>,
+        play: g => g.sweeps.apply('u', 'play'), running: g => g.sweeps.isRunning('u'), value: g => g.state.u},
     {name: 'DecasteljauGraph', create: allGraphFactories.decasteljau,
         play: g => g.playAnimation(), running: g => g.lessonAnimation.isRunning(), value: g => g.state.t},
     {name: 'LogisticMapGraph', create: () => new LogisticMapGraph() as unknown as BaseGraph<BaseGraphState>,
