@@ -3,19 +3,19 @@
 .count-setter-label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; line-height: 1.1; overflow-wrap: anywhere; }
 .count-setter-help { margin: 0; color: var(--workspace-ink-soft, #5b675a); font-size: .78rem; line-height: 1.35; }
 .count-setter-controls { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; }
-.count-setter-controls .count-setter-button { min-width: 44px; min-height: 44px; padding: 0 12px; font-size: 1.1rem; line-height: 1; }
+.count-setter-controls .count-setter-button { min-width: var(--bezeg-control-height); min-height: var(--bezeg-control-height); padding: 0 12px; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); font-size: 1.1rem; line-height: 1; }
 .count-setter-controls .count-setter-button:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 /* Match the compact input's minimum width so right-aligned digits cannot slip under the plus button. */
 .count-setter-controls .number-input { width: max(6.5ch, 5.5em); flex-shrink: 0; }
 .count-setter-value {
-    display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 8px;
-    border: 1px solid var(--workspace-rule); border-radius: 2px; background: var(--workspace-canvas-deep);
+    display: inline-flex; align-items: center; justify-content: center; min-width: var(--bezeg-control-height); min-height: var(--bezeg-control-height); padding: 0 8px;
+    border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--workspace-canvas-deep);
     color: var(--workspace-ink); font-variant-numeric: tabular-nums; font-weight: 700;
 }
-.count-setter-controls .number-input input { min-height: 44px; }
+.count-setter-controls .number-input input { min-height: var(--bezeg-control-height); border-radius: var(--bezeg-control-radius); }
 .is-presenting .count-setter-help { color: #b5bfd0; }
-/* Unavailable at a bound: dimmed, and still focusable (aria-disabled, not disabled); forced colours show it by colour, not opacity. */
-.count-setter-controls .count-setter-button[aria-disabled="true"] { opacity: .5; cursor: default; border-style: dashed; }
+/* Unavailable at a bound: dashed border and muted ink, and still focusable (aria-disabled, not disabled); forced colours show it by colour, not opacity. */
+.count-setter-controls .count-setter-button[aria-disabled="true"] { cursor: default; border-style: dashed; color: var(--bezeg-control-help-ink, var(--workspace-ink-soft)); }
 /* Presenting: an explicit pair (#b5bfd0 on #2b3b57, about 7:1) instead of opacity, which sank the label into the panel. */
 .is-presenting .count-setter-controls .count-setter-button[aria-disabled="true"] { opacity: 1; background: #2b3b57; color: #b5bfd0; border-color: #b5bfd0; }
 @media (forced-colors: active) {

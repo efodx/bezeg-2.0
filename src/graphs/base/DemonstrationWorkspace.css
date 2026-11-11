@@ -79,7 +79,7 @@
 /* Keep the inspector's existing disclosure controls independent of topic navigation. */
 .editing-mode summary {
     cursor: pointer;
-    min-height: 44px;
+    min-height: var(--bezeg-control-height);
     padding: 12px 0;
     font-size: .84rem;
     font-weight: 700;
@@ -194,7 +194,7 @@
     display: flex;
     align-items: center;
     gap: 7px;
-    min-height: 38px;
+    min-height: var(--bezeg-control-height);
     padding: 8px 0;
     border-top: 1px solid var(--workspace-rule);
     color: var(--workspace-ink);
@@ -269,7 +269,7 @@
     font-variant-numeric: tabular-nums;
 }
 .point-coordinate-editor input:focus { border-color: var(--workspace-green); box-shadow: 0 0 0 2px color-mix(in srgb, var(--workspace-green) 20%, transparent); outline: none; }
-.point-coordinate-editor button.point-coordinate-delete { min-height: 34px; padding: 5px 8px; font-size: .74rem; }
+.point-coordinate-editor button.point-coordinate-delete { min-height: var(--bezeg-control-height); padding: 5px 8px; font-size: .74rem; }
 .point-coordinate-submit { width: 100%; border-color: var(--workspace-green) !important; background: var(--workspace-green) !important; color: white !important; }
 .point-coordinate-submit:hover { background: color-mix(in srgb, var(--workspace-green) 85%, black) !important; }
 .point-coordinate-add { padding-top: 1px; }
@@ -285,7 +285,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 44px;
+    min-height: var(--bezeg-control-height);
     padding: 10px 0;
     color: var(--workspace-ink);
     cursor: pointer;
@@ -317,7 +317,7 @@
 body:has(.demonstration-workspace.is-presenting) { background: var(--bezeg-night); }
 body:has(.demonstration-workspace.is-presenting) .app-header { border-color: #42516a; background: var(--bezeg-night); color: var(--bezeg-night-panel); }
 body:has(.demonstration-workspace.is-presenting) .app-brand:hover { color: var(--bezeg-night-panel); }
-body:has(.demonstration-workspace.is-presenting) .app-header .app-topic-toggle { border-color: #50617b; color: var(--bezeg-night-panel); }
+body:has(.demonstration-workspace.is-presenting) .app-header .app-topic-toggle { border-color: #50617b; background: transparent; color: var(--bezeg-night-panel); }
 body:has(.demonstration-workspace.is-presenting) .app-header .app-topic-toggle:hover { background: #2a3c58; border-color: #73829a; }
 body:has(.demonstration-workspace.is-presenting) .app-header .language-selector select { color: var(--bezeg-night-panel); }
 
@@ -333,6 +333,8 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting .workspace-heading p { color: #b5bfd0; }
 .is-presenting .workspace-actions button, .is-presenting .workspace-actions > a { border-color: #50617b; color: var(--bezeg-night-panel); }
 .is-presenting .workspace-actions button:hover, .is-presenting .workspace-actions > a:hover { background: #2a3c58; }
+/* The pressed "Exit presentation" toggle keeps the selected pair; the cream ink above would vanish on the cream selected fill. */
+.is-presenting .workspace-actions button[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
 .is-presenting .workspace-graph { border-color: #50617b; border-top-color: #d9b461; background: var(--bezeg-night-panel); }
 .is-presenting .workspace-graph #jgbox { height: calc(100vh - 280px) !important; background: var(--bezeg-night-panel) !important; }
 .is-presenting .workspace-navigation button { border-color: #c6bfa3; color: var(--bezeg-night); }

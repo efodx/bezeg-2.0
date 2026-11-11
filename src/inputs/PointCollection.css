@@ -2,11 +2,12 @@
 .point-collection-label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; overflow-wrap: anywhere; }
 .point-collection-count, .point-collection-reason { margin: 0; color: var(--workspace-ink-soft); font-size: .82rem; line-height: 1.35; }
 .point-collection-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
-.point-collection .btn { min-height: 44px; min-width: 44px; }
-.point-collection .btn[aria-disabled="true"] { opacity: .5; cursor: default; border-style: dashed; }
+.point-collection .btn { min-height: var(--bezeg-control-height); min-width: var(--bezeg-control-height); }
+.point-collection .btn[aria-disabled="true"] { cursor: default; border-style: dashed; }
+.point-collection .btn[aria-disabled="true"]:not([aria-pressed="true"]) { color: var(--bezeg-control-help-ink, var(--workspace-ink-soft)); }
 .point-collection .btn:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .point-collection-mode[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
 .point-collection-entry { display: flex; flex-wrap: wrap; gap: .4rem; align-items: start; }
 .point-collection-axis { flex: 1 1 auto; display: flex; justify-content: space-between; gap: .25rem; align-items: baseline; }
 .point-collection-axis > span { color: var(--workspace-ink-soft); font-style: italic; }
-@media (forced-colors: active) { .point-collection .btn[aria-disabled="true"] { opacity: 1; color: GrayText; border-color: GrayText; } }
+@media (forced-colors: active) { .point-collection .btn[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: 1; color: GrayText; border-color: GrayText; } }
