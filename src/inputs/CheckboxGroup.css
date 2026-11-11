@@ -1,0 +1,1 @@
+.checkbox-group { display: flex; flex-direction: column; gap: var(--bezeg-control-gap); }

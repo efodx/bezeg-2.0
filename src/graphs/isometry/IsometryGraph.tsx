@@ -6,6 +6,7 @@ import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {BooleanField} from "../../inputs/BooleanField";
+import {CheckboxGroup} from "../../inputs/CheckboxGroup";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -159,7 +160,6 @@ const FEATURE_NAMES = ["vertical", "horizontal", "halfTurn", "glide"] as const;
 export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> {
     private readonly instanceNumber = ++instances;
     private readonly helpId = `isometry-input-help-${this.instanceNumber}`;
-    private readonly featuresLabelId = `isometry-features-label-${this.instanceNumber}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
@@ -921,12 +921,12 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 );
                 break;
             case "frieze":
-                // One checkbox per feature in a labelled group: src/inputs/ has no checkbox group component (gap recorded for the Controls stream).
-                commands.push(<div key="features" role="group" aria-labelledby={this.featuresLabelId}>
-                    <div id={this.featuresLabelId} className="form-label">{t("isometry_graph_features_group")}</div>
-                    {FEATURE_NAMES.map(name => <BooleanField key={name} variant="checkbox" label={t(FEATURE_KEYS[name])} checked={state.friezeFeatures[name]}
-                                                             describedBy={this.helpId} onChange={checked => this.setFeature(name, checked)}/>)}
-                </div>);
+                commands.push(<CheckboxGroup key="features" label={t("isometry_graph_features_group")} describedBy={this.helpId}
+                                             options={FEATURE_NAMES.map(name => ({key: name, label: t(FEATURE_KEYS[name]), checked: state.friezeFeatures[name]}))}
+                                             onChange={(key, checked) => {
+                                                 const name = FEATURE_NAMES.find(candidate => candidate === key);
+                                                 if (name) this.setFeature(name, checked);
+                                             }}/>);
                 commands.push(<NumberInput key="period" label={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
                                            bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0} describedBy={this.helpId}
                                            onChange={value => this.editPeriod(value)}/>);
