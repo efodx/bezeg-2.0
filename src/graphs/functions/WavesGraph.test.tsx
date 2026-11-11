@@ -1,4 +1,4 @@
-import {writeFileSync} from 'node:fs';
+import {mkdirSync, writeFileSync} from 'node:fs';
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -697,6 +697,7 @@ describe('redraw timing (JSDOM PLACEHOLDER, not a browser measurement)', () => {
         view.unmount();
         measure('sampling with sinc (frames only; the sinc curve is derived on the state change)', graph => { choose('sampling'); set(graph, {fs: 64, f1: 40, extra: 192, showSinc: true}); });
         lines.push(`whole test: ${(performance.now() - sincStart).toFixed(0)} ms`);
+        mkdirSync('.command-logs', {recursive: true});
         writeFileSync('.command-logs/wav02b-redraw.log', `JSDOM PLACEHOLDER waves playback (browser measurement owed at F2b)\n${lines.join('\n')}\n`);
     });
 });
