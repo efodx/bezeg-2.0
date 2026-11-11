@@ -381,11 +381,15 @@ test('vertices dragged or typed stay left of the bars and inside the fixed view'
 
 test('every vertex field points to the vertex help and the side fields show their range', () => {
     const {graph} = mountGraph();
-    const help = document.getElementById('triangle-solver-vertex-help')!;
+    const help = document.querySelector('[id^="triangle-solver-vertex-help"]')!;
     expect(help.textContent).toContain('Puščici gor in dol');
+    // the range of both coordinates is stated, from the same constants the fields and the drag clamp use
+    expect(VERTEX_X_MIN).toBe(-2);
+    expect([VERTEX_X_MAX, VERTEX_Y_MIN, VERTEX_Y_MAX]).toEqual([8, -7, 11]);
+    expect(help.textContent).toMatch(/koordinata x od [−-]2 do 8, koordinata y od [−-]7 do 11/);
     for (const vertex of ['A', 'B', 'C']) {
         for (const axis of ['x', 'y']) {
-            expect(field(`Oglišče ${vertex}, koordinata ${axis}`).getAttribute('aria-describedby')).toContain('triangle-solver-vertex-help');
+            expect(field(`Oglišče ${vertex}, koordinata ${axis}`).getAttribute('aria-describedby')).toContain(help.id);
         }
     }
     solve(graph, {mode: 'solve'});
@@ -401,3 +405,96 @@ test('the tangent status names the right angle at B', () => {
     act(() => { setLanguage('en'); });
     expect(status()).toContain('right angle at B');
 });
+
+test('two graphs on one page give their vertex help different ids', () => {
+    mountGraph();
+    mountGraph();
+    const ids = Array.from(document.querySelectorAll('[id^="triangle-solver-vertex-help"]')).map(node => node.id);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    for (const input of screen.getAllByLabelText('Oglišče A, koordinata x')) {
+        expect(ids).toContain(input.getAttribute('aria-describedby')!.split(' ').find(id => id.startsWith('triangle-solver-vertex-help')));
+    }
+});
+
+test('the data type select says that changing it replaces the entered values, and it does', () => {
+    const {graph} = mountGraph();
+    solve(graph, {mode: 'solve'});
+    const select = screen.getByLabelText('Podani podatki');
+    const helpId = select.getAttribute('aria-describedby')!;
+    expect(document.getElementById(helpId)!.textContent).toBe('Če spremenite vrsto podatkov, se vnesene vrednosti nadomestijo s primerom za novo vrsto.');
+    act(() => { enterNumber(field('Stranica a'), '9'); });
+    expect(graph.state.data).toMatchObject({type: 'sss', a: 9});
+    act(() => { fireEvent.change(select, {target: {value: 'ssa'}}); });
+    expect(graph.state.data).toEqual({type: 'ssa', a: 5, b: 8, angleA: 30});
+    act(() => { setLanguage('en'); });
+    expect(document.getElementById(screen.getByLabelText('Given data').getAttribute('aria-describedby')!)!.textContent)
+        .toBe('Changing the given data type replaces the entered values with the example for the new type.');
+});
+
+test('the approximation sign and the list separator come from the catalogue in both languages', () => {
+    const {graph} = mountGraph();
+    solve(graph, {mode: 'solve'});
+    expect(readout('solved-sides-1')).toBe('a = 5; b = 6; c = 7');
+    solve(graph, {mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}});
+    expect(readout('height')).toBe('≈ 4');
+    act(() => { setLanguage('en'); });
+    expect(readout('solved-sides-1')).toBe('a = 5, b = 8, c = 9.9282');
+    expect(readout('height')).toBe('≈ 4');
+    solve(graph, {mode: 'sides'});
+    expect(readout('ratio-a')).toMatch(/^≈ /);
+    expect(readout('side-a')).toBe('√41 ≈ 6.40312');
+});
+
+describe('the legend states the style of the circumcircle, the point A′, the SSA arc and the height', () => {
+    const legendOf = (graph: Observed) => graph.legendItems().map(item => [item.id, item.kind, item.label]);
+    const circles = (graph: Observed) => shownCircles(graph);
+    const points = (graph: Observed) => objects(graph).filter(o => o.elType === 'point' && visible(o)) as unknown as JXG.Point[];
+
+    test('nothing is listed in the sides mode', () => {
+        const {graph} = mountGraph();
+        expect(legendOf(graph)).toEqual([]);
+        expect(document.querySelector('[data-legend]')).toBeNull();
+    });
+
+    test('circle mode: a solid circle in the stated colour and a diamond A′', () => {
+        const {graph} = mountGraph();
+        solve(graph, {mode: 'circle'});
+        expect(legendOf(graph)).toEqual([
+            ['circumcircle', 'line', 'Polna črta: očrtana krožnica'],
+            ['antipode', 'diamond', 'Romb: točka A′ na premeru iz B'],
+        ]);
+        expect(document.querySelectorAll('[data-legend]')).toHaveLength(2);
+        const [circumcircle, antipode] = graph.legendItems();
+        const [circle] = circles(graph);
+        expect(circles(graph)).toHaveLength(1);
+        expect(Number(vp(circle, 'dash'))).toBe(0);
+        expect(String(vp(circle, 'strokecolor'))).toBe(circumcircle.color);
+        const diamonds = points(graph).filter(p => String(vp(p, 'face')) === antipode.kind);
+        expect(diamonds).toHaveLength(1);
+        expect(String(vp(diamonds[0], 'fillcolor'))).toBe(antipode.color);
+    });
+
+    test('SSA: a solid arc about C in the stated colour and a dashed height', () => {
+        const {graph} = mountGraph();
+        solve(graph, {mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}});
+        expect(legendOf(graph)).toEqual([
+            ['ssa-arc', 'line', 'Polna črta: krožni lok s središčem C in polmerom a'],
+            ['height', 'dashed-line', 'Črtkana črta: višina h'],
+        ]);
+        const [arc, height] = graph.legendItems();
+        const [circle] = circles(graph);
+        expect(circles(graph)).toHaveLength(1);
+        expect(Number(vp(circle, 'dash'))).toBe(0);
+        expect(String(vp(circle, 'strokecolor'))).toBe(arc.color);
+        expect(circle.Radius()).toBe(5);
+        expect(shownSegments(graph, height.color).some(o => Number(vp(o, 'dash')) > 0)).toBe(true);
+        solve(graph, {data: {type: 'sss', a: 5, b: 6, c: 7}});
+        expect(legendOf(graph)).toEqual([]);
+    });
+});
+
+/** Reads a visual attribute of a board element whose JSXGraph type does not declare `evalVisProp`. */
+function vp(element: unknown, name: string): unknown {
+    return (element as {evalVisProp(attribute: string): unknown}).evalVisProp(name);
+}

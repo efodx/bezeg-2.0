@@ -437,14 +437,21 @@ describe('review repairs', () => {
             }[mode];
             for (const input of labels.map(label => field(label))) {
                 const id = input.getAttribute('aria-describedby') ?? '';
-                expect(id).toContain('circle-construction-input-help');
-                expect(document.getElementById('circle-construction-input-help')!.textContent).toContain('od −16 do 16');
+                expect(id).toContain(graph.helpId);
+                expect(document.getElementById(graph.helpId)!.textContent).toContain('od −16 do 16');
             }
         }
-        const help = document.getElementById('circle-construction-input-help')!.textContent!;
+        const help = document.getElementById(graph.helpId)!.textContent!;
         expect(help).toContain('0,25 do 8');
         expect(help).toContain('0,5 do 4');
         expect(graph.state.mode).toBe('common');
+    });
+
+    test('two graphs on one page have different help ids', () => {
+        const first = mountGraph().graph;
+        const second = mountGraph().graph;
+        expect(first.helpId).not.toBe(second.helpId);
+        expect(document.getElementById(first.helpId)).not.toBe(document.getElementById(second.helpId));
     });
 
     test('the board names the circles, the contact points and the two division points', () => {
@@ -483,4 +490,24 @@ test('the status, the labels and the board name follow a language switch', () =>
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('two tangents');
     expect(readout('contact-1')).toBe('(1.9231, −4.6154)');
     expect(document.querySelector(`[aria-label="${t('circle_construction_board_label')}"]`)).not.toBeNull();
+});
+
+describe('the legend states the style of the Thales circle, the radical axes and the common tangents', () => {
+    const lines = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'line' && o.evalVisProp('visible'));
+    test('every entry matches a drawn element of that colour and dash', () => {
+        const {graph} = mountGraph();
+        const drawn = (elType: string, color: string, dashed: boolean) => probes(graph).filter(o => o.elType === elType && o.evalVisProp('visible')
+            && String(o.evalVisProp('strokecolor')) === color && (Number(o.evalVisProp('dash')) > 0) === dashed).length;
+        expect(graph.legendItems().map(i => [i.id, i.kind])).toEqual([['thales', 'dashed-line']]);
+        expect(drawn('circle', graph.legendItems()[0].color, true)).toBe(1);
+        chooseMode('radical');
+        const items = graph.legendItems();
+        expect(items.filter(i => i.id.startsWith('axis')).map(i => i.kind)).toEqual(['line', 'dashed-line', 'dashed-line']);
+        for (const item of items.filter(i => i.id.startsWith('axis'))) expect(drawn('line', item.color, item.kind === 'dashed-line')).toBe(1);
+        expect(drawn('circle', items.find(i => i.id === 'orthogonal')!.color, true)).toBe(1);
+        expect(lines(graph)).toHaveLength(3);
+        chooseMode('common');
+        for (const item of graph.legendItems().filter(i => i.id.endsWith('tangents'))) expect(drawn('line', item.color, item.kind === 'dashed-line')).toBe(2);
+        expect(document.querySelectorAll('[data-legend]').length).toBe(graph.legendItems().length);
+    });
 });

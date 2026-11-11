@@ -55,7 +55,7 @@ test('mounts the unit circle at 60 degrees with exact special values, the quadra
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('Točka pri kotu 60°');
 });
 
-test('a typed angle in degrees or in multiples of pi snaps to half-degrees, wraps, and explains an adjustment', () => {
+test('a typed angle in degrees or in multiples of pi snaps to half-degrees and is refused outside the stored range', () => {
     const {graph} = mountGraph();
     act(() => { enterNumber(field('Kot θ (°)'), '200'); });
     expect(graph.state.angle).toBe(400);
@@ -69,22 +69,121 @@ test('a typed angle in degrees or in multiples of pi snaps to half-degrees, wrap
 
     act(() => { enterNumber(field('Kot θ (°)'), '135,3'); });
     expect(graph.state.angle).toBe(271);
-    expect(document.querySelector('[data-unit-circle-note]')!.textContent).toBe('Kot je zaokrožen na pol stopinje in zapisan kot 135,5°.');
+    // the field itself says it used 135,5; the model note is only for an entry that is not exactly a half-degree multiple
+    expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
+    expect(document.body.textContent).toContain('135,5');
 
     act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,75'); });
     expect(graph.state.angle).toBe(270);
     expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
-    act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '-0,25'); });
+    act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '1,75'); });
     expect(graph.state.angle).toBe(630);
-    act(() => { enterNumber(field('Kot θ (°)'), '450'); });
-    expect(graph.state.angle).toBe(180);
+    act(() => { enterNumber(field('Kot θ (°)'), '180'); });
+    expect(graph.state.angle).toBe(360);
+});
+
+describe('range of the typed angles', () => {
+    test.each([['Kot θ (°)', '400'], ['Kot θ (°)', '360'], ['Kot θ (°)', '-30'], ['Kot θ (večkratnik števila π)', '2'], ['Kot θ (večkratnik števila π)', '-0,25']])(
+        '%s: %s is refused with the range hint, not wrapped', (label, typed) => {
+            const {graph} = mountGraph();
+            act(() => { enterNumber(field(label), typed); });
+            expect(graph.state.angle).toBe(120);
+            expect(document.body.textContent).toMatch(/med/);
+            expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
+        });
+
+    test('the second angle is refused outside its range too, and every angle field states the range in its help', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({showAddition: true}); });
+        act(() => { enterNumber(field('Drugi kot β (°)'), '360'); });
+        expect(graph.state.secondAngle).toBe(90);
+        act(() => { enterNumber(field('Drugi kot β (°)'), '359,5'); });
+        expect(graph.state.secondAngle).toBe(719);
+        const help = (label: string) => document.getElementById(field(label).getAttribute('aria-describedby')!.split(' ').find(id => id.endsWith('-help'))!)!.textContent;
+        expect(help('Kot θ (°)')).toContain('od 0° do 359,5°');
+        expect(help('Drugi kot β (°)')).toContain('od 0° do 359,5°');
+        expect(help('Kot θ (večkratnik števila π)')).toContain('od 0π do 1,9972π');
+        expect(field('Kot θ (°)').getAttribute('aria-valuemax')).toBe('359.5');
+    });
+});
+
+describe('the rounding note', () => {
+    const NOTE = '[data-unit-circle-note]';
+    // 0,4444 pi is 159,98 half-degrees: stored as 160 (80 degrees) with the note
+    const withNote = () => {
+        const mounted = mountGraph();
+        act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,4444'); });
+        expect(mounted.graph.state.angle).toBe(160);
+        expect(document.querySelector(NOTE)!.textContent).toContain('80°');
+        return mounted;
+    };
+
+    test('it appears only for an entry that is not exactly a half-degree multiple', () => {
+        const {graph} = mountGraph();
+        act(() => { enterNumber(field('Kot θ (°)'), '30'); });
+        act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,5'); });
+        expect(graph.state.angle).toBe(180);
+        expect(document.querySelector(NOTE)).toBeNull();
+    });
+
+    test('it states the stored value', () => { withNote(); });
+
+    test.each([
+        ['a toggle', (_g: ObservedUnitCircleGraph) => { act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži tudi kosinus'})); }); }],
+        ['a lesson action', (g: ObservedUnitCircleGraph) => { act(() => { g.setState({angle: 300}); }); }],
+        ['a drag', (g: ObservedUnitCircleGraph) => dragHandleTo(g.handles().angle!, 0, 1)],
+        ['the second angle', (g: ObservedUnitCircleGraph) => { act(() => { g.setState({secondAngle: 10}); }); }],
+    ])('%s clears it', (_name, change) => {
+        const {graph} = withNote();
+        change(graph);
+        expect(document.querySelector(NOTE)).toBeNull();
+    });
+
+    test('Reset clears it', async () => {
+        const {graph} = withNote();
+        let pending: Promise<void> = Promise.resolve();
+        act(() => { pending = graph.reset(); });
+        await act(async () => { await pending; });
+        expect(graph.state.angle).toBe(120);
+        expect(document.querySelector(NOTE)).toBeNull();
+    });
+});
+
+describe('the legend of the symmetric points and the second radius', () => {
+    const legend = (graph: ObservedUnitCircleGraph) => graph.legendItems().map(item => [item.id, item.kind, item.label]);
+    const points = (graph: ObservedUnitCircleGraph) => graph.liveBoard().objectsList.filter((o): o is JXG.Point => o instanceof JXG.Point);
+
+    test('nothing is listed while the symmetric points and the second angle are off', () => {
+        const {graph} = mountGraph();
+        expect(legend(graph)).toEqual([]);
+        expect(document.querySelector('[data-legend]')).toBeNull();
+    });
+
+    test('each entry states the face the marker is drawn with, in its colour', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({showSymmetries: true, showAddition: true}); });
+        expect(legend(graph)).toEqual([
+            ['symmetry-x', 'cross', 'Križec: zrcalna slika čez os x'],
+            ['symmetry-y', 'plus', 'Plus: zrcalna slika čez os y'],
+            ['symmetry-origin', 'diamond', 'Romb: zrcalna slika čez izhodišče'],
+            ['second-radius', 'dashed-line', 'Črtkana črta: drugi polmer do kota β'],
+        ]);
+        expect(document.querySelectorAll('[data-legend]')).toHaveLength(4);
+        for (const item of graph.legendItems().slice(0, 3)) {
+            const drawn = points(graph).filter(p => String(vp(p, 'face')) === item.kind && String(vp(p, 'fillcolor')) === item.color);
+            expect(drawn).toHaveLength(1);
+        }
+        // the second radius is the dashed segment in the comparison colour
+        const segments = graph.liveBoard().objectsList.filter(o => (o as {elType: string}).elType === 'segment');
+        expect(segments.some(o => Number(vp(o, 'dash')) > 0 && String(vp(o, 'strokecolor')) === graph.legendItems()[3].color)).toBe(true);
+    });
 });
 
 test.each([
     ['0', '0°, 0 rad', '1', '0', 'cos θ > 0, sin θ = 0'],
     ['90', '90°, π/2 rad', '0', '1', 'cos θ = 0, sin θ > 0'],
     ['270', '270°, 3π/2 rad', '0', '−1', 'cos θ = 0, sin θ < 0'],
-    ['360', '0°, 0 rad', '1', '0', 'cos θ > 0, sin θ = 0'],
+    ['180', '180°, π rad', '−1', '0', 'cos θ < 0, sin θ = 0'],
 ])('on the axis at %s degrees the readout gives the position, the exact values and the signs with zero', (typed, angle, cos, sin, signs) => {
     const {graph} = mountGraph();
     act(() => { enterNumber(field('Kot θ (°)'), typed); });
@@ -202,6 +301,14 @@ test('the toggles show the cosine, the three symmetric points and the second ang
     act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži drugi kot β in zasukani koordinatni sistem'})); });
     expect(graph.state.showAddition).toBe(true);
     expect(readout('sum-angle')).toBe('105°');
+    // The first angle is θ in the field and in the sum (not α), in both languages.
+    const label = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
+    expect(label('sum-angle')).toBe('Kot θ + β');
+    expect(label('sum-point')).toBe('(cos (θ + β); sin (θ + β))');
+    act(() => { setLanguage('en'); });
+    expect(label('sum-angle')).toBe('Angle θ + β');
+    expect(label('sum-point')).toBe('(cos (θ + β), sin (θ + β))');
+    act(() => { setLanguage('sl'); });
     expect(field('Drugi kot β (°)').value).toBe('45');
     const second = graph.handles().second!;
     dragHandleTo(second, 0, 2);
@@ -277,3 +384,8 @@ test('exactPlain turns the closed-table LaTeX into plain text', () => {
     expect(exactPlain('0')).toBe('0');
     expect(exactPlain('-1')).toBe('−1');
 });
+
+/** Reads a visual attribute of a board element whose JSXGraph type does not declare `evalVisProp`. */
+function vp(element: unknown, name: string): unknown {
+    return (element as {evalVisProp(attribute: string): unknown}).evalVisProp(name);
+}

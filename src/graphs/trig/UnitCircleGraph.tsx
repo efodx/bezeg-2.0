@@ -6,6 +6,7 @@ import {NumberInput} from "../../inputs/NumberInput";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
+import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {addAngles, Angle, angleFromHalfDegrees, degreesOf, Quadrant, toRadians} from "../../trig/angle";
 import {pointInRotatedFrame, pointOnCircle, Point, rotationFrame, sumPoint, symmetricImages} from "../../trig/unitCircle";
@@ -32,6 +33,11 @@ export const ANGLE_BIG_STEP_DEGREES = 5;
 export const HANDLE_TOUCH_RADIUS = 26;
 export const HANDLE_MOUSE_RADIUS = 8;
 export const HIT_SLACK = 2;
+/** The stored range of the angle in the typed fields: [0°, 360°) in half-degrees, or [0π, 2π) in steps of π/360. */
+export const ANGLE_MAX_DEGREES = 359.5;
+export const ANGLE_MAX_PI = 719 / 360;
+/** The marker faces of the three symmetric points, the styles the legend states. */
+export const SYMMETRY_FACES = {xAxis: "cross", yAxis: "plus", origin: "diamond"} as const;
 
 interface Trace {
     readonly xs: readonly number[];
@@ -122,6 +128,8 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
     private drawnKey = "";
     /** The value a typed angle was stored as when that differs from what was typed; shown until the next edit. */
     private adjustedTo?: number;
+    /** The state key the note `adjustedTo` belongs to: any other stored-state change drops the note. */
+    private adjustedKey = "";
     private readonly status = new SettledReadout();
 
     override getInitialState(): UnitCircleGraphState {
@@ -190,11 +198,13 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
     }
 
     protected override onStateChange(_previous: Readonly<UnitCircleGraphState>): void {
+        if (this.adjustedKey !== this.stateKey()) this.adjustedTo = undefined;
         this.syncBoard();
     }
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
+        this.adjustedTo = undefined;
         this.syncBoard();
     }
 
@@ -297,9 +307,9 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
         marker(traceAt, () => view().derived.point[0], "square", GraphPalette.comparisonCurve, 4, showCosine);
 
         // The three symmetric points: integer operations on the half-degree angle, then drawn.
-        marker(() => view().images.xAxis[0], () => view().images.xAxis[1], "cross", GraphPalette.constructionLevels[1], 5, showSymmetries);
-        marker(() => view().images.yAxis[0], () => view().images.yAxis[1], "plus", GraphPalette.constructionLevels[2], 5, showSymmetries);
-        marker(() => view().images.origin[0], () => view().images.origin[1], "diamond", GraphPalette.constructionLevels[3], 5, showSymmetries);
+        marker(() => view().images.xAxis[0], () => view().images.xAxis[1], SYMMETRY_FACES.xAxis, GraphPalette.constructionLevels[1], 5, showSymmetries);
+        marker(() => view().images.yAxis[0], () => view().images.yAxis[1], SYMMETRY_FACES.yAxis, GraphPalette.constructionLevels[2], 5, showSymmetries);
+        marker(() => view().images.origin[0], () => view().images.origin[1], SYMMETRY_FACES.origin, GraphPalette.constructionLevels[3], 5, showSymmetries);
 
         // TR2: the second angle, the frame rotated by the first angle and the second point expressed in it.
         const second = this.own(board.create("point", [view().secondPoint[0], view().secondPoint[1]], {
@@ -435,27 +445,54 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
     private editAngle(field: AngleField, kind: "degrees" | "pi", value: number): boolean {
         const snapped = kind === "pi" ? snapPiMultipleInput(value, field) : snapAngleInput(value, field);
         if (!snapped.ok) return false;
-        this.adjustedTo = snapped.value.adjusted ? snapped.value.halfDegrees / 2 : undefined;
         this.setAngle(field, snapped.value.halfDegrees);
+        // Written after the state, so the note is tied to exactly the state this entry produced.
+        this.adjustedTo = snapped.value.adjusted ? snapped.value.halfDegrees / 2 : undefined;
+        this.adjustedKey = this.stateKey();
         this.requestRender();
         return true;
+    }
+
+    private degreesHelp(): string {
+        const language = currentLanguage();
+        return t("unit_circle_angle_help", {value0: formatNumber(0, language, 1), value1: formatNumber(ANGLE_MAX_DEGREES, language, 1)});
+    }
+
+    /** The legend entries for the styles of the symmetric points and the second radius, shown while those are drawn. */
+    legendItems(): {id: string; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] {
+        const items: {id: string; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] = [];
+        if (this.state.showSymmetries) {
+            items.push(
+                {id: "symmetry-x", color: GraphPalette.constructionLevels[1], label: t("unit_circle_legend_sym_x"), kind: SYMMETRY_FACES.xAxis},
+                {id: "symmetry-y", color: GraphPalette.constructionLevels[2], label: t("unit_circle_legend_sym_y"), kind: SYMMETRY_FACES.yAxis},
+                {id: "symmetry-origin", color: GraphPalette.constructionLevels[3], label: t("unit_circle_legend_sym_origin"), kind: SYMMETRY_FACES.origin},
+            );
+        }
+        if (this.state.showAddition) {
+            items.push({id: "second-radius", color: GraphPalette.comparisonCurve, label: t("unit_circle_legend_second"), kind: "dashed-line"});
+        }
+        return items;
     }
 
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
         const commands: JSX.Element[] = [
             <NumberInput key="degrees" label={t("unit_circle_angle_degrees_label")} value={degreesOf(angleFromHalfDegrees(state.angle))}
-                         step={ANGLE_STEP_DEGREES} bigStep={ANGLE_BIG_STEP_DEGREES} decimals={1}
-                         help={t("unit_circle_angle_help")} onChange={value => this.editAngle("angle", "degrees", value)}/>,
+                         step={ANGLE_STEP_DEGREES} bigStep={ANGLE_BIG_STEP_DEGREES} decimals={1} min={0} max={ANGLE_MAX_DEGREES}
+                         grid={ANGLE_STEP_DEGREES} help={this.degreesHelp()} onChange={value => this.editAngle("angle", "degrees", value)}/>,
             <NumberInput key="pi" label={t("unit_circle_angle_pi_label")} value={state.angle / 360}
-                         step={1 / 360} bigStep={1 / 72} decimals={4} onChange={value => this.editAngle("angle", "pi", value)}/>,
+                         step={1 / 360} bigStep={1 / 72} decimals={4} min={0} max={ANGLE_MAX_PI} grid={1 / 360}
+                         help={t("unit_circle_angle_pi_help", {
+                             value0: formatNumber(0, currentLanguage(), 4), value1: formatNumber(ANGLE_MAX_PI, currentLanguage(), 4)})}
+                         onChange={value => this.editAngle("angle", "pi", value)}/>,
         ];
         if (state.showAddition) {
             commands.push(<NumberInput key="second" label={t("unit_circle_second_angle_label")} value={state.secondAngle / 2}
-                                       step={ANGLE_STEP_DEGREES} bigStep={ANGLE_BIG_STEP_DEGREES} decimals={1}
+                                       step={ANGLE_STEP_DEGREES} bigStep={ANGLE_BIG_STEP_DEGREES} decimals={1} min={0} max={ANGLE_MAX_DEGREES}
+                                       grid={ANGLE_STEP_DEGREES} help={this.degreesHelp()}
                                        onChange={value => this.editAngle("secondAngle", "degrees", value)}/>);
         }
-        if (this.adjustedTo !== undefined) {
+        if (this.adjustedTo !== undefined && this.adjustedKey === this.stateKey()) {
             commands.push(<p key="note" className="form-text" data-unit-circle-note="">
                 {t("unit_circle_snapped_note", {value0: formatNumber(this.adjustedTo, currentLanguage(), 1)})}</p>);
         }
@@ -477,6 +514,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, null> {
                 <p data-unit-circle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("unit_circle_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("unit_circle_approx_note")}</p>
+                {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
             </div>
         </>;

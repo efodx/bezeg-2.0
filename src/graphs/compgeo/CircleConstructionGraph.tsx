@@ -7,6 +7,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
+import {FunctionLegend, LegendItem} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {Line} from "../../compgeo/circle";
 import {InexactLine} from "../../compgeo/circleConstructions";
@@ -57,7 +58,18 @@ const dec = (value: number): string => formatNumber(value, currentLanguage(), 4)
 const ratPoint = (p: RationalPoint): string => t("circle_construction_point_format", {value0: rat(p.x), value1: rat(p.y)});
 const xyPoint = (x: number, y: number): string => t("circle_construction_point_format", {value0: dec(x), value1: dec(y)});
 const plainPoint = (x: number, y: number): string => xyPoint(x, y);
-const HELP_ID = "circle-construction-input-help";
+/** Counts instances so that the input help id of two graphs on one page never collides. */
+let helpInstances = 0;
+/** Colour and dash of the drawn construction elements the legend states (dash 0 is a solid line). */
+export const THALES_STYLE = {color: GraphPalette.constructionLevels[1], dash: 2} as const;
+export const AXIS_STYLES = [
+    {color: GraphPalette.constructionLevels[1], dash: 0},
+    {color: GraphPalette.constructionLevels[2], dash: 2},
+    {color: GraphPalette.constructionLevels[3], dash: 2},
+] as const;
+export const ORTHOGONAL_STYLE = {color: GraphPalette.constructionAccent, dash: 3} as const;
+export const EXTERNAL_TANGENT_STYLE = {color: GraphPalette.primaryCurve, dash: 0} as const;
+export const INTERNAL_TANGENT_STYLE = {color: GraphPalette.constructionAccent, dash: 3} as const;
 
 const numberOf = (value: Rational | number): number => (typeof value === "number" ? value : value.toNumber());
 
@@ -114,6 +126,7 @@ interface Frame {
  * examples). `parse` and `serialize` have no consumer until the graph is registered (task 03).
  */
 export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphState, null> {
+    readonly helpId = `circle-construction-input-help-${++helpInstances}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
@@ -308,7 +321,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             circleAbout(thales, numberAt(f => {
                 const r2 = tangents(f)?.thales?.r2;
                 return r2 ? Math.sqrt(r2.toNumber()) : undefined;
-            }), GraphPalette.constructionLevels[1], 1, 2, flag(f => tangents(f)?.thales != null));
+            }), THALES_STYLE.color, 1, THALES_STYLE.dash, flag(f => tangents(f)?.thales != null));
             const p = handle("p", GraphPalette.controlPoint, "o");
             const t1 = marker(contact(0, "x"), contact(0, "y"), "square", GraphPalette.primaryCurve, 5, outside);
             const t2 = marker(contact(1, "x"), contact(1, "y"), "square", GraphPalette.primaryCurve, 5, outside);
@@ -340,7 +353,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                     const d = this.view();
                     const axis = d.mode === "radical" ? d.axes[index].axis : undefined;
                     return axis?.status === "line" ? coefficientsOf(axis.line) : null;
-                }, GraphPalette.constructionLevels[index + 1], 2, index === 0 ? 0 : 2);
+                }, AXIS_STYLES[index].color, 2, AXIS_STYLES[index].dash);
             });
             const centre = marker(
                 numberAt(f => {
@@ -355,7 +368,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             circleAbout(centre, numberAt(f => {
                 const r2 = radical(f)?.orthogonal?.r2;
                 return r2 ? Math.sqrt(r2.toNumber()) : undefined;
-            }), GraphPalette.constructionAccent, 1, 3, flag(f => radical(f)?.orthogonal != null));
+            }), ORTHOGONAL_STYLE.color, 1, ORTHOGONAL_STYLE.dash, flag(f => radical(f)?.orthogonal != null));
         } else if (mode === "apollonius") {
             const apollonius = (f: Frame) => (f.derived.mode === "apollonius" ? f.derived : undefined);
             const a = handle("a", GraphPalette.referenceCurve, "o");
@@ -430,7 +443,8 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                         if (d.mode !== "common" || d.result.status !== "ok") return null;
                         const tangent = d.result.tangents.filter(candidate => candidate.kind === kind)[index];
                         return tangent ? coefficientsOf(tangent.line) : null;
-                    }, kind === "external" ? GraphPalette.primaryCurve : GraphPalette.constructionAccent, 2, kind === "external" ? 0 : 3);
+                    }, (kind === "external" ? EXTERNAL_TANGENT_STYLE : INTERNAL_TANGENT_STYLE).color, 2,
+                        (kind === "external" ? EXTERNAL_TANGENT_STYLE : INTERNAL_TANGENT_STYLE).dash);
                 }
             }
         }
@@ -557,6 +571,51 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         }
     }
 
+    /** The legend of the drawn construction lines and circles, each with the style it is drawn in (the same constants the board uses). */
+    legendItems(): LegendItem[] {
+        const d = this.view();
+        const dash = (style: {dash: number}) => (style.dash > 0 ? "dashed-line" : "line") as "dashed-line" | "line";
+        switch (d.mode) {
+            case "tangents":
+                return d.thales ? [{id: "thales", color: THALES_STYLE.color, kind: dash(THALES_STYLE), label: t("circle_construction_legend_thales")}] : [];
+            case "radical": {
+                const items: LegendItem[] = [];
+                const pairs = ["1, 2", "1, 3", "2, 3"] as const;
+                AXIS_STYLES.forEach((style, index) => {
+                    if (d.axes[index].axis.status !== "line") return;
+                    items.push({id: `axis-${index}`, color: style.color, kind: dash(style),
+                        label: t(style.dash > 0 ? "circle_construction_legend_axis_dashed" : "circle_construction_legend_axis_solid", {value0: pairs[index]})});
+                });
+                if (d.centre.status === "centre") {
+                    items.push({id: "centre", color: GraphPalette.constructionAccent, kind: "cross", label: t("circle_construction_legend_centre")});
+                }
+                if (d.orthogonal) {
+                    items.push({id: "orthogonal", color: ORTHOGONAL_STYLE.color, kind: dash(ORTHOGONAL_STYLE), label: t("circle_construction_legend_orthogonal")});
+                }
+                return items;
+            }
+            case "common": {
+                if (d.result.status !== "ok") return [];
+                const items: LegendItem[] = [];
+                if (d.result.tangents.some(tangent => tangent.kind === "external")) {
+                    items.push({id: "external-tangents", color: EXTERNAL_TANGENT_STYLE.color, kind: dash(EXTERNAL_TANGENT_STYLE),
+                        label: t("circle_construction_legend_external_tangents")});
+                }
+                if (d.result.tangents.some(tangent => tangent.kind === "internal")) {
+                    items.push({id: "internal-tangents", color: INTERNAL_TANGENT_STYLE.color, kind: dash(INTERNAL_TANGENT_STYLE),
+                        label: t("circle_construction_legend_internal_tangents")});
+                }
+                if (d.result.externalCentre) {
+                    items.push({id: "external-centre", color: GraphPalette.constructionLevels[1], kind: "cross", label: t("circle_construction_legend_external_centre")});
+                }
+                items.push({id: "internal-centre", color: GraphPalette.constructionLevels[2], kind: "plus", label: t("circle_construction_legend_internal_centre")});
+                return items;
+            }
+            default:
+                return [];
+        }
+    }
+
     readoutRows(): ReadoutListRow[] {
         const d = this.view();
         const row = (id: string, label: string, value: string): ReadoutListRow => ({id, label, value});
@@ -665,13 +724,13 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         const s = this.state[key];
         return [
             <NumberInput key={`${key}x`} label={t("circle_construction_centre_x", {value0: name})} value={s.x} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={HELP_ID}
+                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
                          onChange={value => this.editCircle(key, "x", value)}/>,
             <NumberInput key={`${key}y`} label={t("circle_construction_centre_y", {value0: name})} value={s.y} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={HELP_ID}
+                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
                          onChange={value => this.editCircle(key, "y", value)}/>,
             <NumberInput key={`${key}r`} label={t("circle_construction_radius", {value0: name})} value={s.r} step={RADIUS_STEP}
-                         bigStep={RADIUS_BIG_STEP} min={RADIUS_MIN} max={RADIUS_MAX} grid={RADIUS_STEP} decimals={2} describedBy={HELP_ID}
+                         bigStep={RADIUS_BIG_STEP} min={RADIUS_MIN} max={RADIUS_MAX} grid={RADIUS_STEP} decimals={2} describedBy={this.helpId}
                          onChange={value => this.editCircle(key, "r", value)}/>,
         ];
     }
@@ -680,10 +739,10 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         const s = this.state[key];
         return [
             <NumberInput key={`${key}x`} label={t("circle_construction_point_x", {value0: name})} value={s.x} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={HELP_ID}
+                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
                          onChange={value => this.editPoint(key, "x", value)}/>,
             <NumberInput key={`${key}y`} label={t("circle_construction_point_y", {value0: name})} value={s.y} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={HELP_ID}
+                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
                          onChange={value => this.editPoint(key, "y", value)}/>,
         ];
     }
@@ -719,7 +778,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 commands.push(
                     ...this.pointInputs("a", "A"), ...this.pointInputs("b", "B"), ...this.pointInputs("p", "P"),
                     <NumberInput key="ratio" label={t("circle_construction_ratio_label")} value={state.k} step={RATIO_STEP} bigStep={RATIO_BIG_STEP}
-                                 min={RATIO_MIN} max={RATIO_MAX} grid={RATIO_STEP} decimals={1} describedBy={HELP_ID}
+                                 min={RATIO_MIN} max={RATIO_MAX} grid={RATIO_STEP} decimals={1} describedBy={this.helpId}
                                  onChange={value => this.editRatio(value)}/>,
                 );
                 break;
@@ -727,7 +786,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 commands.push(...this.circleInputs("c1", "1"), ...this.circleInputs("c2", "2"));
                 break;
         }
-        commands.push(<p key="help" id={HELP_ID} className="form-text">{t("circle_construction_input_help", {
+        commands.push(<p key="help" id={this.helpId} className="form-text">{t("circle_construction_input_help", {
             value0: dec(-COORD_LIMIT), value1: dec(COORD_LIMIT), value2: dec(RADIUS_MIN), value3: dec(RADIUS_MAX), value4: dec(RATIO_MIN), value5: dec(RATIO_MAX),
         })}</p>);
         return commands;
@@ -741,6 +800,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 <p data-circle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("circle_construction_readout_title")} rows={this.readoutRows()}/>
                 <p className="form-text">{t("circle_construction_approx_note")}</p>
+                {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
             </div>
         </>;

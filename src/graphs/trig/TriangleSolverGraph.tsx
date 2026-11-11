@@ -6,6 +6,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
+import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {fitBoundingBox, FitPoint} from "../base/fitBoundingBox";
 import {angleBetween} from "../../compgeo/circle";
@@ -49,6 +50,9 @@ const clampVertexCoordinate = (axis: "x" | "y", value: number): number =>
     axis === "x" ? Math.min(VERTEX_X_MAX, Math.max(VERTEX_X_MIN, value)) : Math.min(VERTEX_Y_MAX, Math.max(VERTEX_Y_MIN, value));
 /** The SSA ray extends this far past the largest solved side and past the circle about C; the solve view pads the drawing by 1. */
 export const RAY_OVERSHOOT = 2;
+/** The colours of the solid circumcircle and of the SSA arc about C, which the legend states. */
+export const CIRCUMCIRCLE_COLOR = GraphPalette.referenceCurve;
+export const SSA_ARC_COLOR = GraphPalette.referenceCurve;
 export const SOLVE_VIEW_PADDING = 1;
 
 interface SsaConstruction {
@@ -136,7 +140,8 @@ const DATA_FIELDS = {
     asa: [{name: "angleA", kind: "angle"}, {name: "angleB", kind: "angle"}, {name: "c", kind: "side"}],
     ssa: [{name: "a", kind: "side"}, {name: "b", kind: "side"}, {name: "angleA", kind: "angle"}],
 } as const satisfies Record<string, readonly DataField[]>;
-const VERTEX_HELP_ID = "triangle-solver-vertex-help";
+/** Counts instances so that the vertex help id of two graphs on one page never collides. */
+let helpInstances = 0;
 const FIELD_SYMBOL: Readonly<Record<string, string>> = {a: "a", b: "b", c: "c", angleA: "A", angleB: "B"};
 
 /**
@@ -158,6 +163,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
     /** The view the board was last framed for: "fixed" for sides and circle, the state key in solve mode (so a user zoom is kept). */
     private framedKey = "";
     private readonly status = new SettledReadout();
+    private readonly vertexHelpId = `triangle-solver-vertex-help-${++helpInstances}`;
 
     override getInitialState(): TriangleSolverGraphState {
         return {initialized: false, ...DEFAULT_TRIANGLE_STATE};
@@ -340,7 +346,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
         // The circumcircle, the diameter B A' and the auxiliary triangle B A' C (circle mode, exact centre and antipode).
         const centre = hidden(() => this.proper()?.sine.circumcentre.x.toNumber() ?? 0, () => this.proper()?.sine.circumcentre.y.toNumber() ?? 0);
         this.own(board.create("circle", [centre, () => Math.sqrt(this.proper()?.sine.r2.toNumber() ?? 0)], {
-            strokeColor: GraphPalette.referenceCurve, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
+            strokeColor: CIRCUMCIRCLE_COLOR, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
             highlight: false, withLabel: false, visible: circleDrawn,
         }));
         const antipodeAt = (axis: "x" | "y"): Place => () => this.proper()?.sine.antipode[axis].toNumber() ?? 0;
@@ -416,7 +422,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
         segment(ssaC, ssaFoot, GraphPalette.constructionAccent, 2, 2, ssaDrawn);
         segment(ssaOrigin, ssaC, GraphPalette.primaryCurve, 2, 0, () => ssaDrawn() && this.view().drawn.length === 0);
         this.own(board.create("circle", [ssaC, () => this.view().ssa?.a ?? 0], {
-            strokeColor: GraphPalette.referenceCurve, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
+            strokeColor: SSA_ARC_COLOR, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
             highlight: false, withLabel: false, visible: ssaDrawn,
         }));
         label(() => (this.view().ssa?.C.x ?? 0) - 0.5, () => (this.view().ssa?.C.y ?? 0) / 2, () => "h", GraphPalette.constructionAccent, ssaDrawn);
@@ -487,10 +493,14 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
     }
 
     /** A side from its exact squared length: an integer when the square is perfect, otherwise the radical with its rounded value. */
+    private approx(value: number, language: NumberLanguage): string {
+        return t("triangle_solver_approx_value", {value0: this.num(value, language)});
+    }
+
     private sideText(square: bigint, language: NumberLanguage): string {
         const root = Math.round(Math.sqrt(Number(square)));
         if (BigInt(root) * BigInt(root) === square) return `${root}`;
-        return `√${square} ≈ ${this.num(Math.sqrt(Number(square)), language)}`;
+        return t("triangle_solver_sqrt_value", {value0: `${square}`, value1: this.num(Math.sqrt(Number(square)), language)});
     }
 
     private pointText(point: RationalPoint): string {
@@ -559,11 +569,11 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
             rows.push({id: `angle-${letters[index]}`, label: t("triangle_solver_readout_angle", {value0: letters[index]}), value: this.degrees(angle, language)}));
         sides.forEach(([name, , , , ratio], index) =>
             rows.push({id: `ratio-${name}`, label: t("triangle_solver_readout_ratio", {value0: name, value1: letters[index]}),
-                value: `≈ ${this.num(ratio, language)}`}));
+                value: this.approx(ratio, language)}));
         if (this.state.mode === "circle") {
             const apex = angleAtAntipode(sine, this.state.C, this.state.B);
             rows.push(
-                {id: "two-r", label: t("triangle_solver_readout_two_r"), value: `≈ ${this.num(sine.twoR, language)}`},
+                {id: "two-r", label: t("triangle_solver_readout_two_r"), value: this.approx(sine.twoR, language)},
                 {id: "r-squared", label: t("triangle_solver_readout_r_squared"), value: this.rationalText(sine.r2)},
                 {id: "centre", label: t("triangle_solver_readout_centre"), value: this.pointText(sine.circumcentre)},
                 {id: "antipode", label: t("triangle_solver_readout_antipode"), value: this.pointText(sine.antipode)},
@@ -587,7 +597,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
         const rows: ReadoutListRow[] = [];
         drawn.map(measureDrawn).forEach((m, index) => {
             const n = `${index + 1}`;
-            const separator = language === "sl" ? "; " : ", ";
+            const separator = t("triangle_solver_list_separator");
             rows.push(
                 {id: `solved-sides-${n}`, label: t("triangle_solver_readout_solved_sides", {value0: n}),
                     value: [`a = ${this.num(m.a, language)}`, `b = ${this.num(m.b, language)}`, `c = ${this.num(m.c, language)}`].join(separator)},
@@ -596,8 +606,26 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
                 {id: `solved-area-${n}`, label: t("triangle_solver_readout_solved_area", {value0: n}), value: this.num(m.area, language)},
             );
         });
-        if (ssa) rows.push({id: "height", label: t("triangle_solver_readout_height"), value: `≈ ${this.num(ssa.h, language)}`});
+        if (ssa) rows.push({id: "height", label: t("triangle_solver_readout_height"), value: this.approx(ssa.h, language)});
         return rows;
+    }
+
+    /** The legend entries for the circumcircle, the point A', the SSA arc and the height, each with the style it is drawn in. */
+    legendItems(): {id: string; color: string; label: string; kind: "line" | "diamond" | "dashed-line"}[] {
+        const items: {id: string; color: string; label: string; kind: "line" | "diamond" | "dashed-line"}[] = [];
+        if (this.state.mode === "circle" && this.proper()) {
+            items.push(
+                {id: "circumcircle", color: CIRCUMCIRCLE_COLOR, label: t("triangle_solver_legend_circumcircle"), kind: "line"},
+                {id: "antipode", color: GraphPalette.constructionAccent, label: t("triangle_solver_legend_antipode"), kind: "diamond"},
+            );
+        }
+        if (this.state.mode === "solve" && this.view().ssa !== undefined) {
+            items.push(
+                {id: "ssa-arc", color: SSA_ARC_COLOR, label: t("triangle_solver_legend_ssa_arc"), kind: "line"},
+                {id: "height", color: GraphPalette.constructionAccent, label: t("triangle_solver_legend_height"), kind: "dashed-line"},
+            );
+        }
+        return items;
     }
 
     private readoutRows(): ReadoutListRow[] {
@@ -656,7 +684,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
         ];
         if (state.mode === "solve") {
             commands.push(
-                <ChoiceSelect key="data-type" label={t("triangle_solver_data_label")} value={state.data.type}
+                <ChoiceSelect key="data-type" label={t("triangle_solver_data_label")} value={state.data.type} help={t("triangle_solver_data_help")}
                               options={[
                                   {value: "sss", text: t("triangle_solver_data_sss")},
                                   {value: "sas", text: t("triangle_solver_data_sas")},
@@ -680,14 +708,16 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
             }
             return commands;
         }
-        commands.push(<p key="vertex-help" id={VERTEX_HELP_ID} className="number-input-help">{t("triangle_solver_vertex_help")}</p>);
+        commands.push(<p key="vertex-help" id={this.vertexHelpId} className="number-input-help">{t("triangle_solver_vertex_help", {
+            value0: formatNumber(VERTEX_X_MIN, currentLanguage()), value1: formatNumber(VERTEX_X_MAX, currentLanguage()),
+            value2: formatNumber(VERTEX_Y_MIN, currentLanguage()), value3: formatNumber(VERTEX_Y_MAX, currentLanguage())})}</p>);
         for (const vertex of VERTICES) {
             for (const axis of ["x", "y"] as const) {
                 commands.push(
                     <NumberInput key={`${vertex}-${axis}`} label={t("triangle_solver_vertex_label", {value0: vertex, value1: axis})}
                                  value={state[vertex][axis]} min={axis === "x" ? VERTEX_X_MIN : VERTEX_Y_MIN}
                                  max={axis === "x" ? VERTEX_X_MAX : VERTEX_Y_MAX} step={VERTEX_STEP}
-                                 bigStep={VERTEX_BIG_STEP} integer decimals={0} describedBy={VERTEX_HELP_ID}
+                                 bigStep={VERTEX_BIG_STEP} integer decimals={0} describedBy={this.vertexHelpId}
                                  onChange={value => this.editVertex(vertex, axis, value)}/>,
                 );
             }
@@ -702,6 +732,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, nul
                 <ReadoutHeading>{t("triangle_solver_readout_title")}</ReadoutHeading>
                 <p data-triangle-status="">{this.statusText()}</p>
                 <ReadoutList label={t("triangle_solver_readout_title")} rows={this.readoutRows()}/>
+                {this.legendItems().length > 0 && <FunctionLegend items={this.legendItems()}/>}
                 <LiveReadout readout={this.status}/>
             </div>
         </>;

@@ -40,7 +40,8 @@ export const ARC_RADIUS = 3;
 export const RIGHT_ANGLE_SIZE = 0.8;
 const LABEL_OFFSET = 0.9;
 
-const HELP_ID = "line-geometry-point-help";
+/** Counts the graphs built, so the help ids of two instances on one page do not collide. */
+let helpInstances = 0;
 const toDegrees = (radians: number) => (radians * 180) / Math.PI;
 const signed = (value: Rational): string => value.format().replace("-", "−");
 const inView = (x: number, y: number) => Math.abs(x) <= VIEW_HALF && Math.abs(y) <= VIEW_HALF;
@@ -186,6 +187,7 @@ function buildView(state: LineGeometryState): View {
  * session cleanup, on unmount.
  */
 export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, null> {
+    private readonly helpId = `line-geometry-point-help-${++helpInstances}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private handles_: Partial<Record<PointField, JXG.Point>> = {};
@@ -657,13 +659,15 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, null> {
                               }}/>,
             );
         }
-        commands.push(<p key="point-help" id={HELP_ID} className="number-input-help">{t("line_geometry_point_help")}</p>);
+        commands.push(<p key="point-help" id={this.helpId} className="number-input-help">{t("line_geometry_point_help", {
+            value0: formatNumber(-GRID_LIMIT, currentLanguage(), 0), value1: formatNumber(GRID_LIMIT, currentLanguage(), 0),
+        })}</p>);
         for (const field of shownHandles(state)) {
             for (const axis of ["x", "y"] as const) {
                 commands.push(
                     <NumberInput key={`${field}-${axis}`} label={t("line_geometry_point_label", {value0: field, value1: axis})}
                                  value={state[field][axis]} min={-GRID_LIMIT} max={GRID_LIMIT} step={POINT_STEP}
-                                 bigStep={POINT_BIG_STEP} integer decimals={0} describedBy={HELP_ID}
+                                 bigStep={POINT_BIG_STEP} integer decimals={0} describedBy={this.helpId}
                                  onChange={value => this.editPoint(field, axis, value)}/>,
                 );
             }

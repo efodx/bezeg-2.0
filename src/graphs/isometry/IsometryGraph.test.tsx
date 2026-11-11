@@ -327,10 +327,12 @@ describe('numeric input per handle', () => {
         expect(graph.state.dilationK).toBe(4);
         expect(graph.editRatio(1.3)).toBe(true);
         expect(graph.state.dilationK).toBe(1.25);
-        expect(graph.editRatio(0)).toBe(true);
-        expect(graph.state.dilationK).toBe(-0.25); // from the positive side the zero step goes below
-        expect(graph.editRatio(0.1)).toBe(true);
-        expect(graph.state.dilationK).toBe(0.25);
+        expect(graph.editRatio(0)).toBe(false); // a typed zero (or 0.1, which the field rounds to 0) is refused and k keeps its value
+        expect(graph.editRatio(0.1)).toBe(false);
+        expect(graph.editRatio(-0.1)).toBe(false);
+        expect(graph.state.dilationK).toBe(1.25);
+        expect(graph.stepRatio(0)).toBe(true); // a step through zero goes below from the positive side
+        expect(graph.state.dilationK).toBe(-0.25);
         expect(graph.editRosetteN(99)).toBe(true);
         expect(graph.state.rosetteN).toBe(12);
         expect(graph.editPeriod(2)).toBe(true);
@@ -495,6 +497,48 @@ describe('ownership', () => {
     });
 });
 
+describe('controls compliance repairs', () => {
+    test('a typed 0 or 0,1 for k is refused with the field hint and k keeps its value; the keyboard step through zero still crosses it', () => {
+        const {graph} = mountGraph();
+        chooseMode('similarity');
+        act(() => { graph.setState({dilationK: 1}); });
+        const k =field(t('isometry_graph_k_label'));
+        act(() => { enterNumber(k, '0,1'); });
+        expect(graph.state.dilationK).toBe(1);
+        expect(screen.getByText(t('isometry_graph_k_rejected', {value0: '0,25', value1: '4'}))).toBeInTheDocument();
+        act(() => { enterNumber(k, '0'); });
+        expect(graph.state.dilationK).toBe(1);
+        act(() => { enterNumber(k, '2,5'); });
+        expect(graph.state.dilationK).toBe(2.5);
+        act(() => { graph.setState({dilationK: 0.25}); });
+        act(() => { fireEvent.keyDown(field(t('isometry_graph_k_label')), {key: 'ArrowDown'}); });
+        expect(graph.state.dilationK).toBe(-0.25);
+    });
+
+    test('the mirror count has its own help stating 1 to 3, and each instance has its own help ids', () => {
+        const {graph} = mountGraph();
+        chooseMode('classify');
+        const length = field(t('isometry_graph_length_label'));
+        const own = Array.from(document.querySelectorAll('.number-input-help')).map(node => node.textContent);
+        expect(own).toContain(t('isometry_graph_length_help', {value0: '1', value1: '3'}));
+        expect(length.getAttribute('aria-describedby')).toMatch(/isometry-input-help-\d+/);
+        mountGraph();
+        const ids = Array.from(document.querySelectorAll('[id^="isometry-input-help-"]')).map(node => node.id);
+        expect(new Set(ids).size).toBe(ids.length);
+        expect(ids.length).toBeGreaterThanOrEqual(2);
+        expect(graph.state.mode).toBe('classify');
+    });
+
+    test('a frieze with no feature checked is a valid state: the translations alone, p1, no bad text', () => {
+        const {graph} = mountGraph();
+        chooseMode('frieze');
+        act(() => { fireEvent.click(field(t('isometry_graph_feature_half_turn'))); });
+        expect(Object.values(graph.state.friezeFeatures).every(on => !on)).toBe(true);
+        expect(statusText()).toBe(t('isometry_graph_status_frieze', {value0: 'p1', value1: '1'}));
+        noBadText();
+    });
+});
+
 describe('review repairs', () => {
     test('every numeric field of every mode is described by the key help, which states the ranges', () => {
         const {graph} = mountGraph();
@@ -512,7 +556,7 @@ describe('review repairs', () => {
         chooseMode('frieze');
         for (const key of ['isometry_graph_period_label', 'isometry_graph_feature_vertical', 'isometry_graph_feature_horizontal',
             'isometry_graph_feature_half_turn', 'isometry_graph_feature_glide'] as const) described(t(key));
-        const help = document.getElementById('isometry-input-help')!.textContent!;
+        const help = document.querySelector('[id^="isometry-input-help-"]')!.textContent!;
         expect(help).toContain('od −16 do 16');
         expect(help).toContain('od 0,25 do 4');
         expect(help).toContain('od 1 do 12');
@@ -578,7 +622,7 @@ describe('review repairs', () => {
 
     test('the key help states the keyboard step of each field type', () => {
         mountGraph();
-        const help = document.getElementById('isometry-input-help')!.textContent!;
+        const help = document.querySelector('[id^="isometry-input-help-"]')!.textContent!;
         expect(help).toContain('koordinate za 1');
         expect(help).toContain('razmerje k za 1/4');
         expect(help).toContain('za 5, 1 ter 2');

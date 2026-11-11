@@ -6,6 +6,7 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {GraphPalette} from '../styles/GraphPalette';
+import {GRID_LIMIT} from './lineGeometryModel';
 import {ARC_RADIUS, HANDLE_TOUCH_RADIUS, HIT_SLACK, LineGeometryGraph, NORMAL_ARROW_LENGTH, POINT_BIG_STEP, POINT_STEP, VIEW_HALF} from './LineGeometryGraph';
 
 beforeAll(installBoardShims);
@@ -326,12 +327,23 @@ test('the point fields take typed integers: one field per handle, shown only for
 
 test('every point field points at the shared help, and the help names the range and the keys', () => {
     mountGraph();
-    const help = document.getElementById('line-geometry-point-help')!;
-    expect(help.textContent).toContain('od −8 do 8');
+    const help = document.querySelector<HTMLElement>('[id^="line-geometry-point-help-"]')!;
+    expect(help.textContent).toContain(`od −${GRID_LIMIT} do ${GRID_LIMIT}`); // the range comes from the model bound, not from the text
     expect(help.textContent).toContain('Puščici gor in dol za 1; Shift+puščica ali Page Up in Page Down za 5.');
     const inputs = screen.getAllByLabelText(/^Točka /);
     expect(inputs).toHaveLength(4);
-    for (const input of inputs) expect(input.getAttribute('aria-describedby')).toContain('line-geometry-point-help');
+    for (const input of inputs) expect(input.getAttribute('aria-describedby')).toContain(help.id);
+});
+
+test('two instances on one page have distinct help ids, each field pointing at its own', () => {
+    mountGraph();
+    mountGraph();
+    const ids = Array.from(document.querySelectorAll('[id^="line-geometry-point-help-"]')).map(node => node.id);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    for (const input of screen.getAllByLabelText(/^Točka /)) {
+        expect(ids).toContain(input.getAttribute('aria-describedby')!.split(' ').find(id => id.startsWith('line-geometry-point-help-')));
+    }
 });
 
 test('keyboard steps move a coordinate by one grid unit, Shift or a Page key by five, within [-8, 8]', () => {
@@ -442,7 +454,7 @@ test('the status, labels and readouts follow a language switch (point format, de
     expect(status()).toBe('The line x − 2y = −4 has an implicit, an explicit and an intercept form.');
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('implicit, an explicit and an intercept form');
     expect(screen.getByLabelText('Point P, coordinate x')).toBeInTheDocument();
-    expect(document.getElementById('line-geometry-point-help')!.textContent).toContain('from −8 to 8. Up and Down arrows by 1; Shift+arrow or Page Up and Page Down by 5.');
+    expect(document.querySelector('[id^="line-geometry-point-help-"]')!.textContent).toContain('from −8 to 8. Up and Down arrows by 1; Shift+arrow or Page Up and Page Down by 5.');
     set(graph, {mode: 'distance'});
     expect(status()).toBe('Distance of point T from the line: d² = 121/5, d ≈ 4.9193.');
     expect(readout('foot')).toBe('(4/5, 12/5)');

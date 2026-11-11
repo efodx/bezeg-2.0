@@ -52,6 +52,9 @@ export function handlesFor(mode: IsometryMode, motionLength: MotionLength): read
     return MIRROR_HANDLES.slice(0, count).flat();
 }
 
+/** The number of mirrors a motion may have (the `MotionLength` type). */
+const MOTION_LENGTH_MIN = 1;
+const MOTION_LENGTH_MAX = 3;
 const dec = (value: number): string => formatNumber(value, currentLanguage(), 4);
 const dec2 = (value: number): string => formatNumber(value, currentLanguage(), 2);
 const signed = (n: bigint): string => (n < 0n ? `−${-n}` : `${n}`);
@@ -64,8 +67,8 @@ const pointText = (x: string, y: string): string => t("isometry_graph_point_form
 const ratPoint = (p: RationalPoint): string => pointText(rat(p.x), rat(p.y));
 const xyPoint = (x: number, y: number): string => pointText(dec(x), dec(y));
 const degrees = (radians: number): string => `${dec2((radians * 180) / Math.PI)}°`;
-const HELP_ID = "isometry-input-help";
-const FEATURES_LABEL_ID = "isometry-features-label";
+/** Counts the graphs built, so the ids of two instances on one page do not collide. */
+let instances = 0;
 
 /** A line as text, for example `13 x = 25` or `6 x + 12 y = 66`. */
 function lineText(line: Line): string {
@@ -151,6 +154,9 @@ const FEATURE_NAMES = ["vertical", "horizontal", "halfTurn", "glide"] as const;
  * The board is rebuilt only when the mode (or, in the classify mode, the number of mirrors) changes; other edits move handles and redraw.
  */
 export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
+    private readonly instanceNumber = ++instances;
+    private readonly helpId = `isometry-input-help-${this.instanceNumber}`;
+    private readonly featuresLabelId = `isometry-features-label-${this.instanceNumber}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
@@ -515,7 +521,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
         const x = point.X();
         const y = point.Y();
         if (id === "k") {
-            this.editRatio(x - this.state.dilationCentre.x);
+            this.applyRatio(x - this.state.dilationCentre.x); // a drag may snap to the nearest side of 0
         } else {
             const sx = snapCoordinateInput(x);
             const sy = snapCoordinateInput(y);
@@ -584,8 +590,21 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
         return true;
     }
 
-    /** Writes a typed or dragged ratio through the model's single snapping path; a non-finite value is refused. */
+    /**
+     * Writes a typed ratio. Zero is not a ratio, and the field hands over a value already rounded to the quarter grid, so a typed 0 or 0.1 arrives
+     * as 0: it is refused (the field shows why) and k keeps its value instead of jumping to the other side of it. A non-finite value is refused.
+     */
     editRatio(value: number): boolean {
+        if (Number.isFinite(value) && Math.round(value * 4) === 0) return false;
+        return this.applyRatio(value);
+    }
+
+    /** A keyboard step: stepping through zero lands on the other side of it (1/4 down to -1/4), the model's rule for a step. */
+    stepRatio(value: number): boolean {
+        return this.applyRatio(value);
+    }
+
+    private applyRatio(value: number): boolean {
         const snapped = snapRatioInput(value, this.state.dilationK);
         if (!snapped.ok) return false;
         if (snapped.value.value !== this.state.dilationK) this.setState({dilationK: snapped.value.value});
@@ -772,7 +791,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
 
     private coordinateInput(key: string, label: string, value: number, onChange: (value: number) => boolean): JSX.Element {
         return <NumberInput key={key} label={label} value={value} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT}
-                            grid={1} decimals={0} describedBy={HELP_ID} onChange={onChange}/>;
+                            grid={1} decimals={0} describedBy={this.helpId} onChange={onChange}/>;
     }
 
     private mirrorInputs(index: 0 | 1 | 2): JSX.Element[] {
@@ -827,8 +846,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
                                       const id = CLASSIFY_EXAMPLE_IDS.find(candidate => candidate === value);
                                       if (id) this.setState({...CLASSIFY_EXAMPLES[id]});
                                   }}/>,
-                    <NumberInput key="length" label={t("isometry_graph_length_label")} value={state.motionLength} step={1} bigStep={1} min={1} max={3} grid={1}
-                                 decimals={0} describedBy={HELP_ID} onChange={value => this.editMotionLength(value)}/>,
+                    <NumberInput key="length" label={t("isometry_graph_length_label")} value={state.motionLength} step={1} bigStep={1} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX} grid={1}
+                                 decimals={0} describedBy={this.helpId} onChange={value => this.editMotionLength(value)}
+                                 help={t("isometry_graph_length_help", {value0: dec(MOTION_LENGTH_MIN), value1: dec(MOTION_LENGTH_MAX)})}/>,
                 );
                 for (let i = 0; i < state.motionLength; i++) commands.push(...this.mirrorInputs(i === 0 ? 0 : i === 1 ? 1 : 2));
                 break;
@@ -838,7 +858,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
                     this.coordinateInput("cx", t("isometry_graph_centre_x"), state.dilationCentre.x, value => this.editCentre("x", value)),
                     this.coordinateInput("cy", t("isometry_graph_centre_y"), state.dilationCentre.y, value => this.editCentre("y", value)),
                     <NumberInput key="k" label={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
-                                 max={K_MAX} grid={RATIO_STEP} decimals={2} describedBy={HELP_ID} onChange={value => this.editRatio(value)}/>,
+                                 max={K_MAX} grid={RATIO_STEP} decimals={2} describedBy={this.helpId} onChange={value => this.editRatio(value)}
+                                 onStepChange={value => this.stepRatio(value)}
+                                 rejectedHint={t("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})}/>,
                     <ChoiceSelect key="turn" label={t("isometry_graph_turn_label")} value={state.dilationTurn}
                                   options={DILATION_TURNS.map(turn => ({value: turn, text: this.turnName(turn)}))}
                                   help={t("isometry_graph_turn_help")}
@@ -851,26 +873,26 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
             case "rosette":
                 commands.push(
                     <NumberInput key="n" label={t("isometry_graph_n_label")} value={state.rosetteN} step={SMALL_INTEGER_STEP} bigStep={SMALL_INTEGER_BIG_STEP}
-                                 min={ROSETTE_N_MIN} max={ROSETTE_N_MAX} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editRosetteN(value)}/>,
+                                 min={ROSETTE_N_MIN} max={ROSETTE_N_MAX} grid={1} decimals={0} describedBy={this.helpId} onChange={value => this.editRosetteN(value)}/>,
                     <BooleanField key="mirrors" variant="switch" label={t("isometry_graph_rosette_mirrors_label")} checked={state.rosetteMirrors}
-                                  describedBy={HELP_ID} onChange={checked => this.setState({rosetteMirrors: checked})}/>,
+                                  describedBy={this.helpId} onChange={checked => this.setState({rosetteMirrors: checked})}/>,
                     this.coordinateInput("px", t("isometry_graph_point_x"), state.rosettePoint.x, value => this.editPoint("x", value)),
                     this.coordinateInput("py", t("isometry_graph_point_y"), state.rosettePoint.y, value => this.editPoint("y", value)),
                 );
                 break;
             case "frieze":
                 // One checkbox per feature in a labelled group: src/inputs/ has no checkbox group component (gap recorded for the Controls stream).
-                commands.push(<div key="features" role="group" aria-labelledby={FEATURES_LABEL_ID}>
-                    <div id={FEATURES_LABEL_ID} className="form-label">{t("isometry_graph_features_group")}</div>
+                commands.push(<div key="features" role="group" aria-labelledby={this.featuresLabelId}>
+                    <div id={this.featuresLabelId} className="form-label">{t("isometry_graph_features_group")}</div>
                     {FEATURE_NAMES.map(name => <BooleanField key={name} variant="checkbox" label={t(FEATURE_KEYS[name])} checked={state.friezeFeatures[name]}
-                                                             describedBy={HELP_ID} onChange={checked => this.setFeature(name, checked)}/>)}
+                                                             describedBy={this.helpId} onChange={checked => this.setFeature(name, checked)}/>)}
                 </div>);
                 commands.push(<NumberInput key="period" label={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
-                                           bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0} describedBy={HELP_ID}
+                                           bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0} describedBy={this.helpId}
                                            onChange={value => this.editPeriod(value)}/>);
                 break;
         }
-        commands.push(<p key="help" id={HELP_ID} className="form-text">{t("isometry_graph_input_help", {
+        commands.push(<p key="help" id={this.helpId}className="form-text">{t("isometry_graph_input_help", {
             value0: dec(-COORD_LIMIT), value1: dec(COORD_LIMIT), value2: dec(K_MIN), value3: dec(K_MAX), value4: dec(ROSETTE_N_MIN),
             value5: dec(ROSETTE_N_MAX), value6: dec(PERIOD_MIN), value7: dec(PERIOD_MAX),
         })}</p>);
