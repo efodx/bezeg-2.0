@@ -384,6 +384,11 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         return this.controller;
     }
 
+    /** A figure export captures the paused power, not a frame of a running playback. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     /** Stops the playback; n stays where it is. */
     override pausePlayback(): void {
         if (!this.controller?.isPlaying()) return;

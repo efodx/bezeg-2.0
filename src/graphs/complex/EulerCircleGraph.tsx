@@ -434,6 +434,11 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         return this.controller;
     }
 
+    /** A figure export captures the paused angle, not a frame of a running playback. */
+    protected override beforeFigureCapture(): void {
+        this.pausePlayback();
+    }
+
     /** Stops the playback; the angle stays where it is. */
     override pausePlayback(): void {
         if (!this.controller?.isPlaying()) return;

@@ -14,6 +14,8 @@ import TriangularPatchGraph from './patches/TriangularPatchGraph';
 import DecasteljauGraph2 from './curves/bezier/DecasteljauGraph2';
 import {LogisticMapGraph} from './dynamics/LogisticMapGraph';
 import {LinearMapGraph} from './linear/LinearMapGraph';
+import {ComplexPowerGraph} from './complex/ComplexPowerGraph';
+import {EulerCircleGraph} from './complex/EulerCircleGraph';
 
 beforeAll(installBoardShims);
 
@@ -53,6 +55,10 @@ const cases: Case[] = [
         play: g => g.sweeps.apply('v', 'play'), running: g => g.sweeps.isRunning('v'), value: g => g.state.v},
     {name: 'TriangularPatchGraph (sweeps)', create: () => new TriangularPatchGraph() as unknown as BaseGraph<BaseGraphState>,
         play: g => g.sweeps.apply('u', 'play'), running: g => g.sweeps.isRunning('u'), value: g => g.state.u},
+    {name: 'ComplexPowerGraph', create: () => new ComplexPowerGraph() as unknown as BaseGraph<BaseGraphState>,
+        play: g => g.play(), running: g => g.isPlaying(), value: g => g.state.n},
+    {name: 'EulerCircleGraph', create: () => new EulerCircleGraph() as unknown as BaseGraph<BaseGraphState>,
+        play: g => g.play(), running: g => g.isPlaying(), value: g => g.state.degrees},
     {name: 'DecasteljauGraph', create: allGraphFactories.decasteljau,
         play: g => g.playAnimation(), running: g => g.lessonAnimation.isRunning(), value: g => g.state.t},
     {name: 'LogisticMapGraph', create: () => new LogisticMapGraph() as unknown as BaseGraph<BaseGraphState>,
