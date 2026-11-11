@@ -4,7 +4,7 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-visual`, `worktree-stream-visual`, own `npm ci`. Run state: **active**. Stream port 4327 for previews of this worktree's `build/` (Vite output is `build/`); `just controls-fixture` uses 4328. A `just build` fails provenance ("Build inputs changed while building") while a worker edits files; build when no worker is editing, or verify in the clean worktree.
+- **Worktree and branch:** `.claude/worktrees/stream-visual`, `worktree-stream-visual`, own `npm ci`. Run state: **complete**. Stream port 4327 for previews of this worktree's `build/` (Vite output is `build/`); `just controls-fixture` uses 4328. A `just build` fails provenance ("Build inputs changed while building") while a worker edits files; build when no worker is editing, or verify in the clean worktree.
 - **Clean worktree for publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, then `just publish --background --recipe runtime --base <origin/master sha> --commits <ids, oldest first>`; `just publish --status`; then `just ci <pushed sha>`. Focused browser specs there: `just smoke <spec files> -g "<pattern>"`.
 - **Branch updates:** `git merge origin/master`, never rebase. Conflicts in files master holds only as cherry-picked copies resolve to the stream side (`git checkout --ours`) after `git log <merge-base>..origin/master -- <file>` shows only our own commits.
 - **Owner directions:** handlers decide and record, with no confirmation. Launch successors with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium` at budget handoff, passing this rule on; end without a successor when no actionable work is left.
@@ -18,17 +18,11 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
   - Step 4 complete: `reducedMotion.ts` subscription, `reducedMotionReason`, `PlaybackButtons describedBy` (linear `StepCounter.tsx` removed), shared `CheckboxGroup`.
   - Token 44 px also at `(max-width: 700px)`: master smoke `10e3df2e` failed on count-setter and lesson views at narrow fine-pointer widths; fixed in `1418471c`.
   - Step 3 close-out audit: stream `.command-logs/cv-close/` (summary in spec Decisions).
+- Handler 3 (2026-11-12): published handler 2's three commits (master `12cb622c`, CI green); merged `origin/master` into the branch; criterion 6 recorded in [rollout.md](rollout.md) (screenshots copied to the clean worktree `.command-logs/cv-rollout/`, after-the-fact reviews of 3a, 3c and the residuals); step 5 sweeps: `graphTeardownContract` landed (stream `e3e19a47`), `graphLanguageContract` built and not landed (reason in the [inventory](test-redundancy-inventory.md#sweep-results-2026-11-12) and spec Decisions).
 
-## Not yet published
+## Run state: complete
 
-Stream commits `0c699319` (step 5 slice 4: `typedRefusalBehaviour.ts`, inventory assessment), `d5201412` (last audit residuals: B-spline extraction buttons, degree-elevation fill; spec decisions) and this state commit. Checks: slice 4 `just check-changed` passed; residuals measured on the built app in both themes. Handler 2 started their background publish from the clean worktree at handoff (run id in the successor prompt): check `just publish --status` there, then `just ci <sha>`; if it failed, read its log, cherry-pick these three oldest first onto fresh `origin/master` and republish. The `d5201412` change touches a lesson's button (`bsplineExtractionGuidedLessons`); its unit test selects by `data-action`, unaffected.
-
-## Next
-
-1. Confirm the publish above and its CI.
-2. **Step 5:** the two sweeps proposed in the [inventory](test-redundancy-inventory.md) "Slice 4 assessment": `graphTeardownContract` (absorbs about 16 StrictMode and 12 scene-change/unmount tests) and `graphLanguageContract` (about 35 repeated language tests). One worker each, sequential; each must see its sweep fail once and name the covering test per deleted test; report `just test-cost`.
-3. Criterion 6 bookkeeping: copy before/after screenshots for 3b/3c into the clean worktree `.command-logs/` and list them in a short `docs/reviews/feature-streams/controls-visual/rollout.md` (sources: stream `.command-logs/cv-3b/`, `cv-3c/`, `cv-close/`).
-4. When 2 and 3 are done, no actionable work is left: set the stream file's run state to complete, record it here, push, and end without a successor.
+No actionable work is left; the stream file says `complete` and no successor is launched. Stream commits `94f9c197` (rollout) and `e3e19a47` (teardown sweep) were publishing as `publish-84c25138-c7f123` from the clean worktree at close; this closing commit follows them. If that publish is found failed, cherry-pick the three onto fresh `origin/master` there and republish. To reopen the stream, set the stream file to `active`.
 
 ## Risks and working notes
 
