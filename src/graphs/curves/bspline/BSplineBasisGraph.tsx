@@ -175,7 +175,7 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         if (this.scene && !this.scene.fits(this.state.knots, this.state.degree)) this.ensureScene();
         else this.scene?.sync();
         const problem = knotProblem(this.state.knots, this.state.degree);
-        if (problem) this.refusals.refuse(message("bsb_invalid_notice", {value0: renderMessage(problem)}));
+        if (problem) this.refusals.refuse(() => message("bsb_invalid_notice", {value0: problem}));
         this.boardUpdate();
     }
 

@@ -254,6 +254,18 @@ describe('knot dragging', () => {
         view.unmount();
     });
 
+    test('the notice for an invalid knot vector follows a language switch, inner reason included', () => {
+        const {graph, view} = mount();
+        act(() => graph.setState({knots: [0, 0, 0, 0, 1, 1, 1]})); // multiplicity 4 > k + 1 for degree 2
+        const noticeText = () => document.querySelector('[data-refusal-notice]')?.textContent;
+        expect(noticeText()).toContain('Vozelni vektor ni veljaven');
+        expect(noticeText()).toContain('največ 3-krat');
+        act(() => setLanguage('en'));
+        expect(noticeText()).toContain('The knot vector is not valid');
+        expect(noticeText()).toContain('at most 3 times');
+        view.unmount();
+    });
+
     test('markers are locked while the domain is shown on [0, 1] and stay in step with the state afterwards', () => {
         const {graph, view} = mount();
         act(() => graph.setNormalized(true));
