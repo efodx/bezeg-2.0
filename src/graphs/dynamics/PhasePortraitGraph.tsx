@@ -11,6 +11,7 @@ import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
@@ -574,7 +575,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, null>
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private stopDriver(): void {
@@ -886,12 +887,14 @@ function PhasePlayback(props: {graph: PhasePortraitGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const time = Math.min(graph.time, ORBIT_DURATION);
     const playing = graph.playing;
     const params = {value0: dec(ORBIT_DURATION, 0), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
     return <div className="inspector-group">
-        <PlaybackButtons placement="graph" groupLabel={text("phase_graph_playback_group")}
+        <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
+                         placement="graph" groupLabel={text("phase_graph_playback_group")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined)}/>
         <Slider customText={text("phase_graph_time_label")} min={0} max={ORBIT_DURATION} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}

@@ -71,7 +71,7 @@ const stepsPlayed = (graph: ObservedGraph, ticks: number) => {
     for (let i = 1; i <= ticks; i++) graph.clock.tick(i * STEP_INTERVAL_MS);
 };
 const E: Mat2 = [[4, 1], [2, 3]];
-const iterate = (graph: ObservedGraph, matrix: Mat2 = E, start: [number, number] = [1, 0]) => act(() => {
+const iterate = (graph: {act(action: object): void}, matrix: Mat2 = E, start: [number, number] = [1, 0]) => act(() => {
     graph.act({kind: 'linear-map', operation: 'set-matrix', matrix});
     graph.act({kind: 'linear-map', operation: 'set-mode', mode: 'iterate'});
     graph.act({kind: 'linear-map', operation: 'set-start', start});
@@ -334,9 +334,38 @@ describe('playback', () => {
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         expect(graph.modelNow().step ?? 0).toBe(0);
-        expect(document.body.textContent).toContain(t('playback_block_reduced_motion'));
+        expect(document.body.textContent).toContain(t('playback_block_reduced_motion_next_step'));
         press(t('next_step'));
         expect(graph.modelNow().step).toBe(1);
+    });
+
+    test('a change of the system reduced-motion setting blocks and unblocks Play without any other state change, and the listener is released on unmount', () => {
+        const original = window.matchMedia;
+        const listeners = new Set<(event: {matches: boolean}) => void>();
+        const system = {reduce: false};
+        window.matchMedia = (() => ({
+            get matches() { return system.reduce; },
+            addEventListener: (_: string, listener: (event: {matches: boolean}) => void) => listeners.add(listener),
+            removeEventListener: (_: string, listener: (event: {matches: boolean}) => void) => listeners.delete(listener),
+        })) as unknown as typeof window.matchMedia;
+        try {
+            class SystemGraph extends LinearMapGraph { act(action: object) { this.applyLinearMapAction(action as never); } }
+            const graph = new SystemGraph();
+            const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+            iterate(graph);
+            const play = () => screen.getByRole('button', {name: t('play')});
+            expect(play().getAttribute('aria-disabled')).toBe('false');
+            system.reduce = true;
+            act(() => listeners.forEach(listener => listener({matches: system.reduce})));
+            expect(play().getAttribute('aria-disabled')).toBe('true');
+            system.reduce = false;
+            act(() => listeners.forEach(listener => listener({matches: system.reduce})));
+            expect(play().getAttribute('aria-disabled')).toBe('false');
+            view.unmount();
+            expect(listeners.size).toBe(0);
+        } finally {
+            window.matchMedia = original;
+        }
     });
 
     describe('every change of the stored content pauses a playing run; a write that stores nothing new does not', () => {

@@ -4,6 +4,7 @@ import {formatNumber} from "../../analysis/format";
 import Slider from "../../inputs/Slider";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {useReducedMotion} from "../base/controls/reducedMotion";
 import {ReadoutHeading, ReadoutList} from "../base/controls/ReadoutParts";
 import type {SurfaceView} from "../patches/surface-view/surfaceScene";
 import type ContourMapGraph from "./ContourMapGraph";
@@ -16,6 +17,7 @@ export function ContourPlayback(props: {graph: ContourMapGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     if (graph.state.mode !== "descent") return null;
     const step = graph.step;
     const last = graph.lastStep();
@@ -23,7 +25,8 @@ export function ContourPlayback(props: {graph: ContourMapGraph}) {
     const params = {value0: "0", value1: String(last)};
     const blocks = playbackBlocks({atStart: step === 0, atEnd: step === last, playing});
     return <div className="inspector-group">
-        <PlaybackButtons placement="graph" groupLabel={text("levelsets_graph_playback_group")} nextLabel={text("next_step")}
+        <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_step_slider")}
+                         placement="graph" groupLabel={text("levelsets_graph_playback_group")} nextLabel={text("next_step")}
                          playing={playing} onNext={() => graph.nextStep()} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())}
                          onReset={() => graph.resetSteps()}
                          {...blocks} playBlock={blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined)}/>

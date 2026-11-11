@@ -10,6 +10,7 @@ import {fitBoundingBox} from "../../base/fitBoundingBox";
 import {arcLengthParamPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
+import {prefersReducedMotion, ReducedMotion} from "../../base/controls/reducedMotion";
 import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
 import {ARC_MOVER_MODES, ARC_PIECES_DEFAULT, ARC_PIECES_MAX, ARC_PIECES_MIN, ArcMoverMode} from "./arcLengthModel";
 import {ArcLengthOverlay} from "./ArcLengthOverlay";
@@ -262,7 +263,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+        return prefersReducedMotion();
     }
 
     /** Starts the frame loop from the committed position (from 0 when that is 1). Under reduced motion nothing moves; the slider still sets the position. */
@@ -386,7 +387,6 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
 
     private arcControls() {
         const kind = this.curveKind();
-        const reduced = this.reducedMotion();
         return <div className="inspector-group">
             <ChoiceSelect label={t("parametric_curve_label")} value={kind}
                           options={ARC_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
@@ -402,9 +402,11 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
             <Slider min={0} max={1} step={0.001} value={this.moverPosition()} customText={t("arcparam_mover_position")}
                     unavailableReason={this.playing ? t("arcparam_position_while_playing") : undefined}
                     onChange={value => this.setArcMoverPosition(value)}/>
-            <PlaybackButtons placement="graph" groupLabel={t("arcparam_playback_group")} className="arc-playback" playing={this.playing}
-                             playBlock={reduced ? 'reduced-motion' : undefined}
-                             onPlayPause={() => { if (this.playing) this.pause(); else this.play(); }}/>
+            <ReducedMotion>{() =>
+                <PlaybackButtons placement="graph" groupLabel={t("arcparam_playback_group")} className="arc-playback" playing={this.playing}
+                                 playBlock={this.reducedMotion() ? 'reduced-motion' : undefined} reducedMotionReason={t("playback_block_reduced_motion_position")}
+                                 onPlayPause={() => { if (this.playing) this.pause(); else this.play(); }}/>}
+            </ReducedMotion>
             <OnOffSwitch label={t("arcparam_speed_plot_shown")} checked={this.state.arcSpeedPlotShown}
                          onChange={checked => this.setArcSpeedPlotShown(checked)}/>
             {this.state.arcSpeedPlotShown && <ArcSpeedPlot controller={this.plot} fontSize={this.displaySettings.fontSize}/>}

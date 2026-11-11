@@ -344,7 +344,7 @@ describe('stepping and playback', () => {
         expect(graph.state.step).toBe(0);
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
-        expect(document.body.textContent).toContain(t('playback_block_reduced_motion'));
+        expect(document.body.textContent).toContain(t('playback_block_reduced_motion_next_step'));
         press(t('next_step'));
         expect(graph.state.step).toBe(1);
     });

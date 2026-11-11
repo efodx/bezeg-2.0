@@ -13,6 +13,7 @@ import {LessonAction} from "../../learning/model";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {
@@ -24,7 +25,6 @@ import {
     companionOfDrag, deriveIteration, deriveTraceDet, estimatesDominant, iterateAt, IterationView, SETTLED_ANGLE_DEGREES, TRACE_DET_DRAG_LIMIT, TRACE_DET_VIEW, TraceDetView,
 } from "./iterationScene";
 import {createIterationCurves, createIterationPoints, ITERATION_COLORS, IterationBoardContext, legendKindFor, TRACE_DET_DRAWING} from "./iterationBoard";
-import {StepCounter} from "./StepCounter";
 import {
     apply, det, IDENTITY, isLinearMapExampleId, MATRIX_ENTRY_STEP, type Mat2, orientationSign, unitSquareImage, type Vec2,
 } from "../../linear/matrix2";
@@ -237,7 +237,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private disposeController(): void {
@@ -618,6 +618,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const iterating = state.mode === "iterate";
         const basisLike = state.mode === "basis" || state.mode === "determinant";
         const startHelpId = `linear-map-start-help-${this.uid}`;
+        const stepCounterId = `linear-map-step-counter-${this.uid}`;
         const start = startOf(state);
         const startEntry = (axis: 0 | 1) => (
             <NumberInput label={axis === 0 ? t("linear_map_start_x_label") : t("linear_map_start_y_label")} value={start[axis]} step={MATRIX_ENTRY_STEP}
@@ -668,12 +669,15 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     {startEntry(1)}
                 </div>
                 <p id={startHelpId} className="inspector-help">{t("linear_map_start_help")}</p>
-                <PlaybackButtons placement="graph" groupLabel={t("linear_map_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
-                                 playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
-                                 onReset={() => this.resetRun()} {...blocks}
-                                 playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}>
-                    <StepCounter id={`linear-map-step-counter-${this.uid}`}>{t("step_counter", {value0: step, value1: ITERATE_STEP_MAX})}</StepCounter>
-                </PlaybackButtons>
+                <ReducedMotion>{() =>
+                    <PlaybackButtons placement="graph" groupLabel={t("linear_map_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
+                                     playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
+                                     onReset={() => this.resetRun()} {...blocks} reducedMotionReason={t("playback_block_reduced_motion_next_step")}
+                                     playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}
+                                     describedBy={{"next-step": stepCounterId}}>
+                        <p id={stepCounterId} data-step-counter="">{t("step_counter", {value0: step, value1: ITERATE_STEP_MAX})}</p>
+                    </PlaybackButtons>}
+                </ReducedMotion>
             </div>}
         </>;
     }

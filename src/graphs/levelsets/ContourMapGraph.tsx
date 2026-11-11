@@ -1,4 +1,5 @@
 import React from "react";
+import {prefersReducedMotion} from "../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -666,7 +667,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private stopDriver(): void {

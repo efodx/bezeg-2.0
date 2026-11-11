@@ -11,6 +11,7 @@ import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {travelling} from "../../waves/standing";
@@ -537,7 +538,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, null> {
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private stopDriver(): void {
@@ -847,13 +848,15 @@ function WavesPlayback(props: {graph: WavesGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const end = windowOf(graph.state);
     const time = Math.min(graph.time, end);
     const playing = graph.playing;
     const params = {value0: dec(end, 2), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
     return <div className="inspector-group">
-        <PlaybackButtons placement="graph" groupLabel={text("waves_graph_playback_group")} resetLabel={text("reset")}
+        <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
+                         placement="graph" groupLabel={text("waves_graph_playback_group")} resetLabel={text("reset")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={!playing && graph.reducedMotion() ? "reduced-motion" : undefined}/>
         <Slider customText={text("waves_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}

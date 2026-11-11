@@ -119,6 +119,29 @@ describe('PlaybackButtons', () => {
     });
 });
 
+describe('the describedBy and reducedMotionReason slots', () => {
+    test('describedBy links a description to the named button, after its own reason', () => {
+        render(<PlaybackButtons groupLabel="Iteration" nextLabel="Next" playing={false} onNext={() => {}} onPlayPause={() => {}} onReset={() => {}}
+                                nextBlock="no-more-steps" describedBy={{'next-step': 'counter-id'}}/>);
+        const ids = button('next-step').getAttribute('aria-describedby')!.split(' ');
+        expect(ids).toHaveLength(2);
+        expect(ids[1]).toBe('counter-id');
+        expect(button('play-pause').hasAttribute('aria-describedby')).toBe(false);
+    });
+
+    test('reducedMotionReason replaces the generic reduced-motion text in the title and the status line', () => {
+        const mount = (reason?: string) => <PlaybackButtons groupLabel="Iteration" nextLabel="Next" playing={false} onNext={() => {}} onPlayPause={() => {}}
+                                                          playBlock="reduced-motion" reducedMotionReason={reason}/>;
+        const view = render(mount());
+        const generic = button('play-pause').title;
+        view.rerender(mount('Use the time slider.'));
+        expect(button('play-pause').title).toBe('Use the time slider.');
+        expect(button('play-pause').title).not.toBe(generic);
+        fireEvent.click(button('play-pause'));
+        expect(reasonLine()!.textContent).toBe('Use the time slider.');
+    });
+});
+
 describe('the leading slot', () => {
     test('renders its buttons before Next, Play and Reset inside the group', () => {
         render(<PlaybackButtons groupLabel="Iteration" nextLabel="Next" playing={false} onNext={() => {}} onPlayPause={() => {}} onReset={() => {}}

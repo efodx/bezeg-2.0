@@ -11,6 +11,7 @@ import Slider from "../../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
+import {prefersReducedMotion, useReducedMotion} from "../../base/controls/reducedMotion";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {PresetCollection} from "../../base/presets/PresetCollection";
 import {Preset} from "../../base/presets/Presets";
@@ -411,7 +412,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private stopDriver(): void {
@@ -680,13 +681,15 @@ function KinematicsPlayback(props: {graph: KinematicsGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const end = graph.derived().tEnd;
     const time = Math.min(graph.time, end);
     const playing = graph.playing;
     const params = {value0: dec(end, 2), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
     return <div className="inspector-group">
-        <PlaybackButtons placement="graph" groupLabel={text("kinematics_graph_playback_group")} resetLabel={text("kinematics_graph_reset_label")}
+        <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
+                         placement="graph" groupLabel={text("kinematics_graph_playback_group")} resetLabel={text("kinematics_graph_reset_label")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={!playing && graph.reducedMotion() ? "reduced-motion" : undefined}/>
         <Slider customText={text("kinematics_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}

@@ -1,5 +1,6 @@
 import React, {useSyncExternalStore} from "react";
 import {PlaybackButtons} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {ReadoutHelp, ReadoutScrollTable} from "../base/controls/ReadoutParts";
 import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend} from "./FunctionReadout";
@@ -127,7 +128,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     /** The play button: starts the frame loop from the current time. Under reduced motion nothing moves; the slider still sets the time. */
@@ -586,9 +587,11 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const language = currentLanguage();
     return <div className="inspector-group">
-        <PlaybackButtons placement="graph" groupLabel={text("epicycle_playback_group")} playing={graph.playing}
+        <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
+                         placement="graph" groupLabel={text("epicycle_playback_group")} playing={graph.playing}
                          playBlock={!graph.playing && graph.reducedMotion() ? "reduced-motion" : undefined}
                          onPlayPause={() => (graph.playing ? graph.pause() : graph.play())}/>
         <Slider customText={text("epicycle_time_label")} min={0} max={6.28} step={0.01} value={Math.min(graph.time, 6.28)}

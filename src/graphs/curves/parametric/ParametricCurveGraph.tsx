@@ -3,6 +3,7 @@ import {t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
+import {prefersReducedMotion, ReducedMotion} from "../../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {AnimationDriver} from "../../../learning/runtime/animation";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -274,7 +275,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
 
     /** Read at render time, so a changed system setting applies at the next render. The slider still sets the parameter. */
     reducedMotion(): boolean {
-        return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+        return prefersReducedMotion();
     }
 
     /** An export captures one settled scene, so playback stops first. */
@@ -303,9 +304,11 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             ...(curve === 'cycloid' ? [<div key="radius"><Slider min={CYCLOID_RADIUS_MIN} max={CYCLOID_RADIUS_MAX} step={0.05} value={radius}
                                                                  customText={t("parametric_radius_label")}
                                                                  onChange={value => this.setRadius(value)}/></div>] : []),
-            <div key="roll"><PlaybackButtons placement="graph" groupLabel={t("parametric_roll_group")} playing={this.rolling}
-                                             playBlock={this.reducedMotion() ? 'reduced-motion' : undefined}
-                                             onPlayPause={() => { if (this.rolling) this.stopRoll(); else this.playRoll(); this.requestRender(); }}/></div>,
+            <div key="roll"><ReducedMotion>{() =>
+                <PlaybackButtons placement="graph" groupLabel={t("parametric_roll_group")} playing={this.rolling}
+                                 playBlock={this.reducedMotion() ? 'reduced-motion' : undefined}
+                                 onPlayPause={() => { if (this.rolling) this.stopRoll(); else this.playRoll(); this.requestRender(); }}/>}
+            </ReducedMotion></div>,
         );
     }
 }

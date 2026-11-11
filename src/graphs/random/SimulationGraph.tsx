@@ -10,6 +10,7 @@ import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {StepCounter} from "../base/controls/StepCounter";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -368,7 +369,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private stopDriver(): void {
@@ -723,14 +724,16 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         return <>
             {this.getGraphCommandsArea()}
             <div className="inspector-group">
-                <PlaybackButtons placement="graph" groupLabel={t("random_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("replay")}
-                                 playing={this.playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (this.playing) this.pausePlayback(); else this.play(); }}
-                                 onReset={() => this.resetRun()} {...playbackBlocks({atStart: shown === 0, atEnd: shown >= n, playing: this.playing})}
-                                 playBlock={shown >= n && this.reducedMotion() && !this.playing ? "no-more-steps" : undefined}/>
-                <Slider customText={t("random_graph_speed_label")} min={STOP_MS_MIN} max={STOP_MS_MAX} step={STOP_MS_STEP} grid={STOP_MS_STEP} bigStep={200}
-                        value={this.state.stopMs} help={t("random_graph_speed_help", {value0: dec(STOP_MS_MIN, 0), value1: dec(STOP_MS_MAX, 0), value2: dec(STOP_MS_STEP, 0)})} rejectedHint={t("random_graph_speed_rejected", {value0: dec(STOP_MS_MIN, 0), value1: dec(STOP_MS_MAX, 0), value2: dec(STOP_MS_STEP, 0)})}
-                        unavailableReason={this.reducedMotion() ? t("random_graph_speed_reduced") : undefined}
-                        onChange={value => this.editStopMs(value)}/>
+                <ReducedMotion>{() => <>
+                    <PlaybackButtons placement="graph" groupLabel={t("random_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("replay")}
+                                     playing={this.playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (this.playing) this.pausePlayback(); else this.play(); }}
+                                     onReset={() => this.resetRun()} {...playbackBlocks({atStart: shown === 0, atEnd: shown >= n, playing: this.playing})}
+                                     playBlock={shown >= n && this.reducedMotion() && !this.playing ? "no-more-steps" : undefined}/>
+                    <Slider customText={t("random_graph_speed_label")} min={STOP_MS_MIN} max={STOP_MS_MAX} step={STOP_MS_STEP} grid={STOP_MS_STEP} bigStep={200}
+                            value={this.state.stopMs} help={t("random_graph_speed_help", {value0: dec(STOP_MS_MIN, 0), value1: dec(STOP_MS_MAX, 0), value2: dec(STOP_MS_STEP, 0)})} rejectedHint={t("random_graph_speed_rejected", {value0: dec(STOP_MS_MIN, 0), value1: dec(STOP_MS_MAX, 0), value2: dec(STOP_MS_STEP, 0)})}
+                            unavailableReason={this.reducedMotion() ? t("random_graph_speed_reduced") : undefined}
+                            onChange={value => this.editStopMs(value)}/>
+                </>}</ReducedMotion>
                 <StepCounter step={index} length={length}/>
                 <ReadoutHeading>{t("random_graph_readout_title")}</ReadoutHeading>
                 <p data-random-status="">{this.statusText()}</p>

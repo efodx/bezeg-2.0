@@ -491,7 +491,7 @@ describe('playback and the time', () => {
         press(t('play'));
         expect(graph.playing).toBe(false);
         expect(graph.clock.requests).toBe(0);
-        expect(document.body.textContent).toContain(t('playback_block_reduced_motion'));
+        expect(document.body.textContent).toContain(t('playback_block_reduced_motion_time'));
         act(() => { fireEvent.change(slider(), {target: {value: '0.5'}}); });
         expect(graph.time).toBe(0.5);
     });

@@ -10,6 +10,7 @@ import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
@@ -284,7 +285,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private disposeController(): void {
@@ -529,13 +530,15 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, n
         return <>
             {this.getGraphCommandsArea()}
             <div className="inspector-group">
-                <PlaybackButtons placement="graph" groupLabel={t("recursion_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
-                                 playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
-                                 onReset={() => this.resetRun()} {...playbackBlocks({atStart: step === 0, atEnd: step >= ITERATION_MAX_STEPS, playing})}/>
-                <Slider customText={t("recursion_graph_speed_label")} min={SPEED_MIN} max={SPEED_MAX} step={SPEED_STEP} grid={SPEED_STEP} bigStep={200}
-                        value={this.speedMs} help={t("recursion_graph_speed_help", speedArgs)} rejectedHint={t("recursion_graph_speed_rejected", speedArgs)}
-                        unavailableReason={this.reducedMotion() ? t("recursion_graph_speed_reduced", {value0: ITERATION_MAX_STEPS}) : undefined}
-                        onChange={value => this.editSpeed(value)}/>
+                <ReducedMotion>{() => <>
+                    <PlaybackButtons placement="graph" groupLabel={t("recursion_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
+                                     playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
+                                     onReset={() => this.resetRun()} {...playbackBlocks({atStart: step === 0, atEnd: step >= ITERATION_MAX_STEPS, playing})}/>
+                    <Slider customText={t("recursion_graph_speed_label")} min={SPEED_MIN} max={SPEED_MAX} step={SPEED_STEP} grid={SPEED_STEP} bigStep={200}
+                            value={this.speedMs} help={t("recursion_graph_speed_help", speedArgs)} rejectedHint={t("recursion_graph_speed_rejected", speedArgs)}
+                            unavailableReason={this.reducedMotion() ? t("recursion_graph_speed_reduced", {value0: ITERATION_MAX_STEPS}) : undefined}
+                            onChange={value => this.editSpeed(value)}/>
+                </>}</ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: ITERATION_MAX_STEPS})}</p>
                 <ReadoutHeading>{t("recursion_graph_readout_title")}</ReadoutHeading>
                 <p data-recursion-status="">{this.statusText()}</p>

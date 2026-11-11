@@ -13,6 +13,7 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -418,7 +419,7 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private disposeController(): void {
@@ -694,9 +695,12 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         return <>
             {this.getGraphCommandsArea()}
             <div className="inspector-group">
-                <PlaybackButtons placement="graph" groupLabel={t("euler_circle_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
-                                 playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
-                                 onReset={() => this.resetRun()} {...blocks} playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}/>
+                <ReducedMotion>{() =>
+                    <PlaybackButtons placement="graph" groupLabel={t("euler_circle_graph_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
+                                     playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
+                                     onReset={() => this.resetRun()} {...blocks} playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}
+                                     reducedMotionReason={t("playback_block_reduced_motion_next_step")}/>}
+                </ReducedMotion>
                 <ReadoutHeading>{t("euler_circle_graph_readout_title")}</ReadoutHeading>
                 <p data-euler-status="">{this.statusText()}</p>
                 <ReadoutList label={t("euler_circle_graph_readout_title")} rows={this.readoutRows()}/>

@@ -321,7 +321,7 @@ describe('reduced motion', () => {
         press(t('play'));
         expect(graph.playing).toBe(false);
         expect(graph.frames.pending()).toBe(false);
-        expect(document.body.textContent).toContain(t('playback_block_reduced_motion'));
+        expect(document.body.textContent).toContain(t('playback_block_reduced_motion_step_slider'));
         press(t('next_step'));
         expect(graph.step).toBe(1);
     });

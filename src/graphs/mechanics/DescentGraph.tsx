@@ -1,4 +1,5 @@
 import React, {useSyncExternalStore} from "react";
+import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -562,7 +563,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, null> {
 
     /** Read at the time of the call, so a changed system setting applies at the next Play. */
     reducedMotion(): boolean {
-        return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+        return prefersReducedMotion();
     }
 
     private stopDriver(): void {
@@ -860,6 +861,7 @@ function DescentPlayback(props: {graph: DescentGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
+    useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const end = graph.derived().tEnd;
     const time = Math.min(graph.time, end);
     const playing = graph.playing;
@@ -868,7 +870,8 @@ function DescentPlayback(props: {graph: DescentGraph}) {
     const noRun = text("descent_graph_no_run");
     const blocks = playbackBlocks({ready: runs, atStart: time === 0, atEnd: false, playing});
     return <div className="inspector-group">
-        <PlaybackButtons placement="graph" groupLabel={text("descent_graph_playback_group")} playing={playing} noRunReason={noRun}
+        <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
+                         placement="graph" groupLabel={text("descent_graph_playback_group")} playing={playing} noRunReason={noRun}
                          onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={runs && !playing && graph.reducedMotion() ? "reduced-motion" : blocks.playBlock}/>
         <Slider customText={text("descent_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
