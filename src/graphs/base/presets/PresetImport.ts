@@ -40,7 +40,7 @@ function fail(detail: Message): never {
 }
 
 /** A view the board can show: four finite numbers, left < right, top > bottom. */
-export function isBoundingBox(value: unknown) {
+export function isBoundingBox(value: unknown): value is BoardState["boundingBox"] {
     return Array.isArray(value) && value.length === 4 && value.every(isFiniteNumber) && value[0] < value[2] && value[1] > value[3];
 }
 
@@ -74,7 +74,8 @@ export function checkPreset(collection: PresetCollection<unknown>, raw: unknown,
     const checked: {id: string; data?: unknown; boardState?: BoardState; graphState?: BaseGraphState} = {id};
     if (raw.boardState !== undefined) {
         if (!(isRecord(raw.boardState) && isBoundingBox(raw.boardState.boundingBox))) return {rejection: inPreset(collection, name, "boardState", message("invalid_graph_bounds"))};
-        checked.boardState = {boundingBox: [...raw.boardState.boundingBox as number[]] as BoardState["boundingBox"]};
+        const [left, top, right, bottom] = raw.boardState.boundingBox;
+        checked.boardState = {boundingBox: [left, top, right, bottom]};
     }
     if (raw.graphState !== undefined) {
         const invalid = collection.checkGraphState ? collection.checkGraphState(raw.graphState) : checkSceneState(raw.graphState);
