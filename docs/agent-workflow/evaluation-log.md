@@ -2759,3 +2759,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **A test-only brief found a defect:** "add a De Casteljau export check" showed that six graphs override `pausePlayback` but not `beforeFigureCapture`, so exports captured a moving run. The worker stopped and reported as briefed; a second worker fixed all six against the tests already written.
 - **Smoke harness:** a Haiku smoke handed off partial; its two uncovered items were harness locator/fixture errors, covered by unit tests. Name the exact control labels (Reset is the Preset panel "Ponastavi") in smoke briefs.
 - **Under-selection check:** a CI-scope fix that "now selects none" needed the handler to confirm the changed file is still selected by another rule; in scope tooling, fewer selections is the unsafe direction.
+
+## 2026-11-11: controls open items, fifth and sixth batches (controls stream, sixth handler)
+
+- **Throughput:** about fourteen slices in roughly four hours: four handler-only (export hooks, drift guard, triangular test, Blossom knot assertion), four Sonnet workers, one Sonnet read-only audit, four Haiku smokes. Publishing ran in the background between slices, six publishes in all.
+- **A verification smoke found a pre-existing defect:** the Blossom smoke's "observation, unverified" (no blossom after a degree-3 Preset) was confirmed pre-existing by running the same check against the deployed master instead of building the old revision. The failure was in the figure path, which JSDOM tests of `importPresetData` did not reach. Briefs that ask for "the path the Preset menu uses" found it at once.
+- **Defect class, followed to the end:** one fix led to an audit, the audit to a suspicion, the suspicion to two confirmed failures, and a contract test over all graphs found two more in graphs merged that same afternoon. A contract test catches a pattern that per-file reading misses in code still being written.
+- **Handler review caught two worker costs:** per-render canvas measurement with a forced style read in a shared input (ChoiceSelect), and a strong `Set` of every board object kept for a curve's lifetime. Both were fixed in review. Workers optimise for the acceptance criterion; render and memory cost needs a named criterion or handler review.
+- **No-route graphs:** a smoke brief for two graphs came back blocked because no route mounts them. Check routes before briefing a smoke.
+- **Merging master brought new graphs that repeated today's two defects.** After a merge, rerun the contract tests that guard a pattern.

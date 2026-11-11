@@ -22,5 +22,5 @@ Before the fix: generic spline `expected 34 to be 3`, rational `expected 24 to b
 B-spline passed before (its own dispose guard) and stays as a regression pin. The G1 spline test counts calls so only the
 subclass's call throws; its failing-before was not observed (an earlier always-throw version hit the base's guard).
 
-Checks: `just unit src/graphs/curves` passed; `just typecheck` passed; `just check-changed` see report.
+Checks: `just unit src/graphs/curves` passed; `just typecheck` passed; `just check-changed` passed (940s).
 Logs: .command-logs/sub-{before,after,curves,tsc,check}.log

@@ -5,59 +5,53 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
 ## Where things are
 
 - **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`. Run state: **active**. **Every queue row is accepted** (steps 1–9, 3a, 5, 5a). What remains is the open-item list below, as small slices.
-- **Do not rebase the stream branch.** Bring it up to date with `git merge origin/master`. When master holds cherry-picked copies of stream commits, conflicts in those files resolve to the stream side (`git checkout --ours`), after `git log <merge-base>..origin/master -- <files>` confirms master has no other change to them (done on 2026-11-11). Publish by cherry-picking new stream commits onto `origin/master` in the clean worktree.
-- **Clean worktree for checks, previews and publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, `just build`, `just preview 4327` (background), smoke, stop the preview, `just publish --background --recipe runtime --base <origin/master sha> --commits <cherry-picked ids, oldest first>`; check `just publish --status` there; then `just ci <pushed sha>`.
-- **Hosted CI (2026-11-11):** earlier runs are in this file's git history. `ff64c783` green 42999097628. `ae3786a6` (fourth handler, batch 4) **failed** run 43001329690, not ours: F2a's Descent test wrote `.command-logs/mech02b-redraw.log` without the directory; the next commit `f032639c` was docs-only and showed green with its unit stage skipped. Fixed by `baeeb369` (published with `6ed5d18c`, run cancelled by a newer push); `9d360010` (contains both) green 43006718915. `d362133f` (batch 2) green 43010600517, developer tools 43010600607. `1f1b310e` (batch 3) green 43020903983. Batch 4: see Next.
+- **Do not rebase the stream branch.** Bring it up to date with `git merge origin/master` (last merged 2026-11-11 at `7450f0b6`, clean). When master holds cherry-picked copies of stream commits, conflicts in those files resolve to the stream side (`git checkout --ours`), after `git log <merge-base>..origin/master -- <files>` confirms master has no other change to them. Publish by cherry-picking new stream commits onto `origin/master` in the clean worktree.
+- **Clean worktree for checks, previews and publishing:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached. Recipe: `git fetch -q origin && git checkout -q --detach origin/master && git cherry-pick <stream commits>`, `just build`, `just preview 4327` (background; a rebuild under a running preview is served after a hard reload), smoke, `just publish --background --recipe runtime --base <origin/master sha> --commits <ids, oldest first, comma-separated>`; check `just publish --status` there; then `just ci <pushed sha>`. The publish gate's `check-changed` takes about 15 min while other tests run.
+- **Hosted CI (2026-11-11):** earlier runs are in this file's git history. `25c6b66b` (batch 4) green 43024788742; `0a1e7959` green 43025170647; `d6f1e876` (Blossom same-shape import, export pause in map graphs, drift guard) green 43028635673; `eac6f4af` (Blossom Preset degree) green 43033238767; `7450f0b6` (levelsets Preset) green 43036320505. `538f6058` (ChoiceSelect, triangular test, constructor sweep) pushed 14:47, CI not yet read. The sixth handler's last batch: see Next 1.
 - **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Pipeline slices in disjoint files instead of waiting on publish and CI.
 
-## Done in this session (2026-11-11, fifth handler)
+## Done in this session (2026-11-11, sixth handler)
 
-Each slice has a worker note `oi-*.md` in this directory. All passed focused `just unit` and typecheck; `check-changed` per note.
+Each slice has a note `oi-*.md` in this directory.
 
-- Hermite `consumerRefusal` removed as redundant (the collection check ends in `hermiteRejection`); FivePoint `lastUnique` through a degenerate (four collinear points) model tested (`oi-hermite-fivepoint.md`).
-- `StoredGraphState = Partial<BaseGraphState>` for `Preset.graphState`, `CheckedPreset.graphState` and every `figurePresetGraphState`; the `checkPreset` cast is gone (`oi-stored-graph-state.md`).
-- `CheckedPreset<D>`/`checkPreset<D>`: the Preset import path drops its `as D`/`as S` casts; kept with reasons in `importFigurePresetData` and the lesson restore; `ConsumerPreparation.test.tsx` `undefined as never` replaced (`oi-step7-casts.md`).
-- Step 9 parsers: `graphClassFiles` and the clip probe fail loudly on drift; `smoke-catalog.cjs` already parses the AST and throws (closed); `just tooling-test` runs both tests (`oi-step9-parsers.md`). Alias defect fixed: a class file imported under an alias (`SubdivisionGraph1.tsx` as `DecasteljauGraph3`) no longer selects its whole directory; it is still selected through `changedFiles` (`oi-class-alias.md`).
-- Consumer limits audit: every point-set, function, patch and projective `importPresetData` is refused by its collection first; no gaps (`oi-consumer-limits-audit.md`).
-- Curve-layer constructor `AbstractJXGPointControlledCurve` sweeps its objects when it throws (`sweepObjectsSince` in `OwnedScene.ts`; `oi-curve-construct-leak.md`).
-- Figure batch: a view-less Preset figure starts from the initial view, as Preset selection and Reset do; a `fitPresetView` hook replaces five curve `importPreset` overrides. Handler amendment: no fit in the shared figure path, because it also serves Reset and Preset selection (`oi-figure-initial-view.md`).
-- Patch Preset collections accept only their own graph's state fields; foreign fields are refused with `unknown_patch_field`. User impact: only hand-edited files are refused (`oi-patch-state-fields.md`).
-- `CountSetter` drops its blocked-press reason on a `ReplacementRevision` change (`oi-count-revision.md`).
-- Export pauses playback: six graphs overrode `pausePlayback` but not `beforeFigureCapture` (De Casteljau 1 and 2, parametric roll, cobweb, simulation, patch sweeps); fixed, with `src/graphs/ExportPausesPlayback.test.tsx` and `DecasteljauExport.test.tsx` (`oi-decasteljau-export.md`).
-- Closed by decision: `sharedControls.graphs.test.tsx` per-graph restore. It was a test-speed idea; the saving was already taken by running fewer graphs, and a restore contract would couple every graph to the test.
-- Closed by decision: curve workspace `onAdd` never refuses, because there is no limit an add can hit (Bézier-family boards only, no maximum or degree cap; `oi-curve-onadd.md`).
-- Fixed on master: F2a Descent redraw-timing test `mkdirSync` (`baeeb369`).
-- Smoke (clean worktree `.command-logs/`): `b3-smoke/evidence.md`: figure batch view and Hermite drag pass; its Reset and patch-import items were harness failures (wrong Reset locator, missing fixture), covered by units. `b4-smoke/evidence.md`: PNG export during a run pauses it on both De Casteljau routes, Play resumes from the paused t, no console errors (SVG export not covered).
-- Published: `baeeb369`+`6ed5d18c`; batch 2 as `d362133f`; batch 3 (leak, alias, figure view, patch fields, CountSetter) as `1f1b310e`.
+- Blossom same-shape import (`31258876`) verified: a same-degree, same-count import with other knots and points keeps the objects and redraws curve, blossom and label (test fails with the knot sync removed); smoked (`b5-blossom-smoke/evidence.md` in the clean worktree); published.
+- **Found by that smoke, pre-existing on master:** a Blossom Preset of another degree, selected from the menu, drew no blossom (figure path merged the mount-time segment index into the new knots). Fixed in `figurePresetGraphState`, stored args validated as finite numbers (`oi-blossom-preset-degree.md`); browser recheck passed.
+- Figure-state audit of 30 `figurePresetGraphState` overrides: none confirmed stale (`oi-figure-state-audit.md`). Its suspicion on the level-set graphs was confirmed: their Presets were refused on selection. Fixed (`oi-levelsets-preset.md`). Then `src/graphs/PresetRoundTrip.contract.test.tsx` (121 cases, ~57 s) saves, selects and resets a Preset on every graph: ComplexPower and EulerCircle (F2a, merged today) failed the same way and are fixed (`oi-preset-roundtrip.md`). None of these four graphs has a route yet, so no user holds a refused Preset.
+- Export pauses playback: LogisticMap, LinearMap, ComplexPower and EulerCircle got `beforeFigureCapture`; TriangularPatch sweeps got a test case. Every `override pausePlayback` under `src/graphs` now has a capture hook (`oi-export-maps.md`; the complex pair in commit `ade30c59`).
+- `graphClassFiles` drift guard requires each class's `<stem>.ts(x)`.
+- `ChoiceSelect` at 200 % text: a clipped selected text is repeated in full under the select (`data-choice-full`, aria-hidden); the controls fixture's `test.fail` is a normal test and selects are back in its clipping check; the handler made measurement run only on value/option change and resize with one shared canvas (`oi-choiceselect-200.md`).
+- Curve subclass constructors that throw after `super()` now sweep their objects (`finishConstruction`; weak snapshot) (`oi-subclass-construct-leak.md`).
+- Closed by smoke: Step 6 `PlaybackButtons` focus across the breakpoint (`(max-width: 700px), (max-height: 500px)`, `useGraphAdjacentPlayback.ts:3`) on linear-map and convex-hull, both directions, while playing (`b5-playback-focus/evidence.md`); Step 9 projective in English on all five routes; Step 5a Bézier last-frame focus (SL, EN) and EN hide/reopen/exit (`b5-en-smoke/evidence.md`).
+- Closed by decision: `TraceCurvePairGraph.tsx:213` clamp. On the Preset path (`BaseGraph.importPreset`) the incoming graph state is applied before `importPresetData`, so the clamp already uses the incoming tolerance; on lesson paths (`SceneReplacement.ts:92`, then `:101`) the whole state is replaced right after the data, superseding the clamp.
 
 ## Next
 
-1. Batch 4 (`3fb69382` export pauses playback, plus the fifth handler's docs, cherry-picked as `5f9b8678`, `25c6b66b`) was publishing at handoff: read `just publish --status` in the clean worktree (`publish-25c6b66b-*`), then `just ci <pushed sha>`; record it. If master is red from another stream's test, read the failure: a later docs-only run skips units, so look at the last run that ran them. The handoff state commit after it is docs only.
-2. **Unpublished on the stream branch:** `31258876` Blossom keeps its board objects on a same-shape import (`oi-blossom-rebuild.md`; focused units passed, no smoke). Before publishing, check that a same-degree, same-count import with **different knots or points** redraws the curve and blossom labels from the new data (the scene is now kept, so the sync path must refresh everything); add that assertion if `BSplineBlossomGraph.test.tsx:~393` does not make it, then smoke the Blossom route (Preset select with other knots, Reset, Preset reopen) and publish.
-3. Open items below as small slices, two at a time in disjoint files. Good next pairs: the Step 6 `PlaybackButtons` breakpoint focus risk (needs a smoke) ∥ the `LogisticMapGraph` capture pause (once F2a is idle there).
+1. **Publishing at handoff:** `ade30c59` (complex export pause), `232c1624` (Preset round-trip contract and complex fix) and the handoff docs commit, cherry-picked onto `538f6058`. Read `just publish --status` in the clean worktree, then `just ci` for `538f6058` and for the new head; record them.
+2. Open items below as small slices, two at a time in disjoint files.
 
 ## Open items
 
-- **Export pause in another stream's graph:** `src/graphs/dynamics/LogisticMapGraph.tsx:427` overrides `pausePlayback` but not `beforeFigureCapture` (F2a, in flight). Pattern: `protected override beforeFigureCapture(): void { this.pausePlayback(); }` when its `pausePlayback` does not call super. TriangularPatchGraph sweeps share the fixed `BaseSurfaceGraph` override but have no test of their own.
-- **Step 8 leftovers:** Blossom rebuild on import (Next 2); Blossom Preset reopen sub-pixel axis-tick path difference (not a defect). Subclass constructors that create objects after `super()` are not covered by the curve-constructor sweep.
-- **Step 9 leftovers:** projective smoke ran in Slovenian only (needs an English smoke run); the `graphClassFiles` drift guard checks the directory, not a strict `<stem>.tsx`.
-- **Step 7 leftovers:** `importFigurePresetData` and lesson-restore casts kept (reasons in `oi-step7-casts.md`); `TraceCurvePairGraph.tsx:213` clamps the step with the current, not the incoming, clip tolerance (affects only the clamp).
-- **Step 5a:** lesson card scrolls with the page (ADR 0003); Bézier last-frame focus and EN hide/reopen not smoked.
-- Step 6 risks: focus kept across the breakpoint only when focus fell to the body (`PlaybackButtons.tsx`); Euler has no Play; collision playgrounds and lesson-only patch sweeps inline; Epicycle time slider candidate for a live disclosure; `100svh` with real browser chrome unverified; 360 × 640 board at its 200 px floor with Reset below the fold on 20 routes.
+- **New graphs without routes (F2a):** LinearProgram, ContourMap, ComplexPower, EulerCircle. When a route or lesson mounts them, smoke Preset save, select and Reset there. New F2a graphs: run `PresetRoundTrip.contract.test.tsx` and `ExportPausesPlayback.test.tsx` after merging (the contract test enumerates graphs; a graph outside `allGraphFactories` must be added by hand, as ComplexPower, EulerCircle and Solids were).
+- **Contract test cost:** `PresetRoundTrip.contract.test.tsx` takes ~57 s; if the unit stage slows, scope it like the catalog sweeps (`scripts/transient-state-scope.cjs`).
+- **Step 8 leftover:** Blossom Preset reopen sub-pixel axis-tick path difference (not a defect; also seen after Reset without a drag).
+- **Step 9 leftover:** English Preset-import refusal text not smoked (units cover the catalog).
+- **Step 7 leftovers:** `importFigurePresetData` and lesson-restore casts kept (reasons in `oi-step7-casts.md`).
+- **Step 5a:** the lesson card scrolls with the page (ADR 0003; by design).
+- Step 6 risks: Euler has no Play; collision playgrounds and lesson-only patch sweeps inline; Epicycle time slider candidate for a live disclosure; `100svh` with real browser chrome unverified; 360 × 640 board at its 200 px floor with Reset below the fold on 20 routes.
 - Decision 57: legacy selected-curve panel (`BaseCurveGraph` `getSelectedCurveCommands`, `onChanged` = `store.notify`) cannot tell an applied operation from a preview, so it does not pause a De Casteljau run; Add/Delete-points board clicks that edit nothing pause it (minor). Collision playground autoplays in view; Play out of view does nothing.
-- Carried: `ChoiceSelect` clipped at 200 % text (one `test.fail`); no screen-reader run, Chromium only.
+- Carried: no screen-reader run, Chromium only. `ChoiceSelect` full-text line: the `ResizeObserver` path has no JSDOM test; covered in the browser by the controls fixture.
 
 ## Risks and working notes
 
-- The machine is slow while a worker runs `check-changed` or a smoke: shell calls time out at 120 s and move to the background; read results from the task output or `.command-logs`.
-- Working Playwright patterns: `.command-logs/s7-closeout-smoke/run.cjs`, `s89-smoke/`, `s5a-smoke/` in the clean worktree (storage key `bezeg-2.0:preset-<collection>` with `{data:[…]}`, Preset save under "Shrani"; ThreeViews sliders hide while the Save tab is open).
-- Read smoke "failures" before acting: they are often harness, by-design or pre-existing (a heading margin from `.inspector-group h3` specificity).
-- A shell call that lists, diffs or commits can take minutes while a worker runs tests; prefer the Read/Grep tools, and run git in the background.
+- The machine is slow while a worker runs `check-changed` or a smoke: shell calls time out and move to the background; read results from the task output or `.command-logs`. Two `check-changed` runs contend for one lock; workers should wait and retry once.
+- Working Playwright patterns: `.command-logs/b5-blossom-smoke/`, `b5-playback-focus/run.cjs`, `b5-en-smoke/`, `s7-closeout-smoke/run.cjs` in the clean worktree (storage key `bezeg-2.0:preset-<collection>` with `{data:[{id, data}]}`, Preset UI under "Shrani"; linear-map playback appears only in iterate mode).
+- The deployed site (https://efodx.github.io/bezeg-2.0/) is master: compare against it to tell a regression from a pre-existing defect without a second build.
+- Read smoke "failures" before acting: they are often harness, by-design or pre-existing.
 - Workers that hit HANDOFF and leave background work: wait for or stop them before a continuation edits the same files. Smoke workers: say "MUST write" the evidence file.
-- Line endings: many files have CRLF working copies with clean status; leave them.
-- CSS-source tests do not prove the cascade: check specificity against `.workspace-inspector .tools .btn` (0,3,0) and `.demonstration-workspace button` (0,1,1), and smoke-measure.
-- `check-changed` "selector removed" warnings for `.visually-hidden` and fixture `data-testid` are false positives.
-- Other streams' JSDOM redraw-timing tests (F2a) write `.command-logs/*.log`; hosted CI has no such directory, so each needs `mkdirSync('.command-logs', {recursive: true})`. `just unit` creates the directory itself, so a local run cannot reproduce the failure; run the test with no directory present to check.
+- Line endings: many files have CRLF working copies; regex edits with `\s*` capture `\r` — edit by hand.
+- CSS-source tests do not prove the cascade: check specificity and smoke-measure.
+- `check-changed` "selector removed" warnings for `.visually-hidden`, `data-readout` and fixture `data-testid` are false positives.
+- Other streams' JSDOM redraw-timing tests write `.command-logs/*.log`; hosted CI has no such directory, so each needs `mkdirSync('.command-logs', {recursive: true})`.
 - Ports: 4317 Codex, 4327 previews, 4328 the controls fixture.
 
 ## Settings
