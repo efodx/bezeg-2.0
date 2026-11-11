@@ -28,6 +28,9 @@ test('zero list and rational refusals', () => {
     switches(() => zeroListIssueMessage({kind: 'zero-range', min: -2.5, max: 3}), '−2,5', '−2.5');
     switches(() => rationalFunctionEditMessage({kind: 'k-range', min: -2.5, max: 3}), '−2,5', '−2.5');
 });
+test('euler step refusal lists its allowed steps in the language at render time', () => {
+    switches(() => eulerEditMessage({kind: 'step', allowed: [0.25, 0.5]}), '0,25, 0,5', '0.25, 0.5');
+});
 test('fourier, euler, taylor and bisection refusals', () => {
     switches(() => fourierSeriesEditMessage({kind: 'x', min: -2.5, max: 3}), '−2,5', '−2.5');
     switches(() => eulerEditMessage({kind: 'x-range', coordinates: ['x0'], min: -2.5, max: 3}), '−2,5', '−2.5');

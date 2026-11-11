@@ -1,4 +1,4 @@
-import {currentLanguage, message, Message, messageNumber} from "../../localization";
+import {message, Message, messageNumber, messageNumberList} from "../../localization";
 import {EulerIssue} from "../../analysis/eulerModel";
 import {formatNumber} from "../../analysis/format";
 
@@ -31,7 +31,7 @@ export function eulerEditMessage(issue: EulerIssue): Message {
         case "x-range": return message("euler_ode_x_range_rejected", {value0: messageNumber(issue.min, 4), value1: messageNumber(issue.max, 4)});
         case "y-range": return message("euler_ode_y_range_rejected", {value0: messageNumber(issue.min, 4), value1: messageNumber(issue.max, 4)});
         case "order": return message(issue.moving === "xEnd" ? "euler_ode_end_order_rejected" : "euler_ode_x0_order_rejected");
-        case "step": return message("euler_ode_step_rejected", {value0: issue.allowed.map(step => formatNumber(step, currentLanguage(), 4)).join(", ")});
+        case "step": return message("euler_ode_step_rejected", {value0: messageNumberList(issue.allowed, 4)});
         // Only stored data can carry these two: the toggle and step-reveal setters take typed values and return no issue.
         case "toggle": return message("invalid_euler_ode_toggle", {value0: issue.field});
         case "reveal": return message("invalid_euler_ode_reveal", {value0: bound(issue.min), value1: bound(issue.max)});

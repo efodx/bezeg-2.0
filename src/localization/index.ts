@@ -8,7 +8,9 @@ export type Language = 'sl' | 'en';
 export type MessageKey = keyof typeof sl;
 /** A number formatted when the message renders, so a language switch changes its decimal separator. */
 export interface MessageNumber {kind: 'number'; value: number; maxDecimals?: number}
-export type MessageParameter = string | number | Message | MessageNumber;
+/** Several numbers formatted when the message renders and joined with ", ". */
+export interface MessageNumberList {kind: 'numbers'; values: readonly number[]; maxDecimals?: number}
+export type MessageParameter = string | number | Message | MessageNumber | MessageNumberList;
 export interface Message {key: MessageKey; params: Record<string, MessageParameter>}
 type Parameters<S extends string> = S extends `${string}{${infer P}}${infer Rest}` ? P | Parameters<Rest> : never;
 type Args<K extends MessageKey> = [Parameters<typeof sl[K]>] extends [never] ? [] : [Record<Parameters<typeof sl[K]>, string | number>];
@@ -60,8 +62,14 @@ export function message(...[key, parameters]: MessageArguments): Message {
 export function messageNumber(value: number, maxDecimals?: number): MessageNumber {
     return maxDecimals === undefined ? {kind: 'number', value} : {kind: 'number', value, maxDecimals};
 }
+export function messageNumberList(values: readonly number[], maxDecimals?: number): MessageNumberList {
+    return maxDecimals === undefined ? {kind: 'numbers', values} : {kind: 'numbers', values, maxDecimals};
+}
 export function isMessageNumber(parameter: MessageParameter): parameter is MessageNumber {
-    return typeof parameter === 'object' && 'kind' in parameter;
+    return typeof parameter === 'object' && 'kind' in parameter && parameter.kind === 'number';
+}
+export function isMessageNumberList(parameter: MessageParameter): parameter is MessageNumberList {
+    return typeof parameter === 'object' && 'kind' in parameter && parameter.kind === 'numbers';
 }
 /** True for a nested message (not text, a plain number or a `MessageNumber`). */
 export function isMessage(parameter: MessageParameter): parameter is Message {
@@ -73,7 +81,9 @@ export function renderMessage(value: Message): string {
         const parameter = value.params[name];
         if (parameter === undefined) return match;
         if (typeof parameter !== 'object') return String(parameter);
-        return isMessageNumber(parameter) ? formatNumber(parameter.value, language, parameter.maxDecimals) : renderMessage(parameter);
+        if (isMessageNumber(parameter)) return formatNumber(parameter.value, language, parameter.maxDecimals);
+        if (isMessageNumberList(parameter)) return parameter.values.map(item => formatNumber(item, language, parameter.maxDecimals)).join(', ');
+        return renderMessage(parameter);
     });
 }
 export class LocalizedError extends Error {
