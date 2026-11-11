@@ -102,6 +102,10 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
             g.importPresetData({...exported as object, ...(variant === 'a' ?
                 {mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}} : {mode: 'circle', C: {x: 3, y: 5}})});
             return;
+        // Line geometry: the model is a mode and grid points (no numeric top-level field), so switch the mode and move a point.
+        case 'line-geometry':
+            g.importPresetData({...exported as object, ...(variant === 'a' ? {mode: 'distance', T: {x: -3, y: 5}} : {mode: 'angle', S: {x: 4, y: -2}})});
+            return;
         // Summary statistics: the data are a list (no numeric field to nudge), so switch to another example's values.
         case 'prob-summary': g.importPresetData({...exported as object, values: SUMMARY_EXAMPLES[pick('even', 'outlier')]}); return;
         // Correlation: the points are a list (no numeric field to nudge), so switch to another example's points.

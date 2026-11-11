@@ -10,6 +10,12 @@ import {projectiveGraphLoaders} from './projective/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
 import {trigGraphLoaders} from './trig/runtime';
+import {lineCollections} from './lines/collections';
+import {lineCollectionKeys, lineDemonstrationRows} from './lines/registration';
+import {lineGraphLoaders} from './lines/runtime';
+import {isometryCollections} from './isometry/collections';
+import {isometryCollectionKeys, isometryDemonstrationRows} from './isometry/registration';
+import {isometryGraphLoaders} from './isometry/runtime';
 import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
@@ -72,6 +78,8 @@ interface RealFamily {
 const realFamilies: readonly RealFamily[] = [
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
     {family: 'trigonometry', rows: trigDemonstrationRows, loaders: trigGraphLoaders, collectionKeys: trigCollectionKeys, collections: trigCollections},
+    {family: 'line-geometry', rows: lineDemonstrationRows, loaders: lineGraphLoaders, collectionKeys: lineCollectionKeys, collections: lineCollections},
+    {family: 'isometries', rows: isometryDemonstrationRows, loaders: isometryGraphLoaders, collectionKeys: isometryCollectionKeys, collections: isometryCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

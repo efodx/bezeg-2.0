@@ -15,8 +15,11 @@ import {
     CLASSIFY_EXAMPLES, CLASSIFY_EXAMPLE_IDS, COORD_LIMIT, DEFAULT_ISOMETRY_STATE, deriveIsometry, DILATION_TURNS, FRIEZE_MOTIF_TENTHS, type DilationTurn,
     type FriezeFeatures, type IsometryDerived, type IsometryMode, type IsometryState, ISOMETRY_MODES, K_MAX, K_MIN, matchingClassifyExample, type MirrorSpec,
     type MotionDerived, type MotionLength, PERIOD_MAX, PERIOD_MIN, ROSETTE_N_MAX, ROSETTE_N_MIN, snapCoordinateInput, snapPeriodInput, snapRatioInput,
-    snapRosetteNInput, VIEW_HALF, type FixedPoints, type FriezePolygon,
+    snapRosetteNInput, VIEW_HALF, type FixedPoints, type FriezePolygon, parseIsometryState, serializeIsometryState,
 } from "../../isometry/isometryModel";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {isometryPresetCollection} from "./isometryPresetCollection";
 import type {IsometryClass} from "../../isometry/isometry2";
 import type {RosetteImage} from "../../isometry/rosette";
 
@@ -153,7 +156,7 @@ const FEATURE_NAMES = ["vertical", "horizontal", "halfTurn", "glide"] as const;
  * on unmount. A line is drawn through two owned points: a handle pair for a mirror, hidden points for a computed axis.
  * The board is rebuilt only when the mode (or, in the classify mode, the number of mirrors) changes; other edits move handles and redraw.
  */
-export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
+export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> {
     private readonly instanceNumber = ++instances;
     private readonly helpId = `isometry-input-help-${this.instanceNumber}`;
     private readonly featuresLabelId = `isometry-features-label-${this.instanceNumber}`;
@@ -174,8 +177,37 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): IsometryState {
+        return serializeIsometryState(DEFAULT_ISOMETRY_STATE);
+    }
+
+    override presetCollection(): PresetCollection<IsometryState> {
+        return isometryPresetCollection();
+    }
+
+    override exportPreset(): Preset<IsometryState> {
+        const preset = super.exportPreset();
+        const {
+            mode: _mode, mirrors: _mirrors, motionLength: _length, dilationCentre: _centre, dilationK: _k, dilationTurn: _turn, rosetteN: _n,
+            rosetteMirrors: _rm, rosettePoint: _point, friezeFeatures: _features, friezePeriod: _period, ...graphState
+        } = preset.graphState as IsometryGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): IsometryState {
+        return serializeIsometryState(this.state);
+    }
+
+    override importPresetData(data: IsometryState): void {
+        this.setState(serializeIsometryState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): IsometryGraphState {
+        const parsed = parseIsometryState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     /** Large enough for everything the model counts as in view (`VIEW_HALF`). */

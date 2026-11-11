@@ -11,8 +11,12 @@ import {fitBoundingBox} from "../base/fitBoundingBox";
 import {Rational, RationalPoint} from "../../compgeo/rational";
 import {
     DEFAULT_LINE_STATE, deriveLineGeometry, formatExplicit, formatImplicit, formatIntercept, formatTwoPoint, GRID_LIMIT, INTERSECT_TARGETS,
-    LINE_MODES, LineGeometryDerived, LineGeometryState, NormalRelation, PointField, POINT_FIELDS, snapGridInput,
+    LINE_MODES, LineGeometryDerived, LineGeometryState, NormalRelation, parseLineGeometryState, PointField, POINT_FIELDS, serializeLineGeometryState,
+    snapGridInput,
 } from "./lineGeometryModel";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
+import {lineGeometryPresetCollection} from "./linePresetCollection";
 
 /** The scene state: the mode, what the intersect mode meets, and the integer grid handles. */
 export type LineGeometryGraphState = BaseGraphState & LineGeometryState;
@@ -186,7 +190,7 @@ function buildView(state: LineGeometryState): View {
  * `listeners`. `disposeScene` removes the listeners and then the objects; it runs on a rebuild, on a scene dispose and, through a
  * session cleanup, on unmount.
  */
-export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, null> {
+export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeometryState> {
     private readonly helpId = `line-geometry-point-help-${++helpInstances}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
@@ -206,8 +210,34 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, null> {
         return {...this.getInitialState(), initialized: true};
     }
 
-    override defaultPreset(): null {
-        return null;
+    // ---- Presets -------------------------------------------------------------------------------------------------
+    // A Preset carries the stored fields once, as `data`; its `graphState` keeps only `initialized`.
+
+    override defaultPreset(): LineGeometryState {
+        return serializeLineGeometryState(DEFAULT_LINE_STATE);
+    }
+
+    override presetCollection(): PresetCollection<LineGeometryState> {
+        return lineGeometryPresetCollection();
+    }
+
+    override exportPreset(): Preset<LineGeometryState> {
+        const preset = super.exportPreset();
+        const {mode: _mode, target: _target, P: _p, Q: _q, R: _r, S: _s, T: _t, O: _o, B: _b, ...graphState} = preset.graphState as LineGeometryGraphState;
+        return {...preset, graphState};
+    }
+
+    override exportPresetData(): LineGeometryState {
+        return serializeLineGeometryState(this.state);
+    }
+
+    override importPresetData(data: LineGeometryState): void {
+        this.setState(serializeLineGeometryState(data));
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): LineGeometryGraphState {
+        const parsed = parseLineGeometryState(data);
+        return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -313,9 +343,12 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, null> {
 
         const hidden = (x: Place, y: Place) =>
             this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: ""}));
+        // A cross or plus face is drawn by its stroke alone, so the stroke must carry the colour (a white outline would hide it).
+        const strokeOnly = (face: PointFace) => face === "cross" || face === "plus" || face === "x" || face === "+";
         const marker = (x: Place, y: Place, face: PointFace, color: string, size: number, visible: Visible, name = "") =>
             this.own(board.create("point", [x, y], {
-                fixed: true, highlight: false, withLabel: name !== "", name, face, size, fillColor: color, strokeColor: GraphPalette.pointOutline, visible,
+                fixed: true, highlight: false, withLabel: name !== "", name, face, size, fillColor: color, visible,
+                ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
         const segment = (a: JXG.Point, b: JXG.Point, color: string, width: number, dash: number, visible: Visible, lastArrow = false) =>
             this.own(board.create("segment", [a, b], {

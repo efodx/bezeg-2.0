@@ -135,6 +135,7 @@ Search of `src/localization/sl.ts` found *Zrcaljenje* (`affine_reflection`, line
 - Typed scene actions (`set-mirrors`, `set-dilation`, `set-frieze`, `set-mode`); multi-action scenes run in one synchronous tick and are tested that way. No playback.
 - Routes and Presets additive; `/bezier/affine` and `linear-map` unchanged.
 - Lesson text is one-shot ([rule](new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31)).
+- **F2b decisions** (handler 7, 2026-11-11; evidence `docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md`). `isometries` at `/isometries` in *Preslikave ravnine* (`maps`), beside the linear map, because isometries are maps of the plane; *Geometrija ravnine* was the alternative, rejected because the family's lessons compose maps rather than construct figures. Feature-local registration (`src/graphs/isometry/registration.ts`, `collections.ts`, `runtime.ts`) and a new Preset collection keyed `isometries`, checked by the isometry model parser, following the trigonometry F2b pattern; the row ships with `lesson: false` and pending entries until F3–F5.
 
 ## Testing Decisions
 

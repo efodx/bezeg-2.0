@@ -22,6 +22,8 @@ import {bsplinePresetCollection} from "../../curves/bspline/bsplinePresetCollect
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
+import {lineCollections} from "../../lines/collections";
+import {isometryCollections} from "../../isometry/collections";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -35,6 +37,8 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     coonsPresetCollection, bsplinePresetCollection,
     ...projectiveCollections,
     ...trigCollections,
+    ...lineCollections,
+    ...isometryCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

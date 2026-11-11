@@ -232,6 +232,14 @@ test('intersect mode with a second line: the crossing point is marked and read e
     NO_NAN();
 });
 
+test('the crossing marker is stroked in its colour (a cross has no fill, so a white outline would hide it)', () => {
+    const {graph} = mountGraph();
+    set(graph, {mode: 'intersect'});
+    const crosses = objects(graph).filter(o => o.elType === 'point' && visible(o) && String(o.evalVisProp('face')) === 'x');
+    expect(crosses).toHaveLength(1);
+    expect(String(crosses[0].evalVisProp('strokecolor'))).toBe(GraphPalette.constructionAccent);
+});
+
 test('intersect mode with a circle: tangent at (0, 2), two points (2, 2) and (-1, -1), and none', () => {
     const {graph} = mountGraph();
     set(graph, {mode: 'intersect', target: 'circle'});

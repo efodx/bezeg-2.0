@@ -10,4 +10,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'projective-pascal', reason: 'Its steppers show no table index to read back; waits for a readout in PascalControls.tsx from the Controls stream (docs/tasks/feature-streams/controls.md).'},
     {id: 'unit-circle', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-trig.md).'},
     {id: 'triangle-solver', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-trig.md).'},
+    {id: 'line-geometry', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md).'},
+    {id: 'isometries', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md).'},
 ];

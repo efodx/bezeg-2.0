@@ -71,6 +71,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     orientation: ['model'],
     'unit-circle': ['angle', 'secondAngle', 'showSymmetries', 'showCosine'],
     'triangle-solver': ['mode', 'A', 'B', 'C', 'data'],
+    'line-geometry': ['mode', 'target', 'P', 'Q', 'R', 'S', 'T', 'O', 'B'],
+    isometries: ['mode', 'mirrors', 'motionLength', 'dilationCentre', 'dilationK', 'dilationTurn', 'rosetteN', 'rosetteMirrors', 'rosettePoint', 'friezeFeatures', 'friezePeriod'],
     'polygon-area': ['model'],
     'convex-hull': ['model'],
     'point-in-polygon': ['model'],
