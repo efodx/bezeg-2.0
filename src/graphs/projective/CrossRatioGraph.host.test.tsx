@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {CrossRatioGraph} from './CrossRatioGraph';
 import {CROSS_RATIO_EXAMPLES} from './crossRatioModel';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
@@ -91,23 +92,27 @@ test('dragging snaps to the grid, keeps A-D on the line and keeps model and boar
     expect([centre.X(), centre.Y()]).toEqual([1, 7]);
 });
 
-test('arrow keys step the selected handle one grid step; without a selection they do nothing', () => {
+const crossRatioKeys = (select: number, position: (graph: Observed) => [number, number]) => () => {
     const graph = new Observed();
     mount(graph);
-    const before = graph.model;
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model).toBe(before);
-    act(() => { graph.select(2); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model.params[2]).toBe(4);
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp'}); });
-    expect(graph.model.params[2]).toBe(4);
-    expect(coordinates(graph)[2]).toEqual([4, 0]);
-    act(() => { graph.select(4); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowDown'}); });
-    expect(graph.model.centre).toEqual({x: 0, y: 4});
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowDown', ctrlKey: true}); });
-    expect(graph.model.centre).toEqual({x: 0, y: 4});
+    return {
+        graph,
+        board: () => container(graph),
+        select: () => graph.select(select),
+        position: () => position(graph),
+        snapshot: () => graph.model,
+    };
+};
+selectedPointKeyBehaviour('cross ratio, point handle 2 (on the line)', crossRatioKeys(2, graph => [graph.model.params[2], 0]), {
+    step: [1, 0],
+    extra: ({graph}, press) => {
+        press('ArrowRight');
+        press('ArrowUp');
+        expect(coordinates(graph)[2]).toEqual([4, 0]);
+    },
+});
+selectedPointKeyBehaviour('cross ratio, centre handle 4', crossRatioKeys(4, graph => [graph.model.centre.x, graph.model.centre.y]), {
+    step: [1, 1], modified: [{key: 'ArrowDown', modifier: 'ctrlKey', delta: [0, 0]}],
 });
 
 test('the example select and the point list edit the model', () => {

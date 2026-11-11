@@ -5,6 +5,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {NOTCHED_MODEL, NOTCHED_QUERY, PENTAGRAM_MODEL, PointInPolygonGraph} from './PointInPolygonGraph';
 import {pointInPolygonPresetCollection} from './pointInPolygonPresetCollection';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {GRID_COORD_LIMIT, GridPoint} from '../../compgeo/grid';
 import {setLanguage} from '../../localization';
@@ -208,31 +209,39 @@ test('overlay objects are exact: removed when hidden, restored identically, kept
     expect((board.objectsList as Shown[]).filter(o => o.name === 'q')).toHaveLength(0);
 });
 
-test('arrow keys move q by one grid step once it is selected; a selected vertex takes the keys instead', () => {
+selectedPointKeyBehaviour('point in polygon, q', () => {
     const graph = new Observed();
     mount(graph);
-    key(graph, 'ArrowRight');
-    expect(graph.query).toEqual({x: 3, y: 1});
-    act(() => { screen.getByRole('button', {name: 'Izberi: q'}).click(); });
-    expect(screen.getByRole('button', {name: 'Izberi: q'}).getAttribute('aria-pressed')).toBe('true');
-    key(graph, 'ArrowRight');
-    key(graph, 'ArrowUp');
-    expect(graph.query).toEqual({x: 4, y: 2});
-    expect(graph.model).toEqual(NOTCHED_MODEL);
-    expect([queryObject(graph).X!(), queryObject(graph).Y!()]).toEqual([4, 2]);
-    expect(live()).toBe('Točka q je znotraj večkotnika.');
-    act(() => { graph.select(1); });
-    key(graph, 'ArrowLeft');
-    expect(graph.query).toEqual({x: 4, y: 2});
-    expect(graph.model.points[1]).toEqual({x: 5, y: 0});
-    expect(graph.isQueryActive).toBe(false);
-    act(() => { graph.select(undefined); });
-    key(graph, 'ArrowLeft');
-    expect(graph.query).toEqual({x: 4, y: 2});
-    act(() => { graph.selectQuery(true); });
-    key(graph, 'Escape');
-    key(graph, 'ArrowLeft');
-    expect(graph.query).toEqual({x: 4, y: 2});
+    return {
+        graph,
+        board: () => box(graph),
+        select: () => screen.getByRole('button', {name: 'Izberi: q'}).click(),
+        position: () => [graph.query.x, graph.query.y],
+        snapshot: () => [graph.model, graph.query],
+    };
+}, {
+    step: [1, 1],
+    extra: ({graph}, press) => {
+        expect(screen.getByRole('button', {name: 'Izberi: q'}).getAttribute('aria-pressed')).toBe('true');
+        press('ArrowRight');
+        press('ArrowUp');
+        expect(graph.query).toEqual({x: 4, y: 2});
+        expect(graph.model).toEqual(NOTCHED_MODEL);
+        expect([queryObject(graph).X!(), queryObject(graph).Y!()]).toEqual([4, 2]);
+        expect(live()).toBe('Točka q je znotraj večkotnika.');
+        act(() => { graph.select(1); });
+        press('ArrowLeft');
+        expect(graph.query).toEqual({x: 4, y: 2});
+        expect(graph.model.points[1]).toEqual({x: 5, y: 0});
+        expect(graph.isQueryActive).toBe(false);
+        act(() => { graph.select(undefined); });
+        press('ArrowLeft');
+        expect(graph.query).toEqual({x: 4, y: 2});
+        act(() => { graph.selectQuery(true); });
+        key(graph, 'Escape');
+        press('ArrowLeft');
+        expect(graph.query).toEqual({x: 4, y: 2});
+    },
 });
 
 test('pressing q selects it and clears the vertex selection; q stops silently beyond the coordinate limit', () => {

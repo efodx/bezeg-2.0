@@ -1,8 +1,9 @@
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {CURVE_PAIR_CROSSING, CURVE_PAIR_PRESET_KEY, CurvePairGraph} from './CurvePairGraph';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {pieceHull} from '../../compgeo/curvePairSubdivision';
 import {PointSetModel} from '../../compgeo/pointSetModel';
@@ -101,21 +102,25 @@ test('a drag redraws the curve from the new model; the curve data follows the po
     }
 });
 
-test('arrow keys move the selected control point one grid step and redraw its curve, without a selection they do nothing', () => {
+selectedPointKeyBehaviour('curve pair, control point 1', () => {
     const graph = new Observed();
-    const view = mount(graph);
-    const box = graph.liveBoard().containerObj as HTMLElement;
-    const press = (key: string) => act(() => { fireEvent.keyDown(box, {key}); });
-    press('ArrowUp');
-    expect(graph.model.points).toEqual(CURVE_PAIR_CROSSING.points);
-    act(() => { graph.select(1); });
-    expect(maxOf(mainCurves(graph)[0].dataY)).toBeCloseTo(2, 3);
-    press('ArrowUp');
-    expect(graph.model.points[1]).toEqual({x: 2, y: 5});
-    expect(mainCurves(graph)[0].dataY?.length).toBe(97);
-    expect(maxOf(mainCurves(graph)[0].dataY)).toBeCloseTo(2.5, 3);
-    expect(mainCurves(graph)).toHaveLength(2);
-    view.unmount();
+    mount(graph);
+    return {
+        graph,
+        board: () => graph.liveBoard().containerObj as HTMLElement,
+        select: () => graph.select(1),
+        position: () => [graph.model.points[1].x, graph.model.points[1].y],
+        snapshot: () => graph.model,
+    };
+}, {
+    step: [1, 1],
+    extra: ({graph}, press) => {
+        expect(maxOf(mainCurves(graph)[0].dataY)).toBeCloseTo(2, 3);
+        press('ArrowUp');
+        expect(mainCurves(graph)[0].dataY?.length).toBe(97);
+        expect(maxOf(mainCurves(graph)[0].dataY)).toBeCloseTo(2.5, 3);
+        expect(mainCurves(graph)).toHaveLength(2);
+    },
 });
 
 test('the overlays draw one control polygon and one hull per curve, and hiding or switching removes them with exact counts', () => {

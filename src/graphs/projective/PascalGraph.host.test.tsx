@@ -7,6 +7,7 @@ import {directionIndex, handlePoint, PASCAL_DEFAULT_INDICES, PASCAL_EXAMPLES, PA
 import {nearestIndex} from './pascalEdit';
 import {toAffine} from '../../projective/homogeneous';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
@@ -164,26 +165,27 @@ test('dragging a handle snaps to a table direction and changes only that index',
     expect(xy(e)).toEqual([home.view.x, home.view.y]);
 });
 
-test('arrow keys step the selected point one position, Shift five; without a selection or with Ctrl they do nothing', () => {
+selectedPointKeyBehaviour('Pascal, point 3 on the conic', () => {
     const graph = new Observed();
     mount(graph);
-    const before = graph.model;
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model).toBe(before);
-    act(() => { graph.select(2); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    const once = graph.model.indices[2];
-    expect(once).not.toBe(before.indices[2]);
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowLeft'}); });
-    expect(graph.model.indices[2]).toBe(before.indices[2]);
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp', shiftKey: true}); });
-    const five = graph.model.indices[2];
-    expect(five).not.toBe(once);
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowDown', ctrlKey: true}); });
-    expect(graph.model.indices[2]).toBe(five);
-    expect(graph.model.indices.filter((v, i) => v !== before.indices[i])).toHaveLength(1);
-    const c = pointOf(graph, 'C');
-    expect(c.X()).toBeCloseTo(Number(eval0(graph, 2).x), 9);
+    const initial = graph.model;
+    return {
+        graph,
+        initial,
+        board: () => container(graph),
+        select: () => graph.select(2),
+        position: () => [graph.model.indices[2], 0],
+        snapshot: () => graph.model,
+    };
+}, {
+    step: [1, 0], keys: ['ArrowRight', 'ArrowLeft'],
+    modified: [{key: 'ArrowUp', modifier: 'shiftKey', delta: [5, 0]}, {key: 'ArrowDown', modifier: 'ctrlKey', delta: [0, 0]}],
+    // Only the selected point moved, and its board position follows the model.
+    extra: ({graph, initial}) => {
+        expect(graph.model.indices.filter((v, i) => v !== initial.indices[i])).toHaveLength(1);
+        const c = pointOf(graph, 'C');
+        expect(c.X()).toBeCloseTo(Number(eval0(graph, 2).x), 9);
+    },
 });
 
 const eval0 = (graph: Observed, handle: number) => {

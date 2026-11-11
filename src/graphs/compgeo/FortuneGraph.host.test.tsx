@@ -7,6 +7,7 @@ import {FORTUNE_EXAMPLE_1, FORTUNE_EXAMPLE_2} from './fortunePresetCollection';
 import {VoronoiGraph} from './VoronoiGraph';
 import {serializePointSetModel} from '../../compgeo/pointSetModel';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {runFortune} from './fortuneRun';
@@ -589,28 +590,32 @@ test('C-2: a Preset with a stored step beyond the trace, or beyond a shorter tra
     expect(graph.isPlaying).toBe(false);
 });
 
-test('C-5: an arrow key moves the selected site by one grid step and recomputes the trace; without a selection nothing moves', () => {
+selectedPointKeyBehaviour('Fortune, site 3', () => {
     const graph = new Observed();
     mount(graph);
-    const box = graph.liveBoard().containerObj as HTMLElement;
-    const key = (name: string) => act(() => { fireEvent.keyDown(box, {key: name}); });
-    key('ArrowRight');
-    expect(graph.model).toEqual(FORTUNE_EXAMPLE_1);
-    act(() => graph.select(3));
-    act(() => graph.goTo(stepOfSite(graph, 3)));
-    const before = graph.run();
-    key('ArrowRight');
-    expect(graph.model.points[3]).toEqual({x: 1, y: -3});
-    expect(graph.run()).not.toBe(before);
-    key('ArrowUp');
-    key('ArrowUp');
-    expect(graph.model.points[3]).toEqual({x: 1, y: -1});
-    const fresh = runFortune(graph.model.points);
-    expect(graph.run().length).toBe(fresh.length);
-    expect(graph.run().result!.diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`)).toEqual(fresh.result!.diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`));
-    expect(graph.run().result!.diagram.vertices.length).toBeGreaterThan(0);
-    expect(sitePoints(graph)[3].X!()).toBe(1);
-    expect(sitePoints(graph)[3].Y!()).toBe(-1);
+    return {
+        graph,
+        board: () => graph.liveBoard().containerObj as HTMLElement,
+        select: () => { graph.select(3); graph.goTo(stepOfSite(graph, 3)); },
+        position: () => [graph.model.points[3].x, graph.model.points[3].y],
+        snapshot: () => graph.model,
+    };
+}, {
+    step: [1, 1],
+    extra: ({graph}, press) => {
+        const before = graph.run();
+        press('ArrowRight');
+        expect(graph.run()).not.toBe(before);
+        press('ArrowUp');
+        press('ArrowUp');
+        expect(graph.model.points[3]).toEqual({x: 1, y: -1});
+        const fresh = runFortune(graph.model.points);
+        expect(graph.run().length).toBe(fresh.length);
+        expect(graph.run().result!.diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`)).toEqual(fresh.result!.diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`));
+        expect(graph.run().result!.diagram.vertices.length).toBeGreaterThan(0);
+        expect(sitePoints(graph)[3].X!()).toBe(1);
+        expect(sitePoints(graph)[3].Y!()).toBe(-1);
+    },
 });
 
 test('C-5: Add at twelve sites is refused with a visible notice in both languages and adds nothing', () => {

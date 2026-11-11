@@ -5,6 +5,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {PolePolarGraph} from './PolePolarGraph';
 import {POLE_POLAR_EXAMPLES} from './polePolarModel';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
@@ -107,20 +108,23 @@ test('dragging snaps to the 1/5 grid and keeps model and board equal', () => {
     expect(graph.model.example).toBe('custom');
 });
 
-test('arrow keys step P by 0.2 and Shift by 1; without a selection or with Ctrl they do nothing', () => {
+selectedPointKeyBehaviour('pole and polar, P', () => {
     const graph = new Observed();
     mount(graph);
-    const before = graph.model;
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model).toBe(before);
-    act(() => { graph.select(true); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model.p).toEqual({x: 6, y: 21});
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp', shiftKey: true}); });
-    expect(graph.model.p).toEqual({x: 6, y: 26});
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowDown', ctrlKey: true}); });
-    expect(graph.model.p).toEqual({x: 6, y: 26});
-    expect([pointP(graph).X(), pointP(graph).Y()]).toEqual([1.2, 5.2]);
+    return {
+        graph,
+        board: () => container(graph),
+        select: () => graph.select(true),
+        position: () => [graph.model.p.x, graph.model.p.y],
+        snapshot: () => graph.model,
+    };
+}, {
+    step: [1, 1], modified: [{key: 'ArrowUp', modifier: 'shiftKey', delta: [0, 5]}, {key: 'ArrowDown', modifier: 'ctrlKey', delta: [0, 0]}],
+    // The shared part leaves P at (5, 26); one more step right gives x = 6 (1.2 on the board), y = 26 (5.2).
+    extra: ({graph}, press) => {
+        press('ArrowRight');
+        expect([pointP(graph).X(), pointP(graph).Y()]).toEqual([1.2, 5.2]);
+    },
 });
 
 test('wiring: an arrow key in the P field steps by one grid unit (0.2), not by 1', () => {

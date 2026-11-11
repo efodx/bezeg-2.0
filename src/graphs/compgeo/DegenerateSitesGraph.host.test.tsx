@@ -7,6 +7,7 @@ import {VoronoiGraph} from './VoronoiGraph';
 import {DEGENERATE_EXAMPLES, DEGENERATE_PRESET_KEY, degenerateCollection, degenerateExampleModel} from './degenerateSitesPresets';
 import {VORONOI_EXAMPLE, VORONOI_PRESET_KEY, voronoiCollection} from './voronoiPresetCollection';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {serializePointSetModel} from '../../compgeo/pointSetModel';
 import {enterNumber} from '../../inputs/testEntry';
@@ -268,22 +269,31 @@ describe('modes', () => {
 });
 
 describe('keyboard and numeric entry reach the on-circle position (C5)', () => {
-    test('arrow keys move the selected site one grid step; the numeric fields set a coordinate', () => {
+    selectedPointKeyBehaviour('degenerate sites, site 3 (the arrow key updates the incircle readout; the numeric fields set a coordinate)', () => {
         const graph = new Observed();
         mount(graph);
-        act(() => { graph.select(2); });
-        act(() => { fireEvent.keyDown(boardContainer(), {key: 'ArrowUp'}); });
-        expect(graph.model.points[2]).toEqual({x: 1, y: 2});
-        expect(four('incircle')).toContain('D = 2');
-        act(() => { fireEvent.keyDown(boardContainer(), {key: 'ArrowDown'}); });
-        expect(four('incircle')).toContain('D = 0');
-        const field = screen.getByLabelText('P3, y');
-        act(() => { enterNumber(field, '2'); });
-        expect(graph.model.points[2]).toEqual({x: 1, y: 2});
-        expect(four('incircle')).toContain('D = 2');
-        act(() => { enterNumber(field, '1'); });
-        expect(four('incircle')).toContain('D = 0');
-        expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.square.points);
+        return {
+            graph,
+            board: boardContainer,
+            select: () => graph.select(2),
+            position: () => [graph.model.points[2].x, graph.model.points[2].y],
+            snapshot: () => graph.model,
+        };
+    }, {
+        step: [1, 1],
+        extra: ({graph}, press) => {
+            press('ArrowUp');
+            expect(four('incircle')).toContain('D = 2');
+            press('ArrowDown');
+            expect(four('incircle')).toContain('D = 0');
+            const field = screen.getByLabelText('P3, y');
+            act(() => { enterNumber(field, '2'); });
+            expect(graph.model.points[2]).toEqual({x: 1, y: 2});
+            expect(four('incircle')).toContain('D = 2');
+            act(() => { enterNumber(field, '1'); });
+            expect(four('incircle')).toContain('D = 0');
+            expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.square.points);
+        },
     });
 
     test('the mode switch and the example chooser are the shared selects, showing the mode and the matching example', () => {

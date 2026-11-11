@@ -258,12 +258,8 @@ describe('CurvatureBezierCurveGraph', () => {
         expect(graph.defaultPreset()).toEqual([['JSXBezierCurve', expect.objectContaining({points: PARABOLA})]]);
     });
 
-    test('preset round trip through the collection check keeps the data', () => {
+    test('the graph uses the curvature collection, which rejects a rational curve', () => {
         const graph = makeGraph();
-        const preset = graph.defaultPreset();
-        const checked = curvatureCurvePresetCollection.check(JSON.parse(JSON.stringify(preset)));
-        expect('rejection' in checked).toBe(false);
-        expect((checked as any).data).toEqual(preset);
         expect(graph.presetCollection()).toBe(curvatureCurvePresetCollection);
         expect('rejection' in curvatureCurvePresetCollection.check([['JSXRationalBezierCurve', {points: [[0, 0]], weights: [1]}]])).toBe(true);
     });

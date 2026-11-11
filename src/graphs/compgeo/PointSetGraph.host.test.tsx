@@ -3,6 +3,7 @@ import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {DEFAULT_POINT_SET_MODEL, POINT_SET_PRESET_KEY, PointSetGraph} from './PointSetGraph';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
@@ -127,21 +128,16 @@ test('the capture-only fine grid rescales the model on the first drag and the dr
     } finally { delete (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent; }
 });
 
-test('arrow keys move the selected point one grid step; without a selection they do nothing', () => {
+selectedPointKeyBehaviour('point set, point 1', () => {
     const graph = new Observed();
     mount(graph);
-    const box = container(graph);
-    act(() => { fireEvent.keyDown(box, {key: 'ArrowRight'}); });
-    expect(graph.model.points).toEqual(DEFAULT_POINT_SET_MODEL.points);
-    act(() => { graph.select(1); });
-    const start = graph.model.points[1];
-    act(() => { fireEvent.keyDown(box, {key: 'ArrowRight'}); });
-    act(() => { fireEvent.keyDown(box, {key: 'ArrowUp'}); });
-    act(() => { fireEvent.keyDown(box, {key: 'ArrowLeft'}); });
-    act(() => { fireEvent.keyDown(box, {key: 'ArrowLeft'}); });
-    expect(graph.model.points[1]).toEqual({x: start.x - 1, y: start.y + 1});
-    expect(pointCoordinates(graph)[1]).toEqual([start.x - 1, start.y + 1]);
-});
+    return {
+        board: () => container(graph),
+        select: () => graph.select(1),
+        position: () => [graph.model.points[1].x, graph.model.points[1].y],
+        snapshot: () => graph.model,
+    };
+}, {step: [1, 1]});
 
 test('Delete removes the selected point from model and board, and the Remove button does the same', () => {
     const graph = new Observed();

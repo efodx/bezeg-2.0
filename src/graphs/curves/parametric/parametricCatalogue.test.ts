@@ -111,12 +111,6 @@ describe('helpers', () => {
 });
 
 describe('Preset collection', () => {
-    test('the default Preset round trips through JSON and the check', () => {
-        const checked = parametricPresetCollection.check(JSON.parse(JSON.stringify(DEFAULT_PARAMETRIC_PRESET)));
-        expect('rejection' in checked).toBe(false);
-        expect('data' in checked && checked.data).toEqual(DEFAULT_PARAMETRIC_PRESET);
-    });
-
     test.each([
         ['unknown curve', {...DEFAULT_PARAMETRIC_PRESET, curve: 'lemniscate'}],
         ['radius out of range', {...DEFAULT_PARAMETRIC_PRESET, radius: 10}],

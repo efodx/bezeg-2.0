@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {FivePointGraph} from './FivePointGraph';
 import {FIVE_POINT_EXAMPLES} from './fivePointModel';
 import {GraphHost} from '../base/GraphHost';
+import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {chooseOption, typeNumber} from './controlsTest';
@@ -70,20 +71,23 @@ test('dragging snaps to the 1/5 grid, keeps model and board equal and selects th
     expect(graph.model.example).toBe('custom');
 });
 
-test('arrow keys step the selected point by 0.2 and Shift by 1; without a selection or with Ctrl they do nothing', () => {
+selectedPointKeyBehaviour('five points, point A', () => {
     const graph = new Observed();
     mount(graph);
-    const before = graph.model;
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model).toBe(before);
-    act(() => { graph.select(0); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model.points[0]).toEqual({x: 78, y: 0});
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp', shiftKey: true}); });
-    expect(graph.model.points[0]).toEqual({x: 78, y: 15});
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowDown', ctrlKey: true}); });
-    expect(graph.model.points[0]).toEqual({x: 78, y: 15});
-    expect([pointOf(graph, 'A').X(), pointOf(graph, 'A').Y()]).toEqual([5.2, 1]);
+    return {
+        graph,
+        board: () => container(graph),
+        select: () => graph.select(0),
+        position: () => [graph.model.points[0].x, graph.model.points[0].y],
+        snapshot: () => graph.model,
+    };
+}, {
+    step: [3, 3], modified: [{key: 'ArrowUp', modifier: 'shiftKey', delta: [0, 15]}, {key: 'ArrowDown', modifier: 'ctrlKey', delta: [0, 0]}],
+    // The shared part leaves A at y = 15 (1 on the board); one more step right gives x = 78 (5.2 on the board).
+    extra: ({graph}, press) => {
+        press('ArrowRight');
+        expect([pointOf(graph, 'A').X(), pointOf(graph, 'A').Y()]).toEqual([5.2, 1]);
+    },
 });
 
 test('the example select, the selectors and the point list edit the model', () => {
