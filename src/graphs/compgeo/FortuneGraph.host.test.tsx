@@ -19,7 +19,10 @@ vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+// Fake setTimeout so the live-region quiet period (READOUT_SETTLE_MS) is advanced, not waited out.
+afterEach(() => { vi.useRealTimers(); });
 beforeEach(() => {
+    vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]});
     window.localStorage.clear();
     setLanguage('sl');
 });
@@ -408,7 +411,7 @@ test('a site beyond the coordinate limit is refused naming the site and the limi
     expect(fortuneObjects(graph)).toHaveLength(0);
 });
 
-const quietPeriod = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
+const quietPeriod = () => act(async () => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 100); });
 
 test('the live region exists while empty, and does not change during the frames of a drag', async () => {
     const graph = new Observed();

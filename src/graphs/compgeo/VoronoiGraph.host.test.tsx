@@ -15,7 +15,7 @@ import {edges as triangulationEdges} from '../../compgeo/triangulation';
 import {clipCell, nearestSites, voronoiFromDelaunay} from '../../compgeo/voronoi';
 import {setLanguage, t} from '../../localization';
 /** The readouts of a point-set trace graph publish after a quiet period; wait it out. */
-const settled = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
+const settled = () => act(async () => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 100); });
 
 // Counts the live subscriptions of the language listener, so unmount can be checked to release it.
 const languageListeners = vi.hoisted(() => ({live: 0}));
@@ -34,7 +34,10 @@ vi.mock('../../localization', async importOriginal => {
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+// Fake setTimeout so the live-region quiet period (READOUT_SETTLE_MS) is advanced, not waited out.
+afterEach(() => { vi.useRealTimers(); });
 beforeEach(() => {
+    vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]});
     languageListeners.live = 0;
     window.localStorage.clear();
     setLanguage('sl');
@@ -305,6 +308,22 @@ test('Play builds the chosen cell one bisector per tick and stops at the last; B
     expect(button('next-step').getAttribute('aria-disabled')).toBe('true');
     click('reset');
     expect(graph.construction).toBe(0);
+});
+
+test('the playback schedules nothing while idle; Play schedules one frame; Pause and unmount clear it', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    const view = mount(graph);
+    act(() => { fireEvent.click(siteButton(0)); });
+    expect(frames.callbacks.size).toBe(0);
+    click('play-pause');
+    expect([graph.isPlaying, frames.callbacks.size]).toEqual([true, 1]);
+    click('play-pause');
+    expect([graph.isPlaying, frames.callbacks.size]).toEqual([false, 0]);
+    click('play-pause');
+    expect(frames.callbacks.size).toBe(1);
+    view.unmount();
+    expect(frames.callbacks.size).toBe(0);
 });
 
 test('the construction ends at the polygon clipCell returns (exact) for every site, in the decided order', () => {
@@ -640,7 +659,7 @@ test('a live language switch re-renders the panel and the query text', () => {
     expect(document.querySelector(`label[for="${overlaySwitch().id}"]`)?.textContent).toContain('Duality');
 });
 
-test('unmount and a scene change leave no objects or listeners (the graph schedules no timers)', async () => {
+test('unmount and a scene change leave no objects or listeners (nothing is left scheduled)', async () => {
     const graph = new Observed();
     const view = mount(graph);
     const board = graph.liveBoard();

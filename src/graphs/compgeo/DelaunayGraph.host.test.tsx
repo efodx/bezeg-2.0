@@ -12,7 +12,7 @@ import {PointSetModel} from '../../compgeo/pointSetModel';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
 /** The readouts of a point-set trace graph publish after a quiet period; wait it out. */
-const settled = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
+const settled = () => act(async () => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 100); });
 
 // Counts the live subscriptions of the language listener, so unmount can be checked to release it.
 const languageListeners = vi.hoisted(() => ({live: 0}));
@@ -31,7 +31,10 @@ vi.mock('../../localization', async importOriginal => {
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+// Fake setTimeout so the live-region quiet period (READOUT_SETTLE_MS) is advanced, not waited out.
+afterEach(() => { vi.useRealTimers(); });
 beforeEach(() => {
+    vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]});
     languageListeners.live = 0;
     window.localStorage.clear();
     setLanguage('sl');
