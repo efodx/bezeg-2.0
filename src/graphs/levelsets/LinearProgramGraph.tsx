@@ -1,0 +1,575 @@
+import React from "react";
+import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
+import {GraphSession} from "../base/GraphSession";
+import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {formatNumber} from "../../analysis/format";
+import {CountSetter} from "../../inputs/CountSetter";
+import {NumberInput} from "../../inputs/NumberInput";
+import type {ReadoutListRow} from "../base/controls/ReadoutParts";
+import {SettledReadout} from "../base/controls/LiveReadout";
+import {GraphPalette} from "../styles/GraphPalette";
+import {SceneObjects} from "../recursion/SceneObjects";
+import type {Rational, RationalPoint} from "../../compgeo/rational";
+import type {LpConstraint} from "../../optimization/lp2";
+import {
+    BOUND_RANGE, COEFFICIENT_RANGE, DEFAULT_LP_STATE, OBJECTIVE_RANGE, ROW_COUNT_RANGE, SWEEP_RANGE, parseLpState, serializeLpState, type LpState,
+} from "../../optimization/lpModel";
+import {
+    evaluate, exactText, integerText, isFraction, linePoly, linearText, pathPoly, regionPoly, rowLeft, snapInteger, solveState, typedInteger, viewBox,
+    type Box, type LpSolution, type LpStatus,
+} from "./lpScene";
+import {emptyPoly, type Poly} from "./contourScene";
+import {LpReadout} from "./LpPanels";
+import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
+import {Memo} from "./Memo";
+import type {PresetCollection} from "../base/presets/PresetCollection";
+
+/** The scene state: the stored fields of `LpState`, nothing derived. */
+export interface LinearProgramGraphState extends BaseGraphState, LpState {}
+
+/** Pointer tolerance in screen pixels around the objective handle (as the contour graph). */
+export const HANDLE_TOUCH_RADIUS = 26;
+export const HANDLE_MOUSE_RADIUS = 8;
+/** The most vertices a feasible region of at most five rows and the two axes can have (seven lines). */
+const VERTEX_POOL = 7;
+/** A row added by the count control: x + y <= 30 changes the region only when it is far from the others. */
+export const NEW_ROW: LpConstraint = {a: 1, b: 1, c: BOUND_RANGE.max};
+let helpInstances = 0;
+
+const samePair = (a: LpState["objective"], b: LpState["objective"]): boolean => a.p === b.p && a.q === b.q;
+const sameRows = (a: readonly LpConstraint[], b: readonly LpConstraint[]): boolean =>
+    a.length === b.length && a.every((k, index) => k.a === b[index].a && k.b === b[index].b && k.c === b[index].c);
+/** Content comparison of the stored fields. */
+export const sameContent = (a: LpState, b: LpState): boolean => sameRows(a.constraints, b.constraints) && samePair(a.objective, b.objective) && a.sweep === b.sweep;
+
+const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
+const point = (x: string, y: string): string => t("levelsets_graph_point_format", {value0: x, value1: y});
+
+const REGION_KEYS = {
+    infeasible: "levelsets_graph_lp_region_infeasible", point: "levelsets_graph_lp_region_point", segment: "levelsets_graph_lp_region_segment",
+    polygon: "levelsets_graph_lp_region_polygon", unbounded: "levelsets_graph_lp_region_unbounded",
+} as const;
+const STATUS_KEYS: Record<LpStatus, "levelsets_graph_lp_status_infeasible" | "levelsets_graph_lp_status_unbounded" | "levelsets_graph_lp_status_flat"
+    | "levelsets_graph_lp_status_unique" | "levelsets_graph_lp_status_segment" | "levelsets_graph_lp_status_ray"> = {
+    infeasible: "levelsets_graph_lp_status_infeasible", unbounded: "levelsets_graph_lp_status_unbounded", flat: "levelsets_graph_lp_status_flat",
+    unique: "levelsets_graph_lp_status_unique", segment: "levelsets_graph_lp_status_segment", ray: "levelsets_graph_lp_status_ray",
+};
+
+const boardBox = (box: Box): [number, number, number, number] => {
+    const margin = 0.04 * (box.xMax - box.xMin);
+    return [box.xMin - margin, box.yMax + margin, box.xMax + margin, box.yMin - margin];
+};
+
+/** One row of the legend: what an element of the board is, with its drawing style said in words. */
+export interface LegendRow {
+    readonly id: string;
+    readonly text: string;
+    readonly color: string;
+}
+
+type Geometry = {readonly box: Box; readonly region: Poly; readonly rows: readonly Poly[]};
+
+/**
+ * The linear-programming graph (level-sets spec LS5, ADR 0053 section 4): the feasible region of up to five integer constraints with
+ * x >= 0 and y >= 0, its exact vertices, the objective line through the exact optimum, the line at the chosen k, the walk along the
+ * vertices and a text status (unique optimum, edge or ray of optima, unbounded, infeasible). Every status and every vertex comes from
+ * the `Rational` kernel `solveLinearProgram`; only the drawing clips in doubles. The stored state is `LpState`.
+ *
+ * Ownership: every board object is created by `buildScene` and recorded in `scene`; `disposeScene` removes them with their
+ * listeners. Derived data is cached on the stored values it depends on (identity of the rows, the objective numbers) and holds no
+ * language-resolved text.
+ */
+export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPresetData> {
+    private readonly scene = new SceneObjects();
+    /** Per instance, so two mounted graphs never share the id that `aria-describedby` points at. */
+    readonly helpId = `lp-input-help-${++helpInstances}`;
+    private objectiveHandle?: JXG.Point;
+    private readonly solutionMemo = new Memo<LpSolution>();
+    private readonly geometryMemo = new Memo<Geometry>();
+    private drawnView = "";
+    /** The one announcement region of the graph. */
+    readonly status = new SettledReadout();
+    private hostVersion = 0;
+    private readonly hostListeners = new Set<() => void>();
+
+    override getInitialState(): LinearProgramGraphState {
+        return {initialized: false, ...serializeLpState(DEFAULT_LP_STATE)};
+    }
+
+    protected override lessonDefaultState(): LinearProgramGraphState {
+        return {...this.getInitialState(), initialized: true};
+    }
+
+    override presetCollection(): PresetCollection<LpPresetData> {
+        return lpPresetCollection;
+    }
+
+    override defaultPreset(): LpPresetData {
+        return [["LinearProgram", serializeLpState(DEFAULT_LP_STATE)]];
+    }
+
+    override exportPresetData(): LpPresetData {
+        return [["LinearProgram", serializeLpState(this.state)]];
+    }
+
+    override importPresetData(data: LpPresetData): void {
+        const entry = data[0];
+        if (entry?.[0] !== "LinearProgram") return;
+        const parsed = parseLpState(entry[1]);
+        if (parsed.ok) this.setState(serializeLpState(parsed.value));
+    }
+
+    protected override initialView(): [number, number, number, number] {
+        return boardBox(viewBox(solveState(DEFAULT_LP_STATE)));
+    }
+
+    // ---- Host state (the readout re-renders from it) ---------------------------------------------------------------------
+
+    readonly subscribeHost = (listener: () => void): (() => void) => {
+        this.hostListeners.add(listener);
+        return () => { this.hostListeners.delete(listener); };
+    };
+    readonly hostSnapshot = (): number => this.hostVersion;
+
+    private notifyHost(): void {
+        this.hostVersion++;
+        this.hostListeners.forEach(listener => listener());
+    }
+
+    /** Diagnostics for tests. */
+    ownedObjectCount(): number { return this.scene.objectCount(); }
+    ownedListenerCount(): number { return this.scene.listenerCount(); }
+    computationCounts(): Record<string, number> {
+        return {solution: this.solutionMemo.computations, geometry: this.geometryMemo.computations};
+    }
+    handle(): JXG.Point | undefined { return this.objectiveHandle; }
+
+    // ---- Derived data ----------------------------------------------------------------------------------------------------
+
+    /** The exact solution, cached on the rows and the objective. */
+    solution(): LpSolution {
+        const {constraints, objective} = this.state;
+        return this.solutionMemo.get([constraints, objective.p, objective.q], () => solveState({constraints, objective, sweep: this.state.sweep}));
+    }
+
+    private geometry(): Geometry {
+        // Only the rows decide the region and the box, so dragging the objective does not redraw them.
+        return this.geometryMemo.get([this.state.constraints], () => {
+            const solution = this.solution();
+            const box = viewBox(solution);
+            return {
+                box, region: regionPoly(solution, box),
+                rows: this.state.constraints.map(k => linePoly(k.a, k.b, k.c, box)),
+            };
+        });
+    }
+
+    private flat(): boolean { return this.state.objective.p === 0 && this.state.objective.q === 0; }
+
+    private sweepLine(): Poly {
+        const {objective, sweep} = this.state;
+        return this.flat() ? emptyPoly() : linePoly(objective.p, objective.q, sweep, this.geometry().box);
+    }
+
+    private optimumLine(): Poly {
+        const solution = this.solution();
+        if (solution.value === null || solution.status === "flat") return emptyPoly();
+        return linePoly(this.state.objective.p, this.state.objective.q, solution.value.toNumber(), this.geometry().box);
+    }
+
+    private walkPoints(): readonly RationalPoint[] { return this.solution().result.walk; }
+
+    /** The region is cut off by the window: it is unbounded, or a vertex lies beyond the window. */
+    private clipped(): boolean { return this.solution().result.region === "unbounded"; }
+
+    // ---- Board ----------------------------------------------------------------------------------------------------------
+
+    protected override createMainView(session: GraphSession, container: HTMLElement): void {
+        super.createMainView(session, container);
+        const previous = container.getAttribute("aria-label");
+        const label = () => container.setAttribute("aria-label", t("levelsets_graph_lp_board_label"));
+        label();
+        session.registerCleanup(onLanguageChange(label));
+        session.registerCleanup(() => {
+            if (previous === null) container.removeAttribute("aria-label");
+            else container.setAttribute("aria-label", previous);
+        });
+    }
+
+    initialize(): void {
+        this.buildScene();
+        const session = this.graphSession;
+        if (session) {
+            session.registerCleanup(() => this.disposeScene());
+            session.registerCleanup(() => {
+                this.status.cancel();
+                this.hostListeners.clear();
+            });
+            session.registerCleanup(onLanguageChange(() => { this.boardUpdate(); this.status.replace(this.statusText()); }));
+        }
+        this.status.replace(this.statusText());
+    }
+
+    protected override onStateChange(): void {
+        this.syncBoard();
+    }
+
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        this.syncBoard();
+    }
+
+    protected override disposeFigureScene(): void {
+        this.disposeScene();
+    }
+
+    private syncBoard(): void {
+        if (!this.hasBoard || !this.graphSession?.isAlive) {
+            this.notifyHost();
+            return;
+        }
+        if (this.scene.objectCount() === 0) this.buildScene();
+        this.applyView();
+        this.placeHandle();
+        this.board.update();
+        this.status.report(this.statusText());
+        this.notifyHost();
+    }
+
+    private applyView(): void {
+        const box = boardBox(this.geometry().box);
+        const key = box.map(value => value.toFixed(6)).join(",");
+        if (key === this.drawnView) return;
+        this.drawnView = key;
+        this.board.setBoundingBox([...box], true);
+    }
+
+    /** Moves the objective handle to the stored (p, q) (idempotent). */
+    private placeHandle(): void {
+        const {p, q} = this.state.objective;
+        const handle = this.objectiveHandle;
+        if (handle && (handle.X() !== p || handle.Y() !== q)) handle.setPosition(JXG.COORDS_BY_USER, [p, q]);
+    }
+
+    private scaleOf(): {ux: number; uy: number; left: number; top: number} {
+        const [left, top] = this.board.getBoundingBox();
+        const ux = Number.isFinite(this.board.unitX) && this.board.unitX > 0 ? this.board.unitX : 1;
+        const uy = Number.isFinite(this.board.unitY) && this.board.unitY > 0 ? this.board.unitY : 1;
+        return {ux, uy, left, top};
+    }
+
+    private curve(data: () => Poly, attributes: Partial<JXG.CurveAttributes>): JXG.Curve {
+        const element = this.scene.own(this.board.create("curve", [[], []], {fixed: true, highlight: false, withLabel: false, ...attributes}));
+        element.updateDataArray = () => {
+            const {x, y} = data();
+            element.dataX = x;
+            element.dataY = y;
+        };
+        return element;
+    }
+
+    private pixelText(x: () => number, y: () => number, dx: number, dy: number, text: () => string, color: string, visible: () => boolean = () => true): void {
+        this.scene.own(this.board.create("text", [
+            () => x() + dx / this.scaleOf().ux, () => y() + dy / this.scaleOf().uy, text,
+        ], {strokeColor: color, fontSize: 14, anchorX: "left", fixed: true, highlight: false, withLabel: false, visible}));
+    }
+
+    /** The legend: one row for every element the readouts name, the drawing style in words. Used by the board and by the panel list. */
+    legend(): LegendRow[] {
+        const solution = this.solution();
+        const rows: LegendRow[] = [];
+        if (solution.status !== "infeasible") rows.push({id: "region", text: t("levelsets_graph_lp_cap_region"), color: GraphPalette.primaryCurve});
+        rows.push({id: "rows", text: t("levelsets_graph_lp_cap_rows"), color: GraphPalette.additionalCurves[0]});
+        if (solution.result.vertices.length > 0) rows.push({id: "vertex", text: t("levelsets_graph_lp_cap_vertex"), color: GraphPalette.label});
+        if (solution.optimal.length > 0 && solution.status !== "flat") rows.push({id: "optimum", text: t("levelsets_graph_lp_cap_optimum"), color: GraphPalette.label});
+        if (this.optimumLine().x.length > 0) rows.push({id: "objective", text: t("levelsets_graph_lp_cap_objective"), color: GraphPalette.comparisonCurve});
+        if (!this.flat()) rows.push({id: "sweep", text: t("levelsets_graph_lp_cap_sweep"), color: GraphPalette.constructionAccent});
+        rows.push({id: "direction", text: t("levelsets_graph_lp_cap_direction"), color: GraphPalette.controlPoint});
+        if (this.walkPoints().length > 0) rows.push({id: "walk", text: t("levelsets_graph_lp_cap_walk"), color: GraphPalette.additionalCurves[3]});
+        if (this.clipped()) rows.push({id: "clip", text: t("levelsets_graph_lp_cap_clip"), color: GraphPalette.warningText});
+        return rows;
+    }
+
+    private buildScene(): void {
+        this.disposeScene();
+        const board = this.board;
+        const state = () => this.state;
+
+        // The region, then the constraint lines with their labels, the objective lines and the walk.
+        this.curve(() => this.geometry().region, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, fillColor: GraphPalette.primaryCurve, fillOpacity: 0.15});
+        for (let i = 0; i < ROW_COUNT_RANGE.max; i++) {
+            const row = () => this.geometry().rows[i] ?? emptyPoly();
+            this.curve(row, {strokeColor: GraphPalette.additionalCurves[i % GraphPalette.additionalCurves.length], strokeWidth: 1.5, visible: () => i < state().constraints.length});
+            this.pixelText(() => row().x[1] ?? 0, () => row().y[1] ?? 0, 6, -16,
+                () => { const k = state().constraints[i]; return k ? this.rowLabel(i, k) : ""; }, GraphPalette.label,
+                () => i < state().constraints.length && row().x.length > 1);
+        }
+        this.curve(() => this.sweepLine(), {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 2, visible: () => !this.flat()});
+        this.curve(() => this.optimumLine(), {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 4, visible: () => this.optimumLine().x.length > 0});
+        this.curve(() => pathPoly(this.walkPoints()), {strokeColor: GraphPalette.additionalCurves[3], strokeWidth: 2.5, dash: 1, visible: () => this.walkPoints().length > 0});
+
+        // The exact vertices (circles, labelled with their exact coordinates) and the optimal ones (outlined squares).
+        for (let i = 0; i < VERTEX_POOL; i++) {
+            const at = (axis: "x" | "y") => () => this.solution().result.vertices[i]?.[axis].toNumber() ?? 0;
+            this.scene.own(board.create("point", [at("x"), at("y")], {
+                name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "o", strokeColor: GraphPalette.label, fillColor: GraphPalette.label,
+                visible: () => i < this.solution().result.vertices.length,
+            }));
+            this.pixelText(at("x"), at("y"), 8, 8, () => { const v = this.solution().result.vertices[i]; return v ? this.pointText(v) : ""; },
+                GraphPalette.label, () => i < this.solution().result.vertices.length);
+        }
+        for (let j = 0; j < 2; j++) {
+            const at = (axis: "x" | "y") => () => this.solution().optimal[j]?.[axis].toNumber() ?? 0;
+            this.scene.own(board.create("point", [at("x"), at("y")], {
+                name: "", withLabel: false, fixed: true, highlight: false, size: 7, face: "[]", strokeColor: GraphPalette.label, fillColor: "none",
+                visible: () => j < this.solution().optimal.length && this.solution().status !== "flat",
+            }));
+        }
+
+        // The objective direction: an arrow from the origin to the draggable handle (p, q) (a drag snaps to whole numbers; typed values are refused instead).
+        const origin = this.scene.own(board.create("point", [0, 0], {name: "", withLabel: false, fixed: true, highlight: false, visible: false, size: 1}));
+        const {p, q} = this.state.objective;
+        const handle: JXG.Point = this.scene.own(board.create("point", [p, q], {
+            name: "", withLabel: false, size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
+            highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false,
+            precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
+        }));
+        this.objectiveHandle = handle;
+        this.wireDrag(handle, () => this.dragObjective(handle));
+        this.scene.own(board.create("segment", [origin, handle], {
+            fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.controlPoint, strokeWidth: 3, lastArrow: true, visible: () => !this.flat(),
+        }));
+        this.pixelText(() => handle.X(), () => handle.Y(), 10, 10, () => t("levelsets_graph_lp_label_direction", {value0: point(integerText(Math.round(handle.X())), integerText(Math.round(handle.Y())))}),
+            GraphPalette.controlPoint);
+
+        // The legend: stacked from the top left. It names every element the readout names.
+        const MAX_ROWS = 9;
+        for (let index = 0; index < MAX_ROWS; index++) {
+            this.scene.own(board.create("text", [
+                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
+                () => { const {top, uy} = this.scaleOf(); return top - (10 + index * 20) / uy; },
+                () => this.legend()[index]?.text ?? "",
+            ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
+                withLabel: false, visible: () => index < this.legend().length}));
+        }
+        this.drawnView = "";
+        this.applyView();
+    }
+
+    private disposeScene(): void {
+        this.scene.dispose(this.hasBoard ? this.board : undefined);
+        this.objectiveHandle = undefined;
+        this.drawnView = "";
+    }
+
+    // ---- Dragging: the handle snaps; typed values are refused instead ---------------------------------------------------------
+
+    private wireDrag(handle: JXG.Point, onDrag: () => void): void {
+        const board = this.board;
+        const onOver = () => { board.containerObj.style.cursor = "pointer"; };
+        const onOut = () => { board.containerObj.style.cursor = "default"; };
+        handle.on("drag", onDrag);
+        handle.on("over", onOver);
+        handle.on("out", onOut);
+        this.scene.listen(() => { handle.off("drag", onDrag); handle.off("over", onOver); handle.off("out", onOut); });
+    }
+
+    private dragObjective(handle: JXG.Point): void {
+        const p = snapInteger(handle.X(), OBJECTIVE_RANGE);
+        const q = snapInteger(handle.Y(), OBJECTIVE_RANGE);
+        if (p === undefined || q === undefined) { this.placeHandle(); return; }
+        if (p !== this.state.objective.p || q !== this.state.objective.q) this.edit({objective: {p, q}});
+        handle.setPosition(JXG.COORDS_BY_USER, [p, q]);
+    }
+
+    // ---- Editing --------------------------------------------------------------------------------------------------------
+
+    private edit(patch: Partial<LpState>): void {
+        this.setState(patch);
+        this.requestRender();
+    }
+
+    /** A typed coefficient a or b of a row: a whole number in the range, not making the row 0 x + 0 y; otherwise refused (false), never rounded or clamped. */
+    setCoefficient(row: number, field: "a" | "b", value: number): boolean {
+        const current = this.state.constraints[row];
+        const checked = typedInteger(value, COEFFICIENT_RANGE);
+        if (current === undefined || checked === undefined) return false;
+        const next = {...current, [field]: checked};
+        if (next.a === 0 && next.b === 0) return false;
+        this.replaceRow(row, next);
+        return true;
+    }
+
+    /** A typed right-hand side c of a row. */
+    setBound(row: number, value: number): boolean {
+        const current = this.state.constraints[row];
+        const checked = typedInteger(value, BOUND_RANGE);
+        if (current === undefined || checked === undefined) return false;
+        this.replaceRow(row, {...current, c: checked});
+        return true;
+    }
+
+    private replaceRow(row: number, next: LpConstraint): void {
+        const current = this.state.constraints[row];
+        if (current.a === next.a && current.b === next.b && current.c === next.c) return;
+        this.edit({constraints: this.state.constraints.map((k, index) => (index === row ? next : k))});
+    }
+
+    /** A typed objective coefficient (axis 0 is p, 1 is q). */
+    setObjective(axis: 0 | 1, value: number): boolean {
+        const checked = typedInteger(value, OBJECTIVE_RANGE);
+        if (checked === undefined) return false;
+        const {p, q} = this.state.objective;
+        const next = axis === 0 ? {p: checked, q} : {p, q: checked};
+        if (next.p !== p || next.q !== q) this.edit({objective: next});
+        return true;
+    }
+
+    /** A typed value k of the sweep line. */
+    setSweep(value: number): boolean {
+        const checked = typedInteger(value, SWEEP_RANGE);
+        if (checked === undefined) return false;
+        if (checked !== this.state.sweep) this.edit({sweep: checked});
+        return true;
+    }
+
+    /** The number of rows: a row added at the end, or the last row removed. */
+    setRowCount(count: number): boolean {
+        if (!Number.isInteger(count) || count < ROW_COUNT_RANGE.min || count > ROW_COUNT_RANGE.max) return false;
+        const rows = this.state.constraints;
+        if (count === rows.length) return true;
+        this.edit({constraints: count < rows.length ? rows.slice(0, count) : [...rows, ...Array.from({length: count - rows.length}, () => ({...NEW_ROW}))]});
+        return true;
+    }
+
+    // ---- Text -----------------------------------------------------------------------------------------------------------
+
+    private rowLabel(index: number, k: LpConstraint): string {
+        return t("levelsets_graph_lp_label_row", {value0: String(index + 1), value1: this.inequality(k)});
+    }
+
+    inequality(k: LpConstraint): string {
+        return t("levelsets_graph_lp_inequality", {value0: rowLeft(k), value1: integerText(k.c)});
+    }
+
+    /** A rational, exactly, with its decimal beside it when it is a proper fraction. */
+    exactValue(value: Rational): string {
+        const exact = exactText(value);
+        return isFraction(value) ? t("levelsets_graph_lp_exact_decimal", {value0: exact, value1: dec(value.toNumber(), 4)}) : exact;
+    }
+
+    /** A vertex, exactly "(7/2; 3)", with the decimal point beside it when a coordinate is a proper fraction. */
+    pointText(v: RationalPoint): string {
+        const exact = point(exactText(v.x), exactText(v.y));
+        return isFraction(v.x) || isFraction(v.y)
+            ? t("levelsets_graph_lp_exact_decimal", {value0: exact, value1: point(dec(v.x.toNumber(), 4), dec(v.y.toNumber(), 4))}) : exact;
+    }
+
+    private objectiveText(): string { return linearText(this.state.objective.p, this.state.objective.q); }
+
+    /** The one status sentence. */
+    statusText(): string {
+        const solution = this.solution();
+        const value = solution.value === null ? "" : this.exactValue(solution.value);
+        switch (solution.status) {
+            case "infeasible": return t("levelsets_graph_lp_say_infeasible");
+            case "unbounded": {
+                const ray = solution.improvingRay;
+                return t("levelsets_graph_lp_say_unbounded", {value0: ray === null ? "" : point(integerText(ray.x), integerText(ray.y))});
+            }
+            case "flat": return t("levelsets_graph_lp_say_flat");
+            case "unique": return t("levelsets_graph_lp_say_unique", {value0: value, value1: this.pointText(solution.optimal[0])});
+            case "segment": return t("levelsets_graph_lp_say_segment", {value0: value, value1: this.pointText(solution.optimal[0]), value2: this.pointText(solution.optimal[1])});
+            case "ray": return t("levelsets_graph_lp_say_ray", {value0: value, value1: this.pointText(solution.optimal[0])});
+        }
+    }
+
+    readoutRows(): ReadoutListRow[] {
+        const state = this.state;
+        const solution = this.solution();
+        const rows: ReadoutListRow[] = [{id: "region", label: t("levelsets_graph_lp_r_region"), value: t(REGION_KEYS[solution.result.region])}];
+        state.constraints.forEach((k, index) => rows.push({id: `row-${index}`, label: t("levelsets_graph_lp_r_row", {value0: String(index + 1)}), value: this.inequality(k)}));
+        rows.push({id: "axes", label: t("levelsets_graph_lp_r_axes"), value: t("levelsets_graph_lp_axes_value")});
+        rows.push({id: "objective", label: t("levelsets_graph_lp_r_objective"), value: t("levelsets_graph_lp_objective_value", {value0: this.objectiveText()})});
+        rows.push({id: "vertex-count", label: t("levelsets_graph_lp_r_vertex_count"), value: String(solution.vertexInfo.length)});
+        solution.vertexInfo.forEach((info, index) => rows.push({
+            id: `vertex-${index}`, label: t("levelsets_graph_lp_r_vertex", {value0: String(index + 1)}),
+            value: t("levelsets_graph_lp_vertex_value", {value0: this.pointText(info.point), value1: this.exactValue(info.value), value2: String(info.tight)}),
+        }));
+        rows.push({id: "status", label: t("levelsets_graph_lp_r_status"), value: t(STATUS_KEYS[solution.status])});
+        if (solution.value !== null) {
+            rows.push({id: "optimum", label: t("levelsets_graph_lp_r_optimum"), value: this.exactValue(solution.value)});
+            if (solution.status !== "flat") {
+                solution.optimal.forEach((v, index) => rows.push({id: `optimal-${index}`, label: t("levelsets_graph_lp_r_optimal"), value: this.pointText(v)}));
+            }
+        } else if (solution.improvingRay !== null) {
+            rows.push({id: "ray", label: t("levelsets_graph_lp_r_ray"), value: point(integerText(solution.improvingRay.x), integerText(solution.improvingRay.y))});
+        }
+        const walk = solution.result.walk;
+        if (walk.length === 0) rows.push({id: "walk", label: t("levelsets_graph_lp_r_walk"), value: t("levelsets_graph_lp_walk_none")});
+        walk.forEach((v, index) => rows.push({
+            id: `walk-${index}`, label: t("levelsets_graph_lp_r_walk_step", {value0: String(index)}),
+            value: t("levelsets_graph_lp_walk_step", {value0: this.pointText(v), value1: this.exactValue(evaluate(state.objective.p, state.objective.q, v))}),
+        }));
+        if (!this.flat()) {
+            rows.push({id: "sweep", label: t("levelsets_graph_lp_r_sweep"), value: t("levelsets_graph_lp_equation", {value0: this.objectiveText(), value1: integerText(state.sweep)})});
+            if (solution.value !== null) {
+                rows.push({id: "through", label: t("levelsets_graph_lp_r_through"), value: t("levelsets_graph_lp_equation", {value0: this.objectiveText(), value1: this.exactValue(solution.value)})});
+            }
+        }
+        const box = this.geometry().box;
+        rows.push({id: "window", label: t("levelsets_graph_lp_r_window"), value: t("levelsets_graph_lp_window_value", {value0: integerText(box.xMin), value1: integerText(box.xMax)})});
+        return rows;
+    }
+
+    // ---- Controls -------------------------------------------------------------------------------------------------------
+
+    private inputHelp(): JSX.Element {
+        return <p key="help" id={this.helpId} className="form-text">{t("levelsets_graph_lp_input_help", {
+            value0: integerText(COEFFICIENT_RANGE.min), value1: integerText(COEFFICIENT_RANGE.max), value2: integerText(BOUND_RANGE.min), value3: integerText(BOUND_RANGE.max),
+            value4: integerText(OBJECTIVE_RANGE.min), value5: integerText(OBJECTIVE_RANGE.max), value6: integerText(SWEEP_RANGE.min), value7: integerText(SWEEP_RANGE.max),
+        })}</p>;
+    }
+
+    override getGraphCommands(): JSX.Element[] {
+        const state = this.state;
+        const describedBy = this.helpId;
+        const whole = (key: string, label: string, value: number, range: {min: number; max: number}, edit: (value: number) => boolean) =>
+            <NumberInput key={key} label={label} value={value} step={1} bigStep={5} min={range.min} max={range.max} decimals={0} integer describedBy={describedBy} onChange={edit}/>;
+        const commands: JSX.Element[] = [
+            <CountSetter key="count" label={t("levelsets_graph_lp_count")} n={state.constraints.length} min={ROW_COUNT_RANGE.min} max={ROW_COUNT_RANGE.max} bigStep={1}
+                         minusLabel={t("levelsets_graph_lp_count_minus")} plusLabel={t("levelsets_graph_lp_count_plus")}
+                         help={t("levelsets_graph_lp_count_help", {value0: String(ROW_COUNT_RANGE.min), value1: String(ROW_COUNT_RANGE.max)})}
+                         onPlus={() => this.setRowCount(state.constraints.length + 1)} onMinus={() => this.setRowCount(state.constraints.length - 1)}
+                         onSet={value => this.setRowCount(value)}/>,
+        ];
+        state.constraints.forEach((k, index) => {
+            const n = String(index + 1);
+            commands.push(
+                whole(`a-${index}`, t("levelsets_graph_lp_row_a", {value0: n}), k.a, COEFFICIENT_RANGE, value => this.setCoefficient(index, "a", value)),
+                whole(`b-${index}`, t("levelsets_graph_lp_row_b", {value0: n}), k.b, COEFFICIENT_RANGE, value => this.setCoefficient(index, "b", value)),
+                whole(`c-${index}`, t("levelsets_graph_lp_row_c", {value0: n}), k.c, BOUND_RANGE, value => this.setBound(index, value)),
+            );
+        });
+        commands.push(
+            whole("p", t("levelsets_graph_lp_objective_p"), state.objective.p, OBJECTIVE_RANGE, value => this.setObjective(0, value)),
+            whole("q", t("levelsets_graph_lp_objective_q"), state.objective.q, OBJECTIVE_RANGE, value => this.setObjective(1, value)),
+            <NumberInput key="sweep" label={t("levelsets_graph_lp_sweep")} value={state.sweep} step={1} bigStep={5} min={SWEEP_RANGE.min} max={SWEEP_RANGE.max} decimals={0} integer
+                         describedBy={describedBy} help={t("levelsets_graph_lp_sweep_help", {value0: integerText(SWEEP_RANGE.min), value1: integerText(SWEEP_RANGE.max)})}
+                         rejectedHint={t("levelsets_graph_lp_sweep_rejected", {value0: integerText(SWEEP_RANGE.min), value1: integerText(SWEEP_RANGE.max)})}
+                         unavailableReason={this.flat() ? t("levelsets_graph_lp_sweep_reason") : undefined}
+                         onChange={value => this.setSweep(value)}/>,
+            this.inputHelp(),
+        );
+        return commands;
+    }
+
+    protected override workspaceEdit(): React.ReactNode {
+        return <>
+            {this.getGraphCommandsArea()}
+            <LpReadout graph={this}/>
+        </>;
+    }
+}
+
+export default LinearProgramGraph;

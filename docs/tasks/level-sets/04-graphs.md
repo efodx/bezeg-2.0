@@ -22,3 +22,7 @@ Acceptance:
 4. `npx tsc --noEmit --pretty false`, `just lint` and the production build pass.
 
 Review: engineering plus UI and accessibility, and a mathematical review of the readouts.
+
+## Status
+
+Done (uncommitted): items 1–3, and item 4 (`ContourMapGraph` LS1–LS4 and `LinearProgramGraph` LS5; `src/graphs/levelsets/`, the mode, function, level, probe, start, constraint and camera state, the surface panel, the contour preset collection, the `levelsets_graph_*` and `levelsets_graph_lp_*` locale keys, unit and component tests). Open: the production build and the browser smoke test of both graphs. Evidence and review doubts: `docs/reviews/feature-streams/families-prep/notes/f2a-ls-04.md`.

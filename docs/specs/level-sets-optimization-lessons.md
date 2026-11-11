@@ -127,6 +127,13 @@ Search of `src/localization/sl.ts` found *ploskev*, *stacionarna točka*, *lokal
 - Graph state holds the function id, level, probe, start, \(H\), constraint id and point parameter, LP constraint integers and objective; derived values are recomputed from validated state, never from a Preset.
 - Lesson scenes use typed actions (`set-function`, `set-level`, `set-probe`, `set-step`, `set-objective`) in one tick; unit-tested as a synchronous sequence.
 - Routes and Presets are additive. Lesson prose follows the notation rules; `t()` calls are type checked and `sl.ts`/`en.ts` stay in lockstep.
+- F2a decisions (handler, 2026-11-11):
+  - The measurement is compute-only with a jsdom placeholder (ADR 0053, "Measurement results"); compute stays under 16 ms at \(N=120\) with 9 levels, so the default \(N=60\) stands. Browser frame times on a desktop and a phone are owed at F2b.
+  - State grids, chosen by the handler because the spec names none: level in steps of \(1/8\), probe \(1/20\), start \(1/4\), LP constraint and objective coefficients \(\pm9\), right-hand sides \(\pm30\), one to five rows.
+  - The constrained mode (LS4) uses the window \([-4,4]^2\), because the tangency point \((1,2)\) of \(x+2y=5\) on the bowl lies on the edge of the bowl's window \([-2,2]^2\).
+  - LP constraint rows have numeric inputs only; the objective direction is the one draggable handle. The `ray` status (an optimum attained along a ray of an unbounded region) is separate from `unbounded`. Drags clamp at the window edge in both graphs; typed values out of range are refused.
+  - Review repairs: every legend entry states the drawn style (the level set through the point is dashed, the constraint is solid); exact tangency points are shown as fractions with the decimal beside them; the surface panel clears its failure message when the graph changes.
+  - The LS2 `numeric` toggle shows the central-difference estimate at \(h=0{,}01\) and its error next to the analytic value, labelled as an estimate. This is the one learner-visible central difference, which step 5 asks for; the arrow, the tangent and every other gradient readout stay analytic.
 
 ## Testing Decisions
 

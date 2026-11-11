@@ -11,7 +11,7 @@ F1 is ungated. F2a waits for Controls step 5 and the contour and mesh measuremen
 | [01 Function catalogue and marching squares](01-catalogue-contours.md) | 0 | F1 | none | — | done |
 | [02 Descent and constrained point](02-descent-constrained.md) | 0 | F1 | none | 01 | done |
 | [03 Exact linear programming](03-linear-programming.md) | 0 | F1 | none | — | done |
-| [04 Measurement, state models and graphs](04-graphs.md) | A–C | F2a | Controls step 5 | 01–03 | planned |
+| [04 Measurement, state models and graphs](04-graphs.md) | A–C | F2a | Controls step 5 | 01–03 | in progress: measurement, state models, `ContourMapGraph` (LS1–LS4) and `LinearProgramGraph` (LS5) done; build and smoke open |
 | [05 Release batches A–C](05-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 04 | planned |
 
 ## Slovenian terms (F0 decision)
