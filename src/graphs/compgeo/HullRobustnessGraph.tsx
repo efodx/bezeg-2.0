@@ -1,9 +1,9 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import JXG from "jsxgraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import type {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphSession} from "../base/GraphSession";
-import {BaseGraphState} from "../base/BaseGraph";
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {UnsupportedLessonActionError} from "../../learning/model";
@@ -272,7 +272,7 @@ export class HullRobustnessGraph extends HullTraceGraph {
         return state;
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const cell = {
             i: ("cellI" in merged ? parseKettnerCoordinate(merged.cellI) : undefined) ?? DEFAULT_KETTNER_CELL.i,

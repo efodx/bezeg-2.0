@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {clipBezierPair, ClipPoint, ClipRange, ClipState, clipFold, ClipTrace, INITIAL_CLIP_STATE, subNet} from "../../bezeg/impl/kernels/bezier-clipping";
@@ -217,7 +218,7 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
     }
 
     /** The figure scene runs on the tolerance the Preset stores, the default when it names none; the step clamp reads that run. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const named = graphState && "clipToleranceExponent" in graphState ? parseClipToleranceExponent(graphState.clipToleranceExponent) : undefined;
         const withTolerance: BaseGraphState & {clipToleranceExponent: number} = {...graphState, initialized: true, clipToleranceExponent: named ?? DEFAULT_CLIP_TOLERANCE_EXPONENT};
         return super.figurePresetGraphState(withTolerance);

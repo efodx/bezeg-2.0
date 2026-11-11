@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {PointListInput} from "../../inputs/PointListInput";
 import {StatusLive} from "../base/controls/StatusLive";
@@ -5,7 +6,7 @@ import {ExampleSelect, matchingExample} from "./ExampleSelect";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {LessonAction} from "../../learning/model";
 import {GraphSession} from "../base/GraphSession";
-import {BaseGraphState, TransientState} from "../base/BaseGraph";
+import {TransientState} from "../base/BaseGraph";
 import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {GridPoint, isGridPoint} from "../../compgeo/grid";
 import {gridToBoard, PointSetModel, snapToGrid} from "../../compgeo/pointSetModel";
@@ -267,7 +268,7 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     }
 
     /** A Preset's query is checked on import; anything else a stored scene holds becomes the default query. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const state: PointInPolygonGraphState = {...merged, query: storedQuery("query" in merged ? merged.query : undefined)};
         return state;

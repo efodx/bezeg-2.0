@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../../base/presets/Presets";
 import {CONTROL_ROW_FILL} from "../../../inputs/controlRow";
 import React from "react";
 import {currentLanguage, renderMessage, t} from "../../../localization";
@@ -114,7 +115,7 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineInsertionState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): BSplineInsertionState {
         const merged = super.figurePresetGraphState(graphState);
         const {degree, knots, points, origin, example} = this.state;
         return {...merged, ...copyData({degree, knots, points}), origin, example, ghost: [], refusal: null};

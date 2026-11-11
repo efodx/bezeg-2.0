@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "./presets/Presets";
 import {LocalizedError, message, Message, onLanguageChange, renderMessage, t} from "../../localization";
 import React from 'react';
 
@@ -751,7 +752,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
 
     /** The scene state a figure scene starts with: the graph's initial state with the Preset's stored state over it. */
-    protected figurePresetGraphState(graphState: BaseGraphState | undefined, _data?: unknown): S {
+    protected figurePresetGraphState(graphState: StoredGraphState | undefined, _data?: unknown): S {
         return {
             ...(this.initialFigureGraphState ?? this.state),
             ...(graphState ? cloneLessonValue(graphState) : {}),

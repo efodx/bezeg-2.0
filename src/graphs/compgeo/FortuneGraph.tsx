@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
@@ -8,7 +9,6 @@ import {SWEEP_COORD_LIMIT, SWEEP_MAX_SITES} from "../../compgeo/sweep/limits";
 import type {RationalBox} from "../../compgeo/voronoi";
 import {boardFrameOf, fitFrame} from "./frameFit";
 import {matchingExample} from "./ExampleSelect";
-import {BaseGraphState} from "../base/BaseGraph";
 import type {GraphSession} from "../base/GraphSession";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -251,7 +251,7 @@ export class FortuneGraph extends PointSetGraph<never> {
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
         const state: FortuneGraphState = {...merged, step: runFortune(merged.model.points).clamp(stored ?? 0)};

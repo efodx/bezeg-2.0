@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -168,7 +169,7 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         this.setState({model: threeViewsPersistence.reconstruct(data, undefined, this.state).model});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): ThreeViewsGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): ThreeViewsGraphState {
         const defaults = super.figurePresetGraphState(undefined);
         return {...threeViewsPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as ThreeViewsModel, graphState, defaults), initialized: true};
     }

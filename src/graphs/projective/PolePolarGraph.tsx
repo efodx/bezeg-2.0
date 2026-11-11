@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -230,7 +231,7 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
         this.setState({model: serializePolePolarModel(data)});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PolePolarGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PolePolarGraphState {
         return {...super.figurePresetGraphState(graphState), model: this.model};
     }
 

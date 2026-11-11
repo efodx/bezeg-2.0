@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
 import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
 import {formatNumber, formatScientific} from "../../../analysis/format";
@@ -121,7 +122,7 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineNurbsState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): BSplineNurbsState {
         const merged = super.figurePresetGraphState(graphState);
         const {degree, knots, points, weights, origin, example} = this.state;
         // The parameter is the Preset's (or the initial one) held in the new domain, not the preceding scene's.

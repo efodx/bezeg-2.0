@@ -1,10 +1,10 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {EAR_CLIPPING_MAX_VERTICES, guardView} from "../../compgeo/earClipping";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import type {LessonAction} from "../../learning/model";
-import {BaseGraphState} from "../base/BaseGraph";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {matchingExample} from "./ExampleSelect";
 import {TracePlayback} from "../base/tracePlayback";
@@ -226,7 +226,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const model = asClosedPolygon(merged.model);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;

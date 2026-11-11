@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -173,7 +174,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         this.setState({model: serializeCrossRatioModel(data)});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): CrossRatioGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): CrossRatioGraphState {
         return {...super.figurePresetGraphState(graphState), model: this.model};
     }
 

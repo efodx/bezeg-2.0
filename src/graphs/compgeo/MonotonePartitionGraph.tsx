@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -7,7 +8,6 @@ import type {GridPoint} from "../../compgeo/grid";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import {SWEEP_MAX_POLYGON_VERTICES} from "../../compgeo/sweep/limits";
 import type {VertexType} from "../../compgeo/sweep/monotonePartition";
-import {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -243,7 +243,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const model = asClosedPolygon(merged.model);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;

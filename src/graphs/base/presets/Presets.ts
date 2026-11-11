@@ -5,12 +5,15 @@ import {appStorage} from "../../../storage/appStorage";
 
 const PRESETS_PREFIX = "preset-";
 
+/** Scene state as stored in a Preset: older or hand-written files may lack `initialized` and carry graph-specific fields that each graph reads after narrowing. */
+export type StoredGraphState = Partial<BaseGraphState>;
+
 /** A stored Preset. `data` is the graph family's Preset data; stored data is `unknown` until its collection checks it. */
 export interface Preset<D = unknown> {
     id: string,
     data?: D,
     boardState?: BoardState,
-    graphState?: BaseGraphState
+    graphState?: StoredGraphState
 }
 
 export interface Presets {

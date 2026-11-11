@@ -1,5 +1,6 @@
 import {commitPresetImport, preflightPresetImport} from "./PresetImport";
 import {LocalizedError, setLanguage} from "../../../localization";
+import type {Preset} from "./Presets";
 const collection = {data: [{id: "Učna krivulja", data: [["JSXBezierCurve", {points: [[0, 0], [1, 2], [3, 0]]}]],
     boardState: {boundingBox: [-5, 5, 5, -5]}, graphState: {initialized: true, selectedCurveOption: 0, curveSelected: false}}]};
 const file = () => JSON.stringify({"preset-bezier-curve": collection});
@@ -65,4 +66,11 @@ test("the documented legacy g1-spline collection still imports from earlier expo
         state: {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, b: [1, 1]}}]]}]};
     commitPresetImport(preflightPresetImport(JSON.stringify({"preset-g1-spline": legacy})));
     expect(JSON.parse(localStorage.getItem("preset-g1-spline")!)).toEqual(legacy);
+});
+
+test("a stored Preset whose graphState lacks `initialized` still imports", () => {
+    const stored: Preset = {id: "Starejša", data: [["JSXBezierCurve", {points: [[0, 0], [1, 2], [3, 0]]}]], graphState: {}};
+    const plan = preflightPresetImport(JSON.stringify({"preset-bezier-curve": {data: [stored]}}));
+    commitPresetImport(plan);
+    expect(JSON.parse(localStorage.getItem("preset-bezier-curve")!).data[0].graphState).toEqual({});
 });

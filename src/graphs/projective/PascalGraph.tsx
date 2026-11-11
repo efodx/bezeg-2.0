@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -247,7 +248,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         this.setState({model: serializePascalModel(data)});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PascalGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PascalGraphState {
         return {...super.figurePresetGraphState(graphState), model: this.model};
     }
 

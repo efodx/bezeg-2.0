@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
 import {currentLanguage, t} from "../../../localization";
 import {formatNumber, formatScientific} from "../../../analysis/format";
@@ -97,7 +98,7 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
      * The just-imported curve wins over the mount-time defaults and over a stale stored curve; the stored segment, arguments
      * and Bezier switch stay, as loading the Preset keeps them.
      */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineBlossomState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): BSplineBlossomState {
         const merged = super.figurePresetGraphState(graphState);
         const {degree, knots, points} = this.state;
         return {...merged, degree, knots: [...knots], points: points.map(point => [point[0], point[1]] as const)};

@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import type {GridPoint} from "../../compgeo/grid";
@@ -9,7 +10,6 @@ import {edges as triangulationEdges} from "../../compgeo/triangulation";
 import {delaunayTriangulation} from "../../compgeo/delaunay";
 import {dualEdges, nearestSites, type RationalBox, voronoiFromDelaunay, type VoronoiDiagram, type VoronoiOutcome} from "../../compgeo/voronoi";
 import type {LessonAction} from "../../learning/model";
-import {BaseGraphState} from "../base/BaseGraph";
 import type {GraphSession} from "../base/GraphSession";
 import type {AnimationScheduler} from "../../learning/runtime/animation";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -802,7 +802,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         this.requestRender();
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const sites = merged.model.points.length;
         const site = storedSite("cellSite" in merged ? merged.cellSite : undefined, sites);

@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import JXG from "jsxgraph";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
@@ -508,7 +509,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     /** The scene state a Preset replacement starts from keeps the model that `importPresetData` just wrote. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         return {...super.figurePresetGraphState(graphState), model: this.model};
     }
 

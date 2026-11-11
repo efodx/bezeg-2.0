@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -7,7 +8,6 @@ import {PointSetModel, PointSetOptions, segmentsOf, serializePointSetModel, setM
 import {Rational} from "../../compgeo/rational";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_SEGMENTS} from "../../compgeo/sweep/limits";
 import type {Segment} from "../../compgeo/sweep/segments";
-import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -220,7 +220,7 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
         const state: BentleyOttmannGraphState = {...merged, step: runBentleyOttmann(segmentsOf(merged.model)).clamp(stored ?? 0)};

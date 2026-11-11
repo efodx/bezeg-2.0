@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -265,7 +266,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         this.setState({model, lastUnique});
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined, data?: unknown): FivePointGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): FivePointGraphState {
         const defaults = super.figurePresetGraphState(undefined);
         return {...fivePointPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as FivePointModel, graphState, defaults), initialized: true};
     }

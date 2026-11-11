@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
 import {renderMessage, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
@@ -113,7 +114,7 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): DeBoorGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): DeBoorGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const {degree, knots, points} = this.state;
         return {...merged, degree, knots: [...knots], points: points.map(point => [point[0], point[1]] as const), level: Math.min(merged.level, degree)};

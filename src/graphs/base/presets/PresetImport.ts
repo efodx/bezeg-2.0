@@ -1,5 +1,6 @@
 import {message, LocalizedError, Message} from "../../../localization";
-import type {BaseGraphState, BoardState} from "../BaseGraph";
+import type {BoardState} from "../BaseGraph";
+import type {StoredGraphState} from "./Presets";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves/curvePresetCollections";
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
@@ -49,7 +50,7 @@ export interface CheckedPreset {
     readonly id: string;
     readonly data?: unknown;
     readonly boardState?: BoardState;
-    readonly graphState?: BaseGraphState;
+    readonly graphState?: StoredGraphState;
 }
 export type PresetCheck = { readonly preset: CheckedPreset } | { readonly rejection: Message };
 export type PresetCollectionCheck = { readonly presets: CheckedPreset[] } | { readonly rejection: Message };
@@ -71,7 +72,7 @@ export function checkPreset(collection: PresetCollection<unknown>, raw: unknown,
     }
     const id = raw.id ?? "";
     const name = id || (at === undefined ? "" : `#${at}`);
-    const checked: {id: string; data?: unknown; boardState?: BoardState; graphState?: BaseGraphState} = {id};
+    const checked: {id: string; data?: unknown; boardState?: BoardState; graphState?: StoredGraphState} = {id};
     if (raw.boardState !== undefined) {
         if (!(isRecord(raw.boardState) && isBoundingBox(raw.boardState.boundingBox))) return {rejection: inPreset(collection, name, "boardState", message("invalid_graph_bounds"))};
         const [left, top, right, bottom] = raw.boardState.boundingBox;
@@ -80,7 +81,7 @@ export function checkPreset(collection: PresetCollection<unknown>, raw: unknown,
     if (raw.graphState !== undefined) {
         const invalid = collection.checkGraphState ? collection.checkGraphState(raw.graphState) : checkSceneState(raw.graphState);
         if (invalid) return {rejection: inPreset(collection, name, "graphState", invalid)};
-        checked.graphState = clone(raw.graphState) as BaseGraphState;
+        if (isRecord(raw.graphState)) checked.graphState = clone(raw.graphState);
     }
     if (raw.data !== undefined) {
         const result = collection.check(clone(raw.data));

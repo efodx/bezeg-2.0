@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
 import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
@@ -114,7 +115,7 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
      * A figure scene replaces the scene state after its data import. The just-imported degree and knots win over the mount-time
      * defaults and over a stale stored state, since the plot keeps them in both the data and the state.
      */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineBasisGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): BSplineBasisGraphState {
         const merged = super.figurePresetGraphState(graphState);
         return {...merged, degree: this.state.degree, knots: [...this.state.knots]};
     }

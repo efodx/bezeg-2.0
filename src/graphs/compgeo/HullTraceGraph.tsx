@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -6,7 +7,6 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {registerTraceCommands} from "./traceLessonActions";
 import {TracePlayback} from "../base/tracePlayback";
-import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -241,7 +241,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const algorithm = ("algorithm" in merged ? parseHullAlgorithm(merged.algorithm) : undefined) ?? DEFAULT_HULL_ALGORITHM;
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;

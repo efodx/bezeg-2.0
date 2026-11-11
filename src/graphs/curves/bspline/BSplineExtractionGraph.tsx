@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../../base/presets/Presets";
 import React from "react";
 import {currentLanguage, renderMessage, t} from "../../../localization";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
@@ -94,7 +95,7 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineExtractionState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): BSplineExtractionState {
         const merged = super.figurePresetGraphState(graphState);
         const {degree, knots, points, origin, example} = this.state;
         return {...merged, ...copyData({degree, knots, points}), origin, example, moved: []};

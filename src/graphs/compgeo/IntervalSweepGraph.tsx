@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -8,7 +9,6 @@ import type {LessonAction} from "../../learning/model";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {TracePlayback} from "../base/tracePlayback";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -219,7 +219,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
         const state: IntervalSweepGraphState = {...merged, step: runIntervalSweep(intervalsOf(merged.model)).clamp(stored ?? 0)};

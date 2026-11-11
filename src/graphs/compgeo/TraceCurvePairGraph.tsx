@@ -1,8 +1,8 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
 import {PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import {clampTraceIndex} from "../../compgeo/trace";
-import {BaseGraphState} from "../base/BaseGraph";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {Preset} from "../base/presets/Presets";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -215,7 +215,7 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
         this.playback.restoreTo(step);
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const stored = graphState && "step" in graphState ? parseBezierHullsStep(graphState.step) : undefined;
         const state: TraceCurvePairGraphState = {...merged, step: Math.min(stored ?? 0, this.runFor(merged.model.points, merged).length - 1)};

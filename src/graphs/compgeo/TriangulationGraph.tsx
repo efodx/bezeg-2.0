@@ -1,3 +1,4 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {angleVector, incrementalTriangulation} from "../../compgeo/delaunay";
 import {GridPoint} from "../../compgeo/grid";
@@ -9,7 +10,6 @@ import {
 } from "../../compgeo/triangulation";
 import {t} from "../../localization";
 import {LessonAction} from "../../learning/model";
-import {BaseGraphState} from "../base/BaseGraph";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
@@ -393,7 +393,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         return {...preset, graphState};
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged: TriangulationGraphState = {...super.figurePresetGraphState(graphState), triangles: this.triangles};
         return merged;
     }

@@ -1,9 +1,9 @@
+import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {gridToBoard, PointSetModel, PointSetOptions} from "../../compgeo/pointSetModel";
 import {createTriangulation, type Triangulation, type TriangulationEdge} from "../../compgeo/triangulation";
-import {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -304,7 +304,7 @@ export class DelaunayGraph extends TriangulationGraph {
         this.requestRender();
     }
 
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
         const run = runFor(merged.model.points, "triangles" in merged ? merged.triangles : undefined);
