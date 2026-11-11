@@ -53,7 +53,7 @@ export interface SceneMesh {
 /** A logical owner of triangles in a mesh. Face offsets address `mesh.faces`; the renderer samples first vertices of the first, middle and last drawable triangles after Float32 upload. */
 export interface SceneMeshOwner {
     id: string;
-    kind: 'tensor' | 'triangular' | 'join' | 'teapot';
+    kind: 'tensor' | 'triangular' | 'join' | 'teapot' | 'solid';
     faceStart: number;
     faceCount: number;
 }

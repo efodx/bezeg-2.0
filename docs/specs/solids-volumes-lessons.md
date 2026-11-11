@@ -121,6 +121,13 @@ Neighbouring terms reused from the app: 3D view labels in `src/localization/sl.t
 - Measurement first (owner rule), per [the performance plan](../performance-plan.md): frame time while dragging the plane offset on a cube (12 triangles plus cap), a 48-segment revolve (about 770 triangles, as in the note), a 200-triangle stack of slabs, on desktop and a phone; the painter's-order sort on 65 535 drawables; result decides if one `SceneMesh` carries a solid or a slab stack must be merged.
 - State: solid choice, plane normal, offset, shear, disc count, camera; serialised in the preset; import validates the grid ranges.
 - Breaking changes: none (new routes and presets, one added union member).
+- F2a decisions (handler, 2026-11-11):
+  - The measurement before the graph is compute-only with a jsdom placeholder for the view update (ADR 0051 §1, "Measurement results"), as for phase portraits: no route exists for a browser run. Compute stays far inside 16 ms in all three cases, so §1 stands; browser frame times on a desktop and a phone are owed at F2b, and the slab-stack merge remains the fallback.
+  - State adds the revolve axis (`x` or `y`, default `x`), because SV5 step 5 rotates \(f=x^2\) about the \(y\)-axis.
+  - Stack mode holds two pairs: the straight and sheared square prism, and SV3's failing pair (a cone and a cylinder of equal height), whose readout states that no conclusion follows. The y-axis solid of SV5 step 5 touches itself at one point (the bowl tip on the bottom disc centre); that is the true shape, not a mesh defect.
+  - Typed off-grid plane offset and shear are rounded to the \(1/4\) grid with a hint that says so; integer fields (normal, discs) refuse off-grid values.
+  - Review repairs: the mesh-volume note no longer states a direction, because chord profiles (parabola) give a mesh volume above the exact one; only the cone and cylinder note says "below". Controls that do not apply (shear for the failing pair, axis for the sphere) show a reason. The live text announces the axis. Slovenian counts are phrased count-neutrally.
+  - Sections are offered for the four convex grid solids (cube, triangular prism, square prism, square pyramid); the model rejects section mode with any other solid.
 
 ## Testing Decisions
 

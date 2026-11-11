@@ -10,7 +10,7 @@ F1 is ungated. F2a waits for Controls step 5 and the 3D measurement, and F2b–F
 | --- | --- | --- | --- | --- | --- |
 | [01 Mesh and section kernel](01-mesh-section-kernel.md) | 0 | F1 | none | — | done |
 | [02 Revolve and volume kernel](02-revolve-volume-kernel.md) | 0 | F1 | none | 01 | done |
-| [03 Measurement, state model and solids graph](03-solids-graph.md) | A–C | F2a | Controls step 5 | 01, 02 | planned |
+| [03 Measurement, state model and solids graph](03-solids-graph.md) | A–C | F2a | Controls step 5 | 01, 02 | implemented, uncommitted (review owed) |
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 03 | planned |
 
 ## Slovenian terms (F0 decision)

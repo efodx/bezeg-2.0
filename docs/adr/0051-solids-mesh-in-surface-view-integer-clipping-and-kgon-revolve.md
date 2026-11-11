@@ -15,6 +15,20 @@ Alternatives:
 - A new canvas or WebGL renderer. The owner rule rejects this before a measurement.
 - Wireframe polylines only. These are cheap but give no hidden-part cue, which section lessons rely on.
 
+### Measurement results (F2a, 2026-11-11; JSDOM PLACEHOLDER / compute-only)
+
+No route exists yet, so this measures the pure kernel and mesh cost plus a `JsxSurfaceView.reconcile` and `flush` in a jsdom SVG board (node v24.20.0, no paint, no browser). These are not frame times. **Browser frame times on a desktop and a phone are owed at F2b**, when the graph has a route; the budget stays 16 ms per frame ([performance plan](../performance-plan.md)). This section confirms the compute side of the conditional acceptance; it does not close the phone condition.
+
+Method: `src/solids/solidsDrawing.perf.test.ts` (opt-in, `BEZEG_PERF=1 just unit src/solids/solidsDrawing.perf`), 60 updates per case after 5 warm-ups. Cube: `clipSolid` below the plane \(x+y+z=d/4\) with \(d\) cycling through 1 to 12 (12 triangles including the cap). Revolve: the 9-point profile revolved about the \(x\)-axis with \(k=48\), one profile radius changing per update (766 triangles). Slab stack: 17 disjoint slabs of 12 triangles (204 triangles) rebuilt for a changing shear. Per update: build (clip, revolve or stack), mesh build (`toTriangles` and the scene), painter's order (centroid depths and `orderBackToFront`), and the jsdom surface-view update, all with one translucent `ScenePlane`.
+
+| Case | Triangles | Build (median / p95) | Mesh build (median / p95) | Painter order (median / p95) | View update, jsdom (median / p95) | Sum (median / p95) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Cube, plane-offset drag | 12 | 0,06 / 0,10 ms | 0,02 / 0,04 ms | 0,01 / 0,03 ms | 4,0 / 9,6 ms | 4,2 / 9,8 ms |
+| 48-segment revolve | 766 | 0,10 / 0,13 ms | 0,18 / 0,23 ms | 0,07 / 0,11 ms | 5,8 / 7,1 ms | 6,1 / 7,6 ms |
+| 17-slab stack | 204 | 0,10 / 0,14 ms | 0,07 / 0,10 ms | 0,02 / 0,02 ms | 3,4 / 5,5 ms | 3,6 / 6,9 ms |
+
+Reading: kernel compute, mesh build and painter's order together stay under 0,5 ms at p95 in every case; the jsdom view update dominates and keeps every sum under 10 ms at p95 (one 32 ms outlier at the revolve's maximum, a single spike, not diagnosed). The slab stack needs no merging at this size. jsdom SVG work is not representative of a browser, and the phone is unmeasured, so §1 stays conditional on F2b. If the browser measurement exceeds the budget, the options are merging the slab stack into one mesh, fewer revolve segments, or reopening this decision. No decision to change §1 is taken here.
+
 ## 2. Integer plane clipping
 
 Solid vertices lie on an integer grid in units of \(1/4\), with coordinates \(-12\ldots12\). The plane is \(n\cdot x=d\), with integer \(n\) (components \(-4\ldots4\)) and integer \(d\) in the same units. Each vertex gets the exact integer sign of \(n\cdot v-d\). An edge is cut only when its endpoint signs are strictly opposite. Vertices with sign 0 are kept once, by index and never by coordinate comparison. All discrete outcomes are exact integer tests: which edges are cut, the vertex count, a plane through a vertex, and a coplanar face. Only the cut-point coordinates are doubles, labelled computed. The section loop is built by chaining the cut segments of the faces through shared edges, never by sorting angles. Sections are offered for convex solids only.

@@ -21,3 +21,5 @@ Acceptance:
 4. `npx tsc --noEmit --pretty false`, `just lint` and the production build pass.
 
 Review: engineering plus UI and accessibility, and a mathematical review of the readouts.
+
+Status: implemented in the working tree, not committed; acceptance 1 to 4 observed (evidence in [the slice note](../../reviews/feature-streams/families-prep/notes/f2a-sol-03.md)). Review owed: engineering, UI and accessibility, mathematical review of the readouts. The measurement (scope 1) is in ADR 0051 section 1, JSDOM placeholder only; browser and phone figures are owed at F2b.
