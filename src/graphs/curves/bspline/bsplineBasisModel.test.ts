@@ -2,7 +2,7 @@ import {describe, expect, test} from 'vitest';
 import {
     BASIS_SAMPLES, dragKnotEdit, draggedKnots, editedKnots, isClamped, knotProblem, parameterView, readoutAt, rebuiltKnots, sampleBasis, snapKnot,
 } from './bsplineBasisModel';
-import {renderMessage} from '../../../localization';
+import {renderMessage, setLanguage} from '../../../localization';
 
 describe('knot vector helpers', () => {
     test('isClamped looks at both ends only', () => {
@@ -55,6 +55,32 @@ describe('dragging and typing', () => {
         expect(dragKnotEdit(knots, 2, 4, 99)).toEqual({knots: [0, 0, 0, 1, 3, 3, 4, 4, 4]});
         expect(dragKnotEdit(knots, 2, 4, 2)).toBeUndefined();
         expect(dragKnotEdit(knots, 2, 4, Number.NaN)).toBeUndefined();
+    });
+
+    test('each refused drag reports its reason in the language shown', () => {
+        const reason = (knots: number[], degree: number, index: number, value: number) => {
+            const edit = dragKnotEdit(knots, degree, index, value);
+            if (!edit || !('rejection' in edit)) throw new Error('the drag was not refused');
+            return renderMessage(edit.rejection);
+        };
+        const texts = () => [
+            reason([0, 0, 0, 1, 1, 1], 2, 3, 0),
+            reason([0, 1, 2, 3, 4, 5], 2, 3, 2),
+            reason([0, 0, 1, 1], 2, 1, 0.5),
+        ];
+        expect(texts()).toEqual([
+            'vozel se sme ponoviti največ 3-krat; zmanjšaj večkratnost vozla',
+            'definicijsko območje je prazno: prvi in zadnji upoštevani vozel sta enaka',
+            'vozelni vektor mora imeti 6 vozlov (število točk + stopnja + 1), prednastavitev jih ima 4',
+        ]);
+        setLanguage('en');
+        try {
+            expect(texts()).toEqual([
+                'a knot may repeat at most 3 times; lower the knot multiplicity',
+                'the domain is empty: the first and last knots it uses are equal',
+                'the knot vector needs 6 knots (points + degree + 1), the preset has 4',
+            ]);
+        } finally { setLanguage('sl'); }
     });
 
     test('a typed value is checked by the kernel with the vector n and gives the localized reason', () => {

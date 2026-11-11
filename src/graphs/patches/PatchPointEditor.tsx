@@ -1,3 +1,4 @@
+import {useMemo} from "react";
 import {PointListInput, type PointRow3} from "../../inputs/PointListInput";
 import {useT} from "../../localization";
 import type {Xyz} from "./surface-view/surfaceScene";
@@ -11,8 +12,11 @@ import type {Xyz} from "./surface-view/surfaceScene";
  */
 export function PatchPointEditor({name, xyz, onCommit}: {name: string; xyz: Xyz; onCommit: (xyz: Xyz) => void}) {
     const t = useT();
+    // Stable while the point is unchanged: PointListInput clears a shown refusal when the list it gets changes identity.
+    const [x, y, z] = xyz;
+    const points = useMemo(() => [[x, y, z] as PointRow3], [x, y, z]);
     return <div className="point-coordinate-editor patch-point-editor">
-        <PointListInput<PointRow3> title={t("point_coordinates_keyboard_editing")} points={[xyz]} pointLabel={() => name} axisLabels={["x", "y", "z"]}
+        <PointListInput<PointRow3> title={t("point_coordinates_keyboard_editing")} points={points} pointLabel={() => name} axisLabels={["x", "y", "z"]}
                                   decimals={4} step={0.1} onCommit={(_, next) => { onCommit([next[0], next[1], next[2]]); }}/>
     </div>;
 }
