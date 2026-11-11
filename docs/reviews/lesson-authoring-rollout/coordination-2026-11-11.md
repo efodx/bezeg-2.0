@@ -1,0 +1,15 @@
+# Rollout coordination snapshot — 2026-11-11
+
+Read-only check supporting the [rollout specification](../../specs/lesson-authoring-rollout.md). Source checkout was fast-forwarded from `d5554a1e` to fetched `origin/master` at `c7552e58`; earlier statements that only projective uses family-local registration describe the older checkout. Current master also registers trigonometry, lines, isometries, circle construction and combinatorics through family exports. The 113 legacy entries remain.
+
+Live Claude session metadata was matched to running process IDs and worktree diffs. Older idle handlers and stale `Run state` labels were not counted as active implementation. Codex's chat list alone did not reveal these Claude streams. No message was sent to the implementation streams and none was interrupted.
+
+| Active work | Observed evidence | Overlap and disposition |
+| --- | --- | --- |
+| Families-prep, handler 8 | PID 28908, `.claude/worktrees/stream-families-prep`; current state note and dirty Random/Kinematics graph, preset, metadata and loader files. | Direct overlap with task 06: `demonstrations.ts`, `graphLoaders.ts`, `PresetImport.ts`, registration integrity and preview-route tooling. It also changes the transient-state and preset catalog tests used by 08. Prepare inventories/local declarations independently; integrate shared files after the current batch lands or ownership is released. New-family registration remains with this stream. |
+| Controls visual polish, handler 1 | PID 9424, `.claude/worktrees/stream-visual`; current checkbox/slider CSS and hit-zone test edits; its state note schedules further control work and disposal/language-test consolidation. | No direct need to change its current CSS in this rollout. Tasks 07/08 must preserve and coordinate lifecycle/projective test coverage; later consolidation can touch the same files. Disjoint graph implementations can proceed. |
+| CI sweep/test scheduling | PID 28684, `.claude/worktrees/ci-sweep-rotation`; live session and commits through `ec335951`, changing sweep rotation and documentation. | Primarily verification overlap. Use the commands/configuration that have landed at execution time and explicitly include migrated IDs in sampled sweeps. Share available test resources; no global implementation hold is needed. |
+
+The implementation worktrees were inspected without modification. Their current notes are `docs/reviews/feature-streams/families-prep/state.md` and `docs/reviews/feature-streams/controls-visual/state.md` in those worktrees; refresh them at dispatch rather than treating this snapshot as a lock ledger.
+
+Recommended sequence: prepare all three inventories now; choose a disjoint B-spline scene batch (07) and remaining projective projection batch (08), with one owner for any shared host hooks; start task 06 root integration at a Families-prep batch boundary. Rebase and recheck each batch against the published stream changes. There is no requirement to wait for all lesson families or the entire visual stream to complete.
