@@ -1,5 +1,5 @@
 # Stream: Controls
-Run state: active
+Run state: complete
 
 Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (spec: [shared-graph-controls.md](../../specs/shared-graph-controls.md)). The owner confirmed C1–C30 and decisions 1–11 on 2026-11-07, then handed further decisions to the handlers. Rules: [feature streams](README.md). Port 4317. Handoffs: `docs/reviews/feature-streams/controls/`.
 
@@ -42,6 +42,7 @@ Steps 1 and 2 change shared inputs and `BaseGraph.tsx`-level seams, so push each
 
 ## Notes
 
+- **Closed 2026-11-11 (owner).** Every queue row is accepted. Ownership of `src/inputs/` and `src/graphs/base/controls/` passes to the [controls-visual stream](controls-visual.md), which also takes the five families-prep notes below (inspector `NumberInput` height on touch, checkbox group, reduced-motion subscription and Play reason, `PlaybackButtons` `describedBy`). Earlier handlers had not carried them into the state note's open items.
 - **Port:** on 2026-11-07 Codex's `lesson-navigation-prototype` dev server held 4317 with `--strictPort`. Check the port before a preview. If it is taken, use a free port outside 4311–4317 and leave that server running.
 - **`node_modules`:** this worktree uses its own `npm ci`, following [new-pc-setup](new-pc-setup.md). The [README](README.md#shared-files) still describes a shared junction, which that guide forbids; this stream does not edit the README.
 - **From Contracts (2026-11-07): lesson owner identities are ready for step 9.** Lesson-authoring workstream 2 is accepted ([task 02](../lesson-authoring-architecture/02-lesson-lookup.md#acceptance-2026-11-07)). Owner identities are cheap rows in `src/learning/content/chapterOwnedLessons.ts`: `chapterOwnerRows()` in default order, `chapterOwnedDemonstration()`, and a `source` of `authored` or `catalog` per chapter. Registration should read these rather than enumerate lessons. `lessonOwnerIntegrity.test.ts` and `lessonImportGraph.test.ts` guard the table and the one-way imports, so a new chapter registry must not import `runtime/lessonCatalog.ts` or `chapterOwnedLessons.ts`.
