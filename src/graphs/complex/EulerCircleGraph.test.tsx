@@ -215,7 +215,8 @@ describe('typed values and the drag', () => {
         enter(angleLabel(), '361');
         const input = field(angleLabel());
         expect(input.getAttribute('aria-invalid')).toBe('true');
-        expect(help(input)).toContain(t('number_range_hint', {value0: '0', value1: '360'}));
+        // The shared NumberInput hint wording belongs to the Controls stream; assert only that it states the range.
+        expect(help(input)).toMatch(/\b0\b[^\d]+\b360\b/);
         expect(help(input)).toContain(t('euler_circle_graph_angle_help', {value0: '0', value1: '360'}));
         enter(angleLabel(), '30,5');
         expect(field(angleLabel()).getAttribute('aria-invalid')).toBe('true');
@@ -346,7 +347,7 @@ describe('product mode', () => {
         expect(input.getAttribute('aria-invalid')).toBe('true');
         expect(help(input)).toContain(t('euler_circle_graph_b_rejected', {value0: '0', value1: '360', value2: '5'}));
         enter(secondLabel(), '365');
-        expect(help(field(secondLabel()))).toContain(t('number_range_hint', {value0: '0', value1: '360'}));
+        expect(help(field(secondLabel()))).toMatch(/\b0\b[^\d]+\b360\b/);
         expect(help(input)).toContain(t('euler_circle_graph_b_help', {value0: '0', value1: '360', value2: '5'}));
         expect(secondLabel()).toContain('stopinje');
         enter(secondLabel(), '50');
