@@ -14,11 +14,6 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import { NotablePointsGraph } from './compgeo/NotablePointsGraph';
-import { InscribedAngleGraph } from './compgeo/InscribedAngleGraph';
-import { EulerLineGraph } from './compgeo/EulerLineGraph';
-import { SimsonLineGraph } from './compgeo/SimsonLineGraph';
-import { InversionGraph } from './compgeo/InversionGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
 import type {DemonstrationId} from '../demonstrations';
@@ -26,11 +21,6 @@ import type {RegisteredDemonstrationId} from './graphLoaders';
 
 /** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
 export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
-    'triangle-centres': () => new NotablePointsGraph(),
-    'inscribed-angle': () => new InscribedAngleGraph(),
-    'euler-line': () => new EulerLineGraph(),
-    'simson-line': () => new SimsonLineGraph(),
-    'inversion': () => new InversionGraph(),
     'orientation': () => new OrientationGraph(),
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),

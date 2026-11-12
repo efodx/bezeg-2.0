@@ -1,16 +1,12 @@
 import {message, LocalizedError, Message} from "../../../localization";
 import type {BoardState} from "../BaseGraph";
 import type {StoredGraphState} from "./Presets";
+import {planeGeometryCollections} from "../../compgeo/planeGeometry/collections";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {analysisCollections} from "../../analysis/collections";
 import {mapsCollections} from "../../maps/collections";
 import {probabilityCollections} from "../../probability/collections";
 import {functionsCollections} from "../../functions/collections";
-import {notablePointsCollection} from "../../compgeo/notablePointsPresetCollection";
-import {inscribedAngleCollection} from "../../compgeo/inscribedAnglePresetCollection";
-import {eulerLineCollection} from "../../compgeo/eulerLinePresetCollection";
-import {simsonLineCollection} from "../../compgeo/simsonLinePresetCollection";
-import {inversionCollection} from "../../compgeo/inversionPresetCollection";
 import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
 import {patchesCollections} from "../../patches/collections";
 import {bsplineCollections} from "../../curves/bspline/collections";
@@ -45,7 +41,7 @@ import {levelSetsCollections} from "../../levelsets/collections";
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...functionsCollections, ...analysisCollections, ...probabilityCollections,
     ...patchesCollections, ...mapsCollections,
-    ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
+    ...planeGeometryCollections, ...compgeoPresetCollections,
     ...projectiveCollections,
     ...bsplineCollections,
     ...basicsCollections,

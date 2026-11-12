@@ -5,6 +5,7 @@ import {trigGraphLoaders} from './trig/runtime';
 import {lineGraphLoaders} from './lines/runtime';
 import {isometryGraphLoaders} from './isometry/runtime';
 import {circleConstructionGraphLoaders} from './compgeo/circleConstruction/runtime';
+import {planeGeometryGraphLoaders} from './compgeo/planeGeometry/runtime';
 import {combinatoricsGraphLoaders} from './combinatorics/runtime';
 import {randomGraphLoaders} from './random/runtime';
 import {kinematicsGraphLoaders} from './curves/kinematics/runtime';
@@ -35,7 +36,7 @@ import {levelSetsGraphLoaders} from './levelsets/runtime';
  * adds one spread here, one in `src/demonstrations.ts` and one in `PresetImport.ts`. Demonstrations not listed here still
  * use the legacy table `graphFactories.ts`.
  */
-export const registeredGraphLoaders = {...projectiveGraphLoaders, ...mapsGraphLoaders, ...analysisGraphLoaders, ...probabilityGraphLoaders, ...functionsGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders, ...recursionGraphLoaders, ...wavesGraphLoaders, ...mechanicsGraphLoaders, ...dynamicsGraphLoaders, ...solidsGraphLoaders, ...levelSetsGraphLoaders, ...complexBatchDGraphLoaders, ...bsplineGraphLoaders, ...basicsGraphLoaders, ...phGraphLoaders, ...parameterizationGraphLoaders, ...bezierGraphLoaders, ...rationalGraphLoaders, ...splineGraphLoaders, ...curveGeometryGraphLoaders, ...interpolationGraphLoaders, ...patchesGraphLoaders};
+export const registeredGraphLoaders = {...projectiveGraphLoaders, ...mapsGraphLoaders, ...analysisGraphLoaders, ...probabilityGraphLoaders, ...functionsGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...planeGeometryGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders, ...recursionGraphLoaders, ...wavesGraphLoaders, ...mechanicsGraphLoaders, ...dynamicsGraphLoaders, ...solidsGraphLoaders, ...levelSetsGraphLoaders, ...complexBatchDGraphLoaders, ...bsplineGraphLoaders, ...basicsGraphLoaders, ...phGraphLoaders, ...parameterizationGraphLoaders, ...bezierGraphLoaders, ...rationalGraphLoaders, ...splineGraphLoaders, ...curveGeometryGraphLoaders, ...interpolationGraphLoaders, ...patchesGraphLoaders};
 export type RegisteredDemonstrationId = keyof typeof registeredGraphLoaders;
 
 export const isRegisteredDemonstrationId = (id: string): id is RegisteredDemonstrationId => Object.prototype.hasOwnProperty.call(registeredGraphLoaders, id);

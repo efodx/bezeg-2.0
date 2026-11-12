@@ -61,6 +61,9 @@ import {isometryGraphLoaders} from './isometry/runtime';
 import {circleConstructionCollections} from './compgeo/circleConstruction/collections';
 import {circleConstructionCollectionKeys, circleConstructionDemonstrationRows} from './compgeo/circleConstruction/registration';
 import {circleConstructionGraphLoaders} from './compgeo/circleConstruction/runtime';
+import {planeGeometryCollections} from './compgeo/planeGeometry/collections';
+import {planeGeometryCollectionKeys, planeGeometryDemonstrationRows} from './compgeo/planeGeometry/registration';
+import {planeGeometryGraphLoaders} from './compgeo/planeGeometry/runtime';
 import {combinatoricsCollections} from './combinatorics/collections';
 import {combinatoricsCollectionKeys, combinatoricsDemonstrationRows} from './combinatorics/registration';
 import {combinatoricsGraphLoaders} from './combinatorics/runtime';
@@ -158,6 +161,7 @@ interface RealFamily {
 }
 const realFamilies: readonly RealFamily[] = [
     {family: 'maps', rows: mapsDemonstrationRows, loaders: mapsGraphLoaders, collectionKeys: mapsCollectionKeys, collections: mapsCollections},
+    {family: 'plane-geometry', rows: planeGeometryDemonstrationRows, loaders: planeGeometryGraphLoaders, collectionKeys: planeGeometryCollectionKeys, collections: planeGeometryCollections},
     {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
     {family: 'analysis', rows: analysisDemonstrationRows, loaders: analysisGraphLoaders, collectionKeys: analysisCollectionKeys, collections: analysisCollections},

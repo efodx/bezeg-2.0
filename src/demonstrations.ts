@@ -1,6 +1,7 @@
 import {MessageKey, renderMessage, t} from './localization';
 import type {sl} from './localization/sl';
 import {mapsDemonstrationRows} from './graphs/maps/registration';
+import {planeGeometryDemonstrationRows} from './graphs/compgeo/planeGeometry/registration';
 import {probabilityDemonstrationRows} from './graphs/probability/registration';
 import {analysisDemonstrationRows} from './graphs/analysis/registration';
 import {functionsDemonstrationRows} from './graphs/functions/registration';
@@ -65,11 +66,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'triangle-centres', path: '/bezeg-2.0/triangle-centres', family: 'plane-geometry', title: 'triangle_centres_title', prompts: ['triangle_centres_prompt', 'prompt_compare']},
-    {id: 'inscribed-angle', path: '/bezeg-2.0/inscribed-angle', family: 'plane-geometry', title: 'inscribed_angle_title', prompts: ['inscribed_angle_prompt', 'prompt_compare']},
-    {id: 'euler-line', path: '/bezeg-2.0/euler-line', family: 'plane-geometry', title: 'euler_line_title', prompts: ['euler_line_prompt', 'prompt_compare']},
-    {id: 'simson-line', path: '/bezeg-2.0/simson-line', family: 'plane-geometry', title: 'simson_line_title', prompts: ['simson_line_prompt', 'prompt_compare']},
-    {id: 'inversion', path: '/bezeg-2.0/inversion', family: 'plane-geometry', title: 'inversion_title', prompts: ['inversion_prompt', 'prompt_compare']},
     {id: 'orientation', path: '/bezeg-2.0/compgeo/orientation', family: 'computational-geometry', title: 'compgeo_orientation_title', prompts: ['prompt_compgeo_orientation_turn', 'prompt_compgeo_orientation_collinear']},
     {id: 'polygon-area', path: '/bezeg-2.0/compgeo/polygon-area', family: 'computational-geometry', title: 'compgeo_polygon_area_title', prompts: ['prompt_compgeo_polygon_area_shoelace', 'prompt_compgeo_polygon_area_pick']},
     {id: 'convex-hull', path: '/bezeg-2.0/compgeo/convex-hull', family: 'computational-geometry', title: 'compgeo_convex_hull_title', prompts: ['prompt_compgeo_convex_hull_trace', 'prompt_compgeo_convex_hull_degenerate']},
@@ -88,7 +84,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...mapsDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...analysisDemonstrationRows, ...probabilityDemonstrationRows, ...functionsDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...mapsDemonstrationRows, ...planeGeometryDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...analysisDemonstrationRows, ...probabilityDemonstrationRows, ...functionsDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

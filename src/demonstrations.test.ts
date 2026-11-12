@@ -5,11 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['triangle-centres', 'plane-geometry', 'triangle_centres_title', 'triangle_centres_title', 'triangle_centres_prompt'],
-    ['inscribed-angle', 'plane-geometry', 'inscribed_angle_title', 'inscribed_angle_title', 'inscribed_angle_prompt'],
-    ['euler-line', 'plane-geometry', 'euler_line_title', 'euler_line_title', 'euler_line_prompt'],
-    ['simson-line', 'plane-geometry', 'simson_line_title', 'simson_line_title', 'simson_line_prompt'],
-    ['inversion', 'plane-geometry', 'inversion_title', 'inversion_title', 'inversion_prompt'],
     ['compgeo/orientation', 'computational-geometry', 'compgeo_orientation_title', 'compgeo_orientation_title', 'prompt_compgeo_orientation_turn'],
     ['compgeo/polygon-area', 'computational-geometry', 'compgeo_polygon_area_title', 'compgeo_polygon_area_title', 'prompt_compgeo_polygon_area_shoelace'],
     ['compgeo/convex-hull', 'computational-geometry', 'compgeo_convex_hull_title', 'compgeo_convex_hull_title', 'prompt_compgeo_convex_hull_trace'],
@@ -29,6 +24,11 @@ const expected = [
     ['linear-map', 'maps', 'linear_map_title', 'linear_map_title', 'linear_map_prompt'],
     ['complex-reciprocal', 'maps', 'complex_reciprocal_title', 'complex_reciprocal_title', 'complex_reciprocal_prompt'],
     ['complex-roots', 'maps', 'complex_roots_title', 'complex_roots_title', 'complex_roots_prompt'],
+    ['triangle-centres', 'plane-geometry', 'triangle_centres_title', 'triangle_centres_title', 'triangle_centres_prompt'],
+    ['inscribed-angle', 'plane-geometry', 'inscribed_angle_title', 'inscribed_angle_title', 'inscribed_angle_prompt'],
+    ['euler-line', 'plane-geometry', 'euler_line_title', 'euler_line_title', 'euler_line_prompt'],
+    ['simson-line', 'plane-geometry', 'simson_line_title', 'simson_line_title', 'simson_line_prompt'],
+    ['inversion', 'plane-geometry', 'inversion_title', 'inversion_title', 'inversion_prompt'],
     ['projective/cross-ratio', 'projective', 'projective_cross_ratio_title', 'projective_cross_ratio_title', 'prompt_projective_cross_ratio_preserved'],
     ['projective/pascal', 'projective', 'projective_pascal_title', 'projective_pascal_title', 'prompt_projective_pascal_collinear'],
     ['projective/pole-polar', 'projective', 'projective_pole_polar_title', 'projective_pole_polar_title', 'prompt_projective_pole_polar_tangents'],
