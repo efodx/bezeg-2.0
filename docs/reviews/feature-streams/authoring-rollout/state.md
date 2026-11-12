@@ -13,8 +13,8 @@ Written by handler 1 at handoff, 2026-11-12. Stream file: [authoring-rollout.md]
 Check `just publish --status` first.
 
 - `3aebdb37` B-spline registration and `12ad2f2b` recorded-order test fix: background publish `publish-12ad2f2b-647cf5`. Its first attempt failed `check-changed` on `src/demonstrations.test.ts` flat order, which the fix resolves (decision R-order). If it failed again, read its log and rerun `just publish --background --recipe runtime --base beb539aa --commits 3aebdb37,12ad2f2b`.
-- `19a61308`: registration of basics, PH and parameterization. `527c43b3`: task 07 batch 2, the Interpolation, Hermite and Subdivision scenes. Plus a docs commit with this note and the status. Publish them after the previous publish lands: `just publish --background --recipe runtime --base 12ad2f2b --commits 19a61308,527c43b3,<docs commit>`. The handler-1 session may already have started this; check the status.
-- The batch 2 smoke (`batch2-smoke.md`) was running at handoff. If the file is missing, run a Haiku `bezeg-smoke` on the 10 IDs it names (interp-*, bernstein, complex-multiplication, ph-*, *-parameterization).
+- `19a61308`: registration of basics, PH and parameterization. `527c43b3`: task 07 batch 2, the Interpolation, Hermite and Subdivision scenes. Plus a docs commit with this note and the status. Publish them after the previous publish lands: `just publish --background --recipe runtime --base 12ad2f2b --commits <every commit in git log --reverse --format=%h 12ad2f2b..HEAD>`. Those commits are `19a61308`, `527c43b3` and the docs commits after them. Handler 1 did not start this publish.
+- The batch 2 smoke passed: [batch2-smoke.md](batch2-smoke.md).
 
 ## Next slices
 
