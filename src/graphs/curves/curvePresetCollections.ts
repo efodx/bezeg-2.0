@@ -7,7 +7,6 @@ import {COMB_GAIN_MAX, COMB_GAIN_MIN} from "./comb/curveComb";
 import {OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "./object/JXGPHBezierCurve";
 import {OFFSET_SAMPLES_MAX, OFFSET_SAMPLES_MIN} from "./offset/curveOffset";
 import {ENVELOPE_LINES_MAX, ENVELOPE_LINES_MIN} from "./envelope/curveEnvelope";
-import {ARC_MOVER_MODES, ARC_PIECES_MAX, ARC_PIECES_MIN} from "./arclength/arcLengthModel";
 
 /**
  * One stored curve: control points, with weights (rational), the PH generating point and hodograph points, or spline
@@ -179,45 +178,11 @@ export const curveEnvelopePresetCollection = curveCollection("curve-envelope", {
     },
 });
 
-/** The degree reduction Demonstration's collection (advanced lesson D1): a cubic Bézier curve (exactly four points) with the reduction mode and display state. */
-export const reductionPresetCollection = curveCollection("reduction", {
-    type: "JSXBezierCurve",
-    pointCount: 4,
-    graphState: ({reductionMode, reductionShown, reductionElevationShown}) => {
-        if (reductionMode !== undefined && reductionMode !== "fixed" && reductionMode !== "free") return message("invalid_option", {value0: "reductionMode"});
-        if (reductionShown !== undefined && typeof reductionShown !== "boolean") return message("invalid_option", {value0: "reductionShown"});
-        if (reductionElevationShown !== undefined && typeof reductionElevationShown !== "boolean") return message("invalid_option", {value0: "reductionElevationShown"});
-        return undefined;
-    },
-});
-
-/** The arc-length parametrization Demonstration's collection (lesson D3): a Bézier curve or a PH curve, with the display state of the marks, the speed plot and the moving point. */
-export const arcLengthParamPresetCollection = curveCollection("arc-length-param", {
-    type: ["JSXBezierCurve", "JSXPHBezierCurve"],
-    graphState: ({arcPieces, arcEqualTShown, arcEqualArcShown, arcSpeedPlotShown, arcMoverMode, arcMoverPosition}) => {
-        if (arcPieces !== undefined && !(isIntegerAtLeast(arcPieces, ARC_PIECES_MIN) && arcPieces <= ARC_PIECES_MAX)) return message("invalid_parameter", {value0: "arcPieces"});
-        if (arcEqualTShown !== undefined && typeof arcEqualTShown !== "boolean") return message("invalid_option", {value0: "arcEqualTShown"});
-        if (arcEqualArcShown !== undefined && typeof arcEqualArcShown !== "boolean") return message("invalid_option", {value0: "arcEqualArcShown"});
-        if (arcSpeedPlotShown !== undefined && typeof arcSpeedPlotShown !== "boolean") return message("invalid_option", {value0: "arcSpeedPlotShown"});
-        if (arcMoverMode !== undefined && !ARC_MOVER_MODES.some(mode => mode === arcMoverMode)) return message("invalid_option", {value0: "arcMoverMode"});
-        if (arcMoverPosition !== undefined && !(isFiniteNumber(arcMoverPosition) && arcMoverPosition >= 0 && arcMoverPosition <= 1)) return message("invalid_parameter", {value0: "arcMoverPosition"});
-        return undefined;
-    },
-});
-
 /**
  * The Preset collections of the curve Demonstrations, by Demonstration id. Collections of one curve type share their
  * rules; a collection differs only in its key, and PH collections in their degree.
  */
 export const curvePresetCollections = {
-    bezier: bezier("bezier-curve"),
-    decasteljau: bezier("decasteljau"),
-    "decasteljau-alternative": bezier("decasteljau2"),
-    affine: bezier("affine-transform"),
-    subdivision: bezier("subdivision-1"),
-    "repeated-subdivision": bezier("bezier-subdivision"),
-    extrapolation: bezier("bezier-extrapolation"),
-    elevation: bezier("elevation-graph"),
     rational: rational("rational-bezier"),
     "rational-decasteljau": rational("rational-decasteljau"),
     "rational-elevation": rational("rational-bezier-elevation"),
@@ -234,8 +199,6 @@ export const curvePresetCollections = {
     "curve-evolute": evoluteCurvePresetCollection,
     "curve-offset": curveOffsetPresetCollection,
     "curve-envelope": curveEnvelopePresetCollection,
-    "arc-length-param": arcLengthParamPresetCollection,
-    reduction: reductionPresetCollection,
 } as const;
 
 /**

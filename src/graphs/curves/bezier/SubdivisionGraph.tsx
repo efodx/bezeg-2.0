@@ -8,7 +8,8 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {repeatedSubdivisionPresetCollection} from "./collections";
 
 export const MAX_SUBDIVISION_STEPS = 5;
 
@@ -60,7 +61,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections["repeated-subdivision"];
+        return repeatedSubdivisionPresetCollection;
     }
 
     override getAllJxgPoints() {

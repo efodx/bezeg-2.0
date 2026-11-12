@@ -9,7 +9,8 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {TransientState} from "../../base/BaseGraph";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {elevationPresetCollection} from "./collections";
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     /** Typed coordinates for the draggable control points (shared edit-only list). */
@@ -98,7 +99,7 @@ class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections.elevation;
+        return elevationPresetCollection;
     }
 
     override getGraphCommands(): JSX.Element[] {

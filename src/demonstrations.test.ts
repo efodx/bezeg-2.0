@@ -5,17 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['bezier/curve', '/bezeg-2.0/bezier', 'bezier_curve_209', 'bezier_curve', 'prompt_control_points'],
-    ['bezier/decasteljau', '/bezeg-2.0/bezier', 'de_casteljau', 'de_casteljau', 'prompt_decasteljau'],
-    ['bezier/decasteljau2', '/bezeg-2.0/bezier', 'de_casteljau_alternative', 'de_casteljau_alternative', 'prompt_decasteljau'],
-    ['bezier/affine', '/bezeg-2.0/bezier', 'affine_transformations', 'affine_transformations', 'change_the_settings_and_observe_their_effect_on_the_graph'],
-    ['bezier/subdivision-2', '/bezeg-2.0/bezier', 'subdivision', 'subdivision', 'prompt_subdivision'],
-    ['bezier/subdivision', '/bezeg-2.0/bezier', 'repeated_subdivision', 'repeated_subdivision', 'prompt_repeated_subdivision'],
-    ['bezier/extrapolation', '/bezeg-2.0/bezier', 'extrapolation', 'extrapolation', 'change_the_settings_and_observe_their_effect_on_the_graph'],
-    ['bezier/elevation', '/bezeg-2.0/bezier', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
-    ['bezier/reduction', '/bezeg-2.0/bezier', 'reduction_title', 'reduction_title', 'prompt_reduction'],
-    ['bezier/arc-length', '/bezeg-2.0/bezier', 'arcparam_title', 'arcparam_title', 'prompt_arcparam'],
-    ['bezier/clipping', '/bezeg-2.0/bezier', 'bezierclipping_title', 'bezierclipping_title', 'prompt_bezierclipping'],
     ['rational/base', '/bezeg-2.0/rational', 'rational_bezier_curve', 'rational_bezier_curve', 'change_the_settings_and_observe_their_effect_on_the_graph'],
     ['rational/rational-decasteljau', '/bezeg-2.0/rational', 'rational_de_casteljau', 'rational_de_casteljau', 'prompt_decasteljau'],
     ['rational/rational-elevation', '/bezeg-2.0/rational', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
@@ -123,6 +112,17 @@ const expected = [
     ['param/param/alphaparam2', '/bezeg-2.0/param', 'parametrizations_233', 'parametrizations_233', 'prompt_parameterization'],
     ['param/param/alphaparam', '/bezeg-2.0/param', 'weighted_parametrization_234', 'weighted_parametrization_234', 'prompt_parameterization'],
     ['param/param/uniform', '/bezeg-2.0/param', 'uniform_parametrization_235', 'uniform_parametrization_235', 'prompt_parameterization'],
+    ['bezier/curve', '/bezeg-2.0/bezier', 'bezier_curve_209', 'bezier_curve', 'prompt_control_points'],
+    ['bezier/decasteljau', '/bezeg-2.0/bezier', 'de_casteljau', 'de_casteljau', 'prompt_decasteljau'],
+    ['bezier/decasteljau2', '/bezeg-2.0/bezier', 'de_casteljau_alternative', 'de_casteljau_alternative', 'prompt_decasteljau'],
+    ['bezier/affine', '/bezeg-2.0/bezier', 'affine_transformations', 'affine_transformations', 'change_the_settings_and_observe_their_effect_on_the_graph'],
+    ['bezier/subdivision-2', '/bezeg-2.0/bezier', 'subdivision', 'subdivision', 'prompt_subdivision'],
+    ['bezier/subdivision', '/bezeg-2.0/bezier', 'repeated_subdivision', 'repeated_subdivision', 'prompt_repeated_subdivision'],
+    ['bezier/extrapolation', '/bezeg-2.0/bezier', 'extrapolation', 'extrapolation', 'change_the_settings_and_observe_their_effect_on_the_graph'],
+    ['bezier/elevation', '/bezeg-2.0/bezier', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
+    ['bezier/reduction', '/bezeg-2.0/bezier', 'reduction_title', 'reduction_title', 'prompt_reduction'],
+    ['bezier/arc-length', '/bezeg-2.0/bezier', 'arcparam_title', 'arcparam_title', 'prompt_arcparam'],
+    ['bezier/clipping', '/bezeg-2.0/bezier', 'bezierclipping_title', 'bezierclipping_title', 'prompt_bezierclipping'],
 ] as const;
 
 afterEach(() => setLanguage('sl'));

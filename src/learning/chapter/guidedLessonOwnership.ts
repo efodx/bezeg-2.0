@@ -6,6 +6,7 @@ import {bsplineDemonstrationRows} from '../../graphs/curves/bspline/registration
 import {basicsAdditionalOwners, basicsPrimaryOwners} from '../../graphs/basics/registration';
 import {phPrimaryOwners} from '../../graphs/curves/ph/registration';
 import {parameterizationPrimaryOwners} from '../../graphs/curves/parametrisations/registration';
+import {bezierDemonstrationRows, bezierDerivedOwnerIds, bezierPrimaryOwners} from '../../graphs/curves/bezier/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
@@ -15,27 +16,19 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId;
+type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
-type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners;
-const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners};
+type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners;
+const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners};
 
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
-    bezier: {chapterId: 'bezier-curves', sectionId: 'control-points'},
-    decasteljau: {chapterId: 'bezier-curves', sectionId: 'interpolation'},
-    affine: {chapterId: 'bezier-curves', sectionId: 'affine-transformations'},
-    elevation: {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
     rational: {chapterId: 'rational-curves', sectionId: 'why-rational'},
     'rational-decasteljau': {chapterId: 'rational-curves', sectionId: 'operations'},
     'rational-elevation': {chapterId: 'rational-curves', sectionId: 'operations'},
-    subdivision: {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
-    'repeated-subdivision': {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
     'rational-subdivision': {chapterId: 'rational-curves', sectionId: 'operations'},
-    extrapolation: {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
     'rational-extrapolation': {chapterId: 'rational-curves', sectionId: 'investigate-rational'},
-    'decasteljau-alternative': {chapterId: 'bezier-curves', sectionId: 'interpolation'},
     farin: {chapterId: 'rational-curves', sectionId: 'operations'},
     circle: {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     'spline-cn': {chapterId: 'splines', sectionId: 'continuity-levels'},
@@ -158,16 +151,13 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'patch-triangular': {chapterId: 'bezier-patches', sectionId: 'triangular-patches'},
     // The Advanced Bezier topics chapter owns the reduction, Bezier clipping, arc-length parametrization and Coons patch lessons (AB-A-4, AB-B-4).
     'patch-coons': {chapterId: 'advanced-bezier', sectionId: 'patch-coons'},
-    'reduction': {chapterId: 'advanced-bezier', sectionId: 'reduction'},
-    'arc-length-param': {chapterId: 'advanced-bezier', sectionId: 'arc-length-param'},
-    'bezier-clipping': {chapterId: 'advanced-bezier', sectionId: 'bezier-clipping'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

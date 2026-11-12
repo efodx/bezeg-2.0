@@ -6,7 +6,8 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {extrapolationActions} from "../../base/lesson/curveLessonActions";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {extrapolationPresetCollection} from "./collections";
 
 class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
     /** Typed coordinates for the draggable control points (shared edit-only list). */
@@ -26,7 +27,7 @@ class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections.extrapolation;
+        return extrapolationPresetCollection;
     }
 
     override initialize() {

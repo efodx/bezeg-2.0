@@ -4,12 +4,13 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {isMessage, LocalizedError, Message} from "../../localization";
-import {arcLengthParamPresetCollection, curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections, reductionPresetCollection} from "./curvePresetCollections";
+import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
 import {bernsteinPresetCollection} from "../basics/collections";
 import {quinticPhPresetCollection} from "./ph/collections";
+import {arcLengthParamPresetCollection, bezierPresetCollection, reductionPresetCollection} from "./bezier/collections";
 
-/** The aggregate map plus the moved PH collection the diagnosis table below still exercises. */
-const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection};
+/** The aggregate map plus the moved PH and Bezier collections the diagnosis table below still exercises. */
+const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection};
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -89,7 +90,7 @@ test("a shorter curve state written before the full state loads: missing display
     expect(curvePresetCollections["rational-elevation"].check(seeded)).toEqual({data: seeded});
     expect(preflightRejection("rational-bezier-elevation", seeded)).toBeUndefined();
     const withoutParameter = [["JSXBezierCurve", {points: [[0, 0], [1, 1]], state: {subdivisionT: 0.5, extrapolationT: 1.2}}]];
-    expect(curvePresetCollections.bezier.check(withoutParameter)).toEqual({rejection: {key: "incomplete_curve_state", params: {}}});
+    expect(bezierPresetCollection.check(withoutParameter)).toEqual({rejection: {key: "incomplete_curve_state", params: {}}});
 });
 
 describe("the evolute Demonstration's scene state", () => {
@@ -209,7 +210,7 @@ describe("the degree reduction Demonstration's collection", () => {
     });
 
     test("is registered by id and accepts a cubic of four points", () => {
-        expect(curvePresetCollections.reduction).toBe(reductionPresetCollection);
+        expect(Object.hasOwn(curvePresetCollections, "reduction")).toBe(false);
         expect(reductionPresetCollection.key).toBe("reduction");
         expect(reductionPresetCollection.check(cubic(FOUR, STATE))).toHaveProperty("data");
     });
@@ -230,7 +231,7 @@ describe("the arc-length parametrization Demonstration's scene state", () => {
         subdivisionT: .5, decasteljauT: .5, extrapolationT: 1.2};
 
     test("is registered by id under its file key and accepts its bounds and a state without the fields", () => {
-        expect(curvePresetCollections["arc-length-param"]).toBe(arcLengthParamPresetCollection);
+        expect(Object.hasOwn(curvePresetCollections, "arc-length-param")).toBe(false);
         expect(arcLengthParamPresetCollection.key).toBe("arc-length-param");
         expect(check({arcPieces: 2, arcEqualTShown: false, arcEqualArcShown: true, arcSpeedPlotShown: false, arcMoverMode: "arc", arcMoverPosition: 1})).toBeUndefined();
         expect(check({arcPieces: 64, arcMoverMode: "parameter", arcMoverPosition: 0})).toBeUndefined();

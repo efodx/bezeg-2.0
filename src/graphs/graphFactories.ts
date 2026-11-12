@@ -3,7 +3,6 @@ import {PolygonAreaGraph} from './compgeo/PolygonAreaGraph';
 import {HullTraceGraph} from './compgeo/HullTraceGraph';
 import {PointInPolygonGraph} from './compgeo/PointInPolygonGraph';
 import {HullRobustnessGraph} from './compgeo/HullRobustnessGraph';
-import {BezierClippingGraph} from './compgeo/BezierClippingGraph';
 import {BezierHullsGraph} from './compgeo/BezierHullsGraph';
 import {EarClippingGraph} from './compgeo/EarClippingGraph';
 import {TriangulationGraph} from './compgeo/TriangulationGraph';
@@ -15,13 +14,6 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import BezierCurveGraph from './curves/bezier/BezierCurveGraph';
-import DecasteljauGraph from './curves/bezier/DecasteljauGraph';
-import DecasteljauGraph2 from './curves/bezier/DecasteljauGraph2';
-import AffineTransformBezierCurveGraph from './curves/bezier/AffineTransformsBezierCurveGraph';
-import DecasteljauGraph3 from './curves/bezier/SubdivisionGraph1';
-import ExtrapolationGraph from './curves/bezier/ExtrapolationGraph';
-import ElevationGraph from './curves/bezier/ElevationGraph';
 import G1SymmetricSplineGraph from './curves/spline/G1SymmetricSplineGraph';
 import G1SplineGraph from './curves/spline/G1SplineGraph';
 import C2SplineGraph from './curves/spline/C2SplineGraph';
@@ -31,7 +23,6 @@ import FarinPointsCurveGraph from './curves/rational/FarinPointsCurveGraph';
 import RationalExtrapolationGraph from './curves/rational/RationalExtrapolationGraph';
 import RationalElevationGraph from './curves/rational/RationalElevationGraph';
 import RationalDecasteljauGraph from './curves/rational/RationalDecasteljauGraph';
-import SubdivisionGraph from './curves/bezier/SubdivisionGraph';
 import CnSplineGraph from './curves/spline/CnSplineGraph';
 import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './patches/TensorDerivativesGraph';
@@ -92,8 +83,6 @@ import CurveEvoluteGraph from './curves/bezier/CurveEvoluteGraph';
 import CurveCombGraph from './curves/comb/CurveCombGraph';
 import CurveOffsetGraph from './curves/offset/CurveOffsetGraph';
 import CurveEnvelopeGraph from './curves/envelope/CurveEnvelopeGraph';
-import DegreeReductionGraph from './curves/reduction/DegreeReductionGraph';
-import ArcLengthParametrizationGraph from './curves/arclength/ArcLengthParametrizationGraph';
 import RungeInterpolationGraph from './functions/RungeInterpolationGraph';
 import LeastSquaresGraph from './functions/LeastSquaresGraph';
 import InterpolationGraph from './curves/interpolation/InterpolationGraph';
@@ -111,17 +100,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'patch-subdivision': () => new TensorSubdivisionGraph(),
     'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
-    'bezier': () => new BezierCurveGraph(),
-    'decasteljau': () => new DecasteljauGraph(),
-    'decasteljau-alternative': () => new DecasteljauGraph2(),
-    'affine': () => new AffineTransformBezierCurveGraph(),
-    'subdivision': () => new DecasteljauGraph3(),
-    'repeated-subdivision': () => new SubdivisionGraph(),
-    'extrapolation': () => new ExtrapolationGraph(),
-    'elevation': () => new ElevationGraph(),
-    'reduction': () => new DegreeReductionGraph(),
-    'arc-length-param': () => new ArcLengthParametrizationGraph(),
-    'bezier-clipping': () => new BezierClippingGraph(),
     'rational': () => new RationalBezierCurveGraph(),
     'rational-decasteljau': () => new RationalDecasteljauGraph(),
     'rational-elevation': () => new RationalElevationGraph(),

@@ -12,7 +12,8 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Point} from "../../../bezeg/api/point/point";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {decasteljauAlternativePresetCollection} from "./collections";
 
 interface DecasteljauGraphStates extends BaseGraphStates {
     t: number,
@@ -117,7 +118,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
 
 
     override presetCollection() {
-        return curvePresetCollections["decasteljau-alternative"];
+        return decasteljauAlternativePresetCollection;
     }
 
     override initialize() {

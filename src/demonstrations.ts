@@ -19,6 +19,7 @@ import {bsplineDemonstrationRows} from './graphs/curves/bspline/registration';
 import {basicsDemonstrationRows} from './graphs/basics/registration';
 import {phDemonstrationRows} from './graphs/curves/ph/registration';
 import {parameterizationDemonstrationRows} from './graphs/curves/parametrisations/registration';
+import {bezierDemonstrationRows} from './graphs/curves/bezier/registration';
 
 type TextKey = {[K in MessageKey]: typeof sl[K] extends `${string}{${string}` ? never : K}[MessageKey];
 export type NavigationAction = 'left' | 'up' | 'down' | 'right' | 'in' | 'out' | 'fit';
@@ -55,17 +56,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'bezier', path: '/bezeg-2.0/bezier/curve', family: '/bezeg-2.0/bezier', title: 'bezier_curve_209', heading: 'bezier_curve', prompts: ['prompt_control_points', 'prompt_control_polygon']},
-    {id: 'decasteljau', path: '/bezeg-2.0/bezier/decasteljau', family: '/bezeg-2.0/bezier', title: 'de_casteljau', prompts: ['prompt_decasteljau', 'prompt_compare']},
-    {id: 'decasteljau-alternative', path: '/bezeg-2.0/bezier/decasteljau2', family: '/bezeg-2.0/bezier', title: 'de_casteljau_alternative', prompts: ['prompt_decasteljau', 'prompt_compare']},
-    {id: 'affine', path: '/bezeg-2.0/bezier/affine', family: '/bezeg-2.0/bezier', title: 'affine_transformations', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
-    {id: 'subdivision', path: '/bezeg-2.0/bezier/subdivision-2', family: '/bezeg-2.0/bezier', title: 'subdivision', prompts: ['prompt_subdivision', 'prompt_compare']},
-    {id: 'repeated-subdivision', path: '/bezeg-2.0/bezier/subdivision', family: '/bezeg-2.0/bezier', title: 'repeated_subdivision', prompts: ['prompt_repeated_subdivision', 'prompt_compare']},
-    {id: 'extrapolation', path: '/bezeg-2.0/bezier/extrapolation', family: '/bezeg-2.0/bezier', title: 'extrapolation', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
-    {id: 'elevation', path: '/bezeg-2.0/bezier/elevation', family: '/bezeg-2.0/bezier', title: 'degree_elevation', prompts: ['prompt_elevation', 'prompt_compare']},
-    {id: 'reduction', path: '/bezeg-2.0/bezier/reduction', family: '/bezeg-2.0/bezier', title: 'reduction_title', prompts: ['prompt_reduction', 'prompt_compare']},
-    {id: 'arc-length-param', path: '/bezeg-2.0/bezier/arc-length', family: '/bezeg-2.0/bezier', title: 'arcparam_title', prompts: ['prompt_arcparam', 'prompt_compare']},
-    {id: 'bezier-clipping', path: '/bezeg-2.0/bezier/clipping', family: '/bezeg-2.0/bezier', title: 'bezierclipping_title', prompts: ['prompt_bezierclipping', 'prompt_compare']},
     {id: 'rational', path: '/bezeg-2.0/rational/base', family: '/bezeg-2.0/rational', title: 'rational_bezier_curve', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
     {id: 'rational-decasteljau', path: '/bezeg-2.0/rational/rational-decasteljau', family: '/bezeg-2.0/rational', title: 'rational_de_casteljau', prompts: ['prompt_decasteljau', 'prompt_compare']},
     {id: 'rational-elevation', path: '/bezeg-2.0/rational/rational-elevation', family: '/bezeg-2.0/rational', title: 'degree_elevation', prompts: ['prompt_elevation', 'prompt_compare']},
@@ -157,7 +147,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

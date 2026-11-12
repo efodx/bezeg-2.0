@@ -12,7 +12,8 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {DecasteljauAnimationControls, DecasteljauAnimationStatus} from "./DecasteljauAnimationControls";
 import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSceneReplacement} from "./decasteljauParameter";
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {decasteljauPresetCollection} from "./collections";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -142,7 +143,7 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections.decasteljau;
+        return decasteljauPresetCollection;
     }
 
     override importPresetData(data: CurveCollectionPresetData) {

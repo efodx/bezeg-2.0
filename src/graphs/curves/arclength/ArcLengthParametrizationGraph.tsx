@@ -7,7 +7,8 @@ import {AnimationDriver, AnimationScheduler} from "../../../learning/runtime/ani
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {fitBoundingBox} from "../../base/fitBoundingBox";
-import {arcLengthParamPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {arcLengthParamPresetCollection} from "../bezier/collections";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
 import {prefersReducedMotion, ReducedMotion} from "../../base/controls/reducedMotion";

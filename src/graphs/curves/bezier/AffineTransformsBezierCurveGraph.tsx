@@ -6,7 +6,8 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {affinePresetCollection} from "./collections";
 
 function AffineActionButton(props: {
     label: string;
@@ -52,7 +53,7 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
 
 
     override presetCollection() {
-        return curvePresetCollections.affine;
+        return affinePresetCollection;
     }
 
     defaultPreset(): CurveCollectionPresetData {

@@ -54,6 +54,6 @@ export const BEZIER_CLIPPING_OVERLAY_IDS = [...CURVE_PAIR_OVERLAY_IDS, "fatLine"
 export const bezierClippingCollection: PresetCollection<PointSetModel> = bezierClippingPresetCollection(BEZIER_CLIPPING_OVERLAY_IDS);
 
 export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
-    pointInPolygonPresetCollection, hullRobustnessCollection, bezierHullsCollection, bezierClippingCollection,
+    pointInPolygonPresetCollection, hullRobustnessCollection, bezierHullsCollection,
     earClippingCollection, intervalSweepCollection, bentleyOttmannCollection, triangulationCollection, delaunayCollection,
     monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection, fortuneCollection] as const;

@@ -9,7 +9,8 @@ import {Attributes} from "../../attributes/Attributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {subdivisionPresetCollection} from "./collections";
 
 /** The subdivision parameter t stays strictly inside (0, 1) so both pieces are real curves. The lesson action, the slider and subdivide all use these. */
 export const SUBDIVISION_T_MIN = 0.01;
@@ -61,7 +62,7 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections.subdivision;
+        return subdivisionPresetCollection;
     }
 
     /** Orange remainder [t, 1] of the first curve; owned by this graph and rebuilt whenever the curve set is replaced. */

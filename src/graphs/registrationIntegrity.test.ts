@@ -19,6 +19,9 @@ import {phGraphLoaders} from './curves/ph/runtime';
 import {parameterizationCollections} from './curves/parametrisations/collections';
 import {parameterizationCollectionKeys, parameterizationDemonstrationRows} from './curves/parametrisations/registration';
 import {parameterizationGraphLoaders} from './curves/parametrisations/runtime';
+import {bezierCollections} from './curves/bezier/collections';
+import {bezierCollectionKeys, bezierDemonstrationRows} from './curves/bezier/registration';
+import {bezierGraphLoaders} from './curves/bezier/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
 import {trigGraphLoaders} from './trig/runtime';
@@ -140,6 +143,7 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'basics', rows: basicsDemonstrationRows, loaders: basicsGraphLoaders, collectionKeys: basicsCollectionKeys, collections: basicsCollections},
     {family: 'ph', rows: phDemonstrationRows, loaders: phGraphLoaders, collectionKeys: phCollectionKeys, collections: phCollections},
     {family: 'parameterization', rows: parameterizationDemonstrationRows, loaders: parameterizationGraphLoaders, collectionKeys: parameterizationCollectionKeys, collections: parameterizationCollections},
+    {family: 'bezier', rows: bezierDemonstrationRows, loaders: bezierGraphLoaders, collectionKeys: bezierCollectionKeys, collections: bezierCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 
