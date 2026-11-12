@@ -1,5 +1,6 @@
 import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "./BasePhBezierCurveGraph";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {quinticPhPresetCollection} from "./collections";
 
 class QuinticPhBezierCurve extends BasePhBezierCurveGraph<BasePhBezierCurveGraphStates> {
 
@@ -20,7 +21,7 @@ class QuinticPhBezierCurve extends BasePhBezierCurveGraph<BasePhBezierCurveGraph
     }
 
     override presetCollection() {
-        return curvePresetCollections["ph-quintic"];
+        return quinticPhPresetCollection;
     }
 
 }

@@ -48,8 +48,6 @@ import {summaryFileMessage} from "./summaryStatisticsMessages";
 import {checkCorrelationModel, DEFAULT_CORRELATION_MODEL, parseCorrelationModel} from "../../analysis/correlationModel";
 import {correlationFileMessage} from "./correlationMessages";
 import {densityAreaFileMessage} from "./densityAreaMessages";
-import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
-import {complexFileMessage} from "../complex/complexMessages";
 import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
 import {checkDarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel";
 import {darbouxFileMessage} from "./darbouxMessages";
@@ -254,10 +252,6 @@ const checkCorrelationGraphState = (graphState: unknown): Message | undefined =>
     }
     return checkSceneState(rest);
 };
-const diagnoseComplex: Diagnosis = data => {
-    const check = checkComplexModel(data);
-    return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
-};
 /** The model module names the rule a rejected fixed-point model broke; this only localizes it. */
 const diagnoseFixedPoint: Diagnosis = data => {
     const check = checkFixedPointModel(data);
@@ -342,7 +336,7 @@ const rationalFunctionCollection = (): PresetCollection<RationalFunctionModel> =
  * A function Demonstration stores its validated model object as Preset data. The model parser decides validity; the
  * diagnosis only explains a rejection the parser made.
  */
-function functionCollection<M>(key: string, parse: (data: unknown) => M | undefined, diagnose?: Diagnosis,
+export function functionCollection<M>(key: string, parse: (data: unknown) => M | undefined, diagnose?: Diagnosis,
                                 diagnoseAny?: (data: unknown) => Message | undefined): PresetCollection<M> {
     return Object.freeze({
         key,
@@ -451,7 +445,6 @@ export const functionPresetCollections = {
     "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),
     "prob-summary": Object.freeze({...functionCollection("prob-summary", parseSummaryModel, diagnoseSummary), checkGraphState: checkSummaryGraphState}),
     "prob-correlation": Object.freeze({...functionCollection("prob-correlation", parseCorrelationModel, diagnoseCorrelation), checkGraphState: checkCorrelationGraphState}),
-    "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
     "polynomial-zeros": polynomialZerosCollection(),

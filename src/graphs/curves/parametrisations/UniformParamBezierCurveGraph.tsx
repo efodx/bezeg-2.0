@@ -7,7 +7,8 @@ import {range} from "../../../utils/Range";
 import {PhBezierCurve} from "../../../bezeg/impl/curve/ph-bezier-curve";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {uniformParameterizationPresetCollection} from "./collections";
 import {
     ALPHA_PARAM_MAX_SAMPLES,
     ALPHA_PARAM_MIN_SAMPLES,
@@ -193,7 +194,7 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
     }
 
     override presetCollection() {
-        return curvePresetCollections["uniform-parameterization"];
+        return uniformParameterizationPresetCollection;
     }
 
     private selectParam(param: string) {

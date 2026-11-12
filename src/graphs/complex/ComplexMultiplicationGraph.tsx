@@ -18,7 +18,7 @@ import {
 import {complexEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
-import {functionPresetCollections} from "../functions/functionPresetCollections";
+import {complexMultiplicationPresetCollection} from "../basics/collections";
 import {RevealButton} from "../../inputs/RevealButton";
 
 
@@ -111,7 +111,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     private pointW?: JXG.Point;
 
     override presetCollection() {
-        return functionPresetCollections["complex-multiplication"];
+        return complexMultiplicationPresetCollection;
     }
 
     protected defaultModel(): ComplexModel {

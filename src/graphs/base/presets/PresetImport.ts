@@ -19,6 +19,9 @@ import {interpolationPresetCollection} from "../../curves/interpolation/interpol
 import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
 import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
 import {bsplineCollections} from "../../curves/bspline/collections";
+import {basicsCollections} from "../../basics/collections";
+import {phCollections} from "../../curves/ph/collections";
+import {parameterizationCollections} from "../../curves/parametrisations/collections";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
@@ -48,6 +51,9 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     coonsPresetCollection,
     ...projectiveCollections,
     ...bsplineCollections,
+    ...basicsCollections,
+    ...phCollections,
+    ...parameterizationCollections,
     ...trigCollections,
     ...lineCollections,
     ...isometryCollections,

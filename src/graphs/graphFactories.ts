@@ -15,8 +15,6 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import { BernsteinGraph } from './bernstein/BernsteinGraph';
-import { ComplexMultiplicationGraph } from './complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './curves/bezier/DecasteljauGraph2';
@@ -24,10 +22,6 @@ import AffineTransformBezierCurveGraph from './curves/bezier/AffineTransformsBez
 import DecasteljauGraph3 from './curves/bezier/SubdivisionGraph1';
 import ExtrapolationGraph from './curves/bezier/ExtrapolationGraph';
 import ElevationGraph from './curves/bezier/ElevationGraph';
-import UniformParamBezierCurveGraph from './curves/parametrisations/UniformParamBezierCurveGraph';
-import AlphaParamBezierCurveGraph from './curves/parametrisations/AlphaParamBezierCurveGraph';
-import QuinticPhBezierCurve from './curves/ph/QuinticPhBezierCurveGraph';
-import CubicPhBezierCurveGraph from './curves/ph/CubicPhBezierCurveGraph';
 import G1SymmetricSplineGraph from './curves/spline/G1SymmetricSplineGraph';
 import G1SplineGraph from './curves/spline/G1SplineGraph';
 import C2SplineGraph from './curves/spline/C2SplineGraph';
@@ -39,7 +33,6 @@ import RationalElevationGraph from './curves/rational/RationalElevationGraph';
 import RationalDecasteljauGraph from './curves/rational/RationalDecasteljauGraph';
 import SubdivisionGraph from './curves/bezier/SubdivisionGraph';
 import CnSplineGraph from './curves/spline/CnSplineGraph';
-import SplineAlphaParametrizationGraph from './curves/parametrisations/SplineAlphaParametrizationGraph';
 import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './patches/TensorDerivativesGraph';
 import TensorSubdivisionGraph from './patches/TensorSubdivisionGraph';
@@ -112,14 +105,12 @@ import type {RegisteredDemonstrationId} from './graphLoaders';
 
 /** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
 export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
-    'bernstein': () => new BernsteinGraph(),
     'patch-tensor': () => new TensorPatchGraph(),
     'patch-decasteljau': () => new TensorDeCasteljauGraph(),
     'patch-derivatives': () => new TensorDerivativesGraph(),
     'patch-subdivision': () => new TensorSubdivisionGraph(),
     'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
-    'complex-multiplication': () => new ComplexMultiplicationGraph(),
     'bezier': () => new BezierCurveGraph(),
     'decasteljau': () => new DecasteljauGraph(),
     'decasteljau-alternative': () => new DecasteljauGraph2(),
@@ -143,11 +134,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'spline-c2': () => new C2SplineGraph(),
     'spline-g1': () => new G1SplineGraph(),
     'spline-g1-symmetric': () => new G1SymmetricSplineGraph(),
-    'ph-cubic': () => new CubicPhBezierCurveGraph(),
-    'ph-quintic': () => new QuinticPhBezierCurve(),
-    'spline-parameterization': () => new SplineAlphaParametrizationGraph(),
-    'weighted-parameterization': () => new AlphaParamBezierCurveGraph(),
-    'uniform-parameterization': () => new UniformParamBezierCurveGraph(),
     'curve-parametric': () => new ParametricCurveGraph(),
     'curve-curvature': () => new CurvatureBezierCurveGraph(),
     'curve-comb': () => new CurveCombGraph(),

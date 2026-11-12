@@ -5,8 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['bernstein', 'basics', 'bernstein_polynomials', 'bernstein_polynomials', 'prompt_bernstein'],
-    ['complex-multiplication', 'basics', 'complex_multiplication', 'complex_multiplication', 'prompt_complex_multiplication'],
     ['bezier/curve', '/bezeg-2.0/bezier', 'bezier_curve_209', 'bezier_curve', 'prompt_control_points'],
     ['bezier/decasteljau', '/bezeg-2.0/bezier', 'de_casteljau', 'de_casteljau', 'prompt_decasteljau'],
     ['bezier/decasteljau2', '/bezeg-2.0/bezier', 'de_casteljau_alternative', 'de_casteljau_alternative', 'prompt_decasteljau'],
@@ -30,11 +28,6 @@ const expected = [
     ['spline/c2spline', '/bezeg-2.0/spline', 'symmetric_c2_spline', 'symmetric_c2_spline', 'prompt_spline'],
     ['spline/g1spline', '/bezeg-2.0/spline', 'onesided_g1_spline', 'onesided_g1_spline', 'prompt_spline'],
     ['spline/g1-sym-spline', '/bezeg-2.0/spline', 'symmetric_g1_spline', 'symmetric_g1_spline', 'prompt_spline'],
-    ['ph/cubic', '/bezeg-2.0/ph', 'degree_3', 'degree_3_ph_curve', 'prompt_ph'],
-    ['ph/quintic', '/bezeg-2.0/ph', 'degree_5_ph_curve', 'degree_5_ph_curve', 'prompt_ph'],
-    ['param/param/alphaparam2', '/bezeg-2.0/param', 'parametrizations_233', 'parametrizations_233', 'prompt_parameterization'],
-    ['param/param/alphaparam', '/bezeg-2.0/param', 'weighted_parametrization_234', 'weighted_parametrization_234', 'prompt_parameterization'],
-    ['param/param/uniform', '/bezeg-2.0/param', 'uniform_parametrization_235', 'uniform_parametrization_235', 'prompt_parameterization'],
     ['curve-geometry/parametric', '/bezeg-2.0/curve-geometry', 'parametric_curves_title', 'parametric_curves_title', 'prompt_parametric_curve'],
     ['curve-geometry/curvature', '/bezeg-2.0/curve-geometry', 'curvature_circle_title', 'curvature_circle_title', 'prompt_curvature'],
     ['curve-geometry/comb', '/bezeg-2.0/curve-geometry', 'curve_comb_title', 'curve_comb_title', 'prompt_curve_comb'],
@@ -123,6 +116,13 @@ const expected = [
     ['bspline/extraction', '/bezeg-2.0/bspline', 'bspline_extraction_title', 'bspline_extraction_title', 'prompt_bspline_extraction'],
     ['bspline/nurbs', '/bezeg-2.0/bspline', 'bspline_nurbs_title', 'bspline_nurbs_title', 'prompt_bspline_nurbs'],
     ['bspline/blossom', '/bezeg-2.0/bspline', 'bspline_blossom_title', 'bspline_blossom_title', 'prompt_bspline_blossom'],
+    ['bernstein', 'basics', 'bernstein_polynomials', 'bernstein_polynomials', 'prompt_bernstein'],
+    ['complex-multiplication', 'basics', 'complex_multiplication', 'complex_multiplication', 'prompt_complex_multiplication'],
+    ['ph/cubic', '/bezeg-2.0/ph', 'degree_3', 'degree_3_ph_curve', 'prompt_ph'],
+    ['ph/quintic', '/bezeg-2.0/ph', 'degree_5_ph_curve', 'degree_5_ph_curve', 'prompt_ph'],
+    ['param/param/alphaparam2', '/bezeg-2.0/param', 'parametrizations_233', 'parametrizations_233', 'prompt_parameterization'],
+    ['param/param/alphaparam', '/bezeg-2.0/param', 'weighted_parametrization_234', 'weighted_parametrization_234', 'prompt_parameterization'],
+    ['param/param/uniform', '/bezeg-2.0/param', 'uniform_parametrization_235', 'uniform_parametrization_235', 'prompt_parameterization'],
 ] as const;
 
 afterEach(() => setLanguage('sl'));

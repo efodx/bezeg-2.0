@@ -5,7 +5,8 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {dynamicAttributes} from "../../styles/dynamicAttributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {cubicPhPresetCollection} from "./collections";
 
 interface CubicPhBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
     showingCurve: boolean
@@ -106,7 +107,7 @@ class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveG
     }
 
     override presetCollection() {
-        return curvePresetCollections["ph-cubic"];
+        return cubicPhPresetCollection;
     }
 
     private createLLabel(points: JXG.Point[], i: number) {

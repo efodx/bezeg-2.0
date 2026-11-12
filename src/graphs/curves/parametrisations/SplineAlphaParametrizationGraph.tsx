@@ -5,7 +5,8 @@ import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {splineParameterizationPresetCollection} from "./collections";
 
 import {
     PARAMETERIZATION_ALPHA_MAX,
@@ -97,7 +98,7 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
 
 
     override presetCollection() {
-        return curvePresetCollections["spline-parameterization"];
+        return splineParameterizationPresetCollection;
     }
 
 

@@ -5,6 +5,11 @@
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {isMessage, LocalizedError, Message} from "../../localization";
 import {arcLengthParamPresetCollection, curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections, reductionPresetCollection} from "./curvePresetCollections";
+import {bernsteinPresetCollection} from "../basics/collections";
+import {quinticPhPresetCollection} from "./ph/collections";
+
+/** The aggregate map plus the moved PH collection the diagnosis table below still exercises. */
+const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection};
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -68,13 +73,13 @@ test.each([
     ["bezier", [], "preset_has_no_curve"],
     ["bezier", "[]", "invalid_curve_data"],
 ] as const)("%s: the graph's import and the file importer reject %j with the same diagnosis", (id, data, key) => {
-    const checked = curvePresetCollections[id].check(data);
+    const checked = diagnosedCollections[id].check(data);
     expect("rejection" in checked && checked.rejection.key).toBe(key);
-    expect(preflightRejection(curvePresetCollections[id].key, data)).toEqual("rejection" in checked ? checked.rejection : undefined);
+    expect(preflightRejection(diagnosedCollections[id].key, data)).toEqual("rejection" in checked ? checked.rejection : undefined);
 });
 
 test("the Bernstein collection may hold no curves: its scene is its scene state", () => {
-    expect(curvePresetCollections.bernstein.check([])).toEqual({data: []});
+    expect(bernsteinPresetCollection.check([])).toEqual({data: []});
 });
 
 test("a shorter curve state written before the full state loads: missing display switches read as off", () => {

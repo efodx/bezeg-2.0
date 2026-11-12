@@ -7,7 +7,8 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {GraphPalette, basisCurveColor, basisCurveDash} from "../styles/GraphPalette";
 import {CountSetter} from "../../inputs/CountSetter";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curves/curvePresetCollections";
+import {CurveCollectionPresetData} from "../curves/curvePresetCollections";
+import {bernsteinPresetCollection} from "../basics/collections";
 
 export const BERNSTEIN_MAX_DEGREE = 5;
 
@@ -98,7 +99,7 @@ export class BernsteinGraph extends BaseGraph<BernsteinGraphState, CurveCollecti
     }
 
     override presetCollection() {
-        return curvePresetCollections.bernstein;
+        return bernsteinPresetCollection;
     }
 
     protected override disposeFigureScene(): void {

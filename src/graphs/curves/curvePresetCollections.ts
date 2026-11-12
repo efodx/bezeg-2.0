@@ -94,7 +94,7 @@ interface CurveCollectionRules {
     readonly graphState?: (state: Record<string, unknown>) => Message | undefined;
 }
 
-function curveCollection(key: string, rules: CurveCollectionRules): PresetCollection<CurveCollectionPresetData> {
+export function curveCollection(key: string, rules: CurveCollectionRules): PresetCollection<CurveCollectionPresetData> {
     const check = (data: unknown): Message | undefined => {
         if (!Array.isArray(data)) return message("invalid_curve_data");
         for (const entry of data) {
@@ -210,7 +210,6 @@ export const arcLengthParamPresetCollection = curveCollection("arc-length-param"
  * rules; a collection differs only in its key, and PH collections in their degree.
  */
 export const curvePresetCollections = {
-    bernstein: curveCollection("bernstein-graph", {type: "JSXBezierCurve", allowEmpty: true}),
     bezier: bezier("bezier-curve"),
     decasteljau: bezier("decasteljau"),
     "decasteljau-alternative": bezier("decasteljau2"),
@@ -219,22 +218,17 @@ export const curvePresetCollections = {
     "repeated-subdivision": bezier("bezier-subdivision"),
     extrapolation: bezier("bezier-extrapolation"),
     elevation: bezier("elevation-graph"),
-    "weighted-parameterization": bezier("alpha-param"),
     rational: rational("rational-bezier"),
     "rational-decasteljau": rational("rational-decasteljau"),
     "rational-elevation": rational("rational-bezier-elevation"),
     "rational-extrapolation": rational("rational-bezier-extrapolation"),
     "rational-subdivision": rational("rational-bezier-subdivision"),
     farin: rational("rational-bezier-farin"),
-    "ph-cubic": curveCollection("cubic-ph", {type: "JSXPHBezierCurve", hodographs: 2}),
-    "ph-quintic": curveCollection("quintic-ph-graph", {type: "JSXPHBezierCurve", hodographs: 3}),
-    "uniform-parameterization": curveCollection("uniform-graph", {type: "JSXPHBezierCurve", hodographs: 3}),
     "spline-cn": curveCollection("cn-spline", {type: "JSXGenericSplineCurve"}),
     "spline-c1": curveCollection("c1-spline-graph", {type: "JSXQuadraticC1SplineCurve"}),
     "spline-c2": curveCollection("c2-spline", {type: "JSXQubicC2SplineCurve"}),
     "spline-g1": curveCollection("g1-spline-graph", {type: "JSXQuadraticG1SplineCurve"}),
     "spline-g1-symmetric": curveCollection("g1-symmetric-spline-graph", {type: "JSXSymmetricQuadraticG1SplineCurve"}),
-    "spline-parameterization": curveCollection("alfaparametrizacije", {type: "JSXQubicC2SplineCurve"}),
     "curve-curvature": curvatureCurvePresetCollection,
     "curve-comb": curveCombPresetCollection,
     "curve-evolute": evoluteCurvePresetCollection,

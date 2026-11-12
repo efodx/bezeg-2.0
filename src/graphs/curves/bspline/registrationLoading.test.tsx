@@ -17,8 +17,7 @@ vi.mock('./BSplineInsertionGraph', () => mark('BSplineInsertionGraph', {default:
 vi.mock('./BSplineExtractionGraph', () => mark('BSplineExtractionGraph', {default: graphClass('BSplineExtractionGraph')}));
 vi.mock('./BSplineNurbsGraph', () => mark('BSplineNurbsGraph', {BSplineNurbsGraph: graphClass('BSplineNurbsGraph')}));
 vi.mock('./BSplineBlossomGraph', () => mark('BSplineBlossomGraph', {BSplineBlossomGraph: graphClass('BSplineBlossomGraph')}));
-vi.mock('../../bernstein/BernsteinGraph', () => mark('BernsteinGraph', {BernsteinGraph: class BernsteinGraph {}}));
-vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {bernstein: () => ({})}}));
+vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {bezier: () => ({})}}));
 vi.mock('../../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -62,7 +61,7 @@ describe('module evaluation', () => {
     });
 
     test('a legacy route still resolves through the legacy table', async () => {
-        const route = await routeFor('/bezeg-2.0/bernstein');
+        const route = await routeFor('/bezeg-2.0/bezier/curve');
         await route.lazy!();
         expect(evaluated).toContain('graphFactories');
         expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);

@@ -5,7 +5,8 @@ import React from "react";
 import Slider from "../../../inputs/Slider";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {weightedParameterizationPresetCollection} from "./collections";
 
 import {
     ALPHA_PARAM_MAX_SAMPLES,
@@ -165,7 +166,7 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
     }
 
     override presetCollection() {
-        return curvePresetCollections["weighted-parameterization"];
+        return weightedParameterizationPresetCollection;
     }
 }
 

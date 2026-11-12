@@ -10,6 +10,15 @@ import {projectiveGraphLoaders} from './projective/runtime';
 import {bsplineCollections} from './curves/bspline/collections';
 import {bsplineCollectionKeys, bsplineDemonstrationRows} from './curves/bspline/registration';
 import {bsplineGraphLoaders} from './curves/bspline/runtime';
+import {basicsCollections} from './basics/collections';
+import {basicsCollectionKeys, basicsDemonstrationRows} from './basics/registration';
+import {basicsGraphLoaders} from './basics/runtime';
+import {phCollections} from './curves/ph/collections';
+import {phCollectionKeys, phDemonstrationRows} from './curves/ph/registration';
+import {phGraphLoaders} from './curves/ph/runtime';
+import {parameterizationCollections} from './curves/parametrisations/collections';
+import {parameterizationCollectionKeys, parameterizationDemonstrationRows} from './curves/parametrisations/registration';
+import {parameterizationGraphLoaders} from './curves/parametrisations/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
 import {trigGraphLoaders} from './trig/runtime';
@@ -128,6 +137,9 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'levelsets', rows: levelSetsDemonstrationRows, loaders: levelSetsGraphLoaders, collectionKeys: levelSetsCollectionKeys, collections: levelSetsCollections},
     {family: 'waves', rows: wavesDemonstrationRows, loaders: wavesGraphLoaders, collectionKeys: wavesCollectionKeys, collections: wavesCollections},
     {family: 'bspline', rows: bsplineDemonstrationRows, loaders: bsplineGraphLoaders, collectionKeys: bsplineCollectionKeys, collections: bsplineCollections},
+    {family: 'basics', rows: basicsDemonstrationRows, loaders: basicsGraphLoaders, collectionKeys: basicsCollectionKeys, collections: basicsCollections},
+    {family: 'ph', rows: phDemonstrationRows, loaders: phGraphLoaders, collectionKeys: phCollectionKeys, collections: phCollections},
+    {family: 'parameterization', rows: parameterizationDemonstrationRows, loaders: parameterizationGraphLoaders, collectionKeys: parameterizationCollectionKeys, collections: parameterizationCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

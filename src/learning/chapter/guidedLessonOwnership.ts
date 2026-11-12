@@ -3,6 +3,9 @@ import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstra
 import type {ProjectiveDemonstrationId} from '../../graphs/projective/registration';
 import type {BsplineDemonstrationId} from '../../graphs/curves/bspline/registration';
 import {bsplineDemonstrationRows} from '../../graphs/curves/bspline/registration';
+import {basicsAdditionalOwners, basicsPrimaryOwners} from '../../graphs/basics/registration';
+import {phPrimaryOwners} from '../../graphs/curves/ph/registration';
+import {parameterizationPrimaryOwners} from '../../graphs/curves/parametrisations/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
@@ -14,20 +17,19 @@ export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
 type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId;
 
+/** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
+type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners;
+const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners};
+
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
-export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
+export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
     bezier: {chapterId: 'bezier-curves', sectionId: 'control-points'},
     decasteljau: {chapterId: 'bezier-curves', sectionId: 'interpolation'},
     affine: {chapterId: 'bezier-curves', sectionId: 'affine-transformations'},
     elevation: {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
     rational: {chapterId: 'rational-curves', sectionId: 'why-rational'},
     'rational-decasteljau': {chapterId: 'rational-curves', sectionId: 'operations'},
-    'ph-cubic': {chapterId: 'ph-curves', sectionId: 'arc-length-problem'},
-    'ph-quintic': {chapterId: 'ph-curves', sectionId: 'offsets'},
-    bernstein: {chapterId: 'foundations', sectionId: 'why-weights'},
     'rational-elevation': {chapterId: 'rational-curves', sectionId: 'operations'},
-    'weighted-parameterization': {chapterId: 'parametrization', sectionId: 'weighted-knot'},
-    'uniform-parameterization': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     subdivision: {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
     'repeated-subdivision': {chapterId: 'bezier-curves', sectionId: 'next-ideas'},
     'rational-subdivision': {chapterId: 'rational-curves', sectionId: 'operations'},
@@ -41,7 +43,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'spline-c2': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-g1': {chapterId: 'splines', sectionId: 'geometric-vs-parametric'},
     'spline-g1-symmetric': {chapterId: 'splines', sectionId: 'geometric-vs-parametric'},
-    'spline-parameterization': {chapterId: 'parametrization', sectionId: 'weighted-knot'},
     'linear-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'exponential-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'trigonometric-functions': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
@@ -78,7 +79,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     taylor: {chapterId: 'analysis', sectionId: 'taylor'},
     sequence: {chapterId: 'analysis', sectionId: 'convergence'},
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
-    'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
     // The Numerical methods chapter owns the root-finding lesson (N1 Newton, N2 when Newton fails, N3 secant), the quadrature lesson (N4) and the Euler lesson (N5) in one section each.
     'root-finding': {chapterId: 'numerical-methods', sectionId: 'root-finding'},
@@ -164,12 +164,12 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
-    bernstein: [{chapterId: 'bezier-curves', sectionId: 'bernstein-form'}],
+    ...basicsAdditionalOwners,
 };
 
 const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows].map(row => row.id));
 
-const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = guidedLessonOwners;
+const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 
 /** The reviewed owner of a Demonstration with a guided lesson; undefined for a Demonstration with `lesson: false`, even when it pre-registers a future destination. */
 function primaryOwner(id: DemonstrationId): GuidedLessonOwner | undefined {
