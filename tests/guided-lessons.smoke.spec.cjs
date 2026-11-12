@@ -1344,7 +1344,7 @@ const expectPointsNear = async (page, points, label) => { for (const point of po
 const polygonRestoreRow = {
 };
 
-// Default linear map lesson (chapter-owned L1, src/learning/content/linearMapsChapterLessons.ts). Not yet run in a browser: F6 acceptance walks it.
+// Default linear map lesson (chapter-owned L1, src/learning/content/linearMapsChapterLessons.ts). Runs in the hosted guided-lessons shards (green on master 01ca058a).
 const linearMap = {
     id: 'linear-map',
     path: `${BASE}/linear-map`,
