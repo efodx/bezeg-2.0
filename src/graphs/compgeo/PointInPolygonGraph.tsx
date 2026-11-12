@@ -1,9 +1,9 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {PointListInput} from "../../inputs/PointListInput";
 import {StatusLive} from "../base/controls/StatusLive";
 import {ExampleSelect, matchingExample} from "./ExampleSelect";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import type {PointSetExtension} from "./pointSetPersistence";
 import {LessonAction} from "../../learning/model";
 import {GraphSession} from "../base/GraphSession";
 import {TransientState} from "../base/BaseGraph";
@@ -68,6 +68,18 @@ const FIGURES: Readonly<Record<PointInPolygonFigure, {model: PointSetModel; quer
 const ARROW_STEPS: Readonly<Record<string, readonly [number, number]>> = {
     ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
 };
+
+/**
+ * The one scene field beyond `initialized`, `model` and `overlays`: the query point q, as `pointInPolygonPresetCollection` permits
+ * it (a grid point). An omitted or refused query is the notched default, never the preceding scene's; a bare data import keeps it.
+ * `queryActive` is transient and not persisted.
+ */
+const QUERY_EXTENSION: PointSetExtension = Object.freeze({
+    fields: [{
+        name: "query", fallback: Object.freeze({...NOTCHED_QUERY}),
+        parse: (value: unknown) => isGridPoint(value) ? {x: value.x, y: value.y} : undefined,
+    }],
+});
 
 const storedQuery = (value: unknown): GridPoint => (isGridPoint(value) ? {x: value.x, y: value.y} : {...NOTCHED_QUERY});
 
@@ -267,11 +279,9 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
         return pointInPolygonPresetCollection;
     }
 
-    /** A Preset's query is checked on import; anything else a stored scene holds becomes the default query. */
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const state: PointInPolygonGraphState = {...merged, query: storedQuery("query" in merged ? merged.query : undefined)};
-        return state;
+    /** The declared query point (`QUERY_EXTENSION`): import, figure return and lesson default read it. */
+    protected override persistenceExtension(): PointSetExtension {
+        return QUERY_EXTENSION;
     }
 
     protected override captureTransientState(): TransientState {

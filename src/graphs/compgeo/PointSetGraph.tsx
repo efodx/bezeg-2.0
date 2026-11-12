@@ -19,7 +19,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
-import {pointSetPersistence, PointSetExtension, PointSetPermittedState, PointSetStepDeclaration, stepExtension} from "./pointSetPersistence";
+import {pointSetPersistence, PointSetExtension, PointSetPermittedState, PointSetStepDeclaration, stepExtension, withoutBareImportFields} from "./pointSetPersistence";
 import type {ScenePersistence} from "../base/presets/ScenePersistence";
 import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointSetControls";
 
@@ -553,11 +553,34 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return {...preset, graphState};
     }
 
+    /** The stored `graphState` of the Preset `importPreset` is applying (absent when it carries none); undefined outside `importPreset`. */
+    private importing?: {graphState: StoredGraphState | undefined};
+
+    override importPreset(preset: Preset): void {
+        const outer = this.importing;
+        this.importing = {graphState: preset.graphState};
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.importing = outer;
+        }
+    }
+
+    /**
+     * What the extension fields are read from. A Preset's stored `graphState` names its fields and an omitted one takes the
+     * declared fallback; a Preset or figure without a `graphState` starts from the graph's fresh initial state (`BaseGraph.importPreset`).
+     */
+    private storedSource(graphState: StoredGraphState | undefined): unknown {
+        return graphState ?? this.getInitialState();
+    }
+
     override importPresetData(data: PointSetModel): void {
         const extension = this.persistenceExtension();
-        // The extension fields a Preset's `graphState` just set (or a lesson/selection left) stay, bounded by the new data. A data
-        // part the extension declares (a triangle list) is the data's; an invalid one throws here, before anything changes.
-        const rebuilt = this.persistence().reconstruct(data, extension ? this.state : undefined, this.state);
+        // A Preset's own fields are read from its stored `graphState`, bounded by the new data. Any other import is a bare data
+        // import: the scene's extension fields stay, bounded by the data, except those `resetOnBareImport` names. A data part the
+        // extension declares (a triangle list) is the data's; an invalid one throws here, before anything changes.
+        const source = extension ? (this.importing ? this.storedSource(this.importing.graphState) : withoutBareImportFields(extension, this.state)) : undefined;
+        const rebuilt = this.persistence().reconstruct(data, source, this.state);
         this.pending = undefined;
         const patch: Partial<PointSetGraphState> = {model: rebuilt.model};
         if (extension) for (const name of [...extension.fields.map(field => field.name), ...(extension.data?.keys ?? [])]) Object.assign(patch, {[name]: Reflect.get(rebuilt, name)});
@@ -568,12 +591,12 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): PointSetGraphState {
         if (!this.declaresWholeScene()) return {...super.figurePresetGraphState(graphState), model: this.model};
         const defaults = super.figurePresetGraphState(undefined);
-        return {...this.persistence().reconstruct(data == null ? this.persistedDefaultData() : data as PointSetModel, graphState, defaults), initialized: true};
+        return {...this.persistence().reconstruct(data == null ? this.persistedDefaultData() : data as PointSetModel, this.storedSource(graphState), defaults), initialized: true};
     }
 
     protected override lessonDefaultState(data?: PointSetModel): PointSetGraphState {
         if (!this.declaresWholeScene()) return {...this.getInitialState(), initialized: true, model: this.model};
-        return {...this.persistence().reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
+        return {...this.persistence().reconstruct(data ?? this.persistedDefaultData(), this.getInitialState(), this.getInitialState()), initialized: true};
     }
 
     // ---- Transient state -----------------------------------------------------------------------------------------

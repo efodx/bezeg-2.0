@@ -26,8 +26,13 @@ export interface PointSetPermittedState {
     [field: string]: boolean | Record<string, boolean> | PointSetFieldValue;
 }
 
-/** The value of one extension field: a number (a step, a cell, an exponent) or an id (an algorithm, a mode). */
-export type PointSetFieldValue = number | string;
+/** A point named by two numbers (a grid point, as the point-in-polygon query) or two texts (an exact rational point, as the Voronoi query). */
+export type PointSetFieldPair = Readonly<{x: number; y: number}> | Readonly<{x: string; y: string}>;
+/**
+ * The value of one extension field: a number (a step, a count, an exponent), an id (an algorithm, a mode), `null` (a choice
+ * that is not made, the Voronoi cell site) or a point (a query). No other value is a field.
+ */
+export type PointSetFieldValue = number | string | null | PointSetFieldPair;
 /** Extension fields by name. */
 export type PointSetExtras = Readonly<Record<string, PointSetFieldValue>>;
 
@@ -38,6 +43,12 @@ export interface PointSetExtraField {
     parse(value: unknown): PointSetFieldValue | undefined;
     /** The value of an omitted or refused field: the same whatever scene preceded. */
     readonly fallback: PointSetFieldValue;
+    /**
+     * A bare data import (`importPresetData` without a Preset: an example load, a direct call) resets this field to its fallback
+     * instead of keeping the scene's value. A Preset's own value, put in the scene just before its data is imported, is never
+     * reset. Absent: the value is kept, bounded by the new data.
+     */
+    readonly resetOnBareImport?: boolean;
 }
 
 /** The scene fields a data part reads or writes, by name. */
@@ -108,6 +119,14 @@ export function stepExtension(step: PointSetStepDeclaration): PointSetExtension 
             return {...values, step: step.clamp(model, typeof stored === "number" ? stored : 0)};
         },
     });
+}
+
+/** `state` without the fields that a bare data import resets (`PointSetExtraField.resetOnBareImport`); the other keys are as they are. */
+export function withoutBareImportFields(extension: PointSetExtension, state: object): object {
+    const kept: Record<string, unknown> = {};
+    for (const [name, value] of Object.entries(state)) kept[name] = value;
+    for (const field of extension.fields) if (field.resetOnBareImport) Reflect.deleteProperty(kept, field.name);
+    return kept;
 }
 
 /** The extension fields of `source` (a permitted or runtime state) that are present and valid, by name; never a spread of `source`. */

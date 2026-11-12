@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import type {GridPoint} from "../../compgeo/grid";
@@ -13,7 +12,6 @@ import type {LessonAction} from "../../learning/model";
 import type {GraphSession} from "../base/GraphSession";
 import type {AnimationScheduler} from "../../learning/runtime/animation";
 import type {PresetCollection} from "../base/presets/PresetCollection";
-import type {Preset} from "../base/presets/Presets";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {CompgeoRegionPalette, voronoiCellFill} from "./CompgeoRegionPalette";
@@ -23,12 +21,14 @@ import {VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus,
 import {fourPointReadout} from "./degenerateSites";
 import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
 import {boardFrameOf, fitFrame} from "./frameFit";
+import type {PointSetExtension} from "./pointSetPersistence";
 import {TracePlayback} from "../base/tracePlayback";
 import {followedGridBox, visibleGridBox} from "./followBox";
 import {matchingExample} from "./ExampleSelect";
 import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {
-    FOUR_POINT_SITES, isVoronoiMode, VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection,
+    FOUR_POINT_SITES, isVoronoiMode, storedCount, storedMode, storedQuery, storedSite, VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE,
+    VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection, voronoiPersistenceExtension,
     type VoronoiMode, type VoronoiQuery,
 } from "./voronoiPresetCollection";
 
@@ -52,18 +52,6 @@ const CONSTRUCTION_STEP_INTERVAL_MS = 800;
 
 const NAMES: TriangleSelectionNames = {
     triangle: "voronoi-triangle", selectedTriangle: "voronoi-selected-triangle", selectedCircle: "voronoi-selected-circle",
-};
-
-const storedSite = (value: unknown, sites: number): number | null =>
-    typeof value === "number" && Number.isInteger(value) && value >= 0 && value < sites ? value : null;
-const storedCount = (value: unknown, total: number): number =>
-    typeof value === "number" && Number.isInteger(value) ? Math.max(0, Math.min(total, value)) : 0;
-const storedMode = (value: unknown): VoronoiMode => (isVoronoiMode(value) ? value : "sites");
-const storedQuery = (value: unknown): VoronoiQuery => {
-    const record: {x?: unknown; y?: unknown} = typeof value === "object" && value !== null ? value : {};
-    const ok = typeof record.x === "string" && typeof record.y === "string"
-        && parseRationalText(record.x) !== undefined && parseRationalText(record.y) !== undefined;
-    return ok ? {x: String(record.x), y: String(record.y)} : VORONOI_DEFAULT_QUERY;
 };
 
 interface Derived {
@@ -117,8 +105,6 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private inQuerySnap = false;
     /** Playback of the cell construction: Next step, Play and Reset move the bisector count; the count stays in the scene store. */
     private playback: TracePlayback;
-    /** The Preset's site, count and query, handed from `importPreset` to the import it triggers and consumed once. */
-    private carried?: {cellSite: unknown; construction: unknown; query: unknown; mode: unknown};
     private readonly siteLimit: number;
     /** A switch to four-point mode was refused because there are not exactly four sites; shown until the next edit or switch. */
     private modeRefused = false;
@@ -775,44 +761,9 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         return state;
     }
 
-    /** A Preset that names no site, count or query starts without them: nothing stale survives from the previous scene. */
-    override importPreset(preset: Preset): void {
-        this.checkPersistedPreset(preset); // checked as stored, before the defaults below are merged into `graphState`
-        const graphState = preset.graphState && {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: "sites", ...preset.graphState};
-        this.carried = graphState && {cellSite: graphState.cellSite, construction: graphState.construction, query: graphState.query, mode: graphState.mode};
-        try {
-            super.importPreset(graphState ? {...preset, graphState} : preset);
-        } finally {
-            this.carried = undefined;
-        }
-    }
-
-    /** An imported model takes the site, count and query that `importPreset` handed over, clamped to the new points; a bare import has none. */
-    override importPresetData(data: PointSetModel): void {
-        const raw: {cellSite?: unknown; construction?: unknown; query?: unknown; mode?: unknown} = this.carried
-            ?? {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.mode};
-        this.carried = undefined;
-        super.importPresetData(data);
-        const sites = this.model.points.length;
-        const site = storedSite(raw.cellSite, sites);
-        // Backward compatibility: a four-point Preset with a site count other than 4 loads in `sites` mode. Four-point mode needs exactly four sites; otherwise the sites stay as imported and the mode falls back to `sites`.
-        const mode = storedMode(raw.mode) === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites";
-        this.modeRefused = false;
-        this.setState(this.patch({cellSite: site, construction: site === null ? 0 : storedCount(raw.construction, sites - 1), query: storedQuery(raw.query), mode}));
-        this.requestRender();
-    }
-
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const sites = merged.model.points.length;
-        const site = storedSite("cellSite" in merged ? merged.cellSite : undefined, sites);
-        const state: VoronoiGraphState = {
-            ...merged, cellSite: site,
-            construction: site === null ? 0 : storedCount("construction" in merged ? merged.construction : undefined, sites - 1),
-            query: storedQuery("query" in merged ? merged.query : undefined),
-            mode: storedMode("mode" in merged ? merged.mode : undefined) === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites",
-        };
-        return state;
+    /** The declared site, count, query and mode (`voronoiPersistenceExtension`); import, figure return and lesson default read it. */
+    protected override persistenceExtension(): PointSetExtension {
+        return voronoiPersistenceExtension;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

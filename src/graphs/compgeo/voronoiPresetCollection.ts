@@ -2,6 +2,7 @@ import {message, Message} from "../../localization";
 import type {GridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
+import {PointSetExtension, PointSetExtraField, PointSetExtras} from "./pointSetPersistence";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 import {TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_MAX_POINTS} from "./triangulationPresetCollection";
 import {parseRationalText} from "./voronoiConstruction";
@@ -66,3 +67,60 @@ export function voronoiPresetCollection(key: string = VORONOI_PRESET_KEY): Prese
 }
 
 export const voronoiCollection: PresetCollection<PointSetModel> = voronoiPresetCollection();
+
+// ---- The scene fields of the persisted state ----------------------------------------------------------------------
+
+/** A stored site as a site of `sites` points, else none. */
+export const storedSite = (value: unknown, sites: number): number | null =>
+    typeof value === "number" && Number.isInteger(value) && value >= 0 && value < sites ? value : null;
+/** A stored bisector count within `0..total`; anything else 0. */
+export const storedCount = (value: unknown, total: number): number =>
+    typeof value === "number" && Number.isInteger(value) ? Math.max(0, Math.min(total, value)) : 0;
+export const storedMode = (value: unknown): VoronoiMode => (isVoronoiMode(value) ? value : "sites");
+/** A stored query whose coordinates are rational texts, else the default query. */
+export const storedQuery = (value: unknown): VoronoiQuery => {
+    const record: {x?: unknown; y?: unknown} = typeof value === "object" && value !== null ? value : {};
+    const ok = typeof record.x === "string" && typeof record.y === "string"
+        && parseRationalText(record.x) !== undefined && parseRationalText(record.y) !== undefined;
+    return ok ? {x: String(record.x), y: String(record.y)} : VORONOI_DEFAULT_QUERY;
+};
+
+const cellSiteField: PointSetExtraField = {
+    name: "cellSite", fallback: null, resetOnBareImport: true,
+    parse: value => value === null || (typeof value === "number" && Number.isInteger(value)) ? value : undefined,
+};
+const constructionField: PointSetExtraField = {
+    name: "construction", fallback: 0, resetOnBareImport: true,
+    parse: value => typeof value === "number" && Number.isInteger(value) ? value : undefined,
+};
+const queryField: PointSetExtraField = {
+    name: "query", fallback: VORONOI_DEFAULT_QUERY, resetOnBareImport: true,
+    parse: value => validQuery(value) ? storedQuery(value) : undefined,
+};
+const modeField: PointSetExtraField = {
+    name: "mode", fallback: "sites",
+    parse: value => isVoronoiMode(value) ? value : undefined,
+};
+
+/**
+ * The Voronoi graphs' declared scene fields beyond `initialized`, `model` and `overlays`, as `voronoiPresetCollection` permits
+ * them: the chosen site, the construction count, the query point and the mode. A stored `graphState` that omits a field gets the
+ * fresh scene's (no site, count 0, the default query, mode `sites`), never the preceding scene's; a Preset without a
+ * `graphState` starts from the graph's initial state (`PointSetGraph.storedSource`), so degenerate sites start in four-point mode.
+ * `settle` bounds the fields by the sites: a stale site is none, the count lies within the other sites, and four-point mode needs
+ * exactly `FOUR_POINT_SITES` sites (backward compatibility: a four-point Preset with another count loads in `sites` mode). A bare
+ * data import resets the site, the count and the query and keeps the mode (`resetOnBareImport`).
+ */
+export const voronoiPersistenceExtension: PointSetExtension = Object.freeze({
+    fields: [cellSiteField, constructionField, queryField, modeField],
+    settle(model: PointSetModel, values: PointSetExtras): PointSetExtras {
+        const sites = model.points.length;
+        const site = storedSite(values.cellSite, sites);
+        return {
+            cellSite: site,
+            construction: site === null ? 0 : storedCount(values.construction, sites - 1),
+            query: storedQuery(values.query),
+            mode: values.mode === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites",
+        };
+    },
+});
