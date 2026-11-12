@@ -31,6 +31,7 @@ import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry
 import {trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath, TRIGONOMETRY_CHAPTER_ID, type TrigonometrySectionId} from './trigonometryChapterRegistry';
 import {mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath, MECHANICAL_CURVES_CHAPTER_ID, type MechanicalCurvesSectionId} from './mechanicalCurvesChapterRegistry';
 import {wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath, WAVES_CHAPTER_ID, type WavesSectionId} from './wavesChapterRegistry';
+import {recursionGuidedExampleDemonstrations, recursionGuidedExampleLesson, recursionGuidedExamplePath, RECURSION_CHAPTER_ID, type RecursionSectionId} from './recursionChapterRegistry';
 import {kinematicsGuidedExampleDemonstrations, kinematicsGuidedExampleLesson, kinematicsGuidedExamplePath, KINEMATICS_CHAPTER_ID, type KinematicsSectionId} from './kinematicsChapterRegistry';
 import {combinatoricsGuidedExampleDemonstrations, combinatoricsGuidedExampleLesson, combinatoricsGuidedExamplePath, COMBINATORICS_CHAPTER_ID, type CombinatoricsSectionId} from './combinatoricsChapterRegistry';
 import {circleGeometryGuidedExampleDemonstrations, circleGeometryGuidedExampleLesson, circleGeometryGuidedExamplePath, CIRCLE_GEOMETRY_CHAPTER_ID, type CircleGeometrySectionId} from './circleGeometryChapterRegistry';
@@ -109,6 +110,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [KINEMATICS_CHAPTER_ID]: lazyOwnedLessons<KinematicsSectionId>(kinematicsGuidedExampleDemonstrations, kinematicsGuidedExampleLesson, kinematicsGuidedExamplePath),
     [MECHANICAL_CURVES_CHAPTER_ID]: lazyOwnedLessons<MechanicalCurvesSectionId>(mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath),
     [WAVES_CHAPTER_ID]: lazyOwnedLessons<WavesSectionId>(wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath),
+    [RECURSION_CHAPTER_ID]: lazyOwnedLessons<RecursionSectionId>(recursionGuidedExampleDemonstrations, recursionGuidedExampleLesson, recursionGuidedExamplePath),
     [COMBINATORICS_CHAPTER_ID]: lazyOwnedLessons<CombinatoricsSectionId>(combinatoricsGuidedExampleDemonstrations, combinatoricsGuidedExampleLesson, combinatoricsGuidedExamplePath),
     [ISOMETRIES_CHAPTER_ID]: lazyOwnedLessons<IsometriesSectionId>(isometriesGuidedExampleDemonstrations, isometriesGuidedExampleLesson, isometriesGuidedExamplePath),
 };

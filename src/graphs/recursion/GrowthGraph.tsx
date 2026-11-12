@@ -19,6 +19,8 @@ import {
 import {subscript, Polyline} from "./cobwebScene";
 import {at, Box, barsPath, chord, interestBox, logBox, sameBox, sampleCurve, sequenceBox} from "./growthScene";
 import {SceneObjects} from "./SceneObjects";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** The keys of `S` that hold numbers: the only fields an integer edit may write. */
 type NumericKeys<S> = {[K in keyof S & string]: S[K] extends number ? K : never}[keyof S & string];
@@ -402,6 +404,53 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
     editYears(value: number): boolean { return this.editInteger("years", value, 1, YEARS_RANGE); }
     editStartValue(value: number): boolean { return this.editInteger("y0", value, 1, Y0_RANGE); }
     editGrowthFactor(value: number): boolean { return this.editInteger("logQ", value, LOG_Q_SCALE, LOG_Q_RANGE); }
+
+    // ---- Lesson actions -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`recursion`): `set-map` picks the panel and the sequence kind, `set-params` and `set-interest` set stored fields (the ratio q is stored times 10,
+     * the rate twice the percent). The merged state goes through `parseGrowthState` (strict: nothing is snapped or clamped) before the first write, so an off-grid or
+     * off-range value is a lesson-content error and nothing is written. Each write is one `edit`, so a later action of the scene reads the state of the earlier ones.
+     */
+    applyRecursionAction(action: Extract<LessonAction, {kind: "recursion"}>): void {
+        switch (action.operation) {
+            case "set-map": {
+                const {kind: _kind, operation: _operation, sequence, ...rest} = action;
+                this.editStored("set-map", {...rest, ...(sequence !== undefined ? {kind: sequence} : {})}, ["panel", "kind"]);
+                return;
+            }
+            case "set-params": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-params", patch, ["a1", "d", "q", "n"]);
+                return;
+            }
+            case "set-interest": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-interest", patch, ["capital", "rate", "years", "parts"]);
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`recursion: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    /** Validates the merged state first, then writes only the fields that change; unknown fields are refused. */
+    private editStored(operation: string, patch: Readonly<Record<string, unknown>>, allowed: readonly (keyof GrowthState)[]): void {
+        const unknown = Object.keys(patch).filter(key => !allowed.some(field => field === key));
+        if (unknown.length) throw new Error(`recursion ${operation}: no such field ${unknown.join(", ")}.`);
+        const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+        const parsed = parseGrowthState({...serializeGrowthState(this.state), ...defined});
+        if (!parsed.ok) throw new Error(`recursion ${operation}: ${parsed.error.message}`);
+        const changed = allowed.filter(key => parsed.value[key] !== this.state[key]);
+        if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("recursion", action => this.applyRecursionAction(action));
+    }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
 

@@ -483,6 +483,17 @@ export type LessonAction =
     }
     | {readonly kind: 'waves'; readonly operation: 'set-time'; readonly t: number}
     /**
+     * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
+     * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per
+     * year. The merged state must pass `parseGrowthState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused.
+     */
+    | {readonly kind: 'recursion'; readonly operation: 'set-map'; readonly panel?: 'sequence' | 'interest' | 'log'; readonly sequence?: 'arithmetic' | 'geometric'}
+    | {readonly kind: 'recursion'; readonly operation: 'set-params'; readonly a1?: number; readonly d?: number; readonly q?: number; readonly n?: number}
+    | {
+        readonly kind: 'recursion'; readonly operation: 'set-interest';
+        readonly capital?: number; readonly rate?: number; readonly years?: number; readonly parts?: number;
+    }
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.

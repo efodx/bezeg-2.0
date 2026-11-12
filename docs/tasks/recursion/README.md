@@ -10,7 +10,10 @@ F1 is ungated. F2a waits for Controls step 5, by the stream's binding boundary. 
 | --- | --- | --- | --- | --- | --- |
 | [01 Recursion kernel](01-recursion-kernel.md) | 0 | F1 | none | — | done |
 | [02 State model and graphs](02-graphs.md) | A–C | F2a | Controls step 5 | 01 | graphs written and checked by the worker (cobweb + growth, no route); awaiting handler review |
-| [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 02 | planned |
+| [03 Release batches A–C](03-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11; split into 04–06 |
+| [04 Batch A: RG1 and RG3 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 in progress |
+| [05 Batch B: RG2 and RG4 lessons](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | not started |
+| [06 Batch C: RG5 lesson](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 04 | not started |
 
 ## Slovenian terms (F0 decision)
 

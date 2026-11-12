@@ -35,9 +35,9 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(learningChapters.some(chapter => FAMILY_CHAPTER_PENDING.includes(chapter.family))).toBe(false);
     // A family may own several chapters (maps: linear and complex).
     expect([...new Set(learningChapters.map(chapter => chapter.family))].sort()).toEqual(familiesWithChapters.sort());
-    expect(container.querySelectorAll('.learning-family')).toHaveLength(32);
-    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(32);
-    // Every chapter has a thumbnail: the B-spline posters landed with BS-A-5b; trigonometry (unit-circle has no poster yet) and analytic lines (line-geometry has no poster yet) and isometries and circle geometry and combinatorics and kinematics and mechanical curves and waves (no poster yet) follow with the media slice.
+    expect(container.querySelectorAll('.learning-family')).toHaveLength(33);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(33);
+    // Every chapter has a thumbnail: the B-spline posters landed with BS-A-5b; trigonometry (unit-circle has no poster yet) and analytic lines (line-geometry has no poster yet) and isometries and circle geometry and combinatorics and kinematics and mechanical curves and waves and recursion (no poster yet) follow with the media slice.
     expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(24);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
     expect(container.querySelectorAll('.learning-step')).toHaveLength(0);

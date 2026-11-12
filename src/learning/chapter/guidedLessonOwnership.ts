@@ -94,6 +94,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'mechanics-descent': {chapterId: 'mechanical-curves', sectionId: 'race-the-tracks'},
     // Waves batch A: superposition and phase (WV1) in the waves chapter; the beats lesson (WV2) is the second owner, derived from the chapter.
     'waves': {chapterId: 'waves', sectionId: 'superposition-and-phase'},
+    // Recursion batch A: the sequence lesson (RG1) in the recursion chapter; the interest lesson (RG3) is the second owner, derived from the chapter.
+    'recursion-growth': {chapterId: 'recursion', sectionId: 'sequences'},
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).

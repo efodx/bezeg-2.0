@@ -19,6 +19,7 @@ import {curveGeometryChapter} from './curveGeometryChapter';
 import {kinematicsChapter} from './kinematicsChapter';
 import {mechanicalCurvesChapter} from './mechanicalCurvesChapter';
 import {wavesChapter} from './wavesChapter';
+import {recursionChapter} from './recursionChapter';
 import {advancedBezierChapter} from './advancedBezierChapter';
 import {interpolationChapter} from './interpolationChapter';
 import {probabilityChapter} from './probabilityChapter';
@@ -395,6 +396,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
             ], undefined, ['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'fixed-point'], {investigationPrompts: analysisPrompts}),
         ],
     },
+    recursionChapter, // Recursion batch A: RG1 and RG3 (recursionGuidedLessons.ts); directly after the analysis chapter, whose convergence section holds the sequence lessons these build on; the cobweb, logistic and growth-model sections join later.
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
     fourierChapter, // Fourier series batch A: the partial-sum and Gibbs lesson (F1, F3) of fourierSeriesGuidedLessons.ts.
     wavesChapter, // Waves batch A: WV1 and WV2 (wavesGuidedLessons.ts); directly after the Fourier series, whose harmonics are the waves added here; the standing-wave and sampling lessons join later.
