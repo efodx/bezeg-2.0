@@ -120,6 +120,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | tetiva dotikališč | chord of contact, the segment joining the two points of contact (CG1). Built on *tetiva* and *točka dotika* |
 | krožnice z isto potenčno premico | coaxal circles (CG2). Handler 11 decision: a descriptive phrase used everywhere; *soosne krožnice* was rejected because it reads as "sharing an axis of symmetry", and no established Slovenian term was verified |
 | sosrediščni krožnici | concentric circles, which have no radical axis (CG2); taken from the existing wording in `sl.ts` |
+| Apolonijeva krožnica | Apollonius circle, the set of points with a fixed ratio of distances to two points (CG3). Standard form of the name; handler-unreviewed |
+| notranja, zunanja delilna točka | internal, external division point of a segment with a given ratio (CG3); handler-unreviewed |
+| skupna tangenta (zunanja, notranja) | common tangent (external, internal) of two circles (CG4). Transparent wording; handler-unreviewed |
+| središče raztega (zunanje, notranje) | centre of similarity (external, internal) of two circles (CG4). From the school *središčni razteg*; handler-unreviewed |
 | orientacija ohranjena / obrnjena | orientation kept / reversed |
 | pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
 | preizkusna točka | test point (roots graph) |

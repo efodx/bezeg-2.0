@@ -2,14 +2,16 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {circleTangentsLesson, circleRadicalLesson} from './circleGeometryGuidedLessons';
+import {circleTangentsLesson, circleRadicalLesson, circleApolloniusLesson, circleCommonTangentsLesson} from './circleGeometryGuidedLessons';
 
 export const CIRCLE_GEOMETRY_CHAPTER_ID = 'circle-geometry';
 
-/** Section id to the Demonstration of its activity (spec CG1, CG2: two sections on one Demonstration, in teaching order). Section ids are those of circleGeometryChapter.ts. */
+/** Section id to the Demonstration of its activity (spec CG1 to CG4: four sections on one Demonstration, in teaching order). Section ids are those of circleGeometryChapter.ts. */
 export const circleGeometryGuidedExampleDemonstrations = {
     'tangents-from-a-point': 'circle-construction',
     'radical-axis-and-centre': 'circle-construction',
+    'apollonius-circle': 'circle-construction',
+    'common-tangents': 'circle-construction',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type CircleGeometrySectionId = keyof typeof circleGeometryGuidedExampleDemonstrations;
@@ -18,6 +20,8 @@ export type CircleGeometrySectionId = keyof typeof circleGeometryGuidedExampleDe
 const sectionContent = {
     'tangents-from-a-point': {id: 'circle-construction-tangents', content: () => circleTangentsLesson},
     'radical-axis-and-centre': {id: 'circle-construction-radical', content: () => circleRadicalLesson},
+    'apollonius-circle': {id: 'circle-construction-apollonius', content: () => circleApolloniusLesson},
+    'common-tangents': {id: 'circle-construction-common-tangents', content: () => circleCommonTangentsLesson},
 } as const;
 
 const adapted = new Map<CircleGeometrySectionId, LessonDefinition>();

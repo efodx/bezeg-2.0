@@ -1,8 +1,11 @@
 /**
- * Guided lessons of the circle-geometry family, batch A (docs/specs/circle-geometry-lessons.md): CG1, tangents from a point, and CG2, the radical axis
- * and the radical centre, both on `circle-construction` (CircleConstructionGraph). Each is the lesson of one section of the circle-geometry chapter
- * (circleGeometryChapterRegistry.ts adapts them on request; the lesson catalog itself holds none, as it keeps one lesson per Demonstration). Scenes use only
- * the `circle` actions CircleConstructionGraph registers (`set-mode`, `set-circle`, `set-point`) and every scene starts from the Demonstration default
+ * Guided lessons of the circle-geometry family (docs/specs/circle-geometry-lessons.md): batch A, CG1 tangents from a point and CG2 the radical axis
+ * and the radical centre, and batch B, CG3 the Apollonius circle and CG4 the common tangents of two circles, all on `circle-construction`
+ * (CircleConstructionGraph). CG3 and CG4 scenes use `set-mode` with `set-apollonius` or `set-circle` (apolloniusScene, commonScene); their numbers are
+ * the probe readouts or arithmetic shown in the same step, listed in docs/reviews/feature-streams/families-prep/notes/f3-circle-b.md.
+ * Each is the lesson of one section of the circle-geometry chapter (circleGeometryChapterRegistry.ts adapts them on request; the lesson catalog itself
+ * holds none, as it keeps one lesson per Demonstration). Scenes use only the `circle` actions CircleConstructionGraph registers (`set-mode`,
+ * `set-circle`, `set-point`, `set-apollonius`) and every scene starts from the Demonstration default
  * and names the mode, the circles and the point it states. The radical mode always draws three circles; CG2 steps 1 to 5 keep the third at its default
  * place and the text names it as waiting for step 6. Every number the text quotes is either a readout of the graph for that scene (power, tangent length,
  * points of contact, chord, Thales circle, axes, radical centre and its power) or plain arithmetic shown in the same step; the numbers are listed per step in
@@ -65,6 +68,27 @@ export const circleSceneActions = (id: string, spec: CircleSceneSpec): LessonAct
 
 const scene = (id: string, spec: CircleSceneSpec, sl: string, en: string): LessonScene =>
     ({id, basedOn: 'demonstration-default', actions: circleSceneActions(id, spec), expectedState: text(sl, en)});
+
+/** CG3: the Apollonius mode with A=(0,0), B=(6,0) as the mode's example has them, the point P and the ratio k the scene names. */
+const apolloniusScene = (id: string, spec: {readonly p: CircleScenePoint; readonly k: number}, sl: string, en: string): LessonScene => ({
+    id, basedOn: 'demonstration-default', expectedState: text(sl, en),
+    actions: [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'circle', operation: 'set-mode', mode: 'apollonius'},
+        {kind: 'circle', operation: 'set-apollonius', a: {x: 0, y: 0}, b: {x: 6, y: 0}, p: {x: spec.p[0], y: spec.p[1]}, k: spec.k},
+    ],
+});
+
+/** CG4: the common-tangents mode with the two circles the scene names. */
+const commonScene = (id: string, c1: CircleSceneCircle, c2: CircleSceneCircle, sl: string, en: string): LessonScene => ({
+    id, basedOn: 'demonstration-default', expectedState: text(sl, en),
+    actions: [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'circle', operation: 'set-mode', mode: 'common'},
+        {kind: 'circle', operation: 'set-circle', circle: 'c1', x: c1[0], y: c1[1], r: c1[2]},
+        {kind: 'circle', operation: 'set-circle', circle: 'c2', x: c2[0], y: c2[1], r: c2[2]},
+    ],
+});
 
 const O: CircleSceneCircle = [0, 0, 5];
 const C2: CircleSceneCircle = [6, 0, 3];
@@ -427,5 +451,394 @@ const cg2: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+// ---- CG3 -------------------------------------------------------------------------------------------------------------------------
+
+const cg3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'apollonius-ratio',
+        latex: '|PA|=k\\,|PB|\\ \\Longleftrightarrow\\ |PA|^2=m\\,|PB|^2,\\ \\ m=k^2',
+        notation: text(
+            '\\(A\\) in \\(B\\) sta dani različni točki, \\(P\\) je poljubna točka ravnine, \\(k>0\\) je razmerje razdalj in \\(m=k^2\\).',
+            '\\(A\\) and \\(B\\) are two given distinct points, \\(P\\) is any point of the plane, \\(k>0\\) is the ratio of the distances and \\(m=k^2\\).',
+        ),
+        explanation: text(
+            'Definicija: množica točk \\(P\\) z razmerjem \\(|PA|:|PB|=k\\). Ker sta obe strani nenegativni, je enakost \\(|PA|=k|PB|\\) enakovredna enakosti kvadratov \\(|PA|^2=m|PB|^2\\). Ta oblika nima korenov, zato z njo natančno preverimo, ali ima točka z celoštevilskima koordinatama dano razmerje. V točki \\(P=B\\) je \\(|PB|=0\\) in razmerje ni določeno.',
+            'Definition: the set of points \\(P\\) with the ratio \\(|PA|:|PB|=k\\). Since both sides are non-negative, the equality \\(|PA|=k|PB|\\) is equivalent to the equality of the squares \\(|PA|^2=m|PB|^2\\). This form has no roots, so with it we test exactly whether a point with integer coordinates has the given ratio. At \\(P=B\\) we have \\(|PB|=0\\) and the ratio is not defined.',
+        ),
+    },
+    {
+        id: 'apollonius-circle',
+        latex: '|PA|^2-m|PB|^2=(1-m)(x^2+y^2)+2mb\\,x-mb^2',
+        notation: text(
+            'Koordinate so izbrane tako, da je \\(A=(0,0)\\), \\(B=(b,0)\\) in \\(P=(x,y)\\); \\(m=k^2\\).',
+            'The coordinates are chosen so that \\(A=(0,0)\\), \\(B=(b,0)\\) and \\(P=(x,y)\\); \\(m=k^2\\).',
+        ),
+        explanation: text(
+            'Argument: izraz dobimo z razvojem \\(|PA|^2=x^2+y^2\\) in \\(m|PB|^2=m\\bigl((x-b)^2+y^2\\bigr)\\). Pri \\(m\\ne1\\) ga delimo z \\(1-m\\): kvadrata \\(x^2\\) in \\(y^2\\) imata enak koeficient, člena \\(xy\\) ni, zato je to enačba krožnice s središčem \\(\\bigl(\\tfrac{mb}{m-1},0\\bigr)\\) in kvadratom polmera \\(\\tfrac{mb^2}{(m-1)^2}\\). Pri \\(m=1\\) odpadejo kvadratni členi in ostane \\(2bx-b^2=0\\), to je premica \\(x=\\tfrac b2\\), simetrala daljice \\(AB\\).',
+            'Argument: the expression comes from expanding \\(|PA|^2=x^2+y^2\\) and \\(m|PB|^2=m\\bigl((x-b)^2+y^2\\bigr)\\). For \\(m\\ne1\\) we divide by \\(1-m\\): the squares \\(x^2\\) and \\(y^2\\) have the same coefficient and there is no \\(xy\\) term, so this is the equation of a circle with centre \\(\\bigl(\\tfrac{mb}{m-1},0\\bigr)\\) and squared radius \\(\\tfrac{mb^2}{(m-1)^2}\\). For \\(m=1\\) the quadratic terms cancel and \\(2bx-b^2=0\\) remains, a line \\(x=\\tfrac b2\\), the perpendicular bisector of \\(AB\\).',
+        ),
+    },
+    {
+        id: 'inverse-points',
+        latex: '|OA|\\cdot|OB|=\\rho^2',
+        notation: text(
+            '\\(O\\) je središče in \\(\\rho\\) polmer krožnice, točki \\(A\\) in \\(B\\) ležita na istem poltraku iz \\(O\\).',
+            '\\(O\\) is the centre and \\(\\rho\\) the radius of the circle, and the points \\(A\\) and \\(B\\) lie on the same ray from \\(O\\).',
+        ),
+        explanation: text(
+            'Definicija: točki na istem poltraku iz središča \\(O\\) sta si inverzni glede na krožnico s polmerom \\(\\rho\\), kadar je zmnožek njunih razdalj do \\(O\\) enak \\(\\rho^2\\). Inverzija je podrobneje v lekciji Potenca točke in inverzija.',
+            'Definition: two points on the same ray from the centre \\(O\\) are inverse with respect to the circle of radius \\(\\rho\\) when the product of their distances from \\(O\\) equals \\(\\rho^2\\). Inversion is treated in more detail in the lesson Power of a point and inversion.',
+        ),
+    },
+];
+
+const cg3Examples: readonly WorkedExample[] = [
+    {
+        id: 'cg3-expansion',
+        title: text('Razvoj \\(|PA|^2=4|PB|^2\\) pri \\(A=(0,0)\\), \\(B=(6,0)\\)', 'Expanding \\(|PA|^2=4|PB|^2\\) for \\(A=(0,0)\\), \\(B=(6,0)\\)'),
+        calculationLatex: 'x^2+y^2=4\\bigl((x-6)^2+y^2\\bigr)\\ \\Longrightarrow\\ 3x^2+3y^2-48x+144=0',
+        resultLatex: '(x-8)^2+y^2=16',
+        check: text(
+            'Delimo s \\(3\\): \\(x^2-16x+y^2+48=0\\). Dopolnitev do popolnega kvadrata da \\((x-8)^2+y^2=64-48=16\\): središče \\((8,0)\\), kvadrat polmera \\(16\\), polmer \\(4\\). Isto dasta formuli za \\(b=6\\), \\(m=4\\): središče \\(\\tfrac{4\\cdot6}{3}=8\\) in kvadrat polmera \\(\\tfrac{4\\cdot36}{9}=16\\).',
+            'Dividing by \\(3\\): \\(x^2-16x+y^2+48=0\\). Completing the square gives \\((x-8)^2+y^2=64-48=16\\): centre \\((8,0)\\), squared radius \\(16\\), radius \\(4\\). The formulas for \\(b=6\\), \\(m=4\\) give the same: centre \\(\\tfrac{4\\cdot6}{3}=8\\) and squared radius \\(\\tfrac{4\\cdot36}{9}=16\\).',
+        ),
+    },
+];
+
+const cg3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'cg3-predict', order: 1,
+        title: text('Napoved množice točk', 'Predicting the set of points'),
+        purpose: text('Napovedati obliko množice točk z danim razmerjem razdalj do dveh točk, preden jo graf nariše.', 'Predicting the shape of the set of points with a given ratio of distances to two points, before the graph draws it.'),
+        explanation: text(
+            'Točki \\(A=(0,0)\\) in \\(B=(6,0)\\) sta dani, točka \\(P\\) je poljubna. Razmerje \\(k=|PA|:|PB|\\) nastaviš v polju Razmerje. Zanima nas množica vseh točk \\(P\\), pri katerih je razmerje enako danemu \\(k\\). Preden karkoli spremeniš, napovej obliko te množice za \\(k=1\\), to je za \\(|PA|=|PB|\\), in za \\(k=2\\), to je za \\(|PA|=2|PB|\\), ter na kateri strani točk \\(A\\) in \\(B\\) leži.',
+            'The points \\(A=(0,0)\\) and \\(B=(6,0)\\) are given and the point \\(P\\) is arbitrary. You set the ratio \\(k=|PA|:|PB|\\) in the field Ratio. We are interested in the set of all points \\(P\\) for which the ratio equals the given \\(k\\). Before you change anything, predict the shape of this set for \\(k=1\\), that is for \\(|PA|=|PB|\\), and for \\(k=2\\), that is for \\(|PA|=2|PB|\\), and on which side of the points \\(A\\) and \\(B\\) it lies.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši dve napovedi, nato preberi stanje pri \\(k=1\\); nastavi \\(k=2\\) in preberi stanje še enkrat.', 'Write down two predictions, then read the status at \\(k=1\\); set \\(k=2\\) and read the status again.'),
+        expectedObservations: [
+            text('Pri \\(k=1\\) stanje pove, da so točke na simetrali daljice \\(AB\\); vrstica množice kaže \\(12x=36\\), to je premica \\(x=3\\).', 'At \\(k=1\\) the status says the points lie on the perpendicular bisector of \\(AB\\); the set row shows \\(12x=36\\), the line \\(x=3\\).'),
+            text('Pri \\(k=2\\) stanje pove, da točke ležijo na krožnici; krožnica leži na strani točke \\(B\\) in jo obdaja, točke \\(A\\) pa ne.', 'At \\(k=2\\) the status says the points lie on a circle; the circle lies on the side of the point \\(B\\) and surrounds it, but not the point \\(A\\).'),
+        ],
+        scene: apolloniusScene('cg3-predict-scene', {p: [8, 4], k: 1},
+            'Točki \\(A=(0,0)\\), \\(B=(6,0)\\), razmerje \\(k=1\\), točka \\(P=(8,4)\\); množica je premica \\(12x=36\\).',
+            'The points \\(A=(0,0)\\), \\(B=(6,0)\\), the ratio \\(k=1\\), the point \\(P=(8,4)\\); the set is the line \\(12x=36\\).'),
+    }),
+    step({
+        id: 'cg3-ratio', order: 2,
+        title: text('Razmerje v točki \\(P\\)', 'The ratio at the point \\(P\\)'),
+        purpose: text('Povleči \\(P\\) in prebrati razmerje razdalj ter videti, da v \\(B\\) ni določeno.', 'Dragging \\(P\\) and reading the ratio of the distances, and seeing that it is not defined at \\(B\\).'),
+        explanation: text(
+            'Odčitek v vrstici Razmerje PA : PB pokaže \\(|PA|:|PB|\\) za trenutno točko \\(P\\). Točka \\(P\\) ima celoštevilski koordinati, zato je preverjanje, ali je \\(P\\) na množici, natančno: primerjamo \\(|PA|^2\\) in \\(m|PB|^2\\). Razmerje v odčitku je kvadratni koren iz razmerja kvadratov in je zaokroženo, kadar ni celo število. Povleci \\(P\\) ali vpiši njene koordinate in opazuj razmerje; pri \\(k=1\\) vrstica Točka P na množici pove, ali ima \\(P\\) razmerje \\(1\\). Če je \\(P=B\\), je imenovalec \\(0\\) in razmerje ni določeno.',
+            'The readout in the row Ratio PA : PB shows \\(|PA|:|PB|\\) for the current point \\(P\\). The point \\(P\\) has integer coordinates, so the test whether \\(P\\) is on the set is exact: we compare \\(|PA|^2\\) and \\(m|PB|^2\\). The ratio in the readout is the square root of the ratio of the squares and is rounded when it is not an integer. Drag \\(P\\) or type its coordinates and watch the ratio; at \\(k=1\\) the row P on the set says whether \\(P\\) has the ratio \\(1\\). If \\(P=B\\), the denominator is \\(0\\) and the ratio is not defined.',
+        ),
+        formulaIds: ['apollonius-ratio'],
+        observationPrompt: text('Postavi \\(P\\) v \\((5,0)\\), v \\((3,3)\\) in v \\(B=(6,0)\\) ter preberi razmerje in vrstico Točka P na množici.', 'Put \\(P\\) at \\((5,0)\\), at \\((3,3)\\) and at \\(B=(6,0)\\), and read the ratio and the row P on the set.'),
+        expectedObservations: [
+            text('V \\((5,0)\\) je razmerje \\(5\\), saj je \\(|PA|=5\\) in \\(|PB|=1\\); v \\((3,3)\\) je razmerje \\(1\\), ker je \\(|PA|^2=|PB|^2=18\\), in točka je na množici; v \\(B\\) razmerje ni določeno.', 'At \\((5,0)\\) the ratio is \\(5\\), since \\(|PA|=5\\) and \\(|PB|=1\\); at \\((3,3)\\) the ratio is \\(1\\), because \\(|PA|^2=|PB|^2=18\\), and the point is on the set; at \\(B\\) the ratio is not defined.'),
+        ],
+        scene: apolloniusScene('cg3-ratio-scene', {p: [5, 0], k: 1},
+            'Razmerje \\(k=1\\), točka \\(P=(5,0)\\): razmerje v \\(P\\) je \\(5\\), točka ni na množici.',
+            'The ratio \\(k=1\\), the point \\(P=(5,0)\\): the ratio at \\(P\\) is \\(5\\), the point is not on the set.'),
+    }),
+    step({
+        id: 'cg3-division', order: 3,
+        title: text('Točki na premici \\(AB\\)', 'The points on the line \\(AB\\)'),
+        purpose: text('Poiskati notranjo in zunanjo delilno točko daljice \\(AB\\) z razmerjem \\(k=2\\).', 'Finding the internal and external division points of \\(AB\\) with the ratio \\(k=2\\).'),
+        explanation: text(
+            'Nastavi \\(k=2\\). Na premici \\(AB\\) iščemo točke \\(X\\) z \\(|XA|=2|XB|\\). Ena taka točka, \\(N\\), leži med \\(A\\) in \\(B\\), druga, \\(Z\\), zunaj daljice \\(AB\\). Preden pogledaš odčitek, napovej obe x-koordinati; namig: za prvo velja \\(|NA|+|NB|=|AB|=6\\), za drugo razlika razdalj do \\(A\\) in \\(B\\) enaka \\(|AB|\\).',
+            'Set \\(k=2\\). On the line \\(AB\\) we look for the points \\(X\\) with \\(|XA|=2|XB|\\). One such point, \\(I\\), lies between \\(A\\) and \\(B\\), the other, \\(E\\), outside the segment \\(AB\\). Before you look at the readout, predict both x-coordinates; hint: for the first one \\(|IA|+|IB|=|AB|=6\\), for the second the difference of the distances to \\(A\\) and \\(B\\) equals \\(|AB|\\).',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi notranjo in zunanjo delilno točko v odčitku in preveri napoved.', 'Write down your prediction, then read the internal and the external division point in the readout and check the prediction.'),
+        expectedObservations: [
+            text('Notranja delilna točka je \\(N=(4,0)\\), zunanja \\(Z=(12,0)\\).', 'The internal division point is \\(I=(4,0)\\), the external one \\(E=(12,0)\\).'),
+            text('Izpeljava notranje točke: \\(|NA|+|NB|=6\\) in \\(|NA|=2|NB|\\), zato \\(|NB|=2\\), \\(|NA|=4\\). Zunanja točka za \\(B\\): \\(|ZA|-|ZB|=6\\) in \\(|ZA|=2|ZB|\\), zato \\(|ZB|=6\\), \\(|ZA|=12\\). Isti točki dobimo kot presečišči notranje in zunanje simetrale kota \\(APB\\) s premico \\(AB\\) (izrek o simetrali kota).', 'Derivation of the internal point: \\(|IA|+|IB|=6\\) and \\(|IA|=2|IB|\\), so \\(|IB|=2\\), \\(|IA|=4\\). The external point beyond \\(B\\): \\(|EA|-|EB|=6\\) and \\(|EA|=2|EB|\\), so \\(|EB|=6\\), \\(|EA|=12\\). We get the same two points as the intersections of the internal and the external bisector of the angle \\(APB\\) with the line \\(AB\\) (the angle bisector theorem).'),
+        ],
+        scene: apolloniusScene('cg3-division-scene', {p: [8, 4], k: 2},
+            'Razmerje \\(k=2\\): delilni točki \\(N=(4,0)\\) in \\(Z=(12,0)\\).',
+            'The ratio \\(k=2\\): the division points \\(I=(4,0)\\) and \\(E=(12,0)\\).'),
+    }),
+    step({
+        id: 'cg3-circle', order: 4,
+        title: text('Krožnica nad premerom \\(NZ\\)', 'The circle on the diameter \\(IE\\)'),
+        purpose: text('Primerjati krožnico nad premerom med delilnima točkama z množico, ki jo da račun.', 'Comparing the circle on the diameter between the division points with the set that the computation gives.'),
+        explanation: text(
+            'Daljica \\(NZ\\) je dolga \\(12-4=8\\), njeno razpolovišče je \\((8,0)\\). Krožnica s premerom \\(NZ\\) ima torej središče \\((8,0)\\) in polmer \\(\\rho=4\\). Ali je to res vsa množica, pokaže račun: enakost \\(|PA|^2=4|PB|^2\\) razvijemo v koordinatah, kot kaže primer. Razvoj je argument, da je množica krožnica; graf kaže isto krožnico.',
+            'The segment \\(IE\\) is \\(12-4=8\\) long and its midpoint is \\((8,0)\\). So the circle with the diameter \\(IE\\) has centre \\((8,0)\\) and radius \\(\\rho=4\\). Whether this is the whole set is shown by a computation: we expand \\(|PA|^2=4|PB|^2\\) in coordinates, as the example shows. The expansion is the argument that the set is a circle; the graph shows the same circle.',
+        ),
+        formulaIds: ['apollonius-circle'],
+        workedExampleId: 'cg3-expansion',
+        observationPrompt: text('Preberi središče in kvadrat polmera v vrstici množice in preveri, da krožnica poteka skozi obe delilni točki.', 'Read the centre and the squared radius in the set row and check that the circle passes through both division points.'),
+        expectedObservations: [text('Središče je \\((8,0)\\), kvadrat polmera \\(16\\); krožnica poteka skozi \\((4,0)\\) in \\((12,0)\\).', 'The centre is \\((8,0)\\), the squared radius is \\(16\\); the circle passes through \\((4,0)\\) and \\((12,0)\\).')],
+        scene: apolloniusScene('cg3-circle-scene', {p: [8, 4], k: 2},
+            'Razmerje \\(k=2\\): krožnica s središčem \\((8,0)\\) in kvadratom polmera \\(16\\).',
+            'The ratio \\(k=2\\): the circle with centre \\((8,0)\\) and squared radius \\(16\\).'),
+    }),
+    step({
+        id: 'cg3-points', order: 5,
+        title: text('Druge točke na krožnici', 'Other points on the circle'),
+        purpose: text('Preveriti, da imajo tudi druge točke krožnice razmerje \\(2\\), in to natančno.', 'Checking that other points of the circle also have the ratio \\(2\\), and exactly.'),
+        explanation: text(
+            'Točka \\((8,4)\\) je na krožnici \\((x-8)^2+y^2=16\\), ker je \\(0+16=16\\). Natančen račun: \\(|PA|^2=8^2+4^2=80\\), \\(|PB|^2=2^2+4^2=20\\) in \\(80=4\\cdot20\\), torej je razmerje \\(\\sqrt{80/20}=2\\) brez zaokrožitve. Zrcalna točka \\((8,-4)\\) da enako. Premikanje točke \\(P\\) je ponazoritev; da ima vsaka točka krožnice razmerje \\(2\\), sledi iz enakovrednosti v prejšnjem koraku.',
+            'The point \\((8,4)\\) is on the circle \\((x-8)^2+y^2=16\\), because \\(0+16=16\\). The exact computation: \\(|PA|^2=8^2+4^2=80\\), \\(|PB|^2=2^2+4^2=20\\) and \\(80=4\\cdot20\\), so the ratio is \\(\\sqrt{80/20}=2\\) without rounding. The mirror point \\((8,-4)\\) gives the same. Moving \\(P\\) is an illustration; that every point of the circle has the ratio \\(2\\) follows from the equivalence in the previous step.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Postavi \\(P\\) v \\((8,4)\\), \\((8,-4)\\), \\((4,0)\\), \\((12,0)\\) in nazadnje v \\((5,0)\\); preberi razmerje in vrstico Točka P na množici.', 'Put \\(P\\) at \\((8,4)\\), \\((8,-4)\\), \\((4,0)\\), \\((12,0)\\) and finally at \\((5,0)\\); read the ratio and the row P on the set.'),
+        expectedObservations: [text('V prvih štirih točkah je razmerje \\(2\\) in točka je na množici; v \\((5,0)\\) je razmerje \\(5\\) in točka ni na množici.', 'At the first four points the ratio is \\(2\\) and the point is on the set; at \\((5,0)\\) the ratio is \\(5\\) and the point is not on the set.')],
+        scene: apolloniusScene('cg3-points-scene', {p: [8, 4], k: 2},
+            'Razmerje \\(k=2\\), točka \\(P=(8,4)\\): razmerje v \\(P\\) je \\(2\\), točka je na množici.',
+            'The ratio \\(k=2\\), the point \\(P=(8,4)\\): the ratio at \\(P\\) is \\(2\\), the point is on the set.'),
+    }),
+    step({
+        id: 'cg3-inverse', order: 6,
+        title: text('\\(A\\) in \\(B\\) sta inverzni', '\\(A\\) and \\(B\\) are inverse'),
+        purpose: text('Videti, da je \\(B\\) inverz točke \\(A\\) glede na Apolonijevo krožnico.', 'Seeing that \\(B\\) is the inverse of \\(A\\) with respect to the Apollonius circle.'),
+        explanation: text(
+            'Središče krožnice je \\(O=(8,0)\\), polmer \\(\\rho=4\\). Inverz točke \\(A\\) leži na poltraku iz \\(O\\) skozi \\(A\\), na razdalji \\(\\rho^2/|OA|\\) od \\(O\\). Preden pogledaš odčitek, napovej, kje leži inverz točke \\(A\\) in kakšen je njegov odnos do točke \\(B\\). Graf inverz izračuna natančno, brez zaokrožitve.',
+            'The centre of the circle is \\(O=(8,0)\\) and the radius is \\(\\rho=4\\). The inverse of the point \\(A\\) lies on the ray from \\(O\\) through \\(A\\), at the distance \\(\\rho^2/|OA|\\) from \\(O\\). Before you look at the readout, predict where the inverse of \\(A\\) lies and how it relates to the point \\(B\\). The graph computes the inverse exactly, without rounding.',
+        ),
+        formulaIds: ['inverse-points'],
+        observationPrompt: text('Zapiši napoved, nato preberi vrstico Inverz točke A v tej krožnici in preveri napoved.', 'Write down your prediction, then read the row Inverse of A in this circle and check the prediction.'),
+        expectedObservations: [
+            text('Inverz točke \\(A\\) je \\((6,0)\\), to je točka \\(B\\).', 'The inverse of \\(A\\) is \\((6,0)\\), the point \\(B\\).'),
+            text('Izračun: \\(|OA|=8\\) in \\(|OB|=2\\) na istem poltraku iz \\(O\\), zato je \\(|OA|\\cdot|OB|=16=\\rho^2\\) in je \\(B\\) inverz točke \\(A\\). Za vsak \\(m\\ne1\\): iz središča \\(\\tfrac{mb}{m-1}\\) in kvadrata polmera \\(\\tfrac{mb^2}{(m-1)^2}\\) je \\(|OA|=\\tfrac{mb}{|m-1|}\\) in \\(|OB|=\\tfrac{b}{|m-1|}\\), njun zmnožek pa je \\(\\tfrac{mb^2}{(m-1)^2}=\\rho^2\\).', 'The computation: \\(|OA|=8\\) and \\(|OB|=2\\) on the same ray from \\(O\\), so \\(|OA|\\cdot|OB|=16=\\rho^2\\) and \\(B\\) is the inverse of \\(A\\). For every \\(m\\ne1\\): from the centre \\(\\tfrac{mb}{m-1}\\) and the squared radius \\(\\tfrac{mb^2}{(m-1)^2}\\) we get \\(|OA|=\\tfrac{mb}{|m-1|}\\) and \\(|OB|=\\tfrac{b}{|m-1|}\\), and their product is \\(\\tfrac{mb^2}{(m-1)^2}=\\rho^2\\).'),
+        ],
+        scene: apolloniusScene('cg3-inverse-scene', {p: [8, 4], k: 2},
+            'Razmerje \\(k=2\\): inverz točke \\(A\\) v krožnici je \\((6,0)=B\\).',
+            'The ratio \\(k=2\\): the inverse of \\(A\\) in the circle is \\((6,0)=B\\).'),
+    }),
+    step({
+        id: 'cg3-explore', order: 7,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Spreminjati razmerje in točki \\(A\\), \\(B\\) ter poiskati posebne lege.', 'Changing the ratio and the points \\(A\\), \\(B\\) and finding special positions.'),
+        explanation: text(
+            'Spreminjaj razmerje \\(k\\) v korakih po \\(\\tfrac12\\), točki \\(A\\), \\(B\\) in \\(P\\). Pri \\(k=\\tfrac12\\) in izvirnih \\(A\\), \\(B\\) je središče \\((-2,0)\\) in kvadrat polmera spet \\(16\\): krožnica je na strani točke \\(A\\). Pri \\(k=1\\) je množica premica. Če postaviš \\(A\\) in \\(B\\) v isto točko, stanje pove, da množica ni določena. Slika kaže posamezne primere; splošno velja argument iz razvoja.',
+            'Change the ratio \\(k\\) in steps of \\(\\tfrac12\\), and the points \\(A\\), \\(B\\) and \\(P\\). At \\(k=\\tfrac12\\) and the original \\(A\\), \\(B\\) the centre is \\((-2,0)\\) and the squared radius is again \\(16\\): the circle is on the side of the point \\(A\\). At \\(k=1\\) the set is a line. If you put \\(A\\) and \\(B\\) at the same point, the status says that the set is not defined. The picture shows single cases; the general statement is the argument from the expansion.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Nastavi \\(k=\\tfrac12\\) in preberi vrstico množice; nato postavi \\(B\\) v \\(A\\) in preberi stanje.', 'Set \\(k=\\tfrac12\\) and read the set row; then put \\(B\\) at \\(A\\) and read the status.'),
+        expectedObservations: [
+            text('Pri \\(k=\\tfrac12\\) je središče \\((-2,0)\\), kvadrat polmera \\(16\\).', 'At \\(k=\\tfrac12\\) the centre is \\((-2,0)\\) and the squared radius is \\(16\\).'),
+            text('Ko \\(A\\) in \\(B\\) sovpadata, stanje pove, da množica točk ni določena.', 'When \\(A\\) and \\(B\\) coincide, the status says that the set of points is not defined.'),
+        ],
+        scene: apolloniusScene('cg3-explore-scene', {p: [8, 4], k: 2},
+            'Začetni primer: \\(A=(0,0)\\), \\(B=(6,0)\\), \\(k=2\\), \\(P=(8,4)\\).',
+            'The starting case: \\(A=(0,0)\\), \\(B=(6,0)\\), \\(k=2\\), \\(P=(8,4)\\).'),
+    }),
+];
+
+const cg3: GuidedLesson = {
+    demonstrationId: 'circle-construction',
+    title: text('Apolonijeva krožnica', 'The Apollonius circle'),
+    summary: text(
+        'Obravnavamo množico točk, katerih razdalji do dveh danih točk imata stalno razmerje, njeno zvezo z delilnima točkama zveznice in z inverzijo.',
+        'We study the set of points whose distances to two given points have a constant ratio, and its connection with the division points of the segment and with inversion.',
+    ),
+    prerequisites: [text('Lekcija o tangentah iz točke in inverzija (lekcija Potenca točke in inverzija).', 'The lesson on tangents from a point, and inversion (the lesson Power of a point and inversion).')],
+    learningGoals: [
+        text('Napoveš in nato utemeljiš z razvojem v koordinatah, kakšna je množica točk z danim razmerjem razdalj do dveh točk.', 'Predict, and then argue by expansion in coordinates, what the set of points with a given ratio of distances to two points is.'),
+        text('Poiščeš notranjo in zunanjo delilno točko premice \\(AB\\) z danim razmerjem.', 'Find the internal and the external division point of the line \\(AB\\) with a given ratio.'),
+        text('Veš, da sta \\(A\\) in \\(B\\) inverzni glede na to množico, kadar je ta krožnica.', 'Know that \\(A\\) and \\(B\\) are inverse with respect to this set when it is a circle.'),
+    ],
+    formulaBlocks: cg3Formulas,
+    workedExamples: cg3Examples,
+    steps: cg3Steps,
+    sources,
+    edgeCases: [
+        text('V točki \\(P=B\\) razmerje ni določeno; graf to pove v odčitku in stanju.', 'At \\(P=B\\) the ratio is not defined; the graph says so in the readout and the status.'),
+        text('Če \\(A\\) in \\(B\\) sovpadata, množica ni določena in graf to pove v stanju.', 'If \\(A\\) and \\(B\\) coincide, the set is not defined and the graph says so in the status.'),
+        text('Pri \\(k=1\\) množica ni krožnica, ampak simetrala daljice \\(AB\\); zunanje delilne točke ni, inverza točke \\(A\\) pa ne kaže.', 'At \\(k=1\\) the set is not a circle but the perpendicular bisector of \\(AB\\); there is no external division point and no inverse of \\(A\\) is shown.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+// ---- CG4 -------------------------------------------------------------------------------------------------------------------------
+
+const cg4Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'common-tangent-count',
+        latex: 'd>r_1+r_2:\\ 4;\\ \\ d=r_1+r_2:\\ 3;\\ \\ |r_1-r_2|<d<r_1+r_2:\\ 2;\\ \\ d=|r_1-r_2|:\\ 1;\\ \\ d<|r_1-r_2|:\\ 0',
+        notation: text(
+            '\\(d\\) je razdalja središč, \\(r_1\\) in \\(r_2\\) sta polmera dveh različnih krožnic; za vsako lego je zapisano število skupnih tangent.',
+            '\\(d\\) is the distance of the centres and \\(r_1\\) and \\(r_2\\) are the radii of two different circles; for each position the number of common tangents is written.',
+        ),
+        explanation: text(
+            'Premica je skupna tangenta, če je od središč oddaljena za \\(r_1\\) in \\(r_2\\). Zunanji tangenti (krožnici sta na isti strani premice) obstajata dve, kadar je \\(d>|r_1-r_2|\\), ena pri \\(d=|r_1-r_2|\\), sicer ju ni. Notranji tangenti (krožnici sta na različnih straneh) obstajata dve, kadar je \\(d>r_1+r_2\\), ena pri \\(d=r_1+r_2\\), sicer ju ni. Vsota da navedena števila. Graf med položaji odloči z natančnim računom razdalje in polmerov.',
+            'A line is a common tangent if its distances from the centres are \\(r_1\\) and \\(r_2\\). External tangents (the circles are on the same side of the line) number two when \\(d>|r_1-r_2|\\), one when \\(d=|r_1-r_2|\\), and none otherwise. Internal tangents (the circles are on different sides) number two when \\(d>r_1+r_2\\), one when \\(d=r_1+r_2\\), and none otherwise. The sum gives the listed numbers. The graph decides between the positions by an exact computation of the distance and the radii.',
+        ),
+    },
+    {
+        id: 'similarity-centre',
+        latex: 'X=\\frac{r_2O_1-r_1O_2}{r_2-r_1},\\ \\ I=\\frac{r_2O_1+r_1O_2}{r_1+r_2}',
+        notation: text(
+            '\\(O_1\\), \\(O_2\\) sta središči in \\(r_1\\), \\(r_2\\) polmera krožnic; \\(X\\) je zunanje, \\(I\\) notranje središče raztega (pri \\(r_1\\ne r_2\\) za \\(X\\)).',
+            '\\(O_1\\), \\(O_2\\) are the centres and \\(r_1\\), \\(r_2\\) the radii of the circles; \\(X\\) is the external and \\(I\\) the internal centre of similarity (for \\(X\\) with \\(r_1\\ne r_2\\)).',
+        ),
+        explanation: text(
+            'Definicija: središče raztega je središče razteg, ki preslika eno krožnico v drugo. Razteg s pozitivnim koeficientom \\(\\tfrac{r_2}{r_1}\\) ima središče \\(X\\), zunanje središče raztega; razteg z negativnim koeficientom \\(-\\tfrac{r_2}{r_1}\\) ima središče \\(I\\), notranje središče raztega. Argument, da je tangenta iz središča raztega skupna tangenta: gre skozi središče raztega, zato se pri raztegu preslika sama vase, krožnica \\(c_1\\) pa v \\(c_2\\), tako da se premica, ki se dotika \\(c_1\\), dotika tudi \\(c_2\\). Raztegi so podrobneje v poglavju o središčnem raztegu.',
+            'Definition: a centre of similarity is the centre of a dilation that maps one circle to the other. The dilation with the positive factor \\(\\tfrac{r_2}{r_1}\\) has the centre \\(X\\), the external centre of similarity; the dilation with the negative factor \\(-\\tfrac{r_2}{r_1}\\) has the centre \\(I\\), the internal centre of similarity. The argument that a tangent from a centre of similarity is a common tangent: it passes through the centre, so the dilation maps it to itself and maps \\(c_1\\) to \\(c_2\\), so a line touching \\(c_1\\) also touches \\(c_2\\). Dilations are treated in more detail in the chapter on the central dilation.',
+        ),
+    },
+];
+
+const cg4Examples: readonly WorkedExample[] = [
+    {
+        id: 'cg4-contact',
+        title: text('Razdalja med dotikališčema zunanje tangente pri \\(r_1=3\\), \\(r_2=1\\), \\(d=10\\)', 'The distance between the points of contact of an external tangent for \\(r_1=3\\), \\(r_2=1\\), \\(d=10\\)'),
+        calculationLatex: '|XO_1|^2-r_1^2=15^2-3^2=216,\\ \\ |XO_2|^2-r_2^2=5^2-1^2=24',
+        resultLatex: '\\sqrt{216}-\\sqrt{24}=6\\sqrt6-2\\sqrt6=4\\sqrt6=\\sqrt{96}',
+        check: text(
+            'Dolžini tangentnih odsekov iz \\(X=(15,0)\\) sta po lekciji o tangentah \\(\\sqrt{216}\\) in \\(\\sqrt{24}\\); dotikališči sta na isti strani točke \\(X\\), zato je razdalja med njima razlika, \\(\\sqrt{96}\\approx9{,}798\\). Pri notranji tangenti iz \\(I=(\\tfrac{15}{2},0)\\) sta odseka \\(\\sqrt{47{,}25}\\) in \\(\\sqrt{5{,}25}\\) na različnih straneh točke \\(I\\), zato je razdalja vsota, \\(4\\sqrt{5{,}25}=\\sqrt{84}\\approx9{,}165\\).',
+            'By the lesson on tangents the tangent segments from \\(X=(15,0)\\) are \\(\\sqrt{216}\\) and \\(\\sqrt{24}\\) long; the points of contact are on the same side of \\(X\\), so the distance between them is the difference, \\(\\sqrt{96}\\approx9.798\\). For an internal tangent from \\(I=(\\tfrac{15}{2},0)\\) the segments are \\(\\sqrt{47.25}\\) and \\(\\sqrt{5.25}\\) on different sides of \\(I\\), so the distance is the sum, \\(4\\sqrt{5.25}=\\sqrt{84}\\approx9.165\\).',
+        ),
+    },
+];
+
+const cg4Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'cg4-predict', order: 1,
+        title: text('Napoved števila skupnih tangent', 'Predicting the number of common tangents'),
+        purpose: text('Napovedati, koliko premic se dotika obeh krožnic, glede na njuno lego, preden to odčitamo.', 'Predicting how many lines touch both circles depending on their position, before reading it.'),
+        explanation: text(
+            'Krožnici imata polmera \\(5\\) in \\(3\\), središči sta v \\((0,0)\\) in \\((13,0)\\). Skupna tangenta je premica, ki se dotika obeh krožnic. Preden premakneš drugo krožnico, napovej, koliko skupnih tangent imata krožnici, kadar sta daleč narazen, kadar se dotikata od zunaj, kadar se dotikata od znotraj, kadar se sekata in kadar leži ena v drugi.',
+            'The circles have radii \\(5\\) and \\(3\\) and their centres are at \\((0,0)\\) and \\((13,0)\\). A common tangent is a line that touches both circles. Before you move the second circle, predict how many common tangents the circles have when they are far apart, when they touch externally, when they touch internally, when they cross and when one lies inside the other.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši pet napovedi, nato preberi stanje in število skupnih tangent pri središču \\((13,0)\\).', 'Write down five predictions, then read the status and the number of common tangents at the centre \\((13,0)\\).'),
+        expectedObservations: [text('Pri razdalji središč \\(13\\) sta krožnici ločeni: odčitek pove štiri skupne tangente, dve zunanji in dve notranji.', 'At the centre distance \\(13\\) the circles are separate: the readout says four common tangents, two external and two internal.')],
+        scene: commonScene('cg4-predict-scene', [0, 0, 5], [13, 0, 3],
+            'Krožnici s polmeroma \\(5\\) in \\(3\\), središči \\((0,0)\\) in \\((13,0)\\): štiri skupne tangente.',
+            'Circles of radii \\(5\\) and \\(3\\) with centres \\((0,0)\\) and \\((13,0)\\): four common tangents.'),
+    }),
+    step({
+        id: 'cg4-count', order: 2,
+        title: text('Premakni drugo krožnico', 'Move the second circle'),
+        purpose: text('Videti, kako se število skupnih tangent spreminja z razdaljo središč.', 'Seeing how the number of common tangents changes with the distance of the centres.'),
+        explanation: text(
+            'Polmera ostaneta \\(r_1=5\\), \\(r_2=3\\), zato je \\(r_1+r_2=8\\) in \\(|r_1-r_2|=2\\). Središče druge krožnice premikaj po osi \\(x\\) tako, da je razdalja središč \\(d\\) enaka \\(8\\), \\(7\\), \\(2\\) in \\(1\\), in pri vsaki preberi stanje in število skupnih tangent. Število se spremeni pri razdaljah \\(8\\) in \\(2\\), ko se krožnici dotakneta. O njem odloča natančen račun, ne videz slike.',
+            'The radii stay \\(r_1=5\\), \\(r_2=3\\), so \\(r_1+r_2=8\\) and \\(|r_1-r_2|=2\\). Move the centre of the second circle along the \\(x\\) axis so that the distance of the centres \\(d\\) equals \\(8\\), \\(7\\), \\(2\\) and \\(1\\), and at each position read the status and the number of common tangents. The number changes at the distances \\(8\\) and \\(2\\), where the circles touch. It is decided by an exact computation, not by how the picture looks.',
+        ),
+        formulaIds: ['common-tangent-count'],
+        observationPrompt: text('Nastavi središče druge krožnice na \\((8,0)\\), \\((7,0)\\), \\((2,0)\\) in \\((1,0)\\) ter pri vsakem preberi število skupnih tangent.', 'Set the centre of the second circle to \\((8,0)\\), \\((7,0)\\), \\((2,0)\\) and \\((1,0)\\) and read the number of common tangents at each.'),
+        expectedObservations: [text('Pri \\(d=8\\) so tri tangente (zunanji dotik), pri \\(d=7\\) dve (krožnici se sekata), pri \\(d=2\\) ena (notranji dotik), pri \\(d=1\\) nobene (ena krožnica leži v drugi).', 'At \\(d=8\\) there are three tangents (external contact), at \\(d=7\\) two (the circles cross), at \\(d=2\\) one (internal contact), at \\(d=1\\) none (one circle lies inside the other).')],
+        scene: commonScene('cg4-count-scene', [0, 0, 5], [8, 0, 3],
+            'Polmera \\(5\\) in \\(3\\), središči \\((0,0)\\) in \\((8,0)\\): krožnici se od zunaj dotikata, tri skupne tangente.',
+            'Radii \\(5\\) and \\(3\\), centres \\((0,0)\\) and \\((8,0)\\): the circles touch externally, three common tangents.'),
+    }),
+    step({
+        id: 'cg4-external', order: 3,
+        title: text('Zunanje središče raztega', 'The external centre of similarity'),
+        purpose: text('Sestaviti zunanji skupni tangenti iz zunanjega središča raztega.', 'Constructing the two external common tangents from the external centre of similarity.'),
+        explanation: text(
+            'Krožnici imata polmera \\(3\\) in \\(1\\), središči sta \\((0,0)\\) in \\((10,0)\\). Razteg s pozitivnim koeficientom \\(\\tfrac13\\) preslika \\(c_1\\) v \\(c_2\\); njegovo središče \\(X\\) leži zunaj daljice \\(O_1O_2\\) z \\(|XO_1|:|XO_2|=3:1\\), zato je \\(|XO_1|=15\\), \\(|XO_2|=5\\) in \\(X=(15,0)\\). Tangenti iz \\(X\\) na \\(c_1\\) (konstrukcija iz lekcije o tangentah iz točke) sta po argumentu o raztegu skupni tangenti krožnic. Premica iz \\(X\\) ima s premico središč kot \\(\\arcsin\\tfrac{3}{15}\\approx11{,}54^\\circ\\).',
+            'The circles have radii \\(3\\) and \\(1\\) and centres \\((0,0)\\) and \\((10,0)\\). The dilation with the positive factor \\(\\tfrac13\\) maps \\(c_1\\) to \\(c_2\\); its centre \\(X\\) lies outside the segment \\(O_1O_2\\) with \\(|XO_1|:|XO_2|=3:1\\), so \\(|XO_1|=15\\), \\(|XO_2|=5\\) and \\(X=(15,0)\\). By the argument about the dilation the two tangents from \\(X\\) to \\(c_1\\) (the construction from the lesson on tangents from a point) are common tangents of the circles. A line from \\(X\\) makes the angle \\(\\arcsin\\tfrac{3}{15}\\approx11.54^\\circ\\) with the line of centres.',
+        ),
+        formulaIds: ['similarity-centre'],
+        workedExampleId: 'cg4-contact',
+        observationPrompt: text('Preberi zunanje središče raztega in število skupnih tangent ter poišči tangenti, ki se sekata v njem.', 'Read the external centre of similarity and the number of common tangents, and find the tangents that meet at it.'),
+        expectedObservations: [text('Zunanje središče raztega je \\((15,0)\\), skupnih tangent je \\(4\\); dve se sekata v \\(X\\).', 'The external centre of similarity is \\((15,0)\\), there are \\(4\\) common tangents; two of them meet at \\(X\\).')],
+        scene: commonScene('cg4-external-scene', [0, 0, 3], [10, 0, 1],
+            'Polmera \\(3\\) in \\(1\\), središči \\((0,0)\\) in \\((10,0)\\): zunanje središče raztega \\((15,0)\\), štiri tangente.',
+            'Radii \\(3\\) and \\(1\\), centres \\((0,0)\\) and \\((10,0)\\): the external centre of similarity \\((15,0)\\), four tangents.'),
+    }),
+    step({
+        id: 'cg4-internal', order: 4,
+        title: text('Notranje središče raztega', 'The internal centre of similarity'),
+        purpose: text('Sestaviti notranji skupni tangenti iz notranjega središča raztega.', 'Constructing the two internal common tangents from the internal centre of similarity.'),
+        explanation: text(
+            'Razteg z negativnim koeficientom \\(-\\tfrac13\\) tudi preslika \\(c_1\\) v \\(c_2\\); njegovo središče \\(I\\) leži med središčema z \\(|IO_1|:|IO_2|=3:1\\) in \\(|IO_1|+|IO_2|=10\\), zato je \\(|IO_1|=7{,}5\\) in \\(I=(\\tfrac{15}{2},0)\\). Isti argument kot prej: tangenti iz \\(I\\) na \\(c_1\\) se preslikata vsaka vase, zato sta skupni tangenti krožnic; ker središče raztega leži med krožnicama, prečkata prostor med njima. Premica iz \\(I\\) ima s premico središč kot \\(\\arcsin\\tfrac{3}{7{,}5}=\\arcsin0{,}4\\approx23{,}58^\\circ\\).',
+            'The dilation with the negative factor \\(-\\tfrac13\\) also maps \\(c_1\\) to \\(c_2\\); its centre \\(I\\) lies between the centres with \\(|IO_1|:|IO_2|=3:1\\) and \\(|IO_1|+|IO_2|=10\\), so \\(|IO_1|=7.5\\) and \\(I=(\\tfrac{15}{2},0)\\). The same argument as before: each of the two tangents from \\(I\\) to \\(c_1\\) is mapped to itself, so they are common tangents of the circles; since the centre of similarity lies between the circles, they cross the space between them. A line from \\(I\\) makes the angle \\(\\arcsin\\tfrac{3}{7.5}=\\arcsin0.4\\approx23.58^\\circ\\) with the line of centres.',
+        ),
+        formulaIds: ['similarity-centre'],
+        observationPrompt: text('Preberi notranje središče raztega in poišči tangenti, ki prečkata med krožnicama.', 'Read the internal centre of similarity and find the tangents that cross between the circles.'),
+        expectedObservations: [text('Notranje središče raztega je \\((\\tfrac{15}{2},0)=(7{,}5;\\ 0)\\); skupaj z zunanjima sta to vse štiri skupne tangente.', 'The internal centre of similarity is \\((\\tfrac{15}{2},0)=(7.5,\\ 0)\\); together with the external two these are all four common tangents.')],
+        scene: commonScene('cg4-internal-scene', [0, 0, 3], [10, 0, 1],
+            'Polmera \\(3\\) in \\(1\\), središči \\((0,0)\\) in \\((10,0)\\): notranje središče raztega \\((\\tfrac{15}{2},0)\\).',
+            'Radii \\(3\\) and \\(1\\), centres \\((0,0)\\) and \\((10,0)\\): the internal centre of similarity \\((\\tfrac{15}{2},0)\\).'),
+    }),
+    step({
+        id: 'cg4-equal', order: 5,
+        title: text('Enaka polmera', 'Equal radii'),
+        purpose: text('Videti, da pri enakih polmerih zunanjega središča raztega ni in sta zunanji tangenti vzporedni.', 'Seeing that for equal radii there is no external centre of similarity and the external tangents are parallel.'),
+        explanation: text(
+            'Polmer prve krožnice je \\(3\\), središči sta \\((0,0)\\) in \\((10,0)\\). Zunanje središče raztega \\(X\\) leži na premici središč. Najprej nastavi polmer druge krožnice na \\(2\\), nato na \\(3\\). Preden preveriš, napovej, kam gre \\(X\\) pri \\(r_2=2\\) in kaj se zgodi z njim pri \\(r_2=3\\), ko sta polmera enaka.',
+            'The radius of the first circle is \\(3\\) and the centres are \\((0,0)\\) and \\((10,0)\\). The external centre of similarity \\(X\\) lies on the line of centres. First set the radius of the second circle to \\(2\\), then to \\(3\\). Before you check, predict where \\(X\\) goes at \\(r_2=2\\) and what happens to it at \\(r_2=3\\), when the radii are equal.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato nastavi \\(r_2=2\\) in \\(r_2=3\\), preberi zunanje in notranje središče raztega ter stanje in preveri napoved.', 'Write down your prediction, then set \\(r_2=2\\) and \\(r_2=3\\), read the external and the internal centre of similarity and the status, and check the prediction.'),
+        expectedObservations: [
+            text('Pri \\(r_2=2\\) je zunanje središče raztega \\((30,0)\\): \\(|XO_1|:|XO_2|=3:2\\) in \\(|XO_1|-|XO_2|=10\\), zato \\(|XO_1|=30\\). Večji ko je \\(r_2\\) proti \\(r_1\\), dlje je \\(X\\).', 'At \\(r_2=2\\) the external centre of similarity is \\((30,0)\\): \\(|XO_1|:|XO_2|=3:2\\) and \\(|XO_1|-|XO_2|=10\\), so \\(|XO_1|=30\\). The closer \\(r_2\\) comes to \\(r_1\\), the farther \\(X\\) is.'),
+            text('Pri \\(r_2=3\\) zunanjega središča raztega ni, stanje to pove: koeficient \\(\\tfrac{r_2}{r_1}\\) je \\(1\\), razteg s tem koeficientom je premik. Zunanji tangenti sta vzporedni s premico središč in oddaljeni \\(3\\) od nje: \\(y=3\\) in \\(y=-3\\). Notranje središče raztega je razpolovišče \\((5,0)\\), tangent je \\(4\\), notranji tangenti pa imata s premico središč kot \\(\\arcsin\\tfrac35\\approx36{,}87^\\circ\\).', 'At \\(r_2=3\\) there is no external centre of similarity and the status says so: the factor \\(\\tfrac{r_2}{r_1}\\) is \\(1\\), and the dilation with this factor is a translation. The external tangents are parallel to the line of centres at the distance \\(3\\) from it: \\(y=3\\) and \\(y=-3\\). The internal centre of similarity is the midpoint \\((5,0)\\), there are \\(4\\) tangents, and the internal tangents make the angle \\(\\arcsin\\tfrac35\\approx36.87^\\circ\\) with the line of centres.'),
+        ],
+        scene: commonScene('cg4-equal-scene', [0, 0, 3], [10, 0, 3],
+            'Polmera \\(3\\) in \\(3\\), središči \\((0,0)\\) in \\((10,0)\\): zunanjega središča raztega ni, notranje je \\((5,0)\\).',
+            'Radii \\(3\\) and \\(3\\), centres \\((0,0)\\) and \\((10,0)\\): no external centre of similarity, the internal one is \\((5,0)\\).'),
+    }),
+    step({
+        id: 'cg4-touching', order: 6,
+        title: text('Dotikanje', 'Touching positions'),
+        purpose: text('Videti, kaj se zgodi z notranjima tangentama, ko se krožnici dotakneta.', 'Seeing what happens to the internal tangents when the circles touch.'),
+        explanation: text(
+            'Krožnici imata polmera \\(3\\) in \\(1\\), prva ima središče \\((0,0)\\). Pri središču druge v \\((4,0)\\) je \\(d=4=r_1+r_2\\): krožnici se od zunaj dotikata. Pri središču v \\((2,0)\\) je \\(d=2=r_1-r_2\\): dotikata se od znotraj. Preden preveriš, napovej, kje leži notranje središče raztega, kadar je \\(d=r_1+r_2\\), in koliko skupnih tangent imata krožnici v obeh primerih.',
+            'The circles have radii \\(3\\) and \\(1\\) and the first has its centre at \\((0,0)\\). With the centre of the second at \\((4,0)\\) we have \\(d=4=r_1+r_2\\): the circles touch externally. With the centre at \\((2,0)\\) we have \\(d=2=r_1-r_2\\): they touch internally. Before you check, predict where the internal centre of similarity lies when \\(d=r_1+r_2\\), and how many common tangents the circles have in both cases.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Nastavi središče druge krožnice na \\((4,0)\\) in nato na \\((2,0)\\); preberi število tangent in središči raztega.', 'Set the centre of the second circle to \\((4,0)\\) and then to \\((2,0)\\); read the number of tangents and the centres of similarity.'),
+        expectedObservations: [
+            text('Pri \\((4,0)\\) so tri tangente, notranje središče raztega je \\((3,0)\\), to je točka dotika; zunanje je \\((6,0)\\).', 'At \\((4,0)\\) there are three tangents, the internal centre of similarity is \\((3,0)\\), the point of contact; the external one is \\((6,0)\\).'),
+            text('Pri \\((2,0)\\) je ena tangenta, zunanje središče raztega je \\((3,0)\\), to je točka dotika.', 'At \\((2,0)\\) there is one tangent, the external centre of similarity is \\((3,0)\\), the point of contact.'),
+        ],
+        scene: commonScene('cg4-touching-scene', [0, 0, 3], [4, 0, 1],
+            'Polmera \\(3\\) in \\(1\\), središči \\((0,0)\\) in \\((4,0)\\): zunanji dotik v \\((3,0)\\), tri tangente.',
+            'Radii \\(3\\) and \\(1\\), centres \\((0,0)\\) and \\((4,0)\\): external contact at \\((3,0)\\), three tangents.'),
+    }),
+    step({
+        id: 'cg4-explore', order: 7,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Spreminjati krožnici in poiskati posebne lege: sosrediščni in sovpadajoči krožnici.', 'Changing the circles and finding special positions: concentric and coincident circles.'),
+        explanation: text(
+            'Spreminjaj središči in polmera obeh krožnic. Postavi središči v isto točko: če sta polmera različna, sta krožnici sosrediščni in skupnih tangent ni. Če sta tudi polmera enaka, krožnici sovpadata, skupnih tangent je neskončno mnogo in graf nobene ne nariše. Slika kaže posamezne primere; število tangent v splošnem ureja pravilo iz koraka 2.',
+            'Change the centres and radii of both circles. Put the centres at the same point: if the radii differ, the circles are concentric and there are no common tangents. If the radii are equal too, the circles coincide, there are infinitely many common tangents and the graph draws none. The picture shows single cases; in general the number of tangents is given by the rule from step 2.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Postavi obe središči v \\((0,0)\\) s polmeroma \\(5\\) in \\(3\\), nato oba polmera na \\(5\\) in preberi stanje.', 'Put both centres at \\((0,0)\\) with radii \\(5\\) and \\(3\\), then both radii at \\(5\\), and read the status.'),
+        expectedObservations: [
+            text('Pri polmerih \\(5\\) in \\(3\\) sta krožnici sosrediščni in skupnih tangent ni.', 'With radii \\(5\\) and \\(3\\) the circles are concentric and there are no common tangents.'),
+            text('Pri enakih polmerih krožnici sovpadata: skupnih tangent je neskončno mnogo, nobene ne narišemo.', 'With equal radii the circles coincide: there are infinitely many common tangents, none is drawn.'),
+        ],
+        scene: commonScene('cg4-explore-scene', [0, 0, 3], [10, 0, 1],
+            'Začetni primer: polmera \\(3\\) in \\(1\\), središči \\((0,0)\\) in \\((10,0)\\).',
+            'The starting case: radii \\(3\\) and \\(1\\), centres \\((0,0)\\) and \\((10,0)\\).'),
+    }),
+];
+
+const cg4: GuidedLesson = {
+    demonstrationId: 'circle-construction',
+    title: text('Skupne tangente dveh krožnic', 'Common tangents of two circles'),
+    summary: text(
+        'Obravnavamo premice, ki se dotikajo dveh krožnic hkrati, njihovo število glede na razdaljo središč in središči raztega, v katerih se te premice sekajo.',
+        'We study the lines that touch two circles at once, how many there are depending on the distance of the centres, and the centres of similarity where these lines meet.',
+    ),
+    prerequisites: [text('Lekcija o tangentah iz točke in središčni razteg.', 'The lesson on tangents from a point, and the central dilation.')],
+    learningGoals: [
+        text('Napoveš in nato utemeljiš število skupnih tangent glede na razdaljo središč in polmera.', 'Predict, and then justify, the number of common tangents from the distance of the centres and the radii.'),
+        text('Sestaviš zunanji in notranji tangenti iz zunanjega in notranjega središča raztega.', 'Construct the external and the internal tangents from the external and the internal centre of similarity.'),
+        text('Poznaš posebna primera enakih polmerov in dotikanja.', 'Know the special cases of equal radii and of touching circles.'),
+    ],
+    formulaBlocks: cg4Formulas,
+    workedExamples: cg4Examples,
+    steps: cg4Steps,
+    sources,
+    edgeCases: [
+        text('Pri enakih polmerih zunanjega središča raztega ni in sta zunanji tangenti vzporedni.', 'With equal radii there is no external centre of similarity and the external tangents are parallel.'),
+        text('Sosrediščni krožnici nimata skupne tangente; sovpadajoči imata neskončno mnogo, graf pa nobene ne nariše.', 'Concentric circles have no common tangent; coincident circles have infinitely many and the graph draws none.'),
+        text('Koti in razdalje med dotikališči v besedilu so približni (zaokroženi); število tangent odloči natančen račun.', 'The angles and the distances between the points of contact in the text are approximate (rounded); the number of tangents is decided by an exact computation.'),
+    ],
+    unresolvedQuestions: [],
+};
+
 export const circleTangentsLesson: GuidedLesson = cg1;
 export const circleRadicalLesson: GuidedLesson = cg2;
+export const circleApolloniusLesson: GuidedLesson = cg3;
+export const circleCommonTangentsLesson: GuidedLesson = cg4;

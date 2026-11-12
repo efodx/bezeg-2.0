@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for CG3–CG4; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: not started.
+Status: F3 done 2026-11-12 (handler 14; CG3 `circle-construction-apollonius`, CG4 `circle-construction-common-tangents`, sections `apollonius-circle` and `common-tangents` in the chapter `circle-geometry`, new operation `set-apollonius` of the action kind `circle`; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-circle-b.md)); F4–F6 next. Owed: no browser look at the Apollonius and common-tangent modes during the lessons or at the new chapter sections (one default smoke row per Demonstration); the Slovenian prose has no second reader.

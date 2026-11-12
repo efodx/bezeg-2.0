@@ -12,7 +12,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | [02 State model and construction graph](02-construction-graph.md) | A, B | F2a | none | 01 | done |
 | [03 Release batches A–B](03-release-batches.md) | A, B | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md)); split into 04–05 |
 | [04 Batch A: CG1–CG2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 done 2026-11-12 (CG1, CG2; chapter skeleton); F4–F6 next |
-| [05 Batch B: CG3–CG4 lessons](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | not started |
+| [05 Batch B: CG3–CG4 lessons](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | F3 in progress |
 
 ## Slovenian terms (F0 decision)
 

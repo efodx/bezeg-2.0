@@ -27,6 +27,10 @@ type CircleName = Extract<LessonAction, {kind: 'circle'; operation: 'set-circle'
 const setMode = (mode: Mode): LessonAction => ({kind: 'circle', operation: 'set-mode', mode});
 const setCircle = (circle: CircleName, x: number, y: number, r: number): LessonAction => ({kind: 'circle', operation: 'set-circle', circle, x, y, r});
 const setPoint = (x: number, y: number): LessonAction => ({kind: 'circle', operation: 'set-point', x, y});
+type Apollonius = Omit<Extract<LessonAction, {kind: 'circle'; operation: 'set-apollonius'}>, 'kind' | 'operation'>;
+const setApollonius = (fields: Apollonius): LessonAction => ({kind: 'circle', operation: 'set-apollonius', ...fields});
+const pointField = (axis: 'x' | 'y', name: string) => t(axis === 'x' ? 'circle_construction_point_x' : 'circle_construction_point_y', {value0: name});
+const ratioField = t('circle_construction_ratio_label');
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
 const choose = (mode: Mode) => act(() => { fireEvent.change(screen.getByLabelText(t('circle_construction_mode_label')), {target: {value: mode}}); });
 const centreX = (n: number) => t('circle_construction_centre_x', {value0: String(n)});
@@ -113,6 +117,73 @@ test('the graph supports the circle actions; invalid scene data is a lesson-cont
         setCircle('c1', 0, 0, 0.3), setCircle('c1', 0, 0, 0), setCircle('c1', 0, 0, 9), setCircle('c1', 0, 0, -1), setCircle('c1', 0, 0, Number.NaN),
         setPoint(0.5, 0), setPoint(0, 17), setPoint(Number.NaN, 0), setPoint(0, Number.POSITIVE_INFINITY),
         {kind: 'circle', operation: JSON.parse('"spin"')} as unknown as LessonAction,
+    ];
+    for (const action of bad) expect(() => apply(graph, action)).toThrow();
+    expect(stateOf(graph)).toEqual(before);
+});
+
+test('set-apollonius reaches the state and readouts of typing into the A, B, P and ratio fields', () => {
+    const viaAction = after(graph => {
+        apply(graph, setMode('apollonius'));
+        apply(graph, setApollonius({a: {x: 1, y: 2}, b: {x: 7, y: 2}, p: {x: 5, y: -3}, k: 3}));
+    });
+    const viaControl = after(() => {
+        choose('apollonius');
+        type(pointField('x', 'A'), '1'); type(pointField('y', 'A'), '2');
+        type(pointField('x', 'B'), '7'); type(pointField('y', 'B'), '2');
+        type(pointField('x', 'P'), '5'); type(pointField('y', 'P'), '-3');
+        type(ratioField, '3');
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state).toEqual(expect.objectContaining({a: {x: 1, y: 2}, b: {x: 7, y: 2}, p: {x: 5, y: -3}, k: 3}));
+});
+
+test('set-apollonius writes only the named fields and writes nothing for unchanged values', () => {
+    const graph = mount();
+    apply(graph, setMode('apollonius'));
+    const before = stateOf(graph);
+    apply(graph, setApollonius({k: 2}));
+    apply(graph, setApollonius({a: {x: 0, y: 0}, b: {x: 6, y: 0}, p: {x: 8, y: 4}, k: 2}));
+    expect(stateOf(graph)).toEqual(before);
+    const spy = vi.spyOn(graph, 'setState');
+    apply(graph, setApollonius({k: 2, a: {x: 0, y: 0}}));
+    expect(spy).not.toHaveBeenCalled();
+    apply(graph, setApollonius({k: 1}));
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith({k: 1});
+    expect(stateOf(graph)).toEqual({...before, k: 1});
+});
+
+test('set-apollonius inside one synchronous scene reads the earlier actions, then restore returns the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const checkpoint = capabilities.captureState();
+    act(() => {
+        capabilities.apply(setMode('apollonius'));
+        capabilities.apply(setApollonius({k: 1, p: {x: 5, y: 0}}));
+        capabilities.apply(setApollonius({k: 2}));
+        capabilities.apply(setApollonius({p: {x: 4, y: 0}, b: {x: 6, y: 0}}));
+    });
+    expect(graph.state.mode).toBe('apollonius');
+    expect(graph.state.k).toBe(2);
+    expect(graph.state.p).toEqual({x: 4, y: 0});
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+});
+
+test('set-apollonius: invalid scene data is a lesson-content error and changes nothing, even when an earlier field is valid', () => {
+    const graph = mount();
+    apply(graph, setMode('apollonius'));
+    expect(graph.supportsLessonAction(setApollonius({k: 2}))).toBe(true);
+    const before = stateOf(graph);
+    const bad: LessonAction[] = [
+        setApollonius({}),
+        setApollonius({k: 0.7}), setApollonius({k: 0}), setApollonius({k: 4.5}), setApollonius({k: -1}), setApollonius({k: Number.NaN}),
+        setApollonius({a: {x: 0.5, y: 0}}), setApollonius({b: {x: 0, y: 17}}), setApollonius({p: {x: Number.NaN, y: 0}}),
+        setApollonius({a: {x: 1, y: 1}, k: 0.7}), setApollonius({p: {x: 3, y: 3}, b: {x: 20, y: 0}}),
+        {kind: 'circle', operation: 'set-apollonius', a: JSON.parse('7')} as unknown as LessonAction,
+        {kind: 'circle', operation: 'set-apollonius', p: JSON.parse('null')} as unknown as LessonAction,
     ];
     for (const action of bad) expect(() => apply(graph, action)).toThrow();
     expect(stateOf(graph)).toEqual(before);

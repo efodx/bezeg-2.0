@@ -230,7 +230,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
 
     /**
      * Lesson actions (`circle`): `set-mode` is the construction select (it loads that construction's example), `set-circle` the centre and radius
-     * fields of one circle, `set-point` the coordinate fields of P. Every value is checked against the model's grid and range rules before the first
+     * fields of one circle, `set-point` the coordinate fields of P, `set-apollonius` the named fields among A, B, P and the ratio. Every value is checked against the model's grid and range rules before the first
      * write; a lesson-content error throws and nothing is snapped or clamped. `setState` writes the store synchronously, so a later action of the
      * same scene reads this one's result, and the board follows in `onStateChange`.
      */
@@ -256,6 +256,26 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 const x = this.exactCoordinate(action.x, "circle set-point x");
                 const y = this.exactCoordinate(action.y, "circle set-point y");
                 this.setPoint("p", x, y);
+                return;
+            }
+            case "set-apollonius": {
+                const given = (["a", "b", "p"] as const).filter(key => action[key] !== undefined);
+                if (given.length === 0 && action.k === undefined) throw new Error("circle set-apollonius: give at least one of a, b, p, k.");
+                const next: {a?: {x: number; y: number}; b?: {x: number; y: number}; p?: {x: number; y: number}; k?: number} = {};
+                for (const key of given) {
+                    const point = action[key];
+                    if (point === null || typeof point !== "object") throw new Error(`circle set-apollonius ${key}: must be a point {x, y}.`);
+                    const x = this.exactCoordinate(point.x, `circle set-apollonius ${key}.x`);
+                    const y = this.exactCoordinate(point.y, `circle set-apollonius ${key}.y`);
+                    const same = this.state[key];
+                    if (same.x !== x || same.y !== y) next[key] = {x, y};
+                }
+                if (action.k !== undefined) {
+                    const k = snapRatioInput(action.k, "k");
+                    if (!k.ok || k.value.adjusted) throw new Error(`circle set-apollonius k: the ratio must be a multiple of 1/2 in [${RATIO_MIN}, ${RATIO_MAX}].`);
+                    if (k.value.value !== this.state.k) next.k = k.value.value;
+                }
+                if (Object.keys(next).length > 0) this.setState(next);
                 return;
             }
             default: {

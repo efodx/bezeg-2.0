@@ -434,10 +434,14 @@ export type LessonAction =
      * that construction's example, as the select does; `set-circle` writes the centre and radius of `c1`, `c2` or `c3` (the radical mode always draws
      * three); `set-point` writes the point P of the tangent mode and the probe of the radical mode. Centres and P are integers in [-16, 16], a radius is
      * a multiple of 1/4 in [1/4, 8]. Anything else is a lesson-content error and is never snapped; the whole action is validated before the first write.
+     * `set-apollonius` (CG3) writes the named fields of the Apollonius mode in one write: any of the points `a`, `b`, `p` (each an integer pair in
+     * [-16, 16], the coordinate fields of A, B, P) and the ratio `k` (a multiple of 1/2 in [1/2, 4], the ratio field); at least one is required.
+     * It does not change the mode; A = B is allowed, as the fields allow it (the graph then reports the degenerate case).
      */
     | {readonly kind: 'circle'; readonly operation: 'set-mode'; readonly mode: 'tangents' | 'radical' | 'apollonius' | 'common'}
     | {readonly kind: 'circle'; readonly operation: 'set-circle'; readonly circle: 'c1' | 'c2' | 'c3'; readonly x: number; readonly y: number; readonly r: number}
     | {readonly kind: 'circle'; readonly operation: 'set-point'; readonly x: number; readonly y: number}
+    | {readonly kind: 'circle'; readonly operation: 'set-apollonius'; readonly a?: {readonly x: number; readonly y: number}; readonly b?: {readonly x: number; readonly y: number}; readonly p?: {readonly x: number; readonly y: number}; readonly k?: number}
     /**
      * The scene actions of the two combinatorics graphs (CB1 and CB2; `set-expansion` and `set-row` join in the batches B and C). LatticePathGraph registers
      * `set-target` (the target (a, b), integers in [0, 20]; the highlighted route restarts at the first one, as when the target is moved) and
