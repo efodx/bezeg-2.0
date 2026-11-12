@@ -1,45 +1,51 @@
 # Authoring-rollout stream state
 
-Written by handler 4 at handoff, 2026-11-12; rewritten by handler 5 at handoff after task 08 batches 2, 3a and 3b. Stream file: [authoring-rollout.md](../../../tasks/feature-streams/authoring-rollout.md). Decisions: [rollout spec, Rollout decisions](../../../specs/lesson-authoring-rollout.md#rollout-decisions). Worktree `.claude/worktrees/stream-authoring-rollout` (branch `worktree-stream-authoring-rollout`).
+Written by handler 6 at handoff, 2026-11-13. It follows handler 5's note, which covered task 08 batches 2, 3a and 3b. Stream file: [authoring-rollout.md](../../../tasks/feature-streams/authoring-rollout.md). Decisions: [rollout spec, Rollout decisions](../../../specs/lesson-authoring-rollout.md#rollout-decisions). Worktree `.claude/worktrees/stream-authoring-rollout` (branch `worktree-stream-authoring-rollout`). `node_modules` is a local install here (`npm ci`), not a junction. Do not reinstall it; if `node_modules/.bin/vitest` is missing, run `npm rebuild --ignore-scripts`.
 
-**`node_modules` is now a local install in this worktree** (`npm ci`), not a junction: the main checkout's `node_modules` was found empty at about 17:00 with nothing reinstalling it. The publish gate links the worktree's own install. The owner has been told that the main checkout needs `npm ci`.
+## Done (queue steps 1–6)
 
-## Done and on master
+- Task 06 registration is complete: 113/113. The empty legacy table, the `Routes.tsx` fallback and `allGraphFactories` remain until task 06 step 4.
+- Task 08 point-set rollout is complete. All 22 point-set ids persist through `pointSetPersistence`. `PointSetGraph.declaresWholeScene()` and the legacy branches are deleted (decision P-pointset). Each batch has an evidence and a smoke record here:
+  - Batch 4 (triangulation and Delaunay): the triangle list is a named data part.
+  - Batch 5 (Voronoi and point-in-polygon): `resetOnBareImport`, and the import-scoped stored `graphState` in `PointSetGraph.importPreset`.
+  - Batches 6a and 6b: the plane-geometry graphs.
+  - The batch 6b smoke covered all 22 ids, 70/70.
+- O-plane is resolved: the plane-geometry trio is excluded from task 07 (`5e075e10`).
+- Published on master:
+  - batch 4 as `ecd7dcfa` (hosted Browser smoke green);
+  - batch 5 as `50a82ab8` (hosted CI was `in_progress` at handoff).
 
-- Steps 1–5. Task 06 registration is complete: 113/113. `legacyDemonstrationRows` and `graphFactories` are empty, but the empty table, the `Routes.tsx` fallback and `allGraphFactories` still exist; deleting them is task 06 step 4, at close-out. Each batch has an evidence and smoke record here (`06-batch<N>-*.md`).
-- Task 08 batch 2 (`PointSetGraph` declaration, `orientation`, `polygon-area`): pushed as master `eabacbaf` (local `7d57383b`). Hosted Browser smoke is green there. [Evidence](08-batch2-evidence.md), [smoke](08-batch2-smoke.md).
+## First action
 
-## Committed by handler 5, publish started at handoff
+1. Run `just publish --status`. Batch 6 was started in the background on base `06a76d4b`, with commits `0eda4b52,533ebd12,5e075e10,160db37e,c86ac2b9`.
+   - If it failed, read its log, fix in a new commit and republish.
+   - If it pushed, read `just ci <sha>` for it and for `50a82ab8`.
+2. Then publish this note's commit.
 
-- `e63b1ee0` batch 3a: six step graphs, `PointSetStepDeclaration`. [Evidence](08-batch3a-evidence.md), [smoke](08-batch3a-smoke.md) 24/24.
-- `deca58bd` batch 3b: convex hull, robustness and the Bezier pair, on the general `PointSetExtension` (named fields with a parser and fallback, `normalise`, `settle`); `persistenceExtension()` on `PointSetGraph`. [Evidence](08-batch3b-evidence.md), [smoke](08-batch3b-smoke.md) 18/18.
-- A Sonnet review of 3a and 3b found nothing blocking. Docs commits: `938079cf`, `78387b50` and this note.
-- **First action:** check `just publish --status` for the publish of these commits on base `7d57383b`. If it failed, read its log, fix in a new commit and republish. If it pushed, read `just ci <sha>`.
+## Next: queue step 7, close-out
 
-## Carried into batch 4
+Read the stream file's step 7 row and the step 4 sections of tasks [06](../../../tasks/lesson-authoring-architecture/06-legacy-registration-rollout.md), [07](../../../tasks/lesson-authoring-architecture/07-owned-scene-rollout.md) and [08](../../../tasks/lesson-authoring-architecture/08-scene-projection-rollout.md).
 
-- Tighten `PointSetPermittedState`'s index signature (`pointSetPersistence.ts` ~18-23) into a separate typed extras record (reviewer proposal; P2). It is non-blocking, because run-time reads go through named parsers.
-- Browser coverage gap: no smoke row covers lesson reset, exit, figure return or Preset save/import for point-set ids. The host tests carry these flows (`pointSetPersistence*.host.test.tsx`).
-- Ten more ids are now declared. Remaining on the legacy branch: `point-set-triangulation`, `delaunay` (batch 4); `voronoi`, `voronoi-degenerate`, `point-in-polygon` (batch 5); the five plane-geometry ids (batch 6).
+- **Task 06 step 4:**
+  - delete the empty legacy table, the `Routes.tsx` fallback and `allGraphFactories`;
+  - delete the `scripts/transient-state-scope.cjs:112` read of `graphFactories.ts`;
+  - keep the derived test adapter;
+  - search `tests/` and `scripts/` for readers of the legacy list (handler 4 lesson).
+- **Task 07 step 4:** account for all eleven candidates, with the trio as recorded exclusions. Compare the remaining lifecycle code with the inventory and update the architecture guidance.
+- **Task 08 step 4:**
+  - The three `projective-*` rows of `PRESET_DATA_STATE_KEYS` stay until their independent tests exist (inventory §2). Check whether the batch 1 tests now cover them; if so, remove the rows.
+  - No point-set rows are left in that table.
+- `just check`, then the architecture and persistence guidance (AGENTS.md, Documentation).
 
-## Next slices
+## Carried items
 
-1. Task 08 batches 4–6 per `08-inventory.md` §4 (§3.4 for triangulation's `triangles`/`previous`): triangulation, Voronoi and query, plane geometry. Each declares a `PointSetExtension` (see the 3b evidence) and moves its graphs off the legacy branch. The last batch deletes `PointSetGraph.declaresWholeScene()` and the legacy branches (decision P-pointset). Batch 6's three files (`InscribedAngle`, `SimsonLine`, `Inversion`) also need the task 07 disposition (decision O-plane, queue step 6).
-2. Then close-out (queue step 7):
-   - Step 4 of tasks 06, 07 and 08. Task 06 step 4 deletes the empty legacy table, the `Routes.tsx` fallback and the `scripts/transient-state-scope.cjs:112` read of `graphFactories.ts`, keeping the derived test adapter.
-   - `just check`.
-   - Architecture and persistence guidance.
-3. Small pending item: `tests/guided-lessons.smoke.spec.cjs:1347` still says `linear-map` has "not yet run in a browser".
+- Browser coverage gap: no smoke row covers Preset save/reopen, file import, lesson reset, exit or figure return for point-set ids. Host tests carry these flows. Adding one Preset round-trip smoke row for a representative point-set id (for example `voronoi`) would close it; decide at close-out.
+- `PointSetGraph.importPreset` sets an import-scoped `importing` record and restores the outer one. It is not a mirror of scene state. If `BaseGraph.importPreset` ever passes the stored `graphState` to `importPresetData`, the record can go.
 
-## Lessons from handler 4
+## Lessons from handler 6
 
-- Read hosted CI (`just ci <sha>`) after every push. The publish gate's `check-changed` did not reach `DemonstrationsPage.test.tsx`, so master stayed red from `85d49b1f` until `980e4716`. A worker's "pre-existing" label was in fact this regression.
-- When a structural table empties, search `tests/` and `scripts/` too. The smoke harness (`tests/smoke-catalog.cjs`) parsed the legacy list and required it to be non-empty.
-- Background publishes can run while a worker edits the tree. Smokes need a clean tree, so dispatch the next implementation worker only after a smoke's build and run have finished.
-- Spawn successors with `--agent bezeg-handler --model opus --permission-mode auto --effort medium` and pass this rule on.
-
-## Lessons from handler 5
-
-- This worktree's `node_modules/.bin` vanished at about 19:57 while the packages stayed, which broke a wide unit run and a publish `check-changed` ("'vitest' is not recognized"). `npm rebuild --ignore-scripts` relinked it without disturbing running tests. Check `ls node_modules/.bin/vitest` before a publish, and tell workers not to reinstall.
-- When appending to `evaluation-log.md` with a script, end with exactly one newline: the publish whitespace stage refuses a blank line at EOF. Run `git diff --cached --check` before committing.
-- Running a read-only reviewer alongside a smoke costs no wall time. An implementation worker on 10 graphs reached HANDOFF; split batches of more than about 6 graphs.
+- Batches of 2–3 graphs on the shared extension cost a Sonnet worker 100–142k. Batches 4 and 5 reached HANDOFF only after their code and tests were done, so finishing from the handoff note with a fresh small worker was cheap.
+- For a shared-base change, run the sweep over every id already declared, not just the batch's ids. Also have the reviewer compare each field's fallback with `getInitialState()`.
+- Tell workers to run the 10–20 min sweep in the background with a done marker, and never to return while it runs. Otherwise the handler waits on a marker file.
+- A run of `just publish` can take over an hour while sweeps compete for memory. It is progressing as long as its log advances.
+- Spawn successors with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium` and pass this rule on.
