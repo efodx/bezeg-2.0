@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -14,6 +13,7 @@ import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {asClosedPolygon} from "./EarClippingGraph";
+import {PointSetStepDeclaration} from "./pointSetPersistence";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {MonotonePartitionControlActions, MonotonePartitionControls, MonotonePartitionLists, vertexTypeText} from "./MonotonePartitionControls";
 import {
@@ -234,21 +234,20 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         return state;
     }
 
-    /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace; playback is paused. */
-    override importPresetData(data: PointSetModel): void {
-        const model = asClosedPolygon(serializePointSetModel(data));
-        const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
-        const step = this.buildRun(model.points).clamp(stored ?? 0);
-        this.setState(this.patch({model, step}));
-        this.playback.restoreTo(step);
+    /** The declared step of the persisted scene (task 08): the trace length of the data decides the clamp. */
+    private readonly stepDeclaration: PointSetStepDeclaration = {
+        normalise: asClosedPolygon,
+        clamp: (model, step) => this.buildRun(model.points).clamp(step),
+    };
+
+    protected override persistenceStep(): PointSetStepDeclaration {
+        return this.stepDeclaration;
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const model = asClosedPolygon(merged.model);
-        const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
-        const state: MonotonePartitionGraphState = {...merged, model, step: this.buildRun(model.points).clamp(stored ?? 0)};
-        return state;
+    /** The imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace (the declaration); playback is paused. */
+    override importPresetData(data: PointSetModel): void {
+        super.importPresetData(data);
+        this.playback.restoreTo(this.step);
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------

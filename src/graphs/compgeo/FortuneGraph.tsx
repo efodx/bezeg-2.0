@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
@@ -12,6 +11,7 @@ import {matchingExample} from "./ExampleSelect";
 import type {GraphSession} from "../base/GraphSession";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
+import {PointSetStepDeclaration} from "./pointSetPersistence";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {FortuneControlActions, FortuneControls} from "./FortuneControls";
 import {runFortune, siteName, type FortuneRun} from "./fortuneRun";
@@ -242,20 +242,19 @@ export class FortuneGraph extends PointSetGraph<never> {
         return state;
     }
 
-    /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace; playback is paused. */
-    override importPresetData(data: PointSetModel): void {
-        const model = serializePointSetModel(data);
-        const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
-        const step = this.runFor(model.points).clamp(stored ?? 0);
-        this.setState(this.patch({model, step}));
-        this.playback.restoreTo(step);
+    /** The declared step of the persisted scene (task 08): the trace length of the data decides the clamp. */
+    private readonly stepDeclaration: PointSetStepDeclaration = {
+        clamp: (model, step) => this.runFor(model.points).clamp(step),
+    };
+
+    protected override persistenceStep(): PointSetStepDeclaration {
+        return this.stepDeclaration;
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
-        const state: FortuneGraphState = {...merged, step: runFortune(merged.model.points).clamp(stored ?? 0)};
-        return state;
+    /** The imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace (the declaration); playback is paused. */
+    override importPresetData(data: PointSetModel): void {
+        super.importPresetData(data);
+        this.playback.restoreTo(this.step);
     }
 
     protected override overlayIds() {

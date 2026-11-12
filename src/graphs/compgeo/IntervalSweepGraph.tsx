@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -13,6 +12,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
+import {PointSetStepDeclaration} from "./pointSetPersistence";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {IntervalSweepControlActions, IntervalSweepControls, IntervalSweepLists} from "./IntervalSweepControls";
 import {runIntervalSweep, IntervalRun} from "./intervalSweepRun";
@@ -210,20 +210,19 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         return state;
     }
 
-    /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace; playback is paused. */
-    override importPresetData(data: PointSetModel): void {
-        const model = serializePointSetModel(data);
-        const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
-        const step = runIntervalSweep(intervalsOf(model)).clamp(stored ?? 0);
-        this.setState(this.patch({model, step}));
-        this.playback.restoreTo(step);
+    /** The declared step of the persisted scene (task 08): the trace length of the data decides the clamp. */
+    private readonly stepDeclaration: PointSetStepDeclaration = {
+        clamp: (model, step) => runIntervalSweep(intervalsOf(model)).clamp(step),
+    };
+
+    protected override persistenceStep(): PointSetStepDeclaration {
+        return this.stepDeclaration;
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
-        const state: IntervalSweepGraphState = {...merged, step: runIntervalSweep(intervalsOf(merged.model)).clamp(stored ?? 0)};
-        return state;
+    /** The imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace (the declaration); playback is paused. */
+    override importPresetData(data: PointSetModel): void {
+        super.importPresetData(data);
+        this.playback.restoreTo(this.step);
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
