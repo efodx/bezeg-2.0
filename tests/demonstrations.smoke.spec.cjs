@@ -4,6 +4,8 @@ const h = require('./lesson-smoke-helpers.cjs');
 const catalogEntries = demonstrations.families.flatMap(family => family.demonstrations);
 /** Demonstrations whose default scene draws only board text (no curve, line, segment or point). */
 const TEXT_SCENE_IDS = ['counting-tree'];
+/** Surface routes without a preview recipe whose default scene publishes no editable points (solids orbits a mesh only); the camera stands in for the projection. */
+const NO_POINT_SURFACE_IDS = ['solids'];
 
 async function openEnglish(page, pathname) {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
@@ -20,7 +22,7 @@ async function expectRenderedWorkspace(page, demonstration) {
     if (demonstration.view === 'surface') {
         // A surface workspace hosts the JSXGraph SVG surface view (drawn polygons/polylines), not a curve board; the host publishes `data-surface-framing` once rendered.
         // A route may declare that its default scene publishes no editable points (patch-subdivision shows its piece nets): the count is then exact and the camera stands in for the projection.
-        const declared = require('../scripts/demonstration-preview-recipes.cjs').recipes[demonstration.id]?.framing.controlPointCount;
+        const declared = NO_POINT_SURFACE_IDS.includes(demonstration.id) ? 0 : require('../scripts/demonstration-preview-recipes.cjs').recipes[demonstration.id]?.framing.controlPointCount;
         const {inspectSurfaceViewInPage} = require('../scripts/surface-view-evidence.cjs');
         await expect.poll(async () => ({drawn: (await board.evaluate(inspectSurfaceViewInPage)).ok, ...await board.evaluate((container, declaredPoints) => {
             let framing = null;
