@@ -13,9 +13,6 @@ import {patchPresetCollections} from "../../patches/patchPresetCollections";
 import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
 import {complexRootsPresetCollection} from "../../complex/complexRootsPresets";
 import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
-import {interpolationPresetCollection} from "../../curves/interpolation/interpolationPresetCollection";
-import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
-import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
 import {bsplineCollections} from "../../curves/bspline/collections";
 import {basicsCollections} from "../../basics/collections";
 import {phCollections} from "../../curves/ph/collections";
@@ -24,6 +21,7 @@ import {bezierCollections} from "../../curves/bezier/collections";
 import {rationalCollections} from "../../curves/rational/collections";
 import {splineCollections} from "../../curves/spline/collections";
 import {curveGeometryCollections} from "../../curves/geometry/collections";
+import {interpolationCollections} from "../../curves/interpolation/collections";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
@@ -49,7 +47,6 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(functionPresetCollections),
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
-    interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
     coonsPresetCollection,
     ...projectiveCollections,
     ...bsplineCollections,
@@ -60,6 +57,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...rationalCollections,
     ...splineCollections,
     ...curveGeometryCollections,
+    ...interpolationCollections,
     ...trigCollections,
     ...lineCollections,
     ...isometryCollections,

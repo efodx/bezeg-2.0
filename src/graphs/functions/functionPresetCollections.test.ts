@@ -5,6 +5,7 @@
 import {commitPresetImport, preflightPresetImport} from "../base/presets/PresetImport";
 import {isMessage, LocalizedError, Message, setLanguage} from "../../localization";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {leastSquaresPresetCollection, rungePresetCollection} from "../curves/interpolation/collections";
 import {DEFAULT_FOURIER_COEFFICIENTS_MODEL} from "../../analysis/fourierCoefficientsModel";
 beforeEach(() => localStorage.clear());
 afterEach(() => setLanguage("sl"));
@@ -22,7 +23,7 @@ const preflightRejection = (key: string, data: unknown): Message | undefined => 
     }
 };
 
-test.each(Object.entries(functionPresetCollections))("%s: the graph's import and the file importer reject the same data with the same diagnosis", (_id, collection) => {
+test.each(Object.entries({...functionPresetCollections, "interp-runge": rungePresetCollection, "interp-least-squares": leastSquaresPresetCollection}))("%s: the graph's import and the file importer reject the same data with the same diagnosis", (_id, collection) => {
     for (const data of ["{}", [], {}, {example: "unknown", fn: "unknown"}]) {
         const checked = collection.check(data);
         expect("rejection" in checked, JSON.stringify(data)).toBe(true);
@@ -966,7 +967,7 @@ test("fourier-series data of the wrong type keeps the generic function-data mess
 });
 
 test('interp-least-squares checks the points list in the scene state with the model rules', () => {
-    const collection = functionPresetCollections["interp-least-squares"];
+    const collection = leastSquaresPresetCollection;
     const points = [[0, 1], [1, 2], [2, 2], [3, 4]];
     expect(collection.checkGraphState?.({points, degree: 1, showSquares: true, initialized: true})).toBeUndefined();
     expect(collection.checkGraphState?.({points: [[0, 1]], degree: 1})).toBeDefined();

@@ -10,6 +10,8 @@ import {parameterizationPrimaryOwners} from '../../graphs/curves/parametrisation
 import {bezierDemonstrationRows, bezierDerivedOwnerIds, bezierPrimaryOwners} from '../../graphs/curves/bezier/registration';
 import {rationalPrimaryOwners} from '../../graphs/curves/rational/registration';
 import {curveGeometryDemonstrationRows} from '../../graphs/curves/geometry/registration';
+import type {InterpolationDemonstrationId} from '../../graphs/curves/interpolation/registration';
+import {interpolationDemonstrationRows} from '../../graphs/curves/interpolation/registration';
 import {splinePrimaryOwners} from '../../graphs/curves/spline/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
@@ -20,7 +22,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
 type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners;
@@ -121,17 +123,12 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // The Geometry of curves chapter owns the parametric and polar curves, curvature, curvature comb, evolute and offset and envelope lessons (CG-B1-4, CG-B2-3, CG-B2-4, CG-B3-3, CG-B3-4).
     // The Sweep-line algorithms chapter owns the interval sweep and segment intersection lessons (batch S1).
     'interval-sweep': {chapterId: 'sweep-algorithms', sectionId: 'interval-sweep'},
-    'interp-lagrange': {chapterId: 'interpolation', sectionId: 'lagrange'},
-    'interp-hermite': {chapterId: 'interpolation', sectionId: 'hermite'},
-    'interp-runge': {chapterId: 'interpolation', sectionId: 'runge'},
-    'interp-least-squares': {chapterId: 'interpolation', sectionId: 'least-squares'},
     'segment-intersections': {chapterId: 'sweep-algorithms', sectionId: 'segment-intersections'},
     // The Sweep-line algorithms chapter owns the monotone partition and monotone triangulation lessons (batch S2).
     'monotone-partition': {chapterId: 'sweep-algorithms', sectionId: 'monotone-partition'},
     'monotone-triangulation': {chapterId: 'sweep-algorithms', sectionId: 'monotone-triangulation'},
     // The Sweep-line algorithms chapter owns the Fortune lesson (batch S3).
     'fortune': {chapterId: 'sweep-algorithms', sectionId: 'fortune'},
-    'interp-subdivision': {chapterId: 'interpolation', sectionId: 'subdivision'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},
@@ -147,7 +144,7 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

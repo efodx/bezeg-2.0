@@ -15,7 +15,7 @@ import {
 import {rungeEditMessage, rungeFunctionName, rungeNumber} from "./rungeInterpolationMessages";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
-import {functionPresetCollections} from "./functionPresetCollections";
+import {rungePresetCollection} from "../curves/interpolation/collections";
 
 /** The default view (left, top, right, bottom): shows the n = 10 equispaced overshoot (about 1.96 near x = +-0.94) and the semicircle. */
 const DEFAULT_VIEW: BoundingBox = [-1.25, 2.5, 1.25, -0.5];
@@ -38,7 +38,7 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
     protected sampleRuns = 0;
 
     override presetCollection() {
-        return functionPresetCollections["interp-runge"];
+        return rungePresetCollection;
     }
 
     protected defaultModel(): RungeInterpolationModel {

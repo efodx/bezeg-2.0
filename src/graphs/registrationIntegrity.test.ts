@@ -30,6 +30,9 @@ import {splineGraphLoaders} from './curves/spline/runtime';
 import {curveGeometryCollections} from './curves/geometry/collections';
 import {curveGeometryCollectionKeys, curveGeometryDemonstrationRows} from './curves/geometry/registration';
 import {curveGeometryGraphLoaders} from './curves/geometry/runtime';
+import {interpolationCollections} from './curves/interpolation/collections';
+import {interpolationCollectionKeys, interpolationDemonstrationRows} from './curves/interpolation/registration';
+import {interpolationGraphLoaders} from './curves/interpolation/runtime';
 import {bezierGraphLoaders} from './curves/bezier/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
@@ -148,6 +151,7 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'combinatorics', rows: combinatoricsDemonstrationRows, loaders: combinatoricsGraphLoaders, collectionKeys: combinatoricsCollectionKeys, collections: combinatoricsCollections},
     {family: 'random', rows: randomDemonstrationRows, loaders: randomGraphLoaders, collectionKeys: randomCollectionKeys, collections: randomCollections},
     {family: 'curve-geometry', rows: curveGeometryDemonstrationRows, loaders: curveGeometryGraphLoaders, collectionKeys: curveGeometryCollectionKeys, collections: curveGeometryCollections},
+    {family: 'interpolation', rows: interpolationDemonstrationRows, loaders: interpolationGraphLoaders, collectionKeys: interpolationCollectionKeys, collections: interpolationCollections},
     {family: 'kinematics', rows: kinematicsDemonstrationRows, loaders: kinematicsGraphLoaders, collectionKeys: kinematicsCollectionKeys, collections: kinematicsCollections},
     {family: 'mechanics', rows: mechanicsDemonstrationRows, loaders: mechanicsGraphLoaders, collectionKeys: mechanicsCollectionKeys, collections: mechanicsCollections},
     {family: 'recursion', rows: recursionDemonstrationRows, loaders: recursionGraphLoaders, collectionKeys: recursionCollectionKeys, collections: recursionCollections},

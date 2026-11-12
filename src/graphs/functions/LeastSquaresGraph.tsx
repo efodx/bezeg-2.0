@@ -21,7 +21,7 @@ import {useTypesetMath} from "../../learning/useTypesetMath";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
-import {functionPresetCollections} from "./functionPresetCollections";
+import {leastSquaresPresetCollection} from "../curves/interpolation/collections";
 
 /** The default view (left, top, right, bottom): shows the data, the fits up to degree 3 and the outlier (3, 8) of the sensitivity step. */
 const DEFAULT_VIEW: BoundingBox = [-1.5, 9, 5.5, -2];
@@ -39,7 +39,7 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
     protected pointObjects: JXG.Point[] = [];
 
     override presetCollection() {
-        return functionPresetCollections["interp-least-squares"];
+        return leastSquaresPresetCollection;
     }
 
     protected defaultModel(): LeastSquaresModel {

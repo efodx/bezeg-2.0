@@ -34,10 +34,6 @@ import {checkFourierCoefficientsModel, DEFAULT_FOURIER_COEFFICIENTS_MODEL, type 
 import {fourierCoefficientsFileMessage} from "./fourierCoefficientsMessages";
 import {checkEpicycleModel, defaultEpicycleModel, type EpicycleModel, parseEpicycleModel} from "../../analysis/epicycleModel";
 import {epicycleFileMessage} from "./epicycleMessages";
-import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
-import {rungeFileMessage} from "./rungeInterpolationMessages";
-import {checkLeastSquaresModel, DEFAULT_LEAST_SQUARES_MODEL, LeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
-import {leastSquaresFileMessage} from "./leastSquaresMessages";
 import {checkDensityAreaModel, parseDensityAreaModel} from "../../analysis/densityAreaModel";
 import {checkBinomialNormalModel, parseBinomialNormalModel} from "../../analysis/binomialNormalModel";
 import {binomialNormalFileMessage} from "./binomialNormalMessages";
@@ -160,36 +156,6 @@ const fourierCoefficientsCollection = (): PresetCollection<FourierCoefficientsMo
             if (Object.keys(present).length > 0) {
                 const check = checkFourierCoefficientsModel({...DEFAULT_FOURIER_COEFFICIENTS_MODEL, ...present});
                 if (!check.ok) return check.issue === undefined ? message("invalid_state") : fourierCoefficientsFileMessage(check.issue);
-            }
-            return checkSceneState(rest);
-        },
-    });
-};
-/** The model module names the rule a rejected Runge interpolation model broke; this only localizes it. */
-const diagnoseRunge: Diagnosis = data => {
-    const check = checkRungeModel(data);
-    return check.ok || check.issue === undefined ? undefined : rungeFileMessage(check.issue);
-};
-/** The model module names the rule a rejected least-squares model broke; this only localizes it. */
-const diagnoseLeastSquares: Diagnosis = data => {
-    const check = checkLeastSquaresModel(data);
-    return check.ok || check.issue === undefined ? undefined : leastSquaresFileMessage(check.issue);
-};
-/**
- * The function graph stores its model in the scene state too, and the least-squares model has a `points` list, which the shared
- * flat scene-state rule rejects. The list is checked by the model's own point rules (any valid list, degree 1); the other
- * fields go through `checkSceneState`. The model itself is still restored from the Preset data.
- */
-const leastSquaresCollection = (): PresetCollection<LeastSquaresModel> => {
-    const base = functionCollection("interp-least-squares", parseLeastSquaresModel, diagnoseLeastSquares);
-    return Object.freeze({
-        ...base,
-        checkGraphState(graphState: unknown): Message | undefined {
-            if (!isRecord(graphState)) return message("invalid_state");
-            const {points, ...rest} = graphState;
-            if (points !== undefined) {
-                const check = checkLeastSquaresModel({...DEFAULT_LEAST_SQUARES_MODEL, degree: 1, points});
-                if (!check.ok) return check.issue === undefined ? message("invalid_state") : leastSquaresFileMessage(check.issue);
             }
             return checkSceneState(rest);
         },
@@ -438,8 +404,6 @@ export const functionPresetCollections = {
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "fourier-coefficients": fourierCoefficientsCollection(),
     epicycles: epicyclePresetCollection,
-    "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
-    "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
     "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),

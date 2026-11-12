@@ -65,11 +65,6 @@ import SummaryStatisticsGraph from './functions/SummaryStatisticsGraph';
 import CorrelationGraph from './functions/CorrelationGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
-import RungeInterpolationGraph from './functions/RungeInterpolationGraph';
-import LeastSquaresGraph from './functions/LeastSquaresGraph';
-import InterpolationGraph from './curves/interpolation/InterpolationGraph';
-import HermiteGraph from './curves/hermite/HermiteGraph';
-import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGraph';
 import CoonsPatchGraph from './patches/CoonsPatchGraph';
 import type {DemonstrationId} from '../demonstrations';
 import type {RegisteredDemonstrationId} from './graphLoaders';
@@ -82,11 +77,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'patch-subdivision': () => new TensorSubdivisionGraph(),
     'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
-    'interp-lagrange': () => new InterpolationGraph(),
-    'interp-hermite': () => new HermiteGraph(),
-    'interp-runge': () => new RungeInterpolationGraph(),
-    'interp-least-squares': () => new LeastSquaresGraph(),
-    'interp-subdivision': () => new SubdivisionCurveGraph(),
     'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),

@@ -5,11 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['interpolation/lagrange', '/bezeg-2.0/interpolation', 'interp_lagrange_title', 'interp_lagrange_title', 'prompt_interp_lagrange'],
-    ['interpolation/hermite', '/bezeg-2.0/interpolation', 'interp_hermite_title', 'interp_hermite_title', 'prompt_interp_hermite'],
-    ['interpolation/runge', '/bezeg-2.0/interpolation', 'interp_runge_title', 'interp_runge_title', 'prompt_interp_runge'],
-    ['interpolation/least-squares', '/bezeg-2.0/interpolation', 'interp_lsq_title', 'interp_lsq_title', 'prompt_interp_least_squares'],
-    ['interpolation/subdivision', '/bezeg-2.0/interpolation', 'interp_subdivision_title', 'interp_subdivision_title', 'prompt_interp_subdivision'],
     ['patches/tensor', '/bezeg-2.0/patches', 'tensor_product_bezier_patch', 'tensor_product_bezier_patch', 'prompt_patch_net'],
     ['patches/decasteljau', '/bezeg-2.0/patches', 'patch_decasteljau_algorithm', 'patch_decasteljau_algorithm', 'prompt_patch_decasteljau_order'],
     ['patches/derivatives', '/bezeg-2.0/patches', 'patch_derivatives_title', 'patch_derivatives_title', 'prompt_patch_derivatives_tangents'],
@@ -87,6 +82,11 @@ const expected = [
     ['curve-geometry/evolute', '/bezeg-2.0/curve-geometry', 'curve_evolute_title', 'curve_evolute_title', 'prompt_curve_evolute'],
     ['curve-geometry/offset', '/bezeg-2.0/curve-geometry', 'curve_offset_title', 'curve_offset_title', 'prompt_curve_offset'],
     ['curve-geometry/envelope', '/bezeg-2.0/curve-geometry', 'curve_envelope_title', 'curve_envelope_title', 'prompt_curve_envelope'],
+    ['interpolation/lagrange', '/bezeg-2.0/interpolation', 'interp_lagrange_title', 'interp_lagrange_title', 'prompt_interp_lagrange'],
+    ['interpolation/hermite', '/bezeg-2.0/interpolation', 'interp_hermite_title', 'interp_hermite_title', 'prompt_interp_hermite'],
+    ['interpolation/runge', '/bezeg-2.0/interpolation', 'interp_runge_title', 'interp_runge_title', 'prompt_interp_runge'],
+    ['interpolation/least-squares', '/bezeg-2.0/interpolation', 'interp_lsq_title', 'interp_lsq_title', 'prompt_interp_least_squares'],
+    ['interpolation/subdivision', '/bezeg-2.0/interpolation', 'interp_subdivision_title', 'interp_subdivision_title', 'prompt_interp_subdivision'],
     ['bspline/basis', '/bezeg-2.0/bspline', 'bspline_basis_title', 'bspline_basis_title', 'prompt_bspline_basis'],
     ['bspline/deboor', '/bezeg-2.0/bspline', 'bspline_deboor_title', 'bspline_deboor_title', 'prompt_bspline_deboor'],
     ['bspline/insertion', '/bezeg-2.0/bspline', 'bspline_insertion_title', 'bspline_insertion_title', 'prompt_bspline_insertion'],
