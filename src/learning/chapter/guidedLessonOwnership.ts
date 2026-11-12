@@ -16,6 +16,8 @@ import type {PatchesDemonstrationId} from '../../graphs/patches/registration';
 import {patchesDemonstrationRows} from '../../graphs/patches/registration';
 import type {FunctionsDemonstrationId} from '../../graphs/functions/registration';
 import type {AnalysisDemonstrationId} from '../../graphs/analysis/registration';
+import type {MapsDemonstrationId} from '../../graphs/maps/registration';
+import {mapsDemonstrationRows} from '../../graphs/maps/registration';
 import type {ProbabilityDemonstrationId} from '../../graphs/probability/registration';
 import {probabilityDemonstrationRows} from '../../graphs/probability/registration';
 import {analysisDemonstrationRows, analysisPrimaryOwners} from '../../graphs/analysis/registration';
@@ -30,7 +32,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | ProbabilityDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | ProbabilityDemonstrationId | MapsDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
 type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners | keyof typeof functionsPrimaryOwners | keyof typeof analysisPrimaryOwners;
@@ -44,7 +46,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // Level sets batch A: the linear-programming lesson (LS5) in the level-sets chapter.
     'linear-program': {chapterId: 'level-sets', sectionId: 'linear-programming'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
-    'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // The unit circle's first activity (TR1) in the trigonometry chapter; the addition-formula activity (TR2) is the second owner, derived from the chapter.
     'unit-circle': {chapterId: 'trigonometry', sectionId: 'radian-sine-cosine'},
     // The line geometry's first activity (L1) in the analytic lines chapter; the normal-vector activity (L2) is the second owner, derived from the chapter.
@@ -69,8 +70,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
-    'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
-    'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},
     // Registered without lessons (triangle geometry F2b); the Triangle geometry chapter and its sections are authored in F4.
     'triangle-centres': {chapterId: 'triangle-geometry', sectionId: 'notable-points'},
     'inscribed-angle': {chapterId: 'triangle-geometry', sectionId: 'inscribed-angle'},
@@ -109,7 +108,7 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...probabilityDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...probabilityDemonstrationRows, ...mapsDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

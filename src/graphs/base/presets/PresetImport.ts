@@ -3,6 +3,7 @@ import type {BoardState} from "../BaseGraph";
 import type {StoredGraphState} from "./Presets";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {analysisCollections} from "../../analysis/collections";
+import {mapsCollections} from "../../maps/collections";
 import {probabilityCollections} from "../../probability/collections";
 import {functionsCollections} from "../../functions/collections";
 import {notablePointsCollection} from "../../compgeo/notablePointsPresetCollection";
@@ -12,9 +13,6 @@ import {simsonLineCollection} from "../../compgeo/simsonLinePresetCollection";
 import {inversionCollection} from "../../compgeo/inversionPresetCollection";
 import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
 import {patchesCollections} from "../../patches/collections";
-import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
-import {complexRootsPresetCollection} from "../../complex/complexRootsPresets";
-import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
 import {bsplineCollections} from "../../curves/bspline/collections";
 import {basicsCollections} from "../../basics/collections";
 import {phCollections} from "../../curves/ph/collections";
@@ -46,7 +44,7 @@ import {levelSetsCollections} from "../../levelsets/collections";
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...functionsCollections, ...analysisCollections, ...probabilityCollections,
-    ...patchesCollections, linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
+    ...patchesCollections, ...mapsCollections,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
     ...projectiveCollections,
     ...bsplineCollections,

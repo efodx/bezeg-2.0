@@ -40,6 +40,9 @@ import {bezierGraphLoaders} from './curves/bezier/runtime';
 import {analysisCollections} from './analysis/collections';
 import {analysisCollectionKeys, analysisDemonstrationRows} from './analysis/registration';
 import {analysisGraphLoaders} from './analysis/runtime';
+import {mapsCollections} from './maps/collections';
+import {mapsCollectionKeys, mapsDemonstrationRows} from './maps/registration';
+import {mapsGraphLoaders} from './maps/runtime';
 import {probabilityCollections} from './probability/collections';
 import {probabilityCollectionKeys, probabilityDemonstrationRows} from './probability/registration';
 import {probabilityGraphLoaders} from './probability/runtime';
@@ -154,6 +157,7 @@ interface RealFamily {
     readonly collectionKeys: Readonly<Record<string, string | NoPresetCollection>>; readonly collections: readonly PresetCollection<unknown>[];
 }
 const realFamilies: readonly RealFamily[] = [
+    {family: 'maps', rows: mapsDemonstrationRows, loaders: mapsGraphLoaders, collectionKeys: mapsCollectionKeys, collections: mapsCollections},
     {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
     {family: 'analysis', rows: analysisDemonstrationRows, loaders: analysisGraphLoaders, collectionKeys: analysisCollectionKeys, collections: analysisCollections},

@@ -5,9 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['linear-map', 'maps', 'linear_map_title', 'linear_map_title', 'linear_map_prompt'],
-    ['complex-reciprocal', 'maps', 'complex_reciprocal_title', 'complex_reciprocal_title', 'complex_reciprocal_prompt'],
-    ['complex-roots', 'maps', 'complex_roots_title', 'complex_roots_title', 'complex_roots_prompt'],
     ['triangle-centres', 'plane-geometry', 'triangle_centres_title', 'triangle_centres_title', 'triangle_centres_prompt'],
     ['inscribed-angle', 'plane-geometry', 'inscribed_angle_title', 'inscribed_angle_title', 'inscribed_angle_prompt'],
     ['euler-line', 'plane-geometry', 'euler_line_title', 'euler_line_title', 'euler_line_prompt'],
@@ -29,6 +26,9 @@ const expected = [
     ['compgeo/monotone-partition', 'computational-geometry', 'compgeo_monotone_partition_title', 'compgeo_monotone_partition_title', 'prompt_compgeo_monotone_partition_vertex_types'],
     ['compgeo/monotone-triangulation', 'computational-geometry', 'compgeo_monotone_triangulation_title', 'compgeo_monotone_triangulation_title', 'prompt_compgeo_monotone_triangulation_stack'],
     ['compgeo/fortune', 'computational-geometry', 'compgeo_fortune_title', 'compgeo_fortune_title', 'prompt_compgeo_fortune_false_alarm'],
+    ['linear-map', 'maps', 'linear_map_title', 'linear_map_title', 'linear_map_prompt'],
+    ['complex-reciprocal', 'maps', 'complex_reciprocal_title', 'complex_reciprocal_title', 'complex_reciprocal_prompt'],
+    ['complex-roots', 'maps', 'complex_roots_title', 'complex_roots_title', 'complex_roots_prompt'],
     ['projective/cross-ratio', 'projective', 'projective_cross_ratio_title', 'projective_cross_ratio_title', 'prompt_projective_cross_ratio_preserved'],
     ['projective/pascal', 'projective', 'projective_pascal_title', 'projective_pascal_title', 'prompt_projective_pascal_collinear'],
     ['projective/pole-polar', 'projective', 'projective_pole_polar_title', 'projective_pole_polar_title', 'prompt_projective_pole_polar_tangents'],
