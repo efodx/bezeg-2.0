@@ -424,6 +424,18 @@ export type LessonAction =
     | {readonly kind: 'circle'; readonly operation: 'set-circle'; readonly circle: 'c1' | 'c2' | 'c3'; readonly x: number; readonly y: number; readonly r: number}
     | {readonly kind: 'circle'; readonly operation: 'set-point'; readonly x: number; readonly y: number}
     /**
+     * The scene actions of the two combinatorics graphs (CB1 and CB2; `set-expansion` and `set-row` join in the batches B and C). LatticePathGraph registers
+     * `set-target` (the target (a, b), integers in [0, 20]; the highlighted route restarts at the first one, as when the target is moved) and
+     * `set-lattice-display` (the view, `paths` or `triangle`, and the switch of the count labels; the labels are drawn only while a + b <= 12). CountingTreeGraph
+     * registers `set-counting-mode`: the view `choices` with n, k (0 to 20, k <= n without repetition) and the two switches of the kind of choice, or the view
+     * `multiset` with the numbers of the four kinds of letters (0 to 12). Anything off the model's ranges is a lesson-content error: it is never snapped and
+     * the whole action is validated before the first write.
+     */
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-target'; readonly a: number; readonly b: number}
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-lattice-display'; readonly view: 'paths' | 'triangle'; readonly showCounts: boolean}
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'choices'; readonly n: number; readonly k: number; readonly ordered: boolean; readonly repetition: boolean}
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'multiset'; readonly counts: readonly [number, number, number, number]}
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.

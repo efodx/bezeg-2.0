@@ -170,6 +170,11 @@ The static document initially declares Slovenian, and runtime selection updates 
 | pol (racionalne funkcije) | pole of a rational function: a zero of the reduced denominator (S4). Standard school term (F0 term table in `docs/tasks/school-function-graphs/README.md`); the unrelated "pol in polara" of the conics chapter always carries "polara" |
 | luknja (odpravljiva nezveznost) | hole (removable discontinuity) at a cancelled common zero (S4). "luknja" is the plain-language gloss, shown with the textbook term "odpravljiva nezveznost" |
 | navpična / vodoravna / poševna asimptota | vertical / horizontal / oblique asymptote (S4); the usual school adjectives ("poševna" as for "poševna asimptota" in gimnazija textbooks) |
+| kombinatorika; kombinatorično drevo | combinatorics; counting tree (CB1, CB2). PIK §4.15, as decided in the combinatorics task table; the chapter and CB2 use both |
+| osnovni izrek kombinatorike | product rule (CB2). PIK §4.15; the pravilo vsote (sum rule) is not used until Batch B |
+| permutacija; variacija; kombinacija | permutation; variation; combination (CB2). PIK §4.15; "permutacije s ponavljanjem" (MISSISSIPPI, CB2) and "variacije s ponavljanjem" are the same words with *s ponavljanjem*; "kombinacije s ponavljanjem" only named as the graph's fourth kind, not derived |
+| binomski simbol; Pascalov trikotnik | binomial coefficient \(\binom nk\), read "n nad k" (CB1, CB2); Pascal's triangle (CB1). PIK §4.15; the readout writes "(n nad k)" |
+| pot po mreži | lattice path, a route of right (D) and up (G) steps (CB1). Transparent wording, no source shows *monotona pot*; CB1 step 1 glosses it as "eno polje desno (D) ali gor (G)". Route letters D and G in sl, R and U in en |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

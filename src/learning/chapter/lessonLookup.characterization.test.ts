@@ -132,9 +132,9 @@ describe('fallback and unavailable lessons', () => {
     });
 
     it('returns undefined for every Demonstration that opts out of lessons', () => {
-        // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics, simulation, kinematics, descent, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, waves, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
+        // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, kinematics, descent, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, waves, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'lattice-paths', 'counting-tree', 'prob-simulation', 'curve-kinematics', 'mechanics-descent', 'recursion-cobweb', 'recursion-growth', 'phase-portrait', 'logistic-map', 'solids', 'contour-map', 'linear-program', 'waves']);
+        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'prob-simulation', 'curve-kinematics', 'mechanics-descent', 'recursion-cobweb', 'recursion-growth', 'phase-portrait', 'logistic-map', 'solids', 'contour-map', 'linear-program', 'waves']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();

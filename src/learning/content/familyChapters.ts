@@ -4,6 +4,7 @@ import {linearMapsChapter} from './linearMapsChapter';
 import {trigonometryChapter} from './trigonometryChapter';
 import {analyticLinesChapter} from './analyticLinesChapter';
 import {circleGeometryChapter} from './circleGeometryChapter';
+import {combinatoricsChapter} from './combinatoricsChapter';
 import {isometriesChapter} from './isometriesChapter';
 import {complexMapsChapter} from './complexMapsChapter';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
@@ -391,6 +392,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     },
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
     fourierChapter, // Fourier series batch A: the partial-sum and Gibbs lesson (F1, F3) of fourierSeriesGuidedLessons.ts.
+    combinatoricsChapter, // Combinatorics and Pascal's triangle batch A: CB1 and CB2 (combinatoricsGuidedLessons.ts); the lessons of batches B and C join later; sits before probability, whose binomial distribution follows it.
     probabilityChapter, // Probability and statistics batch A: the density and binomial-to-normal lessons (P1, P2) of probabilityGuidedLessons.ts; ends the functions strand.
 ];
 

@@ -4,7 +4,7 @@ import type {LessonDefinition} from '../model';
 import {lessonOwnerIntegrityIssues, type IntegrityChapterDefinition, type IntegrityOwnerEntry, type LessonOwnerIntegrityInput} from './lessonOwnerIntegrity';
 
 // The four chapters whose lessons are authored definitions today (`ownedLessons` in chapterOwnedLessons.ts); the rest reuse catalog content.
-const AUTHORED_CHAPTER_IDS = ['bezier-patches', 'linear-maps', 'complex-maps', 'triangle-geometry', 'trigonometry', 'analytic-lines', 'isometries', 'circle-geometry'];
+const AUTHORED_CHAPTER_IDS = ['bezier-patches', 'linear-maps', 'complex-maps', 'triangle-geometry', 'trigonometry', 'analytic-lines', 'isometries', 'circle-geometry', 'combinatorics'];
 
 afterEach(() => {
     vi.doUnmock('./guidedLessons');

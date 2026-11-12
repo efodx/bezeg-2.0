@@ -8,6 +8,8 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow, ReadoutScrollTable} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphSession} from "../base/GraphSession";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {GraphPalette} from "../styles/GraphPalette";
 import {binomial} from "../../combinatorics/binomial";
@@ -500,6 +502,41 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         if (next === before) return;
         this.setState({a: next.a, b: next.b, route: next.route});
         if (before.route !== 0) this.notice = {state: this.state, text: () => t("combinatorics_lattice_notice_reset")};
+    }
+
+    /**
+     * Lesson actions (`combinatorics`, lattice part): `set-target` is the fields a and b (the route restarts at the first one, as for a moved target) and
+     * `set-lattice-display` the content select (paths or triangle) with the switch of the count labels. The whole new state goes through the model's parser
+     * before the first write, so an off-range or non-integer value is a lesson-content error and nothing is snapped. `setState` writes the store
+     * synchronously, so a later action of the same scene reads this one's result; the board follows in `onStateChange`.
+     */
+    applyCombinatoricsAction(action: Extract<LessonAction, {kind: "combinatorics"}>): void {
+        switch (action.operation) {
+            case "set-target": {
+                const parsed = parseLatticeState({...serializeLatticeState(this.state), a: action.a, b: action.b, route: 0});
+                if (!parsed.ok) throw new Error(`combinatorics set-target: ${parsed.error.message}`);
+                this.setState({a: parsed.value.a, b: parsed.value.b, route: 0});
+                return;
+            }
+            case "set-lattice-display": {
+                if (action.view !== "paths" && action.view !== "triangle") throw new Error("combinatorics set-lattice-display: view must be paths or triangle.");
+                const parsed = parseLatticeState({...serializeLatticeState(this.state), view: action.view, showCounts: action.showCounts});
+                if (!parsed.ok) throw new Error(`combinatorics set-lattice-display: ${parsed.error.message}`);
+                this.setState({view: parsed.value.view, showCounts: parsed.value.showCounts});
+                return;
+            }
+            case "set-counting-mode":
+                throw new Error("combinatorics: the lattice graph has no set-counting-mode; it belongs to the counting graph.");
+            default: {
+                const unsupported: never = action;
+                throw new Error(`combinatorics: the lattice graph has no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("combinatorics", action => this.applyCombinatoricsAction(action));
     }
 
     private disposeScene(): void {

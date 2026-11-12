@@ -34,9 +34,9 @@ describe('chapter structure and registration', () => {
         expect(Object.keys(probabilityGuidedExampleLessons.all())).toEqual(SECTIONS.map(([id]) => id));
         expect(familyChapters.at(-1)!.id).toBe(PROBABILITY_CHAPTER_ID);
         expect(familyChapters.findIndex(chapter => chapter.id === PROBABILITY_CHAPTER_ID))
-            .toBe(familyChapters.findIndex(chapter => chapter.id === 'fourier-series') + 1);
+            .toBe(familyChapters.findIndex(chapter => chapter.id === 'combinatorics') + 1);
         expect(learningChapters.findIndex(chapter => chapter.id === PROBABILITY_CHAPTER_ID))
-            .toBe(learningChapters.findIndex(chapter => chapter.id === 'fourier-series') + 1);
+            .toBe(learningChapters.findIndex(chapter => chapter.id === 'combinatorics') + 1);
         expect(learningStrands.find(strand => strand.id === 'functions')!.chapters.at(-1)).toBe(PROBABILITY_CHAPTER_ID);
         expect(probabilityChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual(SECTIONS.map(([, id]) => [id]));
         expect(probabilityChapter.prerequisiteLinks?.map(link => link.path))

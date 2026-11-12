@@ -8,6 +8,8 @@ import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphSession} from "../base/GraphSession";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {AxisSelect} from "../base/DisplaySettings";
 import {GraphPalette} from "../styles/GraphPalette";
 import {
@@ -574,6 +576,38 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         const before = this.state.k;
         this.setState({view, k: view === "row" ? this.rowPlace() : this.state.k});
         this.announceLoweredK(before);
+    }
+
+    /**
+     * Lesson actions (`combinatorics`, counting part): `set-counting-mode` sets the view `choices` with n, k and the two switches (order, repetition), or the
+     * view `multiset` with the four letter counts. The whole new state goes through the model's parser before the first write (so k above n without
+     * repetition, a count out of range or a non-integer throws); nothing is snapped or lowered. `setState` writes the store synchronously.
+     */
+    applyCombinatoricsAction(action: Extract<LessonAction, {kind: "combinatorics"}>): void {
+        switch (action.operation) {
+            case "set-counting-mode": {
+                const base = serializeCountingState(this.state);
+                const next = action.view === "choices"
+                    ? {...base, view: action.view, n: action.n, k: action.k, ordered: action.ordered, repetition: action.repetition}
+                    : {...base, view: action.view, counts: [...action.counts]};
+                const parsed = parseCountingState(next);
+                if (!parsed.ok) throw new Error(`combinatorics set-counting-mode: ${parsed.error.message}`);
+                this.setState(serializeCountingState(parsed.value));
+                return;
+            }
+            case "set-target":
+            case "set-lattice-display":
+                throw new Error(`combinatorics: the counting graph has no ${action.operation}; it belongs to the lattice graph.`);
+            default: {
+                const unsupported: never = action;
+                throw new Error(`combinatorics: the counting graph has no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("combinatorics", action => this.applyCombinatoricsAction(action));
     }
 
     // ---- Text ---------------------------------------------------------------------------------------------------------

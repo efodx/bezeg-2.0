@@ -1440,6 +1440,31 @@ const circleConstruction = {
     },
 };
 
+// Chapter-owned combinatorics lessons CB1 and CB2 (src/learning/content/combinatoricsGuidedLessons.ts): seven steps each, explanation + observation frames, plus a calculation frame per worked example.
+const latticePaths = {
+    id: 'lattice-paths',
+    path: `${BASE}/combinatorics/lattice-paths`,
+    titles: {sl: 'Poti po mreži in Pascalov trikotnik', en: 'Lattice paths and Pascal\'s triangle'},
+    steps: 7,
+    minFrames: 15, // 7 x 2 + 1 calculation frame
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+};
+
+const countingTree = {
+    id: 'counting-tree',
+    path: `${BASE}/combinatorics/counting`,
+    titles: {sl: 'Osnovni izrek, drevo, permutacije, variacije in kombinacije', en: 'Product rule, tree, permutations, variations and combinations'},
+    steps: 7,
+    minFrames: 16, // 7 x 2 + 2 calculation frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+};
+
 // Chapter-owned triangle geometry lessons T1, T2, T3 and T4(src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
 const triangleCentres = {
     id: 'triangle-centres',
@@ -2486,7 +2511,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

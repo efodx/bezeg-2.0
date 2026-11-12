@@ -90,6 +90,9 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'line-geometry': {chapterId: 'analytic-lines', sectionId: 'forms-of-a-line'},
     // The circle construction's first activity (CG1) in the circle geometry chapter; the radical-axis activity (CG2) is the second owner, derived from the chapter.
     'circle-construction': {chapterId: 'circle-geometry', sectionId: 'tangents-from-a-point'},
+    // Combinatorics batch A: the lattice paths (CB1) and the counting tree (CB2) each own one section of the combinatorics chapter.
+    'lattice-paths': {chapterId: 'combinatorics', sectionId: 'lattice-paths-and-pascal'},
+    'counting-tree': {chapterId: 'combinatorics', sectionId: 'counting-and-choices'},
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
