@@ -30,6 +30,7 @@ import {randomCollections} from "../../random/collections";
 import {kinematicsCollections} from "../../curves/kinematics/collections";
 import {recursionCollections} from "../../recursion/collections";
 import {wavesCollections} from "../../functions/waves/collections";
+import {complexBatchDCollections} from "../../complex/batchD/collections";
 import {mechanicsCollections} from "../../mechanics/collections";
 import {dynamicsCollections} from "../../dynamics/collections";
 import {solidsCollections} from "../../solids/collections";
@@ -55,6 +56,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...kinematicsCollections,
     ...recursionCollections,
     ...wavesCollections,
+    ...complexBatchDCollections,
     ...mechanicsCollections,
     ...dynamicsCollections,
     ...solidsCollections,

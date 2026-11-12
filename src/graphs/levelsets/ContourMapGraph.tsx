@@ -31,7 +31,7 @@ import {
     type DescentInfo, type GradientInfo, type LagrangeInfo, type LevelDrawing, type Poly, type SurfaceMeshData,
 } from "./contourScene";
 import {ContourPlayback, ContourReadout, ContourSurfacePanel} from "./ContourPanels";
-import {frameBelowLegend, legendBandPx, legendRowOffset} from "./legendLines";
+import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {Memo} from "./Memo";
 import {contourPresetCollection, type ContourPresetData} from "./contourPresetCollection";
 import type {PresetCollection} from "../base/presets/PresetCollection";

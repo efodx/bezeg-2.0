@@ -89,7 +89,7 @@ export function createIterationCurves(ctx: IterationBoardContext): void {
             curve.dataY = y;
         };
     };
-    const fixedText = (x: number, y: number, text: () => string, anchorX: string, anchorY: string, color: string) =>
+    const fixedText = (x: number | (() => number), y: number, text: () => string, anchorX: string, anchorY: string, color: string) =>
         ctx.own(board.create('text', [x, y, text], {
             fixed: true, highlight: false, anchorX, anchorY, fontSize: ctx.fontSize, strokeColor: color, visible: tracing,
         }));
@@ -112,7 +112,8 @@ export function createIterationCurves(ctx: IterationBoardContext): void {
     polyline(() => closedPolyline(STABILITY_TRIANGLE), {...TRACE_DET_DRAWING.triangle, strokeWidth: ctx.strokeWidth, visible: tracing});
     polyline(() => parabolaPolyline(), {...TRACE_DET_DRAWING.parabola, strokeWidth: ctx.strokeWidth, visible: tracing});
     fixedText(0, 1.15, ctx.text.triangle, 'middle', 'bottom', ITERATION_COLORS.triangle);
-    fixedText(left + 0.3, top - 0.3, ctx.text.flow, 'left', 'top', ITERATION_COLORS.flow);
+    // The label starts inside the quadrant, but never left of the board's live edge: a narrow board shows less than the quadrant.
+    fixedText(() => Math.max(left + 0.3, board.getBoundingBox()[0] + 8 / board.unitX), top - 0.3, ctx.text.flow, 'left', 'top', ITERATION_COLORS.flow);
     fixedText(6.4, 8.5, ctx.text.parabola, 'left', 'top', ITERATION_COLORS.parabola);
     fixedText(right - 0.3, 0.3, () => 'τ', 'right', 'bottom', GraphPalette.pointOutline);
     fixedText(0.3, top - 0.3, () => 'δ', 'left', 'top', GraphPalette.pointOutline);

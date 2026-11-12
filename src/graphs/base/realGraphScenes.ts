@@ -128,6 +128,17 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
             g.importPresetData([[tag, {...state, normal: (variant === 'a' ? [1, 1, 1] : [1, 0, 1]), offset: (variant === 'a' ? 3 : 6), discs: (variant === 'a' ? 7 : 13)}]]);
             return;
         }
+        // Complex power and Euler circle: the data is a tagged entry holding the state, so change the base point or the angle and the other fields.
+        case 'complex-power': {
+            const [tag, state] = (exported as [string, object][])[0];
+            g.importPresetData([[tag, {...state, A: (variant === 'a' ? 10 : -8), B: (variant === 'a' ? 6 : 12), n: (variant === 'a' ? 3 : 5)}]]);
+            return;
+        }
+        case 'complex-euler': {
+            const [tag, state] = (exported as [string, object][])[0];
+            g.importPresetData([[tag, {...state, degrees: (variant === 'a' ? 90 : 210), omega: (variant === 'a' ? 3 : 1), degree: (variant === 'a' ? 7 : 12), mode: (variant === 'a' ? 'product' : 'motion')}]]);
+            return;
+        }
         case 'bspline-curve': {
             // B-spline graphs: move the first interior knot within its neighbours and lift the first control point.
             const {degree, knots, points} = exported as {degree: number, knots: number[], points: [number, number][]};

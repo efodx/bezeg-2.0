@@ -14,6 +14,8 @@ import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/Read
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
+import {legendStackOffsetPx, legendWrapExtraPx} from "../legend/legendStack";
+import {keepOpeningView} from "./openingView";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -37,6 +39,8 @@ export const VIEW_BOX: readonly [number, number, number, number] = [-2.2, 2.2, 2
 export const ROW_PX = 16;
 const ROW_TEXT_PX = 14;
 const LEGEND_TOP = -2.3;
+/** The part of the opening board's height that the legend band takes (below the unit circle's frame). */
+const LEGEND_BAND_FRACTION = (LEGEND_TOP - VIEW_BOX[3]) / (VIEW_BOX[1] - VIEW_BOX[3]);
 const LEGEND_OFFSET_PX = 8;
 /** Dash patterns of JSXGraph (index 1 is 2-2 dotted, 4 is 20-20 long dashes, 5 is 20-10-10-10 dash-dot); the legend names each in words and no two share one. */
 export const UNIT_CIRCLE_DASH: number = 4;
@@ -171,6 +175,7 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
     initialize(): void {
         this.buildScene();
         const session = this.graphSession;
+        if (this.hasBoard) keepOpeningView(this.board, session, () => this.showInitialView());
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => { this.disposeController(); this.status.cancel(); });
@@ -261,11 +266,14 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
     /** A caption at a board point plus a pixel offset (up is positive); `dy` below the point is negative. */
     private caption(x: () => number, y: () => number, dx: number, dy: number | (() => number), text: () => string, color: string, options: {
         visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
+        /** A legend row: it gets the board's own background, so the axis and its tick labels do not run through its text. */
+        legend?: boolean;
     } = {}): void {
         this.scene.own(this.board.create("text", [
             () => x() + dx / this.scaleOf().ux, () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
         ], {
             strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
+            ...(options.legend ? {cssStyle: "background: rgba(255, 253, 245, 0.88); padding: 0 2px; border-radius: 2px;"} : {}),
             parse: false, // the text holds e^(...), which JSXGraph would otherwise turn into a superscript of the bracket
             visible: options.visible ?? (() => true),
         }));
@@ -343,20 +351,23 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
             GraphPalette.additionalCurves[4], {visible: productShown});
         this.caption(() => productPoint().re, () => productPoint().im, 8, -8, () => t("euler_circle_graph_cap_product", {value0: this.productText()}),
             GraphPalette.additionalCurves[3], {visible: productShown, anchorY: "top"});
-        // The legend stacks only the visible rows, from the top down, with the pitch shrunk so that the last one stays inside the board.
-        const shown: Array<() => boolean> = [];
+        // The legend stacks only the visible rows, from the top down, anchored at the live bottom-left corner of the board (pixel offsets, so a pan or zoom keeps it there); the pitch of a one-line row is
+        // shrunk so that the last one stays inside the board, and a row that wraps takes its lines.
+        const shown: Array<{text: () => string; visible: () => boolean}> = [];
+        const states = () => shown.map(row => ({text: row.text(), visible: row.visible()}));
         const rowOffset = (index: number): number => {
-            const visibleRows = shown.filter(isShown => isShown()).length;
-            const above = shown.slice(0, index).filter(isShown => isShown()).length;
-            const [, , , boardBottom] = this.board.getBoundingBox();
-            const room = (LEGEND_TOP - boardBottom) * this.scaleOf().uy - LEGEND_OFFSET_PX - ROW_TEXT_PX;
+            const rows = states();
+            const visibleRows = rows.filter(row => row.visible).length;
+            const width = this.board.canvasWidth;
+            const room = LEGEND_BAND_FRACTION * this.board.canvasHeight - LEGEND_OFFSET_PX - ROW_TEXT_PX - legendWrapExtraPx(rows, width, ROW_PX);
             const pitch = visibleRows > 1 && Number.isFinite(room) ? Math.min(ROW_PX, Math.max(room, 0) / (visibleRows - 1)) : ROW_PX;
-            return -(LEGEND_OFFSET_PX + above * pitch);
+            // Pixels above the bottom edge of the live board: the rows below this one stack under it, so a pan or zoom keeps the legend at the edge.
+            return LEGEND_OFFSET_PX + legendStackOffsetPx(rows, rows.length, width, pitch) - legendStackOffsetPx(rows, index, width, pitch);
         };
         const row = (text: () => string, color: string, visible: () => boolean = () => true) => {
             const index = shown.length;
-            shown.push(visible);
-            this.caption(() => VIEW_BOX[0], () => LEGEND_TOP, 4, () => rowOffset(index), text, color, {anchorY: "top", visible});
+            shown.push({text, visible});
+            this.caption(() => this.board.getBoundingBox()[0], () => this.board.getBoundingBox()[3], 10, () => rowOffset(index), text, color, {anchorY: "top", visible, legend: true});
         };
         row(() => t("euler_circle_graph_cap_unit", {value0: t("euler_circle_graph_style_dashed")}), GraphPalette.referenceCurve);
         row(() => t("euler_circle_graph_cap_projections", {value0: t("euler_circle_graph_style_dotted")}), GraphPalette.comparisonCurve);

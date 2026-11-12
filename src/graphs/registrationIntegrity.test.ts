@@ -34,6 +34,9 @@ import {recursionGraphLoaders} from './recursion/runtime';
 import {wavesCollections} from './functions/waves/collections';
 import {wavesCollectionKeys, wavesDemonstrationRows} from './functions/waves/registration';
 import {wavesGraphLoaders} from './functions/waves/runtime';
+import {complexBatchDCollections} from './complex/batchD/collections';
+import {complexBatchDCollectionKeys, complexBatchDDemonstrationRows} from './complex/batchD/registration';
+import {complexBatchDGraphLoaders} from './complex/batchD/runtime';
 import {mechanicsCollections} from './mechanics/collections';
 import {mechanicsCollectionKeys, mechanicsDemonstrationRows} from './mechanics/registration';
 import {mechanicsGraphLoaders} from './mechanics/runtime';
@@ -106,6 +109,7 @@ interface RealFamily {
     readonly collectionKeys: Readonly<Record<string, string>>; readonly collections: readonly PresetCollection<unknown>[];
 }
 const realFamilies: readonly RealFamily[] = [
+    {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
     {family: 'trigonometry', rows: trigDemonstrationRows, loaders: trigGraphLoaders, collectionKeys: trigCollectionKeys, collections: trigCollections},
     {family: 'line-geometry', rows: lineDemonstrationRows, loaders: lineGraphLoaders, collectionKeys: lineCollectionKeys, collections: lineCollections},

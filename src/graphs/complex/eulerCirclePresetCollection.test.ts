@@ -13,7 +13,7 @@ const rejection = (data: unknown): string | undefined => {
 
 describe('Euler circle Preset collection', () => {
     test('the key is a file contract and the default state round trips through check', () => {
-        expect(EULER_CIRCLE_PRESET_KEY).toBe('euler-circle');
+        expect(EULER_CIRCLE_PRESET_KEY).toBe('complex-euler');
         const data = eulerCirclePresetData(DEFAULT_EULER_CIRCLE_STATE);
         expect(data).toEqual([['EulerCircle', {degrees: 30, omega: 2, degree: 5, velocity: true, acceleration: false, mode: 'motion', b: 45}]]);
         expect(eulerCirclePresetCollection.check(JSON.parse(JSON.stringify(data)))).toEqual({data});

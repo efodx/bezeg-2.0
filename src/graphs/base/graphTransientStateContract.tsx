@@ -87,6 +87,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'contour-map': ['mode', 'fn', 'level', 'levelCount', 'probe', 'numeric', 'start', 'step', 'constraint', 'lineParam', 'circleParam', 'camera'],
     'linear-program': ['constraints', 'objective', 'sweep'],
     waves: ['mode', 'a1', 'p1', 'a2', 'p2', 'f1', 'f2', 'fs', 'halfWaves', 'extra', 'showPhasors', 'showEnvelope', 'showAlias', 'showJoin', 'showSinc'],
+    'complex-power': ['A', 'B', 'n'],
+    'complex-euler': ['degrees', 'omega', 'degree', 'velocity', 'acceleration', 'mode', 'b'],
     'polygon-area': ['model'],
     'convex-hull': ['model'],
     'point-in-polygon': ['model'],

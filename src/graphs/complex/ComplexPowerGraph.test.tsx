@@ -84,6 +84,14 @@ function stepsPlayed(graph: ObservedGraph, ticks: number) {
 }
 
 describe('mount and the numbers', () => {
+    test('the dashed unit circle holds its data on the first mount, as after a rebuild', () => {
+        const {graph} = mountGraph();
+        const drawn = () => (ofType(graph, 'curve') as unknown as {points: unknown[]; visPropCalc: {visible: boolean}}[]).map(c => c.visPropCalc.visible ? c.points.length : 0);
+        const first = drawn();
+        expect(first[0]).toBeGreaterThan(100);
+        act(() => { graph.rebuildNow(); });
+        expect(drawn()).toEqual(first);
+    });
     test('the default z = 1 + i, n = 5 shows the exact power -4 - 4i, modulus 4 root 2 and every row labelled', () => {
         const {graph} = mountGraph();
         expect(graph.state).toMatchObject({A: 20, B: 20, n: 5});

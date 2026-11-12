@@ -16,11 +16,13 @@ import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons"
 import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
 import {SceneObjects} from "../recursion/SceneObjects";
+import {legendStackOffsetPx} from "../legend/legendStack";
+import {keepOpeningView} from "./openingView";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {
     applyComplexPowerAction, arrowToward, ComplexPowerAction, ComplexPowerDerived, ComplexPowerState, coordinateOf, DEFAULT_COMPLEX_POWER_STATE,
-    deriveComplexPower, ExactFraction, ExactRadical, insideView, N_RANGE, snapDragCoordinate, superscript, typedCoordinate, typedExponent, VIEW_LIMIT,
+    deriveComplexPower, ExactFraction, ExactRadical, insideView, N_RANGE, snapDragCoordinate, superscript, typedCoordinate, typedExponent,
     Z_RANGE, Z_SCALE, zOf,
 } from "../../complex/complexPowerModel";
 import {complexPowerPresetCollection, complexPowerPresetData, ComplexPowerPresetData} from "./complexPowerPresetCollection";
@@ -151,7 +153,10 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
 
     initialize(): void {
         this.buildScene();
+        // The still unit circle is skipped by regular updates and has no data yet on the first build: one full update draws it.
+        this.board.fullUpdate();
         const session = this.graphSession;
+        if (this.hasBoard) keepOpeningView(this.board, session, () => this.showInitialView());
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => { this.disposeController(); this.status.cancel(); });
@@ -233,13 +238,17 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     }
 
     /** A caption at a board point plus a pixel offset (up is positive); `dy` below the point is negative. */
-    private caption(x: () => number, y: () => number, dx: number, dy: number, text: () => string, color: string, options: {
+    private caption(x: () => number, y: () => number, dx: number | (() => number), dy: number | (() => number), text: () => string, color: string, options: {
         visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
+        /** A legend row: it gets the board's own background, so the axis and its tick labels do not run through its text. */
+        legend?: boolean;
     } = {}): void {
         this.scene.own(this.board.create("text", [
-            () => x() + dx / this.scaleOf().ux, () => y() + dy / this.scaleOf().uy, text,
+            () => x() + (typeof dx === "number" ? dx : dx()) / this.scaleOf().ux,
+            () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
         ], {
             strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
+            ...(options.legend ? {cssStyle: "background: rgba(255, 253, 245, 0.88); padding: 0 2px; border-radius: 2px;"} : {}),
             visible: options.visible ?? (() => true),
         }));
     }
@@ -259,7 +268,6 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         const board = this.board;
         this.built = true;
         const ks = Array.from({length: COMPLEX_POWER_MAX - 1}, (_unused, i) => i + 2);
-        const below = (row: number) => -(8 + row * ROW_PX);
 
         // The unit circle (dashed), the path through the powers (solid; it breaks where a power is beyond the view), the arrows to the powers beyond the view, then the powers.
         this.curve(() => {
@@ -320,15 +328,21 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                 GraphPalette.additionalCurves[1], {visible: () => this.drawnOutside(k)});
         }
         this.caption(() => 0, () => 0, 8, 8, () => t("complex_power_graph_cap_zero"), GraphPalette.label, {visible: () => this.derived().zero});
-        const bottom = () => -VIEW_LIMIT - 0.1;
-        this.caption(() => VIEW_BOX[0], bottom, 4, below(0), () => t("complex_power_graph_cap_unit", {value0: t("complex_power_graph_style_dashed")}),
-            GraphPalette.referenceCurve, {anchorY: "top"});
-        this.caption(() => VIEW_BOX[0], bottom, 4, below(1), () => t("complex_power_graph_cap_path", {value0: superscript(this.state.n), value1: t("complex_power_graph_style_solid")}),
-            GraphPalette.comparisonCurve, {anchorY: "top"});
-        this.caption(() => VIEW_BOX[0], bottom, 4, below(2), () => t("complex_power_graph_cap_points", {value0: t("complex_power_graph_style_diamonds")}),
-            GraphPalette.additionalCurves[1], {anchorY: "top"});
-        this.caption(() => VIEW_BOX[0], bottom, 4, below(3), () => t("complex_power_graph_cap_handle", {value0: t("complex_power_graph_style_circle")}),
-            GraphPalette.constructionAccent, {anchorY: "top"});
+        // The legend: anchored at the live bottom-left corner of the board (pixel offsets, so a pan or zoom keeps it there); the rows stack by wrapped line count.
+        const legend: readonly {text: () => string; color: string}[] = [
+            {text: () => t("complex_power_graph_cap_unit", {value0: t("complex_power_graph_style_dashed")}), color: GraphPalette.referenceCurve},
+            {text: () => t("complex_power_graph_cap_path", {value0: superscript(this.state.n), value1: t("complex_power_graph_style_solid")}), color: GraphPalette.comparisonCurve},
+            {text: () => t("complex_power_graph_cap_points", {value0: t("complex_power_graph_style_diamonds")}), color: GraphPalette.additionalCurves[1]},
+            {text: () => t("complex_power_graph_cap_handle", {value0: t("complex_power_graph_style_circle")}), color: GraphPalette.constructionAccent},
+        ];
+        legend.forEach((row, index) => {
+            // Pixels above the live bottom edge: the rows below this one stack under it, so a pan or zoom keeps the legend at the edge.
+            const offset = () => {
+                const rows = legend.map(r => ({text: r.text(), visible: true}));
+                return 8 + legendStackOffsetPx(rows, rows.length, board.canvasWidth, ROW_PX) - legendStackOffsetPx(rows, index, board.canvasWidth, ROW_PX);
+            };
+            this.caption(() => board.getBoundingBox()[0], () => board.getBoundingBox()[3], 10, offset, row.text, row.color, {anchorY: "top", legend: true});
+        });
     }
 
     private disposeScene(): void {

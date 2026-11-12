@@ -3,7 +3,7 @@ import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, beforeEach, describe, expect, test} from 'vitest';
 import {setLanguage} from '../../localization';
-import {legendLines} from './legendLines';
+import {legendLines} from '../legend/legendLines';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {ContourMapGraph} from './ContourMapGraph';

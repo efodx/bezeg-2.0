@@ -10,6 +10,7 @@ import {randomGraphLoaders} from './random/runtime';
 import {kinematicsGraphLoaders} from './curves/kinematics/runtime';
 import {recursionGraphLoaders} from './recursion/runtime';
 import {wavesGraphLoaders} from './functions/waves/runtime';
+import {complexBatchDGraphLoaders} from './complex/batchD/runtime';
 import {mechanicsGraphLoaders} from './mechanics/runtime';
 import {dynamicsGraphLoaders} from './dynamics/runtime';
 import {solidsGraphLoaders} from './solids/runtime';
@@ -20,7 +21,7 @@ import {levelSetsGraphLoaders} from './levelsets/runtime';
  * adds one spread here, one in `src/demonstrations.ts` and one in `PresetImport.ts`. Demonstrations not listed here still
  * use the legacy table `graphFactories.ts`.
  */
-export const registeredGraphLoaders = {...projectiveGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders, ...recursionGraphLoaders, ...wavesGraphLoaders, ...mechanicsGraphLoaders, ...dynamicsGraphLoaders, ...solidsGraphLoaders, ...levelSetsGraphLoaders};
+export const registeredGraphLoaders = {...projectiveGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders, ...recursionGraphLoaders, ...wavesGraphLoaders, ...mechanicsGraphLoaders, ...dynamicsGraphLoaders, ...solidsGraphLoaders, ...levelSetsGraphLoaders, ...complexBatchDGraphLoaders};
 export type RegisteredDemonstrationId = keyof typeof registeredGraphLoaders;
 
 export const isRegisteredDemonstrationId = (id: string): id is RegisteredDemonstrationId => Object.prototype.hasOwnProperty.call(registeredGraphLoaders, id);

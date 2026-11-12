@@ -33,6 +33,7 @@ import {
     shoelace, sourceGridPolyline,
 } from "./linearMapScene";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
+import type {Preset} from "../base/presets/Presets";
 
 /**
  * The default view: the grid covers [-6, 6]^2, and the default example's image of the fixture curve reaches (11, 4). The units of the
@@ -145,6 +146,18 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     override importPresetData(data: LinearMapState): void {
         this.notice = undefined;
         super.importPresetData(data);
+    }
+
+    /** True while a Preset file with a stored view is applied: the mode's own view must not replace the stored one. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
     }
 
     // ---- View ------------------------------------------------------------------------------------------------------
@@ -587,7 +600,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const plane = planeOf(this.model.mode as LinearMapGraphMode);
         if (plane !== this.boardPlane) {
             this.boardPlane = plane;
-            this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
+            if (!this.keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
         }
     }
 

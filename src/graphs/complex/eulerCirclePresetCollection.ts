@@ -6,7 +6,7 @@ import {
 } from '../../complex/eulerCircleModel';
 
 /** Preset key of the Euler-circle graph. A file contract. */
-export const EULER_CIRCLE_PRESET_KEY = 'euler-circle';
+export const EULER_CIRCLE_PRESET_KEY = 'complex-euler';
 
 /** The stored state of a Preset: the angle in degrees, omega, the series degree, the two arrow switches, the mode and the second angle (a Preset without the last two gets the defaults). */
 export interface EulerCircleStored {

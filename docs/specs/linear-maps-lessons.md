@@ -180,6 +180,7 @@ Examples are implementation defaults; equivalents may replace them if the learni
   - The pause rule lives in a `setState` override that compares stored content before and after the write and skips playback's own tick. This fixes a direct `setState` that did not pause.
   - A mode change restores that mode's default view, discarding pan and zoom. The `tracedet` mode draws no orbit and shows only its length. Within 30 steps with entries of at most 4 no overflow can occur, so there is no overflow status.
   - Review repairs: the dominant-eigenvalue label appears only for the `dominant` outcome with a start off the other eigenvector, and is neutral otherwise. A start on the eigenvector of eigenvalue 0 is reported as sent to 0. The tracedet legend matches its drawing.
+  - **F2b decisions** (worker, 2026-11-12; evidence `docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md`). No new row: `iterate` and `tracedet` are modes of the existing `linear-map` route (ADR 0057), reachable from its mode selector, and their Presets use the existing collection. Rejected: a separate route per mode (it would split one graph's state and Preset collection, which ADR 0057 chose against). One fix: a Preset file with a stored view in the `tracedet` mode was reset to the plane's default view by the mode change the import caused; `LinearMapGraph.importPreset` now keeps the stored view. Presets stored before Batch D still load unchanged (tested in F2a).
 
 ## User Stories
 

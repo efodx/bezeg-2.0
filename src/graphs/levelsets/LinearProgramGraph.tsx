@@ -21,7 +21,7 @@ import {
 import {emptyPoly, type Poly} from "./contourScene";
 import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
-import {frameBelowLegend, legendBandPx, legendRowOffset} from "./legendLines";
+import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {Memo} from "./Memo";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";

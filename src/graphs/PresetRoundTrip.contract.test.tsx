@@ -13,8 +13,6 @@ import {installBoardShims, mountGraph, settle} from './base/realGraphTestHarness
 import {allGraphFactories} from './allGraphFactories';
 import {classNames, familySample, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE} from './base/catalogSweepScope';
 import type {DemonstrationId} from '../demonstrations';
-import {ComplexPowerGraph} from './complex/ComplexPowerGraph';
-import {EulerCircleGraph} from './complex/EulerCircleGraph';
 import SolidsGraph from './solids/SolidsGraph';
 import {renderMessage} from '../localization';
 
@@ -24,15 +22,13 @@ afterEach(() => { cleanup(); localStorage.clear(); });
 type Create = () => BaseGraph<BaseGraphState>;
 // Graphs no route or loader mounts yet are listed here so their Preset round trip is covered too.
 const unrouted: Array<[string, Create]> = [
-    ['complex-power (unrouted)', () => new ComplexPowerGraph() as unknown as BaseGraph<BaseGraphState>],
-    ['euler-circle (unrouted)', () => new EulerCircleGraph() as unknown as BaseGraph<BaseGraphState>],
     ['solids (unrouted)', () => new SolidsGraph() as unknown as BaseGraph<BaseGraphState>],
 ];
 const all: Array<[string, Create]> = [...Object.entries(allGraphFactories), ...unrouted];
 const allIds = all.map(([id]) => id);
 const createOf = new Map(all);
 // The mechanism sample of the other sweeps, the Coons patch (its Preset data is moved below) and each family's first
-// graph. The unrouted graphs are three cheap cases no catalog reaches, so a sampled run keeps them.
+// graph. The unrouted graph is one cheap case no catalog reaches, so a sampled run keeps them.
 const catalogIds = Object.keys(allGraphFactories) as DemonstrationId[];
 const SAMPLE: readonly string[] = [...familySample(catalogIds, [...TRANSIENT_STATE_SAMPLE, 'patch-coons']), ...unrouted.map(([id]) => id)];
 const checkedIds = selectEntries(inject('presetRoundTripScope'), 'BEZEG_PRESET_ROUNDTRIP', allIds, SAMPLE,
@@ -44,8 +40,8 @@ const entries = all.filter(([id]) => checkedIds.includes(id));
  */
 const changes: Record<string, Record<string, unknown>> = {
     'patch-coons': {linkedCorners: false},
-    'complex-power (unrouted)': {n: 3},
-    'euler-circle (unrouted)': {degrees: 60},
+    'complex-power': {n: 3},
+    'complex-euler': {degrees: 60},
     'solids (unrouted)': {offset: 1},
 };
 

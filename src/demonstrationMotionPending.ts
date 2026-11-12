@@ -26,4 +26,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'contour-map', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'linear-program', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'waves', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-recursion-waves.md).'},
+    {id: 'complex-power', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md).'},
+    {id: 'complex-euler', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md).'},
 ];
