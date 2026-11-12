@@ -4,7 +4,6 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
 import {
@@ -19,6 +18,7 @@ import {definingPoints} from "./definingPoints";
 import {TANGENCY_NAMES, TANGENT_NAMES} from "./polePolarText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {polePolarPresetCollection} from "./projectivePresetCollection";
+import {polePolarPersistence} from "./projectivePersistence";
 
 /**
  * The pole and polar graph (K3 of projective-conics-lessons, ADR 0033). One of four fixed conics, the point P (a finite point on the
@@ -213,30 +213,29 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
         return serializePolePolarModel(DEFAULT_POLE_POLAR_MODEL);
     }
 
-    /** A Preset carries the model once, as `data`; its `graphState` omits `model`, which the collection's `checkGraphState` rejects. */
-    override exportPreset(): Preset<PolePolarModel> {
-        const preset = super.exportPreset();
-        const {model: _model, ...graphState} = preset.graphState as PolePolarGraphState;
-        return {...preset, graphState};
+    /** A Preset carries the model once, as `data` (`polePolarPersistence`); its `graphState` is only `initialized`. */
+    protected override projectPersistedScene(): {data: PolePolarModel; graphState: BaseGraphState} {
+        return polePolarPersistence.project(this.state);
     }
 
     override exportPresetData(): PolePolarModel {
-        return serializePolePolarModel(this.model);
+        return polePolarPersistence.project(this.state).data;
     }
 
     /** An import or Reset replaces the model; the selection and the last nudge announcement belong to the old one and are cleared. */
     override importPresetData(data: PolePolarModel): void {
         this.selected = false;
         this.nudged = false;
-        this.setState({model: serializePolePolarModel(data)});
+        this.setState({model: polePolarPersistence.reconstruct(data, undefined, this.state).model});
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PolePolarGraphState {
-        return {...super.figurePresetGraphState(graphState), model: this.model};
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): PolePolarGraphState {
+        const defaults = super.figurePresetGraphState(undefined);
+        return {...polePolarPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as PolePolarModel, graphState, defaults), initialized: true};
     }
 
-    protected override lessonDefaultState(): PolePolarGraphState {
-        return {...this.getInitialState(), initialized: true, model: this.model};
+    protected override lessonDefaultState(data?: PolePolarModel): PolePolarGraphState {
+        return {...polePolarPersistence.reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
     }
 
     protected override captureTransientState(): TransientState {

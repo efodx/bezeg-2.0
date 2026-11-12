@@ -4,7 +4,6 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
 import {Hom, toAffine} from "../../projective/homogeneous";
@@ -20,6 +19,7 @@ import {definingPoints} from "./definingPoints";
 import {PASCAL_POINT_NAMES, SIDE_NAMES} from "./pascalText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {pascalPresetCollection} from "./projectivePresetCollection";
+import {pascalPersistence} from "./projectivePersistence";
 
 /**
  * The Pascal and Pappus graph (K2 of projective-conics-lessons, ADR 0033). One of four fixed conics, six handles that move only
@@ -236,30 +236,29 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         return serializePascalModel(DEFAULT_PASCAL_MODEL);
     }
 
-    /** A Preset carries the model once, as `data`; its `graphState` omits `model`, which the collection's `checkGraphState` rejects. */
-    override exportPreset(): Preset<PascalModel> {
-        const preset = super.exportPreset();
-        const {model: _model, ...graphState} = preset.graphState as PascalGraphState;
-        return {...preset, graphState};
+    /** A Preset carries the model once, as `data` (`pascalPersistence`); its `graphState` is only `initialized`. */
+    protected override projectPersistedScene(): {data: PascalModel; graphState: BaseGraphState} {
+        return pascalPersistence.project(this.state);
     }
 
     override exportPresetData(): PascalModel {
-        return serializePascalModel(this.model);
+        return pascalPersistence.project(this.state).data;
     }
 
     /** An import or Reset replaces the model; the selection and the last nudge announcement belong to the old one and are cleared. */
     override importPresetData(data: PascalModel): void {
         this.selected = undefined;
         this.nudged = undefined;
-        this.setState({model: serializePascalModel(data)});
+        this.setState({model: pascalPersistence.reconstruct(data, undefined, this.state).model});
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PascalGraphState {
-        return {...super.figurePresetGraphState(graphState), model: this.model};
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): PascalGraphState {
+        const defaults = super.figurePresetGraphState(undefined);
+        return {...pascalPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as PascalModel, graphState, defaults), initialized: true};
     }
 
-    protected override lessonDefaultState(): PascalGraphState {
-        return {...this.getInitialState(), initialized: true, model: this.model};
+    protected override lessonDefaultState(data?: PascalModel): PascalGraphState {
+        return {...pascalPersistence.reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
     }
 
     protected override captureTransientState(): TransientState {

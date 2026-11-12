@@ -1,6 +1,9 @@
 import type {ScenePersistence} from "../base/presets/ScenePersistence";
 import {evaluateFivePoint, FivePointModel, LastUnique, nextLastUnique, serializeFivePointModel} from "./fivePointModel";
 import {serializeThreeViewsModel, ThreeViewsModel} from "./threeViewsModel";
+import {CrossRatioModel, serializeCrossRatioModel} from "./crossRatioModel";
+import {PascalModel, serializePascalModel} from "./pascalModel";
+import {PolePolarModel, serializePolePolarModel} from "./polePolarModel";
 
 /**
  * The projection companions of `fivePointPresetCollection` and `threeViewsPresetCollection` (`projectivePresetCollection.ts`).
@@ -38,5 +41,44 @@ export const threeViewsPersistence: ScenePersistence<ThreeViewsModel, ThreeViews
     /** The views are `evaluateThreeViews(model)`, computed from the model on demand; nothing derived is stored. */
     reconstruct(data: ThreeViewsModel, permittedState: unknown, defaults: ThreeViewsSceneState): ThreeViewsSceneState {
         return {...defaults, ...permittedInitialized(permittedState), model: serializeThreeViewsModel(data)};
+    },
+});
+
+export interface CrossRatioSceneState {
+    initialized: boolean;
+    model: CrossRatioModel;
+}
+
+export const crossRatioPersistence: ScenePersistence<CrossRatioModel, CrossRatioSceneState> = Object.freeze({
+    project: (state: CrossRatioSceneState) => ({data: serializeCrossRatioModel(state.model), graphState: {initialized: state.initialized}}),
+    /** The scene is `evaluateCrossRatio(model)`, cached lazily by model identity; nothing derived is stored. */
+    reconstruct(data: CrossRatioModel, permittedState: unknown, defaults: CrossRatioSceneState): CrossRatioSceneState {
+        return {...defaults, ...permittedInitialized(permittedState), model: serializeCrossRatioModel(data)};
+    },
+});
+
+export interface PascalSceneState {
+    initialized: boolean;
+    model: PascalModel;
+}
+
+export const pascalPersistence: ScenePersistence<PascalModel, PascalSceneState> = Object.freeze({
+    project: (state: PascalSceneState) => ({data: serializePascalModel(state.model), graphState: {initialized: state.initialized}}),
+    /** The scene is evaluated from the model, cached lazily by model identity; nothing derived is stored. */
+    reconstruct(data: PascalModel, permittedState: unknown, defaults: PascalSceneState): PascalSceneState {
+        return {...defaults, ...permittedInitialized(permittedState), model: serializePascalModel(data)};
+    },
+});
+
+export interface PolePolarSceneState {
+    initialized: boolean;
+    model: PolePolarModel;
+}
+
+export const polePolarPersistence: ScenePersistence<PolePolarModel, PolePolarSceneState> = Object.freeze({
+    project: (state: PolePolarSceneState) => ({data: serializePolePolarModel(state.model), graphState: {initialized: state.initialized}}),
+    /** The scene is evaluated from the model, cached lazily by model identity; nothing derived is stored. */
+    reconstruct(data: PolePolarModel, permittedState: unknown, defaults: PolePolarSceneState): PolePolarSceneState {
+        return {...defaults, ...permittedInitialized(permittedState), model: serializePolePolarModel(data)};
     },
 });

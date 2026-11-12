@@ -4,7 +4,6 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -17,6 +16,7 @@ import {CrossRatioControls} from "./CrossRatioControls";
 import {describeCrossRatio} from "./crossRatioText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {crossRatioPresetCollection} from "./projectivePresetCollection";
+import {crossRatioPersistence} from "./projectivePersistence";
 
 /**
  * The cross-ratio graph (K1 of projective-conics-lessons, ADR 0033). Two lines, a centre `O`, four points A-D on the first
@@ -156,30 +156,29 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         return serializeCrossRatioModel(DEFAULT_CROSS_RATIO_MODEL);
     }
 
-    /** A Preset carries the model once, as `data`; its `graphState` omits `model`, which the collection's `checkGraphState` rejects. */
-    override exportPreset(): Preset<CrossRatioModel> {
-        const preset = super.exportPreset();
-        const {model: _model, ...graphState} = preset.graphState as CrossRatioGraphState;
-        return {...preset, graphState};
+    /** A Preset carries the model once, as `data` (`crossRatioPersistence`); its `graphState` is only `initialized`. */
+    protected override projectPersistedScene(): {data: CrossRatioModel; graphState: BaseGraphState} {
+        return crossRatioPersistence.project(this.state);
     }
 
     override exportPresetData(): CrossRatioModel {
-        return serializeCrossRatioModel(this.model);
+        return crossRatioPersistence.project(this.state).data;
     }
 
     /** An import or Reset replaces the model; the selection and the last nudge announcement belong to the old one and are cleared. */
     override importPresetData(data: CrossRatioModel): void {
         this.selected = undefined;
         this.nudged = undefined;
-        this.setState({model: serializeCrossRatioModel(data)});
+        this.setState({model: crossRatioPersistence.reconstruct(data, undefined, this.state).model});
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): CrossRatioGraphState {
-        return {...super.figurePresetGraphState(graphState), model: this.model};
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): CrossRatioGraphState {
+        const defaults = super.figurePresetGraphState(undefined);
+        return {...crossRatioPersistence.reconstruct(data === undefined ? this.persistedDefaultData() : data as CrossRatioModel, graphState, defaults), initialized: true};
     }
 
-    protected override lessonDefaultState(): CrossRatioGraphState {
-        return {...this.getInitialState(), initialized: true, model: this.model};
+    protected override lessonDefaultState(data?: CrossRatioModel): CrossRatioGraphState {
+        return {...crossRatioPersistence.reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
     }
 
     protected override captureTransientState(): TransientState {
