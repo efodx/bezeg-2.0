@@ -7,7 +7,7 @@ Started 2026-11-12 at the owner's request. It carries the registration, owned-sc
 
 | Step | Task | Notes | Status |
 | --- | --- | --- | --- |
-| 1 | Inventories: step 1 of tasks [06](../lesson-authoring-architecture/06-legacy-registration-rollout.md), [07](../lesson-authoring-architecture/07-owned-scene-rollout.md) and [08](../lesson-authoring-architecture/08-scene-projection-rollout.md) | Read-only, so the three may run together. Each ends with a batch list covering its whole scope: 113 entries, 11 graphs, 25 rows | not started |
+| 1 | Inventories: step 1 of tasks [06](../lesson-authoring-architecture/06-legacy-registration-rollout.md), [07](../lesson-authoring-architecture/07-owned-scene-rollout.md) and [08](../lesson-authoring-architecture/08-scene-projection-rollout.md) | Read-only, so the three may run together. Each ends with a batch list covering its whole scope: 113 entries, 11 graphs, 25 rows | in progress: 07 and 08 dispatched 2026-11-12; 06 follows |
 | 2 | 07: B-spline scene batch | `BSplineBasisGraph`, `DeBoorGraph`, `BSplineInsertionGraph`, `BSplineExtractionGraph`. Characterize first (task 07 step 2) | not started |
 | 3 | 08: projective batch | CrossRatio, Pascal and PolePolar. Disjoint from step 2, so the two may run together while neither changes host hooks | not started |
 | 4 | 06: registration by family | Batches from the step 1 inventory. B-splines register after step 2 has landed. Root files are shared with Families prep (below) | not started |
