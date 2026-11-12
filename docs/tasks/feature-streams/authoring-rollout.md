@@ -7,9 +7,9 @@ Started 2026-11-12 at the owner's request. It carries the registration, owned-sc
 
 | Step | Task | Notes | Status |
 | --- | --- | --- | --- |
-| 1 | Inventories: step 1 of tasks [06](../lesson-authoring-architecture/06-legacy-registration-rollout.md), [07](../lesson-authoring-architecture/07-owned-scene-rollout.md) and [08](../lesson-authoring-architecture/08-scene-projection-rollout.md) | Read-only, so the three may run together. Each ends with a batch list covering its whole scope: 113 entries, 11 graphs, 25 rows | in progress: 07 and 08 dispatched 2026-11-12; 06 follows |
-| 2 | 07: B-spline scene batch | `BSplineBasisGraph`, `DeBoorGraph`, `BSplineInsertionGraph`, `BSplineExtractionGraph`. Characterize first (task 07 step 2) | not started |
-| 3 | 08: projective batch | CrossRatio, Pascal and PolePolar. Disjoint from step 2, so the two may run together while neither changes host hooks | not started |
+| 1 | Inventories: step 1 of tasks [06](../lesson-authoring-architecture/06-legacy-registration-rollout.md), [07](../lesson-authoring-architecture/07-owned-scene-rollout.md) and [08](../lesson-authoring-architecture/08-scene-projection-rollout.md) | Read-only, so the three may run together. Each ends with a batch list covering its whole scope: 113 entries, 11 graphs, 25 rows | done 2026-11-12: [06](../../reviews/feature-streams/authoring-rollout/06-inventory.md) (113 entries, 16 batches; open contract questions listed for step 4), [07](../../reviews/feature-streams/authoring-rollout/07-inventory.md) (8 eligible; plane-geometry trio proposed for exclusion, decided at step 6), [08](../../reviews/feature-streams/authoring-rollout/08-inventory.md) (6 batches; permitted-state generalization needed after the projective trio) |
+| 2 | 07: B-spline scene batch | `BSplineBasisGraph`, `DeBoorGraph`, `BSplineInsertionGraph`, `BSplineExtractionGraph`. Characterize first (task 07 step 2) | in progress 2026-11-12 |
+| 3 | 08: projective batch | CrossRatio, Pascal and PolePolar. Disjoint from step 2, so the two may run together while neither changes host hooks | in progress 2026-11-12 |
 | 4 | 06: registration by family | Batches from the step 1 inventory. B-splines register after step 2 has landed. Root files are shared with Families prep (below) | not started |
 | 5 | 07: remaining curve candidates | Interpolation, Hermite, SubdivisionCurve and ParametricCurve | not started |
 | 6 | 08: `PointSetGraph` owners, then 07: the plane-geometry trio | `InscribedAngleGraph`, `SimsonLineGraph` and `InversionGraph` are in both tasks | not started |
