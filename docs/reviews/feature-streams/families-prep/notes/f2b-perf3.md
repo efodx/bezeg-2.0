@@ -17,7 +17,7 @@ Mapping to the fallbacks listed in the ADRs (no new decisions): ADR 0051 (solids
 ## Still to do (handler or successor)
 1. Append section "## F2b solids, level sets and phase portrait browser timings — 2026-11-12" to `docs/bezier-performance-results.md` with the command, commit, Chromium, method, per-profile tables from `table.md`, verdicts, limits (4x throttle is not a phone, synthetic touch, timer-driven input, load from other sessions not controlled, touch needs a 250 ms settle after touchStart at 4x).
 2. One paragraph "Browser measurement (F2b, 2026-11-12)" at the end of the measurement subsection in `docs/adr/0051-*.md` (before "## 2." at line 32), `0053-*.md` (before "## 3." at line 55), `0054-*.md` (before "## 3." at line 39).
-3. Replace "browser frame times of the surface view" / "browser frame times" / "browser timing not measured" in `docs/tasks/solids/04-release-batches.md:7`, `docs/tasks/level-sets/05-release-batches.md:7`, `docs/tasks/phase-portraits/04-release-batches.md:13` with "measured 2026-11-12 ([results](...#anchor)); phone misses owed: ..." .
+3. Replace "browser frame times of the surface view" / "browser frame times" / "browser timing not measured" in `docs/tasks/solids/04-release-batches.md:7`, `docs/tasks/level-sets/05-release-batches.md:7`, `docs/tasks/phase-portraits/04-release-batches.md:13` with "measured 2026-11-12 (with a link to the results section); phone misses owed: ..." .
 
 ## Recorded (docs-only continuation, 2026-11-12)
 - Results section: `docs/bezier-performance-results.md:589` (tables, control movement, unreachable items, reading, limits).
