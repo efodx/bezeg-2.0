@@ -144,6 +144,8 @@ export class HermiteScene {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
             });
             point.on('drag', () => {
+                // A released scene's point may still receive an event: it must not write the state of its successor.
+                if (this.disposed) return;
                 this.settings.onMove(i, point.X(), point.Y());
                 this.sync();
             });
@@ -157,6 +159,8 @@ export class HermiteScene {
                 highlight: true, fixed: input.mode === 'catmull-rom', visible: () => this.settings.showTangents(),
             });
             tip.on('drag', () => {
+                // A released scene's point may still receive an event: it must not write the state of its successor.
+                if (this.disposed) return;
                 this.settings.onTangent(i, tip.X(), tip.Y());
                 this.sync();
             });

@@ -16,6 +16,7 @@ import {BasisPlot} from "./BasisPlot";
 import {basisPlotData} from "./interpolationBasis";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN, Point2} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     DEFAULT_INTERPOLATION_PRESET, INTERPOLATION_COORDINATE_LIMIT, interpolationRejection, InterpolationPresetData,
@@ -62,8 +63,7 @@ export const interpolationViewBox = (points: readonly Point2[]): [number, number
  * {@link InterpolationScene} is rebuilt when the point count changes or a Preset is imported and is disposed on unmount;
  * everything else is read lazily from the scene state, which is the only copy of the data.
  */
-export class InterpolationGraph extends BaseGraph<InterpolationGraphState, InterpolationPresetData> {
-    private scene?: InterpolationScene;
+export class InterpolationGraph extends BaseGraph<InterpolationGraphState, InterpolationPresetData, InterpolationScene> {
     /** The one refusal the panel shows (a repeated parameter keeps its stated reason); cleared by the next accepted edit. */
     private readonly refusals = new RefusalChannel(() => this.requestRender());
 
@@ -113,7 +113,6 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
             points: data.points.map(p => [p[0], p[1]] as const), parameterRule: data.parameterRule, showHull: data.showHull,
             showBezier: data.showBezier, showBasis: data.showBasis, t: data.t, notice: '',
         });
-        this.ensureScene();
     }
 
     /** A Preset without a saved view is fitted to its points (the saved view is applied before the data, so not in `importPresetData`). */
@@ -121,32 +120,36 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         if (data) this.fit();
     }
 
+    /** The host builds the declared scene right after this; a rebuild for another point count is the declaration's `sync`. */
     override initialize() {
-        // The figure path's import has just built the scene; mount has none yet. A stored scene state can name another
-        // point count than the Preset data (a hand-edited Preset), which the built scene cannot sync to: rebuild then.
-        if (!this.scene || this.scene.pointCount !== this.state.points.length) this.ensureScene();
         this.fit();
     }
 
-    private ensureScene() {
-        // Figure-path disposal has already removed the scene; tear down only a scene still standing (mount, lesson entries).
-        if (this.scene) this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new InterpolationScene({
-            board: this.board,
-            points: () => this.state.points,
-            rule: () => this.state.parameterRule,
-            showHull: () => this.state.showHull,
-            showBezier: () => this.state.showBezier,
-            position: () => this.state.t,
-            fontSize: () => this.displaySettings.fontSize,
-            onMove: (index, x, y) => this.movePoint(index, x, y),
-        });
+    /** `sync` moves the points of an equal count; another count (import, checkpoint restore, add or remove point) rebuilds. */
+    protected override sceneDeclaration(): SceneDeclaration<InterpolationScene> {
+        return {
+            create: board => constructOrSweep(board, () => new InterpolationScene({
+                board,
+                points: () => this.state.points,
+                rule: () => this.state.parameterRule,
+                showHull: () => this.state.showHull,
+                showBezier: () => this.state.showBezier,
+                position: () => this.state.t,
+                fontSize: () => this.displaySettings.fontSize,
+                onMove: (index, x, y) => this.movePoint(index, x, y),
+            })),
+            sync: scene => {
+                if (scene.pointCount !== this.state.points.length) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
+    /** Test seam: the tests read the live scene through it. */
+    private get scene(): InterpolationScene | undefined {
+        return this.ownedScene;
     }
 
     private fit() {
@@ -155,18 +158,8 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         this.board.fullUpdate();
     }
 
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
-    }
-
     protected override onStateChange(prevState: Readonly<InterpolationGraphState>) {
         if (prevState === this.state || !this.board) return;
-        this.scene?.sync();
         this.boardUpdate();
     }
 
@@ -238,7 +231,6 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         const next = [...points, [placed[0], placed[1]] as const];
         const rejection = interpolationRejection(next, this.state.parameterRule);
         if (!this.tryPoints(next)) return rejection;
-        this.ensureScene();
         this.refitFor([placed]);
         return undefined;
     }
@@ -248,7 +240,6 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         const points = this.state.points;
         if (points.length <= INTERPOLATION_POINTS_MIN) return;
         if (!this.tryPoints(points.slice(0, -1))) return;
-        this.ensureScene();
     }
 
     setShowHull(show: boolean) {

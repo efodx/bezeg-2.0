@@ -1,4 +1,5 @@
 import InterpolationGraph from './InterpolationGraph';
+import {SceneSlot} from '../../base/OwnedScene';
 import {RefusalChannel} from '../../../inputs/RefusalChannel';
 import {InterpolationScene} from './InterpolationScene';
 import {DEFAULT_INTERPOLATION_PRESET, insideHull, interpolationRejection, readoutAt, readoutLines} from './interpolationModel';
@@ -49,9 +50,11 @@ function makeGraph() {
     graph.refusals = new RefusalChannel(); // field initializers do not run on Object.create
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...graph.getInitialState(), initialized: true});
-    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); graph.sceneSlot.reconcile(); }); // the host reconciles after each commit
     graph.boardUpdate = vi.fn();
-    graph.ensureScene();
+    // The host builds the declared scene in `mount`; the fake session stands in for its lifetime.
+    graph.sceneSlot = new SceneSlot({isAlive: true, registerCleanup: () => () => undefined} as any, graph.board, graph.sceneDeclaration());
+    graph.sceneSlot.rebuild();
     return graph;
 }
 
@@ -215,7 +218,7 @@ describe('InterpolationGraph state and Presets', () => {
         for (let i = 0; i < 5; i++) graph.importPresetData(graph.exportPresetData());
         expect(graph.board.objectsList.length).toBe(total);
         expect(liveSubscriptions.count).toBe(before + 1);
-        graph.removeScene();
+        graph.sceneSlot.release();
         expect(graph.board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
     });

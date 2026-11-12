@@ -26,7 +26,7 @@ class ObservedHermiteGraph extends HermiteGraph {
 
     lessonFixture(data: HermitePresetData) { this['prepareLessonFixtureScene'](data, undefined); }
 
-    figure(preset: Preset) { this.disposeFigureScene(); this.importFigurePresetData(preset); this.initialize(); }
+    figure(preset: Preset) { this['sceneSlot']?.release(); this.importFigurePresetData(preset); this.initialize(); this['sceneSlot']?.rebuild(); }
 
     ownedElements() { return [...(this['scene']?.ownedElements() ?? [])]; }
 
@@ -150,10 +150,12 @@ describe('HermiteGraph on a real board', () => {
         const {graph, view} = mount();
         const points = [[0, 0], [1, 2], [2, 0.5], [3.5, 3], [4, 0], [5.5, 2], [7, 0]] as [number, number][];
         graph.importPresetData({...DEFAULT_HERMITE_PRESET, points, tangents: points.map(() => [0, 0] as const)});
+        act(() => graph.flushStateChanges());
         const {curve} = parts(graph);
         const sample = () => Array.from({length: 6}, (_, s) => Array.from({length: 21}, (_, k) => at(curve, s + k / 20)));
         const before = sample();
         graph.movePoint(2, 2.3, -0.7);
+        act(() => graph.flushStateChanges());
         expect(graph.state.points[2]).toEqual([2.3, -0.7]);
         const after = sample();
         const changed = before.map((segment, s) => segment.some((p, k) => p[0] !== after[s][k][0] || p[1] !== after[s][k][1]));
@@ -297,11 +299,13 @@ describe('HermiteGraph on a real board', () => {
         const {graph, view, board} = mount();
         const base = board.objectsList.length;
         graph.addPoint();
+        act(() => graph.flushStateChanges());
         expect(graph.state.points[4]).toEqual([5, 0]);
         expect(graph.state.tangents[4]).toEqual([1, 0]);
         expect(graph.state.tangents.length).toBe(5);
         expect(graph.sceneOf().tipElements().length).toBe(5);
         graph.removePoint();
+        act(() => graph.flushStateChanges());
         expect(graph.state.tangents.length).toBe(4);
         expect(board.objectsList.length).toBe(base);
         view.unmount();

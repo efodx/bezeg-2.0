@@ -132,6 +132,8 @@ export class InterpolationScene {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
             });
             point.on('drag', () => {
+                // A released scene's point may still receive an event: it must not write the state of its successor.
+                if (this.disposed) return;
                 this.settings.onMove(i, point.X(), point.Y());
                 this.sync();
             });

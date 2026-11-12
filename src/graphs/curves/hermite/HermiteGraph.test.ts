@@ -1,4 +1,5 @@
 import HermiteGraph from './HermiteGraph';
+import {SceneSlot} from '../../base/OwnedScene';
 import {RefusalChannel} from '../../../inputs/RefusalChannel';
 import {HermiteScene} from './HermiteScene';
 import {
@@ -52,9 +53,11 @@ function makeGraph() {
     graph.refusals = new RefusalChannel(); // field initializers do not run on Object.create
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...graph.getInitialState(), initialized: true});
-    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); graph.sceneSlot.reconcile(); }); // the host reconciles after each commit
     graph.boardUpdate = vi.fn();
-    graph.ensureScene();
+    // The host builds the declared scene in `mount`; the fake session stands in for its lifetime.
+    graph.sceneSlot = new SceneSlot({isAlive: true, registerCleanup: () => () => undefined} as any, graph.board, graph.sceneDeclaration());
+    graph.sceneSlot.rebuild();
     return graph;
 }
 
@@ -193,17 +196,17 @@ describe('scene ownership', () => {
         for (let i = 0; i < 5; i++) graph.importPresetData(graph.exportPresetData());
         expect(graph.board.objectsList.length).toBe(total);
         expect(liveSubscriptions.count).toBe(before + 1);
-        graph.removeScene();
+        graph.sceneSlot.release();
         expect(graph.board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
-        graph.removeScene();
+        graph.sceneSlot.release();
         expect(liveSubscriptions.count).toBe(before);
     });
 
     test('disposeFigureScene removes every owned object and the subscription', () => {
         const before = liveSubscriptions.count;
         const graph = makeGraph();
-        graph.disposeFigureScene();
+        graph.sceneSlot.release();
         expect(graph.board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
     });

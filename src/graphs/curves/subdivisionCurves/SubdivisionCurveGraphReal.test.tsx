@@ -52,7 +52,7 @@ class ObservedGraph extends SubdivisionCurveGraph {
 
     sceneReplaced() { this.stopLessonAnimations(); }
 
-    figure(preset: Preset) { this.disposeFigureScene(); this.importFigurePresetData(preset); this.initialize(); }
+    figure(preset: Preset) { this['sceneSlot']?.release(); this.importFigurePresetData(preset); this.initialize(); this['sceneSlot']?.rebuild(); }
 
     ownedOnBoard() { return [...(this['scene']?.ownedElements() ?? [])].filter(element => this.board.objectsList.includes(element)).length; }
 }
@@ -489,11 +489,12 @@ describe('SubdivisionCurveGraph on a real board', () => {
         act(() => graph.flushStateChanges());
         expect(board.objectsList.length).toBe(first);
         const ownedCount = owned();
-        graph['disposeFigureScene']();
+        graph['sceneSlot']!.release();
         // Only the axes remain (point labels go with their points).
         expect(board.objectsList.length).toBeLessThan(first - ownedCount + 1);
         expect(board.objectsList.every(element => !(element as any).name?.startsWith('P'))).toBe(true);
         graph.initialize();
+        graph['sceneSlot']!.rebuild();
         act(() => graph.flushStateChanges());
         expect(board.objectsList.length).toBe(first);
         view.unmount();

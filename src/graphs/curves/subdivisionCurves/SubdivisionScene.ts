@@ -70,6 +70,11 @@ export class SubdivisionScene {
         return this.count;
     }
 
+    /** Whether the vertex pool holds more points than the stage shown now needs (it grew for a later round that is no longer shown). */
+    get hasSurplusVertices(): boolean {
+        return this.vertexPool.length > this.stage().length;
+    }
+
     /** The stage drawn now (derived by `subdivisionRounds`). */
     stage(): readonly (readonly number[])[] {
         return stageOf(this.settings.input());
@@ -129,6 +134,8 @@ export class SubdivisionScene {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
             });
             point.on('drag', () => {
+                // A released scene's point may still receive an event: it must not write the state of its successor.
+                if (this.disposed) return;
                 this.settings.onMove(i, point.X(), point.Y());
                 this.sync();
             });

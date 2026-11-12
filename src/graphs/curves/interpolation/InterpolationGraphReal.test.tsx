@@ -124,13 +124,17 @@ describe('InterpolationGraph on a real board', () => {
         const owned = graph.ownedElements().length;
         expect(graph.ownedOnBoard()).toBe(owned);
         const first = graph.ownedElements();
-        for (let i = 0; i < 3; i++) graph.importPresetData(graph.exportPresetData());
-        expect(first.some(element => board.objectsList.includes(element))).toBe(false);
+        // The state commit reaches the scene on the next flush; an import of the same point count keeps the scene.
+        for (let i = 0; i < 3; i++) { graph.importPresetData(graph.exportPresetData()); act(() => graph.flushStateChanges()); }
+        expect(graph.ownedElements()).toEqual(first);
         expect(board.objectsList.length).toBe(base);
         graph.addPoint();
+        act(() => graph.flushStateChanges());
         expect(graph.state.points.length).toBe(5);
+        expect(first.some(element => board.objectsList.includes(element))).toBe(false);
         expect(board.objectsList.length).toBe(base + 2); // the new point and its label
         graph.removePoint();
+        act(() => graph.flushStateChanges());
         expect(board.objectsList.length).toBe(base);
         const last = graph.ownedElements();
         view.unmount();
@@ -156,6 +160,7 @@ describe('InterpolationGraph on a real board', () => {
         const capabilities = graph.getLessonCapabilities();
         const checkpoint = capabilities.captureState();
         graph.addPoint();
+        act(() => graph.flushStateChanges());
         expect(graph.sceneOf().pointElements().length).toBe(5);
         act(() => capabilities.restoreState(checkpoint));
         expect(graph.state.points.length).toBe(4);

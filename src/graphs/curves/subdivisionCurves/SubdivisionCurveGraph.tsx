@@ -9,6 +9,7 @@ import type {LessonAnimationCommand} from "../../../learning/model";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {TracePlayback} from "../../base/tracePlayback";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     DEFAULT_SUBDIVISION_PRESET, isSubdivisionRule, MAX_SUBDIVISION_ROUNDS, Row, stageOf, SUBDIVISION_ANIMATION_ID, SUBDIVISION_CLOSED_POINTS_MIN,
@@ -55,8 +56,7 @@ const copyRows = (rows: readonly Row[]) => rows.map(r => [r[0], r[1]] as const);
  * `subdivisionRounds`, never stored. The one owned {@link SubdivisionScene} is rebuilt when the point count changes or a Preset
  * is imported and is disposed on unmount.
  */
-export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, SubdivisionPresetData> {
-    private scene?: SubdivisionScene;
+export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, SubdivisionPresetData, SubdivisionScene> {
     /** The one refusal the panel shows; cleared by the next accepted edit. */
     private readonly refusals = new RefusalChannel(() => this.requestRender());
     /** The shared playback policy; the revealed round (`state.round`) is its step index and stays in the scene state. */
@@ -119,7 +119,6 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         this.refusals.clear();
         this.setState({points: copyRows(data.points), closed: data.closed, rule: data.rule, round: data.round, showLimit: data.showLimit, notice: ''});
         this.playback.restoreTo(data.round);
-        this.ensureScene();
         this.requestRender();
     }
 
@@ -128,25 +127,36 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         if (data) this.fit();
     }
 
+    /** The host builds the declared scene right after this; nothing else is initialized but the view. */
     override initialize() {
-        this.ensureScene();
         this.fit();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new SubdivisionScene({
-            board: this.board,
-            input: () => this.state,
-            fontSize: () => this.displaySettings.fontSize,
-            onMove: (index, x, y) => this.movePoint(index, x, y),
-        });
+    /**
+     * `sync` moves the vertices of an equal base point count (and grows its pool); another count rebuilds. So does a pool that
+     * grew for a round no longer shown: a replacement (Preset import, checkpoint restore, reset) then shows a scene identical to a fresh one,
+     * as every such replacement did when it always rebuilt.
+     */
+    protected override sceneDeclaration(): SceneDeclaration<SubdivisionScene> {
+        return {
+            create: board => constructOrSweep(board, () => new SubdivisionScene({
+                board,
+                input: () => this.state,
+                fontSize: () => this.displaySettings.fontSize,
+                onMove: (index, x, y) => this.movePoint(index, x, y),
+            })),
+            sync: scene => {
+                if (scene.pointCount !== this.state.points.length || scene.hasSurplusVertices) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
+    /** Test seam: the tests read the live scene through it. */
+    private get scene(): SubdivisionScene | undefined {
+        return this.ownedScene;
     }
 
     private fit() {
@@ -163,12 +173,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
 
     override unmount() {
         this.playback.unmount();
-        this.removeScene();
         super.unmount();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
     }
 
     protected override stopLessonAnimations(): void {
@@ -181,7 +186,6 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
 
     protected override onStateChange(prevState: Readonly<SubdivisionGraphState>) {
         if (prevState === this.state || !this.board) return;
-        this.scene?.sync();
         this.boardUpdate();
     }
 
@@ -218,10 +222,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const rebuilt = points.length !== this.state.points.length;
         this.refusals.clear();
         this.setState({points: copyRows(points), closed, round: 0, notice: ''});
-        if (rebuilt) {
-            this.ensureScene();
-            this.fit();
-        }
+        if (rebuilt) this.fit();
         this.requestRender();
     }
 
@@ -264,7 +265,6 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         this.pause();
         this.refusals.clear();
         this.setState({points: [...points, [x, last[1]] as const], notice: ''});
-        this.ensureScene();
         this.fit();
     }
 
@@ -280,7 +280,6 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         this.pause();
         this.refusals.clear();
         this.setState({points: points.slice(0, -1), notice: ''});
-        this.ensureScene();
     }
 
     /** Opens or closes the polygon; closing needs 3 points (refused with a notice). Playback pauses and the round is kept. */

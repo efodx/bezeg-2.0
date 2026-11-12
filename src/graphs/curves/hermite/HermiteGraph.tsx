@@ -12,6 +12,7 @@ import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import {catmullRomTangents} from "../../../analysis/hermite";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     catmullRomStored, DEFAULT_HERMITE_PRESET, firstCoincidentPair, HERMITE_COORDINATE_LIMIT, HERMITE_TANGENT_LIMIT, HERMITE_TENSION_MAX,
@@ -43,8 +44,7 @@ const copyRows = (rows: readonly (readonly [number, number])[]) => rows.map(r =>
  * rebuilt when the point count changes or a Preset is imported and is disposed on unmount; everything else is read lazily
  * from the scene state, which is the only copy of the data.
  */
-export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData> {
-    private scene?: HermiteScene;
+export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData, HermiteScene> {
     /** The one refusal the panel shows (coincident neighbours keep their stated reason); cleared by the next accepted edit. */
     private readonly refusals = new RefusalChannel(() => this.requestRender());
 
@@ -89,7 +89,6 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
             points: copyRows(data.points), mode: data.mode, tangents: copyRows(data.tangents), parameterRule: data.parameterRule,
             tension: data.tension, showTangents: data.showTangents, showBezier: data.showBezier, notice: '',
         });
-        this.ensureScene();
     }
 
     /** A Preset without a saved view is fitted to its points (the saved view is applied before the data, so not in `importPresetData`). */
@@ -97,31 +96,35 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         if (data) this.fit();
     }
 
+    /** The host builds the declared scene right after this; a rebuild for another point count is the declaration's `sync`. */
     override initialize() {
-        // The figure path's import has just built the scene; mount has none yet. A stored scene state can name another
-        // point count than the Preset data (a hand-edited Preset), which the built scene cannot sync to: rebuild then.
-        if (!this.scene || this.scene.pointCount !== this.state.points.length) this.ensureScene();
         this.fit();
     }
 
-    private ensureScene() {
-        // Figure-path disposal has already removed the scene; tear down only a scene still standing (mount, lesson entries).
-        if (this.scene) this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new HermiteScene({
-            board: this.board,
-            input: () => this.state,
-            showTangents: () => this.state.showTangents,
-            showBezier: () => this.state.showBezier,
-            fontSize: () => this.displaySettings.fontSize,
-            onMove: (index, x, y) => this.movePoint(index, x, y),
-            onTangent: (index, x, y) => this.moveTangent(index, x, y),
-        });
+    /** `sync` moves points and tips of an equal point count; another count (import, checkpoint restore, add or remove point) rebuilds. */
+    protected override sceneDeclaration(): SceneDeclaration<HermiteScene> {
+        return {
+            create: board => constructOrSweep(board, () => new HermiteScene({
+                board,
+                input: () => this.state,
+                showTangents: () => this.state.showTangents,
+                showBezier: () => this.state.showBezier,
+                fontSize: () => this.displaySettings.fontSize,
+                onMove: (index, x, y) => this.movePoint(index, x, y),
+                onTangent: (index, x, y) => this.moveTangent(index, x, y),
+            })),
+            sync: scene => {
+                if (scene.pointCount !== this.state.points.length) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
+    /** Test seam: the tests read the live scene through it. */
+    private get scene(): HermiteScene | undefined {
+        return this.ownedScene;
     }
 
     private fit() {
@@ -133,18 +136,8 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         this.board.fullUpdate();
     }
 
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
-    }
-
     protected override onStateChange(prevState: Readonly<HermiteGraphState>) {
         if (prevState === this.state || !this.board) return;
-        this.scene?.sync();
         this.boardUpdate();
     }
 
@@ -256,7 +249,6 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         const rejection = hermiteRejection({...this.exportPresetData(), points: next, tangents: nextTangents});
         if (rejection) return rejection;
         this.tryPoints(next, parameterRule, nextTangents);
-        this.ensureScene();
         this.refitFor([placed, ...this.arrowTips(next.length - 1)]);
         return undefined;
     }
@@ -277,7 +269,6 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         const {points, tangents} = this.state;
         if (points.length <= INTERPOLATION_POINTS_MIN) return;
         if (!this.tryPoints(points.slice(0, -1), this.state.parameterRule, tangents.slice(0, -1))) return;
-        this.ensureScene();
     }
 
     setShowTangents(show: boolean) {
