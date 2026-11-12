@@ -1,0 +1,32 @@
+/* Decorative elder branches in the gutters beside the content column (docs/specs/side-botanicals.md). */
+.side-botanicals {
+    position: fixed;
+    top: 0;
+    z-index: 1; /* Above the opaque page canvas, below the sticky header (z-index 10); only gutters are covered. */
+    height: 100vh;
+    overflow: hidden; /* Clip at the content edge: flower heads must never reach into the column. */
+    pointer-events: none;
+}
+.side-botanicals-left { left: 0; }
+.side-botanicals-right { right: 0; transform: scaleX(-1); }
+.side-botanicals-branch {
+    transform-box: view-box;
+    animation: side-botanicals-sway var(--dur, 10s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+}
+@keyframes side-botanicals-sway {
+    from { transform: rotate(calc(var(--amp, .8deg) * -1)); }
+    to { transform: rotate(var(--amp, .8deg)); }
+}
+.side-botanicals-head {
+    transform-box: view-box;
+    animation: side-botanicals-bob var(--dur, 4s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+}
+@keyframes side-botanicals-bob {
+    from { transform: rotate(calc(var(--head-amp, 2deg) * -1)); }
+    to { transform: rotate(var(--head-amp, 2deg)); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .side-botanicals-branch, .side-botanicals-head { animation: none; }
+}

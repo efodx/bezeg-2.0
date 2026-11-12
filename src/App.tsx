@@ -2,7 +2,8 @@ import {useT} from "./localization";
 import React, {useState, useSyncExternalStore} from 'react';
 import {navigationFailureSnapshot, subscribeNavigationFailure, clearNavigationFailure} from './learning/chapter/navigationFailure';
 import './App.css';
-import {Outlet} from "react-router-dom";
+import {Outlet, useLocation} from "react-router-dom";
+import {SideBotanicals, showsSideBotanicals} from './sideBotanicals/SideBotanicals';
 import {SiteContext} from "./graphs/context/react/SiteContext";
 import {AppHeader} from './AppHeader';
 
@@ -11,6 +12,7 @@ function App() {
     const navigationFailed = useSyncExternalStore(subscribeNavigationFailure, navigationFailureSnapshot);
 
     const [fullScreen, setFullScreen] = useState(false);
+    const {pathname} = useLocation();
 
     return (<SiteContext.Provider
             value={{
@@ -25,6 +27,7 @@ function App() {
                     <a href="/bezeg-2.0/learn/bezier-curves">{t('chapter_return')}</a> · <button onClick={clearNavigationFailure}>{t('chapter_dismiss')}</button>
                 </aside>}
                 <Outlet/>
+                {showsSideBotanicals(pathname) && <SideBotanicals column={pathname.includes('/demonstrations') ? 1290 : 1100}/>}
             </div>
         </SiteContext.Provider>
     );

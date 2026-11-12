@@ -136,3 +136,7 @@
     .welcome-botanical { display: none; }
     .welcome-intro { padding-right: 0; }
 }
+
+@media (min-width: 1600px) {
+    .welcome-botanical { display: none; } /* The side botanicals carry the motif here. */
+}
