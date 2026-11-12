@@ -43,7 +43,8 @@ describe('chapter structure and registration', () => {
         const planeGeometry = learningStrands.find(strand => strand.id === 'plane-geometry')!;
         expect(planeGeometry.chapters.at(-1)).toBe(PROJECTIVE_CONICS_CHAPTER_ID);
         expect(familyChapters.findIndex(chapter => chapter.id === PROJECTIVE_CONICS_CHAPTER_ID))
-            .toBe(familyChapters.findIndex(chapter => chapter.id === triangleGeometryChapter.id) + 1);
+            .toBe(familyChapters.findIndex(chapter => chapter.id === 'analytic-lines') + 1);
+        expect(familyChapters.findIndex(chapter => chapter.id === 'analytic-lines')).toBe(familyChapters.findIndex(chapter => chapter.id === triangleGeometryChapter.id) + 1);
         expect(learningChapters.some(chapter => chapter.id === PROJECTIVE_CONICS_CHAPTER_ID)).toBe(true);
         for (const id of LESSONS) expect(sectionOf(id).demonstrationIds).toEqual([id]);
     });

@@ -2,6 +2,8 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -284,6 +286,42 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             session.registerCleanup(onLanguageChange(() => this.status.replace(this.statusText())));
         }
         this.status.replace(this.statusText());
+    }
+
+    /**
+     * Lesson actions (`lines`): `set-mode` is the mode select and `set-points` the coordinate fields of the named handles. Values are checked
+     * strictly and completely before the first write (a lesson-content error throws, nothing is snapped or clamped); `setState` writes the
+     * store synchronously, so a later action of the same scene reads this one's result, and the board follows in `onStateChange`.
+     */
+    applyLinesAction(action: Extract<LessonAction, {kind: "lines"}>): void {
+        if (action.operation === "set-mode") {
+            const mode = LINE_MODES.find(candidate => candidate === action.mode);
+            if (!mode) throw new Error(`lines set-mode: mode must be one of ${LINE_MODES.join(", ")}.`);
+            this.setState({mode});
+            this.requestRender();
+            return;
+        }
+        if (action.operation !== "set-points") {
+            const unsupported: never = action;
+            throw new Error(`lines: the line graph has no operation in ${JSON.stringify(unsupported)}.`);
+        }
+        const entries = Object.entries(action.points ?? {});
+        if (entries.length === 0) throw new Error("lines set-points: name at least one handle.");
+        const next: Partial<Record<PointField, GridXY>> = {};
+        for (const [name, point] of entries) {
+            const field = POINT_FIELDS.find(candidate => candidate === name);
+            if (!field) throw new Error(`lines set-points: ${name} is not a handle (${POINT_FIELDS.join(", ")}).`);
+            const valid = (value: unknown) => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= GRID_LIMIT;
+            if (!point || !valid(point.x) || !valid(point.y)) throw new Error(`lines set-points: ${name} must have integer coordinates in [-${GRID_LIMIT}, ${GRID_LIMIT}].`);
+            next[field] = {x: point.x === 0 ? 0 : point.x, y: point.y === 0 ? 0 : point.y};
+        }
+        this.setState(next);
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("lines", action => this.applyLinesAction(action));
     }
 
     protected override onStateChange(_previous: Readonly<LineGeometryGraphState>): void {

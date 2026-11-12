@@ -86,6 +86,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // The unit circle's first activity (TR1) in the trigonometry chapter; the addition-formula activity (TR2) is the second owner, derived from the chapter.
     'unit-circle': {chapterId: 'trigonometry', sectionId: 'radian-sine-cosine'},
+    // The line geometry's first activity (L1) in the analytic lines chapter; the normal-vector activity (L2) is the second owner, derived from the chapter.
+    'line-geometry': {chapterId: 'analytic-lines', sectionId: 'forms-of-a-line'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
     'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
     'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},

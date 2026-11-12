@@ -4,13 +4,13 @@ import type {Definition} from '../../demonstrations';
  * Cheap metadata of the line-geometry family (spec lesson-authoring-architecture R1). Imports no graph, React, lesson
  * provider or localization value, so the home page and catalog can read it without loading the family. Executable surfaces
  * live in `runtime.ts`, which this file never imports; preset collections live in `collections.ts`.
- * The row ships without a guided lesson (`lesson: false`) until the analytic-lines lessons land (families-prep F3).
+ * The row has its guided lessons (L1, L2, chapter-owned by the analytic-lines chapter).
  */
 export const lineFamilyId = 'line-geometry';
 
 /** The family's Demonstration rows, in catalog order; `demonstrations.ts` spreads them after the trigonometry rows. */
 export const lineDemonstrationRows = [
-    {id: 'line-geometry', path: '/bezeg-2.0/line-geometry', family: 'plane-geometry', title: 'line_geometry_title', prompts: ['line_geometry_prompt', 'prompt_compare'], lesson: false},
+    {id: 'line-geometry', path: '/bezeg-2.0/line-geometry', family: 'plane-geometry', title: 'line_geometry_title', prompts: ['line_geometry_prompt', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 
 export type LineDemonstrationId = typeof lineDemonstrationRows[number]['id'];

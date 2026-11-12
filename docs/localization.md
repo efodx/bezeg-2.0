@@ -90,6 +90,15 @@ The static document initially declares Slovenian, and runtime selection updates 
 | slika baze | image of the basis |
 | determinanta | determinant |
 | predznačena ploščina | signed area |
+| implicitna oblika | implicit form of the equation of a line \(ax+by=c\); L1 |
+| eksplicitna oblika | explicit form \(y=kx+n\) (the graph of a function); L1 |
+| odsekovna oblika | intercept form \(x/m+y/n=1\); L1 |
+| dvotočkovna oblika | two-point form of the equation of a line; L1 |
+| smerni koeficient | slope \(k\); L1 |
+| normalni vektor | normal vector of a line, \((a,b)\) of \(ax+by=c\); L2 |
+| smerni vektor | direction vector of a line; L2 |
+| skalarni produkt | dot product, zero for perpendicular normals; L2 |
+| lega premic | relative position of two lines (parallel, perpendicular, coincident, neither); L2 |
 | orientacija ohranjena / obrnjena | orientation kept / reversed |
 | pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
 | preizkusna točka | test point (roots graph) |

@@ -34,9 +34,9 @@ describe('R5 composition: every root references the line-geometry family export'
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, each row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(lineDemonstrationRows.length).toBe(1);
-        expect(lineDemonstrationRows.every(row => row.lesson === false)).toBe(true);
+        expect(lineDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false)).toEqual([]);
         expect(new Set(Object.values(lineCollectionKeys)).size).toBe(lineDemonstrationRows.length);
     });
 });

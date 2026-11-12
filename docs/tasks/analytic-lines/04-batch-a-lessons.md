@@ -9,4 +9,4 @@ Slices, following the [F3 recipe](../../reviews/feature-streams/families-prep/no
 
 Acceptance: the spec's acceptance for L1–L2; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: not started.
+Status: F3 done 2026-11-12 (handler 10; engineering and mathematical review, Sonnet, no blocking findings; one cast in `applyLinesAction` replaced by an exhaustive check). Owed: chapter guided examples (F4), poster, clip and Learn thumbnail (F5). L1 (forms of a line) and L2 (normal vector, parallel and perpendicular) are written: five steps each, sl+en, scene actions `lines` `set-mode` / `set-points` on LineGeometryGraph, chapter `analytic-lines` in the plane-geometry strand; host test and lesson test show every quoted number against the real readout. F4–F6 remain.

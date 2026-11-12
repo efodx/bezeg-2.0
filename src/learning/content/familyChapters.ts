@@ -2,6 +2,7 @@ import {authorFamilyChapterSequence} from './familyChapterSequences';
 import {patchChapter} from './patchChapter';
 import {linearMapsChapter} from './linearMapsChapter';
 import {trigonometryChapter} from './trigonometryChapter';
+import {analyticLinesChapter} from './analyticLinesChapter';
 import {complexMapsChapter} from './complexMapsChapter';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
 import {convexityChapter} from './convexityChapter';
@@ -318,6 +319,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     triangulationChapter, // Computational geometry batch T1: the ear clipping lesson of compgeoGuidedLessons.ts.
     sweepChapter, // Computational geometry batch S1: the interval sweep and segment intersection lessons of compgeoGuidedLessons.ts.
     triangleGeometryChapter, // Plane geometry batch A: activities live in triangleGeometryChapterLessons.ts.
+    analyticLinesChapter, // Analytic geometry of lines batch A: L1 and L2 (analyticLinesGuidedLessons.ts); the lessons of batches B and C join later.
     projectiveConicsChapter, // Plane geometry, projective conics batch A: the cross-ratio, Pascal and pole-polar lessons (K1 to K3) of projectiveConicsGuidedLessons.ts.
     {
         id: 'functions-and-calculus', family: '/bezeg-2.0/functions',

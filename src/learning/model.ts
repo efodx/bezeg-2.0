@@ -394,6 +394,13 @@ export type LessonAction =
     | {readonly kind: 'trig'; readonly operation: 'set-angle'; readonly which: 'first' | 'second'; readonly degrees: number}
     | {readonly kind: 'trig'; readonly operation: 'set-overlay'; readonly overlay: 'cosine' | 'symmetries' | 'addition'; readonly on: boolean}
     /**
+     * LineGeometryGraph's scene actions (analytic-lines L1, L2; later lessons extend the union). `set-mode` is the mode select (`forms`, `normal`,
+     * `angle`, `distance`, `intersect`); `set-points` is the coordinate fields of the named handles `P`, `Q`, `R`, `S`, `T`, `O`, `B`, each an integer in
+     * [-8, 8]. Anything else is a lesson-content error and is never snapped; the whole action is validated before the first write.
+     */
+    | {readonly kind: 'lines'; readonly operation: 'set-mode'; readonly mode: 'forms' | 'normal' | 'angle' | 'distance' | 'intersect'}
+    | {readonly kind: 'lines'; readonly operation: 'set-points'; readonly points: Readonly<Partial<Record<'P' | 'Q' | 'R' | 'S' | 'T' | 'O' | 'B', {readonly x: number; readonly y: number}>>>}
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.
