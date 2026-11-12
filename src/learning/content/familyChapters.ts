@@ -3,6 +3,7 @@ import {patchChapter} from './patchChapter';
 import {linearMapsChapter} from './linearMapsChapter';
 import {trigonometryChapter} from './trigonometryChapter';
 import {analyticLinesChapter} from './analyticLinesChapter';
+import {isometriesChapter} from './isometriesChapter';
 import {complexMapsChapter} from './complexMapsChapter';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
 import {convexityChapter} from './convexityChapter';
@@ -315,6 +316,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     advancedBezierChapter, // Advanced Bézier topics (reduction, arc-length parametrization, Coons patch); after the patches chapter, which the Coons lesson builds on.
     linearMapsChapter, // Maps of the plane: chapter-owned activities live in linearMapsChapterLessons.ts.
     complexMapsChapter, // Maps of the plane, complex part: activities live in complexMapsChapterLessons.ts.
+    isometriesChapter, // Maps of the plane, isometries batch A: L1 and L2 (isometriesGuidedLessons.ts); the lessons of the later batches join in tasks 05 to 07.
     convexityChapter, // Computational geometry batch 1: activities reuse the reviewed lessons of compgeoGuidedLessons.ts.
     triangulationChapter, // Computational geometry batch T1: the ear clipping lesson of compgeoGuidedLessons.ts.
     sweepChapter, // Computational geometry batch S1: the interval sweep and segment intersection lessons of compgeoGuidedLessons.ts.

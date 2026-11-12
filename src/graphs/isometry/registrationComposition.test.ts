@@ -1,6 +1,6 @@
 // R5 composition of docs/specs/lesson-authoring-architecture.md for the isometry family: every root references the family
-// export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). The row is `lesson: false`
-// until families-prep F3, so no lesson ownership or chapter script names it.
+// export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). The row has its guided lessons
+// (families-prep F3), owned by the isometries chapter.
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -34,9 +34,9 @@ describe('R5 composition: every root references the isometry family export', () 
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, each row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(isometryDemonstrationRows.length).toBe(1);
-        expect(isometryDemonstrationRows.every(row => row.lesson === false)).toBe(true);
+        expect(isometryDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false)).toEqual([]);
         expect(new Set(Object.values(isometryCollectionKeys)).size).toBe(isometryDemonstrationRows.length);
     });
 });

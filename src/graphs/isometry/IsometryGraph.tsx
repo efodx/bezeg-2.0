@@ -1,6 +1,8 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -12,6 +14,7 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {Line} from "../../compgeo/circle";
 import {Rational, RationalPoint} from "../../compgeo/rational";
+import type {GridPoint} from "../../compgeo/grid";
 import {
     CLASSIFY_EXAMPLES, CLASSIFY_EXAMPLE_IDS, COORD_LIMIT, DEFAULT_ISOMETRY_STATE, deriveIsometry, DILATION_TURNS, FRIEZE_MOTIF_TENTHS, type DilationTurn,
     type FriezeFeatures, type IsometryDerived, type IsometryMode, type IsometryState, ISOMETRY_MODES, K_MAX, K_MIN, matchingClassifyExample, type MirrorSpec,
@@ -674,6 +677,61 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
 
     private setFeature(name: keyof FriezeFeatures, checked: boolean): void {
         this.setState({friezeFeatures: {...this.state.friezeFeatures, [name]: checked}});
+    }
+
+    // ---- Lesson actions -----------------------------------------------------------------------------------------------
+
+    /**
+     * The `isometry` lesson actions `set-mode` (the mode select), `set-mirror-count` (the number-of-mirrors field) and `set-mirrors` (the mirror coordinate
+     * fields). Lesson data is checked strictly and completely before the write (a content error throws; nothing is snapped, clamped or repaired, ADR 0047),
+     * then one synchronous `setState` writes the store, so a later action of the same scene reads this one's result; the board follows in `onStateChange`.
+     */
+    applyIsometryAction(action: Extract<LessonAction, {kind: "isometry"}>): void {
+        switch (action.operation) {
+            case "set-mode": {
+                const mode = ISOMETRY_MODES.find(candidate => candidate === action.mode);
+                if (!mode) throw new Error(`isometry set-mode: mode must be one of ${ISOMETRY_MODES.join(", ")}.`);
+                this.setState({mode});
+                return;
+            }
+            case "set-mirror-count": {
+                const count = action.count === 1 ? 1 : action.count === 2 ? 2 : action.count === 3 ? 3 : undefined;
+                if (count === undefined) throw new Error("isometry set-mirror-count: count must be 1, 2 or 3.");
+                this.setState({motionLength: count});
+                return;
+            }
+            case "set-mirrors": {
+                const entries = Object.entries(action.mirrors ?? {});
+                if (entries.length === 0) throw new Error("isometry set-mirrors: name at least one of the mirrors 1, 2, 3.");
+                const mirrors: [MirrorSpec, MirrorSpec, MirrorSpec] = [this.state.mirrors[0], this.state.mirrors[1], this.state.mirrors[2]];
+                for (const [name, spec] of entries) {
+                    const index = name === "1" ? 0 : name === "2" ? 1 : name === "3" ? 2 : undefined;
+                    if (index === undefined) throw new Error(`isometry set-mirrors: ${name} is not a mirror (1, 2, 3).`);
+                    const grid = (point: unknown): GridPoint => {
+                        const candidate = typeof point === "object" && point !== null ? point as Record<string, unknown> : {};
+                        const {x, y} = candidate;
+                        const valid = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= COORD_LIMIT;
+                        if (!valid(x) || !valid(y)) throw new Error(`isometry set-mirrors: mirror ${name} needs integer points in [-${COORD_LIMIT}, ${COORD_LIMIT}].`);
+                        return {x: x === 0 ? 0 : x, y: y === 0 ? 0 : y};
+                    };
+                    const p = grid(spec?.p);
+                    const q = grid(spec?.q);
+                    if (p.x === q.x && p.y === q.y) throw new Error(`isometry set-mirrors: the points of mirror ${name} must differ.`);
+                    mirrors[index] = {p, q};
+                }
+                this.setState({mirrors});
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`isometry: the isometry graph has no such operation ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("isometry", action => this.applyIsometryAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

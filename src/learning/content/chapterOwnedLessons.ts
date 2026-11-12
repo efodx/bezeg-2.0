@@ -30,6 +30,7 @@ import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAP
 import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry, TRIANGLE_GEOMETRY_CHAPTER_ID} from './triangleGeometryChapterRegistry';
 import {trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath, TRIGONOMETRY_CHAPTER_ID, type TrigonometrySectionId} from './trigonometryChapterRegistry';
 import {analyticLinesGuidedExampleDemonstrations, analyticLinesGuidedExampleLesson, analyticLinesGuidedExamplePath, ANALYTIC_LINES_CHAPTER_ID, type AnalyticLinesSectionId} from './analyticLinesChapterRegistry';
+import {isometriesGuidedExampleDemonstrations, isometriesGuidedExampleLesson, isometriesGuidedExamplePath, ISOMETRIES_CHAPTER_ID, type IsometriesSectionId} from './isometriesChapterRegistry';
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
 
 export interface ChapterOwnedLessons {
@@ -99,6 +100,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [PROJECTIVE_CONICS_CHAPTER_ID]: catalogOwnedLessons(projectiveConicsGuidedExampleLessons, projectiveConicsGuidedExamplePath),
     [TRIGONOMETRY_CHAPTER_ID]: lazyOwnedLessons<TrigonometrySectionId>(trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath),
     [ANALYTIC_LINES_CHAPTER_ID]: lazyOwnedLessons<AnalyticLinesSectionId>(analyticLinesGuidedExampleDemonstrations, analyticLinesGuidedExampleLesson, analyticLinesGuidedExamplePath),
+    [ISOMETRIES_CHAPTER_ID]: lazyOwnedLessons<IsometriesSectionId>(isometriesGuidedExampleDemonstrations, isometriesGuidedExampleLesson, isometriesGuidedExamplePath),
 };
 
 export function getChapterOwnedLessons(chapterId: string): ChapterOwnedLessons | undefined {

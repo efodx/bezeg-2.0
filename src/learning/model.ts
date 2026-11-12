@@ -401,6 +401,20 @@ export type LessonAction =
     | {readonly kind: 'lines'; readonly operation: 'set-mode'; readonly mode: 'forms' | 'normal' | 'angle' | 'distance' | 'intersect'}
     | {readonly kind: 'lines'; readonly operation: 'set-points'; readonly points: Readonly<Partial<Record<'P' | 'Q' | 'R' | 'S' | 'T' | 'O' | 'B', {readonly x: number; readonly y: number}>>>}
     /**
+     * IsometryGraph's scene actions (isometries L1, L2; later lessons add `set-dilation`, `set-frieze`). `set-mode` is the mode select, `set-mirror-count` the
+     * number-of-mirrors field of the classify mode (1 to 3) and `set-mirrors` the coordinate fields of whole mirrors `1`, `2`, `3`, each two distinct integer
+     * grid points `p`, `q` in [-16, 16]. Anything else is a lesson-content error and is never snapped; each action is validated before its write.
+     */
+    | {readonly kind: 'isometry'; readonly operation: 'set-mode'; readonly mode: 'mirrors' | 'classify' | 'similarity' | 'rosette' | 'frieze'}
+    | {readonly kind: 'isometry'; readonly operation: 'set-mirror-count'; readonly count: 1 | 2 | 3}
+    | {
+        readonly kind: 'isometry'; readonly operation: 'set-mirrors';
+        readonly mirrors: Readonly<Partial<Record<'1' | '2' | '3', {
+            readonly p: {readonly x: number; readonly y: number};
+            readonly q: {readonly x: number; readonly y: number};
+        }>>>;
+    }
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.

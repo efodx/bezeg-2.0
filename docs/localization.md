@@ -99,6 +99,13 @@ The static document initially declares Slovenian, and runtime selection updates 
 | smerni vektor | direction vector of a line; L2 |
 | skalarni produkt | dot product, zero for perpendicular normals; L2 |
 | lega premic | relative position of two lines (parallel, perpendicular, coincident, neither); L2 |
+| izometrija | isometry, a map of the plane that keeps distances (isometries L1, L2) |
+| togi premik | rigid motion, an orientation-keeping isometry, also the general word for any of the four kinds; L2 |
+| vzporedni premik | translation; L1, L2 |
+| zrcalo; zrcaljenje | mirror; reflection in a mirror; L1, L2 |
+| vrtež | rotation about a centre; L1, L2 |
+| zrcalni zdrs | glide reflection (reflection and translation along the axis); L2 |
+| negibna točka | fixed point of a map; L2 |
 | orientacija ohranjena / obrnjena | orientation kept / reversed |
 | pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
 | preizkusna točka | test point (roots graph) |
