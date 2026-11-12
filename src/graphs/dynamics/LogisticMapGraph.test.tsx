@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, settle} from '../base/realGraphTestHarness';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {setLanguage, t} from '../../localization';
@@ -381,6 +381,10 @@ describe('stepping and playback', () => {
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         expect(document.body.textContent).toContain(t('playback_block_reduced_motion_next_step'));
+        const reason = document.getElementById('logistic-play-reduced-reason')!;
+        expect(reason.textContent).toBe(t('playback_block_reduced_motion_next_step'));
+        expect(reason.closest('[hidden]')).toBeNull();
+        expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-describedby')?.split(' ')).toContain(reason.id);
         press(t('next_step'));
         expect(graph.state.step).toBe(1);
     });
@@ -745,4 +749,70 @@ describe('the captions on a narrow board (390 x 480 px)', () => {
             expect(roomPx).toBeGreaterThanOrEqual(lines(last) * 18 - 0.5);
         });
     }
+});
+
+describe('the view follows the board size (a board that settles after the first frame)', () => {
+    type SizedBoard = {canvasWidth: number; canvasHeight: number; origin: {scrCoords: number[]}; getBoundingBox(): number[];
+        resizeContainer(width: number, height: number): void; moveOrigin(x: number, y: number): void; update(): void};
+    const callbacks: Array<() => void> = [];
+    const setHeight = (height: number) => {
+        for (const [name, size] of [['clientWidth', 390], ['offsetWidth', 390], ['clientHeight', height], ['offsetHeight', height]] as const) {
+            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        }
+    };
+    beforeEach(() => {
+        callbacks.length = 0;
+        vi.stubGlobal('ResizeObserver', class {
+            // the graph's observer takes no entries; JSXGraph's own does, and the test resizes the board itself
+            constructor(callback: (entries?: unknown[]) => void) { if (callback.length === 0) callbacks.push(callback); }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        });
+        setHeight(295);
+    });
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) {
+            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        }
+    });
+
+    /** What the layout does after the mount: the container grows, the board follows (as JSXGraph's own handler), the observers fire. */
+    const settleTo = (board: SizedBoard, height: number, move?: () => void) => {
+        setHeight(height);
+        board.resizeContainer(390, height);
+        move?.();
+        vi.useFakeTimers();
+        callbacks.forEach(callback => callback());
+        act(() => { vi.advanceTimersByTime(400); });
+        vi.useRealTimers();
+    };
+    const near = (actual: number[], expected: number[]) => {
+        expect(actual).toHaveLength(expected.length);
+        actual.forEach((value, index) => expect(value).toBeCloseTo(expected[index], 6));
+    };
+
+    test('an unmoved view is framed again for the settled height: the box Reset gives at that height', async () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as SizedBoard;
+        expect(board.canvasHeight).toBe(295);
+        settleTo(board, 547);
+        const settled = [...board.getBoundingBox()];
+        await settle(() => graph.reset());
+        near(settled, board.getBoundingBox());
+    });
+
+    test('a view the user moved is left alone when the board settles', () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as SizedBoard;
+        let moved: number[] = [];
+        settleTo(board, 547, () => {
+            board.moveOrigin(board.origin.scrCoords[1] + 40, board.origin.scrCoords[2] + 30);
+            board.update();
+            moved = [...board.getBoundingBox()];
+        });
+        near(board.getBoundingBox(), moved);
+    });
 });

@@ -986,6 +986,8 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     }
 }
 
+const REDUCED_REASON_ID = "phase-play-reduced-reason";
+
 /** Play or pause, reset and the time slider: host state, so only this part re-renders on a frame. */
 function PhasePlayback(props: {graph: PhasePortraitGraph}) {
     const text = useT();
@@ -996,11 +998,13 @@ function PhasePlayback(props: {graph: PhasePortraitGraph}) {
     const playing = graph.playing;
     const params = {value0: dec(ORBIT_DURATION, 0), value1: dec(TIME_STEP, 2)};
     const blocks = playbackBlocks({atStart: time === 0, atEnd: false, playing});
+    const playBlock = blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined);
     return <div className="inspector-group">
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("phase_graph_playback_group")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
-                         {...blocks} playBlock={blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined)}/>
+                         {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
+        {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
         <Slider customText={text("phase_graph_time_label")} min={0} max={ORBIT_DURATION} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 help={text("phase_graph_time_help", params)} rejectedHint={text("phase_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("phase_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>

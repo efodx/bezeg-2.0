@@ -41,6 +41,8 @@ export const VIEW_BOX: readonly [number, number, number, number] = [-0.1, 1.2, 2
 /** The onset of chaos near 3,56995, cited (not computed here): from this r on the period row makes no claim. */
 export const CHAOS_ONSET = 3.56995;
 export const SECOND_SPLIT = 1 + Math.sqrt(6);
+const RESIZE_SETTLE_MS = 150;
+const REDUCED_REASON_ID = "logistic-play-reduced-reason";
 const ROW_PX = 18;
 /** The caption rows under the x axis start below the row of its tick numbers. */
 const TICK_ROW_PX = 26;
@@ -157,6 +159,20 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
     /** A reset shows the exact opening window: the base passes `keepaspect` to `setBoundingBox`, which would widen it. */
     protected override showInitialView(): void {
         this.board.setBoundingBox(this.openingWindow(), false);
+        this.shownBox = this.board.getBoundingBox();
+    }
+
+    /** The box the opening view drew last: a view still equal to it is framed again when the board's size settles. */
+    private shownBox: number[] | undefined;
+
+    /** The board's height settles after the first frame (the layout finishes), so the window is computed again for the final size; a view the user moved is left alone. */
+    private reframeToSize(): void {
+        if (!this.hasBoard || !this.graphSession?.isAlive || !this.shownBox) return;
+        const box = this.board.getBoundingBox();
+        const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
+        if (!box.every((value, index) => near(value, this.shownBox![index]))) return;
+        this.showInitialView();
+        this.board.update();
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -226,6 +242,17 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         // A new board is created with keepaspect, which widens this window; the opening view is the exact window, as after a reset.
         if (this.hasBoard) this.showInitialView();
         const session = this.graphSession;
+        const container = this.hasBoard ? this.board.containerObj as HTMLElement | undefined : undefined;
+        if (session && container && typeof ResizeObserver !== "undefined") {
+            // The board follows a resize after a short delay of its own, so the frame waits for the board's new size.
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const observer = new ResizeObserver(() => {
+                clearTimeout(timer);
+                timer = setTimeout(() => this.reframeToSize(), RESIZE_SETTLE_MS);
+            });
+            observer.observe(container);
+            session.registerCleanup(() => { clearTimeout(timer); observer.disconnect(); });
+        }
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => { this.disposeController(); this.status.cancel(); });
@@ -675,11 +702,17 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         return <>
             {this.getGraphCommandsArea()}
             <div className="inspector-group">
-                <ReducedMotion>{() =>
-                    <PlaybackButtons placement="graph" groupLabel={t("phase_graph_logistic_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
-                                     playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
-                                     onReset={() => this.resetRun()} {...blocks} playBlock={blocks.playBlock ?? (!playing && this.reducedMotion() ? "reduced-motion" : undefined)}
-                                     reducedMotionReason={t("playback_block_reduced_motion_next_step")}/>}
+                <ReducedMotion>{() => {
+                    const reduced = !playing && !blocks.playBlock && this.reducedMotion();
+                    return <>
+                        <PlaybackButtons placement="graph" groupLabel={t("phase_graph_logistic_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
+                                         playing={playing} onNext={() => this.stepOnce()} onPlayPause={() => { if (playing) this.pausePlayback(); else this.play(); }}
+                                         onReset={() => this.resetRun()} {...blocks} playBlock={blocks.playBlock ?? (reduced ? "reduced-motion" : undefined)}
+                                         reducedMotionReason={t("playback_block_reduced_motion_next_step")}
+                                         describedBy={reduced ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
+                        {reduced && <p id={REDUCED_REASON_ID} className="inspector-help">{t("playback_block_reduced_motion_next_step")}</p>}
+                    </>;
+                }}
                 </ReducedMotion>
                 <p data-step-counter="">{t("step_counter", {value0: step, value1: STEP_RANGE.max})}</p>
                 <ReadoutHeading>{t("phase_graph_logistic_readout_title")}</ReadoutHeading>

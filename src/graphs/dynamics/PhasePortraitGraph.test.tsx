@@ -616,6 +616,10 @@ describe('playback', () => {
         expect(graph.playing).toBe(false);
         expect(graph.clock.requests).toBe(0);
         expect(document.body.textContent).toContain(t('playback_block_reduced_motion_time'));
+        const reason = document.getElementById('phase-play-reduced-reason')!;
+        expect(reason.textContent).toBe(t('playback_block_reduced_motion_time'));
+        expect(reason.closest('[hidden]')).toBeNull();
+        expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-describedby')?.split(' ')).toContain(reason.id);
         act(() => { fireEvent.change(timeSlider(), {target: {value: '1.5'}}); });
         expect(graph.time).toBe(1.5);
     });

@@ -60,6 +60,7 @@ const NAME_KEYS = {
 type TrackName = keyof typeof NAME_KEYS;
 
 const RESIZE_SETTLE_MS = 150;
+const REDUCED_REASON_ID = "descent-play-reduced-reason";
 
 const FIELD_LABEL_KEYS = {
     radius: "descent_graph_radius_label", endX: "descent_graph_end_x_label", endY: "descent_graph_end_y_label", p1x: "descent_graph_p1x_label",
@@ -403,10 +404,10 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         this.shownView = this.viewOf();
     }
 
-    /** The board's origin corner and scale: a resize keeps these and crops or widens the box, so they tell whether the view is still the framed one. */
+    /** The centre of the board's box: a resize keeps the centre and changes the scale and the corners, so the centre tells whether the view is still the framed one (a pan or a zoom about a point moves it). */
     private viewOf(): number[] {
-        const [left, top] = this.board.getBoundingBox();
-        return [left, top, this.board.unitX, this.board.unitY];
+        const [left, top, right, bottom] = this.board.getBoundingBox();
+        return [(left + right) / 2, (top + bottom) / 2];
     }
 
     /** The board's height settles after the first frame (the layout finishes): a view still on the frame we drew is framed again for the final size. A view the user moved is left alone. */
@@ -972,11 +973,13 @@ function DescentPlayback(props: {graph: DescentGraph}) {
     const runs = end > 0;
     const noRun = text("descent_graph_no_run");
     const blocks = playbackBlocks({ready: runs, atStart: time === 0, atEnd: false, playing});
+    const playBlock = runs && !playing && graph.reducedMotion() ? "reduced-motion" : blocks.playBlock;
     return <div className="inspector-group">
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("descent_graph_playback_group")} playing={playing} noRunReason={noRun}
                          onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
-                         {...blocks} playBlock={runs && !playing && graph.reducedMotion() ? "reduced-motion" : blocks.playBlock}/>
+                         {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
+        {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
         <Slider customText={text("descent_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 unavailableReason={runs ? undefined : noRun}
                 help={text("descent_graph_time_help", params)} rejectedHint={text("descent_graph_time_rejected", {value0: params.value0})}
