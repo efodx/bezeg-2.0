@@ -136,6 +136,8 @@ export class BSplineBasisScene {
                 highlight: true, fixed: this.settings.normalized(),
             });
             marker.on('drag', () => {
+                // A released scene's marker may still receive an event: it must not write the state of its successor.
+                if (this.disposed) return;
                 this.settings.onKnotDrag(i, this.view().toRaw(marker.X()));
                 this.sync();
             });

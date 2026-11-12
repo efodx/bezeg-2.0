@@ -106,8 +106,11 @@ export class BSplineExtractionScene {
             this.piecePolygons.push(line(i, true));
             this.pieceCurves.push(line(i, false));
         }
-        this.curve.getJxgPoints().forEach(point => point.on('drag', () => this.settings.onPointsDrag(
-            this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint))));
+        // A released scene's point may still receive an event: it must not write the state of its successor.
+        this.curve.getJxgPoints().forEach(point => point.on('drag', () => {
+            if (this.disposed) return;
+            this.settings.onPointsDrag(this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint));
+        }));
     }
 
     /** Brings the model curve in line with the state (a typed knot, a Preset that kept the shape). */

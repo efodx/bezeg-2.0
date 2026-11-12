@@ -8,6 +8,7 @@ import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -59,8 +60,7 @@ const initialData = (): Omit<BSplineInsertionState, 'initialized'> => {
  * `bsplinePresetCollection`; optional NURBS `weights` are ignored on import and omitted on export. Route `bspline-insertion`; lesson
  * L3 drives it through `knot-insertion` scene actions.
  */
-export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSplinePresetData> {
-    private scene?: BSplineInsertionScene;
+export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSplinePresetData, BSplineInsertionScene> {
     /** The reason the last refused insertion gave; cleared once the state holds no refusal (any accepted edit, Reset or Preset). */
     private readonly refusals = new RefusalChannel(() => this.requestRender());
 
@@ -111,7 +111,6 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         // Data equal to a shipped example is that example again (the host Reset and the lesson default import it).
         const same = INSERTION_EXAMPLE_IDS.find(id => JSON.stringify(deBoorPresetData(insertionExample(id))) === JSON.stringify(deBoorPresetData(origin)));
         this.setState({...copyData(origin), origin, example: same ?? 'custom', ghost: [], refusal: null});
-        this.ensureScene();
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
@@ -125,50 +124,41 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         return [-1.5, 3.5, 6.5, -1.5];
     }
 
+    /** The host builds the declared scene right after this; nothing else is initialized. */
     override initialize() {
-        this.ensureScene();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new BSplineInsertionScene({
-            board: this.board,
-            degree: () => this.state.degree,
-            knots: () => this.state.knots,
-            points: () => this.state.points,
-            ghost: () => this.state.ghost,
-            showComb: () => this.state.showComb,
-            onPointsDrag: points => this.setState({points}),
-        });
+    /** `sync` takes knots and points only: another degree, point count or ghost length rebuilds the scene (also on import and checkpoint restore). */
+    protected override sceneDeclaration(): SceneDeclaration<BSplineInsertionScene> {
+        return {
+            create: board => constructOrSweep(board, () => new BSplineInsertionScene({
+                board,
+                degree: () => this.state.degree,
+                knots: () => this.state.knots,
+                points: () => this.state.points,
+                ghost: () => this.state.ghost,
+                showComb: () => this.state.showComb,
+                onPointsDrag: points => this.setState({points}),
+            })),
+            sync: scene => {
+                const {degree, points, ghost} = this.state;
+                if (!scene.fits(degree, points.length, ghost.length)) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
-    }
-
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        this.scene?.sync();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
+    /** Test seam: the characterization tests read the live scene through it. */
+    private get scene(): BSplineInsertionScene | undefined {
+        return this.ownedScene;
     }
 
     protected override onStateChange(prevState: Readonly<BSplineInsertionState>) {
         if (prevState === this.state) return;
         if (!this.state.refusal) this.refusals.clear();
         if (!this.board) return;
-        const {state} = this;
-        if (this.scene && !this.scene.fits(state.degree, state.points.length, state.ghost.length)) this.ensureScene();
-        else this.scene?.sync();
         this.boardUpdate();
     }
 

@@ -6,6 +6,7 @@ import Slider from "../../../inputs/Slider";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import {LiveReadout} from "../../base/controls/LiveReadout";
 import {useStatusReadout} from "../../base/controls/useStatusReadout";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -47,8 +48,7 @@ const initialData = (): Omit<BSplineBasisGraphState, 'initialized'> =>
  * copy of the data and the one owned {@link BSplineBasisScene} reads it lazily. Preset data is the local B-spline collection's DTO
  * (the control points are placeholders; the basis does not depend on them). Registered as the `bspline-basis` Demonstration without a lesson yet.
  */
-export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSplinePresetData> {
-    private scene?: BSplineBasisScene;
+export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSplinePresetData, BSplineBasisScene> {
     /** The reason the last refused knot drag or typed value gave; cleared by an accepted one. */
     private readonly refusals = new RefusalChannel(() => this.requestRender());
 
@@ -107,7 +107,6 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         const refusal = this.consumerRefusal(data);
         if (refusal) throw new LocalizedError(refusal);
         this.setState({degree: data.degree, knots: [...data.knots]});
-        this.ensureScene();
     }
 
     /**
@@ -124,28 +123,35 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         if (data) this.fit();
     }
 
+    /** The host builds the declared scene right after this; only the view is fitted here. */
     override initialize() {
-        this.ensureScene();
         this.fit();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new BSplineBasisScene({
-            board: this.board,
-            knots: () => this.state.knots,
-            degree: () => this.state.degree,
-            position: () => this.state.t,
-            normalized: () => this.state.normalized,
-            fontSize: () => this.displaySettings.fontSize,
-            onKnotDrag: (index, raw) => this.dragKnot(index, raw),
-        });
+    /** A scene is built for one function and knot count; a degree or Preset change that alters either rebuilds it (also on import and checkpoint restore). */
+    protected override sceneDeclaration(): SceneDeclaration<BSplineBasisScene> {
+        return {
+            create: board => constructOrSweep(board, () => new BSplineBasisScene({
+                board,
+                knots: () => this.state.knots,
+                degree: () => this.state.degree,
+                position: () => this.state.t,
+                normalized: () => this.state.normalized,
+                fontSize: () => this.displaySettings.fontSize,
+                onKnotDrag: (index, raw) => this.dragKnot(index, raw),
+            })),
+            sync: scene => {
+                if (!scene.fits(this.state.knots, this.state.degree)) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
+    /** Test seam: the characterization tests read the live scene through it. */
+    private get scene(): BSplineBasisScene | undefined {
+        return this.ownedScene;
     }
 
     private fit() {
@@ -154,25 +160,8 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         this.board.fullUpdate();
     }
 
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        this.scene?.sync();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
-    }
-
     protected override onStateChange(prevState: Readonly<BSplineBasisGraphState>) {
         if (prevState === this.state || !this.board) return;
-        // A scene is built for one function and knot count; a degree or Preset change that alters either builds a new one.
-        if (this.scene && !this.scene.fits(this.state.knots, this.state.degree)) this.ensureScene();
-        else this.scene?.sync();
         const problem = knotProblem(this.state.knots, this.state.degree);
         if (problem) this.refusals.refuse(() => message("bsb_invalid_notice", {value0: problem}));
         this.boardUpdate();

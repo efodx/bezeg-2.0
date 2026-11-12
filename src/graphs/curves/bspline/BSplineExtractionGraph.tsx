@@ -4,6 +4,7 @@ import {currentLanguage, renderMessage, t} from "../../../localization";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {ResetExampleButton} from "../../../inputs/ResetExampleButton";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
@@ -48,8 +49,7 @@ const initialData = (): Omit<BSplineExtractionState, 'initialized'> => {
  * {@link BSplineExtractionScene} reads it lazily. Its Preset collection is `bsplinePresetCollection`; optional NURBS `weights` are
  * ignored on import and omitted on export. Registered at `/bezeg-2.0/bspline/extraction` (`bspline-extraction`); lesson L4 drives it through `bezier-extraction` scene actions; {@link pieceControlPoints} is the seam for "open as Bezier".
  */
-export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BSplinePresetData> {
-    private scene?: BSplineExtractionScene;
+export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BSplinePresetData, BSplineExtractionScene> {
 
     override getInitialState(): BSplineExtractionState {
         return {initialized: false, ...initialData()};
@@ -91,7 +91,6 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         const origin = copyData(data);
         const same = INSERTION_EXAMPLE_IDS.find(id => JSON.stringify(deBoorPresetData(insertionExample(id))) === JSON.stringify(deBoorPresetData(origin)));
         this.setState({...copyData(origin), origin, example: same ?? 'custom', moved: []});
-        this.ensureScene();
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
@@ -111,22 +110,35 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         return {initialized: true, ...initialData(), ...copyData({degree, knots, points}), origin, example};
     }
 
+    /** The host builds the declared scene right after this; nothing else is initialized. */
     override initialize() {
-        this.ensureScene();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new BSplineExtractionScene({
-            board: this.board,
-            degree: () => this.state.degree,
-            knots: () => this.state.knots,
-            points: () => this.state.points,
-            highlighted: () => this.affected(),
-            pieceCount: () => this.pieces().length,
-            onPointsDrag: points => this.setState({points, moved: this.dragMoved(points)}),
-        });
+    /** `sync` takes knots and points only: another degree, point count or number of Bezier pieces rebuilds the scene (also on import and checkpoint restore). */
+    protected override sceneDeclaration(): SceneDeclaration<BSplineExtractionScene> {
+        return {
+            create: board => constructOrSweep(board, () => new BSplineExtractionScene({
+                board,
+                degree: () => this.state.degree,
+                knots: () => this.state.knots,
+                points: () => this.state.points,
+                highlighted: () => this.affected(),
+                pieceCount: () => this.pieces().length,
+                onPointsDrag: points => this.setState({points, moved: this.dragMoved(points)}),
+            })),
+            sync: scene => {
+                const {degree, points} = this.state;
+                if (!scene.fits(degree, points.length, this.pieces().length)) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
+    }
+
+    /** Test seam: the characterization tests read the live scene through it. */
+    private get scene(): BSplineExtractionScene | undefined {
+        return this.ownedScene;
     }
 
     /** The control points a drag event moved relative to the state; the previous set stays when nothing moved. */
@@ -135,30 +147,8 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         return moved.length ? moved : this.state.moved;
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
-    }
-
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        this.scene?.sync();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
-    }
-
-    override unmount() {
-        this.removeScene();
-        super.unmount();
-    }
-
     protected override onStateChange(prevState: Readonly<BSplineExtractionState>) {
         if (prevState === this.state || !this.board) return;
-        const {state} = this;
-        if (this.scene && !this.scene.fits(state.degree, state.points.length, this.pieces().length)) this.ensureScene();
-        else this.scene?.sync();
         this.boardUpdate();
     }
 

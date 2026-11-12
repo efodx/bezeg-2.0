@@ -4,6 +4,7 @@ import {renderMessage, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {CountSetter} from "../../../inputs/CountSetter";
 import BaseGraph, {BaseGraphState, TransientState} from "../../base/BaseGraph";
+import {constructOrSweep, type SceneDeclaration} from "../../base/OwnedScene";
 import {BSplineCurve, InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
 import type {LessonAnimationCommand, LessonCurveFixture} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
@@ -51,8 +52,7 @@ const initialData = (): Omit<DeBoorGraphState, 'initialized'> => {
  * the non-rational B-spline: optional NURBS `weights` pass the collection's check but are ignored by `importPresetData` and omitted
  * from `exportPresetData`.
  */
-export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> {
-    private scene?: DeBoorScene;
+export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData, DeBoorScene> {
     /** The shared playback policy; the revealed level (`state.level`) is its step index and stays in the scene state. */
     private readonly playback: TracePlayback;
     /** The graph's one announcement: the levels status, silent while Play runs. */
@@ -110,7 +110,6 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
             degree: data.degree, knots: [...data.knots], points: data.points.map(point => [point[0], point[1]] as const),
             level: Math.min(this.state.level, data.degree),
         });
-        this.ensureScene();
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
@@ -124,37 +123,36 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         return [-1.5, 3.5, 5.5, -1.5];
     }
 
+    /** The host builds the declared scene right after this; nothing else is initialized. */
     override initialize() {
-        this.ensureScene();
     }
 
-    private ensureScene() {
-        this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.scene = new DeBoorScene({
-            board: this.board,
-            degree: () => this.state.degree,
-            knots: () => this.state.knots,
-            points: () => this.state.points,
-            t: () => this.state.t,
-            level: () => this.state.level,
-            fontSize: () => this.displaySettings.fontSize,
-            onPointsDrag: points => this.setState({points}),
-        });
+    /** `sync` takes knots and points only: another degree or point count rebuilds the scene (also on import and checkpoint restore). */
+    protected override sceneDeclaration(): SceneDeclaration<DeBoorScene> {
+        return {
+            create: board => constructOrSweep(board, () => new DeBoorScene({
+                board,
+                degree: () => this.state.degree,
+                knots: () => this.state.knots,
+                points: () => this.state.points,
+                t: () => this.state.t,
+                level: () => this.state.level,
+                fontSize: () => this.displaySettings.fontSize,
+                onPointsDrag: points => this.setState({points}),
+            })),
+            sync: scene => {
+                const {degree, points} = this.state;
+                if (!scene.fits(degree, points.length)) return false;
+                scene.sync();
+                return true;
+            },
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
-    }
-
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        this.scene?.sync();
-    }
-
-    protected override disposeFigureScene(): void {
-        this.removeScene();
+    /** Test seam: the characterization tests read the live scene through it. */
+    private get scene(): DeBoorScene | undefined {
+        return this.ownedScene;
     }
 
     override mount(container: HTMLElement): void {
@@ -166,7 +164,6 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
     override unmount() {
         this.liveReadout.cancel();
         this.playback.unmount();
-        this.removeScene();
         super.unmount();
     }
 
@@ -176,8 +173,6 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         // Any edit (points, knots, degree, t) ends playback; the revealed level stays.
         this.playback.settle(state.degree !== prevState.degree || state.knots !== prevState.knots || state.points !== prevState.points
             || state.t !== prevState.t, false);
-        if (this.scene && !this.scene.fits(state.degree, state.points.length)) this.ensureScene();
-        else this.scene?.sync();
         this.boardUpdate();
     }
 

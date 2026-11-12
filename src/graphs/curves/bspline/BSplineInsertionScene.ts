@@ -119,8 +119,11 @@ export class BSplineInsertionScene {
         this.teethCurve = comb('teeth', 1, INSERTION_COMB_COLORS.teeth, 0.55);
         this.envelopeCurve = comb('envelope', 1.5, INSERTION_COMB_COLORS.envelope, 1);
 
-        this.curve.getJxgPoints().forEach(point => point.on('drag', () => this.settings.onPointsDrag(
-            this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint))));
+        // A released scene's point may still receive an event: it must not write the state of its successor.
+        this.curve.getJxgPoints().forEach(point => point.on('drag', () => {
+            if (this.disposed) return;
+            this.settings.onPointsDrag(this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint));
+        }));
     }
 
     /** Brings the model curve in line with the state (a typed knot, a Preset that kept the shape). */

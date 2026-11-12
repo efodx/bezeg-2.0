@@ -20,6 +20,15 @@ import {BSplineBlossomGraph} from './BSplineBlossomGraph';
 import {BSplineNurbsGraph} from './BSplineNurbsGraph';
 import {BSplineBlossomScene} from './BSplineBlossomScene';
 import {BSplineNurbsScene} from './BSplineNurbsScene';
+import {BSplineBasisGraph} from './BSplineBasisGraph';
+import {DeBoorGraph} from './DeBoorGraph';
+import {BSplineInsertionGraph} from './BSplineInsertionGraph';
+import {BSplineExtractionGraph} from './BSplineExtractionGraph';
+import {BSplineBasisScene} from './BSplineBasisScene';
+import {DeBoorScene} from './DeBoorScene';
+import {BSplineInsertionScene} from './BSplineInsertionScene';
+import {BSplineExtractionScene} from './BSplineExtractionScene';
+import {basisPresetData} from './bsplineBasisModel';
 import {JXGBSplineCurve} from '../object/JXGBSplineCurve';
 import {blossomSegments, blossomSnapshot} from './bsplineBlossomModel';
 
@@ -127,7 +136,56 @@ const nurbsSubject: Subject = {
     },
 };
 
-const SUBJECTS = [blossomSubject, nurbsSubject];
+/** The point on the independent formula (unit weights) at the fraction `f` of the state's parameter domain. */
+const probeAt = (graph: GraphLike, f: number): {u: number; expected: number[]; drawn: number[]} => {
+    const {knots, degree, points} = stateOf(graph);
+    const u = knots[degree] + f * (knots[points.length] - knots[degree]);
+    const p = sceneOf(graph).curve.getCurve().eval(u);
+    return {u, expected: [...rationalPoint(degree, knots, points, points.map(() => 1), u)], drawn: [p.X(), p.Y()]};
+};
+
+const deBoorSubject: Subject = {
+    name: 'De Boor',
+    make: () => new DeBoorGraph() as unknown as GraphLike,
+    Scene: DeBoorScene as unknown as Subject['Scene'],
+    structural: {degree: 2, knots: [0, 0, 0, 1, 1, 1], points: [[0, 0], [1, 2], [3, 0]]},
+    sameShape: moved,
+    keepsSceneOnSameShapeImport: true,
+    discardedOnRemount: 0,
+    figureReleases: 2,
+    dependent: graph => {
+        const {knots, degree, points} = stateOf(graph);
+        const t = (graph as unknown as DeBoorGraph).state.t;
+        const final = (sceneOf(graph) as unknown as DeBoorScene).levelElements(degree)[0];
+        return {drawn: [final.X(), final.Y()], expected: [...rationalPoint(degree, knots, points, points.map(() => 1), t)]};
+    },
+};
+
+const insertionSubject: Subject = {
+    name: 'Insertion',
+    make: () => new BSplineInsertionGraph() as unknown as GraphLike,
+    Scene: BSplineInsertionScene as unknown as Subject['Scene'],
+    structural: {degree: 2, knots: [0, 0, 0, 1, 1, 1], points: [[0, 0], [1, 2], [3, 0]]},
+    sameShape: moved,
+    keepsSceneOnSameShapeImport: true,
+    discardedOnRemount: 0,
+    figureReleases: 2,
+    dependent: graph => { const {drawn, expected} = probeAt(graph, 0.3); return {drawn, expected}; },
+};
+
+const extractionSubject: Subject = {
+    name: 'Extraction',
+    make: () => new BSplineExtractionGraph() as unknown as GraphLike,
+    Scene: BSplineExtractionScene as unknown as Subject['Scene'],
+    structural: {degree: 2, knots: [0, 0, 0, 1, 1, 1], points: [[0, 0], [1, 2], [3, 0]]},
+    sameShape: moved,
+    keepsSceneOnSameShapeImport: true,
+    discardedOnRemount: 0,
+    figureReleases: 2,
+    dependent: graph => { const {drawn, expected} = probeAt(graph, 0.3); return {drawn, expected}; },
+};
+
+const SUBJECTS = [blossomSubject, nurbsSubject, deBoorSubject, insertionSubject, extractionSubject];
 
 /** Records every scene at its first disposal (with the elements and points it owned), without changing disposal. */
 function watchReleases(subject: Subject): {released: Released[]; stop(): void} {
@@ -612,6 +670,385 @@ describe('NURBS: ordinary same-shape commit versus replacement with different kn
         act(() => nurbs.setT(U));
         const marker = (sceneOf(graph) as unknown as BSplineNurbsScene).markerElement()!;
         near([marker.X(), marker.Y()], rationalPoint(2, knotsB, points, weights, U), 1e-9);
+        mounted.view.unmount();
+    });
+});
+
+// ---- De Boor, Insertion, Extraction: same-shape different knots (task 07, batch 1) -----------------------------------------
+
+describe.each([deBoorSubject, insertionSubject, extractionSubject])('$name: ordinary same-shape commit versus replacement with different knots', subject => {
+    const knotsA = [0, 0, 0, 1, 2, 3, 3, 3];
+    const knotsB = [0, 0, 0, 1, 1.5, 3, 3, 3];
+    const points: Pt[] = [[0, 0], [1, 2], [3, 3], [4, 1], [5, 3]];
+    const ones = points.map(() => 1);
+    const dataA = {degree: 2, knots: knotsA, points};
+    const dataB = {...dataA, knots: knotsB};
+    const U = 2.2;
+    const mountWith = (data: typeof dataA) => {
+        const graph = subject.make();
+        const mounted = mountGraph(graph);
+        act(() => internals(graph).importPresetData(data));
+        return {graph, mounted};
+    };
+    const expectDrawn = (graph: GraphLike, knots: readonly number[]) => {
+        expect(sceneOf(graph).curve.getCurve().getKnots()).toEqual(knots);
+        const p = sceneOf(graph).curve.getCurve().eval(U);
+        near([p.X(), p.Y()], rationalPoint(2, knots, points, ones, U), 1e-9);
+    };
+
+    test('an ordinary commit of a point or of equal-length knots keeps the scene and draws the new knots', () => {
+        const {graph, mounted} = mountWith(dataA);
+        const scene = sceneOf(graph);
+        expectDrawn(graph, knotsA);
+        const watch = watchReleases(subject);
+        act(() => graph.setState({points: points.map((p, i) => i === 1 ? [1, 2.5] as Pt : p)} as never));
+        expect(sceneOf(graph)).toBe(scene);
+        act(() => graph.setState({knots: knotsB, points} as never));
+        expect(sceneOf(graph)).toBe(scene);
+        expect(watch.released).toHaveLength(0);
+        expectDrawn(graph, knotsB);
+        watch.stop();
+        mounted.view.unmount();
+    });
+
+    test('a Preset import with equal degree and point count but different knots draws the new knots', () => {
+        const {graph, mounted} = mountWith(dataA);
+        act(() => internals(graph).importPresetData(dataB));
+        expect(stateOf(graph).knots).toEqual(knotsB);
+        expectDrawn(graph, knotsB);
+        expectResponds(subject, graph);
+        mounted.view.unmount();
+    });
+
+    test('a checkpoint restore with equal degree and point count but different knots shows the checkpoint knots', () => {
+        const {graph, mounted} = mountWith(dataA);
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        act(() => internals(graph).importPresetData(dataB));
+        expectDrawn(graph, knotsB);
+        act(() => capabilities.restoreState(checkpoint));
+        expectDrawn(graph, knotsA);
+        mounted.view.unmount();
+    });
+
+    test('a figure entry-and-return draws the figure knots, then the entry knots', async () => {
+        const {graph, mounted} = mountWith(dataA);
+        const watch = watchReleases(subject);
+        await settle(() => internals(graph).exportPresetFigures([{...graph.exportPreset(), id: 'figure', data: dataB as never}]));
+        expect(watch.released.map(r => r.knots)).toEqual([knotsA, knotsB]);
+        expectDrawn(graph, knotsA);
+        watch.stop();
+        mounted.view.unmount();
+    });
+});
+
+// ---- Synchronous multi-action sequences with rebuilt-scene identity (all four) ---------------------------------------------
+
+type SeqSubject = {name: string; make(): GraphLike; drawnKnots(graph: GraphLike): number[]; drawnPointCount(graph: GraphLike): number | undefined; responds(graph: GraphLike): void};
+const basisSceneOf = (graph: GraphLike) => (graph as unknown as {scene?: BSplineBasisScene}).scene!;
+const respondsBasis = (graph: GraphLike) => {
+    const {knots} = stateOf(graph);
+    const target = 0.4 * knots[2] + 0.6 * knots[4];
+    dragTo(basisSceneOf(graph).markerElements()[3], target, basisSceneOf(graph).markerElements()[3].Y());
+    expect(stateOf(graph).knots[3]).toBeCloseTo(target, 12);
+    expect(basisSceneOf(graph).markerElements()[3].X()).toBeCloseTo(target, 12);
+};
+const curveSeq = (subject: Subject): SeqSubject => ({
+    name: subject.name, make: subject.make,
+    drawnKnots: graph => [...sceneOf(graph).curve.getCurve().getKnots()],
+    drawnPointCount: graph => sceneOf(graph).curve.getJxgPoints().length,
+    responds: graph => expectResponds(subject, graph),
+});
+const SEQUENCE_SUBJECTS: SeqSubject[] = [
+    {name: 'Basis', make: () => new BSplineBasisGraph() as unknown as GraphLike,
+        drawnKnots: graph => basisSceneOf(graph).markerElements().map(m => m.X()), drawnPointCount: () => undefined, responds: respondsBasis},
+    curveSeq(deBoorSubject), curveSeq(insertionSubject), curveSeq(extractionSubject),
+];
+
+describe.each(SEQUENCE_SUBJECTS)('$name: same-tick scene sequences with rollback', subject => {
+    const fixture = (points: Pt[], knots: number[]) => ({kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {points, degree: 2, knots}}) as unknown as LessonAction;
+    const five: Pt[] = [[0, 0], [1, 2], [3, 3], [4, 1], [5, 3]];
+    const knotsA = [0, 0, 0, 1, 2, 3, 3, 3];
+    const knotsB = [0, 0, 0, 1, 1.5, 3, 3, 3];
+
+    test('later actions read the earlier writes in the same tick, each rebuilt scene is the live one, and rollback restores the checkpoint drawn', () => {
+        const graph = subject.make();
+        const mounted = mountGraph(graph);
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        const start = JSON.stringify(graph.state);
+        const defaultKnots = [...stateOf(graph).knots];
+        const scenes: unknown[] = [];
+        const live = () => (graph as unknown as {scene?: unknown}).scene;
+        act(() => {
+            capabilities.apply(fixture(five, knotsA));
+            scenes.push(live());
+            expect(subject.drawnKnots(graph)).toEqual(knotsA);
+            expect(subject.drawnPointCount(graph) ?? five.length).toBe(five.length);
+            capabilities.apply(fixture(five, knotsB));
+            expect(subject.drawnKnots(graph)).toEqual(knotsB);
+            capabilities.apply(fixture([[0, 0], [1, 2], [3, 0]], [0, 0, 0, 1, 1, 1]));
+            scenes.push(live());
+            expect(scenes[1]).not.toBe(scenes[0]);
+            expect(subject.drawnKnots(graph)).toEqual([0, 0, 0, 1, 1, 1]);
+            expect(subject.drawnPointCount(graph) ?? 3).toBe(3);
+            // Roll back in the same tick: state restored and the checkpoint drawn before the host commits.
+            capabilities.restoreState(checkpoint);
+            expect(JSON.stringify(graph.state)).toBe(start);
+            expect(live()).not.toBe(scenes[1]);
+            expect(subject.drawnKnots(graph)).toEqual(defaultKnots);
+        });
+        expect(JSON.stringify(graph.state)).toBe(start);
+        expect(subject.drawnKnots(graph)).toEqual(defaultKnots);
+        subject.responds(graph);
+        mounted.view.unmount();
+    });
+
+    test('the same sequence without rollback draws the last fixture', () => {
+        const graph = subject.make();
+        const mounted = mountGraph(graph);
+        const capabilities = graph.getLessonCapabilities();
+        act(() => {
+            capabilities.apply(fixture(five, knotsA));
+            capabilities.apply(fixture(five, knotsB));
+        });
+        expect(subject.drawnKnots(graph)).toEqual(knotsB);
+        expect(subject.drawnPointCount(graph) ?? five.length).toBe(five.length);
+        subject.responds(graph);
+        mounted.view.unmount();
+    });
+});
+
+describe('Insertion and Extraction: graph actions in one tick read the earlier writes', () => {
+    // An ordinary commit draws after the tick (the host commits then); only the state is read mid-tick.
+    test('Insertion: two insertions read each other in one tick and are drawn after it; a rollback restores the checkpoint drawn', () => {
+        const graph = insertionSubject.make();
+        const mounted = mountGraph(graph);
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        const start = JSON.stringify(graph.state);
+        const before = stateOf(graph).points.length;
+        act(() => {
+            capabilities.apply({kind: 'knot-insertion', operation: 'insert', value: 0.5});
+            expect(stateOf(graph).points).toHaveLength(before + 1);
+            capabilities.apply({kind: 'knot-insertion', operation: 'insert', value: 1.5});
+            expect(stateOf(graph).points).toHaveLength(before + 2);
+        });
+        expect(sceneOf(graph).curve.getJxgPoints()).toHaveLength(before + 2);
+        expect(sceneOf(graph).curve.getCurve().getKnots()).toEqual(stateOf(graph).knots);
+        act(() => capabilities.restoreState(checkpoint));
+        expect(JSON.stringify(graph.state)).toBe(start);
+        expect(sceneOf(graph).curve.getJxgPoints()).toHaveLength(before);
+        expectResponds(insertionSubject, graph);
+        mounted.view.unmount();
+    });
+
+    test('Extraction: a point only the cubic example has is moved in the same tick and drawn after it; a rollback restores the checkpoint drawn', () => {
+        const graph = extractionSubject.make();
+        const mounted = mountGraph(graph);
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        const start = JSON.stringify(graph.state);
+        act(() => {
+            expect(() => capabilities.apply({kind: 'bezier-extraction', operation: 'move-point', index: 6, to: [6, 1]})).toThrow();
+            capabilities.apply({kind: 'bezier-extraction', operation: 'set-example', exampleId: 'cubic'});
+            capabilities.apply({kind: 'bezier-extraction', operation: 'move-point', index: 6, to: [6, 1]});
+            expect(stateOf(graph).points[6]).toEqual([6, 1]);
+        });
+        const p = sceneOf(graph).curve.getJxgPoints()[6];
+        near([p.X(), p.Y()], [6, 1]);
+        act(() => capabilities.restoreState(checkpoint));
+        expect(JSON.stringify(graph.state)).toBe(start);
+        expect(sceneOf(graph).curve.getJxgPoints()).toHaveLength(stateOf(graph).points.length);
+        expectResponds(extractionSubject, graph);
+        mounted.view.unmount();
+    });
+});
+
+// ---- De Boor: late playback work cannot touch a replaced scene ----------------------------------------------------------------
+
+describe('De Boor: playback cannot reach a replaced scene', () => {
+    test('a frame requested before a replacement or the unmount never runs afterwards', () => {
+        const callbacks = new Map<number, FrameRequestCallback>();
+        let handle = 0;
+        const graph = new DeBoorGraph({request: cb => { callbacks.set(++handle, cb); return handle; }, cancel: id => { callbacks.delete(id); }});
+        const asGraph = graph as unknown as GraphLike;
+        const mounted = mountGraph(asGraph);
+        const oldRings = [...(sceneOf(asGraph) as unknown as DeBoorScene).ringElements()];
+        act(() => graph.play());
+        expect(graph.playing).toBe(true);
+        act(() => internals(asGraph).importPresetData(deBoorSubject.structural));
+        expect(graph.playing).toBe(false);
+        expect(callbacks.size).toBe(0);
+        const replaced = sceneOf(asGraph) as unknown as DeBoorScene;
+        expect(oldRings.some(ring => replaced.ringElements().includes(ring))).toBe(false);
+        act(() => graph.play());
+        mounted.view.unmount();
+        expect(callbacks.size).toBe(0);
+        expect(graph.playing).toBe(false);
+    });
+});
+
+// ---- Basis: no curve layer, so its own helpers ----------------------------------------------------------------------------------
+
+interface BasisReleased {scene: BSplineBasisScene; elements: JXG.GeometryElement[]; markers: JXG.Point[]; knots: number[]}
+
+function watchBasis(): {released: BasisReleased[]; stop(): void} {
+    const released: BasisReleased[] = [];
+    const seen = new Set<BSplineBasisScene>();
+    const original = BSplineBasisScene.prototype.dispose;
+    const spy = vi.spyOn(BSplineBasisScene.prototype, 'dispose').mockImplementation(function (this: BSplineBasisScene) {
+        if (!seen.has(this)) {
+            seen.add(this);
+            released.push({scene: this, elements: [...this.ownedElements()], markers: [...this.markerElements()], knots: this.markerElements().map(m => m.X())});
+        }
+        return original.call(this);
+    });
+    return {released, stop: () => spy.mockRestore()};
+}
+
+function expectBasisReleased(graph: GraphLike, released: BasisReleased[], boardGone = false) {
+    const board = boardOf(graph);
+    expect(new Set(released.map(r => r.scene)).size).toBe(released.length);
+    for (const old of released) {
+        if (!boardGone) expect(old.elements.some(element => board.objectsList.includes(element))).toBe(false);
+        expect(basisSceneOf(graph)).not.toBe(old.scene);
+    }
+}
+
+describe('Basis standalone scene lifecycle', () => {
+    const structural = basisPresetData(2, [0, 0, 0, 1, 1, 1]);
+    const sameShape = basisPresetData(2, [0, 0, 0, 1.5, 2, 2, 2]);
+    let mounted: MountedGraph;
+    let graph: GraphLike;
+    beforeEach(() => { graph = new BSplineBasisGraph() as unknown as GraphLike; mounted = mountGraph(graph); });
+    afterEach(() => { mounted.view.unmount(); });
+    const importStructural = () => act(() => internals(graph).importPresetData(structural));
+    const knotsDrawn = () => basisSceneOf(graph).markerElements().map(m => m.X());
+
+    const entries: Record<string, (checkpoint: ReturnType<ReturnType<GraphLike['getLessonCapabilities']>['captureState']>) => Promise<void>> = {
+        'reset': async () => { await settle(() => graph.reset()); },
+        'Preset import': async () => { act(() => internals(graph).importPresetData(sameShape)); },
+        'checkpoint restore': async checkpoint => { act(() => graph.getLessonCapabilities().restoreState(checkpoint)); },
+        'figure entry-and-return': async () => {
+            await settle(() => internals(graph).exportPresetFigures([{...graph.exportPreset(), id: 'figure', data: sameShape as never}]));
+        },
+    };
+
+    test.each(Object.keys(entries))('after %s every old scene is released once, its board objects are gone, and the new scene responds', async entry => {
+        const checkpoint = graph.getLessonCapabilities().captureState();
+        const defaultKnots = [...stateOf(graph).knots];
+        importStructural();
+        const structuralScene = basisSceneOf(graph);
+        const watch = watchBasis();
+        await entries[entry](checkpoint);
+        expect(watch.released.map(r => r.scene)).toContain(structuralScene);
+        expect(watch.released.map(r => r.scene)).not.toContain(basisSceneOf(graph));
+        expectBasisReleased(graph, watch.released);
+        expect(stateOf(graph).knots).toEqual(entry === 'figure entry-and-return' ? structural.knots : entry === 'Preset import' ? sameShape.knots : defaultKnots);
+        expect(knotsDrawn()).toEqual(stateOf(graph).knots);
+        respondsBasis(graph);
+        watch.stop();
+    });
+
+    test('a figure entry-and-return releases the entry scene and the figure scene', async () => {
+        importStructural();
+        const watch = watchBasis();
+        await settle(() => internals(graph).exportPresetFigures([{...graph.exportPreset(), id: 'figure', data: sameShape as never}]));
+        expect(watch.released).toHaveLength(2);
+        expect(watch.released[0].markers).toHaveLength(structural.knots.length);
+        expect(watch.released[1].markers).toHaveLength(sameShape.knots.length);
+        expect(watch.released[1].knots).toEqual(sameShape.knots);
+        expectBasisReleased(graph, watch.released);
+        respondsBasis(graph);
+        watch.stop();
+    });
+
+    test('a Preset import of the same shape keeps the scene and moves the markers', () => {
+        const before = basisSceneOf(graph);
+        const watch = watchBasis();
+        act(() => internals(graph).importPresetData(sameShape));
+        expect(basisSceneOf(graph)).toBe(before);
+        expect(watch.released).toHaveLength(0);
+        expect(knotsDrawn()).toEqual(sameShape.knots);
+        respondsBasis(graph);
+        watch.stop();
+    });
+
+    test('an ordinary commit keeps the scene; a checkpoint restore and a figure return show the checkpoint knots drawn', async () => {
+        const scene = basisSceneOf(graph);
+        const defaultKnots = [...stateOf(graph).knots];
+        const checkpoint = graph.getLessonCapabilities().captureState();
+        act(() => graph.setState({knots: sameShape.knots} as never));
+        expect(basisSceneOf(graph)).toBe(scene);
+        expect(knotsDrawn()).toEqual(sameShape.knots);
+        act(() => graph.getLessonCapabilities().restoreState(checkpoint));
+        expect(knotsDrawn()).toEqual(defaultKnots);
+        await settle(() => internals(graph).exportPresetFigures([{...graph.exportPreset(), id: 'figure', data: sameShape as never}]));
+        expect(knotsDrawn()).toEqual(defaultKnots);
+    });
+
+    test('remount releases the old scene once and builds the live one on the new board', () => {
+        const oldBoard = boardOf(graph);
+        const oldScene = basisSceneOf(graph);
+        const oldElements = [...oldScene.ownedElements()];
+        const watch = watchBasis();
+        mounted.view.unmount();
+        expect(watch.released.map(r => r.scene)).toEqual([oldScene]);
+        expect(oldBoard.objectsList.some(object => oldElements.includes(object as JXG.GeometryElement))).toBe(false);
+        mounted = mountGraph(graph);
+        expect(boardOf(graph)).not.toBe(oldBoard);
+        expect(watch.released).toHaveLength(1);
+        const second = basisSceneOf(graph);
+        mounted.view.unmount();
+        mounted = mountGraph(graph);
+        expect(watch.released.map(r => r.scene)).toContain(second);
+        expectBasisReleased(graph, watch.released, true);
+        respondsBasis(graph);
+        watch.stop();
+    });
+
+    test('a construction failure releases what the half-built scene acquired and publishes no scene', () => {
+        const checkpoint = graph.getLessonCapabilities().captureState();
+        importStructural();
+        const board = boardOf(graph);
+        const created: unknown[] = [];
+        const create = board.create.bind(board);
+        let calls = 0;
+        vi.spyOn(board, 'create').mockImplementation(((...args: Parameters<typeof create>) => {
+            if (++calls === 4) throw new Error('board refused an element');
+            const element = create(...args);
+            created.push(element);
+            return element;
+        }) as typeof board.create);
+        expect(() => act(() => graph.getLessonCapabilities().restoreState(checkpoint))).toThrow('board refused an element');
+        expect(created.length).toBeGreaterThan(0);
+        expect((graph as unknown as {scene?: unknown}).scene).toBeUndefined();
+        expect(created.filter(element => board.objectsList.includes(element as JXG.GeometryElement))).toEqual([]);
+    });
+
+    test('after a replacement a released scene\'s marker drag is inert (it neither throws nor writes the state)', () => {
+        importStructural();
+        const old = [...basisSceneOf(graph).markerElements()];
+        act(() => internals(graph).importPresetData(sameShape));
+        act(() => { void graph.reset(); });
+        const before = JSON.stringify(graph.state);
+        const dragKnot = vi.spyOn(graph as unknown as BSplineBasisGraph, 'dragKnot');
+        expect(() => dragTo(old[3], 0.5, old[3].Y())).not.toThrow();
+        expect(dragKnot).not.toHaveBeenCalled();
+        expect(JSON.stringify(graph.state)).toBe(before);
+    });
+});
+
+describe('De Boor, Insertion, Extraction: a released scene\'s point drag after a figure return is inert', () => {
+    test.each([deBoorSubject, insertionSubject, extractionSubject])('$name', async subject => {
+        const graph = subject.make();
+        const mounted = mountGraph(graph);
+        const old = [...sceneOf(graph).curve.getJxgPoints()];
+        await settle(() => internals(graph).exportPresetFigures([{...graph.exportPreset(), id: 'figure', data: subject.sameShape(exported(graph)) as never}]));
+        const before = JSON.stringify(graph.state);
+        expect(() => dragTo(old[1], 5, 7)).not.toThrow();
+        expect(JSON.stringify(graph.state)).toBe(before);
         mounted.view.unmount();
     });
 });
