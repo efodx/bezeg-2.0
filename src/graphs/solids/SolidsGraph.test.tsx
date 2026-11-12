@@ -480,6 +480,21 @@ describe('review repairs', () => {
         expect(document.querySelector('[data-caption="solids_graph_caption_cut"]')).toBeNull();
         expect(document.querySelector('[data-caption="solids_graph_caption_kept"]')).not.toBeNull();
     });
+
+    it('captions the axial triangle for the pyramid in section mode and not for the cube', () => {
+        const axial = () => document.querySelector('[data-caption="solids_graph_caption_axial"]');
+        const {graph} = mount();
+        act(() => graph.setState({mode: 'section', solid: 'cube'}));
+        expect(axial()).toBeNull();
+        act(() => graph.setState({solid: 'square-pyramid'}));
+        expect(axial()?.textContent).toBe(sl.solids_graph_caption_axial);
+        expect(sl.solids_graph_caption_axial).toContain('osni presek');
+        act(() => graph.setState({normal: [0, 0, 1], offset: 40})); // the plane misses the solid: the triangle is still drawn
+        expect(axial()).not.toBeNull();
+        act(() => graph.setState({solid: 'square-prism'}));
+        expect(axial()).toBeNull();
+        expect(Object.keys(en).includes('solids_graph_caption_axial')).toBe(true);
+    });
 });
 
 describe('smoke repairs: the view of each mode and the camera panel', () => {

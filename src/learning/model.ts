@@ -511,6 +511,17 @@ export type LessonAction =
     | {readonly kind: 'phase'; readonly operation: 'set-seed'; readonly X: number}
     | {readonly kind: 'phase'; readonly operation: 'set-step'; readonly step: number}
     /**
+     * SolidsGraph's scene actions (SV1, SV2; `set-shear`, `set-discs`, `set-cursor` and `set-axis` join with the stack and revolve lessons). Each equals the control of the same name:
+     * `set-solid` picks a solid id (the mode and axis fall back as the chooser does), `set-mode` a mode (the solid falls back), `set-plane` the plane normal (integers -4 to 4, not all
+     * zero) and the offset `offset` in grid units of 1/4 (the plane is n . x = offset / 4), `set-offset` the offset alone, `set-camera` one of the camera presets. The merged state
+     * must pass `parseSolidsState` before the write, otherwise the action throws and nothing is written; unknown fields are refused.
+     */
+    | {readonly kind: 'solids'; readonly operation: 'set-solid'; readonly solid: string}
+    | {readonly kind: 'solids'; readonly operation: 'set-mode'; readonly mode: string}
+    | {readonly kind: 'solids'; readonly operation: 'set-plane'; readonly normal: readonly [number, number, number]; readonly offset?: number}
+    | {readonly kind: 'solids'; readonly operation: 'set-offset'; readonly offset: number}
+    | {readonly kind: 'solids'; readonly operation: 'set-camera'; readonly view: CameraPresetName}
+    /**
      * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
      * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per
      * year. The merged state must pass `parseGrowthState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused.

@@ -55,6 +55,24 @@ describe('section readouts (SV1, SV2)', () => {
         expect(readouts('volume', {solid: 'square-pyramid'}).meshVolume).toBeCloseTo(21.3333, 4);
     });
 
+    it('draws the axial triangle of the pyramid, and the chord of a horizontal cut, only for the pyramid (SV2)', () => {
+        const lines = (solid: SolidsState['solid'], normal: [number, number, number], offset: number) =>
+            drawSolids(state({solid, normal, offset})).scene.polylines;
+        const triangle = lines('square-pyramid', [0, 0, 1], -4).find(p => p.id === 'axial')!;
+        expect(triangle.points).toEqual([[-2, 0, -2], [2, 0, -2], [0, 0, 2], [-2, 0, -2]]);
+        // z = -1 (height 1 above the base): the chord has half-width 3/2 (the section side is 3), and the cut square has area 9.
+        const chord = lines('square-pyramid', [0, 0, 1], -4).find(p => p.id === 'axial-chord')!;
+        expect(chord.points).toEqual([[-1.5, 0, -1], [1.5, 0, -1]]);
+        expect(lines('square-pyramid', [0, 0, -2], 0).find(p => p.id === 'axial-chord')!.points).toEqual([[-1, 0, 0], [1, 0, 0]]);
+        // A tilted plane and the planes at the base and the apex have no chord; the triangle stays.
+        for (const [n, D] of [[[1, 0, 1], 0], [[0, 0, 1], -8], [[0, 0, 1], 8], [[0, 0, 1], 12]] as Array<[[number, number, number], number]>) {
+            expect(lines('square-pyramid', n, D).some(p => p.id === 'axial')).toBe(true);
+            expect(lines('square-pyramid', n, D).some(p => p.id === 'axial-chord')).toBe(false);
+        }
+        expect(lines('cube', [0, 0, 1], 2).some(p => p.id.startsWith('axial'))).toBe(false);
+        assertFiniteScene(buildSolidsScene({...state({solid: 'square-pyramid', offset: -4}), camera: DEFAULT_SOLIDS_STATE.camera}, 1));
+    });
+
     it('never reports a heptagon in the cube, nor more than five sides in the pyramid', () => {
         let cubeMax = 0;
         let pyramidMax = 0;

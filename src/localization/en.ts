@@ -3851,6 +3851,7 @@ export const en: Record<keyof typeof sl, string> = {
     "solids_graph_caption_section": "Thick line: the edge of the section.",
     "solids_graph_caption_cut": "Dots: where the plane meets edges and vertices.",
     "solids_graph_caption_corner": "Numbers: the vertices of the solid.",
+    "solids_graph_caption_axial": "Triangle: the axial section of the pyramid, the plane through the apex and the centre of the base.",
     "solids_graph_caption_straight": "First solid: straight.",
     "solids_graph_caption_sheared": "Second solid: oblique, with equal slices.",
     "solids_graph_caption_cone": "Left solid: the cone.",

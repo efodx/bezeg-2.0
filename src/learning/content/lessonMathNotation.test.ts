@@ -39,6 +39,7 @@ import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLesso
 import {wavesSuperpositionLesson, wavesBeatsLesson} from './wavesGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
 import {bifurcationLesson, logisticMapLesson} from './phasePortraitsGuidedLessons';
+import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
 import {epicyclesGuidedLessons} from './epicyclesGuidedLessons';
@@ -106,6 +107,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
     ['phasePortraitsGuidedLessons', [logisticMapLesson, bifurcationLesson]],
+    ['solidsGuidedLessons', [cubeSectionsLesson, prismPyramidSectionsLesson]],
     ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
     ['epicyclesGuidedLessons', epicyclesGuidedLessons],
     ['probabilityGuidedLessons', probabilityGuidedLessons],
@@ -242,6 +244,7 @@ test('scans every lesson module', () => {
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
             'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP4 and PP5
+            'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5
             'lattice-paths', 'counting-tree', // combinatoricsGuidedLessons.ts: CB1 and CB2
             'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 and L2

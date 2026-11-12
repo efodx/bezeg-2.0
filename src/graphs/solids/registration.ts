@@ -3,13 +3,13 @@ import type {Definition} from '../../demonstrations';
 /**
  * Cheap metadata of the solids row of the analysis family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The row ships without a guided lesson (`lesson: false`) until the solids lessons land (families-prep F3).
+ * live in `collections.ts`. The row has its guided lessons (SV1, SV2, chapter-owned by the solids chapter).
  */
 export const solidsFamilyId = 'solids';
 
 /** The Demonstration rows, in catalog order; `demonstrations.ts` places them right after the dynamics rows in the analysis family. The main view is orbited. */
 export const solidsDemonstrationRows = [
-    {id: 'solids', path: '/bezeg-2.0/analysis/solids', family: 'analysis', title: 'solids_title', prompts: ['solids_prompt', 'prompt_compare'], view: 'surface', lesson: false},
+    {id: 'solids', path: '/bezeg-2.0/analysis/solids', family: 'analysis', title: 'solids_title', prompts: ['solids_prompt', 'prompt_compare'], view: 'surface'},
 ] as const satisfies readonly Definition[];
 
 export type SolidsDemonstrationId = typeof solidsDemonstrationRows[number]['id'];

@@ -31,6 +31,7 @@ import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry
 import {trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath, TRIGONOMETRY_CHAPTER_ID, type TrigonometrySectionId} from './trigonometryChapterRegistry';
 import {mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath, MECHANICAL_CURVES_CHAPTER_ID, type MechanicalCurvesSectionId} from './mechanicalCurvesChapterRegistry';
 import {wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath, WAVES_CHAPTER_ID, type WavesSectionId} from './wavesChapterRegistry';
+import {solidsGuidedExampleDemonstrations, solidsGuidedExampleLesson, solidsGuidedExamplePath, SOLIDS_CHAPTER_ID, type SolidsSectionId} from './solidsChapterRegistry';
 import {phasePortraitsGuidedExampleDemonstrations, phasePortraitsGuidedExampleLesson, phasePortraitsGuidedExamplePath, PHASE_PORTRAITS_CHAPTER_ID, type PhasePortraitsSectionId} from './phasePortraitsChapterRegistry';
 import {recursionGuidedExampleDemonstrations, recursionGuidedExampleLesson, recursionGuidedExamplePath, RECURSION_CHAPTER_ID, type RecursionSectionId} from './recursionChapterRegistry';
 import {levelSetsGuidedExampleDemonstrations, levelSetsGuidedExampleLesson, levelSetsGuidedExamplePath, LEVEL_SETS_CHAPTER_ID, type LevelSetsSectionId} from './levelSetsChapterRegistry';
@@ -113,6 +114,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [KINEMATICS_CHAPTER_ID]: lazyOwnedLessons<KinematicsSectionId>(kinematicsGuidedExampleDemonstrations, kinematicsGuidedExampleLesson, kinematicsGuidedExamplePath),
     [MECHANICAL_CURVES_CHAPTER_ID]: lazyOwnedLessons<MechanicalCurvesSectionId>(mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath),
     [WAVES_CHAPTER_ID]: lazyOwnedLessons<WavesSectionId>(wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath),
+    [SOLIDS_CHAPTER_ID]: lazyOwnedLessons<SolidsSectionId>(solidsGuidedExampleDemonstrations, solidsGuidedExampleLesson, solidsGuidedExamplePath),
     [PHASE_PORTRAITS_CHAPTER_ID]: lazyOwnedLessons<PhasePortraitsSectionId>(phasePortraitsGuidedExampleDemonstrations, phasePortraitsGuidedExampleLesson, phasePortraitsGuidedExamplePath),
     [RECURSION_CHAPTER_ID]: lazyOwnedLessons<RecursionSectionId>(recursionGuidedExampleDemonstrations, recursionGuidedExampleLesson, recursionGuidedExamplePath),
     [LEVEL_SETS_CHAPTER_ID]: lazyOwnedLessons<LevelSetsSectionId>(levelSetsGuidedExampleDemonstrations, levelSetsGuidedExampleLesson, levelSetsGuidedExamplePath),

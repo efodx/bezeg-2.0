@@ -62,6 +62,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'waves': {chapterId: 'waves', sectionId: 'superposition-and-phase'},
     // Recursion batch A: the sequence lesson (RG1) in the recursion chapter; the interest lesson (RG3) is the second owner, derived from the chapter.
     'recursion-growth': {chapterId: 'recursion', sectionId: 'sequences'},
+    // Solids batch A: the cube-sections lesson (SV1) in the solids chapter; the prism-and-pyramid lesson (SV2) is the second owner, derived from the chapter.
+    'solids': {chapterId: 'solids', sectionId: 'cube-sections'},
     // Phase portraits batch C: the logistic-map lesson (PP4) in the phase-portraits chapter; the bifurcation lesson (PP5) is the second owner, derived from the chapter.
     'logistic-map': {chapterId: 'phase-portraits', sectionId: 'logistic-map'},
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.

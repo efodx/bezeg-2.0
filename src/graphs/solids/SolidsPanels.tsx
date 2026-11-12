@@ -84,16 +84,19 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
 
 const fmt = (value: number, digits: number) => formatNumber(value, currentLanguage(), digits);
 
-type CaptionKey = 'solids_graph_caption_kept' | 'solids_graph_caption_plane' | 'solids_graph_caption_section' | 'solids_graph_caption_cut' | 'solids_graph_caption_corner'
+type CaptionKey = 'solids_graph_caption_kept' | 'solids_graph_caption_plane' | 'solids_graph_caption_section' | 'solids_graph_caption_cut' | 'solids_graph_caption_corner' | 'solids_graph_caption_axial'
     | 'solids_graph_caption_straight' | 'solids_graph_caption_sheared' | 'solids_graph_caption_cone' | 'solids_graph_caption_cylinder' | 'solids_graph_caption_slabs'
     | 'solids_graph_caption_cursor' | 'solids_graph_caption_solid' | 'solids_graph_caption_profile' | 'solids_graph_caption_axis' | 'solids_graph_caption_discs';
 
+/** The axial triangle is drawn only for the pyramid (solidsScene `axialSection`), in every section state. */
+const axialCaption = (solid: SolidId): readonly CaptionKey[] => solid === 'square-pyramid' ? ['solids_graph_caption_axial'] : [];
+
 /** What the view draws, in words: one caption for every element the readouts and the view name. */
-function captionKeys(mode: SolidsMode, readouts: SolidsReadouts): readonly CaptionKey[] {
+function captionKeys(mode: SolidsMode, solid: SolidId, readouts: SolidsReadouts): readonly CaptionKey[] {
     switch (mode) {
         case 'section': return readouts.mode === 'section' && readouts.kind === 'empty'
-            ? ['solids_graph_caption_kept', 'solids_graph_caption_plane', 'solids_graph_caption_corner'] // no section edge and no cut points are drawn
-            : ['solids_graph_caption_kept', 'solids_graph_caption_plane', 'solids_graph_caption_section', 'solids_graph_caption_cut', 'solids_graph_caption_corner'];
+            ? ['solids_graph_caption_kept', 'solids_graph_caption_plane', 'solids_graph_caption_corner', ...axialCaption(solid)] // no section edge and no cut points are drawn
+            : ['solids_graph_caption_kept', 'solids_graph_caption_plane', 'solids_graph_caption_section', 'solids_graph_caption_cut', 'solids_graph_caption_corner', ...axialCaption(solid)];
         case 'stack': return readouts.mode === 'stack' && readouts.pair === 'failing'
             ? ['solids_graph_caption_cone', 'solids_graph_caption_cylinder', 'solids_graph_caption_slabs', 'solids_graph_caption_cursor']
             : ['solids_graph_caption_straight', 'solids_graph_caption_sheared', 'solids_graph_caption_slabs', 'solids_graph_caption_cursor'];
@@ -178,7 +181,7 @@ export function SolidsReadoutPanel({mode, solid, readouts}: {mode: SolidsMode; s
     return <>
         <FunctionReadout title={t('solids_graph_readout_heading')} rows={rows} note={notes}/>
         <div className="inspector-group" data-solids-captions=""><h3>{t('solids_graph_captions_heading')}</h3>
-            <ul>{captionKeys(mode, readouts).map(key => <li key={key} data-caption={key}>{t(key)}</li>)}</ul>
+            <ul>{captionKeys(mode, solid, readouts).map(key => <li key={key} data-caption={key}>{t(key)}</li>)}</ul>
         </div>
         <LiveReadout readout={live} dataAttribute="solids-live"/>
     </>;

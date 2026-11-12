@@ -146,6 +146,31 @@ const vertexLabels = (solid: Solid): SceneLabel[] =>
 const cornerOf = (point: CutPoint): SectionCorner =>
     point.kind === 'vertex' ? {kind: 'vertex', vertices: [point.vertex]} : {kind: 'edge', vertices: [point.a, point.b]};
 
+/**
+ * SV2 acceptance 5: the section of the square pyramid by the plane y = 0 (through the axis, parallel to a base edge) is the triangle of
+ * the apex and the two base points on that plane, drawn so that similarity is seen and not asserted. When the cutting plane is
+ * horizontal and strictly between base and apex, the chord where it meets this triangle is drawn too: it is parallel to the base side
+ * of the triangle, so it cuts off a similar smaller triangle.
+ */
+export function axialSection(solid: Solid, normal: readonly [number, number, number], offset: number): ScenePolyline[] {
+    const b = boundsOf(solid);
+    const apexZ = b.max[2];
+    const baseZ = b.min[2];
+    const half = b.max[0];
+    const triangle: ScenePolyline = {
+        id: 'axial', role: 'construction', points: [[-half, 0, baseZ], [half, 0, baseZ], [0, 0, apexZ], [-half, 0, baseZ]],
+    };
+    const out: ScenePolyline[] = [triangle];
+    if (normal[0] === 0 && normal[1] === 0) {
+        const z = offsetOf(offset) / normal[2] + 0; // + 0: no -0 in the drawn points
+        if (z > baseZ && z < apexZ) {
+            const w = half * (apexZ - z) / (apexZ - baseZ);
+            out.push({id: 'axial-chord', role: 'construction-2', points: [[-w, 0, z], [w, 0, z]]});
+        }
+    }
+    return out;
+}
+
 function drawSection(s: SolidsGeometry): SolidsDrawing {
     const solid = gridSolid(s.solid);
     if (!solid) throw new RangeError(`The solid ${s.solid} has no plane section`);
@@ -173,6 +198,7 @@ function drawSection(s: SolidsGeometry): SolidsDrawing {
         loop.forEach((p, i) => markers.push({id: `cut-${i}`, xyz: xyzOf(p.xyz), role: 'construction'}));
         polylines.push({id: 'section', role: 'highlight', points: [...loop, loop[0]].map(p => xyzOf(p.xyz))});
     }
+    if (s.solid === 'square-pyramid') polylines.push(...axialSection(solid, s.normal, s.offset));
     const b = boundsOf(solid);
     const solids = kept ? [kept] : [];
     const plane = planeQuad(solid, s.normal, s.offset);

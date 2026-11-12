@@ -38,6 +38,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     interpolation: {demonstration: 'interp-lagrange', alt: {sl: 'Lagrangeev polinom skozi štiri točke, ki zapusti ovojnico točk, in Bézierjeva krivulja, ki ostane v njej.', en: 'A Lagrange polynomial through four points leaving their hull, and a Bézier curve staying inside it.'}},
     'level-sets': {demonstration: 'linear-program', alt: {sl: 'Dopustno območje v ravnini s štirimi oglišči in premica cilja, ki drsi čez območje do zadnjega oglišča.', en: 'A feasible region in the plane with four vertices and the objective line sliding across it to the last vertex.'}},
     randomness: {demonstration: 'prob-simulation', alt: {sl: 'Galtonova deska z desetimi vrstami klinov: kopica kroglic v enajstih predalih in stolpci zakona.', en: 'A Galton board with ten rows of pegs: the heap of balls in eleven slots and the bars of the law.'}},
+    'solids': {demonstration: 'solids', alt: {sl: 'Kocka, prerezana z ravnino, z izrisanim presekom.', en: 'A cube cut by a plane, with the section drawn.'}},
     'phase-portraits': {demonstration: 'logistic-map', alt: {sl: 'Parabola logistične preslikave pri parametru 2,9, diagonala in izhodišče pajkove mreže z začetkom 0,2.', en: 'The parabola of the logistic map at the parameter 2.9, the diagonal and the start of the cobweb at 0.2.'}},
     recursion: {demonstration: 'recursion-growth', alt: {sl: 'Graf prvih členov aritmetičnega zaporedja z začetnim členom 3 in razliko 2 ter odčitka člena in vsote.', en: 'A graph of the first terms of an arithmetic sequence with first term 3 and difference 2, and the readouts of the term and the sum.'}},
     waves: {demonstration: 'waves', alt: {sl: 'Dva kosinusna vala in njuna vsota na skupnem grafu s kazalci.', en: 'Two cosine waves and their sum on one graph with phasors.'}},
@@ -56,7 +57,7 @@ export const learningStrands: readonly {id: string; title: LocalizedText; chapte
     {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps', 'isometries']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms']},
     {id: 'plane-geometry', title: {sl: 'Geometrija ravnine', en: 'Plane geometry'}, chapters: ['triangle-geometry', 'analytic-lines', 'circle-geometry', 'projective-conics']},
-    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'trigonometry', 'analysis', 'recursion', 'phase-portraits', 'numerical-methods', 'level-sets', 'fourier-series', 'waves', 'combinatorics', 'probability', 'randomness']},
+    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'trigonometry', 'analysis', 'solids', 'recursion', 'phase-portraits', 'numerical-methods', 'level-sets', 'fourier-series', 'waves', 'combinatorics', 'probability', 'randomness']},
 ];
 
 function chapterOutline(chapterId: string, language: LessonLanguage) {
