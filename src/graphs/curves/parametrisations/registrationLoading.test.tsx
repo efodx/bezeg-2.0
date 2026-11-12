@@ -13,7 +13,7 @@ const mark = (name: string, exports: object) => { evaluated.push(name); return e
 vi.mock('./SplineAlphaParametrizationGraph', () => mark('SplineAlphaParametrizationGraph', {default: class SplineAlphaParametrizationGraph {}}));
 vi.mock('./AlphaParamBezierCurveGraph', () => mark('AlphaParamBezierCurveGraph', {default: class AlphaParamBezierCurveGraph {}}));
 vi.mock('./UniformParamBezierCurveGraph', () => mark('UniformParamBezierCurveGraph', {default: class UniformParamBezierCurveGraph {}}));
-vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {'linear-function': () => ({})}}));
+vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {'orientation': () => ({})}}));
 vi.mock('../../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -55,7 +55,7 @@ describe('module evaluation', () => {
     });
 
     test('a legacy route still resolves through the legacy table', async () => {
-        const route = await routeFor('/bezeg-2.0/functions/linear');
+        const route = await routeFor('/bezeg-2.0/compgeo/orientation');
         await route.lazy!();
         expect(evaluated).toContain('graphFactories');
         expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);
