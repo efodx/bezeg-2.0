@@ -21,7 +21,7 @@ import {circleTangentsLesson, circleRadicalLesson} from './circleGeometryGuidedL
 import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson} from './mechanicalCurvesGuidedLessons';
 import {kinematicsVectorsLesson, kinematicsSpeedLesson} from './kinematicsGuidedLessons';
 import {latticePathsLesson, countingTreeLesson} from './combinatoricsGuidedLessons';
-import {isometryClassifyLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
+import {isometryClassifyLesson, isometryDilationLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
 import {schoolFunctionGraphsGuidedLessons} from './schoolFunctionGraphsGuidedLessons';
 import {schoolFunctionGraphsBatchBGuidedLessons} from './schoolFunctionGraphsBatchBGuidedLessons';
 import {schoolFunctionGraphsBatchCGuidedLessons} from './schoolFunctionGraphsBatchCGuidedLessons';
@@ -92,7 +92,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson]],
     ['mechanicalCurvesGuidedLessons', [mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson]],
     ['combinatoricsGuidedLessons', [latticePathsLesson, countingTreeLesson]],
-    ['isometriesGuidedLessons', [isometryTwoMirrorsLesson, isometryClassifyLesson]],
+    ['isometriesGuidedLessons', [isometryTwoMirrorsLesson, isometryClassifyLesson, isometryDilationLesson]],
     ['coonsGuidedLessons', coonsGuidedLessons],
     ['degreeReductionGuidedLessons', degreeReductionGuidedLessons],
     ['arcLengthGuidedLessons', arcLengthGuidedLessons],
@@ -250,7 +250,7 @@ test('scans every lesson module', () => {
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5
             'lattice-paths', 'counting-tree', // combinatoricsGuidedLessons.ts: CB1 and CB2
-            'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 and L2
+            'isometries', 'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 to L3
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
             'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal', 'bspline-blossom', 'patch-coons', 'reduction', 'arc-length-param', 'bezier-clipping', 'fourier-series', 'fourier-coefficients', 'epicycles', 'projective-cross-ratio', 'bspline-basis', 'projective-pascal', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'bspline-nurbs', 'projective-pole-polar', 'projective-five-point', 'projective-three-views', 'interp-runge', 'interp-least-squares', 'quadrature', 'euler-method', 'prob-density', 'monotone-partition', 'monotone-triangulation', 'fortune', 'prob-binomial-normal', 'prob-clt', 'prob-summary', 'prob-correlation', 'point-in-polygon', 'hull-robustness', 'bezier-hulls', 'curve-comb', 'curve-evolute', 'curve-offset', 'curve-envelope'].sort(),
     );

@@ -110,6 +110,11 @@ The static document initially declares Slovenian, and runtime selection updates 
 | vrtež | rotation about a centre; L1, L2 |
 | zrcalni zdrs | glide reflection (reflection and translation along the axis); L2 |
 | negibna točka | fixed point of a map; L2 |
+| središčni razteg | central dilation (homothety) with a centre and a ratio *k*; isometries L3. Not in the README term table: descriptive term chosen by the content worker, handler-unreviewed |
+| razmerje raztega | ratio *k* of a dilation (a multiple of 1/4 in the lesson); L3, handler-unreviewed |
+| podobnost | similarity, a dilation composed with an isometry (keeps angles and ratios of lengths); L3, handler-unreviewed |
+| razmerje dolžin; razmerje ploščin | ratio of lengths (|k|); ratio of areas (k squared) of image and motif; L3, handler-unreviewed |
+| polobrat | half-turn, a rotation by 180 degrees (dilation with k = -1); L3, handler-unreviewed |
 | potenčna premica; potenčno središče | radical axis; radical centre (CG1, CG2). Built on the existing *potenca*; glossed on first use, unreviewed |
 | Talesova krožnica | Thales circle, the circle over a diameter (CG1). From the existing *Talesov izrek* |
 | tetiva dotikališč | chord of contact, the segment joining the two points of contact (CG1). Built on *tetiva* and *točka dotika* |

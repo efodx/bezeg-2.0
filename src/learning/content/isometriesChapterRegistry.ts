@@ -2,14 +2,15 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {isometryClassifyLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
+import {isometryClassifyLesson, isometryDilationLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
 
 export const ISOMETRIES_CHAPTER_ID = 'isometries';
 
-/** Section id to the Demonstration of its activity (spec L1, L2: two sections on one Demonstration, in teaching order). Section ids are those of isometriesChapter.ts. */
+/** Section id to the Demonstration of its activity (spec L1 to L3: three sections on one Demonstration, in teaching order). Section ids are those of isometriesChapter.ts. */
 export const isometriesGuidedExampleDemonstrations = {
     'two-mirrors': 'isometries',
     'classifying-a-motion': 'isometries',
+    'dilation-similarity': 'isometries',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type IsometriesSectionId = keyof typeof isometriesGuidedExampleDemonstrations;
@@ -18,6 +19,7 @@ export type IsometriesSectionId = keyof typeof isometriesGuidedExampleDemonstrat
 const sectionContent = {
     'two-mirrors': {id: 'isometries-two-mirrors', content: () => isometryTwoMirrorsLesson},
     'classifying-a-motion': {id: 'isometries-classify', content: () => isometryClassifyLesson},
+    'dilation-similarity': {id: 'isometries-dilation', content: () => isometryDilationLesson},
 } as const;
 
 const adapted = new Map<IsometriesSectionId, LessonDefinition>();

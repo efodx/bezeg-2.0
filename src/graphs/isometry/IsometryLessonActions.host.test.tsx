@@ -128,3 +128,74 @@ test('the graph supports the isometry actions; invalid scene data is a lesson-co
     for (const action of bad) expect(() => apply(graph, action)).toThrow();
     expect(stateOf(graph)).toEqual(before);
 });
+
+type Dilation = Extract<LessonAction, {kind: 'isometry'; operation: 'set-dilation'}>;
+const setDilation = (fields: Omit<Dilation, 'kind' | 'operation'>): LessonAction => ({kind: 'isometry', operation: 'set-dilation', ...fields});
+
+test('set-dilation reaches the state and readouts of the centre, ratio and turn fields (L3 scenes)', () => {
+    const viaAction = after(graph => {
+        apply(graph, setMode('similarity'));
+        apply(graph, setDilation({centre: {x: 2, y: -1}, k: -0.5, turn: 'pythagorean'}));
+    });
+    const viaControl = after(() => {
+        choose('Način', 'similarity');
+        type('Središče raztega: x', '2'); type('Središče raztega: y', '-1');
+        type('Razmerje k', '-0.5');
+        choose('Vrtež okoli središča', 'pythagorean');
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state.dilationCentre).toEqual({x: 2, y: -1});
+    expect(viaAction.state.dilationK).toBe(-0.5);
+    expect(viaAction.state.dilationTurn).toBe('pythagorean');
+    expect(viaAction.readouts.length).toBeGreaterThan(0);
+});
+
+test('set-dilation writes only the fields it names and nothing when the value is unchanged', () => {
+    const graph = mount();
+    apply(graph, setMode('similarity'));
+    const start = graph.state;
+    apply(graph, setDilation({k: 1.5, centre: {x: 1, y: 1}, turn: 'r0'}));
+    expect(graph.state).toBe(start);
+    apply(graph, setDilation({k: 2}));
+    expect(graph.state).not.toBe(start);
+    expect(graph.state.dilationK).toBe(2);
+    expect(graph.state.dilationCentre).toEqual(start.dilationCentre);
+    expect(graph.state.dilationTurn).toBe(start.dilationTurn);
+    const afterK = graph.state;
+    apply(graph, setDilation({k: 2}));
+    expect(graph.state).toBe(afterK);
+});
+
+test('set-dilation in one synchronous sequence: each action reads the state the earlier one wrote', () => {
+    const graph = mount();
+    act(() => {
+        const capabilities = graph.getLessonCapabilities();
+        capabilities.apply(setMode('similarity'));
+        capabilities.apply(setDilation({centre: {x: 0, y: 0}}));
+        capabilities.apply(setDilation({k: -1}));
+        capabilities.apply(setDilation({turn: 'r90'}));
+    });
+    expect(graph.state.mode).toBe('similarity');
+    expect(graph.state.dilationCentre).toEqual({x: 0, y: 0});
+    expect(graph.state.dilationK).toBe(-1);
+    expect(graph.state.dilationTurn).toBe('r90');
+});
+
+test('the graph supports set-dilation; invalid data is a lesson-content error and changes nothing', () => {
+    const graph = mount();
+    expect(graph.supportsLessonAction(setDilation({k: 2}))).toBe(true);
+    const before = stateOf(graph);
+    const bad: LessonAction[] = [
+        setDilation({}),
+        setDilation({k: 0}), setDilation({k: 0.1}), setDilation({k: 4.25}), setDilation({k: -5}), setDilation({k: 0.3}),
+        setDilation({k: Number.NaN}), setDilation({k: JSON.parse('"2"')}),
+        setDilation({turn: JSON.parse('"r45"')}), setDilation({turn: JSON.parse('7')}),
+        setDilation({centre: {x: 17, y: 0}}), setDilation({centre: {x: 0, y: 0.5}}), setDilation({centre: JSON.parse('{"x":"1","y":1}')}),
+        setDilation({centre: JSON.parse('{"x":1}')}),
+        // A valid field before an invalid one must not be written.
+        setDilation({centre: {x: 3, y: 3}, k: 0}),
+        setDilation({centre: {x: 3, y: 3}, k: 2, turn: JSON.parse('"spin"')}),
+    ];
+    for (const action of bad) expect(() => apply(graph, action)).toThrow();
+    expect(stateOf(graph)).toEqual(before);
+});

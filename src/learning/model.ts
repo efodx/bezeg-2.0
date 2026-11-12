@@ -408,9 +408,11 @@ export type LessonAction =
     | {readonly kind: 'lines'; readonly operation: 'set-mode'; readonly mode: 'forms' | 'normal' | 'angle' | 'distance' | 'intersect'}
     | {readonly kind: 'lines'; readonly operation: 'set-points'; readonly points: Readonly<Partial<Record<'P' | 'Q' | 'R' | 'S' | 'T' | 'O' | 'B', {readonly x: number; readonly y: number}>>>}
     /**
-     * IsometryGraph's scene actions (isometries L1, L2; later lessons add `set-dilation`, `set-frieze`). `set-mode` is the mode select, `set-mirror-count` the
+     * IsometryGraph's scene actions (isometries L1 to L3; later lessons add `set-frieze`). `set-mode` is the mode select, `set-mirror-count` the
      * number-of-mirrors field of the classify mode (1 to 3) and `set-mirrors` the coordinate fields of whole mirrors `1`, `2`, `3`, each two distinct integer
-     * grid points `p`, `q` in [-16, 16]. Anything else is a lesson-content error and is never snapped; each action is validated before its write.
+     * grid points `p`, `q` in [-16, 16]. `set-dilation` writes any of the similarity mode's fields: the centre (an integer grid point in [-16, 16]), the ratio
+     * `k` (a multiple of 1/4 with 1/4 <= |k| <= 4) and the `turn` about the centre (one of the model's six turns); at least one is named. Anything else is
+     * a lesson-content error and is never snapped; each action is validated before its write.
      */
     | {readonly kind: 'isometry'; readonly operation: 'set-mode'; readonly mode: 'mirrors' | 'classify' | 'similarity' | 'rosette' | 'frieze'}
     | {readonly kind: 'isometry'; readonly operation: 'set-mirror-count'; readonly count: 1 | 2 | 3}
@@ -420,6 +422,12 @@ export type LessonAction =
             readonly p: {readonly x: number; readonly y: number};
             readonly q: {readonly x: number; readonly y: number};
         }>>>;
+    }
+    | {
+        readonly kind: 'isometry'; readonly operation: 'set-dilation';
+        readonly centre?: {readonly x: number; readonly y: number};
+        readonly k?: number;
+        readonly turn?: 'r0' | 'r90' | 'r180' | 'r270' | 'pythagorean' | 'pythagoreanInverse';
     }
     /**
      * CircleConstructionGraph's scene actions (circle-geometry CG1, CG2; CG3 and CG4 extend the union). `set-mode` is the construction select and loads

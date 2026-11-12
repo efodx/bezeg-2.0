@@ -13,7 +13,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | [03 State model and isometry graph](03-isometry-graph.md) | A–C | F2a | none | 01, 02 | done |
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 (accepted) | 03 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md)); F3–F6 next; split into 05–07 on 2026-11-12 |
 | [05 Batch A lessons](05-batch-a-lessons.md) | A | F3–F6 | 04 | 03 | F3 done 2026-11-12 (L1, L2; chapter skeleton); F4–F6 next |
-| [06 Batch B lessons](06-batch-b-lessons.md) | B | F3–F6 | 05 | 03 | not started |
+| [06 Batch B lessons](06-batch-b-lessons.md) | B | F3–F6 | 05 | 03 | F3 done 2026-11-12 (L3); F4–F6 next |
 | [07 Batch C lessons](07-batch-c-lessons.md) | C | F3–F6 | 06 | 03 | not started |
 
 ## Slovenian terms (F0 decision)

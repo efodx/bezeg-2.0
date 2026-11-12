@@ -1,8 +1,8 @@
 /**
- * Guided lessons of the isometries family, batch A (docs/specs/isometries-lessons.md): L1, two mirrors, and L2, classifying a motion, both on
+ * Guided lessons of the isometries family, batches A and B (docs/specs/isometries-lessons.md): L1, two mirrors, L2, classifying a motion, and L3, central dilation and similarity, all on
  * `isometries` (IsometryGraph). Each is the lesson of one section of the isometries chapter (isometriesChapterRegistry.ts adapts them on request;
  * the lesson catalog itself holds none, as it keeps one lesson per Demonstration). Scenes use only the `isometry` action IsometryGraph registers
- * (`set-mode`, `set-mirror-count`, `set-mirrors`) and every scene starts from the Demonstration default and names the mode and every mirror it states. `isometriesGuidedLessons.test.ts`
+ * (`set-mode`, `set-mirror-count`, `set-mirrors`, `set-dilation`) and every scene starts from the Demonstration default and names the mode and every mirror it states. `isometriesGuidedLessons.test.ts`
  * reads each number the text quotes back from the real graph's readouts and recomputes it with plain integer arithmetic (not the isometry kernel).
  */
 import type {LessonAction} from '../model';
@@ -327,6 +327,144 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- L3 --------------------------------------------------------------------------------------------------------------------------
+
+/** What an L3 scene sets: the dilation centre, the ratio `k` and the turn about the centre; the motif is the Demonstration's triangle (0,0), (4,0), (0,3). */
+export interface IsometryDilationSceneSpec {
+    readonly centre: readonly [x: number, y: number];
+    readonly k: number;
+    readonly turn: 'r0' | 'pythagorean';
+}
+
+/** The actions of an L3 scene: the Demonstration default, `set-mode` similarity, then `set-dilation` naming the centre, the ratio and the turn. */
+export const isometryDilationSceneActions = (id: string, spec: IsometryDilationSceneSpec): LessonAction[] => [
+    {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+    {kind: 'isometry', operation: 'set-mode', mode: 'similarity'},
+    {kind: 'isometry', operation: 'set-dilation', centre: {x: spec.centre[0], y: spec.centre[1]}, k: spec.k, turn: spec.turn},
+];
+
+const dilationScene = (id: string, spec: IsometryDilationSceneSpec, sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', actions: isometryDilationSceneActions(id, spec), expectedState: text(sl, en)});
+
+const l3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'dilation',
+        latex: 'P\'=C+k\\,(P-C)',
+        notation: text(
+            '\\(C\\) je središče raztega, \\(k\\) razmerje, \\(P\\) točka in \\(P\'\\) njena slika.',
+            '\\(C\\) is the centre of the dilation, \\(k\\) the ratio, \\(P\\) a point and \\(P\'\\) its image.',
+        ),
+        explanation: text(
+            'Definicija: središčni razteg s središčem \\(C\\) in razmerjem \\(k\\) pošlje točko \\(P\\) v točko \\(P\'\\) na premici \\(CP\\), tako da je \\(\\overrightarrow{CP\'}=k\\,\\overrightarrow{CP}\\). Središče je negibno. Razmerje je večkratnik števila \\(1/4\\) z \\(0<|k|\\le4\\).',
+            'Definition: the central dilation with centre \\(C\\) and ratio \\(k\\) sends a point \\(P\\) to the point \\(P\'\\) on the line \\(CP\\) with \\(\\overrightarrow{CP\'}=k\\,\\overrightarrow{CP}\\). The centre is fixed. The ratio is a multiple of \\(1/4\\) with \\(0<|k|\\le4\\).',
+        ),
+    },
+    {
+        id: 'similarity',
+        latex: 'P\'=C+A\\,(P-C),\\qquad A=k\\begin{pmatrix}\\cos\\varphi&-\\sin\\varphi\\\\\\sin\\varphi&\\cos\\varphi\\end{pmatrix}',
+        notation: text(
+            '\\(\\varphi\\) je kot vrtenja okoli središča \\(C\\); matrika \\(A\\) je razteg z \\(k\\), ki mu sledi vrtež.',
+            '\\(\\varphi\\) is the angle of the rotation about the centre \\(C\\); the matrix \\(A\\) is the dilation by \\(k\\) followed by the rotation.',
+        ),
+        explanation: text(
+            'Definicija: podobnost je razteg, sestavljen z izometrijo. Tukaj je izometrija vrtež okoli središča raztega. Podobnost ohrani kote in razmerja dolžin, dolžine pomnoži z \\(|k|\\), ploščine pa s \\(k^2\\).',
+            'Definition: a similarity is a dilation composed with an isometry. Here the isometry is a rotation about the centre of the dilation. A similarity keeps angles and ratios of lengths, multiplies lengths by \\(|k|\\) and areas by \\(k^2\\).',
+        ),
+    },
+];
+
+const l3Examples: readonly WorkedExample[] = [
+    {
+        id: 'l3-similarity-vertex',
+        title: text('Slika oglišča \\((0,0)\\) pri podobnosti', 'The image of the vertex \\((0,0)\\) under the similarity'),
+        calculationLatex: 'A=\\begin{pmatrix}\\tfrac9{10}&-\\tfrac65\\\\\\tfrac65&\\tfrac9{10}\\end{pmatrix},\\ \\ A\\begin{pmatrix}-1\\\\-1\\end{pmatrix}=\\begin{pmatrix}-\\tfrac9{10}+\\tfrac65\\\\-\\tfrac65-\\tfrac9{10}\\end{pmatrix}=\\begin{pmatrix}\\tfrac3{10}\\\\-\\tfrac{21}{10}\\end{pmatrix}',
+        resultLatex: '(\\tfrac{13}{10},-\\tfrac{11}{10})',
+        check: text(
+            'Središče je \\(C=(1,1)\\), zato je \\(P-C=(-1,-1)\\); \\(A=\\tfrac32\\cdot\\tfrac15\\begin{pmatrix}3&-4\\\\4&3\\end{pmatrix}\\). Slika je \\(C+A(P-C)=(1+\\tfrac3{10},1-\\tfrac{21}{10})\\). Preverek: dolžina \\(|P-C|=\\sqrt2\\) se pomnoži s \\(\\tfrac32\\), saj je \\(\\tfrac9{100}+\\tfrac{441}{100}=\\tfrac{450}{100}=\\tfrac92=\\bigl(\\tfrac32\\bigr)^2\\cdot2\\).',
+            'The centre is \\(C=(1,1)\\), so \\(P-C=(-1,-1)\\); \\(A=\\tfrac32\\cdot\\tfrac15\\begin{pmatrix}3&-4\\\\4&3\\end{pmatrix}\\). The image is \\(C+A(P-C)=(1+\\tfrac3{10},1-\\tfrac{21}{10})\\). Check: the length \\(|P-C|=\\sqrt2\\) is multiplied by \\(\\tfrac32\\), since \\(\\tfrac9{100}+\\tfrac{441}{100}=\\tfrac{450}{100}=\\tfrac92=\\bigl(\\tfrac32\\bigr)^2\\cdot2\\).',
+        ),
+    },
+];
+
+const l3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'l3-image', order: 1,
+        title: text('Napoved slike oglišča', 'Predicting the image of a vertex'),
+        purpose: text('Napovedati sliko oglišča pri raztegu, preden jo odčitamo.', 'Predicting the image of a vertex under a dilation before reading it.'),
+        explanation: text(
+            'Lik je trikotnik z oglišči \\((0,0)\\), \\((4,0)\\), \\((0,3)\\), oglišča si sledijo v nasprotni smeri urnega kazalca. Središče raztega je \\(C=(1,1)\\), razmerje \\(k=\\tfrac32\\). Preden prebereš odčitek, napovej sliko prvega oglišča \\((0,0)\\) po formuli \\(P\'=C+k\\,(P-C)\\).',
+            'The motif is the triangle with vertices \\((0,0)\\), \\((4,0)\\), \\((0,3)\\), listed counterclockwise. The centre of the dilation is \\(C=(1,1)\\), the ratio \\(k=\\tfrac32\\). Before reading the readout, predict the image of the first vertex \\((0,0)\\) with the formula \\(P\'=C+k\\,(P-C)\\).',
+        ),
+        formulaIds: ['dilation'],
+        observationPrompt: text('Zapiši svojo napoved in jo primerjaj z vrstico slike oglišča 1.', 'Write down your prediction and compare it with the row of the image of vertex 1.'),
+        expectedObservations: [text('Slika oglišča \\((0,0)\\) je \\((-\\tfrac12,-\\tfrac12)\\); negibna točka je središče \\((1,1)\\).', 'The image of the vertex \\((0,0)\\) is \\((-\\tfrac12,-\\tfrac12)\\); the fixed point is the centre \\((1,1)\\).')],
+        scene: dilationScene('l3-image-scene', {centre: [1, 1], k: 1.5, turn: 'r0'},
+            'Središče \\((1,1)\\), \\(k=\\tfrac32\\), brez vrtenja; slika oglišča 1 je \\((-\\tfrac12,-\\tfrac12)\\), negibna točka \\((1,1)\\).',
+            'Centre \\((1,1)\\), \\(k=\\tfrac32\\), no turn; the image of vertex 1 is \\((-\\tfrac12,-\\tfrac12)\\), the fixed point \\((1,1)\\).'),
+    }),
+    step({
+        id: 'l3-ratio', order: 2,
+        title: text('Razmerje \\(k\\) in ploščine', 'The ratio \\(k\\) and the areas'),
+        purpose: text('Videti, kako razteg spremeni dolžine in ploščine.', 'Seeing how a dilation changes lengths and areas.'),
+        explanation: text(
+            'Razteg dolžine pomnoži z \\(|k|\\) in ohrani kote, zato je podoben lik enake oblike. Zdaj je \\(k=3\\), središče je še vedno \\((1,1)\\); poskusi tudi druge vrednosti \\(k\\) v polju za razmerje. Preden prebereš odčitek, napovej, s čim se pomnoži ploščina trikotnika.',
+            'A dilation multiplies lengths by \\(|k|\\) and keeps angles, so the image has the same shape. Now \\(k=3\\), the centre is still \\((1,1)\\); also try other values of \\(k\\) in the ratio field. Before reading the readout, predict what the area of the triangle is multiplied by.',
+        ),
+        formulaIds: ['dilation'],
+        observationPrompt: text('Zapiši napoved, nato preberi razmerje dolžin, razmerje ploščin in obe ploščini.', 'Write down your prediction, then read the ratio of lengths, the ratio of areas and both areas.'),
+        expectedObservations: [text('Razmerje dolžin je \\(3\\), razmerje ploščin \\(9\\), ploščina \\(6\\) postane \\(54\\); izometrija: ne.', 'The ratio of lengths is \\(3\\), the ratio of areas \\(9\\), the area \\(6\\) becomes \\(54\\); isometry: no.')],
+        scene: dilationScene('l3-ratio-scene', {centre: [1, 1], k: 3, turn: 'r0'},
+            'Središče \\((1,1)\\), \\(k=3\\); razmerje dolžin \\(3\\), razmerje ploščin \\(9\\), ploščina \\(6\\mapsto54\\), izometrija ne.',
+            'Centre \\((1,1)\\), \\(k=3\\); ratio of lengths \\(3\\), ratio of areas \\(9\\), area \\(6\\mapsto54\\), isometry no.'),
+    }),
+    step({
+        id: 'l3-negative', order: 3,
+        title: text('Negativno razmerje', 'A negative ratio'),
+        purpose: text('Videti, kam gre slika pri negativnem \\(k\\) in kaj se zgodi z orientacijo.', 'Seeing where the image goes for a negative \\(k\\) and what happens to the orientation.'),
+        explanation: text(
+            'Zdaj je \\(k=-\\tfrac12\\), središče je \\((1,1)\\), formula je ista, \\(P\'=C+k\\,(P-C)\\). Preden prebereš odčitek, napovej sliko prvega oglišča \\((0,0)\\) in ali slika ohrani orientacijo trikotnika.',
+            'Now \\(k=-\\tfrac12\\), the centre is \\((1,1)\\), the formula is the same, \\(P\'=C+k\\,(P-C)\\). Before reading the readout, predict the image of the first vertex \\((0,0)\\) and whether the image keeps the orientation of the triangle.',
+        ),
+        formulaIds: ['dilation'],
+        observationPrompt: text('Zapiši napoved, nato preberi sliko oglišča 1, razmerje dolžin in orientacijo.', 'Write down your prediction, then read the image of vertex 1, the ratio of lengths and the orientation.'),
+        expectedObservations: [text('Slika oglišča \\((0,0)\\) je \\((\\tfrac32,\\tfrac32)\\), na drugi strani središča; razmerje dolžin je \\(\\tfrac12\\), razmerje ploščin \\(\\tfrac14\\), orientacija je ohranjena. Negativno razmerje je razteg z \\(|k|\\), ki mu sledi polobrat okoli središča, vrtež pa orientacije ne obrne.', 'The image of the vertex \\((0,0)\\) is \\((\\tfrac32,\\tfrac32)\\), on the other side of the centre; the ratio of lengths is \\(\\tfrac12\\), the ratio of areas \\(\\tfrac14\\), the orientation is kept. A negative ratio is a dilation by \\(|k|\\) followed by a half-turn about the centre, and a rotation does not reverse the orientation.')],
+        scene: dilationScene('l3-negative-scene', {centre: [1, 1], k: -0.5, turn: 'r0'},
+            'Središče \\((1,1)\\), \\(k=-\\tfrac12\\); slika oglišča 1 je \\((\\tfrac32,\\tfrac32)\\), razmerje dolžin \\(\\tfrac12\\), razmerje ploščin \\(\\tfrac14\\), orientacija ohranjena.',
+            'Centre \\((1,1)\\), \\(k=-\\tfrac12\\); the image of vertex 1 is \\((\\tfrac32,\\tfrac32)\\), ratio of lengths \\(\\tfrac12\\), ratio of areas \\(\\tfrac14\\), orientation kept.'),
+    }),
+    step({
+        id: 'l3-similarity', order: 4,
+        title: text('Razteg in vrtež sta podobnost', 'A dilation and a rotation make a similarity'),
+        purpose: text('Videti, kaj se zgodi z negibno točko, ko raztegu dodamo vrtež okoli središča.', 'Seeing what happens to the fixed point when a rotation about the centre is added to the dilation.'),
+        explanation: text(
+            'Raztegu z \\(k=\\tfrac32\\) in središčem \\((1,1)\\) dodamo vrtež okoli središča s kosinusom \\(\\tfrac35\\) in sinusom \\(\\tfrac45\\). Dobimo podobnost z matriko \\(A=\\tfrac32\\cdot\\tfrac15\\begin{pmatrix}3&-4\\\\4&3\\end{pmatrix}\\). Preden prebereš odčitek, napovej, ali se negibna točka podobnosti premakne glede na čisti razteg.',
+            'To the dilation with \\(k=\\tfrac32\\) and centre \\((1,1)\\) we add a rotation about the centre with cosine \\(\\tfrac35\\) and sine \\(\\tfrac45\\). We get a similarity with the matrix \\(A=\\tfrac32\\cdot\\tfrac15\\begin{pmatrix}3&-4\\\\4&3\\end{pmatrix}\\). Before reading the readout, predict whether the fixed point of the similarity moves compared with the pure dilation.',
+        ),
+        formulaIds: ['similarity'],
+        workedExampleId: 'l3-similarity-vertex',
+        observationPrompt: text('Zapiši napoved, nato preberi negibno točko, razmerji in sliko oglišča 1.', 'Write down your prediction, then read the fixed point, the two ratios and the image of vertex 1.'),
+        expectedObservations: [text('Negibna točka je še vedno središče \\((1,1)\\); razmerje dolžin je \\(\\tfrac32\\), razmerje ploščin \\(\\tfrac94\\), orientacija je ohranjena, slika oglišča 1 pa je \\((\\tfrac{13}{10},-\\tfrac{11}{10})\\).', 'The fixed point is still the centre \\((1,1)\\); the ratio of lengths is \\(\\tfrac32\\), the ratio of areas \\(\\tfrac94\\), the orientation is kept, and the image of vertex 1 is \\((\\tfrac{13}{10},-\\tfrac{11}{10})\\).')],
+        scene: dilationScene('l3-similarity-scene', {centre: [1, 1], k: 1.5, turn: 'pythagorean'},
+            'Središče \\((1,1)\\), \\(k=\\tfrac32\\), vrtež s kosinusom \\(\\tfrac35\\) in sinusom \\(\\tfrac45\\); negibna točka \\((1,1)\\), razmerje ploščin \\(\\tfrac94\\), slika oglišča 1 je \\((\\tfrac{13}{10},-\\tfrac{11}{10})\\).',
+            'Centre \\((1,1)\\), \\(k=\\tfrac32\\), rotation with cosine \\(\\tfrac35\\) and sine \\(\\tfrac45\\); fixed point \\((1,1)\\), ratio of areas \\(\\tfrac94\\), the image of vertex 1 is \\((\\tfrac{13}{10},-\\tfrac{11}{10})\\).'),
+    }),
+    step({
+        id: 'l3-free', order: 5,
+        title: text('Kdaj je razteg izometrija?', 'When is a dilation an isometry?'),
+        purpose: text('Sami poiskati razmerja, pri katerih razteg ohrani dolžine.', 'Finding for yourself the ratios at which a dilation keeps lengths.'),
+        explanation: text(
+            'Zdaj sam izbiraj središče, razmerje in vrtež. V lekciji o razvrščanju gibanj smo spoznali izometrije; tukaj poišči, pri katerih razmerjih \\(k\\) odčitek Izometrija pokaže da, in primerjaj negibne točke pri teh razmerjih.',
+            'Now choose the centre, the ratio and the turn yourself. In the lesson on classifying motions we met isometries; here find at which ratios \\(k\\) the Isometry readout shows yes, and compare the fixed points at those ratios.',
+        ),
+        formulaIds: ['dilation', 'similarity'],
+        observationPrompt: text('Poišči vsa razmerja \\(k\\), pri katerih je izometrija da, in zapiši negibne točke pri vsakem.', 'Find all the ratios \\(k\\) at which the isometry readout is yes, and write down the fixed points at each.'),
+        expectedObservations: [text('Izometrija je da samo pri \\(k=1\\) in \\(k=-1\\). Pri \\(k=1\\) je negibna točka vsaka točka (identiteta); pri \\(k=-1\\) je negibno samo središče \\((1,1)\\) in slika oglišča 1 je \\((2,2)\\): polobrat okoli središča.', 'The isometry readout is yes only at \\(k=1\\) and \\(k=-1\\). At \\(k=1\\) every point is fixed (the identity); at \\(k=-1\\) only the centre \\((1,1)\\) is fixed and the image of vertex 1 is \\((2,2)\\): a half-turn about the centre.')],
+        scene: dilationScene('l3-free-scene', {centre: [1, 1], k: 2, turn: 'r0'},
+            'Središče \\((1,1)\\), \\(k=2\\); izometrija ne, razmerje ploščin \\(4\\), negibna točka \\((1,1)\\), slika oglišča 1 je \\((-1,-1)\\).',
+            'Centre \\((1,1)\\), \\(k=2\\); isometry no, ratio of areas \\(4\\), fixed point \\((1,1)\\), the image of vertex 1 is \\((-1,-1)\\).'),
+    }),
+];
+
 const sources: GuidedLesson['sources'] = [
     {
         id: 'matura-catalogue-togi-premiki',
@@ -338,6 +476,15 @@ const sources: GuidedLesson['sources'] = [
         citation: 'Bezeg source: src/isometry/isometry2.ts, src/isometry/isometryModel.ts and src/graphs/isometry/IsometryGraph.tsx.',
         implementationCorrespondence: 'A scene sets the graph\'s mode, its number of mirrors and the grid points of the mirrors it names; the text quotes only values of those scenes or plain arithmetic (labelled calculation), and isometriesGuidedLessons.test.ts recomputes them with integer arithmetic and reads the readouts of the real graph.',
     },
+];
+
+const l3Sources: GuidedLesson['sources'] = [
+    {
+        id: 'matura-catalogue-razteg-podobnost',
+        citation: 'Predmetni izpitni katalog za splošno maturo, matematika (M-MAT-2026), poglavje 4.6 (središčni razteg, podobnost). Cited from the text extraction of the catalogue.',
+        implementationCorrespondence: 'The lesson follows the topic: the central dilation with a positive and a negative ratio, the ratio of lengths and areas, and the similarity as a dilation with an isometry; the rotation about the centre of the dilation is a choice of the graph.',
+    },
+    sources[1],
 ];
 
 const l1: GuidedLesson = {
@@ -390,5 +537,32 @@ const l2: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+const l3: GuidedLesson = {
+    demonstrationId: 'isometries',
+    title: text('Središčni razteg in podobnost', 'Central dilation and similarity'),
+    summary: text(
+        'Središčni razteg ohrani kote, dolžine pomnoži z \\(|k|\\), ploščine s \\(k^2\\). Podobnost je razteg, sestavljen z izometrijo.',
+        'A central dilation keeps angles, multiplies lengths by \\(|k|\\) and areas by \\(k^2\\). A similarity is a dilation composed with an isometry.',
+    ),
+    prerequisites: [text('Lekciji o dveh zrcalih in o razvrščanju gibanj ter vektorji v ravnini.', 'The lessons on two mirrors and on classifying motions, and vectors in the plane.')],
+    learningGoals: [
+        text('Napoveš sliko točke pri raztegu s podanim središčem in razmerjem.', 'Predict the image of a point under a dilation with a given centre and ratio.'),
+        text('Veš, da razteg dolžine pomnoži z \\(|k|\\), ploščine s \\(k^2\\) in da ni izometrija, razen če je \\(|k|=1\\).', 'Know that a dilation multiplies lengths by \\(|k|\\) and areas by \\(k^2\\) and is not an isometry unless \\(|k|=1\\).'),
+        text('Veš, da je podobnost razteg, sestavljen z izometrijo.', 'Know that a similarity is a dilation composed with an isometry.'),
+    ],
+    formulaBlocks: l3Formulas,
+    workedExamples: l3Examples,
+    steps: l3Steps,
+    sources: l3Sources,
+    edgeCases: [
+        text('Pri \\(k=1\\) je razteg identiteta: negibne so vse točke ravnine.', 'For \\(k=1\\) the dilation is the identity: every point of the plane is fixed.'),
+        text('Pri \\(k=-1\\) je razteg polobrat okoli središča: izometrija z eno negibno točko.', 'For \\(k=-1\\) the dilation is a half-turn about the centre: an isometry with one fixed point.'),
+        text('Razmerje \\(k=0\\) ni razteg; polje ga ne sprejme. Razmerje je večkratnik števila \\(1/4\\) z \\(|k|\\le4\\).', 'The ratio \\(k=0\\) is not a dilation; the field does not accept it. The ratio is a multiple of \\(1/4\\) with \\(|k|\\le4\\).'),
+        text('Slike lahko ležijo zunaj prikazanega dela ravnine; graf to sporoči in lahko oddaljiš pogled.', 'Images can lie outside the visible part of the plane; the graph says so and you can zoom out.'),
+    ],
+    unresolvedQuestions: [],
+};
+
 export const isometryTwoMirrorsLesson: GuidedLesson = l1;
 export const isometryClassifyLesson: GuidedLesson = l2;
+export const isometryDilationLesson: GuidedLesson = l3;

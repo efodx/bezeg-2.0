@@ -682,8 +682,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     // ---- Lesson actions -----------------------------------------------------------------------------------------------
 
     /**
-     * The `isometry` lesson actions `set-mode` (the mode select), `set-mirror-count` (the number-of-mirrors field) and `set-mirrors` (the mirror coordinate
-     * fields). Lesson data is checked strictly and completely before the write (a content error throws; nothing is snapped, clamped or repaired, ADR 0047),
+     * The `isometry` lesson actions `set-mode` (the mode select), `set-mirror-count` (the number-of-mirrors field), `set-mirrors` (the mirror coordinate
+     * fields) and `set-dilation` (the centre, ratio and turn fields; only the fields that change are written). Lesson data is checked strictly and completely before the write (a content error throws; nothing is snapped, clamped or repaired, ADR 0047),
      * then one synchronous `setState` writes the store, so a later action of the same scene reads this one's result; the board follows in `onStateChange`.
      */
     applyIsometryAction(action: Extract<LessonAction, {kind: "isometry"}>): void {
@@ -720,6 +720,31 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                     mirrors[index] = {p, q};
                 }
                 this.setState({mirrors});
+                return;
+            }
+            case "set-dilation": {
+                const {centre, k, turn} = action;
+                if (centre === undefined && k === undefined && turn === undefined) throw new Error("isometry set-dilation: name at least one of centre, k, turn.");
+                const patch: {dilationCentre?: GridPoint; dilationK?: number; dilationTurn?: DilationTurn} = {};
+                if (centre !== undefined) {
+                    const candidate = typeof centre === "object" && centre !== null ? centre as unknown as Record<string, unknown> : {};
+                    const {x, y} = candidate;
+                    const valid = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= COORD_LIMIT;
+                    if (!valid(x) || !valid(y)) throw new Error(`isometry set-dilation: the centre needs integer coordinates in [-${COORD_LIMIT}, ${COORD_LIMIT}].`);
+                    const c = this.state.dilationCentre;
+                    if (c.x !== x || c.y !== y) patch.dilationCentre = {x: x === 0 ? 0 : x, y: y === 0 ? 0 : y};
+                }
+                if (k !== undefined) {
+                    const valid = typeof k === "number" && Number.isFinite(k) && Number.isInteger(k * 4) && Math.abs(k) >= K_MIN && Math.abs(k) <= K_MAX;
+                    if (!valid) throw new Error(`isometry set-dilation: k must be a multiple of 1/4 with ${K_MIN} <= |k| <= ${K_MAX}.`);
+                    if (k !== this.state.dilationK) patch.dilationK = k;
+                }
+                if (turn !== undefined) {
+                    const known = DILATION_TURNS.find(candidate => candidate === turn);
+                    if (!known) throw new Error(`isometry set-dilation: turn must be one of ${DILATION_TURNS.join(", ")}.`);
+                    if (known !== this.state.dilationTurn) patch.dilationTurn = known;
+                }
+                if (Object.keys(patch).length > 0) this.setState(patch);
                 return;
             }
             default: {
