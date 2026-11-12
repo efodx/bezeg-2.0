@@ -1,14 +1,13 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
-import {PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
+import {PointSetModel, PointSetOptions} from "../../compgeo/pointSetModel";
 import {clampTraceIndex} from "../../compgeo/trace";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {Preset} from "../base/presets/Presets";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {parseBezierHullsStep} from "./bezierHullsPresetCollection";
 import {CurvePairGraph} from "./CurvePairGraph";
 import {PointSetGraphState} from "./PointSetGraph";
+import {PointSetExtension, PointSetExtraField, PointSetExtras} from "./pointSetPersistence";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {TracePlayback} from "../base/tracePlayback";
 
@@ -198,28 +197,37 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
         return state;
     }
 
-    /** A Preset that names no step (or an invalid one) shows step 0, never the step the graph happened to be at. */
-    override importPreset(preset: Preset): void {
-        this.checkPersistedPreset(preset); // a refusal precedes the step reset below
-        const named = preset.graphState && "step" in preset.graphState ? parseBezierHullsStep(preset.graphState.step) : undefined;
-        if (named === undefined) this.setState(this.patch({step: 0}));
-        super.importPreset(preset);
+    private extensionMemo?: PointSetExtension;
+
+    /** The persisted fields beyond the step that the run depends on (the clipping tolerance); the step is clamped under them. */
+    protected settingFields(): readonly PointSetExtraField[] {
+        return [];
     }
 
-    /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new run; playback is paused. */
+    /**
+     * The declared scene beyond the point set: the step (a nonnegative whole number, clamped to the run of the data under the
+     * settings) and the subclass's setting fields. An omitted step or setting is 0 or its default, never the preceding scene's
+     * (a Preset that names none shows the default).
+     */
+    protected override persistenceExtension(): PointSetExtension {
+        if (!this.extensionMemo) {
+            this.extensionMemo = Object.freeze({
+                fields: [{name: "step", parse: parseBezierHullsStep, fallback: 0}, ...this.settingFields()],
+                settle: (model: PointSetModel, values: PointSetExtras): PointSetExtras => {
+                    const stored = typeof values.step === "number" ? values.step : 0;
+                    // The run depends on the settings in `values` alone, not on the live scene.
+                    const run = this.computeRun(model, {...this.getInitialState(), ...values});
+                    return {...values, step: Math.min(stored, run.length - 1)};
+                },
+            });
+        }
+        return this.extensionMemo;
+    }
+
+    /** An imported model keeps the step and settings that the Preset's `graphState` just set (the declaration), clamped to the new run; playback is paused. */
     override importPresetData(data: PointSetModel): void {
-        const model = serializePointSetModel(data);
-        const stored = "step" in this.state ? parseBezierHullsStep(this.state.step) : undefined;
-        const step = Math.min(stored ?? 0, this.runFor(model.points).length - 1);
-        this.setState(this.patch({model, step}));
-        this.playback.restoreTo(step);
-    }
-
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const stored = graphState && "step" in graphState ? parseBezierHullsStep(graphState.step) : undefined;
-        const state: TraceCurvePairGraphState = {...merged, step: Math.min(stored ?? 0, this.runFor(merged.model.points, merged).length - 1)};
-        return state;
+        super.importPresetData(data);
+        this.playback.restoreTo(this.step);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

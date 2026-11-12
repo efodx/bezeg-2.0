@@ -19,7 +19,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
-import {pointSetPersistence, PointSetPermittedState, PointSetStepDeclaration} from "./pointSetPersistence";
+import {pointSetPersistence, PointSetExtension, PointSetPermittedState, PointSetStepDeclaration, stepExtension} from "./pointSetPersistence";
 import type {ScenePersistence} from "../base/presets/ScenePersistence";
 import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointSetControls";
 
@@ -493,22 +493,35 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return serializePointSetModel(DEFAULT_POINT_SET_MODEL);
     }
 
-    private persistenceMemo?: {ids: readonly string[]; step: PointSetStepDeclaration | undefined; persistence: ScenePersistence<PointSetModel, PointSetGraphState, PointSetPermittedState>};
+    private persistenceMemo?: {ids: readonly string[]; extension: PointSetExtension | undefined; persistence: ScenePersistence<PointSetModel, PointSetGraphState, PointSetPermittedState>};
+
+    private stepExtensionMemo?: {step: PointSetStepDeclaration; extension: PointSetExtension};
 
     /**
-     * The one extension a subclass may declare (a step into the trace of its data; task 08 batch 3a). A subclass that returns
-     * a stable declaration is on the declared path for its `step`; every other subclass with extra scene state is not yet declared.
+     * The step extension a subclass may declare (a step into the trace of its data; task 08 batch 3a): the plain `step` graphs
+     * return a stable declaration, which the family adapts (`stepExtension`) to the general extension below.
      */
     protected persistenceStep(): PointSetStepDeclaration | undefined {
         return undefined;
     }
 
-    /** The family's projection declaration (`pointSetPersistence`), for this graph's overlay ids and declared step. */
+    /**
+     * The extension a subclass declares beyond `{initialized, model, overlays}` (named, checked fields and how the data bounds
+     * them; task 08 batch 3b). Returns a stable object. A graph that declares none keeps the legacy mappings until its batch.
+     */
+    protected persistenceExtension(): PointSetExtension | undefined {
+        const step = this.persistenceStep();
+        if (!step) return undefined;
+        if (this.stepExtensionMemo?.step !== step) this.stepExtensionMemo = {step, extension: stepExtension(step)};
+        return this.stepExtensionMemo.extension;
+    }
+
+    /** The family's projection declaration (`pointSetPersistence`), for this graph's overlay ids and declared extension. */
     private persistence(): ScenePersistence<PointSetModel, PointSetGraphState, PointSetPermittedState> {
         const ids = this.overlayIds();
-        const step = this.persistenceStep();
-        if (this.persistenceMemo?.ids.join() !== ids.join() || this.persistenceMemo.step !== step) {
-            this.persistenceMemo = {ids, step, persistence: pointSetPersistence(ids, step)};
+        const extension = this.persistenceExtension();
+        if (this.persistenceMemo?.ids.join() !== ids.join() || this.persistenceMemo.extension !== extension) {
+            this.persistenceMemo = {ids, extension, persistence: pointSetPersistence(ids, extension)};
         }
         return this.persistenceMemo.persistence;
     }
@@ -519,7 +532,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
      * keeps the legacy mappings below until its own batch (task 08).
      */
     private declaresWholeScene(): boolean {
-        if (this.persistenceStep()) return true;
+        if (this.persistenceExtension()) return true;
         return Object.keys(this.getInitialState()).every(key => key === "initialized" || key === "model" || key === "overlays");
     }
 
@@ -542,10 +555,12 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     override importPresetData(data: PointSetModel): void {
         this.pending = undefined;
-        // The step a Preset's `graphState` just set (or a lesson/selection left) stays, clamped to the new data.
-        const step = this.persistenceStep() ? {step: this.state.step} : undefined;
-        const rebuilt = this.persistence().reconstruct(data, step, this.state);
-        this.setState({model: rebuilt.model, ...(step ? {step: rebuilt.step} : {})});
+        const extension = this.persistenceExtension();
+        // The extension fields a Preset's `graphState` just set (or a lesson/selection left) stay, bounded by the new data.
+        const rebuilt = this.persistence().reconstruct(data, extension ? this.state : undefined, this.state);
+        const patch: Partial<PointSetGraphState> = {model: rebuilt.model};
+        if (extension) for (const {name} of extension.fields) Object.assign(patch, {[name]: Reflect.get(rebuilt, name)});
+        this.setState(patch);
     }
 
     /** The scene state a Preset replacement starts from: the declaration over the defaults (legacy: keeps the model `importPresetData` just wrote). */

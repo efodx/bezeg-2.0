@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -11,6 +10,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {finiteNumberField, PointSetExtension, PointSetExtraField, PointSetExtras} from "./pointSetPersistence";
 import {HullTraceControlActions, HullTraceControls} from "./HullTraceControls";
 import {HULL_TRACE_OVERLAY_IDS, hullTraceCollection} from "./compgeoPresetCollections";
 import {
@@ -29,6 +29,25 @@ export const HULL_TRACE_SAMPLE_1: PointSetModel = {
 };
 
 export type HullTraceOverlayId = "trace" | "hull";
+
+/** The persisted `algorithm`: one of the three ids, the default when omitted. */
+export const HULL_ALGORITHM_FIELD: PointSetExtraField = {name: "algorithm", fallback: DEFAULT_HULL_ALGORITHM, parse: parseHullAlgorithm};
+/** The persisted `step`: any finite number (the declaration clamps it to the trace), 0 when omitted. */
+export const HULL_STEP_FIELD: PointSetExtraField = finiteNumberField("step", 0);
+
+/**
+ * The hull trace's declared scene beyond the point set: the algorithm and the step into its trace. A hull is computed on
+ * points, so a polygon mode is shown as points; the step is clamped to the run of those points under the algorithm.
+ */
+const HULL_TRACE_EXTENSION: PointSetExtension = Object.freeze({
+    normalise: (model: PointSetModel) => setMode(model, "points"),
+    fields: [HULL_ALGORITHM_FIELD, HULL_STEP_FIELD],
+    settle(model: PointSetModel, values: PointSetExtras): PointSetExtras {
+        const algorithm = parseHullAlgorithm(values.algorithm) ?? DEFAULT_HULL_ALGORITHM;
+        const step = typeof values.step === "number" ? values.step : 0;
+        return {...values, algorithm, step: runHullTrace(algorithm, model.points).clamp(step)};
+    },
+});
 
 /** The saved configuration beyond the points: the algorithm and the step index. Playback status is never state. */
 export interface HullTraceGraphState extends PointSetGraphState {
@@ -231,22 +250,14 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         return state;
     }
 
-    /** An imported model keeps the algorithm and step that the Preset's `graphState` just set, clamped to the new trace; playback is paused. */
-    override importPresetData(data: PointSetModel): void {
-        const model = serializePointSetModel(data);
-        const algorithm = this.algorithm;
-        const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
-        const step = runHullTrace(algorithm, model.points).clamp(stored ?? 0);
-        this.setState(this.patch({model, algorithm, step}));
-        this.playback.restoreTo(step);
+    protected override persistenceExtension(): PointSetExtension {
+        return HULL_TRACE_EXTENSION;
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const algorithm = ("algorithm" in merged ? parseHullAlgorithm(merged.algorithm) : undefined) ?? DEFAULT_HULL_ALGORITHM;
-        const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
-        const state: HullTraceGraphState = {...merged, algorithm, step: runHullTrace(algorithm, merged.model.points).clamp(stored ?? 0)};
-        return state;
+    /** An imported model keeps the algorithm and step that the Preset's `graphState` just set (the declaration), clamped to the new trace; playback is paused. */
+    override importPresetData(data: PointSetModel): void {
+        super.importPresetData(data);
+        this.playback.restoreTo(this.step);
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------

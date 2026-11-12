@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {t} from "../../localization";
 import {clipBezierPair, ClipPoint, ClipRange, ClipState, clipFold, ClipTrace, INITIAL_CLIP_STATE, subNet} from "../../bezeg/impl/kernels/bezier-clipping";
@@ -7,14 +6,13 @@ import {bezierAt} from "../../compgeo/curvePairNets";
 import {hullsSeparated} from "../../compgeo/hullSeparation";
 import {isGridStepExponent, parsePointSetModel, PointSetModel} from "../../compgeo/pointSetModel";
 import {stateAt} from "../../compgeo/trace";
-import {BaseGraphState} from "../base/BaseGraph";
-import {Preset} from "../base/presets/Presets";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {CURVE_PAIR_SAMPLES, CurveName, CurvePairOverlayId} from "./CurvePairGraph";
 import {PointSetGraphState} from "./PointSetGraph";
 import {aliveRanges, ClippingStepView, clippingStepView, discardedRanges, fatLineStrip} from "./bezierClippingView";
 import {DEFAULT_CLIP_TOLERANCE_EXPONENT, parseClipToleranceExponent} from "./bezierClippingPresetCollection";
+import type {PointSetExtraField} from "./pointSetPersistence";
 import {BEZIER_CLIPPING_OVERLAY_IDS, bezierClippingCollection} from "./compgeoPresetCollections";
 import {BezierClippingControls} from "./BezierClippingControls";
 import {ClipDistancePlotController} from "./ClipDistancePlot";
@@ -209,19 +207,9 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
         return bezierClippingCollection;
     }
 
-    /** A Preset that names no tolerance (or an invalid one) shows the default 6, never the tolerance the graph happened to have. */
-    override importPreset(preset: Preset): void {
-        this.checkPersistedPreset(preset); // a refusal precedes the tolerance reset below
-        const named = preset.graphState && "clipToleranceExponent" in preset.graphState ? parseClipToleranceExponent(preset.graphState.clipToleranceExponent) : undefined;
-        if (named === undefined) this.setState(this.clipPatch({clipToleranceExponent: DEFAULT_CLIP_TOLERANCE_EXPONENT}));
-        super.importPreset(preset);
-    }
-
-    /** The figure scene runs on the tolerance the Preset stores, the default when it names none; the step clamp reads that run. */
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const named = graphState && "clipToleranceExponent" in graphState ? parseClipToleranceExponent(graphState.clipToleranceExponent) : undefined;
-        const withTolerance: BaseGraphState & {clipToleranceExponent: number} = {...graphState, initialized: true, clipToleranceExponent: named ?? DEFAULT_CLIP_TOLERANCE_EXPONENT};
-        return super.figurePresetGraphState(withTolerance);
+    /** The tolerance exponent is persisted; a Preset that names none (or an invalid one) shows the default 6. */
+    protected override settingFields(): readonly PointSetExtraField[] {
+        return [{name: "clipToleranceExponent", parse: parseClipToleranceExponent, fallback: DEFAULT_CLIP_TOLERANCE_EXPONENT}];
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

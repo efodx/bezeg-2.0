@@ -1,8 +1,7 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import JXG from "jsxgraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
-import type {PointSetModel} from "../../compgeo/pointSetModel";
+import {PointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {GraphSession} from "../base/GraphSession";
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -11,9 +10,10 @@ import type {LessonAction} from "../../learning/model";
 import {PointSetGraphState} from "./PointSetGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {hullRobustnessCollection} from "./compgeoPresetCollections";
-import {HullTraceGraph, HullTraceGraphState} from "./HullTraceGraph";
+import {HULL_STEP_FIELD, HullTraceGraph, HullTraceGraphState} from "./HullTraceGraph";
+import {PointSetExtension, PointSetExtraField, PointSetExtras} from "./pointSetPersistence";
 import {HullTraceControls} from "./HullTraceControls";
-import {HullAlgorithm, HullRun, runHullTrace} from "./hullTraceRun";
+import {HullAlgorithm, HullRun, parseHullAlgorithm, runHullTrace} from "./hullTraceRun";
 import {
     ChainChoices, ChainReadout, KettnerControls, RobustnessChoiceActions, RobustnessModeSelect,
 } from "./HullRobustnessControls";
@@ -32,6 +32,29 @@ const CHAIN_VIEW: readonly [number, number, number, number] = [-1.5, 5.5, 5.5, -
 const ARROW_CELLS: Readonly<Record<string, readonly [number, number]>> = {
     ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
 };
+
+const field = (name: string, parse: (value: unknown) => number | string | undefined, fallback: number | string): PointSetExtraField => ({name, parse, fallback});
+
+/**
+ * The robustness graph's declared scene beyond the point set: the hull trace's `algorithm` (accepted from a file, never kept:
+ * this graph runs the monotone chain only) and `step` (clamped to the chain's run under the two rule choices), the view, the
+ * two rule choices, the Kettner panel and the selected cell. An omitted field takes its default.
+ */
+const HULL_ROBUSTNESS_EXTENSION: PointSetExtension = Object.freeze({
+    normalise: (model: PointSetModel) => setMode(model, "points"),
+    fields: [
+        field("algorithm", parseHullAlgorithm, "monotone-chain"), HULL_STEP_FIELD,
+        field("mode", parseRobustnessMode, DEFAULT_ROBUSTNESS_MODE), field("pop", parsePopRule, DEFAULT_POP_RULE),
+        field("duplicates", parseDuplicateRule, DEFAULT_DUPLICATE_RULE), field("panel", parseKettnerPanel, DEFAULT_KETTNER_PANEL),
+        field("cellI", parseKettnerCoordinate, DEFAULT_KETTNER_CELL.i), field("cellJ", parseKettnerCoordinate, DEFAULT_KETTNER_CELL.j),
+    ],
+    settle(model: PointSetModel, values: PointSetExtras): PointSetExtras {
+        const pop = parsePopRule(values.pop) ?? DEFAULT_POP_RULE;
+        const duplicates = parseDuplicateRule(values.duplicates) ?? DEFAULT_DUPLICATE_RULE;
+        const step = typeof values.step === "number" ? values.step : 0;
+        return {...values, algorithm: "monotone-chain", step: runHullTrace("monotone-chain", model.points, {pop, duplicates}).clamp(step)};
+    },
+});
 
 /** The saved configuration beyond the hull trace's: the view, the two rule choices and the Kettner panel and cell. */
 export interface HullRobustnessGraphState extends HullTraceGraphState {
@@ -272,25 +295,8 @@ export class HullRobustnessGraph extends HullTraceGraph {
         return state;
     }
 
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const cell = {
-            i: ("cellI" in merged ? parseKettnerCoordinate(merged.cellI) : undefined) ?? DEFAULT_KETTNER_CELL.i,
-            j: ("cellJ" in merged ? parseKettnerCoordinate(merged.cellJ) : undefined) ?? DEFAULT_KETTNER_CELL.j,
-        };
-        const pop = ("pop" in merged ? parsePopRule(merged.pop) : undefined) ?? DEFAULT_POP_RULE;
-        const duplicates = ("duplicates" in merged ? parseDuplicateRule(merged.duplicates) : undefined) ?? DEFAULT_DUPLICATE_RULE;
-        const stored = "step" in merged && typeof merged.step === "number" ? merged.step : 0;
-        const state: HullRobustnessGraphState = {
-            ...merged,
-            algorithm: "monotone-chain",
-            step: runHullTrace("monotone-chain", merged.model.points, {pop, duplicates}).clamp(stored),
-            mode: ("mode" in merged ? parseRobustnessMode(merged.mode) : undefined) ?? DEFAULT_ROBUSTNESS_MODE,
-            pop, duplicates,
-            panel: ("panel" in merged ? parseKettnerPanel(merged.panel) : undefined) ?? DEFAULT_KETTNER_PANEL,
-            cellI: cell.i, cellJ: cell.j,
-        };
-        return state;
+    protected override persistenceExtension(): PointSetExtension {
+        return HULL_ROBUSTNESS_EXTENSION;
     }
 
     // ---- View ----------------------------------------------------------------------------------------------------
