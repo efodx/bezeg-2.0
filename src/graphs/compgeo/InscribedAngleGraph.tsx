@@ -1,5 +1,6 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {finiteNumberField, PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
@@ -7,7 +8,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {
     activeInscribedExampleId, analyseInscribedAngle, BoardXY, gliderTFromBoard, InscribedAnalysis, InscribedCircleAnalysis,
-    InscribedExampleId, inscribedExample, normaliseDegrees, resolveGliderT,
+    InscribedExampleId, inscribedExample, isInscribedExampleId, normaliseDegrees, resolveGliderT,
 } from "../../compgeo/inscribedAngleModel";
 import {INSCRIBED_ANGLE_OVERLAY_IDS, INSCRIBED_ANGLE_VERTEX_COUNT, inscribedAngleCollection} from "./inscribedAnglePresetCollection";
 import {InscribedAnglePanel} from "./InscribedAnglePanel";
@@ -51,6 +52,19 @@ const TAU = 2 * Math.PI;
 function normaliseRadians(angle: number): number {
     return normaliseDegrees(angle * 180 / Math.PI) * Math.PI / 180;
 }
+
+/**
+ * The declared scene fields (`pointSetPersistence`): the example id, checked as the Preset collection checks it, fallback `"default"`
+ * (the graph's initial value); it names the example only while the vertices still equal it (read-time `active...ExampleId`), so
+ * `settle` has nothing to reconcile. Bare data imports keep it.
+ * `t` is any finite number in degrees as stored (fallback the default example's); the glider resolves it at read time (`resolveGliderT`).
+ */
+const INSCRIBED_EXTENSION: PointSetExtension = Object.freeze({
+    fields: [
+        {name: "exampleId", fallback: "default", parse: (value: unknown) => isInscribedExampleId(value) ? value : undefined},
+        finiteNumberField("t", inscribedExample("default").t),
+    ],
+});
 
 export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -170,6 +184,11 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
             ...super.getInitialState(), exampleId: "default", t: inscribedExample("default").t,
             overlays: {radii: false, angles: true},
         };
+    }
+
+    /** The declared example id (and glider parameter): import, figure return and lesson default read them. */
+    protected override persistenceExtension(): PointSetExtension {
+        return INSCRIBED_EXTENSION;
     }
 
     override defaultPreset(): PointSetModel {

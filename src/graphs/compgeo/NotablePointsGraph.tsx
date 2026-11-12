@@ -1,5 +1,6 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
@@ -7,7 +8,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {
     activeExampleId, analyseNotablePoints, BOARD_COORDINATE_CAP, BoardXY, CENTRE_IDS, CentreId, inBox, NotableAnalysis,
-    NotableExampleId, notableExample,
+    isNotableExampleId, NotableExampleId, notableExample,
 } from "../../compgeo/notablePointsModel";
 import {NOTABLE_POINT_COUNT, NOTABLE_POINTS_OVERLAY_IDS, notablePointsCollection} from "./notablePointsPresetCollection";
 import {NotablePointsPanel} from "./NotablePointsPanel";
@@ -47,6 +48,15 @@ const CENTRE_COLOUR: Readonly<Record<CentreId, string>> = {
 };
 const CENTRE_DASH: Readonly<Record<CentreId, number>> = {centroid: 2, circumcentre: 3, incentre: 0, orthocentre: 4};
 const CENTRE_FACE: Readonly<Record<CentreId, string>> = {centroid: "x", circumcentre: "+", incentre: "diamond", orthocentre: "square"};
+
+/**
+ * The declared scene fields (`pointSetPersistence`): the example id, checked as the Preset collection checks it, fallback `"default"`
+ * (the graph's initial value); it names the example only while the vertices still equal it (read-time `active...ExampleId`), so
+ * `settle` has nothing to reconcile. Bare data imports keep it.
+ */
+const NOTABLE_EXTENSION: PointSetExtension = Object.freeze({
+    fields: [{name: "exampleId", fallback: "default", parse: (value: unknown) => isNotableExampleId(value) ? value : undefined}],
+});
 
 export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -134,6 +144,11 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
             ...super.getInitialState(), exampleId: "default",
             overlays: {triangle: true, centroid: true, circumcentre: false, incentre: false, orthocentre: false},
         };
+    }
+
+    /** The declared example id: import, figure return and lesson default read them. */
+    protected override persistenceExtension(): PointSetExtension {
+        return NOTABLE_EXTENSION;
     }
 
     override defaultPreset(): PointSetModel {

@@ -1,5 +1,6 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
@@ -7,7 +8,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {BOARD_COORDINATE_CAP, BoardXY, inBox} from "../../compgeo/notablePointsModel";
 import {
-    activeEulerExampleId, analyseEulerLine, EulerAnalysis, EulerExampleId, eulerExample, NinePointKind,
+    activeEulerExampleId, analyseEulerLine, EulerAnalysis, EulerExampleId, eulerExample, isEulerExampleId, NinePointKind,
 } from "../../compgeo/eulerLineModel";
 import {EULER_LINE_OVERLAY_IDS, EULER_POINT_COUNT, eulerLineCollection} from "./eulerLinePresetCollection";
 import {EulerLinePanel} from "./EulerLinePanel";
@@ -53,6 +54,15 @@ const NINE_COLOUR: Readonly<Record<NinePointKind, string>> = {
     midpoint: GraphPalette.comparisonCurve, foot: GraphPalette.additionalCurves[0], vertexMidpoint: GraphPalette.additionalCurves[1],
 };
 const NINE_NAME: Readonly<Record<NinePointKind, string>> = {midpoint: "nine-midpoint-", foot: "nine-foot-", vertexMidpoint: "nine-vertex-midpoint-"};
+
+/**
+ * The declared scene fields (`pointSetPersistence`): the example id, checked as the Preset collection checks it, fallback `"default"`
+ * (the graph's initial value); it names the example only while the vertices still equal it (read-time `active...ExampleId`), so
+ * `settle` has nothing to reconcile. Bare data imports keep it.
+ */
+const EULER_EXTENSION: PointSetExtension = Object.freeze({
+    fields: [{name: "exampleId", fallback: "default", parse: (value: unknown) => isEulerExampleId(value) ? value : undefined}],
+});
 
 export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -137,6 +147,11 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
             ...super.getInitialState(), exampleId: "default",
             overlays: {triangle: true, centres: true, line: true, circle: true, ninepoints: false, circumcircle: false},
         };
+    }
+
+    /** The declared example id: import, figure return and lesson default read them. */
+    protected override persistenceExtension(): PointSetExtension {
+        return EULER_EXTENSION;
     }
 
     override defaultPreset(): PointSetModel {
