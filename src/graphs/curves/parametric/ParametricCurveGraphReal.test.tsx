@@ -1,5 +1,5 @@
 import React from 'react';
-import {render} from '@testing-library/react';
+import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import ParametricCurveGraph from './ParametricCurveGraph';
 import {GraphHost} from '../../base/GraphHost';
@@ -28,7 +28,7 @@ class ObservedParametricGraph extends ParametricCurveGraph {
     }
 }
 
-test('on a real board the scene exists after initialize, is recreated once by a preset import, and is gone after unmount', () => {
+test('on a real board the scene exists after initialize, is recreated once by an import of another curve, and is gone after unmount', () => {
     const graph = new ObservedParametricGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     const board = graph.liveBoard();
@@ -39,6 +39,7 @@ test('on a real board the scene exists after initialize, is recreated once by a 
     const total = board.objectsList.length;
 
     graph.importPresetData({curve: 'cardioid', radius: 1, parameter: 1});
+    act(() => graph.flushStateChanges());
     expect(first.some(element => board.objectsList.includes(element))).toBe(false);
     const second = graph.ownedElements();
     expect(graph.ownedOnBoard()).toBe(second.length);
@@ -54,6 +55,7 @@ test('on a real board the partial trace ends at the marked point while rolling a
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     const board = graph.liveBoard();
     graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0});
+    act(() => graph.flushStateChanges());
     board.update();
     graph.apply(false);
     board.update();
@@ -76,6 +78,7 @@ test('on a real board the partial trace ends at the marked point while rolling a
     board.update();
     graph.apply(false);
     graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 1});
+    act(() => graph.flushStateChanges());
     board.update();
     const again = graph.traceCurve().points;
     expect(again[again.length - 1].usrCoords[1]).toBeCloseTo(2 * Math.PI, 6);

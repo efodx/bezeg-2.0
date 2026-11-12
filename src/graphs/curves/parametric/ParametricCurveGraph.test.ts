@@ -2,6 +2,7 @@ import React from 'react';
 import {fireEvent, render} from '@testing-library/react';
 import ParametricCurveGraph, {ROLL_DURATION_MS, widenToCanvas} from './ParametricCurveGraph';
 import {ParametricScene} from './ParametricScene';
+import {SceneSlot} from '../../base/OwnedScene';
 import {DEFAULT_PARAMETRIC_PRESET, parametricPresetCollection} from './parametricPresetCollection';
 import {curveViewBox, PARAMETRIC_ROLL_ANIMATION_ID} from './parametricCatalogue';
 import {setLanguage} from '../../../localization';
@@ -49,8 +50,11 @@ function makeGraph() {
     graph.figureExports = new FigureExportScope({requestRender: () => undefined, reload: () => undefined});
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...graph.getInitialState(), initialized: true});
-    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
+    graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); graph.sceneSlot.reconcile(); }); // the host reconciles after each commit
     graph.boardUpdate = vi.fn();
+    // The host builds the declared scene in `mount`; the fake session stands in for its lifetime.
+    graph.sceneSlot = new SceneSlot({isAlive: true, registerCleanup: () => () => undefined} as any, graph.board, graph.sceneDeclaration());
+    graph.sceneSlot.rebuild();
     return graph;
 }
 
@@ -163,26 +167,37 @@ describe('owned scene', () => {
         expect(graph.board.setBoundingBox).toHaveBeenCalled();
     });
 
-    test('importPresetData replaces rather than stacks, scene disposal removes all of it', () => {
+    test('importPresetData replaces rather than stacks, a same-curve import keeps the scene, and release removes all of it', () => {
         const graph = makeGraph();
         graph.importPresetData(graph.defaultPreset());
         const first = graph.board.objectsList.length;
+        const scene = graph['scene'];
+        graph.importPresetData({...graph.defaultPreset(), parameter: 1});
+        expect(graph['scene']).toBe(scene);
+        graph.importPresetData({curve: 'rose', radius: 1, parameter: 0});
         graph.importPresetData(graph.defaultPreset());
+        expect(graph['scene']).not.toBe(scene);
         expect(graph.board.objectsList.length).toBe(first);
-        graph.disposeFigureScene();
+        graph.sceneSlot.release();
         expect(graph.board.objectsList).toEqual([]);
     });
 
     test('unmount disposes the scene before the board goes and releases the language subscription', () => {
         const before = liveSubscriptions.count;
         const graph = makeGraph();
-        graph.importPresetData(graph.defaultPreset());
-        expect(liveSubscriptions.count).toBe(before + 1);
         const board = graph.board;
         const order: string[] = [];
+        // The session releases the slot in its cleanup, then the board goes.
+        const cleanups: Array<() => void> = [];
+        graph.graphSession = {isReady: true, isAlive: true, registerCleanup: (cleanup: () => void) => cleanups.push(cleanup),
+            dispose: () => { cleanups.forEach(cleanup => cleanup()); order.push('session'); }};
+        graph.sceneSlot.release();
+        graph.sceneSlot = new SceneSlot(graph.graphSession, board, graph.sceneDeclaration());
+        graph.sceneSlot.rebuild();
+        graph.importPresetData(graph.defaultPreset());
+        expect(liveSubscriptions.count).toBe(before + 1);
         const remove = board.removeObject;
         board.removeObject = vi.fn((o: any) => { order.push('removed'); return remove(o); });
-        graph.graphSession = {isReady: true, isAlive: true, dispose: () => order.push('session')};
         graph.pendingCallbacks = [];
         graph.unmount();
         expect(order[0]).toBe('removed');

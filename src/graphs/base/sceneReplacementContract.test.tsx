@@ -25,6 +25,9 @@ import {createGraph, installBoardShims, mountGraph, type MountedGraph, REAL_GRAP
 import {internals} from './realGraphScenes';
 import {CrossRatioGraph} from '../projective/CrossRatioGraph';
 import {PascalGraph} from '../projective/PascalGraph';
+import {HermiteScene} from '../curves/hermite/HermiteScene';
+import {InterpolationScene} from '../curves/interpolation/InterpolationScene';
+import {ParametricScene} from '../curves/parametric/ParametricScene';
 import {boardInfrastructureObjects} from './BoardInfrastructure';
 import {classNames, familySample, selectEntries, skippedPlaceholder} from './catalogSweepScope';
 import type {DemonstrationId} from '../../demonstrations';
@@ -334,29 +337,35 @@ describe('disposal per replacement', () => {
 });
 
 /**
- * Teardown once per replacement (A3 S3b): the scene-owning curve families remove their scene exactly once per replacement.
- * The figure path disposes first, so the importer's `ensureScene` must not tear down again; the lesson entries do not
- * dispose, so there the importer's own teardown is the one.
+ * Teardown once per replacement (A3 S3b): the scene-owning curve families remove a scene at most once per replacement.
+ * Their scenes live in the BaseGraph slot (task 07): a replacement that keeps the scene's shape keeps the scene, any
+ * other releases it once, and the scene left standing is the live one.
  */
 describe('scene teardown once per replacement', () => {
-    const FAMILIES: Array<[string, () => GraphLike]> = [
-        ['hermite', () => graphFactories['interp-hermite']()],
-        ['interpolation', () => graphFactories['interp-lagrange']()],
-        ['parametric', () => graphFactories['curve-parametric']()],
+    const FAMILIES: Array<[string, () => GraphLike, {prototype: {dispose(): void}}]> = [
+        ['hermite', () => graphFactories['interp-hermite'](), HermiteScene],
+        ['interpolation', () => graphFactories['interp-lagrange'](), InterpolationScene],
+        ['parametric', () => graphFactories['curve-parametric'](), ParametricScene],
     ];
-    describe.each(FAMILIES)('%s', (_family, make) => {
+    describe.each(FAMILIES)('%s', (_family, make, sceneClass) => {
         for (const entry of ['reload', 'lesson default scene', 'lesson checkpoint'] as Entry[]) {
             it(`${entry} removes the scene once`, async () => {
                 const rig = open(make);
-                const removals = vi.spyOn(rig.graph as unknown as {removeScene(): void}, 'removeScene');
+                const removals = vi.spyOn(sceneClass.prototype, 'dispose');
                 const checkpoint = entry === 'lesson checkpoint' ? rig.graph.getLessonCapabilities().captureState() : undefined;
                 try {
                     for (let cycle = 0; cycle < 2; cycle++) {
                         removals.mockClear();
                         await replace(entry, rig, checkpoint);
-                        expect(removals).toHaveBeenCalledTimes(1);
+                        const removed = removals.mock.contexts;
+                        expect(removed.length).toBeLessThanOrEqual(1);
+                        if (entry === 'reload') expect(removed).toHaveLength(1);
+                        const live = (rig.graph as unknown as {scene?: unknown}).scene;
+                        expect(live).toBeDefined();
+                        expect(removed).not.toContain(live);
                     }
                 } finally {
+                    removals.mockRestore();
                     rig.mounted.view.unmount();
                 }
             });
@@ -402,11 +411,11 @@ describe('figure path with a stored scene state that disagrees with the Preset d
     it('parametric rebuilds for the state\'s curve', async () => {
         const rig = open(() => graphFactories['curve-parametric']());
         try {
-            const graph = rig.graph as unknown as {state: {curve: string}; sceneCurve?: string};
+            const graph = rig.graph as unknown as {state: {curve: string}; scene?: {curve: string}};
             const other = graph.state.curve === 'rose' ? 'cardioid' : 'rose';
             await loadFigure(rig.graph, {curve: other});
             expect(graph.state.curve).toBe(other);
-            expect(graph.sceneCurve).toBe(other);
+            expect(graph.scene?.curve).toBe(other);
         } finally {
             rig.mounted.view.unmount();
         }

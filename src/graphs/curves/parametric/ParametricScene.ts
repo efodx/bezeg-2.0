@@ -24,7 +24,8 @@ interface SceneSettings {
  */
 export class ParametricScene {
     private readonly board: Board;
-    private readonly curve: ParametricCurveId;
+    /** The catalogue curve this scene was built for; another curve needs a new scene. */
+    readonly curve: ParametricCurveId;
     private elements: GeometryElement[] = [];
     private stopLanguageUpdates?: () => void;
     private disposed = false;

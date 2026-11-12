@@ -5,6 +5,7 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {PlaybackButtons} from "../../base/controls/PlaybackButtons";
 import {prefersReducedMotion, ReducedMotion} from "../../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import type {SceneDeclaration} from "../../base/OwnedScene";
 import {AnimationDriver} from "../../../learning/runtime/animation";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import type {LessonAnimationCommand} from "../../../learning/model";
@@ -56,14 +57,11 @@ const curveLabel = (id: ParametricCurveId): string => {
 /**
  * Parametric and polar curves Demonstration (curve geometry L1): a fixed catalogue of analytic curves, a parameter slider,
  * the velocity vector r'(t), the radius ray of polar curves and arc length and area readouts. It extends `BaseGraph`
- * directly, because the Bezier and function graph classes assume control points or a function model. One owned
- * {@link ParametricScene} is created per catalogue choice and per Preset import, and disposed with the scene and on unmount.
- * The scene reads the scene state lazily, so sliders need no rebuild.
+ * directly, because the Bezier and function graph classes assume control points or a function model. The BaseGraph
+ * slot owns one {@link ParametricScene} per catalogue curve: another curve rebuilds it, and it is released with the figure
+ * scene and on unmount. The scene reads radius, parameter and trace flag lazily, so sliders and same-curve imports keep it.
  */
-export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, ParametricPresetData> {
-    private scene?: ParametricScene;
-    /** The catalogue curve the standing scene was built for (the scene reads it once). */
-    private sceneCurve?: ParametricCurveId;
+export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, ParametricPresetData, ParametricScene> {
     /** The roll animation (a full pass of the domain takes {@link ROLL_DURATION_MS}); created on first use, as the base constructor already imports a Preset. */
     private rollDriverInstance?: AnimationDriver;
     private get rollDriver(): AnimationDriver {
@@ -93,11 +91,10 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         return {curve, radius, parameter};
     }
 
-    /** Scene imports (Preset, checkpoint, figure batch) rebuild the scene: the old elements go, one new set arrives. */
+    /** Scene imports (Preset, checkpoint, figure batch) stop the roll; an import of another curve rebuilds the scene through the slot. */
     override importPresetData(data: ParametricPresetData) {
         this.stopRoll();
         this.setState({curve: data.curve, radius: data.radius, parameter: data.parameter, traceFull: true});
-        this.ensureScene();
     }
 
     /**
@@ -125,32 +122,34 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         this.fitToCurve();
     }
 
+    /** The host builds the declared scene right after this, for the state's curve (a hand-written Preset may name another). */
     override initialize() {
-        // The figure path's import has just built the scene; mount has none yet. A Preset whose graph state names
-        // another curve than its data (a hand-written file) is rebuilt for the state's curve, as before.
-        if (!this.scene || this.sceneCurve !== this.state.curve) this.ensureScene();
         this.fitToCurve();
     }
 
-    /** Idempotent: removes any earlier scene and creates one for the current catalogue choice. */
-    private ensureScene() {
-        // Figure-path disposal has already removed the scene; tear down only a scene still standing (mount, lesson entries).
-        if (this.scene) this.removeScene();
-        if (!this.board || !this.graphSession?.isAlive) return;
-        this.sceneCurve = this.state.curve;
-        this.scene = new ParametricScene({
-            board: this.board,
-            curve: this.state.curve,
-            radius: () => this.state.radius,
-            parameter: () => clampParameter(this.state, this.state.parameter),
-            traceFull: () => this.state.traceFull,
-            fontSize: () => this.displaySettings.fontSize,
-        });
+    /**
+     * The scene has nothing to synchronize: it reads everything but its curve lazily. It is kept while the curve is
+     * unchanged and rebuilt for another one (catalogue choice, import, checkpoint restore). The scene cleans up a
+     * failed construction itself.
+     */
+    protected override sceneDeclaration(): SceneDeclaration<ParametricScene> {
+        return {
+            create: board => new ParametricScene({
+                board,
+                curve: this.state.curve,
+                radius: () => this.state.radius,
+                parameter: () => clampParameter(this.state, this.state.parameter),
+                traceFull: () => this.state.traceFull,
+                fontSize: () => this.displaySettings.fontSize,
+            }),
+            sync: scene => scene.curve === this.state.curve,
+            dispose: scene => scene.dispose(),
+        };
     }
 
-    private removeScene() {
-        this.scene?.dispose();
-        this.scene = undefined;
+    /** Test seam: the tests read the live scene through it. */
+    private get scene(): ParametricScene | undefined {
+        return this.ownedScene;
     }
 
     private fitToCurve() {
@@ -159,14 +158,13 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         this.board.fullUpdate();
     }
 
+    /** The roll driver is graph-owned; the slot releases the scene itself. */
     protected override disposeFigureScene(): void {
         this.stopRoll();
-        this.removeScene();
     }
 
     override unmount() {
         this.stopRoll();
-        this.removeScene();
         super.unmount();
     }
 
@@ -180,7 +178,6 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         if (!isParametricCurveId(curve) || curve === this.state.curve) return;
         this.stopRoll();
         this.setState({curve, parameter: PARAMETRIC_CATALOGUE[curve].domain[0], traceFull: true});
-        this.ensureScene();
         this.fitToCurve();
     }
 
