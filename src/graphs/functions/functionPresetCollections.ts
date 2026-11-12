@@ -379,16 +379,29 @@ export const epicyclePresetCollection: PresetCollection<EpicycleModel> = (() => 
     });
 })();
 
-/** The Preset collections of the function, Analysis and complex Demonstrations (`BaseFunctionGraph`), by Demonstration id. */
-export const functionPresetCollections = {
+/**
+ * The Preset collections of the functions family (task 06 batch 11), by Demonstration id. `collections.ts` orders them for
+ * `PresetImport.ts`; the graphs read them here.
+ */
+export const functionsFamilyPresetCollections = {
     "linear-function": functionCollection("linear-function", parseLinearModel),
     "exponential-function": functionCollection("exponential-function", parseExponentialModel),
     "trigonometric-functions": functionCollection("trigonometric-function", parseTrigonometricModel),
+    "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
+    "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
+    "polynomial-zeros": polynomialZerosCollection(),
+    "rational-function": rationalFunctionCollection(),
+    "geometric-series": functionCollection("geometric-series", parseGeometricSeriesModel, undefined, diagnoseGeometricSeries),
+    "conic-focal": conicFocalCollection(),
     continuity: functionCollection("piecewise-continuity", parseContinuityModel),
     derivative: functionCollection("derivative", parseDerivativeModel),
     "definite-integral": functionCollection("definite-integral", parseRiemannModel),
     "area-between-curves": functionCollection("area-between-curves", parseAreaBetweenModel),
     "arc-length": functionCollection("arc-length", parseArcLengthModel),
+} as const;
+
+/** The Preset collections of the Analysis and probability Demonstrations (`BaseFunctionGraph`) that no family has taken over yet, by Demonstration id. */
+export const unregisteredFunctionPresetCollections = {
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     quadrature: functionCollection("quadrature", parseQuadratureModel, diagnoseQuadrature),
@@ -410,10 +423,7 @@ export const functionPresetCollections = {
     "prob-summary": Object.freeze({...functionCollection("prob-summary", parseSummaryModel, diagnoseSummary), checkGraphState: checkSummaryGraphState}),
     "prob-correlation": Object.freeze({...functionCollection("prob-correlation", parseCorrelationModel, diagnoseCorrelation), checkGraphState: checkCorrelationGraphState}),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
-    "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
-    "polynomial-zeros": polynomialZerosCollection(),
-    "rational-function": rationalFunctionCollection(),
-    "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
-    "geometric-series": functionCollection("geometric-series", parseGeometricSeriesModel, undefined, diagnoseGeometricSeries),
-    "conic-focal": conicFocalCollection(),
 } as const;
+
+/** Every function-style Preset collection by Demonstration id; the family entries come from `functionsFamilyPresetCollections`. */
+export const functionPresetCollections = {...functionsFamilyPresetCollections, ...unregisteredFunctionPresetCollections} as const;

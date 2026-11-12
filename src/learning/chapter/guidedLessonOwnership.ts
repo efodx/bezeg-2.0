@@ -14,6 +14,8 @@ import type {InterpolationDemonstrationId} from '../../graphs/curves/interpolati
 import {interpolationDemonstrationRows} from '../../graphs/curves/interpolation/registration';
 import type {PatchesDemonstrationId} from '../../graphs/patches/registration';
 import {patchesDemonstrationRows} from '../../graphs/patches/registration';
+import type {FunctionsDemonstrationId} from '../../graphs/functions/registration';
+import {functionsDemonstrationRows, functionsPrimaryOwners} from '../../graphs/functions/registration';
 import {splinePrimaryOwners} from '../../graphs/curves/spline/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
@@ -24,33 +26,21 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
-type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners;
-const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners, ...splinePrimaryOwners};
+type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners | keyof typeof functionsPrimaryOwners;
+const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners, ...splinePrimaryOwners, ...functionsPrimaryOwners};
 
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
-    'linear-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
-    'exponential-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
-    'trigonometric-functions': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     // School function graphs batch A: the Function graphs for the matura chapter owns S1 (graph transformations) and S2 (inverse functions), one section each.
-    'function-transformation': {chapterId: 'school-function-graphs', sectionId: 'function-transformation'},
-    'function-inverse': {chapterId: 'school-function-graphs', sectionId: 'function-inverse'},
-    'polynomial-zeros': {chapterId: 'school-function-graphs', sectionId: 'polynomial-zeros'},
-    'rational-function': {chapterId: 'school-function-graphs', sectionId: 'rational-function'},
-    'geometric-series': {chapterId: 'school-function-graphs', sectionId: 'geometric-series'},
-    'conic-focal': {chapterId: 'school-function-graphs', sectionId: 'conic-focal'},
     // Fourier series F1 and F3: its own section of the Fourier series chapter.
     'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
     // Fourier coefficients F2 and F4: its own section of the Fourier series chapter.
     'fourier-coefficients': {chapterId: 'fourier-series', sectionId: 'fourier-coefficients'},
     // Epicycles F5: its own section of the Fourier series chapter.
     epicycles: {chapterId: 'fourier-series', sectionId: 'epicycles'},
-    continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
-    derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
-    'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
     // The probability chapter owns the lessons of spec P1 to P5; it links back to the definite integral.
     'prob-density': {chapterId: 'probability', sectionId: 'density'},
     'prob-binomial-normal': {chapterId: 'probability', sectionId: 'binomial-normal'},
@@ -61,8 +51,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'prob-simulation': {chapterId: 'randomness', sectionId: 'galton-board'},
     // Level sets batch A: the linear-programming lesson (LS5) in the level-sets chapter.
     'linear-program': {chapterId: 'level-sets', sectionId: 'linear-programming'},
-    'area-between-curves': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
-    'arc-length': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     bisection: {chapterId: 'analysis', sectionId: 'existence'},
     'mean-value': {chapterId: 'analysis', sectionId: 'derivative-results'},
     accumulation: {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
@@ -141,7 +129,7 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

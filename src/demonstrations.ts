@@ -1,5 +1,6 @@
 import {MessageKey, renderMessage, t} from './localization';
 import type {sl} from './localization/sl';
+import {functionsDemonstrationRows} from './graphs/functions/registration';
 import {projectiveDemonstrationRows} from './graphs/projective/registration';
 import {trigDemonstrationRows} from './graphs/trig/registration';
 import {lineDemonstrationRows} from './graphs/lines/registration';
@@ -61,20 +62,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'linear-function', path: '/bezeg-2.0/functions/linear', family: '/bezeg-2.0/functions', title: 'linear_function', prompts: ['prompt_linear_function', 'prompt_compare']},
-    {id: 'exponential-function', path: '/bezeg-2.0/functions/exponential', family: '/bezeg-2.0/functions', title: 'exponential_function', prompts: ['prompt_exponential_function', 'prompt_compare']},
-    {id: 'trigonometric-functions', path: '/bezeg-2.0/functions/trigonometric', family: '/bezeg-2.0/functions', title: 'trigonometric_functions', prompts: ['prompt_trigonometric_functions', 'prompt_compare']},
-    {id: 'function-transformation', path: '/bezeg-2.0/functions/transformations', family: '/bezeg-2.0/functions', title: 'function_transformation_title', prompts: ['prompt_function_transformation', 'prompt_compare']},
-    {id: 'function-inverse', path: '/bezeg-2.0/functions/inverse', family: '/bezeg-2.0/functions', title: 'function_inverse_title', prompts: ['prompt_function_inverse', 'prompt_compare']},
-    {id: 'polynomial-zeros', path: '/bezeg-2.0/functions/polynomial-zeros', family: '/bezeg-2.0/functions', title: 'polynomial_zeros_title', prompts: ['prompt_polynomial_zeros', 'prompt_compare']},
-    {id: 'rational-function', path: '/bezeg-2.0/functions/rational-functions', family: '/bezeg-2.0/functions', title: 'rational_function_title', prompts: ['prompt_rational_function', 'prompt_compare']},
-    {id: 'geometric-series', path: '/bezeg-2.0/functions/geometric-series', family: '/bezeg-2.0/functions', title: 'geometric_series_title', prompts: ['prompt_geometric_series', 'prompt_compare']},
-    {id: 'conic-focal', path: '/bezeg-2.0/functions/conics', family: '/bezeg-2.0/functions', title: 'conic_focal_title', prompts: ['prompt_conic_focal', 'prompt_compare']},
-    {id: 'continuity', path: '/bezeg-2.0/functions/continuity', family: '/bezeg-2.0/functions', title: 'continuity', prompts: ['prompt_continuity', 'prompt_compare']},
-    {id: 'derivative', path: '/bezeg-2.0/functions/derivative', family: '/bezeg-2.0/functions', title: 'derivative', prompts: ['prompt_derivative', 'prompt_compare']},
-    {id: 'definite-integral', path: '/bezeg-2.0/functions/integral', family: '/bezeg-2.0/functions', title: 'definite_integral', prompts: ['prompt_definite_integral', 'prompt_compare']},
-    {id: 'area-between-curves', path: '/bezeg-2.0/functions/area-between', family: '/bezeg-2.0/functions', title: 'area_between_curves', prompts: ['prompt_area_between_curves', 'prompt_compare']},
-    {id: 'arc-length', path: '/bezeg-2.0/functions/arc-length', family: '/bezeg-2.0/functions', title: 'curve_arc_length', prompts: ['prompt_curve_arc_length', 'prompt_compare']},
     {id: 'bisection', path: '/bezeg-2.0/analysis/bisection', family: 'analysis', title: 'bisection', prompts: ['prompt_bisection', 'prompt_compare']},
     {id: 'root-finding', path: '/bezeg-2.0/analysis/root-finding', family: 'analysis', title: 'root_finding_title', prompts: ['prompt_root_finding', 'prompt_compare']},
     {id: 'quadrature', path: '/bezeg-2.0/analysis/quadrature', family: 'analysis', title: 'quadrature_title', prompts: ['prompt_quadrature', 'prompt_compare']},
@@ -122,7 +109,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...functionsDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

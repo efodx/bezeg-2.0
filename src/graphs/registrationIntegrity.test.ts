@@ -37,6 +37,9 @@ import {patchesCollections} from './patches/collections';
 import {patchesCollectionKeys, patchesDemonstrationRows} from './patches/registration';
 import {patchesGraphLoaders} from './patches/runtime';
 import {bezierGraphLoaders} from './curves/bezier/runtime';
+import {functionsCollections} from './functions/collections';
+import {functionsCollectionKeys, functionsDemonstrationRows} from './functions/registration';
+import {functionsGraphLoaders} from './functions/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
 import {trigGraphLoaders} from './trig/runtime';
@@ -147,6 +150,7 @@ interface RealFamily {
 const realFamilies: readonly RealFamily[] = [
     {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
+    {family: 'functions', rows: functionsDemonstrationRows, loaders: functionsGraphLoaders, collectionKeys: functionsCollectionKeys, collections: functionsCollections},
     {family: 'trigonometry', rows: trigDemonstrationRows, loaders: trigGraphLoaders, collectionKeys: trigCollectionKeys, collections: trigCollections},
     {family: 'line-geometry', rows: lineDemonstrationRows, loaders: lineGraphLoaders, collectionKeys: lineCollectionKeys, collections: lineCollections},
     {family: 'isometries', rows: isometryDemonstrationRows, loaders: isometryGraphLoaders, collectionKeys: isometryCollectionKeys, collections: isometryCollections},

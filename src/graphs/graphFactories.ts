@@ -14,24 +14,10 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import { LinearFunctionGraph } from './functions/LinearFunctionGraph';
-import { ExponentialFunctionGraph } from './functions/ExponentialFunctionGraph';
-import { TrigonometricFunctionsGraph } from './functions/TrigonometricFunctionsGraph';
-import { ContinuityGraph } from './functions/ContinuityGraph';
-import { DerivativeGraph } from './functions/DerivativeGraph';
-import { DefiniteIntegralGraph } from './functions/DefiniteIntegralGraph';
-import { AreaBetweenCurvesGraph } from './functions/AreaBetweenCurvesGraph';
-import { ArcLengthGraph } from './functions/ArcLengthGraph';
 import { BisectionGraph } from './functions/BisectionGraph';
 import { RootFindingGraph } from './functions/RootFindingGraph';
 import { QuadratureGraph } from './functions/QuadratureGraph';
 import { EulerGraph } from './functions/EulerGraph';
-import { FunctionTransformationGraph } from './functions/FunctionTransformationGraph';
-import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
-import { PolynomialZerosGraph } from './functions/PolynomialZerosGraph';
-import { RationalFunctionGraph } from './functions/RationalFunctionGraph';
-import { GeometricSeriesGraph } from './functions/GeometricSeriesGraph';
-import { ConicFocalGraph } from './functions/ConicFocalGraph';
 import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
 import { FourierCoefficientsGraph } from './functions/FourierCoefficientsGraph';
 import { EpicycleGraph } from './functions/EpicycleGraph';
@@ -64,20 +50,6 @@ import type {RegisteredDemonstrationId} from './graphLoaders';
 
 /** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
 export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
-    'linear-function': () => new LinearFunctionGraph(),
-    'exponential-function': () => new ExponentialFunctionGraph(),
-    'trigonometric-functions': () => new TrigonometricFunctionsGraph(),
-    'function-transformation': () => new FunctionTransformationGraph(),
-    'function-inverse': () => new FunctionInverseGraph(),
-    'polynomial-zeros': () => new PolynomialZerosGraph(),
-    'rational-function': () => new RationalFunctionGraph(),
-    'geometric-series': () => new GeometricSeriesGraph(),
-    'conic-focal': () => new ConicFocalGraph(),
-    'continuity': () => new ContinuityGraph(),
-    'derivative': () => new DerivativeGraph(),
-    'definite-integral': () => new DefiniteIntegralGraph(),
-    'area-between-curves': () => new AreaBetweenCurvesGraph(),
-    'arc-length': () => new ArcLengthGraph(),
     'bisection': () => new BisectionGraph(),
     'root-finding': () => new RootFindingGraph(),
     'quadrature': () => new QuadratureGraph(),
