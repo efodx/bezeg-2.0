@@ -58,8 +58,9 @@ test('fitToGutter keeps settings at the tuned width and shrinks them for narrowe
     expect(fitToGutter(ELDER_SETTINGS, 2000)).toBe(ELDER_SETTINGS);
     const narrow = fitToGutter(ELDER_SETTINGS, 400);
     expect(narrow.size).toBeLessThan(ELDER_SETTINGS.size);
-    expect(narrow.left).toBeGreaterThanOrEqual(1);
-    expect(narrow.left).toBeLessThan(ELDER_SETTINGS.left);
+    expect(narrow.left).toBe(3);
+    expect(narrow.right).toBe(3);
+    expect(fitToGutter({...ELDER_SETTINGS, left: 2}, 400).left).toBe(2);
     expect(narrow.heads).toBeGreaterThanOrEqual(2);
     expect(fitToGutter({...ELDER_SETTINGS, right: 0}, 400).right).toBe(0);
 });

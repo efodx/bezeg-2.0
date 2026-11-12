@@ -7,12 +7,14 @@ const BOX_H = 1440;
 
 /** Gutter width in box units at which the owner tuned the settings (3440×1280 with the 1100px column). */
 const TUNED_BOX_W = 1290;
+const MIN_BRANCHES = 3;
 
 /** Narrower gutters get proportionally smaller plants and fewer branches and heads, so they do not crowd. */
 export function fitToGutter(settings: ElderSettings, boxW: number): ElderSettings {
     const k = Math.min(1, Math.max(.4, boxW / TUNED_BOX_W));
     if (k === 1) return settings;
-    const count = (n: number) => n === 0 ? 0 : Math.max(1, Math.round(n * k));
+    // Owner: keep at least three main branches per side on narrower gutters (fewer only if fewer were set).
+    const count = (n: number) => Math.max(Math.min(MIN_BRANCHES, n), Math.round(n * k));
     return {...settings, size: settings.size * k, thick: settings.thick * Math.sqrt(k),
         left: count(settings.left), right: count(settings.right), heads: Math.max(Math.min(2, settings.heads), Math.round(settings.heads * (.5 + .5 * k)))};
 }
