@@ -22,11 +22,6 @@ import { EulerLineGraph } from './compgeo/EulerLineGraph';
 import { SimsonLineGraph } from './compgeo/SimsonLineGraph';
 import { InversionGraph } from './compgeo/InversionGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
-import DensityAreaGraph from './functions/DensityAreaGraph';
-import BinomialNormalGraph from './functions/BinomialNormalGraph';
-import CltGraph from './functions/CltGraph';
-import SummaryStatisticsGraph from './functions/SummaryStatisticsGraph';
-import CorrelationGraph from './functions/CorrelationGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
 import type {DemonstrationId} from '../demonstrations';
@@ -34,11 +29,6 @@ import type {RegisteredDemonstrationId} from './graphLoaders';
 
 /** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
 export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
-    'prob-density': () => new DensityAreaGraph(),
-    'prob-binomial-normal': () => new BinomialNormalGraph(),
-    'prob-clt': () => new CltGraph(),
-    'prob-summary': () => new SummaryStatisticsGraph(),
-    'prob-correlation': () => new CorrelationGraph(),
     'linear-map': () => new LinearMapGraph(),
     'complex-reciprocal': () => new ComplexReciprocalGraph(),
     'complex-roots': () => new ComplexRootsGraph(),

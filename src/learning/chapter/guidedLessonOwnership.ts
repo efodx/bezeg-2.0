@@ -16,6 +16,8 @@ import type {PatchesDemonstrationId} from '../../graphs/patches/registration';
 import {patchesDemonstrationRows} from '../../graphs/patches/registration';
 import type {FunctionsDemonstrationId} from '../../graphs/functions/registration';
 import type {AnalysisDemonstrationId} from '../../graphs/analysis/registration';
+import type {ProbabilityDemonstrationId} from '../../graphs/probability/registration';
+import {probabilityDemonstrationRows} from '../../graphs/probability/registration';
 import {analysisDemonstrationRows, analysisPrimaryOwners} from '../../graphs/analysis/registration';
 import {functionsDemonstrationRows, functionsPrimaryOwners} from '../../graphs/functions/registration';
 import {splinePrimaryOwners} from '../../graphs/curves/spline/registration';
@@ -28,7 +30,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | ProbabilityDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
 type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners | keyof typeof functionsPrimaryOwners | keyof typeof analysisPrimaryOwners;
@@ -37,12 +39,6 @@ const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOw
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
     // School function graphs batch A: the Function graphs for the matura chapter owns S1 (graph transformations) and S2 (inverse functions), one section each.
-    // The probability chapter owns the lessons of spec P1 to P5; it links back to the definite integral.
-    'prob-density': {chapterId: 'probability', sectionId: 'density'},
-    'prob-binomial-normal': {chapterId: 'probability', sectionId: 'binomial-normal'},
-    'prob-clt': {chapterId: 'probability', sectionId: 'clt'},
-    'prob-summary': {chapterId: 'probability', sectionId: 'summary'},
-    'prob-correlation': {chapterId: 'probability', sectionId: 'correlation'},
     // Randomness batch A: the Galton lesson (RS1) in the randomness chapter; the law-of-large-numbers lesson (RS2) is the second owner, derived from the chapter.
     'prob-simulation': {chapterId: 'randomness', sectionId: 'galton-board'},
     // Level sets batch A: the linear-programming lesson (LS5) in the level-sets chapter.
@@ -111,7 +107,7 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...probabilityDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

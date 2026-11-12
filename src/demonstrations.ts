@@ -1,5 +1,6 @@
 import {MessageKey, renderMessage, t} from './localization';
 import type {sl} from './localization/sl';
+import {probabilityDemonstrationRows} from './graphs/probability/registration';
 import {analysisDemonstrationRows} from './graphs/analysis/registration';
 import {functionsDemonstrationRows} from './graphs/functions/registration';
 import {projectiveDemonstrationRows} from './graphs/projective/registration';
@@ -63,11 +64,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'prob-density', path: '/bezeg-2.0/probability/density', family: '/bezeg-2.0/probability', title: 'prob_density_title', prompts: ['prompt_prob_density', 'prompt_compare']},
-    {id: 'prob-binomial-normal', path: '/bezeg-2.0/probability/binomial-normal', family: '/bezeg-2.0/probability', title: 'prob_binomial_title', prompts: ['prompt_prob_binomial_normal', 'prompt_compare']},
-    {id: 'prob-clt', path: '/bezeg-2.0/probability/clt', family: '/bezeg-2.0/probability', title: 'prob_clt_title', prompts: ['prompt_prob_clt', 'prompt_compare']},
-    {id: 'prob-summary', path: '/bezeg-2.0/probability/summary', family: '/bezeg-2.0/probability', title: 'prob_summary_title', prompts: ['prompt_prob_summary', 'prompt_compare']},
-    {id: 'prob-correlation', path: '/bezeg-2.0/probability/correlation', family: '/bezeg-2.0/probability', title: 'prob_correlation_title', prompts: ['prompt_prob_correlation', 'prompt_compare']},
     {id: 'linear-map', path: '/bezeg-2.0/linear-map', family: 'maps', title: 'linear_map_title', prompts: ['linear_map_prompt', 'prompt_compare']},
     {id: 'complex-reciprocal', path: '/bezeg-2.0/complex-reciprocal', family: 'maps', title: 'complex_reciprocal_title', prompts: ['complex_reciprocal_prompt', 'prompt_compare']},
     {id: 'complex-roots', path: '/bezeg-2.0/complex-roots', family: 'maps', title: 'complex_roots_title', prompts: ['complex_roots_prompt', 'prompt_compare']},
@@ -94,7 +90,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...analysisDemonstrationRows, ...functionsDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...analysisDemonstrationRows, ...probabilityDemonstrationRows, ...functionsDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

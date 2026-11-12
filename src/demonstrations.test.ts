@@ -5,11 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['probability/density', '/bezeg-2.0/probability', 'prob_density_title', 'prob_density_title', 'prompt_prob_density'],
-    ['probability/binomial-normal', '/bezeg-2.0/probability', 'prob_binomial_title', 'prob_binomial_title', 'prompt_prob_binomial_normal'],
-    ['probability/clt', '/bezeg-2.0/probability', 'prob_clt_title', 'prob_clt_title', 'prompt_prob_clt'],
-    ['probability/summary', '/bezeg-2.0/probability', 'prob_summary_title', 'prob_summary_title', 'prompt_prob_summary'],
-    ['probability/correlation', '/bezeg-2.0/probability', 'prob_correlation_title', 'prob_correlation_title', 'prompt_prob_correlation'],
     ['linear-map', 'maps', 'linear_map_title', 'linear_map_title', 'linear_map_prompt'],
     ['complex-reciprocal', 'maps', 'complex_reciprocal_title', 'complex_reciprocal_title', 'complex_reciprocal_prompt'],
     ['complex-roots', 'maps', 'complex_roots_title', 'complex_roots_title', 'complex_roots_prompt'],
@@ -55,6 +50,11 @@ const expected = [
     ['analysis/fourier-coefficients', 'analysis', 'fourier_coefficients_title', 'fourier_coefficients_title', 'prompt_fourier_coefficients'],
     ['analysis/epicycles', 'analysis', 'epicycles_title', 'epicycles_title', 'prompt_epicycles'],
     ['analysis/fixed-point', 'analysis', 'fixed_point', 'fixed_point', 'prompt_fixed_point'],
+    ['probability/density', '/bezeg-2.0/probability', 'prob_density_title', 'prob_density_title', 'prompt_prob_density'],
+    ['probability/binomial-normal', '/bezeg-2.0/probability', 'prob_binomial_title', 'prob_binomial_title', 'prompt_prob_binomial_normal'],
+    ['probability/clt', '/bezeg-2.0/probability', 'prob_clt_title', 'prob_clt_title', 'prompt_prob_clt'],
+    ['probability/summary', '/bezeg-2.0/probability', 'prob_summary_title', 'prob_summary_title', 'prompt_prob_summary'],
+    ['probability/correlation', '/bezeg-2.0/probability', 'prob_correlation_title', 'prob_correlation_title', 'prompt_prob_correlation'],
     ['functions/linear', '/bezeg-2.0/functions', 'linear_function', 'linear_function', 'prompt_linear_function'],
     ['functions/exponential', '/bezeg-2.0/functions', 'exponential_function', 'exponential_function', 'prompt_exponential_function'],
     ['functions/trigonometric', '/bezeg-2.0/functions', 'trigonometric_functions', 'trigonometric_functions', 'prompt_trigonometric_functions'],

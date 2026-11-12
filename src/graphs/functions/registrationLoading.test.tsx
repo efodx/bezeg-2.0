@@ -24,7 +24,7 @@ vi.mock('./DerivativeGraph', () => mark('DerivativeGraph', {DerivativeGraph: cla
 vi.mock('./DefiniteIntegralGraph', () => mark('DefiniteIntegralGraph', {DefiniteIntegralGraph: class DefiniteIntegralGraph {}}));
 vi.mock('./AreaBetweenCurvesGraph', () => mark('AreaBetweenCurvesGraph', {AreaBetweenCurvesGraph: class AreaBetweenCurvesGraph {}}));
 vi.mock('./ArcLengthGraph', () => mark('ArcLengthGraph', {ArcLengthGraph: class ArcLengthGraph {}}));
-vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {'prob-density': () => ({})}}));
+vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {'orientation': () => ({})}}));
 vi.mock('../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -79,7 +79,7 @@ describe('module evaluation', () => {
     });
 
     test('a legacy route still resolves through the legacy table', async () => {
-        const route = await routeFor('/bezeg-2.0/probability/density');
+        const route = await routeFor('/bezeg-2.0/compgeo/orientation');
         await route.lazy!();
         expect(evaluated).toContain('graphFactories');
         expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);

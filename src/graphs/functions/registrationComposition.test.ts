@@ -11,7 +11,7 @@ import {getGuidedLessonOwners, guidedLessonOwners} from '../../learning/chapter/
 import {presetCollections} from '../base/presets/PresetImport';
 import {checkRegistrations} from '../registrationIntegrity';
 import {functionsCollections} from './collections';
-import {functionPresetCollections, functionsFamilyPresetCollections, unregisteredFunctionPresetCollections} from './functionPresetCollections';
+import {functionPresetCollections, functionsFamilyPresetCollections, analysisFamilyPresetCollections, probabilityFamilyPresetCollections} from './functionPresetCollections';
 import {functionsCollectionKeys, functionsDemonstrationRows, functionsPrimaryOwners} from './registration';
 import {functionsGraphLoaders} from './runtime';
 
@@ -51,10 +51,11 @@ describe('R5 deletion test: no central functions rows', () => {
             .toEqual({'trigonometric-functions': 'trigonometric-function', continuity: 'piecewise-continuity'});
     });
 
-    test('the family map holds exactly the fourteen entries; the analysis and probability entries stay unregistered and the full map is their union', () => {
+    test('the family map holds exactly the fourteen entries; the analysis and probability families hold the other entries and the full map is their union', () => {
         expect(Object.keys(functionsFamilyPresetCollections)).toEqual(expectedIds);
-        expect(Object.keys(unregisteredFunctionPresetCollections)).toHaveLength(5);
-        expect(Object.keys(unregisteredFunctionPresetCollections).filter(id => (expectedIds as readonly string[]).includes(id))).toEqual([]);
+        expect(Object.keys(probabilityFamilyPresetCollections)).toHaveLength(5);
+        expect(Object.keys(analysisFamilyPresetCollections)).toHaveLength(16);
+        expect(Object.keys({...analysisFamilyPresetCollections, ...probabilityFamilyPresetCollections}).filter(id => (expectedIds as readonly string[]).includes(id))).toEqual([]);
         expect(Object.keys(functionPresetCollections)).toHaveLength(35);
         expect(functionsCollections).toEqual(expectedIds.map(id => functionsFamilyPresetCollections[id]));
     });
@@ -67,10 +68,10 @@ describe('R5 deletion test: no central functions rows', () => {
         }], none)).toEqual([]);
     });
 
-    test('every collection is importable exactly once under its key, and the unregistered entries are still there', () => {
+    test('every collection is importable exactly once under its key, and the entries of the other families are still there', () => {
         const keys = presetCollections.map(collection => collection.key);
         for (const key of Object.values(functionsCollectionKeys)) expect(keys.filter(item => item === key)).toEqual([key]);
-        for (const collection of Object.values(unregisteredFunctionPresetCollections)) expect(keys.filter(item => item === collection.key)).toEqual([collection.key]);
+        for (const collection of Object.values({...analysisFamilyPresetCollections, ...probabilityFamilyPresetCollections})) expect(keys.filter(item => item === collection.key)).toEqual([collection.key]);
     });
 });
 
@@ -82,7 +83,6 @@ describe('R5 composition: every root references the family export', () => {
         ['src/graphs/graphLoaders.ts', /from '\.\/functions\/runtime'/],
         ['src/graphs/base/presets/PresetImport.ts', /\.\.\.functionsCollections\b/],
         ['src/graphs/base/presets/PresetImport.ts', /from ["']\.\.\/\.\.\/functions\/collections["']/],
-        ['src/graphs/base/presets/PresetImport.ts', /\.\.\.Object\.values\(unregisteredFunctionPresetCollections\)/],
         ['src/learning/chapter/guidedLessonOwnership.ts', /functionsPrimaryOwners/],
         ['src/learning/chapter/guidedLessonOwnership.ts', /functionsDemonstrationRows/],
         ['scripts/probe-demonstration-clip-routes.cjs', /src\/graphs\/functions\/registration\.ts/],

@@ -40,6 +40,9 @@ import {bezierGraphLoaders} from './curves/bezier/runtime';
 import {analysisCollections} from './analysis/collections';
 import {analysisCollectionKeys, analysisDemonstrationRows} from './analysis/registration';
 import {analysisGraphLoaders} from './analysis/runtime';
+import {probabilityCollections} from './probability/collections';
+import {probabilityCollectionKeys, probabilityDemonstrationRows} from './probability/registration';
+import {probabilityGraphLoaders} from './probability/runtime';
 import {functionsCollections} from './functions/collections';
 import {functionsCollectionKeys, functionsDemonstrationRows} from './functions/registration';
 import {functionsGraphLoaders} from './functions/runtime';
@@ -154,6 +157,7 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
     {family: 'analysis', rows: analysisDemonstrationRows, loaders: analysisGraphLoaders, collectionKeys: analysisCollectionKeys, collections: analysisCollections},
+    {family: 'probability', rows: probabilityDemonstrationRows, loaders: probabilityGraphLoaders, collectionKeys: probabilityCollectionKeys, collections: probabilityCollections},
     {family: 'functions', rows: functionsDemonstrationRows, loaders: functionsGraphLoaders, collectionKeys: functionsCollectionKeys, collections: functionsCollections},
     {family: 'trigonometry', rows: trigDemonstrationRows, loaders: trigGraphLoaders, collectionKeys: trigCollectionKeys, collections: trigCollections},
     {family: 'line-geometry', rows: lineDemonstrationRows, loaders: lineGraphLoaders, collectionKeys: lineCollectionKeys, collections: lineCollections},

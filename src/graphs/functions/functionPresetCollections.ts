@@ -423,8 +423,8 @@ export const analysisFamilyPresetCollections = {
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
 } as const;
 
-/** The Preset collections of the probability Demonstrations (`BaseFunctionGraph`) that no family has taken over yet, by Demonstration id. */
-export const unregisteredFunctionPresetCollections = {
+/** The Preset collections of the probability family (task 06 batch 13), by Demonstration id; `probability/collections.ts` orders them for `PresetImport.ts`. */
+export const probabilityFamilyPresetCollections = {
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
     "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),
@@ -432,5 +432,5 @@ export const unregisteredFunctionPresetCollections = {
     "prob-correlation": Object.freeze({...functionCollection("prob-correlation", parseCorrelationModel, diagnoseCorrelation), checkGraphState: checkCorrelationGraphState}),
 } as const;
 
-/** Every function-style Preset collection by Demonstration id; the family entries come from `functionsFamilyPresetCollections` and `analysisFamilyPresetCollections`. */
-export const functionPresetCollections = {...functionsFamilyPresetCollections, ...analysisFamilyPresetCollections, ...unregisteredFunctionPresetCollections} as const;
+/** Every function-style Preset collection by Demonstration id; the entries come from the functions, analysis and probability family maps above. */
+export const functionPresetCollections = {...functionsFamilyPresetCollections, ...analysisFamilyPresetCollections, ...probabilityFamilyPresetCollections} as const;
