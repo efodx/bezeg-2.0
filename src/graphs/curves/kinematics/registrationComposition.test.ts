@@ -1,6 +1,6 @@
 // R5 composition of docs/specs/lesson-authoring-architecture.md for the kinematics row: every root references the
-// family export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). The row is
-// `lesson: false` until families-prep F3, so no lesson ownership or chapter script names it.
+// family export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). The row has lessons (families-prep F3 batch A), so
+// the kinematics chapter owns it.
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -34,9 +34,9 @@ describe('R5 composition: every root references the kinematics row export', () =
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, each row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(kinematicsDemonstrationRows.length).toBe(1);
-        expect(kinematicsDemonstrationRows.every(row => row.lesson === false)).toBe(true);
+        expect(kinematicsDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false)).toEqual([]);
         expect(new Set(Object.values(kinematicsCollectionKeys)).size).toBe(kinematicsDemonstrationRows.length);
     });
 });

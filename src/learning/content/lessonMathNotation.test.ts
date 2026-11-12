@@ -17,6 +17,7 @@ import {projectiveConicsGuidedLessons} from './projectiveConicsGuidedLessons';
 import {unitCircleAdditionLesson, unitCircleRadianLesson} from './trigUnitCircleGuidedLessons';
 import {lineFormsLesson, lineNormalLesson} from './analyticLinesGuidedLessons';
 import {circleTangentsLesson, circleRadicalLesson} from './circleGeometryGuidedLessons';
+import {kinematicsVectorsLesson, kinematicsSpeedLesson} from './kinematicsGuidedLessons';
 import {latticePathsLesson, countingTreeLesson} from './combinatoricsGuidedLessons';
 import {isometryClassifyLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
 import {schoolFunctionGraphsGuidedLessons} from './schoolFunctionGraphsGuidedLessons';
@@ -79,6 +80,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['trigUnitCircleGuidedLessons', [unitCircleRadianLesson, unitCircleAdditionLesson]],
     ['analyticLinesGuidedLessons', [lineFormsLesson, lineNormalLesson]],
     ['circleGeometryGuidedLessons', [circleTangentsLesson, circleRadicalLesson]],
+    ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson]],
     ['combinatoricsGuidedLessons', [latticePathsLesson, countingTreeLesson]],
     ['isometriesGuidedLessons', [isometryTwoMirrorsLesson, isometryClassifyLesson]],
     ['coonsGuidedLessons', coonsGuidedLessons],
@@ -222,6 +224,7 @@ test('scans every lesson module', () => {
             'unit-circle', 'unit-circle', // trigUnitCircleGuidedLessons.ts: TR1 and TR2
             'line-geometry', 'line-geometry', // analyticLinesGuidedLessons.ts: L1 and L2
             'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 and CG2
+            'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 and KN2
             'lattice-paths', 'counting-tree', // combinatoricsGuidedLessons.ts: CB1 and CB2
             'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 and L2
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',

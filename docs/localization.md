@@ -175,6 +175,11 @@ The static document initially declares Slovenian, and runtime selection updates 
 | permutacija; variacija; kombinacija | permutation; variation; combination (CB2). PIK §4.15; "permutacije s ponavljanjem" (MISSISSIPPI, CB2) and "variacije s ponavljanjem" are the same words with *s ponavljanjem*; "kombinacije s ponavljanjem" only named as the graph's fourth kind, not derived |
 | binomski simbol; Pascalov trikotnik | binomial coefficient \(\binom nk\), read "n nad k" (CB1, CB2); Pascal's triangle (CB1). PIK §4.15; the readout writes "(n nad k)" |
 | pot po mreži | lattice path, a route of right (D) and up (G) steps (CB1). Transparent wording, no source shows *monotona pot*; CB1 step 1 glosses it as "eno polje desno (D) ali gor (G)". Route letters D and G in sl, R and U in en |
+| hitrost; velikost hitrosti; pospešek (kinematika) | velocity (vector); speed; acceleration (KN1, KN2). Existing words from the kinematics term table (`docs/tasks/kinematics/README.md`); the readout writes the vector as (x; y) m/s and the length as \(|v|\) |
+| tangentni, normalni pospešek | tangential, normal acceleration \(a_T\), \(a_N\) (KN2). Standard; the graph draws them dotted and with long dashes (*dolge črtice*, distinct from the dashed *črtkano* acceleration) |
+| primerjalna točka | reference point (KN2): the uniformly circling comparison point, drawn as a square; plain description |
+| enakomerno kroženje; kotna hitrost; poševni met | uniform circular motion; angular velocity; projectile motion (KN1 step 6 names the motions of the Motion list; KN2 uses the first two). Standard school-physics words |
+| špica (cikloide) | cusp of the cycloid (KN1 step 5), the point of velocity 0; the graph status says *Hitrost je 0 ali skoraj 0* |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

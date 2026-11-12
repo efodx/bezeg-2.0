@@ -16,6 +16,7 @@ import {fourierChapter} from './fourierChapter';
 import {projectiveConicsChapter} from './projectiveConicsChapter';
 import {bsplineChapter} from './bsplineChapter';
 import {curveGeometryChapter} from './curveGeometryChapter';
+import {kinematicsChapter} from './kinematicsChapter';
 import {advancedBezierChapter} from './advancedBezierChapter';
 import {interpolationChapter} from './interpolationChapter';
 import {probabilityChapter} from './probabilityChapter';
@@ -314,6 +315,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
         ],
     },
     curveGeometryChapter, // Curve geometry batch 1: parametric and polar curves and curvature (L1, L2) of curveGeometryGuidedLessons.ts; after parametrization and the PH curves, whose ideas it uses.
+    kinematicsChapter, // Kinematics batch A: KN1 and KN2 (kinematicsGuidedLessons.ts); directly after the geometry of curves, whose tangent and curvature it uses; the lessons of batches B and C join later.
     patchChapter, // Placed after the curve families (parametrization), before the analysis-style chapters.
     advancedBezierChapter, // Advanced Bézier topics (reduction, arc-length parametrization, Coons patch); after the patches chapter, which the Coons lesson builds on.
     linearMapsChapter, // Maps of the plane: chapter-owned activities live in linearMapsChapterLessons.ts.

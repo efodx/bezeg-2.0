@@ -17,6 +17,8 @@ import {PresetCollection} from "../../base/presets/PresetCollection";
 import {Preset} from "../../base/presets/Presets";
 import {kinematicsPresetCollection} from "./kinematicsPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../../learning/runtime/animation";
+import type {LessonAction} from "../../../learning/model";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {circularSource} from "../../../kinematics/motion";
 import {
     arrowEnd, componentVectors, DEFAULT_KINEMATICS_STATE, deriveKinematics, Evaluation, evaluateAt, FIELD_RANGES, GRAVITY,
@@ -61,10 +63,30 @@ const CAPTION_ROOM = 0.25;
 const CAPTION_ROW_PX = 20;
 const CAPTION_CHAR_PX = 7.5;
 
-/** The lines a caption takes on a board `width` px wide (with a 10 px margin each side): the browser wraps the text at the edge of the board. */
-export function captionLines(text: string, width: number): number {
-    const room = Math.max(width - 20, 100);
-    return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / room));
+/** The y-axis tick labels stand left of the axis: up to this many pixels (offset 10 px plus a label of up to four characters) must stay clear. */
+const AXIS_LABEL_PX = 60;
+/** The gap between the y axis and a caption that stands to its right. */
+const AXIS_GAP_PX = 8;
+
+/**
+ * Where the captions stand on a board `width` px wide whose y axis is `axisPx` px from the left edge (negative or beyond `width` when the axis is off
+ * the board): `indent` px from the left edge and `room` px wide. The captions never cover the axis tick labels, which stand left of the axis: they go
+ * to the right of the axis when that side is the wider one, else to the left of its labels.
+ */
+export function captionPlacement(axisPx: number, width: number): {indent: number; room: number} {
+    const edge = 10;
+    if (!Number.isFinite(axisPx) || axisPx <= edge + AXIS_GAP_PX || axisPx >= width + AXIS_LABEL_PX) return {indent: edge, room: Math.max(width - 2 * edge, 100)};
+    // An axis just beyond the right edge still has its tick labels on the board: keep the captions left of them.
+    if (axisPx >= width) return {indent: edge, room: Math.max(Math.min(axisPx - AXIS_LABEL_PX, width) - 2 * edge, 100)};
+    const right = {indent: axisPx + AXIS_GAP_PX, room: width - axisPx - AXIS_GAP_PX - edge};
+    const left = {indent: edge, room: axisPx - AXIS_LABEL_PX - edge};
+    const wider = right.room >= left.room ? right : left;
+    return {indent: wider.indent, room: Math.max(wider.room, 100)};
+}
+
+/** The lines a caption takes in `room` px: the browser wraps the text at the edge of the board. */
+export function captionLines(text: string, room: number): number {
+    return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / Math.max(room, 100)));
 }
 
 /** The board rectangle [left, top, right, bottom] for a motion: the path box, a margin of one full arrow, and room on top for the captions. */
@@ -386,11 +408,13 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             {text: () => t("kinematics_graph_cap_gravity", {value0: dec(GRAVITY, 2)}), visible: () => state().motion === "projectile", color: GraphPalette.label},
             {text: () => t("kinematics_graph_cap_cusp"), visible: () => noDirection(), color: GraphPalette.label},
         ];
+        // The captions stand clear of the y-axis tick labels (`captionPlacement`): right of the axis, or left of its labels on the wider side.
+        const placement = () => { const {left, ux} = this.scaleOf(); return captionPlacement((0 - left) * ux, board.canvasWidth); };
         captions.forEach((caption, index) => {
-            // A caption wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
-            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), board.canvasWidth), 0);
+            // A caption wider than its room wraps: the rows above add up the lines each takes, so none runs into the next.
+            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), placement().room), 0);
             this.own(board.create("text", [
-                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
+                () => { const {left, ux} = this.scaleOf(); return left + placement().indent / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * CAPTION_ROW_PX) / uy; },
                 () => caption.text(),
             ], {strokeColor: caption.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: watch(caption.visible)}));
@@ -567,6 +591,47 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     editToggle(field: ToggleField, on: boolean): void {
         if (this.state[field] !== on) this.edit({[field]: on});
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`kinematics`): `set-motion` picks the motion (time back to 0, b back to 0 off the circular motion), `set-time` is the time slider and
+     * `set-params` any of the stored fields. Whole new states go through `parseKinematicsState` (strict: nothing is snapped or clamped) before the first
+     * write, so an off-grid or off-range value is a lesson-content error. Each write goes through `edit`, which pauses and reconciles the time at once, so a
+     * `set-time` later in the same scene sees the time domain of the new motion and `onStateChange` has nothing left to reset.
+     */
+    applyKinematicsAction(action: Extract<LessonAction, {kind: "kinematics"}>): void {
+        switch (action.operation) {
+            case "set-motion": {
+                const next = withMotion(this.state, action.motion);
+                const parsed = parseKinematicsState(serializeKinematicsState({...this.state, motion: next.motion, b: next.b}));
+                if (!parsed.ok) throw new Error(`kinematics set-motion: ${parsed.error.message}`);
+                this.edit({motion: parsed.value.motion, b: parsed.value.b});
+                return;
+            }
+            case "set-time":
+                if (!this.setTime(action.t)) throw new Error(`kinematics set-time: t must be a number from 0 to ${this.derived().tEnd}, got ${action.t}.`);
+                return;
+            case "set-params": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+                const parsed = parseKinematicsState({...serializeKinematicsState(this.state), ...defined});
+                if (!parsed.ok) throw new Error(`kinematics set-params: ${parsed.error.message}`);
+                const changed = STORED_FIELDS.filter(key => parsed.value[key] !== this.state[key]);
+                if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`kinematics: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("kinematics", action => this.applyKinematicsAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

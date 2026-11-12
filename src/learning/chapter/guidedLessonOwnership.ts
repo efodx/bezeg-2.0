@@ -93,6 +93,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // Combinatorics batch A: the lattice paths (CB1) and the counting tree (CB2) each own one section of the combinatorics chapter.
     'lattice-paths': {chapterId: 'combinatorics', sectionId: 'lattice-paths-and-pascal'},
     'counting-tree': {chapterId: 'combinatorics', sectionId: 'counting-and-choices'},
+    // Kinematics batch A: the first activity (KN1) in the kinematics chapter; the speed activity (KN2) is the second owner, derived from the chapter.
+    'curve-kinematics': {chapterId: 'kinematics', sectionId: 'position-velocity-acceleration'},
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).

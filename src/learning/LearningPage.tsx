@@ -36,6 +36,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     combinatorics: {demonstration: 'lattice-paths', alt: {sl: 'Mreža s potjo, ki gre samo desno in gor, in števili poti v točkah mreže, ki zapišejo Pascalov trikotnik.', en: 'A grid with a route that goes only right and up, and the numbers of routes at the grid points that write Pascal triangle.'}},
     probability: {demonstration: 'prob-density', alt: {sl: 'Standardna normalna krivulja s pobarvano ploščino med −1 in 1 ter izpisom verjetnosti.', en: 'The standard normal curve with the area between −1 and 1 shaded and a probability readout.'}},
     interpolation: {demonstration: 'interp-lagrange', alt: {sl: 'Lagrangeev polinom skozi štiri točke, ki zapusti ovojnico točk, in Bézierjeva krivulja, ki ostane v njej.', en: 'A Lagrange polynomial through four points leaving their hull, and a Bézier curve staying inside it.'}},
+    kinematics: {demonstration: 'curve-kinematics', alt: {sl: 'Cikloida s točko, puščico hitrosti na tangenti in puščico pospeška.', en: 'A cycloid with a point, the velocity arrow on the tangent and the acceleration arrow.'}},
     'curve-geometry': {demonstration: 'curve-parametric', alt: {sl: 'Krog, ki se kotali po osi x, z označeno točko in cikloido, ki jo ta točka opiše.', en: 'A circle rolling along the x axis, with a marked point and the cycloid that point traces.'}},
     'advanced-bezier': {demonstration: 'patch-coons', alt: {sl: 'Coonsova ploskev, sestavljena iz štirih robnih krivulj, v tridimenzionalnem pogledu.', en: 'A Coons patch built from four boundary curves, in the three-dimensional view.'}},
     'b-splines': {demonstration: 'bspline-basis', alt: {sl: 'Bazne funkcije kvadratnega B-zlepka z vozelnim vektorjem, ki je pritrjen na krajiščih.', en: 'The basis functions of a quadratic B-spline with a knot vector clamped at the ends.'}},
@@ -44,7 +45,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
 
 // Strands group the suggested order; together they list every chapter exactly once.
 export const learningStrands: readonly {id: string; title: LocalizedText; chapters: readonly string[]}[] = [
-    {id: 'curves', title: {sl: 'Krivulje', en: 'Curves'}, chapters: ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'curve-geometry']},
+    {id: 'curves', title: {sl: 'Krivulje', en: 'Curves'}, chapters: ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'curve-geometry', 'kinematics']},
     {id: 'surfaces', title: {sl: 'Ploskve in napredne teme', en: 'Surfaces and advanced topics'}, chapters: ['bezier-patches', 'advanced-bezier']},
     {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps', 'isometries']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms']},

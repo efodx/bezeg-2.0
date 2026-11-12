@@ -436,6 +436,20 @@ export type LessonAction =
     | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'choices'; readonly n: number; readonly k: number; readonly ordered: boolean; readonly repetition: boolean}
     | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'multiset'; readonly counts: readonly [number, number, number, number]}
     /**
+     * KinematicsGraph's scene actions (KN1 to KN5). `set-motion` picks the motion (the catalogue curves, the projectile or the uniform circular
+     * motion): the time restarts at 0 and the speed variation b returns to 0 unless the motion is circular. `set-time` is the time slider: seconds in
+     * [0, the length of the motion], and it pauses the playback. `set-params` sets any of the stored fields (launch speed and angle, radius, angular velocity,
+     * the speed variation b of the circular motion, the four display switches); the merged state must pass the model's strict parser (stepper grid and
+     * ranges, b = 0 for any other motion) before the first write, otherwise the action throws and nothing is snapped. Playback is never part of a scene.
+     */
+    | {readonly kind: 'kinematics'; readonly operation: 'set-motion'; readonly motion: 'cycloid' | 'cardioid' | 'rose' | 'spiral' | 'projectile' | 'circular'}
+    | {readonly kind: 'kinematics'; readonly operation: 'set-time'; readonly t: number}
+    | {
+        readonly kind: 'kinematics'; readonly operation: 'set-params';
+        readonly v0?: number; readonly alpha?: number; readonly radius?: number; readonly omega?: number; readonly b?: number;
+        readonly showVelocity?: boolean; readonly showAcceleration?: boolean; readonly split?: boolean; readonly trace?: boolean;
+    }
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.
