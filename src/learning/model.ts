@@ -386,6 +386,14 @@ export type LessonAction =
     | {readonly kind: 'projective'; readonly operation: 'three-views-set-point'; readonly on: boolean}
     | {readonly kind: 'projective'; readonly operation: 'three-views-set-angle'; readonly step: number}
     /**
+     * The trigonometry graphs' scene actions; the union stays open for the triangle graph. UnitCircleGraph (TR1, TR2): `set-angle` is the numeric
+     * angle field in degrees (`which` `first` is the point at angle theta and the rotation of the frame, `second` the angle beta of TR2); `degrees`
+     * must be a finite multiple of 0.5 in [0, 359.5], anything else is a lesson-content error and is never snapped. `set-overlay` is the switch of
+     * the cosine trace, the three symmetric points or the second angle with the rotated frame. The triangle graph rejects these operations.
+     */
+    | {readonly kind: 'trig'; readonly operation: 'set-angle'; readonly which: 'first' | 'second'; readonly degrees: number}
+    | {readonly kind: 'trig'; readonly operation: 'set-overlay'; readonly overlay: 'cosine' | 'symmetries' | 'addition'; readonly on: boolean}
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.

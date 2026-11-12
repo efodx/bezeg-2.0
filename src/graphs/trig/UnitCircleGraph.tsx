@@ -7,6 +7,8 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {NumberInput} from "../../inputs/NumberInput";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {FunctionLegend} from "../functions/FunctionReadout";
@@ -491,6 +493,37 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
             );
         }
         return rows;
+    }
+
+    /**
+     * Lesson actions (`trig`): `set-angle` is the degrees field and `set-overlay` the three switches. Values are checked strictly (a lesson-content
+     * error throws, nothing is snapped); `setState` writes the store synchronously, so a later action of the same scene reads this one's result.
+     */
+    applyTrigAction(action: Extract<LessonAction, {kind: "trig"}>): void {
+        if (action.operation === "set-overlay") {
+            const {overlay, on} = action;
+            if (typeof on !== "boolean") throw new Error("trig set-overlay: on must be a boolean.");
+            if (overlay === "cosine") this.setState({showCosine: on});
+            else if (overlay === "symmetries") this.setState({showSymmetries: on});
+            else if (overlay === "addition") this.setState({showAddition: on});
+            else throw new Error("trig set-overlay: overlay must be cosine, symmetries or addition.");
+            this.requestRender();
+            return;
+        }
+        if (action.operation !== "set-angle") throw new Error(`trig: the unit-circle graph has no operation ${String((action as {operation: unknown}).operation)}.`);
+        const {which, degrees} = action;
+        if (which !== "first" && which !== "second") throw new Error("trig set-angle: which must be first or second.");
+        if (typeof degrees !== "number" || !Number.isFinite(degrees) || degrees < 0 || degrees > ANGLE_MAX_DEGREES || !Number.isInteger(degrees * 2)) {
+            throw new Error(`trig set-angle: degrees must be a multiple of 0.5 from 0 to ${ANGLE_MAX_DEGREES}.`);
+        }
+        this.adjustedTo = undefined;
+        this.setAngle(which === "first" ? "angle" : "secondAngle", degrees * 2);
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("trig", action => this.applyTrigAction(action));
     }
 
     private editAngle(field: AngleField, kind: "degrees" | "pi", value: number): boolean {

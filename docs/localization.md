@@ -75,6 +75,14 @@ The static document initially declares Slovenian, and runtime selection updates 
 | obratna vrednost | reciprocal \(1/z\) (complex numbers) |
 | inverzija v krožnici | circle inversion |
 | enotska krožnica | unit circle |
+| radian | radian (unit of angle; the angle equals the arc length on the unit circle); TR1 |
+| kotne funkcije | trigonometric functions (PIK §4.10.9 title); TR1 |
+| adicijski izreki | addition formulas for sine and cosine (PIK §4.10.9); TR2 |
+| lok | arc of the unit circle (PIK §4.6 "nad istim lokom"); TR1 |
+| kvadrant | quadrant of the plane; TR1 readout |
+| predznaka | signs of cosine and sine (dual form: two quantities); TR1 readout |
+| lega | position of the point on the circle (quadrant or axis); TR1 readout |
+| zrcalna slika čez izhodišče | reflection in the origin (central reflection; extends *zrcalna slika čez os*); TR2 |
 | krožnica inverzije | circle of inversion |
 | količnik | quotient \(w/z\) |
 | linearna preslikava | linear map |

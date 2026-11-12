@@ -84,6 +84,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'euler-method': {chapterId: 'numerical-methods', sectionId: 'euler-method'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
+    // The unit circle's first activity (TR1) in the trigonometry chapter; the addition-formula activity (TR2) is the second owner, derived from the chapter.
+    'unit-circle': {chapterId: 'trigonometry', sectionId: 'radian-sine-cosine'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
     'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
     'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},

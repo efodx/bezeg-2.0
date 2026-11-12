@@ -28,6 +28,7 @@ import {probabilityGuidedExampleLessons, probabilityGuidedExamplePath} from './p
 import {schoolFunctionGraphsGuidedExampleLessons, schoolFunctionGraphsGuidedExamplePath} from './schoolFunctionGraphsChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
 import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry, TRIANGLE_GEOMETRY_CHAPTER_ID} from './triangleGeometryChapterRegistry';
+import {trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath, TRIGONOMETRY_CHAPTER_ID, type TrigonometrySectionId} from './trigonometryChapterRegistry';
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
 
 export interface ChapterOwnedLessons {
@@ -49,6 +50,18 @@ function ownedLessons<Id extends string>(registry: Readonly<Record<Id, LessonDef
         source: 'authored',
         rows: () => rows,
         lesson: sectionId => isSection(sectionId) ? registry[sectionId] : undefined,
+        path: sectionId => isSection(sectionId) ? pathOf(sectionId) : undefined,
+    };
+}
+
+/** A chapter whose authored lessons are built on request (adapted from catalog-format content): the rows are cheap, a definition is created only by `lesson`. */
+function lazyOwnedLessons<Id extends string>(demonstrations: Readonly<Record<Id, DemonstrationId>>, lessonOf: (sectionId: Id) => LessonDefinition, pathOf: (sectionId: Id) => string): ChapterOwnedLessons {
+    const isSection = (sectionId: string): sectionId is Id => Object.prototype.hasOwnProperty.call(demonstrations, sectionId);
+    const rows = Object.entries<DemonstrationId>(demonstrations).map(([sectionId, demonstrationId]) => [sectionId, demonstrationId] as const);
+    return {
+        source: 'authored',
+        rows: () => rows,
+        lesson: sectionId => isSection(sectionId) ? lessonOf(sectionId) : undefined,
         path: sectionId => isSection(sectionId) ? pathOf(sectionId) : undefined,
     };
 }
@@ -83,6 +96,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [COMPLEX_MAPS_CHAPTER_ID]: ownedLessons(complexMapsGuidedExampleRegistry, complexMapsGuidedExamplePath),
     [TRIANGLE_GEOMETRY_CHAPTER_ID]: ownedLessons(triangleGeometryGuidedExampleRegistry, triangleGeometryGuidedExamplePath),
     [PROJECTIVE_CONICS_CHAPTER_ID]: catalogOwnedLessons(projectiveConicsGuidedExampleLessons, projectiveConicsGuidedExamplePath),
+    [TRIGONOMETRY_CHAPTER_ID]: lazyOwnedLessons<TrigonometrySectionId>(trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath),
 };
 
 export function getChapterOwnedLessons(chapterId: string): ChapterOwnedLessons | undefined {

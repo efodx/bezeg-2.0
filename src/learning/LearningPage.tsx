@@ -23,6 +23,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     'triangulations-voronoi': {demonstration: 'ear-clipping', alt: {sl: 'Petkotnik z zarezo, razrezan na tri trikotnike.', en: 'A notched pentagon cut into three triangles.'}},
     'triangle-geometry': {demonstration: 'triangle-centres', alt: {sl: 'Trikotnik z označenimi znamenitimi točkami in očrtano krožnico.', en: 'A triangle with its notable points and circumcircle marked.'}},
     'sweep-algorithms': {demonstration: 'segment-intersections', alt: {sl: 'Štiri daljice v ravnini s pometalno premico in presečišči.', en: 'Four segments in the plane with a sweep line and their intersection points.'}},
+    trigonometry: {demonstration: 'unit-circle', alt: {sl: 'Enotska krožnica s točko pri izbranem kotu ter njenima koordinatama kosinusom in sinusom.', en: 'The unit circle with a point at the chosen angle and its coordinates, the cosine and the sine.'}},
     'complex-maps': {demonstration: 'complex-reciprocal', alt: {sl: 'Točka, njena obratna vrednost in enotska krožnica v kompleksni ravnini.', en: 'A point, its reciprocal and the unit circle in the complex plane.'}},
     'functions-and-calculus': {demonstration: 'derivative', alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'}},
     'school-function-graphs': {demonstration: 'function-transformation', alt: {sl: 'Graf kvadratne funkcije, ki je premaknjen, raztegnjen in zrcaljen, z njegovim senčnim izvirnikom.', en: 'The graph of a quadratic function shifted, stretched and reflected, with its original shown as a ghost.'}},
@@ -44,7 +45,7 @@ export const learningStrands: readonly {id: string; title: LocalizedText; chapte
     {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms']},
     {id: 'plane-geometry', title: {sl: 'Geometrija ravnine', en: 'Plane geometry'}, chapters: ['triangle-geometry', 'projective-conics']},
-    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series', 'probability']},
+    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'trigonometry', 'analysis', 'numerical-methods', 'fourier-series', 'probability']},
 ];
 
 function chapterOutline(chapterId: string, language: LessonLanguage) {

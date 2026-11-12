@@ -2,7 +2,7 @@ import type {DemonstrationId} from '../../demonstrations';
 import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, isPilotGuidedLesson, type LessonScene} from './guidedLessons';
-import type {GuidedLessonFrame, GuidedLessonStep} from './guidedLessons';
+import type {GuidedLesson, GuidedLessonFrame, GuidedLessonStep} from './guidedLessons';
 import {parseHullAlgorithm} from '../../graphs/compgeo/hullTraceRun';
 import {isGuidedLessonAvailable} from '../runtime/lessonAvailability';
 
@@ -170,9 +170,8 @@ function frameForStep(
     };
 }
 
-function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | undefined {
-    const content = getGuidedLesson(demonstrationId);
-    if (!content) return undefined;
+/** Adapts reviewed lesson content that is not the catalog lesson of its Demonstration (a chapter lesson written in the catalog format) under `lessonId`. */
+export function adaptGuidedLessonContent(content: GuidedLesson, lessonId: string): LessonDefinition {
     const formulas = new Map(content.formulaBlocks.map(formula => [formula.id, [
         {sl: `\\[${formula.latex}\\]`, en: `\\[${formula.latex}\\]`},
         formula.notation,
@@ -184,7 +183,7 @@ function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | unde
         check: example.check,
     }]));
     return {
-        id: `${content.demonstrationId}-${isPilotGuidedLesson(content.demonstrationId) ? 'pilot' : 'guided'}`,
+        id: lessonId,
         demonstrationId: content.demonstrationId,
         title: content.title, summary: content.summary,
         steps: content.steps.map(step => ({
@@ -198,6 +197,10 @@ function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | unde
     };
 }
 
+function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | undefined {
+    const content = getGuidedLesson(demonstrationId);
+    return content && adaptGuidedLessonContent(content, `${content.demonstrationId}-${isPilotGuidedLesson(content.demonstrationId) ? 'pilot' : 'guided'}`);
+}
 
 const adaptedLessons = new Map<DemonstrationId, LessonDefinition | undefined>();
 

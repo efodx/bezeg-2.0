@@ -1384,6 +1384,20 @@ const complexRoots = {
     },
 };
 
+// Chapter-owned trigonometry lesson TR1 (src/learning/content/trigUnitCircleGuidedLessons.ts): seven steps, explanation + observation frames, plus a calculation frame for two worked examples.
+// TR2 (`?example=lesson.trigonometry.addition-formulas.unit-circle`) shares the demonstration and has no default row; the host and content tests cover its scenes.
+const unitCircle = {
+    id: 'unit-circle',
+    path: `${BASE}/functions/unit-circle`,
+    titles: {sl: 'Radian, sinus in kosinus na enotski krožnici', en: 'Radian, sine and cosine on the unit circle'},
+    steps: 7,
+    minFrames: 16, // 7 x 2 + 2 calculation frames
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+};
+
 // Chapter-owned triangle geometry lessons T1, T2, T3 and T4 (src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
 const triangleCentres = {
     id: 'triangle-centres',
@@ -2430,7 +2444,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

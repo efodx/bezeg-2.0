@@ -1,6 +1,7 @@
 import {authorFamilyChapterSequence} from './familyChapterSequences';
 import {patchChapter} from './patchChapter';
 import {linearMapsChapter} from './linearMapsChapter';
+import {trigonometryChapter} from './trigonometryChapter';
 import {complexMapsChapter} from './complexMapsChapter';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
 import {convexityChapter} from './convexityChapter';
@@ -347,6 +348,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
         ],
     },
     schoolFunctionGraphsChapter, // School function graphs batch A: the graph transformation and inverse function lessons (S1, S2) of schoolFunctionGraphsGuidedLessons.ts.
+    trigonometryChapter, // Trigonometry batch A: TR1 and TR2 (trigUnitCircleGuidedLessons.ts); the triangle sections join in batches B and C.
     {
         id: 'analysis', family: 'analysis',
         title: text('Analiza: od lokalnih korakov do sklepov', 'Analysis: from local steps to conclusions'),
