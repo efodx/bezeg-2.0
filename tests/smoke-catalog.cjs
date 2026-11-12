@@ -81,8 +81,9 @@ const demonstrationSource = parseSource('src/demonstrations.ts');
  */
 function rowElements(sourceFile, name) {
     const array = variableInitializer(sourceFile, name);
-    if (!ts.isArrayLiteralExpression(array) || array.elements.length === 0) {
-        throw new Error(`${name} in ${path.basename(sourceFile.fileName)} must remain a non-empty array literal.`);
+    // A spread list may be empty (the legacy table is, once every family registers); the resolved catalog may not.
+    if (!ts.isArrayLiteralExpression(array)) {
+        throw new Error(`${name} in ${path.basename(sourceFile.fileName)} must remain an array literal.`);
     }
     return array.elements.flatMap(element => {
         if (!ts.isSpreadElement(element)) return [element];
@@ -100,6 +101,7 @@ function rowElements(sourceFile, name) {
     });
 }
 const definitionElements = rowElements(demonstrationSource, 'definitions');
+if (definitionElements.length === 0) throw new Error('definitions in demonstrations.ts resolved to no rows.');
 const familyDefinitions = variableInitializer(demonstrationSource, 'families');
 if (!ts.isArrayLiteralExpression(familyDefinitions) || familyDefinitions.elements.length === 0) {
     throw new Error('The demonstration family catalog must remain a non-empty array literal.');
