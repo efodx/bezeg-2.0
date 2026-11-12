@@ -1,30 +1,35 @@
 # Authoring-rollout stream state
 
-Written by handler 1 at handoff, 2026-11-12. Stream file: [authoring-rollout.md](../../../tasks/feature-streams/authoring-rollout.md). Decisions: [rollout spec, Rollout decisions](../../../specs/lesson-authoring-rollout.md#rollout-decisions). Worktree `.claude/worktrees/stream-authoring-rollout` (branch `worktree-stream-authoring-rollout`; `node_modules` is a junction to the main checkout).
+Written by handler 2 at handoff, 2026-11-12. Stream file: [authoring-rollout.md](../../../tasks/feature-streams/authoring-rollout.md). Decisions: [rollout spec, Rollout decisions](../../../specs/lesson-authoring-rollout.md#rollout-decisions). Worktree `.claude/worktrees/stream-authoring-rollout` (branch `worktree-stream-authoring-rollout`; `node_modules` is a junction to the main checkout).
 
 ## Done and on master
 
-- Step 1, the inventories: [06](06-inventory.md), [07](07-inventory.md), [08](08-inventory.md).
-- Step 2, task 07 batch 1: the B-spline scenes.
-- Step 3, task 08 step 2: the projective trio persistence. Both are in `aa367329`.
+- Steps 1–3 (handler 1). Step 5 (task 07 batches 2 and 3, all eight eligible curve graphs in the owned slot): `ca331226`.
+- Task 06 registration: B-splines, basics, PH, parameterization (`ca331226`), polynomial Bézier (`69df5e31`).
 
-## Committed locally; publication state at handoff
+## Committed locally, not published
 
-Check `just publish --status` first.
+`1d1759e6` rational, `1e49abb7` its smoke, `565e4247` splines, `7b192f6e` its smoke, `5947d7b3` curve geometry (42/113 registered).
 
-- `3aebdb37` B-spline registration and `12ad2f2b` recorded-order test fix: background publish `publish-12ad2f2b-647cf5`. Its first attempt failed `check-changed` on `src/demonstrations.test.ts` flat order, which the fix resolves (decision R-order). If it failed again, read its log and rerun `just publish --background --recipe runtime --base beb539aa --commits 3aebdb37,12ad2f2b`.
-- `19a61308`: registration of basics, PH and parameterization. `527c43b3`: task 07 batch 2, the Interpolation, Hermite and Subdivision scenes. Plus a docs commit with this note and the status. Publish them after the previous publish lands: `just publish --background --recipe runtime --base 12ad2f2b --commits <every commit in git log --reverse --format=%h 12ad2f2b..HEAD>`. Those commits are `19a61308`, `527c43b3` and the docs commits after them. Handler 1 did not start this publish.
-- The batch 2 smoke passed: [batch2-smoke.md](batch2-smoke.md).
+- The publish of the first four (`publish-7b192f6e-820129`) failed at `whitespace`: `curvePresetCollections.ts` had a blank line at EOF. `5947d7b3` rewrote that file, and `git diff --check 1e49abb7~1 HEAD` is clean. Publish the five together: `just publish --background --recipe runtime --base 9a37863d --commits 1d1759e6,1e49abb7,565e4247,7b192f6e,5947d7b3,<this docs commit>`.
+- **Before publishing:** (1) smoke curve geometry (Haiku `bezeg-smoke`, same brief as [06-batch5-smoke.md](06-batch5-smoke.md); the 6 IDs plus the catalog tests; record in `06-batch8-smoke.md`; also check that the curve-geometry family lists the six before `curve-kinematics` and `mechanics-descent`). (2) Wait for master CI to go green on `scripts/transient-state-scope.test.cjs` (below).
+
+## Master CI is red because of be876eff (Bézier registration)
+
+`scripts/transient-state-scope.test.cjs` reads graph classes from the imports of `graphFactories.ts`, and the Bézier move removed `BezierCurveGraph` from those imports. Three of 57 tests fail. The families-prep handler (handler 12) offered to patch the fixtures. Handler 2 accepted and asked for the robust fix: read the family runtime loaders, as the projective test does. Check `gh run list --branch master` before publishing. If it is still red and families-prep has not landed a patch, fix it yourself in its own commit. Every batch removes more classes from `graphFactories.ts`. **Process gap:** the publish gate's `check-changed` does not run `scripts/*.test.cjs`. Run `node --test scripts/transient-state-scope.test.cjs` (or the recipe that wraps it; see `docs/commands.md`) on every registration batch, and name it in worker briefs.
 
 ## Next slices
 
-1. **Task 07 batch 3, ParametricCurveGraph.** Inventory section in [07-inventory.md](07-inventory.md). It keeps `disposeFigureScene` for the roll driver. Use the pattern of commits `6ceae2eb` and `527c43b3`.
-2. **Task 06, polynomial Bézier (11).** It includes `bezier-clipping`, implemented in `compgeo`, which must stay last in the family. Follow commits `3aebdb37` and `19a61308` and the R-maps, R-owners and R-order decisions. Each batch must also move its rows in `src/demonstrations.test.ts` behind the registered families. Run `just unit src/demonstrations.test.ts` and `src/learning/content` before committing. Then rational (7, needs decision R-circle), splines (5, R-g1), curve geometry, and the rest per [06-inventory.md](06-inventory.md).
-3. **Task 08 batch 2, the `PointSetGraph` shared mapping.** This needs the permitted-state generalization in `ScenePersistence.ts`, a shared host change, so do it in its own commit and keep it serialized with task 07. Then queue step 6.
+1. Curve geometry smoke, then publish (above).
+2. Task 06 batch 9, interpolation (5): `interp-lagrange`, `-hermite`, `-runge`, `-least-squares`, `-subdivision`. Three standalone collections, two in `functionPresetCollections` (fnMap, R-maps). Copy the brief of batch 8: the worker brief is in this handler's transcript, but the pattern is fully in [06-batch8-evidence.md](06-batch8-evidence.md). Add to the brief: (a) **a catalog family can hold Families-prep rows already registered** (curve geometry did), so spread the new rows before any registered rows of the same catalog family, and check per-family order, not only flat order; (b) the scripts test above.
+3. Then patches (7), functions (14), analysis (16, split 8+8), probability (5), maps (3), plane geometry (5), computational geometry (16) per [06-inventory.md](06-inventory.md).
+4. Task 08 batch 2, the `PointSetGraph` shared mapping (unchanged from handler 1's note): permitted-state generalization in `ScenePersistence.ts`, in its own commit.
 
-## Lessons from handler 1
+## Lessons from handlers 1 and 2
 
 - Workers' "no flat-order consumer" claims missed `demonstrations.test.ts`. Name it in registration briefs.
-- Workers often stop at the 135k worker budget before final verification. Rerun the full unit set, lint, tsc and `src/learning/content` yourself.
-- Revert-and-rerun for pre-change evidence works with `git diff HEAD -- <paths> > patch`, then `git apply -R` and `git apply`. Run each git command on its own: the worktree guard rejects compound git commands.
-- Port 4323 is often held by the Families-prep preview, and smoke workers use 4331.
+- Batch 2 deleted `removeScene` and left two contract tests that depended on it: `sceneReplacementContract.test.tsx` (fixed in `a6e00110`) and the `GraphTransientState` perturbation (fixed in `402510d1`). Neither ran in the focused checks. For any scene-lifecycle batch, run `src/graphs/base/sceneReplacementContract.test.tsx` and `src/graphs/base/GraphTransientState -t <ids>`.
+- Workers often stop before final verification, or run lint before their last edit. Rerun the unit set, lint, tsc and `src/learning/chapter` yourself.
+- Run each git command on its own: the worktree guard rejects compound git commands. A blanket `git checkout -- .` is denied by auto mode; Python rewrites leave CRLF in the working copy, which git normalizes on add.
+- Port 4323 is often held by the Families-prep preview, so smoke workers use 4331.
+- Evaluation entries for handler 2's dispatches (3 Haiku smokes, 4 Sonnet registration workers, all accepted; 1 worker deviation on family order corrected by the handler) are not yet logged per `.agents/skills/subagent-flow-evaluation/SKILL.md#do-log`.
