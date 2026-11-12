@@ -25,6 +25,8 @@ import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendL
 import {Memo} from "./Memo";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** The scene state: the stored fields of `LpState`, nothing derived. */
 export interface LinearProgramGraphState extends BaseGraphState, LpState {}
@@ -511,6 +513,59 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         if (count === rows.length) return true;
         this.edit({constraints: count < rows.length ? rows.slice(0, count) : [...rows, ...Array.from({length: count - rows.length}, () => ({...NEW_ROW}))]});
         return true;
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`levelsets`): `set-objective` sets p and q, `set-constraints` the user rows, `set-sweep` the value k of the sweep line. The merged state goes through
+     * `parseLpState` (strict, nothing snapped or clamped) before the write, so a bad value is a lesson-content error and nothing is written; unknown fields are refused.
+     * A scene reads the state its earlier actions wrote.
+     */
+    applyLevelSetsAction(action: Extract<LessonAction, {kind: "levelsets"}>): void {
+        const {kind: _kind, operation: _operation, ...fields} = action;
+        const state = serializeLpState(this.state);
+        switch (action.operation) {
+            case "set-objective":
+                this.refuseUnknown("set-objective", fields, ["p", "q"]);
+                this.commitLp("set-objective", {...state, objective: {p: action.p, q: action.q}});
+                return;
+            case "set-constraints":
+                this.refuseUnknown("set-constraints", fields, ["constraints"]);
+                this.commitLp("set-constraints", {...state, constraints: action.constraints});
+                return;
+            case "set-sweep":
+                this.refuseUnknown("set-sweep", fields, ["sweep"]);
+                this.commitLp("set-sweep", {...state, sweep: action.sweep});
+                return;
+            default: {
+                const unsupported: never = action;
+                throw new Error(`levelsets: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    private refuseUnknown(operation: string, fields: Readonly<Record<string, unknown>>, allowed: readonly string[]): void {
+        const unknown = Object.keys(fields).filter(key => !allowed.includes(key));
+        if (unknown.length) throw new Error(`levelsets ${operation}: no such field ${unknown.join(", ")}.`);
+    }
+
+    /** Validates the merged state first, then writes only the fields that change. */
+    private commitLp(operation: string, merged: unknown): void {
+        const parsed = parseLpState(merged);
+        if (!parsed.ok) throw new Error(`levelsets ${operation}: ${parsed.error.field} ${parsed.error.reason}.`);
+        const next = serializeLpState(parsed.value);
+        const patch: Partial<LpState> = {
+            ...(sameRows(next.constraints, this.state.constraints) ? {} : {constraints: next.constraints}),
+            ...(samePair(next.objective, this.state.objective) ? {} : {objective: next.objective}),
+            ...(next.sweep === this.state.sweep ? {} : {sweep: next.sweep}),
+        };
+        if (Object.keys(patch).length) this.edit(patch);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("levelsets", action => this.applyLevelSetsAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

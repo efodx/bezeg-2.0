@@ -12,7 +12,10 @@ F1 is ungated. F2a waits for Controls step 5 and the contour and mesh measuremen
 | [02 Descent and constrained point](02-descent-constrained.md) | 0 | F1 | none | 01 | done |
 | [03 Exact linear programming](03-linear-programming.md) | 0 | F1 | none | — | done |
 | [04 Measurement, state models and graphs](04-graphs.md) | A–C | F2a | Controls step 5 | 01–03 | in progress: measurement, state models, `ContourMapGraph` (LS1–LS4) and `LinearProgramGraph` (LS5) done; build and smoke open |
-| [05 Release batches A–C](05-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 04 | planned |
+| [05 Release batches A–C](05-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 04 | F2b done 2026-11-12; split into 06–08 |
+| [06 Batch A: LS5 lesson](06-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 05 | F3 in progress |
+| [07 Batch B: LS1–LS2 lessons](07-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 05 | not started |
+| [08 Batch C: LS3–LS4 lessons](08-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 07 | not started |
 
 ## Slovenian terms (F0 decision)
 
@@ -29,3 +32,4 @@ These are checked against `sl.ts`, which has *ploskev*, *stacionarna točka*, *l
 | objective function | kriterijska funkcija | UL optimization notes use *kriterijska funkcija*. Glossed as *ciljna funkcija*, the secondary-school textbook wording, on first use |
 | feasible region; vertex | dopustno območje; oglišče | The school textbook says *dopustno območje* for the planar region. UL notes say *dopustna množica* for the general set. *oglišče* exists |
 | LP constraint | omejitveni pogoj | Transparent; avoids *omejitev* |
+| degenerate vertex | izrojeno (degenerirano) oglišče | Handler decision (handler 12, F3): the app already says *izrojen* for degenerate (*Izrojena mesta*, `docs/localization.md`); textbooks write *izrojena (degenerirana) bazična rešitev*, so the lesson glosses *degenerirano* on first use |

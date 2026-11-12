@@ -493,6 +493,15 @@ export type LessonAction =
     | {readonly kind: 'random'; readonly operation: 'set-overlay'; readonly overlay: boolean; readonly seed2?: number}
     | {readonly kind: 'random'; readonly operation: 'set-position'; readonly shown: number}
     /**
+     * LinearProgramGraph's scene actions (LS5; the contour graph's `set-function`, `set-level`, `set-probe` and `set-step` are added by its batches). `set-objective` sets the
+     * integer objective coefficients `p` and `q` (the maximum of `p x + q y`), `set-constraints` replaces the user rows `a x + b y <= c` (x >= 0 and y >= 0 are always added), and
+     * `set-sweep` sets the integer `sweep` of the line `p x + q y = sweep`. The merged state must pass `parseLpState` (strict, nothing snapped or clamped) before the write, otherwise
+     * the action throws and nothing is written; unknown fields are refused. The walk, the vertices and the status are derived and have no action.
+     */
+    | {readonly kind: 'levelsets'; readonly operation: 'set-objective'; readonly p: number; readonly q: number}
+    | {readonly kind: 'levelsets'; readonly operation: 'set-constraints'; readonly constraints: readonly {readonly a: number; readonly b: number; readonly c: number}[]}
+    | {readonly kind: 'levelsets'; readonly operation: 'set-sweep'; readonly sweep: number}
+    /**
      * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
      * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per
      * year. The merged state must pass `parseGrowthState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused.

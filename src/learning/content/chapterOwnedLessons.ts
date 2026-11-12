@@ -32,6 +32,7 @@ import {trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson
 import {mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath, MECHANICAL_CURVES_CHAPTER_ID, type MechanicalCurvesSectionId} from './mechanicalCurvesChapterRegistry';
 import {wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath, WAVES_CHAPTER_ID, type WavesSectionId} from './wavesChapterRegistry';
 import {recursionGuidedExampleDemonstrations, recursionGuidedExampleLesson, recursionGuidedExamplePath, RECURSION_CHAPTER_ID, type RecursionSectionId} from './recursionChapterRegistry';
+import {levelSetsGuidedExampleDemonstrations, levelSetsGuidedExampleLesson, levelSetsGuidedExamplePath, LEVEL_SETS_CHAPTER_ID, type LevelSetsSectionId} from './levelSetsChapterRegistry';
 import {randomnessGuidedExampleDemonstrations, randomnessGuidedExampleLesson, randomnessGuidedExamplePath, RANDOMNESS_CHAPTER_ID, type RandomnessSectionId} from './randomnessChapterRegistry';
 import {kinematicsGuidedExampleDemonstrations, kinematicsGuidedExampleLesson, kinematicsGuidedExamplePath, KINEMATICS_CHAPTER_ID, type KinematicsSectionId} from './kinematicsChapterRegistry';
 import {combinatoricsGuidedExampleDemonstrations, combinatoricsGuidedExampleLesson, combinatoricsGuidedExamplePath, COMBINATORICS_CHAPTER_ID, type CombinatoricsSectionId} from './combinatoricsChapterRegistry';
@@ -112,6 +113,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [MECHANICAL_CURVES_CHAPTER_ID]: lazyOwnedLessons<MechanicalCurvesSectionId>(mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath),
     [WAVES_CHAPTER_ID]: lazyOwnedLessons<WavesSectionId>(wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath),
     [RECURSION_CHAPTER_ID]: lazyOwnedLessons<RecursionSectionId>(recursionGuidedExampleDemonstrations, recursionGuidedExampleLesson, recursionGuidedExamplePath),
+    [LEVEL_SETS_CHAPTER_ID]: lazyOwnedLessons<LevelSetsSectionId>(levelSetsGuidedExampleDemonstrations, levelSetsGuidedExampleLesson, levelSetsGuidedExamplePath),
     [RANDOMNESS_CHAPTER_ID]: lazyOwnedLessons<RandomnessSectionId>(randomnessGuidedExampleDemonstrations, randomnessGuidedExampleLesson, randomnessGuidedExamplePath),
     [COMBINATORICS_CHAPTER_ID]: lazyOwnedLessons<CombinatoricsSectionId>(combinatoricsGuidedExampleDemonstrations, combinatoricsGuidedExampleLesson, combinatoricsGuidedExamplePath),
     [ISOMETRIES_CHAPTER_ID]: lazyOwnedLessons<IsometriesSectionId>(isometriesGuidedExampleDemonstrations, isometriesGuidedExampleLesson, isometriesGuidedExamplePath),

@@ -28,7 +28,7 @@ describe('chapter structure and registration', () => {
         expect(fourierChapter.sections.map(section => section.id)).toEqual(['fourier-idea', ID, CID, EID]);
         expect(Object.keys(fourierGuidedExampleLessons.all())).toEqual([ID, CID, EID]);
         expect(familyChapters.findIndex(chapter => chapter.id === FOURIER_CHAPTER_ID))
-            .toBe(familyChapters.findIndex(chapter => chapter.id === numericalChapter.id) + 1);
+            .toBe(familyChapters.findIndex(chapter => chapter.id === numericalChapter.id) + 2); // the level-sets chapter sits between them
         expect(familyChapters.at(-5)!.id).toBe(FOURIER_CHAPTER_ID); // the waves, combinatorics, probability and randomness chapters follow it at the end of the functions strand
         expect(learningChapters.some(chapter => chapter.id === FOURIER_CHAPTER_ID)).toBe(true);
         expect(fourierChapter.sections[1].demonstrationIds).toEqual([ID]);

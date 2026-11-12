@@ -57,6 +57,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'prob-correlation': {chapterId: 'probability', sectionId: 'correlation'},
     // Randomness batch A: the Galton lesson (RS1) in the randomness chapter; the law-of-large-numbers lesson (RS2) is the second owner, derived from the chapter.
     'prob-simulation': {chapterId: 'randomness', sectionId: 'galton-board'},
+    // Level sets batch A: the linear-programming lesson (LS5) in the level-sets chapter.
+    'linear-program': {chapterId: 'level-sets', sectionId: 'linear-programming'},
     'area-between-curves': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     'arc-length': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     bisection: {chapterId: 'analysis', sectionId: 'existence'},
