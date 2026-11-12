@@ -19,6 +19,8 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
+import {pointSetPersistence, PointSetPermittedState} from "./pointSetPersistence";
+import type {ScenePersistence} from "../base/presets/ScenePersistence";
 import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointSetControls";
 
 /**
@@ -489,32 +491,55 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return serializePointSetModel(DEFAULT_POINT_SET_MODEL);
     }
 
-    override exportPresetData(): PointSetModel {
-        return serializePointSetModel(this.model);
+    private persistenceMemo?: {ids: readonly string[]; persistence: ScenePersistence<PointSetModel, PointSetGraphState, PointSetPermittedState>};
+
+    /** The family's projection declaration (`pointSetPersistence`), for this graph's overlay ids. */
+    private persistence(): ScenePersistence<PointSetModel, PointSetGraphState, PointSetPermittedState> {
+        const ids = this.overlayIds();
+        if (this.persistenceMemo?.ids.join() !== ids.join()) this.persistenceMemo = {ids, persistence: pointSetPersistence(ids)};
+        return this.persistenceMemo!.persistence;
     }
 
     /**
-     * A Preset carries the model once, as `data` (checked by `parsePointSetModel`); its `graphState` omits `model`, which the
-     * collection's `checkGraphState` rejects. Lesson checkpoints keep the full scene state, so `sceneGraphState` is unchanged.
+     * Whether the scene state is exactly the declared one (`initialized`, `model`, `overlays`). A subclass that adds scene state
+     * (a step, triangles, a mode) is not yet declared and keeps the legacy mappings below until its own batch (task 08).
      */
+    private declaresWholeScene(): boolean {
+        return Object.keys(this.getInitialState()).every(key => key === "initialized" || key === "model" || key === "overlays");
+    }
+
+    override exportPresetData(): PointSetModel {
+        return this.persistence().project(this.state).data;
+    }
+
+    /** A Preset carries the model once, as `data`; a graph that declares its whole scene exports exactly the projection. */
+    protected override projectPersistedScene(): {data: PointSetModel; graphState: BaseGraphState} | undefined {
+        return this.declaresWholeScene() ? {data: this.exportPresetData(), graphState: this.persistence().project(this.state).graphState} : undefined;
+    }
+
+    /** Legacy mapping for a graph with scene state beyond the declaration: `graphState` omits `model`, which the collection rejects. */
     override exportPreset(): Preset<PointSetModel> {
         const preset = super.exportPreset();
+        if (this.declaresWholeScene()) return preset;
         const {model: _model, ...graphState} = preset.graphState as PointSetGraphState;
         return {...preset, graphState};
     }
 
     override importPresetData(data: PointSetModel): void {
         this.pending = undefined;
-        this.setState({model: serializePointSetModel(data)});
+        this.setState({model: this.persistence().reconstruct(data, undefined, this.state).model});
     }
 
-    /** The scene state a Preset replacement starts from keeps the model that `importPresetData` just wrote. */
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        return {...super.figurePresetGraphState(graphState), model: this.model};
+    /** The scene state a Preset replacement starts from: the declaration over the defaults (legacy: keeps the model `importPresetData` just wrote). */
+    protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): PointSetGraphState {
+        if (!this.declaresWholeScene()) return {...super.figurePresetGraphState(graphState), model: this.model};
+        const defaults = super.figurePresetGraphState(undefined);
+        return {...this.persistence().reconstruct(data === undefined ? this.persistedDefaultData() : data as PointSetModel, graphState, defaults), initialized: true};
     }
 
-    protected override lessonDefaultState(): PointSetGraphState {
-        return {...this.getInitialState(), initialized: true, model: this.model};
+    protected override lessonDefaultState(data?: PointSetModel): PointSetGraphState {
+        if (!this.declaresWholeScene()) return {...this.getInitialState(), initialized: true, model: this.model};
+        return {...this.persistence().reconstruct(data ?? this.persistedDefaultData(), undefined, this.getInitialState()), initialized: true};
     }
 
     // ---- Transient state -----------------------------------------------------------------------------------------
