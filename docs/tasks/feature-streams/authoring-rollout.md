@@ -1,5 +1,5 @@
 # Stream: Lesson-authoring rollout
-Run state: not started
+Run state: active
 
 Started 2026-11-12 at the owner's request. It carries the registration, owned-scene and projection pilots to the legacy consumers: tasks 06–08 of the [lesson-authoring task queue](../lesson-authoring-architecture/README.md), governed by the [rollout specification](../../specs/lesson-authoring-rollout.md). Rules: [feature streams](README.md). Worktree `.claude/worktrees/stream-authoring-rollout`. Port 4323. State: `docs/reviews/feature-streams/authoring-rollout/state.md`, written at the first handoff.
 
