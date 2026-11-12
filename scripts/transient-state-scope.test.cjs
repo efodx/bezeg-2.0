@@ -154,9 +154,13 @@ const realSources = root => {
     const fs = require('node:fs');
     const path = require('node:path');
     const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+    // Every family runtime composed in graphLoaders.ts; `new m.default()` names no class, so only named constructions are ground truth here.
+    const runtimes = [...read('src/graphs/graphLoaders.ts').matchAll(/from\s+'\.\/([^']+)\/runtime'/g)]
+        .map(family => ({text: read(`src/graphs/${family[1]}/runtime.ts`), pattern: /new\s+\w+\.(?!default\()(\w+)\(/g}));
     return [
         {text: read('src/graphs/graphFactories.ts'), pattern: /=>\s*new\s+(\w+)\(/g},
         {text: read('src/graphs/projective/runtime.ts'), pattern: /new\s+\w+\.(\w+)\(/g},
+        ...runtimes,
     ];
 };
 
@@ -166,9 +170,11 @@ test('graphClassFiles finds every constructed graph class and each class directo
     const {graphClassFiles} = require('./transient-state-scope.cjs');
     const found = graphClassFiles(root);
     const sources = realSources(root);
-    assert.ok(sources.every(({text, pattern}) => [...text.matchAll(pattern)].length > 0), 'the ground-truth patterns matched nothing');
+    assert.ok(sources.slice(0, 2).every(({text, pattern}) => [...text.matchAll(pattern)].length > 0), 'the ground-truth patterns matched nothing');
     const result = checkGraphClassFiles(found, root, sources);
     assert.deepEqual(result, {missing: [], noFile: []});
+    // A default export is resolved to its declared class, which the sweeps match by `constructor.name`.
+    assert.deepEqual(found.filter(({name}) => name === 'default'), []);
 });
 
 test('the drift guard fails when the parser returns fewer classes or a wrong directory', () => {
@@ -179,22 +185,22 @@ test('the drift guard fails when the parser returns fewer classes or a wrong dir
     const sources = realSources(root);
     assert.notDeepEqual(checkGraphClassFiles(found.slice(1), root, sources).missing, []);
     assert.notDeepEqual(checkGraphClassFiles(found.map(entry => ({...entry, dir: 'src/graphs/nowhere'})), root, sources).noFile, []);
-    // A stem the directory does not hold (a parser that kept the alias instead of the file name) is drift too.
-    const aliased = found.map(entry => entry.name === 'DecasteljauGraph3' ? {...entry, stem: entry.name} : entry);
-    assert.deepEqual(checkGraphClassFiles(aliased, root, sources).noFile, ['DecasteljauGraph3']);
+    // A stem the directory does not hold (a parser that kept the class name instead of the file name) is drift too.
+    const aliased = found.map(entry => entry.name === 'GraphExtrapolation' ? {...entry, stem: entry.name} : entry);
+    assert.deepEqual(checkGraphClassFiles(aliased, root, sources).noFile, ['GraphExtrapolation']);
 });
 
-test('a change to the file of an aliased graph class is a class file, not a helper of its directory', () => {
+test('a change to the file of a graph class named apart from its file is a class file, not a helper of its directory', () => {
     const {graphClassFiles, familyClassNames} = require('./transient-state-scope.cjs');
     const found = graphClassFiles();
-    // graphFactories.ts imports it as `DecasteljauGraph3`, so the alias differs from the file stem.
-    const entry = found.find(({name}) => name === 'DecasteljauGraph3');
+    // The bezier runtime loads `new m.default()` from ExtrapolationGraph.tsx, whose class is `GraphExtrapolation`.
+    const entry = found.find(({name}) => name === 'GraphExtrapolation');
     assert.ok(entry);
-    assert.equal(entry.stem, 'SubdivisionGraph1');
-    assert.deepEqual(familyClassNames(['src/graphs/curves/bezier/SubdivisionGraph1.tsx'], found), []);
-    // A helper beside it still reaches the directory's classes, by name.
+    assert.equal(entry.stem, 'ExtrapolationGraph');
+    assert.deepEqual(familyClassNames(['src/graphs/curves/bezier/ExtrapolationGraph.tsx'], found), []);
+    // A helper beside it still reaches the directory's classes, by their declared names.
     const reached = familyClassNames(['src/graphs/curves/bezier/helper.ts'], found);
-    assert.ok(reached.includes('DecasteljauGraph3'));
+    assert.ok(reached.includes('GraphExtrapolation'));
 });
 
 test('the Preset round trip has its own variable and runs everything after a Preset shared change', () => {

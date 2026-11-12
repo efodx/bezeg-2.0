@@ -96,8 +96,18 @@ const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
  * The graph classes the Demonstrations instantiate and the directory of each class file, read from the imports of
  * src/graphs/graphFactories.ts (`import X from './dir/X'` or `import {X} from './dir/X'`) and the runtime loaders of
  * feature-registered families (src/graphs/graphLoaders.ts): [{name, dir: 'src/graphs/dir', stem}]; `name` is the import alias or class, `stem` the class file's basename (they differ for
- * aliased default imports such as `DecasteljauGraph3` from './curves/bezier/SubdivisionGraph1').
+ * aliased default imports, and for a default export whose class is named apart from its file, such as `GraphExtrapolation` in
+ * './curves/bezier/ExtrapolationGraph').
  */
+/** The class a default export names (`export default class X` or `export default X;`), else the file stem. */
+function defaultClassName(root, dir, stem) {
+    const file = ['.tsx', '.ts'].map(extension => path.join(root, dir, `${stem}${extension}`)).find(candidate => fs.existsSync(candidate));
+    if (!file) return stem;
+    const text = fs.readFileSync(file, 'utf8');
+    const match = text.match(/export\s+default\s+class\s+(\w+)/) ?? text.match(/^export\s+default\s+(\w+)\s*;/m);
+    return match ? match[1] : stem;
+}
+
 function graphClassFiles(root = path.join(__dirname, '..')) {
     const source = fs.readFileSync(path.join(root, 'src/graphs/graphFactories.ts'), 'utf8');
     const classes = [];
@@ -112,8 +122,13 @@ function graphClassFiles(root = path.join(__dirname, '..')) {
     for (const family of loaders.matchAll(/from\s+'\.\/([^']+)\/runtime'/g)) {
         const runtimeDir = path.posix.join('src/graphs', family[1]);
         const runtime = fs.readFileSync(path.join(root, runtimeDir, 'runtime.ts'), 'utf8');
-        for (const match of runtime.matchAll(/import\('\.\/([^']+)'\)\.then\(\w+\s*=>\s*\(\)\s*=>\s*new\s+\w+\.(\w+)\(/g)) {
-            classes.push({name: match[2], dir: path.posix.join(runtimeDir, path.posix.dirname(match[1])), stem: path.posix.basename(match[1])});
+        // A loader may reach a class outside its runtime's directory (`import('../WavesGraph')`); the join normalizes `..`.
+        for (const match of runtime.matchAll(/import\('((?:\.\.?\/)+[^']+)'\)\.then\(\w+\s*=>\s*\(\)\s*=>\s*new\s+\w+\.(\w+)\(/g)) {
+            const dir = path.posix.join(runtimeDir, path.posix.dirname(match[1]));
+            const stem = path.posix.basename(match[1]);
+            // `new m.default()`: the sweeps match `constructor.name`, so read the declared class name from the class file.
+            const name = match[2] === 'default' ? defaultClassName(root, dir, stem) : match[2];
+            classes.push({name, dir, stem});
         }
     }
     return classes;
