@@ -95,6 +95,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'counting-tree': {chapterId: 'combinatorics', sectionId: 'counting-and-choices'},
     // Kinematics batch A: the first activity (KN1) in the kinematics chapter; the speed activity (KN2) is the second owner, derived from the chapter.
     'curve-kinematics': {chapterId: 'kinematics', sectionId: 'position-velocity-acceleration'},
+    // Mechanical curves batch A: the race (MC1) in the mechanical-curves chapter; the track lesson (MC2) is the second owner, derived from the chapter.
+    'mechanics-descent': {chapterId: 'mechanical-curves', sectionId: 'race-the-tracks'},
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).

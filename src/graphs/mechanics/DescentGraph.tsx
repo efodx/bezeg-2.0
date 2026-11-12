@@ -16,6 +16,8 @@ import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {GraphPalette} from "../styles/GraphPalette";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {G} from "../../mechanics/descentTime";
@@ -812,6 +814,47 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     editToggle(field: ToggleField, on: boolean): void {
         if (this.state[field] !== on) this.edit({[field]: on});
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`descent`): `set-mode` picks the experiment (time back to 0), `set-time` is the time slider and `set-params` any of the stored fields. Whole new
+     * states go through `parseDescentState` (strict: nothing is snapped or clamped) before the first write, so an off-grid or off-range value is a lesson-content
+     * error. Each write goes through `edit`, which pauses and reconciles the time at once, so a `set-time` later in the same scene sees the run of the new state.
+     */
+    applyDescentAction(action: Extract<LessonAction, {kind: "descent"}>): void {
+        switch (action.operation) {
+            case "set-mode": {
+                const parsed = parseDescentState(serializeDescentState({...this.state, mode: action.mode}));
+                if (!parsed.ok) throw new Error(`descent set-mode: ${parsed.error.message}`);
+                this.editMode(parsed.value.mode);
+                return;
+            }
+            case "set-time":
+                if (!this.setTime(action.t)) throw new Error(`descent set-time: t must be a number from 0 to ${this.tEnd()}, got ${action.t}.`);
+                return;
+            case "set-params": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                const unknown = Object.keys(patch).filter(key => key === "mode" || !(STORED_FIELDS as readonly string[]).includes(key));
+                if (unknown.length) throw new Error(`descent set-params: no such field ${unknown.join(", ")} (the experiment is set by set-mode).`);
+                const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+                const parsed = parseDescentState({...serializeDescentState(this.state), ...defined});
+                if (!parsed.ok) throw new Error(`descent set-params: ${parsed.error.message}`);
+                const changed = STORED_FIELDS.filter(key => parsed.value[key] !== this.state[key]);
+                if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`descent: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("descent", action => this.applyDescentAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

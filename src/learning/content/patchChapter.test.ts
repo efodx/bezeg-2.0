@@ -66,8 +66,9 @@ describe('Bézier patches chapter', () => {
 
     test('is registered after parametrization, with Bézier curves as prerequisite, and links existing demonstrations', () => {
         const ids = familyChapters.map(chapter => chapter.id);
-        expect(ids.indexOf('bezier-patches')).toBe(ids.indexOf('kinematics') + 1); // the curve chapters, ending with curve geometry and kinematics, come first
+        expect(ids.indexOf('bezier-patches')).toBe(ids.indexOf('mechanical-curves') + 1); // the curve chapters, ending with curve geometry, kinematics and mechanical curves, come first
         expect(ids.indexOf('kinematics')).toBe(ids.indexOf('curve-geometry') + 1);
+        expect(ids.indexOf('mechanical-curves')).toBe(ids.indexOf('kinematics') + 1);
         expect(ids.indexOf('curve-geometry')).toBe(ids.indexOf('parametrization') + 1);
         expect(learningChapters.some(chapter => chapter.id === 'bezier-patches')).toBe(true);
         expect(patchChapter.family).toBe('/bezeg-2.0/patches');

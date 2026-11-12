@@ -94,7 +94,7 @@ function mountKinematics() {
     return {graph, mounted, capabilities, checkpoint, scene, learner};
 }
 const time = (value: number): LessonAction => ({kind: 'kinematics', operation: 'set-time', t: value});
-const params = (patch: Omit<Extract<LessonAction, {operation: 'set-params'}>, 'kind' | 'operation'>): LessonAction => ({kind: 'kinematics', operation: 'set-params', ...patch});
+const params = (patch: Omit<Extract<LessonAction, {kind: 'kinematics'; operation: 'set-params'}>, 'kind' | 'operation'>): LessonAction => ({kind: 'kinematics', operation: 'set-params', ...patch});
 
 /** The readout rows the closed-form motion gives for the time `t` (position, velocity, speed, acceleration and, off a standstill, the four derived rows). */
 function expectedRows(motion: Motion, t: number, readoutTime = t): Record<string, string> {

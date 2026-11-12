@@ -25,7 +25,7 @@ const mount = (): KinematicsGraph => {
 const apply = (graph: KinematicsGraph, action: LessonAction) => act(() => { graph.getLessonCapabilities().apply(action); });
 const setMotion = (motion: MotionChoice): LessonAction => ({kind: 'kinematics', operation: 'set-motion', motion});
 const setTime = (value: number): LessonAction => ({kind: 'kinematics', operation: 'set-time', t: value});
-const setParams = (params: Omit<Extract<LessonAction, {operation: 'set-params'}>, 'kind' | 'operation'>): LessonAction => ({kind: 'kinematics', operation: 'set-params', ...params});
+const setParams = (params: Omit<Extract<LessonAction, {kind: 'kinematics'; operation: 'set-params'}>, 'kind' | 'operation'>): LessonAction => ({kind: 'kinematics', operation: 'set-params', ...params});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (motion: MotionChoice) => act(() => { fireEvent.change(field(t('kinematics_graph_motion_label')), {target: {value: motion}}); });

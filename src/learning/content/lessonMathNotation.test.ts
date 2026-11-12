@@ -17,6 +17,7 @@ import {projectiveConicsGuidedLessons} from './projectiveConicsGuidedLessons';
 import {unitCircleAdditionLesson, unitCircleRadianLesson} from './trigUnitCircleGuidedLessons';
 import {lineFormsLesson, lineNormalLesson} from './analyticLinesGuidedLessons';
 import {circleTangentsLesson, circleRadicalLesson} from './circleGeometryGuidedLessons';
+import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson} from './mechanicalCurvesGuidedLessons';
 import {kinematicsVectorsLesson, kinematicsSpeedLesson} from './kinematicsGuidedLessons';
 import {latticePathsLesson, countingTreeLesson} from './combinatoricsGuidedLessons';
 import {isometryClassifyLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
@@ -81,6 +82,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['analyticLinesGuidedLessons', [lineFormsLesson, lineNormalLesson]],
     ['circleGeometryGuidedLessons', [circleTangentsLesson, circleRadicalLesson]],
     ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson]],
+    ['mechanicalCurvesGuidedLessons', [mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson]],
     ['combinatoricsGuidedLessons', [latticePathsLesson, countingTreeLesson]],
     ['isometriesGuidedLessons', [isometryTwoMirrorsLesson, isometryClassifyLesson]],
     ['coonsGuidedLessons', coonsGuidedLessons],
@@ -225,6 +227,7 @@ test('scans every lesson module', () => {
             'line-geometry', 'line-geometry', // analyticLinesGuidedLessons.ts: L1 and L2
             'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 and CG2
             'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 and KN2
+            'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 and MC2
             'lattice-paths', 'counting-tree', // combinatoricsGuidedLessons.ts: CB1 and CB2
             'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 and L2
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
