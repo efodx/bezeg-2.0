@@ -36,6 +36,7 @@ import {bsplineNurbsGuidedLessons} from './bsplineNurbsGuidedLessons';
 import {bsplineBlossomGuidedLessons} from './bsplineBlossomGuidedLessons';
 import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
+import {wavesSuperpositionLesson, wavesBeatsLesson} from './wavesGuidedLessons';
 import {epicyclesGuidedLessons} from './epicyclesGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
@@ -97,6 +98,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['bsplineBlossomGuidedLessons', bsplineBlossomGuidedLessons],
     ['fourierSeriesGuidedLessons', fourierSeriesGuidedLessons],
     ['fourierCoefficientsGuidedLessons', fourierCoefficientsGuidedLessons],
+    ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson]],
     ['epicyclesGuidedLessons', epicyclesGuidedLessons],
     ['probabilityGuidedLessons', probabilityGuidedLessons],
     ['patchGuidedExamplesBasics', Object.values(patchGuidedExamplesBasics)],
@@ -228,6 +230,7 @@ test('scans every lesson module', () => {
             'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 and CG2
             'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 and KN2
             'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 and MC2
+            'waves', 'waves', // wavesGuidedLessons.ts: WV1 and WV2
             'lattice-paths', 'counting-tree', // combinatoricsGuidedLessons.ts: CB1 and CB2
             'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 and L2
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',

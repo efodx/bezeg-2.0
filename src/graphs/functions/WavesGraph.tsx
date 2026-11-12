@@ -17,6 +17,8 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {wavesPresetCollection} from "./waves/wavesPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {travelling} from "../../waves/standing";
 import {valueAt} from "../../waves/sinusoid";
 import {envelope} from "../../waves/beats";
@@ -44,6 +46,9 @@ const MAX_NODES = WAVES_FIELD_RANGES.halfWaves.max + 1;
 const MAX_ANTINODES = WAVES_FIELD_RANGES.halfWaves.max;
 
 const STORED_FIELDS = Object.keys(DEFAULT_WAVES_STATE) as (keyof WavesState)[];
+/** The fields the lesson actions `set-components` and `set-sampling` may carry (the mode has its own action). */
+const COMPONENT_FIELDS = ["a1", "p1", "a2", "p2", "f1", "f2", "halfWaves", "showPhasors", "showEnvelope"] as const satisfies readonly (keyof WavesState)[];
+const SAMPLING_FIELDS = ["fs", "extra", "showAlias", "showJoin", "showSinc"] as const satisfies readonly (keyof WavesState)[];
 
 const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
 /** Degrees on the phase fields' range, greater than -180 and at most 180. */
@@ -95,7 +100,12 @@ export function captionLines(text: string, width: number): number {
     return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / room));
 }
 /** The height of the "y" axis title and the gap above it, in pixels. */
-const Y_TITLE_PX = 22;
+const Y_TITLE_PX = 32;
+/** The "y" title stands at least this many pixels above the top tick number (a 12 px number centred on its tick) before its own gap. */
+const Y_TITLE_CLEARANCE_PX = 14;
+/** The names of the wheel arrows: the gap under the circle (the arrowhead overshoots the circle by about 10 px) and the pitch of their two rows. */
+const NAME_GAP_PX = 24;
+const NAME_ROW_PX = 20;
 const MIN_PLOT_PX = 140;
 
 /** Where a strip of instants lies under the plot (sampling mode), in units of the vertical half extent. */
@@ -477,7 +487,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
         text(() => -6 / this.scaleOf().ux, () => d().yPeak, () => dec(d().yPeak, 2), {anchorX: "right", anchorY: "middle", fontSize: 12});
         text(() => -6 / this.scaleOf().ux, () => -d().yPeak, () => `${dec(-d().yPeak, 2)}`, {anchorX: "right", anchorY: "middle", fontSize: 12});
         text(() => span() - 4 / this.scaleOf().ux, () => 6 / this.scaleOf().uy, () => t(mode === "standing" ? "waves_graph_axis_x" : "waves_graph_axis_t"), {anchorX: "right", anchorY: "bottom"});
-        text(() => 6 / this.scaleOf().ux, () => peak() + 2 / this.scaleOf().uy, () => t("waves_graph_axis_y"), {anchorX: "left", anchorY: "bottom"});
+        text(() => 6 / this.scaleOf().ux, () => Math.max(peak(), d().yPeak + Y_TITLE_CLEARANCE_PX / this.scaleOf().uy) + 2 / this.scaleOf().uy, () => t("waves_graph_axis_y"), {anchorX: "left", anchorY: "bottom"});
 
         const playhead = (): number => this.clock();
         const timeCursor = () => {
@@ -613,7 +623,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             this.own(board.create("arrow", [origin, trueTip], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 2, fixed: true, highlight: false, withLabel: false}));
             this.own(board.create("arrow", [origin, filmTip], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 4, fixed: true, highlight: false, withLabel: false}));
             // The two arrows often coincide, so their names stand in two fixed rows under the circle (never on a tip or shaft).
-            const nameRow = (row: number) => () => -(this.panel().k * this.derived().yPeak + (8 + 16 * row)) / this.scaleOf().uy;
+            const nameRow = (row: number) => () => -(this.panel().k * this.derived().yPeak + (NAME_GAP_PX + NAME_ROW_PX * row)) / this.scaleOf().uy;
             text(() => this.panelOrigin()[0], nameRow(0), () => t("waves_graph_tip_true"), {strokeColor: GraphPalette.comparisonCurve, anchorX: "middle", anchorY: "top"});
             text(() => this.panelOrigin()[0], nameRow(1), () => t("waves_graph_tip_film"), {strokeColor: GraphPalette.primaryCurve, anchorX: "middle", anchorY: "top"});
             caption(() => t("waves_graph_cap_axes_time"));
@@ -811,6 +821,58 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     editToggle(field: WavesToggleField, on: boolean): void {
         if (this.state[field] !== on) this.edit({[field]: on});
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`waves`): `set-mode` picks the kind of waves (time back to 0), `set-components` and `set-sampling` set stored fields and `set-time` is the time
+     * slider. The merged state goes through `parseWavesState` (strict: nothing is snapped or clamped) before the first write, so an off-grid or off-range value is a
+     * lesson-content error. Each write goes through `edit` (it pauses first), so a `set-time` later in the same scene sees the window of the new state.
+     */
+    applyWavesAction(action: Extract<LessonAction, {kind: "waves"}>): void {
+        switch (action.operation) {
+            case "set-mode": {
+                const parsed = parseWavesState(serializeWavesState({...this.state, mode: action.mode}));
+                if (!parsed.ok) throw new Error(`waves set-mode: ${parsed.error.message}`);
+                this.editMode(parsed.value.mode);
+                return;
+            }
+            case "set-components": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-components", patch, COMPONENT_FIELDS);
+                return;
+            }
+            case "set-sampling": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-sampling", patch, SAMPLING_FIELDS);
+                return;
+            }
+            case "set-time":
+                if (!this.setTime(action.t)) throw new Error(`waves set-time: t must be a number from 0 to ${windowOf(this.state)}, got ${action.t}.`);
+                return;
+            default: {
+                const unsupported: never = action;
+                throw new Error(`waves: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    /** Validates the merged state first, then writes only the fields that change; unknown fields are refused. */
+    private editStored(operation: string, patch: Readonly<Record<string, unknown>>, allowed: readonly (keyof WavesState)[]): void {
+        const unknown = Object.keys(patch).filter(key => !allowed.some(field => field === key));
+        if (unknown.length) throw new Error(`waves ${operation}: no such field ${unknown.join(", ")}.`);
+        const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+        const parsed = parseWavesState({...serializeWavesState(this.state), ...defined});
+        if (!parsed.ok) throw new Error(`waves ${operation}: ${parsed.error.message}`);
+        const changed = allowed.filter(key => parsed.value[key] !== this.state[key]);
+        if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+        else this.halt();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("waves", action => this.applyWavesAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

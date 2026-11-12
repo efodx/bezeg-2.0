@@ -181,6 +181,9 @@ The static document initially declares Slovenian, and runtime selection updates 
 | enakomerno kroženje; kotna hitrost; poševni met | uniform circular motion; angular velocity; projectile motion (KN1 step 6 names the motions of the Motion list; KN2 uses the first two). Standard school-physics words |
 | špica (cikloide) | cusp of the cycloid (KN1 step 5), the point of velocity 0; the graph status says *Hitrost je 0 ali skoraj 0* |
 | tir; kroglica; čas spusta | track (the curve the bead slides on); bead; descent time (MC1, MC2). Chosen in `docs/tasks/mechanical-curves/README.md`: *pot* is too general and clashes with the path of a point; *tir* is glossed once in MC1 step 1 as "krivulja, po kateri teče"; the experiments are named *Tekma* and *Tir* in the graph |
+| val; seštevanje valov (superpozicija); razlika faz | wave; superposition; phase difference (WV1, WV2). Standard school physics, decided in `docs/tasks/waves/README.md`; *superpozicija* appears once in the chapter intro as the gloss of *seštevanje valov* |
+| kazalec (vala); ovojnica | phasor (the rotating arrow whose horizontal projection is the wave, WV1); envelope (the curve bounding the sum, WV2). Standard |
+| utripanje; izničenje | beats (WV2); cancellation (WV1, equal amplitudes in opposite phase). Standard |
 | cikloida; brahistohrona (krivulja najhitrejšega spusta) | cycloid; brachistochrone (MC1, MC2). *Cikloida* existing; *brahistohrona* is the standard Greek-derived term, glossed by the descriptive phrase at its first use (MC2 formula block) |
 | kroglica ne zdrsne | the bead does not start sliding (MC2 step 6, the graph status for a horizontal start). The text reads it physically: there is no force along a horizontal tangent, so the bead stays where it is |
 

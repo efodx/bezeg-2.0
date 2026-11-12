@@ -30,6 +30,7 @@ import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAP
 import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry, TRIANGLE_GEOMETRY_CHAPTER_ID} from './triangleGeometryChapterRegistry';
 import {trigonometryGuidedExampleDemonstrations, trigonometryGuidedExampleLesson, trigonometryGuidedExamplePath, TRIGONOMETRY_CHAPTER_ID, type TrigonometrySectionId} from './trigonometryChapterRegistry';
 import {mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath, MECHANICAL_CURVES_CHAPTER_ID, type MechanicalCurvesSectionId} from './mechanicalCurvesChapterRegistry';
+import {wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath, WAVES_CHAPTER_ID, type WavesSectionId} from './wavesChapterRegistry';
 import {kinematicsGuidedExampleDemonstrations, kinematicsGuidedExampleLesson, kinematicsGuidedExamplePath, KINEMATICS_CHAPTER_ID, type KinematicsSectionId} from './kinematicsChapterRegistry';
 import {combinatoricsGuidedExampleDemonstrations, combinatoricsGuidedExampleLesson, combinatoricsGuidedExamplePath, COMBINATORICS_CHAPTER_ID, type CombinatoricsSectionId} from './combinatoricsChapterRegistry';
 import {circleGeometryGuidedExampleDemonstrations, circleGeometryGuidedExampleLesson, circleGeometryGuidedExamplePath, CIRCLE_GEOMETRY_CHAPTER_ID, type CircleGeometrySectionId} from './circleGeometryChapterRegistry';
@@ -107,6 +108,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [CIRCLE_GEOMETRY_CHAPTER_ID]: lazyOwnedLessons<CircleGeometrySectionId>(circleGeometryGuidedExampleDemonstrations, circleGeometryGuidedExampleLesson, circleGeometryGuidedExamplePath),
     [KINEMATICS_CHAPTER_ID]: lazyOwnedLessons<KinematicsSectionId>(kinematicsGuidedExampleDemonstrations, kinematicsGuidedExampleLesson, kinematicsGuidedExamplePath),
     [MECHANICAL_CURVES_CHAPTER_ID]: lazyOwnedLessons<MechanicalCurvesSectionId>(mechanicalCurvesGuidedExampleDemonstrations, mechanicalCurvesGuidedExampleLesson, mechanicalCurvesGuidedExamplePath),
+    [WAVES_CHAPTER_ID]: lazyOwnedLessons<WavesSectionId>(wavesGuidedExampleDemonstrations, wavesGuidedExampleLesson, wavesGuidedExamplePath),
     [COMBINATORICS_CHAPTER_ID]: lazyOwnedLessons<CombinatoricsSectionId>(combinatoricsGuidedExampleDemonstrations, combinatoricsGuidedExampleLesson, combinatoricsGuidedExamplePath),
     [ISOMETRIES_CHAPTER_ID]: lazyOwnedLessons<IsometriesSectionId>(isometriesGuidedExampleDemonstrations, isometriesGuidedExampleLesson, isometriesGuidedExamplePath),
 };

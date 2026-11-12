@@ -18,6 +18,7 @@ import {bsplineChapter} from './bsplineChapter';
 import {curveGeometryChapter} from './curveGeometryChapter';
 import {kinematicsChapter} from './kinematicsChapter';
 import {mechanicalCurvesChapter} from './mechanicalCurvesChapter';
+import {wavesChapter} from './wavesChapter';
 import {advancedBezierChapter} from './advancedBezierChapter';
 import {interpolationChapter} from './interpolationChapter';
 import {probabilityChapter} from './probabilityChapter';
@@ -396,6 +397,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     },
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
     fourierChapter, // Fourier series batch A: the partial-sum and Gibbs lesson (F1, F3) of fourierSeriesGuidedLessons.ts.
+    wavesChapter, // Waves batch A: WV1 and WV2 (wavesGuidedLessons.ts); directly after the Fourier series, whose harmonics are the waves added here; the standing-wave and sampling lessons join later.
     combinatoricsChapter, // Combinatorics and Pascal's triangle batch A: CB1 and CB2 (combinatoricsGuidedLessons.ts); the lessons of batches B and C join later; sits before probability, whose binomial distribution follows it.
     probabilityChapter, // Probability and statistics batch A: the density and binomial-to-normal lessons (P1, P2) of probabilityGuidedLessons.ts; ends the functions strand.
 ];

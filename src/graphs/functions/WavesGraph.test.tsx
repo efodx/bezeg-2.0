@@ -253,8 +253,9 @@ describe('sampling', () => {
         const bottom = Math.min(...circle[0].dataY!);
         const named = (key: 'waves_graph_tip_true' | 'waves_graph_tip_film') => ofType(graph, 'text').find(o => o.plaintext === t(key))!;
         const rows = [named('waves_graph_tip_true'), named('waves_graph_tip_film')].map(o => o.Y());
-        for (const y of rows) expect(y).toBeLessThan(bottom);
-        expect((rows[0] - rows[1]) * board.unitY).toBeGreaterThanOrEqual(14); // a caption is 14 px high
+        // the arrowhead overshoots the circle by about 10 px: the first name starts 20 px or more under it, the second a full row further
+        expect((bottom - rows[0]) * board.unitY).toBeGreaterThanOrEqual(20);
+        expect((rows[0] - rows[1]) * board.unitY).toBeGreaterThanOrEqual(20);
     });
 
     const wheel = (graph: ObservedGraph) => ofType(graph, 'point').filter(o => visible(o) && o.evalVisProp('size') === 6);
@@ -413,9 +414,9 @@ describe('the captions on a narrow board (390 x 480 px)', () => {
                 const titleBottom = (yTitle.evalVisProp('anchory') === 'top' ? yTitle.Y() - 16 / board.unitY : yTitle.Y());
                 const titleTop = (top - titleBottom) * board.unitY - 16;
                 expect(blockBottom).toBeLessThanOrEqual(titleTop);
-                // the top number "1" is 12 px high, centred on the peak; the title stands above it
+                // the top number is 12 px high, centred on the peak; the title stands 14 px or more above its centre
                 const peakLabel = ofType(graph, 'text').find(o => visible(o) && o.plaintext === (o.plaintext ?? '') && o.evalVisProp('anchorx') === 'right' && o.Y() > 0 && o.X() < 0 && !captions.includes(o))!;
-                expect((titleBottom - peakLabel.Y()) * board.unitY).toBeGreaterThanOrEqual(6);
+                expect((titleBottom - peakLabel.Y()) * board.unitY).toBeGreaterThanOrEqual(14);
             });
         }
     }

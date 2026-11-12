@@ -465,6 +465,24 @@ export type LessonAction =
         readonly showCycloid?: boolean; readonly showArc?: boolean;
     }
     /**
+     * WavesGraph's scene actions (WV1 to WV5). `set-mode` picks the kind of waves (sum, beats, standing, sampling); the time restarts at 0. `set-components` sets the
+     * amplitudes, phases (degrees), integer frequencies, the half-wave count and the two switches of the sum and beats pictures; `set-sampling` sets the sampling rate,
+     * the extra sinc samples and the three switches of the sampling picture. `set-time` is the time slider: seconds in [0, the window of the mode]. The merged state
+     * must pass the model's strict parser (grids and ranges) before the first write, otherwise the action throws and nothing is snapped; unknown fields are refused.
+     * Every write pauses the playback, and playback is never part of a scene.
+     */
+    | {readonly kind: 'waves'; readonly operation: 'set-mode'; readonly mode: 'sum' | 'beats' | 'standing' | 'sampling'}
+    | {
+        readonly kind: 'waves'; readonly operation: 'set-components';
+        readonly a1?: number; readonly p1?: number; readonly a2?: number; readonly p2?: number; readonly f1?: number; readonly f2?: number;
+        readonly halfWaves?: number; readonly showPhasors?: boolean; readonly showEnvelope?: boolean;
+    }
+    | {
+        readonly kind: 'waves'; readonly operation: 'set-sampling';
+        readonly fs?: number; readonly extra?: number; readonly showAlias?: boolean; readonly showJoin?: boolean; readonly showSinc?: boolean;
+    }
+    | {readonly kind: 'waves'; readonly operation: 'set-time'; readonly t: number}
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.
