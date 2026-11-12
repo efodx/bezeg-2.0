@@ -6,7 +6,8 @@ import {BezierCurveAttributes} from "../object/AbstractJXGBezierCurve";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {extrapolationActions} from "../../base/lesson/curveLessonActions";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {rationalExtrapolationPresetCollection} from "./collections";
 
 class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
     override initialize() {
@@ -70,7 +71,7 @@ class GraphExtrapolation extends BaseRationalCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections["rational-extrapolation"];
+        return rationalExtrapolationPresetCollection;
     }
 
     override deselectSelectedCurve() {

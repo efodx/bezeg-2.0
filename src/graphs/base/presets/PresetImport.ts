@@ -23,6 +23,7 @@ import {basicsCollections} from "../../basics/collections";
 import {phCollections} from "../../curves/ph/collections";
 import {parameterizationCollections} from "../../curves/parametrisations/collections";
 import {bezierCollections} from "../../curves/bezier/collections";
+import {rationalCollections} from "../../curves/rational/collections";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
@@ -56,6 +57,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...phCollections,
     ...parameterizationCollections,
     ...bezierCollections,
+    ...rationalCollections,
     ...trigCollections,
     ...lineCollections,
     ...isometryCollections,

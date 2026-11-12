@@ -126,7 +126,6 @@ export function curveCollection(key: string, rules: CurveCollectionRules): Prese
 }
 
 const bezier = (key: string) => curveCollection(key, {type: "JSXBezierCurve"});
-const rational = (key: string) => curveCollection(key, {type: "JSXRationalBezierCurve"});
 
 /** The curvature overlay's collection (lesson L2): a Bézier curve with the standard rules, under its own key. */
 export const curvatureCurvePresetCollection = bezier("curve-curvature");
@@ -183,12 +182,6 @@ export const curveEnvelopePresetCollection = curveCollection("curve-envelope", {
  * rules; a collection differs only in its key, and PH collections in their degree.
  */
 export const curvePresetCollections = {
-    rational: rational("rational-bezier"),
-    "rational-decasteljau": rational("rational-decasteljau"),
-    "rational-elevation": rational("rational-bezier-elevation"),
-    "rational-extrapolation": rational("rational-bezier-extrapolation"),
-    "rational-subdivision": rational("rational-bezier-subdivision"),
-    farin: rational("rational-bezier-farin"),
     "spline-cn": curveCollection("cn-spline", {type: "JSXGenericSplineCurve"}),
     "spline-c1": curveCollection("c1-spline-graph", {type: "JSXQuadraticC1SplineCurve"}),
     "spline-c2": curveCollection("c2-spline", {type: "JSXQubicC2SplineCurve"}),

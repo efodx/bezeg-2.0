@@ -8,9 +8,10 @@ import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPre
 import {bernsteinPresetCollection} from "../basics/collections";
 import {quinticPhPresetCollection} from "./ph/collections";
 import {arcLengthParamPresetCollection, bezierPresetCollection, reductionPresetCollection} from "./bezier/collections";
+import {rationalElevationPresetCollection, rationalPresetCollection} from "./rational/collections";
 
-/** The aggregate map plus the moved PH and Bezier collections the diagnosis table below still exercises. */
-const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection};
+/** The aggregate map plus the moved PH, Bezier and rational collections the diagnosis table below still exercises. */
+const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection, rational: rationalPresetCollection};
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -87,7 +88,7 @@ test("a shorter curve state written before the full state loads: missing display
     const seeded = [["JSXRationalBezierCurve", {points: [[-4, -3], [-3, 3], [3, 3], [4, -3]], weights: [1, 2, 1, 1],
         state: {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, subdivisionT: 0.5,
             extrapolationT: 1.2, showingWeights: false, weightNumber: 1, showingFarinPoints: true}}]];
-    expect(curvePresetCollections["rational-elevation"].check(seeded)).toEqual({data: seeded});
+    expect(rationalElevationPresetCollection.check(seeded)).toEqual({data: seeded});
     expect(preflightRejection("rational-bezier-elevation", seeded)).toBeUndefined();
     const withoutParameter = [["JSXBezierCurve", {points: [[0, 0], [1, 1]], state: {subdivisionT: 0.5, extrapolationT: 1.2}}]];
     expect(bezierPresetCollection.check(withoutParameter)).toEqual({rejection: {key: "incomplete_curve_state", params: {}}});

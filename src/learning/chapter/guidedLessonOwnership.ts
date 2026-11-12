@@ -7,6 +7,7 @@ import {basicsAdditionalOwners, basicsPrimaryOwners} from '../../graphs/basics/r
 import {phPrimaryOwners} from '../../graphs/curves/ph/registration';
 import {parameterizationPrimaryOwners} from '../../graphs/curves/parametrisations/registration';
 import {bezierDemonstrationRows, bezierDerivedOwnerIds, bezierPrimaryOwners} from '../../graphs/curves/bezier/registration';
+import {rationalPrimaryOwners} from '../../graphs/curves/rational/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
@@ -19,18 +20,11 @@ export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>
 type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
-type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners;
-const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners};
+type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners;
+const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners};
 
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
-    rational: {chapterId: 'rational-curves', sectionId: 'why-rational'},
-    'rational-decasteljau': {chapterId: 'rational-curves', sectionId: 'operations'},
-    'rational-elevation': {chapterId: 'rational-curves', sectionId: 'operations'},
-    'rational-subdivision': {chapterId: 'rational-curves', sectionId: 'operations'},
-    'rational-extrapolation': {chapterId: 'rational-curves', sectionId: 'investigate-rational'},
-    farin: {chapterId: 'rational-curves', sectionId: 'operations'},
-    circle: {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     'spline-cn': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c1': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c2': {chapterId: 'splines', sectionId: 'continuity-levels'},

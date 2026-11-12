@@ -20,6 +20,7 @@ import {basicsDemonstrationRows} from './graphs/basics/registration';
 import {phDemonstrationRows} from './graphs/curves/ph/registration';
 import {parameterizationDemonstrationRows} from './graphs/curves/parametrisations/registration';
 import {bezierDemonstrationRows} from './graphs/curves/bezier/registration';
+import {rationalDemonstrationRows} from './graphs/curves/rational/registration';
 
 type TextKey = {[K in MessageKey]: typeof sl[K] extends `${string}{${string}` ? never : K}[MessageKey];
 export type NavigationAction = 'left' | 'up' | 'down' | 'right' | 'in' | 'out' | 'fit';
@@ -56,13 +57,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'rational', path: '/bezeg-2.0/rational/base', family: '/bezeg-2.0/rational', title: 'rational_bezier_curve', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
-    {id: 'rational-decasteljau', path: '/bezeg-2.0/rational/rational-decasteljau', family: '/bezeg-2.0/rational', title: 'rational_de_casteljau', prompts: ['prompt_decasteljau', 'prompt_compare']},
-    {id: 'rational-elevation', path: '/bezeg-2.0/rational/rational-elevation', family: '/bezeg-2.0/rational', title: 'degree_elevation', prompts: ['prompt_elevation', 'prompt_compare']},
-    {id: 'rational-extrapolation', path: '/bezeg-2.0/rational/rational-extrapolation', family: '/bezeg-2.0/rational', title: 'extrapolation', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
-    {id: 'rational-subdivision', path: '/bezeg-2.0/rational/rational-subdivision', family: '/bezeg-2.0/rational', title: 'subdivision', prompts: ['prompt_subdivision', 'prompt_compare']},
-    {id: 'farin', path: '/bezeg-2.0/rational/farin-points', family: '/bezeg-2.0/rational', title: 'farin_points', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
-    {id: 'circle', path: '/bezeg-2.0/rational/circlen', family: '/bezeg-2.0/rational', title: 'circle_from_n_pieces', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
     {id: 'spline-cn', path: '/bezeg-2.0/spline/spline', family: '/bezeg-2.0/spline', title: 'onesided_cn_spline', prompts: ['prompt_spline', 'prompt_compare']},
     {id: 'spline-c1', path: '/bezeg-2.0/spline/c1spline', family: '/bezeg-2.0/spline', title: 'symmetric_c1_spline', prompts: ['prompt_spline', 'prompt_compare']},
     {id: 'spline-c2', path: '/bezeg-2.0/spline/c2spline', family: '/bezeg-2.0/spline', title: 'symmetric_c2_spline', prompts: ['prompt_spline', 'prompt_compare']},
@@ -147,7 +141,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

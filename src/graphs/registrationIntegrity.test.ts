@@ -21,6 +21,9 @@ import {parameterizationCollectionKeys, parameterizationDemonstrationRows} from 
 import {parameterizationGraphLoaders} from './curves/parametrisations/runtime';
 import {bezierCollections} from './curves/bezier/collections';
 import {bezierCollectionKeys, bezierDemonstrationRows} from './curves/bezier/registration';
+import {rationalCollections} from './curves/rational/collections';
+import {rationalCollectionKeys, rationalDemonstrationRows} from './curves/rational/registration';
+import {rationalGraphLoaders} from './curves/rational/runtime';
 import {bezierGraphLoaders} from './curves/bezier/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
@@ -64,7 +67,7 @@ import {solidsGraphLoaders} from './solids/runtime';
 import {levelSetsCollections} from './levelsets/collections';
 import {levelSetsCollectionKeys, levelSetsDemonstrationRows} from './levelsets/registration';
 import {levelSetsGraphLoaders} from './levelsets/runtime';
-import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
+import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput, NoPresetCollection} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
 const colB = Object.freeze({key: 'x-b'});
@@ -107,6 +110,12 @@ describe('registration integrity checker (synthetic)', () => {
             'fam: id "x-2" has no collection reference.',
         ]);
     });
+    test('an explicit, reasoned absence of a collection is accepted; an empty reason is reported', () => {
+        expect(checkRegistrations([family({collectionKeys: {'x-1': 'x-a', 'x-2': {none: 'keeps no Preset'}}})], legacy)).toEqual([]);
+        expect(checkRegistrations([family({collectionKeys: {'x-1': 'x-a', 'x-2': {none: ' '}}})], legacy)).toEqual([
+            'fam: id "x-2" declares no collection without a reason.',
+        ]);
+    });
     test('two different collections on one storage key are reported, also against the legacy collections', () => {
         const rival = Object.freeze({key: 'x-a'});
         expect(checkRegistrations([family({collections: [colA, rival]})], legacy)).toEqual([
@@ -121,7 +130,7 @@ describe('registration integrity checker (synthetic)', () => {
 
 interface RealFamily {
     readonly family: string; readonly rows: readonly {readonly id: string; readonly path: string}[]; readonly loaders: object;
-    readonly collectionKeys: Readonly<Record<string, string>>; readonly collections: readonly PresetCollection<unknown>[];
+    readonly collectionKeys: Readonly<Record<string, string | NoPresetCollection>>; readonly collections: readonly PresetCollection<unknown>[];
 }
 const realFamilies: readonly RealFamily[] = [
     {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
@@ -144,6 +153,7 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'ph', rows: phDemonstrationRows, loaders: phGraphLoaders, collectionKeys: phCollectionKeys, collections: phCollections},
     {family: 'parameterization', rows: parameterizationDemonstrationRows, loaders: parameterizationGraphLoaders, collectionKeys: parameterizationCollectionKeys, collections: parameterizationCollections},
     {family: 'bezier', rows: bezierDemonstrationRows, loaders: bezierGraphLoaders, collectionKeys: bezierCollectionKeys, collections: bezierCollections},
+    {family: 'rational', rows: rationalDemonstrationRows, loaders: rationalGraphLoaders, collectionKeys: rationalCollectionKeys, collections: rationalCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

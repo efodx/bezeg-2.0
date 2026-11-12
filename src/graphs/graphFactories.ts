@@ -18,11 +18,6 @@ import G1SymmetricSplineGraph from './curves/spline/G1SymmetricSplineGraph';
 import G1SplineGraph from './curves/spline/G1SplineGraph';
 import C2SplineGraph from './curves/spline/C2SplineGraph';
 import C1SplineGraph from './curves/spline/C1SplineGraph';
-import RationalBezierCurveCircleGraphN from './curves/rational/RationalBezierCurveCircleGraphN';
-import FarinPointsCurveGraph from './curves/rational/FarinPointsCurveGraph';
-import RationalExtrapolationGraph from './curves/rational/RationalExtrapolationGraph';
-import RationalElevationGraph from './curves/rational/RationalElevationGraph';
-import RationalDecasteljauGraph from './curves/rational/RationalDecasteljauGraph';
 import CnSplineGraph from './curves/spline/CnSplineGraph';
 import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './patches/TensorDerivativesGraph';
@@ -75,8 +70,6 @@ import SummaryStatisticsGraph from './functions/SummaryStatisticsGraph';
 import CorrelationGraph from './functions/CorrelationGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
-import RationalSubdivisionGraph2 from './curves/rational/RationalSubdivisionGraph2';
-import RationalBezierCurveGraph from './curves/rational/RationalBezierCurveGraph';
 import ParametricCurveGraph from './curves/parametric/ParametricCurveGraph';
 import CurvatureBezierCurveGraph from './curves/bezier/CurvatureBezierCurveGraph';
 import CurveEvoluteGraph from './curves/bezier/CurveEvoluteGraph';
@@ -100,13 +93,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'patch-subdivision': () => new TensorSubdivisionGraph(),
     'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
-    'rational': () => new RationalBezierCurveGraph(),
-    'rational-decasteljau': () => new RationalDecasteljauGraph(),
-    'rational-elevation': () => new RationalElevationGraph(),
-    'rational-extrapolation': () => new RationalExtrapolationGraph(),
-    'rational-subdivision': () => new RationalSubdivisionGraph2(),
-    'farin': () => new FarinPointsCurveGraph(),
-    'circle': () => new RationalBezierCurveCircleGraphN(),
     'spline-cn': () => new CnSplineGraph(),
     'spline-c1': () => new C1SplineGraph(),
     'spline-c2': () => new C2SplineGraph(),

@@ -5,13 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['rational/base', '/bezeg-2.0/rational', 'rational_bezier_curve', 'rational_bezier_curve', 'change_the_settings_and_observe_their_effect_on_the_graph'],
-    ['rational/rational-decasteljau', '/bezeg-2.0/rational', 'rational_de_casteljau', 'rational_de_casteljau', 'prompt_decasteljau'],
-    ['rational/rational-elevation', '/bezeg-2.0/rational', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
-    ['rational/rational-extrapolation', '/bezeg-2.0/rational', 'extrapolation', 'extrapolation', 'change_the_settings_and_observe_their_effect_on_the_graph'],
-    ['rational/rational-subdivision', '/bezeg-2.0/rational', 'subdivision', 'subdivision', 'prompt_subdivision'],
-    ['rational/farin-points', '/bezeg-2.0/rational', 'farin_points', 'farin_points', 'change_the_settings_and_observe_their_effect_on_the_graph'],
-    ['rational/circlen', '/bezeg-2.0/rational', 'circle_from_n_pieces', 'circle_from_n_pieces', 'change_the_settings_and_observe_their_effect_on_the_graph'],
     ['spline/spline', '/bezeg-2.0/spline', 'onesided_cn_spline', 'onesided_cn_spline', 'prompt_spline'],
     ['spline/c1spline', '/bezeg-2.0/spline', 'symmetric_c1_spline', 'symmetric_c1_spline', 'prompt_spline'],
     ['spline/c2spline', '/bezeg-2.0/spline', 'symmetric_c2_spline', 'symmetric_c2_spline', 'prompt_spline'],
@@ -123,6 +116,13 @@ const expected = [
     ['bezier/reduction', '/bezeg-2.0/bezier', 'reduction_title', 'reduction_title', 'prompt_reduction'],
     ['bezier/arc-length', '/bezeg-2.0/bezier', 'arcparam_title', 'arcparam_title', 'prompt_arcparam'],
     ['bezier/clipping', '/bezeg-2.0/bezier', 'bezierclipping_title', 'bezierclipping_title', 'prompt_bezierclipping'],
+    ['rational/base', '/bezeg-2.0/rational', 'rational_bezier_curve', 'rational_bezier_curve', 'change_the_settings_and_observe_their_effect_on_the_graph'],
+    ['rational/rational-decasteljau', '/bezeg-2.0/rational', 'rational_de_casteljau', 'rational_de_casteljau', 'prompt_decasteljau'],
+    ['rational/rational-elevation', '/bezeg-2.0/rational', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
+    ['rational/rational-extrapolation', '/bezeg-2.0/rational', 'extrapolation', 'extrapolation', 'change_the_settings_and_observe_their_effect_on_the_graph'],
+    ['rational/rational-subdivision', '/bezeg-2.0/rational', 'subdivision', 'subdivision', 'prompt_subdivision'],
+    ['rational/farin-points', '/bezeg-2.0/rational', 'farin_points', 'farin_points', 'change_the_settings_and_observe_their_effect_on_the_graph'],
+    ['rational/circlen', '/bezeg-2.0/rational', 'circle_from_n_pieces', 'circle_from_n_pieces', 'change_the_settings_and_observe_their_effect_on_the_graph'],
 ] as const;
 
 afterEach(() => setLanguage('sl'));

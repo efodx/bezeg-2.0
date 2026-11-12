@@ -1,5 +1,6 @@
 import SubdivisionGraph1 from "../bezier/SubdivisionGraph1";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {rationalSubdivisionPresetCollection} from "./collections";
 
 class Graph extends SubdivisionGraph1 {
 
@@ -21,7 +22,7 @@ class Graph extends SubdivisionGraph1 {
     }
 
     override presetCollection() {
-        return curvePresetCollections["rational-subdivision"];
+        return rationalSubdivisionPresetCollection;
     }
 
 

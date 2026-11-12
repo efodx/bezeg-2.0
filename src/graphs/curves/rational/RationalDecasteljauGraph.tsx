@@ -1,5 +1,6 @@
 import DecasteljauGraph from "../bezier/DecasteljauGraph";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {rationalDecasteljauPresetCollection} from "./collections";
 
 class RationalDecasteljauGraph extends DecasteljauGraph {
 
@@ -20,7 +21,7 @@ class RationalDecasteljauGraph extends DecasteljauGraph {
     }
 
     override presetCollection() {
-        return curvePresetCollections["rational-decasteljau"];
+        return rationalDecasteljauPresetCollection;
     }
 
 }

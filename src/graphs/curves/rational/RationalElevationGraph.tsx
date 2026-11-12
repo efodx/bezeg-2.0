@@ -6,7 +6,8 @@ import {Attributes} from "../../attributes/Attributes";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {degreeElevationAction} from "../../base/lesson/curveLessonActions";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {rationalElevationPresetCollection} from "./collections";
 
 class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
 
@@ -48,7 +49,7 @@ class Graph extends BaseRationalCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections["rational-elevation"];
+        return rationalElevationPresetCollection;
     }
 }
 

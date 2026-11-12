@@ -1,6 +1,7 @@
 import {BaseRationalCurveGraph} from "./BaseRationalCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {rationalPresetCollection} from "./collections";
 
 class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
 
@@ -20,7 +21,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections.rational;
+        return rationalPresetCollection;
     }
 
 }

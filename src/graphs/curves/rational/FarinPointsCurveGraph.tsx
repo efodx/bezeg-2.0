@@ -4,7 +4,8 @@ import React from "react";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {farinPresetCollection} from "./collections";
 
 
 class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
@@ -93,7 +94,7 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections.farin;
+        return farinPresetCollection;
     }
 
     private showFarinPoints(checked: boolean) {

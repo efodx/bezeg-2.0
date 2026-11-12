@@ -2,13 +2,19 @@
  * Pure integrity check of feature-local registrations (spec lesson-authoring-architecture R1, task 03). It takes plain data so
  * tests can pass synthetic failing registrations; every issue names the family and the id, path or key concerned.
  */
+/**
+ * An explicit absence of a Preset collection (R-circle): the Demonstration keeps no browser-local Preset, and the reason says why.
+ * Omitting a reference stays an error; only this declaration is accepted instead of a storage key.
+ */
+export type NoPresetCollection = Readonly<{none: string}>;
+
 export type FamilyRegistrationInput = Readonly<{
     family: string;
     rows: readonly Readonly<{id: string; path: string}>[];
     /** Ids that have a runtime loader. */
     loaderIds: readonly string[];
-    /** Demonstration id to the storage key of its Preset collection. */
-    collectionKeys: Readonly<Record<string, string>>;
+    /** Demonstration id to the storage key of its Preset collection, or to the explicit absence of one. */
+    collectionKeys: Readonly<Record<string, string | NoPresetCollection>>;
     /** The family's Preset collections (canonical definitions; one collection may be referenced repeatedly). */
     collections: readonly Readonly<{key: string}>[];
 }>;
@@ -49,7 +55,9 @@ export function checkRegistrations(families: readonly FamilyRegistrationInput[],
             if (!loaders.has(id)) issues.push(`${family}: id "${id}" has no runtime loader.`);
             const key = entry.collectionKeys[id];
             if (key === undefined) issues.push(`${family}: id "${id}" has no collection reference.`);
-            else if (!keys.has(key)) issues.push(`${family}: id "${id}" references unknown collection key "${key}".`);
+            else if (typeof key === 'object') {
+                if (key.none.trim() === '') issues.push(`${family}: id "${id}" declares no collection without a reason.`);
+            } else if (!keys.has(key)) issues.push(`${family}: id "${id}" references unknown collection key "${key}".`);
         }
         const rowIds = new Set(entry.rows.map(row => row.id));
         for (const id of loaders) if (!rowIds.has(id)) issues.push(`${family}: loader "${id}" has no row.`);
