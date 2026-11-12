@@ -28,12 +28,12 @@
 /* Contents rail. The current entry changes colour and surface but not weight, so wrapped titles do not move. */
 .chapter-sidebar { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; padding: 8px 0; font-size: calc(var(--chapter-text) * .975); scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-scroll-thumb) transparent; }
 .chapter-toc { border-left: 1px solid var(--chapter-border); padding-left: 14px; }
-.chapter-toc-title { margin: 0 0 12px; color: var(--chapter-muted); font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.chapter-toc-title { margin: 0 0 12px; color: var(--chapter-muted); font-size: .76em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .chapter-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .chapter-toc a { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 9px 8px; border-radius: 6px; color: var(--chapter-muted); text-decoration: none; line-height: 1.35; transition: background-color .15s ease-out, color .15s ease-out; }
 .chapter-toc a:hover { background: var(--bezeg-shell-control-hover); color: var(--chapter-ink); }
 .chapter-toc a[aria-current="location"] { margin-left: -15px; padding-left: 22px; border-left: 1px solid var(--chapter-accent); border-radius: 0 6px 6px 0; background: var(--chapter-tint); color: var(--chapter-ink); }
-.chapter-toc-number { flex: 0 0 auto; color: var(--chapter-muted); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.chapter-toc-number { flex: 0 0 auto; color: var(--chapter-muted); font-size: .75em; font-variant-numeric: tabular-nums; }
 .chapter-toc-neighbors { display: grid; gap: 4px; margin-top: 18px; padding: 14px 0 0 14px; border-top: 1px solid var(--chapter-border); }
 .chapter-toc-neighbors a { display: grid; gap: 2px; min-height: 44px; padding: 7px 8px; box-sizing: border-box; border-radius: 6px; color: var(--chapter-link); line-height: 1.35; text-decoration: none; transition: background-color .15s ease-out; }
 .chapter-toc-neighbors a:hover { background: var(--bezeg-shell-control-hover); }
@@ -42,10 +42,10 @@
 /* Chapter heading: trail, title, purpose and prerequisites. */
 .chapter-heading { padding: 0 0 28px; border-bottom: 1px solid var(--chapter-border); }
 .chapter-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 0 0 22px; }
-.chapter-trail .learning-back { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 5px 12px 5px 10px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); color: var(--chapter-link); font-size: .92rem; font-weight: 650; line-height: 1.35; text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
+.chapter-trail .learning-back { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 5px 12px 5px 10px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); color: var(--chapter-link); font-size: calc(var(--chapter-text) * .9); font-weight: 650; line-height: 1.35; text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
 .chapter-trail .learning-back:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
 .chapter-trail .learning-back svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.chapter-trail-position { color: var(--chapter-muted); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.chapter-trail-position { color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .9); font-variant-numeric: tabular-nums; }
 .chapter-trail-position::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 14px 2px 0; border-radius: 50%; background: var(--chapter-accent); vertical-align: middle; }
 .chapter-heading h1 { max-width: 24ch; margin: 0; color: var(--chapter-ink); font: 700 clamp(1.9rem, 3.2vw, calc(var(--chapter-text) * 2.6))/1.12 Georgia, "Times New Roman", serif; letter-spacing: -.01em; text-wrap: balance; }
 /* The title receives reading focus programmatically; it is not an interactive control. */
@@ -64,7 +64,7 @@
 /* Sections: more space above a heading than below it, one hairline between sections. */
 .chapter-section { padding: 44px 0 30px; scroll-margin-top: 20px; border-bottom: 1px solid var(--chapter-border); }
 .chapter-section-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
-.chapter-section-heading > span { color: var(--bezeg-shell-lesson-ink); font: 700 1rem Georgia, serif; font-variant-numeric: tabular-nums; }
+.chapter-section-heading > span { color: var(--bezeg-shell-lesson-ink); font: 700 calc(var(--chapter-text) * .975) Georgia, serif; font-variant-numeric: tabular-nums; }
 .chapter-section-heading h2 { min-width: 0; margin: 0; color: var(--chapter-ink); font: 650 clamp(1.45rem, 2.8vw, calc(var(--chapter-text) * 1.95))/1.22 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; text-wrap: balance; }
 .chapter-section-link { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 32px; height: 32px; margin: -4px 0; border-radius: 6px; color: var(--chapter-muted); text-decoration: none; opacity: 0; transition: opacity .15s ease-out, background-color .15s ease-out; }
 .chapter-section-link:hover { background: var(--bezeg-shell-control-hover); color: var(--chapter-link); }
@@ -106,12 +106,12 @@
 .chapter-open-activity { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; max-width: 100%; min-height: 44px; box-sizing: border-box; padding: 9px 16px; border-radius: 8px; background: var(--bezeg-shell-action); box-shadow: var(--bezeg-shell-shadow-action); color: var(--bezeg-shell-on-action); font-size: calc(var(--chapter-text) * .975); font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; text-decoration: none; transition: background-color .15s ease-out; }
 .chapter-open-activity:hover { background: var(--bezeg-shell-action-hover); color: var(--bezeg-shell-on-action); }
 .chapter-next-row { display: flex; justify-content: flex-end; margin-top: 18px; }
-.chapter-next-row a { display: inline-flex; min-height: 42px; align-items: center; padding: 7px 10px; border-radius: 6px; color: var(--chapter-link); text-align: right; text-decoration: none; font-size: .92rem; transition: background-color .15s ease-out; }
+.chapter-next-row a { display: inline-flex; min-height: 42px; align-items: center; padding: 7px 10px; border-radius: 6px; color: var(--chapter-link); text-align: right; text-decoration: none; font-size: calc(var(--chapter-text) * .9); transition: background-color .15s ease-out; }
 .chapter-next-row a:hover { background: var(--bezeg-shell-control-hover); }
 
 /* Chapter end: source or note, then the neighbouring chapters. */
 .chapter-source { padding: 28px 0 0; color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .88); line-height: 1.6; }
-.chapter-source h2 { margin: 0 0 6px; color: var(--chapter-ink); font: 650 1.3rem Georgia, "Times New Roman", serif; }
+.chapter-source h2 { margin: 0 0 6px; color: var(--chapter-ink); font: 650 calc(var(--chapter-text) * 1.27) Georgia, "Times New Roman", serif; }
 .chapter-source p { max-width: var(--chapter-measure); margin: 0; text-wrap: pretty; }
 .learning-neighbors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
 .learning-neighbors a { display: grid; align-content: center; gap: 3px; min-height: 72px; box-sizing: border-box; padding: 12px 18px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 10px; background: var(--chapter-paper); color: var(--chapter-ink); text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
