@@ -99,6 +99,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | smerni vektor | direction vector of a line; L2 |
 | skalarni produkt | dot product, zero for perpendicular normals; L2 |
 | lega premic | relative position of two lines (parallel, perpendicular, coincident, neither); L2 |
+| kot med premicama | angle between two lines (the acute or right angle, 0 to 90 degrees); L3. Not in the README term table: plain words chosen by the content worker, handler-unreviewed |
+| razdalja točke od premice | distance from a point to a line (length of the segment to the foot of the perpendicular); L4, handler-unreviewed |
+| nožišče pravokotnice | foot of the perpendicular from a point to a line (L4; the same notion as *nožišče* in triangle geometry), handler-unreviewed |
+| pravokotna projekcija | orthogonal projection (of a vector on the normal), L4, handler-unreviewed |
 | izometrija | isometry, a map of the plane that keeps distances (isometries L1, L2) |
 | togi premik | rigid motion, an orientation-keeping isometry, also the general word for any of the four kinds; L2 |
 | vzporedni premik | translation; L1, L2 |

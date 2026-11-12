@@ -16,7 +16,7 @@ import {numericalMethodsGuidedLessons} from './numericalMethodsGuidedLessons';
 import {projectiveConicsGuidedLessons} from './projectiveConicsGuidedLessons';
 import {unitCircleAdditionLesson, unitCircleRadianLesson} from './trigUnitCircleGuidedLessons';
 import {cosineRuleLesson, sineRuleLesson} from './trigTriangleGuidedLessons';
-import {lineFormsLesson, lineNormalLesson} from './analyticLinesGuidedLessons';
+import {lineAngleLesson, lineDistanceLesson, lineFormsLesson, lineNormalLesson} from './analyticLinesGuidedLessons';
 import {circleTangentsLesson, circleRadicalLesson} from './circleGeometryGuidedLessons';
 import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson} from './mechanicalCurvesGuidedLessons';
 import {kinematicsVectorsLesson, kinematicsSpeedLesson} from './kinematicsGuidedLessons';
@@ -87,7 +87,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['projectiveConicsGuidedLessons', projectiveConicsGuidedLessons],
     ['trigUnitCircleGuidedLessons', [unitCircleRadianLesson, unitCircleAdditionLesson]],
     ['trigTriangleGuidedLessons', [sineRuleLesson, cosineRuleLesson]],
-    ['analyticLinesGuidedLessons', [lineFormsLesson, lineNormalLesson]],
+    ['analyticLinesGuidedLessons', [lineFormsLesson, lineNormalLesson, lineAngleLesson, lineDistanceLesson]],
     ['circleGeometryGuidedLessons', [circleTangentsLesson, circleRadicalLesson]],
     ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson]],
     ['mechanicalCurvesGuidedLessons', [mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson]],
@@ -239,7 +239,7 @@ test('scans every lesson module', () => {
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'voronoi', 'voronoi-degenerate', 'weighted-parameterization',
             'unit-circle', 'unit-circle', // trigUnitCircleGuidedLessons.ts: TR1 and TR2
             'triangle-solver', 'triangle-solver', // trigTriangleGuidedLessons.ts: TR3 and TR4
-            'line-geometry', 'line-geometry', // analyticLinesGuidedLessons.ts: L1 and L2
+            'line-geometry', 'line-geometry', 'line-geometry', 'line-geometry', // analyticLinesGuidedLessons.ts: L1 to L4
             'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 and CG2
             'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 and KN2
             'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 and MC2

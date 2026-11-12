@@ -1,6 +1,6 @@
 /**
- * Guided lessons of the analytic-lines family, batch A (docs/specs/analytic-lines-lessons.md): L1, the forms of a line, and L2, the normal vector,
- * parallel and perpendicular, both on `line-geometry` (LineGeometryGraph). Each is the lesson of one section of the analytic-lines chapter
+ * Guided lessons of the analytic-lines family, batches A and B (docs/specs/analytic-lines-lessons.md): L1, the forms of a line, L2, the normal vector,
+ * parallel and perpendicular, L3, the dot product and the angle between lines, and L4, the distance from a point to a line, all on `line-geometry` (LineGeometryGraph). Each is the lesson of one section of the analytic-lines chapter
  * (analyticLinesChapterRegistry.ts adapts them on request; the lesson catalog itself holds none, as it keeps one lesson per Demonstration). Scenes use only
  * the `lines` actions LineGeometryGraph registers (`set-mode`, `set-points`) and every scene starts from the Demonstration default and names the mode and
  * the handles it states. `analyticLinesGuidedLessons.test.ts` reads each number the text quotes back from the real graph's readouts and recomputes it
@@ -39,11 +39,12 @@ export type LineScenePoint = readonly [x: number, y: number];
 
 /** What a scene sets: the mode and the handles it names; every other handle keeps the Demonstration default. */
 export interface LineSceneSpec {
-    readonly mode: 'forms' | 'normal';
+    readonly mode: 'forms' | 'normal' | 'angle' | 'distance';
     readonly P: LineScenePoint;
     readonly Q: LineScenePoint;
     readonly R?: LineScenePoint;
     readonly S?: LineScenePoint;
+    readonly T?: LineScenePoint;
 }
 
 /** The actions of a scene: the Demonstration default, then the mode and one `set-points` naming every handle of the spec. */
@@ -54,7 +55,7 @@ export const lineSceneActions = (id: string, spec: LineSceneSpec): LessonAction[
         {kind: 'lines', operation: 'set-mode', mode: spec.mode},
         {
             kind: 'lines', operation: 'set-points',
-            points: {P: point(spec.P), Q: point(spec.Q), ...(spec.R ? {R: point(spec.R)} : {}), ...(spec.S ? {S: point(spec.S)} : {})},
+            points: {P: point(spec.P), Q: point(spec.Q), ...(spec.R ? {R: point(spec.R)} : {}), ...(spec.S ? {S: point(spec.S)} : {}), ...(spec.T ? {T: point(spec.T)} : {})},
         },
     ];
 };
@@ -316,6 +317,290 @@ const l2Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- L3 --------------------------------------------------------------------------------------------------------------------------
+
+const l3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'dot-and-cross',
+        latex: '\\vec u\\cdot\\vec v=u_xv_x+u_yv_y,\\qquad \\vec u\\times\\vec v=u_xv_y-u_yv_x',
+        notation: text(
+            '\\(\\vec u=\\overrightarrow{PQ}\\) in \\(\\vec v=\\overrightarrow{RS}\\) sta smerna vektorja prve in druge premice.',
+            '\\(\\vec u=\\overrightarrow{PQ}\\) and \\(\\vec v=\\overrightarrow{RS}\\) are the direction vectors of the first and the second line.',
+        ),
+        explanation: text(
+            'Definicija: skalarni produkt je \\(\\vec u\\cdot\\vec v=u_xv_x+u_yv_y\\), determinanta obeh vektorjev pa je \\(\\vec u\\times\\vec v=u_xv_y-u_yv_x\\). Za kot \\(\\varphi\\) med vektorjema velja \\(\\vec u\\cdot\\vec v=|\\vec u||\\vec v|\\cos\\varphi\\) in \\(\\vec u\\times\\vec v=|\\vec u||\\vec v|\\sin\\varphi\\).',
+            'Definition: the dot product is \\(\\vec u\\cdot\\vec v=u_xv_x+u_yv_y\\), and the expression \\(\\vec u\\times\\vec v=u_xv_y-u_yv_x\\) is the determinant of the two vectors. For the angle \\(\\varphi\\) between the vectors, \\(\\vec u\\cdot\\vec v=|\\vec u||\\vec v|\\cos\\varphi\\) and \\(\\vec u\\times\\vec v=|\\vec u||\\vec v|\\sin\\varphi\\).',
+        ),
+    },
+    {
+        id: 'angle-between-lines',
+        latex: '\\tan\\theta=\\frac{|\\vec u\\times\\vec v|}{|\\vec u\\cdot\\vec v|},\\qquad \\cos\\theta=\\frac{|\\vec u\\cdot\\vec v|}{|\\vec u||\\vec v|}',
+        notation: text(
+            '\\(\\theta\\) je kot med premicama, \\(0^\\circ\\le\\theta\\le90^\\circ\\). Formula za \\(\\tan\\theta\\) velja, kadar je \\(\\vec u\\cdot\\vec v\\ne0\\); pri \\(\\vec u\\cdot\\vec v=0\\) sta premici pravokotni, \\(\\theta=90^\\circ\\).',
+            '\\(\\theta\\) is the angle between the lines, \\(0^\\circ\\le\\theta\\le90^\\circ\\). The formula for \\(\\tan\\theta\\) holds when \\(\\vec u\\cdot\\vec v\\ne0\\); at \\(\\vec u\\cdot\\vec v=0\\) the lines are perpendicular, \\(\\theta=90^\\circ\\).',
+        ),
+        explanation: text(
+            'Dogovor: kot med premicama je ostri kot, ali pravi kot, zato v formulah nastopata absolutni vrednosti. Argument: iz \\(\\vec u\\cdot\\vec v=|\\vec u||\\vec v|\\cos\\varphi\\) in \\(\\vec u\\times\\vec v=|\\vec u||\\vec v|\\sin\\varphi\\) sledi \\(\\tan\\varphi=\\tfrac{\\vec u\\times\\vec v}{\\vec u\\cdot\\vec v}\\), \\(\\theta\\) pa dobimo iz \\(\\varphi\\) z odstranitvijo predznakov. Graf kot izračuna iz celoštevilskih \\(\\vec u\\cdot\\vec v\\) in \\(\\vec u\\times\\vec v\\).',
+            'Convention: the angle between lines is the acute angle, or the right angle, which is why the formulas contain absolute values. Argument: from \\(\\vec u\\cdot\\vec v=|\\vec u||\\vec v|\\cos\\varphi\\) and \\(\\vec u\\times\\vec v=|\\vec u||\\vec v|\\sin\\varphi\\) it follows that \\(\\tan\\varphi=\\tfrac{\\vec u\\times\\vec v}{\\vec u\\cdot\\vec v}\\), and \\(\\theta\\) comes from \\(\\varphi\\) by dropping the signs. The graph computes the angle from the integers \\(\\vec u\\cdot\\vec v\\) and \\(\\vec u\\times\\vec v\\).',
+        ),
+    },
+    {
+        id: 'cosine-rule-vectors',
+        latex: '|\\vec u-\\vec v|^2=|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v',
+        notation: text(
+            'Kosinusni izrek za trikotnik s stranicami \\(\\vec u\\), \\(\\vec v\\) in \\(\\vec u-\\vec v\\).',
+            'The law of cosines for the triangle with sides \\(\\vec u\\), \\(\\vec v\\) and \\(\\vec u-\\vec v\\).',
+        ),
+        explanation: text(
+            'Izrek: \\(|\\vec u-\\vec v|^2=(\\vec u-\\vec v)\\cdot(\\vec u-\\vec v)=\\vec u\\cdot\\vec u-2\\,\\vec u\\cdot\\vec v+\\vec v\\cdot\\vec v=|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v\\). Ker je \\(\\vec u\\cdot\\vec v=|\\vec u||\\vec v|\\cos\\varphi\\), je to kosinusni izrek \\(c^2=a^2+b^2-2ab\\cos\\varphi\\). Številčni primeri v odčitku so le posamezni primeri tega izreka.',
+            'Theorem: \\(|\\vec u-\\vec v|^2=(\\vec u-\\vec v)\\cdot(\\vec u-\\vec v)=\\vec u\\cdot\\vec u-2\\,\\vec u\\cdot\\vec v+\\vec v\\cdot\\vec v=|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v\\). Since \\(\\vec u\\cdot\\vec v=|\\vec u||\\vec v|\\cos\\varphi\\), this is the law of cosines \\(c^2=a^2+b^2-2ab\\cos\\varphi\\). The numbers in the readout are single instances of this theorem.',
+        ),
+    },
+];
+
+const l3Examples: readonly WorkedExample[] = [
+    {
+        id: 'l3-angle-4-1-and-1-3',
+        title: text('Kot med smerema \\((4,1)\\) in \\((1,3)\\)', 'The angle between the directions \\((4,1)\\) and \\((1,3)\\)'),
+        calculationLatex: '\\vec u\\cdot\\vec v=4\\cdot1+1\\cdot3=7,\\ \\ \\vec u\\times\\vec v=4\\cdot3-1\\cdot1=11,\\ \\ \\tan\\theta=\\frac{11}{7}',
+        resultLatex: '\\theta\\approx57{,}5288^\\circ',
+        check: text(
+            'Kot je približno \\(57{,}5288^\\circ\\), zaokrožen na štiri decimalke. Preverek s kosinusnim izrekom: \\(\\vec u-\\vec v=(3,-2)\\), \\(|\\vec u-\\vec v|^2=9+4=13\\) in \\(|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v=17+10-14=13\\).',
+            'The angle is approximately \\(57.5288^\\circ\\), rounded to four decimals. Check with the law of cosines: \\(\\vec u-\\vec v=(3,-2)\\), \\(|\\vec u-\\vec v|^2=9+4=13\\) and \\(|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v=17+10-14=13\\).',
+        ),
+    },
+];
+
+const l3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'l3-predict', order: 1,
+        title: text('Napoved kota', 'Predicting the angle'),
+        purpose: text('Napovedati kot med premicama iz njunih smeri, preden ga odčitamo.', 'Predicting the angle between two lines from their directions before reading it.'),
+        explanation: text(
+            'Premica \\(\\ell\\) gre skozi \\(P=(-2,1)\\) in \\(Q=(0,2)\\), njen smerni vektor je \\(\\vec u=\\overrightarrow{PQ}=(2,1)\\). Premica \\(m\\) gre skozi \\(R=(0,2)\\) in \\(S=(1,5)\\), njen smerni vektor je \\(\\vec v=\\overrightarrow{RS}=(1,3)\\). Premici se sekata v \\((0,2)\\). Preden prebereš odčitek, napovej kot med premicama: s skico smeri \\((2,1)\\) in \\((1,3)\\) oceni velikost kota in ugotovi, ali je skalarni produkt pozitiven.',
+            'The line \\(\\ell\\) passes through \\(P=(-2,1)\\) and \\(Q=(0,2)\\), its direction vector is \\(\\vec u=\\overrightarrow{PQ}=(2,1)\\). The line \\(m\\) passes through \\(R=(0,2)\\) and \\(S=(1,5)\\), its direction vector is \\(\\vec v=\\overrightarrow{RS}=(1,3)\\). The lines meet at \\((0,2)\\). Before reading the readout, predict the angle between the lines: sketch the directions \\((2,1)\\) and \\((1,3)\\), estimate the size of the angle and work out whether the dot product is positive.',
+        ),
+        formulaIds: ['dot-and-cross', 'angle-between-lines'],
+        observationPrompt: text('Zapiši napoved, nato preberi skalarni produkt, determinanto \\(\\vec u\\times\\vec v\\) in kot v odčitku.', 'Write down your prediction, then read the dot product, the expression \\(\\vec u\\times\\vec v\\) and the angle in the readout.'),
+        expectedObservations: [text(
+            'Skalarni produkt je \\(5\\), determinanta \\(\\vec u\\times\\vec v\\) je \\(5\\), kot med premicama je \\(45^\\circ\\); kosinusni izrek: \\(5=5+10-2\\cdot5\\).',
+            'The dot product is \\(5\\), the expression \\(\\vec u\\times\\vec v\\) is \\(5\\), the angle between the lines is \\(45^\\circ\\); the law of cosines: \\(5=5+10-2\\cdot5\\).',
+        )],
+        scene: scene('l3-predict-scene', {mode: 'angle', P: [-2, 1], Q: [0, 2], R: [0, 2], S: [1, 5]},
+            'Smerna vektorja sta \\(\\vec u=(2,1)\\) in \\(\\vec v=(1,3)\\); \\(\\vec u\\cdot\\vec v=5\\), \\(\\vec u\\times\\vec v=5\\), kot med premicama je \\(45^\\circ\\).',
+            'The direction vectors are \\(\\vec u=(2,1)\\) and \\(\\vec v=(1,3)\\); \\(\\vec u\\cdot\\vec v=5\\), \\(\\vec u\\times\\vec v=5\\), the angle between the lines is \\(45^\\circ\\).'),
+    }),
+    step({
+        id: 'l3-other-direction', order: 2,
+        title: text('Druga smer', 'Another direction'),
+        purpose: text('Izračunati kot s skalarnim produktom in determinanto \\(\\vec u\\times\\vec v\\) ter ga preveriti s kosinusnim izrekom.', 'Computing an angle with the dot product and the expression \\(\\vec u\\times\\vec v\\) and checking it with the law of cosines.'),
+        explanation: text(
+            'Premakni \\(Q\\) v \\((2,2)\\), \\(P=(-2,1)\\) ostane; premakni \\(R\\) v \\((-2,1)\\) in \\(S\\) v \\((-1,4)\\): zdaj je \\(\\vec u=(4,1)\\) in \\(\\vec v=(1,3)\\), obe premici pa gresta skozi \\(P\\). Kot izračunamo iz celoštevilskih vrednosti, ne iz skice. Isti vektorji morajo ustrezati tudi kosinusnemu izreku; to je izrek, številčni preverek pa le primer.',
+            'Move \\(Q\\) to \\((2,2)\\), keeping \\(P=(-2,1)\\); move \\(R\\) to \\((-2,1)\\) and \\(S\\) to \\((-1,4)\\): now \\(\\vec u=(4,1)\\) and \\(\\vec v=(1,3)\\), and both lines pass through \\(P\\). We compute the angle from integer values, not from a sketch. The same vectors must also fit the law of cosines; that is a theorem, and the numeric check is only an instance.',
+        ),
+        formulaIds: ['angle-between-lines', 'cosine-rule-vectors'],
+        workedExampleId: 'l3-angle-4-1-and-1-3',
+        observationPrompt: text('Primerjaj račun z odčitkom: skalarni produkt, determinanto \\(\\vec u\\times\\vec v\\), kot in vrstico kosinusnega izreka.', 'Compare the calculation with the readout: the dot product, the expression \\(\\vec u\\times\\vec v\\), the angle and the row of the law of cosines.'),
+        expectedObservations: [text(
+            'Skalarni produkt je \\(7\\), determinanta \\(\\vec u\\times\\vec v\\) je \\(11\\), kot je približno \\(57{,}5288^\\circ\\); kosinusni izrek: \\(13=17+10-2\\cdot7\\).',
+            'The dot product is \\(7\\), the expression \\(\\vec u\\times\\vec v\\) is \\(11\\), the angle is approximately \\(57.5288^\\circ\\); the law of cosines: \\(13=17+10-2\\cdot7\\).',
+        )],
+        scene: scene('l3-other-direction-scene', {mode: 'angle', P: [-2, 1], Q: [2, 2], R: [-2, 1], S: [-1, 4]},
+            'Smerna vektorja sta \\(\\vec u=(4,1)\\) in \\(\\vec v=(1,3)\\); \\(\\vec u\\cdot\\vec v=7\\), \\(\\vec u\\times\\vec v=11\\), kot med premicama je približno \\(57{,}5288^\\circ\\).',
+            'The direction vectors are \\(\\vec u=(4,1)\\) and \\(\\vec v=(1,3)\\); \\(\\vec u\\cdot\\vec v=7\\), \\(\\vec u\\times\\vec v=11\\), the angle between the lines is approximately \\(57.5288^\\circ\\).'),
+    }),
+    step({
+        id: 'l3-swap', order: 3,
+        title: text('Zamenjaj \\(R\\) in \\(S\\)', 'Swap \\(R\\) and \\(S\\)'),
+        purpose: text('Napovedati, kaj se zgodi s skalarnim produktom, determinanto in kotom med premicama, ko zamenjamo točki druge premice.', 'Predicting what happens to the dot product, the determinant and the angle between the lines when the points of the second line are swapped.'),
+        explanation: text(
+            'Vrni \\(P=(-2,1)\\), \\(Q=(0,2)\\), tako da je \\(\\vec u=(2,1)\\), in zamenjaj točki druge premice: \\(R=(1,5)\\), \\(S=(0,2)\\). Premica \\(m\\) je ista kot prej, smerni vektor \\(\\overrightarrow{RS}=(-1,-3)\\) pa kaže v nasprotno smer. Preden prebereš odčitek, napovej, kaj se zgodi s skalarnim produktom, z determinanto \\(\\vec u\\times\\vec v\\) in s kotom med premicama.',
+            'Return to \\(P=(-2,1)\\), \\(Q=(0,2)\\), so that \\(\\vec u=(2,1)\\), and swap the points of the second line: \\(R=(1,5)\\), \\(S=(0,2)\\). The line \\(m\\) is the same as before, while the direction vector \\(\\overrightarrow{RS}=(-1,-3)\\) points the opposite way. Before reading the readout, predict what happens to the dot product, to the expression \\(\\vec u\\times\\vec v\\) and to the angle between the lines.',
+        ),
+        formulaIds: ['dot-and-cross', 'angle-between-lines'],
+        observationPrompt: text('Zapiši napoved, nato primerjaj odčitek s prejšnjim.', 'Write down your prediction, then compare the readout with the previous one.'),
+        expectedObservations: [text(
+            'Skalarni produkt je \\(-5\\) in determinanta \\(\\vec u\\times\\vec v\\) je \\(-5\\). Kot med vektorjema je \\(135^\\circ\\), saj je \\(\\cos\\varphi=\\tfrac{-5}{\\sqrt5\\sqrt{10}}=-\\tfrac1{\\sqrt2}\\); kot med premicama je še vedno \\(45^\\circ\\), ostri kot, ki dopolni \\(135^\\circ\\) do \\(180^\\circ\\); kosinusni izrek: \\(25=5+10-2\\cdot(-5)\\).',
+            'The dot product is \\(-5\\) and the expression \\(\\vec u\\times\\vec v\\) is \\(-5\\). The angle between the vectors is \\(135^\\circ\\), since \\(\\cos\\varphi=\\tfrac{-5}{\\sqrt5\\sqrt{10}}=-\\tfrac1{\\sqrt2}\\); the angle between the lines is still \\(45^\\circ\\), the acute angle, the supplement of \\(135^\\circ\\) to \\(180^\\circ\\); the law of cosines: \\(25=5+10-2\\cdot(-5)\\).',
+        )],
+        scene: scene('l3-swap-scene', {mode: 'angle', P: [-2, 1], Q: [0, 2], R: [1, 5], S: [0, 2]},
+            'Smerna vektorja sta \\(\\vec u=(2,1)\\) in \\(\\vec v=(-1,-3)\\); \\(\\vec u\\cdot\\vec v=-5\\), \\(\\vec u\\times\\vec v=-5\\), kot med premicama je \\(45^\\circ\\).',
+            'The direction vectors are \\(\\vec u=(2,1)\\) and \\(\\vec v=(-1,-3)\\); \\(\\vec u\\cdot\\vec v=-5\\), \\(\\vec u\\times\\vec v=-5\\), the angle between the lines is \\(45^\\circ\\).'),
+    }),
+    step({
+        id: 'l3-perpendicular', order: 4,
+        title: text('Še ena lega druge premice', 'One more position of the second line'),
+        purpose: text('Napovedati skalarni produkt, kot med premicama in obliko kosinusnega izreka za novo lego točke \\(S\\).', 'Predicting the dot product, the angle between the lines and the shape of the law of cosines for the new position of the point \\(S\\).'),
+        explanation: text(
+            'Pusti \\(\\vec u=(2,1)\\) in \\(R=(0,2)\\), točko \\(S\\) pa premakni v \\((-1,4)\\): zdaj je \\(\\vec v=\\overrightarrow{RS}=(-1,2)\\). Preden prebereš odčitek, izračunaj skalarni produkt \\(\\vec u\\cdot\\vec v\\) in napovej kot med premicama ter obliko kosinusnega izreka.',
+            'Keep \\(\\vec u=(2,1)\\) and \\(R=(0,2)\\), and move the point \\(S\\) to \\((-1,4)\\): now \\(\\vec v=\\overrightarrow{RS}=(-1,2)\\). Before reading the readout, work out the dot product \\(\\vec u\\cdot\\vec v\\) and predict the angle between the lines and the shape of the law of cosines.',
+        ),
+        formulaIds: ['angle-between-lines', 'cosine-rule-vectors'],
+        observationPrompt: text('Zapiši napoved, nato preberi kot, stanje in vrstico kosinusnega izreka.', 'Write down your prediction, then read the angle, the status and the row of the law of cosines.'),
+        expectedObservations: [text(
+            'Skalarni produkt je \\(0\\), kot je \\(90^\\circ\\) in stanje pravi, da sta premici pravokotni; kosinusni izrek je \\(10=5+5\\), to je Pitagorov izrek.',
+            'The dot product is \\(0\\), the angle is \\(90^\\circ\\) and the status says the lines are perpendicular; the law of cosines is \\(10=5+5\\), the Pythagorean theorem.',
+        )],
+        scene: scene('l3-perpendicular-scene', {mode: 'angle', P: [-2, 1], Q: [0, 2], R: [0, 2], S: [-1, 4]},
+            'Smerna vektorja sta \\(\\vec u=(2,1)\\) in \\(\\vec v=(-1,2)\\); \\(\\vec u\\cdot\\vec v=0\\), \\(\\vec u\\times\\vec v=5\\), kot med premicama je \\(90^\\circ\\).',
+            'The direction vectors are \\(\\vec u=(2,1)\\) and \\(\\vec v=(-1,2)\\); \\(\\vec u\\cdot\\vec v=0\\), \\(\\vec u\\times\\vec v=5\\), the angle between the lines is \\(90^\\circ\\).'),
+    }),
+    step({
+        id: 'l3-free', order: 5,
+        title: text('Raziskovanje', 'Free exploration'),
+        purpose: text('Samostojno poiskati vzporedni in pravokotni premici ter opazovati kosinusni izrek.', 'Finding parallel and perpendicular lines on your own and watching the law of cosines.'),
+        explanation: text(
+            'Premikaj vse štiri točke sam. Zanima nas, kdaj je determinanta \\(\\vec u\\times\\vec v\\) enak \\(0\\), kdaj je skalarni produkt enak \\(0\\) in kakšen je v teh primerih kot med premicama.',
+            'Move all four points yourself. We are interested in when the expression \\(\\vec u\\times\\vec v\\) is \\(0\\), when the dot product is \\(0\\), and what the angle between the lines is in those cases.',
+        ),
+        formulaIds: ['angle-between-lines'],
+        observationPrompt: text('Poišči po eno lego, v kateri je \\(\\vec u\\times\\vec v=0\\), in eno, v kateri je \\(\\vec u\\cdot\\vec v=0\\), ter preberi kot.', 'Find one position where \\(\\vec u\\times\\vec v=0\\) and one where \\(\\vec u\\cdot\\vec v=0\\), and read the angle.'),
+        expectedObservations: [text(
+            'Kadar je \\(\\vec u\\times\\vec v=0\\), je kot \\(0^\\circ\\) in premici sta vzporedni; kadar je \\(\\vec u\\cdot\\vec v=0\\), je kot \\(90^\\circ\\) in premici sta pravokotni. Kosinusni izrek velja v vsaki legi.',
+            'When \\(\\vec u\\times\\vec v=0\\) the angle is \\(0^\\circ\\) and the lines are parallel; when \\(\\vec u\\cdot\\vec v=0\\) the angle is \\(90^\\circ\\) and the lines are perpendicular. The law of cosines holds in every position.',
+        )],
+        scene: scene('l3-free-scene', {mode: 'angle', P: [-2, 1], Q: [0, 2], R: [0, 2], S: [1, 5]},
+            'Začetna lega: \\(\\vec u=(2,1)\\), \\(\\vec v=(1,3)\\), kot med premicama je \\(45^\\circ\\).',
+            'Starting position: \\(\\vec u=(2,1)\\), \\(\\vec v=(1,3)\\), the angle between the lines is \\(45^\\circ\\).'),
+    }),
+];
+
+// ---- L4 --------------------------------------------------------------------------------------------------------------------------
+
+const l4Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'distance-definition',
+        latex: 'd=|FT|',
+        notation: text(
+            '\\(F\\) je nožišče pravokotnice iz točke \\(T\\) na premico \\(\\ell\\).',
+            '\\(F\\) is the foot of the perpendicular from the point \\(T\\) to the line \\(\\ell\\).',
+        ),
+        explanation: text(
+            'Definicija: nožišče pravokotnice je točka \\(F\\) premice \\(\\ell\\), za katero je \\(FT\\perp\\ell\\). Razdalja točke od premice je dolžina daljice \\(FT\\).',
+            'Definition: the foot of the perpendicular is the point \\(F\\) of the line \\(\\ell\\) for which \\(FT\\perp\\ell\\). The distance from a point to a line is the length of the segment \\(FT\\).',
+        ),
+    },
+    {
+        id: 'distance-formula',
+        latex: 'd=\\frac{|ax_T+by_T-c|}{\\sqrt{a^2+b^2}}=\\frac{|\\overrightarrow{PT}\\cdot\\vec n|}{|\\vec n|}',
+        notation: text(
+            '\\(ax+by=c\\) je premica \\(\\ell\\), \\(\\vec n=(a,b)\\) njen normalni vektor, \\(P\\) poljubna točka premice, \\(T=(x_T,y_T)\\) dana točka; odčitek izraz \\(ax_T+by_T-c\\) imenuje vrednost v točki \\(T\\).',
+            '\\(ax+by=c\\) is the line \\(\\ell\\), \\(\\vec n=(a,b)\\) its normal vector, \\(P\\) any point of the line, \\(T=(x_T,y_T)\\) the given point; the readout calls the expression \\(ax_T+by_T-c\\) the value at \\(T\\).',
+        ),
+        explanation: text(
+            'Argument: ker \\(P\\) leži na \\(\\ell\\), je \\(ax_P+by_P=c\\), zato je \\(\\overrightarrow{PT}\\cdot\\vec n=a(x_T-x_P)+b(y_T-y_P)=ax_T+by_T-c\\). Vektor \\(\\overrightarrow{PT}\\) je vsota \\(\\overrightarrow{PF}+\\overrightarrow{FT}\\); \\(\\overrightarrow{PF}\\) leži vzdolž \\(\\ell\\), zato je \\(\\overrightarrow{PF}\\cdot\\vec n=0\\) in \\(\\overrightarrow{PT}\\cdot\\vec n=\\overrightarrow{FT}\\cdot\\vec n\\). Vektor \\(\\overrightarrow{FT}\\) je vzporeden z \\(\\vec n\\), zato je \\(|\\overrightarrow{FT}\\cdot\\vec n|=|FT||\\vec n|\\). Dolžina pravokotne projekcije \\(\\overrightarrow{PT}\\) na normalo je torej \\(d=\\tfrac{|\\overrightarrow{PT}\\cdot\\vec n|}{|\\vec n|}\\), kar je formula iz formul za maturo.',
+            'Argument: since \\(P\\) lies on \\(\\ell\\), \\(ax_P+by_P=c\\), so \\(\\overrightarrow{PT}\\cdot\\vec n=a(x_T-x_P)+b(y_T-y_P)=ax_T+by_T-c\\). The vector \\(\\overrightarrow{PT}\\) is the sum \\(\\overrightarrow{PF}+\\overrightarrow{FT}\\); \\(\\overrightarrow{PF}\\) lies along \\(\\ell\\), so \\(\\overrightarrow{PF}\\cdot\\vec n=0\\) and \\(\\overrightarrow{PT}\\cdot\\vec n=\\overrightarrow{FT}\\cdot\\vec n\\). The vector \\(\\overrightarrow{FT}\\) is parallel to \\(\\vec n\\), so \\(|\\overrightarrow{FT}\\cdot\\vec n|=|FT||\\vec n|\\). The length of the orthogonal projection of \\(\\overrightarrow{PT}\\) on the normal is therefore \\(d=\\tfrac{|\\overrightarrow{PT}\\cdot\\vec n|}{|\\vec n|}\\), the formula of the formula sheet.',
+        ),
+    },
+];
+
+const l4Examples: readonly WorkedExample[] = [
+    {
+        id: 'l4-distance-of-t',
+        title: text('Razdalja točke \\(T=(3,-2)\\) od premice \\(x-2y=-4\\)', 'The distance of the point \\(T=(3,-2)\\) from the line \\(x-2y=-4\\)'),
+        calculationLatex: '\\overrightarrow{PT}=(5,-3),\\ \\ \\vec n=(1,-2),\\ \\ \\overrightarrow{PT}\\cdot\\vec n=5+6=11,\\ \\ |\\vec n|=\\sqrt5',
+        resultLatex: 'd=\\frac{11}{\\sqrt5}=\\sqrt{\\frac{121}{5}}\\approx4{,}9193',
+        check: text(
+            'Vektor \\(\\overrightarrow{PT}\\) od \\(P=(-2,1)\\) do \\(T=(3,-2)\\) je \\((5,-3)\\). Preverek: \\(3-2\\cdot(-2)-(-4)=11\\) je isto število kot \\(\\overrightarrow{PT}\\cdot\\vec n\\). Razdalja je \\(\\tfrac{11}{\\sqrt5}\\), kar je približno \\(4{,}9193\\); natančno je \\(d^2=\\tfrac{121}{5}\\). Projekcija \\(\\overrightarrow{PT}\\) na normalo je \\(\\tfrac{11}{5}\\vec n=(\\tfrac{11}{5},-\\tfrac{22}{5})\\) in nožišče je \\(F=T-\\tfrac{11}{5}\\vec n=(\\tfrac45,\\tfrac{12}{5})\\).',
+            'The vector \\(\\overrightarrow{PT}\\) from \\(P=(-2,1)\\) to \\(T=(3,-2)\\) is \\((5,-3)\\). Check: \\(3-2\\cdot(-2)-(-4)=11\\) is the same number as \\(\\overrightarrow{PT}\\cdot\\vec n\\). The distance is \\(\\tfrac{11}{\\sqrt5}\\), approximately \\(4.9193\\); exactly, \\(d^2=\\tfrac{121}{5}\\). The projection of \\(\\overrightarrow{PT}\\) on the normal is \\(\\tfrac{11}{5}\\vec n=(\\tfrac{11}{5},-\\tfrac{22}{5})\\) and the foot is \\(F=T-\\tfrac{11}{5}\\vec n=(\\tfrac45,\\tfrac{12}{5})\\).',
+        ),
+    },
+];
+
+const l4Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'l4-predict', order: 1,
+        title: text('Napoved nožišča', 'Predicting the foot'),
+        purpose: text('Napovedati, kje na premici je nožišče pravokotnice, preden ga odčitamo.', 'Predicting where on the line the foot of the perpendicular lies before reading it.'),
+        explanation: text(
+            'Premica \\(\\ell\\) gre skozi \\(P=(-2,1)\\) in \\(Q=(4,4)\\), to je \\(x-2y=-4\\), točka je \\(T=(3,-2)\\). Preden prebereš odčitek, ugotovi, kje na \\(\\ell\\) leži nožišče \\(F\\), in kakšen kot naredi daljica \\(FT\\) s premico \\(\\ell\\).',
+            'The line \\(\\ell\\) passes through \\(P=(-2,1)\\) and \\(Q=(4,4)\\), that is \\(x-2y=-4\\), the point is \\(T=(3,-2)\\). Before reading the readout, work out where on \\(\\ell\\) the foot \\(F\\) lies and what angle the segment \\(FT\\) makes with the line \\(\\ell\\).',
+        ),
+        formulaIds: ['distance-definition'],
+        observationPrompt: text('Zapiši napoved, nato preberi nožišče in razdaljo v odčitku in poglej pravi kot na grafu.', 'Write down your prediction, then read the foot and the distance in the readout and look at the right angle on the graph.'),
+        expectedObservations: [text(
+            'Nožišče je \\(F=(\\tfrac45,\\tfrac{12}{5})\\), daljica \\(FT\\) je pravokotna na \\(\\ell\\); \\(d^2=\\tfrac{121}{5}\\), \\(d\\approx4{,}9193\\).',
+            'The foot is \\(F=(\\tfrac45,\\tfrac{12}{5})\\), the segment \\(FT\\) is perpendicular to \\(\\ell\\); \\(d^2=\\tfrac{121}{5}\\), \\(d\\approx4.9193\\).',
+        )],
+        scene: scene('l4-predict-scene', {mode: 'distance', P: [-2, 1], Q: [4, 4], T: [3, -2]},
+            'Premica je \\(x-2y=-4\\), točka je \\(T=(3,-2)\\); nožišče je \\(F=(\\tfrac45,\\tfrac{12}{5})\\), \\(d^2=\\tfrac{121}{5}\\), \\(d\\approx4{,}9193\\).',
+            'The line is \\(x-2y=-4\\), the point is \\(T=(3,-2)\\); the foot is \\(F=(\\tfrac45,\\tfrac{12}{5})\\), \\(d^2=\\tfrac{121}{5}\\), \\(d\\approx4.9193\\).'),
+    }),
+    step({
+        id: 'l4-other-side', order: 2,
+        title: text('Točka na drugi strani', 'A point on the other side'),
+        purpose: text('Napovedati predznak vrednosti v točki \\(T\\) in obnašanje razdalje, ko točka preide na drugo stran premice.', 'Predicting the sign of the value at \\(T\\) and the behaviour of the distance when the point crosses to the other side of the line.'),
+        explanation: text(
+            'Premakni \\(T\\) v \\((-3,4)\\), na drugo stran premice \\(\\ell: x-2y=-4\\); \\(P\\) in \\(Q\\) ostaneta. Vrednost v točki \\(T\\) je izraz \\(ax_T+by_T-c\\). Preden prebereš odčitek, napovej predznak te vrednosti in ali se pravi kot pri nožišču ohrani.',
+            'Move \\(T\\) to \\((-3,4)\\), to the other side of the line \\(\\ell: x-2y=-4\\); \\(P\\) and \\(Q\\) stay. The value at \\(T\\) is the expression \\(ax_T+by_T-c\\). Before reading the readout, predict the sign of that value and whether the right angle at the foot is kept.',
+        ),
+        formulaIds: ['distance-definition', 'distance-formula'],
+        observationPrompt: text('Zapiši napoved, nato preberi vrednost, razdaljo in nožišče.', 'Write down your prediction, then read the value, the distance and the foot.'),
+        expectedObservations: [text(
+            'Vrednost je \\(-7\\), \\(d^2=\\tfrac{49}{5}\\), \\(d\\approx3{,}1305\\), nožišče je \\(F=(-\\tfrac85,\\tfrac65)\\); pravi kot pri \\(F\\) ostane, razdalja pa je pozitivna.',
+            'The value is \\(-7\\), \\(d^2=\\tfrac{49}{5}\\), \\(d\\approx3.1305\\), the foot is \\(F=(-\\tfrac85,\\tfrac65)\\); the right angle at \\(F\\) stays, and the distance is positive.',
+        )],
+        scene: scene('l4-other-side-scene', {mode: 'distance', P: [-2, 1], Q: [4, 4], T: [-3, 4]},
+            'Točka je \\(T=(-3,4)\\); vrednost je \\(-7\\), \\(d^2=\\tfrac{49}{5}\\), \\(d\\approx3{,}1305\\), nožišče je \\(F=(-\\tfrac85,\\tfrac65)\\).',
+            'The point is \\(T=(-3,4)\\); the value is \\(-7\\), \\(d^2=\\tfrac{49}{5}\\), \\(d\\approx3.1305\\), the foot is \\(F=(-\\tfrac85,\\tfrac65)\\).'),
+    }),
+    step({
+        id: 'l4-projection', order: 3,
+        title: text('Razdalja kot projekcija', 'The distance as a projection'),
+        purpose: text('Videti, da je razdalja dolžina pravokotne projekcije vektorja \\(\\overrightarrow{PT}\\) na normalo.', 'Seeing that the distance is the length of the orthogonal projection of \\(\\overrightarrow{PT}\\) on the normal.'),
+        explanation: text(
+            'Vrni \\(T=(3,-2)\\). Vektor \\(\\overrightarrow{PT}\\) vodi od točke \\(P\\) premice do \\(T\\). Njegova pravokotna projekcija na normalo \\(\\vec n=(1,-2)\\) je vektor, ki gre od nožišča \\(F\\) do \\(T\\). Dolžino te projekcije izračunamo kot \\(\\tfrac{|\\overrightarrow{PT}\\cdot\\vec n|}{|\\vec n|}\\); primer je v računu spodaj.',
+            'Return to \\(T=(3,-2)\\). The vector \\(\\overrightarrow{PT}\\) leads from the point \\(P\\) of the line to \\(T\\). Its orthogonal projection on the normal \\(\\vec n=(1,-2)\\) is the vector that goes from the foot \\(F\\) to \\(T\\). We compute the length of this projection as \\(\\tfrac{|\\overrightarrow{PT}\\cdot\\vec n|}{|\\vec n|}\\); the example is in the calculation below.',
+        ),
+        formulaIds: ['distance-formula'],
+        workedExampleId: 'l4-distance-of-t',
+        observationPrompt: text('Preberi vrstice za vektor \\(PT\\), \\(PT\\cdot n\\) in projekcijo ter primerjaj z računom.', 'Read the rows for the vector \\(PT\\), \\(PT\\cdot n\\) and the projection, and compare them with the calculation.'),
+        expectedObservations: [text(
+            'Vektor \\(PT\\) je \\((5,-3)\\), \\(PT\\cdot n=11\\), projekcija je \\((\\tfrac{11}{5},-\\tfrac{22}{5})\\) in je vektor od \\(F\\) do \\(T\\).',
+            'The vector \\(PT\\) is \\((5,-3)\\), \\(PT\\cdot n=11\\), the projection is \\((\\tfrac{11}{5},-\\tfrac{22}{5})\\) and is the vector from \\(F\\) to \\(T\\).',
+        )],
+        scene: scene('l4-projection-scene', {mode: 'distance', P: [-2, 1], Q: [4, 4], T: [3, -2]},
+            'Vektor \\(PT\\) je \\((5,-3)\\), \\(PT\\cdot n=11\\), projekcija je \\((\\tfrac{11}{5},-\\tfrac{22}{5})\\), \\(d^2=\\tfrac{121}{5}\\).',
+            'The vector \\(PT\\) is \\((5,-3)\\), \\(PT\\cdot n=11\\), the projection is \\((\\tfrac{11}{5},-\\tfrac{22}{5})\\), \\(d^2=\\tfrac{121}{5}\\).'),
+    }),
+    step({
+        id: 'l4-on-line', order: 4,
+        title: text('Točka na premici', 'A point on the line'),
+        purpose: text('Napovedati vrednost v točki \\(T\\) in razdaljo za novo lego točke \\(T\\).', 'Predicting the value at \\(T\\) and the distance for the new position of the point \\(T\\).'),
+        explanation: text(
+            'Premakni \\(T\\) v \\((2,3)\\); \\(P\\) in \\(Q\\) ostaneta, premica je \\(\\ell: x-2y=-4\\). Preden prebereš odčitek, ugotovi, ali \\(T\\) leži na \\(\\ell\\), in napovej vrednost \\(ax_T+by_T-c\\) ter razdaljo. Odčitek razdalje je zaokrožen; natančno odločitev daje vrednost \\(ax_T+by_T-c\\) (in z njo \\(d^2\\)).',
+            'Move \\(T\\) to \\((2,3)\\); \\(P\\) and \\(Q\\) stay, the line is \\(\\ell: x-2y=-4\\). Before reading the readout, decide whether \\(T\\) lies on \\(\\ell\\) and predict the value \\(ax_T+by_T-c\\) and the distance. The distance readout is rounded; the exact decision is the value \\(ax_T+by_T-c\\) (and with it \\(d^2\\)).',
+        ),
+        formulaIds: ['distance-definition', 'distance-formula'],
+        observationPrompt: text('Zapiši napoved, nato preberi vrednost, razdaljo in stanje; poišči še eno mrežno točko na \\(\\ell\\).', 'Write down your prediction, then read the value, the distance and the status; find one more grid point on \\(\\ell\\).'),
+        expectedObservations: [text(
+            'Vrednost je \\(0\\), zato je razdalja natanko \\(0\\) (zaokroženi odčitek pokaže »≈ 0«), in stanje pravi, da točka leži na premici.',
+            'The value is \\(0\\), so the distance is exactly \\(0\\) (the rounded readout shows "≈ 0"), and the status says the point lies on the line.',
+        )],
+        scene: scene('l4-on-line-scene', {mode: 'distance', P: [-2, 1], Q: [4, 4], T: [2, 3]},
+            'Točka je \\(T=(2,3)\\); vrednost je \\(0\\), razdalja je \\(0\\).',
+            'The point is \\(T=(2,3)\\); the value is \\(0\\), the distance is \\(0\\).'),
+    }),
+    step({
+        id: 'l4-free', order: 5,
+        title: text('Raziskovanje', 'Free exploration'),
+        purpose: text('Samostojno premikati premico in točko ter opazovati razdaljo.', 'Moving the line and the point on your own and watching the distance.'),
+        explanation: text(
+            'Premikaj \\(P\\), \\(Q\\) in \\(T\\) sam. Poseben primer je vodoravna premica, pri kateri imata \\(P\\) in \\(Q\\) enako ordinato: poskusi napovedati razdaljo, preden jo prebereš.',
+            'Move \\(P\\), \\(Q\\) and \\(T\\) yourself. A special case is a horizontal line, where \\(P\\) and \\(Q\\) have the same ordinate: try to predict the distance before you read it.',
+        ),
+        formulaIds: ['distance-formula'],
+        observationPrompt: text('Postavi \\(P\\) in \\(Q\\) na isto ordinato in primerjaj \\(d\\) z razliko ordinat točke \\(T\\) in premice.', 'Put \\(P\\) and \\(Q\\) at the same ordinate and compare \\(d\\) with the difference between the ordinates of \\(T\\) and the line.'),
+        expectedObservations: [text(
+            'Pri vodoravni premici \\(y=y_0\\) je \\(d=|y_T-y_0|\\); na primer za \\(P=(-2,1)\\), \\(Q=(4,1)\\), \\(T=(3,4)\\) je \\(d^2=9\\) in \\(d=3\\).',
+            'For a horizontal line \\(y=y_0\\), \\(d=|y_T-y_0|\\); for example for \\(P=(-2,1)\\), \\(Q=(4,1)\\), \\(T=(3,4)\\), \\(d^2=9\\) and \\(d=3\\).',
+        )],
+        scene: scene('l4-free-scene', {mode: 'distance', P: [-2, 1], Q: [4, 4], T: [3, -2]},
+            'Začetna lega: \\(\\ell: x-2y=-4\\), \\(T=(3,-2)\\), \\(d^2=\\tfrac{121}{5}\\).',
+            'Starting position: \\(\\ell: x-2y=-4\\), \\(T=(3,-2)\\), \\(d^2=\\tfrac{121}{5}\\).'),
+    }),
+];
+
 const sources: GuidedLesson['sources'] = [
     {
         id: 'matura-catalogue-premica',
@@ -379,5 +664,77 @@ const l2: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+const implementationSource: GuidedLesson['sources'][number] = {
+    id: 'bezeg-line-geometry-implementation',
+    citation: 'Bezeg source: src/compgeo/lineForms.ts, src/graphs/lines/lineGeometryModel.ts and src/graphs/lines/LineGeometryGraph.tsx.',
+    implementationCorrespondence: 'A scene sets the graph\'s mode and its integer handle fields; the text quotes only values of those scenes or plain arithmetic (labelled calculation), and the angle and the distance are computed from exact integer or rational values of the line kernel.',
+};
+
+const l3: GuidedLesson = {
+    demonstrationId: 'line-geometry',
+    title: text('Skalarni produkt in kot med premicama', 'Dot product and the angle between lines'),
+    summary: text(
+        'Skalarni produkt smernih vektorjev \\(\\vec u\\cdot\\vec v\\) in determinanto \\(\\vec u\\times\\vec v\\) določata kot med premicama; kosinusni izrek \\(|\\vec u-\\vec v|^2=|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v\\) je isto dejstvo. Kot med premicama je po dogovoru ostri kot.',
+        'The dot product of the direction vectors \\(\\vec u\\cdot\\vec v\\) and the expression \\(\\vec u\\times\\vec v\\) determine the angle between lines; the law of cosines \\(|\\vec u-\\vec v|^2=|\\vec u|^2+|\\vec v|^2-2\\,\\vec u\\cdot\\vec v\\) is the same fact. By convention the angle between lines is the acute one.',
+    ),
+    prerequisites: [text('Lekcija o normalnem vektorju, vzporednosti in pravokotnosti ter skalarni produkt vektorjev.', 'The lesson on the normal vector, parallel and perpendicular lines, and the dot product of vectors.')],
+    learningGoals: [
+        text('Iz smernih vektorjev izračunaš skalarni produkt, determinanto \\(\\vec u\\times\\vec v\\) in kot med premicama.', 'Compute the dot product, the expression \\(\\vec u\\times\\vec v\\) and the angle between lines from the direction vectors.'),
+        text('Veš, da obrnjen smerni vektor ne spremeni kota med premicama, ker je kot po dogovoru ostri.', 'Know that a reversed direction vector does not change the angle between the lines, because the angle is the acute one by convention.'),
+        text('Izpelješ kosinusni izrek za vektorje in ga preveriš na primeru.', 'Derive the law of cosines for vectors and check it on an example.'),
+    ],
+    formulaBlocks: l3Formulas,
+    workedExamples: l3Examples,
+    steps: l3Steps,
+    sources: [
+        {
+            id: 'matura-catalogue-kot-med-premicama',
+            citation: 'Predmetni izpitni katalog za splošno maturo, matematika (M-MAT-2026), poglavje 4.10.1 Enačbe premice v ravnini (kot med premicama) in poglavje 4.8 Vektorji (skalarni produkt). Cited from the text extraction of the catalogue.',
+            implementationCorrespondence: 'The lesson follows the topic list: the angle between lines from the dot product of direction vectors, taken as the acute angle by convention.',
+        },
+        implementationSource,
+    ],
+    edgeCases: [
+        text('Če točki \\(P\\) in \\(Q\\) ali \\(R\\) in \\(S\\) sovpadata, premice ni in graf to sporoči.', 'If the points \\(P\\) and \\(Q\\), or \\(R\\) and \\(S\\), coincide there is no line and the graph says so.'),
+        text('Vzporedni premici: determinanta \\(\\vec u\\times\\vec v\\) je \\(0\\), kot je \\(0^\\circ\\) in loka ni.', 'Parallel lines: the expression \\(\\vec u\\times\\vec v\\) is \\(0\\), the angle is \\(0^\\circ\\) and there is no arc.'),
+        text('Če se premici sekata zunaj prikaza, loka ni, odčitek kota pa velja.', 'If the lines meet outside the view there is no arc, while the angle readout stays valid.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+const l4: GuidedLesson = {
+    demonstrationId: 'line-geometry',
+    title: text('Razdalja točke od premice', 'Distance from a point to a line'),
+    summary: text(
+        'Razdalja točke \\(T\\) od premice \\(ax+by=c\\) je dolžina pravokotne projekcije vektorja \\(\\overrightarrow{PT}\\) na normalo, \\(d=\\tfrac{|ax_T+by_T-c|}{\\sqrt{a^2+b^2}}\\), in je dolžina daljice od nožišča pravokotnice \\(F\\) do \\(T\\).',
+        'The distance of a point \\(T\\) from the line \\(ax+by=c\\) is the length of the orthogonal projection of \\(\\overrightarrow{PT}\\) on the normal, \\(d=\\tfrac{|ax_T+by_T-c|}{\\sqrt{a^2+b^2}}\\), and the length of the segment from the foot of the perpendicular \\(F\\) to \\(T\\).',
+    ),
+    prerequisites: [text('Lekcija o normalnem vektorju in skalarni produkt vektorjev.', 'The lesson on the normal vector and the dot product of vectors.')],
+    learningGoals: [
+        text('Razložiš, da je razdalja točke od premice dolžina projekcije vektorja \\(\\overrightarrow{PT}\\) na normalo.', 'Explain that the distance from a point to a line is the length of the projection of \\(\\overrightarrow{PT}\\) on the normal.'),
+        text('Izračunaš razdaljo in nožišče pravokotnice za dano premico in točko.', 'Compute the distance and the foot of the perpendicular for a given line and point.'),
+        text('Veš, da je razdalja točke na premici enaka \\(0\\), vrednost izraza \\(ax_T+by_T-c\\) pa ima lahko obe predznaka.', 'Know that the distance of a point on the line is \\(0\\), while the value of \\(ax_T+by_T-c\\) can have either sign.'),
+    ],
+    formulaBlocks: l4Formulas,
+    workedExamples: l4Examples,
+    steps: l4Steps,
+    sources: [
+        {
+            id: 'matura-formula-sheet-distance',
+            citation: 'Formule za splošno maturo iz matematike (M-MAT-2026), stran 40: razdalja točke od premice. Cited from the text extraction of the formula sheet.',
+            implementationCorrespondence: 'The lesson derives the formula of the formula sheet as the length of the orthogonal projection of the vector from P to T on the normal vector and shows the foot of the perpendicular.',
+        },
+        implementationSource,
+    ],
+    edgeCases: [
+        text('Če točki \\(P\\) in \\(Q\\) sovpadata, premice ni in graf to sporoči.', 'If the points \\(P\\) and \\(Q\\) coincide there is no line and the graph says so.'),
+        text('Če točka \\(T\\) leži na premici, je razdalja \\(0\\) in pravega kota ni.', 'If the point \\(T\\) lies on the line, the distance is \\(0\\) and there is no right angle.'),
+        text('Nožišče zunaj prikaza ni narisano, njegove koordinate pa so v odčitku.', 'A foot outside the view is not drawn, while its coordinates stay in the readout.'),
+    ],
+    unresolvedQuestions: [],
+};
+
 export const lineFormsLesson: GuidedLesson = l1;
 export const lineNormalLesson: GuidedLesson = l2;
+export const lineAngleLesson: GuidedLesson = l3;
+export const lineDistanceLesson: GuidedLesson = l4;

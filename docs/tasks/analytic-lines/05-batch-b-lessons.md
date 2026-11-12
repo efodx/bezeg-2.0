@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for L3–L4; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: not started.
+Status: F3 done 2026-11-12 (handler 14; L3 `line-geometry-angle`, L4 `line-geometry-distance` on `line-geometry`, sections `angle-between-lines` and `distance-point-line` in the chapter `analytic-lines`, action kind `lines` unchanged; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-lines-b.md)); F4–F6 next. Owed: no browser look at the new sections or at the angle and distance modes during the lessons (one default smoke row per Demonstration); the Slovenian prose has no second reader.

@@ -12,7 +12,7 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | [02 State model and line graph](02-line-graph.md) | A–C | F2a | none | 01 | done |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b–F6 | Controls step 7 (accepted) | 02 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md)); split into 04–06 on 2026-11-12 |
 | [04 Batch A lessons](04-batch-a-lessons.md) | A | F3–F6 | 03 | 02 | F3 done 2026-11-12 (L1, L2; chapter skeleton); F4–F6 next |
-| [05 Batch B lessons](05-batch-b-lessons.md) | B | F3–F6 | 04 | 02 | not started |
+| [05 Batch B lessons](05-batch-b-lessons.md) | B | F3–F6 | 04 | 02 | F3 done 2026-11-12 (L3, L4); F4–F6 next |
 | [06 Batch C lessons](06-batch-c-lessons.md) | C | F3–F6 | 05 | 02 | not started |
 
 ## Slovenian terms (F0 decision)
