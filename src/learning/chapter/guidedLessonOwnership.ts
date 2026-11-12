@@ -1,6 +1,8 @@
 import type {DemonstrationId, GuidedLessonDemonstrationId, LessonlessDemonstrationId} from '../../demonstrations';
 import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
 import type {ProjectiveDemonstrationId} from '../../graphs/projective/registration';
+import type {BsplineDemonstrationId} from '../../graphs/curves/bspline/registration';
+import {bsplineDemonstrationRows} from '../../graphs/curves/bspline/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
@@ -10,7 +12,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = ProjectiveDemonstrationId;
+type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId;
 
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
@@ -157,19 +159,13 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'reduction': {chapterId: 'advanced-bezier', sectionId: 'reduction'},
     'arc-length-param': {chapterId: 'advanced-bezier', sectionId: 'arc-length-param'},
     'bezier-clipping': {chapterId: 'advanced-bezier', sectionId: 'bezier-clipping'},
-    'bspline-basis': {chapterId: 'b-splines', sectionId: 'bspline-basis'},
-    'bspline-deboor': {chapterId: 'b-splines', sectionId: 'bspline-deboor'},
-    'bspline-insertion': {chapterId: 'b-splines', sectionId: 'bspline-insertion'},
-    'bspline-extraction': {chapterId: 'b-splines', sectionId: 'bspline-extraction'},
-    'bspline-nurbs': {chapterId: 'b-splines', sectionId: 'bspline-nurbs'},
-    'bspline-blossom': {chapterId: 'b-splines', sectionId: 'bspline-blossom'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
     bernstein: [{chapterId: 'bezier-curves', sectionId: 'bernstein-form'}],
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set(projectiveDemonstrationRows.map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = guidedLessonOwners;
 

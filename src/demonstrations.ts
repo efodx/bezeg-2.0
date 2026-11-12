@@ -15,6 +15,7 @@ import {mechanicsDemonstrationRows} from './graphs/mechanics/registration';
 import {dynamicsDemonstrationRows} from './graphs/dynamics/registration';
 import {solidsDemonstrationRows} from './graphs/solids/registration';
 import {levelSetsDemonstrationRows} from './graphs/levelsets/registration';
+import {bsplineDemonstrationRows} from './graphs/curves/bspline/registration';
 
 type TextKey = {[K in MessageKey]: typeof sl[K] extends `${string}{${string}` ? never : K}[MessageKey];
 export type NavigationAction = 'left' | 'up' | 'down' | 'right' | 'in' | 'out' | 'fit';
@@ -92,12 +93,6 @@ export const legacyDemonstrationRows = [
     {id: 'interp-runge', path: '/bezeg-2.0/interpolation/runge', family: '/bezeg-2.0/interpolation', title: 'interp_runge_title', prompts: ['prompt_interp_runge', 'prompt_compare']},
     {id: 'interp-least-squares', path: '/bezeg-2.0/interpolation/least-squares', family: '/bezeg-2.0/interpolation', title: 'interp_lsq_title', prompts: ['prompt_interp_least_squares', 'prompt_compare']},
     {id: 'interp-subdivision', path: '/bezeg-2.0/interpolation/subdivision', family: '/bezeg-2.0/interpolation', title: 'interp_subdivision_title', prompts: ['prompt_interp_subdivision', 'prompt_compare']},
-    {id: 'bspline-basis', path: '/bezeg-2.0/bspline/basis', family: '/bezeg-2.0/bspline', title: 'bspline_basis_title', prompts: ['prompt_bspline_basis', 'prompt_compare']},
-    {id: 'bspline-deboor', path: '/bezeg-2.0/bspline/deboor', family: '/bezeg-2.0/bspline', title: 'bspline_deboor_title', prompts: ['prompt_bspline_deboor', 'prompt_compare']},
-    {id: 'bspline-insertion', path: '/bezeg-2.0/bspline/insertion', family: '/bezeg-2.0/bspline', title: 'bspline_insertion_title', prompts: ['prompt_bspline_insertion', 'prompt_compare']},
-    {id: 'bspline-extraction', path: '/bezeg-2.0/bspline/extraction', family: '/bezeg-2.0/bspline', title: 'bspline_extraction_title', prompts: ['prompt_bspline_extraction', 'prompt_compare']},
-    {id: 'bspline-nurbs', path: '/bezeg-2.0/bspline/nurbs', family: '/bezeg-2.0/bspline', title: 'bspline_nurbs_title', prompts: ['prompt_bspline_nurbs', 'prompt_compare']},
-    {id: 'bspline-blossom', path: '/bezeg-2.0/bspline/blossom', family: '/bezeg-2.0/bspline', title: 'bspline_blossom_title', prompts: ['prompt_bspline_blossom', 'prompt_compare']},
     {id: 'patch-tensor', path: '/bezeg-2.0/patches/tensor', family: '/bezeg-2.0/patches', title: 'tensor_product_bezier_patch', prompts: ['prompt_patch_net', 'prompt_patch_degree'], view: 'surface'},
     {id: 'patch-decasteljau', path: '/bezeg-2.0/patches/decasteljau', family: '/bezeg-2.0/patches', title: 'patch_decasteljau_algorithm', prompts: ['prompt_patch_decasteljau_order', 'prompt_patch_decasteljau_levels'], view: 'surface'},
     {id: 'patch-derivatives', path: '/bezeg-2.0/patches/derivatives', family: '/bezeg-2.0/patches', title: 'patch_derivatives_title', prompts: ['prompt_patch_derivatives_tangents', 'prompt_patch_derivatives_normal'], view: 'surface'},
@@ -166,7 +161,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

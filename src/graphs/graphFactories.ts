@@ -107,12 +107,6 @@ import InterpolationGraph from './curves/interpolation/InterpolationGraph';
 import HermiteGraph from './curves/hermite/HermiteGraph';
 import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGraph';
 import CoonsPatchGraph from './patches/CoonsPatchGraph';
-import BSplineBasisGraph from './curves/bspline/BSplineBasisGraph';
-import DeBoorGraph from './curves/bspline/DeBoorGraph';
-import BSplineInsertionGraph from './curves/bspline/BSplineInsertionGraph';
-import BSplineExtractionGraph from './curves/bspline/BSplineExtractionGraph';
-import {BSplineNurbsGraph} from './curves/bspline/BSplineNurbsGraph';
-import {BSplineBlossomGraph} from './curves/bspline/BSplineBlossomGraph';
 import type {DemonstrationId} from '../demonstrations';
 import type {RegisteredDemonstrationId} from './graphLoaders';
 
@@ -165,12 +159,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'interp-runge': () => new RungeInterpolationGraph(),
     'interp-least-squares': () => new LeastSquaresGraph(),
     'interp-subdivision': () => new SubdivisionCurveGraph(),
-    'bspline-basis': () => new BSplineBasisGraph(),
-    'bspline-deboor': () => new DeBoorGraph(),
-    'bspline-insertion': () => new BSplineInsertionGraph(),
-    'bspline-extraction': () => new BSplineExtractionGraph(),
-    'bspline-nurbs': () => new BSplineNurbsGraph(),
-    'bspline-blossom': () => new BSplineBlossomGraph(),
     'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),

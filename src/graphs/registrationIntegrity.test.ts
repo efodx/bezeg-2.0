@@ -7,6 +7,9 @@ import {registeredGraphLoaders} from './graphLoaders';
 import {projectiveCollections} from './projective/collections';
 import {projectiveCollectionKeys, projectiveDemonstrationRows} from './projective/registration';
 import {projectiveGraphLoaders} from './projective/runtime';
+import {bsplineCollections} from './curves/bspline/collections';
+import {bsplineCollectionKeys, bsplineDemonstrationRows} from './curves/bspline/registration';
+import {bsplineGraphLoaders} from './curves/bspline/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
 import {trigGraphLoaders} from './trig/runtime';
@@ -124,6 +127,7 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'solids', rows: solidsDemonstrationRows, loaders: solidsGraphLoaders, collectionKeys: solidsCollectionKeys, collections: solidsCollections},
     {family: 'levelsets', rows: levelSetsDemonstrationRows, loaders: levelSetsGraphLoaders, collectionKeys: levelSetsCollectionKeys, collections: levelSetsCollections},
     {family: 'waves', rows: wavesDemonstrationRows, loaders: wavesGraphLoaders, collectionKeys: wavesCollectionKeys, collections: wavesCollections},
+    {family: 'bspline', rows: bsplineDemonstrationRows, loaders: bsplineGraphLoaders, collectionKeys: bsplineCollectionKeys, collections: bsplineCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

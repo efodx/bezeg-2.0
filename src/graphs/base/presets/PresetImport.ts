@@ -18,7 +18,7 @@ import {parametricPresetCollection} from "../../curves/parametric/parametricPres
 import {interpolationPresetCollection} from "../../curves/interpolation/interpolationPresetCollection";
 import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
 import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
-import {bsplinePresetCollection} from "../../curves/bspline/bsplinePresetCollection";
+import {bsplineCollections} from "../../curves/bspline/collections";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
@@ -45,8 +45,9 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
-    coonsPresetCollection, bsplinePresetCollection,
+    coonsPresetCollection,
     ...projectiveCollections,
+    ...bsplineCollections,
     ...trigCollections,
     ...lineCollections,
     ...isometryCollections,
