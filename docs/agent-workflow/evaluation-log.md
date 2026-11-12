@@ -2867,4 +2867,3 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** none.
 - **Positive:** running the read-only review alongside the smoke cost no wall time. The smoke took about 3 minutes and the review about 1.
 - **Handoff evidence:** worker usage was about 27k for the smoke and 39k for the review.
-
