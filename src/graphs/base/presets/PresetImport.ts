@@ -9,7 +9,7 @@ import {eulerLineCollection} from "../../compgeo/eulerLinePresetCollection";
 import {simsonLineCollection} from "../../compgeo/simsonLinePresetCollection";
 import {inversionCollection} from "../../compgeo/inversionPresetCollection";
 import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
-import {patchPresetCollections} from "../../patches/patchPresetCollections";
+import {patchesCollections} from "../../patches/collections";
 import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
 import {complexRootsPresetCollection} from "../../complex/complexRootsPresets";
 import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
@@ -22,7 +22,6 @@ import {rationalCollections} from "../../curves/rational/collections";
 import {splineCollections} from "../../curves/spline/collections";
 import {curveGeometryCollections} from "../../curves/geometry/collections";
 import {interpolationCollections} from "../../curves/interpolation/collections";
-import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
 import {lineCollections} from "../../lines/collections";
@@ -45,9 +44,8 @@ import {levelSetsCollections} from "../../levelsets/collections";
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(functionPresetCollections),
-    ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
+    ...patchesCollections, linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
-    coonsPresetCollection,
     ...projectiveCollections,
     ...bsplineCollections,
     ...basicsCollections,

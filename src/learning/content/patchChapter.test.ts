@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../demonstrations';
-import {guidedLessonOwners} from '../chapter/guidedLessonOwnership';
+import {getGuidedLessonOwners} from '../chapter/guidedLessonOwnership';
 import {familyChapters} from './familyChapters';
 import {learningChapters} from '../learningChapters';
 import {patchChapter, patchChapterSectionIds} from './patchChapter';
@@ -60,7 +60,7 @@ describe('Bézier patches chapter', () => {
             ['patch-tensor', 'curve-to-patch'], ['patch-decasteljau', 'tensor-decasteljau'], ['patch-derivatives', 'tensor-derivatives'],
             ['patch-subdivision', 'tensor-subdivision'], ['patch-joins', 'tensor-joins'], ['patch-triangular', 'triangular-patches'],
         ] as const) {
-            expect(guidedLessonOwners[demo]).toMatchObject({chapterId: 'bezier-patches', sectionId});
+            expect(getGuidedLessonOwners(demo)[0]).toMatchObject({chapterId: 'bezier-patches', sectionId});
         }
     });
 

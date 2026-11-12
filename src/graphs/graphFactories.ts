@@ -14,12 +14,6 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
-import TensorDerivativesGraph from './patches/TensorDerivativesGraph';
-import TensorSubdivisionGraph from './patches/TensorSubdivisionGraph';
-import TensorJoinGraph from './patches/TensorJoinGraph';
-import TensorPatchGraph from './patches/TensorPatchGraph';
-import TriangularPatchGraph from './patches/TriangularPatchGraph';
 import { LinearFunctionGraph } from './functions/LinearFunctionGraph';
 import { ExponentialFunctionGraph } from './functions/ExponentialFunctionGraph';
 import { TrigonometricFunctionsGraph } from './functions/TrigonometricFunctionsGraph';
@@ -65,19 +59,11 @@ import SummaryStatisticsGraph from './functions/SummaryStatisticsGraph';
 import CorrelationGraph from './functions/CorrelationGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
-import CoonsPatchGraph from './patches/CoonsPatchGraph';
 import type {DemonstrationId} from '../demonstrations';
 import type {RegisteredDemonstrationId} from './graphLoaders';
 
 /** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
 export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
-    'patch-tensor': () => new TensorPatchGraph(),
-    'patch-decasteljau': () => new TensorDeCasteljauGraph(),
-    'patch-derivatives': () => new TensorDerivativesGraph(),
-    'patch-subdivision': () => new TensorSubdivisionGraph(),
-    'patch-joins': () => new TensorJoinGraph(),
-    'patch-triangular': () => new TriangularPatchGraph(),
-    'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),
     'trigonometric-functions': () => new TrigonometricFunctionsGraph(),

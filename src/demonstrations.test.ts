@@ -5,13 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['patches/tensor', '/bezeg-2.0/patches', 'tensor_product_bezier_patch', 'tensor_product_bezier_patch', 'prompt_patch_net'],
-    ['patches/decasteljau', '/bezeg-2.0/patches', 'patch_decasteljau_algorithm', 'patch_decasteljau_algorithm', 'prompt_patch_decasteljau_order'],
-    ['patches/derivatives', '/bezeg-2.0/patches', 'patch_derivatives_title', 'patch_derivatives_title', 'prompt_patch_derivatives_tangents'],
-    ['patches/subdivision', '/bezeg-2.0/patches', 'patch_subdivision_title', 'patch_subdivision_title', 'prompt_patch_subdivision_pieces'],
-    ['patches/joins', '/bezeg-2.0/patches', 'patch_joins_title', 'patch_joins_title', 'prompt_patch_joins_c1'],
-    ['patches/triangular', '/bezeg-2.0/patches', 'triangular_bezier_patch', 'triangular_bezier_patch', 'prompt_patch_triangular_net'],
-    ['patches/coons', '/bezeg-2.0/patches', 'coons_patch_title', 'coons_patch_title', 'prompt_coons_boundaries'],
     ['functions/linear', '/bezeg-2.0/functions', 'linear_function', 'linear_function', 'prompt_linear_function'],
     ['functions/exponential', '/bezeg-2.0/functions', 'exponential_function', 'exponential_function', 'prompt_exponential_function'],
     ['functions/trigonometric', '/bezeg-2.0/functions', 'trigonometric_functions', 'trigonometric_functions', 'prompt_trigonometric_functions'],
@@ -87,6 +80,13 @@ const expected = [
     ['interpolation/runge', '/bezeg-2.0/interpolation', 'interp_runge_title', 'interp_runge_title', 'prompt_interp_runge'],
     ['interpolation/least-squares', '/bezeg-2.0/interpolation', 'interp_lsq_title', 'interp_lsq_title', 'prompt_interp_least_squares'],
     ['interpolation/subdivision', '/bezeg-2.0/interpolation', 'interp_subdivision_title', 'interp_subdivision_title', 'prompt_interp_subdivision'],
+    ['patches/tensor', '/bezeg-2.0/patches', 'tensor_product_bezier_patch', 'tensor_product_bezier_patch', 'prompt_patch_net'],
+    ['patches/decasteljau', '/bezeg-2.0/patches', 'patch_decasteljau_algorithm', 'patch_decasteljau_algorithm', 'prompt_patch_decasteljau_order'],
+    ['patches/derivatives', '/bezeg-2.0/patches', 'patch_derivatives_title', 'patch_derivatives_title', 'prompt_patch_derivatives_tangents'],
+    ['patches/subdivision', '/bezeg-2.0/patches', 'patch_subdivision_title', 'patch_subdivision_title', 'prompt_patch_subdivision_pieces'],
+    ['patches/joins', '/bezeg-2.0/patches', 'patch_joins_title', 'patch_joins_title', 'prompt_patch_joins_c1'],
+    ['patches/triangular', '/bezeg-2.0/patches', 'triangular_bezier_patch', 'triangular_bezier_patch', 'prompt_patch_triangular_net'],
+    ['patches/coons', '/bezeg-2.0/patches', 'coons_patch_title', 'coons_patch_title', 'prompt_coons_boundaries'],
     ['bspline/basis', '/bezeg-2.0/bspline', 'bspline_basis_title', 'bspline_basis_title', 'prompt_bspline_basis'],
     ['bspline/deboor', '/bezeg-2.0/bspline', 'bspline_deboor_title', 'bspline_deboor_title', 'prompt_bspline_deboor'],
     ['bspline/insertion', '/bezeg-2.0/bspline', 'bspline_insertion_title', 'bspline_insertion_title', 'prompt_bspline_insertion'],
