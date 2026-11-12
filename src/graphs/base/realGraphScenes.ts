@@ -139,6 +139,13 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
             g.importPresetData([[tag, {...state, degrees: (variant === 'a' ? 90 : 210), omega: (variant === 'a' ? 3 : 1), degree: (variant === 'a' ? 7 : 12), mode: (variant === 'a' ? 'product' : 'motion')}]]);
             return;
         }
+        case 'interp-lagrange': {
+            // Interpolation: the only number is the position s in [0, 1], which variant b's nudges leave, so lift the second
+            // point. A same-count import keeps the owned scene, so the change must be in the model, not in rebuilt objects.
+            const {points} = exported as {points: [number, number][]};
+            g.importPresetData({...exported as object, points: points.map((point, i) => i === 1 ? [point[0], point[1] + (variant === 'a' ? 0.5 : -0.5)] : point)});
+            return;
+        }
         case 'bspline-curve': {
             // B-spline graphs: move the first interior knot within its neighbours and lift the first control point.
             const {degree, knots, points} = exported as {degree: number, knots: number[], points: [number, number][]};
