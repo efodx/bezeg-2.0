@@ -10,7 +10,7 @@ import {sampleConic} from "../../projective/conicSampler";
 import {Hom, toAffine} from "../../projective/homogeneous";
 import {
     DEFAULT_PASCAL_MODEL, isLineAtInfinity, PASCAL_CONIC_IDS, PASCAL_CONICS, PASCAL_EXAMPLE_IDS, PASCAL_EXAMPLES, PASCAL_HANDLE_COUNT, PASCAL_ORDER_IDS, PASCAL_ORDERS, isReachable, PASCAL_VIEW_BOX, PascalConicId,
-    PascalExampleId, PascalModel, PascalOrderId, PascalScene, evaluatePascal, serializePascalModel,
+    PascalExampleId, PascalModel, PascalOrderId, PascalScene, evaluatePascal, reachableIndices, serializePascalModel,
 } from "./pascalModel";
 import {dragHandle, SHIFT_STEP, setConic, setIndex, setOrder, stepHandle} from "./pascalEdit";
 import type {LessonAction} from "../../learning/model";
@@ -145,6 +145,12 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
     /** Puts a handle at a direction-table index (the path stepping ends in); a no-op when it is already there. */
     setHandleIndex(handle: number, index: number): boolean {
         return this.commit(setIndex(this.model, handle, index));
+    }
+
+    /** Puts a handle at the `position`-th reachable index (the inspector slider); a no-op for a position outside the list. */
+    setHandlePosition(handle: number, position: number): boolean {
+        const index = reachableIndices(this.model.conic, handle)[position];
+        return index !== undefined && this.setHandleIndex(handle, index);
     }
 
     /**
@@ -496,7 +502,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             setConic: id => {this.chooseConic(id);},
             setOrder: id => {this.chooseOrder(id);},
             select: handle => this.select(handle),
-            step: (handle, steps) => {this.stepHandle(handle, steps);},
+            setPosition: (handle, position) => {this.setHandlePosition(handle, position);},
         }}/>;
     }
 }

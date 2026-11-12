@@ -74,6 +74,14 @@ test('the slider has its own presentation class and lists its range summary and 
     expect(range.getAttribute('aria-describedby')!.split(' ')).toHaveLength(2);
 });
 
+test('hideBounds leaves out the min and max labels and their description', () => {
+    render(<Slider customText="Točka A" min={0} max={9} step={1} cyclic={10} value={3} hideBounds formatValue={v => `(${v}, 0)`} help="Kratka razlaga" onChange={() => undefined}/>);
+    expect(document.querySelector('.slider-range')).toBeNull();
+    const range = screen.getByLabelText('Točka A') as HTMLInputElement;
+    expect(range.getAttribute('aria-describedby')!.split(' ')).toHaveLength(1);
+    expect(range).toHaveAccessibleDescription('Kratka razlaga');
+});
+
 test('a cyclic slider wraps a typed value and the arrow keys of its field and range by the period', () => {
     const onChange = vi.fn();
     render(<Slider customText="t" min={0} max={360} step={1} cyclic={360} value={0} onChange={onChange}/>);

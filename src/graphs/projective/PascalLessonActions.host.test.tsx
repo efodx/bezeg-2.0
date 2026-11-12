@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, cleanup, render, screen} from '@testing-library/react';
+import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {PascalGraph} from './PascalGraph';
 import {PASCAL_CONIC_IDS, PASCAL_DEFAULT_INDICES, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PASCAL_ORDERS, PascalModel, reachableIndices} from './pascalModel';
@@ -24,7 +24,6 @@ const mount = (): PascalGraph => {
     return graph;
 };
 const apply = (graph: PascalGraph | CrossRatioGraph, action: LessonAction) => act(() => { graph.getLessonCapabilities().apply(action); });
-const click = (button: HTMLElement) => act(() => { button.click(); });
 const shown = () => [...document.querySelectorAll('[data-projective-line]')].map(node => `${node.getAttribute('data-projective-line')}=${node.textContent}`);
 
 /** The model and the text after running `edit` on a fresh graph, with the graph unmounted again. */
@@ -73,13 +72,13 @@ test.each(PASCAL_ORDER_IDS)('pascal-set-order %s reaches the state of the order 
     expect(viaAction.model.order).toEqual(PASCAL_ORDERS[order]);
 });
 
-test.each([[0, 'A'], [3, 'D'], [5, 'F']] as const)('pascal-set-index on handle %s reaches the state of the forward step button', (handle, name) => {
+test.each([[0, 'A'], [3, 'D'], [5, 'F']] as const)('pascal-set-index on handle %s reaches the state of the next slider position', (handle, name) => {
     const next = (() => {
         const list = reachableIndices('ellipse', handle);
         return list[(list.indexOf(PASCAL_DEFAULT_INDICES.ellipse[handle]) + 1) % list.length];
     })();
     const viaAction = after(graph => apply(graph, {kind: 'projective', operation: 'pascal-set-index', handle, index: next}));
-    const viaControl = after(() => click(screen.getByRole('button', {name: `Točka ${name}: naslednji položaj`})));
+    const viaControl = after(() => act(() => { fireEvent.keyDown(screen.getByRole('slider', {name: `Točka ${name}`}), {key: 'ArrowRight'}); }));
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.indices[handle]).toBe(next);

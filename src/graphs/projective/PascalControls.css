@@ -1,4 +1,0 @@
-/* Pascal point rows: the select and step buttons reach the 44 px touch target on coarse pointers and small screens (as the shared controls do). */
-@media (pointer: coarse), (max-width: 700px) {
-    .control-row[data-pascal-handle] button { min-height: 44px; min-width: 44px; }
-}

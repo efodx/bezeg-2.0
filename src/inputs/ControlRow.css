@@ -10,3 +10,6 @@
     .control-row button, .demonstration-workspace .control-row button, .workspace-inspector .tools .control-row .btn,
     .control-row--fill > button, .demonstration-workspace .control-row--fill > button { min-height: 44px; }
 }
+/* `control-row--lead`: one leading button, then one control that takes the rest of the row and may wrap only inside itself. */
+.control-row--lead { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+.control-row--lead > :first-child { min-width: var(--bezeg-control-height); }

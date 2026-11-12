@@ -1,23 +1,23 @@
-import {CONTROL_ROW} from "../../inputs/controlRow";
+import {CONTROL_ROW_LEAD} from "../../inputs/controlRow";
 import React from "react";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {SelectablePointButton} from "../../inputs/PointListInput";
 import {useT} from "../../localization";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
-import {DIRECTION_TABLE_SIZE} from "../../projective/conicPencil";
-import {PASCAL_CONIC_IDS, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PascalConicId, PascalExampleId, PascalModel, PascalOrderId, PascalScene, orderIdOf} from "./pascalModel";
+import Slider from "../../inputs/Slider";
+import {PASCAL_CONIC_IDS, PASCAL_EXAMPLE_IDS, PASCAL_ORDER_IDS, PascalConicId, PascalExampleId, PascalModel, PascalOrderId, PascalScene, handlePoint, orderIdOf, reachableIndices} from "./pascalModel";
 import {describePascal} from "./pascalText";
+import {SHIFT_STEP} from "./pascalEdit";
 import {pointText} from "./polePolarModel";
-import "./PascalControls.css";
 
 export interface PascalControlActions {
     loadExample(id: PascalExampleId): void;
     setConic(id: PascalConicId): void;
     setOrder(id: PascalOrderId): void;
     select(handle: number | undefined): void;
-    /** Steps a handle along the direction table. */
-    step(handle: number, steps: number): void;
+    /** Puts a handle at the `position`-th reachable table index (what the point's slider shows). */
+    setPosition(handle: number, position: number): void;
 }
 
 export interface PascalControlsProps {
@@ -41,6 +41,26 @@ const CONIC_LABELS = {
 } as const;
 const ORDER_LABELS = {natural: "projective_k2_order_natural", pappus: "projective_k2_order_pappus", star: "projective_k2_order_star"} as const;
 
+interface PascalPointSliderProps {
+    model: PascalModel;
+    scene: PascalScene;
+    handle: number;
+    onPosition(position: number): void;
+}
+
+/** One point's slider over its reachable positions; it shows and announces the point's coordinates, never the table index. */
+function PascalPointSlider({model, scene, handle, onPosition}: PascalPointSliderProps) {
+    const t = useT();
+    const list = reachableIndices(model.conic, handle);
+    const value = Math.max(0, list.indexOf(model.indices[handle]));
+    const name = scene.names[handle];
+    // The scene holds the current position only; the other positions are those of the reachable table entries.
+    const at = (position: number) => pointText(handlePoint(model.conic, handle, list[position]) ?? scene.handles[handle]);
+    return <Slider customText={t("projective_point_named", {value0: name})} min={0} max={Math.max(0, list.length - 1)} step={1} bigStep={SHIFT_STEP}
+                   cyclic={list.length} hideBounds value={value} onChange={onPosition} formatValue={at}
+                   valueText={position => t("projective_k2_handle_at", {value0: name, value1: at(position)})}/>;
+}
+
 /**
  * The inspector of the Pascal and Pappus graph. The state sentence is the only text in the live region; the determinant, the
  * three intersections and the line are text as well as drawing. The conic, the example and the hexagon order are choices;
@@ -50,7 +70,6 @@ export function PascalControls(props: PascalControlsProps) {
     const t = useT();
     const {model, scene, selected, nudged, actions} = props;
     const text = describePascal(scene, t);
-    const button = "btn btn-outline-secondary btn-sm";
     const nudgeText = nudged === undefined ? "" : t("projective_k2_handle_at", {value0: scene.names[nudged], value1: pointText(scene.handles[nudged])});
     // The one announcement: the state sentence, then the stepped point; settled, so a drag is not read frame by frame.
     const liveReadout = useStatusReadout([text.status, nudgeText].filter(Boolean).join("\n"), true);
@@ -85,12 +104,9 @@ export function PascalControls(props: PascalControlsProps) {
                 {selected === undefined ? t("projective_k1_no_selection") : t("projective_k1_selected", {value0: scene.names[selected]})}
             </p>
             {scene.names.map((name, handle) =>
-                <div key={name} className={CONTROL_ROW} data-selected={selected === handle} data-pascal-handle={handle}>
+                <div key={name} className={CONTROL_ROW_LEAD} data-selected={selected === handle} data-pascal-handle={handle}>
                     <SelectablePointButton label={name} pressed={selected === handle} onToggle={() => actions.select(selected === handle ? undefined : handle)}/>
-                    <button type="button" className={button} aria-label={t("projective_k2_step_back", {value0: name})} onClick={() => actions.step(handle, -1)}>◀</button>
-                    <button type="button" className={button} aria-label={t("projective_k2_step_forward", {value0: name})} onClick={() => actions.step(handle, 1)}>▶</button>
-                    <span data-pascal-position>{pointText(scene.handles[handle])}</span>
-                    <span data-pascal-index={model.indices[handle]}>{t("projective_k2_table_index", {value0: String(model.indices[handle] + 1), value1: String(DIRECTION_TABLE_SIZE)})}</span>
+                    <PascalPointSlider model={model} scene={scene} handle={handle} onPosition={position => actions.setPosition(handle, position)}/>
                 </div>)}
         </div>
     </div>;

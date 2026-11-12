@@ -42,6 +42,8 @@ interface SliderProps {
     unavailableReason?: string
     /** The text of the range thumb for assistive technology (for example with a unit); the shown value and the exact field are unchanged. */
     valueText?: (value: number) => string
+    /** Leaves out the min and max labels, for a cyclic slider whose two ends are neighbours rather than extremes. */
+    hideBounds?: boolean
 }
 
 /** Decimal places of a step as written (0.05 has 2, 0.015 has 3); a step in exponent notation counts as 6. */
@@ -79,7 +81,7 @@ export default function Slider(props: SliderProps) {
                                onChange={value => (props.onTypedChange ?? props.onChange)(wrap(value))}
                                onStepChange={value => props.onChange(wrap(value))}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
-        <Form.Range id={id} aria-describedby={joinIds(`${id}-range`, props.help && `${id}-help`, unavailableReason && `${id}-reason`)} min={props.min}
+        <Form.Range id={id} aria-describedby={joinIds(!props.hideBounds && `${id}-range`, props.help && `${id}-help`, unavailableReason && `${id}-reason`)} min={props.min}
                     max={props.max} value={props.value} disabled={props.disabled} aria-disabled={unavailableReason !== undefined ? true : undefined}
                     step={step} aria-valuetext={props.valueText ? props.valueText(props.value) : show(props.value)}
                     onKeyDown={e => {
@@ -94,7 +96,7 @@ export default function Slider(props: SliderProps) {
                         if (next !== props.value) props.onChange(next);
                     }}
                     onChange={e => { if (!inert) props.onChange(Number(e.target.value)); }}></Form.Range>
-        <div id={`${id}-range`} className="slider-range"><span>{t("min")} {show(props.min)}</span><span>{t("max")} {show(props.max)}</span></div>
+        {!props.hideBounds && <div id={`${id}-range`} className="slider-range"><span>{t("min")} {show(props.min)}</span><span>{t("max")} {show(props.max)}</span></div>}
         {unavailableReason && <p id={`${id}-reason`} className="inspector-help">{unavailableReason}</p>}
         {props.help && <p id={`${id}-help`} className="inspector-help">{props.help}</p>}
     </Form>;

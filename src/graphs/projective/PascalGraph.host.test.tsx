@@ -4,7 +4,8 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {PascalGraph, sideLabelOffset} from './PascalGraph';
 import {directionIndex, handlePoint, PASCAL_DEFAULT_INDICES, PASCAL_EXAMPLES, PASCAL_ORDERS, PascalModel, reachableIndices} from './pascalModel';
-import {nearestIndex} from './pascalEdit';
+import {nearestIndex, SHIFT_STEP} from './pascalEdit';
+import {pointText} from './polePolarModel';
 import {toAffine} from '../../projective/homogeneous';
 import {GraphHost} from '../base/GraphHost';
 import {selectedPointKeyBehaviour} from '../base/selectedPointKeyBehaviour';
@@ -194,9 +195,8 @@ const eval0 = (graph: Observed, handle: number) => {
 };
 
 const selectValue = (label: string) => screen.getByLabelText<HTMLSelectElement>(label).value;
-const indexReadout = (handle: number) => document.querySelector(`[data-pascal-handle="${handle}"] [data-pascal-index]`)?.textContent;
 
-test('the example, conic and order selects and the step buttons edit the model', () => {
+test('the example, conic and order selects edit the model', () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.select(3); });
@@ -213,23 +213,53 @@ test('the example, conic and order selects and the step buttons edit the model',
     chooseOption('Stožnica', 'Hiperbola');
     expect(graph.model.conic).toBe('hyperbola');
     expect(graph.model.indices).toEqual(PASCAL_DEFAULT_INDICES.hyperbola);
-    const before = graph.model.indices[0];
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točka A: naslednji položaj'})); });
-    expect(graph.model.indices[0]).not.toBe(before);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točka A: prejšnji položaj'})); });
-    expect(graph.model.indices[0]).toBe(before);
 });
 
-test('each step button has a visible readout of the table index of the handle, so a press can be read back', () => {
+const pointSlider = (name: string) => screen.getByRole<HTMLInputElement>('slider', {name: `Točka ${name}`});
+const rowOf = (handle: number) => document.querySelector(`[data-pascal-handle="${handle}"]`)!;
+
+test('each point has a slider over its reachable positions that wraps like the arrow keys and shows coordinates', () => {
     const graph = new Observed();
     mount(graph);
-    expect(indexReadout(0)).toBe(`Položaj ${graph.model.indices[0] + 1} od ${DIRECTION_TABLE_SIZE}`);
-    const before = graph.model.indices[0];
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točka A: naslednji položaj'})); });
-    expect(graph.model.indices[0]).not.toBe(before);
-    expect(indexReadout(0)).toBe(`Položaj ${graph.model.indices[0] + 1} od ${DIRECTION_TABLE_SIZE}`);
-    expect(document.querySelector('[data-pascal-handle="0"] [data-pascal-index]')?.getAttribute('data-pascal-index')).toBe(String(graph.model.indices[0]));
-    expect(indexReadout(1)).toBe(`Položaj ${graph.model.indices[1] + 1} od ${DIRECTION_TABLE_SIZE}`);
+    chooseOption('Stožnica', 'Hiperbola');
+    const list = reachableIndices('hyperbola', 0);
+    const slider = pointSlider('A');
+    expect([slider.min, slider.max, slider.step]).toEqual(['0', String(list.length - 1), '1']);
+    expect(slider.value).toBe(String(list.indexOf(graph.model.indices[0])));
+    // the shown value is the coordinates of the point, as the selection sentence and the board give them
+    expect(rowOf(0).querySelector('output')?.textContent).toBe(pointText(graph.scene().handles[0]));
+    expect(slider.getAttribute('aria-valuetext')).toBe(`Točka A = ${pointText(graph.scene().handles[0])}`);
+    // ArrowRight steps one position, ArrowLeft returns
+    const start = graph.model.indices[0];
+    act(() => { fireEvent.keyDown(slider, {key: 'ArrowRight'}); });
+    expect(graph.model.indices[0]).toBe(list[(list.indexOf(start) + 1) % list.length]);
+    act(() => { fireEvent.keyDown(pointSlider('A'), {key: 'ArrowLeft'}); });
+    expect(graph.model.indices[0]).toBe(start);
+    // wraps at both ends
+    act(() => { graph.setHandleIndex(0, list[0]); });
+    act(() => { fireEvent.keyDown(pointSlider('A'), {key: 'ArrowLeft'}); });
+    expect(graph.model.indices[0]).toBe(list[list.length - 1]);
+    act(() => { fireEvent.keyDown(pointSlider('A'), {key: 'ArrowRight'}); });
+    expect(graph.model.indices[0]).toBe(list[0]);
+    // Shift is five positions, as on the board
+    act(() => { fireEvent.keyDown(pointSlider('A'), {key: 'ArrowRight', shiftKey: true}); });
+    expect(graph.model.indices[0]).toBe(list[SHIFT_STEP]);
+    expect(rowOf(0).querySelector('output')?.textContent).toBe(pointText(graph.scene().handles[0]));
+    expect(graph.model.example).toBe('custom');
+});
+
+test('the inspector never shows the table index, and editing a slider keeps the selected point', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.select(3); });
+    act(() => { fireEvent.keyDown(pointSlider('B'), {key: 'ArrowRight'}); });
+    expect(graph.selectedHandle).toBe(3);
+    expect(document.querySelector('[data-pascal-index]')).toBeNull();
+    expect(document.body.textContent).not.toContain(`/${DIRECTION_TABLE_SIZE}`);
+    expect(document.body.textContent).not.toContain(`od ${DIRECTION_TABLE_SIZE}`);
+    expect(document.querySelectorAll('[data-pascal-handle] input[type="number"]')).toHaveLength(0);
+    // The two ends of a point's slider are neighbours on the conic, not extremes: no Min/Max labels.
+    expect(document.querySelectorAll('[data-pascal-handle] .slider-range')).toHaveLength(0);
 });
 
 test('switching the conic leaves no stale objects and renames the points', () => {
