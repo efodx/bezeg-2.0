@@ -26,10 +26,11 @@ test('branches enter within the viewBox height and paint stems first and eyes la
         expect(b.paths[0].fill).toBe('#b4b79e');
         expect(b.heads).toHaveLength(ELDER_SETTINGS.heads);
         for (const h of b.heads) {
-            expect(h.clusters.length).toBeGreaterThanOrEqual(7);
-            for (const c of h.clusters) {
-                expect(c.paths).toHaveLength(4);
-                expect(c.paths[c.paths.length - 1].fill).toBe('#dcc27a');
+            expect(h.paths.length).toBeGreaterThanOrEqual(8); // twig plus one ray per cluster
+            expect(h.subsets).toHaveLength(4);
+            for (const s of h.subsets) {
+                expect(s.paths.map((p) => p.fill)).toEqual(['#e9e1c6', '#fffdf4', '#dcc27a']);
+                expect(s.paths.every((p) => p.d.length > 0)).toBe(true);
             }
         }
     }
@@ -43,11 +44,12 @@ test('head motion data is deterministic, finite, and differs between heads', () 
     expect(buildSide({...ELDER_SETTINGS, heads: 0}, 'left', W, H)[0].heads).toEqual([]);
 });
 
-test('cluster motion is deterministic, finite, and out of phase', () => {
-    const motion = () => buildSide(ELDER_SETTINGS, 'left', W, H).flatMap((b) => b.heads.flatMap((h) => h.clusters.map((c) => [c.originX, c.originY, c.duration, c.delay])));
+test('floret subset motion is deterministic, finite, small, and differs between subsets', () => {
+    const motion = () => buildSide(ELDER_SETTINGS, 'left', W, H).flatMap((b) => b.heads.flatMap((h) => h.subsets.map((s) => [s.dx, s.dy, s.turn, s.duration, s.delay])));
     const m = motion();
     expect(m).toEqual(motion());
     for (const row of m) for (const v of row) expect(Number.isFinite(v)).toBe(true);
-    for (const row of m) { expect(row[2]).toBeGreaterThanOrEqual(1.5); expect(row[2]).toBeLessThanOrEqual(3.5); }
-    expect(new Set(m.map((row) => `${row[2]}/${row[3]}`)).size).toBeGreaterThan(5);
+    for (const row of m) { expect(Math.abs(row[0])).toBeLessThanOrEqual(2.5); expect(Math.abs(row[1])).toBeLessThanOrEqual(2.5); expect(Math.abs(row[0])).toBeGreaterThanOrEqual(1.5); }
+    expect(new Set(m.slice(0, 4).map((row) => row[3])).size).toBe(4);
+    expect(new Set(m.map((row) => `${row[0]}/${row[1]}/${row[4]}`)).size).toBeGreaterThan(5);
 });

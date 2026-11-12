@@ -31,9 +31,9 @@ export const HEAD_AMP_FACTOR = 2;
 
 export interface ElderPath {fill: string; d: string}
 /** A flower head (twig, rays, florets) that bobs around its twig base on top of the branch sway. */
-export interface ElderHead {baseX: number; baseY: number; duration: number; delay: number; paths: ElderPath[]; clusters: ElderCluster[]}
-/** One sub-cluster of a head (ray, shade, petals, eyes) that trembles around the head node, the ray base. */
-export interface ElderCluster {originX: number; originY: number; duration: number; delay: number; paths: ElderPath[]}
+export interface ElderHead {baseX: number; baseY: number; duration: number; delay: number; paths: ElderPath[]; subsets: ElderSubset[]}
+/** Every 4th floret of a head (shade, petals, eyes merged) jiggling on its own, so single florets visibly move. */
+export interface ElderSubset {dx: number; dy: number; turn: number; duration: number; delay: number; paths: ElderPath[]}
 export interface ElderBranch {hingeY: number; duration: number; delay: number; paths: ElderPath[]; heads: ElderHead[]}
 export type ElderSide = 'left' | 'right';
 
@@ -114,7 +114,9 @@ function head(rnd: Rng, node: V, axis: V, width: number, s: number) {
     const jit = (j: number) => (rnd() - .5) * 2 * j;
     const up = norm(axis), side = perp(up).map((v) => -v) as V;
     const depth = width * .26, subs = 7 + Math.floor(rnd() * 3);
-    const clusters: {ray: string; shade: string; petals: string; eyes: string}[] = [];
+    const rays: string[] = [];
+    const subsets = [0, 1, 2, 3].map(() => ({shade: '', petals: '', eyes: ''}));
+    let floret = 0;
     const centres: {c: V; back: number}[] = [];
     for (let i = 0; i < subs; i++) {
         const a = i === subs - 1 ? null : (i / (subs - 1)) * Math.PI * 2 + jit(.2);
@@ -123,20 +125,20 @@ function head(rnd: Rng, node: V, axis: V, width: number, s: number) {
     }
     centres.sort((a, b) => b.back - a.back);
     for (const {c, back} of centres) {
-        let shade = '', petals = '', eyes = '';
         const ray = taper([node, add(node, mul(up, depth * .3)), add(node, mul(sub(c, node), .45)), c], 1.8 * s, .9 * s, 8);
         const n = 16 + Math.floor(rnd() * 8), rx = width * .14, ry = width * .1;
         for (let k = 0; k < n; k++) {
             const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd());
             const p = add(add(c, mul(side, Math.cos(a) * rx * rr)), mul(up, Math.abs(Math.sin(a)) * ry * rr + ry * .3));
             const f = 1.35 * s * (back ? .88 : 1) * (.9 + rnd() * .25), turn = rnd() * 72;
-            shade += circ(add(p, mul(up, -1.2 * f)), 3.6 * f);
-            for (let q = 0; q < 5; q++) petals += circ(add(p, rot(mul(up, 2.3 * f), turn + q * 72)), 1.75 * f);
-            eyes += circ(p, .55 * f);
+            const sub = subsets[floret++ % 4];
+            sub.shade += circ(add(p, mul(up, -1.2 * f)), 3.6 * f);
+            for (let q = 0; q < 5; q++) sub.petals += circ(add(p, rot(mul(up, 2.3 * f), turn + q * 72)), 1.75 * f);
+            sub.eyes += circ(p, .55 * f);
         }
-        clusters.push({ray, shade, petals, eyes});
+        rays.push(ray);
     }
-    return clusters;
+    return {rays, subsets};
 }
 
 function branch(entryY: number, reach: number, pr: ElderSettings, bseed: number, idx: number): ElderBranch {
@@ -165,22 +167,23 @@ function branch(entryY: number, reach: number, pr: ElderSettings, bseed: number,
         const hd = head(rnd, end, rot(norm(add(mul(dir, .35), [0, -1])), jit(14)), (115 + rnd() * 40) * S * pr.headSize, S * Math.sqrt(pr.headSize));
         // Per-head motion is derived from indices, not the rng, so the layout stays that of the playground.
         const key = idx * 7 + i;
-        const clusters: ElderCluster[] = hd.map((cl, n) => {
-            const ck = key * 11 + n;
-            const parts: [Kind, string][] = [['ray', cl.ray], ['floretShade', cl.shade], ['floret', cl.petals], ['eye', cl.eyes]];
+        const sign = (n: number) => n % 2 ? -1 : 1;
+        const subsets: ElderSubset[] = hd.subsets.map((sub, n) => {
+            const ck = key * 4 + n;
             return {
-                originX: r(end[0]), originY: r(end[1]),
-                duration: r(1.5 + ((ck * 7) % 10) / 5),
+                dx: r(sign(ck) * (1.5 + ((ck * 3) % 3) * .5)), dy: r(sign(ck >> 1) * (1.5 + ((ck * 5) % 3) * .5)),
+                turn: r(sign(ck + n) * (.8 + (ck % 3) * .4)),
+                duration: [1.3, 1.7, 2.1, 2.6][n],
                 delay: -((ck * 13) % 35) / 10,
-                paths: parts.map(([k, d]) => ({fill: C[k], d})),
+                paths: ([['floretShade', sub.shade], ['floret', sub.petals], ['eye', sub.eyes]] as [Kind, string][]).map(([k, d]) => ({fill: C[k], d})),
             };
         });
         heads.push({
             baseX: r(p[0]), baseY: r(p[1]),
             duration: r(pr.speed * (.35 + ((key * 29) % 10) / 50)),
             delay: -((key * 41) % 60) / 10,
-            paths: [{fill: C.stem, d: twig}],
-            clusters,
+            paths: [{fill: C.stem, d: twig}, ...hd.rays.map((d) => ({fill: C.ray, d}))],
+            subsets,
         });
     }
     els.sort((a, c) => ORDER.indexOf(a[0]) - ORDER.indexOf(c[0]));

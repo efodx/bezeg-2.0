@@ -67,9 +67,9 @@ export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {sett
                 {b.heads.map((h, k) => <g key={k} className="side-botanicals-head"
                     style={{transformOrigin: `${h.baseX}px ${h.baseY}px`, '--dur': `${h.duration}s`, '--delay': `${h.delay}s`} as React.CSSProperties}>
                     {h.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
-                    {h.clusters.map((c, n) => <g key={n} className="side-botanicals-cluster"
-                        style={{transformOrigin: `${c.originX}px ${c.originY}px`, '--dur': `${c.duration}s`, '--delay': `${c.delay}s`} as React.CSSProperties}>
-                        {c.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
+                    {h.subsets.map((s, n) => <g key={n} className="side-botanicals-florets"
+                        style={{'--dx': `${s.dx}px`, '--dy': `${s.dy}px`, '--turn': `${s.turn}deg`, '--dur': `${s.duration}s`, '--delay': `${s.delay}s`} as React.CSSProperties}>
+                        {s.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
                     </g>)}
                 </g>)}
             </g>)}

@@ -44,7 +44,7 @@ test('a gutter of the tuned width (1290 box units at 1440px height) keeps the se
     renderAt('/bezeg-2.0/demonstrations');
     expect(svgs()[0].querySelectorAll('g.side-botanicals-branch')).toHaveLength(ELDER_SETTINGS.left);
     expect(svgs()[0].querySelectorAll('g.side-botanicals-head')).toHaveLength(ELDER_SETTINGS.left * ELDER_SETTINGS.heads);
-    expect(svgs()[0].querySelectorAll('g.side-botanicals-cluster').length).toBeGreaterThan(ELDER_SETTINGS.left * ELDER_SETTINGS.heads * 6);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-florets')).toHaveLength(ELDER_SETTINGS.left * ELDER_SETTINGS.heads * 4);
 });
 
 test('narrower gutters render fewer branches than the tuned one', () => {
