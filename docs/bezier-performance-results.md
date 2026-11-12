@@ -585,3 +585,66 @@ Verdicts against the criteria:
 `BigInt` against two 32-bit halves, and SVG against canvas. The code keeps the 64-bit generator state as a `BigInt` ([src/random/pcg32.ts:2](../src/random/pcg32.ts), state update at line 64), and both routes draw on JSXGraph SVG boards (0 canvas elements on either route).
 - **BigInt:** the alternative was not built, so only the cost of the current choice is known. Each stop re-simulates its prefix, so the final stop costs about 10^6 draws for galton 10^5 (10 rows) and about 2·10^5 for area 10^5. The browser times (about 115 ms desktop, 520 ms at 4×, against about 104 ms in jsdom) and the absence of any long task for area and markov 10^5 on desktop fit a cost proportional to the number of draws, about 0.1 µs per draw. The numbers neither prove nor exclude that `BigInt` is the dominant part. They show the current choice is fine on desktop and misses on the throttled phone for galton 10^5 only. Whether two halves or incremental prefix tallies is the better repair is open; no code was changed.
 - **SVG:** simulation board updates cost 1–1.5 ms on desktop and 5–8 ms at 4×, so drawing is not what limits the simulation. In kinematics the update is about 2 ms desktop and 12–13 ms at 4×, and it turns Play into 30 fps on the phone profile. Canvas was not tried, so the data do not show that canvas would fix it; they show SVG is adequate for the simulation and a miss for kinematics Play at 4×.
+
+## F2b solids, level sets and phase portrait browser timings — 2026-11-12
+
+Browser timings owed by the F2b batches for `/analysis/solids`, `/analysis/contours`, `/analysis/linear-program`, `/analysis/phase-portrait` and `/analysis/logistic-map` ([ADR 0051](adr/0051-solids-mesh-in-surface-view-integer-clipping-and-kgon-revolve.md), [0053](adr/0053-level-sets-contour-graph-marching-squares-exact-lp.md), [0054](adr/0054-phase-portraits-separate-graphs-rk4-integer-classification.md)). Script: [scripts/f2b-solids-levelsets-phase-browser-perf.cjs](../scripts/f2b-solids-levelsets-phase-browser-perf.cjs), run as `PREVIEW_BASE_URL=http://127.0.0.1:4391/bezeg-2.0 node scripts/f2b-solids-levelsets-phase-browser-perf.cjs` against a private copy of the production build. Build of revision `d7a92e94` (the same code as `06a5ea0d`), served by a static server so that concurrent rebuilds could not change it; Chromium 156.0.8078.4 headless via Playwright, 60 Hz. Raw output: `.command-logs/f2b-perf3/results.json` (untracked; per-run values for every cell).
+
+Method: 5 runs per case, each in a fresh context; desktop 1280×800 mouse unthrottled; phone 390×844, CDP touch, `Emulation.setCPUThrottlingRate` 4. Frame time = rAF intervals; board update = duration of one `board.update`; long task = `PerformanceObserver` `longtask` over 50 ms. Each case moves one control with timer-driven input and the script fails the run if the control did not move. Criteria as in the 2026-11-11 sections: **median at most 16,7 ms and p95 at most 33,3 ms** (the strict reading, p95 at most 16,7 ms, is also visible in the tables).
+
+Control movement observed: cube plane offset -36 to 36; revolve discs 1 to 60; slab stack shear -3 to 3 (17 and 60 slabs through "Število plošč"); contour level c -45 to 45; probe (0,6; 0,8) to (0,1; 0,3); linear program handle (3,2) to (2,1); phase matrix handle (-4,-2) to (-4,-2,75); phase seed (1,0) to (0,35; -0,65); logistic r 2,5 to 4 and back; step readout "korak 0 od 60" to "korak 4 od 60".
+
+Not reachable or not measured: contour grid size N is fixed at 60 (`GRID_N`, [src/graphs/levelsets/contourScene.ts:21](../src/graphs/levelsets/contourScene.ts)), so N = 40, 80, 120 were not measured; phase portrait seeds are capped at 6 (`SEEDS_MAX`, [src/dynamics/phaseModel.ts:54](../src/dynamics/phaseModel.ts)), so 12, 24, 48 were not measured; revolve segments are fixed at 48 and have no control (the discs slider is the only revolve control); slab stack has 12 triangles per slab (17 slabs = 204, 60 = 720); camera orbit drag, the pendulum and spiral systems were not measured. Logistic first visit and revisit are told apart only by repeating the r sweep.
+
+### desktop
+| Case | Frame median | Frame p95 | Max frame | Frames over 25 ms per run (of) | Board update median / max | Long tasks over 50 ms per run (longest) |
+|---|---|---|---|---|---|---|
+| solids cube: plane offset slider, first sweep | 16,7 | 16,7–16,8 | 67–100 | 2 (131–133) | not on the path (0,0) | 3 (90–110 ms) |
+| solids cube: plane offset slider, sweep back | 16,7 | 16,7–16,8 | 67–83 | 2 (128–131) | not on the path (0,0) | 2 (74–87 ms) |
+| solids revolve (k=48): discs slider | 16,7 | 16,8–33,3 | 33–50 | 10–13 (203–209) | not on the path (0,0) | 0 (0–50 ms) |
+| solids slab stack, 17 slabs: shear slider | 16,7 | 16,7–16,8 | 17 | 0 (122–128) | not on the path (0,0) | 0 (0 ms) |
+| solids slab stack, 17 slabs: cursor slider | 16,7 | 16,7–16,8 | 17 | 0 (126–132) | not on the path (0,0) | 0 (0 ms) |
+| solids slab stack, 60 slabs (max): shear slider | 16,7 | 16,7–16,8 | 17 | 0 (124–127) | not on the path (0,0) | 0 (0 ms) |
+| contours N=60, 1 level(s): level slider | 16,7 | 16,8 | 33–50 | 6 (166–171) | 1,4–1,6 / 10,2–12,9 | 0–2 (0–55 ms) |
+| contours N=60, 1 level(s): probe drag | 16,7 | 16,7–16,8 | 17 | 0 (179–207) | 1,1–1,4 / 3,2–4,7 | 0 (0 ms) |
+| contours N=60, 5 level(s): level slider | 16,7 | 16,8 | 50–67 | 6–7 (170–181) | 1,6–1,9 / 13,0–18,9 | 3–7 (58–79 ms) |
+| contours N=60, 5 level(s): probe drag | 16,7 | 16,7–16,8 | 17 | 0 (186–195) | 1,5–1,7 / 3,2–3,6 | 0 (0 ms) |
+| contours N=60, 9 level(s): level slider | 16,7 | 16,8 | 50–67 | 6–7 (170–179) | 1,6–1,9 / 11,8–17,5 | 3–7 (54–79 ms) |
+| contours N=60, 9 level(s): probe drag | 16,7 | 16,7–16,8 | 17 | 0 (184–195) | 1,6–1,9 / 3,0–3,7 | 0 (0 ms) |
+| linear program: objective handle drag | 16,7 | 16,7–16,8 | 17 | 0 (126–130) | 1,4–1,6 / 2,7–3,0 | 0 (0 ms) |
+| phase portrait, 6 seeds: matrix handle drag (all trajectories) | 16,7 | 16,7–16,8 | 17 | 0 (126–130) | 1,2–1,3 / 2,5–3,0 | 0 (0 ms) |
+| phase portrait, 6 seeds: seed drag (one trajectory) | 16,7 | 16,7–16,8 | 17 | 0 (135–139) | 1,3–1,4 / 2,3–2,9 | 0 (0 ms) |
+| logistic map: r slider, first visit | 16,7 | 16,7–16,8 | 17 | 0 (131–136) | 1,4–1,7 / 2,8–3,4 | 0 (0 ms) |
+| logistic map: r slider, revisit | 16,7 | 16,7–16,8 | 17 | 0 (129–131) | 1,4–1,5 / 1,8–2,6 | 0 (0 ms) |
+| logistic map: step button x4 (900 ms apart, animated) | 16,7 | 16,7–16,8 | 17 | 0 (222–224) | 1,6–2,1 / 2,0–2,7 | 0 (0 ms) |
+
+### phone 4x
+| Case | Frame median | Frame p95 | Max frame | Frames over 25 ms per run (of) | Board update median / max | Long tasks over 50 ms per run (longest) |
+|---|---|---|---|---|---|---|
+| solids cube: plane offset slider, first sweep | 16,7 | 33,3–33,4 | 833–950 | 18–35 (185–200) | not on the path (0,0) | 2–3 (842–966 ms) |
+| solids cube: plane offset slider, sweep back | 16,7 | 16,8–33,3 | 850–917 | 4–13 (200–207) | not on the path (0,0) | 2 (856–923 ms) |
+| solids revolve (k=48): discs slider | 16,7 | 216,7–233,3 | 267–300 | 61–64 (156–165) | not on the path (0,0) | 57–58 (247–284 ms) |
+| solids slab stack, 17 slabs: shear slider | 16,7 | 33,3–33,4 | 33–50 | 23–24 (165–169) | not on the path (0,0) | 0 (0–50 ms) |
+| solids slab stack, 17 slabs: cursor slider | 16,7 | 33,3–33,4 | 33–34 | 24–38 (158–176) | not on the path (0,0) | 0 (0 ms) |
+| solids slab stack, 60 slabs (max): shear slider | 16,7 | 33,3–33,4 | 33–50 | 23–30 (156–165) | not on the path (0,0) | 0–1 (0–53 ms) |
+| contours N=60, 1 level(s): level slider | 16,7–33,3 | 83,3–100,0 | 317–383 | 57–64 (123–127) | 8,8–10,2 / 60,2–90,4 | 57 (329–392 ms) |
+| contours N=60, 1 level(s): probe drag | 33,3–58,4 | 116,8–133,4 | 133–167 | 64–68 (118–125) | 7,1–7,6 / 18,2–23,6 | 59–60 (143–177 ms) |
+| contours N=60, 5 level(s): level slider | 16,7–33,3 | 83,4–116,8 | 283–400 | 58–64 (121–125) | 9,0–11,8 / 59,6–90,4 | 57 (293–409 ms) |
+| contours N=60, 5 level(s): probe drag | 16,7–16,8 | 83,4–116,7 | 100–150 | 59–62 (123–128) | 6,7–8,7 / 17,2–22,1 | 59–60 (123–150 ms) |
+| contours N=60, 9 level(s): level slider | 16,7–16,8 | 66,7–83,4 | 233–267 | 59–60 (124–127) | 7,1–7,9 / 50,2–56,2 | 57 (243–269 ms) |
+| contours N=60, 9 level(s): probe drag | 16,7–16,8 | 83,4–116,6 | 100–133 | 58–61 (120–129) | 6,7–9,3 / 12,2–19,6 | 59 (104–150 ms) |
+| linear program: objective handle drag | 16,7 | 16,7–33,2 | 33–50 | 3–8 (128–134) | 6,5–7,5 / 10,9–15,1 | 0–1 (0–52 ms) |
+| phase portrait, 6 seeds: matrix handle drag (all trajectories) | 16,7 | 16,8 | 33 | 3–6 (131–135) | 4,9–5,5 / 8,8–10,6 | 0 (0 ms) |
+| phase portrait, 6 seeds: seed drag (one trajectory) | 16,7 | 33,3–33,4 | 33–50 | 10–45 (132–136) | 6,4–7,8 / 10,7–22,3 | 0–1 (0–54 ms) |
+| logistic map: r slider, first visit | 16,7 | 16,7–16,8 | 17–33 | 0–1 (235–247) | 6,8–7,5 / 11,0–13,2 | 0 (0 ms) |
+| logistic map: r slider, revisit | 16,7 | 16,7–16,8 | 17 | 0 (229–234) | 6,3–6,8 / 8,2–9,9 | 0 (0 ms) |
+| logistic map: step button x4 (900 ms apart, animated) | 16,7 | 16,7–16,8 | 17–33 | 0–1 (230–234) | 8,6–10,6 / 9,7–12,0 | 0–1 (0–52 ms) |
+
+Reading (no decision is taken here; misses are owed to the first release batch and are to be profiled before a fix is chosen):
+- **Desktop:** median 16,7 everywhere, p95 at most 16,8 except the revolve discs slider (p95 up to 33,3; 10–13 frames over 25 ms). The cube offset slider has 2 frames of 67–100 ms and 2–3 long tasks of 74–110 ms per sweep, mid-sweep while the plane crosses the cube, repeating on the sweep back, so not a cold start; the cube mesh is 12 triangles and the cause is unexplained. The contour level slider shows 6 frames of 33 ms and up to 7 long tasks of 58–79 ms at 5 and 9 levels.
+- **Phone 4×, misses:** cube offset (long tasks 842–966 ms, 2–3 per sweep, also on the sweep back; p95 33,3); revolve discs (p95 217–233, 57 long tasks of 250–284 ms, about every other frame); contour level slider (p95 67–117, about 57 long tasks of 250–410 ms); contour probe drag (1 level: median 33–58, p95 117–133; 5 and 9 levels: median 16,7, p95 83–117, about 59 long tasks of 100–177 ms). One level is not cheaper than 5 or 9.
+- **Phone 4×, at the limit** (p95 33,3–33,4, 17–38 frames over 25 ms per run): slab stack at 17 and 60 slabs (the same, so slab count is not the driver), phase seed drag (10–45 frames over 25 ms), linear program handle (3–8).
+- **Phone 4×, passes:** phase matrix handle (p95 16,8), logistic r first visit and revisit (p95 16,8, at most 1 frame over 25 ms), logistic step.
+- **Contour surface:** board 1 (the surface) is updated on level slider drags (66 updates) and on probe drags (56), contrary to the plan in ADR 0053 that it would not be.
+
+Limits: the 4× throttle is a desktop slowdown, not a phone; touch is synthetic CDP input and needs a 250 ms settle after touchStart at 4×; timer-driven input is lighter than a real finger or mouse; rAF intervals saturate at 16,7 ms; load from other sessions was not controlled; a real phone, memory and the unreachable settings above were not measured.
