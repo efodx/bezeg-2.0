@@ -103,7 +103,7 @@ export function ChapterNeighbors({chapterId}: {chapterId: string}) {
     const previous = learningChapters[index - 1];
     const next = learningChapters[index + 1];
     return <nav className="learning-neighbors" aria-label={language === 'sl' ? 'Poglavja po vrsti' : 'Chapters in order'}>
-        {previous && <Link to={`/bezeg-2.0/learn/${previous.id}`}><span>{language === 'sl' ? 'Prejšnje poglavje' : 'Previous chapter'}:</span> {previous.title[language]}</Link>}
-        {next && <Link to={`/bezeg-2.0/learn/${next.id}`}><span>{language === 'sl' ? 'Naslednje poglavje' : 'Next chapter'}:</span> {next.title[language]}</Link>}
+        {previous && <Link className="learning-neighbor--previous" to={`/bezeg-2.0/learn/${previous.id}`}><span className="learning-neighbor-label">{language === 'sl' ? 'Prejšnje poglavje' : 'Previous chapter'}<span className="learning-neighbor-colon">:</span></span> <span className="learning-neighbor-title">{previous.title[language]}</span></Link>}
+        {next && <Link className="learning-neighbor--next" to={`/bezeg-2.0/learn/${next.id}`}><span className="learning-neighbor-label">{language === 'sl' ? 'Naslednje poglavje' : 'Next chapter'}<span className="learning-neighbor-colon">:</span></span> <span className="learning-neighbor-title">{next.title[language]}</span></Link>}
     </nav>;
 }

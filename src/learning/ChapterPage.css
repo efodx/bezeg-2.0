@@ -1,132 +1,164 @@
+/* Chapter reader. Colours are shell roles from src/shellTokens.css; see DESIGN.md, "Chapter reader". */
 .chapter-page {
-    --chapter-ink: #243b2b;
-    --chapter-muted: #5f6b58;
-    --chapter-border: #d6dfce;
-    --chapter-paper: #fbfcf5;
+    --chapter-ink: var(--bezeg-shell-ink);
+    --chapter-muted: var(--bezeg-shell-ink-secondary);
+    --chapter-link: var(--bezeg-shell-action);
+    --chapter-border: var(--bezeg-shell-rule);
+    --chapter-paper: var(--bezeg-shell-panel);
+    --chapter-tint: var(--bezeg-shell-choice-selected);
+    --chapter-accent: var(--bezeg-shell-ochre);
+    --chapter-focus: var(--bezeg-shell-focus);
+    /* Body size: 16.4px up to about 1500px of viewport, growing to 19.2px at 1920px for projection. */
+    --chapter-text: clamp(1.025rem, .4rem + .67vw, 1.2rem);
+    /* One reading measure, about 72 characters, for the introduction, notes and prose. */
+    --chapter-measure: calc(var(--chapter-text) * 38);
     min-width: 0;
     color: var(--chapter-ink);
-    background: var(--bezeg-canvas, #f4f0df);
+    background: var(--bezeg-shell-canvas);
     text-align: left;
-    padding: clamp(18px, 3vw, 38px) clamp(14px, 3vw, 44px) 64px;
+    padding: clamp(18px, 3vw, 38px) clamp(14px, 3vw, 44px) 72px;
 }
-.chapter-layout { display: grid; grid-template-columns: minmax(190px, 248px) minmax(0, 780px); gap: clamp(24px, 4vw, 58px); justify-content: center; align-items: start; }
-.chapter-sidebar { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; padding: 8px 0; }
+.chapter-page ::selection { background: var(--bezeg-shell-nav-active); color: var(--bezeg-shell-ink); }
+.chapter-page h1, .chapter-page h2, .chapter-page h3 { overflow-wrap: anywhere; }
+.chapter-layout { display: grid; grid-template-columns: minmax(190px, calc(var(--chapter-text) * 15.1)) minmax(0, calc(var(--chapter-text) * 47.5)); gap: clamp(24px, 4vw, 58px); justify-content: center; align-items: start; }
+.chapter-article { min-width: 0; max-width: calc(var(--chapter-text) * 47.5); }
 /* Reserves roughly the playground canvas (viewBox 1000×625) so lazy loading does not shift the page. */
 .chapter-playground-loading { aspect-ratio: 16 / 10; width: 100%; margin: 1rem 0; }
+
+/* Contents rail. The current entry changes colour and surface but not weight, so wrapped titles do not move. */
+.chapter-sidebar { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; padding: 8px 0; font-size: calc(var(--chapter-text) * .975); scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-scroll-thumb) transparent; }
 .chapter-toc { border-left: 1px solid var(--chapter-border); padding-left: 14px; }
-.chapter-toc-title { margin: 0 0 12px; color: var(--chapter-muted); font-size: .76rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
-.chapter-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
-.chapter-toc a { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 9px 8px; border-radius: 6px; color: #425746; text-decoration: none; line-height: 1.35; }
-.chapter-toc a:hover { background: #edf2e5; color: #213d28; }
-.chapter-toc a[aria-current="location"] { border-left: 1px solid #b57b1f; margin-left: -15px; padding-left: 21px; background: #edf2e5; color: #203b28; font-weight: 700; }
-.chapter-toc-number { flex: 0 0 auto; color: #75826e; font-size: .75rem; font-variant-numeric: tabular-nums; }
-.chapter-article { min-width: 0; max-width: 780px; }
-.chapter-page h1, .chapter-page h2, .chapter-page h3 { overflow-wrap: anywhere; }
-.chapter-heading { padding: 0 0 20px; border-bottom: 1px solid var(--chapter-border); }
-.chapter-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 0 0 14px; }
-.chapter-trail .learning-back { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 5px 10px; border: 1px solid var(--chapter-border); border-radius: 6px; color: #315d3b; font-size: .92rem; font-weight: 650; line-height: 1.35; text-decoration: none; }
-.chapter-trail .learning-back:hover { background: #edf2e5; }
+.chapter-toc-title { margin: 0 0 12px; color: var(--chapter-muted); font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.chapter-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.chapter-toc a { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 9px 8px; border-radius: 6px; color: var(--chapter-muted); text-decoration: none; line-height: 1.35; transition: background-color .15s ease-out, color .15s ease-out; }
+.chapter-toc a:hover { background: var(--bezeg-shell-control-hover); color: var(--chapter-ink); }
+.chapter-toc a[aria-current="location"] { margin-left: -15px; padding-left: 22px; border-left: 1px solid var(--chapter-accent); border-radius: 0 6px 6px 0; background: var(--chapter-tint); color: var(--chapter-ink); }
+.chapter-toc-number { flex: 0 0 auto; color: var(--chapter-muted); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.chapter-toc-neighbors { display: grid; gap: 4px; margin-top: 18px; padding: 14px 0 0 14px; border-top: 1px solid var(--chapter-border); }
+.chapter-toc-neighbors a { display: grid; gap: 2px; min-height: 44px; padding: 7px 8px; box-sizing: border-box; border-radius: 6px; color: var(--chapter-link); line-height: 1.35; text-decoration: none; transition: background-color .15s ease-out; }
+.chapter-toc-neighbors a:hover { background: var(--bezeg-shell-control-hover); }
+.chapter-toc-neighbors span { color: var(--chapter-muted); font-size: .8em; }
+
+/* Chapter heading: trail, title, purpose and prerequisites. */
+.chapter-heading { padding: 0 0 28px; border-bottom: 1px solid var(--chapter-border); }
+.chapter-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 0 0 22px; }
+.chapter-trail .learning-back { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 5px 12px 5px 10px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); color: var(--chapter-link); font-size: .92rem; font-weight: 650; line-height: 1.35; text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
+.chapter-trail .learning-back:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
 .chapter-trail .learning-back svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.chapter-trail .learning-back:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
 .chapter-trail-position { color: var(--chapter-muted); font-size: .92rem; font-variant-numeric: tabular-nums; }
-.chapter-trail-position::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 14px 2px 0; border-radius: 50%; background: #b88a43; vertical-align: middle; }
+.chapter-trail-position::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 14px 2px 0; border-radius: 50%; background: var(--chapter-accent); vertical-align: middle; }
+.chapter-heading h1 { max-width: 24ch; margin: 0; color: var(--chapter-ink); font: 700 clamp(1.9rem, 3.2vw, calc(var(--chapter-text) * 2.6))/1.12 Georgia, "Times New Roman", serif; letter-spacing: -.01em; text-wrap: balance; }
 /* The title receives reading focus programmatically; it is not an interactive control. */
 .chapter-heading h1:focus { outline: none; }
-.chapter-toc-neighbors { display: grid; gap: 4px; margin-top: 18px; padding: 14px 0 0 14px; border-top: 1px solid var(--chapter-border); }
-.chapter-toc-neighbors a { display: grid; gap: 2px; min-height: 44px; padding: 7px 8px; box-sizing: border-box; border-radius: 6px; color: #315d3b; line-height: 1.35; text-decoration: none; }
-.chapter-toc-neighbors a:hover { background: #edf2e5; }
-.chapter-toc-neighbors span { color: var(--chapter-muted); font-size: .78rem; }
-.chapter-toc-neighbors a:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
-.chapter-heading h1 { max-width: 24ch; margin: 0; color: #25402b; font: 700 clamp(1.9rem, 3.2vw, 2.65rem)/1.14 Georgia, "Times New Roman", serif; }
-.chapter-purpose { margin: 12px 0 15px; max-width: 70ch; font-size: 1.06rem; line-height: 1.6; }
-.chapter-prerequisites { max-width: 70ch; padding: 12px 15px; border-left: 1px solid #c7973b; background: #f2f4e8; line-height: 1.55; }
-.chapter-prerequisites p { margin: 4px 0 0; }
+.chapter-purpose { max-width: var(--chapter-measure); margin: 16px 0 22px; font-size: calc(var(--chapter-text) * 1.07); line-height: 1.6; text-wrap: pretty; }
+.chapter-prerequisites { box-sizing: border-box; max-width: var(--chapter-measure); padding: 13px 16px 14px; border-left: 1px solid var(--chapter-accent); border-radius: 0 8px 8px 0; background: var(--chapter-tint); font-size: calc(var(--chapter-text) * .975); line-height: 1.55; }
+.chapter-prerequisites p { margin: 4px 0 0; text-wrap: pretty; }
 .chapter-prerequisite-links { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 0 0; padding: 0; list-style: none; }
 .chapter-prerequisite-links li { min-width: 0; max-width: 100%; }
-.chapter-prerequisite-links a { color: #315d3b; font-weight: 650; line-height: 1.45; overflow-wrap: anywhere; text-decoration-thickness: .08em; text-underline-offset: .16em; }
-.chapter-prerequisite-links a:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
-.chapter-section { padding: 34px 0 18px; scroll-margin-top: 20px; border-bottom: 1px solid var(--chapter-border); }
-.chapter-section-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
-.chapter-section-heading > span { color: #b0802a; font: 700 1rem Georgia, serif; font-variant-numeric: tabular-nums; }
-.chapter-section-heading h2 { min-width: 0; margin: 0; color: #28442f; font: 650 clamp(1.45rem, 2.8vw, 2rem)/1.24 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; }
-.chapter-section-link { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 32px; height: 32px; margin: -4px 0; border-radius: 5px; color: #526b50; text-decoration: none; opacity: 0; }
+.chapter-prerequisite-links a { color: var(--chapter-link); font-weight: 650; line-height: 1.45; overflow-wrap: anywhere; text-decoration-thickness: .08em; text-underline-offset: .18em; }
+.chapter-graph-return { margin: 0 0 22px; }
+.chapter-graph-return > a { display: inline-flex; min-height: 42px; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); color: var(--chapter-link); font-weight: 700; text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
+.chapter-graph-return > a:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
+.chapter-graph-return p { max-width: var(--chapter-measure); margin: 8px 0 0; color: var(--chapter-muted); font-size: .88rem; line-height: 1.5; }
+
+/* Sections: more space above a heading than below it, one hairline between sections. */
+.chapter-section { padding: 44px 0 30px; scroll-margin-top: 20px; border-bottom: 1px solid var(--chapter-border); }
+.chapter-section-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.chapter-section-heading > span { color: var(--bezeg-shell-lesson-ink); font: 700 1rem Georgia, serif; font-variant-numeric: tabular-nums; }
+.chapter-section-heading h2 { min-width: 0; margin: 0; color: var(--chapter-ink); font: 650 clamp(1.45rem, 2.8vw, calc(var(--chapter-text) * 1.95))/1.22 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; text-wrap: balance; }
+.chapter-section-link { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 32px; height: 32px; margin: -4px 0; border-radius: 6px; color: var(--chapter-muted); text-decoration: none; opacity: 0; transition: opacity .15s ease-out, background-color .15s ease-out; }
+.chapter-section-link:hover { background: var(--bezeg-shell-control-hover); color: var(--chapter-link); }
 .chapter-section-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .chapter-section-heading:hover .chapter-section-link, .chapter-section-link:focus-visible { opacity: 1; }
-.chapter-section-link:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
 @media (hover: none) { .chapter-section-link { opacity: .78; } }
 .chapter-section-body { min-width: 0; }
-.chapter-paragraph { box-sizing: border-box; padding-right: 12px; margin: 0 0 15px; max-width: 70ch; font-size: 1.025rem; line-height: 1.74; overflow-wrap: anywhere; }
-.chapter-paragraph mjx-container[data-chapter-scrollable-math], .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math] { overscroll-behavior-inline: contain; scrollbar-color: #8b9a7e #edf0e5; }
-.chapter-paragraph mjx-container[data-chapter-scrollable-math], .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math] { display: block; box-sizing: border-box; width: 100% !important; max-width: 100%; overflow-x: auto; overflow-y: visible; margin: .35em 0; padding-bottom: 3px; }
-.chapter-paragraph mjx-container[data-chapter-scrollable-math]:focus-visible, .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math]:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
-.chapter-paragraph a, .chapter-activity-return a { color: #315d3b; text-decoration-thickness: .08em; text-underline-offset: .16em; }
-.chapter-formula { min-width: 0; max-width: 100%; overflow-x: auto; margin: 12px 0 18px; padding: 10px 14px 13px; border-radius: 7px; background: #f1f4e9; }
-.chapter-formula:focus-visible { outline: 3px solid #577cc3; outline-offset: 2px; }
-.chapter-formula-label { display: block; margin-bottom: 8px; color: #596953; font-size: .78rem; }
+.chapter-section-body > :last-child { margin-bottom: 0; }
+/* The right padding keeps inline math that overhangs a line end inside the paragraph box (see inlineMathLayout.ts). */
+.chapter-paragraph { box-sizing: border-box; max-width: calc(var(--chapter-measure) + 12px); margin: 0 0 .95em; padding-right: 12px; font-size: var(--chapter-text); line-height: 1.72; overflow-wrap: anywhere; text-wrap: pretty; }
+.chapter-paragraph mjx-container[data-chapter-scrollable-math], .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math] { display: block; box-sizing: border-box; width: 100% !important; max-width: 100%; overflow-x: auto; overflow-y: visible; margin: .35em 0; padding-bottom: 3px; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-scroll-thumb) var(--bezeg-shell-scroll-track); }
+.chapter-paragraph a, .chapter-activity-return a { color: var(--chapter-link); text-decoration-thickness: .08em; text-underline-offset: .18em; }
+.chapter-formula { min-width: 0; max-width: 100%; overflow-x: auto; margin: 18px 0 20px; padding: 12px 16px 14px; border-radius: 8px; background: var(--chapter-tint); font-size: var(--chapter-text); scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-scroll-thumb) transparent; }
+.chapter-formula-label { display: block; margin-bottom: 8px; color: var(--chapter-muted); font-size: .8em; }
 .chapter-math { width: max-content; min-width: 100%; }
 .chapter-math mjx-container[display="true"] { margin: 0 !important; max-width: none; }
-.chapter-exploration { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); align-items: center; gap: 18px; margin: 18px 0; padding: 14px; border: 1px solid #d5dfcd; border-radius: 10px; background: var(--chapter-paper); }
-.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); }
+
+/* Activity cards. The surface is the captured previews' own background, so a figure sits on the card without a patch. */
+.chapter-exploration { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); align-items: center; gap: 20px; margin: 24px 0; padding: 16px; border: 1px solid var(--chapter-border); border-radius: 16px; background: var(--chapter-paper); }
+.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); padding: 18px 20px; }
 /* Guided-example cards: the preview takes about half the card (never above its 420 CSS px capture width) beside the copy. */
-.chapter-exploration--guided-example { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
+.chapter-exploration--guided-example { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
 .chapter-exploration--guided-example.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); }
 .chapter-exploration--guided-example .chapter-activity-figure { max-width: 420px; }
 .chapter-exploration--guided-example .chapter-activity-figure img { aspect-ratio: 21 / 13; }
-@media (max-width: 44em) {
-    .chapter-exploration--guided-example, .chapter-exploration--guided-example.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); gap: 11px; }
-    .chapter-exploration--guided-example .chapter-activity-figure { width: min(100%, 420px); justify-self: center; }
-}
 .chapter-activity-figure { min-width: 0; margin: 0; }
-.chapter-activity-figure img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; object-fit: contain; background: #fffdf5; }
-.chapter-activity-figure figcaption { margin-top: 7px; color: var(--chapter-muted); font-size: .9rem; line-height: 1.45; }
+.chapter-activity-figure img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; border-radius: 10px; object-fit: contain; background: var(--chapter-paper); }
+.chapter-activity-figure figcaption { margin-top: 8px; color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .86); line-height: 1.45; text-wrap: pretty; }
 .chapter-exploration-copy { min-width: 0; }
-.chapter-exploration-copy h3 { margin: 0 0 7px; color: #2e4a34; font: 650 1.27rem/1.3 Georgia, "Times New Roman", serif; }
-.chapter-exploration-prompt { margin: 0 0 10px; font-size: 1rem; line-height: 1.55; overflow-wrap: anywhere; }
+.chapter-exploration-copy h3 { margin: 0 0 6px; color: var(--chapter-ink); font: 650 calc(var(--chapter-text) * 1.24)/1.3 Georgia, "Times New Roman", serif; text-wrap: balance; }
+.chapter-exploration-prompt { margin: 0 0 14px; font-size: calc(var(--chapter-text) * .975); line-height: 1.55; overflow-wrap: anywhere; text-wrap: pretty; }
+.learning-investigation-prompt { color: var(--chapter-muted); }
+.learning-investigation-list { display: grid; }
 .chapter-exploration-secondary { min-width: 0; }
+.chapter-exploration-secondary a { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 6px 0; color: var(--chapter-link); font-size: .93rem; font-weight: 650; line-height: 1.35; text-underline-offset: .2em; }
 .chapter-activity-return { margin: 0 0 8px; color: var(--chapter-muted); font-size: .91rem; }
 .chapter-activity-return span { font-weight: 700; }
-.chapter-open-activity { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; margin-top: 2px; padding: 9px 14px; border-radius: 7px; background: #315e3b; color: white; font-weight: 700; text-decoration: none; }
-.chapter-open-activity:hover { background: #284d31; color: white; }
-.learning-investigations .chapter-open-activity { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; box-sizing: border-box; overflow-wrap: anywhere; padding: 9px 14px; color: white; line-height: 1.35; text-decoration: none; }
-.learning-investigations .chapter-exploration-copy h3 { margin: 0 0 7px; color: #2e4a34; font: 650 1.27rem/1.3 Georgia, "Times New Roman", serif; }
-.learning-investigations .chapter-exploration-secondary a { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 6px 0; color: #49634d; font-size: .93rem; font-weight: 650; line-height: 1.35; text-underline-offset: .2em; }
-.chapter-open-activity:focus-visible, .chapter-toc a:focus-visible, .chapter-next-row a:focus-visible, .chapter-section-link:focus-visible, .chapter-contents-mobile summary:focus-visible, .chapter-section-heading h2:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
-.chapter-next-row { display: flex; justify-content: flex-end; margin-top: 17px; }
-.chapter-next-row a { display: inline-flex; min-height: 42px; align-items: center; padding: 7px 10px; color: #365d3e; text-align: right; text-decoration: none; font-size: .92rem; }
-.chapter-source { padding: 26px 0 0; color: var(--chapter-muted); font-size: .9rem; line-height: 1.6; }
-.chapter-source h2 { margin: 0 0 6px; color: #314a35; font: 650 1.3rem Georgia, serif; }
-.chapter-source p { margin: 0; }
-.chapter-graph-return { margin: 0 0 22px; }
-.chapter-graph-return > a { display: inline-flex; min-height: 42px; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid #cfd9c5; border-radius: 7px; background: #fbfcf5; color: #315d3b; font-weight: 700; text-decoration: none; }
-.chapter-graph-return > a:hover { background: #edf2e5; }
-.chapter-graph-return p { max-width: 70ch; margin: 8px 0 0; color: #626e5c; font-size: .88rem; line-height: 1.5; }
-.chapter-graph-return > a:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
+/* The action wraps inside narrow cards and at enlarged text instead of widening the page. */
+.chapter-open-activity { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; max-width: 100%; min-height: 44px; box-sizing: border-box; padding: 9px 16px; border-radius: 8px; background: var(--bezeg-shell-action); box-shadow: var(--bezeg-shell-shadow-action); color: var(--bezeg-shell-on-action); font-size: calc(var(--chapter-text) * .975); font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; text-decoration: none; transition: background-color .15s ease-out; }
+.chapter-open-activity:hover { background: var(--bezeg-shell-action-hover); color: var(--bezeg-shell-on-action); }
+.chapter-next-row { display: flex; justify-content: flex-end; margin-top: 18px; }
+.chapter-next-row a { display: inline-flex; min-height: 42px; align-items: center; padding: 7px 10px; border-radius: 6px; color: var(--chapter-link); text-align: right; text-decoration: none; font-size: .92rem; transition: background-color .15s ease-out; }
+.chapter-next-row a:hover { background: var(--bezeg-shell-control-hover); }
+
+/* Chapter end: source or note, then the neighbouring chapters. */
+.chapter-source { padding: 28px 0 0; color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .88); line-height: 1.6; }
+.chapter-source h2 { margin: 0 0 6px; color: var(--chapter-ink); font: 650 1.3rem Georgia, "Times New Roman", serif; }
+.chapter-source p { max-width: var(--chapter-measure); margin: 0; text-wrap: pretty; }
+.learning-neighbors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.learning-neighbors a { display: grid; align-content: center; gap: 3px; min-height: 72px; box-sizing: border-box; padding: 12px 18px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 10px; background: var(--chapter-paper); color: var(--chapter-ink); text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
+.learning-neighbors a:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
+.learning-neighbor--next { grid-column: 2; text-align: right; }
+.learning-neighbor-label { color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .82); line-height: 1.35; }
+/* Direction arrows are decoration: the alternative-text form keeps them out of the link's accessible name. */
+.learning-neighbor--previous .learning-neighbor-label::before { content: "← "; content: "← " / ""; }
+.learning-neighbor--next .learning-neighbor-label::after { content: " →"; content: " →" / ""; }
+/* The colon stays in the link text for assistive technology; the label sits on its own line, so it is not drawn. */
+.learning-neighbor-colon { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.learning-neighbor-title { font: 650 calc(var(--chapter-text) * 1.1)/1.3 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; text-wrap: balance; }
+
 .chapter-contents-mobile { display: none; }
-.learning-investigation-list { display: grid; gap: 8px; }
+.chapter-page a:focus-visible, .chapter-page summary:focus-visible, .chapter-formula:focus-visible, .chapter-section-heading h2:focus-visible, .chapter-paragraph mjx-container[data-chapter-scrollable-math]:focus-visible, .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math]:focus-visible { outline: 3px solid var(--chapter-focus); outline-offset: 3px; }
 @media (max-width: 800px) {
-    .chapter-page { overflow-x: clip; padding: 16px 16px 48px; }
+    .chapter-page { overflow-x: clip; padding: 16px 16px 56px; }
     .chapter-layout { display: block; }
     .chapter-sidebar { display: none; }
-    .chapter-contents-mobile { display: block; position: sticky; top: 0; z-index: 4; margin: 0 -16px 16px; padding: 8px 16px; background: var(--bezeg-canvas, #f4f0df); }
-    .chapter-section { scroll-margin-top: 76px; }
-    .chapter-contents-mobile summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; min-height: 46px; box-sizing: border-box; padding: 12px; border: 1px solid var(--chapter-border); border-radius: 7px; background: var(--chapter-paper); color: var(--chapter-ink); font-weight: 700; line-height: 1.35; cursor: pointer; }
-    .chapter-contents-mobile[open] > div { max-height: min(62vh, 30rem); overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; padding: 10px 12px; border: 1px solid var(--chapter-border); border-radius: 7px; background: var(--chapter-paper); }
+    .chapter-contents-mobile { display: block; position: sticky; top: 0; z-index: 4; margin: 0 -16px 16px; padding: 8px 16px; background: var(--bezeg-shell-canvas); }
+    /* Text scrolling under the sticky bar fades out instead of meeting a hard edge. */
+    .chapter-contents-mobile::after { content: ""; position: absolute; inset: 100% 0 auto; height: 12px; background: linear-gradient(to bottom, var(--bezeg-shell-canvas), transparent); pointer-events: none; }
+    .chapter-section { padding: 34px 0 24px; scroll-margin-top: 76px; }
+    .chapter-contents-mobile summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; min-height: 46px; box-sizing: border-box; padding: 12px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); color: var(--chapter-link); font-weight: 700; line-height: 1.35; cursor: pointer; list-style: none; }
+    .chapter-contents-mobile[open] > div { max-height: min(62vh, 30rem); overflow-y: auto; overscroll-behavior: contain; margin-top: 8px; padding: 10px 12px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); scrollbar-width: thin; scrollbar-color: var(--bezeg-shell-scroll-thumb) transparent; }
     .chapter-contents-mobile summary::-webkit-details-marker { display: none; }
     .chapter-contents-mobile summary > span:first-child { display: inline-flex; align-items: center; gap: 10px; }
-    .chapter-contents-mobile summary > span:first-child::before { content: ""; width: 7px; height: 7px; margin-left: 2px; border-right: 2px solid #b88a43; border-bottom: 2px solid #b88a43; transform: rotate(-45deg); transition: transform .15s ease-out; }
+    .chapter-contents-mobile summary > span:first-child::before { content: ""; width: 7px; height: 7px; margin-left: 2px; border-right: 2px solid var(--chapter-accent); border-bottom: 2px solid var(--chapter-accent); transform: rotate(-45deg); transition: transform .15s ease-out; }
     .chapter-contents-mobile[open] summary > span:first-child::before { transform: rotate(45deg); }
     .chapter-contents-position { color: var(--chapter-muted); font-size: .88rem; font-weight: 400; font-variant-numeric: tabular-nums; }
     .chapter-contents-mobile .chapter-toc { padding: 0; border: 0; }
     .chapter-contents-mobile .chapter-toc-title { display: none; }
-    .chapter-contents-mobile .chapter-toc a[aria-current="location"] { margin-left: -14px; }
-    .chapter-contents-mobile summary:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
-    .chapter-heading h1 { max-width: 24ch; }
+    .chapter-contents-mobile .chapter-toc a[aria-current="location"] { margin-left: -13px; padding-left: 20px; }
+    .chapter-heading { padding-bottom: 22px; }
+    .chapter-trail { margin-bottom: 16px; }
+}
+@media (max-width: 44em) {
+    .chapter-exploration--guided-example, .chapter-exploration--guided-example.chapter-exploration--without-preview { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .chapter-exploration--guided-example .chapter-activity-figure { width: min(100%, 420px); justify-self: center; }
 }
 @media (max-width: 520px) {
-    .chapter-exploration { grid-template-columns: minmax(0, 1fr); gap: 11px; padding: 14px; }
+    .chapter-exploration { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 14px; }
     .chapter-exploration:not(.chapter-exploration--guided-example) .chapter-activity-figure { width: min(100%, 280px); justify-self: center; }
     .chapter-section-heading { gap: 8px; }
     .chapter-section-heading > span { font-size: .85rem; }
+    .learning-neighbors { grid-template-columns: minmax(0, 1fr); }
+    .learning-neighbor--next { grid-column: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
     .chapter-page *, .chapter-page *::before, .chapter-page *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
