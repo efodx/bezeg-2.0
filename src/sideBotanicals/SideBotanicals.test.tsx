@@ -39,29 +39,21 @@ test.each(['/bezeg-2.0', '/bezeg-2.0/', '/bezeg-2.0/demonstrations', '/bezeg-2.0
     expect(svgs()[0].querySelectorAll('g.side-botanicals-branch').length).toBeGreaterThanOrEqual(1);
 });
 
-test('a gutter of the tuned width (1290 box units at 1440px height) keeps the settings counts', () => {
-    setViewport(3918, true); // (3918 - 1290) / 2 - 24 = 1290
+test.each([3918, 3440, 2048])('a %ipx viewport keeps the owner density: three branches with four heads each', (width) => {
+    setViewport(width, true);
     renderAt('/bezeg-2.0/demonstrations');
-    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch')).toHaveLength(ELDER_SETTINGS.left);
-    expect(svgs()[0].querySelectorAll('g.side-botanicals-head')).toHaveLength(ELDER_SETTINGS.left * ELDER_SETTINGS.heads);
-    expect(svgs()[0].querySelectorAll('g.side-botanicals-florets')).toHaveLength(ELDER_SETTINGS.left * ELDER_SETTINGS.heads * 4);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch')).toHaveLength(3);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-head')).toHaveLength(3 * 4);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-florets')).toHaveLength(3 * 4 * 4);
 });
 
-test('narrower gutters render fewer branches than the tuned one', () => {
-    setViewport(3440, true);
-    renderAt('/bezeg-2.0/demonstrations');
-    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch').length).toBeLessThan(ELDER_SETTINGS.left);
-});
-
-test('fitToGutter keeps settings at the tuned width and shrinks them for narrower gutters', () => {
-    expect(fitToGutter(ELDER_SETTINGS, 1290)).toBe(ELDER_SETTINGS);
-    expect(fitToGutter(ELDER_SETTINGS, 2000)).toBe(ELDER_SETTINGS);
-    const narrow = fitToGutter(ELDER_SETTINGS, 400);
-    expect(narrow.size).toBeLessThan(ELDER_SETTINGS.size);
-    expect(narrow.left).toBe(3);
-    expect(narrow.right).toBe(3);
-    expect(fitToGutter({...ELDER_SETTINGS, left: 2}, 400).left).toBe(2);
-    expect(narrow.heads).toBeGreaterThanOrEqual(2);
+test('fitToGutter keeps counts fixed and scales plant size with the gutter', () => {
+    const wide = fitToGutter(ELDER_SETTINGS, 1290), narrow = fitToGutter(ELDER_SETTINGS, 516);
+    expect(wide.size).toBeCloseTo(ELDER_SETTINGS.size);
+    expect(narrow.size).toBeCloseTo(ELDER_SETTINGS.size * .4);
+    expect(narrow.thick).toBeLessThan(wide.thick);
+    for (const s of [wide, narrow]) expect([s.left, s.right, s.heads]).toEqual([3, 3, 4]);
+    expect(fitToGutter({...ELDER_SETTINGS, left: 2, heads: 3}, 400)).toMatchObject({left: 2, heads: 3});
     expect(fitToGutter({...ELDER_SETTINGS, right: 0}, 400).right).toBe(0);
 });
 
