@@ -502,6 +502,15 @@ export type LessonAction =
     | {readonly kind: 'levelsets'; readonly operation: 'set-constraints'; readonly constraints: readonly {readonly a: number; readonly b: number; readonly c: number}[]}
     | {readonly kind: 'levelsets'; readonly operation: 'set-sweep'; readonly sweep: number}
     /**
+     * LogisticMapGraph's scene actions (PP4, PP5; `set-matrix`, `set-system` and the phase-plane `set-seed` join with the phase-portrait graph). The operations are named after the stored
+     * fields: `set-r` sets `R` (the integer r times 100, from 250 to 400), `set-seed` the start `X` (the integer x0 times 100, from 1 to 99) and `set-step` the number of drawn cobweb
+     * steps (0 to 60). The merged state must pass `parseLogisticState` before the write, otherwise the action throws and nothing is written; unknown fields are refused; a valid
+     * action pauses a running playback. The bifurcation window is not scene state, so there is no `set-zoom`.
+     */
+    | {readonly kind: 'phase'; readonly operation: 'set-r'; readonly R: number}
+    | {readonly kind: 'phase'; readonly operation: 'set-seed'; readonly X: number}
+    | {readonly kind: 'phase'; readonly operation: 'set-step'; readonly step: number}
+    /**
      * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
      * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per
      * year. The merged state must pass `parseGrowthState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused.

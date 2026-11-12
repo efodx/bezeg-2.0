@@ -280,6 +280,22 @@ describe('the cursor and the diagram', () => {
         expect(label(0.5)).not.toBe('');
         expect(label(1)).not.toBe('');
     });
+
+    test('no y tick number reaches into the caption rows: the lowest labelled tick, with its half row, ends clear of the first caption row', () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard();
+        const ticks = (board as unknown as {defaultAxes: {y: {defaultTicks: {generateLabelText(tick: unknown, zero: unknown, value: number): string}}}}).defaultAxes.y.defaultTicks;
+        const [, top, , bottom] = board.getBoundingBox();
+        let lowestLabelled = Infinity;
+        for (let value = Math.ceil(bottom * 10) / 10; value <= top; value = Math.round((value + 0.1) * 10) / 10) {
+            if (ticks.generateLabelText({usrCoords: [1, 0, value]}, undefined, value) !== '') lowestLabelled = Math.min(lowestLabelled, value);
+        }
+        expect(lowestLabelled).toBeGreaterThanOrEqual(0);
+        const firstCaptionTopPx = Math.min(...(probes(graph) as unknown as Array<Probe & {Y(): number}>)
+            .filter(o => o.elType === 'text' && o.evalVisProp('anchory') === 'top' && o.Y() < 0).map(o => -o.Y() * board.unitY));
+        const labelBottomPx = -lowestLabelled * board.unitY + 9;
+        expect(firstCaptionTopPx - labelBottomPx).toBeGreaterThanOrEqual(10);
+    });
 });
 
 describe('the cobweb', () => {

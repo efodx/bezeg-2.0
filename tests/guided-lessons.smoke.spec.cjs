@@ -1532,6 +1532,16 @@ const linearProgram = {
     minFrames: 16, // 7 x 2 + 2 calculation frames
 };
 
+// Phase portraits PP4 (chapter-owned, src/learning/content/phasePortraitsGuidedLessons.ts): seven steps, explanation + observation frames, plus a calculation frame for its worked example.
+// PP5 (`?example=lesson.phase-portraits.bifurcation.logistic-map`) shares the demonstration and has no default row; the host and content tests cover its scenes.
+const logisticMap = {
+    id: 'logistic-map',
+    path: `${BASE}/analysis/logistic-map`,
+    titles: {sl: /^Logistična preslikava za r ?> ?3$/, en: /^The logistic map beyond r ?= ?3$/}, // the title holds inline math, whose rendered text may or may not carry spaces around the relation sign
+    steps: 7,
+    minFrames: 15, // 7 x 2 + 1 calculation frame
+};
+
 // Chapter-owned triangle geometry lessons T1, T2, T3 and T4(src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
 const triangleCentres = {
     id: 'triangle-centres',
@@ -2578,7 +2588,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton, linearProgram];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton, linearProgram, logisticMap];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

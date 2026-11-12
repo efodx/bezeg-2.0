@@ -189,7 +189,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d; point-in-polygon with convexity lesson 21; hull-robustness with convexity lesson 22; bezier-hulls with convexity lesson 28.
     // curve-evolute ended its opt-out with lesson L4 (CG-B2-4); epicycles with lesson F5 (Fourier 06 F3); curve-offset ended its opt-out with lesson L5 (CG-B3-3); curve-envelope with lesson L6 (CG-B3-4).
     // The trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, complex-power and complex-euler rows ship without a lesson until families-prep F3 ends their opt-out.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'recursion-cobweb', 'phase-portrait', 'logistic-map', 'solids', 'contour-map']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'recursion-cobweb', 'phase-portrait', 'solids', 'contour-map']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

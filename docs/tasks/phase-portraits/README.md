@@ -11,7 +11,10 @@ F1 is ungated. F2a waits for Controls step 5 and the trajectory measurement, and
 | [01 RK4, systems and classification](01-rk4-classification.md) | 0 | F1 | none | — | done |
 | [02 Logistic map and bifurcation raster](02-logistic-bifurcation.md) | 0 | F1 | none | — | done |
 | [03 Measurement, state model and graphs](03-graphs.md) | A–C | F2a | Controls step 5 | 01, 02 | done pending review (measurement, state model, PhasePortraitGraph and LogisticMapGraph with tests; no route, browser numbers owed at F2b) |
-| [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 03 | planned |
+| [04 Release batches A–C](04-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 03 | F2b done 2026-11-11; split into 05–07 |
+| [05 Batch A: PP1–PP2 lessons](05-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted); linear-maps Batch B released | 04 | blocked on linear-maps Batch B |
+| [06 Batch B: PP3 lesson](06-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 05 | not started |
+| [07 Batch C: PP4–PP5 lessons](07-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 04 | F3 in progress (runs before A) |
 
 ## Slovenian terms (F0 decision)
 

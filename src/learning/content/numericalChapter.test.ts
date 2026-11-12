@@ -23,7 +23,7 @@ describe('chapter structure and registration', () => {
         expect(numericalChapter.sections.map(section => section.id)).toEqual(['numerical-idea', ID, 'quadrature', 'euler-method']);
         expect(Object.keys(numericalGuidedExampleLessons.all())).toEqual([ID, 'quadrature', 'euler-method']);
         expect(familyChapters.findIndex(chapter => chapter.id === NUMERICAL_CHAPTER_ID))
-            .toBe(familyChapters.findIndex(chapter => chapter.id === 'analysis') + 2); // the recursion chapter sits between analysis and numerical methods
+            .toBe(familyChapters.findIndex(chapter => chapter.id === 'analysis') + 3); // the recursion and phase-portraits chapters sit between analysis and numerical methods
         expect(learningChapters.some(chapter => chapter.id === NUMERICAL_CHAPTER_ID)).toBe(true);
         expect(numericalChapter.sections[1].demonstrationIds).toEqual([ID]);
     });

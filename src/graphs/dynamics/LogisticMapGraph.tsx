@@ -5,6 +5,8 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {logisticMapPresetCollection} from "./dynamicsPresetCollection";
 import type {SceneStateUpdate} from "../base/SceneStore";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -601,6 +603,60 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         if (!checked.ok) return false;
         if (checked.value !== this.state.X) this.edit({X: checked.value});
         return true;
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`phase`): `set-r` sets `R`, `set-seed` the start `X` and `set-step` the number of drawn steps, all stored integers. The merged state goes through
+     * `parseLogisticState` (strict, nothing snapped or clamped) before the write, so a bad value is a lesson-content error and nothing is written; unknown fields are refused.
+     * A valid action pauses a running playback. A scene reads the state its earlier actions wrote.
+     */
+    applyPhaseAction(action: Extract<LessonAction, {kind: "phase"}>): void {
+        const {kind: _kind, operation: _operation, ...fields} = action;
+        const state = serializeLogisticState(this.state);
+        switch (action.operation) {
+            case "set-r":
+                this.refuseUnknown("set-r", fields, ["R"]);
+                this.commitLogistic("set-r", {...state, R: action.R});
+                return;
+            case "set-seed":
+                this.refuseUnknown("set-seed", fields, ["X"]);
+                this.commitLogistic("set-seed", {...state, X: action.X});
+                return;
+            case "set-step":
+                this.refuseUnknown("set-step", fields, ["step"]);
+                this.commitLogistic("set-step", {...state, step: action.step});
+                return;
+            default: {
+                const unsupported: never = action;
+                throw new Error(`phase: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    private refuseUnknown(operation: string, fields: Readonly<Record<string, unknown>>, allowed: readonly string[]): void {
+        const unknown = Object.keys(fields).filter(key => !allowed.includes(key));
+        if (unknown.length) throw new Error(`phase ${operation}: no such field ${unknown.join(", ")}.`);
+    }
+
+    /** Validates the merged state first, then pauses the playback and writes only the fields that change. */
+    private commitLogistic(operation: string, merged: unknown): void {
+        const parsed = parseLogisticState(merged);
+        if (!parsed.ok) throw new Error(`phase ${operation}: ${parsed.error.field} ${parsed.error.reason}.`);
+        const next = serializeLogisticState(parsed.value);
+        const patch: Partial<LogisticState> = {
+            ...(next.R === this.state.R ? {} : {R: next.R}),
+            ...(next.X === this.state.X ? {} : {X: next.X}),
+            ...(next.step === this.state.step ? {} : {step: next.step}),
+        };
+        this.pausePlayback();
+        if (Object.keys(patch).length) this.edit(patch);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("phase", action => this.applyPhaseAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
