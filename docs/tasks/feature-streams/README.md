@@ -29,6 +29,7 @@ The owner waived the session-usage limit behind the workflow's three-worker cap 
 | Collision | [collision.md](collision.md) | Collision playground: sweep chapter (batches A, B) → convexity chapter polygons (batch C) | 4320 | — |
 | Families prep | [families-prep.md](families-prep.md) | Specs, plans and kernels for the [top-15 candidates](../../research/lesson-family-candidates-2026-11-09.md); graphs only where Controls allows | 4321 | — |
 | Controls visual | [controls-visual.md](controls-visual.md) | Graph control visual polish → carried controls items → test consolidation (owner request 2026-11-11) (complete 2026-11-12) | 4322 | — |
+| Lesson-authoring rollout | [authoring-rollout.md](authoring-rollout.md) | Lesson-authoring tasks 06–08: legacy registration → owned scenes → scene projection (owner request 2026-11-12) | 4323 | — |
 
 Chains follow the [family dependencies](../../specs/new-lesson-families.md#dependencies-and-order): each family's prerequisites sit earlier in its own stream or behind a gate.
 
