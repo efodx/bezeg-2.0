@@ -186,7 +186,8 @@ test('the drift guard fails when the parser returns fewer classes or a wrong dir
     assert.notDeepEqual(checkGraphClassFiles(found.slice(1), root, sources).missing, []);
     assert.notDeepEqual(checkGraphClassFiles(found.map(entry => ({...entry, dir: 'src/graphs/nowhere'})), root, sources).noFile, []);
     // A stem the directory does not hold (a parser that kept the class name instead of the file name) is drift too.
-    const aliased = found.map(entry => entry.name === 'GraphExtrapolation' ? {...entry, stem: entry.name} : entry);
+    // Keyed by file: RationalExtrapolationGraph.tsx declares a class of the same name.
+    const aliased = found.map(entry => entry.stem === 'ExtrapolationGraph' ? {...entry, stem: entry.name} : entry);
     assert.deepEqual(checkGraphClassFiles(aliased, root, sources).noFile, ['GraphExtrapolation']);
 });
 
@@ -194,9 +195,9 @@ test('a change to the file of a graph class named apart from its file is a class
     const {graphClassFiles, familyClassNames} = require('./transient-state-scope.cjs');
     const found = graphClassFiles();
     // The bezier runtime loads `new m.default()` from ExtrapolationGraph.tsx, whose class is `GraphExtrapolation`.
-    const entry = found.find(({name}) => name === 'GraphExtrapolation');
+    const entry = found.find(({stem}) => stem === 'ExtrapolationGraph');
     assert.ok(entry);
-    assert.equal(entry.stem, 'ExtrapolationGraph');
+    assert.equal(entry.name, 'GraphExtrapolation');
     assert.deepEqual(familyClassNames(['src/graphs/curves/bezier/ExtrapolationGraph.tsx'], found), []);
     // A helper beside it still reaches the directory's classes, by their declared names.
     const reached = familyClassNames(['src/graphs/curves/bezier/helper.ts'], found);
