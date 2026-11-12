@@ -2903,3 +2903,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** the handler made the `importing` record restore its outer value (review note).
 - **Positive:** the reviewer checked every batch 2–4 field fallback against `getInitialState()`. That is the one way a shared-base change could have silently changed earlier batches.
 - **Negative:** the implementer stopped with a background sweep running, so the handler had to wait on a marker file. Briefs should ask workers to run the sweep in the foreground or report its marker.
+
+### 2026-11-12 — authoring-rollout handler 6: task 08 batch 6a (S)
+
+- **Scope:** `triangle-centres`, `euler-line` and `inscribed-angle`: declared `exampleId` (and `t`) fields, with no base change. Estimated S; held.
+- **Workers:** 1 implementation worker (Sonnet `medium`, about 100k, no HANDOFF) and 1 smoke (Haiku `medium`), 15/15. The handler reviewed the diff in the main chat (52 lines); no reviewer.
+- **Outcome:** `0eda4b52`. 16 host tests; 6 failed on the pre-change code and 4 mutations were caught. Three contract rows removed. The handler fixed one copied doc comment.
+- **Positive:** the worker found that `exampleId` is reconciled at read time (`active*ExampleId`), so no `settle` was needed. This kept the batch small.
+- **Negative:** the sweep took 1061s; with the tool timeout, the worker had to run it in the background and wait.
