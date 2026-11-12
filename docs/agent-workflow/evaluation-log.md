@@ -2894,3 +2894,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** none to code.
 - **Positive:** a brief listing eight settled decisions gave a design the reviewer accepted at once. Running the review in parallel with the checks worker cost no wall time.
 - **Handoff evidence:** the first worker used about 142k (HANDOFF), the second about 26k, the review about 36k and the smoke about 19k.
+
+### 2026-11-12 — authoring-rollout handler 6: task 08 batch 5 (M)
+
+- **Scope:** `voronoi`, `voronoi-degenerate` and `point-in-polygon` on `pointSetPersistence`. Fields widened to `null` and points, the per-field `resetOnBareImport` flag, and a shared-base change: a Preset's own stored `graphState` now feeds the declared fields, scoped to the import. Estimated M; held.
+- **Workers:** 1 implementation worker (Sonnet `medium`) reached HANDOFF at about 142k with code, 18 tests, 7 mutations, lint and typecheck done, and its sweep still running. A docs worker (Sonnet `medium`, about 22k) wrote the evidence. There was 1 review (Sonnet `medium`, about 44k), which found nothing blocking, and 1 smoke (Haiku `medium`), 15/15.
+- **Outcome:** `bff3c138`. 6 of the 18 new tests failed on the pre-change code; 7 mutations were caught. Three contract rows removed. A handler-run 17-id sweep, added because the shared base changed, passed in 603s.
+- **Repairs:** the handler made the `importing` record restore its outer value (review note).
+- **Positive:** the reviewer checked every batch 2–4 field fallback against `getInitialState()`. That is the one way a shared-base change could have silently changed earlier batches.
+- **Negative:** the implementer stopped with a background sweep running, so the handler had to wait on a marker file. Briefs should ask workers to run the sweep in the foreground or report its marker.
