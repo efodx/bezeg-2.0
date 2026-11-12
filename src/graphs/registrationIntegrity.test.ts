@@ -40,6 +40,12 @@ import {mechanicsGraphLoaders} from './mechanics/runtime';
 import {dynamicsCollections} from './dynamics/collections';
 import {dynamicsCollectionKeys, dynamicsDemonstrationRows} from './dynamics/registration';
 import {dynamicsGraphLoaders} from './dynamics/runtime';
+import {solidsCollections} from './solids/collections';
+import {solidsCollectionKeys, solidsDemonstrationRows} from './solids/registration';
+import {solidsGraphLoaders} from './solids/runtime';
+import {levelSetsCollections} from './levelsets/collections';
+import {levelSetsCollectionKeys, levelSetsDemonstrationRows} from './levelsets/registration';
+import {levelSetsGraphLoaders} from './levelsets/runtime';
 import {checkRegistrations, FamilyRegistrationInput, LegacyRegistrationInput} from './registrationIntegrity';
 
 const colA = Object.freeze({key: 'x-a'});
@@ -111,6 +117,8 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'mechanics', rows: mechanicsDemonstrationRows, loaders: mechanicsGraphLoaders, collectionKeys: mechanicsCollectionKeys, collections: mechanicsCollections},
     {family: 'recursion', rows: recursionDemonstrationRows, loaders: recursionGraphLoaders, collectionKeys: recursionCollectionKeys, collections: recursionCollections},
     {family: 'dynamics', rows: dynamicsDemonstrationRows, loaders: dynamicsGraphLoaders, collectionKeys: dynamicsCollectionKeys, collections: dynamicsCollections},
+    {family: 'solids', rows: solidsDemonstrationRows, loaders: solidsGraphLoaders, collectionKeys: solidsCollectionKeys, collections: solidsCollections},
+    {family: 'levelsets', rows: levelSetsDemonstrationRows, loaders: levelSetsGraphLoaders, collectionKeys: levelSetsCollectionKeys, collections: levelSetsCollections},
     {family: 'waves', rows: wavesDemonstrationRows, loaders: wavesGraphLoaders, collectionKeys: wavesCollectionKeys, collections: wavesCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);

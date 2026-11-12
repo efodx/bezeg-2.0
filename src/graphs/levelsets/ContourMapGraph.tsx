@@ -31,6 +31,7 @@ import {
     type DescentInfo, type GradientInfo, type LagrangeInfo, type LevelDrawing, type Poly, type SurfaceMeshData,
 } from "./contourScene";
 import {ContourPlayback, ContourReadout, ContourSurfacePanel} from "./ContourPanels";
+import {legendRowOffset} from "./legendLines";
 import {Memo} from "./Memo";
 import {contourPresetCollection, type ContourPresetData} from "./contourPresetCollection";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -112,6 +113,7 @@ const BEHAVIOUR_KEYS = {
     converges: "levelsets_graph_behaviour_converges", oscillates: "levelsets_graph_behaviour_oscillates", diverges: "levelsets_graph_behaviour_diverges",
 } as const;
 
+const viewKey = (box: readonly number[]): string => box.map(value => value.toFixed(6)).join(",");
 const viewBox = (state: ContourState): [number, number, number, number] => {
     const w = contourWindow(state.fn, state.mode);
     const margin = 0.04 * (w.xMax - w.xMin);
@@ -204,7 +206,11 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         const entry = data[0];
         if (entry?.[0] !== "Contour") return;
         const parsed = parseContourState(entry[1]);
-        if (parsed.ok) this.setState(serializeContourState(parsed.value));
+        if (!parsed.ok) return;
+        const imported = serializeContourState(parsed.value);
+        // The host commits the state later and its sync would reframe: mark the imported data's view as drawn so the stored view stays.
+        if (this.keepImportedView) this.drawnView = viewKey(viewBox(imported));
+        this.setState(imported);
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -375,6 +381,9 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     initialize(): void {
         this.buildScene();
+        // A new board (also the second mount of StrictMode) starts unframed, whatever an earlier board drew.
+        this.drawnView = "";
+        this.applyView();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -399,6 +408,11 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the view as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.scene.objectCount() === 0) this.buildScene();
+            this.drawnView = viewKey(viewBox(this.state));
+        }
         this.halt();
         this.syncBoard();
     }
@@ -421,9 +435,22 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         this.notifyHost();
     }
 
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the view of the imported data is only marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    /** Frames the board once per view key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyView(): void {
         const box = viewBox(this.state);
-        const key = box.map(value => value.toFixed(6)).join(",");
+        const key = viewKey(box);
         if (key === this.drawnView) return;
         this.drawnView = key;
         this.board.setBoundingBox([...box], true);
@@ -594,13 +621,11 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         for (let index = 0; index < MAX_ROWS; index++) {
             this.scene.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + index * 20) / uy; },
+                () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.legend().map(row => row.text), index, board.canvasWidth) / uy; },
                 () => this.legend()[index]?.text ?? "",
             ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
                 withLabel: false, visible: () => index < this.legend().length}));
         }
-        this.drawnView = "";
-        this.applyView();
     }
 
     private disposeScene(): void {
@@ -608,7 +633,6 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         this.probeHandle = undefined;
         this.startHandle = undefined;
         this.pointHandle = undefined;
-        this.drawnView = "";
     }
 
     // ---- Dragging: snapping for the handles; typed values are refused instead -------------------------------------------------

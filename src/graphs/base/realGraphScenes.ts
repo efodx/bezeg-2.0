@@ -110,6 +110,24 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
         case 'prob-summary': g.importPresetData({...exported as object, values: SUMMARY_EXAMPLES[pick('even', 'outlier')]}); return;
         // Correlation: the points are a list (no numeric field to nudge), so switch to another example's points.
         case 'prob-correlation': g.importPresetData({...exported as object, points: CORRELATION_EXAMPLES[pick('parabola', 'ring')]}); return;
+        // Level sets and linear programs: the data is a tagged entry holding the state, so change the function, the rows and the objective.
+        case 'contour-map': {
+            const [tag, state] = (exported as [string, object][])[0];
+            g.importPresetData([[tag, {...state, fn: (variant === 'a' ? 'saddle' : 'valley'), levelCount: (variant === 'a' ? 3 : 5)}]]);
+            return;
+        }
+        case 'linear-program': {
+            const [tag, state] = (exported as [string, object][])[0];
+            g.importPresetData([[tag, {...state, objective: (variant === 'a' ? {p: 2, q: 1} : {p: 1, q: 3}),
+                constraints: (variant === 'a' ? [{a: 1, b: 1, c: 10}, {a: 2, b: 1, c: 14}, {a: 1, b: 3, c: 15}] : [{a: 1, b: 2, c: 12}, {a: 3, b: 1, c: 15}])}]]);
+            return;
+        }
+        // Solids: another plane through the cube, then another number of discs.
+        case 'solids': {
+            const [tag, state] = (exported as [string, object][])[0];
+            g.importPresetData([[tag, {...state, normal: (variant === 'a' ? [1, 1, 1] : [1, 0, 1]), offset: (variant === 'a' ? 3 : 6), discs: (variant === 'a' ? 7 : 13)}]]);
+            return;
+        }
         case 'bspline-curve': {
             // B-spline graphs: move the first interior knot within its neighbours and lift the first control point.
             const {degree, knots, points} = exported as {degree: number, knots: number[], points: [number, number][]};

@@ -12,13 +12,15 @@ import {recursionGraphLoaders} from './recursion/runtime';
 import {wavesGraphLoaders} from './functions/waves/runtime';
 import {mechanicsGraphLoaders} from './mechanics/runtime';
 import {dynamicsGraphLoaders} from './dynamics/runtime';
+import {solidsGraphLoaders} from './solids/runtime';
+import {levelSetsGraphLoaders} from './levelsets/runtime';
 
 /**
  * Runtime root composition of the feature-registered families (explicit imports, no discovery). A new registered family
  * adds one spread here, one in `src/demonstrations.ts` and one in `PresetImport.ts`. Demonstrations not listed here still
  * use the legacy table `graphFactories.ts`.
  */
-export const registeredGraphLoaders = {...projectiveGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders, ...recursionGraphLoaders, ...wavesGraphLoaders, ...mechanicsGraphLoaders, ...dynamicsGraphLoaders};
+export const registeredGraphLoaders = {...projectiveGraphLoaders, ...trigGraphLoaders, ...lineGraphLoaders, ...isometryGraphLoaders, ...circleConstructionGraphLoaders, ...combinatoricsGraphLoaders, ...randomGraphLoaders, ...kinematicsGraphLoaders, ...recursionGraphLoaders, ...wavesGraphLoaders, ...mechanicsGraphLoaders, ...dynamicsGraphLoaders, ...solidsGraphLoaders, ...levelSetsGraphLoaders};
 export type RegisteredDemonstrationId = keyof typeof registeredGraphLoaders;
 
 export const isRegisteredDemonstrationId = (id: string): id is RegisteredDemonstrationId => Object.prototype.hasOwnProperty.call(registeredGraphLoaders, id);

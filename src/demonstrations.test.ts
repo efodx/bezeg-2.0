@@ -198,6 +198,6 @@ test('a surface definition has no pan or zoom actions and every catalog entry ke
     expect(surface.view).toBe('surface');
     expect(surface.navigationActions).toEqual([]);
     expect(resolveDemonstrationDefinition({...fixture, view: undefined}).navigationActions).toContain('in');
-    expect(getDemonstrationCatalog().demonstrations.filter(entry => entry.view === 'surface').map(entry => entry.id)).toEqual(['patch-tensor', 'patch-decasteljau', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-coons']);
+    expect(getDemonstrationCatalog().demonstrations.filter(entry => entry.view === 'surface').map(entry => entry.id)).toEqual(['patch-tensor', 'patch-decasteljau', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-coons', 'solids']);
     expect(getDemonstrationCatalog().demonstrations.filter(entry => entry.view === 'board').every(entry => entry.navigationActions.length >= 6)).toBe(true);
 });

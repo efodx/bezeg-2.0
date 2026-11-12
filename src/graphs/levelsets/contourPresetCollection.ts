@@ -4,7 +4,7 @@ import {isRecord, type PresetCollection} from '../base/presets/PresetCollection'
 import {parseContourState, serializeContourState, type ContourError, type ContourState} from '../../levelsets/contourModel';
 
 /** Preset key of the contour graph. A file contract. */
-export const CONTOUR_PRESET_KEY = 'contour';
+export const CONTOUR_PRESET_KEY = 'contour-map';
 
 /** One entry holding the whole stored state (mode, function, level, probe, start, step, constraint and camera). */
 export type ContourPresetData = ReadonlyArray<readonly ['Contour', ContourState]>;

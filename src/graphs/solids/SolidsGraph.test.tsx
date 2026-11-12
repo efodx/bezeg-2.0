@@ -331,6 +331,19 @@ describe('Preset', () => {
         expect(other.exportPresetData()).toEqual(graph.exportPresetData());
     });
 
+    it('keeps the stored camera when a Preset file with non-default data is imported', () => {
+        const {graph} = mount();
+        act(() => graph.setState({mode: 'volume', solid: 'sphere'}));
+        act(() => graph.setCameraAngle('az', 63));
+        const preset = JSON.parse(JSON.stringify(graph.exportPreset()));
+        const storedCamera = JSON.parse(JSON.stringify(graph.state.camera));
+        const other = mount().graph;
+        expect(other.state.camera).not.toEqual(storedCamera);
+        act(() => other.importPreset(preset));
+        expect(other.state).toMatchObject({mode: 'volume', solid: 'sphere'});
+        expect(other.state.camera).toEqual(storedCamera);
+    });
+
     it('exports the default preset unchanged on a fresh graph', () => {
         const {graph} = mount();
         expect(graph.exportPresetData()[0][1]).toEqual({...graph.defaultPreset()[0][1], camera: graph.state.camera}); // the camera is fitted to the host

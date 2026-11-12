@@ -22,5 +22,8 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'mechanics-descent', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-mechanics-phase.md).'},
     {id: 'phase-portrait', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-mechanics-phase.md).'},
     {id: 'logistic-map', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-mechanics-phase.md).'},
+    {id: 'solids', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
+    {id: 'contour-map', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
+    {id: 'linear-program', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'waves', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-recursion-waves.md).'},
 ];

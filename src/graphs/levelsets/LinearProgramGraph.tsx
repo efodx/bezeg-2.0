@@ -21,6 +21,7 @@ import {
 import {emptyPoly, type Poly} from "./contourScene";
 import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
+import {legendRowOffset} from "./legendLines";
 import {Memo} from "./Memo";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
@@ -56,6 +57,7 @@ const STATUS_KEYS: Record<LpStatus, "levelsets_graph_lp_status_infeasible" | "le
     unique: "levelsets_graph_lp_status_unique", segment: "levelsets_graph_lp_status_segment", ray: "levelsets_graph_lp_status_ray",
 };
 
+const viewKey = (box: readonly number[]): string => box.map(value => value.toFixed(6)).join(",");
 const boardBox = (box: Box): [number, number, number, number] => {
     const margin = 0.04 * (box.xMax - box.xMin);
     return [box.xMin - margin, box.yMax + margin, box.xMax + margin, box.yMin - margin];
@@ -130,7 +132,11 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         const entry = data[0];
         if (entry?.[0] !== "LinearProgram") return;
         const parsed = parseLpState(entry[1]);
-        if (parsed.ok) this.setState(serializeLpState(parsed.value));
+        if (!parsed.ok) return;
+        const imported = serializeLpState(parsed.value);
+        // The host commits the state later and its sync would reframe: mark the imported data's view as drawn so the stored view stays.
+        if (this.keepImportedView) this.drawnView = viewKey(boardBox(viewBox(solveState(imported))));
+        this.setState(imported);
     }
 
     protected override initialView(): [number, number, number, number] {
@@ -212,6 +218,9 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     initialize(): void {
         this.buildScene();
+        // A new board (also the second mount of StrictMode) starts unframed, whatever an earlier board drew.
+        this.drawnView = "";
+        this.applyView();
         const session = this.graphSession;
         if (session) {
             session.registerCleanup(() => this.disposeScene());
@@ -230,6 +239,11 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
+        // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the view as drawn so it is kept.
+        if (this.hasBoard && this.graphSession?.isAlive) {
+            if (this.scene.objectCount() === 0) this.buildScene();
+            this.drawnView = viewKey(boardBox(this.geometry().box));
+        }
         this.syncBoard();
     }
 
@@ -250,9 +264,22 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         this.notifyHost();
     }
 
+    /** True while a Preset file with a `boardState` is applied: its stored view is kept, so the view of the imported data is only marked as drawn. */
+    private keepImportedView = false;
+
+    override importPreset(preset: Preset): void {
+        this.keepImportedView = preset.boardState !== undefined;
+        try {
+            super.importPreset(preset);
+        } finally {
+            this.keepImportedView = false;
+        }
+    }
+
+    /** Frames the board once per view key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyView(): void {
         const box = boardBox(this.geometry().box);
-        const key = box.map(value => value.toFixed(6)).join(",");
+        const key = viewKey(box);
         if (key === this.drawnView) return;
         this.drawnView = key;
         this.board.setBoundingBox([...box], true);
@@ -361,19 +388,16 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         for (let index = 0; index < MAX_ROWS; index++) {
             this.scene.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + index * 20) / uy; },
+                () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.legend().map(row => row.text), index, board.canvasWidth) / uy; },
                 () => this.legend()[index]?.text ?? "",
             ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
                 withLabel: false, visible: () => index < this.legend().length}));
         }
-        this.drawnView = "";
-        this.applyView();
     }
 
     private disposeScene(): void {
         this.scene.dispose(this.hasBoard ? this.board : undefined);
         this.objectiveHandle = undefined;
-        this.drawnView = "";
     }
 
     // ---- Dragging: the handle snaps; typed values are refused instead ---------------------------------------------------------
