@@ -2876,3 +2876,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** none to code. Environment: this worktree's `node_modules/.bin` disappeared while the packages stayed. One wide-run suite (ENOENT) and a publish `check-changed` (`vitest` not recognized) failed. The handler relinked with `npm rebuild --ignore-scripts`. Separately, the handler's own evaluation entry left a blank line at EOF and failed the publish whitespace stage.
 - **Positive:** the worker relaxed "integers only" to what the collections already accept and stated it as a departure.
 - **Handoff evidence:** the worker used about 129k tokens over 41 minutes, much of it waiting for test slots; the smoke used about 21k.
+
+### 2026-11-12 — authoring-rollout handler 5: task 08 batch 3b (M)
+
+- **Scope:** convex hull, hull robustness, Bezier hulls and Bezier clipping on a general field extension of `pointSetPersistence`. Estimated M; held.
+- **Workers:** 2 implementation workers (Sonnet `medium`): the first reached HANDOFF at about 141k with design, code, tests and mutations done, and the second finished from its note (contract rows, checks, evidence; one lint fix). There was 1 smoke (Haiku `medium`), 18/18, and 1 review of 3a and 3b together (Sonnet `medium`), which found nothing blocking.
+- **Outcome:** `deca58bd`. 37 host tests; 12 failed on the pre-change code and 5 named mutations were caught. Four contract rows removed. Handler check: the removed unnamed-Preset pre-resets are redundant given `BaseGraph.importPreset` (`:1085`).
+- **Repairs:** none to code. Deferred: tighten the `PointSetPermittedState` index signature.
+- **Positive:** a handoff note of 435 words was enough for a fresh worker to finish without rereading the design.
+- **Handoff evidence:** the first worker used about 141k (HANDOFF) and the second about 47k, mostly waiting for test slots. The smoke used about 22k and the review about 43k.

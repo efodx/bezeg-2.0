@@ -54,3 +54,9 @@ Graphs: `convex-hull` (`HullTraceGraph`), `hull-robustness` (`HullRobustnessGrap
 
 - No browser smoke; no production build.
 - Browser-local presets stored before this change were not checked against a real localStorage.
+
+## Handler review (Sonnet reviewer over 3a and 3b, no blocking findings)
+
+- Hull figure path: `normalise` now applies `setMode(points)` on figure return too. Before, only the `setState` wrapper (`HullTraceGraph.tsx` ~148) did it, so a polygon file reached the figure scene in polygon mode until the next write. This is a small correction with no route or stored-format impact.
+- Hull robustness import clamps the step under the scene's current pop and duplicate rules. Before, it used the defaults, so the new clamp is more correct.
+- `PointSetPermittedState` has an index signature (`pointSetPersistence.ts` ~18-23). It is only read through named field parsers at run time. Tightening it to a separate typed extras record is deferred to batch 4 (state note).
