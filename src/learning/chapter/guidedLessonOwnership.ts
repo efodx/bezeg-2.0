@@ -15,6 +15,8 @@ import {interpolationDemonstrationRows} from '../../graphs/curves/interpolation/
 import type {PatchesDemonstrationId} from '../../graphs/patches/registration';
 import {patchesDemonstrationRows} from '../../graphs/patches/registration';
 import type {FunctionsDemonstrationId} from '../../graphs/functions/registration';
+import type {AnalysisDemonstrationId} from '../../graphs/analysis/registration';
+import {analysisDemonstrationRows, analysisPrimaryOwners} from '../../graphs/analysis/registration';
 import {functionsDemonstrationRows, functionsPrimaryOwners} from '../../graphs/functions/registration';
 import {splinePrimaryOwners} from '../../graphs/curves/spline/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
@@ -26,21 +28,15 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
-type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners | keyof typeof functionsPrimaryOwners;
-const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners, ...splinePrimaryOwners, ...functionsPrimaryOwners};
+type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners | keyof typeof functionsPrimaryOwners | keyof typeof analysisPrimaryOwners;
+const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners, ...splinePrimaryOwners, ...functionsPrimaryOwners, ...analysisPrimaryOwners};
 
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
     // School function graphs batch A: the Function graphs for the matura chapter owns S1 (graph transformations) and S2 (inverse functions), one section each.
-    // Fourier series F1 and F3: its own section of the Fourier series chapter.
-    'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
-    // Fourier coefficients F2 and F4: its own section of the Fourier series chapter.
-    'fourier-coefficients': {chapterId: 'fourier-series', sectionId: 'fourier-coefficients'},
-    // Epicycles F5: its own section of the Fourier series chapter.
-    epicycles: {chapterId: 'fourier-series', sectionId: 'epicycles'},
     // The probability chapter owns the lessons of spec P1 to P5; it links back to the definite integral.
     'prob-density': {chapterId: 'probability', sectionId: 'density'},
     'prob-binomial-normal': {chapterId: 'probability', sectionId: 'binomial-normal'},
@@ -51,20 +47,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'prob-simulation': {chapterId: 'randomness', sectionId: 'galton-board'},
     // Level sets batch A: the linear-programming lesson (LS5) in the level-sets chapter.
     'linear-program': {chapterId: 'level-sets', sectionId: 'linear-programming'},
-    bisection: {chapterId: 'analysis', sectionId: 'existence'},
-    'mean-value': {chapterId: 'analysis', sectionId: 'derivative-results'},
-    accumulation: {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
-    darboux: {chapterId: 'analysis', sectionId: 'integrability'},
-    extrema: {chapterId: 'analysis', sectionId: 'derivative-results'},
-    convexity: {chapterId: 'analysis', sectionId: 'derivative-results'},
-    taylor: {chapterId: 'analysis', sectionId: 'taylor'},
-    sequence: {chapterId: 'analysis', sectionId: 'convergence'},
-    'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
-    'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
-    // The Numerical methods chapter owns the root-finding lesson (N1 Newton, N2 when Newton fails, N3 secant), the quadrature lesson (N4) and the Euler lesson (N5) in one section each.
-    'root-finding': {chapterId: 'numerical-methods', sectionId: 'root-finding'},
-    'quadrature': {chapterId: 'numerical-methods', sectionId: 'quadrature'},
-    'euler-method': {chapterId: 'numerical-methods', sectionId: 'euler-method'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // The unit circle's first activity (TR1) in the trigonometry chapter; the addition-formula activity (TR2) is the second owner, derived from the chapter.
@@ -129,7 +111,7 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

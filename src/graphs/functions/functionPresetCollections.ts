@@ -400,8 +400,11 @@ export const functionsFamilyPresetCollections = {
     "arc-length": functionCollection("arc-length", parseArcLengthModel),
 } as const;
 
-/** The Preset collections of the Analysis and probability Demonstrations (`BaseFunctionGraph`) that no family has taken over yet, by Demonstration id. */
-export const unregisteredFunctionPresetCollections = {
+/**
+ * The Preset collections of the analysis family (task 06 batch 12), by property name (`euler` is the key of `euler-method`). `analysis/collections.ts`
+ * orders them for `PresetImport.ts`; the graphs read them here.
+ */
+export const analysisFamilyPresetCollections = {
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     quadrature: functionCollection("quadrature", parseQuadratureModel, diagnoseQuadrature),
@@ -417,13 +420,17 @@ export const unregisteredFunctionPresetCollections = {
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "fourier-coefficients": fourierCoefficientsCollection(),
     epicycles: epicyclePresetCollection,
+    "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
+} as const;
+
+/** The Preset collections of the probability Demonstrations (`BaseFunctionGraph`) that no family has taken over yet, by Demonstration id. */
+export const unregisteredFunctionPresetCollections = {
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
     "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),
     "prob-summary": Object.freeze({...functionCollection("prob-summary", parseSummaryModel, diagnoseSummary), checkGraphState: checkSummaryGraphState}),
     "prob-correlation": Object.freeze({...functionCollection("prob-correlation", parseCorrelationModel, diagnoseCorrelation), checkGraphState: checkCorrelationGraphState}),
-    "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
 } as const;
 
-/** Every function-style Preset collection by Demonstration id; the family entries come from `functionsFamilyPresetCollections`. */
-export const functionPresetCollections = {...functionsFamilyPresetCollections, ...unregisteredFunctionPresetCollections} as const;
+/** Every function-style Preset collection by Demonstration id; the family entries come from `functionsFamilyPresetCollections` and `analysisFamilyPresetCollections`. */
+export const functionPresetCollections = {...functionsFamilyPresetCollections, ...analysisFamilyPresetCollections, ...unregisteredFunctionPresetCollections} as const;

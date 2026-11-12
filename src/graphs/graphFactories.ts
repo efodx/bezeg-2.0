@@ -14,21 +14,6 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import { BisectionGraph } from './functions/BisectionGraph';
-import { RootFindingGraph } from './functions/RootFindingGraph';
-import { QuadratureGraph } from './functions/QuadratureGraph';
-import { EulerGraph } from './functions/EulerGraph';
-import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
-import { FourierCoefficientsGraph } from './functions/FourierCoefficientsGraph';
-import { EpicycleGraph } from './functions/EpicycleGraph';
-import { MeanValueGraph } from './functions/MeanValueGraph';
-import { AccumulationGraph } from './functions/AccumulationGraph';
-import { DarbouxGraph } from './functions/DarbouxGraph';
-import { ExtremaGraph } from './functions/ExtremaGraph';
-import { ConvexityGraph } from './functions/ConvexityGraph';
-import { TaylorGraph } from './functions/TaylorGraph';
-import { SequenceGraph } from './functions/SequenceGraph';
-import { UniformConvergenceGraph } from './functions/UniformConvergenceGraph';
 import { ComplexReciprocalGraph } from './complex/ComplexReciprocalGraph';
 import { ComplexRootsGraph } from './complex/ComplexRootsGraph';
 import { NotablePointsGraph } from './compgeo/NotablePointsGraph';
@@ -37,7 +22,6 @@ import { EulerLineGraph } from './compgeo/EulerLineGraph';
 import { SimsonLineGraph } from './compgeo/SimsonLineGraph';
 import { InversionGraph } from './compgeo/InversionGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
-import { FixedPointGraph } from './functions/FixedPointGraph';
 import DensityAreaGraph from './functions/DensityAreaGraph';
 import BinomialNormalGraph from './functions/BinomialNormalGraph';
 import CltGraph from './functions/CltGraph';
@@ -50,22 +34,6 @@ import type {RegisteredDemonstrationId} from './graphLoaders';
 
 /** Executable graph constructors of the legacy families, behind graph-route lazy imports; registered families load via `graphLoaders.ts`. */
 export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstrationId>, () => BaseGraph<BaseGraphState>> = {
-    'bisection': () => new BisectionGraph(),
-    'root-finding': () => new RootFindingGraph(),
-    'quadrature': () => new QuadratureGraph(),
-    'euler-method': () => new EulerGraph(),
-    'mean-value': () => new MeanValueGraph(),
-    'accumulation': () => new AccumulationGraph(),
-    'darboux': () => new DarbouxGraph(),
-    'extrema': () => new ExtremaGraph(),
-    'convexity': () => new ConvexityGraph(),
-    'taylor': () => new TaylorGraph(),
-    'sequence': () => new SequenceGraph(),
-    'uniform-convergence': () => new UniformConvergenceGraph(),
-    'fourier-series': () => new FourierSeriesGraph(),
-    'fourier-coefficients': () => new FourierCoefficientsGraph(),
-    'epicycles': () => new EpicycleGraph(),
-    'fixed-point': () => new FixedPointGraph(),
     'prob-density': () => new DensityAreaGraph(),
     'prob-binomial-normal': () => new BinomialNormalGraph(),
     'prob-clt': () => new CltGraph(),

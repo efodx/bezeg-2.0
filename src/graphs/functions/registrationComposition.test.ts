@@ -51,9 +51,9 @@ describe('R5 deletion test: no central functions rows', () => {
             .toEqual({'trigonometric-functions': 'trigonometric-function', continuity: 'piecewise-continuity'});
     });
 
-    test('the family map holds exactly the fourteen entries; the other twenty-one stay unregistered and the full map is their union', () => {
+    test('the family map holds exactly the fourteen entries; the analysis and probability entries stay unregistered and the full map is their union', () => {
         expect(Object.keys(functionsFamilyPresetCollections)).toEqual(expectedIds);
-        expect(Object.keys(unregisteredFunctionPresetCollections)).toHaveLength(21);
+        expect(Object.keys(unregisteredFunctionPresetCollections)).toHaveLength(5);
         expect(Object.keys(unregisteredFunctionPresetCollections).filter(id => (expectedIds as readonly string[]).includes(id))).toEqual([]);
         expect(Object.keys(functionPresetCollections)).toHaveLength(35);
         expect(functionsCollections).toEqual(expectedIds.map(id => functionsFamilyPresetCollections[id]));

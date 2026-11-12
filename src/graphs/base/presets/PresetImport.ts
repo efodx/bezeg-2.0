@@ -3,6 +3,7 @@ import type {BoardState} from "../BaseGraph";
 import type {StoredGraphState} from "./Presets";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {unregisteredFunctionPresetCollections} from "../../functions/functionPresetCollections";
+import {analysisCollections} from "../../analysis/collections";
 import {functionsCollections} from "../../functions/collections";
 import {notablePointsCollection} from "../../compgeo/notablePointsPresetCollection";
 import {inscribedAngleCollection} from "../../compgeo/inscribedAnglePresetCollection";
@@ -44,7 +45,7 @@ import {levelSetsCollections} from "../../levelsets/collections";
  * documented legacy collections. Collection keys and DTO names are a file contract, independent of the graph renderer.
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
-    ...functionsCollections, ...Object.values(unregisteredFunctionPresetCollections),
+    ...functionsCollections, ...analysisCollections, ...Object.values(unregisteredFunctionPresetCollections),
     ...patchesCollections, linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
     ...projectiveCollections,
