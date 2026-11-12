@@ -528,7 +528,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     /**
      * Whether the persisted scene is declared: a subclass that declares its step, or one whose scene state is exactly
-     * `initialized`, `model`, `overlays`. A subclass with other scene state (triangles, a mode, a query) is not yet declared and
+     * `initialized`, `model`, `overlays`. A subclass with other scene state (a mode, a query) is not yet declared and
      * keeps the legacy mappings below until its own batch (task 08).
      */
     private declaresWholeScene(): boolean {
@@ -554,12 +554,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     override importPresetData(data: PointSetModel): void {
-        this.pending = undefined;
         const extension = this.persistenceExtension();
-        // The extension fields a Preset's `graphState` just set (or a lesson/selection left) stay, bounded by the new data.
+        // The extension fields a Preset's `graphState` just set (or a lesson/selection left) stay, bounded by the new data. A data
+        // part the extension declares (a triangle list) is the data's; an invalid one throws here, before anything changes.
         const rebuilt = this.persistence().reconstruct(data, extension ? this.state : undefined, this.state);
+        this.pending = undefined;
         const patch: Partial<PointSetGraphState> = {model: rebuilt.model};
-        if (extension) for (const {name} of extension.fields) Object.assign(patch, {[name]: Reflect.get(rebuilt, name)});
+        if (extension) for (const name of [...extension.fields.map(field => field.name), ...(extension.data?.keys ?? [])]) Object.assign(patch, {[name]: Reflect.get(rebuilt, name)});
         this.setState(patch);
     }
 

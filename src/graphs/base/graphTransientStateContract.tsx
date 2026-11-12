@@ -89,8 +89,6 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'complex-power': ['A', 'B', 'n'],
     'complex-euler': ['degrees', 'omega', 'degree', 'velocity', 'acceleration', 'mode', 'b'],
     'point-in-polygon': ['model'],
-    'point-set-triangulation': ['model', 'triangles', 'previous'],
-    'delaunay': ['model', 'triangles', 'previous'],
     voronoi: ['model'],
     'voronoi-degenerate': ['model'],
     'triangle-centres': ['model'],

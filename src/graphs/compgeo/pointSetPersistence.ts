@@ -19,8 +19,11 @@ export interface PointSetSceneState {
 export interface PointSetPermittedState {
     initialized: boolean;
     overlays: Record<string, boolean>;
-    /** The named fields of a declared extension (a step, an algorithm, a mode, ...): whole numbers or ids, each checked by its field. */
-    [field: string]: unknown;
+    /**
+     * The named fields of a declared extension (a step, an algorithm, a mode, ...): numbers or ids, each checked by its field. The
+     * value type also admits `initialized` and `overlays`, which an index signature must cover; no field is `unknown`.
+     */
+    [field: string]: boolean | Record<string, boolean> | PointSetFieldValue;
 }
 
 /** The value of one extension field: a number (a step, a cell, an exponent) or an id (an algorithm, a mode). */
@@ -37,6 +40,29 @@ export interface PointSetExtraField {
     readonly fallback: PointSetFieldValue;
 }
 
+/** The scene fields a data part reads or writes, by name. */
+export type PointSetDataFields = Readonly<Record<string, unknown>>;
+
+/**
+ * Scene state that the persisted `data` carries beside the model (the triangulation's triangle list). It is read by name in both
+ * directions, never as a spread of the file's object or of the state, and it never appears in `graphState`.
+ */
+export interface PointSetDataPart {
+    /** The scene fields the data part owns. A reconstruct sets each from the data (or leaves it absent) and drops the defaults' value. */
+    readonly keys: readonly string[];
+    /** The extra keys of `data` beside the model; they never stay in the scene's `model`. */
+    readonly dataKeys: readonly string[];
+    /**
+     * The scene fields `data` names for `model` (already normalised); a field the data omits is derived the same whatever scene
+     * preceded. Throws when the data's part is invalid, before any scene mutation.
+     */
+    fromData(model: PointSetModel, data: unknown): PointSetDataFields;
+    /** The persisted scene fields of a live scene `state` (leniently read by name; runtime-only fields are left out). */
+    fromScene(model: PointSetModel, state: unknown): PointSetDataFields;
+    /** The extra keys of `data` for those scene fields. */
+    toData(scene: PointSetDataFields): Readonly<Record<string, unknown>>;
+}
+
 /**
  * The extension a point-set graph may declare beyond `{initialized, model, overlays}`: named, checked fields (a step, an
  * algorithm, a mode, a tolerance) and how the data bounds them. Each field is read by name; nothing else of the permitted state
@@ -46,11 +72,14 @@ export interface PointSetExtension {
     /** The model the graph works on (ear clipping forces a closed polygon, the hulls show points). Absent: the model as given. */
     normalise?(model: PointSetModel): PointSetModel;
     readonly fields: readonly PointSetExtraField[];
+    /** Scene state the data carries beside the model (a triangle list). Absent: the data is the model alone. */
+    readonly data?: PointSetDataPart;
     /**
      * `values` holds every field (read or fallback); returns the values the scene starts with, bounded by the model and by
-     * each other (a step within the trace of the data under the chosen algorithm, a fixed algorithm). Absent: `values`.
+     * each other (a step within the trace of the data under the chosen algorithm, a fixed algorithm). `scene` holds the data
+     * part's fields of the same scene (a step within the run of the triangle list); empty without a data part. Absent: `values`.
      */
-    settle?(model: PointSetModel, values: PointSetExtras): PointSetExtras;
+    settle?(model: PointSetModel, values: PointSetExtras, scene: PointSetDataFields): PointSetExtras;
 }
 
 /**
@@ -94,11 +123,11 @@ function readExtras(extension: PointSetExtension, source: unknown): Record<strin
 }
 
 /** Every field of the extension, read or fallback, then settled against the model. Deterministic: only `source` and `model` count. */
-function extrasOf(extension: PointSetExtension, model: PointSetModel, source: unknown): PointSetExtras {
+function extrasOf(extension: PointSetExtension, model: PointSetModel, source: unknown, scene: PointSetDataFields): PointSetExtras {
     const values: Record<string, PointSetFieldValue> = {};
     const read = readExtras(extension, source);
     for (const field of extension.fields) values[field.name] = read[field.name] ?? field.fallback;
-    return extension.settle ? extension.settle(model, values) : values;
+    return extension.settle ? extension.settle(model, values, scene) : values;
 }
 
 const permittedInitialized = (permittedState: unknown): {initialized?: boolean} => {
@@ -126,8 +155,11 @@ export function pointSetPersistence(overlayIds: readonly string[], declared?: Po
             const overlays: Record<string, boolean> = {};
             for (const [id, shown] of Object.entries(state.overlays)) if (typeof shown === "boolean") overlays[id] = shown;
             const graphState: PointSetPermittedState = {initialized: state.initialized, overlays};
-            if (extension) Object.assign(graphState, extrasOf(extension, state.model, state));
-            return {data: serializePointSetModel(state.model), graphState};
+            const fields = extension?.data ? extension.data.fromScene(state.model, state) : {};
+            if (extension) Object.assign(graphState, extrasOf(extension, state.model, state, fields));
+            const model = serializePointSetModel(state.model);
+            if (extension?.data) for (const key of extension.data.dataKeys) Reflect.deleteProperty(model, key);
+            return {data: extension?.data ? {...model, ...extension.data.toData(fields)} : model, graphState};
         },
         /**
          * A permitted `overlays` map REPLACES the defaults' overlays (ids it omits take the graph's initial value through
@@ -137,9 +169,15 @@ export function pointSetPersistence(overlayIds: readonly string[], declared?: Po
          */
         reconstruct(data: PointSetModel, permittedState: unknown, defaults: PointSetSceneState): PointSetSceneState {
             const model = serializePointSetModel(data);
+            if (extension?.data) for (const key of extension.data.dataKeys) Reflect.deleteProperty(model, key);
             const shown = extension?.normalise ? extension.normalise(model) : model;
-            const scene: PointSetSceneState = {...defaults, ...permittedInitialized(permittedState), ...permittedOverlays(permittedState, overlayIds), model: shown};
-            return extension ? {...scene, ...extrasOf(extension, shown, permittedState)} : scene;
+            const part = extension?.data;
+            // The data part is read first: an invalid one throws before anything is built.
+            const fields: PointSetDataFields = part ? part.fromData(shown, data) : {};
+            const kept: PointSetSceneState = {...defaults};
+            if (part) for (const key of part.keys) Reflect.deleteProperty(kept, key);
+            const scene: PointSetSceneState = {...kept, ...permittedInitialized(permittedState), ...permittedOverlays(permittedState, overlayIds), model: shown, ...fields};
+            return extension ? {...scene, ...extrasOf(extension, shown, permittedState, fields)} : scene;
         },
     });
 }

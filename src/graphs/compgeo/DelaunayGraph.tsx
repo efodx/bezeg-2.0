@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
@@ -14,7 +13,8 @@ import {drawCircumcircle, drawSelectableTriangles, sameTriple, sortedTriple, typ
 import {angleSummary, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
 import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
-import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
+import {finiteNumberField, type PointSetDataFields, type PointSetExtension, type PointSetExtras} from "./pointSetPersistence";
+import {TRIANGULATION_EXTENSION, TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
 import {parseTriangleList} from "./triangulationPresetCollection";
 import {matchingExample} from "./ExampleSelect";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
@@ -40,6 +40,19 @@ const runFor = (points: PointSetModel["points"], triangles: unknown): DelaunayRu
     const result = createTriangulation(points, parseTriangleList(triangles) ?? []);
     return runDelaunay(result.ok ? result.value : undefined);
 };
+
+/**
+ * The persisted scene: the triangulation's (points and triangle list in `data`) plus `step`, any finite number that is
+ * truncated and clamped to the run of the reconstructed points and triangles; an absent or refused one is 0.
+ */
+const DELAUNAY_EXTENSION: PointSetExtension = Object.freeze({
+    ...TRIANGULATION_EXTENSION,
+    fields: [finiteNumberField("step", 0)],
+    settle(model: PointSetModel, values: PointSetExtras, scene: PointSetDataFields): PointSetExtras {
+        const step = typeof values.step === "number" ? values.step : 0;
+        return {...values, step: runFor(model.points, scene.triangles).clamp(step)};
+    },
+});
 
 /**
  * The triangulation graph with the Lawson flip trace (task 13, spec B3). The scene state keeps the points, the starting
@@ -296,20 +309,9 @@ export class DelaunayGraph extends TriangulationGraph {
         return state;
     }
 
-    /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new trace; playback is paused. */
-    override importPresetData(data: PointSetModel): void {
-        const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
-        super.importPresetData(data);
-        this.setState(this.stepPatch({step: this.run().clamp(stored ?? 0)}));
-        this.requestRender();
-    }
-
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged = super.figurePresetGraphState(graphState);
-        const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
-        const run = runFor(merged.model.points, "triangles" in merged ? merged.triangles : undefined);
-        const state: DelaunayGraphState = {...merged, step: run.clamp(stored ?? 0)};
-        return state;
+    /** `data` is the starting triangulation; `graphState` adds the trace step to `initialized` and the overlays (`DELAUNAY_EXTENSION`). */
+    protected override persistenceExtension(): PointSetExtension {
+        return DELAUNAY_EXTENSION;
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

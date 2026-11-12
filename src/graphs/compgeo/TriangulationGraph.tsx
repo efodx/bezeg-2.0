@@ -1,4 +1,3 @@
-import type {StoredGraphState} from "../base/presets/Presets";
 import React from "react";
 import {angleVector, incrementalTriangulation} from "../../compgeo/delaunay";
 import {GridPoint} from "../../compgeo/grid";
@@ -13,12 +12,12 @@ import {LessonAction} from "../../learning/model";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import type {PointSetExtension} from "./pointSetPersistence";
 import {TriangulationControls} from "./TriangulationControls";
-import type {Preset} from "../base/presets/Presets";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {
     parseTriangleList, TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_MAX_POINTS, TRIANGULATION_OVERLAY_IDS, TRIANGULATION_T0,
-    triangulationCollection, triangulationRejection, type TriangulationPresetData,
+    triangulationCollection, triangulationDataPart, triangulationRejection, type TriangulationPresetData,
 } from "./triangulationPresetCollection";
 
 /** At most this many points: 2*40 - 2 - 3 = 75 triangles. */
@@ -88,6 +87,9 @@ function smallestCorner(tri: Triangulation): {vertex: number; toward: [number, n
     return best;
 }
 
+/** The persisted scene of the graph beyond `{initialized, model, overlays}`: the triangle list, which the data carries (task 08 batch 4). */
+export const TRIANGULATION_EXTENSION: PointSetExtension = Object.freeze({normalise: asPoints, fields: [], data: triangulationDataPart});
+
 const sameEdge = (e: readonly [number, number], a: number, b: number): boolean => e[0] === Math.min(a, b) && e[1] === Math.max(a, b);
 
 /**
@@ -102,11 +104,9 @@ const sameEdge = (e: readonly [number, number], a: number, b: number): boolean =
 export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
     private eventValue?: TriangulationEvent;
     private selectedEdgeValue?: readonly [number, number];
-    /** Set by `importPresetData` for the one model write that carries its own triangle list. */
-    private incoming?: readonly (readonly number[])[];
     /** True only while `addPointAt` runs. */
     private adding = false;
-    /** True while `loadModel` or a Preset import runs: a replacement, not a user edit, so no `rebuilt` event. */
+    /** True while `loadModel` runs: a replacement, not a user edit, so no `rebuilt` event. */
     private loading = false;
     private currentMemo?: {points: PointSetModel["points"]; triangles: unknown; tri: Triangulation | undefined};
     private inputsMemo?: {triangles: unknown; edge: string};
@@ -198,7 +198,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             const model = asPoints(raw.model);
             if (raw.model === state.model && model === raw.model) return raw;
             if ("triangles" in raw) return {...raw, model};
-            const next = this.retriangulate(state, model, this.incoming);
+            const next = this.retriangulate(state, model);
             event = next.event;
             return this.patch({...raw, model, triangles: next.triangles, previous: undefined});
         };
@@ -235,11 +235,11 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
     /**
      * The edit rule. Adding one point to the end: `insertPoint` on the current triangulation. Moving points (same count): the
      * list is kept when `createTriangulation` still accepts it, otherwise rebuilt. Anything else (removal, a new model): rebuilt by
-     * `incrementalTriangulation`. `named` is a triangle list that arrives with the model (a Preset). Points that allow no
-     * triangulation give an empty list.
+     * `incrementalTriangulation`. Points that allow no triangulation give an empty list. A Preset's triangle list never comes
+     * here: the reconstruct names it in its own write.
      */
     protected retriangulate(
-        state: Readonly<PointSetGraphState>, model: PointSetModel, named?: readonly (readonly number[])[],
+        state: Readonly<PointSetGraphState>, model: PointSetModel,
     ): {triangles: readonly (readonly number[])[]; event?: TriangulationEvent} {
         const points = model.points;
         if (points.length < 3 || points.length > TRIANGULATION_MAX_POINTS) return {triangles: []};
@@ -247,12 +247,11 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         if (!gate.ok && (gate.refusal.kind === "duplicate-point" || gate.refusal.kind === "degenerate-points" || gate.refusal.kind === "invalid-point")) {
             return {triangles: []};
         }
-        if (named && createTriangulation(points, named).ok) return {triangles: named};
         const oldPoints = state.model.points;
         const oldList = "triangles" in state ? storedTriangles(state.triangles) : [];
         const oldResult = createTriangulation(oldPoints, oldList);
         const old = oldResult.ok ? oldResult.value : undefined;
-        if (old && !named) {
+        if (old) {
             const prefixKept = this.adding && points.length === oldPoints.length + 1 && oldPoints.every((p, i) => p.x === points[i].x && p.y === points[i].y);
             if (prefixKept) {
                 const inserted = insertPoint(old, points[points.length - 1]);
@@ -267,7 +266,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             }
         }
         const built = incrementalTriangulation(points);
-        return {triangles: built.ok ? built.value.triangles : [], event: old && !named && !this.loading ? {kind: "rebuilt"} : undefined};
+        return {triangles: built.ok ? built.value.triangles : [], event: old && !this.loading ? {kind: "rebuilt"} : undefined};
     }
 
     // ---- Lesson actions ------------------------------------------------------------------------------------------
@@ -353,51 +352,16 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         return data;
     }
 
-    override exportPresetData(): PointSetModel {
-        const data: TriangulationPresetData = {...serializePointSetModel(this.model), triangles: this.triangles.map(tri => [...tri])};
-        return data;
+    /** `data` is the points plus the triangle list; `graphState` carries `initialized` and the overlays only (`TRIANGULATION_EXTENSION`). */
+    protected override persistenceExtension(): PointSetExtension {
+        return TRIANGULATION_EXTENSION;
     }
 
     override presetCollection(): PresetCollection<PointSetModel> {
         return triangulationCollection;
     }
 
-    /**
-     * A stored triangle list is imported as it is. A list that is not a valid counter-clockwise triangulation of the stored
-     * points is refused (the file importer and `checkPersistedPreset` check first, with a localized message), and the scene stays
-     * as it was. Data without a list (a plain point set) is triangulated by the starting rule.
-     */
-    override importPresetData(data: PointSetModel): void {
-        const raw: unknown = "triangles" in data ? data.triangles : undefined;
-        const stored = raw === undefined ? undefined : parseTriangleList(raw);
-        const {mode: _mode, closed: _closed, ...rest} = serializePointSetModel(data);
-        if (raw !== undefined && (stored === undefined || triangulationRejection(rest.points, stored) !== undefined || (stored.length === 0 && createTriangulation(rest.points, []).ok))) {
-            throw new Error("Triangulation preset: the stored triangle list is not a valid triangulation of the stored points.");
-        }
-        this.incoming = stored && stored.length > 0 ? stored : undefined;
-        this.loading = true;
-        try {
-            super.importPresetData(asPoints({...rest, mode: "points", closed: false, points: rest.points}));
-        } finally {
-            this.loading = false;
-            this.incoming = undefined;
-        }
-        this.selectedEdgeValue = undefined;
-        this.eventValue = undefined;
-    }
-
-    /** A Preset carries the triangle list once, in `data`; its `graphState` omits it like the model. */
-    override exportPreset(): Preset<PointSetModel> {
-        const preset = super.exportPreset();
-        const {triangles: _triangles, previous: _previous, ...graphState} = preset.graphState as TriangulationGraphState;
-        return {...preset, graphState};
-    }
-
-    protected override figurePresetGraphState(graphState: StoredGraphState | undefined): PointSetGraphState {
-        const merged: TriangulationGraphState = {...super.figurePresetGraphState(graphState), triangles: this.triangles};
-        return merged;
-    }
-
+    /** A checkpoint keeps the whole runtime scene: the triangle list and the list before the last flip. */
     protected override sceneGraphState(): PointSetGraphState {
         const state: TriangulationGraphState = {...this.state, triangles: this.triangles, previous: this.previousTriangles};
         return state;

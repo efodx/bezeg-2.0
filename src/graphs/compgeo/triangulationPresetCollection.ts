@@ -1,8 +1,10 @@
 import {message, Message} from "../../localization";
 import {GridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
+import {incrementalTriangulation} from "../../compgeo/delaunay";
 import {createTriangulation} from "../../compgeo/triangulation";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
+import type {PointSetDataPart} from "./pointSetPersistence";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 
 /** The file contract key of the triangulation graph's own Preset collection. Not yet listed in `presetCollections`: the route that first uses the graph does that. */
@@ -66,6 +68,48 @@ export function triangulationRejection(points: readonly GridPoint[], triangles: 
         default: return message("tri_invalid_triangulation");
     }
 }
+
+/**
+ * The triangle list of a point set by the starting rule (`incrementalTriangulation`); empty while the points allow no
+ * triangulation (under three, over the limit, duplicates, collinear). A function of the points alone.
+ */
+export function startingTriangles(points: readonly GridPoint[]): readonly (readonly number[])[] {
+    if (points.length < 3 || points.length > TRIANGULATION_MAX_POINTS) return [];
+    const gate = createTriangulation(points, []);
+    if (!gate.ok && (gate.refusal.kind === "duplicate-point" || gate.refusal.kind === "degenerate-points" || gate.refusal.kind === "invalid-point")) return [];
+    const built = incrementalTriangulation(points);
+    return built.ok ? built.value.triangles : [];
+}
+
+/** The triangle list of a scene state, or an empty list when the value is not a list of integer triples. */
+const sceneTriangles = (state: unknown): number[][] =>
+    typeof state === "object" && state !== null && Object.prototype.hasOwnProperty.call(state, "triangles") ? parseTriangleList(Reflect.get(state, "triangles")) ?? [] : [];
+
+/**
+ * The triangle list that a triangulation Preset's `data` carries beside its points (task 08 batch 4). A stored list is the
+ * scene's as it is, once it is a valid counter-clockwise triangulation of the stored points; otherwise the import is refused
+ * by throwing, before the scene changes. Data without a list is triangulated by the starting rule, whatever scene preceded.
+ * `previous` (the list before the last flip) is runtime state: a reconstruct leaves it absent, the projection omits it.
+ */
+export const triangulationDataPart: PointSetDataPart = Object.freeze({
+    keys: ["triangles", "previous"],
+    dataKeys: ["triangles"],
+    fromData(model: PointSetModel, data: unknown) {
+        const raw: unknown = isRecord(data) && Object.prototype.hasOwnProperty.call(data, "triangles") ? data.triangles : undefined;
+        if (raw === undefined) return {triangles: startingTriangles(model.points)};
+        const stored = parseTriangleList(raw);
+        if (stored === undefined || triangulationRejection(model.points, stored) !== undefined || (stored.length === 0 && createTriangulation(model.points, []).ok)) {
+            throw new Error("Triangulation preset: the stored triangle list is not a valid triangulation of the stored points.");
+        }
+        return {triangles: stored};
+    },
+    fromScene(_model: PointSetModel, state: unknown) {
+        return {triangles: sceneTriangles(state)};
+    },
+    toData(scene: Readonly<Record<string, unknown>>) {
+        return {triangles: sceneTriangles(scene).map(tri => [...tri])};
+    },
+});
 
 /**
  * The triangulation graph's Preset collection. `data` is the point set (points mode only, at most 40 points, integer
