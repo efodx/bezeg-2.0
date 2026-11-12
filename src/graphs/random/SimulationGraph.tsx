@@ -19,12 +19,14 @@ import {randomPresetCollection} from "./randomPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {
     AREA_SHAPES, AreaShape, CHAIN_MAX, CHAIN_MIN, DEFAULT_RANDOM_STATE, exactFor, fairCoinBandHalfWidth, frequencySd, largestBarDifference, markovShareSd,
-    N_MAX, N_MIN, nextStop, OVERLAY_MODES, P_MAX, P_MIN, PERCENT_STEP, piStandardError, parseRandomState, RANDOM_MODES, RandomExact, RandomMode, RandomSim, RandomState,
+    N_MAX, N_MIN, nextStop, playbackStops, OVERLAY_MODES, P_MAX, P_MIN, PERCENT_STEP, piStandardError, parseRandomState, RANDOM_MODES, RandomExact, RandomMode, RandomSim, RandomState,
     ROWS_MAX, ROWS_MIN, SAMPLE_SIZE_MAX, SAMPLE_SIZE_MIN, SEED_MAX, SEED_MIN, serializeRandomState, simulate, snapChainInput, snapPercentInput, snapRowsInput,
     snapSampleSizeInput, snapSeedInput, snapStopInput, snapTrialsInput, snapWalkStepsInput, STOP_MS_DEFAULT, STOP_MS_MAX, STOP_MS_MIN, STOP_MS_STEP, stopPosition,
     WALK_STEPS_MAX, WALK_STEPS_MIN, withMode,
 } from "../../random/randomModel";
 import {intervalHalfWidth} from "../../random/samplePaths";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {Caption, CaptionKey, EMPTY_LAYER, Layer, sceneFor, SceneData} from "./simulationScene";
 
 /** The scene state: the stored simulation fields (`RandomState`), nothing derived. */
@@ -536,6 +538,68 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         if (!checked.ok) return false;
         this.edit({sampleSize: checked.value});
         return true;
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`random`): `set-mode` picks the mode (its default trial count, everything shown, as the mode list does), `set-run` sets the seed, the trial count
+     * (everything shown, as typing it does), the rows and the right-bounce percent, `set-overlay` the second run, `set-position` the playback position (a stop of the
+     * playback). The merged state goes through `parseRandomState` (strict, nothing snapped or clamped) before the first write, so a bad value is a lesson-content error
+     * and nothing is written; unknown fields are refused. A write halts the playback. A scene reads the state its earlier actions wrote.
+     */
+    applyRandomAction(action: Extract<LessonAction, {kind: "random"}>): void {
+        const {kind: _kind, operation: _operation, ...fields} = action;
+        const state = serializeRandomState(this.state);
+        switch (action.operation) {
+            case "set-mode":
+                this.refuseUnknown("set-mode", fields, ["mode"]);
+                this.commitRandom("set-mode", withMode(state, action.mode));
+                return;
+            case "set-run": {
+                this.refuseUnknown("set-run", fields, ["seed", "n", "rows", "pPercent"]);
+                const {n, seed, rows, pPercent} = action;
+                const defined = Object.fromEntries(Object.entries({seed, rows, pPercent}).filter(([, value]) => value !== undefined));
+                this.commitRandom("set-run", {...state, ...defined, ...(n !== undefined ? {n, shown: n} : {})});
+                return;
+            }
+            case "set-overlay": {
+                this.refuseUnknown("set-overlay", fields, ["overlay", "seed2"]);
+                if (typeof action.overlay !== "boolean") throw new Error("random set-overlay: overlay must be true or false.");
+                if (action.overlay && !OVERLAY_MODES.includes(state.mode)) throw new Error(`random set-overlay: the mode ${state.mode} has no second run.`);
+                this.commitRandom("set-overlay", {...state, overlay: action.overlay ? 1 : 0, ...(action.seed2 !== undefined ? {seed2: action.seed2} : {})});
+                return;
+            }
+            case "set-position":
+                this.refuseUnknown("set-position", fields, ["shown"]);
+                if (!playbackStops(state.n).includes(action.shown)) throw new Error(`random set-position: shown must be a playback stop of n = ${state.n}.`);
+                this.commitRandom("set-position", {...state, shown: action.shown});
+                return;
+            default: {
+                const unsupported: never = action;
+                throw new Error(`random: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    private refuseUnknown(operation: string, fields: Readonly<Record<string, unknown>>, allowed: readonly string[]): void {
+        const unknown = Object.keys(fields).filter(key => !allowed.includes(key));
+        if (unknown.length) throw new Error(`random ${operation}: no such field ${unknown.join(", ")}.`);
+    }
+
+    /** Validates the merged state first, then halts the playback and writes only the fields that change. */
+    private commitRandom(operation: string, merged: unknown): void {
+        const parsed = parseRandomState(merged);
+        if (!parsed.ok) throw new Error(`random ${operation}: ${parsed.error.message}`);
+        const current = new Map(Object.entries(serializeRandomState(this.state)));
+        const changed = Object.fromEntries(Object.entries(parsed.value).filter(([key, value]) => value !== current.get(key)));
+        this.pausePlayback();
+        if (Object.keys(changed).length) this.edit(changed);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("random", action => this.applyRandomAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

@@ -1513,6 +1513,16 @@ const recursionGrowth = {
     minFrames: 17, // 7 x 2 + 3 calculation frames
 };
 
+// Randomness RS1 (chapter-owned, src/learning/content/randomnessGuidedLessons.ts): seven steps, explanation + observation frames, plus a calculation frame for each of two worked examples.
+// RS2 (`?example=lesson.randomness.law-of-large-numbers.prob-simulation`) shares the demonstration and has no default row; the host and content tests cover its scenes.
+const randomnessGalton = {
+    id: 'prob-simulation',
+    path: `${BASE}/probability/simulation`,
+    titles: {sl: 'Galtonova deska proti binomski porazdelitvi', en: 'The Galton board against the binomial law'},
+    steps: 7,
+    minFrames: 16, // 7 x 2 + 2 calculation frames
+};
+
 // Chapter-owned triangle geometry lessons T1, T2, T3 and T4(src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
 const triangleCentres = {
     id: 'triangle-centres',
@@ -2559,7 +2569,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

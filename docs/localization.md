@@ -189,6 +189,8 @@ The static document initially declares Slovenian, and runtime selection updates 
 | zaporedje; člen zaporedja; rekurzivna formula; aritmetično, geometrijsko zaporedje | sequence; term; recursive formula; arithmetic, geometric sequence (RG1). PIK §4.12; the table in `docs/tasks/recursion/README.md` holds the full recursion term list |
 | zaprta oblika; limita vsote | closed form (a formula for the \(n\)-th term, in contrast to the recursive rule); limit of the sum \(a_1/(1-q)\) (RG1, the graph readouts say *zaprta oblika*). Transparent standard wording |
 | navadno, obrestno obrestovanje; relativna, konformna obrestna mera; čas podvojitve; zvezno obrestovanje; Eulerjevo število \(e\) | simple, compound interest; relative, conformal interest rate; doubling time; continuous compounding; Euler's number (RG3). PIK §4.12 and standard school finance wording; *zvezno obrestovanje* is transparent next to the first two and the exponential lessons use the same *Eulerjevo število* |
+| seme; grb; predal; klin; relativna frekvenca; zakon velikih števil | seed; heads; slot; peg; relative frequency; law of large numbers (RS1, RS2). All in the term table of `docs/tasks/randomness/README.md` (*seme* glossed at its first use in the chapter purpose); the lesson text follows the simulation graph's own labels |
+| met (kovanca); pas 95 % | toss (of a coin); the 95 % band (the range of the number of heads in which about 95 % of runs end, RS2). Not in the README term table: plain words chosen by the content worker, handler-unreviewed |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

@@ -36,6 +36,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     combinatorics: {demonstration: 'lattice-paths', alt: {sl: 'Mreža s potjo, ki gre samo desno in gor, in števili poti v točkah mreže, ki zapišejo Pascalov trikotnik.', en: 'A grid with a route that goes only right and up, and the numbers of routes at the grid points that write Pascal triangle.'}},
     probability: {demonstration: 'prob-density', alt: {sl: 'Standardna normalna krivulja s pobarvano ploščino med −1 in 1 ter izpisom verjetnosti.', en: 'The standard normal curve with the area between −1 and 1 shaded and a probability readout.'}},
     interpolation: {demonstration: 'interp-lagrange', alt: {sl: 'Lagrangeev polinom skozi štiri točke, ki zapusti ovojnico točk, in Bézierjeva krivulja, ki ostane v njej.', en: 'A Lagrange polynomial through four points leaving their hull, and a Bézier curve staying inside it.'}},
+    randomness: {demonstration: 'prob-simulation', alt: {sl: 'Galtonova deska z desetimi vrstami klinov: kopica kroglic v enajstih predalih in stolpci zakona.', en: 'A Galton board with ten rows of pegs: the heap of balls in eleven slots and the bars of the law.'}},
     recursion: {demonstration: 'recursion-growth', alt: {sl: 'Graf prvih členov aritmetičnega zaporedja z začetnim členom 3 in razliko 2 ter odčitka člena in vsote.', en: 'A graph of the first terms of an arithmetic sequence with first term 3 and difference 2, and the readouts of the term and the sum.'}},
     waves: {demonstration: 'waves', alt: {sl: 'Dva kosinusna vala in njuna vsota na skupnem grafu s kazalci.', en: 'Two cosine waves and their sum on one graph with phasors.'}},
     'mechanical-curves': {demonstration: 'mechanics-descent', alt: {sl: 'Premica, krožni lok in cikloida od točke A do točke B s kroglicami.', en: 'A line, a circular arc and a cycloid from point A to point B with beads.'}},
@@ -53,7 +54,7 @@ export const learningStrands: readonly {id: string; title: LocalizedText; chapte
     {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps', 'isometries']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms']},
     {id: 'plane-geometry', title: {sl: 'Geometrija ravnine', en: 'Plane geometry'}, chapters: ['triangle-geometry', 'analytic-lines', 'circle-geometry', 'projective-conics']},
-    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'trigonometry', 'analysis', 'recursion', 'numerical-methods', 'fourier-series', 'waves', 'combinatorics', 'probability']},
+    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'trigonometry', 'analysis', 'recursion', 'numerical-methods', 'fourier-series', 'waves', 'combinatorics', 'probability', 'randomness']},
 ];
 
 function chapterOutline(chapterId: string, language: LessonLanguage) {

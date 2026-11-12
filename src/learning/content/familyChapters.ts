@@ -20,6 +20,7 @@ import {kinematicsChapter} from './kinematicsChapter';
 import {mechanicalCurvesChapter} from './mechanicalCurvesChapter';
 import {wavesChapter} from './wavesChapter';
 import {recursionChapter} from './recursionChapter';
+import {randomnessChapter} from './randomnessChapter';
 import {advancedBezierChapter} from './advancedBezierChapter';
 import {interpolationChapter} from './interpolationChapter';
 import {probabilityChapter} from './probabilityChapter';
@@ -402,6 +403,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     wavesChapter, // Waves batch A: WV1 and WV2 (wavesGuidedLessons.ts); directly after the Fourier series, whose harmonics are the waves added here; the standing-wave and sampling lessons join later.
     combinatoricsChapter, // Combinatorics and Pascal's triangle batch A: CB1 and CB2 (combinatoricsGuidedLessons.ts); the lessons of batches B and C join later; sits before probability, whose binomial distribution follows it.
     probabilityChapter, // Probability and statistics batch A: the density and binomial-to-normal lessons (P1, P2) of probabilityGuidedLessons.ts; ends the functions strand.
+    randomnessChapter, // Randomness batch A: RS1 and RS2 (randomnessGuidedLessons.ts); directly after the probability chapter, whose binomial-to-normal and central limit sections these lessons are compared with; ends the functions strand.
 ];
 
 

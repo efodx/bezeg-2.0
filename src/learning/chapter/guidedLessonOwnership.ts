@@ -61,6 +61,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'prob-clt': {chapterId: 'probability', sectionId: 'clt'},
     'prob-summary': {chapterId: 'probability', sectionId: 'summary'},
     'prob-correlation': {chapterId: 'probability', sectionId: 'correlation'},
+    // Randomness batch A: the Galton lesson (RS1) in the randomness chapter; the law-of-large-numbers lesson (RS2) is the second owner, derived from the chapter.
+    'prob-simulation': {chapterId: 'randomness', sectionId: 'galton-board'},
     'area-between-curves': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     'arc-length': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     bisection: {chapterId: 'analysis', sectionId: 'existence'},

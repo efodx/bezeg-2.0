@@ -134,7 +134,7 @@ describe('fallback and unavailable lessons', () => {
     it('returns undefined for every Demonstration that opts out of lessons', () => {
         // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'prob-simulation', 'recursion-cobweb', 'phase-portrait', 'logistic-map', 'solids', 'contour-map', 'linear-program']);
+        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'recursion-cobweb', 'phase-portrait', 'logistic-map', 'solids', 'contour-map', 'linear-program']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();
@@ -177,6 +177,8 @@ describe('launch paths and example resolution', () => {
         ['canonical example, retained lesson', '?example=lesson.analysis.convergence.sequence', 'sequence', 'sequence-guided', {chapterId: 'analysis', sectionId: 'convergence'}],
         ['canonical example, recursion RG1', '?example=lesson.recursion.sequences.recursion-growth', 'recursion-growth', 'recursion-sequences', {chapterId: 'recursion', sectionId: 'sequences'}],
         ['canonical example, recursion RG3', '?example=lesson.recursion.compound-interest.recursion-growth', 'recursion-growth', 'recursion-interest', {chapterId: 'recursion', sectionId: 'compound-interest'}],
+        ['canonical example, randomness RS1', '?example=lesson.randomness.galton-board.prob-simulation', 'prob-simulation', 'randomness-galton', {chapterId: 'randomness', sectionId: 'galton-board'}],
+        ['canonical example, randomness RS2', '?example=lesson.randomness.law-of-large-numbers.prob-simulation', 'prob-simulation', 'randomness-large-numbers', {chapterId: 'randomness', sectionId: 'law-of-large-numbers'}],
         ['canonical family example', '?example=family.splines.worked-join.spline-c1', 'spline-c1', 'explore-splines-worked-join-spline-c1', {chapterId: 'splines', sectionId: 'worked-join'}],
         ['legacy activity alias example', '?example=activity.bezier-curves.control-points.bezier', 'bezier', 'bezier-pilot', {chapterId: 'bezier-curves', sectionId: 'control-points'}],
         ['legacy chapter and activity', '?chapter=bezier-curves&activity=curve-parameter', 'decasteljau', 'activity-curve-parameter', {chapterId: 'bezier-curves', sectionId: 'parameter'}],

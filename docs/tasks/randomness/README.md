@@ -11,7 +11,10 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [01 Generator and samplers](01-generator-samplers.md) | 0 | F1 | none | — | done |
 | [02 Runners and exact comparators](02-runners-comparators.md) | 0 | F1 | none | 01 | done |
 | [03 State model and simulation graph](03-simulation-graph.md) | A–C | F2a | Controls step 5 | 02 | planned |
-| [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 | 03 | planned |
+| [04 Release batches A–C](04-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 03 | F2b done 2026-11-11; split into 05–07 |
+| [05 Batch A: RS1–RS2 lessons](05-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 04 | F3 in progress |
+| [06 Batch B: RS3–RS4 lessons](06-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 05 | not started |
+| [07 Batch C: RS5–RS6 lessons](07-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 06 | not started |
 
 ## Slovenian terms (F0 decision)
 

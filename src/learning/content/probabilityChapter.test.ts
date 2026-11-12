@@ -26,18 +26,18 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter ends the functions strand with an opening and four lesson sections', () => {
+    test('the chapter closes the probability part of the functions strand with an opening and four lesson sections', () => {
         expect(probabilityChapter.id).toBe(PROBABILITY_CHAPTER_ID);
         expect(probabilityChapter.title).toEqual({sl: 'Verjetnost in statistika na grafu', en: 'Distributions, CLT and correlation'});
         expect(probabilityChapter.family).toBe('/bezeg-2.0/probability');
         expect(probabilityChapter.sections.map(section => section.id)).toEqual(['area-and-approximation', ...SECTIONS.map(([id]) => id)]);
         expect(Object.keys(probabilityGuidedExampleLessons.all())).toEqual(SECTIONS.map(([id]) => id));
-        expect(familyChapters.at(-1)!.id).toBe(PROBABILITY_CHAPTER_ID);
+        expect(familyChapters.at(-2)!.id).toBe(PROBABILITY_CHAPTER_ID); // the randomness chapter follows it
         expect(familyChapters.findIndex(chapter => chapter.id === PROBABILITY_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'combinatorics') + 1);
         expect(learningChapters.findIndex(chapter => chapter.id === PROBABILITY_CHAPTER_ID))
             .toBe(learningChapters.findIndex(chapter => chapter.id === 'combinatorics') + 1);
-        expect(learningStrands.find(strand => strand.id === 'functions')!.chapters.at(-1)).toBe(PROBABILITY_CHAPTER_ID);
+        expect(learningStrands.find(strand => strand.id === 'functions')!.chapters.at(-2)).toBe(PROBABILITY_CHAPTER_ID); // the randomness chapter follows it
         expect(probabilityChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual(SECTIONS.map(([, id]) => [id]));
         expect(probabilityChapter.prerequisiteLinks?.map(link => link.path))
             .toEqual(['/bezeg-2.0/learn/functions-and-calculus#integrals', '/bezeg-2.0/learn/analysis']);

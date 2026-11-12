@@ -483,6 +483,16 @@ export type LessonAction =
     }
     | {readonly kind: 'waves'; readonly operation: 'set-time'; readonly t: number}
     /**
+     * SimulationGraph's scene actions (RS1, RS2; the other modes' fields are added by their batches). `set-mode` picks the mode and shows its default run. `set-run` sets
+     * the seed (0 to 999 999), the trial count (everything is shown, as typing it does), the rows of the Galton board and its right-bounce percent (a multiple of 5);
+     * `set-overlay` draws the run of `seed2` over the run (modes with a second run only); `set-position` moves the playback position to a stop of the playback. The merged
+     * state must pass `parseRandomState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused. A write halts the playback.
+     */
+    | {readonly kind: 'random'; readonly operation: 'set-mode'; readonly mode: 'galton' | 'frequency' | 'area' | 'walk' | 'markov' | 'interval'}
+    | {readonly kind: 'random'; readonly operation: 'set-run'; readonly seed?: number; readonly n?: number; readonly rows?: number; readonly pPercent?: number}
+    | {readonly kind: 'random'; readonly operation: 'set-overlay'; readonly overlay: boolean; readonly seed2?: number}
+    | {readonly kind: 'random'; readonly operation: 'set-position'; readonly shown: number}
+    /**
      * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
      * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per
      * year. The merged state must pass `parseGrowthState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused.

@@ -38,6 +38,7 @@ import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
 import {wavesSuperpositionLesson, wavesBeatsLesson} from './wavesGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
+import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
 import {epicyclesGuidedLessons} from './epicyclesGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
@@ -101,6 +102,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['fourierCoefficientsGuidedLessons', fourierCoefficientsGuidedLessons],
     ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson]],
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
+    ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
     ['epicyclesGuidedLessons', epicyclesGuidedLessons],
     ['probabilityGuidedLessons', probabilityGuidedLessons],
     ['patchGuidedExamplesBasics', Object.values(patchGuidedExamplesBasics)],
@@ -234,6 +236,7 @@ test('scans every lesson module', () => {
             'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 and MC2
             'waves', 'waves', // wavesGuidedLessons.ts: WV1 and WV2
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
+            'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
             'lattice-paths', 'counting-tree', // combinatoricsGuidedLessons.ts: CB1 and CB2
             'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 and L2
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',

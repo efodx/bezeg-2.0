@@ -1,6 +1,6 @@
 // R5 composition of docs/specs/lesson-authoring-architecture.md for the simulation row: every root references the
 // family export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). The row is
-// `lesson: false` until families-prep F3, so no lesson ownership or chapter script names it.
+// The simulation row has its guided lessons (RS1, RS2), owned by the randomness chapter (families-prep F3, batch A).
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -34,9 +34,9 @@ describe('R5 composition: every root references the simulation row export', () =
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, each row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(randomDemonstrationRows.length).toBe(1);
-        expect(randomDemonstrationRows.every(row => row.lesson === false)).toBe(true);
+        expect(randomDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false)).toEqual([]);
         expect(new Set(Object.values(randomCollectionKeys)).size).toBe(randomDemonstrationRows.length);
     });
 });
