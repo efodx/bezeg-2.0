@@ -134,7 +134,7 @@ describe('fallback and unavailable lessons', () => {
     it('returns undefined for every Demonstration that opts out of lessons', () => {
         // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'triangle-solver', 'recursion-cobweb', 'phase-portrait', 'contour-map']);
+        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'recursion-cobweb', 'phase-portrait', 'contour-map']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();

@@ -3,13 +3,16 @@ import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
 import {unitCircleAdditionLesson, unitCircleRadianLesson} from './trigUnitCircleGuidedLessons';
+import {cosineRuleLesson, sineRuleLesson} from './trigTriangleGuidedLessons';
 
 export const TRIGONOMETRY_CHAPTER_ID = 'trigonometry';
 
-/** Section id to the Demonstration of its activity (spec TR1, TR2: two sections on one Demonstration, in teaching order). Section ids are those of trigonometryChapter.ts. */
+/** Section id to the Demonstration of its activity (spec TR1, TR2 on the unit circle and TR3, TR4 on the triangle solver, in teaching order). Section ids are those of trigonometryChapter.ts. */
 export const trigonometryGuidedExampleDemonstrations = {
     'radian-sine-cosine': 'unit-circle',
     'addition-formulas': 'unit-circle',
+    'sine-rule': 'triangle-solver',
+    'cosine-rule': 'triangle-solver',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type TrigonometrySectionId = keyof typeof trigonometryGuidedExampleDemonstrations;
@@ -18,6 +21,8 @@ export type TrigonometrySectionId = keyof typeof trigonometryGuidedExampleDemons
 const sectionContent = {
     'radian-sine-cosine': {id: 'unit-circle-radian', content: () => unitCircleRadianLesson},
     'addition-formulas': {id: 'unit-circle-addition', content: () => unitCircleAdditionLesson},
+    'sine-rule': {id: 'triangle-sine-rule', content: () => sineRuleLesson},
+    'cosine-rule': {id: 'triangle-cosine-rule', content: () => cosineRuleLesson},
 } as const;
 
 const adapted = new Map<TrigonometrySectionId, LessonDefinition>();

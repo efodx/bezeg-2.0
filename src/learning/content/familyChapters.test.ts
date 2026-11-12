@@ -38,7 +38,7 @@ function withoutMath(source: string) {
 // patch-coons, reduction and arc-length-param joined the advanced-bezier chapter with AB-A-4.
 // bezier-clipping joined it with AB-B-4.
 // The trigonometry, line-geometry, isometry, circle-construction, simulation, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, waves, complex-power and complex-euler rows ship without a chapter link or lesson until families-prep F3.
-const CHAPTER_LINK_PENDING: readonly string[] = ['triangle-solver', 'recursion-cobweb', 'phase-portrait', 'contour-map', 'complex-power', 'complex-euler'];
+const CHAPTER_LINK_PENDING: readonly string[] = ['recursion-cobweb', 'phase-portrait', 'contour-map', 'complex-power', 'complex-euler'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -101,7 +101,7 @@ describe('family reading chapters', () => {
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps', 'trigonometry', 'analytic-lines', 'circle-geometry', 'isometries', 'combinatorics', 'kinematics', 'mechanical-curves', 'waves', 'recursion', 'phase-portraits', 'solids', 'randomness'].includes(chapter.id) ? 2 : chapter.id === 'level-sets' ? 1 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'advanced-bezier' ? 4 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps', 'analytic-lines', 'circle-geometry', 'isometries', 'combinatorics', 'kinematics', 'mechanical-curves', 'waves', 'recursion', 'phase-portraits', 'solids', 'randomness'].includes(chapter.id) ? 2 : chapter.id === 'level-sets' ? 1 : chapter.id === 'trigonometry' ? 4 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'advanced-bezier' ? 4 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);
@@ -141,10 +141,12 @@ describe('family reading chapters', () => {
             const expected = demonstrations.filter(demo => demo.family === family && !CHAPTER_LINK_PENDING.includes(demo.id)).map(demo => demo.id).sort();
             expect([...new Set(ids)].sort()).toEqual(expected);
         }
+        // The trigonometry chapter sits in the functions strand but also owns the triangle solver of the plane-geometry family (TR3, TR4); the triangle solver is counted for its own family above.
+        const alsoFamilies: Record<string, readonly string[]> = {trigonometry: ['plane-geometry']};
         for (const chapter of checked) {
             for (const section of chapter.sections) {
                 for (const id of section.demonstrationIds ?? []) {
-                    expect(demonstrations.find(demo => demo.id === id)?.family).toBe(chapter.family);
+                    expect([chapter.family, ...(alsoFamilies[chapter.id] ?? [])]).toContain(demonstrations.find(demo => demo.id === id)?.family);
                 }
             }
         }

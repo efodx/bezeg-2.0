@@ -58,7 +58,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'level-sets' ? [`level-sets.${section.id}.linear-program`] : []),
                     ...(chapter.id === 'randomness' ? [`randomness.${section.id}.prob-simulation`] : []),
                     ...(chapter.id === 'combinatorics' ? [`combinatorics.${section.id}.${section.id === 'lattice-paths-and-pascal' ? 'lattice-paths' : 'counting-tree'}`] : []),
-                    ...(chapter.id === 'trigonometry' ? [`trigonometry.${section.id}.unit-circle`] : []),
+                    ...(chapter.id === 'trigonometry' ? [`trigonometry.${section.id}.${section.id === 'sine-rule' || section.id === 'cosine-rule' ? 'triangle-solver' : 'unit-circle'}`] : []),
                     ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${(section.id === 'notable-points' ? 'triangle-centres' : section.id)}`] : []),
                 ].sort();
                 const references = exampleReferences<unknown>(content ?? []);
@@ -68,7 +68,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(160);
-        expect(new Set(allReferences).size).toBe(160);
+        expect(allReferences).toHaveLength(162);
+        expect(new Set(allReferences).size).toBe(162);
     }
 });

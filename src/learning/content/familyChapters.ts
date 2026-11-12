@@ -365,7 +365,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
         ],
     },
     schoolFunctionGraphsChapter, // School function graphs batch A: the graph transformation and inverse function lessons (S1, S2) of schoolFunctionGraphsGuidedLessons.ts.
-    trigonometryChapter, // Trigonometry batch A: TR1 and TR2 (trigUnitCircleGuidedLessons.ts); the triangle sections join in batches B and C.
+    trigonometryChapter, // Trigonometry: TR1 and TR2 (trigUnitCircleGuidedLessons.ts), TR3 and TR4 (trigTriangleGuidedLessons.ts); TR5 joins in batch C.
     {
         id: 'analysis', family: 'analysis',
         title: text('Analiza: od lokalnih korakov do sklepov', 'Analysis: from local steps to conclusions'),

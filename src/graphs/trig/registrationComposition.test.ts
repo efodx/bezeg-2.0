@@ -34,9 +34,9 @@ describe('R5 composition: every root references the trigonometry family export',
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, only the triangle solver opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(trigDemonstrationRows.length).toBe(2);
-        expect(trigDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false).map(row => row.id)).toEqual(['triangle-solver']);
+        expect(trigDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false).map(row => row.id)).toEqual([]);
         expect(new Set(Object.values(trigCollectionKeys)).size).toBe(trigDemonstrationRows.length);
     });
 });

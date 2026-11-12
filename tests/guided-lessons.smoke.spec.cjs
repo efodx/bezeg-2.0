@@ -1398,6 +1398,20 @@ const unitCircle = {
     },
 };
 
+// Chapter-owned trigonometry lesson TR3 (src/learning/content/trigTriangleGuidedLessons.ts): seven steps, explanation + observation frames, plus a calculation frame for one worked example.
+// TR4 (`?example=lesson.trigonometry.cosine-rule.triangle-solver`) shares the demonstration and has no default row; the host and content tests cover its scenes.
+const triangleSolver = {
+    id: 'triangle-solver',
+    path: `${BASE}/triangle-solver`,
+    titles: {sl: 'Sinusni izrek in očrtana krožnica', en: 'The sine rule and the circumcircle'},
+    steps: 6,
+    minFrames: 13, // 6 x 2 + 1 calculation frame
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(3);
+        return {};
+    },
+};
+
 // Chapter-owned analytic-lines lesson L1 (src/learning/content/analyticLinesGuidedLessons.ts): five steps, explanation + observation frames, plus a calculation frame for one worked example.
 // L2 (`?example=lesson.analytic-lines.normal-parallel-perpendicular.line-geometry`) shares the demonstration and has no default row; the host and content tests cover its scenes.
 const lineGeometry = {
@@ -2598,7 +2612,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton, linearProgram, logisticMap, solids];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, triangleSolver, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton, linearProgram, logisticMap, solids];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

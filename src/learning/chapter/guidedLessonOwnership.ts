@@ -52,6 +52,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     // The unit circle's first activity (TR1) in the trigonometry chapter; the addition-formula activity (TR2) is the second owner, derived from the chapter.
     'unit-circle': {chapterId: 'trigonometry', sectionId: 'radian-sine-cosine'},
+    // The triangle solver's first activity (TR3, sine rule) in the trigonometry chapter; the cosine-rule activity (TR4) is the second owner, derived from the chapter.
+    'triangle-solver': {chapterId: 'trigonometry', sectionId: 'sine-rule'},
     // The line geometry's first activity (L1) in the analytic lines chapter; the normal-vector activity (L2) is the second owner, derived from the chapter.
     'line-geometry': {chapterId: 'analytic-lines', sectionId: 'forms-of-a-line'},
     // The circle construction's first activity (CG1) in the circle geometry chapter; the radical-axis activity (CG2) is the second owner, derived from the chapter.

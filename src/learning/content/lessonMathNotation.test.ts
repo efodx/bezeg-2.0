@@ -15,6 +15,7 @@ import {interpolationGuidedLessons} from './interpolationGuidedLessons';
 import {numericalMethodsGuidedLessons} from './numericalMethodsGuidedLessons';
 import {projectiveConicsGuidedLessons} from './projectiveConicsGuidedLessons';
 import {unitCircleAdditionLesson, unitCircleRadianLesson} from './trigUnitCircleGuidedLessons';
+import {cosineRuleLesson, sineRuleLesson} from './trigTriangleGuidedLessons';
 import {lineFormsLesson, lineNormalLesson} from './analyticLinesGuidedLessons';
 import {circleTangentsLesson, circleRadicalLesson} from './circleGeometryGuidedLessons';
 import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson} from './mechanicalCurvesGuidedLessons';
@@ -85,6 +86,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['schoolFunctionGraphsBatchCGuidedLessons', schoolFunctionGraphsBatchCGuidedLessons],
     ['projectiveConicsGuidedLessons', projectiveConicsGuidedLessons],
     ['trigUnitCircleGuidedLessons', [unitCircleRadianLesson, unitCircleAdditionLesson]],
+    ['trigTriangleGuidedLessons', [sineRuleLesson, cosineRuleLesson]],
     ['analyticLinesGuidedLessons', [lineFormsLesson, lineNormalLesson]],
     ['circleGeometryGuidedLessons', [circleTangentsLesson, circleRadicalLesson]],
     ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson]],
@@ -236,6 +238,7 @@ test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'voronoi', 'voronoi-degenerate', 'weighted-parameterization',
             'unit-circle', 'unit-circle', // trigUnitCircleGuidedLessons.ts: TR1 and TR2
+            'triangle-solver', 'triangle-solver', // trigTriangleGuidedLessons.ts: TR3 and TR4
             'line-geometry', 'line-geometry', // analyticLinesGuidedLessons.ts: L1 and L2
             'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 and CG2
             'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 and KN2

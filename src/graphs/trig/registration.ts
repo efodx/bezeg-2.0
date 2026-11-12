@@ -4,14 +4,14 @@ import type {Definition} from '../../demonstrations';
  * Cheap metadata of the trigonometry family (spec lesson-authoring-architecture R1). Imports no graph, React, lesson
  * provider or localization value, so the home page and catalog can read it without loading the family. Executable surfaces
  * live in `runtime.ts`, which this file never imports; preset collections live in `collections.ts`.
- * `unit-circle` has its guided lessons (TR1, TR2, chapter-owned by the trigonometry chapter); `triangle-solver` ships without a guided lesson (`lesson: false`) until batch B.
+ * `unit-circle` has its guided lessons (TR1, TR2, chapter-owned by the trigonometry chapter); `triangle-solver` has its guided lessons (TR3, TR4, chapter-owned by the same chapter).
  */
 export const trigFamilyId = 'trigonometry';
 
 /** The family's Demonstration rows, in catalog order; `demonstrations.ts` spreads them after the projective rows. */
 export const trigDemonstrationRows = [
     {id: 'unit-circle', path: '/bezeg-2.0/functions/unit-circle', family: '/bezeg-2.0/functions', title: 'unit_circle_title', prompts: ['unit_circle_prompt', 'prompt_compare']},
-    {id: 'triangle-solver', path: '/bezeg-2.0/triangle-solver', family: 'plane-geometry', title: 'triangle_solver_title', prompts: ['triangle_solver_prompt', 'prompt_compare'], lesson: false},
+    {id: 'triangle-solver', path: '/bezeg-2.0/triangle-solver', family: 'plane-geometry', title: 'triangle_solver_title', prompts: ['triangle_solver_prompt', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 
 export type TrigDemonstrationId = typeof trigDemonstrationRows[number]['id'];

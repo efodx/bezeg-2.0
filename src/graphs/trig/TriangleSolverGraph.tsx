@@ -9,6 +9,8 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
 import {fitBoundingBox, FitPoint} from "../base/fitBoundingBox";
@@ -705,6 +707,58 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         return field.kind === "side"
             ? t("triangle_solver_side_label", {value0: FIELD_SYMBOL[field.name]})
             : t("triangle_solver_angle_label", {value0: FIELD_SYMBOL[field.name]});
+    }
+
+    // ---- Lesson actions -----------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`triangle`), each equal to the control of the same name: `set-mode` is the mode select and `set-vertex` the two coordinate fields of one
+     * vertex. Values are checked strictly against the field's range (a lesson-content error throws, nothing is snapped or clamped); the merged state goes
+     * through `parseTriangleState` and only changed fields are written. `setState` writes the store synchronously, so a later action of a scene reads
+     * this one's result.
+     */
+    applyTriangleAction(action: Extract<LessonAction, {kind: "triangle"}>): void {
+        const {kind: _kind, operation: _operation, ...fields} = action;
+        switch (action.operation) {
+            case "set-mode": {
+                this.refuseUnknown("set-mode", fields, ["mode"]);
+                const parsed = parseTriangleState({...this.state, mode: action.mode});
+                if (!parsed.ok) throw new Error(`triangle set-mode: ${parsed.error.field} ${parsed.error.reason}.`);
+                if (parsed.value.mode !== this.state.mode) this.setState({mode: parsed.value.mode});
+                return;
+            }
+            case "set-vertex": {
+                this.refuseUnknown("set-vertex", fields, ["vertex", "x", "y"]);
+                const vertex = VERTICES.find(candidate => candidate === action.vertex);
+                if (!vertex) throw new Error("triangle set-vertex: vertex must be A, B or C.");
+                for (const axis of ["x", "y"] as const) {
+                    const value = action[axis];
+                    const [low, high] = axis === "x" ? [VERTEX_X_MIN, VERTEX_X_MAX] : [VERTEX_Y_MIN, VERTEX_Y_MAX];
+                    if (typeof value !== "number" || !Number.isInteger(value) || value < low || value > high) {
+                        throw new Error(`triangle set-vertex: ${axis} must be an integer from ${low} to ${high}.`);
+                    }
+                }
+                const parsed = parseTriangleState({...this.state, [vertex]: {x: action.x, y: action.y}});
+                if (!parsed.ok) throw new Error(`triangle set-vertex: ${parsed.error.field} ${parsed.error.reason}.`);
+                this.setVertex(vertex, action.x, action.y);
+                this.requestRender();
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`triangle: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    private refuseUnknown(operation: string, fields: Readonly<Record<string, unknown>>, allowed: readonly string[]): void {
+        const unknown = Object.keys(fields).filter(key => !allowed.includes(key));
+        if (unknown.length) throw new Error(`triangle ${operation}: no such field ${unknown.join(", ")}.`);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("triangle", action => this.applyTriangleAction(action));
     }
 
     override getGraphCommands(): JSX.Element[] {
