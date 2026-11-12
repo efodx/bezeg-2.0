@@ -12,6 +12,8 @@ import {FUNCTION_KEYS} from "./ContourMapGraph";
 
 const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
 
+const REDUCED_REASON_ID = "contour-play-reduced-reason";
+
 /** Play or pause, reset and the step slider of the descent: host state, so only this part re-renders on a step. */
 export function ContourPlayback(props: {graph: ContourMapGraph}) {
     const text = useT();
@@ -24,12 +26,14 @@ export function ContourPlayback(props: {graph: ContourMapGraph}) {
     const playing = graph.playing;
     const params = {value0: "0", value1: String(last)};
     const blocks = playbackBlocks({atStart: step === 0, atEnd: step === last, playing});
+    const playBlock = blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined);
     return <div className="inspector-group">
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_step_slider")}
                          placement="graph" groupLabel={text("levelsets_graph_playback_group")} nextLabel={text("next_step")}
                          playing={playing} onNext={() => graph.nextStep()} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())}
                          onReset={() => graph.resetSteps()}
-                         {...blocks} playBlock={blocks.playBlock ?? (!playing && graph.reducedMotion() ? "reduced-motion" : undefined)}/>
+                         {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
+        {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_step_slider")}</p>}
         <Slider customText={text("levelsets_graph_steps_label")} min={0} max={last} step={1} grid={1} bigStep={5} decimals={0} value={step}
                 help={text("levelsets_graph_steps_help", params)} rejectedHint={text("levelsets_graph_steps_rejected", params)}
                 onChange={value => graph.setStepIndex(Math.round(value))}/>

@@ -175,14 +175,16 @@ function drawSection(s: SolidsGeometry): SolidsDrawing {
     }
     const b = boundsOf(solid);
     const solids = kept ? [kept] : [];
+    const plane = planeQuad(solid, s.normal, s.offset);
     return {
         solids,
-        scene: {points: [], polylines, ...meshOf(solids), planes: [planeQuad(solid, s.normal, s.offset)], markers, labels: vertexLabels(solid)},
+        scene: {points: [], polylines, ...meshOf(solids), planes: [plane], markers, labels: vertexLabels(solid)},
         readouts: {
             mode: 'section', kind: sec.kind, sides, area, coplanarFace: sec.kind === 'polygon' && sec.coplanarFace !== undefined, corners,
             keptVolume: kept ? meshVolume(kept) : 0, solidVolume: meshVolume(solid),
         },
-        framed: corners8(b),
+        // The view shows the plane too, so the opening view frames it with the solid and does not cut it at the board edge.
+        framed: [...corners8(b), ...plane.corners],
     };
 }
 

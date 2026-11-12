@@ -13,6 +13,8 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {FakeSurfaceView} from '../patches/FakeSurfaceView';
 import {assertFiniteScene} from '../patches/surface-view/surfaceScene';
+import {SolidsDisplayPanel} from './SolidsPanels';
+import {fitCameraTo} from '../patches/surface-view/surfaceMath';
 import SolidsGraph from './SolidsGraph';
 import {solidsPresetCollection} from './solidsPresetCollection';
 import {drawSolids} from './solidsScene';
@@ -477,5 +479,56 @@ describe('review repairs', () => {
         expect(document.querySelector('[data-caption="solids_graph_caption_section"]')).toBeNull();
         expect(document.querySelector('[data-caption="solids_graph_caption_cut"]')).toBeNull();
         expect(document.querySelector('[data-caption="solids_graph_caption_kept"]')).not.toBeNull();
+    });
+});
+
+describe('smoke repairs: the view of each mode and the camera panel', () => {
+    it('frames the camera for the solid of the mode it switches to and keeps the viewing angles', () => {
+        const {graph} = mount();
+        act(() => graph.setCameraAngle('az', 40));
+        for (const mode of ['revolve', 'volume', 'stack', 'section'] as const) {
+            const before = graph.state.camera;
+            setMode(graph, mode);
+            const framed = drawSolids(graph.state).framed.map((p): [number, number, number] => [p[0], p[1], p[2]]);
+            // The host of the test has a 600 x 400 size (the board shims), so the aspect is 3 : 2.
+            const expected = fitCameraTo(framed, 600 / 400, before);
+            expect(graph.state.camera.distance, mode).toBeCloseTo(expected.distance, 6);
+            expect([...graph.state.camera.target], mode).toEqual(expected.target);
+            expect(graph.state.camera.az, mode).toBe(before.az);
+            expect(graph.state.camera.el, mode).toBe(before.el);
+        }
+    });
+
+    it('frames the camera again when the solid or the revolve axis changes', () => {
+        const {graph} = mount();
+        setMode(graph, 'revolve');
+        for (const change of [() => graph.setSolid('sphere'), () => graph.setSolid('cone'), () => graph.setAxis('y')]) {
+            act(change);
+            const framed = drawSolids(graph.state).framed.map((p): [number, number, number] => [p[0], p[1], p[2]]);
+            const expected = fitCameraTo(framed, 600 / 400, graph.state.camera);
+            expect(graph.state.camera.distance).toBeCloseTo(expected.distance, 6);
+            expect([...graph.state.camera.target]).toEqual(expected.target);
+        }
+    });
+
+    it('frames the section plane with the solid, so the opening view does not cut it', () => {
+        const drawing = drawSolids(DEFAULT_SOLIDS_STATE);
+        const plane = drawing.scene.planes?.[0];
+        expect(plane).toBeDefined();
+        for (const corner of plane!.corners) expect(drawing.framed.some(p => p[0] === corner[0] && p[1] === corner[1] && p[2] === corner[2])).toBe(true);
+    });
+
+    it('shows a half-open azimuth range, so Home and End differ, and an elevation that the slider holds', () => {
+        const actions = {applyCameraPreset: vi.fn(), resetView: vi.fn(), setCameraAngle: vi.fn()};
+        render(<SolidsDisplayPanel state={{camera: {az: Math.PI, el: 0.502, distance: 9, projection: 'perspective', target: [0, 0, 0]}}} actions={actions}/>);
+        const azimuth = slider(t('patch_camera_azimuth'));
+        expect(Number(azimuth.min)).toBe(-180);
+        expect(Number(azimuth.max)).toBe(179);
+        // A turn of 180 degrees is the start of the range, so the two ends are two different directions.
+        expect(Number(azimuth.value)).toBe(-180);
+        // 28,76 degrees is held as 28,8 in the slider and read as 28,8 in the field.
+        const elevation = slider(t('patch_camera_elevation'));
+        expect(Number(elevation.value)).toBe(28.8);
+        expect(field(t('patch_camera_elevation')).value).toBe('28,8');
     });
 });

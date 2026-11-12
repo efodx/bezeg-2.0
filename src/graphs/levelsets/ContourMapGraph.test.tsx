@@ -2,7 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, settle} from '../base/realGraphTestHarness';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {setLanguage, t} from '../../localization';
@@ -47,6 +47,7 @@ class ObservedGraph extends ContourMapGraph {
     protected override animationScheduler() { return this.frames; }
     override reducedMotion() { return this.reduced; }
     override createSurfaceView() { const view = new FakeView(); this.views.push(view); return view; }
+    liveBoard() { return this.board; }
 }
 
 function mountGraph() {
@@ -317,7 +318,12 @@ describe('reduced motion', () => {
         const {graph} = mountGraph();
         graph.reduced = true;
         act(() => { graph.setMode('descent'); });
-        expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-disabled')).toBe('true');
+        const play = screen.getByRole('button', {name: t('play')});
+        expect(play.getAttribute('aria-disabled')).toBe('true');
+        // The reason is visible text before Play is pressed, and the button is described by it.
+        const reason = [...document.querySelectorAll('.inspector-help')].find(el => el.textContent === t('playback_block_reduced_motion_step_slider'));
+        expect(reason).toBeDefined();
+        expect((play.getAttribute('aria-describedby') ?? '').split(' ')).toContain(reason?.id);
         press(t('play'));
         expect(graph.playing).toBe(false);
         expect(graph.frames.pending()).toBe(false);
@@ -470,5 +476,78 @@ describe('readout wording', () => {
 
     it('a descent that never settles names the step cap', () => {
         expect(t('levelsets_graph_settled_never', {value0: String(DESCENT_MAX_STEPS)})).toBe('ni dosežen v 200 korakih');
+    });
+});
+
+describe('the view follows the board size (a mode changes the board height after the frame)', () => {
+    type SizedBoard = {canvasHeight: number; origin: {scrCoords: number[]}; getBoundingBox(): number[];
+        resizeContainer(width: number, height: number, dontSet?: boolean): void; moveOrigin(x: number, y: number): void; update(): void;
+        setBoundingBox(box: number[], keepAspect: boolean): void};
+    const callbacks: Array<() => void> = [];
+    const setHeight = (height: number) => {
+        for (const [name, size] of [['clientWidth', 390], ['offsetWidth', 390], ['clientHeight', height], ['offsetHeight', height]] as const) {
+            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        }
+    };
+    beforeEach(() => {
+        callbacks.length = 0;
+        vi.stubGlobal('ResizeObserver', class {
+            // the graph's observer takes no entries; JSXGraph's own does, and the test resizes the board itself
+            constructor(callback: (entries?: unknown[]) => void) { if (callback.length === 0) callbacks.push(callback); }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        });
+        setHeight(295);
+    });
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) {
+            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        }
+    });
+    const settleTo = (board: SizedBoard, height: number, move?: () => void) => {
+        setHeight(height);
+        board.resizeContainer(390, height);
+        move?.();
+        vi.useFakeTimers();
+        callbacks.forEach(callback => callback());
+        act(() => { vi.advanceTimersByTime(400); });
+        vi.useRealTimers();
+    };
+    const near = (actual: number[], expected: number[]) => {
+        expect(actual).toHaveLength(expected.length);
+        actual.forEach((value, index) => expect(value).toBeCloseTo(expected[index], 6));
+    };
+
+    it('an unmoved view is framed again for the settled height: the box Reset gives at that height', async () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as SizedBoard;
+        const first = [...board.getBoundingBox()];
+        settleTo(board, 498);
+        const settled = [...board.getBoundingBox()];
+        expect(settled).not.toEqual(first);
+        await settle(() => graph.reset());
+        near(settled, board.getBoundingBox());
+    });
+
+    it('a view the user moved is left alone when the board settles', () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as SizedBoard;
+        let moved: number[] = [];
+        (board as unknown as {containerObj: HTMLElement}).containerObj.dispatchEvent(new Event('pointerdown'));
+        settleTo(board, 498, () => { moved = [...board.getBoundingBox()]; });
+        near(board.getBoundingBox(), moved);
+    });
+
+    it('a Preset file with a stored view keeps it when the board settles', () => {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as SizedBoard;
+        const preset = {...JSON.parse(JSON.stringify(graph.exportPreset())), boardState: {boundingBox: [-1.5, 2, 4.5, -2]}};
+        act(() => { graph.importPreset(preset); });
+        let kept: number[] = [];
+        settleTo(board, 498, () => { kept = [...board.getBoundingBox()]; });
+        near(board.getBoundingBox(), kept);
     });
 });

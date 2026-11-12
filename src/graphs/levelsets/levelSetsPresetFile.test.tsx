@@ -8,6 +8,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {ContourMapGraph} from './ContourMapGraph';
 import {LinearProgramGraph} from './LinearProgramGraph';
+import {contourWindow} from '../../levelsets/contourModel';
 
 beforeAll(installBoardShims);
 
@@ -134,6 +135,59 @@ describe('the legend on a narrow board (390 x 480 px)', () => {
                 }
                 // The Slovenian contour legend is short enough to take one line per row at 390 px.
                 if (name !== 'contour map' || language === 'en') expect(wrapped, 'some row wraps at 390 px').toBe(true);
+            });
+        }
+    }
+});
+
+// The opening view frames the data below the legend: the legend is its own strip at the top of the board, the data starts under it.
+describe('the opening view keeps the legend off the data', () => {
+    const restore = [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const;
+    const sizeBoard = (width: number, height: number) => {
+        for (const [name, size] of Object.entries({clientWidth: width, offsetWidth: width, clientHeight: height, offsetHeight: height})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
+    };
+    afterEach(() => {
+        for (const [name, size] of restore) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+        setLanguage('sl');
+    });
+    type Row = {plaintext: unknown; Y(): number; visPropCalc: {visible: boolean}; evalVisProp(name: string): unknown};
+    /** The lowest pixel (from the top of the board) a legend row reaches, wrapped lines included. */
+    const legendBottomPx = (board: JXG.Board, width: number): number => {
+        const rows = (board.objectsList as unknown as Row[])
+            .filter(o => o.visPropCalc.visible && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() > board.getBoundingBox()[1] - 400 / board.unitY && o.Y() <= board.getBoundingBox()[1]);
+        expect(rows.length).toBeGreaterThanOrEqual(3);
+        return Math.max(...rows.map(row => (board.getBoundingBox()[1] - row.Y()) * board.unitY + legendLines(String(row.plaintext), width) * 20));
+    };
+    const pxFromTop = (board: JXG.Board, y: number): number => (board.getBoundingBox()[1] - y) * board.unitY;
+    const sizes = [[600, 400], [390, 480]] as const;
+    for (const [width, height] of sizes) {
+        for (const language of ['sl', 'en'] as const) {
+            test(`linear program: the region and its vertices lie below the legend and fill the rest (${width} x ${height}, ${language})`, () => {
+                sizeBoard(width, height);
+                setLanguage(language);
+                const graph = mountGraph(new ViewedLp());
+                const board = graph.liveBoard();
+                const vertices = graph.solution().result.vertices.map(v => [v.x.toNumber(), v.y.toNumber()]);
+                const [left, , right] = board.getBoundingBox();
+                const top = Math.min(...vertices.map(v => pxFromTop(board, v[1])));
+                const bottom = Math.max(...vertices.map(v => pxFromTop(board, v[1])));
+                expect(top).toBeGreaterThanOrEqual(legendBottomPx(board, width));
+                expect(bottom).toBeLessThanOrEqual(height - 10);
+                for (const v of vertices) { expect(v[0]).toBeGreaterThan(left); expect(v[0]).toBeLessThan(right); }
+                // The region is not a small patch in a corner: it takes at least a third of the strip below the legend.
+                expect(bottom - top).toBeGreaterThanOrEqual((height - legendBottomPx(board, width)) / 3);
+            });
+        }
+        for (const mode of ['level-sets', 'gradient', 'descent', 'lagrange'] as const) {
+            test(`contour map ${mode}: the window starts below the legend (${width} x ${height})`, () => {
+                sizeBoard(width, height);
+                const graph = mountGraph(new ViewedContour());
+                act(() => { graph.setMode(mode); });
+                const board = graph.liveBoard();
+                const window = contourWindow(graph.state.fn, mode);
+                expect(pxFromTop(board, window.yMax)).toBeGreaterThanOrEqual(legendBottomPx(board, width));
             });
         }
     }

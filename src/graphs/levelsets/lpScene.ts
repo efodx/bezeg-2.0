@@ -91,6 +91,24 @@ export function viewBox(solution: LpSolution): Box {
     return {xMin: VIEW_LOW, yMin: VIEW_LOW, xMax: high, yMax: high};
 }
 
+/** The box the lines and the region are cut to: the drawn square widened by its own size on every side, so a wide or tall canvas never shows a line ending. */
+export function clipBox(box: Box): Box {
+    const w = box.xMax - box.xMin, h = box.yMax - box.yMin;
+    return {xMin: box.xMin - w, yMin: box.yMin - h, xMax: box.xMax + w, yMax: box.yMax + h};
+}
+
+/**
+ * The points the opening view frames: the vertices of a bounded feasible region, the origin and the objective handle (p, q). A region
+ * that is empty or unbounded has no extent to frame, so it keeps the corners of the drawn square.
+ */
+export function framePoints(solution: LpSolution, handle: {readonly p: number; readonly q: number}): [number, number][] {
+    if (solution.result.region === 'infeasible' || solution.result.region === 'unbounded' || solution.result.vertices.length === 0) {
+        const box = viewBox(solution);
+        return [[box.xMin, box.yMin], [box.xMax, box.yMax]];
+    }
+    return [...solution.result.vertices.map((v): [number, number] => [v.x.toNumber(), v.y.toNumber()]), [0, 0], [handle.p, handle.q]];
+}
+
 /** The box as a counter-clockwise polygon. */
 const boxPolygon = (box: Box): [number, number][] => [[box.xMin, box.yMin], [box.xMax, box.yMin], [box.xMax, box.yMax], [box.xMin, box.yMax]];
 

@@ -101,13 +101,19 @@ export default class SolidsGraph extends BaseSurfaceGraph<SolidsGraphState, Soli
     setMode(mode: SolidsMode): void {
         if (!MODES.includes(mode)) return;
         const next = withMode(this.state, mode);
-        if (next !== this.state) this.setState({mode: next.mode, solid: next.solid});
+        if (next !== this.state) {
+            this.setState({mode: next.mode, solid: next.solid});
+            this.frameSolid();
+        }
     }
 
     setSolid(solid: SolidId): void {
         if (!SOLID_IDS.includes(solid)) return;
         const next = withSolid(this.state, solid);
-        if (next !== this.state) this.setState({solid: next.solid, mode: next.mode, axis: next.axis});
+        if (next !== this.state) {
+            this.setState({solid: next.solid, mode: next.mode, axis: next.axis});
+            this.frameSolid();
+        }
     }
 
     /** One component of the plane normal; the zero normal is refused (no plane), as is a value off the grid. */
@@ -137,7 +143,19 @@ export default class SolidsGraph extends BaseSurfaceGraph<SolidsGraphState, Soli
     }
 
     setAxis(axis: SolidsAxis): void {
-        if (AXES.includes(axis) && axisAccepts(this.state.solid, axis)) this.setState({axis});
+        if (AXES.includes(axis) && axisAccepts(this.state.solid, axis) && axis !== this.state.axis) {
+            this.setState({axis});
+            this.frameSolid();
+        }
+    }
+
+    /**
+     * A new solid, mode or axis is framed like a fresh open, from the viewing angles the learner has now: the camera of the old
+     * solid (its target and distance) would show a solid of another size cut at the board edge.
+     */
+    private frameSolid(): void {
+        const framed: Xyz[] = this.drawing().framed.map((p): Xyz => [p[0], p[1], p[2]]);
+        this.setSurfaceState({camera: fitCameraTo(framed, this.hostAspect(), this.state.camera)});
     }
 
     setCameraAngle(angle: 'az' | 'el', degrees: number): void {

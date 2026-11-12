@@ -15,13 +15,13 @@ import {
     BOUND_RANGE, COEFFICIENT_RANGE, DEFAULT_LP_STATE, OBJECTIVE_RANGE, ROW_COUNT_RANGE, SWEEP_RANGE, parseLpState, serializeLpState, type LpState,
 } from "../../optimization/lpModel";
 import {
-    evaluate, exactText, integerText, isFraction, linePoly, linearText, pathPoly, regionPoly, rowLeft, snapInteger, solveState, typedInteger, viewBox,
+    clipBox, evaluate, exactText, framePoints, integerText, isFraction, linePoly, linearText, pathPoly, regionPoly, rowLeft, snapInteger, solveState, typedInteger, viewBox,
     type Box, type LpSolution, type LpStatus,
 } from "./lpScene";
 import {emptyPoly, type Poly} from "./contourScene";
 import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
-import {legendRowOffset} from "./legendLines";
+import {frameBelowLegend, legendBandPx, legendRowOffset} from "./legendLines";
 import {Memo} from "./Memo";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
@@ -58,6 +58,7 @@ const STATUS_KEYS: Record<LpStatus, "levelsets_graph_lp_status_infeasible" | "le
 };
 
 const viewKey = (box: readonly number[]): string => box.map(value => value.toFixed(6)).join(",");
+/** The square of `viewBox` with a margin: the view of an empty region or a board without a size. */
 const boardBox = (box: Box): [number, number, number, number] => {
     const margin = 0.04 * (box.xMax - box.xMin);
     return [box.xMin - margin, box.yMax + margin, box.xMax + margin, box.yMin - margin];
@@ -70,7 +71,7 @@ export interface LegendRow {
     readonly color: string;
 }
 
-type Geometry = {readonly box: Box; readonly region: Poly; readonly rows: readonly Poly[]};
+type Geometry = {readonly box: Box; readonly clip: Box; readonly region: Poly; readonly rows: readonly Poly[]};
 
 /**
  * The linear-programming graph (level-sets spec LS5, ADR 0053 section 4): the feasible region of up to five integer constraints with
@@ -135,12 +136,19 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         if (!parsed.ok) return;
         const imported = serializeLpState(parsed.value);
         // The host commits the state later and its sync would reframe: mark the imported data's view as drawn so the stored view stays.
-        if (this.keepImportedView) this.drawnView = viewKey(boardBox(viewBox(solveState(imported))));
+        if (this.keepImportedView) this.drawnView = this.viewKeyOf(solveState(imported));
         this.setState(imported);
     }
 
     protected override initialView(): [number, number, number, number] {
         return boardBox(viewBox(solveState(DEFAULT_LP_STATE)));
+    }
+
+    /** Reset and a Preset without a stored view: the view of the default data, framed as the first load frames it (see `applyView`). */
+    protected override showInitialView(): void {
+        const solution = solveState(DEFAULT_LP_STATE);
+        this.board.setBoundingBox(this.frameOf(solution, DEFAULT_LP_STATE.objective), true);
+        this.drawnView = this.viewKeyOf(solution);
     }
 
     // ---- Host state (the readout re-renders from it) ---------------------------------------------------------------------
@@ -177,9 +185,10 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         return this.geometryMemo.get([this.state.constraints], () => {
             const solution = this.solution();
             const box = viewBox(solution);
+            const clip = clipBox(box);
             return {
-                box, region: regionPoly(solution, box),
-                rows: this.state.constraints.map(k => linePoly(k.a, k.b, k.c, box)),
+                box, clip, region: regionPoly(solution, clip),
+                rows: this.state.constraints.map(k => linePoly(k.a, k.b, k.c, clip)),
             };
         });
     }
@@ -188,13 +197,13 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     private sweepLine(): Poly {
         const {objective, sweep} = this.state;
-        return this.flat() ? emptyPoly() : linePoly(objective.p, objective.q, sweep, this.geometry().box);
+        return this.flat() ? emptyPoly() : linePoly(objective.p, objective.q, sweep, this.geometry().clip);
     }
 
     private optimumLine(): Poly {
         const solution = this.solution();
         if (solution.value === null || solution.status === "flat") return emptyPoly();
-        return linePoly(this.state.objective.p, this.state.objective.q, solution.value.toNumber(), this.geometry().box);
+        return linePoly(this.state.objective.p, this.state.objective.q, solution.value.toNumber(), this.geometry().clip);
     }
 
     private walkPoints(): readonly RationalPoint[] { return this.solution().result.walk; }
@@ -242,7 +251,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the view as drawn so it is kept.
         if (this.hasBoard && this.graphSession?.isAlive) {
             if (this.scene.objectCount() === 0) this.buildScene();
-            this.drawnView = viewKey(boardBox(this.geometry().box));
+            this.drawnView = this.viewKeyOf(this.solution());
         }
         this.syncBoard();
     }
@@ -278,11 +287,35 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     /** Frames the board once per view key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyView(): void {
-        const box = boardBox(this.geometry().box);
-        const key = viewKey(box);
+        const solution = this.solution();
+        const key = this.viewKeyOf(solution);
         if (key === this.drawnView) return;
         this.drawnView = key;
-        this.board.setBoundingBox([...box], true);
+        this.board.setBoundingBox(this.frameOf(solution, this.state.objective), true);
+    }
+
+    /**
+     * What decides a reframe: the framed points (not the handle, so dragging the objective never moves the view) and the height of the
+     * legend band, which follows the rows the state shows and the board width.
+     */
+    private viewKeyOf(solution: LpSolution): string {
+        return `${viewKey(framePoints(solution, {p: 0, q: 0}).flat())}|${this.legendBand()}`;
+    }
+
+    /**
+     * The pixels the legend takes from the top of the board: its own strip, above the framed data. It is the height of every caption
+     * stacked, whatever rows the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
+     */
+    private legendBand(): number {
+        const captions = [t("levelsets_graph_lp_cap_region"), t("levelsets_graph_lp_cap_rows"), t("levelsets_graph_lp_cap_vertex"), t("levelsets_graph_lp_cap_optimum"),
+            t("levelsets_graph_lp_cap_objective"), t("levelsets_graph_lp_cap_sweep"), t("levelsets_graph_lp_cap_direction"), t("levelsets_graph_lp_cap_walk"), t("levelsets_graph_lp_cap_clip")];
+        return legendBandPx(captions, this.board.canvasWidth);
+    }
+
+    /** The view with the feasible region, its vertices and the objective handle framed with margin below the legend band. */
+    private frameOf(solution: LpSolution, handle: {readonly p: number; readonly q: number}): [number, number, number, number] {
+        const {canvasWidth, canvasHeight} = this.board;
+        return frameBelowLegend(framePoints(solution, handle), canvasWidth, canvasHeight, this.legendBand()) ?? boardBox(viewBox(solution));
     }
 
     /** Moves the objective handle to the stored (p, q) (idempotent). */

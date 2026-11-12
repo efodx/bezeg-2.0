@@ -1,3 +1,4 @@
+import {Button} from 'react-bootstrap';
 import {formatNumber, NOT_A_NUMBER_TEXT} from '../../analysis/format';
 import {ChoiceSelect} from '../../inputs/ChoiceSelect';
 import Slider from '../../inputs/Slider';
@@ -9,7 +10,8 @@ import {
 import {LiveReadout} from '../base/controls/LiveReadout';
 import {useStatusReadout} from '../base/controls/useStatusReadout';
 import {FunctionReadout, type ReadoutRow} from '../functions/FunctionReadout';
-import {SurfaceCameraPanel, type SurfaceCameraActions} from '../patches/SurfaceCameraPanel';
+import {azimuthDegrees, type SurfaceCameraActions} from '../patches/SurfaceCameraPanel';
+import {CAMERA_PRESETS} from '../patches/surface-view/surfaceMath';
 import type {SolidsReadouts} from './solidsScene';
 
 export interface SolidsPanelActions extends SurfaceCameraActions {
@@ -182,6 +184,31 @@ export function SolidsReadoutPanel({mode, solid, readouts}: {mode: SolidsMode; s
     </>;
 }
 
+const MAX_ELEVATION_DEGREES = CAMERA_PRESETS.top.el * 180 / Math.PI;
+
+/** The azimuth the slider shows: whole degrees in [-180, 179], so a full turn has one value at each end of the range, not two. */
+export const shownAzimuth = (radians: number): number => ((Math.round(azimuthDegrees(radians)) + 180) % 360 + 360) % 360 - 180;
+/** The elevation the slider holds: tenths of a degree, the precision its field shows, so the field and the slider agree. */
+export const shownElevation = (radians: number): number => Math.round(radians * 1800 / Math.PI) / 10;
+
+/**
+ * The "View" group of the surface graphs with its own azimuth range: the shared panel spans -180 to 180, where both ends are the same
+ * direction and read -180. The view buttons and the elevation range are the same.
+ */
 export function SolidsDisplayPanel({state, actions}: {state: Pick<SolidsPanelState, 'camera'>; actions: SurfaceCameraActions}) {
-    return <SurfaceCameraPanel camera={state.camera} actions={actions}/>;
+    const t = useT();
+    const {camera} = state;
+    return <div className="inspector-group"><h3>{t('patch_camera_heading')}</h3>
+        <div className="workspace-curve-picker">
+            <Button onClick={() => actions.applyCameraPreset('front')}>{t('patch_view_front')}</Button>
+            <Button onClick={() => actions.applyCameraPreset('top')}>{t('patch_view_top')}</Button>
+            <Button onClick={() => actions.applyCameraPreset('side')}>{t('patch_view_side')}</Button>
+            <Button onClick={() => actions.applyCameraPreset('isometric')}>{t('patch_view_isometric')}</Button>
+            <Button onClick={() => actions.resetView()}>{t('patch_view_reset')}</Button>
+        </div>
+        <Slider customText={t('patch_camera_azimuth')} min={-180} max={179} step={1} decimals={0} value={shownAzimuth(camera.az)}
+                onChange={degrees => actions.setCameraAngle('az', degrees)}/>
+        <Slider customText={t('patch_camera_elevation')} min={-MAX_ELEVATION_DEGREES} max={MAX_ELEVATION_DEGREES} step={1} decimals={1}
+                value={shownElevation(camera.el)} onChange={degrees => actions.setCameraAngle('el', degrees)}/>
+    </div>;
 }

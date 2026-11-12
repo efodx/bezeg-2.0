@@ -31,7 +31,7 @@ import {
     type DescentInfo, type GradientInfo, type LagrangeInfo, type LevelDrawing, type Poly, type SurfaceMeshData,
 } from "./contourScene";
 import {ContourPlayback, ContourReadout, ContourSurfacePanel} from "./ContourPanels";
-import {legendRowOffset} from "./legendLines";
+import {frameBelowLegend, legendBandPx, legendRowOffset} from "./legendLines";
 import {Memo} from "./Memo";
 import {contourPresetCollection, type ContourPresetData} from "./contourPresetCollection";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -209,12 +209,46 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         if (!parsed.ok) return;
         const imported = serializeContourState(parsed.value);
         // The host commits the state later and its sync would reframe: mark the imported data's view as drawn so the stored view stays.
-        if (this.keepImportedView) this.drawnView = viewKey(viewBox(imported));
+        if (this.keepImportedView) this.drawnView = this.viewKeyOf(imported);
         this.setState(imported);
     }
 
     protected override initialView(): [number, number, number, number] {
         return viewBox(DEFAULT_CONTOUR_STATE);
+    }
+
+    /** Reset and a Preset without a stored view: the window of the default data, framed as the first load frames it (see `applyView`). */
+    protected override showInitialView(): void {
+        this.board.setBoundingBox(this.frameOf(DEFAULT_CONTOUR_STATE), true);
+        this.drawnView = this.viewKeyOf(DEFAULT_CONTOUR_STATE);
+        this.storedView = false;
+        this.markFramed();
+    }
+
+    /**
+     * True from a framing until the learner touches the board (pointer or wheel): the board's size settles after the frame (a mode
+     * changes its height) and JSXGraph then changes the window, so a view nobody touched is framed again for the settled size, as Reset
+     * frames it. A stored view (a Preset with a `boardState`) is the learner's own and is never framed again.
+     */
+    private framePending = false;
+    private storedView = false;
+
+    private markFramed(): void {
+        this.framePending = !this.storedView;
+    }
+
+    protected override importFigurePresetData(preset: Preset): void {
+        this.storedView = preset.boardState !== undefined;
+        if (this.storedView) this.framePending = false;
+        super.importFigurePresetData(preset);
+    }
+
+    private reframeToSize(): void {
+        if (!this.framePending || !this.hasBoard || !this.graphSession?.isAlive) return;
+        const state = this.state;
+        this.board.setBoundingBox(this.frameOf(state), true);
+        this.drawnView = this.viewKeyOf(state);
+        this.board.update();
     }
 
     // ---- Host state -----------------------------------------------------------------------------------------------------
@@ -385,6 +419,25 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         this.drawnView = "";
         this.applyView();
         const session = this.graphSession;
+        const container = this.hasBoard ? this.board.containerObj as HTMLElement | undefined : undefined;
+        if (session && container && typeof ResizeObserver !== "undefined") {
+            // The board follows a resize after a short delay of its own, so the frame waits for the board's new size.
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const observer = new ResizeObserver(() => {
+                clearTimeout(timer);
+                timer = setTimeout(() => this.reframeToSize(), 150);
+            });
+            observer.observe(container);
+            const touched = () => { this.framePending = false; };
+            container.addEventListener("pointerdown", touched, true);
+            container.addEventListener("wheel", touched, true);
+            session.registerCleanup(() => {
+                clearTimeout(timer);
+                observer.disconnect();
+                container.removeEventListener("pointerdown", touched, true);
+                container.removeEventListener("wheel", touched, true);
+            });
+        }
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => {
@@ -411,7 +464,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the view as drawn so it is kept.
         if (this.hasBoard && this.graphSession?.isAlive) {
             if (this.scene.objectCount() === 0) this.buildScene();
-            this.drawnView = viewKey(viewBox(this.state));
+            this.drawnView = this.viewKeyOf(this.state);
         }
         this.halt();
         this.syncBoard();
@@ -441,7 +494,9 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
     override importPreset(preset: Preset): void {
         this.keepImportedView = preset.boardState !== undefined;
         try {
+            this.storedView = preset.boardState !== undefined;
             super.importPreset(preset);
+            if (this.storedView) this.framePending = false;
         } finally {
             this.keepImportedView = false;
         }
@@ -449,11 +504,39 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     /** Frames the board once per view key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyView(): void {
-        const box = viewBox(this.state);
-        const key = viewKey(box);
+        const key = this.viewKeyOf(this.state);
         if (key === this.drawnView) return;
         this.drawnView = key;
-        this.board.setBoundingBox([...box], true);
+        this.board.setBoundingBox(this.frameOf(this.state), true);
+        this.markFramed();
+    }
+
+    /** What decides a reframe: the window and the height of the legend band (which follows the mode and the board width). */
+    private viewKeyOf(state: ContourState): string {
+        return `${viewKey(viewBox(state))}|${this.legendBand(state.mode)}`;
+    }
+
+    /**
+     * The pixels the legend takes from the top of the board: its own strip, above the framed window. It is the height of every caption
+     * the mode can show, stacked, whatever the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
+     */
+    private legendBand(mode: ContourState["mode"]): number {
+        const captions = [t("levelsets_graph_cap_levels"), t("levelsets_graph_cap_levels_more")];
+        if (mode !== "descent") captions.push(t("levelsets_graph_cap_through"));
+        if (mode === "level-sets" || mode === "gradient") captions.push(t("levelsets_graph_cap_probe"));
+        if (mode === "gradient") captions.push(t("levelsets_graph_cap_gradient"), t("levelsets_graph_cap_tangent"), t("levelsets_graph_cap_scale", {value0: dec(1, 3)}));
+        if (mode === "descent") captions.push(t("levelsets_graph_cap_start"), t("levelsets_graph_cap_path"), t("levelsets_graph_cap_current"), t("levelsets_graph_cap_cut"));
+        if (mode === "lagrange") {
+            captions.push(t("levelsets_graph_cap_constraint"), t("levelsets_graph_cap_point"), t("levelsets_graph_cap_grad_f"), t("levelsets_graph_cap_grad_g"), t("levelsets_graph_cap_tangency"));
+        }
+        return legendBandPx(captions, this.board.canvasWidth);
+    }
+
+    /** The window of the state framed with margin below the legend band. */
+    private frameOf(state: ContourState): [number, number, number, number] {
+        const [left, top, right, bottom] = viewBox(state);
+        const {canvasWidth, canvasHeight} = this.board;
+        return frameBelowLegend([[left, top], [right, bottom]], canvasWidth, canvasHeight, this.legendBand(state.mode)) ?? [left, top, right, bottom];
     }
 
     /** Moves every handle to the stored value (idempotent). */
