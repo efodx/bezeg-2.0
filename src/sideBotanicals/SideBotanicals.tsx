@@ -5,15 +5,20 @@ import './SideBotanicals.css';
 const MIN_WIDTH = 1600;
 const BOX_H = 1440;
 
-/** Gutter width in box units at which the owner tuned the settings (3440×1280 with the 1100px column). */
-const TUNED_BOX_W = 1290;
 /** Owner (2026-11-13): the density seen at a 2048px-wide window looks best on every size: three branches per side with four heads each. */
 const BRANCHES = 3;
 const HEADS = 4;
 
-/** Keeps the same density on every gutter: fixed branch and head counts, with plant size proportional to the gutter width. */
+/** Gutter width in box units at a 2048px-wide window, where the owner liked the look best. */
+const DENSITY_BOX_W = 516;
+const DENSITY_SIZE = .4;
+
+/**
+ * Keeps the same density on every gutter: fixed branch and head counts. Plant size is exactly the 2048px look
+ * there and grows only with the square root of the gutter width, so ultrawides are not dominated by huge plants.
+ */
 export function fitToGutter(settings: ElderSettings, boxW: number): ElderSettings {
-    const k = boxW / TUNED_BOX_W;
+    const k = DENSITY_SIZE * Math.sqrt(boxW / DENSITY_BOX_W);
     return {...settings, size: settings.size * k, thick: settings.thick * Math.sqrt(k),
         left: Math.min(BRANCHES, settings.left), right: Math.min(BRANCHES, settings.right), heads: Math.min(HEADS, settings.heads)};
 }

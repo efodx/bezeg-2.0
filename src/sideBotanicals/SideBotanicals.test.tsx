@@ -49,8 +49,8 @@ test.each([3918, 3440, 2048])('a %ipx viewport keeps the owner density: three br
 
 test('fitToGutter keeps counts fixed and scales plant size with the gutter', () => {
     const wide = fitToGutter(ELDER_SETTINGS, 1290), narrow = fitToGutter(ELDER_SETTINGS, 516);
-    expect(wide.size).toBeCloseTo(ELDER_SETTINGS.size);
-    expect(narrow.size).toBeCloseTo(ELDER_SETTINGS.size * .4);
+    expect(narrow.size).toBeCloseTo(ELDER_SETTINGS.size * .4); // the 2048px look
+    expect(wide.size / narrow.size).toBeCloseTo(Math.sqrt(1290 / 516)); // grows with the square root of the gutter
     expect(narrow.thick).toBeLessThan(wide.thick);
     for (const s of [wide, narrow]) expect([s.left, s.right, s.heads]).toEqual([3, 3, 4]);
     expect(fitToGutter({...ELDER_SETTINGS, left: 2, heads: 3}, 400)).toMatchObject({left: 2, heads: 3});
