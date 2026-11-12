@@ -11,6 +11,7 @@ import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors, ChapterSectionPermalink, ChapterTrail} from './ChapterNavigation';
 import {linkedParagraph} from './chapter/linkedParagraph';
 import {observeChapterInlineMath} from './chapter/inlineMathLayout';
+import {useChapterDocumentTitle} from './chapter/useChapterDocumentTitle';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -42,6 +43,7 @@ export function ChapterPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const copy = bezierChapter[language];
+    useChapterDocumentTitle(copy.title);
     const articleRef = useRef<HTMLElement>(null);
     const previousLanguage = useRef(language);
     const scrollAnchor = useRef<SectionScrollAnchor>({sectionId: 'motivation', top: 0});

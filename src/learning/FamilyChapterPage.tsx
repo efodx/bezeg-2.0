@@ -13,6 +13,7 @@ import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {linkedParagraph} from './chapter/linkedParagraph';
 import {observeChapterInlineMath} from './chapter/inlineMathLayout';
+import {useChapterDocumentTitle} from './chapter/useChapterDocumentTitle';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -41,6 +42,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
     const restoredPath = useRef<string>();
     const catalog = getDemonstrationCatalog();
     const family = catalog.families.find(entry => entry.id === chapter.family)!;
+    useChapterDocumentTitle(chapter.title[language]);
     const contentsSections = useMemo(() => chapter.sections.map(section => ({id: section.id, title: section.title[language]})), [chapter, language]);
 
     useEffect(() => {
