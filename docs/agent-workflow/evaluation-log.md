@@ -2885,3 +2885,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** none to code. Deferred: tighten the `PointSetPermittedState` index signature.
 - **Positive:** a handoff note of 435 words was enough for a fresh worker to finish without rereading the design.
 - **Handoff evidence:** the first worker used about 141k (HANDOFF) and the second about 47k, mostly waiting for test slots. The smoke used about 22k and the review about 43k.
+
+### 2026-11-12 — authoring-rollout handler 6: task 08 batch 4 (M)
+
+- **Scope:** `point-set-triangulation` and `delaunay` on `pointSetPersistence`, with a new named data part for the triangle list, plus the carried `PointSetPermittedState` tightening. Estimated M; held.
+- **Workers:** 2 implementation workers (Sonnet `medium`): the first reached HANDOFF at about 142k with code, 18 tests and 5 mutations done, and the second finished from its note (lint, existing tests, the sweep, evidence; no fixes). There was 1 review (Sonnet `medium`), run alongside the second worker, which found nothing blocking, and 1 smoke (Haiku `medium`), 12/12.
+- **Outcome:** `3a2bf2c8`. 19 host tests; 16 failed on the pre-change code and 5 mutations were caught. Two contract rows removed. Handler additions: a guard test for an import during playback (from a review note) and a comment fix.
+- **Repairs:** none to code.
+- **Positive:** a brief listing eight settled decisions gave a design the reviewer accepted at once. Running the review in parallel with the checks worker cost no wall time.
+- **Handoff evidence:** the first worker used about 142k (HANDOFF), the second about 26k, the review about 36k and the smoke about 19k.
