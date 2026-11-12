@@ -4,14 +4,15 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {isMessage, LocalizedError, Message} from "../../localization";
-import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
+import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection} from "./curvePresetCollections";
 import {bernsteinPresetCollection} from "../basics/collections";
 import {quinticPhPresetCollection} from "./ph/collections";
 import {arcLengthParamPresetCollection, bezierPresetCollection, reductionPresetCollection} from "./bezier/collections";
 import {rationalElevationPresetCollection, rationalPresetCollection} from "./rational/collections";
+import {c2SplinePresetCollection, cnSplinePresetCollection, g1SplinePresetCollection, g1SymmetricSplinePresetCollection, legacyG1SplinePresetCollection} from "./spline/collections";
 
-/** The aggregate map plus the moved PH, Bezier and rational collections the diagnosis table below still exercises. */
-const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection, rational: rationalPresetCollection};
+/** The aggregate map plus the moved PH, Bezier, rational and spline collections the diagnosis table below still exercises. */
+const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection, rational: rationalPresetCollection, "spline-cn": cnSplinePresetCollection};
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -49,7 +50,7 @@ test("supports exported PH state with the historically optional lines flag absen
 const g1State = (b: unknown) => ({showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, b});
 const g1Points = [[-4, -1], [-2, 2], [0, 0], [2, -2], [4, 1]];
 
-test.each([curvePresetCollections["spline-g1"], curvePresetCollections["spline-g1-symmetric"], legacyCurvePresetCollections[0]])
+test.each([g1SplinePresetCollection, g1SymmetricSplinePresetCollection, legacyG1SplinePresetCollection])
     ("%s: a G1 spline stores one positive shape parameter b per junction", collection => {
         const type = collection.key === "g1-symmetric-spline-graph" ? "JSXSymmetricQuadraticG1SplineCurve" : "JSXQuadraticG1SplineCurve";
         const valid = [[type, {points: g1Points, state: g1State([1, 0.5])}]];
@@ -64,7 +65,7 @@ test.each([curvePresetCollections["spline-g1"], curvePresetCollections["spline-g
 
 test("only G1 splines store an array in their curve state", () => {
     const data = [["JSXQubicC2SplineCurve", {points: g1Points, state: g1State([1, 0.5])}]];
-    expect(curvePresetCollections["spline-c2"].check(data)).toEqual({rejection: {key: "invalid_value", params: {value0: "b"}}});
+    expect(c2SplinePresetCollection.check(data)).toEqual({rejection: {key: "invalid_value", params: {value0: "b"}}});
 });
 
 test.each([

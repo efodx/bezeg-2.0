@@ -5,11 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['spline/spline', '/bezeg-2.0/spline', 'onesided_cn_spline', 'onesided_cn_spline', 'prompt_spline'],
-    ['spline/c1spline', '/bezeg-2.0/spline', 'symmetric_c1_spline', 'symmetric_c1_spline', 'prompt_spline'],
-    ['spline/c2spline', '/bezeg-2.0/spline', 'symmetric_c2_spline', 'symmetric_c2_spline', 'prompt_spline'],
-    ['spline/g1spline', '/bezeg-2.0/spline', 'onesided_g1_spline', 'onesided_g1_spline', 'prompt_spline'],
-    ['spline/g1-sym-spline', '/bezeg-2.0/spline', 'symmetric_g1_spline', 'symmetric_g1_spline', 'prompt_spline'],
     ['curve-geometry/parametric', '/bezeg-2.0/curve-geometry', 'parametric_curves_title', 'parametric_curves_title', 'prompt_parametric_curve'],
     ['curve-geometry/curvature', '/bezeg-2.0/curve-geometry', 'curvature_circle_title', 'curvature_circle_title', 'prompt_curvature'],
     ['curve-geometry/comb', '/bezeg-2.0/curve-geometry', 'curve_comb_title', 'curve_comb_title', 'prompt_curve_comb'],
@@ -123,6 +118,11 @@ const expected = [
     ['rational/rational-subdivision', '/bezeg-2.0/rational', 'subdivision', 'subdivision', 'prompt_subdivision'],
     ['rational/farin-points', '/bezeg-2.0/rational', 'farin_points', 'farin_points', 'change_the_settings_and_observe_their_effect_on_the_graph'],
     ['rational/circlen', '/bezeg-2.0/rational', 'circle_from_n_pieces', 'circle_from_n_pieces', 'change_the_settings_and_observe_their_effect_on_the_graph'],
+    ['spline/spline', '/bezeg-2.0/spline', 'onesided_cn_spline', 'onesided_cn_spline', 'prompt_spline'],
+    ['spline/c1spline', '/bezeg-2.0/spline', 'symmetric_c1_spline', 'symmetric_c1_spline', 'prompt_spline'],
+    ['spline/c2spline', '/bezeg-2.0/spline', 'symmetric_c2_spline', 'symmetric_c2_spline', 'prompt_spline'],
+    ['spline/g1spline', '/bezeg-2.0/spline', 'onesided_g1_spline', 'onesided_g1_spline', 'prompt_spline'],
+    ['spline/g1-sym-spline', '/bezeg-2.0/spline', 'symmetric_g1_spline', 'symmetric_g1_spline', 'prompt_spline'],
 ] as const;
 
 afterEach(() => setLanguage('sl'));

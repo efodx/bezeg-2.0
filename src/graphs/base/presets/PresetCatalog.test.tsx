@@ -9,7 +9,7 @@ import type {DemonstrationId} from '../../../demonstrations';
 import {appStorage} from '../../../storage/appStorage';
 import {createGraph, installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
 import {commitPresetImport, preflightPresetImport, presetCollections} from './PresetImport';
-import {legacyCurvePresetCollections} from '../../curves/curvePresetCollections';
+import {legacyG1SplinePresetCollection} from '../../curves/spline/collections';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -72,7 +72,7 @@ describe('Preset collection definitions', () => {
             used.add(collection);
         }
         const unused = presetCollections.filter(collection => !used.has(collection) && !PENDING_ROUTE_KEYS.includes(collection.key));
-        expect(unused.filter(collection => !PATCH_KEYS.includes(collection.key))).toEqual([...legacyCurvePresetCollections]);
+        expect(unused.filter(collection => !PATCH_KEYS.includes(collection.key))).toEqual([legacyG1SplinePresetCollection]);
         expect(unused.map(collection => collection.key)).toEqual(['g1-spline']);
     });
 

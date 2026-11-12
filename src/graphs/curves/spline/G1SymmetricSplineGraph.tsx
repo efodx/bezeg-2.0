@@ -5,7 +5,8 @@ import Slider from "../../../inputs/Slider";
 import {t} from "../../../localization";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {validateSplineBeta} from "./splineBetaAction";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {g1SymmetricSplinePresetCollection} from "./collections";
 
 export const G1_SYMMETRIC_BETA_MIN = 0.01;
 export const G1_SYMMETRIC_BETA_MAX = 0.99;
@@ -31,7 +32,7 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
     }
 
     override presetCollection() {
-        return curvePresetCollections["spline-g1-symmetric"];
+        return g1SymmetricSplinePresetCollection;
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

@@ -5,12 +5,13 @@ import {GenericSplineChange} from "../../../bezeg/impl/curve/GenericBezierSpline
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {cnSplinePresetCollection} from "./collections";
 
 class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
 
     override presetCollection() {
-        return curvePresetCollections["spline-cn"];
+        return cnSplinePresetCollection;
     }
 
     defaultPreset(): CurveCollectionPresetData {

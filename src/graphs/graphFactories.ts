@@ -14,11 +14,6 @@ import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import {FortuneGraph} from './compgeo/FortuneGraph';
-import G1SymmetricSplineGraph from './curves/spline/G1SymmetricSplineGraph';
-import G1SplineGraph from './curves/spline/G1SplineGraph';
-import C2SplineGraph from './curves/spline/C2SplineGraph';
-import C1SplineGraph from './curves/spline/C1SplineGraph';
-import CnSplineGraph from './curves/spline/CnSplineGraph';
 import TensorDeCasteljauGraph from './patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './patches/TensorDerivativesGraph';
 import TensorSubdivisionGraph from './patches/TensorSubdivisionGraph';
@@ -93,11 +88,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'patch-subdivision': () => new TensorSubdivisionGraph(),
     'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
-    'spline-cn': () => new CnSplineGraph(),
-    'spline-c1': () => new C1SplineGraph(),
-    'spline-c2': () => new C2SplineGraph(),
-    'spline-g1': () => new G1SplineGraph(),
-    'spline-g1-symmetric': () => new G1SymmetricSplineGraph(),
     'curve-parametric': () => new ParametricCurveGraph(),
     'curve-curvature': () => new CurvatureBezierCurveGraph(),
     'curve-comb': () => new CurveCombGraph(),

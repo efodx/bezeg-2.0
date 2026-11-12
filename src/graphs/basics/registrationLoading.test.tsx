@@ -12,7 +12,7 @@ const mark = (name: string, exports: object) => { evaluated.push(name); return e
 
 vi.mock('../bernstein/BernsteinGraph', () => mark('BernsteinGraph', {BernsteinGraph: class BernsteinGraph {}}));
 vi.mock('../complex/ComplexMultiplicationGraph', () => mark('ComplexMultiplicationGraph', {ComplexMultiplicationGraph: class ComplexMultiplicationGraph {}}));
-vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {'spline-c1': () => ({})}}));
+vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {'linear-function': () => ({})}}));
 vi.mock('../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -54,7 +54,7 @@ describe('module evaluation', () => {
     });
 
     test('a legacy route still resolves through the legacy table', async () => {
-        const route = await routeFor('/bezeg-2.0/spline/c1spline');
+        const route = await routeFor('/bezeg-2.0/functions/linear');
         await route.lazy!();
         expect(evaluated).toContain('graphFactories');
         expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);

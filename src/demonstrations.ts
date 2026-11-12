@@ -15,6 +15,7 @@ import {mechanicsDemonstrationRows} from './graphs/mechanics/registration';
 import {dynamicsDemonstrationRows} from './graphs/dynamics/registration';
 import {solidsDemonstrationRows} from './graphs/solids/registration';
 import {levelSetsDemonstrationRows} from './graphs/levelsets/registration';
+import {splineDemonstrationRows} from './graphs/curves/spline/registration';
 import {bsplineDemonstrationRows} from './graphs/curves/bspline/registration';
 import {basicsDemonstrationRows} from './graphs/basics/registration';
 import {phDemonstrationRows} from './graphs/curves/ph/registration';
@@ -57,11 +58,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'spline-cn', path: '/bezeg-2.0/spline/spline', family: '/bezeg-2.0/spline', title: 'onesided_cn_spline', prompts: ['prompt_spline', 'prompt_compare']},
-    {id: 'spline-c1', path: '/bezeg-2.0/spline/c1spline', family: '/bezeg-2.0/spline', title: 'symmetric_c1_spline', prompts: ['prompt_spline', 'prompt_compare']},
-    {id: 'spline-c2', path: '/bezeg-2.0/spline/c2spline', family: '/bezeg-2.0/spline', title: 'symmetric_c2_spline', prompts: ['prompt_spline', 'prompt_compare']},
-    {id: 'spline-g1', path: '/bezeg-2.0/spline/g1spline', family: '/bezeg-2.0/spline', title: 'onesided_g1_spline', prompts: ['prompt_spline', 'prompt_compare']},
-    {id: 'spline-g1-symmetric', path: '/bezeg-2.0/spline/g1-sym-spline', family: '/bezeg-2.0/spline', title: 'symmetric_g1_spline', prompts: ['prompt_spline', 'prompt_compare']},
     {id: 'curve-parametric', path: '/bezeg-2.0/curve-geometry/parametric', family: '/bezeg-2.0/curve-geometry', title: 'parametric_curves_title', prompts: ['prompt_parametric_curve', 'prompt_compare']},
     {id: 'curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature', family: '/bezeg-2.0/curve-geometry', title: 'curvature_circle_title', prompts: ['prompt_curvature', 'prompt_compare']},
     {id: 'curve-comb', path: '/bezeg-2.0/curve-geometry/comb', family: '/bezeg-2.0/curve-geometry', title: 'curve_comb_title', prompts: ['prompt_curve_comb', 'prompt_compare']},
@@ -141,7 +137,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

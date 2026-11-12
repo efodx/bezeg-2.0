@@ -182,11 +182,6 @@ export const curveEnvelopePresetCollection = curveCollection("curve-envelope", {
  * rules; a collection differs only in its key, and PH collections in their degree.
  */
 export const curvePresetCollections = {
-    "spline-cn": curveCollection("cn-spline", {type: "JSXGenericSplineCurve"}),
-    "spline-c1": curveCollection("c1-spline-graph", {type: "JSXQuadraticC1SplineCurve"}),
-    "spline-c2": curveCollection("c2-spline", {type: "JSXQubicC2SplineCurve"}),
-    "spline-g1": curveCollection("g1-spline-graph", {type: "JSXQuadraticG1SplineCurve"}),
-    "spline-g1-symmetric": curveCollection("g1-symmetric-spline-graph", {type: "JSXSymmetricQuadraticG1SplineCurve"}),
     "curve-curvature": curvatureCurvePresetCollection,
     "curve-comb": curveCombPresetCollection,
     "curve-evolute": evoluteCurvePresetCollection,
@@ -194,11 +189,3 @@ export const curvePresetCollections = {
     "curve-envelope": curveEnvelopePresetCollection,
 } as const;
 
-/**
- * Accepted file collections that no Demonstration declares. `g1-spline` belonged to the affine G1 spline graph, which no
- * route rendered and which was removed on 2026-10-12 (commit 63af46b); a file exported by an earlier release may still
- * hold it, so it imports into storage unchanged although nothing reads it.
- */
-export const legacyCurvePresetCollections = [
-    curveCollection("g1-spline", {type: "JSXQuadraticG1SplineCurve"}),
-] as const;

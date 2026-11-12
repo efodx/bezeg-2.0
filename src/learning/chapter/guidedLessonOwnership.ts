@@ -8,6 +8,7 @@ import {phPrimaryOwners} from '../../graphs/curves/ph/registration';
 import {parameterizationPrimaryOwners} from '../../graphs/curves/parametrisations/registration';
 import {bezierDemonstrationRows, bezierDerivedOwnerIds, bezierPrimaryOwners} from '../../graphs/curves/bezier/registration';
 import {rationalPrimaryOwners} from '../../graphs/curves/rational/registration';
+import {splinePrimaryOwners} from '../../graphs/curves/spline/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
 import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
@@ -20,16 +21,11 @@ export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>
 type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
-type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners;
-const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners};
+type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners;
+const familyPrimaryOwners: Readonly<Partial<Record<FamilyOwnedId, GuidedLessonOwner>>> = {...basicsPrimaryOwners, ...phPrimaryOwners, ...parameterizationPrimaryOwners, ...bezierPrimaryOwners, ...rationalPrimaryOwners, ...splinePrimaryOwners};
 
 /** Authored chapter destination for each reviewed lesson of a legacy (not family-registered) Demonstration. Keep this map in lockstep with the allowlist. A lessonless Demonstration may pre-register the destination its future lesson will use. */
 export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrationId, DerivedOwnerId | FamilyOwnedId>, GuidedLessonOwner> & Partial<Record<LessonlessDemonstrationId, GuidedLessonOwner>>> = {
-    'spline-cn': {chapterId: 'splines', sectionId: 'continuity-levels'},
-    'spline-c1': {chapterId: 'splines', sectionId: 'continuity-levels'},
-    'spline-c2': {chapterId: 'splines', sectionId: 'continuity-levels'},
-    'spline-g1': {chapterId: 'splines', sectionId: 'geometric-vs-parametric'},
-    'spline-g1-symmetric': {chapterId: 'splines', sectionId: 'geometric-vs-parametric'},
     'linear-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'exponential-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'trigonometric-functions': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},

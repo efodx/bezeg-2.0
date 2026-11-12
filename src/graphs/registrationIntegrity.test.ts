@@ -24,6 +24,9 @@ import {bezierCollectionKeys, bezierDemonstrationRows} from './curves/bezier/reg
 import {rationalCollections} from './curves/rational/collections';
 import {rationalCollectionKeys, rationalDemonstrationRows} from './curves/rational/registration';
 import {rationalGraphLoaders} from './curves/rational/runtime';
+import {splineCollections} from './curves/spline/collections';
+import {splineCollectionKeys, splineDemonstrationRows} from './curves/spline/registration';
+import {splineGraphLoaders} from './curves/spline/runtime';
 import {bezierGraphLoaders} from './curves/bezier/runtime';
 import {trigCollections} from './trig/collections';
 import {trigCollectionKeys, trigDemonstrationRows} from './trig/registration';
@@ -154,6 +157,7 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'parameterization', rows: parameterizationDemonstrationRows, loaders: parameterizationGraphLoaders, collectionKeys: parameterizationCollectionKeys, collections: parameterizationCollections},
     {family: 'bezier', rows: bezierDemonstrationRows, loaders: bezierGraphLoaders, collectionKeys: bezierCollectionKeys, collections: bezierCollections},
     {family: 'rational', rows: rationalDemonstrationRows, loaders: rationalGraphLoaders, collectionKeys: rationalCollectionKeys, collections: rationalCollections},
+    {family: 'spline', rows: splineDemonstrationRows, loaders: splineGraphLoaders, collectionKeys: splineCollectionKeys, collections: splineCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
 

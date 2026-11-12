@@ -1,6 +1,7 @@
 import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
-import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
+import {CurveCollectionPresetData} from "../curvePresetCollections";
+import {c2SplinePresetCollection} from "./collections";
 
 /** The route's default scene; the curvature comb Demonstration starts its C2 spline from the same data. */
 export function c2SplineDefaultPreset(): CurveCollectionPresetData {
@@ -17,7 +18,7 @@ export function c2SplineDefaultPreset(): CurveCollectionPresetData {
 class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
 
     override presetCollection() {
-        return curvePresetCollections["spline-c2"];
+        return c2SplinePresetCollection;
     }
 
     defaultPreset(): CurveCollectionPresetData {
