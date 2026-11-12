@@ -20,6 +20,8 @@ Read this and the [handler card](../../../agent-workflow/handler-card.md), then 
   - Step 3 close-out audit: stream `.command-logs/cv-close/` (summary in spec Decisions).
 - Handler 3 (2026-11-12): published handler 2's three commits (master `12cb622c`, CI green); merged `origin/master` into the branch; criterion 6 recorded in [rollout.md](rollout.md) (screenshots copied to the clean worktree `.command-logs/cv-rollout/`, after-the-fact reviews of 3a, 3c and the residuals); step 5 sweeps: `graphTeardownContract` landed (stream `e3e19a47`), `graphLanguageContract` built and not landed (reason in the [inventory](test-redundancy-inventory.md#sweep-results-2026-11-12) and spec Decisions).
 
+- After close (2026-11-12, owner request): `/projective/pascal` points move by the shared `Slider` (coordinates shown, no direction-table counter); shared `Slider` `hideBounds` and `control-row--lead` added. Master `c531b5d5`; smoke at 1440 and 390 touch passed, except mobile thumb drag and board-focused arrows (unit tested).
+
 ## Run state: complete
 
 No actionable work is left; the stream file says `complete` and no successor is launched. Stream commits `94f9c197` (rollout) and `e3e19a47` (teardown sweep) were publishing as `publish-84c25138-c7f123` from the clean worktree at close; this closing commit follows them. If that publish is found failed, cherry-pick the three onto fresh `origin/master` there and republish. To reopen the stream, set the stream file to `active`.
