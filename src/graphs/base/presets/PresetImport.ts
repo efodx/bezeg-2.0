@@ -2,7 +2,6 @@ import {message, LocalizedError, Message} from "../../../localization";
 import type {BoardState} from "../BaseGraph";
 import type {StoredGraphState} from "./Presets";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
-import {curvePresetCollections} from "../../curves/curvePresetCollections";
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
 import {notablePointsCollection} from "../../compgeo/notablePointsPresetCollection";
 import {inscribedAngleCollection} from "../../compgeo/inscribedAnglePresetCollection";
@@ -14,7 +13,6 @@ import {patchPresetCollections} from "../../patches/patchPresetCollections";
 import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
 import {complexRootsPresetCollection} from "../../complex/complexRootsPresets";
 import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
-import {parametricPresetCollection} from "../../curves/parametric/parametricPresetCollection";
 import {interpolationPresetCollection} from "../../curves/interpolation/interpolationPresetCollection";
 import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
 import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
@@ -25,6 +23,7 @@ import {parameterizationCollections} from "../../curves/parametrisations/collect
 import {bezierCollections} from "../../curves/bezier/collections";
 import {rationalCollections} from "../../curves/rational/collections";
 import {splineCollections} from "../../curves/spline/collections";
+import {curveGeometryCollections} from "../../curves/geometry/collections";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {projectiveCollections} from "../../projective/collections";
 import {trigCollections} from "../../trig/collections";
@@ -47,10 +46,10 @@ import {levelSetsCollections} from "../../levelsets/collections";
  * documented legacy collections. Collection keys and DTO names are a file contract, independent of the graph renderer.
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
-    ...Object.values(curvePresetCollections), ...Object.values(functionPresetCollections),
+    ...Object.values(functionPresetCollections),
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
-    parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
+    interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
     coonsPresetCollection,
     ...projectiveCollections,
     ...bsplineCollections,
@@ -60,6 +59,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...bezierCollections,
     ...rationalCollections,
     ...splineCollections,
+    ...curveGeometryCollections,
     ...trigCollections,
     ...lineCollections,
     ...isometryCollections,

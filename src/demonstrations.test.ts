@@ -5,12 +5,6 @@ import {en} from './localization/en';
 
 // Recorded from the pre-refactor routes, prompt rules, and graph title overrides.
 const expected = [
-    ['curve-geometry/parametric', '/bezeg-2.0/curve-geometry', 'parametric_curves_title', 'parametric_curves_title', 'prompt_parametric_curve'],
-    ['curve-geometry/curvature', '/bezeg-2.0/curve-geometry', 'curvature_circle_title', 'curvature_circle_title', 'prompt_curvature'],
-    ['curve-geometry/comb', '/bezeg-2.0/curve-geometry', 'curve_comb_title', 'curve_comb_title', 'prompt_curve_comb'],
-    ['curve-geometry/evolute', '/bezeg-2.0/curve-geometry', 'curve_evolute_title', 'curve_evolute_title', 'prompt_curve_evolute'],
-    ['curve-geometry/offset', '/bezeg-2.0/curve-geometry', 'curve_offset_title', 'curve_offset_title', 'prompt_curve_offset'],
-    ['curve-geometry/envelope', '/bezeg-2.0/curve-geometry', 'curve_envelope_title', 'curve_envelope_title', 'prompt_curve_envelope'],
     ['interpolation/lagrange', '/bezeg-2.0/interpolation', 'interp_lagrange_title', 'interp_lagrange_title', 'prompt_interp_lagrange'],
     ['interpolation/hermite', '/bezeg-2.0/interpolation', 'interp_hermite_title', 'interp_hermite_title', 'prompt_interp_hermite'],
     ['interpolation/runge', '/bezeg-2.0/interpolation', 'interp_runge_title', 'interp_runge_title', 'prompt_interp_runge'],
@@ -87,6 +81,12 @@ const expected = [
     ['projective/pole-polar', 'projective', 'projective_pole_polar_title', 'projective_pole_polar_title', 'prompt_projective_pole_polar_tangents'],
     ['projective/five-point', 'projective', 'projective_five_point_title', 'projective_five_point_title', 'prompt_projective_five_point_unique'],
     ['projective/three-views', 'projective', 'projective_three_views_title', 'projective_three_views_title', 'prompt_projective_three_views_type'],
+    ['curve-geometry/parametric', '/bezeg-2.0/curve-geometry', 'parametric_curves_title', 'parametric_curves_title', 'prompt_parametric_curve'],
+    ['curve-geometry/curvature', '/bezeg-2.0/curve-geometry', 'curvature_circle_title', 'curvature_circle_title', 'prompt_curvature'],
+    ['curve-geometry/comb', '/bezeg-2.0/curve-geometry', 'curve_comb_title', 'curve_comb_title', 'prompt_curve_comb'],
+    ['curve-geometry/evolute', '/bezeg-2.0/curve-geometry', 'curve_evolute_title', 'curve_evolute_title', 'prompt_curve_evolute'],
+    ['curve-geometry/offset', '/bezeg-2.0/curve-geometry', 'curve_offset_title', 'curve_offset_title', 'prompt_curve_offset'],
+    ['curve-geometry/envelope', '/bezeg-2.0/curve-geometry', 'curve_envelope_title', 'curve_envelope_title', 'prompt_curve_envelope'],
     ['bspline/basis', '/bezeg-2.0/bspline', 'bspline_basis_title', 'bspline_basis_title', 'prompt_bspline_basis'],
     ['bspline/deboor', '/bezeg-2.0/bspline', 'bspline_deboor_title', 'bspline_deboor_title', 'prompt_bspline_deboor'],
     ['bspline/insertion', '/bezeg-2.0/bspline', 'bspline_insertion_title', 'bspline_insertion_title', 'prompt_bspline_insertion'],

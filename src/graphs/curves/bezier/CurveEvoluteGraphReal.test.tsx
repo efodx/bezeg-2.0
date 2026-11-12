@@ -2,7 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import CurveEvoluteGraph, {EVOLUTE_T_DEFAULT} from './CurveEvoluteGraph';
-import {evoluteCurvePresetCollection} from '../curvePresetCollections';
+import {evoluteCurvePresetCollection} from '../geometry/collections';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
 import type {LessonAction} from '../../../learning/model';

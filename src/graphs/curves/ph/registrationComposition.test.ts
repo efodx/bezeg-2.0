@@ -8,7 +8,6 @@ import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../../demonstrations';
 import {chapterOwnerRows} from '../../../learning/content/chapterOwnedLessons';
 import {getGuidedLessonOwner, guidedLessonOwners} from '../../../learning/chapter/guidedLessonOwnership';
-import {curvePresetCollections} from '../curvePresetCollections';
 import {phCollections} from './collections';
 import {phCollectionKeys, phDemonstrationRows, phPrimaryOwners} from './registration';
 import {phGraphLoaders} from './runtime';
@@ -38,10 +37,6 @@ describe('R5 deletion test: no central PH rows', () => {
         expect(Object.keys(phGraphLoaders)).toEqual(expectedIds);
         expect(phCollectionKeys).toEqual({'ph-cubic': 'cubic-ph', 'ph-quintic': 'quintic-ph-graph'});
         expect(phCollections.map(collection => collection.key)).toEqual(['cubic-ph', 'quintic-ph-graph']);
-    });
-
-    test('the aggregate map no longer holds the moved collections', () => {
-        for (const id of expectedIds) expect(Object.hasOwn(curvePresetCollections, id)).toBe(false);
     });
 });
 

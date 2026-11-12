@@ -1,6 +1,7 @@
 import type {DemonstrationId, GuidedLessonDemonstrationId, LessonlessDemonstrationId} from '../../demonstrations';
 import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
 import type {ProjectiveDemonstrationId} from '../../graphs/projective/registration';
+import type {CurveGeometryDemonstrationId} from '../../graphs/curves/geometry/registration';
 import type {BsplineDemonstrationId} from '../../graphs/curves/bspline/registration';
 import {bsplineDemonstrationRows} from '../../graphs/curves/bspline/registration';
 import {basicsAdditionalOwners, basicsPrimaryOwners} from '../../graphs/basics/registration';
@@ -8,6 +9,7 @@ import {phPrimaryOwners} from '../../graphs/curves/ph/registration';
 import {parameterizationPrimaryOwners} from '../../graphs/curves/parametrisations/registration';
 import {bezierDemonstrationRows, bezierDerivedOwnerIds, bezierPrimaryOwners} from '../../graphs/curves/bezier/registration';
 import {rationalPrimaryOwners} from '../../graphs/curves/rational/registration';
+import {curveGeometryDemonstrationRows} from '../../graphs/curves/geometry/registration';
 import {splinePrimaryOwners} from '../../graphs/curves/spline/registration';
 import {projectiveDemonstrationRows} from '../../graphs/projective/registration';
 import {familyChapters} from '../content/familyChapters';
@@ -18,7 +20,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = ProjectiveDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
 type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners;
@@ -117,12 +119,6 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // The chapter's own section for degenerate sites: cocircular and collinear points (lesson B5).
     'voronoi-degenerate': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi-degenerate'},
     // The Geometry of curves chapter owns the parametric and polar curves, curvature, curvature comb, evolute and offset and envelope lessons (CG-B1-4, CG-B2-3, CG-B2-4, CG-B3-3, CG-B3-4).
-    'curve-parametric': {chapterId: 'curve-geometry', sectionId: 'curve-parametric'},
-    'curve-curvature': {chapterId: 'curve-geometry', sectionId: 'curve-curvature'},
-    'curve-comb': {chapterId: 'curve-geometry', sectionId: 'curve-comb'},
-    'curve-evolute': {chapterId: 'curve-geometry', sectionId: 'curve-evolute'},
-    'curve-offset': {chapterId: 'curve-geometry', sectionId: 'curve-offset'},
-    'curve-envelope': {chapterId: 'curve-geometry', sectionId: 'curve-envelope'},
     // The Sweep-line algorithms chapter owns the interval sweep and segment intersection lessons (batch S1).
     'interval-sweep': {chapterId: 'sweep-algorithms', sectionId: 'interval-sweep'},
     'interp-lagrange': {chapterId: 'interpolation', sectionId: 'lagrange'},
@@ -151,7 +147,7 @@ const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwn
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...projectiveDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

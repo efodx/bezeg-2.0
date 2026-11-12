@@ -16,6 +16,7 @@ import {dynamicsDemonstrationRows} from './graphs/dynamics/registration';
 import {solidsDemonstrationRows} from './graphs/solids/registration';
 import {levelSetsDemonstrationRows} from './graphs/levelsets/registration';
 import {splineDemonstrationRows} from './graphs/curves/spline/registration';
+import {curveGeometryDemonstrationRows} from './graphs/curves/geometry/registration';
 import {bsplineDemonstrationRows} from './graphs/curves/bspline/registration';
 import {basicsDemonstrationRows} from './graphs/basics/registration';
 import {phDemonstrationRows} from './graphs/curves/ph/registration';
@@ -58,12 +59,6 @@ export type Definition = {
 
 // Order is the teaching catalog order, independent of wording and graph imports.
 export const legacyDemonstrationRows = [
-    {id: 'curve-parametric', path: '/bezeg-2.0/curve-geometry/parametric', family: '/bezeg-2.0/curve-geometry', title: 'parametric_curves_title', prompts: ['prompt_parametric_curve', 'prompt_compare']},
-    {id: 'curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature', family: '/bezeg-2.0/curve-geometry', title: 'curvature_circle_title', prompts: ['prompt_curvature', 'prompt_compare']},
-    {id: 'curve-comb', path: '/bezeg-2.0/curve-geometry/comb', family: '/bezeg-2.0/curve-geometry', title: 'curve_comb_title', prompts: ['prompt_curve_comb', 'prompt_compare']},
-    {id: 'curve-evolute', path: '/bezeg-2.0/curve-geometry/evolute', family: '/bezeg-2.0/curve-geometry', title: 'curve_evolute_title', prompts: ['prompt_curve_evolute', 'prompt_compare']},
-    {id: 'curve-offset', path: '/bezeg-2.0/curve-geometry/offset', family: '/bezeg-2.0/curve-geometry', title: 'curve_offset_title', prompts: ['prompt_curve_offset', 'prompt_compare']},
-    {id: 'curve-envelope', path: '/bezeg-2.0/curve-geometry/envelope', family: '/bezeg-2.0/curve-geometry', title: 'curve_envelope_title', prompts: ['prompt_curve_envelope', 'prompt_compare']},
     {id: 'interp-lagrange', path: '/bezeg-2.0/interpolation/lagrange', family: '/bezeg-2.0/interpolation', title: 'interp_lagrange_title', prompts: ['prompt_interp_lagrange', 'prompt_compare']},
     {id: 'interp-hermite', path: '/bezeg-2.0/interpolation/hermite', family: '/bezeg-2.0/interpolation', title: 'interp_hermite_title', prompts: ['prompt_interp_hermite', 'prompt_compare']},
     {id: 'interp-runge', path: '/bezeg-2.0/interpolation/runge', family: '/bezeg-2.0/interpolation', title: 'interp_runge_title', prompts: ['prompt_interp_runge', 'prompt_compare']},
@@ -137,7 +132,7 @@ export const legacyDemonstrationRows = [
     {id: 'fortune', path: '/bezeg-2.0/compgeo/fortune', family: 'computational-geometry', title: 'compgeo_fortune_title', prompts: ['prompt_compgeo_fortune_false_alarm', 'prompt_compgeo_fortune_delaunay_dual']},
 ] as const satisfies readonly Definition[];
 // Feature-registered families follow the legacy rows (catalog order); a new family adds one spread here (see graphs/graphLoaders.ts).
-const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
+const definitions = [...legacyDemonstrationRows, ...complexBatchDDemonstrationRows, ...projectiveDemonstrationRows, ...trigDemonstrationRows, ...lineDemonstrationRows, ...isometryDemonstrationRows, ...circleConstructionDemonstrationRows, ...combinatoricsDemonstrationRows, ...randomDemonstrationRows, ...curveGeometryDemonstrationRows, ...kinematicsDemonstrationRows, ...mechanicsDemonstrationRows, ...recursionDemonstrationRows, ...dynamicsDemonstrationRows, ...solidsDemonstrationRows, ...levelSetsDemonstrationRows, ...wavesDemonstrationRows, ...bsplineDemonstrationRows, ...basicsDemonstrationRows, ...phDemonstrationRows, ...parameterizationDemonstrationRows, ...bezierDemonstrationRows, ...rationalDemonstrationRows, ...splineDemonstrationRows] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
 export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];

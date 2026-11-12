@@ -1,6 +1,6 @@
 import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT, PARABOLA_CONTROL_POINTS} from './CurvatureBezierCurveGraph';
 import {CurvatureOverlay, curvatureFrame} from './CurvatureOverlay';
-import {curvatureCurvePresetCollection} from '../curvePresetCollections';
+import {curvatureCurvePresetCollection} from '../geometry/collections';
 import {setLanguage, t} from '../../../localization';
 import {FigureExportScope} from '../../base/export/FigureExportOperation';
 import {SettledReadout} from '../../base/controls/LiveReadout';

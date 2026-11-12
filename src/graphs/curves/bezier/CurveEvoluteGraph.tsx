@@ -4,7 +4,7 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {EVOLUTE_TRACE_MODES, EvoluteTraceMode} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
-import {evoluteCurvePresetCollection} from "../curvePresetCollections";
+import {evoluteCurvePresetCollection} from "../geometry/collections";
 import {
     CurvatureGraphStates,
     CurvatureOverlayGraph,

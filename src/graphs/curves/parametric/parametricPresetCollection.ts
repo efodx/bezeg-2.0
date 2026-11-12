@@ -26,8 +26,7 @@ const checkFields = (value: unknown): Message | undefined => {
 export const DEFAULT_PARAMETRIC_PRESET: ParametricPresetData = {curve: 'cycloid', radius: CYCLOID_RADIUS_DEFAULT, parameter: Math.PI / 2};
 
 /**
- * The Preset collection of the `curve-parametric` Demonstration (not yet registered in `curvePresetCollections`; the
- * registration slice adds it). The scene state (`graphState`) carries the same three fields as the data, so both are checked.
+ * The Preset collection of the `curve-parametric` Demonstration, listed first by the curve geometry family's `collections.ts`. The scene state (`graphState`) carries the same three fields as the data, so both are checked.
  */
 export const parametricPresetCollection: PresetCollection<ParametricPresetData> = Object.freeze({
     key: PARAMETRIC_COLLECTION_KEY,

@@ -8,7 +8,6 @@ import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../../demonstrations';
 import {chapterOwnerRows} from '../../../learning/content/chapterOwnedLessons';
 import {getGuidedLessonOwner, guidedLessonOwners} from '../../../learning/chapter/guidedLessonOwnership';
-import {curvePresetCollections} from '../curvePresetCollections';
 import {parameterizationCollections} from './collections';
 import {parameterizationCollectionKeys, parameterizationDemonstrationRows, parameterizationPrimaryOwners} from './registration';
 import {parameterizationGraphLoaders} from './runtime';
@@ -37,10 +36,6 @@ describe('R5 deletion test: no central parameterization rows', () => {
         expect(Object.keys(parameterizationGraphLoaders)).toEqual(expectedIds);
         expect(parameterizationCollectionKeys).toEqual({'spline-parameterization': 'alfaparametrizacije', 'weighted-parameterization': 'alpha-param', 'uniform-parameterization': 'uniform-graph'});
         expect(parameterizationCollections.map(collection => collection.key)).toEqual(['alfaparametrizacije', 'alpha-param', 'uniform-graph']);
-    });
-
-    test('the aggregate map no longer holds the moved collections', () => {
-        for (const id of expectedIds) expect(Object.hasOwn(curvePresetCollections, id)).toBe(false);
     });
 });
 

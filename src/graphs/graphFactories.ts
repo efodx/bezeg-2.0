@@ -65,12 +65,6 @@ import SummaryStatisticsGraph from './functions/SummaryStatisticsGraph';
 import CorrelationGraph from './functions/CorrelationGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
-import ParametricCurveGraph from './curves/parametric/ParametricCurveGraph';
-import CurvatureBezierCurveGraph from './curves/bezier/CurvatureBezierCurveGraph';
-import CurveEvoluteGraph from './curves/bezier/CurveEvoluteGraph';
-import CurveCombGraph from './curves/comb/CurveCombGraph';
-import CurveOffsetGraph from './curves/offset/CurveOffsetGraph';
-import CurveEnvelopeGraph from './curves/envelope/CurveEnvelopeGraph';
 import RungeInterpolationGraph from './functions/RungeInterpolationGraph';
 import LeastSquaresGraph from './functions/LeastSquaresGraph';
 import InterpolationGraph from './curves/interpolation/InterpolationGraph';
@@ -88,12 +82,6 @@ export const graphFactories: Record<Exclude<DemonstrationId, RegisteredDemonstra
     'patch-subdivision': () => new TensorSubdivisionGraph(),
     'patch-joins': () => new TensorJoinGraph(),
     'patch-triangular': () => new TriangularPatchGraph(),
-    'curve-parametric': () => new ParametricCurveGraph(),
-    'curve-curvature': () => new CurvatureBezierCurveGraph(),
-    'curve-comb': () => new CurveCombGraph(),
-    'curve-evolute': () => new CurveEvoluteGraph(),
-    'curve-offset': () => new CurveOffsetGraph(),
-    'curve-envelope': () => new CurveEnvelopeGraph(),
     'interp-lagrange': () => new InterpolationGraph(),
     'interp-hermite': () => new HermiteGraph(),
     'interp-runge': () => new RungeInterpolationGraph(),

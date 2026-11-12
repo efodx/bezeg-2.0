@@ -10,7 +10,6 @@ import {getDemonstrationCatalog} from '../../../demonstrations';
 import {chapterOwnerRows} from '../../../learning/content/chapterOwnedLessons';
 import {getGuidedLessonOwner, guidedLessonOwners} from '../../../learning/chapter/guidedLessonOwnership';
 import {compgeoPresetCollections} from '../../compgeo/compgeoPresetCollections';
-import {curvePresetCollections} from '../curvePresetCollections';
 import {bezierCollections} from './collections';
 import {bezierCollectionKeys, bezierDemonstrationRows, bezierDerivedOwnerIds, bezierPrimaryOwners} from './registration';
 import {bezierGraphLoaders} from './runtime';
@@ -51,10 +50,6 @@ describe('R5 deletion test: no central Bezier rows', () => {
         expect(bezierCollections.map(collection => collection.key)).toEqual(expectedIds.map(id => bezierCollectionKeys[id]));
         expect(bezierCollectionKeys['decasteljau-alternative']).toBe('decasteljau2');
         expect(bezierCollectionKeys['bezier-clipping']).toBe('compgeo-bezier-clipping');
-    });
-
-    test('the aggregate curve map no longer holds the moved collections', () => {
-        for (const id of expectedIds) expect(Object.hasOwn(curvePresetCollections, id)).toBe(false);
     });
 
     test('the compgeo list no longer holds the clipping collection, which the family lists last', () => {

@@ -4,15 +4,15 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {isMessage, LocalizedError, Message} from "../../localization";
-import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection} from "./curvePresetCollections";
+import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvatureCurvePresetCollection, evoluteCurvePresetCollection} from "./geometry/collections";
 import {bernsteinPresetCollection} from "../basics/collections";
 import {quinticPhPresetCollection} from "./ph/collections";
 import {arcLengthParamPresetCollection, bezierPresetCollection, reductionPresetCollection} from "./bezier/collections";
 import {rationalElevationPresetCollection, rationalPresetCollection} from "./rational/collections";
 import {c2SplinePresetCollection, cnSplinePresetCollection, g1SplinePresetCollection, g1SymmetricSplinePresetCollection, legacyG1SplinePresetCollection} from "./spline/collections";
 
-/** The aggregate map plus the moved PH, Bezier, rational and spline collections the diagnosis table below still exercises. */
-const diagnosedCollections = {...curvePresetCollections, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection, rational: rationalPresetCollection, "spline-cn": cnSplinePresetCollection};
+/** The curve geometry collections plus the moved PH, Bezier, rational and spline collections the diagnosis table below still exercises. */
+const diagnosedCollections = {"curve-curvature": curvatureCurvePresetCollection, "curve-comb": curveCombPresetCollection, "curve-evolute": evoluteCurvePresetCollection, "curve-offset": curveOffsetPresetCollection, "curve-envelope": curveEnvelopePresetCollection, "ph-quintic": quinticPhPresetCollection, bezier: bezierPresetCollection, rational: rationalPresetCollection, "spline-cn": cnSplinePresetCollection};
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -212,7 +212,6 @@ describe("the degree reduction Demonstration's collection", () => {
     });
 
     test("is registered by id and accepts a cubic of four points", () => {
-        expect(Object.hasOwn(curvePresetCollections, "reduction")).toBe(false);
         expect(reductionPresetCollection.key).toBe("reduction");
         expect(reductionPresetCollection.check(cubic(FOUR, STATE))).toHaveProperty("data");
     });
@@ -233,7 +232,6 @@ describe("the arc-length parametrization Demonstration's scene state", () => {
         subdivisionT: .5, decasteljauT: .5, extrapolationT: 1.2};
 
     test("is registered by id under its file key and accepts its bounds and a state without the fields", () => {
-        expect(Object.hasOwn(curvePresetCollections, "arc-length-param")).toBe(false);
         expect(arcLengthParamPresetCollection.key).toBe("arc-length-param");
         expect(check({arcPieces: 2, arcEqualTShown: false, arcEqualArcShown: true, arcSpeedPlotShown: false, arcMoverMode: "arc", arcMoverPosition: 1})).toBeUndefined();
         expect(check({arcPieces: 64, arcMoverMode: "parameter", arcMoverPosition: 0})).toBeUndefined();

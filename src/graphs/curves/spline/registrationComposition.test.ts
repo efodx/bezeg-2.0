@@ -11,7 +11,6 @@ import {getGuidedLessonOwners, guidedLessonOwners} from '../../../learning/chapt
 import {setLanguage} from '../../../localization';
 import {commitPresetImport, preflightPresetImport} from '../../base/presets/PresetImport';
 import {checkRegistrations} from '../../registrationIntegrity';
-import {curvePresetCollections} from '../curvePresetCollections';
 import {legacyG1SplinePresetCollection, splineCollections, splineDemonstrationCollections} from './collections';
 import {splineCollectionKeys, splineDemonstrationRows, splinePrimaryOwners} from './registration';
 import {splineGraphLoaders} from './runtime';
@@ -48,10 +47,6 @@ describe('R5 deletion test: no central spline rows', () => {
             'spline-cn': 'cn-spline', 'spline-c1': 'c1-spline-graph', 'spline-c2': 'c2-spline',
             'spline-g1': 'g1-spline-graph', 'spline-g1-symmetric': 'g1-symmetric-spline-graph',
         });
-    });
-
-    test('the aggregate curve map no longer holds the moved collections', () => {
-        for (const id of expectedIds) expect(Object.hasOwn(curvePresetCollections, id)).toBe(false);
     });
 
     test('the family passes integrity, with the import-only collection unreferenced by any id', () => {

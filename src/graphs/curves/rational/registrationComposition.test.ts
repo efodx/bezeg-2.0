@@ -9,7 +9,6 @@ import {getDemonstrationCatalog} from '../../../demonstrations';
 import {chapterOwnerRows} from '../../../learning/content/chapterOwnedLessons';
 import {getGuidedLessonOwners, guidedLessonOwners} from '../../../learning/chapter/guidedLessonOwnership';
 import {checkRegistrations} from '../../registrationIntegrity';
-import {curvePresetCollections} from '../curvePresetCollections';
 import {rationalCollections} from './collections';
 import {rationalCollectionKeys, rationalDemonstrationRows, rationalPrimaryOwners} from './registration';
 import {rationalGraphLoaders} from './runtime';
@@ -48,10 +47,6 @@ describe('R5 deletion test: no central rational rows', () => {
         expect(rationalCollections.map(collection => collection.key)).toEqual(collectionIds.map(id => rationalCollectionKeys[id]));
         expect(rationalCollectionKeys['rational-elevation']).toBe('rational-bezier-elevation');
         expect(rationalCollectionKeys.farin).toBe('rational-bezier-farin');
-    });
-
-    test('the aggregate curve map no longer holds the moved collections', () => {
-        for (const id of expectedIds) expect(Object.hasOwn(curvePresetCollections, id)).toBe(false);
     });
 });
 

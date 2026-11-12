@@ -9,7 +9,6 @@ import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../demonstrations';
 import {chapterOwnerRows} from '../../learning/content/chapterOwnedLessons';
 import {getGuidedLessonOwners, guidedLessonOwners} from '../../learning/chapter/guidedLessonOwnership';
-import {curvePresetCollections} from '../curves/curvePresetCollections';
 import {functionPresetCollections} from '../functions/functionPresetCollections';
 import {basicsCollections} from './collections';
 import {basicsAdditionalOwners, basicsCollectionKeys, basicsDemonstrationRows, basicsPrimaryOwners} from './registration';
@@ -41,8 +40,7 @@ describe('R5 deletion test: no central basics rows', () => {
         expect(basicsCollections.map(collection => collection.key)).toEqual(['bernstein-graph', 'complex-multiplication']);
     });
 
-    test('the aggregate maps no longer hold the moved collections', () => {
-        expect(Object.hasOwn(curvePresetCollections, 'bernstein')).toBe(false);
+    test('the aggregate map no longer holds the moved collection', () => {
         expect(Object.hasOwn(functionPresetCollections, 'complex-multiplication')).toBe(false);
     });
 });

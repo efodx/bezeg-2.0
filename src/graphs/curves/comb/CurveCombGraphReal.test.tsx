@@ -9,7 +9,7 @@ import {formatNumber} from '../../../analysis/format';
 import {GraphHost} from '../../base/GraphHost';
 import {BezierSpline} from '../../../bezeg/impl/curve/bezier-spline';
 import {LessonAction} from '../../../learning/model';
-import {curveCombPresetCollection} from '../curvePresetCollections';
+import {curveCombPresetCollection} from '../geometry/collections';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
