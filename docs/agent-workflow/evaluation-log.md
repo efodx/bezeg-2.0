@@ -2816,3 +2816,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Positive:** running the reviewer in parallel with the skeleton or tests worker cost no wall time; giving the last worker the accepted review fixes (waves) kept the handler's context low. Probing real readouts in the skeleton slice left no number mismatches for the tests slice.
 - **Handoff evidence:** every content worker reached HANDOFF after actions and lesson text; families with two Demonstrations or a fresh action vocabulary needed three implementation workers. Three workers reported done while their own background checks still ran; stopped with TaskStop before the next dispatch.
 - **Tooling:** none new.
+### 2026-11-12 — authoring-rollout handler 2: task 06 registration batches 4, 5 and 8 (L)
+
+- **Scope:** local registration of the rational (`1d1759e6`), splines (`565e4247`) and curve geometry (`5947d7b3`) families, with smoke records for rational and splines. Estimated L; held. Logged by handler 3 from handler 2's state note; no timestamps or usage were captured.
+- **Workers:** 4 registration (Sonnet `medium`), 3 smoke (Haiku `medium`). All accepted.
+- **Outcome:** committed locally. The first publish (`publish-7b192f6e-820129`) failed at `whitespace` because `curvePresetCollections.ts` had a blank line at EOF. `5947d7b3` rewrote that file.
+- **Repairs:** one worker put the new catalog rows after already-registered rows of the same catalog family. The handler corrected the order. Since then, briefs name per-family order and not only flat order.
+- **Process gap:** master CI went red after `be876eff` because `scripts/transient-state-scope.test.cjs` read graph classes only from `graphFactories.ts`. The publish gate does not run `scripts/*.test.cjs`. Families-prep fixed this in `92c7cf4d`. Registration briefs now name `node --test scripts/ci-change-scope.test.cjs scripts/transient-state-scope.test.cjs`.
