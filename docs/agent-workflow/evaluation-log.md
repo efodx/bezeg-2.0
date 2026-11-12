@@ -2911,3 +2911,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Outcome:** `0eda4b52`. 16 host tests; 6 failed on the pre-change code and 4 mutations were caught. Three contract rows removed. The handler fixed one copied doc comment.
 - **Positive:** the worker found that `exampleId` is reconciled at read time (`active*ExampleId`), so no `settle` was needed. This kept the batch small.
 - **Negative:** the sweep took 1061s; with the tool timeout, the worker had to run it in the background and wait.
+
+### 2026-11-13 — authoring-rollout handler 6: task 08 batch 6b (M)
+
+- **Scope:** `simson-line` and `inversion` declared, then `PointSetGraph.declaresWholeScene()` and the legacy export, figure and lesson-default branches deleted (decision P-pointset). Estimated M; held.
+- **Workers:** 1 implementation worker (Sonnet `medium`, about 110k, no HANDOFF), which ran the 22-id sweep (753s) itself with a done marker, and 1 smoke (Haiku `medium`) over all 22 point-set ids, 70/70, the same total as batch 2. The handler reviewed the diff in the main chat; no reviewer.
+- **Outcome:** `160db37e`. 12 host tests; 4 failed on the pre-change code and 5 mutations were caught. Two contract rows removed. `grep declaresWholeScene src` is empty.
+- **Positive:** asking for the sweep in the background with a marker, and forbidding a return while it ran, removed the handler wait of batch 5.
+- **Also:** the handler recorded the O-plane resolution (`5e075e10`) while the worker ran: the trio is excluded from task 07.
