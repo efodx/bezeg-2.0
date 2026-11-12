@@ -1,21 +1,18 @@
 # Authoring-rollout stream state
 
-Written by handler 4 at handoff, 2026-11-12. Stream file: [authoring-rollout.md](../../../tasks/feature-streams/authoring-rollout.md). Decisions: [rollout spec, Rollout decisions](../../../specs/lesson-authoring-rollout.md#rollout-decisions). Worktree `.claude/worktrees/stream-authoring-rollout` (branch `worktree-stream-authoring-rollout`).
+Written by handler 4 at handoff, 2026-11-12; updated by handler 5 after batch 2 was smoked and published. Stream file: [authoring-rollout.md](../../../tasks/feature-streams/authoring-rollout.md). Decisions: [rollout spec, Rollout decisions](../../../specs/lesson-authoring-rollout.md#rollout-decisions). Worktree `.claude/worktrees/stream-authoring-rollout` (branch `worktree-stream-authoring-rollout`).
 
 **`node_modules` is now a local install in this worktree** (`npm ci`), not a junction: the main checkout's `node_modules` was found empty at about 17:00 with nothing reinstalling it. The publish gate links the worktree's own install. The owner has been told that the main checkout needs `npm ci`.
 
 ## Done and on master
 
 - Steps 1–5. Task 06 registration is complete: 113/113. `legacyDemonstrationRows` and `graphFactories` are empty, but the empty table, the `Routes.tsx` fallback and `allGraphFactories` still exist; deleting them is task 06 step 4, at close-out. Each batch has an evidence and smoke record here (`06-batch<N>-*.md`).
-- Last push `496c5afe` (local equivalent `706c98a2`). Master CI is green there: Browser smoke and Developer tools.
+- Task 08 batch 2 (`56eafed4`, `909bf39b`): [evidence](08-batch2-evidence.md), [smoke](08-batch2-smoke.md) 70/70 over all 22 point-set ids. A Sonnet review against P1–P3 found nothing blocking. Only `orientation`, `polygon-area` and the `CurvePairGraph` base (which has no route of its own) take the declared path; the other subclasses keep the legacy branch unchanged. Published by handler 5 (see the stream file and `just publish --status` for the pushed hash; read `just ci <sha>` after it).
 
-## Committed locally, not published
+## Carried into batch 3
 
-`56eafed4` (the `ScenePersistence` type parameter `P`, shared host code in its own commit) and `909bf39b` (`pointSetPersistence`, the `PointSetGraph` rewiring, the two contract rows removed). Both sit on `706c98a2`. Worker checks passed: `just unit` on compgeo, projective and base/presets, and wide `just unit src` with the six `BEZEG_*` sweeps over the 22 point-set ids; typecheck; lint. Handler review: diff read, decision P-pointset recorded. **Not smoked, not published.**
-
-1. Smoke it. This changes the shared `PointSetGraph` base, so smoke the routes of all 22 point-set ids (inventory `08-inventory.md` §3.2), not only orientation and polygon-area: render rows, lesson walks and, if the harness has them, Preset save/reopen and import rows for `compgeo-*`. Use Sonnet `bezeg-smoke` (broad), modelled on `06-batch16-smoke.md`, and write the record to `08-batch2-smoke.md`. Spec P3 also asks for lesson reset/exit and figure return, so name those flows in the brief.
-2. Optionally route a Sonnet `bezeg-reviewer` over `909bf39b` against P1–P3, since it is a shared-base change.
-3. Commit the record and stream status, then run `just publish --background --recipe runtime --base 706c98a2 --commits 56eafed4,909bf39b,<this state-note commit>,<smoke docs commit>`.
+- Review nit: `PointSetGraph.figurePresetGraphState` (`PointSetGraph.tsx:535`) tests `data === undefined`, while `BaseGraph.tsx:1260` uses `== null`. Align it to `== null` while editing the base.
+- Browser coverage gap: no smoke row covers lesson reset, exit, figure return or Preset save/import for point-set ids. Host tests carry these flows (`pointSetPersistence.host.test.tsx`). If a batch changes these flows beyond the host tests, consider adding a browser row.
 
 ## Next slices
 

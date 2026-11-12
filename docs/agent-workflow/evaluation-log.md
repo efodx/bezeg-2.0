@@ -2858,3 +2858,13 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** master CI had been red since `85d49b1f`: a catalog test timed out on the newly registered analysis loader, which `check-changed` never reached. The batch 16 smoke was blocked because the smoke harness required a non-empty legacy list. A worker labelled the CI failure pre-existing without reading CI; the handler found the cause through `just ci`.
 - **Positive:** briefs that named order, owners, keys and the empty-table form passed acceptance first time. Smokes ran in 1.5–9 minutes.
 - **Handoff evidence:** peak worker usage was about 112k (batch 16). No worker reached HANDOFF. The handler reached SOFT at 179k, after accepting task 08 batch 2.
+
+### 2026-11-12 — authoring-rollout handler 5: task 08 batch 2 smoked and published (S)
+
+- **Scope:** smoke and publish the local task 08 batch 2 (`56eafed4`, `909bf39b`) with the state note. Estimated S; held.
+- **Workers:** 2, in parallel: a broad smoke (`bezeg-smoke`, Sonnet `medium`) and a P1–P3 review of the shared-base change (`bezeg-reviewer`, Sonnet `medium`). Handler-only: a check that `CurvePairGraph`, the only other class on the declared path, is not a route of its own.
+- **Outcome:** the smoke passed 70/70 (3 catalog rows, 22 renders, 44 lesson walks, 1 Inversion extra) on `a5e837e1`. The review found nothing blocking. It confirmed that only `orientation`, `polygon-area` and the `CurvePairGraph` base take the declared path, and that legacy behaviour is unchanged. One nit is deferred to batch 3: `figurePresetGraphState` tests `data === undefined` while BaseGraph uses `== null`. Browser gaps: there are no rows for reset, exit, figure return or Presets on point-set ids; host tests cover these.
+- **Repairs:** none.
+- **Positive:** running the read-only review alongside the smoke cost no wall time. The smoke took about 3 minutes and the review about 1.
+- **Handoff evidence:** worker usage was about 27k for the smoke and 39k for the review.
+
