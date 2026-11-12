@@ -157,8 +157,8 @@ const realSources = root => {
     // Every family runtime composed in graphLoaders.ts; `new m.default()` names no class, so only named constructions are ground truth here.
     const runtimes = [...read('src/graphs/graphLoaders.ts').matchAll(/from\s+'\.\/([^']+)\/runtime'/g)]
         .map(family => ({text: read(`src/graphs/${family[1]}/runtime.ts`), pattern: /new\s+\w+\.(?!default\()(\w+)\(/g}));
+    // The legacy table graphFactories.ts is empty once every family is registered, so it holds no ground truth.
     return [
-        {text: read('src/graphs/graphFactories.ts'), pattern: /=>\s*new\s+(\w+)\(/g},
         {text: read('src/graphs/projective/runtime.ts'), pattern: /new\s+\w+\.(\w+)\(/g},
         ...runtimes,
     ];

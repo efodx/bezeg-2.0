@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {DemonstrationId, getDemonstrationCatalog, legacyDemonstrationRows} from '../demonstrations';
+import {Definition, DemonstrationId, getDemonstrationCatalog, legacyDemonstrationRows} from '../demonstrations';
 import type {PresetCollection} from './base/presets/PresetCollection';
 import {presetCollections} from './base/presets/PresetImport';
 import {graphFactories} from './graphFactories';
@@ -61,6 +61,9 @@ import {isometryGraphLoaders} from './isometry/runtime';
 import {circleConstructionCollections} from './compgeo/circleConstruction/collections';
 import {circleConstructionCollectionKeys, circleConstructionDemonstrationRows} from './compgeo/circleConstruction/registration';
 import {circleConstructionGraphLoaders} from './compgeo/circleConstruction/runtime';
+import {computationalGeometryCollections} from './compgeo/computationalGeometry/collections';
+import {computationalGeometryCollectionKeys, computationalGeometryDemonstrationRows} from './compgeo/computationalGeometry/registration';
+import {computationalGeometryGraphLoaders} from './compgeo/computationalGeometry/runtime';
 import {planeGeometryCollections} from './compgeo/planeGeometry/collections';
 import {planeGeometryCollectionKeys, planeGeometryDemonstrationRows} from './compgeo/planeGeometry/registration';
 import {planeGeometryGraphLoaders} from './compgeo/planeGeometry/runtime';
@@ -162,6 +165,7 @@ interface RealFamily {
 const realFamilies: readonly RealFamily[] = [
     {family: 'maps', rows: mapsDemonstrationRows, loaders: mapsGraphLoaders, collectionKeys: mapsCollectionKeys, collections: mapsCollections},
     {family: 'plane-geometry', rows: planeGeometryDemonstrationRows, loaders: planeGeometryGraphLoaders, collectionKeys: planeGeometryCollectionKeys, collections: planeGeometryCollections},
+    {family: 'computational-geometry', rows: computationalGeometryDemonstrationRows, loaders: computationalGeometryGraphLoaders, collectionKeys: computationalGeometryCollectionKeys, collections: computationalGeometryCollections},
     {family: 'complex-batch-d', rows: complexBatchDDemonstrationRows, loaders: complexBatchDGraphLoaders, collectionKeys: complexBatchDCollectionKeys, collections: complexBatchDCollections},
     {family: 'projective', rows: projectiveDemonstrationRows, loaders: projectiveGraphLoaders, collectionKeys: projectiveCollectionKeys, collections: projectiveCollections},
     {family: 'analysis', rows: analysisDemonstrationRows, loaders: analysisGraphLoaders, collectionKeys: analysisCollectionKeys, collections: analysisCollections},
@@ -192,6 +196,8 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'spline', rows: splineDemonstrationRows, loaders: splineGraphLoaders, collectionKeys: splineCollectionKeys, collections: splineCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
+// The legacy table is empty once every family is registered; widened so its rows stay typed for the checks below.
+const legacyRows: readonly Definition[] = legacyDemonstrationRows;
 
 describe('the real registered families', () => {
     const registeredCollections = realFamilies.flatMap(entry => entry.collections);
@@ -199,7 +205,7 @@ describe('the real registered families', () => {
     test('each is complete and disjoint from the legacy rows, factories, collections and the other families', () => {
         const issues = checkRegistrations(realFamilies.map(entry => ({
             family: entry.family, rows: entry.rows, loaderIds: Object.keys(entry.loaders), collectionKeys: entry.collectionKeys, collections: entry.collections,
-        })), {rows: legacyDemonstrationRows, factoryIds: Object.keys(graphFactories), collections: legacyCollections});
+        })), {rows: legacyRows, factoryIds: Object.keys(graphFactories), collections: legacyCollections});
         expect(issues).toEqual([]);
     });
     test('the root composition holds the union of the family loaders and the composed collections have unique storage keys', () => {
@@ -212,7 +218,7 @@ describe('the real registered families', () => {
     test('registered rows stay after the legacy rows in the catalog, in family registration order', () => {
         const ids = getDemonstrationCatalog().demonstrations.map(({id}) => id);
         expect(ids.slice(-registeredRows.length)).toEqual(registeredRows.map(row => row.id));
-        expect(ids.slice(0, -registeredRows.length)).toEqual(legacyDemonstrationRows.map(row => row.id));
+        expect(ids.slice(0, -registeredRows.length)).toEqual(legacyRows.map(row => row.id));
     });
 });
 

@@ -1,5 +1,7 @@
 import {describe, expect, test} from 'vitest';
 import {presetCollections} from './base/presets/PresetImport';
+import type BaseGraph from './base/BaseGraph';
+import type {BaseGraphState} from './base/BaseGraph';
 import {graphFactories} from './graphFactories';
 import {registeredGraphLoaders} from './graphLoaders';
 
@@ -12,7 +14,7 @@ import {registeredGraphLoaders} from './graphLoaders';
 const canonicalByKey = new Map(presetCollections.map(collection => [collection.key, collection]));
 
 async function allGraphs() {
-    const graphs: [string, ReturnType<(typeof graphFactories)[keyof typeof graphFactories]>][] = Object.entries(graphFactories).map(([id, create]) => [id, create()]);
+    const graphs: [string, BaseGraph<BaseGraphState>][] = Object.entries<() => BaseGraph<BaseGraphState>>(graphFactories).map(([id, create]) => [id, create()]);
     for (const [id, load] of Object.entries(registeredGraphLoaders)) graphs.push([id, (await load())()]);
     return graphs;
 }

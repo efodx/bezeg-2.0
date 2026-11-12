@@ -15,7 +15,7 @@ vi.mock('../hermite/HermiteGraph', () => mark('HermiteGraph', {default: class He
 vi.mock('../../functions/RungeInterpolationGraph', () => mark('RungeInterpolationGraph', {default: class RungeInterpolationGraph {}}));
 vi.mock('../../functions/LeastSquaresGraph', () => mark('LeastSquaresGraph', {default: class LeastSquaresGraph {}}));
 vi.mock('../subdivisionCurves/SubdivisionCurveGraph', () => mark('SubdivisionCurveGraph', {default: class SubdivisionCurveGraph {}}));
-vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {'orientation': () => ({})}}));
+vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {}}));
 vi.mock('../../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -58,12 +58,6 @@ describe('module evaluation', () => {
         expect(Component().props.create().constructor.name).toBe(graph);
     });
 
-    test('a legacy route still resolves through the legacy table', async () => {
-        const route = await routeFor('/bezeg-2.0/compgeo/orientation');
-        await route.lazy!();
-        expect(evaluated).toContain('graphFactories');
-        expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);
-    });
 });
 
 const srcRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');

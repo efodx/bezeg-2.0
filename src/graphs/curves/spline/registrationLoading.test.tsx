@@ -15,7 +15,7 @@ vi.mock('./C1SplineGraph', () => mark('C1SplineGraph', {default: class C1SplineG
 vi.mock('./C2SplineGraph', () => mark('C2SplineGraph', {default: class C2SplineGraph {}}));
 vi.mock('./G1SplineGraph', () => mark('G1SplineGraph', {default: class G1SplineGraph {}}));
 vi.mock('./G1SymmetricSplineGraph', () => mark('G1SymmetricSplineGraph', {default: class G1SymmetricSplineGraph {}}));
-vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {'orientation': () => ({})}}));
+vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {}}));
 vi.mock('../../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -57,12 +57,6 @@ describe('module evaluation', () => {
         expect(Component().props.create().constructor.name).toBe(graph);
     });
 
-    test('a legacy route still resolves through the legacy table', async () => {
-        const route = await routeFor('/bezeg-2.0/compgeo/orientation');
-        await route.lazy!();
-        expect(evaluated).toContain('graphFactories');
-        expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);
-    });
 });
 
 const srcRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');

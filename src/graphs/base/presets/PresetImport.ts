@@ -7,7 +7,7 @@ import {analysisCollections} from "../../analysis/collections";
 import {mapsCollections} from "../../maps/collections";
 import {probabilityCollections} from "../../probability/collections";
 import {functionsCollections} from "../../functions/collections";
-import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
+import {computationalGeometryCollections} from "../../compgeo/computationalGeometry/collections";
 import {patchesCollections} from "../../patches/collections";
 import {bsplineCollections} from "../../curves/bspline/collections";
 import {basicsCollections} from "../../basics/collections";
@@ -41,7 +41,7 @@ import {levelSetsCollections} from "../../levelsets/collections";
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...functionsCollections, ...analysisCollections, ...probabilityCollections,
     ...patchesCollections, ...mapsCollections,
-    ...planeGeometryCollections, ...compgeoPresetCollections,
+    ...planeGeometryCollections, ...computationalGeometryCollections,
     ...projectiveCollections,
     ...bsplineCollections,
     ...basicsCollections,

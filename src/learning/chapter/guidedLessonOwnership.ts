@@ -18,6 +18,8 @@ import type {FunctionsDemonstrationId} from '../../graphs/functions/registration
 import type {AnalysisDemonstrationId} from '../../graphs/analysis/registration';
 import type {MapsDemonstrationId} from '../../graphs/maps/registration';
 import {mapsDemonstrationRows} from '../../graphs/maps/registration';
+import type {ComputationalGeometryDemonstrationId} from '../../graphs/compgeo/computationalGeometry/registration';
+import {computationalGeometryDemonstrationRows} from '../../graphs/compgeo/computationalGeometry/registration';
 import type {PlaneGeometryDemonstrationId} from '../../graphs/compgeo/planeGeometry/registration';
 import {planeGeometryDemonstrationRows} from '../../graphs/compgeo/planeGeometry/registration';
 import type {ProbabilityDemonstrationId} from '../../graphs/probability/registration';
@@ -34,7 +36,7 @@ import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retained
 export type GuidedLessonOwner = Readonly<{chapterId: string; sectionId: string}>;
 
 /** Family-registered Demonstrations take their primary owner from the first chapter-owned section naming them (`chapterOwnerRows()`), so they have no row here. */
-type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | ProbabilityDemonstrationId | MapsDemonstrationId | PlaneGeometryDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
+type DerivedOwnerId = Exclude<AnalysisDemonstrationId, keyof typeof analysisPrimaryOwners> | Exclude<FunctionsDemonstrationId, keyof typeof functionsPrimaryOwners> | ProjectiveDemonstrationId | ProbabilityDemonstrationId | MapsDemonstrationId | PlaneGeometryDemonstrationId | ComputationalGeometryDemonstrationId | BsplineDemonstrationId | CurveGeometryDemonstrationId | InterpolationDemonstrationId | PatchesDemonstrationId | typeof bezierDerivedOwnerIds[number];
 
 /** Family-registered Demonstrations whose primary owner cannot be derived (their chapter owns no lesson rows): the family module keeps it as explicit metadata. */
 type FamilyOwnedId = keyof typeof basicsPrimaryOwners | keyof typeof phPrimaryOwners | keyof typeof parameterizationPrimaryOwners | keyof typeof bezierPrimaryOwners | keyof typeof rationalPrimaryOwners | keyof typeof splinePrimaryOwners | keyof typeof functionsPrimaryOwners | keyof typeof analysisPrimaryOwners;
@@ -73,39 +75,14 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
     // Registered without lessons (triangle geometry F2b); the Triangle geometry chapter and its sections are authored in F4.
-    // The Convexity and hulls chapter owns the first three computational-geometry lessons, one section each.
-    orientation: {chapterId: 'convexity-hulls', sectionId: 'orientation'},
-    'polygon-area': {chapterId: 'convexity-hulls', sectionId: 'polygon-area'},
-    'convex-hull': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
-    'point-in-polygon': {chapterId: 'convexity-hulls', sectionId: 'point-in-polygon'},
-    'hull-robustness': {chapterId: 'convexity-hulls', sectionId: 'hull-robustness'},
-    'bezier-hulls': {chapterId: 'convexity-hulls', sectionId: 'bezier-hulls'},
-    // The Triangulations and Voronoi chapter owns the ear clipping lesson (batch T1).
-    'ear-clipping': {chapterId: 'triangulations-voronoi', sectionId: 'ear-clipping'},
-    // The chapter's own section for counting the triangles of a point-set triangulation (lesson B2).
-    'point-set-triangulation': {chapterId: 'triangulations-voronoi', sectionId: 'point-set-triangulation'},
-    // The chapter's own section for the Delaunay triangulation and Lawson flips (lesson B3).
-    'delaunay': {chapterId: 'triangulations-voronoi', sectionId: 'delaunay'},
-    // The chapter's own section for the Voronoi diagram and its duality with the Delaunay triangulation (lesson B4).
-    'voronoi': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi'},
-    // The chapter's own section for degenerate sites: cocircular and collinear points (lesson B5).
-    'voronoi-degenerate': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi-degenerate'},
     // The Geometry of curves chapter owns the parametric and polar curves, curvature, curvature comb, evolute and offset and envelope lessons (CG-B1-4, CG-B2-3, CG-B2-4, CG-B3-3, CG-B3-4).
-    // The Sweep-line algorithms chapter owns the interval sweep and segment intersection lessons (batch S1).
-    'interval-sweep': {chapterId: 'sweep-algorithms', sectionId: 'interval-sweep'},
-    'segment-intersections': {chapterId: 'sweep-algorithms', sectionId: 'segment-intersections'},
-    // The Sweep-line algorithms chapter owns the monotone partition and monotone triangulation lessons (batch S2).
-    'monotone-partition': {chapterId: 'sweep-algorithms', sectionId: 'monotone-partition'},
-    'monotone-triangulation': {chapterId: 'sweep-algorithms', sectionId: 'monotone-triangulation'},
-    // The Sweep-line algorithms chapter owns the Fortune lesson (batch S3).
-    'fortune': {chapterId: 'sweep-algorithms', sectionId: 'fortune'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
     ...basicsAdditionalOwners,
 };
 
-const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...probabilityDemonstrationRows, ...mapsDemonstrationRows, ...planeGeometryDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
+const derivedOwnerIds: ReadonlySet<string> = new Set([...analysisDemonstrationRows.filter(row => !Object.hasOwn(analysisPrimaryOwners, row.id)), ...functionsDemonstrationRows.filter(row => !Object.hasOwn(functionsPrimaryOwners, row.id)), ...projectiveDemonstrationRows, ...probabilityDemonstrationRows, ...mapsDemonstrationRows, ...planeGeometryDemonstrationRows, ...computationalGeometryDemonstrationRows, ...bsplineDemonstrationRows, ...curveGeometryDemonstrationRows, ...interpolationDemonstrationRows, ...patchesDemonstrationRows, ...bezierDemonstrationRows.filter(row => bezierDerivedOwnerIds.some(id => id === row.id))].map(row => row.id));
 
 const ownersById: Readonly<Partial<Record<DemonstrationId, GuidedLessonOwner>>> = {...guidedLessonOwners, ...familyPrimaryOwners};
 

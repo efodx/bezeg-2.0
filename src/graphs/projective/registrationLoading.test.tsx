@@ -15,7 +15,7 @@ vi.mock('./PascalGraph', () => mark('PascalGraph', {PascalGraph: class PascalGra
 vi.mock('./PolePolarGraph', () => mark('PolePolarGraph', {PolePolarGraph: class PolePolarGraph {}}));
 vi.mock('./FivePointGraph', () => mark('FivePointGraph', {FivePointGraph: class FivePointGraph {}}));
 vi.mock('./ThreeViewsGraph', () => mark('ThreeViewsGraph', {ThreeViewsGraph: class ThreeViewsGraph {}}));
-vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {'orientation': () => ({})}}));
+vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {}}));
 vi.mock('../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -50,13 +50,6 @@ describe('module evaluation', () => {
         expect(Component().props.create().constructor.name).toBe('PascalGraph');
     });
 
-    test('a legacy route still resolves through the legacy table', async () => {
-        const {default: routes} = await import('../../Routes');
-        const route = (routes[0].children as LazyRoute[]).find(entry => entry.path === '/bezeg-2.0/compgeo/orientation')!;
-        await route.lazy!();
-        expect(evaluated).toContain('graphFactories');
-        expect(evaluated.filter(name => name.endsWith('Graph') && name !== 'GraphRoute')).toEqual([]);
-    });
 });
 
 const srcRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
