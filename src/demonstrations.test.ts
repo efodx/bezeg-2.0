@@ -46,12 +46,6 @@ const expected = [
     ['interpolation/runge', '/bezeg-2.0/interpolation', 'interp_runge_title', 'interp_runge_title', 'prompt_interp_runge'],
     ['interpolation/least-squares', '/bezeg-2.0/interpolation', 'interp_lsq_title', 'interp_lsq_title', 'prompt_interp_least_squares'],
     ['interpolation/subdivision', '/bezeg-2.0/interpolation', 'interp_subdivision_title', 'interp_subdivision_title', 'prompt_interp_subdivision'],
-    ['bspline/basis', '/bezeg-2.0/bspline', 'bspline_basis_title', 'bspline_basis_title', 'prompt_bspline_basis'],
-    ['bspline/deboor', '/bezeg-2.0/bspline', 'bspline_deboor_title', 'bspline_deboor_title', 'prompt_bspline_deboor'],
-    ['bspline/insertion', '/bezeg-2.0/bspline', 'bspline_insertion_title', 'bspline_insertion_title', 'prompt_bspline_insertion'],
-    ['bspline/extraction', '/bezeg-2.0/bspline', 'bspline_extraction_title', 'bspline_extraction_title', 'prompt_bspline_extraction'],
-    ['bspline/nurbs', '/bezeg-2.0/bspline', 'bspline_nurbs_title', 'bspline_nurbs_title', 'prompt_bspline_nurbs'],
-    ['bspline/blossom', '/bezeg-2.0/bspline', 'bspline_blossom_title', 'bspline_blossom_title', 'prompt_bspline_blossom'],
     ['patches/tensor', '/bezeg-2.0/patches', 'tensor_product_bezier_patch', 'tensor_product_bezier_patch', 'prompt_patch_net'],
     ['patches/decasteljau', '/bezeg-2.0/patches', 'patch_decasteljau_algorithm', 'patch_decasteljau_algorithm', 'prompt_patch_decasteljau_order'],
     ['patches/derivatives', '/bezeg-2.0/patches', 'patch_derivatives_title', 'patch_derivatives_title', 'prompt_patch_derivatives_tangents'],
@@ -123,6 +117,12 @@ const expected = [
     ['projective/pole-polar', 'projective', 'projective_pole_polar_title', 'projective_pole_polar_title', 'prompt_projective_pole_polar_tangents'],
     ['projective/five-point', 'projective', 'projective_five_point_title', 'projective_five_point_title', 'prompt_projective_five_point_unique'],
     ['projective/three-views', 'projective', 'projective_three_views_title', 'projective_three_views_title', 'prompt_projective_three_views_type'],
+    ['bspline/basis', '/bezeg-2.0/bspline', 'bspline_basis_title', 'bspline_basis_title', 'prompt_bspline_basis'],
+    ['bspline/deboor', '/bezeg-2.0/bspline', 'bspline_deboor_title', 'bspline_deboor_title', 'prompt_bspline_deboor'],
+    ['bspline/insertion', '/bezeg-2.0/bspline', 'bspline_insertion_title', 'bspline_insertion_title', 'prompt_bspline_insertion'],
+    ['bspline/extraction', '/bezeg-2.0/bspline', 'bspline_extraction_title', 'bspline_extraction_title', 'prompt_bspline_extraction'],
+    ['bspline/nurbs', '/bezeg-2.0/bspline', 'bspline_nurbs_title', 'bspline_nurbs_title', 'prompt_bspline_nurbs'],
+    ['bspline/blossom', '/bezeg-2.0/bspline', 'bspline_blossom_title', 'bspline_blossom_title', 'prompt_bspline_blossom'],
 ] as const;
 
 afterEach(() => setLanguage('sl'));
