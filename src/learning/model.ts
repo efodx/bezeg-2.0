@@ -415,6 +415,15 @@ export type LessonAction =
         }>>>;
     }
     /**
+     * CircleConstructionGraph's scene actions (circle-geometry CG1, CG2; CG3 and CG4 extend the union). `set-mode` is the construction select and loads
+     * that construction's example, as the select does; `set-circle` writes the centre and radius of `c1`, `c2` or `c3` (the radical mode always draws
+     * three); `set-point` writes the point P of the tangent mode and the probe of the radical mode. Centres and P are integers in [-16, 16], a radius is
+     * a multiple of 1/4 in [1/4, 8]. Anything else is a lesson-content error and is never snapped; the whole action is validated before the first write.
+     */
+    | {readonly kind: 'circle'; readonly operation: 'set-mode'; readonly mode: 'tangents' | 'radical' | 'apollonius' | 'common'}
+    | {readonly kind: 'circle'; readonly operation: 'set-circle'; readonly circle: 'c1' | 'c2' | 'c3'; readonly x: number; readonly y: number; readonly r: number}
+    | {readonly kind: 'circle'; readonly operation: 'set-point'; readonly x: number; readonly y: number}
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.

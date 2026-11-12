@@ -34,9 +34,9 @@ describe('R5 composition: every root references the circle-construction family e
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, each row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(circleConstructionDemonstrationRows.length).toBe(1);
-        expect(circleConstructionDemonstrationRows.every(row => row.lesson === false)).toBe(true);
+        expect(circleConstructionDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false)).toEqual([]);
         expect(new Set(Object.values(circleConstructionCollectionKeys)).size).toBe(circleConstructionDemonstrationRows.length);
     });
 });

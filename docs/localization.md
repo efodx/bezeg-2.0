@@ -106,6 +106,11 @@ The static document initially declares Slovenian, and runtime selection updates 
 | vrtež | rotation about a centre; L1, L2 |
 | zrcalni zdrs | glide reflection (reflection and translation along the axis); L2 |
 | negibna točka | fixed point of a map; L2 |
+| potenčna premica; potenčno središče | radical axis; radical centre (CG1, CG2). Built on the existing *potenca*; glossed on first use, unreviewed |
+| Talesova krožnica | Thales circle, the circle over a diameter (CG1). From the existing *Talesov izrek* |
+| tetiva dotikališč | chord of contact, the segment joining the two points of contact (CG1). Built on *tetiva* and *točka dotika* |
+| krožnice z isto potenčno premico | coaxal circles (CG2). Handler 11 decision: a descriptive phrase used everywhere; *soosne krožnice* was rejected because it reads as "sharing an axis of symmetry", and no established Slovenian term was verified |
+| sosrediščni krožnici | concentric circles, which have no radical axis (CG2); taken from the existing wording in `sl.ts` |
 | orientacija ohranjena / obrnjena | orientation kept / reversed |
 | pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
 | preizkusna točka | test point (roots graph) |

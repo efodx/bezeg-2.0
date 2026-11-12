@@ -3,6 +3,8 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -49,6 +51,7 @@ export const MODE_HANDLES: Readonly<Record<CircleMode, readonly HandleId[]>> = {
 type Coefficients = readonly [number, number, number];
 type CircleKey = "c1" | "c2" | "c3";
 type PointKey = "p" | "a" | "b";
+const CIRCLE_KEYS: readonly CircleKey[] = ["c1", "c2", "c3"];
 
 const signed = (n: bigint): string => (n < 0n ? `−${-n}` : `${n}`);
 
@@ -223,6 +226,55 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             session.registerCleanup(onLanguageChange(() => this.status.replace(this.statusText())));
         }
         this.status.replace(this.statusText());
+    }
+
+    /**
+     * Lesson actions (`circle`): `set-mode` is the construction select (it loads that construction's example), `set-circle` the centre and radius
+     * fields of one circle, `set-point` the coordinate fields of P. Every value is checked against the model's grid and range rules before the first
+     * write; a lesson-content error throws and nothing is snapped or clamped. `setState` writes the store synchronously, so a later action of the
+     * same scene reads this one's result, and the board follows in `onStateChange`.
+     */
+    applyCircleAction(action: Extract<LessonAction, {kind: "circle"}>): void {
+        switch (action.operation) {
+            case "set-mode": {
+                const mode = CIRCLE_MODES.find(candidate => candidate === action.mode);
+                if (!mode) throw new Error(`circle set-mode: mode must be one of ${CIRCLE_MODES.join(", ")}.`);
+                this.setState(exampleState(mode));
+                return;
+            }
+            case "set-circle": {
+                const key = CIRCLE_KEYS.find(candidate => candidate === action.circle);
+                if (!key) throw new Error("circle set-circle: circle must be c1, c2 or c3.");
+                const x = this.exactCoordinate(action.x, "circle set-circle x");
+                const y = this.exactCoordinate(action.y, "circle set-circle y");
+                const r = snapRadiusInput(action.r, "radius");
+                if (!r.ok || r.value.adjusted) throw new Error(`circle set-circle: the radius must be a multiple of 1/4 in [${RADIUS_MIN}, ${RADIUS_MAX}].`);
+                this.setCircle(key, {x, y, r: r.value.value});
+                return;
+            }
+            case "set-point": {
+                const x = this.exactCoordinate(action.x, "circle set-point x");
+                const y = this.exactCoordinate(action.y, "circle set-point y");
+                this.setPoint("p", x, y);
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`circle: the circle graph has no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    /** A lesson coordinate: an integer in [-16, 16] exactly as given (the snapping path of typed input would hide a content error). */
+    private exactCoordinate(value: number, field: string): number {
+        const snapped = snapCoordinateInput(value, field);
+        if (!snapped.ok || snapped.value.adjusted) throw new Error(`${field}: must be an integer in [-${COORD_LIMIT}, ${COORD_LIMIT}].`);
+        return snapped.value.value;
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("circle", action => this.applyCircleAction(action));
     }
 
     protected override onStateChange(_previous: Readonly<CircleConstructionGraphState>): void {

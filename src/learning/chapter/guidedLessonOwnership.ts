@@ -88,6 +88,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'unit-circle': {chapterId: 'trigonometry', sectionId: 'radian-sine-cosine'},
     // The line geometry's first activity (L1) in the analytic lines chapter; the normal-vector activity (L2) is the second owner, derived from the chapter.
     'line-geometry': {chapterId: 'analytic-lines', sectionId: 'forms-of-a-line'},
+    // The circle construction's first activity (CG1) in the circle geometry chapter; the radical-axis activity (CG2) is the second owner, derived from the chapter.
+    'circle-construction': {chapterId: 'circle-geometry', sectionId: 'tangents-from-a-point'},
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
