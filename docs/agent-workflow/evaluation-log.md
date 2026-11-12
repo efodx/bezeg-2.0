@@ -2867,3 +2867,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Repairs:** none.
 - **Positive:** running the read-only review alongside the smoke cost no wall time. The smoke took about 3 minutes and the review about 1.
 - **Handoff evidence:** worker usage was about 27k for the smoke and 39k for the review.
+
+### 2026-11-12 — authoring-rollout handler 5: task 08 batch 3a (M)
+
+- **Scope:** declare `step` through `pointSetPersistence` for six step graphs; the rest of batch 3 is split into 3b (hull trace with playback and algorithm, robustness, the Bezier pair with unnamed-step reset and tolerance). Estimated M; held.
+- **Workers:** 1 implementation worker (Sonnet `medium`), accepted without repair; 1 smoke (Haiku `medium`), 24/24.
+- **Outcome:** `e63b1ee0`. 51 host tests; 18 failed on the pre-change code, and named mutations were caught. Six `PRESET_DATA_STATE_KEYS` rows removed.
+- **Repairs:** none to code. Environment: this worktree's `node_modules/.bin` disappeared while the packages stayed. One wide-run suite (ENOENT) and a publish `check-changed` (`vitest` not recognized) failed. The handler relinked with `npm rebuild --ignore-scripts`. Separately, the handler's own evaluation entry left a blank line at EOF and failed the publish whitespace stage.
+- **Positive:** the worker relaxed "integers only" to what the collections already accept and stated it as a departure.
+- **Handoff evidence:** the worker used about 129k tokens over 41 minutes, much of it waiting for test slots; the smoke used about 21k.
