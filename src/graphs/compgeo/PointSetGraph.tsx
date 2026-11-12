@@ -507,7 +507,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     /**
      * The extension a subclass declares beyond `{initialized, model, overlays}` (named, checked fields and how the data bounds
-     * them; task 08 batch 3b). Returns a stable object. A graph that declares none keeps the legacy mappings until its batch.
+     * them; task 08 batch 3b). Returns a stable object. A graph that declares none has the scene `{initialized, model, overlays}` alone.
      */
     protected persistenceExtension(): PointSetExtension | undefined {
         const step = this.persistenceStep();
@@ -526,31 +526,14 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return this.persistenceMemo.persistence;
     }
 
-    /**
-     * Whether the persisted scene is declared: a subclass that declares its step, or one whose scene state is exactly
-     * `initialized`, `model`, `overlays`. A subclass with other scene state (a mode, a query) is not yet declared and
-     * keeps the legacy mappings below until its own batch (task 08).
-     */
-    private declaresWholeScene(): boolean {
-        if (this.persistenceExtension()) return true;
-        return Object.keys(this.getInitialState()).every(key => key === "initialized" || key === "model" || key === "overlays");
-    }
-
     override exportPresetData(): PointSetModel {
         return this.persistence().project(this.state).data;
     }
 
-    /** A Preset carries the model once, as `data`; a graph that declares its whole scene exports exactly the projection. */
+    /** A Preset carries the model once, as `data`; every point-set graph exports exactly the projection of its declaration. */
     protected override projectPersistedScene(): {data: PointSetModel; graphState: BaseGraphState} | undefined {
-        return this.declaresWholeScene() ? {data: this.exportPresetData(), graphState: this.persistence().project(this.state).graphState} : undefined;
-    }
-
-    /** Legacy mapping for a graph with scene state beyond the declaration: `graphState` omits `model`, which the collection rejects. */
-    override exportPreset(): Preset<PointSetModel> {
-        const preset = super.exportPreset();
-        if (this.declaresWholeScene()) return preset;
-        const {model: _model, ...graphState} = preset.graphState as PointSetGraphState;
-        return {...preset, graphState};
+        const projected = this.persistence().project(this.state);
+        return {data: projected.data, graphState: projected.graphState};
     }
 
     /** The stored `graphState` of the Preset `importPreset` is applying (absent when it carries none); undefined outside `importPreset`. */
@@ -587,15 +570,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.setState(patch);
     }
 
-    /** The scene state a Preset replacement starts from: the declaration over the defaults (legacy: keeps the model `importPresetData` just wrote). */
+    /** The scene state a Preset replacement starts from: the declaration over the defaults. */
     protected override figurePresetGraphState(graphState: StoredGraphState | undefined, data?: unknown): PointSetGraphState {
-        if (!this.declaresWholeScene()) return {...super.figurePresetGraphState(graphState), model: this.model};
         const defaults = super.figurePresetGraphState(undefined);
         return {...this.persistence().reconstruct(data == null ? this.persistedDefaultData() : data as PointSetModel, this.storedSource(graphState), defaults), initialized: true};
     }
 
     protected override lessonDefaultState(data?: PointSetModel): PointSetGraphState {
-        if (!this.declaresWholeScene()) return {...this.getInitialState(), initialized: true, model: this.model};
         return {...this.persistence().reconstruct(data ?? this.persistedDefaultData(), this.getInitialState(), this.getInitialState()), initialized: true};
     }
 

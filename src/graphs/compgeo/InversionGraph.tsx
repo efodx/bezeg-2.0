@@ -1,5 +1,6 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {PointSetExtension, PointSetFieldValue} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {LessonAction} from "../../learning/model";
@@ -14,7 +15,7 @@ import {
 } from "../../compgeo/inversionModel";
 import type {GeneralizedCircleShape} from "../../analysis/complexMobius";
 import {
-    INVERSION_OVERLAY_IDS, INVERSION_POINT_COUNT, InversionFocus, inversionCollection, isInversionExampleId, isInversionFocus,
+    INVERSION_OVERLAY_IDS, INVERSION_POINT_COUNT, InversionFocus, inversionCollection, isInversionAngle, isInversionExampleId, isInversionFocus, isInversionPower,
 } from "./inversionPresetCollection";
 import {
     buildInversionView, edgeMarker, InversionInputs, InversionPlace, InversionPlaceId, inversionPlaces, InversionView, matchesExample, outsidePlaces,
@@ -66,6 +67,30 @@ const DEFAULT_SOURCE: InversionSource = {kind: "circle", centre: {x: 1, y: 0}, r
 const DEFAULT_LINE: InversionSource = {kind: "line", p: {x: -3, y: -3}, q: {x: 3, y: 3}};
 const DEFAULT_POWER = {circle: {centre: {x: 5, y: 0}, radius: 3} as CircleSpec, thetaDeg: 0};
 const DEFAULT_ANGLE = {first: {centre: {x: 3, y: 0}, radius: 1} as CircleSpec, second: {centre: {x: 3, y: 1}, radius: 1} as CircleSpec, which: 1 as 0 | 1};
+const pointValue = (point: GridPoint): PointSetFieldValue => ({x: point.x, y: point.y});
+const circleValue = (circle: CircleSpec): PointSetFieldValue => ({centre: pointValue(circle.centre), radius: circle.radius});
+const sourceValue = (source: InversionSource): PointSetFieldValue => source.kind === "line"
+    ? {kind: "line", p: pointValue(source.p), q: pointValue(source.q)} : {kind: "circle", centre: pointValue(source.centre), radius: source.radius};
+const powerValue = (power: {readonly circle: CircleSpec; readonly thetaDeg: number}): PointSetFieldValue => ({circle: circleValue(power.circle), thetaDeg: power.thetaDeg});
+const angleValue = (angle: {readonly first: CircleSpec; readonly second: CircleSpec; readonly which: 0 | 1}): PointSetFieldValue => ({first: circleValue(angle.first), second: circleValue(angle.second), which: angle.which});
+
+/**
+ * The persisted scene beyond the model and the overlays (task 08 batch 6b), each field read as the collection's `checkGraphState`
+ * checks it (a value is rebuilt from its named keys, so no unknown key survives) and falling back to `getInitialState()`.
+ * The fields are stored as given: `fields` validates them at read time, so there is no `settle`, and a bare data import keeps them.
+ */
+const INVERSION_EXTENSION: PointSetExtension = Object.freeze({
+    fields: [
+        {name: "exampleId", fallback: "point", parse: (value: unknown) => isInversionExampleId(value) ? value : undefined},
+        {name: "focus", fallback: "point", parse: (value: unknown) => isInversionFocus(value) ? value : undefined},
+        {name: "radius", fallback: DEFAULT_RADIUS, parse: (value: unknown) => isInversionRadius(value) ? value : undefined},
+        {name: "x", fallback: pointValue(DEFAULT_X), parse: (value: unknown) => isInversionPoint(value) ? pointValue(value) : undefined},
+        {name: "source", fallback: sourceValue(DEFAULT_SOURCE), parse: (value: unknown) => isInversionSource(value) ? sourceValue(value) : undefined},
+        {name: "power", fallback: powerValue(DEFAULT_POWER), parse: (value: unknown) => isInversionPower(value) ? powerValue(value) : undefined},
+        {name: "angle", fallback: angleValue(DEFAULT_ANGLE), parse: (value: unknown) => isInversionAngle(value) ? angleValue(value) : undefined},
+    ],
+});
+
 /** Distance of the direction handle from P, in board units. */
 const THETA_HANDLE_DISTANCE = 3;
 
@@ -356,6 +381,11 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
             source: structuredClone(DEFAULT_SOURCE), power: structuredClone(DEFAULT_POWER), angle: structuredClone(DEFAULT_ANGLE),
             overlays: {"inversion-circle": true, rays: true, image: true, secant: true, tangent: true, "angle-tangents": true},
         };
+    }
+
+    /** The declared example, focus, radius and focus fields: import, figure return and lesson default read them. */
+    protected override persistenceExtension(): PointSetExtension {
+        return INVERSION_EXTENSION;
     }
 
     override defaultPreset(): PointSetModel {

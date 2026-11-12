@@ -1,7 +1,7 @@
 import {message, Message} from "../../localization";
 import {parsePointSetModel, PointSetModel, serializePointSetModel} from "../../compgeo/pointSetModel";
 import {
-    INVERSION_COORDINATE_MAX, INVERSION_EXAMPLES, isCircleSpec, isInversionPoint, isInversionRadius, isInversionSource,
+    CircleSpec, INVERSION_COORDINATE_MAX, INVERSION_EXAMPLES, InversionExampleId, isCircleSpec, isInversionPoint, isInversionRadius, isInversionSource,
 } from "../../compgeo/inversionModel";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 import {pointSetRejection} from "./pointSetPresetCollection";
@@ -19,7 +19,7 @@ export function isInversionFocus(value: unknown): value is InversionFocus {
     return typeof value === "string" && (INVERSION_FOCI as readonly string[]).includes(value);
 }
 
-export function isInversionExampleId(value: unknown): boolean {
+export function isInversionExampleId(value: unknown): value is InversionExampleId {
     return typeof value === "string" && INVERSION_EXAMPLES.some(example => example.id === value);
 }
 
@@ -55,14 +55,14 @@ function nestedUnknownField(state: Record<string, unknown>): string | undefined 
         ?? (isRecord(angle) ? circleExtra("angle.first", angle.first) ?? circleExtra("angle.second", angle.second) : undefined);
 }
 
-function isPower(value: unknown): boolean {
+export function isInversionPower(value: unknown): value is {readonly circle: CircleSpec; readonly thetaDeg: number} {
     if (!isRecord(value)) return false;
     const unknown = Object.keys(value).some(field => field !== "circle" && field !== "thetaDeg");
     return !unknown && isCircleSpec(value.circle) && typeof value.thetaDeg === "number" && Number.isFinite(value.thetaDeg)
         && value.thetaDeg >= 0 && value.thetaDeg < 360;
 }
 
-function isAngle(value: unknown): boolean {
+export function isInversionAngle(value: unknown): value is {readonly first: CircleSpec; readonly second: CircleSpec; readonly which: 0 | 1} {
     if (!isRecord(value)) return false;
     const unknown = Object.keys(value).some(field => field !== "first" && field !== "second" && field !== "which");
     return !unknown && isCircleSpec(value.first) && isCircleSpec(value.second) && (value.which === 0 || value.which === 1);
@@ -91,8 +91,8 @@ export function inversionPresetCollection(overlayIds: readonly string[]): Preset
             if (graphState.radius !== undefined && !isInversionRadius(graphState.radius)) return message("inversion_invalid_radius");
             if (graphState.x !== undefined && !isInversionPoint(graphState.x)) return message("inversion_invalid_x");
             if (graphState.source !== undefined && !isInversionSource(graphState.source)) return message("inversion_invalid_source");
-            if (graphState.power !== undefined && !isPower(graphState.power)) return message("inversion_invalid_power");
-            if (graphState.angle !== undefined && !isAngle(graphState.angle)) return message("inversion_invalid_angle");
+            if (graphState.power !== undefined && !isInversionPower(graphState.power)) return message("inversion_invalid_power");
+            if (graphState.angle !== undefined && !isInversionAngle(graphState.angle)) return message("inversion_invalid_angle");
             const overlays = graphState.overlays;
             if (overlays === undefined) return undefined;
             const valid = isRecord(overlays) && Object.entries(overlays).every(([id, shown]) => overlayIds.includes(id) && typeof shown === "boolean");

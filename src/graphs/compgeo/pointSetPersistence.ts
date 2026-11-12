@@ -30,9 +30,13 @@ export interface PointSetPermittedState {
 export type PointSetFieldPair = Readonly<{x: number; y: number}> | Readonly<{x: string; y: string}>;
 /**
  * The value of one extension field: a number (a step, a count, an exponent), an id (an algorithm, a mode), `null` (a choice
- * that is not made, the Voronoi cell site) or a point (a query). No other value is a field.
+ * that is not made, the Voronoi cell site) a point (a query) or a record of such values (a circle, a line). No other value is a field.
  */
-export type PointSetFieldValue = number | string | null | PointSetFieldPair;
+export type PointSetFieldValue = number | string | null | PointSetFieldPair | PointSetFieldRecord;
+/** A nested value of numbers, ids and records (the inversion source, power and angle blocks); a record's values are field values, never `unknown`. */
+export interface PointSetFieldRecord {
+    readonly [key: string]: PointSetFieldValue;
+}
 /** Extension fields by name. */
 export type PointSetExtras = Readonly<Record<string, PointSetFieldValue>>;
 

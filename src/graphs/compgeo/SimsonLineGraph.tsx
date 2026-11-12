@@ -1,5 +1,6 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {finiteNumberField, PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {LessonAction} from "../../learning/model";
@@ -68,6 +69,26 @@ const COLOUR = {
     perpendicular: GraphPalette.additionalCurves[0], simson: GraphPalette.additionalCurves[1], pedal: GraphPalette.additionalCurves[1],
 };
 const SIDE_NAMES = ["BC", "CA", "AB"] as const;
+
+/**
+ * The persisted scene beyond the model and the overlays (task 08 batch 6b), each field read as the collection's `checkGraphState`
+ * checks it and falling back to `getInitialState()` (the default example). `t` is stored as given (any finite number; `settings`
+ * normalises it at read time) and `mode`, `epsilon` and `pPrime` are never coupled to the vertices: no `settle`. Bare data
+ * imports keep every field, as the legacy path wrote the model only.
+ */
+const SIMSON_DEFAULT = simsonExample("default");
+const SIMSON_EXTENSION: PointSetExtension = Object.freeze({
+    fields: [
+        {name: "exampleId", fallback: "default", parse: (value: unknown) => isSimsonExampleId(value) ? value : undefined},
+        {name: "mode", fallback: SIMSON_DEFAULT.mode, parse: (value: unknown) => isSimsonMode(value) ? value : undefined},
+        finiteNumberField("t", SIMSON_DEFAULT.t),
+        {name: "epsilon", fallback: SIMSON_DEFAULT.epsilon, parse: (value: unknown) => isSimsonOffset(value) ? value : undefined},
+        {
+            name: "pPrime", fallback: Object.freeze({x: SIMSON_DEFAULT.pPrime.x, y: SIMSON_DEFAULT.pPrime.y}),
+            parse: (value: unknown) => isGridPoint(value) ? {x: value.x, y: value.y} : undefined,
+        },
+    ],
+});
 
 export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -256,6 +277,11 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
             ...super.getInitialState(), exampleId: "default", mode: example.mode, t: example.t, epsilon: example.epsilon, pPrime: {...example.pPrime},
             overlays: {triangle: true, sidelines: true, circumcircle: true, perpendiculars: true, simson: true, pedal: true},
         };
+    }
+
+    /** The declared example, mode, glider and exact point: import, figure return and lesson default read them. */
+    protected override persistenceExtension(): PointSetExtension {
+        return SIMSON_EXTENSION;
     }
 
     override defaultPreset(): PointSetModel {
