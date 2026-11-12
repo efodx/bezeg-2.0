@@ -1,11 +1,6 @@
-# 06 Release batches A–C (F2b–F6, gated)
+# 06 Release batches A–C (F2b done; split into tasks 07–09)
 
-Gate: Controls step 7 `accepted` in [controls.md](../feature-streams/controls.md) (persisted scenes; steps 8–9 change scenes and registration). Until then nothing here starts. Split this file into per-batch tasks when the gate opens, following the scene and registration model current at that time.
+Gate: Controls step 7 `accepted` in [controls.md](../feature-streams/controls.md) — open. Split on 2026-11-12 (handler 10) into one task per batch: [07 Batch A](07-batch-a-lessons.md) (TR1–TR2), [08 Batch B](08-batch-b-lessons.md) (TR3–TR4), [09 Batch C](09-batch-c-lessons.md) (TR5).
 
-Per batch (A: TR1–TR2; B: TR3–TR4; C: TR5), following the [family template](../feature-streams/README.md#family-template):
-
-- F2b: route, catalog entry and Demonstration registration, kept minimal and pushed promptly. Batch A F2b also owes the browser drag measurement of the unit-circle graph per [the performance plan's measurement protocol](../../performance-plan.md); task 04 recorded only a jsdom placeholder. Batch B F2b owes the same for the triangle solver graph (task 05, jsdom placeholder only), including a rendered check that the solve-mode view fit and the bars keep the graph readable.
-- F3: scene actions and [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31) per lesson.
-- F4: bilingual chapter in Learn with chapter-owned guided examples.
-- F5: catalog clip and example cards.
-- F6: the spec's batch-wide acceptance gate, `just check`, smoke of the routes in both languages, and hosted CI.
+- F2b: done 2026-11-11 for both graphs (routes `/functions/unit-circle`, `/triangle-solver`; [evidence](../../reviews/feature-streams/families-prep/notes/f2b-trig.md)). The browser drag measurement owed by tasks 04 and 05 is in the [drag baseline](../../bezier-performance-results.md#f2b-geometry-routes-drag-baseline--2026-11-11) (no budget miss).
+- F3–F6 per batch: see tasks 07–09.
