@@ -5,6 +5,18 @@ import './SideBotanicals.css';
 const MIN_WIDTH = 1600;
 const BOX_H = 1440;
 
+/** Gutter width in box units at which the owner tuned the settings (3440×1280 with the 1100px column). */
+const TUNED_BOX_W = 1290;
+
+/** Narrower gutters get proportionally smaller plants and fewer branches and heads, so they do not crowd. */
+export function fitToGutter(settings: ElderSettings, boxW: number): ElderSettings {
+    const k = Math.min(1, Math.max(.4, boxW / TUNED_BOX_W));
+    if (k === 1) return settings;
+    const count = (n: number) => n === 0 ? 0 : Math.max(1, Math.round(n * k));
+    return {...settings, size: settings.size * k, thick: settings.thick * Math.sqrt(k),
+        left: count(settings.left), right: count(settings.right), heads: Math.max(Math.min(2, settings.heads), Math.round(settings.heads * (.5 + .5 * k)))};
+}
+
 interface Viewport {gutter: number; height: number}
 const HIDDEN: Viewport = {gutter: 0, height: 0};
 
@@ -40,7 +52,8 @@ export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {sett
     const sides = useMemo(() => {
         if (!gutter) return null;
         const boxW = gutter * BOX_H / height;
-        return (['left', 'right'] as ElderSide[]).map((side) => ({side, branches: buildSide(settings, side, boxW, BOX_H), boxW}));
+        const fitted = fitToGutter(settings, boxW);
+        return (['left', 'right'] as ElderSide[]).map((side) => ({side, branches: buildSide(fitted, side, boxW, BOX_H), boxW}));
     }, [gutter, height, settings]);
     if (!sides) return null;
     const mask = `linear-gradient(to right,#000 40%,rgb(0 0 0 / ${1 - settings.fade}) 100%)`;
@@ -54,6 +67,10 @@ export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {sett
                 {b.heads.map((h, k) => <g key={k} className="side-botanicals-head"
                     style={{transformOrigin: `${h.baseX}px ${h.baseY}px`, '--dur': `${h.duration}s`, '--delay': `${h.delay}s`} as React.CSSProperties}>
                     {h.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
+                    {h.clusters.map((c, n) => <g key={n} className="side-botanicals-cluster"
+                        style={{transformOrigin: `${c.originX}px ${c.originY}px`, '--dur': `${c.duration}s`, '--delay': `${c.delay}s`} as React.CSSProperties}>
+                        {c.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
+                    </g>)}
                 </g>)}
             </g>)}
         </svg>)}

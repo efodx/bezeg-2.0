@@ -3,6 +3,8 @@ import {vi} from 'vitest';
 import {render} from '@testing-library/react';
 import {MemoryRouter, Route, Routes} from 'react-router-dom';
 import App from '../App';
+import {fitToGutter} from './SideBotanicals';
+import {ELDER_SETTINGS} from './elderGeometry';
 
 function setViewport(width: number, matches: boolean) {
     Object.defineProperty(window, 'innerWidth', {configurable: true, value: width});
@@ -34,7 +36,32 @@ test.each(['/bezeg-2.0', '/bezeg-2.0/', '/bezeg-2.0/demonstrations', '/bezeg-2.0
     renderAt(path);
     expect(svgs()).toHaveLength(2);
     expect(svgs()[0]).toHaveAttribute('aria-hidden', 'true');
-    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch')).toHaveLength(4);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch').length).toBeGreaterThanOrEqual(1);
+});
+
+test('a gutter of the tuned width (1290 box units at 1440px height) keeps the settings counts', () => {
+    setViewport(3918, true); // (3918 - 1290) / 2 - 24 = 1290
+    renderAt('/bezeg-2.0/demonstrations');
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch')).toHaveLength(ELDER_SETTINGS.left);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-head')).toHaveLength(ELDER_SETTINGS.left * ELDER_SETTINGS.heads);
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-cluster').length).toBeGreaterThan(ELDER_SETTINGS.left * ELDER_SETTINGS.heads * 6);
+});
+
+test('narrower gutters render fewer branches than the tuned one', () => {
+    setViewport(3440, true);
+    renderAt('/bezeg-2.0/demonstrations');
+    expect(svgs()[0].querySelectorAll('g.side-botanicals-branch').length).toBeLessThan(ELDER_SETTINGS.left);
+});
+
+test('fitToGutter keeps settings at the tuned width and shrinks them for narrower gutters', () => {
+    expect(fitToGutter(ELDER_SETTINGS, 1290)).toBe(ELDER_SETTINGS);
+    expect(fitToGutter(ELDER_SETTINGS, 2000)).toBe(ELDER_SETTINGS);
+    const narrow = fitToGutter(ELDER_SETTINGS, 400);
+    expect(narrow.size).toBeLessThan(ELDER_SETTINGS.size);
+    expect(narrow.left).toBeGreaterThanOrEqual(1);
+    expect(narrow.left).toBeLessThan(ELDER_SETTINGS.left);
+    expect(narrow.heads).toBeGreaterThanOrEqual(2);
+    expect(fitToGutter({...ELDER_SETTINGS, right: 0}, 400).right).toBe(0);
 });
 
 test('renders nothing on a narrow viewport', () => {

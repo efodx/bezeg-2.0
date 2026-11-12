@@ -23,15 +23,17 @@ export interface ElderSettings {
 /** Playground defaults; drop the owner's tuned values in here. */
 export const ELDER_SETTINGS: ElderSettings = {
     left: 4, right: 4, top: 15, bottom: 100, reach: 75, size: 2.2, thick: 2.5, heads: 5, headSize: 1.3,
-    leaves: 3, leafSize: 1.05, opacity: 1, fade: .65, amp: 2.3, speed: 10, seed: 3,
+    leaves: 3, leafSize: 1.05, opacity: 1, fade: .65, amp: 1, speed: 10, seed: 3,
 };
 
 /** Head sway angle relative to the branch angle. */
-export const HEAD_AMP_FACTOR = 2.2;
+export const HEAD_AMP_FACTOR = 2;
 
 export interface ElderPath {fill: string; d: string}
 /** A flower head (twig, rays, florets) that bobs around its twig base on top of the branch sway. */
-export interface ElderHead {baseX: number; baseY: number; duration: number; delay: number; paths: ElderPath[]}
+export interface ElderHead {baseX: number; baseY: number; duration: number; delay: number; paths: ElderPath[]; clusters: ElderCluster[]}
+/** One sub-cluster of a head (ray, shade, petals, eyes) that trembles around the head node, the ray base. */
+export interface ElderCluster {originX: number; originY: number; duration: number; delay: number; paths: ElderPath[]}
 export interface ElderBranch {hingeY: number; duration: number; delay: number; paths: ElderPath[]; heads: ElderHead[]}
 export type ElderSide = 'left' | 'right';
 
@@ -112,7 +114,7 @@ function head(rnd: Rng, node: V, axis: V, width: number, s: number) {
     const jit = (j: number) => (rnd() - .5) * 2 * j;
     const up = norm(axis), side = perp(up).map((v) => -v) as V;
     const depth = width * .26, subs = 7 + Math.floor(rnd() * 3);
-    let rays = '', shade = '', petals = '', eyes = '';
+    const clusters: {ray: string; shade: string; petals: string; eyes: string}[] = [];
     const centres: {c: V; back: number}[] = [];
     for (let i = 0; i < subs; i++) {
         const a = i === subs - 1 ? null : (i / (subs - 1)) * Math.PI * 2 + jit(.2);
@@ -121,7 +123,8 @@ function head(rnd: Rng, node: V, axis: V, width: number, s: number) {
     }
     centres.sort((a, b) => b.back - a.back);
     for (const {c, back} of centres) {
-        rays += taper([node, add(node, mul(up, depth * .3)), add(node, mul(sub(c, node), .45)), c], 1.8 * s, .9 * s, 8);
+        let shade = '', petals = '', eyes = '';
+        const ray = taper([node, add(node, mul(up, depth * .3)), add(node, mul(sub(c, node), .45)), c], 1.8 * s, .9 * s, 8);
         const n = 16 + Math.floor(rnd() * 8), rx = width * .14, ry = width * .1;
         for (let k = 0; k < n; k++) {
             const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd());
@@ -131,8 +134,9 @@ function head(rnd: Rng, node: V, axis: V, width: number, s: number) {
             for (let q = 0; q < 5; q++) petals += circ(add(p, rot(mul(up, 2.3 * f), turn + q * 72)), 1.75 * f);
             eyes += circ(p, .55 * f);
         }
+        clusters.push({ray, shade, petals, eyes});
     }
-    return {rays, shade, petals, eyes};
+    return clusters;
 }
 
 function branch(entryY: number, reach: number, pr: ElderSettings, bseed: number, idx: number): ElderBranch {
@@ -161,12 +165,22 @@ function branch(entryY: number, reach: number, pr: ElderSettings, bseed: number,
         const hd = head(rnd, end, rot(norm(add(mul(dir, .35), [0, -1])), jit(14)), (115 + rnd() * 40) * S * pr.headSize, S * Math.sqrt(pr.headSize));
         // Per-head motion is derived from indices, not the rng, so the layout stays that of the playground.
         const key = idx * 7 + i;
-        const parts: [Kind, string][] = [['stem', twig], ['ray', hd.rays], ['floretShade', hd.shade], ['floret', hd.petals], ['eye', hd.eyes]];
+        const clusters: ElderCluster[] = hd.map((cl, n) => {
+            const ck = key * 11 + n;
+            const parts: [Kind, string][] = [['ray', cl.ray], ['floretShade', cl.shade], ['floret', cl.petals], ['eye', cl.eyes]];
+            return {
+                originX: r(end[0]), originY: r(end[1]),
+                duration: r(1.5 + ((ck * 7) % 10) / 5),
+                delay: -((ck * 13) % 35) / 10,
+                paths: parts.map(([k, d]) => ({fill: C[k], d})),
+            };
+        });
         heads.push({
             baseX: r(p[0]), baseY: r(p[1]),
             duration: r(pr.speed * (.35 + ((key * 29) % 10) / 50)),
             delay: -((key * 41) % 60) / 10,
-            paths: parts.map(([k, d]) => ({fill: C[k], d})),
+            paths: [{fill: C.stem, d: twig}],
+            clusters,
         });
     }
     els.sort((a, c) => ORDER.indexOf(a[0]) - ORDER.indexOf(c[0]));

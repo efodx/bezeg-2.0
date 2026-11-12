@@ -27,6 +27,16 @@
     from { transform: rotate(calc(var(--head-amp, 2deg) * -1)); }
     to { transform: rotate(var(--head-amp, 2deg)); }
 }
+/* Each floret cluster trembles on its ray, small and fast against the slow branch and head sway. */
+.side-botanicals-cluster {
+    transform-box: view-box;
+    animation: side-botanicals-tremble var(--dur, 2.5s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+}
+@keyframes side-botanicals-tremble {
+    from { transform: rotate(-2.5deg); }
+    to { transform: rotate(2.5deg); }
+}
 @media (prefers-reduced-motion: reduce) {
-    .side-botanicals-branch, .side-botanicals-head { animation: none; }
+    .side-botanicals-branch, .side-botanicals-head, .side-botanicals-cluster { animation: none; }
 }
