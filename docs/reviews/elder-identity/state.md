@@ -1,60 +1,66 @@
-# Elder identity: state note (typography verified, NOT pushed: waiting for the owner)
+# Elder identity: state note (handler 5 handoff: polish committed, CI repair in progress, push blocked on GitHub login)
 
-Spec: [elder identity](../../specs/elder-identity.md). Worktree `.claude/worktrees/elder-identity`, branch **`elder-typography`**: four local commits on top of `3ac53060` (the `origin/master` of the morning of 2026-11-13). Nothing from this stream is on `master`.
+Spec: [elder identity](../../specs/elder-identity.md). Worktree `.claude/worktrees/elder-identity`, branch **`elder-typography`**, rebased onto `origin/master` `4e844f56`. Nothing from this stream is on `master` yet.
 
-## Owner's latest instruction (2026-11-13, verbatim)
+## Owner's instructions (2026-11-13, verbatim, newest last)
 
 > Okay, nevermind, we'll do this another day. Right now, I want you to keep the typography but not the flower. Then push to master
 
-## Why the push stopped (handler 5)
+> yeah opt1, before publishing though give it to an independent fable 5.2 xhigh subagent to critique/polish, telling him we really want to make this beautiful, get it's opinion and trust it, implement that round and publish
 
-While the publish gate was running, `origin/master` moved to `4e844f56` "Refine Home and demonstration workspace as a botanical studio" (spec `docs/specs/botanical-studio-refinement.md`, pushed 2026-11-13 20:28 by another stream at the owner's request). It installs a different self-hosted display serif, **Newsreader** (`src/fonts/Newsreader-variable.ttf`, token `--bezeg-shell-display-font`), on the header brand, the Home headline and featured title, and the workspace title, and it restyles Home and the workspace.
+> this is what the other agent said, so i gues youll repair the ci as well [the botanical studio stream left the source repair of red master CI to this stream; Pages still serves `644652a2`]
 
-A trial merge (`git merge-tree`, tree untouched) conflicts in `DESIGN.md`, `src/AppHeader.css`, `src/HomeDemonstrationsCarousel.css`, `src/WelcomePage.css` and `src/graphs/base/DemonstrationWorkspaceIdentity.css`. The conflict is two typefaces and two Home layouts for the same elements, so resolving it is the owner's decision under the AGENTS.md push rule, not a mechanical rebase. Handler 5 stopped and reported.
+"opt1" is: Literata as the one display face on master's botanical studio layout of Home, header and workspace; Newsreader removed. Push nothing but typography and the CI repair: no elder artwork. Do not delete tag `elder-identity-demo-2026-11-13` or branch `worktree-elder-identity`.
 
-Choices put to the owner:
+## Done by handler 5 (commits on `elder-typography`, oldest first, none pushed)
 
-1. **Literata as the one display face (handler 5's recommendation).** Keep master's new Home and workspace layout, point its display token at Literata, drop Newsreader, and keep this branch's Literata titles on Demonstrations, the picker, Learn, chapters and lessons. Reason: the owner named this typography; Newsreader was picked by the other stream's handler under delegated direction. It rewrites part of that stream's fresh work.
-2. **Newsreader as the one display face.** Drop Literata and apply master's token to the title rules this branch touched outside Home, header and workspace.
-3. **Both** (Newsreader on Home, header, workspace; Literata elsewhere). Not recommended: two serif families and about 650 kB of fonts.
-4. Push nothing from this stream.
-
-Also for the owner: master's Home still renders the older outlined elder drawing beside the headline between 481 and 1599px (`.welcome-botanical`; `4e844f56` did not touch `WelcomePage.tsx`). This branch removes it. Say whether "not the flower" covers that drawing under choice 1 or 2.
-
-## Commits on `elder-typography`
-
-- `c564a54d` feat: Literata title typography across the site (self-hosted)
-- `094ff897` docs: Literata typography in the design notes, elder identity spec and state note
-- `de7bce53` chore: strip one trailing space from the Literata licence text (the gate's whitespace check rejected `src/fonts/literata/OFL.txt:21`)
+- `79712114` feat: Literata title typography across the site (self-hosted)
+- `438eb95e` docs: Literata typography in the design notes, spec and state note
+- `46911eb8` chore: strip one trailing space from the Literata licence text
+- `1d178d3c` docs: state note (push stopped at the design conflict)
+- `96ebc330` feat: Literata as the one display face; Newsreader removed
+- `4af44c27` feat: typography polish round from the independent critique (two Fable 5.2 xhigh critics; critique in [typography-critique.md](typography-critique.md); `DESIGN.md` carries the shipped numbers). It removes the older outlined elder drawing from Home; the side botanicals at 1600px and wider stay. **Tell the owner: the Home hero has no elder drawing below 1600px.**
 - this note
 
-No `src/elderArt`, no change to `src/sideBotanicals`, no lesson progress stem. The demo artwork stays at the local tag `elder-identity-demo-2026-11-13` and on branch `worktree-elder-identity`. Do not delete either.
+Rebase resolution: the four conflicted stylesheets and `WelcomePage.tsx` took master's side, then `96ebc330` switched master's four title rules to `--bezeg-font-display`.
 
-## Checked on this branch (against the old base `3ac53060`, so all of it needs redoing after a rebase)
+## Checked on the polished tree (dev server, Chromium only)
 
-- `just build` at `094ff897`: passed. Both Literata files are bundled and hashed, the preload links in the built `index.html` match the stylesheet's font URLs, and the build names no external font host.
-- Browser smoke by `bezeg-smoke` (Chromium 156, production preview 4392): Home, Demonstrations, Learn, chapter `learn/bezier-curves`, workspace `bezier/curve`, the picker and the `bezier` guided lesson at 1366x768 and 390x844 in Slovenian and English. Titles in Literata with `č š ž` from the loaded latin-ext face, no clipped title, no horizontal overflow, no console error, each font file requested once with 200, no font CDN. Drag, slider, lesson Next/Back/Exit and the keyboard language switch at 390px passed. Home shows no drawing at 1366px and the side gutters at 1920px. Report and screenshots: `C:/Users/1337Hacker/.claude/jobs/5c88e1d9/tmp/h5/` (`report.md`, `report-run1.json`, `report-run2.json`, `partB.json`, `shots/`).
-- Handler 5 viewed eleven of those screenshots, and measured the header at 320 to 768px against the live site (`h5/header.cjs`): header heights are identical to master, so the two-row header at 390px in English predates this change.
-- Automated suite (`just smoke-built --port 4393`): 570 passed, 1 failed (`spline-c1`, English 390px) with `net::ERR_NO_BUFFER_SPACE` while three browser runs overlapped; `just smoke-lesson spline-c1 --port 4393` then passed alone.
-- Publish gate: first run stopped at whitespace (fixed in `de7bce53`). Second run passed whitespace, scope and links and failed at `check-changed` on two `phase-portraits` preview tests (`guidedExamplePreviews.test.ts`, `mathAltText.test.ts`). That is the stale Vitest module cache described in `docs/commands.md`: the PNG exists and both files pass with `--no-fsModuleCache`. The cache was not cleared (shared with other worktrees); clear it with `npx vitest --clearCache` before the next gate run if the failure repeats.
+Critic's measurements over 84 page loads in both languages at 320 to 1440px: no horizontal overflow, no clipped or off-screen title, header heights unchanged, workspace heading and guided-lesson panel no taller on phones than before. `just typecheck`, `just lint src/WelcomePage.tsx`, `just unit src/WelcomePage.test.tsx` passed. Handler 5 viewed three after-shots (`C:/Users/1337Hacker/.claude/jobs/5c88e1d9/tmp/h6/after/`). **Not checked on this tree: production build, the Playwright suite, the full unit suite, Firefox, Safari, a real phone.** Everything listed in the previous note's checks was on the old base and no longer counts.
 
-Not checked: Firefox and Safari, a physical phone, 200% text, typecheck, lint and the unit suite on this branch tip (the gate stopped before finishing them), `accept-a.cjs` (it expects the flower), and anything on top of `4e844f56`.
+## Red CI on master (`4e844f56`, run 43492649243) and its repair
 
-## Next (handler 6), after the owner chooses
+All four browser-smoke shards failed; unit, lint, typecheck and build passed; deploy skipped. CI logs and artifacts are unreadable with the current login. Reproduced locally in scratch worktree `.claude/worktrees/h5-ci-repro-4e844f56` (detached at `4e844f56`, `node_modules` junction, port 4394): 8 failed, 563 passed. Log `C:/Users/1337Hacker/.claude/jobs/5c88e1d9/tmp/h5/ci-repro.log`; details in that worktree's `.command-logs/2026-11-13T20-07-34-312Z-4820-9879431e.log` and `test-results-4394/`.
 
-1. `git fetch origin`; rebase the branch onto `origin/master` and resolve the five conflicts by the owner's choice. Under choice 1 keep one token: either rename uses to `--bezeg-font-display` or alias `--bezeg-shell-display-font` to it, remove the Newsreader files and `@font-face`, and update `DESIGN.md` so it records one display face.
-2. Recheck against master's code: `just build`, then browser smoke of Home, header and workspace again at 1366, 1024, 390 and 724px in both languages (master's spec names those widths), plus the pages already covered above. Run `just smoke-built` alone, with no other browser run at the same time.
-3. `just publish --recipe runtime --base <origin/master sha> --commits <ids, oldest first>`, then `just ci <sha>` until the deploy is green. Push nothing but typography: no elder artwork.
-4. Record the evaluation entry (not written by handler 5: the slice was not accepted) and report to the owner in plain prose.
+1. `tests/curve-ownership.smoke.spec.cjs:162` batch export restore: `restored` differs from `entry` (line 194).
+2. to 4. `tests/guided-lessons.smoke.spec.cjs:2733` lessons `rational-function`, `definite-integral`, `accumulation`, en 390x844: board points outside the lesson view.
+5. `tests/lesson-experience-checks.cjs:116` at 390px the board starts 7px above the collapsed lesson tab's bottom.
+6. and 7. `tests/lesson-experience-checks.cjs:193` sl and en landscape: `locator.click` times out.
+8. `tests/lesson-graph-access.smoke.spec.cjs:96` short landscape in Presentation: board width 0.
 
-The 4392 preview serves this branch's Literata-only build (old base), for comparison with the live site. Leftovers for the owner's word: worktrees `elder-demo-b` (preview 4412) and `elder-demo-c` (preview 4424) can be removed.
+A `bezeg-worker` (Sonnet) was repairing these **in the scratch worktree** when handler 5 handed off, under a brief that forbids editing tests and the `.workspace-heading h1` type rules. Its outputs, if it finished: patch `C:/Users/1337Hacker/.claude/jobs/5c88e1d9/tmp/h5/ci-repair.patch`, or a partial note `.../h5/ci-repair-handoff.md`. Its report went to handler 5's session, so read the files; if neither exists, `git -C <scratch> diff` shows what it had, and you may need to dispatch a fresh worker from the list above.
+
+## Blocker for the owner
+
+`gh auth status` reports the `efodx` token invalid and a push dry run fails ("could not read Username"). **Nobody can push until the owner runs `gh auth login -h github.com`.** Do not touch credentials. The families-prep handler (session "families-prep state resume") knows, agreed the repair is ours, and holds its own row in `tests/guided-lessons.smoke.spec.cjs` until our fix is on master.
+
+## Next (handler 6)
+
+1. Collect the repair: check the patch applies to this branch (`git apply --check`), apply, and review it against the botanical studio spec (`docs/specs/botanical-studio-refinement.md`) and the brief's rules. Commit it separately (`fix:`).
+2. Verify the combined tree here: `just build`; `just smoke-built --port 4393` alone, with no other browser run at the same time (a `net::ERR_NO_BUFFER_SPACE` failure is socket exhaustion: rerun that test alone); a short `bezeg-smoke` pass with screenshots of Home, workspace and a lesson at 1366 and 390px in both languages, judged from the pictures. If `check-changed` fails on two `phase-portraits` preview tests, that is the stale Vitest cache (`docs/commands.md`): confirm with `--no-fsModuleCache`, then `npx vitest --clearCache`.
+3. Small doc leftovers before publishing: `docs/specs/side-botanicals.md:15,19` and `docs/specs/elder-identity.md:27` still describe `welcome-botanical` as present below 1600px; `DESIGN.md:98` says the lesson frame heading is 20px (ships at 22px) and its Learn and chapter sections still name sans and Georgia headings. Add a line to `docs/specs/botanical-studio-refinement.md` recording the owner's Literata decision and the Home drawing's removal, and the evaluation entry (`.agents/skills/subagent-flow-evaluation/SKILL.md#do-log`).
+4. When the owner has logged in: `git fetch origin`, then `just publish --recipe runtime --base <origin/master sha> --commits <ids oldest first>`; `just ci <sha>` until the deploy is green. Never force-push.
+5. Remove the scratch worktree (`git worktree remove .claude/worktrees/h5-ci-repro-4e844f56`; its `node_modules` is a junction: remove the junction first with `cmd //c rmdir`, never recursively). Rebuild the 4392 preview or tell the owner the live site is the reference.
+6. Report to the owner in plain prose: what is on master, hashes, what was and was not checked, the Home hero without a drawing below 1600px; then stop and wait.
+
+Leftovers for the owner's word: worktrees `elder-demo-b` (preview 4412) and `elder-demo-c` (preview 4424) can be removed.
 
 ## Tools
 
-In `C:/Users/1337Hacker/.claude/jobs/5c88e1d9/tmp/`: `shot.cjs` (screenshots; pass `BEZEG_BASE=http://127.0.0.1:4392`, because `localhost:4391` is shared with another stream's server on IPv4), `anim.cjs`, `accept-a.cjs`, `h5/header.cjs`.
+`C:/Users/1337Hacker/.claude/jobs/5c88e1d9/tmp/`: `shot.cjs` (pass `BEZEG_BASE='http://[::1]:4391'` for this worktree's dev server or `http://127.0.0.1:4392` for the build preview; `localhost:4391` on IPv4 is another stream's server), `h5/header.cjs`, `h6/measure.cjs` with the critics' before and after data.
 
 Handler rule passed on: at a context handoff, rewrite this note, commit it, and start the successor yourself from this worktree with `claude --bg -n "elder identity handler <n+1>" --agent bezeg-handler --model claude-fable-5-2 --effort high`, passing on these rules including this one.
 
 ## Noticed, outside this task
 
-The top-level `ErrorPage` renders unstyled on a dark background (`/bezeg-2.0/bezier` without a demonstration segment lands there). The dev server logs a 404 for `/bezeg-2.0/bezeg-2.0/history-entry-bridge.js`. MathJax is loaded from `cdn.jsdelivr.net` on Learn, chapter, workspace and lesson pages; not compared with an earlier revision.
+The top-level `ErrorPage` renders unstyled on a dark background. The dev server logs a 404 for `/bezeg-2.0/bezeg-2.0/history-entry-bridge.js`. MathJax loads from `cdn.jsdelivr.net`.
