@@ -323,7 +323,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     },
     curveGeometryChapter, // Curve geometry batch 1: parametric and polar curves and curvature (L1, L2) of curveGeometryGuidedLessons.ts; after parametrization and the PH curves, whose ideas it uses.
     kinematicsChapter, // Kinematics batch A: KN1 and KN2 (kinematicsGuidedLessons.ts); directly after the geometry of curves, whose tangent and curvature it uses; the lessons of batches B and C join later.
-    mechanicalCurvesChapter, // Mechanical curves batch A: MC1 and MC2 (mechanicalCurvesGuidedLessons.ts); directly after the kinematics of curves, whose speed the descent time uses; the tautochrone lesson joins later.
+    mechanicalCurvesChapter, // Mechanical curves batches A and B: MC1 to MC3 (mechanicalCurvesGuidedLessons.ts); directly after the kinematics of curves, whose speed the descent time uses.
     patchChapter, // Placed after the curve families (parametrization), before the analysis-style chapters.
     advancedBezierChapter, // Advanced Bézier topics (reduction, arc-length parametrization, Coons patch); after the patches chapter, which the Coons lesson builds on.
     linearMapsChapter, // Maps of the plane: chapter-owned activities live in linearMapsChapterLessons.ts.

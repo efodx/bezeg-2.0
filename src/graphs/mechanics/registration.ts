@@ -3,7 +3,7 @@ import type {Definition} from '../../demonstrations';
 /**
  * Cheap metadata of the descent row of the curve-geometry family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The row has its guided lessons (MC1 and MC2, chapter-owned by the mechanical-curves chapter).
+ * live in `collections.ts`. The row has its guided lessons (MC1 to MC3, chapter-owned by the mechanical-curves chapter).
  * It sits in its own directory because `src/graphs/curves` is a legacy-registered directory.
  */
 export const mechanicsFamilyId = 'mechanics';

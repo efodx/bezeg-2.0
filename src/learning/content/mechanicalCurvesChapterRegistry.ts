@@ -2,14 +2,15 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson} from './mechanicalCurvesGuidedLessons';
+import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson} from './mechanicalCurvesGuidedLessons';
 
 export const MECHANICAL_CURVES_CHAPTER_ID = 'mechanical-curves';
 
-/** Section id to the Demonstration of its activity (spec MC1, MC2: two sections on one Demonstration, in teaching order). Section ids are those of mechanicalCurvesChapter.ts. */
+/** Section id to the Demonstration of its activity (spec MC1 to MC3: three sections on one Demonstration, in teaching order). Section ids are those of mechanicalCurvesChapter.ts. */
 export const mechanicalCurvesGuidedExampleDemonstrations = {
     'race-the-tracks': 'mechanics-descent',
     'drag-the-track': 'mechanics-descent',
+    'tautochrone': 'mechanics-descent',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type MechanicalCurvesSectionId = keyof typeof mechanicalCurvesGuidedExampleDemonstrations;
@@ -18,6 +19,7 @@ export type MechanicalCurvesSectionId = keyof typeof mechanicalCurvesGuidedExamp
 const sectionContent = {
     'race-the-tracks': {id: 'mechanics-descent-race', content: () => mechanicalCurvesRaceLesson},
     'drag-the-track': {id: 'mechanics-descent-track', content: () => mechanicalCurvesTrackLesson},
+    'tautochrone': {id: 'mechanics-descent-tautochrone', content: () => mechanicalTautochroneLesson},
 } as const;
 
 const adapted = new Map<MechanicalCurvesSectionId, LessonDefinition>();

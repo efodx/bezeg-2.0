@@ -8,7 +8,7 @@
  */
 import {act} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
-import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, MC1_END} from './mechanicalCurvesGuidedLessons';
+import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson, MC1_END, MC3_END, MC3_END_ARC} from './mechanicalCurvesGuidedLessons';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
 import type {LessonAction} from '../model';
@@ -213,9 +213,58 @@ const MC2: Record<string, Expected> = {
     'mc2-explore': trackStep(DEFAULT_CONTROLS, 1.04, [q(trackTime(DEFAULT_CONTROLS), 4)], [], ['0.5']),
 };
 
+// ---- MC3: the tautochrone ------------------------------------------------------------------------------------------------------------
+
+/** The cycloid time from theta0 to the lowest point by a midpoint rule with theta = theta0 + (pi - theta0) s^2 (the substitution removes the 1/sqrt singularity at the start). */
+function tautCycloidTime(r: number, theta0: number): number {
+    return midpoint(u => {
+        const angle = theta0 + (PI - theta0) * u * u;
+        const half = Math.sin(angle / 2) ** 2; // (1 - cos angle) / 2, and cos(theta0) - cos(angle) = 2 sin((angle + theta0) / 2) sin((angle - theta0) / 2) with angle - theta0 = (pi - theta0) u^2
+        const gap = Math.sin((angle + theta0) / 2) * Math.sin(((PI - theta0) * u * u) / 2);
+        return Math.sqrt((r * half) / (g * gap)) * 2 * (PI - theta0) * u;
+    }, 0, 1, 400000);
+}
+/** The circular arc of radius 4r through the lowest point: the time from the cycloid's height at theta0 is sqrt(R/g) K(sin(phi/2)) (complete elliptic integral by the AGM). */
+function tautArcTime(r: number, theta0: number): number {
+    const radius = 4 * r;
+    const phi = Math.acos(1 - (r * (1 + Math.cos(theta0))) / radius);
+    const k = Math.sin(phi / 2);
+    let a = 1;
+    let b = Math.sqrt(1 - k * k);
+    for (let i = 0; i < 40; i++) [a, b] = [(a + b) / 2, Math.sqrt(a * b)];
+    return Math.sqrt(radius / g) * (PI / (2 * a));
+}
+const tautClosed = (r: number) => PI * Math.sqrt(r / g);
+const TH = [0.3, 1, 2] as const;
+const tautEnd = (r: number, thetas: readonly number[], arc: boolean) =>
+    ceilToCentisecond(Math.max(tautClosed(r), ...(arc ? thetas.map(theta => tautArcTime(r, theta)) : [])));
+
+/** The readout rows of the tautochrone (sl format; the English rows only differ in the decimal separator) at the slider time `elapsed`. */
+function tautRows(r: number, thetas: readonly number[], arc: boolean, elapsed: number): Record<string, string> {
+    const rows: Record<string, string> = {time: `${readoutNumber(Math.min(elapsed, tautEnd(r, thetas, arc)), 2)} s`, radius: `${readoutNumber(r, 2)} m`, 'closed-form': s(tautClosed(r))};
+    thetas.forEach((theta, i) => {
+        rows[`bead-${i + 1}`] = `θ = ${readoutNumber(theta, 2)} rad: ${s(tautCycloidTime(r, theta))}`;
+        if (arc) rows[`arc-${i + 1}`] = s(tautArcTime(r, theta));
+    });
+    return rows;
+}
+const tautStep = (t: number, quotes: readonly Quote[], also: readonly Quote[] = [], inputs: readonly string[] = [], arc = false, r = 1, thetas: readonly number[] = TH): Expected =>
+    ({state: {mode: 'tautochrone', radius: r, theta1: thetas[0], theta2: thetas[1], theta3: thetas[2], showArc: arc}, t, rows: tautRows(r, thetas, arc, t), quotes, also, inputs});
+const TC = tautClosed(1);
+const MC3: Record<string, Expected> = {
+    'mc3-start': tautStep(0, [q(0.3, 1)], [0.3, 1, 2].map(theta => q(1 - Math.cos(theta), 2))),
+    'mc3-release': tautStep(0.5, [q(0.5, 1), q(tautEnd(1, TH, false), 2)], [], ['0.01']),
+    'mc3-readouts': tautStep(tautEnd(1, TH, false), [q(TC, 3), q(tautEnd(1, TH, false), 2)]),
+    'mc3-theorem': tautStep(0.8, [q(0.8, 1), q(TC, 3)], [q(tautClosed(0.25), 4), q(0.25, 2)]),
+    'mc3-arc': tautStep(tautEnd(1, TH, true), [q(TC, 3), ...TH.map(theta => q(tautArcTime(1, theta), 4)), q(tautEnd(1, TH, true), 2)], [], [], true),
+    'mc3-starts': tautStep(0, [q(0.3, 1)], [q(TC, 3), ...[0.5, 1.5, 2.5].map(theta => q(tautArcTime(1, theta), 4))], ['0.05', '0.5', '1.5', '2.5', '3.1'], true),
+    'mc3-explore': tautStep(0, [q(0.3, 1)], [q(tautClosed(3), 4)], ['0.25', '3'], false),
+};
+
 const lessons = [
     ['MC1', mechanicalCurvesRaceLesson, MC1, 'race-the-tracks', 6],
     ['MC2', mechanicalCurvesTrackLesson, MC2, 'drag-the-track', 7],
+    ['MC3', mechanicalTautochroneLesson, MC3, 'tautochrone', 7],
 ] as const;
 
 const NEUTRAL = ['9.81', '0.25', '3.25'];
@@ -449,4 +498,177 @@ test('restoring the checkpoint on leaving a lesson returns the free state', () =
     } finally {
         m.mounted.view.unmount();
     }
+});
+
+// ---- MC3 tests -----------------------------------------------------------------------------------------------------------------------
+
+const inLanguage = (language: 'sl' | 'en', text: string) => (language === 'sl' ? text : text.replace(/,/g, '.'));
+const BOTTOM = {sl: 'že v najnižji točki', en: 'already at the lowest point'} as const;
+
+describe('MC3 on the real graph', () => {
+    test.each(['sl', 'en'] as const)('every scene lands in the stated state and readouts (%s), in one synchronous sequence, out of order and twice', language => {
+        setLanguage(language);
+        const m = mountDescent();
+        try {
+            const ids = Object.keys(MC3);
+            for (const id of [...ids, ...ids.slice().reverse()]) {
+                const expected = MC3[id];
+                m.scene(mechanicalTautochroneLesson, id);
+                m.scene(mechanicalTautochroneLesson, id);
+                const state = m.graph.state as unknown as Record<string, unknown>;
+                expect({id, ...Object.fromEntries(Object.keys(expected.state).map(key => [key, state[key]]))}).toEqual({id, ...expected.state});
+                expect({id, time: m.graph.time, playing: m.graph.playing}).toEqual({id, time: expected.t, playing: false});
+                for (const [row, text] of Object.entries(expected.rows)) expect({id, row, text: stripped(readout(row))}).toEqual({id, row, text: stripped(inLanguage(language, text))});
+                if (!(expected.state.showArc as boolean)) for (const row of ['arc-1', 'arc-2', 'arc-3']) expect(readout(row), `${id} ${row}`).toBeNull();
+            }
+        } finally {
+            m.mounted.view.unmount();
+        }
+    });
+
+    test.each(['sl', 'en'] as const)('the changes the text asks for give the quoted readouts (%s)', language => {
+        setLanguage(language);
+        const m = mountDescent();
+        const check = (id: string, rows: Record<string, string>) => {
+            for (const [row, text] of Object.entries(rows)) expect({id, row, text: stripped(readout(row))}).toEqual({id, row, text: stripped(inLanguage(language, text))});
+        };
+        try {
+            // step 4: the radius 0,25 m
+            m.scene(mechanicalTautochroneLesson, 'mc3-theorem');
+            m.learner(params({radius: 0.25}));
+            check('mc3-theorem', tautRows(0.25, TH, false, 0.8));
+            // step 6: the angles 0,5; 1,5; 2,5 (arc shown), then bead 1 at 0 and bead 3 at pi
+            m.scene(mechanicalTautochroneLesson, 'mc3-starts');
+            m.learner(params({theta1: 0.5, theta2: 1.5, theta3: 2.5}));
+            check('mc3-starts', tautRows(1, [0.5, 1.5, 2.5], true, 0));
+            m.learner(params({theta1: 0, theta3: PI}));
+            const edge = tautRows(1, [0, 1.5, PI], true, 0);
+            delete edge['arc-3'];
+            check('mc3-starts edge', {...edge, 'bead-3': `θ = π: ${BOTTOM[language]}`});
+            expect(readout('arc-3')).toBeNull();
+            // step 7: the radius 3 m
+            m.scene(mechanicalTautochroneLesson, 'mc3-explore');
+            m.learner(params({radius: 3}));
+            check('mc3-explore', tautRows(3, TH, false, 0));
+        } finally {
+            m.mounted.view.unmount();
+        }
+    });
+});
+
+test('MC3 reference values: closed forms, the cycloid quadrature and the elliptic arc times, and the slider ends the scenes name', () => {
+    expect(tautClosed(1)).toBeCloseTo(1.003, 3);
+    expect(tautClosed(0.25)).toBeCloseTo(tautClosed(1) / 2, 12);
+    expect(tautClosed(3)).toBeCloseTo(1.7373, 4);
+    for (const theta of [0, 0.3, 1, 2, 0.5, 1.5, 2.5]) expect(tautCycloidTime(1, theta)).toBeCloseTo(tautClosed(1), 4);
+    expect(TH.map(theta => tautArcTime(1, theta).toFixed(4))).toEqual(['1.0745', '1.0574', '1.0221']);
+    expect([0.5, 1.5, 2.5].map(theta => tautArcTime(1, theta).toFixed(4))).toEqual(['1.0712', '1.0394', '1.0094']);
+    expect(Math.min(...TH.map(theta => tautArcTime(1, theta)))).toBeGreaterThan(tautClosed(1)); // the arc is slower at every start tried
+    expect(tautArcTime(1, 0)).toBeGreaterThan(tautArcTime(1, 0.3));
+    expect(tautEnd(1, TH, false)).toBe(MC3_END);
+    expect(tautEnd(1, TH, true)).toBe(MC3_END_ARC);
+    expect(deriveDescent({...DEFAULT_DESCENT_STATE, mode: 'tautochrone'}).tEnd).toBe(MC3_END);
+    expect(deriveDescent({...DEFAULT_DESCENT_STATE, mode: 'tautochrone', showArc: true}).tEnd).toBe(MC3_END_ARC);
+});
+
+describe('MC3 text', () => {
+    const lesson = mechanicalTautochroneLesson;
+    const everyText = () => {
+        const out: {where: string; language: 'sl' | 'en'; text: string}[] = [];
+        for (const language of ['sl', 'en'] as const) {
+            const add = (where: string, text: string) => out.push({where, language, text});
+            add('title', lesson.title[language]);
+            add('summary', lesson.summary[language]);
+            lesson.prerequisites.forEach((x, i) => add(`prerequisite ${i}`, x[language]));
+            lesson.learningGoals.forEach((x, i) => add(`goal ${i}`, x[language]));
+            lesson.edgeCases.forEach((x, i) => add(`edge ${i}`, x[language]));
+            for (const f of lesson.formulaBlocks!) { add(`${f.id} latex`, f.latex); add(`${f.id} notation`, f.notation[language]); add(`${f.id} explanation`, f.explanation[language]); }
+            for (const e of lesson.workedExamples!) { add(`${e.id} title`, e.title[language]); add(`${e.id} calc`, e.calculationLatex); add(`${e.id} result`, e.resultLatex); add(`${e.id} check`, e.check![language]); }
+            for (const step of lesson.steps) {
+                add(`${step.id} title`, step.title[language]);
+                add(`${step.id} purpose`, step.purpose[language]);
+                add(`${step.id} explanation`, step.explanation[language]);
+                add(`${step.id} prompt`, step.observationPrompt[language]);
+                step.expectedObservations.forEach((o, i) => add(`${step.id} observation ${i}`, o[language]));
+                add(`${step.id} state`, step.scene!.expectedState[language]);
+            }
+        }
+        return out;
+    };
+
+    test('ownership: the chapter owns the tautochrone section with its lesson id and this content, after the two earlier sections', () => {
+        const owned = getChapterOwnedLessons('mechanical-curves')!;
+        expect(owned.rows().map(row => row[0])).toEqual(['race-the-tracks', 'drag-the-track', 'tautochrone']);
+        const adapted = owned.lesson('tautochrone')!;
+        expect(adapted.id).toBe('mechanics-descent-tautochrone');
+        expect(adapted.demonstrationId).toBe('mechanics-descent');
+        expect(owned.lesson('drag-the-track')!.id).toBe('mechanics-descent-track');
+    });
+
+    test('a worked example is present, bound to the theorem step and its formula, and its result is the closed form to four decimals', () => {
+        expect(lesson.workedExamples).toHaveLength(1);
+        const [example] = lesson.workedExamples!;
+        const bound = lesson.steps.filter(step => step.workedExampleId === example.id);
+        expect(bound.map(step => step.id)).toEqual(['mc3-theorem']);
+        expect(bound[0].formulaIds).toContain('tautochrone-time');
+        expect(example.resultLatex).toBe(`T=${tautClosed(1).toFixed(4).replace('.', '{,}')}`);
+        expect(example.calculationLatex).toContain('9{,}81');
+    });
+
+    test('sl and en quote the same numbers in every field', () => {
+        const numbers = (text: string) => text.replace(/\{,\}/g, '.').replace(/,/g, '.').match(/\d+(?:\.\d+)?/g) ?? [];
+        const bySl = new Map<string, string>();
+        for (const {where, language, text} of everyText()) {
+            if (language === 'sl') bySl.set(where, text);
+            else expect({where, numbers: numbers(text)}).toEqual({where, numbers: numbers(bySl.get(where)!)});
+        }
+    });
+
+    test('math is delimited: no control characters, no doubled backslashes after the TS string is read, balanced delimiters, no {,} in English', () => {
+        for (const {where, language, text} of everyText()) {
+            expect({where, language, control: /[\u0000-\u001f]/.test(text)}).toEqual({where, language, control: false});
+            expect({where, language, doubled: /\\\\/.test(text)}).toEqual({where, language, doubled: false});
+            expect({where, language, balanced: (text.match(/\\\(/g) ?? []).length === (text.match(/\\\)/g) ?? []).length}).toEqual({where, language, balanced: true});
+            if (language === 'en' && !/latex|calc|result/.test(where)) expect({where, comma: text.includes('{,}')}).toEqual({where, comma: false});
+        }
+    });
+
+    test('no step reveals its prediction in its title, purpose, explanation, prompt, formulas or worked example', () => {
+        const forbidden = (id: string, language: 'sl' | 'en'): RegExp[] => {
+            const sl = language === 'sl';
+            switch (id) {
+                case 'mc3-start':
+                case 'mc3-release': return [sl ? /ob istem času|istočasno|enak/ : /same time|simultaneous|equal|identical/];
+                case 'mc3-readouts': return [/1[.,]003/, sl ? /enak|isti čas/ : /equal|identical|same/];
+                case 'mc3-theorem': return [/0[.,]50/, sl ? /polovic/ : /half/];
+                case 'mc3-arc': return [/1[.,]0[0-9]{3}/, sl ? /daljš|počasnej|ni tavtohron/ : /longer|slower|not a tautochrone/];
+                case 'mc3-starts': return [/1[.,]0[0-9]{3}/, sl ? /krajš|hitrej/ : /shorter|faster/];
+                case 'mc3-explore': return [/1[.,]73/, sl ? /ne obstaja|ni hitrejš|enak času/ : /no start|not faster|equals the time/];
+                default: return [];
+            }
+        };
+        for (const step of lesson.steps) {
+            for (const language of ['sl', 'en'] as const) {
+                const formulas = (lesson.formulaBlocks ?? []).filter(block => step.formulaIds.includes(block.id));
+                const example = (lesson.workedExamples ?? []).find(item => item.id === step.workedExampleId);
+                const shown = prose([step.title[language], step.purpose[language], step.explanation[language], step.observationPrompt[language],
+                    ...formulas.flatMap(f => [f.latex, f.notation[language], f.explanation[language]]), ...(example ? [example.title[language], example.check![language]] : [])].join(' '));
+                for (const pattern of forbidden(step.id, language)) {
+                    expect({id: step.id, language, pattern: String(pattern), leaked: pattern.test(shown)}).toEqual({id: step.id, language, pattern: String(pattern), leaked: false});
+                }
+            }
+        }
+    });
+
+    test('the summary no longer carries the theorem, the step titles are the reviewed ones, and the prompts and field names are the real ones', () => {
+        expect({sl: /izrek|tavtohron/i.test(lesson.summary.sl), en: /theorem/i.test(lesson.summary.en)}).toEqual({sl: false, en: false});
+        expect(lesson.steps[4].title).toEqual({sl: 'Krožni lok za primerjavo', en: 'The circular arc for comparison'});
+        expect(lesson.steps[0].explanation.sl).toContain('Pred branjem odčitkov in stanja grafa napovej');
+        expect(lesson.steps[0].explanation.en).toContain('Before reading the readouts and the status line, predict');
+        expect(lesson.steps[6].explanation.sl).toContain('Preveri, ali obstaja začetek');
+        expect(lesson.steps[6].explanation.en).toContain('Test whether there is a start');
+        expect(lesson.steps[5].explanation.sl).toContain('Kroglica 1: kot θ');
+        expect(lesson.steps[5].explanation.en).toContain('Bead 1: angle θ');
+        expect(t('descent_graph_theta1_label')).toBe('Kroglica 1: kot θ');
+    });
 });

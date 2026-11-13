@@ -1,5 +1,5 @@
 /**
- * Guided lessons of the mechanical-curves family, batch A (docs/specs/mechanical-curves-lessons.md): MC1, the race, and MC2, drag the track, both on
+ * Guided lessons of the mechanical-curves family, batch A and B (docs/specs/mechanical-curves-lessons.md): MC1, the race, MC2, drag the track, and MC3, the tautochrone, all on
  * `mechanics-descent` (DescentGraph). Each is the lesson of one section of the mechanical-curves chapter (mechanicalCurvesChapterRegistry.ts adapts them on
  * request; the lesson catalog holds none, as it keeps one lesson per Demonstration). Scenes use only the `descent` actions the graph registers (`set-mode`,
  * `set-params`, `set-time`) and every scene starts from the Demonstration default and names what it sets; no scene starts playback. Every number the text
@@ -44,11 +44,15 @@ export interface DescentSceneParams {
     readonly p2x?: number;
     readonly p2y?: number;
     readonly showCycloid?: boolean;
+    readonly theta1?: number;
+    readonly theta2?: number;
+    readonly theta3?: number;
+    readonly showArc?: boolean;
 }
 
 /** What a descent scene sets: the experiment (the Demonstration default is the race), the parameters and the time in seconds. */
 export interface DescentSceneSpec {
-    readonly mode?: 'race' | 'track';
+    readonly mode?: 'race' | 'track' | 'tautochrone';
     readonly params?: DescentSceneParams;
     readonly t: number;
 }
@@ -361,6 +365,182 @@ const mc2Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- MC3 -------------------------------------------------------------------------------------------------------------------------
+
+/** The slider ends of the tautochrone with the default angles 0,3; 1 and 2 (r = 1): the descent time 1,003 s rounded up to the 0,01 grid, and the same with the arc shown (its slowest time 1,0745 s). */
+export const MC3_END = 1.01;
+export const MC3_END_ARC = 1.08;
+
+const mc3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'cycloid-angle',
+        latex: 'x=r(\\theta-\\sin\\theta),\\qquad y=r(1-\\cos\\theta)',
+        notation: text(
+            '\\(r\\) je polmer kotalečega se kroga, \\(\\theta\\) kot kotaljenja, \\(x\\) vodoravna lega in \\(y\\) globina pod vrhom cikloide, vse v metrih in radianih. Kot \\(\\theta_0\\) je začetek kroglice, najnižja točka je pri \\(\\theta=\\pi\\).',
+            '\\(r\\) is the radius of the rolling circle, \\(\\theta\\) the rolling angle, \\(x\\) the horizontal position and \\(y\\) the depth below the top of the cycloid, in metres and radians. The angle \\(\\theta_0\\) is the start of the bead, the lowest point is at \\(\\theta=\\pi\\).',
+        ),
+        explanation: text(
+            'Globina \\(y=r(1-\\cos\\theta)\\) raste od \\(0\\) pri \\(\\theta=0\\), vrhu cikloide, do \\(2r\\) pri \\(\\theta=\\pi\\), najnižji točki. Kroglica, ki začne pri \\(\\theta_0\\), drsi do \\(\\theta=\\pi\\); manjši \\(\\theta_0\\) pomeni višji začetek.',
+            'The depth \\(y=r(1-\\cos\\theta)\\) grows from \\(0\\) at \\(\\theta=0\\), the top of the cycloid, to \\(2r\\) at \\(\\theta=\\pi\\), the lowest point. A bead that starts at \\(\\theta_0\\) slides to \\(\\theta=\\pi\\); a smaller \\(\\theta_0\\) means a higher start.',
+        ),
+    },
+    {
+        id: 'tautochrone-time',
+        latex: 'T=\\pi\\sqrt{\\frac{r}{g}},\\qquad 0\\le\\theta_0<\\pi',
+        notation: text(
+            '\\(T\\) je čas spusta od začetka \\(\\theta_0\\) do najnižje točke, \\(r\\) polmer kotalečega se kroga in \\(g=9{,}81\\ \\mathrm{m/s^2}\\) težni pospešek.',
+            '\\(T\\) is the descent time from the start \\(\\theta_0\\) to the lowest point, \\(r\\) the radius of the rolling circle and \\(g=9.81\\ \\mathrm{m/s^2}\\) the gravitational acceleration.',
+        ),
+        explanation: text(
+            'To je Huygensov izrek o tavtohroni, krivulji enakih časov; v aplikaciji ga navajamo, ne izpeljemo. Čas spusta je integral \\(\\int\\mathrm{d}s/v\\) s hitrostjo \\(v=\\sqrt{2g(y-y_0)}\\), kjer je \\(y_0\\) globina začetka. Po vpeljavi \\(z=\\cos(\\theta/2)\\) postane \\(T=2\\sqrt{r/g}\\int_0^{z_0}\\mathrm{d}z/\\sqrt{z_0^2-z^2}\\) z \\(z_0=\\cos(\\theta_0/2)\\in(0,1]\\), integral pa je \\(\\pi/2\\) za vsak tak \\(z_0\\): začetni kot se pokrajša.',
+            'This is Huygens\'s tautochrone theorem, the curve of equal times; the app cites it and does not derive it. The descent time is the integral \\(\\int\\mathrm{d}s/v\\) with the speed \\(v=\\sqrt{2g(y-y_0)}\\), where \\(y_0\\) is the depth of the start. After the substitution \\(z=\\cos(\\theta/2)\\) it becomes \\(T=2\\sqrt{r/g}\\int_0^{z_0}\\mathrm{d}z/\\sqrt{z_0^2-z^2}\\) with \\(z_0=\\cos(\\theta_0/2)\\in(0,1]\\), and the integral is \\(\\pi/2\\) for every such \\(z_0\\): the start angle cancels.',
+        ),
+    },
+];
+
+const mc3Examples: readonly WorkedExample[] = [
+    {
+        id: 'mc3-closed',
+        title: text('Čas spusta po cikloidi pri \\(r=1\\ \\mathrm{m}\\)', 'The descent time along the cycloid for \\(r=1\\ \\mathrm{m}\\)'),
+        calculationLatex: 'T=\\pi\\sqrt{\\frac{1}{9{,}81}}',
+        resultLatex: 'T=1{,}0030',
+        check: text(
+            'Rezultat je enak odčitku grafa \\(1{,}003\\ \\mathrm{s}\\) na prikazana mesta. Formula ne vsebuje kota \\(\\theta_0\\), zato je isti rezultat za vse tri kroglice.',
+            'The result equals the readout of the graph, \\(1.003\\ \\mathrm{s}\\), to the places shown. The formula does not contain the angle \\(\\theta_0\\), so the result is the same for all three beads.',
+        ),
+    },
+];
+
+const mc3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'mc3-start', order: 1,
+        title: text('Tri kroglice na cikloidi', 'Three beads on the cycloid'),
+        purpose: text('Napovedati, katera kroglica pride prva na dno.', 'Predicting which bead reaches the bottom first.'),
+        explanation: text(
+            'Kroglica drsi brez trenja po tiru, to je po krivulji, po kateri teče, in se začne gibati iz mirovanja. Tir je cikloida s polmerom kotalečega se kroga \\(r=1\\ \\mathrm{m}\\), od vrha pri \\(\\theta=0\\) do najnižje točke pri \\(\\theta=\\pi\\). Tri kroglice začnejo na različnih višinah, pri kotih \\(\\theta\\), ki jih pokažejo odčitki. Ponazoritev: graf pokaže tri kroglice na enem tiru. Pred branjem odčitkov in stanja grafa napovej, katera kroglica bo prva v najnižji točki.',
+            'A bead slides without friction along a track, that is, along the curve it runs on, and starts moving from rest. The track is a cycloid with rolling-circle radius \\(r=1\\ \\mathrm{m}\\), from the top at \\(\\theta=0\\) to the lowest point at \\(\\theta=\\pi\\). Three beads start at different heights, at the angles \\(\\theta\\) that the readouts show. Illustration: the graph shows three beads on one track. Before reading the readouts and the status line, predict which bead is first at the lowest point.',
+        ),
+        formulaIds: ['cycloid-angle'],
+        observationPrompt: text('Zapiši napoved, nato preberi kote \\(\\theta\\) treh kroglic v odčitkih.', 'Write down your prediction, then read the angles \\(\\theta\\) of the three beads in the readouts.'),
+        expectedObservations: [text(
+            'Kroglice mirujejo pri kotih \\(\\theta=0{,}3\\), \\(1\\) in \\(2\\ \\mathrm{rad}\\); iz \\(y=r(1-\\cos\\theta)\\) so njihove globine približno \\(0{,}04\\), \\(0{,}46\\) in \\(1{,}42\\ \\mathrm{m}\\). Kroglica 1 začne najvišje, kroglica 3 najnižje.',
+            'The beads rest at the angles \\(\\theta=0.3\\), \\(1\\) and \\(2\\ \\mathrm{rad}\\); from \\(y=r(1-\\cos\\theta)\\) their depths are approximately \\(0.04\\), \\(0.46\\) and \\(1.42\\ \\mathrm{m}\\). Bead 1 starts the highest, bead 3 the lowest.',
+        )],
+        scene: descentScene('mc3-start-scene', {mode: 'tautochrone', t: 0},
+            'Tavtohrona, \\(r=1\\ \\mathrm{m}\\), čas \\(0\\): kroglice 1, 2 in 3 mirujejo pri \\(\\theta=0{,}3\\), \\(1\\) in \\(2\\ \\mathrm{rad}\\); krožni lok je skrit.',
+            'The tautochrone, \\(r=1\\ \\mathrm{m}\\), time \\(0\\): beads 1, 2 and 3 rest at \\(\\theta=0.3\\), \\(1\\) and \\(2\\ \\mathrm{rad}\\); the circular arc is hidden.'),
+    }),
+    step({
+        id: 'mc3-release', order: 2,
+        title: text('Spusti kroglice', 'Release the beads'),
+        purpose: text('Opazovati, v kakšnem vrstnem redu kroglice pridejo na dno.', 'Watching in which order the beads reach the bottom.'),
+        explanation: text(
+            'Premakni drsnik časa od \\(0\\) do konca drsnika ali pritisni Predvajaj. Opazuj, v kakšnem vrstnem redu kroglice dosežejo najnižjo točko, in primerjaj z napovedjo. Pomaga, če drsnik premikaš počasi, s korakom \\(0{,}01\\ \\mathrm{s}\\).',
+            'Move the time slider from \\(0\\) to the end of the slider or press Play. Watch in which order the beads reach the lowest point and compare with your prediction. It helps to move the slider slowly, in steps of \\(0.01\\ \\mathrm{s}\\).',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Poglej, katera kroglica je prva v najnižji točki, in kje so kroglice ob koncu drsnika.', 'Look at which bead is first at the lowest point and where the beads are at the end of the slider.'),
+        expectedObservations: [text(
+            'Kroglice pridejo v najnižjo točko ob istem času: pri koraku drsnika \\(0{,}01\\ \\mathrm{s}\\) med njimi ni razlike in ob koncu drsnika, \\(1{,}01\\ \\mathrm{s}\\), so vse tri tam. Kroglica 3, ki začne najnižje, ni prva.',
+            'The beads reach the lowest point at the same time: at the slider step of \\(0.01\\ \\mathrm{s}\\) there is no difference between them, and at the end of the slider, \\(1.01\\ \\mathrm{s}\\), all three are there. Bead 3, which starts the lowest, is not first.',
+        )],
+        scene: descentScene('mc3-release-scene', {mode: 'tautochrone', t: 0.5},
+            'Tavtohrona, čas \\(0{,}5\\ \\mathrm{s}\\): kroglice so na poti proti najnižji točki; konec drsnika je pri \\(1{,}01\\ \\mathrm{s}\\).',
+            'The tautochrone, time \\(0.5\\ \\mathrm{s}\\): the beads are on their way to the lowest point; the end of the slider is at \\(1.01\\ \\mathrm{s}\\).'),
+    }),
+    step({
+        id: 'mc3-readouts', order: 3,
+        title: text('Časi spusta kot števila', 'The descent times as numbers'),
+        purpose: text('Primerjati izračunane čase treh kroglic.', 'Comparing the computed times of the three beads.'),
+        explanation: text(
+            'Ponazoritev: graf za vsako kroglico izračuna čas spusta po cikloidi od njenega začetka do najnižje točke in ga napiše v odčitku; v vrstici Zaprta formula je vrednost, ki jo spoznamo v naslednjem koraku. Napovej, na koliko decimalnih mest se trije časi in zaprta formula ujemajo. Trije časi veljajo samo za tri izbrane začetke; o drugih začetkih ne povedo ničesar.',
+            'Illustration: for each bead the graph computes the descent time along the cycloid from its start to the lowest point and writes it in a readout; the Closed form row holds a value that we meet in the next step. Predict to how many decimal places the three times and the closed form agree. Three times hold only for the three chosen starts; they say nothing about other starts.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi tri čase kroglic in vrstico Zaprta formula.', 'Write down your prediction, then read the three times of the beads and the Closed form row.'),
+        expectedObservations: [text(
+            'Vse tri kroglice imajo čas \\(1{,}003\\ \\mathrm{s}\\), enak vrstici Zaprta formula, \\(1{,}003\\ \\mathrm{s}\\), na prikazana mesta; ob koncu poskusa so vse v najnižji točki.',
+            'All three beads have the time \\(1.003\\ \\mathrm{s}\\), equal to the Closed form row, \\(1.003\\ \\mathrm{s}\\), to the places shown; at the end of the run all are at the lowest point.',
+        )],
+        scene: descentScene('mc3-readouts-scene', {mode: 'tautochrone', t: MC3_END},
+            'Tavtohrona, konec poskusa (\\(1{,}01\\ \\mathrm{s}\\)): kroglice 1, 2 in 3 imajo časa \\(1{,}003\\ \\mathrm{s}\\), zaprta formula \\(1{,}003\\ \\mathrm{s}\\).',
+            'The tautochrone, end of the run (\\(1.01\\ \\mathrm{s}\\)): beads 1, 2 and 3 have the times \\(1.003\\ \\mathrm{s}\\), the closed form \\(1.003\\ \\mathrm{s}\\).'),
+    }),
+    step({
+        id: 'mc3-theorem', order: 4,
+        title: text('Izrek o tavtohroni', 'The tautochrone theorem'),
+        purpose: text('Povezati odčitke z izrekom in napovedati čas pri manjšem polmeru.', 'Connecting the readouts with the theorem and predicting the time for a smaller radius.'),
+        explanation: text(
+            'Argument (navedek, ne izpeljava v aplikaciji): cikloida je tavtohrona, krivulja enakih časov. Kroglica, ki se v mirovanju začne pri katerem koli \\(\\theta_0\\in[0,\\pi)\\), pride v najnižjo točko po istem času, ki ga daje formula. Trije enaki odčitki so ponazoritev tega izreka, ne njegov dokaz. Z isto formulo napovej čas pri polmeru \\(r=0{,}25\\ \\mathrm{m}\\), nato nastavi polmer in preberi odčitke.',
+            'Argument (cited, not derived in the app): the cycloid is the tautochrone, the curve of equal times. A bead that starts at rest at any \\(\\theta_0\\in[0,\\pi)\\) reaches the lowest point after the same time, which the formula gives. Three equal readouts illustrate this theorem; they do not prove it. Use the same formula to predict the time for the radius \\(r=0.25\\ \\mathrm{m}\\), then set the radius and read the readouts.',
+        ),
+        formulaIds: ['tautochrone-time'],
+        workedExampleId: 'mc3-closed',
+        observationPrompt: text('Zapiši napoved za \\(r=0{,}25\\ \\mathrm{m}\\), nato nastavi polmer in preberi tri čase in vrstico Zaprta formula.', 'Write down your prediction for \\(r=0.25\\ \\mathrm{m}\\), then set the radius and read the three times and the Closed form row.'),
+        expectedObservations: [text(
+            'Iz formule je \\(T=\\pi\\sqrt{0{,}25/9{,}81}\\approx0{,}5015\\ \\mathrm{s}\\), polovica časa pri \\(r=1\\ \\mathrm{m}\\); odčitki vseh treh kroglic in zaprte formule so \\(0{,}5015\\ \\mathrm{s}\\).',
+            'From the formula \\(T=\\pi\\sqrt{0.25/9.81}\\approx0.5015\\ \\mathrm{s}\\), half the time for \\(r=1\\ \\mathrm{m}\\); the readouts of all three beads and of the closed form are \\(0.5015\\ \\mathrm{s}\\).',
+        )],
+        scene: descentScene('mc3-theorem-scene', {mode: 'tautochrone', t: 0.8},
+            'Tavtohrona, \\(r=1\\ \\mathrm{m}\\), čas \\(0{,}8\\ \\mathrm{s}\\): časi \\(1{,}003\\ \\mathrm{s}\\), kot v zgledu.',
+            'The tautochrone, \\(r=1\\ \\mathrm{m}\\), time \\(0.8\\ \\mathrm{s}\\): the times are \\(1.003\\ \\mathrm{s}\\), as in the example.'),
+    }),
+    step({
+        id: 'mc3-arc', order: 5,
+        title: text('Krožni lok za primerjavo', 'The circular arc for comparison'),
+        purpose: text('Primerjati čase po krožnem loku s časom po cikloidi.', 'Comparing the times along the circular arc with the time along the cycloid.'),
+        explanation: text(
+            'Graf nariše krožni lok s polmerom \\(4r=4\\ \\mathrm{m}\\), kar je polmer ukrivljenosti cikloide v najnižji točki, skozi isto najnižjo točko. Vsaka kroglica začne na loku v isti višini kakor na cikloidi. Odčitki Kroglica 1 do 3: čas po krožnem loku (izračunan) so časi spusta po loku, izračunani z numeričnim integriranjem. Napovej, ali bodo trije časi na loku enaki in kako se bodo uvrstili glede na čas po cikloidi.',
+            'The graph draws a circular arc of radius \\(4r=4\\ \\mathrm{m}\\), the radius of curvature of the cycloid at the lowest point, through the same lowest point. Each bead starts on the arc at the same height as on the cycloid. The readouts Bead 1 to 3: time on the circular arc (computed) are the descent times along the arc, computed by numerical integration. Predict whether the three times on the arc are equal and how they compare with the time along the cycloid.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi tri čase po krožnem loku in jih primerjaj s časom po cikloidi.', 'Write down your prediction, then read the three times along the circular arc and compare them with the time along the cycloid.'),
+        expectedObservations: [text(
+            'Časi po krožnem loku so \\(1{,}0745\\ \\mathrm{s}\\), \\(1{,}0574\\ \\mathrm{s}\\) in \\(1{,}0221\\ \\mathrm{s}\\): različni in vsi daljši od \\(1{,}003\\ \\mathrm{s}\\) po cikloidi. Višji začetek pomeni daljši čas. Krožni lok torej ni tavtohrona.',
+            'The times along the circular arc are \\(1.0745\\ \\mathrm{s}\\), \\(1.0574\\ \\mathrm{s}\\) and \\(1.0221\\ \\mathrm{s}\\): different, and all longer than \\(1.003\\ \\mathrm{s}\\) along the cycloid. A higher start means a longer time. So the circular arc is not a tautochrone.',
+        )],
+        scene: descentScene('mc3-arc-scene', {mode: 'tautochrone', params: {showArc: true}, t: MC3_END_ARC},
+            'Tavtohrona, krožni lok prikazan, konec poskusa (\\(1{,}08\\ \\mathrm{s}\\)): po cikloidi \\(1{,}003\\ \\mathrm{s}\\), po loku \\(1{,}0745\\ \\mathrm{s}\\), \\(1{,}0574\\ \\mathrm{s}\\) in \\(1{,}0221\\ \\mathrm{s}\\).',
+            'The tautochrone, circular arc shown, end of the run (\\(1.08\\ \\mathrm{s}\\)): along the cycloid \\(1.003\\ \\mathrm{s}\\), along the arc \\(1.0745\\ \\mathrm{s}\\), \\(1.0574\\ \\mathrm{s}\\) and \\(1.0221\\ \\mathrm{s}\\).'),
+    }),
+    step({
+        id: 'mc3-starts', order: 6,
+        title: text('Spremeni začetek', 'Change the start'),
+        purpose: text('Preveriti na drugih začetkih, tudi na robovih, kaj se zgodi s časi.', 'Checking on other starts, including the edges, what happens to the times.'),
+        explanation: text(
+            'Kot \\(\\theta\\) vsake kroglice spremeniš z vlečenjem kroglice po cikloidi ali z vnosom v polja Kroglica 1: kot θ, Kroglica 2: kot θ in Kroglica 3: kot θ (korak \\(0{,}05\\)). Najprej nastavi kote \\(0{,}5\\), \\(1{,}5\\) in \\(2{,}5\\) in napovej čase po cikloidi in po krožnem loku. Nato nastavi kroglico 1 na kot \\(0\\), vrh cikloide, in kroglico 3 na najnižjo točko \\(\\theta=\\pi\\); na \\(\\pi\\) prideš z vlečenjem kroglice na dno ali s tipko ↑ iz \\(3{,}1\\).',
+            'You change the angle \\(\\theta\\) of each bead by dragging the bead along the cycloid or by typing into the fields Bead 1: angle θ, Bead 2: angle θ and Bead 3: angle θ (step \\(0.05\\)). First set the angles \\(0.5\\), \\(1.5\\) and \\(2.5\\) and predict the times along the cycloid and along the circular arc. Then set bead 1 to the angle \\(0\\), the top of the cycloid, and bead 3 to the lowest point \\(\\theta=\\pi\\); you reach \\(\\pi\\) by dragging the bead to the bottom or with the ↑ key from \\(3.1\\).',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved za kote \\(0{,}5\\), \\(1{,}5\\), \\(2{,}5\\), nato preberi čase in poglej še kota \\(0\\) in \\(\\pi\\).', 'Write down your prediction for the angles \\(0.5\\), \\(1.5\\), \\(2.5\\), then read the times and also look at the angles \\(0\\) and \\(\\pi\\).'),
+        expectedObservations: [text(
+            'Po cikloidi imajo vse tri kroglice \\(1{,}003\\ \\mathrm{s}\\); po krožnem loku \\(1{,}0712\\ \\mathrm{s}\\), \\(1{,}0394\\ \\mathrm{s}\\) in \\(1{,}0094\\ \\mathrm{s}\\), časi so tem krajši, čim nižji je začetek. Kroglica pri \\(\\theta=0\\) ima po cikloidi še vedno \\(1{,}003\\ \\mathrm{s}\\); kroglica pri \\(\\theta=\\pi\\) je že v najnižji točki in časa ne dobi.',
+            'Along the cycloid all three beads have \\(1.003\\ \\mathrm{s}\\); along the circular arc \\(1.0712\\ \\mathrm{s}\\), \\(1.0394\\ \\mathrm{s}\\) and \\(1.0094\\ \\mathrm{s}\\), the times are shorter the lower the start. The bead at \\(\\theta=0\\) still has \\(1.003\\ \\mathrm{s}\\) along the cycloid; the bead at \\(\\theta=\\pi\\) is already at the lowest point and gets no time.',
+        )],
+        scene: descentScene('mc3-starts-scene', {mode: 'tautochrone', params: {showArc: true}, t: 0},
+            'Tavtohrona, krožni lok prikazan, čas \\(0\\): kroglice 1, 2 in 3 mirujejo pri \\(\\theta=0{,}3\\), \\(1\\) in \\(2\\ \\mathrm{rad}\\).',
+            'The tautochrone, circular arc shown, time \\(0\\): beads 1, 2 and 3 rest at \\(\\theta=0.3\\), \\(1\\) and \\(2\\ \\mathrm{rad}\\).'),
+    }),
+    step({
+        id: 'mc3-explore', order: 7,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Spreminjati polmer, kote in krožni lok ter preizkusiti izrek.', 'Changing the radius, the angles and the circular arc, and testing the theorem.'),
+        explanation: text(
+            'Spreminjaj polmer \\(r\\) od \\(0{,}25\\ \\mathrm{m}\\) do \\(3\\ \\mathrm{m}\\) s korakom \\(0{,}25\\ \\mathrm{m}\\), kote kroglic in krožni lok. Napovej čas pri \\(r=3\\ \\mathrm{m}\\), preden ga nastaviš. Preveri, ali obstaja začetek, pri katerem čas po cikloidi ni enak vrstici Zaprta formula, in ali obstaja začetek, pri katerem je krožni lok hitrejši od cikloide. Navedeni izrek zagotavlja, da prvega ni; preizkus na nekaj začetkih izreka ne dokaže.',
+            'Change the radius \\(r\\) from \\(0.25\\ \\mathrm{m}\\) to \\(3\\ \\mathrm{m}\\) in steps of \\(0.25\\ \\mathrm{m}\\), the angles of the beads and the circular arc. Predict the time for \\(r=3\\ \\mathrm{m}\\) before you set it. Test whether there is a start at which the time along the cycloid is not equal to the Closed form row, and whether there is a start at which the circular arc is faster than the cycloid. The cited theorem guarantees there is no first one; testing a few starts does not prove it.',
+        ),
+        formulaIds: ['tautochrone-time'],
+        observationPrompt: text('Zapiši napoved za \\(r=3\\ \\mathrm{m}\\), nato jo preveri in preizkusi, ali kakšen začetek nasprotuje izreku ali primerjavi z lokom.', 'Write down your prediction for \\(r=3\\ \\mathrm{m}\\), then check it and test whether any start contradicts the theorem or the comparison with the arc.'),
+        expectedObservations: [text(
+            'Pri \\(r=3\\ \\mathrm{m}\\) je \\(T=\\pi\\sqrt{3/9{,}81}\\approx1{,}7373\\ \\mathrm{s}\\), odčitki vseh kroglic in zaprte formule so \\(1{,}7373\\ \\mathrm{s}\\). Čas po cikloidi je pri vsakem začetku, ki ga preizkusiš, enak vrstici Zaprta formula; krožni lok ni hitrejši od cikloide pri nobenem preizkušenem začetku.',
+            'For \\(r=3\\ \\mathrm{m}\\) we get \\(T=\\pi\\sqrt{3/9.81}\\approx1.7373\\ \\mathrm{s}\\), the readouts of all beads and of the closed form are \\(1.7373\\ \\mathrm{s}\\). The time along the cycloid equals the Closed form row at every start you try; the circular arc is not faster than the cycloid at any start you try.',
+        )],
+        scene: descentScene('mc3-explore-scene', {mode: 'tautochrone', t: 0},
+            'Tavtohrona, \\(r=1\\ \\mathrm{m}\\), čas \\(0\\), krožni lok skrit: kroglice 1, 2 in 3 mirujejo pri \\(\\theta=0{,}3\\), \\(1\\) in \\(2\\ \\mathrm{rad}\\).',
+            'The tautochrone, \\(r=1\\ \\mathrm{m}\\), time \\(0\\), circular arc hidden: beads 1, 2 and 3 rest at \\(\\theta=0.3\\), \\(1\\) and \\(2\\ \\mathrm{rad}\\).'),
+    }),
+];
+
 // ---- Lesson assembly -------------------------------------------------------------------------------------------------------------
 
 const sources: GuidedLesson['sources'] = [
@@ -419,5 +599,30 @@ const mc2: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+const mc3: GuidedLesson = {
+    demonstrationId: 'mechanics-descent',
+    title: text('Enaki časi: tavtohrona', 'Equal times: the tautochrone'),
+    summary: text(
+        'Kroglica brez trenja zdrsne po cikloidi iz mirovanja od izbranega začetka do najnižje točke. Lekcija raziskuje, kako čas spusta zavisi od začetka, in ga primerja s krožnim lokom; začetki so le trije, zato lekcija najprej opazuje, nato primerja.',
+        'A frictionless bead slides along the cycloid from rest, from a chosen start to the lowest point. The lesson explores how the descent time depends on the start and compares it with a circular arc; there are only three starts, so the lesson first observes and then compares.',
+    ),
+    prerequisites: [text('Lekciji Tekma in Povleci tir (poglavje Mehanske krivulje) ter cikloida kot parametrična krivulja.', 'The lessons The race and Drag the track (chapter Mechanical curves) and the cycloid as a parametric curve.')],
+    learningGoals: [
+        text('Veš, da je čas spusta po cikloidi do najnižje točke za vsak začetek \\(\\theta_0\\in[0,\\pi)\\) enak \\(\\pi\\sqrt{r/g}\\), in da je to izrek, ki ga trije odčitki le ponazorijo.', 'Know that the descent time along the cycloid to the lowest point is \\(\\pi\\sqrt{r/g}\\) for every start \\(\\theta_0\\in[0,\\pi)\\), and that this is a theorem which three readouts only illustrate.'),
+        text('Veš, da pri krožnem loku čas zavisi od začetka.', 'Know that on a circular arc the time depends on the start.'),
+        text('Veš, da kroglica pri \\(\\theta=\\pi\\) že leži v najnižji točki in časa ne dobi.', 'Know that a bead at \\(\\theta=\\pi\\) already lies at the lowest point and gets no time.'),
+    ],
+    formulaBlocks: mc3Formulas,
+    workedExamples: mc3Examples,
+    steps: mc3Steps,
+    sources,
+    edgeCases: [
+        text('Začetek \\(\\theta_0=0\\), vrh cikloide, ima enak čas kakor drugi začetki; začetek \\(\\theta_0=\\pi\\) je že najnižja točka, zato graf namesto časa napiše besedilo.', 'The start \\(\\theta_0=0\\), the top of the cycloid, has the same time as the other starts; the start \\(\\theta_0=\\pi\\) is already the lowest point, so the graph writes text instead of a time.'),
+        text('Tri enaki časi so ponazoritev, ne dokaz: izrek o tavtohroni je navedek in ni izpeljan v aplikaciji.', 'Three equal times are an illustration, not a proof: the tautochrone theorem is cited and not derived in the app.'),
+    ],
+    unresolvedQuestions: [],
+};
+
 export const mechanicalCurvesRaceLesson: GuidedLesson = mc1;
 export const mechanicalCurvesTrackLesson: GuidedLesson = mc2;
+export const mechanicalTautochroneLesson: GuidedLesson = mc3;

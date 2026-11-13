@@ -12,7 +12,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [02 State model and descent graph](02-descent-graph.md) | A–B | F2a | Controls step 5 | 01 | in review |
 | [03 Release batches A–B](03-release-batches.md) | A–B | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11; split into 04–05 |
 | [04 Batch A: MC1–MC2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 done 2026-11-12; F4–F6 not started |
-| [05 Batch B: MC3 lesson](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | not started |
+| [05 Batch B: MC3 lesson](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | F3 done 2026-11-13 (MC3); F4–F6 next |
 
 ## Slovenian terms (F0 decision)
 
