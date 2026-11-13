@@ -30,7 +30,7 @@ Handler 18 handed off on 2026-11-13 to handler 19. The worktree is on branch `wo
 
 ## In flight at handoff
 
-- Publish of `710509f9` (F2a slice 2) on base `c3d49d18`: check `just publish --status`; if it failed, read its log (sub-log in the kept publish worktree), fix, republish on the same base; then watch the newest master CI run (`bash .command-logs/h12-slowci.sh <id>`). The handoff docs commit (this note, the evaluation entry) publishes after it, on base `710509f9`, if the slice-2 publish was still running at handoff (see the commit log: `git log --oneline origin/master..HEAD`).
+- F2a slice 2 `710509f9` pushed as `644652a2`; master CI run 43464405122 green. The handoff docs commits publish on base `710509f9` at handoff: check `just publish --status` and the newest master run; if the publish failed, read its log, fix and republish on the same base.
 - No worker is running.
 
 ## Owed
@@ -46,7 +46,7 @@ Handler 18 handed off on 2026-11-13 to handler 19. The worktree is on branch `wo
 
 ## Next
 
-1. Confirm the `710509f9` publish and its CI run; publish the handoff docs commit if it is not yet on master.
+1. Confirm the handoff docs publish and its CI run.
 2. **Linear-maps task 09 F3 (L5 composition and affine maps).** Slice 1: lesson actions for the composition mode (choose element, set B entries, set translation, set pivot; the shared `LessonAction` union in `src/learning/model.ts` and `applyLinearMapAction`), host test in one synchronous sequence, and a probe of every candidate opening (pattern: `.command-logs/pp-a/brief-s1.md`). Slice 2: L5 content (7 steps, spec line 124: R then F, predict whether order matters; RF ≠ FR; RF as a mirror line y = x; translation and pivot T(P) = c + A(P − c); the Bézier curve follows; link to the affine Demonstration naming its pivots (mean of control points for rotation/reflection, bounding-box centre for scale); free exploration). The mode shows the product readout at once (no view modes): use "predict the effect of a change, then make it" (`.command-logs/pp-a/brief-s2.md` and the recurring findings above). Then tests worker (two parts), reviewer, chapter join (linear-maps chapter, L5 section), smoke, card, F6 gate including `/bezier/affine` unchanged.
 3. Phase portraits 390 px layout (Owed) if the owner wants it before other families.
 4. F4 (chapter guided examples) per chapter once its F3 lessons exist.
