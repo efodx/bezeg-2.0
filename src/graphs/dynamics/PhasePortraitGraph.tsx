@@ -127,6 +127,8 @@ const SEED_CAPTION_CHAR_PX = 7.5;
 const SEED_CAPTION_HEIGHT_PX = 18;
 const SEED_CAPTION_CLEAR_PX = 8;
 const SEED_CAPTION_SAMPLES = 200;
+/** The equilibrium caption sits this many px below the point (up is positive): under the row of the x axis numbers. */
+const EQUILIBRIUM_CAPTION_DY = -38;
 
 function drawnFor(state: PhaseState, derived: PhaseDerived): Drawn {
     const {xMin, xMax, yMin, yMax} = derived.view;
@@ -170,6 +172,7 @@ const viewBox = (derived: PhaseDerived): [number, number, number, number] => {
     return [xMin - margin, yMax + margin, xMax + margin, yMin - margin];
 };
 
+type LegendRow = {text: () => string; visible: () => boolean; color: string};
 const LEGEND_CHAR_PX = 7.5;
 /** The lines a legend row takes on a board `width` px wide (10 px margin each side): the browser wraps it at the edge of the board. */
 export function legendLines(text: string, width: number): number {
@@ -436,11 +439,11 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     }
 
     /** Pixels per board unit, with a fallback when the board has no size yet. */
-    private scaleOf(): {ux: number; uy: number; left: number; top: number} {
-        const [left, top] = this.board.getBoundingBox();
+    private scaleOf(): {ux: number; uy: number; left: number; top: number; bottom: number} {
+        const [left, top, , bottom] = this.board.getBoundingBox();
         const ux = Number.isFinite(this.board.unitX) && this.board.unitX > 0 ? this.board.unitX : 1;
         const uy = Number.isFinite(this.board.unitY) && this.board.unitY > 0 ? this.board.unitY : 1;
-        return {ux, uy, left, top};
+        return {ux, uy, left, top, bottom};
     }
 
     /** Whether a seed handle shows: the seed exists and its stored position is inside the computed region (read from the state, not the handle). */
@@ -504,7 +507,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         this.scene.own(board.create("point", [() => this.derived().centre[0], () => this.derived().centre[1]], {
             name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "x", strokeColor: GraphPalette.label, fillColor: GraphPalette.label,
         }));
-        this.pixelText(() => this.derived().centre[0], () => this.derived().centre[1], 8, -14,
+        this.pixelText(() => this.derived().centre[0], () => this.derived().centre[1], 8, EQUILIBRIUM_CAPTION_DY,
             () => t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}), GraphPalette.label);
 
         // The moving points of the playback: hollow squares at the orbit's point at the current time.
@@ -534,6 +537,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
 
         // Matrix columns (the linear system only): the images of (1, 0) and (0, 1), with a segment from the origin.
         this.columnHandles = [];
+        const columnRows: LegendRow[] = [];
         const origin = hidden(() => 0, () => 0);
         for (const i of [0, 1] as const) {
             const initial: Vec2 = i === 0 ? [entryOf(state().A), entryOf(state().C)] : [entryOf(state().B), entryOf(state().D)];
@@ -549,13 +553,17 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, dash: 2, fixed: true, highlight: false, withLabel: false,
                 visible: () => this.columnShown(i),
             }));
-            this.pixelText(() => handle.X(), () => handle.Y(), 10, -14,
-                () => t(i === 0 ? "phase_graph_cap_column1" : "phase_graph_cap_column2", {value0: point(handle.X(), handle.Y())}), GraphPalette.comparisonCurve,
-                () => this.columnShown(i));
+            // The caption of a column is a row of the stack in the bottom left corner (a caption beside its handle ran into the other
+            // column's caption, the equilibrium's and the axis numbers); it has the colour of the handle.
+            columnRows.push({
+                text: () => t(i === 0 ? "phase_graph_cap_column1" : "phase_graph_cap_column2", {value0: point(handle.X(), handle.Y())}),
+                visible: () => this.columnShown(i), color: GraphPalette.comparisonCurve,
+            });
         }
+        this.columnRows = columnRows;
 
         // The legend: stacked from the top left, only the visible rows take a place. It names every element the readout names.
-        const rows: readonly {text: () => string; visible: () => boolean; color: string}[] = [
+        const rows: readonly LegendRow[] = [
             {text: () => t("phase_graph_cap_trajectories"), visible: () => true, color: GraphPalette.primaryCurve},
             {text: () => t("phase_graph_cap_moving"), visible: () => true, color: GraphPalette.label},
             {text: () => t("phase_graph_cap_ring"), visible: nonlinear, color: GraphPalette.comparisonCurve},
@@ -564,9 +572,13 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             {text: () => t("phase_graph_cap_separatrix"), visible: pendulum, color: GraphPalette.additionalCurves[3]},
             {text: () => t("phase_graph_cap_wrap"), visible: () => pendulum() && this.drawn().wraps.x.length > 0, color: GraphPalette.label},
             {text: () => t("phase_graph_cap_frame"), visible: () => true, color: GraphPalette.label},
-            {text: () => { const c = this.stopCounts(); return t("phase_graph_cap_stops", {value0: String(c.stopped), value1: String(c.halves)}); },
-                visible: () => this.stopCounts().stopped > 0, color: GraphPalette.warningText},
         ];
+        // The count of stopped halves heads the bottom stack: as a fifth top row it fell on the x axis on a small board and hid every x number.
+        columnRows.unshift({
+            text: () => { const c = this.stopCounts(); return t("phase_graph_cap_stops", {value0: String(c.stopped), value1: String(c.halves)}); },
+            visible: () => this.stopCounts().stopped > 0, color: GraphPalette.warningText,
+        });
+        this.legendRows = rows;
         rows.forEach((row, index) => {
             // A row wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
             const place = () => rows.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + legendLines(other.text(), board.canvasWidth), 0);
@@ -576,6 +588,67 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 () => row.text(),
             ], {strokeColor: row.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
         });
+        // The matrix columns' captions: a second stack from the bottom left corner up, the last column lowest.
+        columnRows.forEach((row, index) => {
+            const place = () => columnRows.slice(index + 1).filter(other => other.visible()).reduce((sum, other) => sum + legendLines(other.text(), board.canvasWidth), 0);
+            this.scene.own(board.create("text", [
+                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
+                () => { const {bottom, uy} = this.scaleOf(); return bottom + (10 + place() * 20) / uy; },
+                () => row.text(),
+            ], {strokeColor: row.color, fontSize: 14, anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
+        });
+    }
+
+    private legendRows: readonly LegendRow[] = [];
+    private columnRows: readonly LegendRow[] = [];
+
+    /** The screen boxes (px from the board's top left corner, y down) the two stacks of board texts take: the legend on top, the column captions below. */
+    private stackBoxes(): ReadonlyArray<readonly [number, number, number, number]> {
+        if (!this.hasBoard) return [];
+        const width = this.board.canvasWidth;
+        const height = this.board.canvasHeight;
+        const boxOf = (rows: readonly LegendRow[], fromTop: boolean): readonly [number, number, number, number] | undefined => {
+            const shown = rows.filter(row => row.visible());
+            if (shown.length === 0) return undefined;
+            const lines = shown.reduce((sum, row) => sum + legendLines(row.text(), width), 0);
+            const wide = Math.min(Math.max(...shown.map(row => row.text().length * LEGEND_CHAR_PX)), width - 20) + 10;
+            const tall = 10 + lines * 20;
+            return fromTop ? [0, 0, wide + 10, tall] : [0, height - tall, wide + 10, height];
+        };
+        return [boxOf(this.legendRows, true), boxOf(this.columnRows, false)].filter((box): box is readonly [number, number, number, number] => box !== undefined);
+    }
+
+    /** The board's axes: a tick number that the legend or the column captions would cover is not written (they sit where the numbers are). */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        const boardExists = (): boolean => this.hasBoard;
+        const covered = (x0: number, y0: number, x1: number, y1: number): boolean =>
+            this.stackBoxes().some(b => x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1]);
+        const hiding = (labelOf: ((this: object, ...label: unknown[]) => string) | undefined, box: (x: number, y: number) => readonly [number, number, number, number]) =>
+            function (this: object, ...label: unknown[]): string {
+                const tick = label[0] as {usrCoords?: number[]} | undefined;
+                if (tick?.usrCoords && boardExists() && covered(...box(tick.usrCoords[1], tick.usrCoords[2]))) return "";
+                return labelOf ? labelOf.apply(this, label) : "";
+            };
+        // The number of an x tick stands under the axis, that of a y tick left of it.
+        const onX = (x: number): readonly [number, number, number, number] => {
+            const {ux, uy, left, top} = this.scaleOf();
+            const px = (x - left) * ux;
+            const py = top * uy;
+            return [px - 16, py, px + 16, py + 24];
+        };
+        const onY = (_x: number, y: number): readonly [number, number, number, number] => {
+            const {ux, uy, left, top} = this.scaleOf();
+            const px = -left * ux;
+            const py = (top - y) * uy;
+            return [px - 46, py - 12, px, py + 12];
+        };
+        const labelOfX = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const labelOfY = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        return {
+            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: hiding(labelOfX, onX)}},
+            y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: hiding(labelOfY, onY)}},
+        };
     }
 
     /** A caption at a board point plus a pixel offset (up is positive). */
@@ -605,7 +678,13 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         if (orbit) { take(orbit.forward); take(orbit.backward); }
         const [cx, cy] = this.derived().centre;
         const equilibriumWidth = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}).length;
-        for (let along = 0; along <= equilibriumWidth; along += 8) obstacles.push([(cx - sx) * ux + 8 + along, (cy - sy) * uy - 14]);
+        for (let along = 0; along <= equilibriumWidth; along += 8) obstacles.push([(cx - sx) * ux + 8 + along, (cy - sy) * uy + EQUILIBRIUM_CAPTION_DY]);
+        // The legend and the column captions are obstacles too (their boxes, in px from the handle, y up).
+        const hx = (sx - this.scaleOf().left) * ux;
+        const hy = (this.scaleOf().top - sy) * uy;
+        for (const [x0, y0, x1, y1] of this.stackBoxes()) {
+            for (let px = x0; px <= x1; px += 8) for (let py = y0; py <= y1; py += 8) obstacles.push([px - hx, hy - py]);
+        }
         const half = SEED_CAPTION_HEIGHT_PX / 2;
         const corners: ReadonlyArray<readonly [number, number]> = [
             [10, 10 + half], [-10 - width, 10 + half], [10, -10 - half], [-10 - width, -10 - half],

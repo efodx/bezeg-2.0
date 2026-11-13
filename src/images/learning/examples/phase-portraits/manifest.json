@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+  "sourceRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-    "dirty": false,
-    "inputs": "b986168e694d853108393f56960ce2b09fffc20dd97ee24632dd107d7bcc5a04",
-    "output": "57f4768484f0adf99b836bb48367b5fcb8182d870b2a27df9bebbc43f085ffa3"
+    "revision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+    "dirty": true,
+    "inputs": "0a8a57a52a1512407ff8789113f7275c1c7177c668b2ea3aaa2f36018c66eb28",
+    "output": "19b2993a25259124b6593db1d491b038b6aee8c84c8530ac34fa663a3ace256a"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4483/bezeg-2.0/",
-    "stampRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-    "stampDirty": false,
-    "localOutputHash": "57f4768484f0adf99b836bb48367b5fcb8182d870b2a27df9bebbc43f085ffa3",
+    "stampRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+    "stampDirty": true,
+    "localOutputHash": "19b2993a25259124b6593db1d491b038b6aee8c84c8530ac34fa663a3ace256a",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-37KIdl_u.js",
-        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/index-37KIdl_u.js",
-        "sha256": "601bedcaeb944fd41baffd0df84825b93ee8e925b32097cfb6713fd11041996d",
+        "name": "index-qUYKay3r.js",
+        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/index-qUYKay3r.js",
+        "sha256": "541e552b427fec4b2be286bbd796e1c7b101ba4af84c1ade7a13575ff73d669a",
         "matchesLocalBuild": true
       },
       {
@@ -64,8 +64,8 @@
       "phase-portraits.bifurcation.logistic-map": "065e213b4c6df97b8bf14bae613571df899f64a8f0eb20b4a7d3b6d6b1fe5d07"
     },
     "presentation": "2ae5cdff81393e986e763d8fa9aa6df0a90f9a94944a2380666a41b31d86105c",
-    "buildOutput": "57f4768484f0adf99b836bb48367b5fcb8182d870b2a27df9bebbc43f085ffa3",
-    "buildInputs": "b986168e694d853108393f56960ce2b09fffc20dd97ee24632dd107d7bcc5a04"
+    "buildOutput": "19b2993a25259124b6593db1d491b038b6aee8c84c8530ac34fa663a3ace256a",
+    "buildInputs": "0a8a57a52a1512407ff8789113f7275c1c7177c668b2ea3aaa2f36018c66eb28"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -171,7 +171,7 @@
       "file": "phase-portraits.linear-system.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "921dfd4fa47f65ae9018ea119e6328c2f9f253b0a9ab9165ae89d17f3ccaa744",
+      "sha256": "f3a59a2b5f6c09e43e44585c0119b8f7d466cc9fed068a8d73d6d795b6ca59e5",
       "scene": {
         "visibleElementCount": 34,
         "visibleElementTypes": {
@@ -338,8 +338,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "buildRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+        "sourceRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
         "pageErrors": []
       }
     },
@@ -362,7 +362,7 @@
       "file": "phase-portraits.pendulum.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "f64752109260fd68bd1e32bba663a08df46d0ef3bd487e57981bd732c3998a6b",
+      "sha256": "4e0ad2678ea3240aad0fcd0c2574dc7d9ab752d9c72cd46f6e8b0f1cfa05dbe1",
       "scene": {
         "visibleElementCount": 30,
         "visibleElementTypes": {
@@ -526,8 +526,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "buildRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+        "sourceRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
         "pageErrors": []
       }
     },
@@ -547,7 +547,7 @@
       "file": "phase-portraits.linearization.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "4ce43f4e8280567eec8469b81f53353ea369ac6577d6d7780f8fdfdc19f8e9a6",
+      "sha256": "3d8a83833139ca04e59900e4f28ae82854ec4d646e052cac1203174323c8ecf6",
       "scene": {
         "visibleElementCount": 34,
         "visibleElementTypes": {
@@ -714,8 +714,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "buildRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+        "sourceRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
         "pageErrors": []
       }
     },
@@ -737,7 +737,7 @@
       "file": "phase-portraits.logistic-map.logistic-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "d8b5879a4705d458e42e71f1f27ce766c54dfcb0e14f506779e4c8982096470d",
+      "sha256": "8bf8f1f693bc3b29ffc55e45c73f6bdd6a8f2053f6d68048435e0add4d7ea39a",
       "scene": {
         "visibleElementCount": 32,
         "visibleElementTypes": {
@@ -1004,8 +1004,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "buildRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+        "sourceRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
         "pageErrors": []
       }
     },
@@ -1026,7 +1026,7 @@
       "file": "phase-portraits.bifurcation.logistic-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "e8d2d06f784d74e83f3deaf488970fee00384793f1adc7e203fbd6a44736cafe",
+      "sha256": "6f6c97580b16db31f3f9b57936848e7d9791a3eb8401eb4af56e8085cf4f16ae",
       "scene": {
         "visibleElementCount": 30,
         "visibleElementTypes": {
@@ -1291,8 +1291,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
-        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "buildRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
+        "sourceRevision": "a899fc4115bca41d349fb8394fb9553b0ee33376",
         "pageErrors": []
       }
     }

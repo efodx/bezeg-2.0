@@ -224,7 +224,17 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             if (tick?.usrCoords && tick.usrCoords[2] < -1e-9) return "";
             return labelOf ? labelOf.apply(this, label) : "";
         };
-        return {x: axis.defaultX, y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: aboveZero}}};
+        // The x axis has no numbers right of 1: there the diagram's own r marks stand (board x there is not r).
+        const labelOfX = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const upToOne = function (this: object, ...label: unknown[]): string {
+            const tick = label[0] as {usrCoords?: number[]} | undefined;
+            if (tick?.usrCoords && tick.usrCoords[1] > 1 + 1e-9) return "";
+            return labelOfX ? labelOfX.apply(this, label) : "";
+        };
+        return {
+            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: upToOne}},
+            y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: aboveZero}},
+        };
     }
 
     protected override createMainView(session: GraphSession, container: HTMLElement): void {

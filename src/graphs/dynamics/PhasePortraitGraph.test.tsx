@@ -859,8 +859,13 @@ describe('the legend on a narrow board (390 x 480 px)', () => {
             const rows = (ofType(graph, 'text') as unknown as Array<Probe & {X(): number; Y(): number}>)
                 .filter(o => visible(o) && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() > top - 200 / board.unitY && o.Y() <= top)
                 .sort((a, b) => b.Y() - a.Y());
-            expect(rows.length).toBeGreaterThanOrEqual(5);
+            // Trajectories, moving points, eigen-directions and frame; the count of stopped halves heads the bottom stack instead.
+            expect(rows.length).toBeGreaterThanOrEqual(4);
             expect(rows.some(row => legendLines(String(row.plaintext), 390) > 1)).toBe(true);
+            const stops = (ofType(graph, 'text') as unknown as Array<Probe>)
+                .filter(o => visible(o) && String(o.plaintext).startsWith(t('phase_graph_cap_stops', {value0: '1', value1: '2'}).slice(0, 12)));
+            expect(stops.length).toBe(1);
+            expect(stops[0].evalVisProp('anchory')).toBe('bottom');
             for (let i = 0; i + 1 < rows.length; i++) {
                 const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
                 expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(legendLines(String(rows[i].plaintext), 390) * 20 - 0.5);
