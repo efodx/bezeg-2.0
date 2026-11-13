@@ -1,6 +1,6 @@
 # Families-prep state note
 
-Handler 18 handed off on 2026-11-13 to handler 19. The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff.
+Handler 19 checkpoint, 2026-11-13 (rewrite at handoff). The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff.
 
 ## Setup
 
@@ -28,14 +28,18 @@ Handler 18 handed off on 2026-11-13 to handler 19. The worktree is on branch `wo
   - **Phase-portraits layout pass** `1614bf19` (pushed `b3981df3`, CI green): legend top left, matrix column captions and the stop count in a bottom-left stack, tick numbers under either stack hidden; logistic board has no x numbers under the r-panel; five cards recaptured.
   - **Linear-maps Batch C F2a** (task 09): slice 1 model and kernel `c3d49d18` (pushed `76b2b34b`, CI green 43456450371): `src/linear/composition2.ts` (rotations k·15°, reflections in lines at k·7.5°, closed under composition; affine form T(P)=c+M(P−c)+b; Bézier fixture). Slice 2 composition mode of `LinearMapGraph` `710509f9` (controls, readouts with "približno" off the grid, Presets, host tests; Sonnet review: no blocking; smoke sl/en 1366/390 passed checks 1–6; handler fixed Reset clobbering the shared matrix and moved image labels). Notes `notes/lm-c-f2a.md`; spec "F2a Batch C decisions".
 
-## In flight at handoff
+- Handler 19:
+  - **Linear-maps Batch C F3–F6 (task 09 done locally; push pending).** Lesson actions `choose-element`, `set-translation`, `set-pivot` (null drops), shared `enterMode` so `set-mode composition` adds R, F like the UI; L5 `linear-map-composition-affine` (7 steps; review fixes: step 2 opens on one reflection, the composition note no longer says the order matters); chapter section `composition-affine` between L4 and L6; card framed by the finite-fit exception in `captureRecipeForEntry`; composition labels via the shared greedy placer. F6: `just check` on `181e0a61`, smoke 7/7 (`.command-logs/lm-c/smoke-l5/report.md`), Presentation sl/en (`.command-logs/lm-c/f6-smoke/report.md`), `/bezier/affine` unchanged. Spec "F3 Batch C decisions"; notes `notes/lm-c-f3-s1.md`, `lm-c-f3-s2.md`, `lm-c-labels.md`; briefs `.command-logs/lm-c/brief-f3-*.md`, `brief-f5.md`, `brief-labels.md`.
+  - Setup findings: port 4471 is held by a foreign process (a capture against it fails "Served entry bundle set differs"); 4519 and 4533/4537 worked. Card captures: a change to `captureRecipeForEntry` changes the presentation fingerprint of every family (only partial recaptures check it). A publish can fail on a 15 s timeout of an unrelated test under load: rerun the test alone, then republish.
 
-- F2a slice 2 `710509f9` pushed as `644652a2`; master CI run 43464405122 green. The handoff docs commits publish on base `710509f9` at handoff: check `just publish --status` and the newest master run; if the publish failed, read its log, fix and republish on the same base.
+## In flight
+
+- **Seven local commits wait for master to turn green**, base `ea0c12e7` (last published local commit): `889dee4a` (L5 lesson actions), `16ae8392` (L5 content and tests), `8b94d091` (chapter join + card), `3dbd7b68` (capture test fix), `181e0a61` (spec decisions, evaluation entry), `601433c7` (task status), `11af8646` (composition labels). All verified locally (`just check` on `181e0a61` passed; unit/tsc/lint on `11af8646`'s files). The republish of `889dee4a,16ae8392` passed every gate and failed only at `push` (credentials, since fixed by the owner: `gh auth setup-git`; git now uses gh's token). Master is red from another stream's `4e844f56` (all four browser-smoke shards); **elder identity handler 6** owns the fix and promised a message when it is on master and green. Do not touch AppHeader.css, WelcomePage.css, HomeDemonstrationsCarousel.css, DemonstrationWorkspaceIdentity.css, shellTokens.css, index.css or `tests/guided-lessons.smoke.spec.cjs` until then. Then: `just publish --background --recipe runtime --base ea0c12e7 --commits <all ids in base..HEAD>`; the guided-lessons smoke table may conflict (keep both rows); watch the master run.
 - No worker is running.
 
 ## Owed
 
-- Linear-maps composition mode: the image-label move (below right) not rechecked in a browser; the pivot handle not dragged with a pointer in smoke; lesson actions (`validateChooseElement`, `validateSetVector`, `applyChooseElement` exist in `linearMapModel.ts` but `applyLinearMapAction` has no case; a lesson `set-mode composition` does not add the default R and F that the UI mode switch adds): the F3 slice must wire them in the shared `LessonAction` union and either set elements explicitly or share the default.
+- Linear-maps composition mode: labels at 390 px still sit on markers (the placer's relaxed fallback ignores points); edits made in Presentation mode read back as the entry values after exit (seen in L5; likely shared shell, unconfirmed); smoke did not repeat steps 3–5 values in English or 390 px in English. The eigen-directions and power-method cards are byte-identical images (both lessons open in the basis mode).
 - Phase portraits at 390 px: legend rows still cross tick numbers and the seed caption on the pendulum, weak spiral and lesson step 2; the logistic legend clips y numbers (`.command-logs/pp-b/layout-smoke/report.md`). Captions overlap the curves at both sizes (curves stay visible). PP1/PP3 cards hide y numbers under the stacks (by design).
 - Shared shell (not this stream's): Presentation mode does not contain focus (5 of 30 Tab presses reach `body`); after a live sl→en switch the "In this chapter" side list shows raw `\(…\)` titles. Report to the Learn shell owner or fix with agreement.
 - Phase portraits: PP1 step 7 / PP2 step 5 free steps and the self-check text not opened in a browser; PP1 step 6's point at t = 6,28 checked only against the closed form; Slovenian lesson and chapter text reviewed by Sonnet only; the PP3 card shows the lesson's first scene (the linear system), not a pendulum.
@@ -46,9 +50,8 @@ Handler 18 handed off on 2026-11-13 to handler 19. The worktree is on branch `wo
 
 ## Next
 
-1. Confirm the handoff docs publish and its CI run.
-2. **Linear-maps task 09 F3 (L5 composition and affine maps).** Slice 1: lesson actions for the composition mode (choose element, set B entries, set translation, set pivot; the shared `LessonAction` union in `src/learning/model.ts` and `applyLinearMapAction`), host test in one synchronous sequence, and a probe of every candidate opening (pattern: `.command-logs/pp-a/brief-s1.md`). Slice 2: L5 content (7 steps, spec line 124: R then F, predict whether order matters; RF ≠ FR; RF as a mirror line y = x; translation and pivot T(P) = c + A(P − c); the Bézier curve follows; link to the affine Demonstration naming its pivots (mean of control points for rotation/reflection, bounding-box centre for scale); free exploration). The mode shows the product readout at once (no view modes): use "predict the effect of a change, then make it" (`.command-logs/pp-a/brief-s2.md` and the recurring findings above). Then tests worker (two parts), reviewer, chapter join (linear-maps chapter, L5 section), smoke, card, F6 gate including `/bezier/affine` unchanged.
-3. Phase portraits 390 px layout (Owed) if the owner wants it before other families.
-4. F4 (chapter guided examples) per chapter once its F3 lessons exist.
+1. When elder identity handler 6 reports master green: publish the seven commits (In flight), watch the master run; mark task 09 hosted CI in `docs/tasks/linear-maps/09-batch-c.md`.
+2. Phase portraits 390 px layout and linear-maps 390 px labels (Owed) if the owner wants them before other families.
+3. F4 (chapter guided examples) per chapter once its F3 lessons exist; then the families' remaining batches per `docs/tasks/feature-streams/families-prep.md`.
 
 Rules to keep: at most two workers in the stream at once, and only one worker editing the tree at a time (a read-only reviewer and a smoke worker may run beside it); never edit shared host files (`BaseGraph.tsx`, `GraphSession.ts`, `src/inputs/`, the lesson runtime, `src/graphs/base/` apart from test lists). At handoff, launch the successor from this worktree with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium`, and pass this self-spawn rule on.
