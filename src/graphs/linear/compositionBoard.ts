@@ -29,7 +29,9 @@ export interface CompositionBoardContext {
     readonly markerSize: () => number;
     readonly fixedPointAttributes: object;
     readonly handleAttributes: object;
-    readonly pointLabel: (placement: LabelPlacement, distance: number, visible: () => boolean) => object;
+    /** The cell of a label by layout id, from the shared greedy placement. */
+    readonly placement: (id: string) => LabelPlacement;
+    readonly pointLabel: (placement: LabelPlacement | (() => LabelPlacement), distance: number, visible: () => boolean) => object;
     /** A drag of the pivot handle: snaps and stores the pivot, returns the stored point. */
     readonly dragPivot: (x: number, y: number) => Vec2 | undefined;
 }
@@ -64,20 +66,20 @@ export function createCompositionCurves(ctx: CompositionBoardContext): void {
 /** The control points of the two curves and the pivot handle; the handle is the one returned. */
 export function createCompositionPoints(ctx: CompositionBoardContext): JXG.Point {
     const {board} = ctx;
-    const controlPoint = (list: () => readonly Vec2[], i: number, color: string, name: string, placement: LabelPlacement) =>
+    // The cells come from the shared greedy placement (`labelLayout`), by id `p0`..`p3`, `t0`..`t3` and `c`.
+    const controlPoint = (list: () => readonly Vec2[], i: number, color: string, name: string, id: string) =>
         ctx.own(board.create('point', [() => list()[i][0], () => list()[i][1]], {
-            ...ctx.fixedPointAttributes, name, label: ctx.pointLabel(placement, 0.9, ctx.active), size: ctx.markerSize,
+            ...ctx.fixedPointAttributes, name, label: ctx.pointLabel(() => ctx.placement(id), 0.9, ctx.active), size: ctx.markerSize,
             fillColor: color, highlightFillColor: color, strokeColor: color, fixed: true, visible: ctx.active,
         }));
     for (let i = 0; i < 4; i++) {
-        controlPoint(() => ctx.view().source, i, COMPOSITION_COLORS.source, `$$P_${i}$$`, 'above-left');
-        // Below right, opposite the source labels: an image often lands on or next to a source point (the quarter turn about (3,1)).
-        controlPoint(() => ctx.view().image, i, COMPOSITION_COLORS.image, `$$T(P_${i})$$`, 'below-right');
+        controlPoint(() => ctx.view().source, i, COMPOSITION_COLORS.source, `$$P_${i}$$`, `p${i}`);
+        controlPoint(() => ctx.view().image, i, COMPOSITION_COLORS.image, `$$T(P_${i})$$`, `t${i}`);
     }
     const shown = () => ctx.active() && ctx.pivotSet();
     const pivot = ctx.view().pivot;
     const handle = ctx.own(board.create('point', [pivot[0], pivot[1]], {
-        ...ctx.handleAttributes, name: '$$c$$', label: ctx.pointLabel('below-left', 1.1, shown), size: ctx.markerSize,
+        ...ctx.handleAttributes, name: '$$c$$', label: ctx.pointLabel(() => ctx.placement('c'), 1.1, shown), size: ctx.markerSize,
         fillColor: COMPOSITION_COLORS.pivot, highlightFillColor: COMPOSITION_COLORS.pivot, visible: shown,
     })) as JXG.Point;
     handle.on('drag', () => {

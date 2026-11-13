@@ -1,8 +1,11 @@
 import {LINEAR_MAP_EXAMPLES, type Mat2} from '../../linear/matrix2';
+import {DEFAULT_LINEAR_MAP_STATE} from '../../linear/linearMapModel';
+import type {LabelPlacement} from '../functions/BaseFunctionGraph';
+import {compositionViewBox, deriveComposition} from './compositionScene';
 import {deriveEigen, eigenViewBox} from './eigenScene';
 import {deriveEllipse, ellipseViewBox} from './ellipseScene';
 import {
-    cellOrder, eigenLabelRequests, ellipseLabelRequests, labelRect, nameLength, placeLabels, tickRects, type LabelBoard, type LabelRequest, type Rect,
+    cellOrder, compositionLabelRequests, eigenLabelRequests, ellipseLabelRequests, labelRect, nameLength, placeLabels, tickRects, type LabelBoard, type LabelRequest, type Rect,
 } from './labelLayout';
 
 const N = LINEAR_MAP_EXAMPLES['non-symmetric'];
@@ -70,6 +73,41 @@ describe('the shared greedy label placement', () => {
         const request: LabelRequest = {id: 'a', anchor: [2, 0.05], name: '$$\\sigma_1$$', distance: 0.9};
         const cell = placeLabels([request], board).a;
         expect(ticks.some(tick => overlaps(labelRect(request, cell, board), tick))).toBe(false);
+    });
+
+    describe('composition mode, the quarter turn about (3, 1) (lesson L5 step 4)', () => {
+        const R = {kind: 'rotation', k: 6} as const;
+        const view = deriveComposition({...DEFAULT_LINEAR_MAP_STATE, mode: 'composition', element: R, pivot: [3, 1]});
+        const requests = compositionLabelRequests(view);
+        const rectsOf = (cells: Record<string, LabelPlacement>, board: LabelBoard) => requests.map(request => labelRect(request, cells[request.id], board));
+        const overlapCount = (rects: Rect[]) => rects.flatMap((rect, i) => rects.slice(0, i).filter(other => overlaps(rect, other))).length;
+
+        test('the requests come in priority order: c, then the images, then the sources', () => {
+            expect(requests.map(request => request.id)).toEqual(['c', 't0', 't1', 't2', 't3', 'p0', 'p1', 'p2', 'p3']);
+            expect(compositionLabelRequests(deriveComposition({...DEFAULT_LINEAR_MAP_STATE, mode: 'composition'})).map(request => request.id)[0]).toBe('t0');
+        });
+
+        test.each([[930, 450], [350, 300]])('the fixed cells of the old board overlap (the red case, %j px)', (w, h) => {
+            const board: LabelBoard = {box: compositionViewBox(view), widthPx: w, heightPx: h, fontSize: FONT};
+            const fixed: Record<string, LabelPlacement> = {c: 'below-left'};
+            for (let i = 0; i < 4; i++) { fixed[`p${i}`] = 'above-left'; fixed[`t${i}`] = 'below-right'; }
+            expect(overlapCount(rectsOf(fixed, board))).toBeGreaterThan(0);
+        });
+
+        // The last case is the graph at 390 px wide as measured in the browser (a 364 x 295 board, box fitted to equal axis units).
+        test.each([[930, 450, 1], [350, 300, 1], [1100, 700, 1], [364, 295, 0]])('the placed cells: no two of the nine labels overlap and none leaves the board (%j px)', (w, h, fit) => {
+            const box: [number, number, number, number] = fit ? compositionViewBox(view) : [-11.105, 9, 11.105, -9];
+            const board: LabelBoard = {box, widthPx: w, heightPx: h, fontSize: FONT};
+            const rects = rectsOf(placeLabels(requests, board), board);
+            expect(overlapCount(rects)).toBe(0);
+            const [l, t, r, b] = board.box;
+            rects.forEach(rect => {
+                expect(rect.left).toBeGreaterThanOrEqual(l);
+                expect(rect.right).toBeLessThanOrEqual(r);
+                expect(rect.bottom).toBeGreaterThanOrEqual(b);
+                expect(rect.top).toBeLessThanOrEqual(t);
+            });
+        });
     });
 
     test('helpers: the cell order starts at the first cell and visits all eight, and LaTeX names are measured without markup', () => {

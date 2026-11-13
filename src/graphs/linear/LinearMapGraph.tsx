@@ -44,7 +44,7 @@ import {EIGEN_PARALLEL_TOLERANCE} from "../../linear/eigen2";
 import {angleOfPoint, deriveEigen, eigenViewBox, EigenView, eigenSnapAngle, normalizeTestAngle, unitVector} from "./eigenScene";
 import {createEigenCurves, createEigenPoints, EIGEN_COLORS, EigenBoardContext} from "./eigenBoard";
 import {deriveEllipse, ellipseViewBox, EllipseView} from "./ellipseScene";
-import {eigenLabelRequests, ellipseLabelRequests, placeLabels} from "./labelLayout";
+import {compositionLabelRequests, eigenLabelRequests, ellipseLabelRequests, placeLabels} from "./labelLayout";
 import {createEllipseObjects, ELLIPSE_COLORS, EllipseBoardContext} from "./ellipseBoard";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
 import type {Preset} from "../base/presets/Presets";
@@ -221,15 +221,19 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
      */
     private labelCells(): Record<string, LabelPlacement> {
         const {mode, matrix} = this.model;
-        if (mode !== "eigen" && mode !== "ellipse") return {};
+        if (mode !== "eigen" && mode !== "ellipse" && mode !== "composition") return {};
         const box = this.board.getBoundingBox() as [number, number, number, number];
         const widthPx = this.board.canvasWidth || 700;
         const heightPx = this.board.canvasHeight || widthPx * (box[1] - box[3]) / (box[2] - box[0]);
         const fontSize = this.displaySettings.fontSize;
-        const key = JSON.stringify([mode, matrix, mode === "eigen" ? this.model.testAngle : this.model.conicVisible === true, box, widthPx, heightPx, fontSize]);
+        const composition = mode === "composition" ? this.compositionOf(this.model) : undefined;
+        const key = JSON.stringify(composition
+            ? [mode, composition.source, composition.image, composition.pivotSet ? composition.pivot : null, box, widthPx, heightPx, fontSize]
+            : [mode, matrix, mode === "eigen" ? this.model.testAngle : this.model.conicVisible === true, box, widthPx, heightPx, fontSize]);
         if (this.labelMemo?.key === key) return this.labelMemo.cells;
-        const requests = mode === "eigen" ? eigenLabelRequests(matrix, this.eigenOf(this.model))
-            : ellipseLabelRequests(matrix, this.ellipseOf(this.model), this.model.conicVisible === true);
+        const requests = composition ? compositionLabelRequests(composition)
+            : mode === "eigen" ? eigenLabelRequests(matrix, this.eigenOf(this.model))
+                : ellipseLabelRequests(matrix, this.ellipseOf(this.model), this.model.conicVisible === true);
         const cells = placeLabels(requests, {box, widthPx, heightPx, fontSize});
         this.labelMemo = {key, cells};
         return cells;
@@ -677,6 +681,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             board, own: object => this.own(object), active: () => model().mode === "composition", view: () => this.compositionOf(this.model),
             pivotSet: () => model().pivot !== undefined, strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
             handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
+            placement: id => this.labelCell(id, "above-left"),
             pointLabel: (placement, distance, shown) => this.pointLabel(placement, distance, shown),
             dragPivot: (x, y) => this.dragPivot(x, y),
         };

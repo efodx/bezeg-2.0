@@ -1,5 +1,6 @@
 import type {Mat2, Vec2} from '../../linear/matrix2';
 import type {LabelPlacement} from '../functions/BaseFunctionGraph';
+import type {CompositionView} from './compositionScene';
 import {outwardPlacement, type EigenView} from './eigenScene';
 import type {EllipseView, LabelledTip} from './ellipseScene';
 
@@ -178,6 +179,18 @@ export const eigenLabelRequests = (matrix: Mat2, eigen: EigenView): LabelRequest
     {id: 'v', anchor: eigen.v, name: '$$v$$', distance: 1.1},
     {id: 'av', anchor: eigen.av, name: '$$Av$$', distance: 0.9},
 ];
+
+/**
+ * The composition mode's labels in priority order: the pivot c (when stored), then the images T(P_i), then the sources P_i. The ids are
+ * `c`, `t0`..`t3` and `p0`..`p3`; the names are those of `compositionBoard`.
+ */
+export function compositionLabelRequests(view: CompositionView): LabelRequest[] {
+    const requests: LabelRequest[] = [];
+    if (view.pivotSet) requests.push({id: 'c', anchor: view.pivot, name: '$$c$$', distance: 1.1});
+    view.image.forEach((anchor, i) => requests.push({id: `t${i}`, anchor, name: `$$T(P_${i})$$`, distance: 0.9}));
+    view.source.forEach((anchor, i) => requests.push({id: `p${i}`, anchor, name: `$$P_${i}$$`, distance: 0.9}));
+    return requests;
+}
 
 /** The ellipse mode's labels in priority order: a1, a2, then sigma1, sigma2, then v1, v2, then the conic axes (drawn instead of them). */
 export function ellipseLabelRequests(matrix: Mat2, ellipse: EllipseView, conicVisible: boolean): LabelRequest[] {
