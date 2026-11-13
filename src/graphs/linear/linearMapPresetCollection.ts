@@ -26,7 +26,7 @@ export const linearMapPresetCollection: PresetCollection<LinearMapState> = Objec
     key: 'linear-map',
     /** The scene state mirrors the model, so its matrices are nested arrays; they are checked as Preset data by `check`. */
     checkGraphState(graphState: unknown): Message | undefined {
-        return checkSceneState(graphState, ['matrix', 'secondMatrix', 'start']);
+        return checkSceneState(graphState, ['matrix', 'secondMatrix', 'start', 'element', 'secondElement', 'translation', 'pivot']);
     },
     check(data: unknown): PresetDataCheck<LinearMapState> {
         const parsed = parseLinearMapState(data);

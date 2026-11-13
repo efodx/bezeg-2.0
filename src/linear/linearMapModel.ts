@@ -2,7 +2,7 @@ import {
     IDENTITY, isLinearMapExampleId, isMatrixEntry, LINEAR_MAP_EXAMPLE_IDS, LINEAR_MAP_EXAMPLES, LinearMapExampleId, Mat2,
     MATRIX_ENTRY_MAX, MATRIX_ENTRY_MIN, snapMatrixEntry, Vec2,
 } from './matrix2';
-import {isElementIndex, MapElement} from './composition2';
+import {ElementKind, isElementIndex, MapElement} from './composition2';
 
 /**
  * Stored state of the linear maps graph (docs/adr/0025-linear-map-graph-and-snapped-matrices.md, sections 1 and 2). Pure
@@ -376,3 +376,141 @@ export const applyStep = (state: LinearMapState, payload: StepPayload): LinearMa
 
 /** Snaps a typed or dragged start coordinate like a matrix entry (nearest quarter, clamped). */
 export const snapStartInput = (input: number, field = 'start'): LinearMapResult<SnappedEntry> => snapEntryInput(input, field);
+
+// ---- Batch C: the composition mode (slots A and B, elements, translation, pivot) ----
+
+/** The two matrices of a composition: A is applied first, B second. */
+export type CompositionSlot = 'first' | 'second';
+export type SlotSource = 'free' | ElementKind;
+
+/** The composition defaults of the lesson example (spec L5): A is the quarter turn R, B the reflection F in the x-axis; no translation, pivot at the origin. */
+export const DEFAULT_FIRST_ELEMENT: MapElement = {kind: 'rotation', k: 6};
+export const DEFAULT_SECOND_ELEMENT: MapElement = {kind: 'reflection', k: 0};
+
+/** Whether the state stores anything of the composition mode (then entering the mode keeps it as it is). */
+export const hasCompositionFields = (state: LinearMapState): boolean =>
+    state.element !== undefined || state.secondElement !== undefined || state.secondMatrix !== undefined
+    || state.translation !== undefined || state.pivot !== undefined;
+
+/** The composition defaults: the two elements of the spec example, no free second matrix, no translation, no pivot. The other fields stay. */
+export function compositionDefaults(state: LinearMapState): LinearMapState {
+    const {secondMatrix: _second, translation: _translation, pivot: _pivot, ...rest} = state;
+    // The free entries of slot A are the matrix the other modes share: Reset here leaves them (and the example) to those modes.
+    return {...rest, element: DEFAULT_FIRST_ELEMENT, secondElement: DEFAULT_SECOND_ELEMENT};
+}
+
+/** True when the state is the composition defaults (the Reset button is then unavailable). */
+export function isCompositionDefault(state: LinearMapState): boolean {
+    return state.element?.kind === DEFAULT_FIRST_ELEMENT.kind && state.element.k === DEFAULT_FIRST_ELEMENT.k
+        && state.secondElement?.kind === DEFAULT_SECOND_ELEMENT.kind && state.secondElement.k === DEFAULT_SECOND_ELEMENT.k
+        && state.secondMatrix === undefined && state.translation === undefined && state.pivot === undefined;
+}
+
+export const elementOf = (state: Pick<LinearMapState, 'element' | 'secondElement'>, slot: CompositionSlot): MapElement | undefined =>
+    slot === 'first' ? state.element : state.secondElement;
+
+/** The free entries a slot stores: the second slot's are the identity until edited. */
+export const freeEntriesOf = (state: Pick<LinearMapState, 'matrix' | 'secondMatrix'>, slot: CompositionSlot): Mat2 =>
+    slot === 'first' ? state.matrix : state.secondMatrix ?? IDENTITY;
+
+/** The source of a slot: its element's kind, or `free` entries. */
+export const sourceOf = (state: Pick<LinearMapState, 'element' | 'secondElement'>, slot: CompositionSlot): SlotSource =>
+    elementOf(state, slot)?.kind ?? 'free';
+
+function withElement(state: LinearMapState, slot: CompositionSlot, element: MapElement | undefined): LinearMapState {
+    if (slot === 'first') {
+        const {element: _old, ...rest} = state;
+        return element ? {...rest, element} : rest;
+    }
+    const {secondElement: _old, ...rest} = state;
+    return element ? {...rest, secondElement: element} : rest;
+}
+
+/**
+ * Chooses the rotation or reflection of a slot (a validated element), or clears it (`undefined`) so the stored free entries apply
+ * again. The stored entries are kept either way.
+ */
+export function chooseElement(state: LinearMapState, slot: CompositionSlot, element: MapElement | undefined): LinearMapResult<LinearMapState> {
+    if (element === undefined) return ok(withElement(state, slot, undefined));
+    const parsed = parseElement(element, slot === 'first' ? 'element' : 'secondElement');
+    if (!parsed.ok) return parsed;
+    return ok(withElement(state, slot, parsed.value));
+}
+
+/** Changes the source of a slot from the chooser: a kind keeps the angle index of the current element, else starts at 0. */
+export function setSlotSource(state: LinearMapState, slot: CompositionSlot, source: SlotSource): LinearMapState {
+    if (source === 'free') return withElement(state, slot, undefined);
+    return withElement(state, slot, {kind: source, k: elementOf(state, slot)?.k ?? 0});
+}
+
+/** The angle index k (0..23) of the chosen element of a slot; refused when the slot has no element or k is not an index. */
+export function setElementIndex(state: LinearMapState, slot: CompositionSlot, k: number): LinearMapResult<LinearMapState> {
+    const element = elementOf(state, slot);
+    if (!element) return fail(slot === 'first' ? 'element' : 'secondElement', 'not-an-element', 'The slot has no chosen element.');
+    return chooseElement(state, slot, {kind: element.kind, k});
+}
+
+/** Edits one free entry of a slot from UI input (snaps, reports clamping). The first slot also sets `exampleId` to `custom`. */
+export function editSlotEntry(
+    state: LinearMapState, slot: CompositionSlot, row: 0 | 1, column: 0 | 1, input: number,
+): LinearMapResult<{readonly state: LinearMapState; readonly clamped: boolean; readonly adjusted: boolean}> {
+    const base = slot === 'first' ? state : {...state, secondMatrix: state.secondMatrix ?? IDENTITY};
+    return editMatrixEntry(base, slot === 'first' ? 'matrix' : 'secondMatrix', row, column, input);
+}
+
+export type VectorField = 'translation' | 'pivot';
+
+/**
+ * Sets one coordinate of the translation or the pivot from UI input: snapped to the quarter grid, clamped to [-4, 4]. A pivot that is
+ * not yet stored starts at the origin; a translation at (0, 0).
+ */
+export function editVectorCoordinate(
+    state: LinearMapState, field: VectorField, axis: 0 | 1, input: number,
+): LinearMapResult<{readonly state: LinearMapState; readonly clamped: boolean; readonly adjusted: boolean}> {
+    const snapped = snapEntryInput(input, `${field}[${axis}]`);
+    if (!snapped.ok) return snapped;
+    const current: Vec2 = state[field] ?? [0, 0];
+    const next: Vec2 = axis === 0 ? [snapped.value.value, current[1]] : [current[0], snapped.value.value];
+    return ok({state: {...state, [field]: next}, clamped: snapped.value.clamped, adjusted: snapped.value.adjusted});
+}
+
+/** Both coordinates in one write (a drag of the pivot handle). */
+export function setVectorField(state: LinearMapState, field: VectorField, value: Vec2): LinearMapResult<LinearMapState> {
+    const x = snapEntryInput(value[0], `${field}[0]`);
+    if (!x.ok) return x;
+    const y = snapEntryInput(value[1], `${field}[1]`);
+    if (!y.ok) return y;
+    return ok({...state, [field]: [x.value.value, y.value.value] as Vec2});
+}
+
+/** Turns the pivot on (at the origin, or where it was) or off (the field is dropped and the origin applies). */
+export function setPivotUsed(state: LinearMapState, used: boolean): LinearMapState {
+    if (used) return state.pivot ? state : {...state, pivot: [0, 0]};
+    const {pivot: _pivot, ...rest} = state;
+    return rest;
+}
+
+export interface ChooseElementPayload {readonly slot: CompositionSlot; readonly element?: MapElement}
+export interface SetVectorPayload {readonly value: Vec2}
+
+/** `{slot, element?}`; scene data is strict: the element is validated, never snapped. A missing or null element clears the choice. */
+export function validateChooseElement(payload: unknown): LinearMapResult<ChooseElementPayload> {
+    if (!isRecord(payload)) return fail('payload', 'not-an-object', 'choose-element needs an object payload.');
+    if (payload.slot !== 'first' && payload.slot !== 'second') return fail('slot', 'unknown-value', "slot must be 'first' or 'second'.");
+    if (payload.element === undefined || payload.element === null) return ok({slot: payload.slot});
+    const element = parseElement(payload.element, 'element');
+    if (!element.ok) return element;
+    return ok({slot: payload.slot, element: element.value});
+}
+export const applyChooseElement = (state: LinearMapState, payload: ChooseElementPayload): LinearMapState =>
+    withElement(state, payload.slot, payload.element);
+
+/** `{translation}` or `{pivot}` (the field name selects the parser): two grid coordinates, strict. */
+export function validateSetVector(payload: unknown, field: VectorField): LinearMapResult<SetVectorPayload> {
+    if (!isRecord(payload)) return fail('payload', 'not-an-object', `set-${field} needs an object payload.`);
+    const parsed = parseStart(payload[field], field);
+    if (!parsed.ok) return parsed;
+    return ok({value: parsed.value});
+}
+export const applySetVector = (state: LinearMapState, field: VectorField, payload: SetVectorPayload): LinearMapState =>
+    ({...state, [field]: payload.value});

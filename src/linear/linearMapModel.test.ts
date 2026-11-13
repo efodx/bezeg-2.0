@@ -5,6 +5,8 @@ import {
     editMatrixEntry, ITERATE_STEP_MAX, startOf, stepOf, validateSetStart, validateStep,
     LinearMapState, parseLinearMapState, selectExample, serializeLinearMapState, snapEntryInput, validateSetExample,
     validateSetMatrix, validateSetMode, validateSetTestVector,
+    applyChooseElement, applySetVector, chooseElement, compositionDefaults, editSlotEntry, editVectorCoordinate, hasCompositionFields,
+    isCompositionDefault, setElementIndex, setPivotUsed, setSlotSource, setVectorField, validateChooseElement, validateSetVector,
 } from './linearMapModel';
 
 const valid = () => JSON.parse(JSON.stringify(serializeLinearMapState({
@@ -309,5 +311,92 @@ describe('Batch C: composition elements, translation and pivot', () => {
         expect(errorOf(stored({translation: [0.3, 0]})).field).toBe('translation[0]');
         expect(errorOf(stored({pivot: [0, 5]})).field).toBe('pivot[1]');
         expect(errorOf(stored({pivot: [1]})).field).toBe('pivot');
+    });
+});
+
+describe('Batch C slice 2: the composition editing helpers', () => {
+    const base = DEFAULT_LINEAR_MAP_STATE;
+    const must = <T,>(r: {ok: true; value: T} | {ok: false}): T => { if (!r.ok) throw new Error('expected ok'); return r.value; };
+
+    it('the defaults are R then F, recognised by isCompositionDefault; any change clears it', () => {
+        const d = compositionDefaults({...base, mode: 'composition', pivot: [1, 1], translation: [1, 0], secondMatrix: [[2, 0], [0, 2]]});
+        expect(d).toMatchObject({mode: 'composition', element: {kind: 'rotation', k: 6}, secondElement: {kind: 'reflection', k: 0}, exampleId: 'identity'});
+        expect(d).not.toHaveProperty('pivot');
+        expect(d).not.toHaveProperty('translation');
+        expect(d).not.toHaveProperty('secondMatrix');
+        expect(isCompositionDefault(d)).toBe(true);
+        expect(isCompositionDefault({...d, pivot: [0, 0]})).toBe(false);
+        expect(isCompositionDefault({...d, translation: [0, 0]})).toBe(false);
+        expect(isCompositionDefault({...d, element: {kind: 'rotation', k: 7}})).toBe(false);
+        // The shared matrix belongs to the other modes: Reset keeps it, and it does not count against the defaults.
+        expect(isCompositionDefault({...d, matrix: [[2, 0], [0, 1]]})).toBe(true);
+        expect(compositionDefaults({...base, mode: 'composition', matrix: [[2, 0], [0, 1]], exampleId: 'custom'}))
+            .toMatchObject({matrix: [[2, 0], [0, 1]], exampleId: 'custom'});
+        expect(isCompositionDefault(base)).toBe(false);
+        expect(hasCompositionFields(base)).toBe(false);
+        expect(hasCompositionFields(d)).toBe(true);
+    });
+
+    it('chooses, clears and re-indexes an element; the stored entries stay', () => {
+        const withMatrix: LinearMapState = {...base, matrix: [[2, 0], [0, 1]]};
+        const chosen = must(chooseElement(withMatrix, 'first', {kind: 'reflection', k: 3}));
+        expect(chosen.element).toEqual({kind: 'reflection', k: 3});
+        expect(chosen.matrix).toEqual([[2, 0], [0, 1]]);
+        expect(must(chooseElement(chosen, 'first', undefined))).not.toHaveProperty('element');
+        expect(must(chooseElement(chosen, 'second', {kind: 'rotation', k: 1})).secondElement).toEqual({kind: 'rotation', k: 1});
+        expect(chooseElement(chosen, 'first', {kind: 'rotation', k: 24} as never).ok).toBe(false);
+        expect(setElementIndex(chosen, 'first', 5).ok && must(setElementIndex(chosen, 'first', 5)).element).toEqual({kind: 'reflection', k: 5});
+        expect(setElementIndex(chosen, 'first', 24).ok).toBe(false);
+        expect(setElementIndex(withMatrix, 'first', 1).ok).toBe(false);
+        expect(setSlotSource(chosen, 'first', 'rotation').element).toEqual({kind: 'rotation', k: 3});
+        expect(setSlotSource(withMatrix, 'second', 'reflection').secondElement).toEqual({kind: 'reflection', k: 0});
+        expect(setSlotSource(chosen, 'first', 'free')).not.toHaveProperty('element');
+    });
+
+    it('edits slot entries (snapping) and vector coordinates (snapping, clamping)', () => {
+        const second = must(editSlotEntry(base, 'second', 0, 1, 0.3));
+        expect(second.state.secondMatrix).toEqual([[1, 0.25], [0, 1]]);
+        expect(second.adjusted).toBe(true);
+        expect(second.state.matrix).toEqual(base.matrix);
+        const first = must(editSlotEntry(base, 'first', 1, 0, 2));
+        expect(first.state.matrix).toEqual([[1, 0], [2, 1]]);
+        expect(first.state.exampleId).toBe('custom');
+        const pivot = must(editVectorCoordinate(base, 'pivot', 0, 9));
+        expect(pivot.state.pivot).toEqual([4, 0]);
+        expect(pivot.clamped).toBe(true);
+        const moved = must(editVectorCoordinate(pivot.state, 'pivot', 1, -1.1));
+        expect(moved.state.pivot).toEqual([4, -1]);
+        expect(must(editVectorCoordinate(base, 'translation', 1, 2)).state.translation).toEqual([0, 2]);
+        expect(editVectorCoordinate(base, 'translation', 0, Number.NaN).ok).toBe(false);
+        expect(must(setVectorField(base, 'pivot', [3, 1])).pivot).toEqual([3, 1]);
+        expect(setVectorField(base, 'pivot', [Number.NaN, 1]).ok).toBe(false);
+    });
+
+    it('turns the pivot on at the origin and off again, keeping a stored pivot', () => {
+        const on = setPivotUsed(base, true);
+        expect(on.pivot).toEqual([0, 0]);
+        const moved = {...on, pivot: [3, 1] as [number, number]};
+        expect(setPivotUsed(moved, true).pivot).toEqual([3, 1]);
+        expect(setPivotUsed(moved, false)).not.toHaveProperty('pivot');
+    });
+
+    it('the scene validators refuse bad payloads and the apply functions write the validated ones', () => {
+        expect(validateChooseElement(null).ok).toBe(false);
+        expect(validateChooseElement({slot: 'third'}).ok).toBe(false);
+        expect(validateChooseElement({slot: 'first', element: {kind: 'rotation', k: 24}}).ok).toBe(false);
+        expect(validateChooseElement({slot: 'first', element: {kind: 'shear', k: 1}}).ok).toBe(false);
+        expect(validateChooseElement({slot: 'first', element: 3}).ok).toBe(false);
+        const cleared = must(validateChooseElement({slot: 'second', element: null}));
+        expect(cleared).toEqual({slot: 'second'});
+        const kept = {...base, secondElement: {kind: 'rotation', k: 2} as const};
+        expect(applyChooseElement(kept, cleared)).not.toHaveProperty('secondElement');
+        const chosen = must(validateChooseElement({slot: 'first', element: {kind: 'reflection', k: 4}}));
+        expect(applyChooseElement(base, chosen).element).toEqual({kind: 'reflection', k: 4});
+        expect(validateSetVector(undefined, 'pivot').ok).toBe(false);
+        expect(validateSetVector({pivot: [0.3, 0]}, 'pivot').ok).toBe(false);
+        expect(validateSetVector({pivot: [5, 0]}, 'pivot').ok).toBe(false);
+        expect(validateSetVector({translation: [1, 0]}, 'pivot').ok).toBe(false);
+        const vector = must(validateSetVector({translation: [1.25, -4]}, 'translation'));
+        expect(applySetVector(base, 'translation', vector).translation).toEqual([1.25, -4]);
     });
 });

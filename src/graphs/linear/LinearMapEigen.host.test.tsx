@@ -122,7 +122,7 @@ describe('the eigen mode is selectable and drawn', () => {
         const options = [...(screen.getByLabelText(t('linear_map_mode_label')) as HTMLSelectElement).options].map(option => option.value);
         expect(options).toContain('eigen');
         expect(options).toContain('ellipse');
-        expect(options).not.toContain('composition');
+        expect(options).toContain('composition');
         expect(snapButton()).toBeNull();
         selectMode('eigen');
         expect(graph.modelNow().mode).toBe('eigen');
@@ -130,10 +130,10 @@ describe('the eigen mode is selectable and drawn', () => {
         expect(screen.getByRole('slider', {name: new RegExp(t('linear_map_test_angle_label'))})).toBeDefined();
         expect('data' in linearMapPresetCollection.check({...DEFAULT_LINEAR_MAP_STATE, mode: 'eigen'})).toBe(true);
         expect('data' in linearMapPresetCollection.check({...DEFAULT_LINEAR_MAP_STATE, mode: 'ellipse'})).toBe(true);
-        expect('rejection' in linearMapPresetCollection.check({...DEFAULT_LINEAR_MAP_STATE, mode: 'composition'})).toBe(true);
+        expect('rejection' in linearMapPresetCollection.check({...DEFAULT_LINEAR_MAP_STATE, mode: 'spiral'})).toBe(true);
         expect(() => graph.act({kind: 'linear-map', operation: 'set-mode', mode: 'ellipse'})).not.toThrow();
         graph.act({kind: 'linear-map', operation: 'set-mode', mode: 'eigen'});
-        expect(() => graph.act({kind: 'linear-map', operation: 'set-mode', mode: 'composition'})).toThrow(/mode/);
+        expect(() => graph.act({kind: 'linear-map', operation: 'set-mode', mode: 'spiral'})).toThrow(/mode/);
     });
 
     test('the example chooser offers E, R, S, C and 2I', () => {

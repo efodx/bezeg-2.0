@@ -18,10 +18,16 @@ import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotio
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {
-    applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applyStep, changeMode, DEFAULT_LINEAR_MAP_STATE, editMatrixEntry,
-    ITERATE_STEP_MAX, LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample, serializeLinearMapState, snapEntryInput, snapStartInput,
-    startOf, stepOf, validateSetExample, validateSetMatrix, validateSetMode, validateSetStart, validateSetTestVector, validateStep,
+    applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applyStep, changeMode, CompositionSlot, compositionDefaults,
+    DEFAULT_FIRST_ELEMENT, DEFAULT_LINEAR_MAP_STATE, DEFAULT_SECOND_ELEMENT, editMatrixEntry, editSlotEntry, editVectorCoordinate, elementOf, freeEntriesOf,
+    hasCompositionFields, isCompositionDefault, ITERATE_STEP_MAX, LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample,
+    serializeLinearMapState, setElementIndex, setPivotUsed, setSlotSource, setVectorField, SlotSource, snapEntryInput, snapStartInput, sourceOf,
+    startOf, stepOf, validateSetExample, validateSetMatrix, validateSetMode, validateSetStart, validateSetTestVector, validateStep, VectorField,
 } from "../../linear/linearMapModel";
+import {ELEMENT_COUNT, ELEMENT_STEP_DEGREES, MapElement} from "../../linear/composition2";
+import {CompositionView, compositionViewBox, deriveComposition, isExactMatrix} from "./compositionScene";
+import {COMPOSITION_COLORS, CompositionBoardContext, createCompositionCurves, createCompositionPoints} from "./compositionBoard";
+import Slider from "../../inputs/Slider";
 import {
     companionOfDrag, deriveIteration, deriveTraceDet, estimatesDominant, iterateAt, IterationView, SETTLED_ANGLE_DEGREES, TRACE_DET_DRAG_LIMIT, TRACE_DET_VIEW, TraceDetView,
 } from "./iterationScene";
@@ -67,7 +73,7 @@ type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse
     | "td-inside" | "td-edge" | "td-outside" | "flow-stable" | "flow-unstable" | "companion" | "td-range"
     | "eigen-approx-parallel" | "eigen-exact-parallel" | "eigen-not-parallel" | "eigen-two" | "eigen-one" | "eigen-all" | "eigen-none" | "eigen-kernel" | "eigen-v-kernel"
     | "ellipse-symmetric" | "ellipse-nonsymmetric" | "ellipse-segment" | "ellipse-point" | "ellipse-circle" | "ellipse-no-lines"
-    | "conic-ellipse" | "conic-hyperbola" | "conic-lines" | "conic-empty";
+    | "conic-ellipse" | "conic-hyperbola" | "conic-lines" | "conic-empty" | "composition-view";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -119,7 +125,9 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     protected startHandle?: JXG.Point;
     protected traceDetHandle?: JXG.Point;
     protected eigenTip?: JXG.Point;
+    protected pivotHandle?: JXG.Point;
     private notice?: EntryNotice;
+    private compositionMemo?: { model: LinearMapState; view: CompositionView };
     private readonly uid = nextInstance++;
     /** The matrix a drag of the (tau, delta) handle produced; while it is the stored matrix, the companion status is stated. */
     private companionMatrix?: Mat2;
@@ -151,6 +159,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             const {width, height} = this.board ? JXG.getDimensions(this.board.container, document) : {width: 0, height: 0};
             return ellipseViewBox(this.model.matrix, this.model.conicVisible === true, parseFloat(String(width)), parseFloat(String(height)));
         }
+        if (this.model.mode === "composition") return compositionViewBox(this.compositionOf(this.model));
         return [...(this.model.mode === "tracedet" ? TRACE_DET_VIEW : BOARD_VIEW)];
     }
 
@@ -237,6 +246,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     private eigenOf(model: LinearMapState): EigenView {
         if (this.eigenMemo?.model !== model) this.eigenMemo = {model, view: deriveEigen(model.matrix, model.testAngle)};
         return this.eigenMemo.view;
+    }
+
+    private compositionOf(model: LinearMapState): CompositionView {
+        if (this.compositionMemo?.model !== model) this.compositionMemo = {model, view: deriveComposition(model)};
+        return this.compositionMemo.view;
     }
 
     private ellipseOf(model: LinearMapState): EllipseView {
@@ -438,7 +452,67 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     protected setMode(mode: string): void {
         if (!isLinearMapGraphMode(mode)) throw new DomainError(`The mode ${mode} is unknown.`);
-        this.commitModel(changeMode(this.model, mode));
+        // Entering the composition mode with nothing stored for it shows the lesson example (A the quarter turn, B the reflection in the
+        // x-axis); the matrix and every other mode's fields stay, so leaving the mode shows the earlier state again.
+        const entered = mode === "composition" && !hasCompositionFields(this.model)
+            ? {...this.model, element: DEFAULT_FIRST_ELEMENT, secondElement: DEFAULT_SECOND_ELEMENT} : this.model;
+        this.commitModel(changeMode(entered, mode));
+    }
+
+    // ---- Composition mode (Batch C) ---------------------------------------------------------------------------------
+
+    private unwrapResult<P>(result: LinearMapResult<P>): P {
+        if (!result.ok) throw new DomainError(`${result.error.field}: ${result.error.message}`);
+        return result.value;
+    }
+
+    /** The chooser of a slot: free entries, a rotation or a reflection (the angle index of the current element is kept). */
+    protected setSource(slot: CompositionSlot, source: SlotSource): void {
+        if (sourceOf(this.model, slot) === source) return;
+        this.commitModel(setSlotSource(this.model, slot, source));
+    }
+
+    protected setAngleIndex(slot: CompositionSlot, k: number): void {
+        if (!Number.isInteger(k)) throw new DomainError("The angle index must be a whole number.");
+        const current = elementOf(this.model, slot);
+        if (current?.k === k) return;
+        this.commitModel(this.unwrapResult(setElementIndex(this.model, slot, k)));
+    }
+
+    /** One free entry of a slot from typed input; returns false (the field says why) unless the value is on the grid inside [-4, 4]. */
+    protected setSlotEntryFromInput(slot: CompositionSlot, row: Row, column: Column, input: number): boolean {
+        const edited = editSlotEntry(this.model, slot, row, column, input);
+        if (!edited.ok) throw new DomainError(edited.error.message);
+        if (edited.value.adjusted) return false;
+        this.notice = undefined;
+        this.commitModel(edited.value.state);
+        return true;
+    }
+
+    /** One coordinate of the translation or the pivot from typed input; refused unless on the grid inside [-4, 4]. */
+    protected setVectorFromInput(field: VectorField, axis: 0 | 1, input: number): boolean {
+        const edited = editVectorCoordinate(this.model, field, axis, input);
+        if (!edited.ok) throw new DomainError(edited.error.message);
+        if (edited.value.adjusted) return false;
+        this.commitModel(edited.value.state);
+        return true;
+    }
+
+    /** A drag of the pivot handle: snapped to the quarter grid inside [-4, 4]; returns the stored point. */
+    protected dragPivot(x: number, y: number): Vec2 | undefined {
+        const next = this.unwrapResult(setVectorField(this.model, "pivot", [x, y]));
+        if (next.pivot && (next.pivot[0] !== this.model.pivot?.[0] || next.pivot[1] !== this.model.pivot?.[1])) this.commitModel(next, {syncScene: false});
+        return next.pivot;
+    }
+
+    protected setPivotOn(used: boolean): void {
+        if ((this.model.pivot !== undefined) !== used) this.commitModel(setPivotUsed(this.model, used));
+    }
+
+    /** Reset of the composition mode: the lesson example. */
+    protected resetComposition(): void {
+        this.notice = undefined;
+        this.commitModel(compositionDefaults(this.model));
     }
 
     protected setToggle(field: "probeVisible" | "curveVisible" | "squareVisible" | "conicVisible", visible: boolean): void {
@@ -540,6 +614,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             case "determinant": return t("linear_map_mode_determinant");
             case "eigen": return t("linear_map_mode_eigen");
             case "ellipse": return t("linear_map_mode_ellipse");
+            case "composition": return t("linear_map_mode_composition");
             case "iterate": return t("linear_map_mode_iterate");
             case "tracedet": return t("linear_map_mode_tracedet");
         }
@@ -564,6 +639,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const curveShown = () => basisLike() && model().curveVisible;
         const probeShown = () => basisLike() && model().probeVisible;
         const gridsShown = () => model().mode !== "tracedet";
+        // The composition mode draws its own images of the grid and takes the place of the basis handles.
+        const basisPlane = () => gridsShown() && model().mode !== "composition";
         const colors = {...LINEAR_MAP_COLORS, polygon: GraphPalette.controlPolygon};
 
         // A curve whose points come from a function; NaN entries break the polyline (grid), finite everywhere else.
@@ -580,7 +657,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
         // Layers, lowest first: the source grid, the image grid (one curve), the square, the Bezier curves and polygons, the points.
         polyline(() => SOURCE_GRID, {strokeColor: colors.sourceGrid, strokeOpacity: 0.72, strokeWidth: thin, visible: gridsShown});
-        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin, visible: gridsShown});
+        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin, visible: basisPlane});
 
         // The Batch D layers sit above the grids and below the square, the curves and the basis handles.
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
@@ -596,6 +673,14 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             },
         };
         createIterationCurves(iterationContext);
+        const compositionContext: CompositionBoardContext = {
+            board, own: object => this.own(object), active: () => model().mode === "composition", view: () => this.compositionOf(this.model),
+            pivotSet: () => model().pivot !== undefined, strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
+            handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
+            pointLabel: (placement, distance, shown) => this.pointLabel(placement, distance, shown),
+            dragPivot: (x, y) => this.dragPivot(x, y),
+        };
+        createCompositionCurves(compositionContext);
         const eigenContext: EigenBoardContext = {
             board, own: object => this.own(object), active: () => model().mode === "eigen",
             vPlacement: () => this.labelCell("v", "above-right"), avPlacement: () => this.labelCell("av", "above-right"),
@@ -656,9 +741,9 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const handle = (column: Column, name: string, placement: LabelPlacement | (() => LabelPlacement), color: string) => {
             const m = this.model.matrix;
             const point = this.own(board.create("point", [m[0][column], m[1][column]], {
-                ...this.styles.point.default, name, label: this.pointLabel(placement, 1.1, gridsShown), size: markerSize,
+                ...this.styles.point.default, name, label: this.pointLabel(placement, 1.1, basisPlane), size: markerSize,
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
-                visible: gridsShown,
+                visible: basisPlane,
             })) as JXG.Point;
             point.on("drag", () => {
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;
@@ -679,10 +764,12 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.eigenTip = createEigenPoints(eigenContext);
         // After the handles, so the first board points stay the grids' and the handles' (the ellipse draws only in its mode).
         createEllipseObjects(ellipseContext);
+        this.pivotHandle = createCompositionPoints(compositionContext);
+        this.pivotHandle.on("up", () => this.refitView());
 
         // The basis images and the determinant stay on the board; the narrow board drops the orientation line.
         this.caption("bottom-left", [
-            {text: () => t("linear_map_board_columns", {value0: this.vector(view().a1), value1: this.vector(view().a2)}), scale: 1.1, math: true, visible: gridsShown},
+            {text: () => t("linear_map_board_columns", {value0: this.vector(view().a1), value1: this.vector(view().a2)}), scale: 1.1, math: true, visible: basisPlane},
             {
                 text: () => {
                     const at = iterateAt(this.iterationOf(this.model), this.model.matrix, stepOf(this.model));
@@ -696,6 +783,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     return t("linear_map_board_trace_det", {value0: this.num(td.tau, 4), value1: this.num(td.delta, 4)});
                 },
                 scale: 1.1, math: true, visible: () => model().mode === "tracedet",
+            },
+            {
+                text: () => t("linear_map_board_composition", {value0: this.num(this.compositionOf(this.model).determinant, 4)}),
+                scale: 1.1, math: true, visible: () => model().mode === "composition",
             },
             {text: () => t("linear_map_board_det", {value0: this.num(view().determinant, 4)}), visible: () => model().mode === "determinant", math: true},
             {
@@ -715,11 +806,14 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.traceDetHandle?.moveTo([td.tau, td.delta]);
         const tip = unitVector(this.model.testAngle);
         this.eigenTip?.moveTo([tip[0], tip[1]]);
+        const pivot = this.model.pivot;
+        if (pivot) this.pivotHandle?.moveTo([pivot[0], pivot[1]]);
         this.refitView();
     }
 
     private viewKey(): string {
         const mode = this.model.mode as LinearMapGraphMode;
+        if (mode === "composition") return `composition:${this.compositionOf(this.model).viewScale}`;
         if (mode === "ellipse") return `ellipse:${JSON.stringify(this.model.matrix)}:${this.model.conicVisible === true}`;
         return mode === "eigen" ? `eigen:${JSON.stringify(this.model.matrix)}` : planeOf(mode);
     }
@@ -738,6 +832,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.startHandle = undefined;
         this.traceDetHandle = undefined;
         this.eigenTip = undefined;
+        this.pivotHandle = undefined;
+        this.compositionMemo = undefined;
         this.eigenMemo = undefined;
         this.ellipseMemo = undefined;
         this.labelMemo = undefined;
@@ -761,6 +857,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         );
         const notice = this.notice;
         const iterating = state.mode === "iterate";
+        const composing = state.mode === "composition";
         const eigenMode = state.mode === "eigen";
         const ellipseMode = state.mode === "ellipse";
         const eigen = this.eigenOf(state);
@@ -783,14 +880,15 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         );
         return <>
             <div className="inspector-group">
-                <ChoiceSelect label={t("linear_map_example_label")} value={state.exampleId} help={t("linear_map_example_help")}
+                {!composing && <ChoiceSelect label={t("linear_map_example_label")} value={state.exampleId} help={t("linear_map_example_help")}
                               options={exampleOptions.map(id => ({value: id, text: this.exampleLabel(id)}))}
-                              onChange={next => this.ignoreOutOfDomain(() => { if (next !== "custom") this.setExample(next); })}/>
+                              onChange={next => this.ignoreOutOfDomain(() => { if (next !== "custom") this.setExample(next); })}/>}
                 <ChoiceSelect label={t("linear_map_mode_label")} value={state.mode}
                               options={LINEAR_MAP_GRAPH_MODES.map(mode => ({value: mode, text: this.modeLabel(mode)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setMode(next))}/>
             </div>
-            <div className="inspector-group">
+            {composing && this.compositionControls(state)}
+            {!composing && <div className="inspector-group">
                 <div className="function-points-grid">
                     {entry(0, 0)}
                     {entry(1, 0)}
@@ -811,7 +909,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {basisLike && toggle("probeVisible", t("linear_map_toggle_probe"))}
                 {basisLike && toggle("curveVisible", t("linear_map_toggle_curve"))}
                 {!basisLike && <p className="inspector-help" data-linear-map-toggles-hidden="">{t("linear_map_toggles_hidden")}</p>}
-            </div>
+            </div>}
             {eigenMode && <div className="inspector-group">
                 <p className="inspector-help" data-linear-map-eigen-gloss="">{t("linear_map_note_eigen", {value0: this.num(EIGEN_PARALLEL_TOLERANCE, 2)})}</p>
                 <AngleSlider customText={t("linear_map_test_angle_label")} value={state.testAngle}
@@ -846,6 +944,91 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         </>;
     }
 
+    /** Runs a typed-input action and tells the field whether the model accepted the value (false makes the field explain the refusal). */
+    private accepted(action: () => boolean): boolean {
+        let result = false;
+        this.ignoreOutOfDomain(() => { result = action(); });
+        return result;
+    }
+
+    /** The inspector of the composition mode: the two maps, the translation, the pivot, and Reset. Every control has a visible label and help. */
+    private compositionControls(state: LinearMapState): React.ReactNode {
+        const gridProps = {grid: MATRIX_ENTRY_STEP, min: -4, max: 4, step: MATRIX_ENTRY_STEP, decimals: 2, rejectedHint: t("linear_map_start_rejected")};
+        const slotGroup = (slot: CompositionSlot, name: "A" | "B") => {
+            const source = sourceOf(state, slot);
+            const element = elementOf(state, slot);
+            const entries = freeEntriesOf(state, slot);
+            const entriesHelpId = `linear-map-comp-entries-help-${slot}-${this.uid}`;
+            const entry = (row: Row, column: Column) => (
+                <NumberInput label={t("linear_map_comp_entry_label", {value0: name, value1: String(row + 1), value2: String(column + 1)})}
+                             value={entries[row][column]} describedBy={entriesHelpId} {...gridProps}
+                             onChange={next => this.accepted(() => this.setSlotEntryFromInput(slot, row, column, next))}/>
+            );
+            return (
+                <div className="inspector-group" role="group" aria-label={t(slot === "first" ? "linear_map_comp_group_a" : "linear_map_comp_group_b")}
+                     data-linear-map-slot={slot}>
+                    <ChoiceSelect label={t("linear_map_comp_source_label", {value0: name})} value={source} help={t("linear_map_comp_source_help")}
+                                  options={[
+                                      {value: "free", text: t("linear_map_comp_source_free")},
+                                      {value: "rotation", text: t("linear_map_comp_source_rotation")},
+                                      {value: "reflection", text: t("linear_map_comp_source_reflection")},
+                                  ]}
+                                  onChange={next => this.ignoreOutOfDomain(() => this.setSource(slot, next as SlotSource))}/>
+                    {element && <Slider min={0} max={ELEMENT_COUNT - 1} step={1} bigStep={6} decimals={0} value={element.k}
+                                        customText={t(element.kind === "rotation" ? "linear_map_comp_angle_rotation" : "linear_map_comp_angle_reflection", {value0: name})}
+                                        help={t(element.kind === "rotation" ? "linear_map_comp_angle_help_rotation" : "linear_map_comp_angle_help_reflection")}
+                                        formatValue={k => this.angleText(element.kind, k)} valueText={k => this.angleText(element.kind, k)}
+                                        onChange={next => this.ignoreOutOfDomain(() => this.setAngleIndex(slot, next))}/>}
+                    {!element && <>
+                        <div className="function-points-grid">{entry(0, 0)}{entry(0, 1)}{entry(1, 0)}{entry(1, 1)}</div>
+                        <p id={entriesHelpId} className="inspector-help">{t("linear_map_comp_entries_help")}</p>
+                    </>}
+                </div>
+            );
+        };
+        const vectorEntry = (field: VectorField, axis: 0 | 1, label: string, helpId: string) => (
+            <NumberInput label={label} value={(state[field] ?? [0, 0])[axis]} describedBy={helpId} {...gridProps}
+                         onChange={next => this.accepted(() => this.setVectorFromInput(field, axis, next))}/>
+        );
+        const translationHelpId = `linear-map-comp-translation-help-${this.uid}`;
+        const pivotHelpId = `linear-map-comp-pivot-help-${this.uid}`;
+        return <>
+            <p className="inspector-help" data-linear-map-composition-gloss="">{t("linear_map_comp_note")}</p>
+            {slotGroup("first", "A")}
+            {slotGroup("second", "B")}
+            <div className="inspector-group">
+                <div className="function-points-grid">
+                    {vectorEntry("translation", 0, t("linear_map_comp_translation_x"), translationHelpId)}
+                    {vectorEntry("translation", 1, t("linear_map_comp_translation_y"), translationHelpId)}
+                </div>
+                <p id={translationHelpId} className="inspector-help">{t("linear_map_comp_translation_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <OnOffSwitch checked={state.pivot !== undefined} label={t("linear_map_comp_pivot_toggle")}
+                             onChange={checked => this.ignoreOutOfDomain(() => this.setPivotOn(checked))}/>
+                {state.pivot !== undefined && <div className="function-points-grid">
+                    {vectorEntry("pivot", 0, t("linear_map_comp_pivot_x"), pivotHelpId)}
+                    {vectorEntry("pivot", 1, t("linear_map_comp_pivot_y"), pivotHelpId)}
+                </div>}
+                <p id={pivotHelpId} className="inspector-help">{t("linear_map_comp_pivot_help")}</p>
+                {state.pivot === undefined && <p className="inspector-help" data-linear-map-pivot-off="">{t("linear_map_comp_pivot_off")}</p>}
+            </div>
+            <div className={CONTROL_ROW_FILL} role="group" aria-label={t("linear_map_actions_label")}>
+                <UnavailableButton data-action="linear-map-reset-composition" reason={isCompositionDefault(state) ? t("linear_map_comp_at_default") : undefined}
+                                   onPress={() => this.resetComposition()}>{t("linear_map_comp_reset")}</UnavailableButton>
+            </div>
+        </>;
+    }
+
+    /** The angle of an element index in degrees: rotation k * 15, reflection line k * 7.5. */
+    private angleDegrees(kind: MapElement["kind"], k: number): number {
+        return kind === "rotation" ? k * ELEMENT_STEP_DEGREES : k * ELEMENT_STEP_DEGREES / 2;
+    }
+
+    private angleText(kind: MapElement["kind"], k: number): string {
+        return t("linear_map_comp_angle_value", {value0: this.num(this.angleDegrees(kind, k), 1), value1: String(k)});
+    }
+
     protected override renderLegend(): React.ReactNode {
         const mode = this.model.mode;
         const colors = ITERATION_COLORS;
@@ -855,6 +1038,17 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "triangle", color: colors.triangle, label: t("linear_map_legend_triangle"), kind: legendKindFor(TRACE_DET_DRAWING.triangle)},
                 {id: "flow", color: colors.flow, label: t("linear_map_legend_flow"), kind: legendKindFor(TRACE_DET_DRAWING.flow)},
                 {id: "point", color: colors.handle, label: t("linear_map_legend_point"), kind: "dot"},
+            ]}/>;
+        }
+        if (mode === "composition") {
+            return <FunctionLegend items={[
+                {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
+                {id: "grid-a", color: COMPOSITION_COLORS.gridA, label: t("linear_map_legend_comp_grid_a"), kind: "dashed-line"},
+                {id: "grid-image", color: COMPOSITION_COLORS.gridImage, label: t("linear_map_legend_comp_grid_image"), kind: "line"},
+                {id: "curve", color: COMPOSITION_COLORS.source, label: t("linear_map_legend_comp_curve"), kind: "line"},
+                {id: "curve-image", color: COMPOSITION_COLORS.image, label: t("linear_map_legend_comp_curve_image"), kind: "line"},
+                {id: "translation", color: COMPOSITION_COLORS.translation, label: t("linear_map_legend_comp_translation"), kind: "line"},
+                {id: "pivot", color: COMPOSITION_COLORS.pivot, label: t("linear_map_legend_comp_pivot"), kind: "dot"},
             ]}/>;
         }
         if (mode === "eigen") {
@@ -909,6 +1103,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         if (model.mode === "tracedet") return this.traceDetStatuses(model);
         if (model.mode === "eigen") return this.eigenStatuses(model);
         if (model.mode === "ellipse") return this.ellipseStatuses(model);
+        if (model.mode === "composition") return this.compositionStatuses(model);
         if (model.mode === "determinant") {
             if (view.sign > 0) result.push({id: "positive", text: t("linear_map_status_positive")});
             else if (view.sign < 0) result.push({id: "negative", text: t("linear_map_status_negative")});
@@ -916,6 +1111,16 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         }
         if (view.collapse === "line") result.push({id: "collapse-line", text: t("linear_map_status_collapse_line")});
         if (view.collapse === "point") result.push({id: "collapse-point", text: t("linear_map_status_collapse_point")});
+        return result;
+    }
+
+    private compositionStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+        const view = this.compositionOf(model);
+        const result: { id: StatusKind; text: string }[] = [];
+        const collapse = collapseOf(view.product);
+        if (collapse === "line") result.push({id: "collapse-line", text: t("linear_map_status_collapse_line")});
+        if (collapse === "point") result.push({id: "collapse-point", text: t("linear_map_status_collapse_point")});
+        if (view.viewScale > 1) result.push({id: "composition-view", text: t("linear_map_status_comp_view")});
         return result;
     }
 
@@ -1026,6 +1231,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             {id: "start", label: t("linear_map_readout_start"), value: this.vector(start)},
             {id: "step", label: t("linear_map_readout_step"), value: t("linear_map_readout_step_value", {value0: at.step, value1: ITERATE_STEP_MAX})},
         ];
+        if (model.mode === "composition") return this.compositionRows(model);
         if (model.mode === "tracedet") {
             const td = this.traceDetOf(model);
             const stability = td.stability.kind === "inside" ? t("linear_map_stability_inside")
@@ -1107,6 +1313,37 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "area", label: t("linear_map_readout_area"), value: this.num(view.area, 4)},
                 {id: "orientation", label: t("linear_map_readout_orientation"), value: this.orientationText(view.sign)},
             ] : []),
+        ];
+    }
+
+    /** The readout of the composition mode: entries to 4 decimals, "approximately" when the matrix is not exact on the quarter grid. */
+    private compositionRows(model: LinearMapState): { id: string; label: string; value: string }[] {
+        const view = this.compositionOf(model);
+        const rows = (id: string, name: string, m: Mat2) => [0, 1].map(r => {
+            const text = `${this.num(m[r][0], 4)}   ${this.num(m[r][1], 4)}`;
+            return {
+                id: `${id}-row${r + 1}`, label: t("linear_map_comp_readout_row", {value0: name, value1: String(r + 1)}),
+                value: isExactMatrix(m) ? text : t("linear_map_comp_value_approx", {value0: text}),
+            };
+        });
+        const sourceText = (element: MapElement | undefined) => element === undefined ? t("linear_map_comp_value_free")
+            : t(element.kind === "rotation" ? "linear_map_comp_value_rotation" : "linear_map_comp_value_reflection",
+                {value0: this.num(this.angleDegrees(element.kind, element.k), 1), value1: String(element.k)});
+        // Pivot, translation and the fixture lie on the quarter grid, so t, the images and the determinant are exact exactly when the product is.
+        const productExact = isExactMatrix(view.product);
+        const marked = (text: string) => productExact ? text : t("linear_map_comp_value_approx", {value0: text});
+        const point = (p: Vec2) => marked(`(${this.num(p[0], 4)}, ${this.num(p[1], 4)})`);
+        return [
+            {id: "a-source", label: t("linear_map_comp_readout_source", {value0: "A"}), value: sourceText(model.element)},
+            ...rows("a", "A", view.a),
+            {id: "b-source", label: t("linear_map_comp_readout_source", {value0: "B"}), value: sourceText(model.secondElement)},
+            ...rows("b", "B", view.b),
+            ...rows("product", "BA", view.product),
+            {id: "product-det", label: t("linear_map_comp_readout_det"), value: marked(this.num(view.determinant, 4))},
+            {id: "product-orientation", label: t("linear_map_comp_readout_orientation"), value: this.orientationText(view.orientation)},
+            ...(view.productElement ? [{id: "product-element", label: t("linear_map_comp_readout_product_element"), value: sourceText(view.productElement)}] : []),
+            ...(view.pivotSet ? [{id: "t", label: t("linear_map_comp_readout_t"), value: point(view.translationForm)}] : []),
+            ...view.image.map((p, i) => ({id: `image-${i}`, label: t("linear_map_comp_readout_image", {value0: String(i)}), value: point(p)})),
         ];
     }
 

@@ -391,14 +391,14 @@ describe('Presets', () => {
     });
 
     test('a mode the graph does not draw is rejected naming the field mode; setMode rejects it too', () => {
-        for (const mode of ['composition']) {
+        for (const mode of ['spiral']) {
             const checked = linearMapPresetCollection.check({...stored(), mode}) as { rejection: { key: string; params: { value0: string } } };
             expect(checked.rejection).toMatchObject({key: 'linear_map_invalid_field', params: {value0: 'mode'}});
             expect(t(checked.rejection.key as 'linear_map_invalid_field', {value0: 'mode'})).toContain('mode');
         }
         expect('data' in linearMapPresetCollection.check({...stored(), mode: 'determinant'})).toBe(true);
         const graph = makeGraph();
-        expect(() => graph.setMode('composition')).toThrow(/composition/);
+        expect(() => graph.setMode('spiral')).toThrow(/spiral/);
         expect(graph.model.mode).toBe('basis');
     });
 
@@ -441,7 +441,6 @@ describe('lesson actions', () => {
         const graph = makeGraph();
         expect(() => graph.applyLessonAction({kind: 'linear-map', operation: 'set-matrix', matrix: [[0.3, 0], [0, 1]]})).toThrow(/matrix\[0\]\[0\]/);
         expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'nope'}))).toThrow(/mode/);
-        expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'composition'}))).toThrow(/mode/);
         expect(graph.model.mode).toBe('basis');
         for (const mode of ['basis', 'determinant'] as const) {
             graph.applyLessonAction({kind: 'linear-map', operation: 'set-mode', mode});

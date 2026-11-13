@@ -75,7 +75,7 @@ describe('the ellipse mode is selectable', () => {
         const {graph} = mountGraph();
         const options = [...(screen.getByLabelText(t('linear_map_mode_label')) as HTMLSelectElement).options].map(option => option.value);
         expect(options).toContain('ellipse');
-        expect(options).not.toContain('composition');
+        expect(options).toContain('composition');
         expect(document.querySelector('[data-readout="sigma1"]')).toBeNull();
         selectMode('ellipse');
         expect(graph.modelNow().mode).toBe('ellipse');
