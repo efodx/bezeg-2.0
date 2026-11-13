@@ -19,7 +19,7 @@ const expectedIds = ['bspline-basis', 'bspline-deboor', 'bspline-insertion', 'bs
 
 /** Central registrations that must not enumerate B-spline Demonstrations. */
 const centralFiles = [
-    'src/demonstrations.ts', 'src/graphs/graphFactories.ts', 'src/graphs/graphLoaders.ts', 'src/graphs/allGraphFactories.ts',
+    'src/demonstrations.ts', 'src/graphs/graphLoaders.ts', 'src/graphs/allGraphFactories.ts',
     'src/graphs/base/presets/PresetImport.ts', 'src/learning/chapter/guidedLessonOwnership.ts', 'scripts/probe-demonstration-clip-routes.cjs',
 ] as const;
 const namedIdentities = [...bsplineDemonstrationRows.flatMap(row => [row.id, row.path]), 'bspline-curve'];
@@ -56,9 +56,6 @@ describe('R5 composition: every root references the family export', () => {
         expect(read(file)).toMatch(pattern);
     });
 
-    test('the legacy constructor table excludes registered ids by type, not by a per-id list', () => {
-        expect(read('src/graphs/graphFactories.ts')).toMatch(/Exclude<DemonstrationId, RegisteredDemonstrationId>/);
-    });
 });
 
 describe('primary owner derivation (R-owners)', () => {

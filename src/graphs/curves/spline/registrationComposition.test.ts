@@ -20,7 +20,7 @@ const read = (file: string) => readFileSync(resolve(repoRoot, file), 'utf8');
 const expectedIds = ['spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric'] as const;
 
 const centralFiles = [
-    'src/demonstrations.ts', 'src/graphs/graphFactories.ts', 'src/graphs/graphLoaders.ts', 'src/graphs/allGraphFactories.ts',
+    'src/demonstrations.ts', 'src/graphs/graphLoaders.ts', 'src/graphs/allGraphFactories.ts',
     'src/graphs/base/presets/PresetImport.ts', 'src/learning/chapter/guidedLessonOwnership.ts', 'scripts/probe-demonstration-clip-routes.cjs',
     'src/graphs/curves/curvePresetCollections.ts',
 ] as const;

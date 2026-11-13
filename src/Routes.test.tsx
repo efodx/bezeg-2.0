@@ -1,6 +1,5 @@
 import React from 'react';
 import routes from './Routes';
-import {graphFactories} from './graphs/graphFactories';
 import {GraphRoute} from './graphs/base/GraphRoute';
 import {CrossRatioGraph} from './graphs/projective/CrossRatioGraph';
 import {PascalGraph} from './graphs/projective/PascalGraph';
@@ -100,7 +99,7 @@ import RationalBezierCurveGraph
 test('all existing graph URLs retain their graph implementations behind lazy routes', async () => {
     const children = routes[0].children;
     const catalog = getDemonstrationCatalog().demonstrations;
-    const routeFactories = new Map(await Promise.all(catalog.map(async ({id, path}) => {
+    const routeFactories = new Map(await Promise.all(catalog.map(async ({path}) => {
         const route = children.find(entry => entry.path === path)!;
         expect(route.lazy).toBeTypeOf('function');
         if (!route.lazy) throw new Error(`Graph route ${path} must be lazy.`);
@@ -109,7 +108,6 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
         const routeElement = RouteComponent() as React.ReactElement<{create: () => object}>;
         expect(routeElement.type).toBe(GraphRoute);
         const create = routeElement.props.create;
-        if (id in graphFactories) expect(create).toBe(graphFactories[id as keyof typeof graphFactories]);
         return [path, create().constructor] as const;
     })));
     const graphFor = (path: string) => routeFactories.get(path);

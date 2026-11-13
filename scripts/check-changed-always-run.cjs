@@ -6,7 +6,7 @@
 // a file read or a registry the selection misses. Their tests take about 2 s; the step measured 27 s wall on 2 workers
 // (2026-11-08), almost all per-file environment setup. None mounts a real board. Keep the list short;
 // add a file only if it follows that rule (commands.test.cjs checks that every path exists and mounts no board).
-// PresetCatalog.test.tsx is left out: it mounts every graph, and importing graphFactories already gets it selected.
+// PresetCatalog.test.tsx is left out: it mounts every graph, and importing allGraphFactories already gets it selected.
 const ALWAYS_RUN = [
     'src/demonstrations.test.ts',
     'src/Routes.test.tsx',

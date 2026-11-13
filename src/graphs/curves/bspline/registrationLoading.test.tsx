@@ -17,7 +17,6 @@ vi.mock('./BSplineInsertionGraph', () => mark('BSplineInsertionGraph', {default:
 vi.mock('./BSplineExtractionGraph', () => mark('BSplineExtractionGraph', {default: graphClass('BSplineExtractionGraph')}));
 vi.mock('./BSplineNurbsGraph', () => mark('BSplineNurbsGraph', {BSplineNurbsGraph: graphClass('BSplineNurbsGraph')}));
 vi.mock('./BSplineBlossomGraph', () => mark('BSplineBlossomGraph', {BSplineBlossomGraph: graphClass('BSplineBlossomGraph')}));
-vi.mock('../../graphFactories', () => mark('graphFactories', {graphFactories: {}}));
 vi.mock('../../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -96,7 +95,7 @@ function reach(roots: readonly string[]): Map<string, string[]> {
 }
 
 const rel = (file: string) => relative(srcRoot, file).split(sep).join('/');
-const forbidden = (file: string) => /Graph\.tsx$/.test(file) || /graphs\/(graphFactories|graphLoaders|allGraphFactories)\.ts$/.test(rel(file))
+const forbidden = (file: string) => /Graph\.tsx$/.test(file) || /graphs\/(graphLoaders|allGraphFactories)\.ts$/.test(rel(file))
     || /graphs\/curves\/bspline\/runtime\.ts$/.test(rel(file)) || /learning\/content\/chapterOwnedLessons\.ts$/.test(rel(file)) || /learning\/runtime\/lessonCatalog\.ts$/.test(rel(file));
 
 describe('static import graph', () => {

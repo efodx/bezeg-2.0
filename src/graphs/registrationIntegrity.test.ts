@@ -1,8 +1,7 @@
 import {describe, expect, test} from 'vitest';
-import {Definition, DemonstrationId, getDemonstrationCatalog, legacyDemonstrationRows} from '../demonstrations';
+import {DemonstrationId, getDemonstrationCatalog} from '../demonstrations';
 import type {PresetCollection} from './base/presets/PresetCollection';
 import {presetCollections} from './base/presets/PresetImport';
-import {graphFactories} from './graphFactories';
 import {registeredGraphLoaders} from './graphLoaders';
 import {projectiveCollections} from './projective/collections';
 import {projectiveCollectionKeys, projectiveDemonstrationRows} from './projective/registration';
@@ -196,16 +195,13 @@ const realFamilies: readonly RealFamily[] = [
     {family: 'spline', rows: splineDemonstrationRows, loaders: splineGraphLoaders, collectionKeys: splineCollectionKeys, collections: splineCollections},
 ];
 const registeredRows = realFamilies.flatMap(entry => entry.rows);
-// The legacy table is empty once every family is registered; widened so its rows stay typed for the checks below.
-const legacyRows: readonly Definition[] = legacyDemonstrationRows;
 
 describe('the real registered families', () => {
     const registeredCollections = realFamilies.flatMap(entry => entry.collections);
-    const legacyCollections = presetCollections.filter(collection => !registeredCollections.includes(collection));
-    test('each is complete and disjoint from the legacy rows, factories, collections and the other families', () => {
+    test('each is complete and disjoint from the other families', () => {
         const issues = checkRegistrations(realFamilies.map(entry => ({
             family: entry.family, rows: entry.rows, loaderIds: Object.keys(entry.loaders), collectionKeys: entry.collectionKeys, collections: entry.collections,
-        })), {rows: legacyRows, factoryIds: Object.keys(graphFactories), collections: legacyCollections});
+        })), {rows: [], factoryIds: [], collections: []});
         expect(issues).toEqual([]);
     });
     test('the root composition holds the union of the family loaders and the composed collections have unique storage keys', () => {
@@ -215,10 +211,9 @@ describe('the real registered families', () => {
         expect(new Set(keys).size).toBe(keys.length);
         expect(registeredCollections.every(collection => presetCollections.includes(collection))).toBe(true);
     });
-    test('registered rows stay after the legacy rows in the catalog, in family registration order', () => {
+    test('the catalog is the registered rows, in family registration order', () => {
         const ids = getDemonstrationCatalog().demonstrations.map(({id}) => id);
-        expect(ids.slice(-registeredRows.length)).toEqual(registeredRows.map(row => row.id));
-        expect(ids.slice(0, -registeredRows.length)).toEqual(legacyRows.map(row => row.id));
+        expect(ids).toEqual(registeredRows.map(row => row.id));
     });
 });
 

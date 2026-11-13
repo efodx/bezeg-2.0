@@ -23,7 +23,7 @@ const expectedIds = [
 const explicitIds = ['bezier', 'decasteljau', 'decasteljau-alternative', 'affine', 'subdivision', 'repeated-subdivision', 'extrapolation', 'elevation'] as const;
 
 const centralFiles = [
-    'src/demonstrations.ts', 'src/graphs/graphFactories.ts', 'src/graphs/graphLoaders.ts', 'src/graphs/allGraphFactories.ts',
+    'src/demonstrations.ts', 'src/graphs/graphLoaders.ts', 'src/graphs/allGraphFactories.ts',
     'src/graphs/base/presets/PresetImport.ts', 'src/learning/chapter/guidedLessonOwnership.ts', 'scripts/probe-demonstration-clip-routes.cjs',
     'src/graphs/curves/curvePresetCollections.ts',
 ] as const;

@@ -26,11 +26,6 @@ describe('R5 composition: every root references the solids row export', () => {
         expect(read(file)).toMatch(pattern);
     });
 
-    test('the legacy constructor table excludes registered ids by type, not by a per-id list', () => {
-        const source = read('src/graphs/graphFactories.ts');
-        expect(source).toMatch(/Exclude<DemonstrationId, RegisteredDemonstrationId>/);
-        for (const row of solidsDemonstrationRows) expect(source).not.toContain(`'${row.id}'`);
-    });
 
     test('the eager test adapter derives from the registered loaders', () => {
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);

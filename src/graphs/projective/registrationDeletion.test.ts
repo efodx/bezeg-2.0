@@ -2,7 +2,7 @@
 // runtime.ts; the central registrations only spread the family exports. A shallow wrapper around the old per-id tables fails both halves:
 // no central file may name a projective id, path or collection key, and every root must reference the family export.
 // Per-behaviour artifacts (preview/motion assets, preview recipes, lesson content, localization) legitimately name ids and are not scanned.
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {describe, expect, test} from 'vitest';
@@ -14,7 +14,6 @@ const read = (file: string) => readFileSync(resolve(repoRoot, file), 'utf8');
 /** Central registrations that must not enumerate projective Demonstrations (and the loading surface each one is). */
 const centralFiles = [
     'src/demonstrations.ts',
-    'src/graphs/graphFactories.ts',
     'src/graphs/graphLoaders.ts',
     'src/graphs/allGraphFactories.ts',
     'src/graphs/base/presets/PresetImport.ts',
@@ -63,8 +62,10 @@ describe('R5 composition: every root references the family export', () => {
         expect(read(file)).toMatch(pattern);
     });
 
-    test('the legacy constructor table excludes registered ids by type, not by a per-id list', () => {
-        expect(read('src/graphs/graphFactories.ts')).toMatch(/Exclude<DemonstrationId, RegisteredDemonstrationId>/);
+
+    test('the legacy constructor table stays deleted and no route imports it', () => {
+        expect(existsSync(resolve(repoRoot, 'src/graphs/graphFactories.ts'))).toBe(false);
+        expect(read('src/Routes.tsx')).not.toMatch(/graphFactories/);
     });
 
     test('the eager test adapter derives from the registered loaders', () => {

@@ -8,7 +8,6 @@ import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import {setLanguage, t} from './localization';
 
 vi.mock('./graphs/base/GraphRoute', () => ({__esModule: true, GraphRoute: () => <p>Opened Bézier graph</p>}));
-vi.mock('./graphs/graphFactories', () => ({graphFactories: {}}));
 // Registered routes load their real graph module; these tests cover catalog navigation, so the loader resolves a stub at once.
 vi.mock('./graphs/graphLoaders', async () => {
     const actual = await vi.importActual<typeof import('./graphs/graphLoaders')>('./graphs/graphLoaders');

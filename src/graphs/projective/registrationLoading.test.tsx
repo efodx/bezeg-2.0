@@ -15,7 +15,6 @@ vi.mock('./PascalGraph', () => mark('PascalGraph', {PascalGraph: class PascalGra
 vi.mock('./PolePolarGraph', () => mark('PolePolarGraph', {PolePolarGraph: class PolePolarGraph {}}));
 vi.mock('./FivePointGraph', () => mark('FivePointGraph', {FivePointGraph: class FivePointGraph {}}));
 vi.mock('./ThreeViewsGraph', () => mark('ThreeViewsGraph', {ThreeViewsGraph: class ThreeViewsGraph {}}));
-vi.mock('../graphFactories', () => mark('graphFactories', {graphFactories: {}}));
 vi.mock('../base/GraphRoute', () => mark('GraphRoute', {GraphRoute: () => null}));
 vi.mock('../../learning/content/chapterOwnedLessons', () => mark('chapterOwnedLessons', {}));
 vi.mock('../../learning/runtime/lessonCatalog', () => mark('lessonCatalog', {}));
@@ -86,7 +85,7 @@ function reach(roots: readonly string[]): Map<string, string[]> {
 }
 
 const rel = (file: string) => relative(srcRoot, file).split(sep).join('/');
-const forbidden = (file: string) => /Graph\.tsx$/.test(file) || /graphs\/(graphFactories|graphLoaders|allGraphFactories)\.ts$/.test(rel(file))
+const forbidden = (file: string) => /Graph\.tsx$/.test(file) || /graphs\/(graphLoaders|allGraphFactories)\.ts$/.test(rel(file))
     || /graphs\/projective\/runtime\.ts$/.test(rel(file)) || /learning\/content\/chapterOwnedLessons\.ts$/.test(rel(file)) || /learning\/runtime\/lessonCatalog\.ts$/.test(rel(file));
 
 describe('static import graph', () => {

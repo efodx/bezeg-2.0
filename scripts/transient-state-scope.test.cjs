@@ -23,7 +23,7 @@ test('a listed selection wins over CI and the changed files', () => {
 });
 
 test('a change to a shared non-test file runs every Demonstration', () => {
-    for (const path of ['src/graphs/base/BaseGraph.tsx', 'src/graphs/graphFactories.ts', 'src/graphs/curves/object/JXGBezierCurve.ts',
+    for (const path of ['src/graphs/base/BaseGraph.tsx', 'src/graphs/graphLoaders.ts', 'src/graphs/curves/object/JXGBezierCurve.ts',
         'src/bezeg/impl/curve/polynomial-bezier-curve.ts', 'package-lock.json', 'vite.config.mts']) {
         const result = scope({}, ['docs/commands.md', path]);
         assert.equal(result.all, true, path);
@@ -119,7 +119,7 @@ test('family reach: a directory without a Demonstration keeps the sample', () =>
     assert.deepEqual(result.changedNames, ['helper']);
 });
 
-test('family reach reads the class files from the imports of graphFactories.ts', () => {
+test('family reach reads the class files from the runtime loaders of graphLoaders.ts', () => {
     const {graphClassFiles} = require('./transient-state-scope.cjs');
     const found = graphClassFiles();
     assert.ok(found.some(({name, dir}) => name === 'OrientationGraph' && dir === 'src/graphs/compgeo'));
@@ -157,7 +157,6 @@ const realSources = root => {
     // Every family runtime composed in graphLoaders.ts; `new m.default()` names no class, so only named constructions are ground truth here.
     const runtimes = [...read('src/graphs/graphLoaders.ts').matchAll(/from\s+'\.\/([^']+)\/runtime'/g)]
         .map(family => ({text: read(`src/graphs/${family[1]}/runtime.ts`), pattern: /new\s+\w+\.(?!default\()(\w+)\(/g}));
-    // The legacy table graphFactories.ts is empty once every family is registered, so it holds no ground truth.
     return [
         {text: read('src/graphs/projective/runtime.ts'), pattern: /new\s+\w+\.(\w+)\(/g},
         ...runtimes,

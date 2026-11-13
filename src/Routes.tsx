@@ -5,12 +5,10 @@ import { DemonstrationsPage } from './DemonstrationsPage';
 import { DemonstrationId, getDemonstrationCatalog } from './demonstrations';
 
 const graphRoute = (id: DemonstrationId) => async () => {
-    // The route shell and the graph constructor load together; the small loader module decides registered vs legacy.
+    // The route shell and the graph constructor load together; every Demonstration is feature-registered.
     const [{GraphRoute}, create] = await Promise.all([
         import('./graphs/base/GraphRoute'),
-        import('./graphs/graphLoaders').then(({isRegisteredDemonstrationId, loadRegisteredGraphFactory}) => isRegisteredDemonstrationId(id)
-            ? loadRegisteredGraphFactory(id)
-            : import('./graphs/graphFactories').then(({graphFactories}) => graphFactories[id])),
+        import('./graphs/graphLoaders').then(({loadRegisteredGraphFactory}) => loadRegisteredGraphFactory(id)),
     ]);
     return {Component: () => <GraphRoute create={create}/>};
 };

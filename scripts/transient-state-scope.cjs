@@ -19,7 +19,7 @@ const path = require('node:path');
 /** Changed files that every graph's scene, restoration or drawing depends on: their change runs the whole contract. */
 const SHARED_PATHS = [
     /^src\/graphs\/base\//,
-    /^src\/graphs\/(graphFactories|graphLoaders|allGraphFactories)\.ts$/,
+    /^src\/graphs\/(graphLoaders|allGraphFactories)\.ts$/,
     /^src\/graphs\/curves\/object\//,
     /^src\/graphs\/styles\//,
     /^src\/bezeg\//,
@@ -94,8 +94,7 @@ const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
 
 /**
  * The graph classes the Demonstrations instantiate and the directory of each class file, read from the imports of
- * src/graphs/graphFactories.ts (`import X from './dir/X'` or `import {X} from './dir/X'`) and the runtime loaders of
- * feature-registered families (src/graphs/graphLoaders.ts): [{name, dir: 'src/graphs/dir', stem}]; `name` is the import alias or class, `stem` the class file's basename (they differ for
+ * the runtime loaders of the feature-registered families (src/graphs/graphLoaders.ts): [{name, dir: 'src/graphs/dir', stem}]; `name` is the import alias or class, `stem` the class file's basename (they differ for
  * aliased default imports, and for a default export whose class is named apart from its file, such as `GraphExtrapolation` in
  * './curves/bezier/ExtrapolationGraph').
  */
@@ -109,13 +108,7 @@ function defaultClassName(root, dir, stem) {
 }
 
 function graphClassFiles(root = path.join(__dirname, '..')) {
-    const source = fs.readFileSync(path.join(root, 'src/graphs/graphFactories.ts'), 'utf8');
     const classes = [];
-    for (const match of source.matchAll(/^import\s+(?:(\w+)|\{([^}]*)\})\s+from\s+'\.\/([^']+)'/gm)) {
-        const dir = path.posix.join('src/graphs', path.posix.dirname(match[3]));
-        const names = match[1] ? [match[1]] : match[2].split(',').map(name => name.trim().split(/\s+as\s+/).pop()).filter(Boolean);
-        for (const name of names) classes.push({name, dir, stem: path.posix.basename(match[3])});
-    }
     // Feature-registered families: src/graphs/graphLoaders.ts imports `./<dir>/runtime`, whose lazy loaders read
     // `import('./X').then(m => () => new m.X())`.
     const loaders = fs.readFileSync(path.join(root, 'src/graphs/graphLoaders.ts'), 'utf8');
