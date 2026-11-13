@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for KN3–KN4; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; `curve-parametric` and `curve-curvature` behave as before.
 
-Status: not started.
+Status: F3 done 2026-11-13 (handler 14; KN3 `curve-kinematics-projectile`, KN4 `curve-kinematics-circular`, sections `projectile-motion` and `circular-motion` in the chapter `kinematics`, existing action kind `kinematics`; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-kin-b.md)); F4–F6 next. Owed: no browser look at the projectile and circular motions during the lessons or at the new chapter sections (one default smoke row per Demonstration); the Slovenian prose has no second reader.

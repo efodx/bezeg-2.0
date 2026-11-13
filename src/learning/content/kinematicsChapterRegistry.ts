@@ -2,14 +2,16 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {kinematicsSpeedLesson, kinematicsVectorsLesson} from './kinematicsGuidedLessons';
+import {kinematicsCircularLesson, kinematicsProjectileLesson, kinematicsSpeedLesson, kinematicsVectorsLesson} from './kinematicsGuidedLessons';
 
 export const KINEMATICS_CHAPTER_ID = 'kinematics';
 
-/** Section id to the Demonstration of its activity (spec KN1, KN2: two sections on one Demonstration, in teaching order). Section ids are those of kinematicsChapter.ts. */
+/** Section id to the Demonstration of its activity (spec KN1 to KN4: four sections on one Demonstration, in teaching order). Section ids are those of kinematicsChapter.ts. */
 export const kinematicsGuidedExampleDemonstrations = {
     'position-velocity-acceleration': 'curve-kinematics',
     'speed-and-parametrization': 'curve-kinematics',
+    'projectile-motion': 'curve-kinematics',
+    'circular-motion': 'curve-kinematics',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type KinematicsSectionId = keyof typeof kinematicsGuidedExampleDemonstrations;
@@ -18,6 +20,8 @@ export type KinematicsSectionId = keyof typeof kinematicsGuidedExampleDemonstrat
 const sectionContent = {
     'position-velocity-acceleration': {id: 'curve-kinematics-vectors', content: () => kinematicsVectorsLesson},
     'speed-and-parametrization': {id: 'curve-kinematics-speed', content: () => kinematicsSpeedLesson},
+    'projectile-motion': {id: 'curve-kinematics-projectile', content: () => kinematicsProjectileLesson},
+    'circular-motion': {id: 'curve-kinematics-circular', content: () => kinematicsCircularLesson},
 } as const;
 
 const adapted = new Map<KinematicsSectionId, LessonDefinition>();

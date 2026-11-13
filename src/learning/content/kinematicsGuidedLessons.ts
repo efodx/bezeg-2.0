@@ -360,6 +360,332 @@ const kn2Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- KN3 -------------------------------------------------------------------------------------------------------------------------
+
+/** The throw of KN3: launch speed 20 m/s (the graph's default) and, unless a scene says otherwise, the default angle of 45 degrees. */
+const kn3Scene = (id: string, params: KinematicsSceneParams, t: number, sl: string, en: string): LessonScene =>
+    kinematicsScene(id, {motion: 'projectile', params, t}, sl, en);
+
+const kn3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'projectile-equations',
+        latex: "r(t)=\\bigl(v_0\\cos\\alpha\\,t;\\;v_0\\sin\\alpha\\,t-\\tfrac12gt^2\\bigr),\\quad v(t)=\\bigl(v_0\\cos\\alpha;\\;v_0\\sin\\alpha-gt\\bigr),\\quad a(t)=(0;\\,-g)",
+        notation: text(
+            '\\(v_0\\) je začetna hitrost, \\(\\alpha\\) izstrelni kot, \\(g=9{,}81\\ \\mathrm{m/s^2}\\) težni pospešek; os \\(x\\) kaže vodoravno naprej, os \\(y\\) navpično navzgor, žoga je ob \\(t=0\\) v izhodišču.',
+            '\\(v_0\\) is the launch speed, \\(\\alpha\\) the launch angle, \\(g=9.81\\ \\mathrm{m/s^2}\\) the gravitational acceleration; the \\(x\\) axis points horizontally forward, the \\(y\\) axis vertically up, and the ball is at the origin at \\(t=0\\).',
+        ),
+        explanation: text(
+            'Ker je pospešek \\(a=(0;\\,-g)\\) stalen, dobimo hitrost in lego z integriranjem po komponentah, z začetnima pogojema \\(v(0)=(v_0\\cos\\alpha;\\,v_0\\sin\\alpha)\\) in \\(r(0)=(0;\\,0)\\). Odčitki grafa sledijo tem enačbam; slike ob njih so ponazoritve.',
+            'Because the acceleration \\(a=(0;\\,-g)\\) is constant, the velocity and the position follow by integrating componentwise, with the initial conditions \\(v(0)=(v_0\\cos\\alpha;\\,v_0\\sin\\alpha)\\) and \\(r(0)=(0;\\,0)\\). The readouts of the graph follow these equations; the pictures beside them are illustrations.',
+        ),
+    },
+    {
+        id: 'projectile-range',
+        latex: "T=\\frac{2v_0\\sin\\alpha}{g},\\qquad R=\\frac{v_0^2\\sin2\\alpha}{g},\\qquad H=\\frac{v_0^2\\sin^2\\alpha}{2g}",
+        notation: text(
+            '\\(T\\) je čas leta, \\(R\\) domet (vodoravna razdalja do pristanka na tleh) in \\(H\\) največja višina.',
+            '\\(T\\) is the flight time, \\(R\\) the range (the horizontal distance to the landing on the ground) and \\(H\\) the maximum height.',
+        ),
+        explanation: text(
+            'Argument: žoga pristane, ko je \\(y=0\\), torej \\(t\\bigl(v_0\\sin\\alpha-\\tfrac12gt\\bigr)=0\\); rešitev \\(t=0\\) je met, druga je \\(t=T\\). Domet je \\(R=x(T)=v_0\\cos\\alpha\\cdot T=v_0^2\\cdot2\\sin\\alpha\\cos\\alpha/g=v_0^2\\sin2\\alpha/g\\). Najvišje je žoga, ko je \\(v_y=0\\), torej ob \\(t=T/2\\); tam dobimo \\(H\\). Ker je \\(\\sin2\\alpha=\\sin(180^\\circ-2\\alpha)\\), dasta kota \\(\\alpha\\) in \\(90^\\circ-\\alpha\\) pri enakem \\(v_0\\) enak domet, največji domet pa je pri \\(\\alpha=45^\\circ\\), kjer je \\(\\sin2\\alpha=1\\). Primeri na grafu so ponazoritve te formule.',
+            'Argument: the ball lands when \\(y=0\\), that is \\(t\\bigl(v_0\\sin\\alpha-\\tfrac12gt\\bigr)=0\\); the solution \\(t=0\\) is the throw, the other is \\(t=T\\). The range is \\(R=x(T)=v_0\\cos\\alpha\\cdot T=v_0^2\\cdot2\\sin\\alpha\\cos\\alpha/g=v_0^2\\sin2\\alpha/g\\). The ball is highest when \\(v_y=0\\), that is at \\(t=T/2\\); there we get \\(H\\). Because \\(\\sin2\\alpha=\\sin(180^\\circ-2\\alpha)\\), the angles \\(\\alpha\\) and \\(90^\\circ-\\alpha\\) give the same range at the same \\(v_0\\), and the range is largest at \\(\\alpha=45^\\circ\\), where \\(\\sin2\\alpha=1\\). The examples on the graph are illustrations of this formula.',
+        ),
+    },
+];
+
+const kn3Examples: readonly WorkedExample[] = [
+    {
+        id: 'kn3-range-45',
+        title: text('Čas leta, domet in višina pri \\(45^\\circ\\)', 'Flight time, range and height at \\(45^\\circ\\)'),
+        calculationLatex: "T=\\frac{2\\cdot20\\cdot\\sin45^\\circ}{9{,}81},\\qquad R=\\frac{20^2\\sin90^\\circ}{9{,}81},\\qquad H=\\frac{20^2\\sin^245^\\circ}{2\\cdot9{,}81}",
+        resultLatex: "T\\approx2{,}883,\\qquad R\\approx40{,}775,\\qquad H\\approx10{,}194",
+        check: text(
+            'Odčitki so čas leta \\(\\approx2{,}883\\ \\mathrm{s}\\), domet \\(\\approx40{,}775\\ \\mathrm{m}\\) in največja višina \\(\\approx10{,}194\\ \\mathrm{m}\\); vrednosti so zaokrožene.',
+            'The readouts are a flight time of \\(\\approx2.883\\ \\mathrm{s}\\), a range of \\(\\approx40.775\\ \\mathrm{m}\\) and a maximum height of \\(\\approx10.194\\ \\mathrm{m}\\); the values are rounded.',
+        ),
+    },
+];
+
+const kn3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'kn3-throw', order: 1,
+        title: text('Met pod kotom \\(45^\\circ\\)', 'A throw at \\(45^\\circ\\)'),
+        purpose: text('Napovedati, kdaj je žoga najvišje, in to primerjati s časom leta.', 'Predicting when the ball is highest and comparing it with the flight time.'),
+        explanation: text(
+            'Žogo vržemo s tal s hitrostjo \\(v_0=20\\ \\mathrm{m/s}\\) pod izstrelnim kotom \\(\\alpha=45^\\circ\\) glede na vodoravnico (poševni met). Zračnega upora ne upoštevamo: na žogo deluje samo težni pospešek \\(g=9{,}81\\ \\mathrm{m/s^2}\\) navpično navzdol. Slika kaže pot žoge in žogo ob času \\(t=0\\); čas merimo v sekundah, dolžine v metrih, žoga pa pristane na tleh. Preden premakneš čas, napovej: ob katerem času je žoga najvišje in kako ta čas primerjamo s časom leta?',
+            'A ball is thrown from the ground with the speed \\(v_0=20\\ \\mathrm{m/s}\\) at the launch angle \\(\\alpha=45^\\circ\\) above the horizontal (projectile motion). Air resistance is ignored: the only acceleration of the ball is the gravitational acceleration \\(g=9.81\\ \\mathrm{m/s^2}\\) straight down. The picture shows the path of the ball and the ball at time \\(t=0\\); time is measured in seconds, lengths in metres, and the ball lands on the ground. Before you move the time, predict: at what time is the ball highest, and how does that time compare with the flight time?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved. Preberi čas leta, nato premikaj čas in poišči trenutek največje višine; preberi čas in lego.', 'Write down your prediction. Read the flight time, then move the time and find the moment of the greatest height; read the time and the position.'),
+        expectedObservations: [text(
+            'Čas leta je \\(\\approx2{,}883\\ \\mathrm{s}\\), domet \\(\\approx40{,}775\\ \\mathrm{m}\\), največja višina \\(\\approx10{,}194\\ \\mathrm{m}\\). Žoga je najvišje ob \\(t\\approx1{,}44\\ \\mathrm{s}\\), torej ob približno polovici časa leta (pri \\(t=1{,}44\\ \\mathrm{s}\\) je lega \\(\\approx(20{,}365;\\,10{,}194)\\ \\mathrm{m}\\)), in tedaj je vodoravno približno na polovici dometa.',
+            'The flight time is \\(\\approx2.883\\ \\mathrm{s}\\), the range \\(\\approx40.775\\ \\mathrm{m}\\), the maximum height \\(\\approx10.194\\ \\mathrm{m}\\). The ball is highest at \\(t\\approx1.44\\ \\mathrm{s}\\), that is at about half of the flight time (at \\(t=1.44\\ \\mathrm{s}\\) the position is \\(\\approx(20.365;\\,10.194)\\ \\mathrm{m}\\)), and it is then horizontally at about half of the range.',
+        )],
+        scene: kn3Scene('kn3-throw-scene', noArrows, 0,
+            'Poševni met, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), čas \\(0\\), brez puščic; čas leta \\(\\approx2{,}883\\ \\mathrm{s}\\), domet \\(\\approx40{,}775\\ \\mathrm{m}\\), največja višina \\(\\approx10{,}194\\ \\mathrm{m}\\).',
+            'Projectile motion, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), time \\(0\\), no arrows; flight time \\(\\approx2.883\\ \\mathrm{s}\\), range \\(\\approx40.775\\ \\mathrm{m}\\), maximum height \\(\\approx10.194\\ \\mathrm{m}\\).'),
+    }),
+    step({
+        id: 'kn3-velocity', order: 2,
+        title: text('Vodoravni in navpični del hitrosti', 'The horizontal and the vertical part of the velocity'),
+        purpose: text('Napovedati, kaj se med letom zgodi z delnima hitrostima.', 'Predicting what happens to the two parts of the velocity during the flight.'),
+        explanation: text(
+            'Puščica hitrosti \\(v\\) kaže, kam in kako hitro žoga leti; njen vodoravni del je \\(v_x\\), navpični \\(v_y\\), v odčitku sta to prva in druga komponenta hitrosti. Ob \\(t=1\\ \\mathrm{s}\\) je žoga še na poti navzgor. Napovej: kaj se med letom zgodi z \\(v_x\\) in kaj z \\(v_y\\), in kakšna je velikost hitrosti ob pristanku v primerjavi z začetno?',
+            'The velocity arrow \\(v\\) shows where the ball is going and how fast; its horizontal part is \\(v_x\\), its vertical part \\(v_y\\), and in the readout they are the first and the second component of the velocity. At \\(t=1\\ \\mathrm{s}\\) the ball is still on its way up. Predict: what happens to \\(v_x\\) and to \\(v_y\\) during the flight, and how does the speed at the landing compare with the initial one?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi hitrost ob \\(t=0\\), \\(1\\), \\(2\\) in tik pred pristankom (\\(t=2{,}88\\ \\mathrm{s}\\)).', 'Write down your prediction, then read the velocity at \\(t=0\\), \\(1\\), \\(2\\) and just before the landing (\\(t=2.88\\ \\mathrm{s}\\)).'),
+        expectedObservations: [text(
+            'Vodoravni del je ves čas \\(14{,}142\\ \\mathrm{m/s}\\). Navpični del pada: \\(14{,}142\\) ob \\(t=0\\), \\(4{,}332\\) ob \\(t=1\\), \\(\\approx0\\) ob \\(t\\approx1{,}44\\) (odčitek \\(0{,}016\\) ob \\(1{,}44\\ \\mathrm{s}\\)), \\(-5{,}478\\) ob \\(t=2\\) in \\(-14{,}111\\) ob \\(t=2{,}88\\), vse v \\(\\mathrm{m/s}\\): žoga gre najprej navzgor, potem navzdol. Velikost hitrosti je ob \\(t=2{,}88\\) \\(\\approx19{,}978\\ \\mathrm{m/s}\\), skoraj enaka začetnim \\(20\\ \\mathrm{m/s}\\).',
+            'The horizontal part is \\(14.142\\ \\mathrm{m/s}\\) all the time. The vertical part falls: \\(14.142\\) at \\(t=0\\), \\(4.332\\) at \\(t=1\\), \\(\\approx0\\) at \\(t\\approx1.44\\) (the readout is \\(0.016\\) at \\(1.44\\ \\mathrm{s}\\)), \\(-5.478\\) at \\(t=2\\) and \\(-14.111\\) at \\(t=2.88\\), all in \\(\\mathrm{m/s}\\): the ball first goes up, then down. The speed at \\(t=2.88\\) is \\(\\approx19.978\\ \\mathrm{m/s}\\), almost the initial \\(20\\ \\mathrm{m/s}\\).',
+        )],
+        scene: kn3Scene('kn3-velocity-scene', {showVelocity: true, showAcceleration: false}, 1,
+            'Poševni met, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), čas \\(1\\ \\mathrm{s}\\), puščica hitrosti: \\(v=(14{,}142;\\,4{,}332)\\ \\mathrm{m/s}\\).',
+            'Projectile motion, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), time \\(1\\ \\mathrm{s}\\), velocity arrow: \\(v=(14.142;\\,4.332)\\ \\mathrm{m/s}\\).'),
+    }),
+    step({
+        id: 'kn3-acceleration', order: 3,
+        title: text('Pospešek med letom', 'The acceleration during the flight'),
+        purpose: text('Napovedati pospešek ob začetku, na vrhu in ob pristanku.', 'Predicting the acceleration at the start, at the top and at the landing.'),
+        explanation: text(
+            'Pospešek \\(a\\) pove, kako hitro se hitrost spreminja (črtkana puščica). Prejšnji korak je pokazal, da se hitrost med letom spreminja, na vrhu pa je njen navpični del \\(0\\). Napovej: kam kaže pospešek in kako velik je ob \\(t=0\\), na vrhu in tik pred pristankom? Ali je na vrhu enak \\(0\\), ker je tam \\(v_y=0\\)?',
+            'The acceleration \\(a\\) tells how fast the velocity changes (the dashed arrow). The previous step showed that the velocity changes during the flight, and that at the top its vertical part is \\(0\\). Predict: where does the acceleration point and how large is it at \\(t=0\\), at the top and just before the landing? Is it \\(0\\) at the top, because \\(v_y=0\\) there?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi pospešek ob \\(t=0\\), \\(1{,}44\\) in \\(2{,}88\\ \\mathrm{s}\\).', 'Write down your prediction, then read the acceleration at \\(t=0\\), \\(1.44\\) and \\(2.88\\ \\mathrm{s}\\).'),
+        expectedObservations: [text(
+            'Pospešek je ob vseh treh časih \\((0;\\,-9{,}81)\\ \\mathrm{m/s^2}\\): navpično navzdol in enak povsod, tudi na vrhu, kjer je \\(v_y\\approx0\\), pospešek pa ni \\(0\\). Zato se navpični del hitrosti vsako sekundo zmanjša za \\(9{,}81\\ \\mathrm{m/s}\\) (primerjaj \\(14{,}142\\), \\(4{,}332\\), \\(-5{,}478\\) iz prejšnjega koraka), vodoravni del pa se ne spreminja.',
+            'The acceleration is \\((0;\\,-9.81)\\ \\mathrm{m/s^2}\\) at all three times: straight down and the same everywhere, also at the top, where \\(v_y\\approx0\\) but the acceleration is not \\(0\\). So the vertical part of the velocity decreases by \\(9.81\\ \\mathrm{m/s}\\) every second (compare \\(14.142\\), \\(4.332\\), \\(-5.478\\) of the previous step), and the horizontal part does not change.',
+        )],
+        scene: kn3Scene('kn3-acceleration-scene', {showVelocity: true, showAcceleration: true}, 1,
+            'Poševni met, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), čas \\(1\\ \\mathrm{s}\\), obe puščici: \\(a=(0;\\,-9{,}81)\\ \\mathrm{m/s^2}\\).',
+            'Projectile motion, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), time \\(1\\ \\mathrm{s}\\), both arrows: \\(a=(0;\\,-9.81)\\ \\mathrm{m/s^2}\\).'),
+    }),
+    step({
+        id: 'kn3-path', order: 4,
+        title: text('Enačba poti', 'The equation of the path'),
+        purpose: text('Napovedati vrsto krivulje, ki jo žoga opiše, in jo utemeljiti z izločitvijo časa.', 'Predicting the kind of curve the ball traces and arguing it by eliminating the time.'),
+        explanation: text(
+            'Lego žoge podajata \\(x(t)\\) in \\(y(t)\\) (enačbe spodaj); pot je množica točk \\((x(t);\\,y(t))\\). Če iz teh dveh enačb izločimo \\(t\\), dobimo \\(y\\) kot funkcijo od \\(x\\). Napovej: kakšen je predznak vodilnega koeficienta pri \\(x^2\\) in kje leži teme grafa: pri najvišji točki leta ali pri izstrelitvi?',
+            'The position of the ball is given by \\(x(t)\\) and \\(y(t)\\) (the equations below); the path is the set of points \\((x(t);\\,y(t))\\). Eliminating \\(t\\) from these two equations gives \\(y\\) as a function of \\(x\\). Predict: what is the sign of the leading coefficient of \\(x^2\\), and where does the vertex of the graph lie: at the highest point of the flight or at the launch?',
+        ),
+        formulaIds: ['projectile-equations'],
+        observationPrompt: text('Zapiši napoved, nato iz \\(x(t)\\) izrazi \\(t\\), vstavi v \\(y(t)\\) in preveri na legi ob \\(t=1\\ \\mathrm{s}\\).', 'Write down your prediction, then solve \\(x(t)\\) for \\(t\\), substitute into \\(y(t)\\) and check against the position at \\(t=1\\ \\mathrm{s}\\).'),
+        expectedObservations: [text(
+            'Iz \\(x=v_0\\cos\\alpha\\,t\\) je \\(t=x/(v_0\\cos\\alpha)\\), torej \\(y=x\\tan\\alpha-\\dfrac{g\\,x^2}{2v_0^2\\cos^2\\alpha}\\): kvadratna funkcija z negativnim vodilnim koeficientom, parabola, odprta navzdol. Njeno teme leži pri \\(x=R/2\\), torej na vrhu leta in ne ob izstrelitvi; tu je \\(x=20{,}387\\ \\mathrm{m}\\). Pri \\(\\alpha=45^\\circ\\) in \\(v_0=20\\ \\mathrm{m/s}\\) je \\(y=x-0{,}024525\\,x^2\\); za \\(x=14{,}142\\) dobimo \\(y\\approx9{,}237\\), kar je odčitana lega \\((14{,}142;\\,9{,}237)\\ \\mathrm{m}\\) ob \\(t=1\\ \\mathrm{s}\\).',
+            'From \\(x=v_0\\cos\\alpha\\,t\\) we get \\(t=x/(v_0\\cos\\alpha)\\), so \\(y=x\\tan\\alpha-\\dfrac{g\\,x^2}{2v_0^2\\cos^2\\alpha}\\): a quadratic function with a negative leading coefficient, a parabola opening downwards. Its vertex lies at \\(x=R/2\\), so at the top of the flight and not at the launch; here \\(x=20.387\\ \\mathrm{m}\\). At \\(\\alpha=45^\\circ\\) and \\(v_0=20\\ \\mathrm{m/s}\\) it is \\(y=x-0.024525\\,x^2\\); for \\(x=14.142\\) we get \\(y\\approx9.237\\), which is the position \\((14.142;\\,9.237)\\ \\mathrm{m}\\) read at \\(t=1\\ \\mathrm{s}\\).',
+        )],
+        scene: kn3Scene('kn3-path-scene', noArrows, 1,
+            'Poševni met, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), čas \\(1\\ \\mathrm{s}\\), brez puščic; lega \\((14{,}142;\\,9{,}237)\\ \\mathrm{m}\\).',
+            'Projectile motion, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), time \\(1\\ \\mathrm{s}\\), no arrows; position \\((14.142;\\,9.237)\\ \\mathrm{m}\\).'),
+    }),
+    step({
+        id: 'kn3-angles', order: 5,
+        title: text('Kota \\(30^\\circ\\) in \\(60^\\circ\\)', 'The angles \\(30^\\circ\\) and \\(60^\\circ\\)'),
+        purpose: text('Napovedati, kako domet zavisi od izstrelnega kota.', 'Predicting how the range depends on the launch angle.'),
+        explanation: text(
+            'Hitrost \\(v_0=20\\ \\mathrm{m/s}\\) pustimo in spreminjamo izstrelni kot (korak \\(5^\\circ\\)). Slika kaže met pod \\(30^\\circ\\). Napovej: ali bo domet pri \\(60^\\circ\\) večji, manjši ali enak kakor pri \\(30^\\circ\\), in kateri kot med \\(40^\\circ\\), \\(45^\\circ\\) in \\(50^\\circ\\) da največji domet?',
+            'Keep the speed \\(v_0=20\\ \\mathrm{m/s}\\) and change the launch angle (in steps of \\(5^\\circ\\)). The picture shows the throw at \\(30^\\circ\\). Predict: will the range at \\(60^\\circ\\) be larger, smaller or equal to the range at \\(30^\\circ\\), and which angle among \\(40^\\circ\\), \\(45^\\circ\\) and \\(50^\\circ\\) gives the largest range?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato nastavi \\(\\alpha=30^\\circ\\), \\(60^\\circ\\), \\(40^\\circ\\), \\(45^\\circ\\), \\(50^\\circ\\) in preberi domet, čas leta in največjo višino.', 'Write down your prediction, then set \\(\\alpha=30^\\circ\\), \\(60^\\circ\\), \\(40^\\circ\\), \\(45^\\circ\\), \\(50^\\circ\\) and read the range, the flight time and the maximum height.'),
+        expectedObservations: [text(
+            'Pri \\(30^\\circ\\) in pri \\(60^\\circ\\) je domet enak, \\(\\approx35{,}312\\ \\mathrm{m}\\); višini sta različni, \\(\\approx5{,}097\\ \\mathrm{m}\\) in \\(\\approx15{,}291\\ \\mathrm{m}\\), prav tako časa leta, \\(\\approx2{,}039\\ \\mathrm{s}\\) in \\(\\approx3{,}531\\ \\mathrm{s}\\). Pri \\(40^\\circ\\) in \\(50^\\circ\\) je domet enak, \\(\\approx40{,}155\\ \\mathrm{m}\\), pri \\(45^\\circ\\) pa največji med njimi, \\(\\approx40{,}775\\ \\mathrm{m}\\). V teh primerih se kota, ki se seštejeta v \\(90^\\circ\\), ujemata v dometu.',
+            'At \\(30^\\circ\\) and at \\(60^\\circ\\) the range is the same, \\(\\approx35.312\\ \\mathrm{m}\\); the heights differ, \\(\\approx5.097\\ \\mathrm{m}\\) and \\(\\approx15.291\\ \\mathrm{m}\\), and so do the flight times, \\(\\approx2.039\\ \\mathrm{s}\\) and \\(\\approx3.531\\ \\mathrm{s}\\). At \\(40^\\circ\\) and \\(50^\\circ\\) the range is the same, \\(\\approx40.155\\ \\mathrm{m}\\), and at \\(45^\\circ\\) it is the largest of them, \\(\\approx40.775\\ \\mathrm{m}\\). In these cases the angles that add up to \\(90^\\circ\\) agree in the range.',
+        )],
+        scene: kn3Scene('kn3-angles-scene', {...noArrows, alpha: 30}, 0,
+            'Poševni met, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=30^\\circ\\), čas \\(0\\), brez puščic; domet \\(\\approx35{,}312\\ \\mathrm{m}\\).',
+            'Projectile motion, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=30^\\circ\\), time \\(0\\), no arrows; range \\(\\approx35.312\\ \\mathrm{m}\\).'),
+    }),
+    step({
+        id: 'kn3-explore', order: 6,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Z lastnima \\(v_0\\) in \\(\\alpha\\) napovedati domet po formuli in ga preveriti.', 'Predicting the range for your own \\(v_0\\) and \\(\\alpha\\) with the formula and checking it.'),
+        explanation: text(
+            'Formula spodaj povezuje \\(v_0\\), \\(\\alpha\\) in \\(g\\) s časom leta, dometom in višino; primer za \\(45^\\circ\\) je izračunan. Izberi svoj \\(v_0\\) (\\(5\\) do \\(30\\ \\mathrm{m/s}\\), korak \\(1\\)) in \\(\\alpha\\) (\\(5^\\circ\\) do \\(85^\\circ\\), korak \\(5^\\circ\\)), po formuli izračunaj domet in šele nato preberi odčitek. Kako močno se parabola ukrivlja na vrhu, pokaže lekcija Ukrivljenost in krivinska krožnica.',
+            'The formula below connects \\(v_0\\), \\(\\alpha\\) and \\(g\\) with the flight time, the range and the height; the example for \\(45^\\circ\\) is worked out. Choose your own \\(v_0\\) (\\(5\\) to \\(30\\ \\mathrm{m/s}\\), step \\(1\\)) and \\(\\alpha\\) (\\(5^\\circ\\) to \\(85^\\circ\\), step \\(5^\\circ\\)), compute the range with the formula and only then read the readout. How strongly the parabola bends at the top is shown by the lesson Curvature and the osculating circle.',
+        ),
+        formulaIds: ['projectile-range'],
+        workedExampleId: 'kn3-range-45',
+        observationPrompt: text('Najprej izračunaj domet za svoja \\(v_0\\) in \\(\\alpha\\), nato ga primerjaj z odčitkom.', 'First compute the range for your own \\(v_0\\) and \\(\\alpha\\), then compare it with the readout.'),
+        expectedObservations: [text(
+            'Račun in odčitek se ujemata do prikazane zaokrožitve. Na primer \\(v_0=30\\ \\mathrm{m/s}\\): pri \\(45^\\circ\\) je \\(R=900/9{,}81\\approx91{,}743\\ \\mathrm{m}\\), pri \\(30^\\circ\\) pa \\(R=900\\sin60^\\circ/9{,}81\\approx79{,}452\\ \\mathrm{m}\\), kar sta tudi odčitka.',
+            'The computation and the readout agree up to the displayed rounding. For example with \\(v_0=30\\ \\mathrm{m/s}\\): at \\(45^\\circ\\) we get \\(R=900/9.81\\approx91.743\\ \\mathrm{m}\\), and at \\(30^\\circ\\) we get \\(R=900\\sin60^\\circ/9.81\\approx79.452\\ \\mathrm{m}\\), which are also the readouts.',
+        )],
+        scene: kn3Scene('kn3-explore-scene', {}, 0,
+            'Začetni primer: poševni met, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), čas \\(0\\), obe puščici; domet \\(\\approx40{,}775\\ \\mathrm{m}\\).',
+            'The starting case: projectile motion, \\(v_0=20\\ \\mathrm{m/s}\\), \\(\\alpha=45^\\circ\\), time \\(0\\), both arrows; range \\(\\approx40.775\\ \\mathrm{m}\\).'),
+    }),
+];
+
+// ---- KN4 -------------------------------------------------------------------------------------------------------------------------
+
+/** The circle of KN4: radius 2 m and angular velocity 1,5 rad/s (on the stepper grid), so the speed is 3 m/s, the acceleration 4,5 m/s2 and the period about 4,189 s. */
+export const KN4_PARAMS = {radius: 2, omega: 1.5} as const;
+/** A quarter of a turn at the angular velocity 1,5 rad/s: pi/3 s, the point is at the top of the circle. */
+const KN4_QUARTER = Math.PI / 3;
+
+const kn4Scene = (id: string, params: KinematicsSceneParams, t: number, sl: string, en: string): LessonScene =>
+    kinematicsScene(id, {motion: 'circular', params: {...KN4_PARAMS, ...params}, t}, sl, en);
+
+const kn4Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'uniform-circle',
+        latex: "r(t)=(R\\cos\\omega t;\\,R\\sin\\omega t),\\quad v(t)=\\omega R\\,(-\\sin\\omega t;\\,\\cos\\omega t),\\quad a(t)=-\\omega^2r(t)",
+        notation: text(
+            '\\(R\\) je polmer krožnice, \\(\\omega\\) kotna hitrost (kot v radianih na sekundo), središče krožnice je v izhodišču, točka je ob \\(t=0\\) v \\((R;\\,0)\\); obhodni čas je \\(T=2\\pi/\\omega\\).',
+            '\\(R\\) is the radius of the circle, \\(\\omega\\) the angular velocity (the angle in radians per second), the centre of the circle is at the origin, the point is at \\((R;\\,0)\\) at \\(t=0\\); the period is \\(T=2\\pi/\\omega\\).',
+        ),
+        explanation: text(
+            'Argument: odvajanje po komponentah da hitrost \\(v\\) in pospešek \\(a=-\\omega^2r\\). Dolžina hitrosti je \\(|v|=\\omega R\\), stalna, saj je \\((-\\sin\\omega t;\\,\\cos\\omega t)\\) enotski vektor. Pospešek je \\(-\\omega^2\\) krat lega, torej kaže proti središču (centripetalni ali radialni pospešek) in je velik \\(|a|=\\omega^2R\\). Ker je \\(\\omega=v/R\\), je \\(|a|=v^2/R\\). Slike na grafu so ponazoritve teh enačb.',
+            'Argument: differentiating componentwise gives the velocity \\(v\\) and the acceleration \\(a=-\\omega^2r\\). The length of the velocity is \\(|v|=\\omega R\\), constant, because \\((-\\sin\\omega t;\\,\\cos\\omega t)\\) is a unit vector. The acceleration is \\(-\\omega^2\\) times the position, so it points to the centre (the centripetal or radial acceleration) and has size \\(|a|=\\omega^2R\\). Since \\(\\omega=v/R\\), we have \\(|a|=v^2/R\\). The pictures on the graph are illustrations of these equations.',
+        ),
+    },
+];
+
+const kn4Examples: readonly WorkedExample[] = [
+    {
+        id: 'kn4-formula',
+        title: text('\\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\)', '\\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\)'),
+        calculationLatex: "v=\\omega R=1{,}5\\cdot2,\\qquad a=\\omega^2R=1{,}5^2\\cdot2,\\qquad \\frac{v^2}{R}=\\frac{3^2}{2}",
+        resultLatex: "v=3,\\qquad a=4{,}5,\\qquad \\frac{v^2}{R}=4{,}5",
+        check: text(
+            'Odčitka sta \\(|v|=3\\ \\mathrm{m/s}\\) in \\(|a|=4{,}5\\ \\mathrm{m/s^2}\\); izraza \\(\\omega^2R\\) in \\(v^2/R\\) dasta isto vrednost.',
+            'The readouts are \\(|v|=3\\ \\mathrm{m/s}\\) and \\(|a|=4.5\\ \\mathrm{m/s^2}\\); the expressions \\(\\omega^2R\\) and \\(v^2/R\\) give the same value.',
+        ),
+    },
+];
+
+const kn4Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'kn4-circle', order: 1,
+        title: text('Točka na krožnici', 'A point on a circle'),
+        purpose: text('Napovedati hitrost in obhodni čas iz polmera in kotne hitrosti.', 'Predicting the speed and the period from the radius and the angular velocity.'),
+        explanation: text(
+            'Točka kroži po krožnici s polmerom \\(R=2\\ \\mathrm{m}\\) in središčem v izhodišču. Njena kotna hitrost je \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\): vsako sekundo opiše kot \\(1{,}5\\) radiana, vedno enako. Takšnemu gibanju rečemo enakomerno kroženje. Slika kaže točko ob \\(t=0\\) v \\((2;\\,0)\\ \\mathrm{m}\\). Preden premakneš čas, napovej: kolikšna je velikost hitrosti točke v \\(\\mathrm{m/s}\\) in kolikšen je obhodni čas, čas enega kroga?',
+            'A point moves on a circle of radius \\(R=2\\ \\mathrm{m}\\) with its centre at the origin. Its angular velocity is \\(\\omega=1.5\\ \\mathrm{rad/s}\\): every second it sweeps an angle of \\(1.5\\) radians, always the same. This motion is called uniform circular motion. The picture shows the point at \\(t=0\\) at \\((2;\\,0)\\ \\mathrm{m}\\). Before you move the time, predict: what is the speed of the point in \\(\\mathrm{m/s}\\) and what is the period, the time of one full circle?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi velikost hitrosti in obhodni čas \\(T\\).', 'Write down your prediction, then read the speed and the period \\(T\\).'),
+        expectedObservations: [text(
+            'Velikost hitrosti je \\(3\\ \\mathrm{m/s}\\) (v sekundi točka opiše lok dolžine \\(1{,}5\\cdot2=3\\ \\mathrm{m}\\)), obhodni čas je \\(T=2\\pi/1{,}5\\approx4{,}189\\ \\mathrm{s}\\). Ob \\(t=0\\) je hitrost \\((0;\\,3)\\ \\mathrm{m/s}\\).',
+            'The speed is \\(3\\ \\mathrm{m/s}\\) (in one second the point sweeps an arc of length \\(1.5\\cdot2=3\\ \\mathrm{m}\\)), the period is \\(T=2\\pi/1.5\\approx4.189\\ \\mathrm{s}\\). At \\(t=0\\) the velocity is \\((0;\\,3)\\ \\mathrm{m/s}\\).',
+        )],
+        scene: kn4Scene('kn4-circle-scene', noArrows, 0,
+            'Kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(0\\), brez puščic; hitrost \\(3\\ \\mathrm{m/s}\\), obhodni čas \\(\\approx4{,}189\\ \\mathrm{s}\\).',
+            'Circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(0\\), no arrows; speed \\(3\\ \\mathrm{m/s}\\), period \\(\\approx4.189\\ \\mathrm{s}\\).'),
+    }),
+    step({
+        id: 'kn4-velocity', order: 2,
+        title: text('Puščica hitrosti med krogom', 'The velocity arrow during the circle'),
+        purpose: text('Napovedati, kaj se z vektorjem hitrosti zgodi med krogom.', 'Predicting what happens to the velocity vector during the circle.'),
+        explanation: text(
+            'Hitrost \\(v\\) je vektor: ima dolžino (velikost hitrosti) in smer. Vklopljena je njena puščica. Premikaj čas ali pritisni Predvajaj. Napovej: kaj se med krogom spreminja, dolžina puščice, njena smer ali oboje?',
+            'The velocity \\(v\\) is a vector: it has a length (the speed) and a direction. Its arrow is switched on. Move the time or press Play. Predict: what changes during the circle, the length of the arrow, its direction or both?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved in preberi hitrost ob \\(t=0\\), \\(1{,}05\\) in \\(2{,}09\\ \\mathrm{s}\\) ter stanje.', 'Write down your prediction and read the velocity at \\(t=0\\), \\(1.05\\) and \\(2.09\\ \\mathrm{s}\\), and the status.'),
+        expectedObservations: [text(
+            'Velikost hitrosti je vedno \\(3\\ \\mathrm{m/s}\\), spreminja se samo smer: hitrost je \\((0;\\,3)\\) ob \\(t=0\\), \\((-3;\\,0)\\) ob \\(t=\\pi/3\\approx1{,}05\\ \\mathrm{s}\\) (točka je takrat v \\((0;\\,2)\\)) in približno \\((0;\\,-3)\\ \\mathrm{m/s}\\) ob \\(t\\approx2{,}09\\ \\mathrm{s}\\). V teh primerih je hitrost pravokotna na polmer, kaže vzdolž tangente. Stanje pove, da je hitrost stalna.',
+            'The speed is always \\(3\\ \\mathrm{m/s}\\), only the direction changes: the velocity is \\((0;\\,3)\\) at \\(t=0\\), \\((-3;\\,0)\\) at \\(t=\\pi/3\\approx1.05\\ \\mathrm{s}\\) (the point is then at \\((0;\\,2)\\)) and approximately \\((0;\\,-3)\\ \\mathrm{m/s}\\) at \\(t\\approx2.09\\ \\mathrm{s}\\). In these cases the velocity is perpendicular to the radius, along the tangent. The status says that the speed is constant.',
+        )],
+        scene: kn4Scene('kn4-velocity-scene', {showVelocity: true, showAcceleration: false}, KN4_QUARTER,
+            'Kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(\\pi/3\\), puščica hitrosti: \\(v=(-3;\\,0)\\ \\mathrm{m/s}\\).',
+            'Circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(\\pi/3\\), velocity arrow: \\(v=(-3;\\,0)\\ \\mathrm{m/s}\\).'),
+    }),
+    step({
+        id: 'kn4-acceleration', order: 3,
+        title: text('Pospešek pri stalni hitrosti', 'The acceleration at constant speed'),
+        purpose: text('Napovedati smer in velikost pospeška, ko je velikost hitrosti stalna.', 'Predicting the direction and size of the acceleration when the speed is constant.'),
+        explanation: text(
+            'Pospešek \\(a\\) pove, kako hitro se vektor hitrosti spreminja (črtkana puščica). Velikost hitrosti je stalna, smer pa ne. Slika kaže točko na vrhu krožnice, v \\((0;\\,2)\\ \\mathrm{m}\\), ob \\(t=\\pi/3\\). Napovej: ali je pospešek \\(0\\)? Če ni, kam kaže in kako velik je približno?',
+            'The acceleration \\(a\\) tells how fast the velocity vector changes (the dashed arrow). The speed is constant, the direction is not. The picture shows the point at the top of the circle, at \\((0;\\,2)\\ \\mathrm{m}\\), at \\(t=\\pi/3\\). Predict: is the acceleration \\(0\\)? If not, where does it point and roughly how large is it?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi pospešek, lego in tangentni ter normalni pospešek; premakni čas in poglej, kam kaže pospešek drugje.', 'Write down your prediction, then read the acceleration, the position and the tangential and normal accelerations; move the time and see where the acceleration points elsewhere.'),
+        expectedObservations: [text(
+            'Pospešek ni \\(0\\): ob \\(t=\\pi/3\\) je \\((0;\\,-4{,}5)\\ \\mathrm{m/s^2}\\), točka je v \\((0;\\,2)\\), pospešek kaže navpično navzdol, proti središču \\((0;\\,0)\\). Ob \\(t=0\\) je \\((-4{,}5;\\,0)\\), ob \\(t=2\\pi/3\\approx2{,}09\\ \\mathrm{s}\\) približno \\((4{,}5;\\,0)\\): vedno proti središču, velik \\(4{,}5\\ \\mathrm{m/s^2}\\). To je centripetalni (radialni) pospešek, pospešek proti središču. Tangentni pospešek je \\(0\\), normalni \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'The acceleration is not \\(0\\): at \\(t=\\pi/3\\) it is \\((0;\\,-4.5)\\ \\mathrm{m/s^2}\\), the point is at \\((0;\\,2)\\), and the acceleration points straight down, to the centre \\((0;\\,0)\\). At \\(t=0\\) it is \\((-4.5;\\,0)\\), at \\(t=2\\pi/3\\approx2.09\\ \\mathrm{s}\\) approximately \\((4.5;\\,0)\\): always to the centre, with size \\(4.5\\ \\mathrm{m/s^2}\\). This is the centripetal (radial) acceleration, the acceleration towards the centre. The tangential acceleration is \\(0\\), the normal one \\(4.5\\ \\mathrm{m/s^2}\\).',
+        )],
+        scene: kn4Scene('kn4-acceleration-scene', {showVelocity: true, showAcceleration: true}, KN4_QUARTER,
+            'Kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(\\pi/3\\), obe puščici: \\(a=(0;\\,-4{,}5)\\ \\mathrm{m/s^2}\\).',
+            'Circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(\\pi/3\\), both arrows: \\(a=(0;\\,-4.5)\\ \\mathrm{m/s^2}\\).'),
+    }),
+    step({
+        id: 'kn4-omega', order: 4,
+        title: text('Podvojimo kotno hitrost', 'Doubling the angular velocity'),
+        purpose: text('Napovedati, kako se hitrost in pospešek spremenita ob dvakrat večji kotni hitrosti.', 'Predicting how the speed and the acceleration change when the angular velocity doubles.'),
+        explanation: text(
+            'Polmer pustimo pri \\(R=2\\ \\mathrm{m}\\), kotno hitrost podvojimo z \\(1{,}5\\) na \\(3\\ \\mathrm{rad/s}\\) (polje Kotna hitrost). Napovej: kolikšni sta potem velikost hitrosti in velikost pospeška? Pri \\(\\omega=1{,}5\\) sta bili \\(3\\ \\mathrm{m/s}\\) in \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'Keep the radius at \\(R=2\\ \\mathrm{m}\\) and double the angular velocity from \\(1.5\\) to \\(3\\ \\mathrm{rad/s}\\) (the field Angular velocity). Predict: what are the speed and the size of the acceleration then? At \\(\\omega=1.5\\) they were \\(3\\ \\mathrm{m/s}\\) and \\(4.5\\ \\mathrm{m/s^2}\\).',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato nastavi \\(\\omega=3\\) in preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(\\omega=3\\) and read the speed, the acceleration and the period.'),
+        expectedObservations: [text(
+            'Velikost hitrosti je \\(6\\ \\mathrm{m/s}\\) (dvakrat več), velikost pospeška pa \\(18\\ \\mathrm{m/s^2}\\), štirikrat več kot prej (\\(4\\cdot4{,}5=18\\)). Obhodni čas je \\(\\approx2{,}094\\ \\mathrm{s}\\), polovica prejšnjega.',
+            'The speed is \\(6\\ \\mathrm{m/s}\\) (twice as large), and the size of the acceleration is \\(18\\ \\mathrm{m/s^2}\\), four times as large as before (\\(4\\cdot4.5=18\\)). The period is \\(\\approx2.094\\ \\mathrm{s}\\), half of the previous one.',
+        )],
+        scene: kn4Scene('kn4-omega-scene', {showVelocity: true, showAcceleration: true}, KN4_QUARTER,
+            'Kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(\\pi/3\\), obe puščici; izhodišče, od koder spreminjamo \\(\\omega\\): hitrost \\(3\\ \\mathrm{m/s}\\), pospešek \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'Circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(\\pi/3\\), both arrows; the starting point from which we change \\(\\omega\\): speed \\(3\\ \\mathrm{m/s}\\), acceleration \\(4.5\\ \\mathrm{m/s^2}\\).'),
+    }),
+    step({
+        id: 'kn4-radius', order: 5,
+        title: text('Podvojimo polmer pri enaki kotni hitrosti', 'Doubling the radius at the same angular velocity'),
+        purpose: text('Napovedati učinek dvakrat večjega polmera pri stalni kotni hitrosti.', 'Predicting the effect of a doubled radius at a constant angular velocity.'),
+        explanation: text(
+            'Kotno hitrost vrnemo na \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\) in podvojimo polmer z \\(2\\) na \\(4\\ \\mathrm{m}\\) (polje Polmer). Napovej: kolikšni sta velikost hitrosti in velikost pospeška, in ali se obhodni čas spremeni?',
+            'Return the angular velocity to \\(\\omega=1.5\\ \\mathrm{rad/s}\\) and double the radius from \\(2\\) to \\(4\\ \\mathrm{m}\\) (the field Radius). Predict: what are the speed and the size of the acceleration, and does the period change?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato nastavi \\(R=4\\) in preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(R=4\\) and read the speed, the acceleration and the period.'),
+        expectedObservations: [text(
+            'Velikost hitrosti je \\(6\\ \\mathrm{m/s}\\), velikost pospeška \\(9\\ \\mathrm{m/s^2}\\), dvakrat več kot pri \\(R=2\\) (\\(2\\cdot4{,}5=9\\)). Obhodni čas ostane \\(\\approx4{,}189\\ \\mathrm{s}\\): večja krožnica je dalj, a točka je hitrejša.',
+            'The speed is \\(6\\ \\mathrm{m/s}\\), the size of the acceleration \\(9\\ \\mathrm{m/s^2}\\), twice as large as at \\(R=2\\) (\\(2\\cdot4.5=9\\)). The period stays \\(\\approx4.189\\ \\mathrm{s}\\): the larger circle is longer, but the point is faster.',
+        )],
+        scene: kn4Scene('kn4-radius-scene', {showVelocity: true, showAcceleration: true}, KN4_QUARTER,
+            'Kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(\\pi/3\\), obe puščici; izhodišče, od koder spreminjamo \\(R\\): hitrost \\(3\\ \\mathrm{m/s}\\), pospešek \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'Circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(\\pi/3\\), both arrows; the starting point from which we change \\(R\\): speed \\(3\\ \\mathrm{m/s}\\), acceleration \\(4.5\\ \\mathrm{m/s^2}\\).'),
+    }),
+    step({
+        id: 'kn4-speed', order: 6,
+        title: text('Podvojimo polmer pri enaki hitrosti', 'Doubling the radius at the same speed'),
+        purpose: text('Napovedati pospešek pri dvakrat večjem polmeru, ko je velikost hitrosti enaka.', 'Predicting the acceleration at a doubled radius when the speed stays the same.'),
+        explanation: text(
+            'Graf ne drži hitrosti stalne sam, zato jo moramo ohraniti sami. Polmer podvojimo na \\(R=4\\ \\mathrm{m}\\), kotno hitrost pa nastavimo tako, da je velikost hitrosti spet \\(3\\ \\mathrm{m/s}\\) (kotne hitrosti so na korakih po \\(0{,}25\\ \\mathrm{rad/s}\\)). Napovej: katera kotna hitrost to je in kolikšen je tedaj pospešek?',
+            'The graph does not hold the speed constant by itself, so we must keep it ourselves. Double the radius to \\(R=4\\ \\mathrm{m}\\) and set the angular velocity so that the speed is \\(3\\ \\mathrm{m/s}\\) again (the angular velocities are in steps of \\(0.25\\ \\mathrm{rad/s}\\)). Predict: which angular velocity is it, and what is the acceleration then?',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato nastavi \\(R=4\\) in \\(\\omega\\) ter preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(R=4\\) and \\(\\omega\\) and read the speed, the acceleration and the period.'),
+        expectedObservations: [text(
+            'Treba je \\(\\omega=0{,}75\\ \\mathrm{rad/s}\\). Velikost hitrosti je \\(3\\ \\mathrm{m/s}\\), pospešek pa \\(2{,}25\\ \\mathrm{m/s^2}\\), polovica prejšnjih \\(4{,}5\\) (\\(v^2/R=9/4\\)). Obhodni čas je \\(\\approx8{,}378\\ \\mathrm{s}\\).',
+            'It takes \\(\\omega=0.75\\ \\mathrm{rad/s}\\). The speed is \\(3\\ \\mathrm{m/s}\\) and the acceleration is \\(2.25\\ \\mathrm{m/s^2}\\), half of the previous \\(4.5\\) (\\(v^2/R=9/4\\)). The period is \\(\\approx8.378\\ \\mathrm{s}\\).',
+        )],
+        scene: kn4Scene('kn4-speed-scene', {showVelocity: true, showAcceleration: true}, KN4_QUARTER,
+            'Kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(\\pi/3\\), obe puščici; izhodišče, od koder spreminjamo \\(R\\) in \\(\\omega\\): hitrost \\(3\\ \\mathrm{m/s}\\), pospešek \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'Circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(\\pi/3\\), both arrows; the starting point from which we change \\(R\\) and \\(\\omega\\): speed \\(3\\ \\mathrm{m/s}\\), acceleration \\(4.5\\ \\mathrm{m/s^2}\\).'),
+    }),
+    step({
+        id: 'kn4-explore', order: 7,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Z lastnima \\(R\\) in \\(\\omega\\) napovedati pospešek po formuli in ga preveriti.', 'Predicting the acceleration for your own \\(R\\) and \\(\\omega\\) with the formula and checking it.'),
+        explanation: text(
+            'Enačbe spodaj povzamejo prejšnje korake; primer za \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\) je izračunan. Izberi svoj polmer (\\(0{,}5\\) do \\(4\\ \\mathrm{m}\\), korak \\(0{,}5\\)) in kotno hitrost (\\(0{,}5\\) do \\(4\\ \\mathrm{rad/s}\\), korak \\(0{,}25\\)), izračunaj velikost hitrosti in pospeška, in šele nato preberi odčitka. Preveri še, da pospešek kaže proti središču ob vsakem času. Lekcija o tangentnem in normalnem pospešku (naslednja v poglavju) isto razstavitev uporabi na poteh, ki niso krožnice.',
+            'The equations below sum up the previous steps; the example for \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\) is worked out. Choose your own radius (\\(0.5\\) to \\(4\\ \\mathrm{m}\\), step \\(0.5\\)) and angular velocity (\\(0.5\\) to \\(4\\ \\mathrm{rad/s}\\), step \\(0.25\\)), compute the speed and the acceleration, and only then read the two readouts. Also check that the acceleration points to the centre at every time. The lesson on tangential and normal acceleration (the next one in the chapter) uses the same split on paths that are not circles.',
+        ),
+        formulaIds: ['uniform-circle'],
+        workedExampleId: 'kn4-formula',
+        observationPrompt: text('Najprej izračunaj \\(\\omega R\\) in \\(\\omega^2R\\) za svoja \\(R\\) in \\(\\omega\\), nato ju primerjaj z odčitkoma.', 'First compute \\(\\omega R\\) and \\(\\omega^2R\\) for your own \\(R\\) and \\(\\omega\\), then compare them with the readouts.'),
+        expectedObservations: [text(
+            'Račun in odčitka se ujemata. Na primer \\(R=3\\ \\mathrm{m}\\), \\(\\omega=2\\ \\mathrm{rad/s}\\): \\(\\omega R=6\\ \\mathrm{m/s}\\), \\(\\omega^2R=12\\ \\mathrm{m/s^2}\\) in \\(v^2/R=36/3=12\\ \\mathrm{m/s^2}\\); ob \\(t\\approx0{,}79\\) je lega približno \\((0;\\,3)\\), hitrost \\((-6;\\,0)\\) in pospešek \\((0;\\,-12)\\).',
+            'The computation and the readouts agree. For example \\(R=3\\ \\mathrm{m}\\), \\(\\omega=2\\ \\mathrm{rad/s}\\): \\(\\omega R=6\\ \\mathrm{m/s}\\), \\(\\omega^2R=12\\ \\mathrm{m/s^2}\\) and \\(v^2/R=36/3=12\\ \\mathrm{m/s^2}\\); at \\(t\\approx0.79\\) the position is approximately \\((0;\\,3)\\), the velocity \\((-6;\\,0)\\) and the acceleration \\((0;\\,-12)\\).',
+        )],
+        scene: kn4Scene('kn4-explore-scene', {showVelocity: true, showAcceleration: true}, KN4_QUARTER,
+            'Začetni primer: kroženje, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\), čas \\(\\pi/3\\), obe puščici.',
+            'The starting case: circular motion, \\(R=2\\ \\mathrm{m}\\), \\(\\omega=1.5\\ \\mathrm{rad/s}\\), time \\(\\pi/3\\), both arrows.'),
+    }),
+];
+
 // ---- Lesson assembly -------------------------------------------------------------------------------------------------------------
 
 const sources: GuidedLesson['sources'] = [
@@ -418,5 +744,56 @@ const kn2: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+const kn3: GuidedLesson = {
+    demonstrationId: 'curve-kinematics',
+    title: text('Poševni met in parabola', 'Projectile motion and the parabola'),
+    summary: text(
+        'Poševni met je gibanje žoge, na katero deluje samo težni pospešek. Z grafom raziščemo, kako se pri njem spreminjata hitrost in lega, kakšna je pot in kako domet zavisi od izstrelnega kota.',
+        'Projectile motion is the motion of a ball with only the gravitational acceleration acting on it. With the graph we explore how its velocity and position change, what the path is and how the range depends on the launch angle.',
+    ),
+    prerequisites: [text('Lekcija o legi, hitrosti in pospešku (prva lekcija poglavja) in kvadratna funkcija.', 'The lesson on position, velocity and acceleration (the first lesson of the chapter) and the quadratic function.')],
+    learningGoals: [
+        text('Veš, da je pri poševnem metu vodoravni del hitrosti stalen, navpični pa se enakomerno spreminja, ker je pospešek stalen in navpičen.', 'Know that in projectile motion the horizontal part of the velocity is constant and the vertical part changes uniformly, because the acceleration is constant and vertical.'),
+        text('Utemeljiš, da je pot parabola, z izločitvijo časa iz enačb lege.', 'Argue that the path is a parabola by eliminating the time from the equations of the position.'),
+        text('Veš, da kota \\(\\alpha\\) in \\(90^\\circ-\\alpha\\) dasta enak domet, in izračunaš čas leta, domet in največjo višino.', 'Know that the angles \\(\\alpha\\) and \\(90^\\circ-\\alpha\\) give the same range, and compute the flight time, the range and the maximum height.'),
+    ],
+    formulaBlocks: kn3Formulas,
+    workedExamples: kn3Examples,
+    steps: kn3Steps,
+    sources,
+    edgeCases: [
+        text('Na vrhu je navpični del hitrosti \\(0\\), hitrost pa ne, saj je vodoravni del \\(v_0\\cos\\alpha\\) pri vseh kotih lekcije (\\(\\alpha\\le85^\\circ\\)) večji od \\(0\\); pospešek je tudi na vrhu \\(g\\).', 'At the top the vertical part of the velocity is \\(0\\) but the velocity is not, because the horizontal part \\(v_0\\cos\\alpha\\) is larger than \\(0\\) for every angle of the lesson (\\(\\alpha\\le85^\\circ\\)); the acceleration at the top is also \\(g\\).'),
+        text('Odčitki so zaokroženi na tri decimalke: ob \\(t=1{,}44\\ \\mathrm{s}\\) je navpični del hitrosti \\(0{,}016\\ \\mathrm{m/s}\\), ker je točen vrh ob \\(t\\approx1{,}4416\\ \\mathrm{s}\\).', 'The readouts are rounded to three decimals: at \\(t=1.44\\ \\mathrm{s}\\) the vertical part of the velocity is \\(0.016\\ \\mathrm{m/s}\\), because the exact top is at \\(t\\approx1.4416\\ \\mathrm{s}\\).'),
+        text('Drsnik časa sega do časa leta; gibanje po pristanku ni del modela.', 'The time slider ends at the flight time; the motion after the landing is not part of the model.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+const kn4: GuidedLesson = {
+    demonstrationId: 'curve-kinematics',
+    title: text('Enakomerno kroženje', 'Uniform circular motion'),
+    summary: text(
+        'Enakomerno kroženje je kroženje po krožnici s stalno kotno hitrostjo. Z grafom raziščemo, kaj se pri njem spreminja, kam kaže pospešek in kako njegova velikost zavisi od polmera in kotne hitrosti.',
+        'Uniform circular motion is motion on a circle with a constant angular velocity. With the graph we explore what changes in it, where the acceleration points and how its size depends on the radius and the angular velocity.',
+    ),
+    prerequisites: [text('Lekcija o legi, hitrosti in pospešku (prva lekcija poglavja) in enotska krožnica.', 'The lesson on position, velocity and acceleration (the first lesson of the chapter) and the unit circle.')],
+    learningGoals: [
+        text('Veš, da se pri enakomernem kroženju vektor hitrosti spreminja samo po smeri in da pospešek kaže proti središču.', 'Know that in uniform circular motion the velocity vector changes only in direction and that the acceleration points to the centre.'),
+        text('Veš, da je velikost centripetalnega pospeška \\(\\omega^2R=v^2/R\\) in izračunaš, kako se spremeni pri spremembi \\(R\\) ali \\(\\omega\\).', 'Know that the size of the centripetal acceleration is \\(\\omega^2R=v^2/R\\) and compute how it changes when \\(R\\) or \\(\\omega\\) changes.'),
+        text('Iz odčitkov na grafu v enotah SI preveriš \\(v=\\omega R\\) in \\(T=2\\pi/\\omega\\).', 'Check \\(v=\\omega R\\) and \\(T=2\\pi/\\omega\\) from the readouts of the graph in SI units.'),
+    ],
+    formulaBlocks: kn4Formulas,
+    workedExamples: kn4Examples,
+    steps: kn4Steps,
+    sources,
+    edgeCases: [
+        text('Tangentni pospešek \\(a_T=0\\) pri enakomernem kroženju izhaja iz izbire gibanja; graf ga pokaže kot zaokroženo vrednost.', 'The tangential acceleration \\(a_T=0\\) in uniform circular motion follows from the choice of motion; the graph shows it as a rounded value.'),
+        text('Graf nima izbire, katero količino držimo stalno; pri spremembi polmera pri stalni velikosti hitrosti je treba kotno hitrost nastaviti sam (polje ima korake po \\(0{,}25\\ \\mathrm{rad/s}\\)).', 'The graph has no choice of which quantity to hold constant; to change the radius at a constant speed one must set the angular velocity oneself (the field has steps of \\(0.25\\ \\mathrm{rad/s}\\)).'),
+    ],
+    unresolvedQuestions: [],
+};
+
 export const kinematicsVectorsLesson: GuidedLesson = kn1;
 export const kinematicsSpeedLesson: GuidedLesson = kn2;
+export const kinematicsProjectileLesson: GuidedLesson = kn3;
+export const kinematicsCircularLesson: GuidedLesson = kn4;
