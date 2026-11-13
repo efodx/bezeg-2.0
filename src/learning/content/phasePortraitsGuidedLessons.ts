@@ -81,7 +81,6 @@ const planeScene = (id: string, spec: PhasePlaneSceneSpec, sl: string, en: strin
 /** PP1. Matrices in stored quarter units; E = (4 1; 2 3) of linear-maps L3 and N = -E (the Demonstration default). */
 const MATRIX_E = {A: 16, B: 4, C: 8, D: 12} as const;
 const MATRIX_N = {A: -16, B: -4, C: -8, D: -12} as const;
-const MATRIX_SADDLE = {A: 4, B: 0, C: 0, D: -4} as const;
 const MATRIX_NEAR_CENTRE = {A: 0, B: -4, C: 4, D: -1} as const;
 const MATRIX_CENTRE = {A: 0, B: -4, C: 4, D: 0} as const;
 export const PP1_UNSTABLE = {system: 'linear', matrix: MATRIX_E, seeds: [{X: 20, Y: 0}]} as const;
