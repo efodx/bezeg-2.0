@@ -297,6 +297,9 @@ export type LessonAction =
     | {readonly kind: 'linear-map'; readonly operation: 'set-example'; readonly exampleId: LinearMapExampleId}
     /** `set-conic` switches the ellipse mode's conic x^T S x = 1 (symmetric part S) on or off, as the inspector switch does; `visible` must be a boolean. */
     | {readonly kind: 'linear-map'; readonly operation: 'set-conic'; readonly visible: boolean}
+    /** Batch D: `set-start` sets the iteration's start vector (grid coordinates); `step` advances the iteration by `count` (1 to 30, default 1, relative to the current step). */
+    | {readonly kind: 'linear-map'; readonly operation: 'set-start'; readonly start: readonly [number, number]}
+    | {readonly kind: 'linear-map'; readonly operation: 'step'; readonly count?: number}
     /**
      * PointSetGraph's scene actions. `set-points` replaces the model (grid step 0); scene data is strict, so an off-grid,
      * out-of-range or over-limit point is a lesson-content error and never snapped. `set-overlay` accepts only the

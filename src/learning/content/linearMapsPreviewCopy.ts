@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the Linear maps chapter, keyed by example id (L1 to L4 share one Demonstration). */
+/** Describes each prepared opening scene of the Linear maps chapter, keyed by example id (L1 to L4, L6 and L7 share one Demonstration). */
 export const linearMapsPreviewCopy = {
     'linear-maps.matrix-and-image.linear-map': copy(
         'Enotska mreža, enotski kvadrat in Bézierjeva krivulja pod identiteto, z ročicama za stolpca matrike.',
@@ -30,5 +30,17 @@ export const linearMapsPreviewCopy = {
         'The unit grid, the unit square and a Bézier curve with their images under the matrix \\(S_y\\) with columns \\((2,1)\\) and \\((1,2)\\), with the column readout.',
         'Slika mreže je paralelogramska mreža, ki jo napenjata stolpca \\((2,1)\\) in \\((1,2)\\); slike enotske krožnice na tej sliki še ni.',
         'The image of the grid is the parallelogram grid spanned by the columns \\((2,1)\\) and \\((1,2)\\); the image of the unit circle is not drawn in this view yet.',
+    ),
+    'linear-maps.power-method.linear-map': copy(
+        'Enotska mreža, enotski kvadrat in Bézierjeva krivulja ter njihove slike pri matriki \\(E\\) s stolpcema \\((4,2)\\) in \\((1,3)\\), z odčitkom stolpcev; iteratov še ni.',
+        'The unit grid, the unit square and a Bézier curve with their images under the matrix \\(E\\) with columns \\((4,2)\\) and \\((1,3)\\), with the column readout; no iterates yet.',
+        'Slika mreže je paralelogramska mreža, ki jo napenjata stolpca \\((4,2)\\) in \\((1,3)\\); začetni vektor \\(v_0=(1,0)\\) je nastavljen, iteratov pa graf v tem prikazu ne kaže.',
+        'The image of the grid is the parallelogram grid spanned by the columns \\((4,2)\\) and \\((1,3)\\); the start vector \\(v_0=(1,0)\\) is set, but the graph shows no iterates in this view.',
+    ),
+    'linear-maps.trace-determinant.linear-map': copy(
+        'Enotska mreža, enotski kvadrat in Bézierjeva krivulja ter njihove slike pri matriki \\(Z\\) s stolpcema \\((1,1)\\) in \\((-1,1)\\), z odčitkom stolpcev.',
+        'The unit grid, the unit square and a Bézier curve with their images under the matrix \\(Z\\) with columns \\((1,1)\\) and \\((-1,1)\\), with the column readout.',
+        'Slika mreže je paralelogramska mreža, ki jo napenjata stolpca \\((1,1)\\) in \\((-1,1)\\); točke \\((\\tau,\\delta)\\) in trikotnika stabilnosti v tem prikazu še ni.',
+        'The image of the grid is the parallelogram grid spanned by the columns \\((1,1)\\) and \\((-1,1)\\); the point \\((\\tau,\\delta)\\) and the stability triangle are not in this view yet.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

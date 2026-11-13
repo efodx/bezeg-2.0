@@ -6,7 +6,7 @@ import type {LessonAction, LessonDefinition, LessonFrame, LessonStep, LessonWork
 const words = (sl: string, en: string): LocalizedText => ({sl, en});
 
 const defaultScene = (sceneId: string): LessonAction => ({kind: 'prepared-scene', sceneId, source: 'demonstration-default'});
-const mode = (value: 'basis' | 'determinant' | 'eigen' | 'ellipse'): LessonAction => ({kind: 'linear-map', operation: 'set-mode', mode: value});
+const mode = (value: 'basis' | 'determinant' | 'eigen' | 'ellipse' | 'iterate' | 'tracedet'): LessonAction => ({kind: 'linear-map', operation: 'set-mode', mode: value});
 /** The test vector v of the eigen mode: the angle in degrees on the 0,01 degree grid. */
 const testVector = (angle: number): LessonAction => ({kind: 'linear-map', operation: 'set-test-vector', angle});
 /** The ellipse mode's conic x^T S x = 1 of the symmetric part, drawn or not. */
@@ -15,6 +15,8 @@ const example = (exampleId: Extract<LessonAction, {kind: 'linear-map', operation
     ({kind: 'linear-map', operation: 'set-example', exampleId});
 const matrix = (m: Extract<LessonAction, {kind: 'linear-map', operation: 'set-matrix'}>['matrix']): LessonAction =>
     ({kind: 'linear-map', operation: 'set-matrix', matrix: m});
+/** The start vector v0 of the iterate mode (the quarter grid); the step is not reset by it. */
+const start = (v: readonly [number, number]): LessonAction => ({kind: 'linear-map', operation: 'set-start', start: v});
 
 function step(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[]): LessonStep {
     return {id, title, body, prompt, scene: {actions: [defaultScene(`linear-map-${id}`), ...actions]}};
@@ -416,6 +418,299 @@ export const linearMapEllipseLesson: LessonDefinition = {
                 'A circle: for example \\(R\\) or \\(\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}\\) with \\(\\sigma_1=\\sigma_2=\\sqrt2\\). \\(\\sigma_2=0\\) means \\(\\det A=0\\), for example \\(C\\): the image is a segment, not an ellipse. For \\(N\\) the symmetric part \\(\\begin{pmatrix}2&\\tfrac12\\\\\\tfrac12&1\\end{pmatrix}\\) is positive definite and the conic is an ellipse. For \\(F\\) the symmetric part is \\(F\\) itself, indefinite: the conic is a hyperbola, which the graph describes but does not draw.',
             )],
             actions: [mode('ellipse'), example('basis-default'), conic(false)],
+        }),
+    ],
+};
+
+// L6 and L7 (Batch D) run on the iterate and tracedet modes of the same graph. Both modes draw their lines, readouts and statuses at once, so
+// every step that predicts one of them opens in the basis mode (or, where the opening shows only what an earlier step already answered, in
+// the mode itself) and tells the learner to choose the view mode. The start vector and the step persist when the view mode is changed.
+
+export const linearMapPowerMethodLesson: LessonDefinition = {
+    id: 'linear-map-power-method',
+    demonstrationId: 'linear-map',
+    title: words('Potenčna metoda: iteriranje matrike', 'The power method: iterating a matrix'),
+    summary: words(
+        'Iterat je \\(k\\)-ti člen zaporedja \\(A^kv_0\\): matrika \\(A\\), uporabljena \\(k\\)-krat na začetnem vektorju \\(v_0\\). Potenčna metoda opazuje smer in dolžino iteratov. Lekcija pokaže, kaj se z njima dogaja pri eni matriki, kako hitro in zakaj, ter v katerih primerih se smer ne ustali.',
+        'An iterate is the \\(k\\)th term of the sequence \\(A^kv_0\\): the matrix \\(A\\) applied \\(k\\) times to the start vector \\(v_0\\). The power method watches the direction and the length of the iterates. The lesson shows what happens to them for one matrix, how fast and why, and in which cases the direction does not settle.',
+    ),
+    steps: [
+        framedStep({
+            id: 'power-first',
+            title: words('Ponavljanje matrike', 'Applying a matrix again and again'),
+            explanation: words(
+                'Matriko \\(A\\) lahko uporabimo večkrat: iz vektorja \\(v_0\\) dobimo \\(Av_0\\), iz njega \\(A^2v_0\\) in tako naprej. Vektor \\(A^kv_0\\) imenujemo iterat (\\(k\\)-ti člen zaporedja \\(A^kv_0\\)); postopek, ki opazuje iterate, je potenčna metoda. Vzemimo matriko \\(E\\) s stolpcema \\((4,2)\\) in \\((1,3)\\) iz lekcije o lastnih smereh in začetni vektor \\(v_0=(1,0)\\). Slika zdaj kaže le mrežo in njeno sliko pri \\(E\\).',
+                'We may apply a matrix \\(A\\) several times: from a vector \\(v_0\\) we get \\(Av_0\\), from that \\(A^2v_0\\), and so on. The vector \\(A^kv_0\\) is called an iterate (the \\(k\\)th term of the sequence \\(A^kv_0\\)); the method that watches the iterates is the power method. Take the matrix \\(E\\) with columns \\((4,2)\\) and \\((1,3)\\) from the lesson on eigen-directions and the start vector \\(v_0=(1,0)\\). The picture now shows only the grid and its image under \\(E\\).',
+            ),
+            worked: worked(
+                words('Prvi iterat', 'The first iterate'),
+                '\\[E\\begin{pmatrix}1\\\\0\\end{pmatrix}=\\begin{pmatrix}4\\cdot1+1\\cdot0\\\\2\\cdot1+3\\cdot0\\end{pmatrix}\\]',
+                '\\[=\\begin{pmatrix}4\\\\2\\end{pmatrix}\\]',
+                words('Prvi iterat je prvi stolpec matrike \\(E\\), saj je \\(v_0=e_1\\).', 'The first iterate is the first column of \\(E\\), because \\(v_0=e_1\\).'),
+            ),
+            prompt: words(
+                'Napovej: proti kateri smeri se obrača smer iteratov \\(E^kv_0\\), ko računamo korak za korakom, in kaj se dogaja z njihovo dolžino? Pomagaj si z lastnimi smermi matrike \\(E\\), ki jih poznaš. Nato izberi način prikaza »Potenčna metoda« in z gumbom »Naslednji korak« preveri.',
+                'Predict: towards which direction do the iterates \\(E^kv_0\\) turn as we compute step by step, and what happens to their length? Use the eigen-directions of \\(E\\) that you know. Then choose the "Power method" view mode and check with the "Next step" button.',
+            ),
+            expected: [words(
+                'Smer iteratov se obrača proti smeri \\((1,1)\\), lastni smeri matrike \\(E\\) z lastno vrednostjo \\(5\\); dolžina iteratov raste. Prvi iterati so \\((4,2)\\), \\((18,14)\\), \\((86,78)\\), \\((422,406)\\). Lastna vrednost \\(5\\) je dominantna lastna vrednost: po absolutni vrednosti je strogo večja od druge lastne vrednosti, \\(2\\).',
+                'The direction of the iterates turns towards the direction \\((1,1)\\), the eigen-direction of \\(E\\) with eigenvalue \\(5\\); the length of the iterates grows. The first iterates are \\((4,2)\\), \\((18,14)\\), \\((86,78)\\), \\((422,406)\\). The eigenvalue \\(5\\) is the dominant eigenvalue: its absolute value is strictly larger than that of the other eigenvalue, \\(2\\).',
+            )],
+            actions: [mode('basis'), example('eigen-default'), start([1, 0])],
+        }),
+        framedStep({
+            id: 'power-settle',
+            title: words('Kdaj se smer ustali?', 'When does the direction settle?'),
+            explanation: words(
+                'Graf zdaj kaže način »Potenčna metoda«. Pike so iterati \\(v_0,Av_0,\\dots,A^kv_0\\); polna črta s puščico je normirani iterat (enotske dolžine, le za prikaz), premica pa dominantna lastna smer. Odčitek »Kot do dominantne smeri« je kot med premico iterata in to smerjo v stopinjah. Ko je kot manjši od \\(1^\\circ\\), graf javi, da se je smer ustalila; to je dogovorjena toleranca, ne točna trditev. Gumb »Naslednji korak« poveča \\(k\\) za \\(1\\), gumb »Ponastavi« med koraki iteracije pa ga vrne na \\(0\\).',
+                'The graph now shows the "Power method" mode. The dots are the iterates \\(v_0,Av_0,\\dots,A^kv_0\\); the solid line with an arrowhead is the normalised iterate (of unit length, for display only), and the straight line is the dominant eigen-direction. The readout "Angle to the dominant direction" is the angle between the line of the iterate and this direction, in degrees. When the angle is below \\(1^\\circ\\), the graph reports that the direction has settled; this is an agreed tolerance, not an exact claim. The "Next step" button raises \\(k\\) by \\(1\\), and the "Reset" button among the iteration steps returns it to \\(0\\).',
+            ),
+            worked: worked(
+                words('Drugi iterat', 'The second iterate'),
+                '\\[E\\begin{pmatrix}4\\\\2\\end{pmatrix}=\\begin{pmatrix}4\\cdot4+1\\cdot2\\\\2\\cdot4+3\\cdot2\\end{pmatrix}\\]',
+                '\\[=\\begin{pmatrix}18\\\\14\\end{pmatrix}\\]',
+                words(
+                    'Smer iterata \\((18,14)\\) ima kot \\(\\arctan\\tfrac{14}{18}\\), približno \\(37{,}87^\\circ\\), od osi \\(x\\); kot do \\(45^\\circ\\) je torej približno \\(7{,}13^\\circ\\).',
+                    'The direction of the iterate \\((18,14)\\) makes the angle \\(\\arctan\\tfrac{14}{18}\\), about \\(37.87^\\circ\\), with the \\(x\\)-axis; the angle to \\(45^\\circ\\) is therefore about \\(7.13^\\circ\\).',
+                ),
+            ),
+            prompt: words(
+                'Napovej: pri katerem koraku \\(k\\) je kot do dominantne smeri prvič manjši od \\(1^\\circ\\)? Zapiši napoved, nato pritiskaj »Naslednji korak« in odčitavaj kot.',
+                'Predict: at which step \\(k\\) is the angle to the dominant direction first below \\(1^\\circ\\)? Write the prediction down, then press "Next step" and read the angle.',
+            ),
+            expected: [words(
+                'Pri \\(k=5\\). Koti do dominantne smeri so za \\(k=0,1,\\dots,5\\) približno \\(45^\\circ\\), \\(18{,}43^\\circ\\), \\(7{,}13^\\circ\\), \\(2{,}79^\\circ\\), \\(1{,}11^\\circ\\), \\(0{,}44^\\circ\\); pri \\(k=4\\) je kot še nad \\(1^\\circ\\), pri \\(k=5\\) graf javi, da se je smer ustalila. To je dogovorjena toleranca: za drugačno mejo bi bil odgovor drugačen.',
+                'At \\(k=5\\). The angles to the dominant direction for \\(k=0,1,\\dots,5\\) are about \\(45^\\circ\\), \\(18.43^\\circ\\), \\(7.13^\\circ\\), \\(2.79^\\circ\\), \\(1.11^\\circ\\), \\(0.44^\\circ\\); at \\(k=4\\) the angle is still above \\(1^\\circ\\), at \\(k=5\\) the graph reports that the direction has settled. This is an agreed tolerance: a different limit would give a different answer.',
+            )],
+            actions: [mode('iterate'), example('eigen-default'), start([1, 0])],
+        }),
+        framedStep({
+            id: 'power-stretch',
+            title: words('Raztegnitev in napaka', 'Stretch and error'),
+            explanation: words(
+                'Ugotovitve iz grafa lahko izpeljemo. Raztegnitev pri koraku \\(k\\) je razmerje \\(|A^kv_0|/|A^{k-1}v_0|\\), napaka pa kot med smerjo iterata in dominantno smerjo. Zapišemo \\(v_0\\) po lastnih vektorjih matrike \\(E\\): \\(v=(1,1)\\) z \\(Ev=5v\\) in \\(w=(1,-2)\\) z \\(Ew=2w\\). Ker je \\(E\\) linearna, iz \\(v_0=av+bw\\) sledi \\(Ev_0=5av+2bw\\), in tako naprej pri vsakem koraku. Slika spet kaže le mrežo.',
+                'The observations from the graph can be derived. The stretch at step \\(k\\) is the ratio \\(|A^kv_0|/|A^{k-1}v_0|\\), and the error is the angle between the direction of the iterate and the dominant direction. Write \\(v_0\\) along the eigenvectors of \\(E\\): \\(v=(1,1)\\) with \\(Ev=5v\\) and \\(w=(1,-2)\\) with \\(Ew=2w\\). Because \\(E\\) is linear, \\(v_0=av+bw\\) gives \\(Ev_0=5av+2bw\\), and so on at every step. The picture shows only the grid again.',
+            ),
+            worked: worked(
+                words('Razcep začetnega vektorja', 'Decomposing the start vector'),
+                '\\[\\begin{pmatrix}1\\\\0\\end{pmatrix}=a\\begin{pmatrix}1\\\\1\\end{pmatrix}+b\\begin{pmatrix}1\\\\-2\\end{pmatrix}\\quad\\Rightarrow\\quad a+b=1,\\ a-2b=0\\]',
+                '\\[a=\\tfrac23,\\qquad b=\\tfrac13\\]',
+                words('Preveri: \\(\\tfrac23(1,1)+\\tfrac13(1,-2)=(1,0)\\).', 'Check: \\(\\tfrac23(1,1)+\\tfrac13(1,-2)=(1,0)\\).'),
+            ),
+            prompt: words(
+                'Odčitka »Raztegnitev« in »Razmerje napake« si že videl. Iz razcepa izpelji obliko \\(E^kv_0\\) in pojasni, zakaj gre raztegnitev proti dominantni lastni vrednosti in zakaj se kot do dominantne smeri pri vsakem koraku približno pomnoži prav z razmerjem napake. Nato izberi način »Potenčna metoda«, pritiskaj »Naslednji korak« (do \\(k=9\\)) in primerjaj z odčitkoma »Raztegnitev« in »Razmerje napake«.',
+                'You have already seen the readouts "Stretch" and "Error ratio". From the decomposition derive the form of \\(E^kv_0\\) and explain why the stretch tends to the dominant eigenvalue and why the angle to the dominant direction is multiplied at each step by about the error ratio. Then choose the "Power method" mode, press "Next step" (up to \\(k=9\\)) and compare with the readouts "Stretch" and "Error ratio".',
+            ),
+            expected: [words(
+                'Iz \\(v_0=\\tfrac23v+\\tfrac13w\\) sledi \\(E^kv_0=\\tfrac23\\,5^kv+\\tfrac13\\,2^kw\\). Prvi člen raste s \\(5^k\\), drugi z \\(2^k\\), zato se smer približuje smeri \\(v\\), raztegnitev gre proti \\(5\\), napaka pa se pri vsakem koraku približno pomnoži z \\(\\tfrac25=0{,}4\\), razmerjem absolutnih vrednosti lastnih vrednosti \\(|\\lambda_2/\\lambda_1|\\). Graf kaže raztegnitev približno \\(5{,}099\\) pri \\(k=2\\), \\(5{,}0185\\) pri \\(k=5\\) in \\(5{,}0005\\) pri \\(k=9\\); odčitek razmerja napake je \\(0{,}4\\). Kota \\(2{,}79^\\circ\\) in \\(1{,}11^\\circ\\) (pri \\(k=3\\) in \\(4\\)) se razlikujeta za faktor približno \\(0{,}4\\). To je argument iz razcepa po lastnih vektorjih; graf je njegova ilustracija.',
+                'From \\(v_0=\\tfrac23v+\\tfrac13w\\) it follows that \\(E^kv_0=\\tfrac23\\,5^kv+\\tfrac13\\,2^kw\\). The first term grows like \\(5^k\\), the second like \\(2^k\\), so the direction approaches that of \\(v\\), the stretch tends to \\(5\\), and the error is multiplied at each step by about \\(\\tfrac25=0.4\\), the ratio of the absolute values of the eigenvalues \\(|\\lambda_2/\\lambda_1|\\). The graph shows a stretch of about \\(5.099\\) at \\(k=2\\), \\(5.0185\\) at \\(k=5\\) and \\(5.0005\\) at \\(k=9\\); the error ratio readout is \\(0.4\\). The angles \\(2.79^\\circ\\) and \\(1.11^\\circ\\) (at \\(k=3\\) and \\(4\\)) differ by a factor of about \\(0.4\\). This is an argument from the decomposition along eigenvectors; the graph is an illustration of it.',
+            )],
+            actions: [mode('basis'), example('eigen-default'), start([1, 0])],
+        }),
+        framedStep({
+            id: 'power-other-eigenvector',
+            title: words('Začetek na drugi lastni smeri', 'A start on the other eigen-direction'),
+            explanation: words(
+                'Začetni vektor \\(v_0=(1,0)\\) je imel obe komponenti, po \\(v\\) in po \\(w\\). Zdaj vzemimo \\(v_0=(1,-2)\\), torej vektor \\(w\\) iz prejšnjega koraka. Začetni vektor je že nastavljen, slika pa kaže le mrežo.',
+                'The start vector \\(v_0=(1,0)\\) had both components, along \\(v\\) and along \\(w\\). Now take \\(v_0=(1,-2)\\), that is the vector \\(w\\) from the previous step. The start vector is already set, and the picture shows only the grid.',
+            ),
+            prompt: words(
+                'Napovej: kam vodijo iterati začetka \\((1,-2)\\), kolikšna je raztegnitev in kakšen je kot do dominantne smeri? Nato izberi način »Potenčna metoda«, pritisni »Naslednji korak« nekajkrat in preberi odčitke in stanje.',
+                'Predict: where do the iterates of the start \\((1,-2)\\) lead, what is the stretch and what is the angle to the dominant direction? Then choose the "Power method" mode, press "Next step" a few times and read the readouts and the status.',
+            ),
+            expected: [words(
+                'Iterati so \\((2,-4)\\), \\((4,-8)\\), \\((8,-16)\\), \\(\\dots\\): ostanejo na premici lastne vrednosti \\(2\\), raztegnitev je \\(2\\), kot do dominantne smeri pa ostane približno \\(71{,}57^\\circ\\). Graf to javi kot točno stanje (začetek je na drugi lastni smeri). Izrek (smer iteratov se približuje dominantni lastni smeri natanko tedaj, ko dominantna lastna vrednost obstaja in ima začetni vektor komponento vzdolž nje; vir: tečaj Algebra 1 na FMF, naveden, tu ni dokazan) pojasni primer: tu je komponenta enaka \\(0\\). Račun z začetkom \\((1+10^{-6},-2+10^{-6})\\), ki ni na mreži in ga graf ne zna nastaviti, je zunaj grafa v števili s plavajočo vejico pokazal, da pride smer v \\(1^\\circ\\) dominantne smeri šele pri \\(k=20\\): skoraj napačen začetek stane veliko korakov.',
+                'The iterates are \\((2,-4)\\), \\((4,-8)\\), \\((8,-16)\\), \\(\\dots\\): they stay on the line of the eigenvalue \\(2\\), the stretch is \\(2\\), and the angle to the dominant direction stays about \\(71.57^\\circ\\). The graph reports this as an exact status (the start is on the other eigen-direction). The theorem (the direction of the iterates approaches the dominant eigen-direction exactly when a dominant eigenvalue exists and the start vector has a component along it; source: the FMF course Algebra 1, cited, not proved here) explains the case: here the component is \\(0\\). A computation outside the graph in floating point, with the start \\((1+10^{-6},-2+10^{-6})\\), which is off the grid and cannot be set in the graph, showed that the direction comes within \\(1^\\circ\\) of the dominant direction only at \\(k=20\\): an almost wrong start costs many steps.',
+            )],
+            actions: [mode('basis'), example('eigen-default'), start([1, -2])],
+        }),
+        framedStep({
+            id: 'power-no-settling',
+            title: words('Vrtenje brez ustalitve', 'Turning without settling'),
+            explanation: words(
+                'Potenčna metoda potrebuje dominantno realno lastno vrednost. Preizkusimo dve matriki brez nje. Prva je četrtinski zasuk \\(R\\) s stolpcema \\((0,1)\\) in \\((-1,0)\\). Druga je matrika \\(Z=\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}\\) s stolpcema \\(a_1=(1,1)\\) in \\(a_2=(-1,1)\\): njena sled je \\(\\tau=2\\), determinanta \\(\\delta=2\\) in diskriminanta \\(\\Delta=\\tau^2-4\\delta=-4\\). Začetni vektor je spet \\((1,0)\\), slika pa kaže matriko \\(R\\) le v načinu »Slika baze«.',
+                'The power method needs a dominant real eigenvalue. Try two matrices without one. The first is the quarter-turn \\(R\\) with columns \\((0,1)\\) and \\((-1,0)\\). The second is the matrix \\(Z=\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}\\) with columns \\(a_1=(1,1)\\) and \\(a_2=(-1,1)\\): its trace is \\(\\tau=2\\), its determinant \\(\\delta=2\\) and its discriminant \\(\\Delta=\\tau^2-4\\delta=-4\\). The start vector is again \\((1,0)\\), and the picture shows the matrix \\(R\\) only in the "Image of the basis" mode.',
+            ),
+            prompt: words(
+                'Napovej za \\(R\\) in za \\(Z\\): kam se obračajo iterati začetka \\((1,0)\\) in ali se smer ustali? Kakšna je dolžina iteratov? Izberi način »Potenčna metoda« in pritiskaj »Naslednji korak« pri \\(R\\); za \\(Z\\) nato v številskih poljih za stolpca \\(a_1\\) in \\(a_2\\) vpiši \\((1,1)\\) in \\((-1,1)\\), korak vrni z gumbom »Ponastavi« med koraki iteracije in pritiskaj spet.',
+                'Predict for \\(R\\) and for \\(Z\\): where do the iterates of the start \\((1,0)\\) turn, and does the direction settle? What is the length of the iterates? Choose the "Power method" mode and press "Next step" for \\(R\\); for \\(Z\\) then type \\((1,1)\\) and \\((-1,1)\\) into the numeric fields for the columns \\(a_1\\) and \\(a_2\\), return the step with the "Reset" button among the iteration steps and press again.',
+            ),
+            expected: [words(
+                'Pri \\(R\\) iterati \\((1,0)\\), \\((0,1)\\), \\((-1,0)\\), \\((0,-1)\\) in spet \\((1,0)\\): smer se vrti s periodo \\(4\\), dolžina ostane \\(1\\). Pri \\(Z\\) so iterati \\((1,1)\\), \\((0,2)\\), \\((-2,2)\\), \\((-4,0)\\): smer se pri vsakem koraku zavrti za \\(45^\\circ\\), dolžina pa se pomnoži z \\(\\sqrt2\\) (lastni vrednosti sta \\(1\\pm\\mathrm i\\) z absolutno vrednostjo \\(\\sqrt2\\)). Pri obeh graf javi, da lastni vrednosti nista realni in se smer ne ustali (točno, saj je \\(\\Delta<0\\)). To sta ilustraciji izreka iz prejšnjega koraka.',
+                'For \\(R\\) the iterates are \\((1,0)\\), \\((0,1)\\), \\((-1,0)\\), \\((0,-1)\\) and again \\((1,0)\\): the direction turns with period \\(4\\), the length stays \\(1\\). For \\(Z\\) the iterates are \\((1,1)\\), \\((0,2)\\), \\((-2,2)\\), \\((-4,0)\\): the direction turns by \\(45^\\circ\\) at each step and the length is multiplied by \\(\\sqrt2\\) (the eigenvalues are \\(1\\pm\\mathrm i\\), of absolute value \\(\\sqrt2\\)). For both the graph reports that the eigenvalues are not real and the direction does not settle (exact, because \\(\\Delta<0\\)). These are illustrations of the theorem from the previous step.',
+            )],
+            actions: [mode('basis'), example('quarter-turn'), start([1, 0])],
+        }),
+        framedStep({
+            id: 'power-flip',
+            title: words('Dve lastni vrednosti enake velikosti', 'Two eigenvalues of equal size'),
+            explanation: words(
+                'Realni lastni vrednosti ne zadoščata, če nobena ni strogo večja po absolutni vrednosti. Vzemimo matriko \\(Q\\) s stolpcema \\((0,3)\\) in \\((3,0)\\): \\(\\tau=0\\), \\(\\delta=-9\\), karakteristični polinom \\(\\lambda^2-9\\), lastni vrednosti \\(3\\) in \\(-3\\). Začetni vektor \\((1,0)\\) je že nastavljen, slika pa kaže le mrežo.',
+                'Real eigenvalues are not enough if neither is strictly larger in absolute value. Take the matrix \\(Q\\) with columns \\((0,3)\\) and \\((3,0)\\): \\(\\tau=0\\), \\(\\delta=-9\\), characteristic polynomial \\(\\lambda^2-9\\), eigenvalues \\(3\\) and \\(-3\\). The start vector \\((1,0)\\) is already set, and the picture shows only the grid.',
+            ),
+            prompt: words(
+                'Napovej: kam vodijo iterati začetka \\((1,0)\\) in kaj se zgodi s smerjo? Nato izberi način »Potenčna metoda«, pritiskaj »Naslednji korak« in preberi stanje. Še napovej, kaj se zgodi pri začetku \\((1,1)\\), in ga preveri v poljih »Začetni vektor«, x in y.',
+                'Predict: where do the iterates of the start \\((1,0)\\) lead and what happens to the direction? Then choose the "Power method" mode, press "Next step" and read the status. Also predict what happens for the start \\((1,1)\\) and check it in the "Start vector" fields, x and y.',
+            ),
+            expected: [words(
+                'Iterati začetka \\((1,0)\\) so \\((0,3)\\), \\((9,0)\\), \\((0,27)\\), \\(\\dots\\): smer se vedno znova zamenja med osema in se ne ustali, dolžina pa se pomnoži s \\(3\\). Začetek \\((1,1)\\) je lastni vektor z lastno vrednostjo \\(3\\): iterati \\((3,3)\\), \\((9,9)\\) ostanejo na njem. Graf javi enaki absolutni vrednosti lastnih vrednosti (točno): dominantne lastne vrednosti ni. Ker je \\(Q^2=9I\\), se smer ponavlja s periodo \\(2\\) in se ustali le, če začetni vektor leži na lastni smeri. Tudi to je ilustracija izreka.',
+                'The iterates of the start \\((1,0)\\) are \\((0,3)\\), \\((9,0)\\), \\((0,27)\\), \\(\\dots\\): the direction swaps between the axes again and again and does not settle, while the length is multiplied by \\(3\\). The start \\((1,1)\\) is an eigenvector with eigenvalue \\(3\\): the iterates \\((3,3)\\), \\((9,9)\\) stay on it. The graph reports equal absolute values of the eigenvalues (exact): there is no dominant eigenvalue. Because \\(Q^2=9I\\), the direction repeats with period \\(2\\) and settles only if the start vector lies on an eigen-direction. This too is an illustration of the theorem.',
+            )],
+            actions: [mode('basis'), matrix([[0, 3], [3, 0]]), start([1, 0])],
+        }),
+        framedStep({
+            id: 'power-explore',
+            title: words('Prosto raziskovanje', 'Free exploration'),
+            explanation: words(
+                'Matriko spreminjaj z ročicama ali s številskimi vnosi, začetni vektor z ročico ali v poljih »Začetni vektor«; vsi vnosi so večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf stanje (dominantna lastna vrednost, enaka absolutna vrednost, kompleksni lastni vrednosti, večkratnik identitete, ena lastna smer) določi točno, kote, raztegnitve in razmerja pa izračuna; ustalitev smeri je dogovorjena toleranca.',
+                'Change the matrix with the handles or the numeric entries and the start vector with the handle or in the "Start vector" fields; all entries are multiples of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\). The graph decides the case (dominant eigenvalue, equal absolute values, complex eigenvalues, a multiple of the identity, one eigen-direction) exactly, and computes the angles, stretches and ratios; the settling of the direction is an agreed tolerance.',
+            ),
+            prompt: words(
+                'Poišči matriko z dominantno lastno vrednostjo, pri kateri se smer ustali hitreje kot pri \\(E\\) (manjše razmerje \\(|\\lambda_2/\\lambda_1|\\)), in matriko z negativno dominantno lastno vrednostjo. Pri obeh najprej napovej razmerje, nato ga preberi, in pri drugi opazuj predznak iteratov.',
+                'Find a matrix with a dominant eigenvalue for which the direction settles faster than for \\(E\\) (a smaller ratio \\(|\\lambda_2/\\lambda_1|\\)), and a matrix with a negative dominant eigenvalue. For each, first predict the ratio, then read it, and for the second watch the sign of the iterates.',
+            ),
+            expected: [words(
+                'Hitrejša ustalitev: npr. \\(\\begin{pmatrix}4&0\\\\0&1\\end{pmatrix}\\) z začetkom \\((1,1)\\) (razmerje \\(\\tfrac14\\); smer je pri \\(k=3\\) v \\(1^\\circ\\)). Negativna dominantna vrednost: npr. \\(-E\\) s stolpcema \\((-4,-2)\\) in \\((-1,-3)\\) (lastni vrednosti \\(-5\\) in \\(-2\\), razmerje \\(0{,}4\\)): iterati so \\((-4,-2)\\), \\((18,14)\\), \\((-86,-78)\\): vektor menja predznak, premica iterata pa se ustali kot pri \\(E\\), zato odčitek govori o smeri kot premici.',
+                'Faster settling: for example \\(\\begin{pmatrix}4&0\\\\0&1\\end{pmatrix}\\) with the start \\((1,1)\\) (ratio \\(\\tfrac14\\); the direction is within \\(1^\\circ\\) at \\(k=3\\)). A negative dominant eigenvalue: for example \\(-E\\) with columns \\((-4,-2)\\) and \\((-1,-3)\\) (eigenvalues \\(-5\\) and \\(-2\\), ratio \\(0.4\\)): the iterates are \\((-4,-2)\\), \\((18,14)\\), \\((-86,-78)\\): the vector changes sign, while the line of the iterate settles as for \\(E\\), so the readout speaks of the direction as a line.',
+            )],
+            actions: [mode('iterate'), example('identity'), start([1, 0])],
+        }),
+    ],
+};
+
+export const linearMapStabilityLesson: LessonDefinition = {
+    id: 'linear-map-trace-determinant',
+    demonstrationId: 'linear-map',
+    title: words('Sled, determinanta in stabilnost iteracije', 'Trace, determinant and the stability of iteration'),
+    summary: words(
+        'Sled \\(\\tau\\) in determinanta \\(\\delta\\) matrike \\(2\\times2\\) sta števili, ki povesta veliko o lastnih vrednostih. Lekcija ju nariše kot točko \\((\\tau,\\delta)\\) v ravnini in primerja obnašanje iteracije \\(v\\mapsto Av\\) z obnašanjem toka \\(\\dot x=Ax\\).',
+        'The trace \\(\\tau\\) and the determinant \\(\\delta\\) of a \\(2\\times2\\) matrix are two numbers that tell a lot about its eigenvalues. The lesson draws them as a point \\((\\tau,\\delta)\\) in the plane and compares the behaviour of the iteration \\(v\\mapsto Av\\) with that of the flow \\(\\dot x=Ax\\).',
+    ),
+    steps: [
+        framedStep({
+            id: 'td-plane',
+            title: words('Ravnina sled–determinanta', 'The trace–determinant plane'),
+            explanation: words(
+                'Matriki \\(A\\) priredimo točko \\((\\tau,\\delta)\\), kjer je \\(\\tau=\\operatorname{tr}A\\) njena sled in \\(\\delta=\\det A\\) njena determinanta. Diskriminanta \\(\\Delta=\\tau^2-4\\delta\\) iz lekcije o lastnih smereh loči primere lastnih vrednosti; pri \\(\\Delta=0\\) leži točka na paraboli \\(\\delta=\\tau^2/4\\). Vzemimo matriko \\(Z=\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}\\) iz prejšnje lekcije. Slika kaže le njeno mrežo.',
+                'To a matrix \\(A\\) we assign the point \\((\\tau,\\delta)\\), where \\(\\tau=\\operatorname{tr}A\\) is its trace and \\(\\delta=\\det A\\) its determinant. The discriminant \\(\\Delta=\\tau^2-4\\delta\\) from the lesson on eigen-directions separates the cases of eigenvalues; at \\(\\Delta=0\\) the point lies on the parabola \\(\\delta=\\tau^2/4\\). Take the matrix \\(Z=\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}\\) from the previous lesson. The picture shows only its grid.',
+            ),
+            prompt: words(
+                'Izračunaj \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\) za \\(Z\\) in napovej, na kateri strani parabole leži točka \\((\\tau,\\delta)\\) in kakšni sta lastni vrednosti. Nato izberi način prikaza »Ravnina sled–determinanta« in preveri.',
+                'Compute \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\) for \\(Z\\) and predict on which side of the parabola the point \\((\\tau,\\delta)\\) lies and what kind of eigenvalues there are. Then choose the "Trace–determinant plane" view mode and check.',
+            ),
+            expected: [words(
+                '\\(\\tau=1+1=2\\), \\(\\delta=1\\cdot1-(-1)\\cdot1=2\\), \\(\\Delta=4-8=-4<0\\). Točka \\((2,2)\\) leži nad parabolo (\\(\\delta>\\tau^2/4=1\\)), lastni vrednosti sta kompleksni, \\(1\\pm\\mathrm i\\). Graf pri tej točki izpiše tudi stanje glede trikotnika stabilnosti, ki ga razložimo v tretjem koraku.',
+                '\\(\\tau=1+1=2\\), \\(\\delta=1\\cdot1-(-1)\\cdot1=2\\), \\(\\Delta=4-8=-4<0\\). The point \\((2,2)\\) lies above the parabola (\\(\\delta>\\tau^2/4=1\\)), the eigenvalues are complex, \\(1\\pm\\mathrm i\\). For this point the graph also gives a status about the stability triangle, which we explain in the third step.',
+            )],
+            actions: [mode('basis'), matrix([[1, -1], [1, 1]])],
+        }),
+        framedStep({
+            id: 'td-parabola',
+            title: words('Čez parabolo', 'Across the parabola'),
+            explanation: words(
+                'Graf zdaj kaže ravnino sled–determinanta z narisano parabolo \\(\\Delta=0\\) in točko matrike \\(W=\\tfrac12Z\\) s stolpcema \\((\\tfrac12,\\tfrac12)\\) in \\((-\\tfrac12,\\tfrac12)\\). Točko lahko povlečemo. Par \\((\\tau,\\delta)\\) ne določa ene matrike, zato graf po vlečenju uporabi matriko z vrsticama \\((0,1)\\) in \\((-\\delta,\\tau)\\), kar tudi izpiše; vlečemo torej po četrtinski mreži \\(\\tau\\) in \\(\\delta\\). Namesto vlečenja lahko v polja matrike vneseš stolpca \\(a_1=(0,-\\delta)\\) in \\(a_2=(1,\\tau)\\).',
+                'The graph now shows the trace–determinant plane with the parabola \\(\\Delta=0\\) drawn and the point of the matrix \\(W=\\tfrac12Z\\) with columns \\((\\tfrac12,\\tfrac12)\\) and \\((-\\tfrac12,\\tfrac12)\\). The point can be dragged. A pair \\((\\tau,\\delta)\\) does not fix one matrix, so after dragging the graph uses the matrix with rows \\((0,1)\\) and \\((-\\delta,\\tau)\\), and says so; we therefore drag on the quarter grid of \\(\\tau\\) and \\(\\delta\\). Instead of dragging you can enter the columns \\(a_1=(0,-\\delta)\\) and \\(a_2=(1,\\tau)\\) in the matrix fields.',
+            ),
+            prompt: words(
+                'Povleci točko po premici \\(\\tau=1\\) navzdol. Napovej: pri kateri vrednosti \\(\\delta\\) se dotakne parabole in kaj se tam zgodi z lastnima vrednostma? Kaj je pod parabolo? Nato povleci in preberi odčitek \\(\\Delta\\).',
+                'Drag the point down along the line \\(\\tau=1\\). Predict: at which value of \\(\\delta\\) does it touch the parabola and what happens to the eigenvalues there? What is below the parabola? Then drag and read the \\(\\Delta\\) readout.',
+            ),
+            expected: [words(
+                'Na paraboli je \\(\\Delta=\\tau^2-4\\delta=0\\), pri \\(\\tau=1\\) torej \\(\\delta=\\tfrac14\\). Tam je lastna vrednost dvojna, \\(\\tau/2=\\tfrac12\\). Nad parabolo je \\(\\Delta<0\\) (kompleksni lastni vrednosti), pod njo \\(\\Delta>0\\) (dve različni realni). Graf pri \\((1,\\tfrac14)\\) pokaže \\(\\Delta=0\\) in pri \\((1,\\tfrac12)\\) \\(\\Delta=-1\\). Matrika, s katero graf dela po vlečenju, je \\(\\begin{pmatrix}0&1\\\\-\\delta&\\tau\\end{pmatrix}\\), njena sled in determinanta pa sta natanko \\(\\tau\\) in \\(\\delta\\).',
+                'On the parabola \\(\\Delta=\\tau^2-4\\delta=0\\), so for \\(\\tau=1\\) we get \\(\\delta=\\tfrac14\\). There the eigenvalue is double, \\(\\tau/2=\\tfrac12\\). Above the parabola \\(\\Delta<0\\) (complex eigenvalues), below it \\(\\Delta>0\\) (two distinct real ones). At \\((1,\\tfrac14)\\) the graph shows \\(\\Delta=0\\) and at \\((1,\\tfrac12)\\) \\(\\Delta=-1\\). The matrix the graph works with after dragging is \\(\\begin{pmatrix}0&1\\\\-\\delta&\\tau\\end{pmatrix}\\), and its trace and determinant are exactly \\(\\tau\\) and \\(\\delta\\).',
+            )],
+            actions: [mode('tracedet'), matrix([[0.5, -0.5], [0.5, 0.5]])],
+        }),
+        framedStep({
+            id: 'td-triangle',
+            title: words('Trikotnik stabilnosti', 'The stability triangle'),
+            explanation: words(
+                'Izrek (za matrike \\(2\\times2\\); pogoji Juryja in Schur–Cohna, vir: standardni učbeniki diskretnih dinamičnih sistemov, tu navedeni, ne dokazani): vsa zaporedja \\(A^kv\\) se bližajo \\(0\\) natanko tedaj, ko imata obe lastni vrednosti absolutno vrednost manjšo od \\(1\\), to je natanko tedaj, ko je \\(\\delta<1\\) in \\(|\\tau|<1+\\delta\\). Ti neenakosti omejita trikotnik stabilnosti z oglišči \\((-2,1)\\), \\((2,1)\\) in \\((0,-1)\\). Narisan trikotnik je ilustracija izreka. Vzemimo matriko \\(M\\) s stolpcema \\((\\tfrac12,\\tfrac14)\\) in \\((\\tfrac14,\\tfrac12)\\) in začetni vektor \\((4,0)\\); slika kaže le mrežo.',
+                'Theorem (for \\(2\\times2\\) matrices; the Jury and Schur–Cohn conditions, source: standard texts on discrete dynamical systems, cited here, not proved): all sequences \\(A^kv\\) tend to \\(0\\) exactly when both eigenvalues have absolute value less than \\(1\\), that is exactly when \\(\\delta<1\\) and \\(|\\tau|<1+\\delta\\). These inequalities bound the stability triangle with vertices \\((-2,1)\\), \\((2,1)\\) and \\((0,-1)\\). The drawn triangle is an illustration of the theorem. Take the matrix \\(M\\) with columns \\((\\tfrac12,\\tfrac14)\\) and \\((\\tfrac14,\\tfrac12)\\) and the start vector \\((4,0)\\); the picture shows only the grid.',
+            ),
+            worked: worked(
+                words('Sled in determinanta matrike \\(M\\)', 'Trace and determinant of \\(M\\)'),
+                '\\[\\tau=\\tfrac12+\\tfrac12,\\qquad \\delta=\\tfrac12\\cdot\\tfrac12-\\tfrac14\\cdot\\tfrac14\\]',
+                '\\[\\delta<1,\\qquad |\\tau|<1+\\delta\\]',
+                words('Izračunaj \\(\\tau\\) in \\(\\delta\\) ter preveri obe neenakosti.', 'Compute \\(\\tau\\) and \\(\\delta\\) and check both inequalities.'),
+            ),
+            prompt: words(
+                'Napovej: ali točka \\((\\tau,\\delta)\\) matrike \\(M\\) leži v trikotniku? Ali se iterati začetka \\((4,0)\\) krčijo proti \\(0\\), in kolikšna je raztegnitev po več korakih? Nato izberi način »Ravnina sled–determinanta« in preberi stanje; za iterate izberi način »Potenčna metoda« in pritisni »Naslednji korak« desetkrat.',
+                'Predict: does the point \\((\\tau,\\delta)\\) of \\(M\\) lie in the triangle? Do the iterates of the start \\((4,0)\\) shrink towards \\(0\\), and what is the stretch after several steps? Then choose the "Trace–determinant plane" mode and read the status; for the iterates choose the "Power method" mode and press "Next step" ten times.',
+            ),
+            expected: [words(
+                'Velja \\(\\tau=1\\), \\(\\delta=\\tfrac3{16}\\) in \\(\\Delta=1-\\tfrac34=\\tfrac14\\). Ker je \\(\\delta=\\tfrac3{16}<1\\) in \\(|\\tau|=1<1+\\tfrac3{16}\\), je točka znotraj trikotnika. Lastni vrednosti sta \\(\\tfrac34\\) in \\(\\tfrac14\\) (\\(\\lambda=\\tfrac{1\\pm\\sqrt{1/4}}{2}\\)), obe z absolutno vrednostjo manjšo od \\(1\\), zato se iterati krčijo. Graf pri \\(k=10\\) pokaže iterat približno \\((0{,}11,0{,}11)\\) in raztegnitev približno \\(0{,}75\\), kar je dominantna lastna vrednost. To je ilustracija za končno število korakov; izrek pove, da velja za vsak začetni vektor.',
+                'We get \\(\\tau=1\\), \\(\\delta=\\tfrac3{16}\\) and \\(\\Delta=1-\\tfrac34=\\tfrac14\\). Since \\(\\delta=\\tfrac3{16}<1\\) and \\(|\\tau|=1<1+\\tfrac3{16}\\), the point is inside the triangle. The eigenvalues are \\(\\tfrac34\\) and \\(\\tfrac14\\) (\\(\\lambda=\\tfrac{1\\pm\\sqrt{1/4}}{2}\\)), both of absolute value less than \\(1\\), so the iterates shrink. At \\(k=10\\) the graph shows an iterate of about \\((0.11,0.11)\\) and a stretch of about \\(0.75\\), which is the dominant eigenvalue. This is an illustration for a finite number of steps; the theorem says that it holds for every start vector.',
+            )],
+            actions: [mode('basis'), matrix([[0.5, 0.25], [0.25, 0.5]]), start([4, 0])],
+        }),
+        framedStep({
+            id: 'td-edges',
+            title: words('Skozi tri robove', 'Through the three edges'),
+            explanation: words(
+                'Trikotnik ima tri robove: \\(\\delta=1\\), \\(\\tau=1+\\delta\\) in \\(\\tau=-(1+\\delta)\\). Na robu se katera od lastnih vrednosti dotakne enotske krožnice. Karakteristični polinom matrike je \\(p(\\lambda)=\\lambda^2-\\tau\\lambda+\\delta\\), produkt lastnih vrednosti je \\(\\delta\\). Graf kaže matriko \\(M\\) v ravnini sled–determinanta; po vlečenju točke uporabi matriko \\(\\begin{pmatrix}0&1\\\\-\\delta&\\tau\\end{pmatrix}\\).',
+                'The triangle has three edges: \\(\\delta=1\\), \\(\\tau=1+\\delta\\) and \\(\\tau=-(1+\\delta)\\). On an edge an eigenvalue touches the unit circle. The characteristic polynomial of a matrix is \\(p(\\lambda)=\\lambda^2-\\tau\\lambda+\\delta\\), and the product of the eigenvalues is \\(\\delta\\). The graph shows the matrix \\(M\\) in the trace–determinant plane; after dragging the point it uses the matrix \\(\\begin{pmatrix}0&1\\\\-\\delta&\\tau\\end{pmatrix}\\).',
+            ),
+            prompt: words(
+                'Napovej za vsak rob, kakšna je lastna vrednost na njem (namig: kaj velja za \\(p(\\lambda)\\), če je \\(\\lambda\\) lastna vrednost, in kaj pomeni produkt \\(\\delta\\) pri kompleksnem paru?). Nato povleci točko na vsak rob, npr. v \\((1,0)\\), \\((-1,0)\\) in \\((0,1)\\), in preberi stanje; povleci jo tudi čez rob.',
+                'For each edge predict what the eigenvalue on it is (hint: what holds for \\(p(\\lambda)\\) when \\(\\lambda\\) is an eigenvalue, and what does the product \\(\\delta\\) mean for a complex pair?). Then drag the point onto each edge, for example to \\((1,0)\\), \\((-1,0)\\) and \\((0,1)\\), and read the status; also drag it across an edge.',
+            ),
+            expected: [words(
+                '\\(p(1)=1-\\tau+\\delta=0\\) je \\(\\tau=1+\\delta\\): ena lastna vrednost je \\(1\\) (npr. \\((1,0)\\)). \\(p(-1)=1+\\tau+\\delta=0\\) je \\(\\tau=-(1+\\delta)\\): ena lastna vrednost je \\(-1\\) (npr. \\((-1,0)\\)). Pri \\(\\delta=1\\) in \\(|\\tau|<2\\) je par kompleksen, produkt \\(1\\) pa pomeni absolutno vrednost \\(1\\) (npr. \\((0,1)\\), četrtinski zasuk). Graf pri vsaki točki izpiše, na katerem robu je. Čez rob postane točka zunanja in graf javi, da nekatera zaporedja rastejo.',
+                '\\(p(1)=1-\\tau+\\delta=0\\) is \\(\\tau=1+\\delta\\): one eigenvalue is \\(1\\) (for example \\((1,0)\\)). \\(p(-1)=1+\\tau+\\delta=0\\) is \\(\\tau=-(1+\\delta)\\): one eigenvalue is \\(-1\\) (for example \\((-1,0)\\)). For \\(\\delta=1\\) and \\(|\\tau|<2\\) the pair is complex, and the product \\(1\\) means absolute value \\(1\\) (for example \\((0,1)\\), the quarter-turn). For each point the graph says which edge it is on. Across an edge the point becomes outside and the graph reports that some sequences grow.',
+            )],
+            actions: [mode('tracedet'), matrix([[0.5, 0.25], [0.25, 0.5]])],
+        }),
+        framedStep({
+            id: 'td-flow',
+            title: words('Iteracija in tok', 'Iteration and flow'),
+            explanation: words(
+                'Ista ravnina ureja tudi tok \\(\\dot x=Ax\\), ki ga obravnavajo fazni portreti, vendar je stabilno območje tam drugo: \\(\\tau<0\\) in \\(\\delta>0\\) (trditev iz načrta za fazne portrete, tu navedena, ne dokazana). Graf ga nariše kot območje, označeno z besedilom. Primerjajmo \\(M\\) iz prejšnjega koraka z matriko \\(-E\\) s stolpcema \\((-4,-2)\\) in \\((-1,-3)\\); začetni vektor \\((1,0)\\), slika kaže mrežo.',
+                'The same plane governs the flow \\(\\dot x=Ax\\) treated in phase portraits, but the stable region there is different: \\(\\tau<0\\) and \\(\\delta>0\\) (a statement from the phase-portraits plan, cited here, not proved). The graph draws it as a region labelled with text. Compare \\(M\\) from the previous step with the matrix \\(-E\\) with columns \\((-4,-2)\\) and \\((-1,-3)\\); the start vector is \\((1,0)\\), and the picture shows the grid.',
+            ),
+            prompt: words(
+                'Izračunaj \\(\\tau\\) in \\(\\delta\\) za \\(-E\\) in napovej, ali je stabilna za iteracijo (v trikotniku) in ali za tok. Kako je z \\(M\\)? Nato izberi načina »Ravnina sled–determinanta« in »Potenčna metoda« in preveri.',
+                'Compute \\(\\tau\\) and \\(\\delta\\) for \\(-E\\) and predict whether it is stable for the iteration (in the triangle) and for the flow. And \\(M\\)? Then choose the "Trace–determinant plane" and "Power method" modes and check.',
+            ),
+            expected: [words(
+                'Za \\(-E\\): \\(\\tau=-7\\), \\(\\delta=10\\), \\(\\Delta=9\\), lastni vrednosti \\(-5\\) in \\(-2\\). Zaradi \\(\\delta>1\\) je zunaj trikotnika (iterati rastejo, predznak se menja: \\((-4,-2)\\), \\((18,14)\\), \\((-86,-78)\\)), a ker je \\(\\tau<0\\) in \\(\\delta>0\\), je tok stabilen. Za \\(M\\) je obratno: znotraj trikotnika, a \\(\\tau=1>0\\), zato tok ni stabilen. Ista matrika je torej lahko stabilna za enega in nestabilna za drugega. Točka \\((-7,10)\\) je prikazana, a je z vlečenjem ni mogoče doseči, ker je zunaj območja \\(|\\tau|,|\\delta|\\le4\\) (graf to izpiše).',
+                'For \\(-E\\): \\(\\tau=-7\\), \\(\\delta=10\\), \\(\\Delta=9\\), eigenvalues \\(-5\\) and \\(-2\\). Because \\(\\delta>1\\) it is outside the triangle (the iterates grow and the sign alternates: \\((-4,-2)\\), \\((18,14)\\), \\((-86,-78)\\)), but since \\(\\tau<0\\) and \\(\\delta>0\\) the flow is stable. For \\(M\\) it is the other way round: inside the triangle, but \\(\\tau=1>0\\), so the flow is not stable. The same matrix can be stable for one and unstable for the other. The point \\((-7,10)\\) is shown but cannot be reached by dragging because it is outside the range \\(|\\tau|,|\\delta|\\le4\\) (the graph says so).',
+            )],
+            actions: [mode('basis'), matrix([[-4, -1], [-2, -3]]), start([1, 0])],
+        }),
+        framedStep({
+            id: 'td-vertex',
+            title: words('Oglišče strižne matrike', 'The vertex of the shear'),
+            explanation: words(
+                'Strižna matrika \\(S\\) s stolpcema \\((1,0)\\) in \\((1,1)\\) je iz lekcije o lastnih smereh, ima eno lastno smer in ni večkratnik identitete. Začetni vektor je \\((0,1)\\); slika kaže mrežo matrike \\(S\\).',
+                'The shear \\(S\\) with columns \\((1,0)\\) and \\((1,1)\\) is from the lesson on eigen-directions: it has one eigen-direction and is not a multiple of the identity. The start vector is \\((0,1)\\); the picture shows the grid of \\(S\\).',
+            ),
+            prompt: words(
+                'Izračunaj \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\) za \\(S\\) in napovej, kje leži točka glede na trikotnik in parabolo ter kaj delajo iterati začetka \\((0,1)\\): ali se bližajo \\(0\\), rastejo eksponentno ali drugače? Nato izberi način »Ravnina sled–determinanta« in nato »Potenčna metoda« ter preveri.',
+                'Compute \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\) for \\(S\\) and predict where the point lies relative to the triangle and the parabola, and what the iterates of the start \\((0,1)\\) do: approach \\(0\\), grow exponentially, or something else? Then choose the "Trace–determinant plane" mode and then "Power method" and check.',
+            ),
+            expected: [words(
+                '\\(\\tau=2\\), \\(\\delta=1\\), \\(\\Delta=0\\): točka \\((2,1)\\) je oglišče trikotnika (na robu, kjer se srečata \\(\\delta=1\\) in \\(\\tau=1+\\delta\\)) in hkrati na paraboli; lastna vrednost je \\(1\\), dvojna. Iterati so \\((1,1)\\), \\((2,1)\\), \\(\\dots\\), \\((10,1)\\): dolžina raste linearno, ne eksponentno, in se ne bliža \\(0\\); kot do osi \\(x\\) pada kot \\(\\arctan\\tfrac1k\\), približno \\(5{,}71^\\circ\\) pri \\(k=10\\). Graf javi eno lastno vrednost z eno lastno smerjo in počasno približevanje, kot \\(1/k\\).',
+                '\\(\\tau=2\\), \\(\\delta=1\\), \\(\\Delta=0\\): the point \\((2,1)\\) is a vertex of the triangle (on the edge where \\(\\delta=1\\) and \\(\\tau=1+\\delta\\) meet) and also on the parabola; the eigenvalue is \\(1\\), double. The iterates are \\((1,1)\\), \\((2,1)\\), \\(\\dots\\), \\((10,1)\\): the length grows linearly, not exponentially, and does not approach \\(0\\); the angle to the \\(x\\)-axis falls like \\(\\arctan\\tfrac1k\\), about \\(5.71^\\circ\\) at \\(k=10\\). The graph reports one eigenvalue with one eigen-direction and a slow approach, like \\(1/k\\).',
+            )],
+            actions: [mode('basis'), example('shear'), start([0, 1])],
+        }),
+        framedStep({
+            id: 'td-explore',
+            title: words('Prosto raziskovanje', 'Free exploration'),
+            explanation: words(
+                'Matriko spreminjaj z ročicama ali s številskimi vnosi, točko \\((\\tau,\\delta)\\) pa tudi z vlečenjem; vnosi so večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf točno odloči, ali je točka znotraj, na robu ali zunaj trikotnika in ali je tok stabilen, \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\) pa so računi na četrtinski mreži.',
+                'Change the matrix with the handles or the numeric entries, and the point \\((\\tau,\\delta)\\) also by dragging; the entries are multiples of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\). The graph decides exactly whether the point is inside, on an edge of, or outside the triangle and whether the flow is stable, and \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\) are computed on the quarter grid.',
+            ),
+            prompt: words(
+                'Poišči matriko znotraj trikotnika s kompleksnimi lastnimi vrednostmi in matriko, ki je znotraj trikotnika in ima hkrati stabilen tok. Pri obeh najprej napovej, kam pade točka, nato preveri.',
+                'Find a matrix inside the triangle with complex eigenvalues, and a matrix that is inside the triangle and also has a stable flow. For each, first predict where the point falls, then check.',
+            ),
+            expected: [words(
+                'Kompleksni lastni vrednosti znotraj trikotnika: npr. \\(W=\\tfrac12Z\\) z \\(\\tau=1\\), \\(\\delta=\\tfrac12\\), \\(\\Delta=-1\\): absolutna vrednost lastnih vrednosti je \\(\\sqrt\\delta\\approx0{,}7071\\), spirala se krči. Znotraj trikotnika in stabilen tok: potrebna sta \\(\\tau<0\\), \\(\\delta>0\\) in \\(\\delta<1\\), \\(|\\tau|<1+\\delta\\), npr. \\(-\\tfrac12I\\): \\(\\tau=-1\\), \\(\\delta=\\tfrac14\\).',
+                'Complex eigenvalues inside the triangle: for example \\(W=\\tfrac12Z\\) with \\(\\tau=1\\), \\(\\delta=\\tfrac12\\), \\(\\Delta=-1\\): the absolute value of the eigenvalues is \\(\\sqrt\\delta\\approx0.7071\\), the spiral shrinks. Inside the triangle and a stable flow: we need \\(\\tau<0\\), \\(\\delta>0\\) and \\(\\delta<1\\), \\(|\\tau|<1+\\delta\\), for example \\(-\\tfrac12I\\): \\(\\tau=-1\\), \\(\\delta=\\tfrac14\\).',
+            )],
+            actions: [mode('tracedet'), example('identity')],
         }),
     ],
 };

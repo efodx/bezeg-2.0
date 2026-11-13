@@ -60,14 +60,6 @@ const LINEAR_MAP_COLORS = {
     squareFill: "#f1dfcd",
 } as const;
 
-/** The Batch D operations; the shared `LessonAction` union gains them with the lesson wiring, so this graph accepts them locally. */
-export interface LinearMapIterationAction {
-    readonly kind: "linear-map";
-    readonly operation: "set-start" | "step";
-    readonly start?: readonly [number, number];
-    readonly count?: number;
-}
-
 type Column = 0 | 1;
 type Row = 0 | 1;
 type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse-point"
@@ -463,7 +455,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
      * Applies one `linear-map` scene action. The payload is validated strictly by the kernel (scene data is never snapped);
      * an invalid payload is a lesson-content error and throws a `DomainError` naming the field.
      */
-    applyLinearMapAction(action: Extract<LessonAction, { kind: "linear-map" }> | LinearMapIterationAction): void {
+    applyLinearMapAction(action: Extract<LessonAction, { kind: "linear-map" }>): void {
         const unwrap = <P,>(result: LinearMapResult<P>): P => {
             if (!result.ok) throw new DomainError(`${result.error.field}: ${result.error.message}`);
             return result.value;

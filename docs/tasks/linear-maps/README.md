@@ -16,7 +16,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | [08 Batch B](08-batch-b.md) | B | ADR, F2a–F6 | `G-REG` | 02, 07 | ADR 0060, F2a eigen and ellipse modes done 2026-11-13; F3–F6 (L3, L4, chapter, cards, gate) done 2026-11-13; owed items in the task |
 | [09 Batch C](09-batch-c.md) | C | F2a–F6 | `G-REG` | 08 | planned |
 | [10 Batch D kernel: iteration and stability](10-batch-d-kernel.md) | D | F1 | none | 02 | done (families-prep, ADR 0057) |
-| [11 Batch D: power method and stability](11-batch-d.md) | D | F2a–F6 | Controls step 5; step 7 | 08, 10 | planned |
+| [11 Batch D: power method and stability](11-batch-d.md) | D | F2a–F6 | Controls step 5; step 7 | 08, 10 | F2a–F6 done 2026-11-13 (L6, L7, chapter, cards, gate); owed items in the task |
 
 ## Slovenian terms (F0 decision)
 

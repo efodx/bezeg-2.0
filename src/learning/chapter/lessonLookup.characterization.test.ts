@@ -21,6 +21,8 @@ describe('catalog default order', () => {
             {chapterId: 'linear-maps', sectionId: 'determinant-area'},
             {chapterId: 'linear-maps', sectionId: 'eigen-directions'},
             {chapterId: 'linear-maps', sectionId: 'singular-ellipse'},
+            {chapterId: 'linear-maps', sectionId: 'power-method'},
+            {chapterId: 'linear-maps', sectionId: 'trace-determinant'},
         ]);
         expect(getGuidedLessonOwners('patch-tensor')).toEqual([
             {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
@@ -104,7 +106,7 @@ describe('linear maps L1 and L2', () => {
         expect(chapter()?.lesson('determinant-area')?.id).toBe('linear-map-determinant-area');
         expect(chapter()?.lesson('matrix-and-image')?.demonstrationId).toBe('linear-map');
         expect(chapter()?.lesson('determinant-area')?.demonstrationId).toBe('linear-map');
-        expect(chapter()?.rows().map(([sectionId]) => sectionId)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse']);
+        expect(chapter()?.rows().map(([sectionId]) => sectionId)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'power-method', 'trace-determinant']);
         expect(getGuidedLessonOwnerForSection('linear-map', 'linear-maps', 'determinant-area')).toEqual({chapterId: 'linear-maps', sectionId: 'determinant-area'});
         expect(authoredGuidedLessonIds('linear-maps', 'matrix-and-image')).toEqual(['linear-map']);
         expect(authoredGuidedLessonIds('linear-maps', 'determinant-area')).toEqual(['linear-map']);

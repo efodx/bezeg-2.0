@@ -1,6 +1,6 @@
 import {LinearMapGraph} from '../../graphs/linear/LinearMapGraph';
 import {bezierPoint, FIXTURE_CONTROL_POINTS, imageControlPoints, shoelace} from '../../graphs/linear/linearMapScene';
-import {apply, det, LINEAR_MAP_EXAMPLES, type Mat2, unitSquareImage} from '../../linear/matrix2';
+import {apply, det, LINEAR_MAP_EXAMPLES, type Mat2, type Vec2, unitSquareImage} from '../../linear/matrix2';
 import {classifyEigen, exactlyParallel} from '../../linear/eigen2';
 import {singular} from '../../linear/singular2';
 import {deriveEigen, eigenSnapAngle} from '../../graphs/linear/eigenScene';
@@ -12,7 +12,10 @@ import type {LessonDefinition} from '../model';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {linearMapsChapter} from './linearMapsChapter';
-import {linearMapEigenLesson, linearMapEllipseLesson} from './linearMapsChapterLessons';
+import {linearMapEigenLesson, linearMapEllipseLesson, linearMapPowerMethodLesson, linearMapStabilityLesson} from './linearMapsChapterLessons';
+import {companionOfDrag, deriveIteration, deriveTraceDet, iterateAt, STABILITY_TRIANGLE, TRACE_DET_DRAG_LIMIT} from '../../graphs/linear/iterationScene';
+import {SETTLED_ANGLE_DEGREES} from '../../linear/iterate2';
+import {discreteStabilityTD, exactTraceDet} from '../../linear/stability2';
 import {LINEAR_MAPS_CHAPTER_ID, linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry} from './linearMapsChapterRegistry';
 import {learningChapters} from '../learningChapters';
 
@@ -113,10 +116,10 @@ const determinantExpectations: Record<string, StepExpectation> = {
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter advertises exactly the four activities, owned by one family Demonstration', () => {
+    test('the chapter advertises exactly the six activities, owned by one family Demonstration', () => {
         expect(linearMapsChapter.id).toBe(LINEAR_MAPS_CHAPTER_ID);
-        expect(linearMapsChapter.sections.map(section => section.id)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse']);
-        expect(Object.keys(linearMapsGuidedExampleRegistry)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse']);
+        expect(linearMapsChapter.sections.map(section => section.id)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'power-method', 'trace-determinant']);
+        expect(Object.keys(linearMapsGuidedExampleRegistry)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'power-method', 'trace-determinant']);
         for (const section of linearMapsChapter.sections) expect(section.demonstrationIds).toEqual(['linear-map']);
         expect(familyChapters.find(chapter => chapter.id === LINEAR_MAPS_CHAPTER_ID)?.family).toBe('maps');
         expect(learningChapters.some(chapter => chapter.id === LINEAR_MAPS_CHAPTER_ID)).toBe(true);
@@ -139,6 +142,8 @@ describe('chapter structure and registration', () => {
             {chapterId: 'linear-maps', sectionId: 'determinant-area'},
             {chapterId: 'linear-maps', sectionId: 'eigen-directions'},
             {chapterId: 'linear-maps', sectionId: 'singular-ellipse'},
+            {chapterId: 'linear-maps', sectionId: 'power-method'},
+            {chapterId: 'linear-maps', sectionId: 'trace-determinant'},
         ]);
         expect(authoredGuidedLessonIds('linear-maps', 'determinant-area')).toEqual(['linear-map']);
         expect(getLessonForDemonstration('linear-map')).toBe(linearMapsGuidedExampleRegistry['matrix-and-image']);
@@ -163,7 +168,7 @@ describe('chapter structure and registration', () => {
         expect(byExample?.owner).toEqual({chapterId: 'linear-maps', sectionId: 'determinant-area'});
         expect(guidedLessonLaunchPath('linear-map')).toContain('learnChapter=linear-maps&learnSection=matrix-and-image');
         const links = linearMapsChapter.sections.map(section => getChapterGuidedExamples('linear-maps', section.id));
-        expect(links.map(list => list.length)).toEqual([1, 1, 1, 1]);
+        expect(links.map(list => list.length)).toEqual([1, 1, 1, 1, 1, 1]);
         expect(links[1][0].path).toBe(linearMapsGuidedExamplePath('determinant-area'));
         expect(links[1][0].path).toBe('/bezeg-2.0/linear-map?example=lesson.linear-maps.determinant-area.linear-map');
     });
@@ -488,5 +493,368 @@ describe('the numbers in the L3 and L4 prose', () => {
         const general = deriveEllipse(A);
         expect(general.singular.sigma[0]).toBeCloseTo(2.3028, 4);
         expect(general.singular.sigma[1]).toBeCloseTo(1.3028, 4);
+    });
+});
+
+// ---- L6 (power method) and L7 (trace and determinant): every step opens on a state read here, in sl and en ----
+
+const R_QUARTER = LINEAR_MAP_EXAMPLES['quarter-turn'];
+const Z_SPIRAL: Mat2 = [[1, -1], [1, 1]];
+const Q_SWAP: Mat2 = [[0, 3], [3, 0]];
+const M_SYM: Mat2 = [[1 / 2, 1 / 4], [1 / 4, 1 / 2]];
+const W_HALF: Mat2 = [[1 / 2, -1 / 2], [1 / 2, 1 / 2]];
+const MINUS_E: Mat2 = [[-4, -1], [-2, -3]];
+const IDENTITY = LINEAR_MAP_EXAMPLES.identity;
+const basisReadouts = (a1: string, a2: string, probe: string) => ({a1, a2, probe});
+
+interface IterationExpectation {
+    matrix: Mat2;
+    mode: 'basis' | 'iterate' | 'tracedet';
+    start: readonly [number, number];
+    step: number;
+    sl: Record<string, string>;
+    en: Record<string, string>;
+    statuses: string[];
+}
+
+const powerExpectations: Record<string, IterationExpectation> = {
+    'power-first': {matrix: E, mode: 'basis', start: [1, 0], step: 0, sl: basisReadouts('(4, 2)', '(1, 3)', '(5, 5)'), en: basisReadouts('(4, 2)', '(1, 3)', '(5, 5)'), statuses: []},
+    // Opens in the iterate mode itself: it shows the dominant line, the angle 45 and the ratio 0,4 at k = 0, which step 1 already answered.
+    'power-settle': {matrix: E, mode: 'iterate', start: [1, 0], step: 0,
+        sl: {start: '(1, 0)', iterate: '(1, 0)', angle: '45°', ratio: '0,4', rayleigh: '4'}, en: {start: '(1, 0)', iterate: '(1, 0)', angle: '45°', ratio: '0.4', rayleigh: '4'}, statuses: ['dominant']},
+    'power-stretch': {matrix: E, mode: 'basis', start: [1, 0], step: 0, sl: basisReadouts('(4, 2)', '(1, 3)', '(5, 5)'), en: basisReadouts('(4, 2)', '(1, 3)', '(5, 5)'), statuses: []},
+    'power-other-eigenvector': {matrix: E, mode: 'basis', start: [1, -2], step: 0, sl: basisReadouts('(4, 2)', '(1, 3)', '(5, 5)'), en: basisReadouts('(4, 2)', '(1, 3)', '(5, 5)'), statuses: []},
+    'power-no-settling': {matrix: R_QUARTER, mode: 'basis', start: [1, 0], step: 0, sl: basisReadouts('(0, 1)', '(−1, 0)', '(−1, 1)'), en: basisReadouts('(0, 1)', '(−1, 0)', '(−1, 1)'), statuses: []},
+    'power-flip': {matrix: Q_SWAP, mode: 'basis', start: [1, 0], step: 0, sl: basisReadouts('(0, 3)', '(3, 0)', '(3, 3)'), en: basisReadouts('(0, 3)', '(3, 0)', '(3, 3)'), statuses: []},
+    'power-explore': {matrix: IDENTITY, mode: 'iterate', start: [1, 0], step: 0,
+        sl: {start: '(1, 0)', iterate: '(1, 0)'}, en: {start: '(1, 0)', iterate: '(1, 0)'}, statuses: ['scalar']},
+};
+const stabilityExpectations: Record<string, IterationExpectation> = {
+    'td-plane': {matrix: Z_SPIRAL, mode: 'basis', start: [1, 0], step: 0, sl: basisReadouts('(1, 1)', '(−1, 1)', '(0, 2)'), en: basisReadouts('(1, 1)', '(−1, 1)', '(0, 2)'), statuses: []},
+    // Opens in the tracedet mode: W (tau 1, delta 1/2, Delta -1) already shows `inside`, which td-triangle explains later.
+    'td-parabola': {matrix: W_HALF, mode: 'tracedet', start: [1, 0], step: 0,
+        sl: {tau: '1', delta: '0,5', discriminant: '−1'}, en: {tau: '1', delta: '0.5', discriminant: '−1'}, statuses: ['td-inside', 'flow-unstable']},
+    'td-triangle': {matrix: M_SYM, mode: 'basis', start: [4, 0], step: 0, sl: basisReadouts('(0,5, 0,25)', '(0,25, 0,5)', '(0,75, 0,75)'), en: basisReadouts('(0.5, 0.25)', '(0.25, 0.5)', '(0.75, 0.75)'), statuses: []},
+    'td-edges': {matrix: M_SYM, mode: 'tracedet', start: [1, 0], step: 0,
+        sl: {tau: '1', delta: '0,1875', discriminant: '0,25'}, en: {tau: '1', delta: '0.1875', discriminant: '0.25'}, statuses: ['td-inside', 'flow-unstable']},
+    'td-flow': {matrix: MINUS_E, mode: 'basis', start: [1, 0], step: 0, sl: basisReadouts('(−4, −2)', '(−1, −3)', '(−5, −5)'), en: basisReadouts('(−4, −2)', '(−1, −3)', '(−5, −5)'), statuses: []},
+    'td-vertex': {matrix: S_SHEAR, mode: 'basis', start: [0, 1], step: 0, sl: basisReadouts('(1, 0)', '(1, 1)', '(2, 1)'), en: basisReadouts('(1, 0)', '(1, 1)', '(2, 1)'), statuses: []},
+    'td-explore': {matrix: IDENTITY, mode: 'tracedet', start: [1, 0], step: 0,
+        sl: {tau: '2', delta: '1', discriminant: '0'}, en: {tau: '2', delta: '1', discriminant: '0'}, statuses: ['td-edge', 'flow-unstable']},
+};
+
+describe('L6 and L7: scenes in one synchronous tick, read in sl and en', () => {
+    afterEach(() => { document.body.innerHTML = ''; });
+
+    const withHost = (graph: any) => {
+        const host = document.createElement('div');
+        host.id = 'linear-map-test-board';
+        document.body.appendChild(host);
+        graph.board.container = host.id;
+    };
+
+    test('every step has an expectation and every expectation a step', () => {
+        expect(linearMapPowerMethodLesson.steps.map(item => item.id)).toEqual(Object.keys(powerExpectations));
+        expect(linearMapStabilityLesson.steps.map(item => item.id)).toEqual(Object.keys(stabilityExpectations));
+    });
+
+    for (const [lesson, expectations] of [[linearMapPowerMethodLesson, powerExpectations], [linearMapStabilityLesson, stabilityExpectations]] as const) {
+        for (const [stepId, expected] of Object.entries(expectations)) {
+            for (const language of ['sl', 'en'] as const) {
+                test(`${lesson.id} / ${stepId} (${language}): opening state, readouts and statuses`, () => {
+                    const graph = makeGraph();
+                    withHost(graph);
+                    // Start from a dragged state in another mode: the scene must replace the matrix, mode and start. The step is left at 0.
+                    for (const action of [
+                        {kind: 'linear-map', operation: 'set-matrix', matrix: [[3, 1], [-2, 4]]},
+                        {kind: 'linear-map', operation: 'set-mode', mode: 'ellipse'},
+                        {kind: 'linear-map', operation: 'set-start', start: [-2, 1.5]},
+                    ] as const) graph.applyLessonAction(action);
+                    runStep(graph, lesson, stepId);
+                    setLanguage(language);
+                    expect(graph.model.matrix).toEqual(expected.matrix);
+                    expect(graph.model.mode).toBe(expected.mode);
+                    expect(graph.model.start ?? [1, 0]).toEqual(expected.start);
+                    expect(graph.model.step ?? 0).toBe(expected.step);
+                    for (const [id, value] of Object.entries(expected[language])) expect(readout(graph, id), `${stepId} readout ${id}`).toBe(value);
+                    expect(statusIds(graph)).toEqual(expected.statuses);
+                });
+            }
+        }
+    }
+
+    test('every scene opens at step 0 even after the learner pressed "Next step"', () => {
+        for (const [lesson, expectations] of [[linearMapPowerMethodLesson, powerExpectations], [linearMapStabilityLesson, stabilityExpectations]] as const) {
+            for (const stepId of Object.keys(expectations)) {
+                const graph = makeGraph();
+                withHost(graph);
+                for (const action of [
+                    {kind: 'linear-map', operation: 'set-mode', mode: 'iterate'},
+                    {kind: 'linear-map', operation: 'step', count: 5},
+                ] as const) graph.applyLessonAction(action);
+                expect(graph.model.step).toBe(5);
+                runStep(graph, lesson, stepId);
+                expect(graph.model.step ?? 0, stepId).toBe(0);
+            }
+        }
+    });
+
+    test('the basis-mode openings carry no iteration or trace-determinant readouts', () => {
+        for (const expectations of [powerExpectations, stabilityExpectations]) {
+            for (const [stepId, expected] of Object.entries(expectations)) {
+                if (expected.mode !== 'basis') continue;
+                for (const id of ['angle', 'ratio', 'stretch', 'tau', 'stability']) expect(expected.sl, `${stepId} ${id}`).not.toHaveProperty(id);
+                expect(expected.statuses, stepId).toEqual([]);
+            }
+        }
+    });
+
+    test('the lesson steps are framed: explanation, optional calculation, observation with expected observations', () => {
+        for (const lesson of [linearMapPowerMethodLesson, linearMapStabilityLesson]) {
+            for (const lessonStep of lesson.steps) {
+                const frames = lessonStep.frames ?? [];
+                expect(frames[0]?.kind, lessonStep.id).toBe('explanation');
+                const last = frames[frames.length - 1];
+                expect(last?.kind, lessonStep.id).toBe('observation');
+                expect((last as {expectedObservations?: unknown[]}).expectedObservations?.length, lessonStep.id).toBeGreaterThan(0);
+            }
+        }
+    });
+
+    test('pmatrix row separators survive as two backslashes and every matrix block is closed', () => {
+        const strings: string[] = [];
+        const walk = (node: unknown): void => {
+            if (typeof node === 'string') strings.push(node);
+            else if (Array.isArray(node)) node.forEach(walk);
+            else if (node && typeof node === 'object') Object.values(node).forEach(walk);
+        };
+        walk([linearMapPowerMethodLesson, linearMapStabilityLesson]);
+        const blocks = strings.flatMap(text => [...text.matchAll(/\\begin\{pmatrix\}(.*?)\\end\{pmatrix\}/gs)].map(match => match[1]));
+        expect(blocks.length).toBeGreaterThan(0);
+        for (const body of blocks) expect(body).toContain('\\\\');
+        for (const text of strings) expect((text.match(/\\begin\{pmatrix\}/g) ?? []).length).toBe((text.match(/\\end\{pmatrix\}/g) ?? []).length);
+    });
+
+    test('set-start and step through the shared union: invalid payloads throw before any write, valid ones chain in one tick', () => {
+        const graph = makeGraph();
+        graph.applyLessonAction({kind: 'linear-map', operation: 'set-mode', mode: 'iterate'});
+        graph.applyLessonAction({kind: 'linear-map', operation: 'set-start', start: [1, -2]});
+        graph.applyLessonAction({kind: 'linear-map', operation: 'step', count: 2});
+        graph.applyLessonAction({kind: 'linear-map', operation: 'step'});
+        expect(graph.model).toMatchObject({mode: 'iterate', start: [1, -2], step: 3});
+        const before = {...graph.model};
+        for (const bad of [
+            {kind: 'linear-map', operation: 'set-start', start: [0.3, 0]},
+            {kind: 'linear-map', operation: 'set-start', start: [5, 0]},
+            {kind: 'linear-map', operation: 'set-start', start: [1]},
+            {kind: 'linear-map', operation: 'step', count: 0},
+            {kind: 'linear-map', operation: 'step', count: 31},
+            {kind: 'linear-map', operation: 'step', count: 1.5},
+        ]) expect(() => graph.applyLessonAction(bad as never), JSON.stringify(bad)).toThrow();
+        expect(graph.model).toEqual(before);
+        graph.applyLessonAction({kind: 'linear-map', operation: 'set-start', start: [1, 0]});
+        expect(graph.model).toMatchObject({start: [1, 0], step: 3});
+    });
+});
+
+describe('the numbers in the L6 prose', () => {
+    const at = (matrix: Mat2, start: Vec2, k: number) => iterateAt(deriveIteration(matrix, start), matrix, k);
+    const Ek = (k: number) => at(E, [1, 0], k);
+
+    test('E, (1,0): the iterates are exact integers, and E^k v0 = (2/3) 5^k (1,1) + (1/3) 2^k (1,-2)', () => {
+        expect([1, 2, 3, 4].map(k => Ek(k).point)).toEqual([[4, 2], [18, 14], [86, 78], [422, 406]]);
+        expect(Ek(5).point).toEqual([2094, 2062]);
+        for (let k = 0; k <= 6; k++) {
+            expect(Ek(k).point[0]).toBeCloseTo((2 / 3) * 5 ** k + (1 / 3) * 2 ** k, 6);
+            expect(Ek(k).point[1]).toBeCloseTo((2 / 3) * 5 ** k - (2 / 3) * 2 ** k, 6);
+        }
+    });
+
+    test('the decomposition (1,0) = 2/3 (1,1) + 1/3 (1,-2) and the eigenvalues 5 and 2', () => {
+        expect([2 / 3 + 1 / 3, 2 / 3 - 2 / 3]).toEqual([1, 0]);
+        expect(apply(E, [1, 1])).toEqual([5, 5]);
+        expect(apply(E, [1, -2])).toEqual([2, -4]);
+        const view = classifyEigen(E);
+        if (view.kind !== 'distinct-real') throw new Error('E has two real eigenvalues');
+        expect(view.eigenvalues).toEqual([5, 2]);
+        expect(deriveIteration(E, [1, 0]).outcome).toBe('dominant');
+        expect(deriveIteration(E, [1, 0]).orbit.modulusRatio).toBeCloseTo(2 / 5, 12);
+    });
+
+    test('angle errors: 45, 18,43, 7,13, 2,79, 1,11, 0,44 for k = 0..5, 0,01 at k = 9; arctan(14/18) = 37,87', () => {
+        const rounded = [0, 1, 2, 3, 4, 5].map(k => Math.round(Ek(k).angleError! * 100) / 100);
+        expect(rounded).toEqual([45, 18.43, 7.13, 2.79, 1.11, 0.44]);
+        expect(Ek(9).angleError!).toBeCloseTo(0.01, 2);
+        expect(Math.atan(14 / 18) * 180 / Math.PI).toBeCloseTo(37.87, 2);
+        expect(45 - Math.atan(14 / 18) * 180 / Math.PI).toBeCloseTo(7.13, 2);
+    });
+
+    test('settling: k = 4 is above the 1 degree tolerance, k = 5 below; the error shrinks by about 2/5 per step', () => {
+        expect(Ek(4).angleError!).toBeGreaterThan(SETTLED_ANGLE_DEGREES);
+        expect(Ek(5).angleError!).toBeLessThan(SETTLED_ANGLE_DEGREES);
+        expect([0, 1, 2, 3, 4, 5].filter(k => Ek(k).angleError! < SETTLED_ANGLE_DEGREES)[0]).toBe(5);
+        expect(Ek(4).angleError! / Ek(3).angleError!).toBeCloseTo(0.4, 1);
+        expect(Math.tan(Ek(30).angleError! * Math.PI / 180) / Math.tan(Ek(29).angleError! * Math.PI / 180)).toBeCloseTo(0.4, 3);
+    });
+
+    test('the stretch of the graph step k is the spec step n+1: 5,099 at k=2, 5,0915 at k=3, 5,0185 at k=5, 5,0005 at k=9', () => {
+        expect(Ek(0).stretch).toBeUndefined();
+        expect(Ek(1).stretch!).toBeCloseTo(Math.hypot(4, 2), 12);
+        expect(Ek(2).stretch!).toBeCloseTo(Math.hypot(18, 14) / Math.hypot(4, 2), 12);
+        expect(Ek(2).stretch!).toBeCloseTo(5.099, 3);
+        expect(Ek(3).stretch!).toBeCloseTo(5.0915, 4);
+        expect(Ek(5).stretch!).toBeCloseTo(5.0185, 4);
+        expect(Ek(9).stretch!).toBeCloseTo(5.0005, 4);
+        expect(Ek(30).stretch!).toBeCloseTo(5, 10);
+        expect(Ek(0).rayleigh!).toBeCloseTo(4, 12);
+        expect(Ek(1).rayleigh!).toBeCloseTo(5, 12);
+    });
+
+    test('start (1,-2): the iterates stay on the eigenvalue 2 line, stretch 2, angle 71,57, status other-eigenvector', () => {
+        const view = deriveIteration(E, [1, -2]);
+        expect([1, 2, 3].map(k => iterateAt(view, E, k).point)).toEqual([[2, -4], [4, -8], [8, -16]]);
+        expect(view.otherEigenvector).toBe(true);
+        expect(at(E, [1, -2], 3).stretch).toBe(2);
+        expect(at(E, [1, -2], 0).angleError!).toBeCloseTo(71.57, 2);
+        expect(at(E, [1, -2], 5).angleError!).toBeCloseTo(71.57, 2);
+    });
+
+    test('the perturbed start (1+1e-6, -2+1e-6) first comes within 1 degree of the dominant direction at k = 20 (floating point, off the graph grid)', () => {
+        let v: Vec2 = [1 + 1e-6, -2 + 1e-6];
+        const errorAt = (p: Vec2) => {
+            let d = Math.abs(Math.atan2(p[1], p[0]) - Math.PI / 4) % Math.PI;
+            if (d > Math.PI / 2) d = Math.PI - d;
+            return d * 180 / Math.PI;
+        };
+        let first = -1;
+        for (let k = 0; k <= 40 && first < 0; k++) {
+            if (errorAt(v) < 1) first = k;
+            v = apply(E, v);
+        }
+        expect(first).toBe(20);
+    });
+
+    test('R: the iterates have period 4, length 1 and the status is rotating', () => {
+        const view = deriveIteration(R_QUARTER, [1, 0]);
+        expect([1, 2, 3, 4].map(k => iterateAt(view, R_QUARTER, k).point.map(x => x + 0))).toEqual([[0, 1], [-1, 0], [0, -1], [1, 0]]);
+        expect([1, 2, 3, 4].map(k => iterateAt(view, R_QUARTER, k).norm)).toEqual([1, 1, 1, 1]);
+        expect(view.outcome).toBe('rotating');
+    });
+
+    test('Z: tau 2, delta 2, Delta -4, eigenvalues 1 +- i, iterates (1,1), (0,2), (-2,2), (-4,0), turning by 45 degrees and stretching by sqrt2', () => {
+        const {tau, delta} = exactTraceDet(Z_SPIRAL);
+        expect([tau, delta, tau * tau - 4 * delta]).toEqual([2, 2, -4]);
+        expect(classifyEigen(Z_SPIRAL)).toMatchObject({kind: 'complex', discriminant: -4, real: 1, imaginary: 1});
+        const view = deriveIteration(Z_SPIRAL, [1, 0]);
+        const points = [0, 1, 2, 3, 4].map(k => iterateAt(view, Z_SPIRAL, k).point.map(x => x + 0));
+        expect(points.slice(1)).toEqual([[1, 1], [0, 2], [-2, 2], [-4, 0]]);
+        for (const k of [1, 2, 3, 4]) expect(iterateAt(view, Z_SPIRAL, k).stretch!).toBeCloseTo(Math.SQRT2, 12);
+        const angle = (p: number[]) => Math.atan2(p[1], p[0]) * 180 / Math.PI;
+        for (let k = 1; k <= 4; k++) expect(angle(points[k]) - angle(points[k - 1])).toBeCloseTo(45, 10);
+        expect(view.outcome).toBe('rotating');
+    });
+
+    test('Q: tau 0, delta -9, eigenvalues 3 and -3, iterates (0,3), (9,0), (0,27), Q^2 = 9I, status equal-moduli; (1,1) is an eigenvector', () => {
+        const {tau, delta} = exactTraceDet(Q_SWAP);
+        expect([tau, delta]).toEqual([0, -9]);
+        const eigen = classifyEigen(Q_SWAP);
+        if (eigen.kind !== 'distinct-real') throw new Error('Q has two real eigenvalues');
+        expect([...eigen.eigenvalues].sort((x, y) => y - x)).toEqual([3, -3]);
+        const view = deriveIteration(Q_SWAP, [1, 0]);
+        expect([1, 2, 3].map(k => iterateAt(view, Q_SWAP, k).point)).toEqual([[0, 3], [9, 0], [0, 27]]);
+        expect(apply(Q_SWAP, apply(Q_SWAP, [0, 1]))).toEqual([0, 9]);
+        expect(view.outcome).toBe('equal-moduli');
+        expect([1, 2].map(k => at(Q_SWAP, [1, 1], k).point)).toEqual([[3, 3], [9, 9]]);
+        expect(at(Q_SWAP, [1, 0], 2).stretch).toBe(3);
+    });
+
+    test('exploration: diag(4,1) with start (1,1) has ratio 1/4 and is within 1 degree at k = 3; -E has iterates (-4,-2), (18,14), (-86,-78)', () => {
+        const D4: Mat2 = [[4, 0], [0, 1]];
+        const dview = deriveIteration(D4, [1, 1]);
+        expect(dview.orbit.modulusRatio).toBeCloseTo(1 / 4, 12);
+        expect([0, 1, 2, 3, 4].filter(k => iterateAt(dview, D4, k).angleError! < SETTLED_ANGLE_DEGREES)[0]).toBe(3);
+        expect(iterateAt(dview, D4, 2).angleError!).toBeGreaterThan(SETTLED_ANGLE_DEGREES);
+        const nview = deriveIteration(MINUS_E, [1, 0]);
+        expect([1, 2, 3].map(k => iterateAt(nview, MINUS_E, k).point)).toEqual([[-4, -2], [18, 14], [-86, -78]]);
+        const eigen = classifyEigen(MINUS_E);
+        if (eigen.kind !== 'distinct-real') throw new Error('-E has two real eigenvalues');
+        expect([...eigen.eigenvalues].sort((x, y) => x - y)).toEqual([-5, -2]);
+        expect(nview.orbit.modulusRatio).toBeCloseTo(0.4, 12);
+        for (let k = 0; k <= 5; k++) expect(iterateAt(nview, MINUS_E, k).angleError!).toBeCloseTo(Ek(k).angleError!, 10);
+        expect(nview.outcome).toBe('dominant');
+    });
+});
+
+describe('the numbers in the L7 prose', () => {
+    const td = (m: Mat2) => deriveTraceDet(m);
+
+    test('W = Z/2: tau 1, delta 1/2, Delta -1, inside, flow not stable, modulus sqrt(1/2) = 0,7071', () => {
+        expect(td(W_HALF)).toMatchObject({tau: 1, delta: 0.5, discriminant: -1, stability: {kind: 'inside'}, flowStable: false});
+        expect(Math.sqrt(0.5)).toBeCloseTo(0.7071, 4);
+        expect(classifyEigen(W_HALF)).toMatchObject({kind: 'complex', discriminant: -1});
+    });
+
+    test('the drag points: (1, 1/4) has Delta 0 and the double eigenvalue 1/2, (1, 1/2) has Delta -1; the companion matrix has exactly that trace and determinant', () => {
+        expect(td(companionOfDrag(1, 0.25))).toMatchObject({tau: 1, delta: 0.25, discriminant: 0});
+        expect(td(companionOfDrag(1, 0.5))).toMatchObject({tau: 1, delta: 0.5, discriminant: -1});
+        expect(companionOfDrag(1, 0.25)).toEqual([[0, 1], [-0.25, 1]]);
+        expect(classifyEigen(companionOfDrag(1, 0.25))).toMatchObject({kind: 'repeated', eigenvalue: 0.5});
+    });
+
+    test('M: tau 1, delta 3/16, Delta 1/4, eigenvalues 3/4 and 1/4, inside, flow not stable; at k = 10 the iterate of (4,0) is about (0,11, 0,11), the stretch 0,75', () => {
+        expect(td(M_SYM)).toMatchObject({tau: 1, delta: 3 / 16, discriminant: 1 / 4, stability: {kind: 'inside'}, flowStable: false});
+        expect(1 - 3 / 4).toBe(1 / 4);
+        const eigen = classifyEigen(M_SYM);
+        if (eigen.kind !== 'distinct-real') throw new Error('M has two real eigenvalues');
+        expect([...eigen.eigenvalues].sort((x, y) => y - x)).toEqual([3 / 4, 1 / 4]);
+        const view = deriveIteration(M_SYM, [4, 0]);
+        const tenth = iterateAt(view, M_SYM, 10);
+        expect(tenth.point[0]).toBeCloseTo(0.11, 2);
+        expect(tenth.point[1]).toBeCloseTo(0.11, 2);
+        expect(tenth.stretch!).toBeCloseTo(0.75, 3);
+        expect(iterateAt(view, M_SYM, 30).stretch!).toBeCloseTo(0.75, 10);
+    });
+
+    test('the triangle: vertices (-2,1), (2,1), (0,-1); inside is delta < 1 and |tau| < 1 + delta', () => {
+        expect(STABILITY_TRIANGLE).toEqual([[-2, 1], [2, 1], [0, -1]]);
+        for (const [tau, delta] of STABILITY_TRIANGLE) expect(discreteStabilityTD(tau, delta).kind).toBe('edge');
+        expect(discreteStabilityTD(2, 1)).toMatchObject({kind: 'edge', edges: ['determinant-one', 'eigenvalue-one']});
+        expect(discreteStabilityTD(0, 0.99).kind).toBe('inside');
+        expect(discreteStabilityTD(1, 0.25).kind).toBe('inside');
+    });
+
+    test('the edge points: (1,0) has eigenvalue 1, (-1,0) has eigenvalue -1, (0,1) is the quarter turn; p(1) and p(-1) vanish on the edges; across an edge the point is outside', () => {
+        const p = (tau: number, delta: number, lambda: number) => lambda * lambda - tau * lambda + delta;
+        expect([p(1, 0, 1), p(-1, 0, -1)]).toEqual([0, 0]);
+        expect(discreteStabilityTD(1, 0)).toMatchObject({kind: 'edge', edge: 'eigenvalue-one'});
+        expect(discreteStabilityTD(-1, 0)).toMatchObject({kind: 'edge', edge: 'eigenvalue-minus-one'});
+        expect(discreteStabilityTD(0, 1)).toMatchObject({kind: 'edge', edge: 'determinant-one'});
+        expect(classifyEigen(companionOfDrag(0, 1))).toMatchObject({kind: 'complex', real: 0, imaginary: 1});
+        expect(td(R_QUARTER)).toMatchObject({tau: 0, delta: 1, stability: {kind: 'edge', edge: 'determinant-one'}});
+        expect(discreteStabilityTD(1, -0.25).kind).toBe('outside');
+        expect(discreteStabilityTD(0, 1.25).kind).toBe('outside');
+        expect(discreteStabilityTD(-1, -0.25).kind).toBe('outside');
+    });
+
+    test('-E: tau -7, delta 10, Delta 9, eigenvalues -5 and -2, outside, flow stable, outside the drag range; E at (7,10) is outside too', () => {
+        expect(td(MINUS_E)).toMatchObject({tau: -7, delta: 10, discriminant: 9, stability: {kind: 'outside'}, flowStable: true});
+        expect(TRACE_DET_DRAG_LIMIT).toBe(4);
+        expect(td(E)).toMatchObject({tau: 7, delta: 10, stability: {kind: 'outside'}, flowStable: false});
+    });
+
+    test('S: tau 2, delta 1, Delta 0, the vertex (2,1) on two edges; iterates (1,1), (2,1), ..., (10,1), angle 5,71 degrees at k = 10', () => {
+        expect(td(S_SHEAR)).toMatchObject({tau: 2, delta: 1, discriminant: 0, stability: {kind: 'edge', edges: ['determinant-one', 'eigenvalue-one']}, flowStable: false});
+        const view = deriveIteration(S_SHEAR, [0, 1]);
+        expect(view.outcome).toBe('defective');
+        expect([1, 2, 10].map(k => iterateAt(view, S_SHEAR, k).point)).toEqual([[1, 1], [2, 1], [10, 1]]);
+        expect(iterateAt(view, S_SHEAR, 10).angleError!).toBeCloseTo(5.71, 2);
+        expect(Math.atan(1 / 10) * 180 / Math.PI).toBeCloseTo(5.71, 2);
+        expect(iterateAt(view, S_SHEAR, 30).angleError!).toBeCloseTo(1.91, 2);
+    });
+
+    test('exploration: -I/2 has tau -1, delta 1/4, inside with a stable flow; the identity opens on the vertex (2,1); Z is outside above the parabola', () => {
+        expect(td([[-1 / 2, 0], [0, -1 / 2]])).toMatchObject({tau: -1, delta: 1 / 4, stability: {kind: 'inside'}, flowStable: true});
+        expect(td(IDENTITY)).toMatchObject({tau: 2, delta: 1, stability: {kind: 'edge'}});
+        expect(td(Z_SPIRAL)).toMatchObject({tau: 2, delta: 2, discriminant: -4, stability: {kind: 'outside'}});
     });
 });

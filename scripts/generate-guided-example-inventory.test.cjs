@@ -117,6 +117,9 @@ test('linear maps expectations are authored from the example matrix and the scen
     const basis = linearMapsExpectedFor('lm', lmStep([lmExample('basis-default')]));
     // Columns (2,1) and (-1,1): A(e1+e2) = (1,2), the handles sit on the columns.
     assert.deepEqual(basis.points, [[1, 0], [0, 1], [0, 0], [1, 2], [1, 1], [1, 2], [2, 1], [-1, 1]]);
+    // A scene may open on one explicit matrix instead of a named example (L7 opens on columns (1,1) and (-1,1)).
+    const explicit = linearMapsExpectedFor('lm', lmStep([{kind: 'linear-map', operation: 'set-matrix', matrix: [[1, -1], [1, 1]]}]));
+    assert.deepEqual(explicit.points, [[1, 0], [0, 1], [0, 0], [0, 2], [1, 1], [0, 2], [1, 1], [-1, 1]]);
     assert.throws(() => linearMapsExpectedFor('lm', lmStep([])), /exactly one linear-map example/);
     assert.throws(() => linearMapsExpectedFor('lm', lmStep([lmExample('shear')])), /no authored matrix/);
     assert.throws(() => linearMapsExpectedFor('lm', lmStep([lmExample('identity'), {kind: 'linear-map', operation: 'set-matrix', matrix: [[1, 0], [0, 1]]}])),

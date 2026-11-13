@@ -223,6 +223,119 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "linear-maps.power-method.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.power-method.linear-map",
+      "sceneFingerprint": "86f3c2ec4c52924232f088c709fb3b413b8cf8343c276362e3de1ad9c1cc716d",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-power-first\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-example\",\"exampleId\":\"eigen-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-start\",\"start\":[1,0]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8,
+          "point": 8
+        },
+        "curveCount": 8,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "linear-maps.trace-determinant.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.trace-determinant.linear-map",
+      "sceneFingerprint": "10bddcafac9e277cb6784fd7b0661c271675d5a3c2763f49686fcd6cca36d0e5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-td-plane\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-matrix\",\"matrix\":[[1,-1],[1,1]]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8,
+          "point": 8
+        },
+        "curveCount": 8,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            -1,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

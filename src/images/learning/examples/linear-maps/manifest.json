@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+  "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+    "revision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
     "dirty": true,
-    "inputs": "873949e0548c5d9c185f7ae4a8c71386a5ad769e21d45690c1030cfbe4a4859a",
-    "output": "cda09a5b48b445c26e4a14767c18ea2b515104c164076d7c4be4c672d6f35d75"
+    "inputs": "8a87ea02dad12d29278559975a02f4fda94cf294e2d8f27196e73ae1eab867b8",
+    "output": "0bbdac37f3f5687e88fff37ad50ae6a0033a39d75d0829b96136c37230cbffe5"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+    "stampRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
     "stampDirty": true,
-    "localOutputHash": "cda09a5b48b445c26e4a14767c18ea2b515104c164076d7c4be4c672d6f35d75",
+    "localOutputHash": "0bbdac37f3f5687e88fff37ad50ae6a0033a39d75d0829b96136c37230cbffe5",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-C8ddHdA0.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-C8ddHdA0.js",
-        "sha256": "778903e1a5ff02621b44ad08a9db95e761f8091f6d66ce96cb1c445e94239ece",
+        "name": "index-BJlgw88L.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-BJlgw88L.js",
+        "sha256": "63008ddbe06ff1c094e12dbc26d650174e8fe7276f19f9e72d63494e4721b24d",
         "matchesLocalBuild": true
       },
       {
@@ -55,16 +55,18 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "4dcbddf087540a53ec668d436e9e3ba2e89f6c64859cb52c11e19278b47f4640",
+    "inventory": "3e63eb46bd6a3bd5b1f1386fb256112b17a00f91da7f7601db70b31242c0c4d3",
     "entries": {
       "linear-maps.matrix-and-image.linear-map": "955d261c633c09b8251ef6c4928a83d0c263ba016d11f25fc19de817ed840c57",
       "linear-maps.determinant-area.linear-map": "62e39beea43f6354cad85ea0c7635113356d9558ddf185ba67ae3d6cabf2ee10",
       "linear-maps.eigen-directions.linear-map": "7a5b2ead94e2e292062b818adcd17fd77e021da54cbe4d1dedfe4cf5c72e640b",
-      "linear-maps.singular-ellipse.linear-map": "cb948d8c773895de0773e7112a07dfaa8fd50b569e227bcb3322dc758e50bf57"
+      "linear-maps.singular-ellipse.linear-map": "cb948d8c773895de0773e7112a07dfaa8fd50b569e227bcb3322dc758e50bf57",
+      "linear-maps.power-method.linear-map": "0cebc1d5eb20e223408e7ef7c4fe781eaef78c843acf3ccd816553d592f3f88e",
+      "linear-maps.trace-determinant.linear-map": "220f60b98378a04b491320179a3f7ac1db378af4e5c428b548cbe305eebc9cd5"
     },
-    "presentation": "a9abd3a32d8ac2ae7a0b51b9c2356f57f697fe63543524cd42f39791f983695f",
-    "buildOutput": "cda09a5b48b445c26e4a14767c18ea2b515104c164076d7c4be4c672d6f35d75",
-    "buildInputs": "873949e0548c5d9c185f7ae4a8c71386a5ad769e21d45690c1030cfbe4a4859a"
+    "presentation": "f32890b2e617607534bdbc108a97657cbcc8c75e7d947efc800c81573bd52fce",
+    "buildOutput": "0bbdac37f3f5687e88fff37ad50ae6a0033a39d75d0829b96136c37230cbffe5",
+    "buildInputs": "8a87ea02dad12d29278559975a02f4fda94cf294e2d8f27196e73ae1eab867b8"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -124,6 +126,32 @@
       },
       {
         "id": "linear-maps.singular-ellipse.linear-map",
+        "demonstrationId": "linear-map",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.6,
+            6.6,
+            11.6,
+            -1.47
+          ]
+        }
+      },
+      {
+        "id": "linear-maps.power-method.linear-map",
+        "demonstrationId": "linear-map",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.6,
+            6.6,
+            11.6,
+            -1.47
+          ]
+        }
+      },
+      {
+        "id": "linear-maps.trace-determinant.linear-map",
         "demonstrationId": "linear-map",
         "framing": {
           "kind": "coordinate-window",
@@ -454,8 +482,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
-        "sourceRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+        "buildRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
         "pageErrors": []
       }
     },
@@ -775,8 +803,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
-        "sourceRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+        "buildRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
         "pageErrors": []
       }
     },
@@ -1096,8 +1124,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
-        "sourceRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+        "buildRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
         "pageErrors": []
       }
     },
@@ -1417,8 +1445,651 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
-        "sourceRevision": "59f3726d9f21cb71dfe99788912863754d3f1e96",
+        "buildRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "linear-maps.power-method.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.power-method.linear-map",
+      "sceneFingerprint": "86f3c2ec4c52924232f088c709fb3b413b8cf8343c276362e3de1ad9c1cc716d",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-power-first\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-example\",\"exampleId\":\"eigen-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-start\",\"start\":[1,0]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "linear-maps.power-method.linear-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "c6aa739fd37e0f28c50313fc7e576b9d791d423a9d72568bc06d8e6cffd8bdb1",
+      "scene": {
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "curve": 8,
+          "point": 8,
+          "text": 1
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              -30,
+              -30
+            ],
+            [
+              -24,
+              -12
+            ],
+            [
+              -18,
+              6
+            ]
+          ],
+          [
+            [
+              -6,
+              -6
+            ],
+            [
+              -6,
+              0
+            ],
+            [
+              -6,
+              6
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1.5,
+              1.5
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              1.75
+            ],
+            [
+              5,
+              -1
+            ]
+          ],
+          [
+            [
+              4,
+              2
+            ],
+            [
+              13.75,
+              11.25
+            ],
+            [
+              19,
+              7
+            ]
+          ],
+          [
+            [
+              4,
+              2
+            ],
+            [
+              7.5,
+              7.5
+            ],
+            [
+              11,
+              13
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0",
+          "point:0,1",
+          "point:0,0",
+          "point:5,5",
+          "point:1,1",
+          "point:5,5",
+          "point:4,2",
+          "point:1,3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 50,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 29,
+            "curve": 8,
+            "point": 8,
+            "text": 1
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [
+            [
+              [
+                -30,
+                -30
+              ],
+              [
+                -24,
+                -12
+              ],
+              [
+                -18,
+                6
+              ]
+            ],
+            [
+              [
+                -6,
+                -6
+              ],
+              [
+                -6,
+                0
+              ],
+              [
+                -6,
+                6
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                4,
+                2
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1.5,
+                1.5
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                3,
+                1.75
+              ],
+              [
+                5,
+                -1
+              ]
+            ],
+            [
+              [
+                4,
+                2
+              ],
+              [
+                13.75,
+                11.25
+              ],
+              [
+                19,
+                7
+              ]
+            ],
+            [
+              [
+                4,
+                2
+              ],
+              [
+                7.5,
+                7.5
+              ],
+              [
+                11,
+                13
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0",
+            "point:0,1",
+            "point:0,0",
+            "point:5,5",
+            "point:1,1",
+            "point:5,5",
+            "point:4,2",
+            "point:1,3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 8,
+          "point": 8,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "linear-maps.trace-determinant.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.trace-determinant.linear-map",
+      "sceneFingerprint": "10bddcafac9e277cb6784fd7b0661c271675d5a3c2763f49686fcd6cca36d0e5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-td-plane\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-matrix\",\"matrix\":[[1,-1],[1,1]]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "linear-maps.trace-determinant.linear-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e0a2fab39b7447a163a7dbf5618703343088bfeff5d23a1880bff742e3f02aa3",
+      "scene": {
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "curve": 8,
+          "point": 8,
+          "text": 1
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              -6,
+              -6
+            ],
+            [
+              -6,
+              0
+            ],
+            [
+              -6,
+              6
+            ]
+          ],
+          [
+            [
+              0,
+              -12
+            ],
+            [
+              -6,
+              -6
+            ],
+            [
+              -12,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1.5,
+              1.5
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              1.75
+            ],
+            [
+              5,
+              -1
+            ]
+          ],
+          [
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              -1,
+              5
+            ]
+          ],
+          [
+            [
+              1,
+              1
+            ],
+            [
+              1.25,
+              4.75
+            ],
+            [
+              6,
+              4
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0",
+          "point:0,1",
+          "point:0,0",
+          "point:0,2",
+          "point:1,1",
+          "point:0,2",
+          "point:1,1",
+          "point:-1,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 50,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 29,
+            "curve": 8,
+            "point": 8,
+            "text": 1
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [
+            [
+              [
+                -6,
+                -6
+              ],
+              [
+                -6,
+                0
+              ],
+              [
+                -6,
+                6
+              ]
+            ],
+            [
+              [
+                0,
+                -12
+              ],
+              [
+                -6,
+                -6
+              ],
+              [
+                -12,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1.5,
+                1.5
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                3,
+                1.75
+              ],
+              [
+                5,
+                -1
+              ]
+            ],
+            [
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                -1,
+                5
+              ]
+            ],
+            [
+              [
+                1,
+                1
+              ],
+              [
+                1.25,
+                4.75
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0",
+            "point:0,1",
+            "point:0,0",
+            "point:0,2",
+            "point:1,1",
+            "point:0,2",
+            "point:1,1",
+            "point:-1,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 8,
+          "point": 8,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
+        "sourceRevision": "7d3e9ee9a9a6947fe299cd23782ca5948706b380",
         "pageErrors": []
       }
     }

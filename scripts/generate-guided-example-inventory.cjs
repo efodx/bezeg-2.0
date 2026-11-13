@@ -309,11 +309,12 @@ const linearMapExampleMatrices = {identity: [[1, 0], [0, 1]], 'basis-default': [
 function linearMapsExpectedFor(id, step) {
     const actions = step.scene.actions;
     const examples = actions.filter(item => item.kind === 'linear-map' && item.operation === 'set-example');
-    assert.equal(examples.length, 1, `${id}: opening scene must name exactly one linear-map example`);
-    const matrix = linearMapExampleMatrices[examples[0].exampleId];
-    assert.ok(matrix, `${id}: no authored matrix for example ${JSON.stringify(examples[0].exampleId)}`);
-    assert.ok(actions.every(item => !(item.kind === 'linear-map' && item.operation === 'set-matrix')),
-        `${id}: opening scene must not override the example matrix`);
+    const matrices = actions.filter(item => item.kind === 'linear-map' && item.operation === 'set-matrix');
+    // A scene opens on one named example, or on one explicit matrix (L7 opens on Z), never both.
+    assert.ok(matrices.length === 0 || examples.length === 0, `${id}: opening scene must not override the example matrix`);
+    assert.equal(examples.length + matrices.length, 1, `${id}: opening scene must name exactly one linear-map example`);
+    const matrix = matrices.length ? matrices[0].matrix : linearMapExampleMatrices[examples[0].exampleId];
+    assert.ok(matrix, `${id}: no authored matrix for example ${JSON.stringify(examples[0]?.exampleId)}`);
     const apply = ([x, y]) => [matrix[0][0] * x + matrix[0][1] * y, matrix[1][0] * x + matrix[1][1] * y];
     const points = [[1, 0], [0, 1], [0, 0], apply([1, 1]), [1, 1], apply([1, 1]), apply([1, 0]), apply([0, 1])];
     return {types: {curve: 8, point: 8}, curveCount: 8, points};
