@@ -4,7 +4,7 @@ import type {Definition} from '../../demonstrations';
  * Cheap metadata of the combinatorics family (spec lesson-authoring-architecture R1). Imports no graph, React, lesson
  * provider or localization value, so the home page and catalog can read it without loading the family. Executable surfaces
  * live in `runtime.ts`, which this file never imports; preset collections live in `collections.ts`.
- * The rows have their guided lessons (CB1 and CB2, chapter-owned by the combinatorics chapter).
+ * The rows have their guided lessons (CB1 to CB4, chapter-owned by the combinatorics chapter).
  */
 export const combinatoricsFamilyId = 'combinatorics';
 

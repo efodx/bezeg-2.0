@@ -57,7 +57,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'phase-portraits' ? [`phase-portraits.${section.id}.logistic-map`] : []),
                     ...(chapter.id === 'level-sets' ? [`level-sets.${section.id}.linear-program`] : []),
                     ...(chapter.id === 'randomness' ? [`randomness.${section.id}.prob-simulation`] : []),
-                    ...(chapter.id === 'combinatorics' ? [`combinatorics.${section.id}.${section.id === 'lattice-paths-and-pascal' ? 'lattice-paths' : 'counting-tree'}`] : []),
+                    ...(chapter.id === 'combinatorics' ? [`combinatorics.${section.id}.${section.id === 'counting-and-choices' ? 'counting-tree' : 'lattice-paths'}`] : []),
                     ...(chapter.id === 'trigonometry' ? [`trigonometry.${section.id}.${section.id === 'sine-rule' || section.id === 'cosine-rule' ? 'triangle-solver' : 'unit-circle'}`] : []),
                     ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${(section.id === 'notable-points' ? 'triangle-centres' : section.id)}`] : []),
                 ].sort();
@@ -68,7 +68,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(171);
-        expect(new Set(allReferences).size).toBe(171);
+        expect(allReferences).toHaveLength(173);
+        expect(new Set(allReferences).size).toBe(173);
     }
 });

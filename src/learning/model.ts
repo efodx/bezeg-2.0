@@ -443,15 +443,17 @@ export type LessonAction =
     | {readonly kind: 'circle'; readonly operation: 'set-point'; readonly x: number; readonly y: number}
     | {readonly kind: 'circle'; readonly operation: 'set-apollonius'; readonly a?: {readonly x: number; readonly y: number}; readonly b?: {readonly x: number; readonly y: number}; readonly p?: {readonly x: number; readonly y: number}; readonly k?: number}
     /**
-     * The scene actions of the two combinatorics graphs (CB1 and CB2; `set-expansion` and `set-row` join in the batches B and C). LatticePathGraph registers
-     * `set-target` (the target (a, b), integers in [0, 20]; the highlighted route restarts at the first one, as when the target is moved) and
-     * `set-lattice-display` (the view, `paths` or `triangle`, and the switch of the count labels; the labels are drawn only while a + b <= 12). CountingTreeGraph
+     * The scene actions of the two combinatorics graphs (CB1 to CB4; `set-row` joins in batch C). LatticePathGraph registers
+     * `set-target` (the target (a, b), integers in [0, 20]; the highlighted route restarts at the first one, as when the target is moved),
+     * `set-lattice-display` (the view, `paths` or `triangle`, and the switch of the count labels, drawn only while a + b <= 12; the optional `split` is the
+     * switch that colours the routes by their last step, absent = unchanged) and `set-expansion` (the view `expansion` with n in [0, 12] and c in [-9, 9]). CountingTreeGraph
      * registers `set-counting-mode`: the view `choices` with n, k (0 to 20, k <= n without repetition) and the two switches of the kind of choice, or the view
      * `multiset` with the numbers of the four kinds of letters (0 to 12). Anything off the model's ranges is a lesson-content error: it is never snapped and
      * the whole action is validated before the first write.
      */
     | {readonly kind: 'combinatorics'; readonly operation: 'set-target'; readonly a: number; readonly b: number}
-    | {readonly kind: 'combinatorics'; readonly operation: 'set-lattice-display'; readonly view: 'paths' | 'triangle'; readonly showCounts: boolean}
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-lattice-display'; readonly view: 'paths' | 'triangle'; readonly showCounts: boolean; readonly split?: boolean}
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-expansion'; readonly n: number; readonly c: number}
     | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'choices'; readonly n: number; readonly k: number; readonly ordered: boolean; readonly repetition: boolean}
     | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'multiset'; readonly counts: readonly [number, number, number, number]}
     /**

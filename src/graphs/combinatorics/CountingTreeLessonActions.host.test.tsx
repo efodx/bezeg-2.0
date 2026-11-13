@@ -121,6 +121,7 @@ test('the graph supports the action; invalid scene data and the lattice graph\'s
         {kind: 'combinatorics', operation: 'set-counting-mode', view: 'multiset', counts: JSON.parse('[1,2,3]')} as unknown as LessonAction,
         {kind: 'combinatorics', operation: 'set-target', a: 2, b: 2},
         {kind: 'combinatorics', operation: 'set-lattice-display', view: 'triangle', showCounts: true},
+        {kind: 'combinatorics', operation: 'set-expansion', n: 5, c: 2},
         {kind: 'combinatorics', operation: JSON.parse('"set-row"')} as unknown as LessonAction,
     ];
     for (const action of bad) expect(() => apply(graph, action)).toThrow();

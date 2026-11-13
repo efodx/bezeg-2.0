@@ -2,14 +2,16 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {latticePathsLesson, countingTreeLesson} from './combinatoricsGuidedLessons';
+import {latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson} from './combinatoricsGuidedLessons';
 
 export const COMBINATORICS_CHAPTER_ID = 'combinatorics';
 
-/** Section id to the Demonstration of its activity (spec CB1, CB2: one section and one Demonstration each, in teaching order). Section ids are those of combinatoricsChapter.ts. */
+/** Section id to the Demonstration of its activity (spec CB1 to CB4: four sections on two Demonstrations, in teaching order). Section ids are those of combinatoricsChapter.ts. */
 export const combinatoricsGuidedExampleDemonstrations = {
     'lattice-paths-and-pascal': 'lattice-paths',
     'counting-and-choices': 'counting-tree',
+    'pascal-identity': 'lattice-paths',
+    'binomial-theorem': 'lattice-paths',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type CombinatoricsSectionId = keyof typeof combinatoricsGuidedExampleDemonstrations;
@@ -18,6 +20,8 @@ export type CombinatoricsSectionId = keyof typeof combinatoricsGuidedExampleDemo
 const sectionContent = {
     'lattice-paths-and-pascal': {id: 'lattice-paths-cb1', content: () => latticePathsLesson},
     'counting-and-choices': {id: 'counting-tree-cb2', content: () => countingTreeLesson},
+    'pascal-identity': {id: 'lattice-paths-cb3', content: () => pascalIdentityLesson},
+    'binomial-theorem': {id: 'lattice-paths-cb4', content: () => binomialTheoremLesson},
 } as const;
 
 const adapted = new Map<CombinatoricsSectionId, LessonDefinition>();

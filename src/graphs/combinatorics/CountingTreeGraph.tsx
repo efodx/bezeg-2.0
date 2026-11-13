@@ -597,6 +597,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
             }
             case "set-target":
             case "set-lattice-display":
+            case "set-expansion":
                 throw new Error(`combinatorics: the counting graph has no ${action.operation}; it belongs to the lattice graph.`);
             default: {
                 const unsupported: never = action;

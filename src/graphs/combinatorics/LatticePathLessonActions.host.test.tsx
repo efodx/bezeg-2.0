@@ -23,7 +23,8 @@ const mount = (): LatticePathGraph => {
 };
 const apply = (graph: LatticePathGraph, action: LessonAction) => act(() => { graph.getLessonCapabilities().apply(action); });
 const setTarget = (a: number, b: number): LessonAction => ({kind: 'combinatorics', operation: 'set-target', a, b});
-const setDisplay = (view: 'paths' | 'triangle', showCounts: boolean): LessonAction => ({kind: 'combinatorics', operation: 'set-lattice-display', view, showCounts});
+const setDisplay = (view: 'paths' | 'triangle', showCounts: boolean, split?: boolean): LessonAction =>
+    ({kind: 'combinatorics', operation: 'set-lattice-display', view, showCounts, ...(split === undefined ? {} : {split})});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
@@ -72,6 +73,63 @@ test('set-lattice-display reaches the state, readouts and status of the Vsebina 
     expect(paths).toEqual(after(() => undefined));
 });
 
+const setExpansion = (n: number, c: number): LessonAction => ({kind: 'combinatorics', operation: 'set-expansion', n, c});
+
+test('set-expansion reaches the state, readouts and status of the Vsebina select and the fields n and c', () => {
+    for (const [n, c] of [[4, 1], [5, 2], [5, -3], [0, 0], [12, 9], [7, -9]] as const) {
+        const viaAction = after(graph => apply(graph, setExpansion(n, c)));
+        const viaControl = after(() => {
+            choose(t('combinatorics_view_label'), 'expansion');
+            type(t('combinatorics_lattice_n_label'), String(n)); type(t('combinatorics_lattice_c_label'), String(c));
+        });
+        expect({n, c, ...viaAction}).toEqual({n, c, ...viaControl});
+        expect(viaAction.state).toEqual(expect.objectContaining({view: 'expansion', n, c}));
+    }
+});
+
+test('set-expansion leaves the target, route and switches alone', () => {
+    const graph = mount();
+    apply(graph, setTarget(4, 3));
+    apply(graph, setDisplay('paths', true, true));
+    apply(graph, setExpansion(5, 2));
+    expect(graph.state).toEqual(expect.objectContaining({a: 4, b: 3, route: 0, showCounts: true, split: true, view: 'expansion', n: 5, c: 2}));
+});
+
+test('set-lattice-display with split reaches the state, readouts and status of the switch; without split the switch is unchanged', () => {
+    const viaAction = after(graph => { apply(graph, setTarget(4, 3)); apply(graph, setDisplay('paths', false, true)); });
+    const viaControl = after(() => {
+        type(t('combinatorics_lattice_a_label'), '4'); type(t('combinatorics_lattice_b_label'), '3');
+        click(t('combinatorics_lattice_split'));
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state).toEqual(expect.objectContaining({split: true, view: 'paths'}));
+    const graph = mount();
+    apply(graph, setDisplay('paths', false, true));
+    apply(graph, setDisplay('triangle', true));
+    expect(graph.state.split).toBe(true);
+    apply(graph, setDisplay('paths', false, false));
+    expect(graph.state.split).toBe(false);
+    apply(graph, setDisplay('paths', false, true));
+    expect(graph.state.split).toBe(true);
+    apply(graph, setDisplay('paths', false));
+    expect(graph.state.split).toBe(true);
+});
+
+test('invalid set-expansion and split actions are lesson-content errors and change nothing', () => {
+    const graph = mount();
+    apply(graph, setExpansion(5, 2));
+    const before = stateOf(graph);
+    const beforeReadouts = readouts();
+    const bad: LessonAction[] = [
+        setExpansion(13, 2), setExpansion(-1, 2), setExpansion(5, 10), setExpansion(5, -10), setExpansion(2.5, 2), setExpansion(5, 0.5),
+        setExpansion(Number.NaN, 2), setExpansion(5, Number.POSITIVE_INFINITY), setExpansion(JSON.parse('"5"'), 2),
+        {kind: 'combinatorics', operation: 'set-lattice-display', view: 'triangle', showCounts: false, split: JSON.parse('"yes"')},
+    ];
+    for (const action of bad) expect(() => apply(graph, action)).toThrow();
+    expect(stateOf(graph)).toEqual(before);
+    expect(readouts()).toEqual(beforeReadouts);
+});
+
 test('a scene runs its actions in one synchronous sequence: each action reads the state the earlier one wrote', () => {
     const graph = mount();
     const free = stateOf(graph);
@@ -81,8 +139,10 @@ test('a scene runs its actions in one synchronous sequence: each action reads th
         capabilities.apply(setDisplay('paths', true));
         capabilities.apply(setTarget(5, 3));
         capabilities.apply(setDisplay('triangle', true));
+        capabilities.apply(setExpansion(4, 1));
+        capabilities.apply(setDisplay('paths', false, true));
     });
-    expect(graph.state).toEqual(expect.objectContaining({a: 5, b: 3, view: 'triangle', showCounts: true, route: 0}));
+    expect(graph.state).toEqual(expect.objectContaining({a: 5, b: 3, view: 'paths', showCounts: false, route: 0, n: 4, c: 1, split: true}));
     expect(stateOf(graph)).not.toEqual(free);
 });
 

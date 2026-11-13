@@ -6,10 +6,10 @@
  */
 import {act} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
-import {countingTreeLesson, latticePathsLesson} from './combinatoricsGuidedLessons';
+import {binomialTheoremLesson, countingTreeLesson, latticePathsLesson, pascalIdentityLesson} from './combinatoricsGuidedLessons';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
-import type {LessonAction} from '../model';
+import type {LessonAction, LocalizedText} from '../model';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {CountingTreeGraph} from '../../graphs/combinatorics/CountingTreeGraph';
 import {LatticePathGraph} from '../../graphs/combinatorics/LatticePathGraph';
@@ -455,5 +455,365 @@ test.each([['CB1', latticePathsLesson, 'lattice'], ['CB2', countingTreeLesson, '
         expect(allReadouts()).toEqual(freeReadouts);
     } finally {
         m.mounted.view.unmount();
+    }
+});
+
+// ======================================================================================================================================
+// CB3 (Pascal's identity) and CB4 (the binomial theorem): scenes against the real readouts, an independent BigInt recomputation, and the prediction
+// order (the scene opens on a neutral state, the explanation asks, the learner's own entry reveals the answer).
+// ======================================================================================================================================
+
+/** (x + c)^n by repeated multiplication of the polynomial, highest power of x first: no binomial formula, no kernel. */
+function expand(n: number, c: number): bigint[] {
+    let poly = [1n];
+    for (let i = 0; i < n; i++) {
+        const next: bigint[] = Array(poly.length + 1).fill(0n);
+        poly.forEach((value, j) => { next[j] += value; next[j + 1] += value * BigInt(c); });
+        poly = next;
+    }
+    return poly;
+}
+const sumOf = (values: bigint[]) => values.reduce((a, b) => a + b, 0n);
+const expansion = (n: number, c: number): LessonAction => ({kind: 'combinatorics', operation: 'set-expansion', n, c});
+const SUPERSCRIPT = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+/** The string count and the words of each group of the strings table, from the DOM. */
+/** The coefficients readout as digits joined by semicolons (the separator is a semicolon in Slovenian and a comma in English). */
+const coefficients = () => tokens(readout('coefficients') ?? '').join(';');
+const stringGroups = () => [...document.querySelectorAll('[data-strings-group]')].map(row => ({count: row.children[1].textContent, words: row.children[2].textContent ?? ''}));
+/** Everything the learner can read in a state: the readouts, the status and the strings table. */
+const visibleText = () => [...allReadouts(), status(), document.querySelector('[data-combinatorics-strings]')?.textContent].join(' | ');
+/** Whole numbers of a text (a digit run inside a longer run is not one; superscript digits are not). */
+const tokens = (text: string): string[] => text.match(/(?<![0-9])[0-9]+(?![0-9])/g) ?? [];
+
+const parentsOf = (a: number, b: number) => ({
+    entry: choose(a + b, a),
+    left: a >= 1 ? choose(a + b - 1, a - 1) : undefined,
+    right: b >= 1 ? choose(a + b - 1, a) : undefined,
+});
+const triangleRows = (a: number, b: number): Record<string, string> => {
+    const p = parentsOf(a, b);
+    return {
+        entry: norm(`${binomOf(a + b, a)} = ${p.entry}`), 'parent-left': num(p.left!), 'parent-right': num(p.right!),
+        'parents-sum': num(p.left! + p.right!), 'row-sum': norm(`${2n ** BigInt(a + b)} = 2${SUPERSCRIPT[a + b]}`),
+    };
+};
+const pathRows = (a: number, b: number): Record<string, string> => ({
+    target: pointOf(a, b), count: num(choose(a + b, a)), formula: norm(`${binomOf(a + b, a)} = ${choose(a + b, a)}`),
+    'last-right': num(choose(a + b - 1, a - 1)), 'last-up': num(choose(a + b - 1, a)),
+    'last-sum': norm(`${choose(a + b - 1, a - 1)} + ${choose(a + b - 1, a)} = ${choose(a + b, a)}`),
+});
+
+interface Cb3Scene { readonly a: number; readonly b: number; readonly view: 'paths' | 'triangle'; readonly split: boolean }
+const CB3: Record<string, Cb3Scene> = {
+    'cb3-predict': {a: 2, b: 2, view: 'paths', split: false},
+    'cb3-partition': {a: 4, b: 3, view: 'paths', split: true},
+    'cb3-identity': {a: 4, b: 3, view: 'triangle', split: false},
+    'cb3-rows': {a: 2, b: 1, view: 'triangle', split: false},
+    'cb3-symmetry': {a: 3, b: 2, view: 'triangle', split: false},
+    'cb3-explore': {a: 5, b: 3, view: 'paths', split: false},
+};
+interface Cb4Scene { readonly n: number; readonly c: number }
+const CB4: Record<string, Cb4Scene> = {
+    'cb4-square': {n: 1, c: 1}, 'cb4-strings': {n: 2, c: 1}, 'cb4-collect': {n: 1, c: 1}, 'cb4-four': {n: 3, c: 1},
+    'cb4-weight': {n: 5, c: 1}, 'cb4-sum': {n: 4, c: 2}, 'cb4-explore': {n: 6, c: 2},
+};
+const lessonsB = [
+    ['CB3', pascalIdentityLesson, CB3, 'pascal-identity', 'lattice-paths-cb3', 6],
+    ['CB4', binomialTheoremLesson, CB4, 'binomial-theorem', 'lattice-paths-cb4', 7],
+] as const;
+const lessonOfStep = (id: string) => (id.startsWith('cb3') ? pascalIdentityLesson : binomialTheoremLesson);
+
+describe.each(lessonsB)('%s: structure and ownership', (_name, lesson, scenes, section, id, count) => {
+    test('ordered steps with a scene each, owned by the lattice-paths chapter section', () => {
+        expect(lesson.steps.map(step => step.order)).toEqual(Array.from({length: count}, (_, i) => i + 1));
+        expect(lesson.steps.map(step => step.id)).toEqual(Object.keys(scenes));
+        expect(new Set(lesson.steps.map(step => step.scene!.id)).size).toBe(count);
+        const owned = getChapterOwnedLessons('combinatorics')!.lesson(section)!;
+        expect(owned.id).toBe(id);
+        expect(owned.steps).toHaveLength(count);
+        expect(owned.steps.every(step => step.scene)).toBe(true);
+    });
+});
+
+/** Every text of a lesson (both languages). */
+function allTexts(lesson: GuidedLesson): string[] {
+    const out: string[] = [];
+    const walk = (value: unknown) => {
+        if (typeof value === 'string') out.push(value);
+        else if (Array.isArray(value)) value.forEach(walk);
+        else if (value && typeof value === 'object') Object.values(value).forEach(walk);
+    };
+    walk({...lesson, steps: lesson.steps.map(step => ({...step, scene: {...step.scene, actions: undefined}}))});
+    return out;
+}
+
+describe.each(lessonsB)('%s: text', (_name, lesson) => {
+    test('no escape swallowed a LaTeX command (a control character from \\b, \\f, \\t, \\v, \\r) and no doubled backslash survives', () => {
+        for (const text of allTexts(lesson)) {
+            expect(text).not.toMatch(/[\u0000-\u0008\u000b-\u001f]/);
+            expect(text).not.toMatch(/\\\\/);
+        }
+    });
+
+    test('sl and en quote the same numbers, text by text', () => {
+        const digits = (text: string) => tokens(text.replace(/\{,\}|\\,/g, '').replace(/\\[a-zA-Z]+/g, ' ').replace(/from step \d/g, '')).sort().join(',');
+        const all: LocalizedText[] = [
+            lesson.summary,
+            ...lesson.formulaBlocks.flatMap(f => [f.notation, f.explanation]),
+            ...lesson.workedExamples.flatMap(e => [e.title, e.check]),
+            ...lesson.steps.flatMap(s => [s.title, s.purpose, s.explanation, s.observationPrompt, ...s.expectedObservations, s.scene!.expectedState]),
+        ];
+        expect(all.length).toBeGreaterThan(40);
+        for (const item of all) expect({text: item.en.slice(0, 40), en: digits(item.en)}).toEqual({text: item.en.slice(0, 40), en: digits(item.sl)});
+    });
+
+    test('every worked example is attached to a step, and every quoted binomial with a value (\\binom73=35) is the true one', () => {
+        const attached = lesson.steps.map(step => step.workedExampleId).filter((id): id is string => Boolean(id));
+        expect(attached.length).toBeGreaterThan(0);
+        for (const id of attached) expect(lesson.workedExamples.some(example => example.id === id)).toBe(true);
+        let checked = 0;
+        for (const text of allTexts(lesson)) {
+            for (const match of text.matchAll(/\\binom(?:\{(\d+)\}\{(\d+)\}|(\d)(\d))(?:=(\d+)(?![0-9+]))?/g)) {
+                const n = Number(match[1] ?? match[3]);
+                const k = Number(match[2] ?? match[4]);
+                expect(k).toBeLessThanOrEqual(n);
+                if (match[5] !== undefined) { expect({n, k, value: match[5]}).toEqual({n, k, value: String(choose(n, k))}); checked++; }
+            }
+        }
+        expect(checked).toBeGreaterThan(0);
+    });
+});
+
+test('CB3: the quoted binomials, parents and edge, recomputed with Pascal\'s rule', () => {
+    expect([choose(7, 3), choose(6, 2) + choose(6, 3)]).toEqual([35n, 35n]);
+    expect([choose(6, 2), choose(6, 3), choose(6, 4)]).toEqual([15n, 20n, 15n]);
+    expect([choose(7, 4), choose(7, 3)]).toEqual([35n, 35n]); // the readout of (4, 3) and the example's symmetry check
+    expect([choose(4, 2), choose(4, 3)]).toEqual([6n, 4n]);
+    expect(pascal(3)).toEqual([1n, 3n, 3n, 1n]);
+    expect(pascal(4)).toEqual([1n, 4n, 6n, 4n, 1n]);
+    expect(choose(5, 3)).toBe(choose(4, 2) + choose(4, 3));
+    expect([choose(5, 3), choose(5, 2)]).toEqual([10n, 10n]); // (3, 2) and (2, 3)
+    expect(choose(8, 5)).toBe(choose(7, 4) + choose(7, 5)); // (5, 3): 56 = 35 + 21
+    expect([choose(7, 4), choose(7, 5)]).toEqual([35n, 21n]);
+    expect(parentsOf(3, 3)).toEqual({entry: 20n, left: 10n, right: 10n}); // equal parents at a = b
+    expect(parentsOf(6, 0)).toEqual({entry: 1n, left: 1n, right: undefined}); // the edge: one parent
+    const example = pascalIdentityLesson.workedExamples[0];
+    expect(example.calculationLatex).toBe('\\binom73=\\binom62+\\binom63=15+20');
+    expect(example.resultLatex).toBe('\\binom73=35');
+    for (const language of ['sl', 'en'] as const) expect(prose(example.check[language])).toContain('35=20+15');
+});
+
+test('CB4: the quoted coefficient lists and sums, recomputed as the repeated product of (x + c)', () => {
+    expect(expand(2, 1)).toEqual([1n, 2n, 1n]);
+    expect(expand(3, 1)).toEqual([1n, 3n, 3n, 1n]);
+    expect(expand(4, 1)).toEqual([1n, 4n, 6n, 4n, 1n]);
+    expect(expand(5, 1)).toEqual([1n, 5n, 10n, 10n, 5n, 1n]);
+    expect(expand(5, 2)).toEqual([1n, 10n, 40n, 80n, 80n, 32n]);
+    expect(expand(4, 2)).toEqual([1n, 8n, 24n, 32n, 16n]);
+    expect(expand(6, 2)).toEqual([1n, 12n, 60n, 160n, 240n, 192n, 64n]);
+    expect(sumOf(expand(5, 2))).toBe(243n);
+    expect(sumOf(expand(5, 2))).toBe(3n ** 5n);
+    expect(sumOf(expand(6, 2))).toBe(729n);
+    expect(sumOf(expand(4, 2))).toBe(81n);
+    expect(sumOf(expand(5, -1))).toBe(0n);
+    for (const [n, c] of [[3, 1], [5, 1], [5, 2], [6, 2], [7, -3], [12, 9]] as const) {
+        expand(n, c).forEach((value, j) => expect(value).toBe(choose(n, j) * BigInt(c) ** BigInt(j)));
+        expect(sumOf(expand(n, c))).toBe(BigInt(1 + c) ** BigInt(n));
+    }
+    expect(choose(5, 1) * 2n).toBe(10n); // x^4 in (x + 2)^5
+    expect(choose(5, 2) * 2n ** 2n).toBe(40n); // x^3, the worked example
+    expect(choose(3, 2)).toBe(3n);
+    expect([2n ** 3n, 2n ** 4n]).toEqual([8n, 16n]);
+    const example = binomialTheoremLesson.workedExamples[0];
+    expect(example.calculationLatex).toBe('\\binom52\\cdot2^2=10\\cdot4');
+    expect(example.resultLatex).toBe('\\binom52\\cdot2^2=40');
+});
+
+// ---- the scenes against the real graph -----------------------------------------------------------------------------------------------
+
+test.each(['sl', 'en'] as const)('CB3 (%s): every scene lands in the stated state and readouts, from a restored checkpoint, out of order and twice', language => {
+    setLanguage(language);
+    const m = mountLattice();
+    try {
+        const ids = Object.keys(CB3);
+        for (const id of [...ids, ...ids.slice().reverse()]) {
+            const expected = CB3[id];
+            m.scene(pascalIdentityLesson, id);
+            m.scene(pascalIdentityLesson, id);
+            expect({id, ...pick(m.graph.state, ['a', 'b', 'view', 'split', 'showCounts', 'route'])}).toEqual({id, ...expected, showCounts: false, route: 0});
+            const rows = expected.view === 'paths' ? pathRows(expected.a, expected.b) : triangleRows(expected.a, expected.b);
+            for (const [row, text] of Object.entries(rows)) expect({id, row, text: norm(readout(row))}).toEqual({id, row, text: norm(text)});
+        }
+    } finally {
+        m.mounted.view.unmount();
+    }
+});
+
+test.each(['sl', 'en'] as const)('CB4 (%s): every scene lands in the stated state, readouts and strings table, from a restored checkpoint, out of order and twice', language => {
+    setLanguage(language);
+    const m = mountLattice();
+    try {
+        const ids = Object.keys(CB4);
+        for (const id of [...ids, ...ids.slice().reverse()]) {
+            const {n, c} = CB4[id];
+            m.scene(binomialTheoremLesson, id);
+            m.scene(binomialTheoremLesson, id);
+            expect({id, ...pick(m.graph.state, ['view', 'n', 'c'])}).toEqual({id, view: 'expansion', n, c});
+            expect({id, text: coefficients()}).toEqual({id, text: expand(n, c).join(';')});
+            expect(norm(readout('coefficient-sum'))).toContain(`=${sumOf(expand(n, c))}`);
+            if (n <= 5) {
+                const groups = stringGroups();
+                expect({id, sizes: groups.map(group => group.count)}).toEqual({id, sizes: pascal(n).map(String)});
+                expect({id, total: groups.reduce((total, group) => total + group.words.split(' ').length, 0)}).toEqual({id, total: 2 ** n});
+            } else {
+                expect({id, off: document.querySelector('[data-combinatorics-strings-off]') !== null}).toEqual({id, off: true});
+            }
+        }
+    } finally {
+        m.mounted.view.unmount();
+    }
+});
+
+test.each(['sl', 'en'] as const)('CB3 and CB4 (%s): every number the expected-state text quotes is read in the opening state or is a coordinate of it', language => {
+    setLanguage(language);
+    const m = mountLattice();
+    try {
+        for (const lesson of [pascalIdentityLesson, binomialTheoremLesson]) {
+            for (const step of lesson.steps) {
+                m.scene(lesson, step.id);
+                const state = m.graph.state;
+                const readable = new Set([...tokens(visibleText()), String(state.a), String(state.b), String(state.n), String(state.c)]);
+                const quoted = tokens(step.scene!.expectedState[language].replace(/\\,|\{,\}/g, '').replace(/\\[a-zA-Z]+/g, ' '));
+                expect(quoted.length).toBeGreaterThan(0);
+                for (const value of quoted) expect({id: step.id, value, readable: readable.has(value)}).toEqual({id: step.id, value, readable: true});
+            }
+        }
+    } finally {
+        m.mounted.view.unmount();
+    }
+});
+
+// ---- the opening state must not show the step's answer; the learner's own entry reveals it -------------------------------------------------
+
+interface Reveal {
+    /** The learner's entry, as real actions after the scene. */
+    readonly enter: LessonAction[];
+    /** The numbers of the predicted answer: absent from the opening state, read after the entry. */
+    readonly answers: readonly string[];
+    /** Search only the coefficients readout and the strings table in the opening state (the sum readout shows the base 1 + c). */
+    readonly only?: 'coefficients-and-table';
+    /** The rows the entry must show (computed after the language is set). */
+    readonly rows: () => Readonly<Record<string, string>>;
+}
+const REVEAL: Record<string, Reveal> = {
+    'cb3-predict': {enter: [target(4, 3)], answers: ['20', '15', '35'], rows: () => pathRows(4, 3)},
+    'cb3-rows': {enter: [target(3, 2)], answers: ['10', '6', '4'], rows: () => triangleRows(3, 2)},
+    'cb4-square': {enter: [expansion(2, 1)], answers: ['2', '4'], only: 'coefficients-and-table', rows: () => ({coefficients: expand(2, 1).join(';'), 'coefficient-sum': norm('2² = 4')})},
+    'cb4-strings': {enter: [expansion(3, 1)], answers: ['8'], rows: () => ({coefficients: expand(3, 1).join(';'), 'coefficient-sum': norm('2³ = 8')})},
+    'cb4-collect': {enter: [expansion(3, 1)], answers: ['3'], rows: () => ({coefficients: expand(3, 1).join(';')})},
+    'cb4-four': {enter: [expansion(4, 1)], answers: ['16', '6'], rows: () => ({coefficients: expand(4, 1).join(';'), 'coefficient-sum': norm('2⁴ = 16')})},
+    'cb4-sum': {enter: [expansion(5, 2)], answers: ['243'], rows: () => ({coefficients: expand(5, 2).join(';'), 'coefficient-sum': norm('3⁵ = 243')})},
+};
+
+test.each(['sl', 'en'] as const)('CB3 and CB4 (%s): the prediction steps open without their answer, and the learner\'s entry shows it', language => {
+    setLanguage(language);
+    const m = mountLattice();
+    try {
+        expect(Object.keys(REVEAL)).toHaveLength(7);
+        for (const [id, reveal] of Object.entries(REVEAL)) {
+            const lesson = lessonOfStep(id);
+            m.scene(lesson, id);
+            const opening = reveal.only
+                ? [readout('coefficients'), document.querySelector('[data-combinatorics-strings]')?.textContent].join(' | ')
+                : visibleText();
+            for (const answer of reveal.answers) expect({id, answer, shown: tokens(opening).includes(answer)}).toEqual({id, answer, shown: false});
+            m.learner(...reveal.enter);
+            for (const [row, text] of Object.entries(reveal.rows())) expect({id, row, text: row === 'coefficients' ? coefficients() : norm(readout(row))}).toEqual({id, row, text: row === 'coefficients' ? text : norm(text)});
+            const after = tokens(visibleText());
+            for (const answer of reveal.answers) expect({id, answer, shown: after.includes(answer)}).toEqual({id, answer, shown: true});
+        }
+    } finally {
+        m.mounted.view.unmount();
+    }
+});
+
+test.each(['sl', 'en'] as const)('CB3 and CB4 (%s): the other values the prompts ask the learner to enter are allowed and show what the expected observations state', language => {
+    setLanguage(language);
+    const m = mountLattice();
+    try {
+        m.scene(pascalIdentityLesson, 'cb3-partition');
+        m.learner(target(3, 3));
+        expect(readout('count')).toBe('20');
+        m.learner(target(4, 2));
+        expect(readout('count')).toBe('15');
+        m.scene(pascalIdentityLesson, 'cb3-identity');
+        m.learner(target(6, 0));
+        expect(status()).toBe(t('combinatorics_lattice_status_triangle_edge', {value0: '6', value1: '6', value2: '1'}));
+        expect(readout('parent-right')).toBe('–');
+        m.scene(pascalIdentityLesson, 'cb3-symmetry');
+        m.learner(target(2, 3));
+        expect(norm(readout('entry'))).toBe(norm(`${binomOf(5, 2)} = 10`));
+        expect([readout('parent-left'), readout('parent-right')]).toEqual(['4', '6']);
+        m.scene(pascalIdentityLesson, 'cb3-explore');
+        m.learner(target(3, 3));
+        expect(readout('last-right')).toBe(readout('last-up'));
+        m.learner(target(5, 0));
+        expect([readout('last-right'), readout('last-up')]).toEqual(['1', '0']);
+        m.scene(binomialTheoremLesson, 'cb4-weight');
+        m.learner(expansion(5, 2));
+        expect(coefficients()).toBe('1;10;40;80;80;32');
+        m.scene(binomialTheoremLesson, 'cb4-explore');
+        m.learner(expansion(6, -1));
+        expect(norm(readout('coefficient-sum'))).toContain('=0');
+        expect(document.querySelector('[data-combinatorics-strings-off]')).not.toBeNull();
+    } finally {
+        m.mounted.view.unmount();
+    }
+});
+
+// ---- the prediction order in the text ------------------------------------------------------------------------------------------------
+
+/** What the step's prediction asks for: numbers (whole) and phrases (without spaces) that must not be in its explanation, title, worked example or formulas. */
+const PREDICTED: Record<string, {readonly numbers?: readonly string[]; readonly phrases?: readonly string[]}> = {
+    'cb3-predict': {numbers: ['20', '15', '35']},
+    'cb3-partition': {numbers: ['20', '15']},
+    'cb3-identity': {phrases: ['enegastarša', 'onlyoneparent']},
+    'cb3-rows': {numbers: ['10', '6'], phrases: ['1,4,6,4,1']},
+    'cb4-square': {numbers: ['4'], phrases: ['1,2,1']},
+    'cb4-strings': {numbers: ['8']},
+    'cb4-collect': {phrases: ['\\binom32', '1,3,3,1']},
+    'cb4-four': {numbers: ['16', '6'], phrases: ['1,4,6,4,1']},
+    'cb4-weight': {phrases: ['\\binom51\\cdot2']},
+    'cb4-sum': {numbers: ['243'], phrases: ['3^5']},
+};
+
+test.each(['sl', 'en'] as const)('CB3 and CB4 (%s): no step\'s explanation, title, worked example or formulas gives the answer its prediction asks for', language => {
+    for (const lesson of [pascalIdentityLesson, binomialTheoremLesson]) {
+        for (const step of lesson.steps) {
+            const predicted = PREDICTED[step.id];
+            if (!predicted) continue;
+            const formulas = lesson.formulaBlocks.filter(f => step.formulaIds.includes(f.id));
+            const example = lesson.workedExamples.find(e => e.id === step.workedExampleId);
+            const texts = [
+                step.title[language], step.explanation[language],
+                ...formulas.flatMap(f => [f.latex, f.notation[language], f.explanation[language]]),
+                ...(example ? [example.title[language], example.calculationLatex, example.resultLatex, example.check[language]] : []),
+            ];
+            for (const text of texts) {
+                for (const value of predicted.numbers ?? []) expect({id: step.id, value, found: hasNumber(text, value)}).toEqual({id: step.id, value, found: false});
+                for (const phrase of predicted.phrases ?? []) expect({id: step.id, phrase, found: prose(text).includes(phrase)}).toEqual({id: step.id, phrase, found: false});
+            }
+        }
+    }
+});
+
+test.each(['sl', 'en'] as const)('CB3 and CB4 (%s): the lesson summary, shown before step 1, gives no step\'s answer', language => {
+    for (const lesson of [pascalIdentityLesson, binomialTheoremLesson]) {
+        for (const step of lesson.steps) {
+            const predicted = PREDICTED[step.id];
+            if (!predicted) continue;
+            for (const value of predicted.numbers ?? []) expect({id: step.id, value, found: hasNumber(lesson.summary[language], value)}).toEqual({id: step.id, value, found: false});
+            for (const phrase of predicted.phrases ?? []) expect({id: step.id, phrase, found: prose(lesson.summary[language]).includes(phrase)}).toEqual({id: step.id, phrase, found: false});
+        }
     }
 });

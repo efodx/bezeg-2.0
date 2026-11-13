@@ -188,6 +188,8 @@ The static document initially declares Slovenian, and runtime selection updates 
 | permutacija; variacija; kombinacija | permutation; variation; combination (CB2). PIK §4.15; "permutacije s ponavljanjem" (MISSISSIPPI, CB2) and "variacije s ponavljanjem" are the same words with *s ponavljanjem*; "kombinacije s ponavljanjem" only named as the graph's fourth kind, not derived |
 | binomski simbol; Pascalov trikotnik | binomial coefficient \(\binom nk\), read "n nad k" (CB1, CB2); Pascal's triangle (CB1). PIK §4.15; the readout writes "(n nad k)" |
 | pot po mreži | lattice path, a route of right (D) and up (G) steps (CB1). Transparent wording, no source shows *monotona pot*; CB1 step 1 glosses it as "eno polje desno (D) ali gor (G)". Route letters D and G in sl, R and U in en |
+| Pascalova identiteta | Pascal's identity \(inom nk=inom{n-1}{k-1}+inom{n-1}{k}\) (CB3). Standard name; handler-unreviewed |
+| binomski izrek; niz črk | binomial theorem (PIK §4.15); string of letters, one choice of a or b per factor (CB4). *Niz* is the school word for a sequence of symbols; handler-unreviewed |
 | hitrost; velikost hitrosti; pospešek (kinematika) | velocity (vector); speed; acceleration (KN1, KN2). Existing words from the kinematics term table (`docs/tasks/kinematics/README.md`); the readout writes the vector as (x; y) m/s and the length as \(|v|\) |
 | tangentni, normalni pospešek | tangential, normal acceleration \(a_T\), \(a_N\) (KN2). Standard; the graph draws them dotted and with long dashes (*dolge črtice*, distinct from the dashed *črtkano* acceleration) |
 | primerjalna točka | reference point (KN2): the uniformly circling comparison point, drawn as a square; plain description |

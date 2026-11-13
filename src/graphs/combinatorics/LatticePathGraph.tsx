@@ -506,7 +506,8 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
 
     /**
      * Lesson actions (`combinatorics`, lattice part): `set-target` is the fields a and b (the route restarts at the first one, as for a moved target) and
-     * `set-lattice-display` the content select (paths or triangle) with the switch of the count labels. The whole new state goes through the model's parser
+     * `set-lattice-display` the content select (paths or triangle) with the switch of the count labels and, when given, the switch that colours the routes by their last step (`split`; absent = unchanged).
+     * `set-expansion` selects the content `expansion` and sets the exponent n and the shift c (as the fields do). The whole new state goes through the model's parser
      * before the first write, so an off-range or non-integer value is a lesson-content error and nothing is snapped. `setState` writes the store
      * synchronously, so a later action of the same scene reads this one's result; the board follows in `onStateChange`.
      */
@@ -520,9 +521,16 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             }
             case "set-lattice-display": {
                 if (action.view !== "paths" && action.view !== "triangle") throw new Error("combinatorics set-lattice-display: view must be paths or triangle.");
-                const parsed = parseLatticeState({...serializeLatticeState(this.state), view: action.view, showCounts: action.showCounts});
+                const split = action.split === undefined ? this.state.split : action.split;
+                const parsed = parseLatticeState({...serializeLatticeState(this.state), view: action.view, showCounts: action.showCounts, split});
                 if (!parsed.ok) throw new Error(`combinatorics set-lattice-display: ${parsed.error.message}`);
-                this.setState({view: parsed.value.view, showCounts: parsed.value.showCounts});
+                this.setState({view: parsed.value.view, showCounts: parsed.value.showCounts, split: parsed.value.split});
+                return;
+            }
+            case "set-expansion": {
+                const parsed = parseLatticeState({...serializeLatticeState(this.state), view: "expansion", n: action.n, c: action.c});
+                if (!parsed.ok) throw new Error(`combinatorics set-expansion: ${parsed.error.message}`);
+                this.setState({view: "expansion", n: parsed.value.n, c: parsed.value.c});
                 return;
             }
             case "set-counting-mode":
