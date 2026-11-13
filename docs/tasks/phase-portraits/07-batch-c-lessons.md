@@ -11,4 +11,4 @@ Handler decisions (handler 12, 2026-11-12): Batch C runs before Batches A and B,
 
 Acceptance: the spec's acceptance for PP4–PP5; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: F3 done 2026-11-12 (handler 12; PP4 and PP5, chapter skeleton, host and content tests; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-pp-c.md)); F4 done with F3; F5 cards captured for all four sections (handler 17); F6 next.
+Status: F6 gate passed 2026-11-13 (handler 18): `just check` on f6838e11, hosted CI green (run 43441198607), Presentation mode sl/en for all five lessons and the English chapter page smoke-checked (summary in the [PP3 note](../../reviews/feature-streams/families-prep/notes/pp-b-s2.md)). Done. Earlier: F3 done 2026-11-12 (handler 12; PP4 and PP5, chapter skeleton, host and content tests; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-pp-c.md)); F4 done with F3; F5 cards captured for all four sections (handler 17); F6 next.

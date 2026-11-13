@@ -82,3 +82,8 @@ tsc clean; unit `src/learning src/graphs/dynamics` passed (before the last prose
 ### Not verified
 - No preview copy row: the card test requires copy keys to equal non-pending ids, so the row and PNG arrive with the F5 card.
 - Chapter page not inspected visually; full unified smoke not run.
+
+## Smoke and F6 gate (handler 18)
+- PP3 smoke (Sonnet, sl/en, 1366 and 390 px): all seven checks pass; every learner change gives the prose's numbers; navigation restores zoom and equilibrium. At 390 px the controls sit far below the graph after "Skrij" (scrolling needed).
+- F6 gate for the whole chapter: `just check` passed on `f6838e11` (clean tree); hosted CI run 43441198607 green (covers the join `0106b237` and the card `0caf1ef7`); Presentation mode ("Predstavitveni način" / "Presentation mode") entered and left in all five lessons in sl and in PP1/PP3 in en, step navigation works and the same step returns. English chapter page: titles and formulas render.
+- Shared-shell observations (not this stream's): Presentation mode does not contain focus (5 of 30 Tab presses reach `body`; it is a style-only mode); the "In this chapter" side list shows raw `\(…\)` titles after a live language switch (already owed).
