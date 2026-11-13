@@ -15,7 +15,9 @@ test('registration-backed family routes are derived from the registered rows, lo
     const closed = [];
     const failing = async modules => { closed.push(modules); throw new Error('load failed'); };
     await assert.rejects(loadFamilyIdentities(failing), /load failed/);
-    assert.deepEqual(closed, [['/src/graphs/projective/registration.ts']]);
+    // One load of every registration-backed family's metadata module (projective conics, phase portraits), nothing else.
+    assert.deepEqual(closed, [Object.values(chapterFamilies).filter(family => family.identities).map(family => family.identities.module)]);
+    assert.ok(closed[0].includes('/src/graphs/projective/registration.ts'));
     await assert.rejects(loadFamilyIdentities(async () => [{}]), /does not export projectiveDemonstrationRows/);
     const before = info.routeText;
     applyFamilyRoutes(info, [...before.split(', '), '/bezeg-2.0/projective/sixth']);
