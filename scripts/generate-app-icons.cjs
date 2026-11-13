@@ -144,7 +144,72 @@ const DESIGNS = {
     },
 };
 
+/** One large floret of overall radius R, as in design `floret`; later florets overlap earlier ones with their shade. */
+function bigFloret(C, layers, p, R, turn, drop = [0, .1]) {
+    let shade = '', petals = '', dots = '';
+    for (let q = 0; q < 5; q++) {
+        const at = add(p, rot([0, -.56 * R], turn + q * 72));
+        shade += circ(add(at, mul(drop, R)), .45 * R);
+        petals += circ(at, .435 * R);
+        dots += circ(add(p, rot([0, -.36 * R], turn + 36 + q * 72)), .05 * R);
+    }
+    layers.push([C.shade, shade], [C.floret, petals], [C.eye, circ(p, .21 * R) + dots]);
+}
+
+Object.assign(DESIGNS, {
+    /** Three large florets: a cluster rather than a lone blossom. */
+    trio(C) {
+        const layers = [];
+        bigFloret(C, layers, [0, -78], 104, 0);
+        bigFloret(C, layers, [-88, 52], 104, 20);
+        bigFloret(C, layers, [88, 52], 104, -14);
+        return {layers, box: {minX: -195, maxX: 195, minY: -190, maxY: 165}};
+    },
+    /** Three large florets on a forked stem: the smallest drawing that still shows an umbel. */
+    trioStem(C) {
+        const layers = [], node = [0, 138];
+        const centres = [[0, -96], [-104, 6], [104, 6]];
+        let rays = '';
+        for (const c of centres) rays += taper([node, add(node, [0, -30]), add(node, mul(sub(c, node), .55)), c], 22, 15, 10);
+        layers.push([C.stem, taper([[-8, 222], [-7, 190], [0, 162], node], 30, 24)], [C.ray, rays]);
+        centres.forEach((c, i) => bigFloret(C, layers, c, 96, [0, 20, -14][i]));
+        return {layers, box: {minX: -200, maxX: 200, minY: -196, maxY: 222}};
+    },
+    /** Five large florets on rays fanning from one stem: the umbel reduced to what survives at 16 px. */
+    fan(C) {
+        const layers = [], node = [0, 20];
+        const centres = [[-168, -78], [168, -78], [-92, -156], [92, -156], [0, -186]];
+        let rays = '';
+        for (const c of centres) rays += taper([node, add(node, [0, -30]), add(node, mul(sub(c, node), .55)), c], 17, 11, 10);
+        layers.push([C.stem, taper([[-8, 150], [-7, 104], [1, 60], node], 26, 19)], [C.ray, rays]);
+        centres.forEach((c, i) => bigFloret(C, layers, c, 68, [10, -24, 30, -6, 16][i]));
+        return {layers, box: {minX: -236, maxX: 236, minY: -256, maxY: 150}};
+    },
+    /** Seven large florets packed into a dome on a short stem with its rays showing below. */
+    dome(C) {
+        const layers = [], node = [0, 150];
+        const centres = [[-118, -70], [0, -112], [118, -70], [-150, 22], [150, 22], [-52, 4], [56, 2]];
+        let rays = '';
+        for (const c of centres) rays += taper([node, add(node, [0, -24]), add(node, mul(sub(c, node), .55)), c], 15, 9, 10);
+        layers.push([C.stem, taper([[-6, 215], [-5, 190], [0, 170], node], 24, 19)], [C.ray, rays]);
+        centres.forEach((c, i) => bigFloret(C, layers, c, 74, [0, 22, -12, 30, 8, -20, 14][i]));
+        return {layers, box: {minX: -224, maxX: 224, minY: -190, maxY: 215}};
+    },
+    /** The single floret with elder's long stamens and a pair of leaflets behind it. */
+    floretLeaf(C) {
+        const layers = [], p = [0, -20];
+        layers.push([C.leafBack, leaflet([0, 40], [-1, .62], 215, 52)], [C.leafFront, leaflet([0, 40], [1, .62], 215, 52)]);
+        bigFloret(C, layers, p, 150, 0);
+        return {layers, box: {minX: -195, maxX: 195, minY: -180, maxY: 185}};
+    },
+});
+
 const VARIANTS = {
+    F: {design: 'trio', palette: GREEN, label: 'Three florets'},
+    G: {design: 'fan', palette: GREEN, label: 'Five-floret umbel'},
+    H: {design: 'dome', palette: GREEN, label: 'Seven-floret dome'},
+    I: {design: 'floretLeaf', palette: GREEN, label: 'Floret with leaflets'},
+    K: {design: 'trioStem', palette: GREEN, label: 'Three florets on a forked stem'},
     A: {design: 'umbel', palette: GREEN, label: 'Umbel with leaves'},
     B: {design: 'head', palette: GREEN, label: 'Flower head only'},
     C: {design: 'umbel', palette: CREAM, label: 'Paper cut on cream'},
@@ -159,7 +224,7 @@ const VARIANTS = {
 function iconSvg(shape, variant = 'A') {
     const {design, palette: C} = VARIANTS[variant];
     const {layers, box} = DESIGNS[design](C);
-    const size = 512, fill = shape === 'bleed' ? .62 : .8;
+    const size = 512, fill = shape === 'bleed' ? .7 : .8;
     const w = box.maxX - box.minX, h = box.maxY - box.minY;
     const k = r(size * fill / Math.max(w, h) * 100) / 100;
     const tx = r(size / 2 - k * (box.minX + box.maxX) / 2), ty = r(size / 2 - k * (box.minY + box.maxY) / 2);
