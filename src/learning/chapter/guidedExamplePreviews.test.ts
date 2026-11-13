@@ -131,7 +131,7 @@ it('publishes the Linear maps example cards with their own checked images and pe
         id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
         path: owned.path(sectionId) ?? ''}));
     const ids = homes.map(home => home.id).sort();
-    expect(ids).toEqual(['linear-maps.determinant-area.linear-map', 'linear-maps.matrix-and-image.linear-map']);
+    expect(ids).toEqual(['linear-maps.determinant-area.linear-map', 'linear-maps.eigen-directions.linear-map', 'linear-maps.matrix-and-image.linear-map', 'linear-maps.singular-ellipse.linear-map']);
     expect(Object.keys(linearMapsPreviewCopy).sort()).toEqual(ids);
     const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
         readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
@@ -163,7 +163,7 @@ it('publishes the Linear maps example cards with their own checked images and pe
             expect(preview?.caption.trim()).toBeTruthy();
         }
     }
-    // L1 and L2 share a Demonstration but not a card.
+    // L1 to L4 share a Demonstration but not a card.
     for (const language of ['sl', 'en'] as const) {
         expect(resolveGuidedExamplePreview(ids[0], 'linear-map', language)?.caption)
             .not.toBe(resolveGuidedExamplePreview(ids[1], 'linear-map', language)?.caption);

@@ -111,6 +111,118 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "linear-maps.eigen-directions.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.eigen-directions.linear-map",
+      "sceneFingerprint": "dc2ddbaa97de47016c31a0e3d7576439c812a7e041d8533423b380bf2505862e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-eigen-keep\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-example\",\"exampleId\":\"eigen-default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8,
+          "point": 8
+        },
+        "curveCount": 8,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "linear-maps.singular-ellipse.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.singular-ellipse.linear-map",
+      "sceneFingerprint": "0d45e93087499f1e2887ecdf698deeb1294400595942d4600945cf8badeefc4a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-ellipse-image\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-example\",\"exampleId\":\"symmetric\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8,
+          "point": 8
+        },
+        "curveCount": 8,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

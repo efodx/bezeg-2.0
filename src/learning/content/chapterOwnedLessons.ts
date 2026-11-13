@@ -145,7 +145,7 @@ export function chapterOwnedDemonstration(chapterId: string, sectionId: string):
 
 /**
  * The first chapter-owned lesson on Demonstration `id` in default order. When a chapter has several lessons on one Demonstration
- * (`linear-map` has L1 and L2), this is the first section's, so registries list sections in teaching order. Only the selected
+ * (`linear-map` has L1 to L4), this is the first section's, so registries list sections in teaching order. Only the selected
  * section's lesson is resolved.
  */
 export function findChapterOwnedLessonByDemonstration(id: DemonstrationId): LessonDefinition | undefined {

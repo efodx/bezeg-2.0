@@ -8,7 +8,7 @@ import {LinearMapGraph, STEP_INTERVAL_MS} from './LinearMapGraph';
 import {linearMapPresetCollection} from './linearMapPresetCollection';
 import {TRACE_DET_VIEW} from './iterationScene';
 import {legendKindFor, TRACE_DET_DRAWING} from './iterationBoard';
-import {linearMapBasisLesson, linearMapDeterminantLesson} from '../../learning/content/linearMapsChapterLessons';
+import {linearMapBasisLesson, linearMapDeterminantLesson, linearMapEigenLesson, linearMapEllipseLesson} from '../../learning/content/linearMapsChapterLessons';
 import type {LessonAction} from '../../learning/model';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {enterNumber} from '../../inputs/testEntry';
@@ -109,10 +109,10 @@ describe('Presets stored before Batch D load unchanged', () => {
         expect('data' in linearMapPresetCollection.check(JSON.parse(JSON.stringify({...wholePreset, start: [0.25, 0]})))).toBe(true);
     });
 
-    test('the lesson scenes of L1 and L2 produce Preset data without start or step that the collection accepts as it is', () => {
+    test('the lesson scenes of L1 to L4 produce Preset data without start or step that the collection accepts as it is', () => {
         const {graph} = mountGraph();
         let checkedSteps = 0;
-        for (const lesson of [linearMapBasisLesson, linearMapDeterminantLesson]) {
+        for (const lesson of [linearMapBasisLesson, linearMapDeterminantLesson, linearMapEigenLesson, linearMapEllipseLesson]) {
             for (const lessonStep of lesson.steps) {
                 const actions = (lessonStep.scene?.actions ?? []).filter((action: LessonAction) => action.kind === 'linear-map');
                 act(() => { actions.forEach(action => graph.act(action)); });

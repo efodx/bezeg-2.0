@@ -300,7 +300,7 @@ const chapterInventories = {
 };
 
 // Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
-const linearMapExampleMatrices = {identity: [[1, 0], [0, 1]], 'basis-default': [[2, -1], [1, 1]]};
+const linearMapExampleMatrices = {identity: [[1, 0], [0, 1]], 'basis-default': [[2, -1], [1, 1]], 'eigen-default': [[4, 1], [2, 3]], symmetric: [[2, 1], [1, 2]]};
 
 /**
  * First-frame expectation of a Linear maps lesson: eight curves (source and image grid, source and image square, two

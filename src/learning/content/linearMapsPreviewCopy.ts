@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the Linear maps chapter, keyed by example id (L1 and L2 share one Demonstration). */
+/** Describes each prepared opening scene of the Linear maps chapter, keyed by example id (L1 to L4 share one Demonstration). */
 export const linearMapsPreviewCopy = {
     'linear-maps.matrix-and-image.linear-map': copy(
         'Enotska mreža, enotski kvadrat in Bézierjeva krivulja pod identiteto, z ročicama za stolpca matrike.',
@@ -18,5 +18,17 @@ export const linearMapsPreviewCopy = {
         'The unit square and its image, the parallelogram with columns \\((2,1)\\) and \\((-1,1)\\), with the determinant readout.',
         'Slika kvadrata je paralelogram s ploščino \\(|\\det A|=3\\); ker je \\(\\det A>0\\), je orientacija ohranjena.',
         'The image of the square is a parallelogram of area \\(|\\det A|=3\\); since \\(\\det A>0\\), orientation is kept.',
+    ),
+    'linear-maps.eigen-directions.linear-map': copy(
+        'Enotska mreža, enotski kvadrat in Bézierjeva krivulja ter njihove slike pri matriki \\(E\\) s stolpcema \\((4,2)\\) in \\((1,3)\\), z odčitkom stolpcev.',
+        'The unit grid, the unit square and a Bézier curve with their images under the matrix \\(E\\) with columns \\((4,2)\\) and \\((1,3)\\), with the column readout.',
+        'Slika mreže je paralelogramska mreža, ki jo napenjata stolpca \\((4,2)\\) in \\((1,3)\\); katere smeri ostanejo smeri, še ni označeno.',
+        'The image of the grid is the parallelogram grid spanned by the columns \\((4,2)\\) and \\((1,3)\\); which directions stay directions is not marked yet.',
+    ),
+    'linear-maps.singular-ellipse.linear-map': copy(
+        'Enotska mreža, enotski kvadrat in Bézierjeva krivulja ter njihove slike pri matriki \\(S_y\\) s stolpcema \\((2,1)\\) in \\((1,2)\\), z odčitkom stolpcev.',
+        'The unit grid, the unit square and a Bézier curve with their images under the matrix \\(S_y\\) with columns \\((2,1)\\) and \\((1,2)\\), with the column readout.',
+        'Slika mreže je paralelogramska mreža, ki jo napenjata stolpca \\((2,1)\\) in \\((1,2)\\); slike enotske krožnice na tej sliki še ni.',
+        'The image of the grid is the parallelogram grid spanned by the columns \\((2,1)\\) and \\((1,2)\\); the image of the unit circle is not drawn in this view yet.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;
