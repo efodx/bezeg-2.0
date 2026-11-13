@@ -1,6 +1,6 @@
 # Side botanicals
 
-Status: step 1 (artwork and sway) is complete and on `master` (commits `885f1a14`, `b1c8c720`, `13a60d09`, `515d75a0`, `da92d910`, `b27dbc91`). Step 2 (growth on scroll, `6256c695`) and the measured content column (`cca41e8c`) are implemented and verified on the `worktree-side-botanicals` branch; they wait for the owner's preview review before publishing (decision 11). Verification: [record](../reviews/side-botanicals/verification.md).
+Status: step 1 (artwork and sway) is complete and on `master` (commits `885f1a14`, `b1c8c720`, `13a60d09`, `515d75a0`, `da92d910`, `b27dbc91`). Step 2 (growth on load, without a scroll stage, decision 15: `2b178cd5`, `c003fe30`) and the measured content column (`a4de34a7`) are complete: the owner approved them in a preview on 2026-11-13 (decision 11), and they are published on `master` up to `97cce3fc`. Open: the owner's decision on the playground. Verification: [record](../reviews/side-botanicals/verification.md).
 
 ## Problem
 
@@ -53,4 +53,4 @@ Superseded in part by decision 15: on `/bezeg-2.0/learn` at 3440×1440 growth is
 - Met: with reduced motion the first frame is fully grown and no animation runs. Open: two of 18 frame comparisons differed in some pixels of the gutter shortly after load; element positions and the animation count were unchanged, and the difference did not recur once a pixel diff was added to locate it.
 - Met: at 3440, 2560, 1920 and 1600px on the three routes the layers end exactly 24px outside the content column on both sides, with no horizontal scroll; at 1280px nothing is rendered. Narrowing the column by 200px moves each layer by 100px without a reload.
 - Met: unit tests for the growth function, the listener disposal and the gutter calculation; typecheck, lint and the production build.
-- Open: the owner's review of the preview (decision 11).
+- Met: the owner reviewed the preview and approved it on 2026-11-13 (decision 11); published on `master` as `97cce3fc`.
