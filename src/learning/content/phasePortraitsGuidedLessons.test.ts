@@ -10,7 +10,7 @@ import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {act, cleanup, fireEvent, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
-import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson, PP1_CENTRE, PP1_FOUR_SEEDS, PP1_NEAR_CENTRE, PP1_NODE, PP1_ON_FAST_LINE, PP1_FREE, PP1_UNSTABLE, PP2_FREE, PP2_LARGE, PP2_LINEAR_CENTRE, PP2_ROTATION, PP2_SMALL} from './phasePortraitsGuidedLessons';
+import {bifurcationLesson, linearizationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson, PP1_CENTRE, PP3_FREE, PP3_LINEAR, PP3_PENDULUM_CENTRE, PP3_SADDLE_NEAR, PP3_SADDLE_UNIT, PP3_WEAK_SMALL, PP1_FOUR_SEEDS, PP1_NEAR_CENTRE, PP1_NODE, PP1_ON_FAST_LINE, PP1_FREE, PP1_UNSTABLE, PP2_FREE, PP2_LARGE, PP2_LINEAR_CENTRE, PP2_ROTATION, PP2_SMALL} from './phasePortraitsGuidedLessons';
 import {phasePortraitsChapter} from './phasePortraitsChapter';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
@@ -447,7 +447,7 @@ describe('the numbers each step quotes are those of its scene, in sl and en', ()
 
 const LANGS: readonly Language[] = ['sl', 'en'];
 const ppSteps = () => [...linearSystemLesson.steps, ...pendulumLesson.steps];
-const ppStepOf = (id: string) => ppSteps().find(step => step.id === id)!;
+const ppStepOf = (id: string) => [...ppSteps(), ...linearizationLesson.steps].find(step => step.id === id)!;
 type PlaneSpec = {readonly system?: string; readonly matrix?: {readonly A: number; readonly B: number; readonly C: number; readonly D: number}; readonly seeds?: readonly {readonly X: number; readonly Y: number}[]};
 /** The scene constants of the lesson file by step; a scene sets them on top of the Demonstration default. */
 const PP_SPECS: Record<string, PlaneSpec> = {
@@ -805,6 +805,313 @@ describe('PP1 and PP2: the readouts after the learner change show the quoted num
             run('pp2-free', 1);
             has('pp2-free H(0,05;2)', 'energy-2', energyOf(0.05, 2), 5); includes('pp2-free rotation', 'energy-2', suffixOf(t('phase_graph_energy_rotation', {value0: '#'})));
             has('pp2-free forward', 'seed-2', 8.62, 2); has('pp2-free backward', 'seed-2', 8.66, 2);
+            cleanup();
+        }
+        expect(bad).toEqual([]);
+    });
+});
+
+// ---- PP3 on a real PhasePortraitGraph ---------------------------------------------------------------------------------------------------
+
+const pp3Steps = () => linearizationLesson.steps;
+type Pp3Spec = {readonly system?: string; readonly equilibrium?: number; readonly zoom?: number; readonly seeds?: readonly {readonly X: number; readonly Y: number}[]};
+const PP3_SPECS: Record<string, Pp3Spec> = {
+    'pp3-jacobian': PP3_LINEAR, 'pp3-zoom': PP3_SADDLE_NEAR, 'pp3-centre': PP3_SADDLE_UNIT, 'pp3-weak': PP3_PENDULUM_CENTRE, 'pp3-undecided': PP3_WEAK_SMALL, 'pp3-free': PP3_FREE,
+};
+const pp3OpenState = (id: string) => {
+    const spec = PP3_SPECS[id];
+    return {system: spec.system ?? 'linear', equilibrium: spec.equilibrium ?? 0, zoom: spec.zoom ?? 0, seeds: spec.seeds ?? [{X: 20, Y: 0}]};
+};
+const pp3Picked = (m: PhaseMount) => { const s = m.stateOf(); return {system: s.system, equilibrium: s.equilibrium, zoom: s.zoom, seeds: s.seeds}; };
+const pp3Ui = (m: PhaseMount) => ({
+    equilibrium: (value: number) => act(() => { fireEvent.change(m.field(t('phase_graph_equilibrium_label')), {target: {value: String(value)}}); }),
+    zoom: (value: number) => act(() => { enterNumber(m.field(t('phase_graph_zoom_label')), String(value)); }),
+});
+const prompt3 = (id: string, language: Language) => prose(ppStepOf(id).observationPrompt[language]).replace(/\s+/g, ' ');
+const head = (name: () => string, separator: string | RegExp) => () => name().split(separator)[0];
+/** The graph strings each PP3 prompt names, by step (labels up to the part the prompt leaves out). */
+const PP3_NAMES: Record<string, (() => string)[]> = {
+    'pp3-jacobian': [() => t('phase_graph_system_label'), head(() => t('phase_graph_system_pendulum'), ' θ'), () => t('phase_graph_equilibrium_label'), head(() => t('phase_graph_equilibrium_pi'), ':'), () => t('phase_graph_r_type_linearization'), () => t('phase_graph_r_jacobian'), () => t('phase_graph_r_eigen'), head(() => t('phase_graph_r_hyperbolic'), ' (')],
+    'pp3-zoom': [() => t('phase_graph_zoom_label'), () => t('phase_graph_r_view'), () => t('phase_graph_r_ring'), () => t('phase_graph_r_ring_linear')],
+    'pp3-centre': [() => t('phase_graph_equilibrium_label'), head(() => t('phase_graph_equilibrium_origin'), ':'), () => t('phase_graph_r_type_linearization'), () => t('phase_graph_r_jacobian'), () => t('phase_graph_r_eigen'), head(() => t('phase_graph_r_hyperbolic'), ' ('), () => t('phase_graph_r_decision'), () => t('phase_graph_r_energy', {value0: '1'})],
+    'pp3-weak': [() => t('phase_graph_system_label'), () => t('phase_graph_system_weak_spiral'), () => t('phase_graph_r_type_linearization'), () => t('phase_graph_r_jacobian'), head(() => t('phase_graph_r_hyperbolic'), ' ('), () => t('phase_graph_r_seed', {value0: '1'}), () => t('phase_graph_r_ring'), () => t('phase_graph_r_ring_linear'), () => t('phase_graph_time_label')],
+    'pp3-undecided': [() => t('phase_graph_zoom_label'), () => t('phase_graph_time_label'), () => t('phase_graph_r_seed', {value0: '1'}), () => t('phase_graph_r_ring'), () => t('phase_graph_r_ring_linear'), () => t('phase_graph_r_decision')],
+    'pp3-free': [head(() => t('phase_graph_r_type_linearization'), ' ('), head(() => t('phase_graph_r_jacobian'), / (?:v|at) /)],
+};
+
+describe('PP3 opens on a real PhasePortraitGraph, in sl and en', () => {
+    it('every step opens its scene out of order and twice in one act, and restore returns the free state', () => {
+        const ids = pp3Steps().map(step => step.id);
+        expect(ids).toHaveLength(6);
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            for (let i = 0; i < ids.length; i += 1) {
+                const id = ids[(i * 5) % ids.length];
+                m.open(id);
+                const once = m.snap();
+                expect({language, id, state: pp3Picked(m)}).toEqual({language, id, state: pp3OpenState(id)});
+                m.open(id, 2);
+                expect({language, id, twice: m.snap() === once}).toEqual({language, id, twice: true});
+            }
+            m.restore();
+            expect(JSON.stringify(m.stateOf())).toBe(m.free);
+            cleanup();
+        }
+    });
+
+    it('every control and readout a prompt names exists in the graph, with the graph string of the language', () => {
+        const missing: string[] = [];
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            for (const step of pp3Steps()) {
+                m.open(step.id);
+                const text = prompt3(step.id, language);
+                missing.push(...PP3_NAMES[step.id].map(name => name()).filter(name => ![name, name.replace('Jacobijeva matrika', 'Jacobijevo matriko')].some(variant => text.toLowerCase().includes(variant.toLowerCase()))).map(name => `${language} ${step.id}: ${name}`));
+                const nonlinear = m.stateOf().system !== 'linear';
+                expect(m.field(t('phase_graph_system_label'))).toBeTruthy();
+                expect(m.field(t('phase_graph_time_label'))).toBeTruthy();
+                expect(m.field(t('phase_graph_zoom_label'))).toBeTruthy();
+                expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
+                for (const [id, label] of [['type', nonlinear ? t('phase_graph_r_type_linearization') : t('phase_graph_r_type_linear')], ['jacobian', nonlinear ? t('phase_graph_r_jacobian') : t('phase_graph_r_matrix')], ['eigen', t('phase_graph_r_eigen')], ['hyperbolic', t('phase_graph_r_hyperbolic')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);
+                if (nonlinear) {
+                    for (const [id, label] of [['decision', t('phase_graph_r_decision')], ['view', t('phase_graph_r_view')], ['ring', t('phase_graph_r_ring')], ['ring-linear', t('phase_graph_r_ring_linear')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);
+                }
+                if (m.stateOf().system === 'pendulum') {
+                    expect(m.field(t('phase_graph_equilibrium_label'))).toBeTruthy();
+                    expect(document.querySelector('[data-readout="energy-1"] dt')?.textContent).toBe(t('phase_graph_r_energy', {value0: '1'}));
+                }
+            }
+            cleanup();
+        }
+        expect(missing).toEqual([]);
+    });
+
+    it('no step opens in the state its prompt asks the learner to produce, and the zoomed seeds are inside the view', () => {
+        const changes: Record<string, ((m: PhaseMount, ui: ReturnType<typeof pp3Ui>) => void)[]> = {
+            'pp3-jacobian': [(m, ui) => { m.ui.system('pendulum'); ui.equilibrium(1); }],
+            'pp3-zoom': [(_m, ui) => ui.zoom(3)],
+            'pp3-centre': [(_m, ui) => ui.equilibrium(0)],
+            'pp3-weak': [m => m.ui.system('weak-spiral')],
+            'pp3-undecided': [(_m, ui) => ui.zoom(3)],
+        };
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            const ui = pp3Ui(m);
+            for (const [id, variants] of Object.entries(changes)) {
+                m.open(id);
+                const opening = m.snap();
+                for (const [index, change] of variants.entries()) {
+                    m.open(id);
+                    change(m, ui);
+                    expect({language, id, variant: index, changed: m.snap() !== opening}).toEqual({language, id, variant: index, changed: true});
+                }
+            }
+            for (const [id, centre] of [['pp3-zoom', Math.PI], ['pp3-undecided', 0]] as const) {
+                m.open(id);
+                ui.zoom(3);
+                const state = m.stateOf();
+                expect({id, zoom: state.zoom}).toEqual({id, zoom: 3});
+                for (const seed of state.seeds as {X: number; Y: number}[]) {
+                    const [x, y] = [seed.X / 20, seed.Y / 20];
+                    expect({language, id, inside: Math.abs(x - centre) <= 0.5 && Math.abs(y) <= 0.5}).toEqual({language, id, inside: true});
+                }
+                const seed1 = m.readouts().find(row => row.startsWith('seed-1='))!;
+                expect({language, id, seed1, stoppedAtZero: /(naprej|forward) 0 s/.test(seed1)}).toEqual({language, id, seed1, stoppedAtZero: false});
+            }
+            cleanup();
+        }
+    });
+});
+
+// ---- PP3: the numbers quoted, recomputed independently of the graph ------------------------------------------------------------------------
+
+type Window = {readonly cx: number; readonly cy: number; readonly hw: number};
+const weakField: Field = (x, y) => [-(x * x + y * y) * x - y, x - (x * x + y * y) * y];
+/** Central differences (step 1e-5) of a vector field: the Jacobian rows. */
+const jacobianOf = (field: Field, x: number, y: number): number[][] => {
+    const e = 1e-5;
+    const dx = [field(x + e, y), field(x - e, y)];
+    const dy = [field(x, y + e), field(x, y - e)];
+    return [[(dx[0][0] - dx[1][0]) / (2 * e), (dy[0][0] - dy[1][0]) / (2 * e)], [(dx[0][1] - dx[1][1]) / (2 * e), (dy[0][1] - dy[1][1]) / (2 * e)]];
+};
+/** An own RK4 (step 0,02, as flowOf) that stops at the first step leaving the window (|x - cx| or |y - cy| above the half-width); null when all 10 s are computed. */
+function flowIn(field: Field, x0: number, y0: number, sign: 1 | -1, w: Window): number | null {
+    const g: Field = (x, y) => { const [u, v] = field(x, y); return [sign * u, sign * v]; };
+    const h = 0.02;
+    let x = x0;
+    let y = y0;
+    for (let k = 1; k <= 500; k += 1) {
+        const [a1, b1] = g(x, y);
+        const [a2, b2] = g(x + h / 2 * a1, y + h / 2 * b1);
+        const [a3, b3] = g(x + h / 2 * a2, y + h / 2 * b2);
+        const [a4, b4] = g(x + h * a3, y + h * b3);
+        x += h / 6 * (a1 + 2 * a2 + 2 * a3 + a4);
+        y += h / 6 * (b1 + 2 * b2 + 2 * b3 + b4);
+        if (Math.abs(x - w.cx) > w.hw || Math.abs(y - w.cy) > w.hw) return k * h;
+    }
+    return null;
+}
+/** The stopped halves of the ring of 12 starts (angles k pi / 6, radius 3/4 of the half-width) around the window centre, both time directions, of `field` in the coordinates of the window. */
+const ringStopped = (field: Field, w: Window) => {
+    let stopped = 0;
+    for (let k = 0; k < 12; k += 1) for (const sign of [1, -1] as const) if (flowIn(field, w.cx + 0.75 * w.hw * Math.cos(k * Math.PI / 6), w.cy + 0.75 * w.hw * Math.sin(k * Math.PI / 6), sign, w) !== null) stopped += 1;
+    return stopped;
+};
+/** The linearizations in the coordinates of the window: x, y are the offsets from the equilibrium plus its position, so the field is shifted by the centre. */
+const shifted = (field: Field, cx: number): Field => (x, y) => field(x - cx, y);
+const saddleLinear = (cx: number): Field => shifted((x, y) => [y, x], cx);
+const centreLinear = (cx: number): Field => shifted((x, y) => [y, -x], cx);
+const spiralLinear = (cx: number): Field => shifted((x, y) => [-y, x], cx);
+const wp = (centre: number, zoom: number): Window => ({cx: centre, cy: 0, hw: 4 / 2 ** zoom});
+const rOf = (r0: number, time: number) => r0 / Math.sqrt(1 + 2 * r0 * r0 * time);
+const pp3All = (id: string, language: Language) => {
+    const step = ppStepOf(id);
+    return prose([step.explanation[language], step.observationPrompt[language], ...step.expectedObservations.map(o => o[language]), step.scene!.expectedState[language]].join(' ')).replace(/\s+/g, ' ');
+};
+const ringCount = (id: 'ring' | 'ring-linear') => { const match = /(\d+) (?:od|of) (\d+)\s*$/.exec(document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? ''); return match ? [Number(match[1]), Number(match[2])] : null; };
+const rings = () => JSON.stringify([ringCount('ring'), ringCount('ring-linear')]);
+const rowText = (id: string) => norm(document.querySelector(`[data-readout="${id}"] dd`)?.textContent);
+const seedHas = (language: Language, id: string, exit: number | null) => (exit === null ? /\b10\b/ : new RegExp(`(?<![0-9])${escapeRegExp(q(exit, 2, language))}(?![0-9])`)).test(rowText(id));
+const zero = (values: number[]) => values.map(v => v + 0);
+
+describe('PP3: every number the text quotes is recomputed independently of the graph', () => {
+    it('the Jacobians are central differences of the vector fields, and tau, delta, Delta, the eigenvalues and the type follow from the quadratic formula', () => {
+        const near = (rows: number[][], expected: number[][]) => rows.flat().forEach((v, i) => expect(Math.abs(v - expected.flat()[i])).toBeLessThan(1e-8));
+        near(jacobianOf(pendulumField, Math.PI, 0), [[0, 1], [1, 0]]);
+        near(jacobianOf(pendulumField, 0, 0), [[0, 1], [-1, 0]]);
+        near(jacobianOf(weakField, 0, 0), [[0, -1], [1, 0]]);
+        const saddle = matrixInfo(0, 1, 1, 0);
+        expect([saddle.tau, saddle.delta, saddle.disc, ...saddle.l]).toEqual([0, -1, 4, 1, -1]);
+        expect(matrixType(0, 1, 1, 0)()).toBe(t('phase_graph_type_saddle'));
+        for (const m of [matrixInfo(0, 1, -1, 0), matrixInfo(0, -1, 1, 0)]) expect([m.tau, m.delta, m.disc, ...m.l]).toEqual([0, 1, -4, 0, 1]);
+        expect(matrixType(0, 1, -1, 0)()).toBe(t('phase_graph_type_centre'));
+        expect(matrixType(0, -1, 1, 0)()).toBe(t('phase_graph_type_centre'));
+        const stable = matrixInfo(...N_M);
+        expect([stable.tau, stable.delta]).toEqual([-7, 10]);
+        expect(matrixType(...N_M)()).toBe(t('phase_graph_type_node_stable'));
+    });
+
+    it('r(t) = r0 / sqrt(1 + 2 r0^2 t) agrees with an independent RK4 of the weak spiral to 1e-7, and the quoted values are those', () => {
+        const rk4 = (r0: number, time: number) => {
+            const h = 0.001;
+            let x = r0;
+            let y = 0;
+            for (let k = 0; k < Math.round(time / h); k += 1) {
+                const [a1, b1] = weakField(x, y);
+                const [a2, b2] = weakField(x + h / 2 * a1, y + h / 2 * b1);
+                const [a3, b3] = weakField(x + h / 2 * a2, y + h / 2 * b2);
+                const [a4, b4] = weakField(x + h * a3, y + h * b3);
+                x += h / 6 * (a1 + 2 * a2 + 2 * a3 + a4);
+                y += h / 6 * (b1 + 2 * b2 + 2 * b3 + b4);
+            }
+            return Math.hypot(x, y);
+        };
+        for (const [r0, time] of [[1, 1], [1, 10], [0.1, 10]] as const) expect(Math.abs(rk4(r0, time) - rOf(r0, time))).toBeLessThan(1e-7);
+        expect([rOf(1, 1), rOf(1, 10), rOf(0.1, 10)].map(v => v.toFixed(7))).toEqual(['0.5773503', '0.2182179', '0.0912871']);
+        expect([(0.1 - rOf(0.1, 10)).toFixed(4), ((0.1 - rOf(0.1, 10)) / 0.5).toFixed(3)]).toEqual(['0.0087', '0.017']);
+        for (let k = 1; k < 40; k += 1) expect(rOf(1, k)).toBeLessThan(rOf(1, k - 1));
+        const small = Math.sin(0.375) / 0.375;
+        expect([Math.floor(small * 1e4) / 1e4, (Math.sin(3) / 3).toFixed(4)]).toEqual([0.9767, '0.0470']);
+        for (let k = 1; k <= 75; k += 1) expect(Math.sin(k * 0.005) / (k * 0.005)).toBeGreaterThanOrEqual(small);
+    });
+
+    it('every number quoted by each PP3 step appears in its sl and en text, as computed independently', () => {
+        const spirals = (x: number, sign: 1 | -1, zoom: number) => flowIn(weakField, x, 0, sign, wp(0, zoom));
+        const zoomed = wp(Math.PI, 3);
+        const quotes: [string, number, number][] = [
+            ['pp3-jacobian', 0, 0], ['pp3-jacobian', 1, 0], ['pp3-jacobian', -1, 0], ['pp3-jacobian', 4, 0], ['pp3-jacobian', -7, 0], ['pp3-jacobian', 10, 0],
+            ['pp3-zoom', Math.PI - 0.5, 4], ['pp3-zoom', Math.PI + 0.5, 4], ['pp3-zoom', 0.375, 3], ['pp3-zoom', 0.5, 1], ['pp3-zoom', 3.15, 2], ['pp3-zoom', 3.1, 1], ['pp3-zoom', 0.05, 2],
+            ['pp3-zoom', Math.floor(Math.sin(0.375) / 0.375 * 1e4) / 1e4, 4], ['pp3-zoom', Math.sin(3) / 3, 4],
+            ['pp3-zoom', flowIn(pendulumField, 3.15, 0.05, 1, zoomed)!, 2], ['pp3-zoom', flowIn(pendulumField, 3.15, 0.05, -1, zoomed)!, 1],
+            ['pp3-zoom', flowIn(pendulumField, 3.1, -0.05, 1, zoomed)!, 1], ['pp3-zoom', flowIn(pendulumField, 3.1, -0.05, -1, zoomed)!, 1],
+            ['pp3-centre', -4, 0], ['pp3-centre', -Math.cos(1), 6], ['pp3-centre', 10, 0],
+            ['pp3-weak', rOf(1, 1), 7], ['pp3-weak', rOf(1, 10), 7], ['pp3-weak', spirals(1, -1, 0)!, 2], ['pp3-weak', 12, 0], ['pp3-weak', 24, 0],
+            ['pp3-undecided', rOf(0.1, 10), 7], ['pp3-undecided', 0.1 - rOf(0.1, 10), 4], ['pp3-undecided', (0.1 - rOf(0.1, 10)) / 0.5, 3], ['pp3-undecided', 0.5, 1],
+            ['pp3-free', 4, 0],
+        ];
+        expect([flowIn(pendulumField, 1, 0, 1, wp(0, 0)), flowIn(pendulumField, 1, 0, -1, wp(0, 0)), spirals(1, 1, 0), spirals(0.1, 1, 0), spirals(0.1, -1, 0), spirals(0.1, 1, 3), spirals(0.1, -1, 3)]).toEqual([null, null, null, null, null, null, null]);
+        const bad: string[] = [];
+        for (const language of LANGS) for (const [id, value, digits] of quotes) if (!hasQuote(pp3All(id, language), value, digits, language)) bad.push(`${language} ${id}: ${value} (${digits})`);
+        expect(bad).toEqual([]);
+        // the stopped halves of the rings by the independent integrator: the nonlinear ring, then the linearization on it
+        const ring = (field: Field, linear: Field, centre: number, zoom: number) => [ringStopped(field, wp(centre, zoom)), ringStopped(linear, wp(centre, zoom))];
+        expect(ring(pendulumField, saddleLinear(Math.PI), Math.PI, 0)).toEqual([20, 24]);
+        expect(ring(pendulumField, saddleLinear(Math.PI), Math.PI, 3)).toEqual([24, 24]);
+        expect(ring(weakField, spiralLinear(0), 0, 0)).toEqual([12, 0]);
+        expect(ring(weakField, spiralLinear(0), 0, 3)).toEqual([12, 0]);
+        expect(ring(pendulumField, centreLinear(0), 0, 0)).toEqual([20, 0]);
+        expect(ring(pendulumField, centreLinear(0), 0, 3)).toEqual([0, 0]);
+    });
+
+    it('the readouts each step quotes match the graph after the learner changes, in sl and en', () => {
+        const bad: string[] = [];
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            const ui = pp3Ui(m);
+            const check = (label: string, ok: boolean, got?: unknown) => { if (!ok) bad.push(`${language} ${label}: ${JSON.stringify(got)}`); };
+            const jac = () => JSON.stringify(zero(numbersIn(rowText('jacobian').replace(/(?:vrstica|row) \d:/g, ''))));
+            const eigen = () => JSON.stringify(zero(numbersIn(rowText('eigen'))));
+            const status = (type: string, tau: number, delta: number) => norm(m.status()).includes(`${type} (τ = ${tau}, δ = ${delta})`);
+            // step 1: the pendulum at (pi, 0)
+            m.open('pp3-jacobian');
+            check('1 opening', status(t('phase_graph_type_node_stable'), -7, 10), m.status());
+            m.ui.system('pendulum'); ui.equilibrium(1);
+            check('1 type', status(t('phase_graph_type_saddle'), 0, -1), m.status());
+            check('1 jacobian', jac() === '[0,1,1,0]', rowText('jacobian'));
+            check('1 hyperbolic', rowText('hyperbolic') === t('phase_graph_yes'), rowText('hyperbolic'));
+            check('1 eigen', eigen() === '[1,-1]', rowText('eigen'));
+            // step 2: zoom 0, then 3
+            m.open('pp3-zoom');
+            check('2 view 0', JSON.stringify(numbersIn(rowText('view'))) === JSON.stringify([Math.PI - 4, Math.PI + 4, -4, 4, 4].map(v => Number(v.toFixed(4)))), rowText('view'));
+            check('2 ring 0', rings() === '[[20,24],[24,24]]', rings());
+            ui.zoom(3);
+            check('2 view 3', JSON.stringify(numbersIn(rowText('view'))) === JSON.stringify([2.6416, 3.6416, -0.5, 0.5, 0.5]), rowText('view'));
+            check('2 ring 3', rings() === '[[24,24],[24,24]]', rings());
+            for (const [id, x, y] of [['seed-1', 3.15, 0.05], ['seed-2', 3.1, -0.05]] as const) {
+                check(`2 ${id} forward`, rowText(id).includes(`${q(flowIn(pendulumField, x, y, 1, wp(Math.PI, 3))!, 2, language)} `), rowText(id));
+                check(`2 ${id} backward`, rowText(id).includes(`${q(flowIn(pendulumField, x, y, -1, wp(Math.PI, 3))!, 2, language)} `), rowText(id));
+            }
+            // step 3: the centre at (0, 0)
+            m.open('pp3-centre');
+            ui.equilibrium(0);
+            check('3 type', status(t('phase_graph_type_centre'), 0, 1), m.status());
+            check('3 jacobian', jac() === '[0,1,-1,0]', rowText('jacobian'));
+            check('3 hyperbolic', rowText('hyperbolic') === t('phase_graph_no'), rowText('hyperbolic'));
+            check('3 decision', rowText('decision') === norm(t('phase_graph_decision_no')), rowText('decision'));
+            check('3 eigen', eigen() === '[0,1]', rowText('eigen'));
+            check('3 energy', rowText('energy-1').includes(q(-Math.cos(1), 6, language)), rowText('energy-1'));
+            check('3 seed', seedHas(language, 'seed-1', null), rowText('seed-1'));
+            // step 4: the weak spiral
+            m.open('pp3-weak');
+            m.ui.system('weak-spiral');
+            check('4 type', status(t('phase_graph_type_centre'), 0, 1), m.status());
+            check('4 jacobian', jac() === '[0,-1,1,0]', rowText('jacobian'));
+            check('4 hyperbolic', rowText('hyperbolic') === t('phase_graph_no'), rowText('hyperbolic'));
+            check('4 ring', rings() === '[[12,24],[0,24]]', rings());
+            check('4 backward', rowText('seed-1').includes(q(flowIn(weakField, 1, 0, -1, wp(0, 0))!, 2, language)), rowText('seed-1'));
+            // step 5: the weak spiral at zoom 0 and 3
+            m.open('pp3-undecided');
+            for (const zoom of [0, 3]) {
+                if (zoom === 3) ui.zoom(3);
+                check(`5 zoom ${zoom} ring`, rings() === '[[12,24],[0,24]]', rings());
+                check(`5 zoom ${zoom} seed`, seedHas(language, 'seed-1', null), rowText('seed-1'));
+                check(`5 zoom ${zoom} decision`, rowText('decision') === norm(t('phase_graph_decision_no')), rowText('decision'));
+            }
+            check('5 view', numbersIn(rowText('view')).slice(-1)[0] === 0.5, rowText('view'));
+            // step 6: the zoom changes the ring, not the type or the Jacobian
+            m.open('pp3-free');
+            ui.equilibrium(1);
+            const [type, jacobian] = [rowText('type'), rowText('jacobian')];
+            for (const zoom of [0, 1, 2, 3, 4]) {
+                ui.zoom(zoom);
+                check(`6 pi zoom ${zoom} type`, rowText('type') === type && rowText('jacobian') === jacobian && jac() === '[0,1,1,0]', [rowText('type'), rowText('jacobian')]);
+                check(`6 pi zoom ${zoom} ring`, rings() === JSON.stringify([[zoom === 0 ? 20 : 24, 24], [24, 24]]), rings());
+            }
+            ui.equilibrium(0);
+            for (const zoom of [0, 3]) {
+                ui.zoom(zoom);
+                check(`6 origin zoom ${zoom} ring`, rings() === JSON.stringify(zoom === 0 ? [[20, 24], [0, 24]] : [[0, 24], [0, 24]]), rings());
+            }
             cleanup();
         }
         expect(bad).toEqual([]);

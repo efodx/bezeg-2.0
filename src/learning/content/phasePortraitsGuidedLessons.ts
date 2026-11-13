@@ -62,7 +62,11 @@ const phaseScene = (id: string, spec: PhaseSceneSpec, sl: string, en: string): L
  * A, B, C, D (entry = value / 4) and the seeds (seed = X / 20, Y / 20; the pendulum reads a seed as (theta, omega)).
  */
 export interface PhasePlaneSceneSpec {
-    readonly system?: 'linear' | 'pendulum';
+    readonly system?: 'linear' | 'pendulum' | 'weak-spiral';
+    /** 0 = (0, 0), 1 = (pi, 0) (pendulum only); applied after the system. */
+    readonly equilibrium?: 0 | 1;
+    /** Integer 0 to 4; the half-width of the view around the equilibrium is 4 / 2^zoom. */
+    readonly zoom?: 0 | 1 | 2 | 3 | 4;
     readonly matrix?: {readonly A: number; readonly B: number; readonly C: number; readonly D: number};
     readonly seeds?: readonly {readonly X: number; readonly Y: number}[];
 }
@@ -71,6 +75,8 @@ export interface PhasePlaneSceneSpec {
 export const phasePlaneSceneActions = (id: string, spec: PhasePlaneSceneSpec): LessonAction[] => [
     {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
     ...(spec.system !== undefined ? [{kind: 'phase', operation: 'set-system', system: spec.system} as const] : []),
+    ...(spec.equilibrium !== undefined ? [{kind: 'phase', operation: 'set-equilibrium', equilibrium: spec.equilibrium} as const] : []),
+    ...(spec.zoom !== undefined ? [{kind: 'phase', operation: 'set-zoom', zoom: spec.zoom} as const] : []),
     ...(spec.matrix !== undefined ? [{kind: 'phase', operation: 'set-matrix', ...spec.matrix} as const] : []),
     ...(spec.seeds !== undefined ? [{kind: 'phase', operation: 'set-seeds', seeds: spec.seeds} as const] : []),
 ];
@@ -96,6 +102,14 @@ export const PP2_SMALL = {system: 'pendulum', seeds: [{X: 20, Y: 0}]} as const;
 export const PP2_LARGE = {system: 'pendulum', seeds: [{X: 0, Y: 38}]} as const;
 export const PP2_ROTATION = {system: 'pendulum', seeds: [{X: 0, Y: 45}]} as const;
 export const PP2_FREE = {system: 'pendulum', seeds: [{X: 20, Y: 0}]} as const;
+
+/** PP3. Seeds are absolute (theta, omega) or (x, y), seed = X / 20: (3,15; 0,05) and (3,1; -0,05) are near the saddle (pi, 0); (0,1; 0) stays in view at zoom 3. */
+export const PP3_LINEAR = {} as const;
+export const PP3_SADDLE_NEAR = {system: 'pendulum', equilibrium: 1, seeds: [{X: 63, Y: 1}, {X: 62, Y: -1}]} as const;
+export const PP3_SADDLE_UNIT = {system: 'pendulum', equilibrium: 1, seeds: [{X: 20, Y: 0}]} as const;
+export const PP3_PENDULUM_CENTRE = {system: 'pendulum', equilibrium: 0, seeds: [{X: 20, Y: 0}]} as const;
+export const PP3_WEAK_SMALL = {system: 'weak-spiral', seeds: [{X: 2, Y: 0}]} as const;
+export const PP3_FREE = PP3_PENDULUM_CENTRE;
 
 /** PP4. The Demonstration default is r = 2,9, x0 = 0,2, step 0. */
 export const PP4_SETTLES = {R: 290, step: 20} as const;
@@ -540,6 +554,164 @@ const pp2Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- PP3 ---------------------------------------------------------------------------------------------------------------------------
+
+const pp3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'pp3-jacobian',
+        latex: 'x^{\\prime}=f(x),\\quad f(x^{*})=0,\\quad J=\\begin{pmatrix}\\partial f_{1}/\\partial\\theta&\\partial f_{1}/\\partial\\omega\\\\\\partial f_{2}/\\partial\\theta&\\partial f_{2}/\\partial\\omega\\end{pmatrix}\\Bigg|_{x^{*}},\\quad \\xi^{\\prime}=J\\xi',
+        notation: text(
+            '\\(x=(\\theta,\\omega)\\) je točka ravnine, \\(f=(f_{1},f_{2})\\) desna stran sistema, \\(x^{*}\\) ravnovesna točka, \\(J\\) Jacobijeva matrika v njej, \\(\\xi=x-x^{*}\\) odmik od ravnovesne točke.',
+            '\\(x=(\\theta,\\omega)\\) is a point of the plane, \\(f=(f_{1},f_{2})\\) the right-hand side of the system, \\(x^{*}\\) an equilibrium, \\(J\\) the Jacobian there, \\(\\xi=x-x^{*}\\) the offset from the equilibrium.',
+        ),
+        explanation: text(
+            'Ravnovesna točka je rešitev \\(f(x^{*})=0\\). Linearizacija je linearni sistem \\(\\xi^{\\prime}=J\\xi\\) z matriko \\(J\\) iz parcialnih odvodov desne strani v \\(x^{*}\\); njen tip določita sled \\(\\tau\\) in determinanta \\(\\delta\\) matrike \\(J\\) kot pri linearnem sistemu v lekciji PP1. Pri nihalu je \\(f=(\\omega,\\,-\\sin\\theta)\\), ravnovesni točki sta \\((0,0)\\) in \\((\\pi,0)\\) (pa še njuni premiki za \\(2\\pi\\) po \\(\\theta\\)).',
+            'An equilibrium is a solution of \\(f(x^{*})=0\\). The linearization is the linear system \\(\\xi^{\\prime}=J\\xi\\) with the matrix \\(J\\) of partial derivatives of the right-hand side at \\(x^{*}\\); its type is decided by the trace \\(\\tau\\) and the determinant \\(\\delta\\) of \\(J\\) as for the linear system in the lesson PP1. For the pendulum \\(f=(\\omega,\\,-\\sin\\theta)\\), the equilibria are \\((0,0)\\) and \\((\\pi,0)\\) (and their shifts by \\(2\\pi\\) in \\(\\theta\\)).',
+        ),
+    },
+    {
+        id: 'pp3-hartman-grobman',
+        latex: '\\operatorname{Re}\\lambda_{1,2}\\neq0\\ \\Rightarrow\\ h\\bigl(\\Phi^{t}(x)\\bigr)=e^{tJ}\\,h(x)',
+        notation: text(
+            '\\(\\lambda_{1,2}\\) sta lastni vrednosti matrike \\(J\\); \\(\\operatorname{Re}\\) je realni del; \\(\\Phi^{t}\\) je tok sistema \\(x^{\\prime}=f(x)\\), \\(e^{tJ}\\) tok linearizacije (v odmiku \\(\\xi\\)), \\(h\\) homeomorfizem (zvezna obrnljiva preslikava z zvezno inverzno) v okolici \\(x^{*}\\).',
+            '\\(\\lambda_{1,2}\\) are the eigenvalues of \\(J\\); \\(\\operatorname{Re}\\) is the real part; \\(\\Phi^{t}\\) is the flow of the system \\(x^{\\prime}=f(x)\\), \\(e^{tJ}\\) the flow of the linearization (in the offset \\(\\xi\\)), \\(h\\) a homeomorphism (a continuous invertible map with a continuous inverse) near \\(x^{*}\\).',
+        ),
+        explanation: text(
+            'Izrek Hartman–Grobman (FMF Analiza 3, kot je navedeno): če nobena lastna vrednost matrike \\(J\\) nima realnega dela \\(0\\) (ravnovesna točka je hiperbolična), obstaja v okolici \\(x^{*}\\) homeomorfizem, ki rešitve nelinearnega sistema preslika v rešitve linearizacije. To je topološka ustreznost, ne trditev o razdalji med krivuljama; zato je približevanje krivulj pri večji povečavi ponazoritev. Če ima lastna vrednost realni del \\(0\\), izrek ne pove nič: portret je lahko podoben linearnemu ali pa ne, odloča račun za dani sistem, ne \\(J\\). Tip linearizacije in hiperboličnost sta točna testa na celih številih; lastni vrednosti sta izračunani.',
+            'The Hartman–Grobman theorem (FMF Analiza 3, as cited): if no eigenvalue of \\(J\\) has real part \\(0\\) (the equilibrium is hyperbolic), there is near \\(x^{*}\\) a homeomorphism that maps solutions of the nonlinear system to solutions of the linearization. This is a topological equivalence, not a statement about the distance between curves; so the curves approaching each other under a larger zoom is an illustration. If an eigenvalue has real part \\(0\\), the theorem says nothing: the portrait may or may not resemble the linear one, and a computation for the given system decides, not \\(J\\). The type of the linearization and hyperbolicity are exact integer tests; the eigenvalues are computed.',
+        ),
+    },
+];
+
+const pp3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'pp3-jacobian', order: 1,
+        title: text('Jacobijeva matrika v zgornji legi nihala', 'The Jacobian at the upright position of the pendulum'),
+        purpose: text('Napovedati Jacobijevo matriko, tip in lastni vrednosti linearizacije nihala v \\((\\pi,0)\\) in jih primerjati z odčitki.', 'Predicting the Jacobian, the type and the eigenvalues of the linearization of the pendulum at \\((\\pi,0)\\) and comparing them with the readouts.'),
+        explanation: text(
+            'Odpre se linearni sistem z matriko \\(\\begin{pmatrix}-4&-1\\\\-2&-3\\end{pmatrix}\\) in začetno točko \\((1,0)\\). Nihalo \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\sin\\theta\\) je nelinearno; njegovo linearizacijo v ravnovesni točki daje Jacobijeva matrika iz formule. Zapiši napoved za zgornjo lego \\((\\pi,0)\\), kjer je \\(\\cos\\pi=-1\\): kolikšna je \\(J\\), kolikšni so \\(\\tau\\), \\(\\delta\\), \\(\\Delta\\) in lastni vrednosti ter kakšen je tip linearizacije?',
+            'The linear system with the matrix \\(\\begin{pmatrix}-4&-1\\\\-2&-3\\end{pmatrix}\\) and the start point \\((1,0)\\) opens. The pendulum \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\sin\\theta\\) is nonlinear; its linearization at an equilibrium is given by the Jacobian in the formula. Write down a prediction for the upright position \\((\\pi,0)\\), where \\(\\cos\\pi=-1\\): what is \\(J\\), what are \\(\\tau\\), \\(\\delta\\), \\(\\Delta\\) and the eigenvalues, and what is the type of the linearization?',
+        ),
+        formulaIds: ['pp3-jacobian'],
+        observationPrompt: text(
+            'V izbirniku Sistem izberi Nihalo, nato v izbirniku Ravnovesna točka v središču pogleda izberi (π, 0): nihalo stoji pokonci. Ob izbiri Nihala se za hip pokaže spodnja lega \\((0,0)\\); njenih odčitkov še ne beri. Šele po izbiri \\((\\pi,0)\\) preberi Tip linearizacije (točen), Jacobijevo matriko v ravnovesni točki, Lastni vrednosti (izračunani) in vrstico Hiperbolična; primerjaj z napovedjo.',
+            'In the chooser System pick Pendulum, then in the chooser Equilibrium in the centre of the view pick (π, 0): upright. Picking Pendulum briefly shows the lower position \\((0,0)\\); do not read its readouts yet. Only after picking \\((\\pi,0)\\) read Type of the linearization (exact), Jacobian at the equilibrium, Eigenvalues (computed) and the row Hyperbolic; compare with your prediction.',
+        ),
+        expectedObservations: [text(
+            'Odvodi so \\(\\partial f_{1}/\\partial\\theta=0\\), \\(\\partial f_{1}/\\partial\\omega=1\\), \\(\\partial f_{2}/\\partial\\theta=-\\cos\\pi=1\\), \\(\\partial f_{2}/\\partial\\omega=0\\), torej \\(J=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\), \\(\\tau=0\\), \\(\\delta=-1\\), \\(\\Delta=\\tau^{2}-4\\delta=4\\), iz \\(\\lambda^{2}-1=0\\) sta lastni vrednosti \\(1\\) in \\(-1\\). Odčitki pravijo: tip linearizacije sedlo (\\(\\tau=0\\), \\(\\delta=-1\\)), Jacobijeva matrika vrstica \\(1\\): \\((0;\\,1)\\), vrstica \\(2\\): \\((1;\\,0)\\), \\(\\lambda_{1}=1\\), \\(\\lambda_{2}=-1\\), hiperbolična: da. Tip je točen test na celih številih, lastni vrednosti sta izračunani.',
+            'The derivatives are \\(\\partial f_{1}/\\partial\\theta=0\\), \\(\\partial f_{1}/\\partial\\omega=1\\), \\(\\partial f_{2}/\\partial\\theta=-\\cos\\pi=1\\), \\(\\partial f_{2}/\\partial\\omega=0\\), so \\(J=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\), \\(\\tau=0\\), \\(\\delta=-1\\), \\(\\Delta=\\tau^{2}-4\\delta=4\\), and from \\(\\lambda^{2}-1=0\\) the eigenvalues are \\(1\\) and \\(-1\\). The readouts say: type of the linearization saddle (\\(\\tau=0\\), \\(\\delta=-1\\)), Jacobian row \\(1\\): \\((0,\\,1)\\), row \\(2\\): \\((1,\\,0)\\), \\(\\lambda_{1}=1\\), \\(\\lambda_{2}=-1\\), hyperbolic: yes. The type is an exact integer test, the eigenvalues are computed.',
+        )],
+        scene: planeScene('pp3-jacobian-scene', PP3_LINEAR,
+            'Linearni sistem z matriko \\(-E\\), začetna točka \\((1,0)\\): stabilno vozlišče, \\(\\tau=-7\\), \\(\\delta=10\\); nihalo še ni izbrano.',
+            'The linear system with the matrix \\(-E\\), start point \\((1,0)\\): stable node, \\(\\tau=-7\\), \\(\\delta=10\\); the pendulum is not yet chosen.'),
+    }),
+    step({
+        id: 'pp3-zoom', order: 2,
+        title: text('Povečava okoli sedla', 'Magnifying around the saddle'),
+        purpose: text('Napovedati, kaj se zgodi s polnimi in črtkanimi krivuljami obroča pri večji povečavi, in primerjati sliko z odčitki.', 'Predicting what happens to the solid and dashed curves of the ring under a larger zoom and comparing the picture with the readouts.'),
+        explanation: text(
+            'Odprto je nihalo v \\((\\pi,0)\\) s povečavo \\(0\\) (polovična širina \\(4\\)) in začetnima točkama \\((3{,}15;\\,0{,}05)\\) ter \\((3{,}1;\\,-0{,}05)\\) blizu sedla; koordinate začetnih točk so absolutne, ne odmiki od ravnovesne točke. Okoli ravnovesne točke leži obroč \\(12\\) začetkov s polmerom \\(3/4\\) polovične širine pogleda. Polne črte so nelinearne trajektorije iz teh začetkov, črtkane trajektorije linearizacije iz istih začetkov; ravni črti sta lastni smeri linearizacije. Zapiši napoved: kako se bosta polne in črtkane krivulje obroča razlikovali pri povečavi \\(3\\) v primerjavi s povečavo \\(0\\)? Odčitka za obroč ne merita razdalje med krivuljama, primerjava je z očesom.',
+            'The pendulum at \\((\\pi,0)\\) opens with zoom \\(0\\) (half-width \\(4\\)) and the start points \\((3{,}15;\\,0{,}05)\\) and \\((3{,}1;\\,-0{,}05)\\) near the saddle; the coordinates of the start points are absolute, not offsets from the equilibrium. Around the equilibrium lies a ring of \\(12\\) starts with radius \\(3/4\\) of the half-width of the view. The solid lines are nonlinear trajectories from these starts, the dashed ones trajectories of the linearization from the same starts; the straight lines are the eigen-directions of the linearization. Write down a prediction: how will the solid and dashed curves of the ring differ at zoom \\(3\\) compared with zoom \\(0\\)? The readouts for the ring do not measure the distance between the curves, the comparison is by eye.',
+        ),
+        formulaIds: ['pp3-jacobian'],
+        observationPrompt: text(
+            'Drsnik Povečava okoli ravnovesne točke nastavi na \\(3\\) (besedilo pravi polovična širina \\(0{,}5\\)). Primerjaj polne in črtkane krivulje obroča ter obe začetni točki z lastnima smerema; preberi vrstice Izračunano območje, Obroč trajektorij (izračunan) in Linearizacija na obroču (izračunana).',
+            'Set the slider Zoom around the equilibrium to \\(3\\) (the text says half-width \\(0{,}5\\)). Compare the solid and dashed curves of the ring and the two start points with the eigen-directions; read the rows Computed region, Ring of trajectories (computed) and Linearization on the ring (computed).',
+        ),
+        expectedObservations: [text(
+            'Pogled je \\(\\theta\\) od \\(2{,}6416\\) do \\(3{,}6416\\), \\(\\omega\\) od \\(-0{,}5\\) do \\(0{,}5\\), polmer obroča \\(0{,}375\\). Pri povečavi \\(0\\) odčitka pravita, da je ustavljenih \\(20\\) od \\(24\\) polovic nelinearnega obroča in \\(24\\) od \\(24\\) pri linearizaciji, pri povečavi \\(3\\) obakrat \\(24\\) od \\(24\\); to je število polovic, ki zapustijo pogled, ne razdalja. Začetni točki sta ob času \\(0\\) v pogledu, njuni trajektoriji pa ga zapustita: \\((3{,}15;\\,0{,}05)\\) je naprej ustavljena po \\(2{,}86\\) s in nazaj po \\(3{,}2\\) s, \\((3{,}1;\\,-0{,}05)\\) naprej po \\(2{,}4\\) s in nazaj po \\(4{,}8\\) s. Polne in črtkane krivulje primerjaj z očesom: pri majhnem polmeru pričakuješ, da sta si bližje kot pri polmeru \\(3\\). Tega slika ne dokazuje; račun velja za polje, ne za krivulje: pri \\(\\theta=\\pi+x\\) je \\(\\omega^{\\prime}=\\sin x\\) pri nihalu in \\(x\\) pri linearizaciji, razmerje \\(\\sin x/x\\) je pri \\(\\lvert x\\rvert\\leq0{,}375\\) vsaj \\(0{,}9767\\), pri \\(x=3\\) pa \\(0{,}0470\\). Hiperboličnost sama po izreku Hartman–Grobman (formula v koraku 6) zagotavlja topološko ustreznost, ne bližine krivulj.',
+            'The view is \\(\\theta\\) from \\(2{,}6416\\) to \\(3{,}6416\\), \\(\\omega\\) from \\(-0{,}5\\) to \\(0{,}5\\), the ring radius is \\(0{,}375\\). At zoom \\(0\\) the readouts say that \\(20\\) of \\(24\\) halves of the nonlinear ring are stopped and \\(24\\) of \\(24\\) for the linearization, at zoom \\(3\\) both \\(24\\) of \\(24\\); this counts the halves that leave the view, not a distance. The two start points are in view at time \\(0\\), and their trajectories leave it: \\((3{,}15;\\,0{,}05)\\) is stopped after \\(2{,}86\\) s forward and \\(3{,}2\\) s backward, \\((3{,}1;\\,-0{,}05)\\) after \\(2{,}4\\) s forward and \\(4{,}8\\) s backward. Compare the solid and dashed curves by eye: at a small radius you expect them closer than at radius \\(3\\). The picture does not prove this; the computation is for the field, not for the curves: at \\(\\theta=\\pi+x\\) we have \\(\\omega^{\\prime}=\\sin x\\) for the pendulum and \\(x\\) for the linearization, the ratio \\(\\sin x/x\\) is at least \\(0{,}9767\\) for \\(\\lvert x\\rvert\\leq0{,}375\\) and \\(0{,}0470\\) at \\(x=3\\). By the Hartman–Grobman theorem (the formula in step 6) hyperbolicity alone gives a topological equivalence, not closeness of the curves.',
+        )],
+        scene: planeScene('pp3-zoom-scene', PP3_SADDLE_NEAR,
+            'Nihalo v \\((\\pi,0)\\), povečava \\(0\\), začetni točki \\((3{,}15;\\,0{,}05)\\) in \\((3{,}1;\\,-0{,}05)\\): sedlo, \\(H>1\\) pri obeh (vrtenje); obroč \\(20\\) od \\(24\\) ustavljenih polovic, linearizacija \\(24\\) od \\(24\\).',
+            'The pendulum at \\((\\pi,0)\\), zoom \\(0\\), start points \\((3{,}15;\\,0{,}05)\\) and \\((3{,}1;\\,-0{,}05)\\): saddle, \\(H>1\\) for both (rotation); ring \\(20\\) of \\(24\\) stopped halves, linearization \\(24\\) of \\(24\\).'),
+    }),
+    step({
+        id: 'pp3-centre', order: 3,
+        title: text('Jacobijeva matrika v spodnji legi nihala', 'The Jacobian at the lower position of the pendulum'),
+        purpose: text('Napovedati Jacobijevo matriko in tip v \\((0,0)\\), kaj linearizacija tam določa, in ločiti to od energijskega argumenta.', 'Predicting the Jacobian and the type at \\((0,0)\\), what the linearization decides there, and separating this from the energy argument.'),
+        explanation: text(
+            'Odprto je nihalo v \\((\\pi,0)\\) z začetno točko \\((1,0)\\). Zapiši napoved za spodnjo lego \\((0,0)\\), kjer je \\(\\cos0=1\\): kolikšna je \\(J\\), kolikšni so \\(\\tau\\), \\(\\delta\\), \\(\\Delta\\) in lastni vrednosti, kakšen je tip in ali je ravnovesna točka hiperbolična? Kaj iz tega sklepaš o nihalu blizu \\((0,0)\\), in kaj lahko o tem sklepaš samo iz \\(J\\)?',
+            'The pendulum at \\((\\pi,0)\\) with the start point \\((1,0)\\) is open. Write down a prediction for the lower position \\((0,0)\\), where \\(\\cos0=1\\): what is \\(J\\), what are \\(\\tau\\), \\(\\delta\\), \\(\\Delta\\) and the eigenvalues, what is the type and is the equilibrium hyperbolic? What do you conclude about the pendulum near \\((0,0)\\), and what can you conclude from \\(J\\) alone?',
+        ),
+        formulaIds: ['pp3-jacobian'],
+        observationPrompt: text(
+            'V izbirniku Ravnovesna točka v središču pogleda izberi (0, 0): nihalo visi. Preberi Tip linearizacije (točen), Jacobijevo matriko v ravnovesni točki, Lastni vrednosti (izračunani), vrstici Hiperbolična in Kaj določa linearizacija ter Energija začetne točke 1.',
+            'In the chooser Equilibrium in the centre of the view pick (0, 0): hanging down. Read Type of the linearization (exact), Jacobian at the equilibrium, Eigenvalues (computed), the rows Hyperbolic and What the linearization decides, and Energy of seed 1.',
+        ),
+        expectedObservations: [text(
+            'Odvodi so \\(\\partial f_{2}/\\partial\\theta=-\\cos0=-1\\), ostali kot prej: \\(J=\\begin{pmatrix}0&1\\\\-1&0\\end{pmatrix}\\), \\(\\tau=0\\), \\(\\delta=1\\), \\(\\Delta=-4\\), \\(\\lambda^{2}+1=0\\), torej \\(\\lambda=0\\pm i\\). Odčitki pravijo: tip linearizacije središče, Jacobijeva matrika vrstica \\(1\\): \\((0;\\,1)\\), vrstica \\(2\\): \\((-1;\\,0)\\), \\(\\lambda=0\\pm1\\,i\\), hiperbolična: ne, Kaj določa linearizacija: Ni hiperbolična: linearizacija ne določa lokalnega portreta. Realni del lastne vrednosti je \\(0\\), zato linearizacija o nihalu pri \\((0,0)\\) ne pove ničesar. Da je to središče tudi pri nihalu, sledi iz energije \\(H=\\omega^{2}/2-\\cos\\theta\\): je konstantna po rešitvah, \\(H+1=\\omega^{2}/2+(1-\\cos\\theta)\\) je pri \\((0,0)\\) enaka \\(0\\) in drugje blizu pozitivna, zato so nivojnice blizu \\((0,0)\\) sklenjene krivulje okoli te točke. To je argument iz \\(H\\), ne iz \\(J\\); odčitek začetne točke \\((1,0)\\) pravi \\(H=-0{,}540302<1\\): nihanje, naprej in nazaj izračunana za vseh \\(10\\) s.',
+            'The derivatives are \\(\\partial f_{2}/\\partial\\theta=-\\cos0=-1\\), the others as before: \\(J=\\begin{pmatrix}0&1\\\\-1&0\\end{pmatrix}\\), \\(\\tau=0\\), \\(\\delta=1\\), \\(\\Delta=-4\\), \\(\\lambda^{2}+1=0\\), so \\(\\lambda=0\\pm i\\). The readouts say: type of the linearization centre, Jacobian row \\(1\\): \\((0,\\,1)\\), row \\(2\\): \\((-1,\\,0)\\), \\(\\lambda=0\\pm1\\,i\\), hyperbolic: no, What the linearization decides: Not hyperbolic: the linearization does not decide the local portrait. The real part of the eigenvalue is \\(0\\), so the linearization says nothing about the pendulum at \\((0,0)\\). That it is also a centre for the pendulum follows from the energy \\(H=\\omega^{2}/2-\\cos\\theta\\): it is constant along solutions, \\(H+1=\\omega^{2}/2+(1-\\cos\\theta)\\) equals \\(0\\) at \\((0,0)\\) and is positive nearby elsewhere, so level curves near \\((0,0)\\) are closed curves around that point. This is an argument from \\(H\\), not from \\(J\\); the readout of the start point \\((1,0)\\) says \\(H=-0{,}540302<1\\): swing, computed for all \\(10\\) s forward and backward.',
+        )],
+        scene: planeScene('pp3-centre-scene', PP3_SADDLE_UNIT,
+            'Nihalo v \\((\\pi,0)\\), povečava \\(0\\), začetna točka \\((1,0)\\): sedlo, \\(\\tau=0\\), \\(\\delta=-1\\); \\(H=-0{,}540302<1\\).',
+            'The pendulum at \\((\\pi,0)\\), zoom \\(0\\), start point \\((1,0)\\): saddle, \\(\\tau=0\\), \\(\\delta=-1\\); \\(H=-0{,}540302<1\\).'),
+    }),
+    step({
+        id: 'pp3-weak', order: 4,
+        title: text('Šibka spirala', 'The weak spiral'),
+        purpose: text('Napovedati Jacobijevo matriko in tip šibke spirale in ali so njene orbite sklenjene, ter primerjati z nihalom.', 'Predicting the Jacobian and the type of the weak spiral and whether its orbits are closed, and comparing with the pendulum.'),
+        explanation: text(
+            'Odprto je nihalo v \\((0,0)\\) z začetno točko \\((1,0)\\). Šibka spirala je sistem \\(r^{\\prime}=-r^{3}\\), \\(\\theta^{\\prime}=1\\) v polarnih koordinatah \\(r=\\sqrt{x^{2}+y^{2}}\\), \\(\\theta\\); v kartezičnih je \\(x^{\\prime}=-(x^{2}+y^{2})x-y\\), \\(y^{\\prime}=x-(x^{2}+y^{2})y\\). Zapiši napoved: kolikšna je \\(J\\) v izhodišču, kolikšna sta \\(\\tau\\) in \\(\\delta\\) in kakšen je tip? Ali je tip enak kot pri nihalu, ali je matrika enaka in ali so orbite šibke spirale sklenjene kot pri nihalu? Če niso, kolikšen je polmer \\(r(t)\\) za \\(r_{0}=1\\) pri \\(t=10\\)?',
+            'The pendulum at \\((0,0)\\) with the start point \\((1,0)\\) is open. The weak spiral is the system \\(r^{\\prime}=-r^{3}\\), \\(\\theta^{\\prime}=1\\) in polar coordinates \\(r=\\sqrt{x^{2}+y^{2}}\\), \\(\\theta\\); in Cartesian ones it is \\(x^{\\prime}=-(x^{2}+y^{2})x-y\\), \\(y^{\\prime}=x-(x^{2}+y^{2})y\\). Write down a prediction: what is \\(J\\) at the origin, what are \\(\\tau\\) and \\(\\delta\\), and what is the type? Is the type the same as for the pendulum, is the matrix the same, and are the orbits of the weak spiral closed as for the pendulum? If not, what is the radius \\(r(t)\\) for \\(r_{0}=1\\) at \\(t=10\\)?',
+        ),
+        formulaIds: ['pp3-jacobian'],
+        observationPrompt: text(
+            'V izbirniku Sistem izberi Šibka spirala (r′ = −r³, θ′ = 1). Preberi Tip linearizacije (točen), Jacobijevo matriko v ravnovesni točki, vrstico Hiperbolična, Začetna točka 1 ter vrstici Obroč trajektorij (izračunan) in Linearizacija na obroču (izračunana). Čas t nastavi na \\(10\\) in opazuj kvadratek; polmer \\(r(t)\\) odčitek ne pove, vidiš ga le v risbi.',
+            'In the chooser System pick Weak spiral (r′ = −r³, θ′ = 1). Read Type of the linearization (exact), Jacobian at the equilibrium, the row Hyperbolic, Seed 1 and the rows Ring of trajectories (computed) and Linearization on the ring (computed). Set the time t to \\(10\\) and watch the square; no readout gives the radius \\(r(t)\\), you see it only in the drawing.',
+        ),
+        expectedObservations: [text(
+            'Kubični členi pri \\((0,0)\\) ne prispevajo k \\(J\\): \\(J=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\), \\(\\tau=0\\), \\(\\delta=1\\), \\(\\lambda=0\\pm i\\). Odčitki pravijo: tip središče, Jacobijeva matrika vrstica \\(1\\): \\((0;\\,-1)\\), vrstica \\(2\\): \\((1;\\,0)\\), hiperbolična: ne. Tip je isti kot pri nihalu, matrika ni ista: \\(J\\) šibke spirale je \\(-J\\) nihala, zato se vrti v nasprotno smer. Orbite pa niso sklenjene: iz \\(r^{\\prime}=-r^{3}\\) sledi \\((1/r^{2})^{\\prime}=2\\), torej \\(r(t)=r_{0}/\\sqrt{1+2r_{0}^{2}t}\\); pri \\(r_{0}=1\\) je \\(r(1)\\approx0{,}5773503\\) in \\(r(10)\\approx0{,}2182179\\), \\(r\\) strogo pada, orbita se ne vrne. Začetna točka \\((1,0)\\) je naprej izračunana za vseh \\(10\\) s, nazaj ustavljena po \\(0{,}48\\) s, ker zapusti območje; pri nihalu sta bili obe polovici izračunani za vseh \\(10\\) s. Obroč: \\(12\\) od \\(24\\) polovic nelinearnega obroča ustavljenih, \\(0\\) od \\(24\\) pri linearizaciji.',
+            'The cubic terms at \\((0,0)\\) do not contribute to \\(J\\): \\(J=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\), \\(\\tau=0\\), \\(\\delta=1\\), \\(\\lambda=0\\pm i\\). The readouts say: type centre, Jacobian row \\(1\\): \\((0,\\,-1)\\), row \\(2\\): \\((1,\\,0)\\), hyperbolic: no. The type is the same as for the pendulum, the matrix is not: \\(J\\) of the weak spiral is \\(-J\\) of the pendulum, so it turns the other way. The orbits are not closed, though: from \\(r^{\\prime}=-r^{3}\\) it follows that \\((1/r^{2})^{\\prime}=2\\), so \\(r(t)=r_{0}/\\sqrt{1+2r_{0}^{2}t}\\); for \\(r_{0}=1\\) we have \\(r(1)\\approx0{,}5773503\\) and \\(r(10)\\approx0{,}2182179\\), \\(r\\) strictly decreases, the orbit does not return. The start point \\((1,0)\\) is computed for all \\(10\\) s forward and stopped after \\(0{,}48\\) s backward because it leaves the region; for the pendulum both halves were computed for all \\(10\\) s. Ring: \\(12\\) of \\(24\\) halves of the nonlinear ring stopped, \\(0\\) of \\(24\\) for the linearization.',
+        )],
+        scene: planeScene('pp3-weak-scene', PP3_PENDULUM_CENTRE,
+            'Nihalo v \\((0,0)\\), povečava \\(0\\), začetna točka \\((1,0)\\): središče, \\(\\tau=0\\), \\(\\delta=1\\), ni hiperbolična; začetna točka naprej in nazaj izračunana za vseh \\(10\\) s.',
+            'The pendulum at \\((0,0)\\), zoom \\(0\\), start point \\((1,0)\\): centre, \\(\\tau=0\\), \\(\\delta=1\\), not hyperbolic; the start point computed for all \\(10\\) s forward and backward.'),
+    }),
+    step({
+        id: 'pp3-undecided', order: 5,
+        title: text('Povečava okoli šibke spirale', 'Magnifying around the weak spiral'),
+        purpose: text('Napovedati, ali povečava naredi šibko spiralo podobno linearnemu središču, in ločiti sliko od računa.', 'Predicting whether magnifying makes the weak spiral resemble the linear centre, and separating the picture from the computation.'),
+        explanation: text(
+            'Odprta je šibka spirala s povečavo \\(0\\) in začetno točko \\((0{,}1;\\,0)\\). Pri sedlu je bila primerjava krivulj obroča pri povečavi \\(0\\) in \\(3\\). Račun iz prejšnjega koraka pove, da \\(r\\) strogo pada. Zapiši napoved za šibko spiralo pri povečavi \\(3\\): ali bo obroč nelinearnih krivulj videti bližje črtkanemu obroču linearizacije kot pri povečavi \\(0\\)? Ali bo orbita začetne točke na sliki videti sklenjena? Kaj potem odloča: slika ali račun?',
+            'The weak spiral with zoom \\(0\\) and the start point \\((0{,}1;\\,0)\\) is open. At the saddle you compared the curves of the ring at zoom \\(0\\) and \\(3\\). The computation of the previous step says that \\(r\\) strictly decreases. Write down a prediction for the weak spiral at zoom \\(3\\): will the ring of nonlinear curves look closer to the dashed ring of the linearization than at zoom \\(0\\)? Will the orbit of the start point look closed in the picture? Which then decides: the picture or the computation?',
+        ),
+        formulaIds: ['pp3-jacobian'],
+        observationPrompt: text(
+            'Drsnik Povečava okoli ravnovesne točke nastavi na \\(3\\) (polovična širina \\(0{,}5\\)) in Čas t na \\(10\\). Primerjaj polni in črtkani obroč ter orbito začetne točke; preberi Začetna točka 1, Obroč trajektorij (izračunan), Linearizacija na obroču (izračunana) in Kaj določa linearizacija.',
+            'Set the slider Zoom around the equilibrium to \\(3\\) (half-width \\(0{,}5\\)) and Time t to \\(10\\). Compare the solid and dashed rings and the orbit of the start point; read Seed 1, Ring of trajectories (computed), Linearization on the ring (computed) and What the linearization decides.',
+        ),
+        expectedObservations: [text(
+            'Začetna točka \\((0{,}1;\\,0)\\) je pri povečavi \\(0\\) in \\(3\\) naprej in nazaj izračunana za vseh \\(10\\) s. Obroč: pri obeh povečavah \\(12\\) od \\(24\\) polovic nelinearnega obroča ustavljenih in \\(0\\) od \\(24\\) pri linearizaciji; ti števili se s povečavo ne spremenita. Na sliki se polni obroč pri povečavi \\(3\\) v \\(10\\) s skrči manj kot pri povečavi \\(0\\), zato je videti bližje črtkanemu, čeprav \\(r(t)\\) strogo pada in nobena orbita ni sklenjena. Orbita začetne točke je blizu sklenjene: \\(r(10)=0{,}1/\\sqrt{1+2\\cdot0{,}01\\cdot10}\\approx0{,}0912871\\) namesto \\(0{,}1\\), padec približno \\(0{,}0087\\), to je okoli \\(0{,}017\\) polovične širine \\(0{,}5\\). Slika te razlike ne loči zanesljivo od sklenjene krivulje; račun \\(r(t)=r_{0}/\\sqrt{1+2r_{0}^{2}t}\\) pove, da \\(r\\) strogo pada, torej orbita ni sklenjena. Vrstica Kaj določa linearizacija pravi: Ni hiperbolična: linearizacija ne določa lokalnega portreta. Pri nihalu je bilo središče, pri šibki spirali ni: o tem odloča sistem sam, ne \\(J\\); povečava ne odloči.',
+            'The start point \\((0{,}1;\\,0)\\) is computed for all \\(10\\) s forward and backward at zoom \\(0\\) and \\(3\\). Ring: at both zooms \\(12\\) of \\(24\\) halves of the nonlinear ring are stopped and \\(0\\) of \\(24\\) for the linearization; these counts do not change with the zoom. In the picture the solid ring at zoom \\(3\\) shrinks less in \\(10\\) s than at zoom \\(0\\), so it looks closer to the dashed one, although \\(r(t)\\) strictly decreases and no orbit is closed. The orbit of the start point is nearly closed: \\(r(10)=0{,}1/\\sqrt{1+2\\cdot0{,}01\\cdot10}\\approx0{,}0912871\\) instead of \\(0{,}1\\), a drop of about \\(0{,}0087\\), around \\(0{,}017\\) of the half-width \\(0{,}5\\). The picture does not reliably tell this from a closed curve; the computation \\(r(t)=r_{0}/\\sqrt{1+2r_{0}^{2}t}\\) says that \\(r\\) strictly decreases, so the orbit is not closed. The row What the linearization decides says: Not hyperbolic: the linearization does not decide the local portrait. The pendulum was a centre, the weak spiral is not: the system itself decides, not \\(J\\); the zoom does not decide.',
+        )],
+        scene: planeScene('pp3-undecided-scene', PP3_WEAK_SMALL,
+            'Šibka spirala, povečava \\(0\\), začetna točka \\((0{,}1;\\,0)\\): središče, \\(\\tau=0\\), \\(\\delta=1\\), ni hiperbolična; naprej in nazaj izračunana za vseh \\(10\\) s; obroč \\(12\\) od \\(24\\) ustavljenih polovic, linearizacija \\(0\\) od \\(24\\).',
+            'The weak spiral, zoom \\(0\\), start point \\((0{,}1;\\,0)\\): centre, \\(\\tau=0\\), \\(\\delta=1\\), not hyperbolic; computed for all \\(10\\) s forward and backward; ring \\(12\\) of \\(24\\) stopped halves, linearization \\(0\\) of \\(24\\).'),
+    }),
+    step({
+        id: 'pp3-free', order: 6,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Samostojno preizkusiti sistem, ravnovesno točko in povečavo.', 'Trying the system, the equilibrium and the zoom on your own.'),
+        explanation: text(
+            'Nihalo v \\((0,0)\\) z začetno točko \\((1,0)\\) je spet nastavljeno. Formula pove, kaj izrek Hartman–Grobman zagotavlja pri hiperboličnih točkah in česa ne pove pri tistih, ki niso hiperbolične.',
+            'The pendulum at \\((0,0)\\) with the start point \\((1,0)\\) is set again. The formula says what the Hartman–Grobman theorem guarantees at hyperbolic points and what it does not say at those that are not hyperbolic.',
+        ),
+        formulaIds: ['pp3-hartman-grobman'],
+        observationPrompt: text(
+            'Preizkusi vse tri sisteme in obe ravnovesni točki nihala pri povečavah od \\(0\\) do \\(4\\). Kaj se z povečavo spremeni v odčitkih Tip linearizacije in Jacobijeva matrika in kaj v vrsticah Obroč?',
+            'Try all three systems and both equilibria of the pendulum at zooms from \\(0\\) to \\(4\\). What changes with the zoom in the readouts Type of the linearization and Jacobian, and what in the Ring rows?',
+        ),
+        expectedObservations: [text(
+            'Tip linearizacije in Jacobijeva matrika se s povečavo ne spremenita (pri nihalu v \\((\\pi,0)\\): sedlo, \\(J=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\) pri vseh povečavah \\(0\\) do \\(4\\)); spremeni se le pogled (polovična širina \\(4/2^{\\text{povečava}}\\)) in s tem obroč in ustavljene polovice. Pri nihalu v \\((\\pi,0)\\) je pri povečavi \\(0\\) ustavljenih \\(20\\) od \\(24\\) polovic nelinearnega obroča, pri povečavah \\(1\\) do \\(4\\) vseh \\(24\\); linearizacija ima \\(24\\) od \\(24\\) pri vseh. Pri nihalu v \\((0,0)\\) je pri povečavi \\(0\\) \\(20\\) od \\(24\\) pri nelinearnem obroču in \\(0\\) od \\(24\\) pri linearizaciji, pri povečavi \\(3\\) obakrat \\(0\\) od \\(24\\).',
+            'The type of the linearization and the Jacobian do not change with the zoom (for the pendulum at \\((\\pi,0)\\): saddle, \\(J=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\) at all zooms \\(0\\) to \\(4\\)); only the view changes (half-width \\(4/2^{\\text{zoom}}\\)) and with it the ring and the stopped halves. For the pendulum at \\((\\pi,0)\\) at zoom \\(0\\), \\(20\\) of \\(24\\) halves of the nonlinear ring are stopped, at zooms \\(1\\) to \\(4\\) all \\(24\\); the linearization has \\(24\\) of \\(24\\) at all. For the pendulum at \\((0,0)\\) at zoom \\(0\\) it is \\(20\\) of \\(24\\) for the nonlinear ring and \\(0\\) of \\(24\\) for the linearization, at zoom \\(3\\) both \\(0\\) of \\(24\\).',
+        )],
+        scene: planeScene('pp3-free-scene', PP3_FREE,
+            'Nihalo v \\((0,0)\\), povečava \\(0\\), začetna točka \\((1,0)\\): središče, ni hiperbolična; sistem, ravnovesna točka, povečava in točke so prosti.',
+            'The pendulum at \\((0,0)\\), zoom \\(0\\), start point \\((1,0)\\): centre, not hyperbolic; the system, the equilibrium, the zoom and the points are free.'),
+    }),
+];
+
 // ---- PP4 ---------------------------------------------------------------------------------------------------------------------------
 
 const pp4Steps: readonly GuidedLessonStep[] = [
@@ -874,8 +1046,45 @@ const pendulum: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+const linearizationSources: GuidedLesson['sources'] = [
+    {
+        id: 'bezeg-phase-linearization-implementation',
+        citation: 'Bezeg source: src/dynamics/classify2.ts (the exact type test and the hyperbolic test), systems2.ts (the Jacobians), phaseModel.ts (the ring and the zoom) and src/graphs/dynamics/PhasePortraitGraph.tsx; Hartman–Grobman theorem: FMF Analiza 3 (cited, not opened).',
+        implementationCorrespondence: 'A scene sets the system, the equilibrium, the zoom and the seeds of the phase-portrait graph; the type of the linearization, the trace, the determinant and the hyperbolic test are exact, the eigenvalues, the orbits and the ring are computed (RK4, step 0,02, 10 s) and are illustrations. The Hartman–Grobman theorem is cited; the zoomed picture illustrates it and measures nothing.',
+    },
+];
+
+const linearizationEdgeCases: readonly LocalizedText[] = [
+    ...planeEdgeCases,
+    text('Koordinate začetnih točk so absolutne, ne odmiki od ravnovesne točke; točka zunaj pogleda je ustavljena po \\(0\\) s. Odčitka za obroč štejeta ustavljene polovice in ne merita razdalje med krivuljama.', 'The coordinates of the start points are absolute, not offsets from the equilibrium; a point outside the view is stopped after \\(0\\) s. The readouts for the ring count stopped halves and do not measure the distance between the curves.'),
+];
+
+const linearization: GuidedLesson = {
+    demonstrationId: 'phase-portrait',
+    title: text('Linearizacija v ravnovesni točki', 'Linearization at an equilibrium'),
+    summary: text(
+        'Jacobijeva matrika nihala in šibke spirale v ravnovesni točki, tip linearizacije in povečava okoli točke. Tip in hiperboličnost sta točna testa, izrek Hartman–Grobman je naveden, slika je ponazoritev.',
+        'The Jacobian of the pendulum and of the weak spiral at an equilibrium, the type of the linearization and a zoom around the point. The type and hyperbolicity are exact tests, the Hartman–Grobman theorem is cited, the picture is an illustration.',
+    ),
+    prerequisites: [
+        text('Linearni sistem \\(x^{\\prime}=Ax\\) v ravnini (PP1).', 'The linear system \\(x^{\\prime}=Ax\\) in the plane (PP1).'),
+        text('Nihalo v faznem prostoru (PP2).', 'The pendulum in the phase plane (PP2).'),
+    ],
+    learningGoals: [
+        text('Znaš izračunati Jacobijevo matriko in tip linearizacije v ravnovesni točki.', 'Can compute the Jacobian and the type of the linearization at an equilibrium.'),
+        text('Veš, kaj izrek Hartman–Grobman zagotavlja pri hiperbolični točki in da pri nehiperbolični linearizacija o portretu ne odloča.', 'Know what the Hartman–Grobman theorem guarantees at a hyperbolic point and that at a non-hyperbolic one the linearization does not decide the portrait.'),
+    ],
+    formulaBlocks: pp3Formulas,
+    workedExamples: [],
+    steps: pp3Steps,
+    sources: linearizationSources,
+    edgeCases: linearizationEdgeCases,
+    unresolvedQuestions: [],
+};
+
 export const linearSystemLesson: GuidedLesson = linearSystem;
 export const pendulumLesson: GuidedLesson = pendulum;
+export const linearizationLesson: GuidedLesson = linearization;
 
 const logisticMap: GuidedLesson = {
     demonstrationId: 'logistic-map',
