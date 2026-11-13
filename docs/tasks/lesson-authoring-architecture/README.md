@@ -8,9 +8,9 @@ The [original specification](../../specs/lesson-authoring-architecture.md) owns 
 | [03: feature-local registration](03-feature-local-registration.md) | accepted 2026-11-10 | Workstream 3 pilot: projective conics | — |
 | [04: owned standalone scenes](04-owned-standalone-scenes.md) | accepted 2026-11-10 | Workstream 4 pilot: Blossom and NURBS | — |
 | [05: persisted scene validation and projection](05-persisted-scene-validation.md) | accepted 2026-11-10 | Workstream 5: complete validation, and the projection pilot on FivePoint and ThreeViews | — |
-| [06: legacy family registration](06-legacy-registration-rollout.md) | planned | 113 legacy entries in 16 catalog families | Families-prep owns current shared-root edits; integrate after each conflicting batch lands. A B-spline first batch shares graph files with 07. |
-| [07: standalone scene ownership](07-owned-scene-rollout.md) | planned | 11 candidate graphs | Prefer disjoint B-spline consumers first; serialize shared host hooks with 08 and lifecycle-test edits with Controls visual. Three candidates are also in 08. |
-| [08: persisted scene projection](08-scene-projection-rollout.md) | planned | 25 inventory rows: 3 projective and 22 legacy | Prefer remaining projective consumers first; serialize host hooks with 07 and collection roots with 06/Families-prep. Three legacy graphs are also in 07. |
+| [06: legacy family registration](06-legacy-registration-rollout.md) | complete 2026-11-13 | 113 legacy entries in 16 catalog families | Families-prep owns current shared-root edits; integrate after each conflicting batch lands. A B-spline first batch shares graph files with 07. |
+| [07: standalone scene ownership](07-owned-scene-rollout.md) | complete 2026-11-13 (8 migrated, plane-geometry trio excluded) | 11 candidate graphs | Prefer disjoint B-spline consumers first; serialize shared host hooks with 08 and lifecycle-test edits with Controls visual. Three candidates are also in 08. |
+| [08: persisted scene projection](08-scene-projection-rollout.md) | complete 2026-11-13 | 25 inventory rows: 3 projective and 22 legacy | Prefer remaining projective consumers first; serialize host hooks with 07 and collection roots with 06/Families-prep. Three legacy graphs are also in 07. |
 
 Scope counts are at the rollout baseline, `origin/master` at `c7552e58`; later additions keep their stream owner.
 

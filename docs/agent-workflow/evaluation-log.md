@@ -2919,3 +2919,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Outcome:** `160db37e`. 12 host tests; 4 failed on the pre-change code and 5 mutations were caught. Two contract rows removed. `grep declaresWholeScene src` is empty.
 - **Positive:** asking for the sweep in the background with a marker, and forbidding a return while it ran, removed the handler wait of batch 5.
 - **Also:** the handler recorded the O-plane resolution (`5e075e10`) while the worker ran: the trio is excluded from task 07.
+
+### 2026-11-13 — authoring-rollout handler 7: queue step 7 close-out (M)
+
+- **Scope:** step 4 of tasks 06–08. Task 06: delete the legacy constructor table, the route fallback and `legacyDemonstrationRows`. Task 08: remove the three projective contract rows. Task 07: account for all 11 candidates. Also `just check` and the architecture and persistence guidance. Estimated M; held.
+- **Workers:** 1 implementation worker (Sonnet `medium`, about 82k, no HANDOFF) for task 06 step 4 across 63 files, and 1 smoke (Haiku `medium`): 149/149 automated after one Windows socket-error retry, plus 14/14 targeted checks. The handler kept the 07/08 accounting, the row removal and the guidance, and reviewed the worker diff in the main chat; no reviewer.
+- **Outcome:** `97d704ea` and the close-out docs commit. The guard failed when `graphFactories.ts` was recreated. `just check` passed: 17482 tests, after the handler fixed one unused-argument lint error the worker's focused checks missed.
+- **Negative:** the worker ran tsc, focused units and the build but not lint, so the first `just check` failed on lint at 157s. Briefs that touch tests should name `just lint`.
+- **Also:** the smoke brief assumed the catalog page lists cards in definition order. The page groups them by family, so that premise was wrong; the unit test owns catalog order.

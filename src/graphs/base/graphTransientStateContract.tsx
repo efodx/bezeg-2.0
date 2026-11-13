@@ -88,9 +88,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     waves: ['mode', 'a1', 'p1', 'a2', 'p2', 'f1', 'f2', 'fs', 'halfWaves', 'extra', 'showPhasors', 'showEnvelope', 'showAlias', 'showJoin', 'showSinc'],
     'complex-power': ['A', 'B', 'n'],
     'complex-euler': ['degrees', 'omega', 'degree', 'velocity', 'acceleration', 'mode', 'b'],
-    'projective-cross-ratio': ['model'],
-    'projective-pascal': ['model'],
-    'projective-pole-polar': ['model'],
+    // Graphs with a scene projection declaration (the projective and point-set graphs) have no row: the projected branch
+    // below checks their file, and their persistence host tests assert the stored format independently.
 };
 
 

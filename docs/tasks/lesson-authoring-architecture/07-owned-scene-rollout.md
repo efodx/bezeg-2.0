@@ -1,6 +1,6 @@
 # 07. Roll out ownership of standalone scenes
 
-Status: planned, 2026-11-11. Source: [rollout scope and O1–O3](../../specs/lesson-authoring-rollout.md#owned-scenes); extends completed [task 04](04-owned-standalone-scenes.md).
+Status: complete, 2026-11-13. Eight candidates migrated ([inventory](../../reviews/feature-streams/authoring-rollout/07-inventory.md), batches [1](../../reviews/feature-streams/authoring-rollout/07-batch1-evidence.md), [2](../../reviews/feature-streams/authoring-rollout/07-batch2-evidence.md), [3](../../reviews/feature-streams/authoring-rollout/07-batch3-evidence.md)); the plane-geometry trio is excluded for a contract mismatch ([O-plane](../../specs/lesson-authoring-rollout.md#rollout-decisions)); final disposition and lifecycle comparison in the [close-out record](../../reviews/feature-streams/authoring-rollout/closeout.md#task-07-step-4-owned-scene-disposition). Planned 2026-11-11. Source: [rollout scope and O1–O3](../../specs/lesson-authoring-rollout.md#owned-scenes); extends completed [task 04](04-owned-standalone-scenes.md).
 
 ## Scope and entry
 

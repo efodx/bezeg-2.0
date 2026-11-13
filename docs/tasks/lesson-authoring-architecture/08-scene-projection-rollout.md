@@ -1,6 +1,6 @@
 # 08. Roll out persisted scene projection and reconstruction
 
-Status: planned, 2026-11-11. Source: [rollout scope and P1–P3](../../specs/lesson-authoring-rollout.md#projection-and-reconstruction); extends the projection portion of completed [task 05](05-persisted-scene-validation.md). Complete persisted-input validation already shipped.
+Status: complete, 2026-11-13. All 25 rows have a declaration and no remaining `PRESET_DATA_STATE_KEYS` row: the projective trio through `projectivePersistence.ts`, the 22 point-set ids through `pointSetPersistence` ([inventory](../../reviews/feature-streams/authoring-rollout/08-inventory.md), batch evidence linked from the [stream](../feature-streams/authoring-rollout.md), [close-out record](../../reviews/feature-streams/authoring-rollout/closeout.md#task-08-step-4-projection-inventory)). Planned 2026-11-11. Source: [rollout scope and P1–P3](../../specs/lesson-authoring-rollout.md#projection-and-reconstruction); extends the projection portion of completed [task 05](05-persisted-scene-validation.md). Complete persisted-input validation already shipped.
 
 ## Scope and entry
 

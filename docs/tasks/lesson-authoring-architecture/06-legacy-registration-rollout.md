@@ -1,6 +1,6 @@
 # 06. Roll out family-local registration to legacy families
 
-Status: planned, 2026-11-11. Source: [rollout scope and R1–R3](../../specs/lesson-authoring-rollout.md#registration); extends completed [task 03](03-feature-local-registration.md).
+Status: complete, 2026-11-13. All 113 entries are registered family-locally in 16 batches ([inventory](../../reviews/feature-streams/authoring-rollout/06-inventory.md), batch evidence and smoke linked from the [stream](../feature-streams/authoring-rollout.md)). Step 4 deleted `graphFactories.ts`, the `Routes.tsx` legacy fallback and `legacyDemonstrationRows`. The derived test adapter `allGraphFactories.ts` is kept, and a deletion guard was added ([evidence](../../reviews/feature-streams/authoring-rollout/06-step4-evidence.md)). No exclusions. Planned 2026-11-11. Source: [rollout scope and R1–R3](../../specs/lesson-authoring-rollout.md#registration); extends completed [task 03](03-feature-local-registration.md).
 
 ## Scope and entry
 
