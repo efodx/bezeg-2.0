@@ -1721,6 +1721,13 @@ function phasePendulumExpectedFor(id, step) {
     return phaseLinearFrame([[0, -1], [1, 0]], 0);
 }
 
+/** PP3 opens on the Demonstration default: the linear system -E = (-4 -1; -2 -3), the stable node, with the seed (1, 0): the same two eigen-directions as E, the columns (-4, -2) and (-1, -3). */
+function phaseLinearizationExpectedFor(id, step) {
+    const actions = phaseActions(id, step, []);
+    assert.deepEqual(Object.keys(actions), [], `${id}: the opening is the Demonstration default (N = -E, seed (1, 0)) with no phase action`);
+    return phaseLinearFrame([[-4, -2], [-1, -3]], 2);
+}
+
 // Authored from src/graphs/dynamics/LogisticMapGraph.tsx (buildScene), not from a capture. Curves: the two panel frames, the diagram, the three marks, the cursor, the map, the diagonal and
 // the cobweb. Points: the fixed point 1 - 1/r on the diagonal, the two 2-cycle markers only for r above 3, the iterate marker only after a step, and the start handle on the diagonal.
 const logisticIterate = (start, r, steps) => { let x = start; for (let i = 0; i < steps; i++) x = r * x * (1 - x); return x; };
@@ -1743,9 +1750,9 @@ function phaseBifurcationExpectedFor(id, step) {
     return {types: {curve: 7, point: 2}, curveCount: 7, points: [[0.2, 0.2], [fixed, fixed]]};
 }
 
-/** First-frame expectation of a phase-portraits lesson (the four sections of the chapter, keyed by the section in the example id). */
+/** First-frame expectation of a phase-portraits lesson (the five sections of the chapter, keyed by the section in the example id). */
 function phasePortraitsExpectedFor(id, step) {
-    const bySection = {'linear-system': phaseLinearSystemExpectedFor, pendulum: phasePendulumExpectedFor, 'logistic-map': phaseLogisticMapExpectedFor, bifurcation: phaseBifurcationExpectedFor};
+    const bySection = {'linear-system': phaseLinearSystemExpectedFor, pendulum: phasePendulumExpectedFor, linearization: phaseLinearizationExpectedFor, 'logistic-map': phaseLogisticMapExpectedFor, bifurcation: phaseBifurcationExpectedFor};
     const section = id.split('.')[1];
     const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
     assert.ok(author, `${id}: no authored phase-portraits first frame`);

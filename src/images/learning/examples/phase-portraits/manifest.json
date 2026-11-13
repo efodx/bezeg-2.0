@@ -1,70 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+  "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
-    "dirty": true,
-    "inputs": "2559a62685c3628ee2e0b8f71f22a1bb872a9d24b587200ee9e4e81cb4289f52",
-    "output": "b140d35164e7ea6f8a268cf27179bf09a40ec1aa5fe6fbca4a7c28c6ea9d9862"
+    "revision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+    "dirty": false,
+    "inputs": "b986168e694d853108393f56960ce2b09fffc20dd97ee24632dd107d7bcc5a04",
+    "output": "57f4768484f0adf99b836bb48367b5fcb8182d870b2a27df9bebbc43f085ffa3"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4471/bezeg-2.0/",
-    "stampRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
-    "stampDirty": true,
-    "localOutputHash": "b140d35164e7ea6f8a268cf27179bf09a40ec1aa5fe6fbca4a7c28c6ea9d9862",
+    "shellUrl": "http://127.0.0.1:4483/bezeg-2.0/",
+    "stampRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+    "stampDirty": false,
+    "localOutputHash": "57f4768484f0adf99b836bb48367b5fcb8182d870b2a27df9bebbc43f085ffa3",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Cc4qLzld.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-Cc4qLzld.js",
-        "sha256": "93a595ce00013d763f1304845eed95b76d5e767e7c7cba5403750609ffe392b1",
+        "name": "index-37KIdl_u.js",
+        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/index-37KIdl_u.js",
+        "sha256": "601bedcaeb944fd41baffd0df84825b93ee8e925b32097cfb6713fd11041996d",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-wchQfhiq.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/jsx-runtime-wchQfhiq.js",
+        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/jsx-runtime-wchQfhiq.js",
         "sha256": "e904df307ac2a4fdff8eb260b201a2089360d65c30eca9f5816fbad06d3b0bb8",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-DXt5eJ5W.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/react-dom-DXt5eJ5W.js",
+        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/react-dom-DXt5eJ5W.js",
         "sha256": "58a117e69b9876874d557aaf15de64462924e8f0309bf9a7e3ffc5b31d632825",
         "matchesLocalBuild": true
       },
       {
         "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4483/bezeg-2.0/assets/index-DPDGB1vx.css",
         "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4471/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4483/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "fdd0111eb4c1c5fcc8cef12b2d5d482239c7efad146f4f1ad60d78df38f77185",
+    "inventory": "bbc73755728e2746937e776c15dd6c347a0c09cef9e29897c7babe12496ba291",
     "entries": {
       "phase-portraits.linear-system.phase-portrait": "7e7ba0794aff108c6c03009760b84c866256cbbd97dec086c1cb1adfad07d74f",
       "phase-portraits.pendulum.phase-portrait": "b963ba47e86aff1b004288b6481a8eab6cf4725f1f1d542e1c295ce4b1456d6b",
+      "phase-portraits.linearization.phase-portrait": "520a24cc053eb4eb12c6d8baee952d2fa5431ba2cd9ca49d425aab330a3a6014",
       "phase-portraits.logistic-map.logistic-map": "02c46bb0e5fac05f936955fbed5e4844d327d6ac0198206b88e2cd1cf7925f30",
       "phase-portraits.bifurcation.logistic-map": "065e213b4c6df97b8bf14bae613571df899f64a8f0eb20b4a7d3b6d6b1fe5d07"
     },
-    "presentation": "e19328b457cf9d914b21ed774eb77118813cea5b1f24a56033bc349a907f3103",
-    "buildOutput": "b140d35164e7ea6f8a268cf27179bf09a40ec1aa5fe6fbca4a7c28c6ea9d9862",
-    "buildInputs": "2559a62685c3628ee2e0b8f71f22a1bb872a9d24b587200ee9e4e81cb4289f52"
+    "presentation": "2ae5cdff81393e986e763d8fa9aa6df0a90f9a94944a2380666a41b31d86105c",
+    "buildOutput": "57f4768484f0adf99b836bb48367b5fcb8182d870b2a27df9bebbc43f085ffa3",
+    "buildInputs": "b986168e694d853108393f56960ce2b09fffc20dd97ee24632dd107d7bcc5a04"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -98,6 +99,19 @@
       },
       {
         "id": "phase-portraits.pendulum.phase-portrait",
+        "demonstrationId": "phase-portrait",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5.8,
+            4.4,
+            5.8,
+            -4.4
+          ]
+        }
+      },
+      {
+        "id": "phase-portraits.linearization.phase-portrait",
         "demonstrationId": "phase-portrait",
         "framing": {
           "kind": "coordinate-window",
@@ -324,8 +338,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
-        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
         "pageErrors": []
       }
     },
@@ -512,8 +526,196 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
-        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "phase-portraits.linearization.phase-portrait",
+      "demonstrationId": "phase-portrait",
+      "path": "/bezeg-2.0/analysis/phase-portrait?example=lesson.phase-portraits.linearization.phase-portrait",
+      "sceneFingerprint": "d173ee0d714e77cfd001af55af3daa017919165b523b252183f773e9701fd82a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp3-jacobian-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp3-jacobian-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "phase-portraits.linearization.phase-portrait.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "4ce43f4e8280567eec8469b81f53353ea369ac6577d6d7780f8fdfdc19f8e9a6",
+      "scene": {
+        "visibleElementCount": 34,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 3,
+          "line": 2,
+          "point": 5,
+          "text": 8,
+          "segment": 2
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -4
+            ],
+            [
+              0,
+              -4
+            ],
+            [
+              4,
+              -4
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.961744,
+              -0.018651
+            ],
+            [
+              0.923488,
+              -0.037301
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1.041859,
+              0.021453
+            ],
+            [
+              1.083717,
+              0.042907
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:-4,-2",
+          "point:-1,-3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 39,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 14,
+            "curve": 3,
+            "line": 2,
+            "point": 5,
+            "text": 9,
+            "segment": 2
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -4
+              ],
+              [
+                0,
+                -4
+              ],
+              [
+                4,
+                -4
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.961744,
+                -0.018651
+              ],
+              [
+                0.923488,
+                -0.037301
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1.041859,
+                0.021453
+              ],
+              [
+                1.083717,
+                0.042907
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:-4,-2",
+            "point:-1,-3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 8,
+        "finalLabelCount": 8,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 3,
+          "line": 2,
+          "point": 5,
+          "text": 8,
+          "segment": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
         "pageErrors": []
       }
     },
@@ -802,8 +1004,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
-        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
         "pageErrors": []
       }
     },
@@ -1089,8 +1291,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
-        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "buildRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
+        "sourceRevision": "5c5828d309d8147f81c2b045153be5ccddf1fa9b",
         "pageErrors": []
       }
     }

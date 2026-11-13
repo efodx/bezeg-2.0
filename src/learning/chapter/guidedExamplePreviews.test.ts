@@ -273,10 +273,9 @@ const functionsCards: readonly FunctionsCard[] = [
             'b-splines.bspline-extraction.bspline-extraction', 'b-splines.bspline-insertion.bspline-insertion', 'b-splines.bspline-nurbs.bspline-nurbs'],
         counts: [[3, 8], [1, 7], [1, 7], [5, 4], [3, 4], [2, 10]]},
     {chapterId: 'phase-portraits', copy: phasePortraitsPreviewCopy,
-        ids: ['phase-portraits.bifurcation.logistic-map', 'phase-portraits.linear-system.phase-portrait',
+        ids: ['phase-portraits.bifurcation.logistic-map', 'phase-portraits.linear-system.phase-portrait', 'phase-portraits.linearization.phase-portrait',
             'phase-portraits.logistic-map.logistic-map', 'phase-portraits.pendulum.phase-portrait'],
-        counts: [[7, 2], [3, 5], [7, 3], [3, 5]],
-        pending: ['phase-portraits.linearization.phase-portrait']}, // Its card arrives with the PP3 card slice (F5).
+        counts: [[7, 2], [3, 5], [3, 5], [7, 3], [3, 5]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

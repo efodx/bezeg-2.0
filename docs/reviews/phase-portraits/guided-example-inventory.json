@@ -89,6 +89,47 @@
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
+      "id": "phase-portraits.linearization.phase-portrait",
+      "demonstrationId": "phase-portrait",
+      "path": "/bezeg-2.0/analysis/phase-portrait?example=lesson.phase-portraits.linearization.phase-portrait",
+      "sceneFingerprint": "d173ee0d714e77cfd001af55af3daa017919165b523b252183f773e9701fd82a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp3-jacobian-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp3-jacobian-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "line": 2,
+          "point": 5,
+          "segment": 2
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -4,
+            -2
+          ],
+          [
+            -1,
+            -3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
       "id": "phase-portraits.logistic-map.logistic-map",
       "demonstrationId": "logistic-map",
       "path": "/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.logistic-map.logistic-map",

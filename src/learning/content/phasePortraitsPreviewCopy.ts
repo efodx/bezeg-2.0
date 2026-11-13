@@ -6,8 +6,8 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 });
 
 /**
- * Describes the prepared opening scene of each Phase portraits lesson, keyed by example id. The two phase-plane cards show the first frame of
- * PP1 and PP2 (matrix and seed set by the scene); the two logistic-map cards show PP4 (r = 2.9, start 0.2, step 20) and PP5 (the same r and
+ * Describes the prepared opening scene of each Phase portraits lesson, keyed by example id. The three phase-plane cards show the first frame of
+ * PP1, PP2 and PP3 (matrix and seed set by the scene); the two logistic-map cards show PP4 (r = 2.9, start 0.2, step 20) and PP5 (the same r and
  * start at step 0, so the cobweb is still empty). The copy names the frame only and does not answer the lesson's first prediction.
  * The board texts (legend rows, captions) are pixel-sized and overlap in the 840x520 frame; the card alt text does not rely on them.
  * Every scene is deterministic: no source draws random numbers.
@@ -18,6 +18,12 @@ export const phasePortraitsPreviewCopy = {
         'A phase plane with coordinate axes on a cream background. A thick green curve leaves an orange dot on the \\(x\\)-axis at \\(1\\) and curves up and to the right toward two blue diamonds at \\((4,2)\\) and \\((1,3)\\), which are the columns of the matrix. Two brown dashed lines pass through the origin, one falling and one rising. Several overlapping board texts are visible.',
         'Linearni sistem z matriko \\(A=\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}\\) in začetno točko \\((1,0)\\).',
         'A linear system with the matrix \\(A=\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}\\) and the starting point \\((1,0)\\).',
+    ),
+    'phase-portraits.linearization.phase-portrait': copy(
+        'Fazna ravnina s koordinatnima osema na krem ozadju. Oranžna pika leži na osi \\(x\\) pri \\(1\\); iz nje se kratka debela zelena krivulja vije proti izhodišču, črtkani zeleni del pa se dviga desno navzgor. Modra rombka stojita pri \\((-4,-2)\\) in \\((-1,-3)\\), s črtkanima daljicama do izhodišča. Čez izhodišče potekata dve rjavi črtkani premici. Na platnu je več prekrivajočih se besedil.',
+        'A phase plane with coordinate axes on a cream background. An orange dot sits on the \\(x\\)-axis at \\(1\\); a short thick green curve winds from it toward the origin, and a dashed green part rises to the upper right. Blue diamonds stand at \\((-4,-2)\\) and \\((-1,-3)\\), with dashed segments to the origin. Two brown dashed lines pass through the origin. Several overlapping board texts are visible.',
+        'Linearni sistem z matriko \\(-E\\) in začetno točko \\((1,0)\\).',
+        'A linear system with the matrix \\(-E\\) and the starting point \\((1,0)\\).',
     ),
     'phase-portraits.pendulum.phase-portrait': copy(
         'Fazna ravnina s koordinatnima osema na krem ozadju. Temnozelena sklenjena krivulja, krožnica s polmerom \\(1\\) okoli izhodišča, poteka skozi oranžno piko pri \\((1,0)\\). Modra rombka stojita pri \\((1,0)\\) in \\((0,-1)\\). Na platnu je več prekrivajočih se besedil.',
