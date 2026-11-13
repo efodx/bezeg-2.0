@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link, NavLink, useLocation} from 'react-router-dom';
 import {readDemonstrationReturnContext} from './demonstrationNavigation';
-import Logo from './images/elderflower.png';
+import Logo from './images/elderflower.svg';
 import {LanguageSelector} from './localization/LanguageSelector';
 import {useT} from './localization';
 import './AppHeader.css';
