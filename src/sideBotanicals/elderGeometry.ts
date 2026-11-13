@@ -30,11 +30,16 @@ export const ELDER_SETTINGS: ElderSettings = {
 export const HEAD_AMP_FACTOR = 2;
 
 export interface ElderPath {fill: string; d: string}
-/** A flower head (twig, rays, florets) that bobs around its twig base on top of the branch sway. */
-export interface ElderHead {baseX: number; baseY: number; duration: number; delay: number; paths: ElderPath[]; subsets: ElderSubset[]}
+/**
+ * A stem or leaf of a branch. `at` is the growth order: the position along the limb (0 at the screen edge, 1 at the
+ * tip) where the part is attached, and `baseX`/`baseY` is that attachment point. The stem has `at` 0 and the hinge.
+ */
+export interface ElderLimbPath extends ElderPath {at: number; baseX: number; baseY: number}
+/** A flower head (twig, rays, florets) that bobs around its twig base on top of the branch sway. `at` as in ElderLimbPath. */
+export interface ElderHead {at: number; baseX: number; baseY: number; duration: number; delay: number; paths: ElderPath[]; subsets: ElderSubset[]}
 /** Every 4th floret of a head (shade, petals, eyes merged) jiggling on its own, so single florets visibly move. */
 export interface ElderSubset {dx: number; dy: number; turn: number; duration: number; delay: number; paths: ElderPath[]}
-export interface ElderBranch {hingeY: number; duration: number; delay: number; paths: ElderPath[]; heads: ElderHead[]}
+export interface ElderBranch {hingeY: number; duration: number; delay: number; paths: ElderLimbPath[]; heads: ElderHead[]}
 export type ElderSide = 'left' | 'right';
 
 type V = [number, number];
@@ -45,6 +50,7 @@ type Kind = keyof typeof C;
 const ORDER: Kind[] = ['stem', 'leafBack', 'leafFront', 'ray', 'floretShade', 'floret', 'eye'];
 
 const r = (v: number): number => Math.round(v * 10) / 10;
+const clamp01 = (v: number): number => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
 const add = (a: V, b: V): V => [a[0] + b[0], a[1] + b[1]];
 const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1]];
 const mul = (a: V, s: number): V => [a[0] * s, a[1] * s];
@@ -144,16 +150,16 @@ function head(rnd: Rng, node: V, axis: V, width: number, s: number) {
 function branch(entryY: number, reach: number, pr: ElderSettings, bseed: number, idx: number): ElderBranch {
     const rnd = createRng(bseed);
     const jit = (s: number) => (rnd() - .5) * 2 * s;
-    const S = pr.size, els: [Kind, string][] = [];
+    const S = pr.size, els: {kind: Kind; d: string; at: number; base: V}[] = [];
     const rise = reach * (.25 + rnd() * .3) * (rnd() < .25 ? -.4 : 1);
     const limb: V[] = [[-10, entryY], [reach * .35, entryY + jit(reach * .08)], [reach * .65, entryY - rise * .7], [reach, entryY - rise]];
     const b = bez(limb), w = 9 * S * pr.thick;
-    els.push(['stem', taper(limb, w, 2.2 * pr.thick)]);
+    els.push({kind: 'stem', d: taper(limb, w, 2.2 * pr.thick), at: 0, base: [0, entryY]});
     for (let i = 0; i < pr.leaves; i++) {
         const at = (i + .5) / pr.leaves * .9 + jit(.03), p = b.at(at), tg = b.tan(at), nn = perp(tg);
         const len = 160 * S * pr.leafSize * (1 - at * .35);
-        els.push(['leafBack', pinnate(p, norm(add(mul(tg, .5), mul(nn, -1))), len * .9, at > .7 ? 2 : 3, -.08)]);
-        els.push(['leafFront', pinnate(p, norm(add(mul(tg, .5), mul(nn, 1))), len, at > .7 ? 2 : 3, .14)]);
+        els.push({kind: 'leafBack', d: pinnate(p, norm(add(mul(tg, .5), mul(nn, -1))), len * .9, at > .7 ? 2 : 3, -.08), at, base: p});
+        els.push({kind: 'leafFront', d: pinnate(p, norm(add(mul(tg, .5), mul(nn, 1))), len, at > .7 ? 2 : 3, .14), at, base: p});
     }
     const heads: ElderHead[] = [];
     for (let i = 0; i < pr.heads; i++) {
@@ -179,19 +185,19 @@ function branch(entryY: number, reach: number, pr: ElderSettings, bseed: number,
             };
         });
         heads.push({
-            baseX: r(p[0]), baseY: r(p[1]),
+            at: clamp01(at), baseX: r(p[0]), baseY: r(p[1]),
             duration: r(pr.speed * (.35 + ((key * 29) % 10) / 50)),
             delay: -((key * 41) % 60) / 10,
             paths: [{fill: C.stem, d: twig}, ...hd.rays.map((d) => ({fill: C.ray, d}))],
             subsets,
         });
     }
-    els.sort((a, c) => ORDER.indexOf(a[0]) - ORDER.indexOf(c[0]));
+    els.sort((a, c) => ORDER.indexOf(a.kind) - ORDER.indexOf(c.kind));
     return {
         hingeY: r(entryY),
         duration: r(pr.speed * (.85 + ((idx * 37) % 10) / 25)),
         delay: -((idx * 53) % 70) / 10,
-        paths: els.map(([k, d]) => ({fill: C[k], d})),
+        paths: els.map(({kind, d, at, base}) => ({fill: C[kind], d, at: clamp01(at), baseX: r(base[0]), baseY: r(base[1])})),
         heads,
     };
 }

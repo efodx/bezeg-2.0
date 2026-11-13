@@ -53,3 +53,24 @@ test('floret subset motion is deterministic, finite, small, and differs between 
     expect(new Set(m.slice(0, 4).map((row) => row[3])).size).toBe(4);
     expect(new Set(m.map((row) => `${row[0]}/${row[1]}/${row[4]}`)).size).toBeGreaterThan(5);
 });
+
+test('stems, leaves and heads carry their growth order along the limb', () => {
+    for (const b of buildSide(ELDER_SETTINGS, 'left', W, H)) {
+        expect(b.paths[0]).toMatchObject({at: 0, baseX: 0, baseY: b.hingeY});
+        const leaves = b.paths.slice(1);
+        expect(leaves).toHaveLength(ELDER_SETTINGS.leaves * 2);
+        for (const leaf of leaves) {
+            expect(leaf.at).toBeGreaterThan(0);
+            expect(leaf.at).toBeLessThan(1);
+            expect(Number.isFinite(leaf.baseX) && Number.isFinite(leaf.baseY)).toBe(true);
+        }
+        // Back and front leaflets of one leaf share the attachment point, so they appear together.
+        expect(new Set(leaves.map((leaf) => `${leaf.at}/${leaf.baseX}/${leaf.baseY}`)).size).toBe(ELDER_SETTINGS.leaves);
+        const order = b.heads.map((h) => h.at);
+        expect(order[order.length - 1]).toBe(1); // the last head sits on the tip
+        expect(order.every((at) => at > 0 && at <= 1)).toBe(true);
+        // Further along the limb means further from the hinge.
+        const byOrder = [...b.heads].sort((a, c) => a.at - c.at);
+        expect(byOrder.map((h) => h.baseX)).toEqual([...byOrder.map((h) => h.baseX)].sort((a, c) => a - c));
+    }
+});

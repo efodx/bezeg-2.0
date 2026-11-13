@@ -68,3 +68,23 @@ test.each(['/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/demonstrations/anything
     renderAt(path);
     expect(svgs()).toHaveLength(0);
 });
+
+test('leaves and heads carry a growth threshold below 1 and the stem does not', () => {
+    setViewport(3440, true);
+    renderAt('/bezeg-2.0/learn');
+    const branch = svgs()[0].querySelector('g.side-botanicals-branch')!;
+    expect(branch.querySelector(':scope > path')).not.toHaveClass('side-botanicals-grow');
+    const growing = [...svgs()[0].querySelectorAll<SVGElement>('.side-botanicals-grow')];
+    expect(growing.length).toBe(3 * (ELDER_SETTINGS.leaves * 2 + 4));
+    for (const part of growing) {
+        const at = Number(part.style.getPropertyValue('--at'));
+        expect(at).toBeGreaterThan(0);
+        expect(at).toBeLessThanOrEqual(.85); // leaves room for the fade-in before growth reaches 1
+    }
+});
+
+test('reduced motion writes full growth on the decoration root before paint', () => {
+    setViewport(3440, true); // the matchMedia stub also reports reduced motion
+    renderAt('/bezeg-2.0/learn');
+    expect(document.querySelector<HTMLElement>('.side-botanicals-root')!.style.getPropertyValue('--growth')).toBe('1');
+});

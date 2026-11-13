@@ -1,9 +1,17 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {buildSide, ELDER_SETTINGS, HEAD_AMP_FACTOR, ElderSide, ElderSettings} from './elderGeometry';
+import {startGrowth} from './growth';
 import './SideBotanicals.css';
 
 const MIN_WIDTH = 1600;
 const BOX_H = 1440;
+
+/**
+ * Growth at which a part attached at the limb tip starts to appear. The stylesheet fades each part in over the
+ * next 0.125 of growth, so everything is complete just before growth reaches 1.
+ */
+const GROW_SPAN = .85;
+const growAt = (at: number): string => `${Math.round(at * GROW_SPAN * 1000) / 1000}`;
 
 /** Owner (2026-11-13): the density seen at a 2048px-wide window looks best on every size: three branches per side with four heads each. */
 const BRANCHES = 3;
@@ -61,17 +69,28 @@ export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {sett
         const fitted = fitToGutter(settings, boxW);
         return (['left', 'right'] as ElderSide[]).map((side) => ({side, branches: buildSide(fitted, side, boxW, BOX_H), boxW}));
     }, [gutter, height, settings]);
+    const root = useRef<HTMLDivElement>(null);
+    const shown = sides !== null;
+    // Before the first paint, so reduced motion and a growth already reached in this visit never flash a smaller state.
+    useLayoutEffect(() => {
+        const element = root.current;
+        if (!shown || !element) return;
+        return startGrowth((growth) => element.style.setProperty('--growth', `${Math.round(growth * 1000) / 1000}`));
+    }, [shown]);
     if (!sides) return null;
     const mask = `linear-gradient(to right,#000 40%,rgb(0 0 0 / ${1 - settings.fade}) 100%)`;
-    return <>
+    return <div ref={root} className="side-botanicals-root">
         {sides.map(({side, branches, boxW}) => <svg key={side} className={`side-botanicals side-botanicals-${side}`}
             viewBox={`0 0 ${Math.round(boxW * 10) / 10} ${BOX_H}`} aria-hidden="true" focusable="false"
-            style={{width: `${gutter}px`, opacity: settings.opacity, WebkitMaskImage: mask, maskImage: mask, '--amp': `${settings.amp}deg`, '--head-amp': `${Math.round(settings.amp * HEAD_AMP_FACTOR * 10) / 10}deg`} as React.CSSProperties}>
+            style={{width: `${gutter}px`, '--opacity': settings.opacity, WebkitMaskImage: mask, maskImage: mask, '--amp': `${settings.amp}deg`, '--head-amp': `${Math.round(settings.amp * HEAD_AMP_FACTOR * 10) / 10}deg`} as React.CSSProperties}>
             {branches.map((b, i) => <g key={i} className="side-botanicals-branch"
                 style={{transformOrigin: `0px ${b.hingeY}px`, '--dur': `${b.duration}s`, '--delay': `${b.delay}s`} as React.CSSProperties}>
-                {b.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
-                {b.heads.map((h, k) => <g key={k} className="side-botanicals-head"
-                    style={{transformOrigin: `${h.baseX}px ${h.baseY}px`, '--dur': `${h.duration}s`, '--delay': `${h.delay}s`} as React.CSSProperties}>
+                {b.paths.map((p, j) => p.at > 0
+                    ? <path key={j} className="side-botanicals-grow" fill={p.fill} d={p.d}
+                        style={{transformOrigin: `${p.baseX}px ${p.baseY}px`, '--at': growAt(p.at)} as React.CSSProperties}/>
+                    : <path key={j} fill={p.fill} d={p.d}/>)}
+                {b.heads.map((h, k) => <g key={k} className="side-botanicals-head side-botanicals-grow"
+                    style={{'--at': growAt(h.at), transformOrigin: `${h.baseX}px ${h.baseY}px`, '--dur': `${h.duration}s`, '--delay': `${h.delay}s`} as React.CSSProperties}>
                     {h.paths.map((p, j) => <path key={j} fill={p.fill} d={p.d}/>)}
                     {h.subsets.map((s, n) => <g key={n} className="side-botanicals-florets"
                         style={{'--dx': `${s.dx}px`, '--dy': `${s.dy}px`, '--turn': `${s.turn}deg`, '--dur': `${s.duration}s`, '--delay': `${s.delay}s`} as React.CSSProperties}>
@@ -80,7 +99,7 @@ export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {sett
                 </g>)}
             </g>)}
         </svg>)}
-    </>;
+    </div>;
 }
 
 const TARGET_PATHS = ['/bezeg-2.0', '/bezeg-2.0/demonstrations', '/bezeg-2.0/learn'];

@@ -1,5 +1,8 @@
 /* Decorative elder branches in the gutters beside the content column (docs/specs/side-botanicals.md). */
+/* growth.ts writes --growth (0 to 1) here; without it the branches are fully grown. */
+.side-botanicals-root { display: contents; }
 .side-botanicals {
+    opacity: calc(var(--opacity, 1) * (.35 + .65 * var(--growth, 1))); /* Faint at first, the settings value when grown. */
     position: fixed;
     top: 0;
     z-index: 1; /* Above the opaque page canvas, below the sticky header (z-index 10); only gutters are covered. */
@@ -11,8 +14,16 @@
 .side-botanicals-right { right: 0; transform: scaleX(-1); }
 .side-botanicals-branch {
     transform-box: view-box;
+    scale: calc(.45 + .55 * var(--growth, 1)); /* The limb grows inward from its hinge on the screen edge. */
     animation: side-botanicals-sway var(--dur, 10s) ease-in-out infinite alternate;
     animation-delay: var(--delay, 0s);
+}
+/* Leaves and heads appear in order along the limb: each fades and scales in from its base once growth passes --at. */
+.side-botanicals-grow {
+    --grown: clamp(0, calc((var(--growth, 1) - var(--at, 0)) * 8), 1);
+    transform-box: view-box;
+    opacity: var(--grown);
+    scale: calc(.3 + .7 * var(--grown));
 }
 @keyframes side-botanicals-sway {
     from { transform: rotate(calc(var(--amp, .8deg) * -1)); }
@@ -39,5 +50,6 @@
     to { transform: translate(var(--dx, 2px), var(--dy, 2px)) rotate(var(--turn, 1deg)); }
 }
 @media (prefers-reduced-motion: reduce) {
+    .side-botanicals-root { --growth: 1 !important; } /* Fully grown from the first frame. */
     .side-botanicals-branch, .side-botanicals-head, .side-botanicals-florets { animation: none; }
 }
