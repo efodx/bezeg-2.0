@@ -7,6 +7,7 @@ import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
+import AngleSlider from "../../inputs/AngleSlider";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {LessonAction} from "../../learning/model";
@@ -32,6 +33,9 @@ import {
     bezierPoint, closedPolyline, Collapse, collapseOf, FIXTURE_CONTROL_POINTS, gridPolyline, imageControlPoints, isLinearMapGraphMode, LINEAR_MAP_GRAPH_MODES, LinearMapGraphMode, openPolyline, PROBE_POINT, Polyline,
     shoelace, sourceGridPolyline,
 } from "./linearMapScene";
+import {EIGEN_PARALLEL_TOLERANCE} from "../../linear/eigen2";
+import {angleOfPoint, deriveEigen, eigenLabelPlacements, eigenViewBox, EigenView, eigenSnapAngle, normalizeTestAngle, unitVector} from "./eigenScene";
+import {createEigenCurves, createEigenPoints, EIGEN_COLORS, EigenBoardContext} from "./eigenBoard";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
 import type {Preset} from "../base/presets/Presets";
 
@@ -65,7 +69,8 @@ type Column = 0 | 1;
 type Row = 0 | 1;
 type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse-point"
     | "zero-start" | "zero-iterate" | "start-to-zero" | "collapses" | "dominant" | "other-eigenvector" | "equal-moduli" | "rotating" | "scalar" | "defective" | "settled"
-    | "td-inside" | "td-edge" | "td-outside" | "flow-stable" | "flow-unstable" | "companion" | "td-range";
+    | "td-inside" | "td-edge" | "td-outside" | "flow-stable" | "flow-unstable" | "companion" | "td-range"
+    | "eigen-approx-parallel" | "eigen-exact-parallel" | "eigen-not-parallel" | "eigen-two" | "eigen-one" | "eigen-all" | "eigen-none" | "eigen-kernel" | "eigen-v-kernel";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -90,7 +95,7 @@ interface EntryNotice {
     kind: "clamped" | "snapped";
 }
 
-const EXAMPLE_IDS_OFFERED = ["identity", "basis-default", "orientation-reversing", "singular"] as const;
+const EXAMPLE_IDS_OFFERED = ["identity", "basis-default", "orientation-reversing", "singular", "eigen-default", "quarter-turn", "shear", "scalar-2"] as const;
 const SOURCE_GRID = sourceGridPolyline();
 let nextInstance = 0;
 
@@ -116,14 +121,17 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     protected handle2?: JXG.Point;
     protected startHandle?: JXG.Point;
     protected traceDetHandle?: JXG.Point;
+    protected eigenTip?: JXG.Point;
     private notice?: EntryNotice;
     private readonly uid = nextInstance++;
     /** The matrix a drag of the (tau, delta) handle produced; while it is the stored matrix, the companion status is stated. */
     private companionMatrix?: Mat2;
     private iterationMemo?: { model: LinearMapState; view: IterationView };
     private traceDetMemo?: { matrix: Mat2; view: TraceDetView };
+    private eigenMemo?: { model: LinearMapState; view: EigenView };
     /** The view the board currently shows, so only a change between the planes resets the box. */
-    private boardPlane: "plane" | "trace-det" = "plane";
+    /** The view the board shows: its own box per plane, and for the eigen mode one per matrix (refitted when the matrix changes, never during a drag). */
+    private boardViewKey = "plane";
     private controller?: IterationController;
     private ticking = false;
 
@@ -136,6 +144,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     }
 
     protected defaultBoundingBox(): BoundingBox {
+        if (this.model.mode === "eigen") {
+            const {width, height} = this.board ? JXG.getDimensions(this.board.container, document) : {width: 0, height: 0};
+            return eigenViewBox(this.model.matrix, parseFloat(String(width)), parseFloat(String(height)));
+        }
         return [...(this.model.mode === "tracedet" ? TRACE_DET_VIEW : BOARD_VIEW)];
     }
 
@@ -190,9 +202,20 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         return this.iterationMemo.view;
     }
 
+    private eigenPlacements(): { v: LabelPlacement; av: LabelPlacement } {
+        const eigen = this.eigenOf(this.model);
+        const m = this.model.matrix;
+        return eigenLabelPlacements(eigen.v, eigen.av, [m[0][0], m[1][0]], [m[0][1], m[1][1]]);
+    }
+
     private traceDetOf(model: LinearMapState): TraceDetView {
         if (this.traceDetMemo?.matrix !== model.matrix) this.traceDetMemo = {matrix: model.matrix, view: deriveTraceDet(model.matrix)};
         return this.traceDetMemo.view;
+    }
+
+    private eigenOf(model: LinearMapState): EigenView {
+        if (this.eigenMemo?.model !== model) this.eigenMemo = {model, view: deriveEigen(model.matrix, model.testAngle)};
+        return this.eigenMemo.view;
     }
 
     // ---- Model operations (read and write the synchronous model) ---------------------------------------
@@ -226,6 +249,32 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const next: Vec2 = axis === 0 ? [snapped.value.value, current[1]] : [current[0], snapped.value.value];
         this.notice = undefined;
         this.commitModel({...this.model, start: next});
+        return true;
+    }
+
+    /** The test angle from the slider: wrapped into [0, 360) on the 0,01° grid and stored through the same path as a drag and a snap. */
+    protected setTestAngle(degrees: number): void {
+        if (!Number.isFinite(degrees)) throw new DomainError("The angle must be finite.");
+        const angle = normalizeTestAngle(degrees);
+        this.notice = undefined;
+        if (angle !== this.model.testAngle) this.commitModel({...this.model, testAngle: angle});
+    }
+
+    /** A drag of the tip of v: the pointer is projected onto the unit circle (its angle is kept), and nothing else moves. */
+    protected dragEigenTip(x: number, y: number): Vec2 | undefined {
+        const angle = angleOfPoint(x, y);
+        if (angle === undefined) return unitVector(this.model.testAngle);
+        this.notice = undefined;
+        if (angle !== this.model.testAngle) this.commitModel({...this.model, testAngle: angle}, {syncScene: false});
+        return unitVector(angle);
+    }
+
+    /** Snaps v to the nearer real eigen-direction (v stays a unit vector); a no-op when there is none. Returns whether v moved. */
+    protected snapToEigen(): boolean {
+        const angle = eigenSnapAngle(this.model.matrix, this.model.testAngle);
+        if (angle === undefined || angle === this.model.testAngle) return false;
+        this.notice = undefined;
+        this.commitModel({...this.model, testAngle: angle});
         return true;
     }
 
@@ -438,6 +487,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             case "basis-default": return t("linear_map_example_basis_default");
             case "orientation-reversing": return t("linear_map_example_orientation_reversing");
             case "singular": return t("linear_map_example_singular");
+            case "eigen-default": return t("linear_map_example_eigen_default");
+            case "quarter-turn": return t("linear_map_example_quarter_turn");
+            case "shear": return t("linear_map_example_shear");
+            case "scalar-2": return t("linear_map_example_scalar_2");
             case "custom": return t("linear_map_example_custom");
             default: return t("linear_map_example_other");
         }
@@ -447,6 +500,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         switch (mode) {
             case "basis": return t("linear_map_mode_basis");
             case "determinant": return t("linear_map_mode_determinant");
+            case "eigen": return t("linear_map_mode_eigen");
             case "iterate": return t("linear_map_mode_iterate");
             case "tracedet": return t("linear_map_mode_tracedet");
         }
@@ -460,7 +514,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     protected createScene(): void {
-        this.boardPlane = planeOf(this.model.mode as LinearMapGraphMode);
+        this.boardViewKey = this.viewKey();
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
@@ -503,6 +557,16 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             },
         };
         createIterationCurves(iterationContext);
+        const eigenContext: EigenBoardContext = {
+            board, own: object => this.own(object), active: () => model().mode === "eigen",
+            vPlacement: () => this.eigenPlacements().v, avPlacement: () => this.eigenPlacements().av,
+            v: () => this.eigenOf(this.model).v, av: () => this.eigenOf(this.model).av, lines: () => this.eigenOf(this.model).lines,
+            strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
+            handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
+            pointLabel: (placement, distance, shown) => this.pointLabel(placement, distance, shown),
+            dragTip: (x, y) => this.dragEigenTip(x, y),
+        };
+        createEigenCurves(eigenContext);
 
         polyline(() => closedPolyline(unitSquareImage(IDENTITY)), {strokeColor: colors.sourcePoint, strokeWidth: strokeWidth, visible: squareShown});
         polyline(() => closedPolyline(view().square), {
@@ -554,6 +618,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 const current = this.model.matrix;
                 point.moveTo([current[0][column], current[1][column]]);
             });
+            // The eigen mode's view follows the matrix only when the drag ends.
+            point.on("up", () => this.refitView());
             return point;
         };
         this.handle1 = handle(0, "$$a_1=Ae_1$$", "below-right", colors.imageHandle);
@@ -562,6 +628,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const iterationHandles = createIterationPoints(iterationContext);
         this.startHandle = iterationHandles.startHandle;
         this.traceDetHandle = iterationHandles.tdHandle;
+        this.eigenTip = createEigenPoints(eigenContext);
 
         // The basis images and the determinant stay on the board; the narrow board drops the orientation line.
         this.caption("bottom-left", [
@@ -596,12 +663,22 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.startHandle?.moveTo([start[0], start[1]]);
         const td = this.traceDetOf(this.model);
         this.traceDetHandle?.moveTo([td.tau, td.delta]);
-        // The trace-determinant plane has its own view; a change between the two planes shows the new one.
-        const plane = planeOf(this.model.mode as LinearMapGraphMode);
-        if (plane !== this.boardPlane) {
-            this.boardPlane = plane;
-            if (!this.keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
-        }
+        const tip = unitVector(this.model.testAngle);
+        this.eigenTip?.moveTo([tip[0], tip[1]]);
+        this.refitView();
+    }
+
+    private viewKey(): string {
+        const mode = this.model.mode as LinearMapGraphMode;
+        return mode === "eigen" ? `eigen:${JSON.stringify(this.model.matrix)}` : planeOf(mode);
+    }
+
+    /** The trace-determinant plane and the eigen mode have their own views; a change of the plane or, in the eigen mode, of the matrix shows the new one. */
+    private refitView(): void {
+        const key = this.viewKey();
+        if (key === this.boardViewKey) return;
+        this.boardViewKey = key;
+        if (!this.keepImportedView) this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
     }
 
     protected override onSceneRemoved(): void {
@@ -609,6 +686,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.handle2 = undefined;
         this.startHandle = undefined;
         this.traceDetHandle = undefined;
+        this.eigenTip = undefined;
+        this.eigenMemo = undefined;
         this.iterationMemo = undefined;
         this.traceDetMemo = undefined;
     }
@@ -629,6 +708,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         );
         const notice = this.notice;
         const iterating = state.mode === "iterate";
+        const eigenMode = state.mode === "eigen";
+        const eigen = this.eigenOf(state);
+        const snapReason = eigen.classification.kind === "complex" ? t("linear_map_snap_unavailable_complex")
+            : eigen.classification.kind === "repeated" && eigen.classification.repeated === "scalar" ? t("linear_map_snap_unavailable_scalar") : undefined;
         const basisLike = state.mode === "basis" || state.mode === "determinant";
         const startHelpId = `linear-map-start-help-${this.uid}`;
         const stepCounterId = `linear-map-step-counter-${this.uid}`;
@@ -675,6 +758,16 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {basisLike && toggle("curveVisible", t("linear_map_toggle_curve"))}
                 {!basisLike && <p className="inspector-help" data-linear-map-toggles-hidden="">{t("linear_map_toggles_hidden")}</p>}
             </div>
+            {eigenMode && <div className="inspector-group">
+                <p className="inspector-help" data-linear-map-eigen-gloss="">{t("linear_map_note_eigen", {value0: this.num(EIGEN_PARALLEL_TOLERANCE, 2)})}</p>
+                <AngleSlider customText={t("linear_map_test_angle_label")} value={state.testAngle}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setTestAngle(next))}/>
+                <div className={CONTROL_ROW_FILL} role="group" aria-label={t("linear_map_actions_label")}>
+                    <UnavailableButton data-action="linear-map-snap-eigen" reason={snapReason} onPress={() => this.snapToEigen()}>
+                        {t("linear_map_snap_eigen")}
+                    </UnavailableButton>
+                </div>
+            </div>}
             {iterating && <div className="inspector-group">
                 <p className="inspector-help" data-linear-map-iterate-gloss="">{t("linear_map_note_iterate")}</p>
                 <div className="function-points-grid">
@@ -706,6 +799,16 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "point", color: colors.handle, label: t("linear_map_legend_point"), kind: "dot"},
             ]}/>;
         }
+        if (mode === "eigen") {
+            return <FunctionLegend items={[
+                {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
+                {id: "image-grid", color: LINEAR_MAP_COLORS.imageGrid, label: t("linear_map_legend_image_grid"), kind: "line"},
+                {id: "circle", color: EIGEN_COLORS.circle, label: t("linear_map_legend_eigen_circle"), kind: "line"},
+                {id: "v", color: EIGEN_COLORS.vector, label: t("linear_map_legend_eigen_v"), kind: "line"},
+                {id: "av", color: EIGEN_COLORS.image, label: t("linear_map_legend_eigen_av"), kind: "line"},
+                {id: "lines", color: EIGEN_COLORS.line, label: t("linear_map_legend_eigen_lines"), kind: "line"},
+            ]}/>;
+        }
         if (mode === "iterate") {
             return <FunctionLegend items={[
                 {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
@@ -730,6 +833,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const result: { id: StatusKind; text: string }[] = [];
         if (model.mode === "iterate") return this.iterationStatuses(model);
         if (model.mode === "tracedet") return this.traceDetStatuses(model);
+        if (model.mode === "eigen") return this.eigenStatuses(model);
         if (model.mode === "determinant") {
             if (view.sign > 0) result.push({id: "positive", text: t("linear_map_status_positive")});
             else if (view.sign < 0) result.push({id: "negative", text: t("linear_map_status_negative")});
@@ -763,6 +867,35 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             result.push({id: "settled", text: t("linear_map_status_settled", {value0: this.num(SETTLED_ANGLE_DEGREES, 0)})});
         }
         return result;
+    }
+
+    /** The parallel indicator first (approximate exactly when the kernel's tolerance test holds; exact only on the quarter grid), then the case. */
+    private eigenStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+        const eigen = this.eigenOf(model);
+        const tolerance = this.num(EIGEN_PARALLEL_TOLERANCE, 2);
+        const result: { id: StatusKind; text: string }[] = [];
+        if (eigen.approximatelyParallel) result.push({id: "eigen-approx-parallel", text: t("linear_map_status_eigen_approx_parallel", {value0: tolerance})});
+        else result.push({id: "eigen-not-parallel", text: t("linear_map_status_eigen_not_parallel", {value0: tolerance})});
+        // A zero image has no direction: v in the kernel is not "exactly parallel" to Av, it is mapped to 0 (eigenvalue 0).
+        if (eigen.av[0] === 0 && eigen.av[1] === 0) result.push({id: "eigen-v-kernel", text: t("linear_map_status_eigen_v_kernel")});
+        else if (eigen.exactlyParallel) result.push({id: "eigen-exact-parallel", text: t("linear_map_status_eigen_exact_parallel")});
+        const c = eigen.classification;
+        if (c.kind === "distinct-real") result.push({id: "eigen-two", text: t("linear_map_status_eigen_two")});
+        else if (c.kind === "complex") {
+            result.push({id: "eigen-none", text: t("linear_map_status_eigen_none", {value0: this.num(c.real, 4), value1: this.num(c.imaginary, 4)})});
+        } else if (c.repeated === "scalar") result.push({id: "eigen-all", text: t("linear_map_status_eigen_all", {value0: this.num(c.eigenvalue, 4)})});
+        else result.push({id: "eigen-one", text: t("linear_map_status_eigen_one")});
+        if (eigen.delta === 0 && c.kind !== "complex" && !(c.kind === "repeated" && c.repeated === "scalar")) {
+            result.push({id: "eigen-kernel", text: t("linear_map_status_eigen_kernel")});
+        }
+        return result;
+    }
+
+    private eigenvaluesText(eigen: EigenView): string {
+        const c = eigen.classification;
+        if (c.kind === "distinct-real") return t("linear_map_value_eigenvalues_two", {value0: this.num(c.eigenvalues[0], 4), value1: this.num(c.eigenvalues[1], 4)});
+        if (c.kind === "complex") return t("linear_map_value_eigenvalues_complex", {value0: this.num(c.real, 4), value1: this.num(c.imaginary, 4)});
+        return this.num(c.eigenvalue, 4);
     }
 
     private traceDetStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
@@ -810,6 +943,24 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "discriminant", label: t("linear_map_readout_discriminant"), value: this.num(td.discriminant, 4)},
                 {id: "stability", label: t("linear_map_readout_stability"), value: stability},
                 {id: "flow", label: t("linear_map_readout_flow"), value: td.flowStable ? t("linear_map_flow_stable") : t("linear_map_flow_unstable")},
+            ];
+        }
+        if (model.mode === "eigen") {
+            const eigen = this.eigenOf(model);
+            return [
+                ...matrixRows,
+                {id: "tau", label: t("linear_map_readout_tau"), value: this.num(eigen.tau, 4)},
+                {id: "delta", label: t("linear_map_readout_delta"), value: this.num(eigen.delta, 4)},
+                {id: "discriminant", label: t("linear_map_readout_discriminant"), value: this.num(eigen.discriminant, 4)},
+                {id: "eigenvalues", label: t("linear_map_readout_eigenvalues"), value: this.eigenvaluesText(eigen)},
+                {id: "test-angle", label: t("linear_map_readout_eigen_angle"), value: t("linear_map_readout_angle_value", {value0: this.num(model.testAngle, 2)})},
+                {id: "v", label: t("linear_map_readout_eigen_v"), value: this.vector(eigen.v)},
+                {id: "av", label: t("linear_map_readout_eigen_av"), value: this.vector(eigen.av)},
+                {id: "sine", label: t("linear_map_readout_eigen_sine"), value: this.num(eigen.sine, 4)},
+                {
+                    id: "between", label: t("linear_map_readout_eigen_between"),
+                    value: eigen.angleBetween === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(eigen.angleBetween, 2)}),
+                },
             ];
         }
         if (model.mode === "iterate") {
