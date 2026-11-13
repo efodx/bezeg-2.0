@@ -1357,6 +1357,20 @@ const linearMap = {
     },
 };
 
+// Chapter-owned linear maps lesson L5 (src/learning/content/linearMapsChapterLessons.ts, section composition-affine): seven steps, an explanation and an
+// observation frame each, plus a calculation frame for the product FR (step 1) and the Bezier image (step 5): 2 * 7 + 2 = 16 frames.
+const linearMapComposition = {
+    id: 'linear-map-composition',
+    path: `${BASE}/linear-map?example=lesson.linear-maps.composition-affine.linear-map`,
+    titles: {sl: 'Sestavljanje preslikav in afine preslikave', en: 'Composition of maps and affine maps'},
+    steps: 7,
+    minFrames: 16,
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).total).toBeGreaterThan(0);
+        return {};
+    },
+};
+
 // Chapter-owned complex maps lesson M1 (src/learning/content/complexMapsChapterLessons.ts): seven steps, one body/prompt frame each.
 const complexReciprocal = {
     id: 'complex-reciprocal',
@@ -2639,7 +2653,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, unitCircle, triangleSolver, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton, linearProgram, linearSystem, pendulumPhase, linearizationPhase, logisticMap, solids];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, linearMapComposition, complexReciprocal, complexRoots, unitCircle, triangleSolver, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, randomnessGalton, linearProgram, linearSystem, pendulumPhase, linearizationPhase, logisticMap, solids];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

@@ -116,10 +116,10 @@ const determinantExpectations: Record<string, StepExpectation> = {
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter advertises exactly the six activities, owned by one family Demonstration', () => {
+    test('the chapter advertises exactly the seven activities, owned by one family Demonstration', () => {
         expect(linearMapsChapter.id).toBe(LINEAR_MAPS_CHAPTER_ID);
-        expect(linearMapsChapter.sections.map(section => section.id)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'power-method', 'trace-determinant']);
-        expect(Object.keys(linearMapsGuidedExampleRegistry)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'power-method', 'trace-determinant']);
+        expect(linearMapsChapter.sections.map(section => section.id)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'composition-affine', 'power-method', 'trace-determinant']);
+        expect(Object.keys(linearMapsGuidedExampleRegistry)).toEqual(['matrix-and-image', 'determinant-area', 'eigen-directions', 'singular-ellipse', 'composition-affine', 'power-method', 'trace-determinant']);
         for (const section of linearMapsChapter.sections) expect(section.demonstrationIds).toEqual(['linear-map']);
         expect(familyChapters.find(chapter => chapter.id === LINEAR_MAPS_CHAPTER_ID)?.family).toBe('maps');
         expect(learningChapters.some(chapter => chapter.id === LINEAR_MAPS_CHAPTER_ID)).toBe(true);
@@ -142,6 +142,7 @@ describe('chapter structure and registration', () => {
             {chapterId: 'linear-maps', sectionId: 'determinant-area'},
             {chapterId: 'linear-maps', sectionId: 'eigen-directions'},
             {chapterId: 'linear-maps', sectionId: 'singular-ellipse'},
+            {chapterId: 'linear-maps', sectionId: 'composition-affine'},
             {chapterId: 'linear-maps', sectionId: 'power-method'},
             {chapterId: 'linear-maps', sectionId: 'trace-determinant'},
         ]);
@@ -168,7 +169,7 @@ describe('chapter structure and registration', () => {
         expect(byExample?.owner).toEqual({chapterId: 'linear-maps', sectionId: 'determinant-area'});
         expect(guidedLessonLaunchPath('linear-map')).toContain('learnChapter=linear-maps&learnSection=matrix-and-image');
         const links = linearMapsChapter.sections.map(section => getChapterGuidedExamples('linear-maps', section.id));
-        expect(links.map(list => list.length)).toEqual([1, 1, 1, 1, 1, 1]);
+        expect(links.map(list => list.length)).toEqual([1, 1, 1, 1, 1, 1, 1]);
         expect(links[1][0].path).toBe(linearMapsGuidedExamplePath('determinant-area'));
         expect(links[1][0].path).toBe('/bezeg-2.0/linear-map?example=lesson.linear-maps.determinant-area.linear-map');
     });

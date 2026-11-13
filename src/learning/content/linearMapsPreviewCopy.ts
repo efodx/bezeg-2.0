@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the Linear maps chapter, keyed by example id (L1 to L4, L6 and L7 share one Demonstration). */
+/** Describes each prepared opening scene of the Linear maps chapter, keyed by example id (L1 to L7 share one Demonstration). */
 export const linearMapsPreviewCopy = {
     'linear-maps.matrix-and-image.linear-map': copy(
         'Enotska mreža, enotski kvadrat in Bézierjeva krivulja pod identiteto, z ročicama za stolpca matrike.',
@@ -30,6 +30,12 @@ export const linearMapsPreviewCopy = {
         'The unit grid, the unit square and a Bézier curve with their images under the matrix \\(S_y\\) with columns \\((2,1)\\) and \\((1,2)\\), with the column readout.',
         'Slika mreže je paralelogramska mreža, ki jo napenjata stolpca \\((2,1)\\) in \\((1,2)\\); slike enotske krožnice na tej sliki še ni.',
         'The image of the grid is the parallelogram grid spanned by the columns \\((2,1)\\) and \\((1,2)\\); the image of the unit circle is not drawn in this view yet.',
+    ),
+    'linear-maps.composition-affine.linear-map': copy(
+        'Enotska mreža in Bézierjeva krivulja ter njuni sliki pri sestavljeni preslikavi: najprej vrtež \\(R\\) za četrtino kroga, nato zrcaljenje \\(F\\) čez os \\(x\\), z odčitkom produkta in slik kontrolnih točk.',
+        'The unit grid and a Bézier curve with their images under a composed map: first the quarter-turn rotation \\(R\\), then the reflection \\(F\\) in the \\(x\\)-axis, with the product readout and the images of the control points.',
+        'Najprej deluje \\(R\\), nato \\(F\\); odčitek kaže produkt \\(BA\\) in slike \\(T(P_i)\\) kontrolnih točk, obrnjenega vrstnega reda pa v tem prizoru še ni.',
+        'First \\(R\\) acts, then \\(F\\); the readout shows the product \\(BA\\) and the images \\(T(P_i)\\) of the control points, but the reverse order is not in this scene yet.',
     ),
     'linear-maps.power-method.linear-map': copy(
         'Enotska mreža, enotski kvadrat in Bézierjeva krivulja ter njihove slike pri matriki \\(E\\) s stolpcema \\((4,2)\\) in \\((1,3)\\), z odčitkom stolpcev; iteratov še ni.',

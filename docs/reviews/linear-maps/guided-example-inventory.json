@@ -225,6 +225,61 @@
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
+      "id": "linear-maps.composition-affine.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.composition-affine.linear-map",
+      "sceneFingerprint": "a6d5903ab2edc59355ecd1d283b8966a65435578ac676fa0e63d4e10f2b7707f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-comp-order\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"composition\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5,
+          "point": 8
+        },
+        "curveCount": 5,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            5,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            -3,
+            -2
+          ],
+          [
+            -2,
+            -4
+          ],
+          [
+            1,
+            -5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
       "id": "linear-maps.power-method.linear-map",
       "demonstrationId": "linear-map",
       "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.power-method.linear-map",

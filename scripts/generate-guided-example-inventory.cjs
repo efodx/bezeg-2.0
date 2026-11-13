@@ -312,12 +312,28 @@ const chapterInventories = {
 // Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
 const linearMapExampleMatrices = {identity: [[1, 0], [0, 1]], 'basis-default': [[2, -1], [1, 1]], 'eigen-default': [[4, 1], [2, 3]], symmetric: [[2, 1], [1, 2]]};
 
+const linearMapsCompositionFixture = [[1, 0], [2, 3], [4, 2], [5, -1]];
+
+/**
+ * First frame of the composition mode on its defaults (A the quarter turn R, B the reflection F in the x-axis, no translation, no
+ * pivot): five visible curves (the shared source grid, the composition's source and image grid, source and image Bezier curve) and the eight control points P_i and T(P_i).
+ * Authored from the fixture of src/linear/composition2.ts and FR = [[0,-1],[-1,0]], not from a capture.
+ */
+function linearMapsCompositionExpectedFor(id, actions) {
+    const rest = actions.filter(item => !(item.kind === 'prepared-scene' && item.source === 'demonstration-default'));
+    assert.ok(rest.length === 1 && rest[0].kind === 'linear-map' && rest[0].operation === 'set-mode',
+        `${id}: a composition opening scene must be the default composition mode alone`);
+    const image = ([x, y]) => [0 - y, 0 - x];
+    return {types: {curve: 5, point: 8}, curveCount: 5, points: [...linearMapsCompositionFixture, ...linearMapsCompositionFixture.map(image)]};
+}
+
 /**
  * First-frame expectation of a Linear maps lesson: eight curves (source and image grid, source and image square, two
  * control polygons, the fixture Bezier curve and its image) and eight points (e1, e2, O, A(e1+e2), p, Ap, a1, a2).
  */
 function linearMapsExpectedFor(id, step) {
     const actions = step.scene.actions;
+    if (actions.some(item => item.kind === 'linear-map' && item.operation === 'set-mode' && item.mode === 'composition')) return linearMapsCompositionExpectedFor(id, actions);
     const examples = actions.filter(item => item.kind === 'linear-map' && item.operation === 'set-example');
     const matrices = actions.filter(item => item.kind === 'linear-map' && item.operation === 'set-matrix');
     // A scene opens on one named example, or on one explicit matrix (L7 opens on Z), never both.

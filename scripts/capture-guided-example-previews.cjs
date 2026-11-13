@@ -26,15 +26,17 @@ const workedParabolaId = 'splines.worked-join.spline-c1.parabola-derivatives';
 const degenerateVoronoiId = 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate';
 const inversionPowerId = 'triangle-geometry.inversion.inversion';
 const fortuneCardId = 'sweep-algorithms.fortune.fortune';
+const linearCompositionCardId = 'linear-maps.composition-affine.linear-map';
 
 function captureRecipeForEntry(entry, recipe) {
-    if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && entry.id !== inversionPowerId && !entry.id.startsWith('curve-geometry.')) return recipe;
+    if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && entry.id !== inversionPowerId && entry.id !== linearCompositionCardId && !entry.id.startsWith('curve-geometry.')) return recipe;
     // The shared spline-c1 catalog window is useful for its broad construction view,
     // but this authored worked parabola has a much smaller exact fixture view.
     // Curve geometry posters likewise frame another scene than the lesson opening a card shows:
     // the comb poster's window, chosen for the C1 spline, leaves the card's cubic a fifth of the frame.
     // The degenerate Voronoi poster frames the Trapez example, which leaves the lesson's opening site (1,-5) off the card.
     // The inversion power poster window leaves the circle's far intersection (8,0) off the card.
+    // The linear-map poster window frames the basis mode, which leaves the composition card's image curve and T(P_i) off the card.
     // Fit the card's own finite scene with equal unit scales and leave the shared recipe intact.
     return {...recipe, framing: {kind: 'finite-geometry-fit'}};
 }

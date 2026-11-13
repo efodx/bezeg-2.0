@@ -120,6 +120,14 @@ test('linear maps expectations are authored from the example matrix and the scen
     // A scene may open on one explicit matrix instead of a named example (L7 opens on columns (1,1) and (-1,1)).
     const explicit = linearMapsExpectedFor('lm', lmStep([{kind: 'linear-map', operation: 'set-matrix', matrix: [[1, -1], [1, 1]]}]));
     assert.deepEqual(explicit.points, [[1, 0], [0, 1], [0, 0], [0, 2], [1, 1], [0, 2], [1, 1], [-1, 1]]);
+    // The composition mode on its defaults (L5): the fixture's four control points and their images under FR = [[0,-1],[-1,0]].
+    const compositionStep = extra => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'},
+        {kind: 'linear-map', operation: 'set-mode', mode: 'composition'}, ...extra]}});
+    const composition = linearMapsExpectedFor('lm', compositionStep([]));
+    assert.deepEqual(composition.types, {curve: 5, point: 8});
+    assert.deepEqual(composition.points.slice(4), [[0, -1], [-3, -2], [-2, -4], [1, -5]]);
+    assert.throws(() => linearMapsExpectedFor('lm', compositionStep([lmExample('identity')])),
+        /default composition mode alone/);
     assert.throws(() => linearMapsExpectedFor('lm', lmStep([])), /exactly one linear-map example/);
     assert.throws(() => linearMapsExpectedFor('lm', lmStep([lmExample('shear')])), /no authored matrix/);
     assert.throws(() => linearMapsExpectedFor('lm', lmStep([lmExample('identity'), {kind: 'linear-map', operation: 'set-matrix', matrix: [[1, 0], [0, 1]]}])),

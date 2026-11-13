@@ -29,7 +29,7 @@ afterEach(() => {
 test('identity consumers read no lesson content', async () => {
     const {ownership, reads} = await load();
     expect(ownership.getGuidedLessonOwners('patch-tensor').length).toBeGreaterThan(0);
-    expect(ownership.getGuidedLessonOwners('linear-map').length).toBe(6);
+    expect(ownership.getGuidedLessonOwners('linear-map').length).toBe(7);
     expect(ownership.authoredGuidedLessonIds('b-splines', 'bspline-deboor')).toEqual(['bspline-deboor']);
     expect(ownership.getGuidedLessonOwnerForSection('bspline-deboor', 'b-splines', 'bspline-deboor')).toEqual({chapterId: 'b-splines', sectionId: 'bspline-deboor'});
     expect(ownership.guidedLessonLaunchPath('bspline-deboor')).toContain('learnSection=bspline-deboor');

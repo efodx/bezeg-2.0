@@ -132,7 +132,7 @@ it('publishes the Linear maps example cards with their own checked images and pe
         id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
         path: owned.path(sectionId) ?? ''}));
     const ids = homes.map(home => home.id).sort();
-    expect(ids).toEqual(['linear-maps.determinant-area.linear-map', 'linear-maps.eigen-directions.linear-map', 'linear-maps.matrix-and-image.linear-map', 'linear-maps.singular-ellipse.linear-map', 'linear-maps.power-method.linear-map', 'linear-maps.trace-determinant.linear-map'].sort());
+    expect(ids).toEqual(['linear-maps.determinant-area.linear-map', 'linear-maps.eigen-directions.linear-map', 'linear-maps.matrix-and-image.linear-map', 'linear-maps.singular-ellipse.linear-map', 'linear-maps.composition-affine.linear-map', 'linear-maps.power-method.linear-map', 'linear-maps.trace-determinant.linear-map'].sort());
     expect(Object.keys(linearMapsPreviewCopy).sort()).toEqual(ids);
     const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
         readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
