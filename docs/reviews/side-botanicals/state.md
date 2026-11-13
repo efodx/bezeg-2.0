@@ -9,8 +9,10 @@ Step 1 shipped in five pushes: elder branches in the gutters of Home, Demonstrat
 ## Code map
 
 - `src/sideBotanicals/elderGeometry.ts`: pure seeded geometry and `ELDER_SETTINGS` (owner's end state, seed 3).
-- `src/sideBotanicals/SideBotanicals.tsx`: width and route gates, `fitToGutter`, rendering. `SideBotanicals.css`: sway keyframes, clipping, reduced motion.
-- `src/App.tsx`: route gate and the hard-coded column width (to be replaced by task 2).
+- `src/sideBotanicals/growth.ts`: pure growth (load ramp, scroll goal, visit maximum) and the scroll-listener driver that writes `--growth`.
+- `src/sideBotanicals/gutters.ts`: gutter widths from the measured content column (`data-content-column` on the three page roots).
+- `src/sideBotanicals/SideBotanicals.tsx`: width gate, column measurement, `fitToGutter`, rendering. `SideBotanicals.css`: growth, sway keyframes, clipping, reduced motion.
+- `src/App.tsx`: route gate.
 
 ## Working agreements with the owner
 
@@ -18,6 +20,11 @@ Step 1 shipped in five pushes: elder branches in the gutters of Home, Demonstrat
 - The owner prefers continuing in one session over handoffs.
 - The art prototype lives outside the repository: `C:\Users\1337Hacker\Desktop\bezeg-side-botanicals-mockup\playground.html`, served with `npx http-server <folder> -p 4380 -c-1`.
 
+## Not yet on master
+
+Step 2 (growth on scroll, `6256c695`) and the measured column (`cca41e8c`) are committed on the `worktree-side-botanicals` branch with their docs. Checks and browser results: [verification](verification.md).
+
 ## Next
 
-Task 1 (growth on scroll), then task 2 (measured column), then task 3 (verification and docs).
+1. The owner reviews the preview (`just build`, then `just preview`), then `just publish --recipe runtime`.
+2. The owner decides whether the playground becomes a dev-only route or script in the repository.

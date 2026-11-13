@@ -1,6 +1,6 @@
 # Side botanicals
 
-Status: step 1 (artwork and sway) in progress, started 2026-11-12. Step 2 (growth on scroll) follows once the owner approves step 1.
+Status: step 1 (artwork and sway) is complete and on `master` (commits `885f1a14`, `b1c8c720`, `13a60d09`, `515d75a0`, `da92d910`, `b27dbc91`). Step 2 (growth on scroll, `6256c695`) and the measured content column (`cca41e8c`) are implemented and verified on the `worktree-side-botanicals` branch; they wait for the owner's preview review before publishing (decision 11). Verification: [record](../reviews/side-botanicals/verification.md).
 
 ## Problem
 
@@ -21,13 +21,18 @@ The owner settled these in a grilling session, then iterated on the artwork in a
 9. **Growth (step 2):** on load the branches grow to about 60% over 2–3 seconds, and scrolling carries them to 100%. Pages that cannot scroll grow straight to 100%. Growth never reverses within a visit. One rAF-throttled scroll listener sets a CSS variable, in every browser.
 10. **Sway:** each branch rotates by a small angle around the point where it enters the screen edge. Periods and phases differ between branches, so the motion does not look looped. Only CSS transforms are animated.
 11. **Workflow:** before each push the owner reviews a running preview.
+12. **How growth is drawn (handler, 2026-11-13):** growth `g` is written as `--growth` on one decoration root, and the stylesheet derives everything from it. Each branch scales from its hinge on the screen edge (0.45 at `g = 0` to 1). This was chosen over a clip or mask along the limb because it is the cheapest option, it leaves the tapered tip intact (a clip cuts the limb bluntly), and the branches already repaint every frame for the sway. Leaves and heads appear in order along the limb: a part attached at limb position `at` starts to appear at `g = 0.85·at` and fades and scales in from its attachment point over the next 0.125 of growth. The layer opacity runs from 0.35 of the settings value to the full value. The load animation is an ease-out over 2.5 s. A jump in scroll position is shown at no more than 1.2 growth per second, so pressing End grows the branches in rather than popping them.
+13. **Growth across routes (handler, 2026-11-13):** the growth reached is kept for the whole visit, including navigation between the three routes and through other routes. A visitor who has seen the branches grown never sees them regrow. A full page reload starts again. The alternative, restarting on each route, would replay the load animation on every header click.
+14. **Content column (handler, 2026-11-13):** Home, Demonstrations and Learn mark the element whose content box is their column with `data-content-column`. Each gutter is the space between the viewport edge (without the scrollbar) and that content box, less 24px, on each side separately; gutters under 100px carry no decoration. A content-box `ResizeObserver` and the window resize keep it current. This replaces the hard-coded 1100px and 1290px widths. User impact: on Demonstrations the layers end 24px from the 1260px column, 15px closer than before; Home and Learn are unchanged. A page without the attribute shows no decoration.
 
 ## Approach
 
 - Generate the artwork at runtime from a deterministic, seeded generator (`src/sideBotanicals/`), with no React and no DOM in the geometry. Each flower head is a few merged paths, so a full layout stays at a few hundred elements and roughly 0.5 MB of path data, generated once per gutter size.
 - The prototype lives outside the repository in the owner's playground (`bezeg-side-botanicals-mockup/playground.html`); the TypeScript generator ports that algorithm one-to-one.
 
-## Acceptance criteria (step 1)
+## Acceptance criteria (step 1): met
+
+Checked in a browser on 2026-11-13 except where noted; see the [record](../reviews/side-botanicals/verification.md).
 
 - At 3440×1440 and 2560×1440, the three routes show the branches in both gutters, and they sway. At 1920×1080 the branches show if the gutter allows. At 1280×800 nothing is rendered: no SVG in the DOM.
 - No decoration on any other route, for example a Demonstration route, `/bezeg-2.0/learn/bezier-curves`, or a lesson.
@@ -36,3 +41,12 @@ The owner settled these in a grilling session, then iterated on the artwork in a
 - The same settings and seed always produce identical path data (unit test).
 - At 1600px and wider the home corner sprig is not displayed.
 - Typecheck, lint, the focused unit tests and the production build pass.
+
+## Acceptance criteria (step 2 and measured column)
+
+- Met: at 3440×1440 on `/bezeg-2.0/learn` the first frame shows short, faint branches (growth 0.07), 0.6 after the load animation, 1 at the bottom of the page, and no decrease after scrolling back up.
+- Met: a page that cannot scroll reaches full growth within 3.2 s.
+- Met: with reduced motion the first frame is fully grown and no animation runs. Open: two of 18 frame comparisons differed in some pixels of the gutter shortly after load; element positions and the animation count were unchanged, and the difference did not recur once a pixel diff was added to locate it.
+- Met: at 3440, 2560, 1920 and 1600px on the three routes the layers end exactly 24px outside the content column on both sides, with no horizontal scroll; at 1280px nothing is rendered. Narrowing the column by 200px moves each layer by 100px without a reload.
+- Met: unit tests for the growth function, the listener disposal and the gutter calculation; typecheck, lint and the production build.
+- Open: the owner's review of the preview (decision 11).
