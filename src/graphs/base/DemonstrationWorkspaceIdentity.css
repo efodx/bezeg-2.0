@@ -8,7 +8,7 @@
     --workspace-rule: var(--bezeg-shell-rule);
     --workspace-green: var(--bezeg-shell-action);
     --workspace-pollen: var(--bezeg-shell-lesson-ink);
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr) 310px;
     gap: 22px;
     padding: 30px max(24px, calc((100vw - 1280px) / 2)) 64px;
     background: var(--workspace-canvas);
@@ -104,30 +104,26 @@
     .workspace-heading { align-items: stretch; flex-direction: column; gap: 16px; }
     .workspace-actions { flex-basis: auto; max-width: 100%; justify-content: flex-start; }
 }
-@media (max-width: 900px) {
+/* This sheet loads after DemonstrationWorkspace.css, so its base grid, padding and gap would override that
+   sheet's phone rules. Restate the phone layout here: one column from 700px down, as the lesson and
+   Presentation layouts for phones and short landscape screens expect. */
+@media (max-width: 700px) {
     .demonstration-workspace, .demonstration-workspace.is-presenting {
         grid-template-columns: minmax(0, 1fr);
-        grid-template-areas: "heading" "graph" "learning" "inspector";
-        padding-inline: 20px; gap: 18px;
+        grid-template-areas: "heading" "graph" "inspector";
+        padding: 16px 12px 70px; gap: 12px;
     }
     .workspace-inspector { width: 100%; height: auto; min-height: 0; display: block; overflow: visible; }
     .workspace-inspector #inspector-content { overflow: visible; }
-}
-@media (max-width: 700px) {
-    .demonstration-workspace, .demonstration-workspace.is-presenting { padding: 22px 16px 44px; gap: 16px; }
-    .workspace-heading { gap: 14px; padding: 0; }
+    .workspace-heading { gap: 10px; padding: 0; }
     .workspace-breadcrumb { margin-bottom: 13px; font-size: .72rem; }
     /* The 9px margin keeps the phone heading at its former height, so a guided lesson's panel below gains nothing. */
     .workspace-heading h1 { margin-bottom: 9px; font-size: clamp(2rem, 7.5vw, 2.8rem); }
     .workspace-actions { gap: 6px; }
     .workspace-actions > button, .workspace-actions > a { font-size: .75rem; }
-    .workspace-graph #jgbox, .is-presenting .workspace-graph #jgbox { height: 42vh !important; min-height: 280px; }
-    .workspace-graph-heading { padding-block: 8px 0; }
+    .workspace-graph #jgbox, .is-presenting .workspace-graph #jgbox { height: 35vh !important; min-height: 260px; }
+    .workspace-graph-heading { padding-block: 11px 7px; }
     .workspace-navigation { padding: 10px 12px 12px; }
-    .demonstration-workspace:not(.is-presenting) .workspace-learning {
-        display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
-        padding: 14px 0; border: 0; border-block: 1px solid var(--workspace-rule);
-    }
 }
 @media (pointer: coarse), (max-width: 700px) {
     .workspace-actions > button, .workspace-actions > a, .workspace-navigation button,

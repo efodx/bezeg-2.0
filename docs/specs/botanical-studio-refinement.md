@@ -32,4 +32,15 @@ The handler owns the shared font/header, workspace refinement, integration, revi
 - **Display face.** The owner chose Literata as the site's one display face on this layout; the Newsreader of the first pass is removed with its files. Home headline, featured title, workspace title and wordmark read `--bezeg-font-display`. Reason: one title voice across Home, workspace, Learn and chapters instead of two serifs. Details: [elder identity, title typography](elder-identity.md#title-typography-literata) and [DESIGN.md](../../DESIGN.md#title-typography-literata).
 - **Home drawing.** The outlined elderflower in the Home intro ("keep the existing elderflower as a restrained brand detail" above) was removed in the typography polish round that the owner asked an independent critic to lead: at 18 to 32% opacity it read as a watermark beside the headline and its outline style differed from the filled side botanicals. User impact: below 1600px the Home hero shows no elder drawing; the header mark stays, and the side botanicals show at 1600px and wider.
 
+## Narrow layout repair (2026-11-13)
+
+The first pass (`4e844f56`) failed eight browser smoke tests on `master`, so nothing deployed. Cause: `DemonstrationWorkspaceIdentity.css` loads after `DemonstrationWorkspace.css`, so its base grid, padding and gap overrode the older phone rules, and its own replacement collapsed the workspace to one column at 900px with a taller board and a visible learning prompt. Guided lessons and Presentation on phones and short landscape screens depend on the earlier arrangement (board width 0 in short landscape Presentation, lesson controls outside the viewport, board points outside the lesson view).
+
+Decision (elder identity handler, with the tests left untouched): restore the earlier narrow arrangement inside the identity stylesheet and keep the refinement's desktop look.
+
+- One column only at 700px and below, with the earlier padding (`16px 12px 70px`), gap (12px), board height (`35vh`, at least 260px) and graph heading padding. The learning prompt is hidden on phones again, as before the first pass. Between 701 and 900px the two columns stay.
+- The inspector column is 310px again (the first pass made it 320px). User impact: none intended beyond 10px more board.
+- Rejected: keeping the 900px one-column layout and changing the lesson and Presentation layouts or their tests to fit it. That is a product change to guided lessons on small screens, outside a repair.
+- Follow-up, not fixed: `tests/curve-ownership.smoke.spec.cjs:194` compares exported SVG path strings exactly and fails on floating-point noise at some board widths (888px fails, 898px passes). The 310px column makes it pass; a later change to the desktop board width can break it again. The comparison needs a tolerance, which is a test change for its owner to decide.
+
 The image study in the chat is an exploratory composition reference, not a source of new copy or shipping pixels. The existing mathematical preview media remains the content authority.
