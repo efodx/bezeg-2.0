@@ -1,5 +1,6 @@
 /* Incumbent header/home palette. Keep state relationships explicit; see DESIGN.md. */
 :root {
+    --bezeg-shell-display-font: 'Bezeg Newsreader', Georgia, 'Times New Roman', serif;
     --bezeg-shell-canvas: #f7f5e9;
     --bezeg-shell-panel: #fffdf5;
     --bezeg-shell-preview-panel: #fffdf6;

@@ -174,8 +174,8 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                 </div>)}
             </div>
             <div className="demonstrations-opening-copy">
-                <span className="demonstrations-opening-family">{selectedEntry.family.title}</span>
                 <h3>{selectedEntry.demonstration.catalogTitle}</h3>
+                <span className="demonstrations-opening-family">{selectedEntry.family.title}</span>
                 <p>{selectedEntry.demonstration.prompts[0]}</p>
                 <span className="demonstrations-opening-actions">
                     <Link ref={graphActionRef} to={selectedEntry.demonstration.path}

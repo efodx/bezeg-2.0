@@ -195,30 +195,6 @@ export function DemonstrationWorkspace(props: {
                 {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
             </nav>
                 <h1>{workspaceTitle}</h1><p>{props.description}</p>
-                <svg className="workspace-botanical" viewBox="0 0 420 360" aria-hidden="true" focusable="false">
-                    <g className="workspace-botanical-stems">
-                        <path d="M410 358C367 279 327 207 278 157S203 69 170 7"/>
-                        <path d="M278 157C313 120 350 96 402 83M326 207C364 193 391 170 416 137"/>
-                        <path d="M237 108C204 91 164 76 122 42M266 140C265 95 259 51 253 7"/>
-                        <path d="M356 271C386 250 402 226 414 198M205 74C174 68 145 69 111 77"/>
-                    </g>
-                    <g className="workspace-botanical-leaves">
-                        <path d="M331 204C327 164 346 137 387 119C384 162 366 190 331 204Z"/>
-                        <path d="M350 257C343 219 359 192 397 174C398 211 381 240 350 257Z"/>
-                        <path d="M273 151C284 111 312 94 355 96C337 131 309 150 273 151Z"/>
-                        <path d="M232 106C192 105 164 84 146 46C186 53 216 73 232 106Z"/>
-                        <path d="M265 129C239 101 234 68 250 30C273 63 280 96 265 129Z"/>
-                        <path d="M201 76C166 96 134 91 99 66C136 49 170 51 201 76Z"/>
-                        <path d="M380 293C388 263 408 245 437 239C430 269 411 289 380 293Z"/>
-                    </g>
-                    <g className="workspace-botanical-flowers">
-                        <g transform="translate(394 80)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-4" r="4"/><circle cx="9" cy="-7" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-13" r="4"/><circle cx="14" cy="2" r="4"/><circle cx="-15" cy="4" r="4"/></g>
-                        <g transform="translate(416 131)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="8" cy="-8" r="4"/><circle cx="-8" cy="8" r="4"/><circle cx="9" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                        <g transform="translate(252 8)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                        <g transform="translate(168 8)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                        <g transform="translate(105 77)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                    </g>
-                </svg>
             </div>
             <div className="workspace-actions">
                 {chapter.readAbout && !lessonActive && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
@@ -276,9 +252,9 @@ export function DemonstrationWorkspace(props: {
             <div ref={setSlotElement} data-playback-slot=""/>
             {actions.length > 0 && <div className="workspace-navigation" role="group" aria-label={t("graph_pan_and_zoom")}>
                 {actions.map(action => {
-                    if (action === 'fit') return <button key={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
+                    if (action === 'fit') return <button key={action} data-navigation={action} onClick={() => props.navigate(action)}>{t('fit_points')}</button>;
                     const [text, label] = navigationLabels[action];
-                    return <button key={action} disabled={lessonOpen && lessonMode === 'content'} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
+                    return <button key={action} data-navigation={action} disabled={lessonOpen && lessonMode === 'content'} aria-label={label} title={label} onClick={() => props.navigate(action)}>{text}</button>;
                 })}
             </div>}
             <p className="workspace-gesture-hint">{demonstration?.view === 'surface' ? t("surface_gesture_hint") : t("pan_shift_drag_zoom_shift_mouse_wheel")}</p>
@@ -288,7 +264,7 @@ export function DemonstrationWorkspace(props: {
             aria-disabled={lessonActive && lessonMode === 'content' ? true : undefined} aria-label={t("demonstration_tools")}>
             <div className="inspector-toolbar">
             <div className="inspector-heading">
-                <div><span className="workspace-inspector-kicker">{t("tools_for_this_graph")}</span><h2>{t("tools")}</h2></div>
+                <div><h2>{t("tools")}</h2></div>
                 <button aria-expanded={expanded} aria-controls="inspector-content" onClick={() => setExpanded(!expanded)}>
                     {expanded ? t("collapse") : t("open")}
                     <svg aria-hidden="true" focusable="false" className="inspector-collapse-chevron" viewBox="0 0 16 16">

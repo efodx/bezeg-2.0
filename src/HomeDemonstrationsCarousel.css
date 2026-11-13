@@ -4,7 +4,7 @@
 .demonstrations-opening { max-width: 1100px; min-width: 0; }
 .demonstrations-opening-preview {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(260px, 3fr);
+    grid-template-columns: minmax(300px, 2fr) minmax(0, 3fr);
     max-width: 1100px;
     min-width: 0;
     overflow: hidden;
@@ -15,7 +15,7 @@
 }
 .demonstrations-opening-image-stage {
     position: relative;
-    min-height: 260px;
+    min-height: 320px;
     overflow: hidden;
     background: var(--bezeg-shell-preview-panel);
 }
@@ -26,7 +26,7 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    padding: 12px;
+    padding: 10px;
     background: var(--bezeg-shell-preview-panel);
     object-fit: contain;
     object-position: center;
@@ -40,9 +40,9 @@
 .home-demonstrations-carousel .demonstration-preview-media {
     background: var(--bezeg-shell-preview-panel);
 }
-.demonstrations-opening-copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: 24px 26px; }
-.demonstrations-opening-copy h3 { margin: 8px 0; font-size: 25px; line-height: 1.25; }
-.demonstrations-opening-copy p { margin: 0 0 18px; color: var(--bezeg-shell-ink-secondary); font-size: 15px; line-height: 1.5; }
+.demonstrations-opening-copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: 30px 36px; }
+.demonstrations-opening-copy h3 { margin: 10px 0 12px; font-family: var(--bezeg-shell-display-font, Georgia, 'Times New Roman', serif); font-size: clamp(27px, 2.35vw, 34px); font-weight: 550; letter-spacing: -.025em; line-height: 1.13; }
+.demonstrations-opening-copy p { margin: 0 0 22px; color: var(--bezeg-shell-ink-secondary); font-size: 15px; line-height: 1.55; }
 .demonstrations-opening-family {
     display: block;
     max-width: 100%;
@@ -56,6 +56,7 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
+.demonstrations-opening-copy > .demonstrations-opening-family { margin-bottom: 14px; }
 .demonstrations-opening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .demonstrations-opening-actions a {
     display: inline-flex;
@@ -96,9 +97,9 @@
 
 @media (max-width: 700px) {
     .home-demonstrations-carousel .demonstrations-opening-preview { grid-template-columns: minmax(0, 1fr); }
-    .home-demonstrations-carousel .demonstrations-opening-image-stage { min-height: 0; max-height: 260px; aspect-ratio: 360 / 220; }
-    .home-demonstrations-carousel .demonstrations-opening-copy { padding: 16px; }
-    .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 21px; }
+    .home-demonstrations-carousel .demonstrations-opening-image-stage { min-height: 0; max-height: 280px; aspect-ratio: 360 / 220; }
+    .home-demonstrations-carousel .demonstrations-opening-copy { padding: 22px 20px; }
+    .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 25px; }
     /* Reserve the longest prompt's lines so the rail below does not move when the slide changes. */
     .home-demonstrations-carousel .demonstrations-opening-copy p { min-height: 3em; }
     .home-demonstrations-carousel .demonstrations-opening-controls { margin-top: 12px; }
@@ -114,7 +115,7 @@
     .home-demonstrations-carousel .demonstrations-opening-copy p { min-height: 6em; }
 }
 @media (max-width: 360px) {
-    .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 19px; }
+    .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 23px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .home-demonstrations-carousel .demonstrations-opening-image { transition: none; }

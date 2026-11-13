@@ -42,13 +42,13 @@ components:
 
 ## Overview
 
-This records the incumbent header and homepage, not a redesign or a complete specification of the mathematical workspace. The approved direction is a calm educational interface with the Bezeg name, elderflower identity, warm cream surfaces, green actions, and restrained ochre accents. Desktop exploration and classroom projection take priority; essential workflows remain available with touch and keyboard on smaller screens.
+This records the header, homepage and shared Demonstration workspace, with separate guidance for the learning surfaces below. The approved botanical studio direction pairs scholarly display typography with a calm mathematical instrument: the Bezeg name, elderflower identity, warm cream surfaces, green actions, and restrained ochre accents. Desktop exploration and classroom projection take priority; essential workflows remain available with touch and keyboard on smaller screens.
 
 The source of the implemented shell roles is `src/shellTokens.css`, using the `--bezeg-shell-` prefix. Existing workspace variables retain their separate scope. No dark-mode behavior is implied by this document.
 
 ## Colors
 
-Canvas and panel roles deliberately differ: the header/home canvas uses `canvas`, header controls use `panel`, and carousel cards use `preview-panel`. Preserve those distinctions. The role suffixes in the frontmatter match CSS custom properties in `src/shellTokens.css`; that stylesheet also owns botanical, media, border, and scrollbar roles.
+Canvas and panel roles deliberately differ: Home and workspace use `canvas`, the header uses `panel`, and carousel cards use `preview-panel`. Preserve those distinctions. The role suffixes in the frontmatter match CSS custom properties in `src/shellTokens.css`; that stylesheet also owns botanical, media, border, and scrollbar roles.
 
 Use `ink` for headings, `ink-secondary` for explanatory copy, `action` for primary links, and `ochre` for the section accent. The lesson action uses `lesson-ink`. Focus uses a distinct blue, retaining the existing header/home variants.
 
@@ -58,21 +58,23 @@ The Demonstrations catalogue (`DemonstrationsPage.css` and the shared `Demonstra
 
 ## Typography
 
-Keep the existing system sans-serif stack from `src/index.css`. The brand uses a 700-weight system sans at 23px on desktop and 20px below 700px. The homepage heading uses weight 700, line height 1.06, a 17ch measure, and `clamp(34px, 4.2vw, 60px)` on desktop. The mobile override remains in `WelcomePage.css`.
+The botanical studio refinement uses self-hosted Newsreader for the brand, Home headline, featured demonstration title and workspace title. `--bezeg-shell-display-font` owns the family; `src/index.css` loads the variable font, and its OFL license lives beside it in `src/fonts/`. It supports Slovenian diacritics and requires no external font requests. Navigation, form controls, supporting copy and section headings retain the existing system sans stack. The Home headline uses weight 550, a balanced 18ch measure and `clamp(60px, 6vw, 84px)` on desktop; phone sizing is explicit. Workspace titles use weight 550 and a 36–56px scale. The wordmark is 30px (25px narrow).
 
-Introductory copy is 17px with 1.55 line height (15px on narrow screens); the section heading is 22px (20px narrow). Carousel titles are 25px (21px narrow), with 15px explanatory text. Category labels are intentionally secondary at 10–11px and need the contrast safeguards above. This record does not authorize new fonts or changes to existing copy.
+Introductory copy is 17px with 1.55 line height (15px narrow); the section heading is 23px (20px narrow). Featured titles are 27–34px (25px narrow), with 15px explanatory text. The family label follows the featured title, rather than acting as an eyebrow. Category labels remain secondary at 10–11px and retain the contrast safeguards above. Existing bilingual copy is unchanged.
 
 ## Layout
 
-The homepage content has a 1100px maximum width and natural vertical flow. The featured card uses a 40% artwork / 60% copy split on desktop and a continuous cream preview-panel surface, including nested media, without a divider. Preserve the complete artwork with proportional containment. See [homepage preview spacing](docs/specs/homepage-preview-spacing.md). The intro is one left-aligned column at every width: heading, copy, then the catalog action under the copy; the elderflower keeps its corner and its reserved space, which is dropped at 1600px and above where the art is hidden. Below 700px, the preview and text stack, with page padding reduced to 16px horizontally. At 480px and below the featured card's two actions stack full width. Below 700px the prompt reserves its longest line count so the selector rail does not move between slides. The rail runs to the card's edges. Preserve the horizontal selector rail's internal scrolling; the document must not overflow horizontally. Keep visible focus reachable within that rail.
+The homepage content has a 1100px maximum width and natural vertical flow. The featured card uses a 40% artwork / 60% copy split on desktop (at least 300px for media), a 320px media stage, and a continuous cream preview-panel surface without a divider. Preserve the complete artwork with proportional containment. See [homepage preview spacing](docs/specs/homepage-preview-spacing.md). The intro is one left-aligned column at every width: heading, copy, then the catalog action under the copy; the elderflower keeps its corner and its reserved space, which is dropped at 1600px and above where the art is hidden. Below 700px, the preview and text stack, with page padding reduced to 16px horizontally. At 480px and below the featured card's two actions stack full width and the botanical accent is hidden. Below 700px the prompt reserves its longest line count so the selector rail does not move between slides. The rail runs to the card's edges. Preserve the horizontal selector rail's internal scrolling; the document must not overflow horizontally. Keep visible focus reachable within that rail.
+
+The workspace aligns the graph and 320px inspector in a two-column grid within a 1280px measure, with a 22px gap. At 1100px the heading and actions stack; at 900px and below the learning prompt follows the graph, then the inspector flows naturally with no inner scroll. Desktop keeps the existing inspector content as its one scroll owner, with an explicit scrollbar and stable gutter. Paint containment keeps its clipped descendants from extending the document. The graph owns its mathematical grid; the surrounding canvas stays quiet. Navigation controls sit below the graph, with pan, zoom and fit visually separated.
 
 ## Elevation & Depth
 
-The featured card uses the existing soft two-part shadow in `--bezeg-shell-shadow-card`; action links use `--bezeg-shell-shadow-action`. Preserve the approved faint graph grid, botanical artwork, and 5px green leading rail. Their purpose and approval are recorded in `docs/specs/homepage-visual-flair.md`.
+The featured card uses the soft two-part shadow in `--bezeg-shell-shadow-card`; action links use `--bezeg-shell-shadow-action`. The 2026-11-13 botanical studio refinement removes the decorative page-wide graph grid, the featured card's thick green rail and standalone ochre heading dashes. Mathematics owns the grid; Home preserves the existing botanical artwork and real curve previews. The earlier ornament approvals in `docs/specs/homepage-visual-flair.md` are superseded for these surfaces by `docs/specs/botanical-studio-refinement.md`.
 
 ## Shapes
 
-Keep the observed 8px action radius, 10px choice radius, 16px preview radius, and circular previous/next controls. Primary controls retain at least 44px height; selector choices retain at least 72px height and lead with a 52×40 thumbnail of their demonstration preview (`media-rule` border, `choice-rule-selected` when pressed) instead of an index.
+Home uses an 8px action radius, 10px choice radius, 18px featured preview radius, and circular previous/next controls. Primary controls retain at least 44px height; selector choices retain at least 72px height and lead with a 52×40 thumbnail of their demonstration preview (`media-rule` border, `choice-rule-selected` when pressed) instead of an index. Workspace graph and inspector use continuous 1px frames with a 16px radius and no colored caps or shadow. Inspector tabs sit in an inset segmented group; selection uses the shared dark control fill. Workspace actions and navigation keep 44px targets on narrow layouts and coarse pointers. Presentation retains its navy and cream palette.
 
 ## Components
 
@@ -97,7 +99,7 @@ The Learn landing (`/learn`) matches the shell: shell canvas and the 48px graph 
 - Use semantic shell roles for new states on the audited surfaces and check their foreground/background pairing.
 - Preserve the elderflower artwork, mathematical previews, bilingual copy, clear focus, and keyboard access.
 - Keep geometry and graph colors independent from this shell palette.
-- Do not introduce marketing claims, replacement artwork, typography changes, dark mode, or new carousel behavior through this document.
+- Do not introduce marketing claims, replacement artwork, further typography changes, dark mode, or new carousel behavior through this document.
 
 ## Learning map and chapter wayfinding
 
