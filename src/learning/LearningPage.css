@@ -42,7 +42,7 @@
 .learning-family:only-child::before { display: none; }
 .learning-thumb { grid-area: thumb; position: relative; z-index: 1; align-self: start; display: block; overflow: hidden; border-radius: 10px; background: var(--bezeg-shell-preview-panel); }
 .learning-family:hover .learning-thumb { background: var(--bezeg-shell-choice-hover); }
-.learning-thumb img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; object-fit: contain; }
+.learning-thumb img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; object-fit: contain; mix-blend-mode: multiply; } /* The poster's baked cream takes the row's hover tint. */
 .learning-topic-heading { grid-area: head; align-self: end; margin: 0; color: var(--bezeg-shell-ink); font: 650 clamp(1.15rem, 1.8vw, 1.35rem)/1.3 Georgia, "Times New Roman", serif; text-wrap: balance; }
 .learning-topic-heading a { color: inherit; text-decoration: none; }
 .learning-topic-heading a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
@@ -97,4 +97,4 @@
     .learning-outline li a { display: block; padding: 6px 0 2px; margin-right: 0; }
     .learning-outline-examples { display: block; padding-bottom: 4px; }
 }
-.learning-page a:focus-visible, .learning-outline summary:focus-visible { outline: 3px solid #577cc3; outline-offset: 3px; }
+.learning-page a:focus-visible, .learning-outline summary:focus-visible { outline: 3px solid var(--bezeg-shell-header-focus); outline-offset: 3px; }
