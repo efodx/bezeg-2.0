@@ -2,6 +2,8 @@
 
 Spec: L5. Decisions: ADR 0025 §2 (rotation as a snapped \(15^\circ\) angle).
 
+Status: F2a slice 1: model and kernel (handler 18); slice 2 graph mode next.
+
 - **F2a composition mode:** two matrices \(A\), \(B\) (handles or a chosen element: rotation by snapped angle, reflection, scale, shear), the combined image and product readout \(BA\), an optional translation vector and pivot form \(T(P)=c+A(P-c)\), and the Bézier fixture. Orientation for rotations comes from the snapped angle.
 - **F3–F4:** L5 with a link to the existing affine lesson; the prose names the existing buttons' pivots (control-point mean for rotation and reflection, bounding-box centre for scale).
 - **F5–F6:** media, Batch C gate, `just check`, smoke including `/bezier/affine` unchanged, hosted CI.

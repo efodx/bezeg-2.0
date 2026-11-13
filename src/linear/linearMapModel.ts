@@ -2,6 +2,7 @@ import {
     IDENTITY, isLinearMapExampleId, isMatrixEntry, LINEAR_MAP_EXAMPLE_IDS, LINEAR_MAP_EXAMPLES, LinearMapExampleId, Mat2,
     MATRIX_ENTRY_MAX, MATRIX_ENTRY_MIN, snapMatrixEntry, Vec2,
 } from './matrix2';
+import {isElementIndex, MapElement} from './composition2';
 
 /**
  * Stored state of the linear maps graph (docs/adr/0025-linear-map-graph-and-snapped-matrices.md, sections 1 and 2). Pure
@@ -40,6 +41,14 @@ export interface LinearMapState {
     readonly step?: number;
     /** The ellipse mode shows the conic x^T S x = 1 of the symmetric part instead of the image of the circle; absent means false. */
     readonly conicVisible?: boolean;
+    /** Composition mode (Batch C): a chosen rotation or reflection for the first matrix; while set it replaces the stored entries. */
+    readonly element?: MapElement;
+    /** Composition mode: a chosen rotation or reflection for the second matrix. */
+    readonly secondElement?: MapElement;
+    /** Composition mode: the translation b of T(P) = c + M (P - c) + b, multiples of 1/4 in [-4, 4]; absent means (0, 0). */
+    readonly translation?: Vec2;
+    /** Composition mode: the pivot c of that map, on the same grid; absent means the origin. */
+    readonly pivot?: Vec2;
 }
 
 /** The start vector of a state that stores none: the first L6 example, v0 = (1, 0). */
@@ -61,7 +70,7 @@ export const DEFAULT_LINEAR_MAP_STATE: LinearMapState = {
 
 export type LinearMapErrorReason =
     | 'not-an-object' | 'not-a-matrix' | 'not-finite' | 'off-grid' | 'out-of-range'
-    | 'unknown-value' | 'not-boolean' | 'angle-out-of-range' | 'not-a-vector' | 'not-a-step';
+    | 'unknown-value' | 'not-boolean' | 'angle-out-of-range' | 'not-a-vector' | 'not-a-step' | 'not-an-element';
 
 /** A structured rejection: `field` names the offending field (for example `matrix[1][0]`), `reason` is a stable code. */
 export interface LinearMapError {
@@ -129,10 +138,21 @@ export function parseStep(data: unknown, field: string): LinearMapResult<number>
     return ok(data === 0 ? 0 : data);
 }
 
+/** Strict element: `{kind: 'rotation' | 'reflection', k}` with k an integer 0..23 (multiples of 15 degrees). */
+export function parseElement(data: unknown, field: string): LinearMapResult<MapElement> {
+    if (!isRecord(data)) return fail(field, 'not-an-element', `${field} must be an object {kind, k}.`);
+    if (data.kind !== 'rotation' && data.kind !== 'reflection') return fail(`${field}.kind`, 'unknown-value', `${field}.kind must be 'rotation' or 'reflection'.`);
+    if (!isElementIndex(data.k)) return fail(`${field}.k`, 'not-an-element', `${field}.k must be a whole number from 0 to 23 (multiples of 15 degrees).`);
+    return ok({kind: data.kind, k: data.k === 0 ? 0 : data.k});
+}
+
 function parseExampleChoice(data: unknown, field: string): LinearMapResult<LinearMapExampleChoice> {
     if (data === 'custom' || isLinearMapExampleId(data)) return ok(data);
     return fail(field, 'unknown-value', `${field} must be 'custom' or one of: ${LINEAR_MAP_EXAMPLE_IDS.join(', ')}.`);
 }
+
+const optional = <T>(data: unknown, parse: (value: unknown) => LinearMapResult<T>): LinearMapResult<T> | undefined =>
+    data === undefined || data === null ? undefined : parse(data);
 
 const TOGGLES = ['probeVisible', 'curveVisible', 'squareVisible'] as const;
 
@@ -179,9 +199,22 @@ export function parseLinearMapState(data: unknown): LinearMapResult<LinearMapSta
         if (typeof data.conicVisible !== 'boolean') return fail('conicVisible', 'not-boolean', 'conicVisible must be true or false.');
         conicVisible = data.conicVisible;
     }
+    // The Batch C fields are optional too.
+    const element = optional(data.element, v => parseElement(v, 'element'));
+    if (element && !element.ok) return element;
+    const secondElement = optional(data.secondElement, v => parseElement(v, 'secondElement'));
+    if (secondElement && !secondElement.ok) return secondElement;
+    const translation = optional(data.translation, v => parseStart(v, 'translation'));
+    if (translation && !translation.ok) return translation;
+    const pivot = optional(data.pivot, v => parseStart(v, 'pivot'));
+    if (pivot && !pivot.ok) return pivot;
     return ok({
         matrix: matrix.value,
         ...(secondMatrix ? {secondMatrix} : {}),
+        ...(element?.ok ? {element: element.value} : {}),
+        ...(secondElement?.ok ? {secondElement: secondElement.value} : {}),
+        ...(translation?.ok ? {translation: translation.value} : {}),
+        ...(pivot?.ok ? {pivot: pivot.value} : {}),
         ...(conicVisible ? {conicVisible} : {}),
         ...(start ? {start} : {}),
         ...(step !== undefined ? {step} : {}),
@@ -201,6 +234,10 @@ export function parseLinearMapState(data: unknown): LinearMapResult<LinearMapSta
 export const serializeLinearMapState = (state: LinearMapState): LinearMapState => ({
     matrix: state.matrix,
     ...(state.secondMatrix ? {secondMatrix: state.secondMatrix} : {}),
+    ...(state.element ? {element: state.element} : {}),
+    ...(state.secondElement ? {secondElement: state.secondElement} : {}),
+    ...(state.translation ? {translation: state.translation} : {}),
+    ...(state.pivot ? {pivot: state.pivot} : {}),
     ...(state.start ? {start: state.start} : {}),
     ...(state.step !== undefined ? {step: state.step} : {}),
     ...(state.conicVisible ? {conicVisible: true} : {}),

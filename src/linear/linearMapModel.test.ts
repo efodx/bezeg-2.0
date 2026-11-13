@@ -269,3 +269,45 @@ describe('Batch B: the ellipse mode conic toggle', () => {
         expect(errorOf(stored({conicVisible: 'yes'})).field).toBe('conicVisible');
     });
 });
+
+describe('Batch C: composition elements, translation and pivot', () => {
+    const stored = (extra: Record<string, unknown>) => ({...valid(), mode: 'composition', secondMatrix: [[0, 1], [1, 0]], ...extra});
+
+    it('every example in every older mode parses and exports byte-identically, without the new fields', () => {
+        for (const mode of ['basis', 'determinant', 'eigen', 'ellipse', 'iterate', 'tracedet'] as const) {
+            for (const [id, matrix] of Object.entries(LINEAR_MAP_EXAMPLES)) {
+                const text = JSON.stringify(serializeLinearMapState({
+                    ...DEFAULT_LINEAR_MAP_STATE, matrix, exampleId: id as keyof typeof LINEAR_MAP_EXAMPLES, mode,
+                }));
+                const parsed = parseLinearMapState(JSON.parse(text));
+                if (!parsed.ok) throw new Error(`expected ${id} in ${mode} to load`);
+                expect(JSON.stringify(serializeLinearMapState(parsed.value))).toBe(text);
+                for (const key of ['element', 'secondElement', 'translation', 'pivot']) expect(parsed.value).not.toHaveProperty(key);
+            }
+        }
+        const older = stored({});
+        const parsed = parseLinearMapState(older);
+        if (!parsed.ok) throw new Error('expected the composition state to load');
+        expect(JSON.parse(JSON.stringify(serializeLinearMapState(parsed.value)))).toEqual(older);
+    });
+
+    it('stores elements, translation and pivot and round-trips them', () => {
+        const data = stored({element: {kind: 'rotation', k: 6}, secondElement: {kind: 'reflection', k: 23}, translation: [1.25, -4], pivot: [3, 1]});
+        const parsed = parseLinearMapState(data);
+        if (!parsed.ok) throw new Error('expected the state to load');
+        expect(parsed.value).toMatchObject({element: {kind: 'rotation', k: 6}, secondElement: {kind: 'reflection', k: 23}, translation: [1.25, -4], pivot: [3, 1]});
+        expect(JSON.parse(JSON.stringify(serializeLinearMapState(parsed.value)))).toEqual(data);
+        expect(parseLinearMapState(stored({element: null, translation: null})).ok).toBe(true);
+    });
+
+    it('rejects a bad element, translation or pivot, naming the field', () => {
+        expect(errorOf(stored({element: {kind: 'rotation', k: 24}})).field).toBe('element.k');
+        expect(errorOf(stored({element: {kind: 'rotation', k: 1.5}})).field).toBe('element.k');
+        expect(errorOf(stored({element: {kind: 'rotation', k: -1}})).field).toBe('element.k');
+        expect(errorOf(stored({secondElement: {kind: 'shear', k: 1}})).field).toBe('secondElement.kind');
+        expect(errorOf(stored({secondElement: 'rotation'})).field).toBe('secondElement');
+        expect(errorOf(stored({translation: [0.3, 0]})).field).toBe('translation[0]');
+        expect(errorOf(stored({pivot: [0, 5]})).field).toBe('pivot[1]');
+        expect(errorOf(stored({pivot: [1]})).field).toBe('pivot');
+    });
+});
