@@ -258,9 +258,8 @@ const eigenStatuses = ['eigen-not-parallel', 'eigen-two'];
 
 const eigenExpectations: Record<string, FramedExpectation> = {
     'eigen-keep': {matrix: E, mode: 'basis', testAngle: 0, conic: false, sl: {a1: '(4, 2)', a2: '(1, 3)', probe: '(5, 5)'}, en: {a1: '(4, 2)', a2: '(1, 3)', probe: '(5, 5)'}, statuses: []},
-    'eigen-parallel': {matrix: E, mode: 'eigen', testAngle: 0, conic: false,
-        sl: {tau: '7', delta: '10', discriminant: '9', eigenvalues: '5 in 2', 'test-angle': '0°', v: '(1, 0)', av: '(4, 2)', sine: '0,4472', between: '26,57°'},
-        en: {tau: '7', delta: '10', discriminant: '9', eigenvalues: '5 and 2', 'test-angle': '0°', v: '(1, 0)', av: '(4, 2)', sine: '0.4472', between: '26.57°'}, statuses: eigenStatuses},
+    // Opens in the basis mode (smoke finding: the eigen mode draws both eigen lines, which answer the sign-change prediction).
+    'eigen-parallel': {matrix: E, mode: 'basis', testAngle: 0, conic: false, sl: {a1: '(4, 2)', a2: '(1, 3)', probe: '(5, 5)'}, en: {a1: '(4, 2)', a2: '(1, 3)', probe: '(5, 5)'}, statuses: []},
     // Opens in the basis mode (review finding: the eigen mode shows the eigenvalue 2 and the second line the prompt asks for).
     'eigen-second': {matrix: E, mode: 'basis', testAngle: 0, conic: false, sl: {a1: '(4, 2)', a2: '(1, 3)', probe: '(5, 5)'}, en: {a1: '(4, 2)', a2: '(1, 3)', probe: '(5, 5)'}, statuses: []},
     'eigen-polynomial': {matrix: C, mode: 'basis', testAngle: 0, conic: false, sl: {a1: '(1, 0,5)', a2: '(2, 1)'}, en: {a1: '(1, 0.5)', a2: '(2, 1)'}, statuses: ['collapse-line']},
