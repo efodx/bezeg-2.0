@@ -54,6 +54,8 @@ Use `ink` for headings, `ink-secondary` for explanatory copy, `action` for prima
 
 Category labels use `label` on the preview panel. On selected tiles, use `label-selected`: the old label color against the selected surface gave only 4.369:1 contrast. The selected role gives approximately 5.78:1. Maintain at least 4.5:1 for these small labels across selected, hovered, and focused states. Focus outlines do not replace a readable text foreground.
 
+The Demonstrations catalogue (`DemonstrationsPage.css` and the shared `DemonstrationCollection.css`) takes its colours from the same `--bezeg-shell-*` roles as Home and Learn. Card family labels, topic counts and the search placeholder use `label` (`label-selected` on the pressed topic), and the search field and phone topic select use `field-rule` for their border. The workspace picker dialog's own frame (`DemonstrationPicker.css`) still carries its literal values.
+
 ## Typography
 
 Keep the existing system sans-serif stack from `src/index.css`. The brand uses a 700-weight system sans at 23px on desktop and 20px below 700px. The homepage heading uses weight 700, line height 1.06, a 17ch measure, and `clamp(34px, 4.2vw, 60px)` on desktop. The mobile override remains in `WelcomePage.css`.
@@ -62,7 +64,7 @@ Introductory copy is 17px with 1.55 line height (15px on narrow screens); the se
 
 ## Layout
 
-The homepage content has a 1100px maximum width and natural vertical flow. The featured card uses a 40% artwork / 60% copy split on desktop and a continuous cream preview-panel surface, including nested media, without a divider. Preserve the complete artwork with proportional containment. See [homepage preview spacing](docs/specs/homepage-preview-spacing.md). The intro stacks below 820px. Below 700px, the preview and text stack, with page padding reduced to 16px horizontally. Preserve the horizontal selector rail's internal scrolling; the document must not overflow horizontally. Keep visible focus reachable within that rail.
+The homepage content has a 1100px maximum width and natural vertical flow. The featured card uses a 40% artwork / 60% copy split on desktop and a continuous cream preview-panel surface, including nested media, without a divider. Preserve the complete artwork with proportional containment. See [homepage preview spacing](docs/specs/homepage-preview-spacing.md). The intro is one left-aligned column at every width: heading, copy, then the catalog action under the copy; the elderflower keeps its corner and its reserved space, which is dropped at 1600px and above where the art is hidden. Below 700px, the preview and text stack, with page padding reduced to 16px horizontally. At 480px and below the featured card's two actions stack full width. Below 700px the prompt reserves its longest line count so the selector rail does not move between slides. The rail runs to the card's edges. Preserve the horizontal selector rail's internal scrolling; the document must not overflow horizontally. Keep visible focus reachable within that rail.
 
 ## Elevation & Depth
 
