@@ -82,6 +82,14 @@ describe('the shared greedy label placement', () => {
         const rectsOf = (cells: Record<string, LabelPlacement>, board: LabelBoard) => requests.map(request => labelRect(request, cells[request.id], board));
         const overlapCount = (rects: Rect[]) => rects.flatMap((rect, i) => rects.slice(0, i).filter(other => overlaps(rect, other))).length;
 
+        test('at 1366 px the placement is that of the code before the 390-px rule', () => {
+            const board: LabelBoard = {box: compositionViewBox(view), widthPx: 930, heightPx: 450, fontSize: FONT};
+            expect(placeLabels(requests, board)).toEqual({
+                c: 'right', p0: 'below-left', p1: 'above-right', p2: 'right', p3: 'above-right',
+                t0: 'below-right', t1: 'below-right', t2: 'left', t3: 'above-right',
+            });
+        });
+
         test('the requests come in priority order: c, then the images, then the sources', () => {
             expect(requests.map(request => request.id)).toEqual(['c', 't0', 't1', 't2', 't3', 'p0', 'p1', 'p2', 'p3']);
             expect(compositionLabelRequests(deriveComposition({...DEFAULT_LINEAR_MAP_STATE, mode: 'composition'})).map(request => request.id)[0]).toBe('t0');
@@ -107,6 +115,48 @@ describe('the shared greedy label placement', () => {
                 expect(rect.bottom).toBeGreaterThanOrEqual(b);
                 expect(rect.top).toBeLessThanOrEqual(t);
             });
+        });
+    });
+
+    describe('at 390 px (a 364 x 295 board): no label covers another label or a point marker', () => {
+        const W = 364, H = 295;
+        const board = (box: readonly [number, number, number, number]): LabelBoard => ({box, widthPx: W, heightPx: H, fontSize: FONT});
+        const clean = (requests: readonly LabelRequest[], b: LabelBoard, what: string, hitsAllowed = 0) => {
+            let hits = 0;
+            const cells = placeLabels(requests, b);
+            const [l, t, r, bt] = b.box;
+            const upx = (r - l) / b.widthPx, upy = (t - bt) / b.heightPx;
+            const rects = requests.map(request => labelRect(request, cells[request.id], b));
+            requests.forEach((request, i) => {
+                for (let j = 0; j < i; j++) expect(overlaps(rects[i], rects[j]), `${what}: ${requests[j].id} and ${request.id} overlap`).toBe(false);
+                requests.forEach(other => {
+                    if (other === request) return;
+                    const marker = {left: other.anchor[0] - 7 * upx, right: other.anchor[0] + 7 * upx, bottom: other.anchor[1] - 7 * upy, top: other.anchor[1] + 7 * upy};
+                    if (overlaps(rects[i], marker)) hits++;
+                });
+            });
+            expect(hits, `${what}: labels on markers`).toBeLessThanOrEqual(hitsAllowed);
+        };
+
+        test('composition: L5 step 1 (no pivot, a translation) and step 4 (R about (3, 1))', () => {
+            const R = {kind: 'rotation', k: 6} as const;
+            // L5 step 1 opens on a rotation followed by a reflection (determinant -1); a translation spreads the images over the board.
+            const step1 = deriveComposition({...DEFAULT_LINEAR_MAP_STATE, mode: 'composition', element: R, secondElement: {kind: 'reflection', k: 3}, translation: [0, -4]});
+            const step4 = deriveComposition({...DEFAULT_LINEAR_MAP_STATE, mode: 'composition', element: R, pivot: [3, 1]});
+            clean(compositionLabelRequests(step1), board(compositionViewBox(step1)), 'step 1 fitted');
+            clean(compositionLabelRequests(step1), board([-11.105, 9, 11.105, -9]), 'step 1');
+            // Step 4 has no overlap-free assignment that also clears every marker (c has a single clear cell); the best one covers one marker.
+            clean(compositionLabelRequests(step4), board([-11.105, 9, 11.105, -9]), 'step 4', 1);
+        });
+
+        test.each([['N', N], ['E', E]] as [string, Mat2][])('eigen mode on %s, test vectors every 15 degrees', (name, matrix) => {
+            for (let angle = 0; angle < 180; angle += 15) {
+                clean(eigenLabelRequests(matrix, deriveEigen(matrix, angle)), board(eigenViewBox(matrix, W, H)), `eigen ${name} ${angle}`);
+            }
+        });
+
+        test.each([[false], [true]])('ellipse mode on N (conic %s)', conic => {
+            clean(ellipseLabelRequests(N, deriveEllipse(N), conic), board(ellipseViewBox(N, conic, W, H)), 'ellipse N');
         });
     });
 

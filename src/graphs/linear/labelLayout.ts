@@ -113,7 +113,7 @@ const SEARCH_LIMIT = 4000;
 /**
  * The cell of each request, by id; the requests are given in priority order. The first complete assignment in that order, trying
  * each label's cells outward first, wins: first with every rule (inside the board, no overlap, clear of the tick labels and of the other labelled points, not near a
- * placed label), then without the nearness rule, then also ignoring the tick labels and points; a label may thus take a later cell so that a
+ * placed label), then without the nearness rule, then also ignoring the tick labels (never the other labelled points), then with the fewest point hits (a point hit weighs 20 tick hits); a label may thus take a later cell so that a
  * lower-priority one still finds room. When even that fails (a crowded board) the cells with the smallest penalty are taken in turn.
  */
 export function placeLabels(requests: readonly LabelRequest[], board: LabelBoard): Record<string, LabelPlacement> {
@@ -141,7 +141,7 @@ export function placeLabels(requests: readonly LabelRequest[], board: LabelBoard
             if (index === candidates.length) return true;
             for (const candidate of candidates[index]) {
                 if (++nodes > SEARCH_LIMIT) return false;
-                if (candidate.outside || (level < 2 && candidate.tickHits + candidate.pointHits > 0)) continue;
+                if (candidate.outside || candidate.pointHits > 0 || (level < 2 && candidate.tickHits > 0)) continue;
                 if (chosen.some(other => overlaps(candidate.rect, other.rect) || (level < 1 && close(candidate, other)))) continue;
                 chosen.push(candidate);
                 if (step(index + 1)) return true;
@@ -151,17 +151,42 @@ export function placeLabels(requests: readonly LabelRequest[], board: LabelBoard
         };
         return step(0) ? chosen : undefined;
     };
-    const solution = solve(0) ?? solve(1) ?? solve(2) ?? greedy(candidates);
+    const solution = solve(0) ?? solve(1) ?? solve(2) ?? fewestHits(candidates) ?? greedy(candidates);
     const result: Record<string, LabelPlacement> = {};
     requests.forEach((request, i) => { result[request.id] = solution[i].cell; });
     return result;
+}
+
+/**
+ * When no assignment keeps clear of the other labelled points: the overlap-free assignment inside the board with the lowest cost (a point
+ * hit weighs 20 tick hits), found by a bounded branch and bound; undefined when none is found within the node limit.
+ */
+function fewestHits(candidates: readonly (readonly Candidate[])[]): Candidate[] | undefined {
+    const cost = (candidate: Candidate) => candidate.tickHits + 20 * candidate.pointHits;
+    let best: Candidate[] | undefined;
+    let bestCost = Infinity;
+    const chosen: Candidate[] = [];
+    let nodes = 0;
+    const step = (index: number, total: number): void => {
+        if (total >= bestCost) return;
+        if (index === candidates.length) { best = [...chosen]; bestCost = total; return; }
+        for (const candidate of [...candidates[index]].sort((x, y) => cost(x) - cost(y))) {
+            if (++nodes > SEARCH_LIMIT * 10) return;
+            if (candidate.outside || chosen.some(other => overlaps(candidate.rect, other.rect))) continue;
+            chosen.push(candidate);
+            step(index + 1, total + cost(candidate));
+            chosen.pop();
+        }
+    };
+    step(0, 0);
+    return best;
 }
 
 /** The crowded-board fallback: each label takes the cell with the smallest penalty given the labels already placed. */
 function greedy(candidates: readonly (readonly Candidate[])[]): Candidate[] {
     const chosen: Candidate[] = [];
     for (const options of candidates) {
-        const penalty = (candidate: Candidate) => (candidate.outside ? 1000 : 0) + candidate.tickHits + candidate.pointHits
+        const penalty = (candidate: Candidate) => (candidate.outside ? 1000 : 0) + candidate.tickHits + 20 * candidate.pointHits
             + 10 * chosen.filter(other => overlaps(candidate.rect, other.rect)).length;
         chosen.push(options.reduce((best, candidate) => penalty(candidate) < penalty(best) ? candidate : best));
     }
