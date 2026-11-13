@@ -41,7 +41,7 @@
     max-width: 18ch;
     overflow-wrap: anywhere;
     margin: 0 0 20px;
-    font-family: var(--bezeg-shell-display-font, Georgia, 'Times New Roman', serif);
+    font-family: var(--bezeg-font-display);
     font-size: clamp(60px, 6vw, 84px);
     font-weight: 550;
     letter-spacing: -.035em;

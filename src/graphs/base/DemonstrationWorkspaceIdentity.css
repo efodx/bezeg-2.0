@@ -20,7 +20,7 @@
 .workspace-breadcrumb a:hover { color: var(--workspace-green); text-decoration-color: currentColor; }
 .workspace-heading h1 {
     margin: 0 0 9px;
-    font-family: var(--bezeg-shell-display-font);
+    font-family: var(--bezeg-font-display);
     font-size: clamp(2.25rem, 4.3vw, 3.5rem);
     font-weight: 550;
     font-optical-sizing: auto;
