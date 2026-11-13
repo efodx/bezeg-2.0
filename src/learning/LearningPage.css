@@ -4,7 +4,7 @@
 .learning-page-inner { width: min(100%, 1100px); margin: 0 auto; }
 .learning-page h1, .learning-page h2, .learning-page h3 { overflow-wrap: anywhere; }
 .learning-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title action" "copy action" "meta action"; align-items: center; column-gap: 36px; row-gap: 4px; margin: 0 0 clamp(32px, 4.5vw, 52px); padding: 4px 0 0; }
-.learning-heading h1 { grid-area: title; max-width: 17ch; margin: 0 0 12px; color: var(--bezeg-shell-ink); font-size: clamp(34px, 4.2vw, 52px); font-weight: 700; line-height: 1.08; text-wrap: balance; }
+.learning-heading h1 { grid-area: title; max-width: 17ch; margin: 0 0 12px; color: var(--bezeg-shell-ink); font-family: var(--bezeg-font-display); font-size: var(--bezeg-type-page); font-weight: 600; letter-spacing: -.02em; line-height: 1.04; text-wrap: balance; }
 .learning-lead { grid-area: copy; max-width: 38rem; margin: 0; color: var(--bezeg-shell-ink-secondary); font-size: 17px; line-height: 1.55; }
 .learning-counts { grid-area: meta; margin: 10px 0 0; color: var(--bezeg-shell-ink-secondary); font-size: 13px; }
 .learning-open { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; gap: 8px; padding: 0 22px; box-sizing: border-box; border-radius: 8px; background: var(--bezeg-shell-action); color: var(--bezeg-shell-on-action); box-shadow: var(--bezeg-shell-shadow-action); font-weight: 700; text-decoration: none; white-space: nowrap; }
@@ -13,7 +13,7 @@
 
 /* Suggested path: strands of chapters in their suggested order, each a calm card. */
 .learning-strand + .learning-strand { margin-top: clamp(32px, 4.5vw, 48px); }
-.learning-strand > h2 { margin: 0 0 16px; color: var(--bezeg-shell-ink); font-size: 22px; font-weight: 700; line-height: 1.3; }
+.learning-strand > h2 { margin: 0 0 16px; color: var(--bezeg-shell-ink); font-family: var(--bezeg-font-display); font-size: var(--bezeg-type-section); font-weight: 600; letter-spacing: -.005em; line-height: 1.2; }
 .learning-strand > h2::before { display: block; width: 38px; height: 3px; margin-bottom: 10px; border-radius: 2px; background: var(--bezeg-shell-ochre); content: ""; }
 .learning-path { margin: 0; padding: 0; list-style: none; border: 1px solid var(--bezeg-shell-media-rule); border-radius: 16px; background: var(--bezeg-shell-preview-panel); box-shadow: 0 8px 22px rgb(35 54 42 / 7%), 0 1px 4px rgb(35 54 42 / 4%); }
 .learning-family {
@@ -43,7 +43,7 @@
 .learning-thumb { grid-area: thumb; position: relative; z-index: 1; align-self: start; display: block; overflow: hidden; border-radius: 10px; background: var(--bezeg-shell-preview-panel); }
 .learning-family:hover .learning-thumb { background: var(--bezeg-shell-choice-hover); }
 .learning-thumb img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; object-fit: contain; mix-blend-mode: multiply; } /* The poster's baked cream takes the row's hover tint. */
-.learning-topic-heading { grid-area: head; align-self: end; margin: 0; color: var(--bezeg-shell-ink); font: 650 clamp(1.15rem, 1.8vw, 1.35rem)/1.3 Georgia, "Times New Roman", serif; text-wrap: balance; }
+.learning-topic-heading { grid-area: head; align-self: end; margin: 0; color: var(--bezeg-shell-ink); font: 600 var(--bezeg-type-item)/1.25 var(--bezeg-font-display); text-wrap: balance; }
 .learning-topic-heading a { color: inherit; text-decoration: none; }
 .learning-topic-heading a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
 .learning-topic-body { grid-area: body; min-width: 0; max-width: 62ch; margin: 6px 0 0; color: var(--bezeg-shell-ink-secondary); line-height: 1.6; }
@@ -75,7 +75,7 @@
     .learning-heading h1 { max-width: none; }
     .learning-lead { font-size: 15px; }
     .learning-start { min-height: 44px; }
-    .learning-strand > h2 { margin-bottom: 14px; font-size: 20px; }
+    .learning-strand > h2 { margin-bottom: 14px; }
     .learning-family {
         grid-template-columns: minmax(0, 1fr) 92px;
         grid-template-areas:

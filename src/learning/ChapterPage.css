@@ -47,7 +47,7 @@
 .chapter-trail .learning-back svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .chapter-trail-position { color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .9); font-variant-numeric: tabular-nums; }
 .chapter-trail-position::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 14px 2px 0; border-radius: 50%; background: var(--chapter-accent); vertical-align: middle; }
-.chapter-heading h1 { max-width: 24ch; margin: 0; color: var(--chapter-ink); font: 700 clamp(1.9rem, 3.2vw, calc(var(--chapter-text) * 2.6))/1.12 Georgia, "Times New Roman", serif; letter-spacing: -.01em; text-wrap: balance; }
+.chapter-heading h1 { max-width: 24ch; margin: 0; color: var(--chapter-ink); font: 600 clamp(2.1rem, 3.9vw, calc(var(--chapter-text) * 3.1))/1.05 var(--bezeg-font-display); letter-spacing: -.02em; text-wrap: balance; }
 /* The title receives reading focus programmatically; it is not an interactive control. */
 .chapter-heading h1:focus { outline: none; }
 .chapter-purpose { max-width: var(--chapter-measure); margin: 16px 0 22px; font-size: calc(var(--chapter-text) * 1.07); line-height: 1.6; text-wrap: pretty; }
@@ -64,8 +64,8 @@
 /* Sections: more space above a heading than below it, one hairline between sections. */
 .chapter-section { padding: 44px 0 30px; scroll-margin-top: 20px; border-bottom: 1px solid var(--chapter-border); }
 .chapter-section-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
-.chapter-section-heading > span { color: var(--bezeg-shell-lesson-ink); font: 700 calc(var(--chapter-text) * .975) Georgia, serif; font-variant-numeric: tabular-nums; }
-.chapter-section-heading h2 { min-width: 0; margin: 0; color: var(--chapter-ink); font: 650 clamp(1.45rem, 2.8vw, calc(var(--chapter-text) * 1.95))/1.22 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; text-wrap: balance; }
+.chapter-section-heading > span { color: var(--bezeg-shell-lesson-ink); font: 600 calc(var(--chapter-text) * 1.05) var(--bezeg-font-display); font-variant-numeric: tabular-nums; }
+.chapter-section-heading h2 { min-width: 0; margin: 0; color: var(--chapter-ink); font: 600 clamp(1.5rem, 2.8vw, calc(var(--chapter-text) * 2))/1.16 var(--bezeg-font-display); letter-spacing: -.01em; overflow-wrap: anywhere; text-wrap: balance; }
 .chapter-section-link { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 32px; height: 32px; margin: -4px 0; border-radius: 6px; color: var(--chapter-muted); text-decoration: none; opacity: 0; transition: opacity .15s ease-out, background-color .15s ease-out; }
 .chapter-section-link:hover { background: var(--bezeg-shell-control-hover); color: var(--chapter-link); }
 .chapter-section-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
@@ -94,7 +94,7 @@
 .chapter-activity-figure img { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; border-radius: 10px; object-fit: contain; background: var(--chapter-paper); }
 .chapter-activity-figure figcaption { margin-top: 8px; color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .86); line-height: 1.45; text-wrap: pretty; }
 .chapter-exploration-copy { min-width: 0; }
-.chapter-exploration-copy h3 { margin: 0 0 6px; color: var(--chapter-ink); font: 650 calc(var(--chapter-text) * 1.24)/1.3 Georgia, "Times New Roman", serif; text-wrap: balance; }
+.chapter-exploration-copy h3 { margin: 0 0 6px; color: var(--chapter-ink); font: 600 calc(var(--chapter-text) * 1.3)/1.25 var(--bezeg-font-display); text-wrap: balance; }
 .chapter-exploration-prompt { margin: 0 0 14px; font-size: calc(var(--chapter-text) * .975); line-height: 1.55; overflow-wrap: anywhere; text-wrap: pretty; }
 .learning-investigation-prompt { color: var(--chapter-muted); }
 .learning-investigation-list { display: grid; }
@@ -111,7 +111,7 @@
 
 /* Chapter end: source or note, then the neighbouring chapters. */
 .chapter-source { padding: 28px 0 0; color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .88); line-height: 1.6; }
-.chapter-source h2 { margin: 0 0 6px; color: var(--chapter-ink); font: 650 calc(var(--chapter-text) * 1.27) Georgia, "Times New Roman", serif; }
+.chapter-source h2 { margin: 0 0 6px; color: var(--chapter-ink); font: 600 calc(var(--chapter-text) * 1.3) var(--bezeg-font-display); }
 .chapter-source p { max-width: var(--chapter-measure); margin: 0; text-wrap: pretty; }
 .learning-neighbors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
 .learning-neighbors a { display: grid; align-content: center; gap: 3px; min-height: 72px; box-sizing: border-box; padding: 12px 18px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 10px; background: var(--chapter-paper); color: var(--chapter-ink); text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
@@ -123,7 +123,7 @@
 .learning-neighbor--next .learning-neighbor-label::after { content: " →"; content: " →" / ""; }
 /* The colon stays in the link text for assistive technology; the label sits on its own line, so it is not drawn. */
 .learning-neighbor-colon { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.learning-neighbor-title { font: 650 calc(var(--chapter-text) * 1.1)/1.3 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; text-wrap: balance; }
+.learning-neighbor-title { font: 600 calc(var(--chapter-text) * 1.15)/1.25 var(--bezeg-font-display); overflow-wrap: anywhere; text-wrap: balance; }
 
 .chapter-contents-mobile { display: none; }
 .chapter-page a:focus-visible, .chapter-page summary:focus-visible, .chapter-formula:focus-visible, .chapter-section-heading h2:focus-visible, .chapter-paragraph mjx-container[data-chapter-scrollable-math]:focus-visible, .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math]:focus-visible { outline: 3px solid var(--chapter-focus); outline-offset: 3px; }
