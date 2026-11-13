@@ -30,7 +30,7 @@ Handler 16 handed off on 2026-11-13 to handler 17. The worktree is on branch `wo
 
 ## In flight at handoff
 
-- The Batch D commit and the handoff docs commit (this note and the evaluation entry) publish together in one push on base `7d3e9ee9` (`just publish --status`; the log names both commits). Watch that push's CI run (`gh run list --workflow browser-smoke.yml --branch master --limit 3`). If the publish failed, read its log, fix, and republish on the same base with both commits.
+- The Batch D commit and the handoff docs commit (this note and the evaluation entry) publish together in one push on base `de5170a6` with the task 08 docs commit `7d3e9ee9` and this correction (`just publish --status`). A first publish on the wrong base `7d3e9ee9` was stopped before its push (log `.command-logs/publish-93340182-858125.aborted-wrong-base.log`). Watch that push's CI run (`gh run list --workflow browser-smoke.yml --branch master --limit 3`). If the publish failed, read its log, fix, and republish on the same base with both commits.
 - No worker is running.
 
 ## Owed
