@@ -143,12 +143,14 @@ export function eigenHalfExtent(matrix: Mat2): number {
 }
 
 /** [left, top, right, bottom] centred at the origin: the half-extent on the shorter side, the longer side by the board's aspect. */
-export function eigenViewBox(matrix: Mat2, width: number, height: number): [number, number, number, number] {
-    const half = eigenHalfExtent(matrix);
+export function centredViewBox(half: number, width: number, height: number): [number, number, number, number] {
     const aspect = width > 0 && height > 0 ? width / height : 4 / 3;
     const [halfX, halfY] = aspect >= 1 ? [half * aspect, half] : [half, half / aspect];
     return [-halfX, halfY, halfX, -halfY];
 }
+
+export const eigenViewBox = (matrix: Mat2, width: number, height: number): [number, number, number, number] =>
+    centredViewBox(eigenHalfExtent(matrix), width, height);
 
 /** Label placement away from the origin along a direction (the label of a tip sits beyond it), on the eight compass cells. */
 export function outwardPlacement(direction: Vec2): LabelPlacement {
@@ -159,22 +161,4 @@ export function outwardPlacement(direction: Vec2): LabelPlacement {
     const vertical = Math.abs(y / length) > 0.38 ? (y > 0 ? 'above' : 'below') : '';
     if (vertical && horizontal) return `${vertical}-${horizontal}` as LabelPlacement;
     return (vertical || horizontal || 'above') as LabelPlacement;
-}
-
-const NEAR = 0.6;
-const near = (a: Vec2, b: Vec2): boolean => Math.hypot(a[0] - b[0], a[1] - b[1]) < NEAR;
-
-/**
- * The labels of v and Av sit beyond their tips; the a1 label is below-right and the a2 label above-left (and when Av coincides with a
- * column its label stepped aside), so Av's label takes a cell neither of them uses while it is close to one of them, and v's label
- * does the same near a column (the circle meets a1 or a2 when a column is a unit vector).
- */
-export function eigenLabelPlacements(v: Vec2, av: Vec2, a1: Vec2, a2: Vec2): {v: LabelPlacement; av: LabelPlacement} {
-    const avUsual = outwardPlacement(av);
-    const vUsual = outwardPlacement(v);
-    const avPlacement: LabelPlacement = near(av, a1) ? 'above-right' : near(av, a2) ? 'below-right' : avUsual;
-    let vPlacement: LabelPlacement = vUsual;
-    if (near(v, a1) && (vUsual === 'below-right' || vUsual === 'right' || vUsual === 'below')) vPlacement = 'above-left';
-    else if (near(v, a2) && (vUsual === 'above-left' || vUsual === 'above' || vUsual === 'left')) vPlacement = 'below-right';
-    return {v: vPlacement, av: avPlacement};
 }

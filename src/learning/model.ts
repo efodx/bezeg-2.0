@@ -295,6 +295,8 @@ export type LessonAction =
     | {readonly kind: 'linear-map'; readonly operation: 'set-mode'; readonly mode: LinearMapMode}
     | {readonly kind: 'linear-map'; readonly operation: 'set-test-vector'; readonly angle: number}
     | {readonly kind: 'linear-map'; readonly operation: 'set-example'; readonly exampleId: LinearMapExampleId}
+    /** `set-conic` switches the ellipse mode's conic x^T S x = 1 (symmetric part S) on or off, as the inspector switch does; `visible` must be a boolean. */
+    | {readonly kind: 'linear-map'; readonly operation: 'set-conic'; readonly visible: boolean}
     /**
      * PointSetGraph's scene actions. `set-points` replaces the model (grid step 0); scene data is strict, so an off-grid,
      * out-of-range or over-limit point is a lesson-content error and never snapped. `set-overlay` accepts only the

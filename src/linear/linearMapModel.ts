@@ -38,6 +38,8 @@ export interface LinearMapState {
     readonly start?: Vec2;
     /** Iteration step k of those modes, an integer in [0, ITERATE_STEP_MAX]; absent means 0. */
     readonly step?: number;
+    /** The ellipse mode shows the conic x^T S x = 1 of the symmetric part instead of the image of the circle; absent means false. */
+    readonly conicVisible?: boolean;
 }
 
 /** The start vector of a state that stores none: the first L6 example, v0 = (1, 0). */
@@ -171,9 +173,16 @@ export function parseLinearMapState(data: unknown): LinearMapResult<LinearMapSta
         if (!parsed.ok) return parsed;
         step = parsed.value;
     }
+    // The ellipse mode's toggle is optional too: a Preset stored before it has none and loads with the image of the circle shown.
+    let conicVisible: boolean | undefined;
+    if (data.conicVisible !== undefined && data.conicVisible !== null) {
+        if (typeof data.conicVisible !== 'boolean') return fail('conicVisible', 'not-boolean', 'conicVisible must be true or false.');
+        conicVisible = data.conicVisible;
+    }
     return ok({
         matrix: matrix.value,
         ...(secondMatrix ? {secondMatrix} : {}),
+        ...(conicVisible ? {conicVisible} : {}),
         ...(start ? {start} : {}),
         ...(step !== undefined ? {step} : {}),
         mode: data.mode,
@@ -194,6 +203,7 @@ export const serializeLinearMapState = (state: LinearMapState): LinearMapState =
     ...(state.secondMatrix ? {secondMatrix: state.secondMatrix} : {}),
     ...(state.start ? {start: state.start} : {}),
     ...(state.step !== undefined ? {step: state.step} : {}),
+    ...(state.conicVisible ? {conicVisible: true} : {}),
     mode: state.mode,
     testAngle: state.testAngle,
     exampleId: state.exampleId,

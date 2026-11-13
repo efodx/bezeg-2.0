@@ -2,7 +2,7 @@ import {gridImage} from '../../linear/gridImage';
 import {apply, det, IDENTITY, type Mat2, type Vec2} from '../../linear/matrix2';
 
 /** The modes this graph draws; later linear-map tasks extend it. The kernel (`LINEAR_MAP_MODES`) accepts more, the graph and its Presets do not. */
-export const LINEAR_MAP_GRAPH_MODES = ['basis', 'determinant', 'eigen', 'iterate', 'tracedet'] as const;
+export const LINEAR_MAP_GRAPH_MODES = ['basis', 'determinant', 'eigen', 'ellipse', 'iterate', 'tracedet'] as const;
 export type LinearMapGraphMode = typeof LINEAR_MAP_GRAPH_MODES[number];
 export const isLinearMapGraphMode = (value: unknown): value is LinearMapGraphMode => LINEAR_MAP_GRAPH_MODES.some(mode => mode === value);
 

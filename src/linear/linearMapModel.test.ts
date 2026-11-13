@@ -246,3 +246,26 @@ describe('Batch D: start vector and step', () => {
         expect(validateStep({count: 31}).ok).toBe(false);
     });
 });
+
+describe('Batch B: the ellipse mode conic toggle', () => {
+    const stored = (extra: Record<string, unknown>) => ({...valid(), mode: 'ellipse', ...extra});
+
+    it('a state stored before the toggle has none, loads with the image of the circle and serializes without it', () => {
+        const old = valid();
+        const parsed = parseLinearMapState(old);
+        if (!parsed.ok) throw new Error('expected the old state to load');
+        expect(parsed.value).not.toHaveProperty('conicVisible');
+        expect(JSON.parse(JSON.stringify(serializeLinearMapState(parsed.value)))).toEqual(old);
+    });
+
+    it('stores the toggle when it is on, drops a false one, and round-trips', () => {
+        const on = parseLinearMapState(stored({conicVisible: true}));
+        if (!on.ok) throw new Error('expected the state to load');
+        expect(on.value).toMatchObject({mode: 'ellipse', conicVisible: true});
+        expect(JSON.parse(JSON.stringify(serializeLinearMapState(on.value)))).toEqual(stored({conicVisible: true}));
+        const off = parseLinearMapState(stored({conicVisible: false}));
+        if (!off.ok) throw new Error('expected the state to load');
+        expect(serializeLinearMapState(off.value)).not.toHaveProperty('conicVisible');
+        expect(errorOf(stored({conicVisible: 'yes'})).field).toBe('conicVisible');
+    });
+});

@@ -1,4 +1,4 @@
-import {angleOfPoint, eigenHalfExtent, eigenLabelPlacements, eigenViewBox, outwardPlacement, deriveEigen, eigenSnapAngle, normalizeTestAngle, quarterGridDirection, unitVector} from './eigenScene';
+import {angleOfPoint, eigenHalfExtent, eigenViewBox, outwardPlacement, deriveEigen, eigenSnapAngle, normalizeTestAngle, quarterGridDirection, unitVector} from './eigenScene';
 import {EIGEN_PARALLEL_TOLERANCE} from '../../linear/eigen2';
 import {LINEAR_MAP_EXAMPLES, type Mat2} from '../../linear/matrix2';
 
@@ -111,8 +111,5 @@ describe('the eigen view and the label placements', () => {
         expect(outwardPlacement([1, 0])).toBe('right');
         expect(outwardPlacement([0, -1])).toBe('below');
         expect(outwardPlacement([-1, 1])).toBe('above-left');
-        expect(eigenLabelPlacements([0.7, 0.7], [2.1, 2.1], [4, 2], [1, 3])).toEqual({v: 'above-right', av: 'above-right'});
-        expect(eigenLabelPlacements([0, 1], [0, 2], [2, 0], [0, 2]).av).toBe('below-right');
-        expect(eigenLabelPlacements([1, 0], [2, 0], [2, 0], [0, 2]).av).toBe('above-right');
     });
 });

@@ -62,7 +62,8 @@ const points = (graph: any) => ofType(graph, 'point');
 const curves = (graph: any) => ofType(graph, 'curve');
 const at = (point: any) => [point.X(), point.Y()];
 const [GRID_SOURCE, GRID_IMAGE] = [0, 1];
-const [H1, H2] = [6, 7];
+/** The two matrix-column handles, looked up through the graph so the order of the board objects does not matter. */
+const handles = (graph: any): any[] => [graph.handle1, graph.handle2];
 const caption = (graph: any) => graph.captionPlainLines();
 
 function collect(node: any, found: Record<string, any[]> = {}) {
@@ -142,7 +143,8 @@ describe('scene objects and ownership', () => {
         setMatrix(graph, LINEAR_MAP_EXAMPLES['basis-default']);
         const control = imageControlPoints(matrixOf(graph));
         expect(control).toEqual([[2, 1], [1, 5], [6, 6], [11, 4]]);
-        const imageCurve = curves(graph).at(-1);
+        // The image Bezier is the last curve built from functions; the ellipse mode's curves (data arrays) follow it.
+        const imageCurve = curves(graph).filter((curve: any) => typeof curve.parents[0] === 'function').at(-1);
         const half = [imageCurve.parents[0](0.5), imageCurve.parents[1](0.5)];
         const mapped = apply(matrixOf(graph), bezierPoint(FIXTURE_CONTROL_POINTS, 0.5));
         expect(half[0]).toBeCloseTo(mapped[0], 12);
@@ -155,14 +157,14 @@ describe('scene objects and ownership', () => {
 describe('handles and numeric entries', () => {
     test('dragging a handle snaps both coordinates to 1/4 and clamps to [-4, 4]; the handle follows the snapped position', () => {
         const graph = makeGraph();
-        const handle = points(graph)[H1];
+        const handle = handles(graph)[0];
         expect(at(handle)).toEqual([1, 0]);
         handle.x = 2.13; handle.y = 0.9;
         handle.handlers.drag();
         expect(matrixOf(graph)).toEqual([[2.25, 0], [1, 1]]);
         expect(graph.model.exampleId).toBe('custom');
         expect(handle.moveTo).toHaveBeenLastCalledWith([2.25, 1]);
-        const second = points(graph)[H2];
+        const second = handles(graph)[1];
         second.x = -9; second.y = 7.9;
         second.handlers.drag();
         expect(matrixOf(graph)).toEqual([[2.25, -4], [1, 4]]);
@@ -222,7 +224,7 @@ describe('Reset, examples and modes', () => {
         expect([c.x1, c.y1, c.x2, c.y2].map(input => input.props.value)).toEqual([1, 0, 0, 1]);
         expect(c.selects[0].props.value).toBe('identity');
         expect(c.notices).toHaveLength(0);
-        expect([at(points(graph)[H1]), at(points(graph)[H2])]).toEqual([[1, 0], [0, 1]]);
+        expect([at(handles(graph)[0]), at(handles(graph)[1])]).toEqual([[1, 0], [0, 1]]);
         const image = curves(graph)[GRID_IMAGE];
         image.updateDataArray();
         const identity = gridPolyline(IDENTITY);
@@ -256,7 +258,7 @@ describe('Reset, examples and modes', () => {
         expect(graph.model.mode).toBe('determinant');
         expect(matrixOf(graph)).toEqual([[1, 2], [2, 1]]);
         expect(graph.model.exampleId).toBe('orientation-reversing');
-        expect(at(points(graph)[H1])).toEqual([1, 2]);
+        expect(at(handles(graph)[0])).toEqual([1, 2]);
         expect(readout(graph, 'det')).toBe('−3');
         act(graph, () => controls(graph).selects[1].props.onChange('basis'));
         expect(matrixOf(graph)).toEqual([[1, 2], [2, 1]]);
@@ -356,7 +358,7 @@ describe('Presets', () => {
         expect([c.x1, c.y1, c.x2, c.y2].map(input => input.props.value)).toEqual([2, 1, -1, 1]);
         expect(c.selects[0].props.value).toBe('basis-default');
         expect(c.selects[1].props.value).toBe('determinant');
-        expect([at(points(fresh)[H1]), at(points(fresh)[H2])]).toEqual([[2, 1], [-1, 1]]);
+        expect([at(handles(fresh)[0]), at(handles(fresh)[1])]).toEqual([[2, 1], [-1, 1]]);
         expect(readout(fresh, 'det')).toBe('3');
         const image = curves(fresh)[GRID_IMAGE];
         image.updateDataArray();
@@ -368,7 +370,7 @@ describe('Presets', () => {
         act(graph, () => controls(graph).x1.props.onChange(9));
         act(graph, () => graph.importPresetData({...DEFAULT_LINEAR_MAP_STATE, matrix: [[1, 2], [2, 1]], exampleId: 'orientation-reversing'}));
         expect(controls(graph).notices).toHaveLength(0);
-        expect(at(points(graph)[H1])).toEqual([1, 2]);
+        expect(at(handles(graph)[0])).toEqual([1, 2]);
     });
 
     test.each([
@@ -389,14 +391,14 @@ describe('Presets', () => {
     });
 
     test('a mode the graph does not draw is rejected naming the field mode; setMode rejects it too', () => {
-        for (const mode of ['ellipse', 'composition']) {
+        for (const mode of ['composition']) {
             const checked = linearMapPresetCollection.check({...stored(), mode}) as { rejection: { key: string; params: { value0: string } } };
             expect(checked.rejection).toMatchObject({key: 'linear_map_invalid_field', params: {value0: 'mode'}});
             expect(t(checked.rejection.key as 'linear_map_invalid_field', {value0: 'mode'})).toContain('mode');
         }
         expect('data' in linearMapPresetCollection.check({...stored(), mode: 'determinant'})).toBe(true);
         const graph = makeGraph();
-        expect(() => graph.setMode('ellipse')).toThrow(/ellipse/);
+        expect(() => graph.setMode('composition')).toThrow(/composition/);
         expect(graph.model.mode).toBe('basis');
     });
 
@@ -427,7 +429,7 @@ describe('lesson actions', () => {
         expect(graph.model).toMatchObject({mode: 'determinant', exampleId: 'basis-default'});
         graph.applyLessonAction({kind: 'linear-map', operation: 'set-matrix', matrix: [[1, 2], [2, 1]]});
         expect(graph.model).toMatchObject({matrix: [[1, 2], [2, 1]], mode: 'determinant', exampleId: 'custom'});
-        expect(at(points(graph)[H1])).toEqual([1, 2]);
+        expect(at(handles(graph)[0])).toEqual([1, 2]);
         graph.applyLessonAction({kind: 'linear-map', operation: 'set-test-vector', angle: 45});
         expect(graph.model).toMatchObject({testAngle: 45, matrix: [[1, 2], [2, 1]]});
         graph.applyLessonAction({kind: 'linear-map', operation: 'set-matrix', matrix: [[0, 1], [1, 0]], target: 'secondMatrix'});
@@ -439,7 +441,7 @@ describe('lesson actions', () => {
         const graph = makeGraph();
         expect(() => graph.applyLessonAction({kind: 'linear-map', operation: 'set-matrix', matrix: [[0.3, 0], [0, 1]]})).toThrow(/matrix\[0\]\[0\]/);
         expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'nope'}))).toThrow(/mode/);
-        expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'ellipse'}))).toThrow(/mode/);
+        expect(() => graph.applyLessonAction(bad({operation: 'set-mode', mode: 'composition'}))).toThrow(/mode/);
         expect(graph.model.mode).toBe('basis');
         for (const mode of ['basis', 'determinant'] as const) {
             graph.applyLessonAction({kind: 'linear-map', operation: 'set-mode', mode});

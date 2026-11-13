@@ -34,8 +34,11 @@ import {
     shoelace, sourceGridPolyline,
 } from "./linearMapScene";
 import {EIGEN_PARALLEL_TOLERANCE} from "../../linear/eigen2";
-import {angleOfPoint, deriveEigen, eigenLabelPlacements, eigenViewBox, EigenView, eigenSnapAngle, normalizeTestAngle, unitVector} from "./eigenScene";
+import {angleOfPoint, deriveEigen, eigenViewBox, EigenView, eigenSnapAngle, normalizeTestAngle, unitVector} from "./eigenScene";
 import {createEigenCurves, createEigenPoints, EIGEN_COLORS, EigenBoardContext} from "./eigenBoard";
+import {deriveEllipse, ellipseViewBox, EllipseView} from "./ellipseScene";
+import {eigenLabelRequests, ellipseLabelRequests, placeLabels} from "./labelLayout";
+import {createEllipseObjects, ELLIPSE_COLORS, EllipseBoardContext} from "./ellipseBoard";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
 import type {Preset} from "../base/presets/Presets";
 
@@ -70,7 +73,9 @@ type Row = 0 | 1;
 type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse-point"
     | "zero-start" | "zero-iterate" | "start-to-zero" | "collapses" | "dominant" | "other-eigenvector" | "equal-moduli" | "rotating" | "scalar" | "defective" | "settled"
     | "td-inside" | "td-edge" | "td-outside" | "flow-stable" | "flow-unstable" | "companion" | "td-range"
-    | "eigen-approx-parallel" | "eigen-exact-parallel" | "eigen-not-parallel" | "eigen-two" | "eigen-one" | "eigen-all" | "eigen-none" | "eigen-kernel" | "eigen-v-kernel";
+    | "eigen-approx-parallel" | "eigen-exact-parallel" | "eigen-not-parallel" | "eigen-two" | "eigen-one" | "eigen-all" | "eigen-none" | "eigen-kernel" | "eigen-v-kernel"
+    | "ellipse-symmetric" | "ellipse-nonsymmetric" | "ellipse-segment" | "ellipse-point" | "ellipse-circle" | "ellipse-no-lines"
+    | "conic-ellipse" | "conic-hyperbola" | "conic-lines" | "conic-empty";
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -95,7 +100,7 @@ interface EntryNotice {
     kind: "clamped" | "snapped";
 }
 
-const EXAMPLE_IDS_OFFERED = ["identity", "basis-default", "orientation-reversing", "singular", "eigen-default", "quarter-turn", "shear", "scalar-2"] as const;
+const EXAMPLE_IDS_OFFERED = ["identity", "basis-default", "orientation-reversing", "singular", "eigen-default", "quarter-turn", "shear", "symmetric", "non-symmetric", "reflection-x", "scalar-2"] as const;
 const SOURCE_GRID = sourceGridPolyline();
 let nextInstance = 0;
 
@@ -129,6 +134,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     private iterationMemo?: { model: LinearMapState; view: IterationView };
     private traceDetMemo?: { matrix: Mat2; view: TraceDetView };
     private eigenMemo?: { model: LinearMapState; view: EigenView };
+    private labelMemo?: { key: string; cells: Record<string, LabelPlacement> };
+    private ellipseMemo?: { matrix: Mat2; view: EllipseView };
     /** The view the board currently shows, so only a change between the planes resets the box. */
     /** The view the board shows: its own box per plane, and for the eigen mode one per matrix (refitted when the matrix changes, never during a drag). */
     private boardViewKey = "plane";
@@ -147,6 +154,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         if (this.model.mode === "eigen") {
             const {width, height} = this.board ? JXG.getDimensions(this.board.container, document) : {width: 0, height: 0};
             return eigenViewBox(this.model.matrix, parseFloat(String(width)), parseFloat(String(height)));
+        }
+        if (this.model.mode === "ellipse") {
+            const {width, height} = this.board ? JXG.getDimensions(this.board.container, document) : {width: 0, height: 0};
+            return ellipseViewBox(this.model.matrix, this.model.conicVisible === true, parseFloat(String(width)), parseFloat(String(height)));
         }
         return [...(this.model.mode === "tracedet" ? TRACE_DET_VIEW : BOARD_VIEW)];
     }
@@ -202,10 +213,28 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         return this.iterationMemo.view;
     }
 
-    private eigenPlacements(): { v: LabelPlacement; av: LabelPlacement } {
-        const eigen = this.eigenOf(this.model);
-        const m = this.model.matrix;
-        return eigenLabelPlacements(eigen.v, eigen.av, [m[0][0], m[1][0]], [m[0][1], m[1][1]]);
+    /**
+     * The cells of the labels of the eigen and ellipse modes: one greedy placement (`labelLayout`), recomputed when the matrix, the test
+     * vector, the conic switch or the view box changes. Other modes keep the fixed cells of the handle labels.
+     */
+    private labelCells(): Record<string, LabelPlacement> {
+        const {mode, matrix} = this.model;
+        if (mode !== "eigen" && mode !== "ellipse") return {};
+        const box = this.board.getBoundingBox() as [number, number, number, number];
+        const widthPx = this.board.canvasWidth || 700;
+        const heightPx = this.board.canvasHeight || widthPx * (box[1] - box[3]) / (box[2] - box[0]);
+        const fontSize = this.displaySettings.fontSize;
+        const key = JSON.stringify([mode, matrix, mode === "eigen" ? this.model.testAngle : this.model.conicVisible === true, box, widthPx, heightPx, fontSize]);
+        if (this.labelMemo?.key === key) return this.labelMemo.cells;
+        const requests = mode === "eigen" ? eigenLabelRequests(matrix, this.eigenOf(this.model))
+            : ellipseLabelRequests(matrix, this.ellipseOf(this.model), this.model.conicVisible === true);
+        const cells = placeLabels(requests, {box, widthPx, heightPx, fontSize});
+        this.labelMemo = {key, cells};
+        return cells;
+    }
+
+    private labelCell(id: string, usual: LabelPlacement): LabelPlacement {
+        return this.labelCells()[id] ?? usual;
     }
 
     private traceDetOf(model: LinearMapState): TraceDetView {
@@ -216,6 +245,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     private eigenOf(model: LinearMapState): EigenView {
         if (this.eigenMemo?.model !== model) this.eigenMemo = {model, view: deriveEigen(model.matrix, model.testAngle)};
         return this.eigenMemo.view;
+    }
+
+    private ellipseOf(model: LinearMapState): EllipseView {
+        if (this.ellipseMemo?.matrix !== model.matrix) this.ellipseMemo = {matrix: model.matrix, view: deriveEllipse(model.matrix)};
+        return this.ellipseMemo.view;
     }
 
     // ---- Model operations (read and write the synchronous model) ---------------------------------------
@@ -415,7 +449,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.commitModel(changeMode(this.model, mode));
     }
 
-    protected setToggle(field: "probeVisible" | "curveVisible" | "squareVisible", visible: boolean): void {
+    protected setToggle(field: "probeVisible" | "curveVisible" | "squareVisible" | "conicVisible", visible: boolean): void {
+        if (field === "conicVisible") {
+            if ((this.model.conicVisible === true) !== visible) this.commitModel({...this.model, conicVisible: visible});
+            return;
+        }
         if (this.model[field] !== visible) this.commitModel({...this.model, [field]: visible});
     }
 
@@ -442,6 +480,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             }
             case "set-test-vector": return this.commitModel(applySetTestVector(this.model, unwrap(validateSetTestVector(payload))));
             case "set-example": return this.commitModel(applySetExample(this.model, unwrap(validateSetExample(payload))));
+            case "set-conic": {
+                const {visible} = payload as {visible?: unknown};
+                if (typeof visible !== "boolean") throw new DomainError("visible: must be true or false.");
+                return this.setToggle("conicVisible", visible);
+            }
             case "set-start": return this.commitModel(applySetStart(this.model, unwrap(validateSetStart(payload))));
             case "step": return this.commitModel(applyStep(this.model, unwrap(validateStep(payload))));
         }
@@ -490,6 +533,9 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             case "eigen-default": return t("linear_map_example_eigen_default");
             case "quarter-turn": return t("linear_map_example_quarter_turn");
             case "shear": return t("linear_map_example_shear");
+            case "symmetric": return t("linear_map_example_symmetric");
+            case "non-symmetric": return t("linear_map_example_non_symmetric");
+            case "reflection-x": return t("linear_map_example_reflection_x");
             case "scalar-2": return t("linear_map_example_scalar_2");
             case "custom": return t("linear_map_example_custom");
             default: return t("linear_map_example_other");
@@ -501,6 +547,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             case "basis": return t("linear_map_mode_basis");
             case "determinant": return t("linear_map_mode_determinant");
             case "eigen": return t("linear_map_mode_eigen");
+            case "ellipse": return t("linear_map_mode_ellipse");
             case "iterate": return t("linear_map_mode_iterate");
             case "tracedet": return t("linear_map_mode_tracedet");
         }
@@ -559,7 +606,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         createIterationCurves(iterationContext);
         const eigenContext: EigenBoardContext = {
             board, own: object => this.own(object), active: () => model().mode === "eigen",
-            vPlacement: () => this.eigenPlacements().v, avPlacement: () => this.eigenPlacements().av,
+            vPlacement: () => this.labelCell("v", "above-right"), avPlacement: () => this.labelCell("av", "above-right"),
             v: () => this.eigenOf(this.model).v, av: () => this.eigenOf(this.model).av, lines: () => this.eigenOf(this.model).lines,
             strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
             handleAttributes: {...this.styles.point.default, strokeColor: GraphPalette.pointOutline},
@@ -567,6 +614,15 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             dragTip: (x, y) => this.dragEigenTip(x, y),
         };
         createEigenCurves(eigenContext);
+        const ellipseContext: EllipseBoardContext = {
+            board, own: object => this.own(object), active: () => model().mode === "ellipse", conicShown: () => model().conicVisible === true,
+            imageCurve: () => this.ellipseOf(this.model).imageCurve, conicCurve: () => this.ellipseOf(this.model).conic.curve,
+            lines: () => this.ellipseOf(this.model).lines, axes: () => this.ellipseOf(this.model).axes,
+            conicAxes: () => this.ellipseOf(this.model).conicAxes, directions: () => this.ellipseOf(this.model).directions,
+            pointImage: () => this.ellipseOf(this.model).kind === "point", placement: id => this.labelCell(id, "above-right"),
+            strokeWidth, thin, markerSize, fixedPointAttributes: this.styles.point.fixed,
+            pointLabel: (placement, distance, shown) => this.pointLabel(placement, distance, shown),
+        };
 
         polyline(() => closedPolyline(unitSquareImage(IDENTITY)), {strokeColor: colors.sourcePoint, strokeWidth: strokeWidth, visible: squareShown});
         polyline(() => closedPolyline(view().square), {
@@ -605,7 +661,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             colors.imageHandle, probeShown);
 
         // a1 and a2 are dragged on the 1/4 grid inside [-4, 4]^2; each drag event writes the model once with both coordinates.
-        const handle = (column: Column, name: string, placement: LabelPlacement, color: string) => {
+        const handle = (column: Column, name: string, placement: LabelPlacement | (() => LabelPlacement), color: string) => {
             const m = this.model.matrix;
             const point = this.own(board.create("point", [m[0][column], m[1][column]], {
                 ...this.styles.point.default, name, label: this.pointLabel(placement, 1.1, gridsShown), size: markerSize,
@@ -622,13 +678,15 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             point.on("up", () => this.refitView());
             return point;
         };
-        this.handle1 = handle(0, "$$a_1=Ae_1$$", "below-right", colors.imageHandle);
-        this.handle2 = handle(1, "$$a_2=Ae_2$$", "above-left", colors.imageHandle);
+        this.handle1 = handle(0, "$$a_1=Ae_1$$", () => this.labelCell("a1", "below-right"), colors.imageHandle);
+        this.handle2 = handle(1, "$$a_2=Ae_2$$", () => this.labelCell("a2", "above-left"), colors.imageHandle);
 
         const iterationHandles = createIterationPoints(iterationContext);
         this.startHandle = iterationHandles.startHandle;
         this.traceDetHandle = iterationHandles.tdHandle;
         this.eigenTip = createEigenPoints(eigenContext);
+        // After the handles, so the first board points stay the grids' and the handles' (the ellipse draws only in its mode).
+        createEllipseObjects(ellipseContext);
 
         // The basis images and the determinant stay on the board; the narrow board drops the orientation line.
         this.caption("bottom-left", [
@@ -670,10 +728,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     private viewKey(): string {
         const mode = this.model.mode as LinearMapGraphMode;
+        if (mode === "ellipse") return `ellipse:${JSON.stringify(this.model.matrix)}:${this.model.conicVisible === true}`;
         return mode === "eigen" ? `eigen:${JSON.stringify(this.model.matrix)}` : planeOf(mode);
     }
 
-    /** The trace-determinant plane and the eigen mode have their own views; a change of the plane or, in the eigen mode, of the matrix shows the new one. */
+    /** The trace-determinant plane, the eigen mode and the ellipse mode have their own views; a change of the plane or, in the two modes, of the matrix (and the conic switch) shows the new one. */
     private refitView(): void {
         const key = this.viewKey();
         if (key === this.boardViewKey) return;
@@ -688,6 +747,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         this.traceDetHandle = undefined;
         this.eigenTip = undefined;
         this.eigenMemo = undefined;
+        this.ellipseMemo = undefined;
+        this.labelMemo = undefined;
         this.iterationMemo = undefined;
         this.traceDetMemo = undefined;
     }
@@ -709,6 +770,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const notice = this.notice;
         const iterating = state.mode === "iterate";
         const eigenMode = state.mode === "eigen";
+        const ellipseMode = state.mode === "ellipse";
         const eigen = this.eigenOf(state);
         const snapReason = eigen.classification.kind === "complex" ? t("linear_map_snap_unavailable_complex")
             : eigen.classification.kind === "repeated" && eigen.classification.repeated === "scalar" ? t("linear_map_snap_unavailable_scalar") : undefined;
@@ -768,6 +830,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     </UnavailableButton>
                 </div>
             </div>}
+            {ellipseMode && <div className="inspector-group">
+                <p className="inspector-help" data-linear-map-ellipse-gloss="">{t("linear_map_note_ellipse")}</p>
+                <OnOffSwitch checked={state.conicVisible === true} label={t("linear_map_toggle_conic")} onChange={checked => this.setToggle("conicVisible", checked)}/>
+            </div>}
             {iterating && <div className="inspector-group">
                 <p className="inspector-help" data-linear-map-iterate-gloss="">{t("linear_map_note_iterate")}</p>
                 <div className="function-points-grid">
@@ -809,6 +875,22 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 {id: "lines", color: EIGEN_COLORS.line, label: t("linear_map_legend_eigen_lines"), kind: "line"},
             ]}/>;
         }
+        if (mode === "ellipse") {
+            const conic = this.model.conicVisible === true;
+            return <FunctionLegend items={[
+                {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
+                {id: "image-grid", color: LINEAR_MAP_COLORS.imageGrid, label: t("linear_map_legend_image_grid"), kind: "line"},
+                {id: "circle", color: ELLIPSE_COLORS.circle, label: t("linear_map_legend_eigen_circle"), kind: "line"},
+                conic
+                    ? {id: "conic", color: ELLIPSE_COLORS.conic, label: t("linear_map_legend_ellipse_conic"), kind: "line"}
+                    : {id: "image", color: ELLIPSE_COLORS.image, label: t("linear_map_legend_ellipse_image"), kind: "line"},
+                conic
+                    ? {id: "conic-axes", color: ELLIPSE_COLORS.conic, label: t("linear_map_legend_ellipse_conic_axes"), kind: "line"}
+                    : {id: "axes", color: ELLIPSE_COLORS.image, label: t("linear_map_legend_ellipse_axes"), kind: "line"},
+                ...(conic ? [] : [{id: "directions", color: ELLIPSE_COLORS.direction, label: t("linear_map_legend_ellipse_directions"), kind: "line" as const}]),
+                {id: "lines", color: ELLIPSE_COLORS.line, label: t("linear_map_legend_eigen_lines"), kind: "dashed-line"},
+            ]}/>;
+        }
         if (mode === "iterate") {
             return <FunctionLegend items={[
                 {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
@@ -834,6 +916,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         if (model.mode === "iterate") return this.iterationStatuses(model);
         if (model.mode === "tracedet") return this.traceDetStatuses(model);
         if (model.mode === "eigen") return this.eigenStatuses(model);
+        if (model.mode === "ellipse") return this.ellipseStatuses(model);
         if (model.mode === "determinant") {
             if (view.sign > 0) result.push({id: "positive", text: t("linear_map_status_positive")});
             else if (view.sign < 0) result.push({id: "negative", text: t("linear_map_status_negative")});
@@ -887,6 +970,25 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         else result.push({id: "eigen-one", text: t("linear_map_status_eigen_one")});
         if (eigen.delta === 0 && c.kind !== "complex" && !(c.kind === "repeated" && c.repeated === "scalar")) {
             result.push({id: "eigen-kernel", text: t("linear_map_status_eigen_kernel")});
+        }
+        return result;
+    }
+
+    private ellipseStatuses(model: LinearMapState): { id: StatusKind; text: string }[] {
+        const ellipse = this.ellipseOf(model);
+        const result: { id: StatusKind; text: string }[] = [];
+        result.push(ellipse.symmetric ? {id: "ellipse-symmetric", text: t("linear_map_status_ellipse_symmetric")}
+            : {id: "ellipse-nonsymmetric", text: t("linear_map_status_ellipse_nonsymmetric")});
+        if (ellipse.kind === "segment") result.push({id: "ellipse-segment", text: t("linear_map_status_ellipse_segment")});
+        else if (ellipse.kind === "point") result.push({id: "ellipse-point", text: t("linear_map_status_ellipse_point")});
+        else if (ellipse.kind === "circle") result.push({id: "ellipse-circle", text: t("linear_map_status_ellipse_circle")});
+        if (ellipse.lines.length === 0) result.push({id: "ellipse-no-lines", text: t("linear_map_status_ellipse_no_lines")});
+        if (model.conicVisible === true) {
+            const kind = ellipse.conic.kind;
+            result.push(kind === "ellipse" ? {id: "conic-ellipse", text: t("linear_map_status_conic_ellipse")}
+                : kind === "hyperbola" ? {id: "conic-hyperbola", text: t("linear_map_status_conic_hyperbola")}
+                : kind === "parallel-lines" ? {id: "conic-lines", text: t("linear_map_status_conic_lines")}
+                : {id: "conic-empty", text: t("linear_map_status_conic_empty")});
         }
         return result;
     }
@@ -961,6 +1063,28 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                     id: "between", label: t("linear_map_readout_eigen_between"),
                     value: eigen.angleBetween === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(eigen.angleBetween, 2)}),
                 },
+            ];
+        }
+        if (model.mode === "ellipse") {
+            const ellipse = this.ellipseOf(model);
+            const angle = (value: number | undefined) => value === undefined ? none : t("linear_map_readout_angle_value", {value0: this.num(value, 2)});
+            const conic = ellipse.conic;
+            const pair = (a: number, b: number) => t("linear_map_value_eigenvalues_two", {value0: this.num(a, 4), value1: this.num(b, 4)});
+            return [
+                ...matrixRows,
+                {id: "sigma1", label: t("linear_map_readout_sigma1"), value: this.num(ellipse.singular.sigma[0], 4)},
+                {id: "sigma2", label: t("linear_map_readout_sigma2"), value: this.num(ellipse.singular.sigma[1], 4)},
+                {id: "det", label: t("linear_map_readout_det"), value: this.num(ellipse.determinant, 4)},
+                {id: "abs-det", label: t("linear_map_readout_abs_det"), value: this.num(ellipse.absDeterminant, 4)},
+                {id: "sigma-product", label: t("linear_map_readout_sigma_product"), value: this.num(ellipse.product, 4)},
+                {id: "axis-image", label: t("linear_map_readout_axis_image"), value: angle(ellipse.imageAxisAngle)},
+                {id: "axis-domain", label: t("linear_map_readout_axis_domain"), value: angle(ellipse.domainAxisAngle)},
+                ...(model.conicVisible === true ? [
+                    {id: "sym-row1", label: t("linear_map_readout_sym_row1"), value: `${this.num(conic.symmetricPart[0][0])}   ${this.num(conic.symmetricPart[0][1])}`},
+                    {id: "sym-row2", label: t("linear_map_readout_sym_row2"), value: `${this.num(conic.symmetricPart[1][0])}   ${this.num(conic.symmetricPart[1][1])}`},
+                    {id: "conic-lambda", label: t("linear_map_readout_conic_lambda"), value: pair(conic.eigenvalues[0], conic.eigenvalues[1])},
+                    {id: "conic-axes", label: t("linear_map_readout_conic_axes"), value: conic.semiAxes ? pair(conic.semiAxes[0], conic.semiAxes[1]) : none},
+                ] : []),
             ];
         }
         if (model.mode === "iterate") {
