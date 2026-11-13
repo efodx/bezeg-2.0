@@ -5,7 +5,7 @@ import {
     editMatrixEntry, ITERATE_STEP_MAX, startOf, stepOf, validateSetStart, validateStep,
     LinearMapState, parseLinearMapState, selectExample, serializeLinearMapState, snapEntryInput, validateSetExample,
     validateSetMatrix, validateSetMode, validateSetTestVector,
-    applyChooseElement, applySetVector, chooseElement, compositionDefaults, editSlotEntry, editVectorCoordinate, hasCompositionFields,
+    applyChooseElement, applySetVector, chooseElement, compositionDefaults, editSlotEntry, editVectorCoordinate, enterMode, hasCompositionFields,
     isCompositionDefault, setElementIndex, setPivotUsed, setSlotSource, setVectorField, validateChooseElement, validateSetVector,
 } from './linearMapModel';
 
@@ -398,5 +398,28 @@ describe('Batch C slice 2: the composition editing helpers', () => {
         expect(validateSetVector({translation: [1, 0]}, 'pivot').ok).toBe(false);
         const vector = must(validateSetVector({translation: [1.25, -4]}, 'translation'));
         expect(applySetVector(base, 'translation', vector).translation).toEqual([1.25, -4]);
+    });
+
+    it('null drops the translation and the pivot, strictly and only null', () => {
+        const stored = {...base, translation: [2, 1] as [number, number], pivot: [3, 1] as [number, number]};
+        const noTranslation = must(validateSetVector({translation: null}, 'translation'));
+        expect(applySetVector(stored, 'translation', noTranslation)).not.toHaveProperty('translation');
+        expect(applySetVector(stored, 'translation', noTranslation).pivot).toEqual([3, 1]);
+        const noPivot = must(validateSetVector({pivot: null}, 'pivot'));
+        expect(applySetVector(stored, 'pivot', noPivot)).not.toHaveProperty('pivot');
+        expect(validateSetVector({pivot: [4.25, 0]}, 'pivot').ok).toBe(false);
+        expect(validateSetVector({translation: [0.1, 0]}, 'translation').ok).toBe(false);
+        expect(validateChooseElement({slot: 'first', element: {kind: 'rotation', k: 1.5}}).ok).toBe(false);
+    });
+
+    it('enterMode adds the default elements only when the composition mode is entered with nothing stored', () => {
+        const entered = enterMode(DEFAULT_LINEAR_MAP_STATE, 'composition');
+        expect(entered.mode).toBe('composition');
+        expect(entered.element).toEqual({kind: 'rotation', k: 6});
+        expect(entered.secondElement).toEqual({kind: 'reflection', k: 0});
+        expect(applySetMode(DEFAULT_LINEAR_MAP_STATE, {mode: 'composition'})).toEqual(entered);
+        const stored = {...DEFAULT_LINEAR_MAP_STATE, element: {kind: 'rotation', k: 2} as const};
+        expect(enterMode(stored, 'composition')).toEqual({...stored, mode: 'composition'});
+        expect(enterMode(DEFAULT_LINEAR_MAP_STATE, 'eigen')).toEqual(changeMode(DEFAULT_LINEAR_MAP_STATE, 'eigen'));
     });
 });

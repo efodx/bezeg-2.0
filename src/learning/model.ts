@@ -43,6 +43,7 @@ import {COMPLEX_RECIPROCAL_EXAMPLE_IDS} from '../analysis/complexReciprocalModel
 import {COMPLEX_ROOTS_EXAMPLE_IDS} from '../analysis/complexRootsModel';
 import type {LinearMapExampleId, Mat2} from '../linear/matrix2';
 import type {LinearMapMode, MatrixSlot} from '../linear/linearMapModel';
+import type {MapElement} from '../linear/composition2';
 import type {PointSetOverlayName} from '../compgeo/pointSetModel';
 
 export type LessonLanguage = 'sl' | 'en';
@@ -301,6 +302,14 @@ export type LessonAction =
     /** Batch D: `set-start` sets the iteration's start vector (grid coordinates); `step` advances the iteration by `count` (1 to 30, default 1, relative to the current step). */
     | {readonly kind: 'linear-map'; readonly operation: 'set-start'; readonly start: readonly [number, number]}
     | {readonly kind: 'linear-map'; readonly operation: 'step'; readonly count?: number}
+    /**
+     * Composition mode (Batch C): `choose-element` picks the rotation by k·15° or the reflection in the line at k·7.5° (k = 0..23) of slot A (`first`) or
+     * B (`second`); a missing or null element clears the choice so the slot's free entries (`set-matrix` with `target`) apply. `set-translation`
+     * and `set-pivot` store a grid point; null drops the field (no translation; pivot off = origin). Valid in any mode; they only store fields.
+     */
+    | {readonly kind: 'linear-map'; readonly operation: 'choose-element'; readonly slot: 'first' | 'second'; readonly element?: MapElement | null}
+    | {readonly kind: 'linear-map'; readonly operation: 'set-translation'; readonly translation: readonly [number, number] | null}
+    | {readonly kind: 'linear-map'; readonly operation: 'set-pivot'; readonly pivot: readonly [number, number] | null}
     /**
      * PointSetGraph's scene actions. `set-points` replaces the model (grid step 0); scene data is strict, so an off-grid,
      * out-of-range or over-limit point is a lesson-content error and never snapped. `set-overlay` accepts only the

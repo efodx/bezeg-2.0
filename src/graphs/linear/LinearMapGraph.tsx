@@ -18,11 +18,12 @@ import {prefersReducedMotion, ReducedMotion} from "../base/controls/reducedMotio
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {
-    applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applyStep, changeMode, CompositionSlot, compositionDefaults,
-    DEFAULT_FIRST_ELEMENT, DEFAULT_LINEAR_MAP_STATE, DEFAULT_SECOND_ELEMENT, editMatrixEntry, editSlotEntry, editVectorCoordinate, elementOf, freeEntriesOf,
-    hasCompositionFields, isCompositionDefault, ITERATE_STEP_MAX, LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample,
+    applyChooseElement, applySetExample, applySetMatrix, applySetMode, applySetStart, applySetTestVector, applySetVector, applyStep,
+    CompositionSlot, compositionDefaults,
+    DEFAULT_LINEAR_MAP_STATE, editMatrixEntry, editSlotEntry, editVectorCoordinate, elementOf, enterMode,
+    freeEntriesOf, isCompositionDefault, ITERATE_STEP_MAX, LinearMapExampleChoice, LinearMapResult, LinearMapState, selectExample,
     serializeLinearMapState, setElementIndex, setPivotUsed, setSlotSource, setVectorField, SlotSource, snapEntryInput, snapStartInput, sourceOf,
-    startOf, stepOf, validateSetExample, validateSetMatrix, validateSetMode, validateSetStart, validateSetTestVector, validateStep, VectorField,
+    startOf, stepOf, validateChooseElement, validateSetExample, validateSetVector, validateSetMatrix, validateSetMode, validateSetStart, validateSetTestVector, validateStep, VectorField,
 } from "../../linear/linearMapModel";
 import {ELEMENT_COUNT, ELEMENT_STEP_DEGREES, MapElement} from "../../linear/composition2";
 import {CompositionView, compositionViewBox, deriveComposition, isExactMatrix} from "./compositionScene";
@@ -452,11 +453,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     protected setMode(mode: string): void {
         if (!isLinearMapGraphMode(mode)) throw new DomainError(`The mode ${mode} is unknown.`);
-        // Entering the composition mode with nothing stored for it shows the lesson example (A the quarter turn, B the reflection in the
-        // x-axis); the matrix and every other mode's fields stay, so leaving the mode shows the earlier state again.
-        const entered = mode === "composition" && !hasCompositionFields(this.model)
-            ? {...this.model, element: DEFAULT_FIRST_ELEMENT, secondElement: DEFAULT_SECOND_ELEMENT} : this.model;
-        this.commitModel(changeMode(entered, mode));
+        this.commitModel(enterMode(this.model, mode));
     }
 
     // ---- Composition mode (Batch C) ---------------------------------------------------------------------------------
@@ -553,6 +550,9 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             }
             case "set-start": return this.commitModel(applySetStart(this.model, unwrap(validateSetStart(payload))));
             case "step": return this.commitModel(applyStep(this.model, unwrap(validateStep(payload))));
+            case "choose-element": return this.commitModel(applyChooseElement(this.model, unwrap(validateChooseElement(payload))));
+            case "set-translation": return this.commitModel(applySetVector(this.model, "translation", unwrap(validateSetVector(payload, "translation"))));
+            case "set-pivot": return this.commitModel(applySetVector(this.model, "pivot", unwrap(validateSetVector(payload, "pivot"))));
         }
     }
 

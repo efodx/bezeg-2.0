@@ -338,7 +338,7 @@ export function applySetMatrix(state: LinearMapState, payload: SetMatrixPayload)
         ? {...state, matrix: payload.matrix, exampleId: 'custom'}
         : {...state, secondMatrix: payload.matrix};
 }
-export const applySetMode = (state: LinearMapState, payload: SetModePayload): LinearMapState => changeMode(state, payload.mode);
+export const applySetMode = (state: LinearMapState, payload: SetModePayload): LinearMapState => enterMode(state, payload.mode);
 export const applySetTestVector = (state: LinearMapState, payload: SetTestVectorPayload): LinearMapState =>
     ({...state, testAngle: payload.angle});
 export const applySetExample = (state: LinearMapState, payload: SetExamplePayload): LinearMapState =>
@@ -391,6 +391,16 @@ export const DEFAULT_SECOND_ELEMENT: MapElement = {kind: 'reflection', k: 0};
 export const hasCompositionFields = (state: LinearMapState): boolean =>
     state.element !== undefined || state.secondElement !== undefined || state.secondMatrix !== undefined
     || state.translation !== undefined || state.pivot !== undefined;
+
+/**
+ * Enters a mode (the UI switch and the `set-mode` action). Entering the composition mode with nothing stored for it shows the lesson
+ * example (A the quarter turn, B the reflection in the x-axis); the matrix and every other mode's fields stay.
+ */
+export function enterMode(state: LinearMapState, mode: LinearMapMode): LinearMapState {
+    const entered = mode === 'composition' && !hasCompositionFields(state)
+        ? {...state, element: DEFAULT_FIRST_ELEMENT, secondElement: DEFAULT_SECOND_ELEMENT} : state;
+    return changeMode(entered, mode);
+}
 
 /** The composition defaults: the two elements of the spec example, no free second matrix, no translation, no pivot. The other fields stay. */
 export function compositionDefaults(state: LinearMapState): LinearMapState {
@@ -491,7 +501,8 @@ export function setPivotUsed(state: LinearMapState, used: boolean): LinearMapSta
 }
 
 export interface ChooseElementPayload {readonly slot: CompositionSlot; readonly element?: MapElement}
-export interface SetVectorPayload {readonly value: Vec2}
+/** `value` undefined drops the field (no translation; the pivot at the origin). */
+export interface SetVectorPayload {readonly value?: Vec2}
 
 /** `{slot, element?}`; scene data is strict: the element is validated, never snapped. A missing or null element clears the choice. */
 export function validateChooseElement(payload: unknown): LinearMapResult<ChooseElementPayload> {
@@ -505,12 +516,18 @@ export function validateChooseElement(payload: unknown): LinearMapResult<ChooseE
 export const applyChooseElement = (state: LinearMapState, payload: ChooseElementPayload): LinearMapState =>
     withElement(state, payload.slot, payload.element);
 
-/** `{translation}` or `{pivot}` (the field name selects the parser): two grid coordinates, strict. */
+/** `{translation}` or `{pivot}` (the field name selects the parser): two grid coordinates, strict; null drops the field. */
 export function validateSetVector(payload: unknown, field: VectorField): LinearMapResult<SetVectorPayload> {
     if (!isRecord(payload)) return fail('payload', 'not-an-object', `set-${field} needs an object payload.`);
+    if (payload[field] === null) return ok({});
     const parsed = parseStart(payload[field], field);
     if (!parsed.ok) return parsed;
     return ok({value: parsed.value});
 }
-export const applySetVector = (state: LinearMapState, field: VectorField, payload: SetVectorPayload): LinearMapState =>
-    ({...state, [field]: payload.value});
+export function applySetVector(state: LinearMapState, field: VectorField, payload: SetVectorPayload): LinearMapState {
+    if (payload.value === undefined) {
+        const {[field]: _dropped, ...rest} = state;
+        return rest;
+    }
+    return {...state, [field]: payload.value};
+}
