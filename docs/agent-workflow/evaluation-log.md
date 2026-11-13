@@ -2927,3 +2927,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Outcome:** `97d704ea` and the close-out docs commit. The guard failed when `graphFactories.ts` was recreated. `just check` passed: 17482 tests, after the handler fixed one unused-argument lint error the worker's focused checks missed.
 - **Negative:** the worker ran tsc, focused units and the build but not lint, so the first `just check` failed on lint at 157s. Briefs that touch tests should name `just lint`.
 - **Also:** the smoke brief assumed the catalog page lists cards in definition order. The page groups them by family, so that premise was wrong; the unit test owns catalog order.
+
+### 2026-11-13 — families-prep handler 14: F3 Batch B for six families (L)
+
+- **Scope:** confirmed handler 13's trigonometry publish and the full CI run; F3 Batch B for analytic lines (L3–L4), isometries (L3, new operation `set-dilation`), circle geometry (CG3–CG4, new operation `set-apollonius`), kinematics (KN3–KN4), waves (WV3) and mechanical curves (MC3), each joining its existing chapter. Estimated L; held.
+- **Workers:** 18 implementation (Sonnet `medium`, three per family: content, wiring, fixes and tests), 6 reviewers (Sonnet, one per family, beside the wiring worker). Handler-only: brief derivation per family, spec decision records, task status and README rows, one answer-before-prediction fix in L4, a README row the wiring worker set wrongly, comment updates, final checks per family.
+- **Outcome:** five families pushed with hosted CI green (`78e4feae`, `44e3e351`, `abfb5cef`, `7a287bd3`); waves and mechanical curves publishing at handoff.
+- **Repairs:** blocking review findings in four of six families, all of the reveal kind: answers in a rendered summary, title or formula block; scenes already in the state the text asks for (waves); later steps without a prediction (circle geometry). One content test found a real scene bug (the KN3 angles scene never set α = 30°).
+- **Handoff evidence:** no worker hit HANDOFF; the three-slice split kept each under budget. Four wiring and fixes workers reported while their own unit run still ran; stopped with TaskStop, despite the brief asking them not to.
+- **Tooling:** deriving each family's four briefs from the previous family's with a short replace script was fast and kept recurring findings in every brief. Python strings through the shell turned `\tfrac` into a tab in two spec lines; repaired with `chr(92)`.
