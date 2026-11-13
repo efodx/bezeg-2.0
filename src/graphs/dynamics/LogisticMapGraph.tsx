@@ -634,6 +634,8 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
             case "set-matrix":
             case "set-system":
             case "set-seeds":
+            case "set-zoom":
+            case "set-equilibrium":
                 throw new Error(`phase ${action.operation}: not an operation of the logistic map.`);
             default: {
                 const unsupported: never = action;

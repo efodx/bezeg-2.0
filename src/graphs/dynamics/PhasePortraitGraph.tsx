@@ -834,7 +834,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     // ---- Lesson actions -------------------------------------------------------------------------------------------------------
 
     /**
-     * Lesson actions (`phase`, this graph's operations): `set-matrix` sets A, B, C, D (quarter units), `set-system` the system and `set-seeds` all the seeds (1 to 6). The merged
+     * Lesson actions (`phase`, this graph's operations): `set-matrix` sets A, B, C, D (quarter units), `set-system` the system and `set-seeds` all the seeds (1 to 6), `set-zoom` the zoom (integer 0 to 6) and `set-equilibrium` the equilibrium index (1 only for the pendulum). The merged
      * state goes through `parsePhaseState` (strict, nothing snapped or clamped) before any write, so a bad value is a lesson-content error and nothing is written; unknown
      * fields are refused. `set-system` uses `withSystem` like the chooser: the matrix and the seeds are kept as they are (the seeds then mean (theta, omega) for the pendulum), the
      * equilibrium falls back to 0 where the new system has no such one. The logistic map's `set-r`, `set-seed` and `set-step` are refused. A valid action pauses a running playback.
@@ -854,6 +854,14 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             case "set-seeds":
                 this.refuseUnknown("set-seeds", fields, ["seeds"]);
                 this.commitPhase("set-seeds", {...state, seeds: action.seeds});
+                return;
+            case "set-zoom":
+                this.refuseUnknown("set-zoom", fields, ["zoom"]);
+                this.commitPhase("set-zoom", {...state, zoom: action.zoom});
+                return;
+            case "set-equilibrium":
+                this.refuseUnknown("set-equilibrium", fields, ["equilibrium"]);
+                this.commitPhase("set-equilibrium", {...state, equilibrium: action.equilibrium});
                 return;
             case "set-r":
             case "set-seed":

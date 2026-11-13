@@ -42,6 +42,8 @@ const apply = (graph: PhasePortraitGraph, action: LessonAction) => act(() => { g
 const setMatrix = (A: number, B: number, C: number, D: number): LessonAction => ({kind: 'phase', operation: 'set-matrix', A, B, C, D});
 const setSystem = (system: string): LessonAction => ({kind: 'phase', operation: 'set-system', system} as unknown as LessonAction);
 const setSeeds = (seeds: readonly Seed[]): LessonAction => ({kind: 'phase', operation: 'set-seeds', seeds});
+const setZoom = (zoom: number): LessonAction => ({kind: 'phase', operation: 'set-zoom', zoom});
+const setEquilibrium = (equilibrium: number): LessonAction => ({kind: 'phase', operation: 'set-equilibrium', equilibrium});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
@@ -87,6 +89,78 @@ test('set-system returns the equilibrium to 0 where the system has no such one, 
     expect(graph.state.equilibrium).toBe(1);
     apply(graph, setSystem('linear'));
     expect(graph.state.equilibrium).toBe(0);
+});
+
+const chooseEquilibrium = (value: string) => act(() => { fireEvent.change(field(t('phase_graph_equilibrium_label')), {target: {value}}); });
+const typeZoom = (value: string) => type(t('phase_graph_zoom_label'), value);
+
+test('set-zoom reaches the state, readouts, status and inset of the zoom control', () => {
+    for (const zoom of [0, 1, 3, 6]) {
+        const viaAction = after(graph => apply(graph, setZoom(zoom)));
+        expect(viaAction, String(zoom)).toEqual(after(() => typeZoom(String(zoom))));
+        expect(viaAction.state, String(zoom)).toEqual(expect.objectContaining({zoom}));
+    }
+});
+
+test('set-equilibrium reaches the state, readouts, status and inset of the equilibrium chooser', () => {
+    const viaAction = after(graph => { apply(graph, setSystem('pendulum')); apply(graph, setEquilibrium(1)); });
+    expect(viaAction).toEqual(after(() => { chooseSystem('pendulum'); chooseEquilibrium('1'); }));
+    expect(viaAction.state).toEqual(expect.objectContaining({system: 'pendulum', equilibrium: 1}));
+    expect(after(graph => { apply(graph, setSystem('pendulum')); apply(graph, setEquilibrium(1)); apply(graph, setEquilibrium(0)); })).toEqual(after(() => chooseSystem('pendulum')));
+});
+
+test('set-zoom and set-equilibrium run in one synchronous sequence with set-system', () => {
+    const graph = mount();
+    act(() => {
+        const capabilities = graph.getLessonCapabilities();
+        capabilities.apply(setSystem('pendulum'));
+        capabilities.apply(setEquilibrium(1));
+        capabilities.apply(setZoom(3));
+    });
+    expect(graph.state).toEqual(expect.objectContaining({system: 'pendulum', equilibrium: 1, zoom: 3}));
+    const here = {state: stateOf(graph), readouts: readouts(), status: status(), inset: inset()};
+    cleanup();
+    expect(after(() => { chooseSystem('pendulum'); chooseEquilibrium('1'); typeZoom('3'); })).toEqual(here);
+});
+
+test('set-zoom and set-equilibrium refuse invalid values and change nothing', () => {
+    const graph = mount();
+    apply(graph, setZoom(2));
+    const check = (action: LessonAction, pattern: RegExp) => {
+        const before = {state: stateOf(graph), readouts: readouts(), status: status()};
+        expect(() => apply(graph, action), JSON.stringify(action)).toThrow(pattern);
+        expect({state: stateOf(graph), readouts: readouts(), status: status()}).toEqual(before);
+    };
+    for (const zoom of [7, -1, 1.5, Number.NaN]) check(setZoom(zoom), /^phase set-zoom: zoom /);
+    check(setEquilibrium(1), /^phase set-equilibrium: equilibrium /);
+    apply(graph, setSystem('weak-spiral'));
+    check(setEquilibrium(1), /^phase set-equilibrium: equilibrium /);
+    apply(graph, setSystem('pendulum'));
+    check(setEquilibrium(2), /^phase set-equilibrium: equilibrium /);
+    check(setEquilibrium(-1), /^phase set-equilibrium: equilibrium /);
+});
+
+test('set-system keeps the zoom and returns the equilibrium to 0 only where the system lacks it', () => {
+    const graph = mount();
+    apply(graph, setZoom(4));
+    apply(graph, setSystem('pendulum'));
+    apply(graph, setEquilibrium(1));
+    expect(graph.state).toEqual(expect.objectContaining({zoom: 4, equilibrium: 1}));
+    apply(graph, setSystem('weak-spiral'));
+    expect(graph.state).toEqual(expect.objectContaining({zoom: 4, equilibrium: 0}));
+});
+
+test('a playback is paused by set-zoom and set-equilibrium', () => {
+    const graph = mount();
+    apply(graph, setSystem('pendulum'));
+    for (const action of [setZoom(2), setEquilibrium(1)]) {
+        act(() => { graph.play(); });
+        graph.clock.tick(0);
+        graph.clock.tick(MAX_FRAME_MS);
+        expect(graph.playing).toBe(true);
+        apply(graph, action);
+        expect(graph.playing).toBe(false);
+    }
 });
 
 test('set-seeds reaches the state and readouts of the seed count and the typed seeds', () => {
@@ -175,7 +249,8 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
         setSystem('cubic'), setSystem(JSON.parse('null')),
         setSeeds([]), setSeeds(seven), setSeeds([{X: 81, Y: 0}]), setSeeds([{X: 0, Y: -81}]), setSeeds([{X: 0.5, Y: 0}]), setSeeds([{X: 0, Y: Number.NaN}]),
         setSeeds([{X: 0} as unknown as Seed]), setSeeds(JSON.parse('null')),
-        unknownField({kind: 'phase', operation: 'set-zoom', zoom: 1}),
+        unknownField({kind: 'phase', operation: 'set-zoom', zoom: 1, equilibrium: 0}),
+        unknownField({kind: 'phase', operation: 'set-equilibrium', equilibrium: 0, zoom: 1}),
         unknownField({kind: 'phase', operation: 'set-matrix', A: 4, B: 0, C: 0, D: 0, system: 'linear'}),
         unknownField({kind: 'phase', operation: 'set-system', system: 'linear', A: 4}),
         unknownField({kind: 'phase', operation: 'set-seeds', seeds: [{X: 0, Y: 0}], zoom: 1}),
@@ -203,7 +278,7 @@ test('the logistic map refuses the phase portrait operations', async () => {
     const {default: LogisticMapGraph} = await import('./LogisticMapGraph');
     const graph = new LogisticMapGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    for (const action of [setMatrix(4, 0, 0, 4), setSystem('linear'), setSeeds([{X: 0, Y: 0}])]) {
+    for (const action of [setMatrix(4, 0, 0, 4), setSystem('linear'), setSeeds([{X: 0, Y: 0}]), setZoom(1), setEquilibrium(0)]) {
         expect(() => apply(graph as unknown as PhasePortraitGraph, action)).toThrow(/not an operation of the logistic map/);
     }
 });
