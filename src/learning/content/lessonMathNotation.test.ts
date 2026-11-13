@@ -40,7 +40,7 @@ import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
 import {wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson} from './wavesGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
-import {bifurcationLesson, logisticMapLesson} from './phasePortraitsGuidedLessons';
+import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson} from './phasePortraitsGuidedLessons';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
@@ -110,7 +110,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson]],
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
-    ['phasePortraitsGuidedLessons', [logisticMapLesson, bifurcationLesson]],
+    ['phasePortraitsGuidedLessons', [linearSystemLesson, pendulumLesson, logisticMapLesson, bifurcationLesson]],
     ['solidsGuidedLessons', [cubeSectionsLesson, prismPyramidSectionsLesson]],
     ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
     ['epicyclesGuidedLessons', epicyclesGuidedLessons],
@@ -128,6 +128,7 @@ const DECIMAL_COMMA_LATEX_LESSONS = new Set([
     'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal',
     'root-finding', 'quadrature', 'euler-method', 'fourier-series', 'fourier-coefficients', 'epicycles',
     'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'projective-five-point', 'projective-three-views',
+    'phase-portrait',
 ]);
 
 function collectLocalized(value: unknown, path: string, out: {path: string; lang: string; text: string}[]): void {
@@ -248,7 +249,7 @@ test('scans every lesson module', () => {
             'waves', 'waves', 'waves', // wavesGuidedLessons.ts: WV1 to WV3
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
-            'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP4 and PP5
+            'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5
             'lattice-paths', 'counting-tree', 'lattice-paths', 'lattice-paths', // combinatoricsGuidedLessons.ts: CB1 to CB4

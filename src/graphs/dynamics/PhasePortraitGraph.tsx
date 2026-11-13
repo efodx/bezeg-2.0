@@ -2,6 +2,8 @@ import React, {useSyncExternalStore} from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {phasePortraitPresetCollection} from "./dynamicsPresetCollection";
@@ -827,6 +829,66 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         if (!Number.isInteger(zoom) || zoom < ZOOM_RANGE.min || zoom > ZOOM_RANGE.max) return false;
         if (zoom !== this.state.zoom) this.edit({zoom});
         return true;
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`phase`, this graph's operations): `set-matrix` sets A, B, C, D (quarter units), `set-system` the system and `set-seeds` all the seeds (1 to 6). The merged
+     * state goes through `parsePhaseState` (strict, nothing snapped or clamped) before any write, so a bad value is a lesson-content error and nothing is written; unknown
+     * fields are refused. `set-system` uses `withSystem` like the chooser: the matrix and the seeds are kept as they are (the seeds then mean (theta, omega) for the pendulum), the
+     * equilibrium falls back to 0 where the new system has no such one. The logistic map's `set-r`, `set-seed` and `set-step` are refused. A valid action pauses a running playback.
+     */
+    applyPhaseAction(action: Extract<LessonAction, {kind: "phase"}>): void {
+        const {kind: _kind, operation: _operation, ...fields} = action;
+        const state = serializePhaseState(this.state);
+        switch (action.operation) {
+            case "set-matrix":
+                this.refuseUnknown("set-matrix", fields, ["A", "B", "C", "D"]);
+                this.commitPhase("set-matrix", {...state, A: action.A, B: action.B, C: action.C, D: action.D});
+                return;
+            case "set-system":
+                this.refuseUnknown("set-system", fields, ["system"]);
+                this.commitPhase("set-system", withSystem(state, action.system));
+                return;
+            case "set-seeds":
+                this.refuseUnknown("set-seeds", fields, ["seeds"]);
+                this.commitPhase("set-seeds", {...state, seeds: action.seeds});
+                return;
+            case "set-r":
+            case "set-seed":
+            case "set-step":
+                throw new Error(`phase ${action.operation}: not an operation of the phase portrait.`);
+            default: {
+                const unsupported: never = action;
+                throw new Error(`phase: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    private refuseUnknown(operation: string, fields: Readonly<Record<string, unknown>>, allowed: readonly string[]): void {
+        const unknown = Object.keys(fields).filter(key => !allowed.includes(key));
+        if (unknown.length) throw new Error(`phase ${operation}: no such field ${unknown.join(", ")}.`);
+    }
+
+    /** Validates the merged state first, then pauses the playback and writes only the fields that change. */
+    private commitPhase(operation: string, merged: unknown): void {
+        const parsed = parsePhaseState(merged);
+        if (!parsed.ok) throw new Error(`phase ${operation}: ${parsed.error.field} ${parsed.error.reason}.`);
+        const next = serializePhaseState(parsed.value);
+        const current = this.state;
+        const patch: Partial<PhaseState> = {};
+        if (next.system !== current.system) Object.assign(patch, {system: next.system});
+        for (const key of ["A", "B", "C", "D", "equilibrium", "zoom"] as const) if (next[key] !== current[key]) Object.assign(patch, {[key]: next[key]});
+        const sameSeeds = next.seeds.length === current.seeds.length && next.seeds.every((seed, i) => seed.X === current.seeds[i].X && seed.Y === current.seeds[i].Y);
+        if (!sameSeeds) Object.assign(patch, {seeds: next.seeds});
+        this.halt();
+        if (Object.keys(patch).length) this.edit(patch);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("phase", action => this.applyPhaseAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------

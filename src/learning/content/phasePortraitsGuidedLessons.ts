@@ -4,7 +4,11 @@
  * (r = 2,9, x0 = 0,2, no step drawn) and names what it sets. Every number the text quotes is a readout of the graph for that scene, an exact value computed in the same step, or a value the
  * learner reads after an action the text asks for; the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-pp-c.md. Fixed point and 2-cycle statements are
  * exact (the multipliers 2 - r and 4 + 2r - r^2); every higher period, every orbit value and the diagram are computed in double precision and said so; for r past 3,56995 the graph makes
- * no period claim and the text does not either. A property seen at one r or one start is stated for that r and that start only. The phase-plane lessons (PP1 to PP3) belong to later batches.
+ * no period claim and the text does not either. A property seen at one r or one start is stated for that r and that start only.
+ *
+ * Batch A: PP1, the linear system x' = Ax, and PP2, the pendulum, both on `phase-portrait` (PhasePortraitGraph), with the `phase` actions `set-matrix`, `set-system` and `set-seeds`.
+ * The graph shows the type, eigenvalues, H and the swing/rotation status at once and has no view modes, so each step opens on the previous state and asks for the effect of a change
+ * before the learner makes it. Numbers per step: docs/reviews/feature-streams/families-prep/notes/pp-a-s2.md. PP3 (linearization) belongs to batch B.
  */
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
@@ -52,6 +56,47 @@ export const phasePortraitsSceneActions = (id: string, spec: PhaseSceneSpec): Le
 
 const phaseScene = (id: string, spec: PhaseSceneSpec, sl: string, en: string): LessonScene =>
     ({id, basedOn: 'demonstration-default', actions: phasePortraitsSceneActions(id, spec), expectedState: text(sl, en)});
+
+/**
+ * What a phase-plane scene sets on top of the Demonstration default (the matrix N = (-4 -1; -2 -3), one seed (1, 0), system `linear`): the system, the stored matrix entries
+ * A, B, C, D (entry = value / 4) and the seeds (seed = X / 20, Y / 20; the pendulum reads a seed as (theta, omega)).
+ */
+export interface PhasePlaneSceneSpec {
+    readonly system?: 'linear' | 'pendulum';
+    readonly matrix?: {readonly A: number; readonly B: number; readonly C: number; readonly D: number};
+    readonly seeds?: readonly {readonly X: number; readonly Y: number}[];
+}
+
+/** The actions of a phase-plane scene: the Demonstration default, then the system, the matrix and the seeds. */
+export const phasePlaneSceneActions = (id: string, spec: PhasePlaneSceneSpec): LessonAction[] => [
+    {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+    ...(spec.system !== undefined ? [{kind: 'phase', operation: 'set-system', system: spec.system} as const] : []),
+    ...(spec.matrix !== undefined ? [{kind: 'phase', operation: 'set-matrix', ...spec.matrix} as const] : []),
+    ...(spec.seeds !== undefined ? [{kind: 'phase', operation: 'set-seeds', seeds: spec.seeds} as const] : []),
+];
+
+const planeScene = (id: string, spec: PhasePlaneSceneSpec, sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', actions: phasePlaneSceneActions(id, spec), expectedState: text(sl, en)});
+
+/** PP1. Matrices in stored quarter units; E = (4 1; 2 3) of linear-maps L3 and N = -E (the Demonstration default). */
+const MATRIX_E = {A: 16, B: 4, C: 8, D: 12} as const;
+const MATRIX_N = {A: -16, B: -4, C: -8, D: -12} as const;
+const MATRIX_SADDLE = {A: 4, B: 0, C: 0, D: -4} as const;
+const MATRIX_NEAR_CENTRE = {A: 0, B: -4, C: 4, D: -1} as const;
+const MATRIX_CENTRE = {A: 0, B: -4, C: 4, D: 0} as const;
+export const PP1_UNSTABLE = {system: 'linear', matrix: MATRIX_E, seeds: [{X: 20, Y: 0}]} as const;
+export const PP1_ON_FAST_LINE = {system: 'linear', matrix: MATRIX_N, seeds: [{X: 20, Y: 20}]} as const;
+export const PP1_FOUR_SEEDS = {system: 'linear', matrix: MATRIX_N, seeds: [{X: 20, Y: 0}, {X: 0, Y: 20}, {X: 20, Y: 1}, {X: 1, Y: 20}]} as const;
+export const PP1_NODE = {system: 'linear', matrix: MATRIX_N, seeds: [{X: 20, Y: 0}]} as const;
+export const PP1_NEAR_CENTRE = {system: 'linear', matrix: MATRIX_NEAR_CENTRE, seeds: [{X: 20, Y: 0}]} as const;
+export const PP1_CENTRE = {system: 'linear', matrix: MATRIX_CENTRE, seeds: [{X: 20, Y: 0}]} as const;
+export const PP1_FREE = {system: 'linear', matrix: MATRIX_N, seeds: [{X: 20, Y: 0}]} as const;
+/** PP2. The linearization of the pendulum at (0, 0) is (0 1; -1 0), a centre; seeds are (theta, omega). */
+export const PP2_LINEAR_CENTRE = {system: 'linear', matrix: {A: 0, B: 4, C: -4, D: 0}, seeds: [{X: 20, Y: 0}]} as const;
+export const PP2_SMALL = {system: 'pendulum', seeds: [{X: 20, Y: 0}]} as const;
+export const PP2_LARGE = {system: 'pendulum', seeds: [{X: 0, Y: 38}]} as const;
+export const PP2_ROTATION = {system: 'pendulum', seeds: [{X: 0, Y: 45}]} as const;
+export const PP2_FREE = {system: 'pendulum', seeds: [{X: 20, Y: 0}]} as const;
 
 /** PP4. The Demonstration default is r = 2,9, x0 = 0,2, step 0. */
 export const PP4_SETTLES = {R: 290, step: 20} as const;
@@ -130,6 +175,370 @@ const examples: readonly WorkedExample[] = [
             'The values \\(r_3\\approx3{,}544090\\) and \\(r_4\\approx3{,}564407\\) are numerical, computed outside the app; \\(r_1=3\\) and \\(r_2=1+\\sqrt6\\approx3{,}449490\\) are exact. The ratios are approximate and do not prove the limit.',
         ),
     },
+];
+
+// ---- PP1 ---------------------------------------------------------------------------------------------------------------------------
+
+const pp1Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'pp1-eigen',
+        latex: 'x^{\\prime}=Ax,\\quad Av=\\lambda v\\ \\Rightarrow\\ x(t)=e^{\\lambda t}v,\\quad x(t)=c_1e^{\\lambda_1t}v_1+c_2e^{\\lambda_2t}v_2',
+        notation: text(
+            '\\(x\\) je točka ravnine, \\(A\\) matrika \\(2\\times2\\), \\(v\\neq0\\) lastni vektor z lastno vrednostjo \\(\\lambda\\); \\(v_1\\), \\(v_2\\) in \\(\\lambda_1\\), \\(\\lambda_2\\) sta dva lastna vektorja in njuni lastni vrednosti, \\(c_1\\), \\(c_2\\) konstanti.',
+            '\\(x\\) is a point of the plane, \\(A\\) a \\(2\\times2\\) matrix, \\(v\\neq0\\) an eigenvector with eigenvalue \\(\\lambda\\); \\(v_1\\), \\(v_2\\) and \\(\\lambda_1\\), \\(\\lambda_2\\) are two eigenvectors and their eigenvalues, \\(c_1\\), \\(c_2\\) constants.',
+        ),
+        explanation: text(
+            'Če je \\(Av=\\lambda v\\), je \\(x(t)=e^{\\lambda t}v\\) rešitev, ker je \\(x^{\\prime}=\\lambda e^{\\lambda t}v=A\\,e^{\\lambda t}v\\). Trajektorija, ki začne na premici skozi \\(v\\), na njej ostane: to je lastna smer. Pri dveh različnih realnih lastnih vrednostih je vsaka rešitev vsota takih členov. Skozi vsako točko poteka natanko ena trajektorija (enoličnost rešitve), zato se trajektorije ne sekajo; to je izrek (FMF Analiza 3, kot je navedeno), slika ga ne dokazuje.',
+            'If \\(Av=\\lambda v\\), then \\(x(t)=e^{\\lambda t}v\\) is a solution, since \\(x^{\\prime}=\\lambda e^{\\lambda t}v=A\\,e^{\\lambda t}v\\). A trajectory that starts on the line through \\(v\\) stays on it: this is an eigen-direction. For two different real eigenvalues every solution is a sum of such terms. Exactly one trajectory passes through each point (uniqueness of solutions), so trajectories do not cross; this is a theorem (FMF Analiza 3, as cited), and the picture does not prove it.',
+        ),
+    },
+    {
+        id: 'pp1-classify',
+        latex: '\\tau=a+d,\\quad \\delta=ad-bc,\\quad \\lambda^{2}-\\tau\\lambda+\\delta=0,\\quad \\Delta=\\tau^{2}-4\\delta,\\quad \\lambda_{1,2}=\\frac{\\tau\\pm\\sqrt{\\Delta}}{2}',
+        notation: text(
+            '\\(a\\), \\(b\\) sta elementa prve vrstice matrike \\(A\\), \\(c\\), \\(d\\) druge; \\(\\tau\\) je sled, \\(\\delta\\) determinanta, \\(\\Delta\\) diskriminanta karakteristične enačbe.',
+            '\\(a\\), \\(b\\) are the entries of the first row of \\(A\\), \\(c\\), \\(d\\) of the second; \\(\\tau\\) is the trace, \\(\\delta\\) the determinant, \\(\\Delta\\) the discriminant of the characteristic equation.',
+        ),
+        explanation: text(
+            'Lastni vrednosti sta korena enačbe \\(\\lambda^{2}-\\tau\\lambda+\\delta=0\\); odčitki Sled, Determinanta in Diskriminanta kažejo \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\), Lastni vrednosti (izračunani) pa korena.',
+            'The eigenvalues are the roots of \\(\\lambda^{2}-\\tau\\lambda+\\delta=0\\); the readouts Trace, Determinant and Discriminant show \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\), and Eigenvalues (computed) the roots.',
+        ),
+    },
+    {
+        id: 'pp1-euler',
+        latex: 'x_{k+1}=x_k+h\\,Ax_k',
+        notation: text(
+            '\\(h\\) je časovni korak, \\(x_k\\) približek rešitve ob času \\(kh\\).',
+            '\\(h\\) is the time step, \\(x_k\\) the approximation of the solution at time \\(kh\\).',
+        ),
+        explanation: text(
+            'Eulerjeva metoda gre iz \\(x_k\\) v smeri \\(Ax_k\\), ki je tangenta prave trajektorije, za korak \\(h\\). Graf Eulerja ne riše: orbite so izračunane z metodo RK4 s korakom \\(0{,}02\\), ki je zelo natančnejša, a tudi ni točna.',
+            'The Euler method moves from \\(x_k\\) along \\(Ax_k\\), the tangent of the true trajectory, by a step \\(h\\). The graph does not draw Euler: the orbits are computed with RK4 at a step \\(0{,}02\\), which is far more accurate but not exact either.',
+        ),
+    },
+    {
+        id: 'pp1-types',
+        latex: '\\delta<0;\\quad \\delta>0,\\ \\Delta\\geq0;\\quad \\delta>0,\\ \\Delta<0,\\ \\tau\\neq0;\\quad \\delta>0,\\ \\Delta<0,\\ \\tau=0',
+        notation: text(
+            'Po vrsti: sedlo; vozlišče; spirala; središče. Vozlišče in spirala sta stabilni pri \\(\\tau<0\\) in nestabilni pri \\(\\tau>0\\); \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\) določajo tip matrike \\(A\\).',
+            'In order: saddle; node; spiral; centre. Node and spiral are stable for \\(\\tau<0\\) and unstable for \\(\\tau>0\\); \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\) determine the type of the matrix \\(A\\).',
+        ),
+        explanation: text(
+            'Izrek o lastnih vrednostih (FMF Analiza 3, kot je navedeno): tip portreta je določen s \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\), spremeni pa se le čez \\(\\delta=0\\), \\(\\tau=0\\) in parabolo \\(\\tau^{2}=4\\delta\\). Pri \\(\\delta=0\\) je ravnovesnih točk več kot ena (premica ali ravnina), pri \\(\\Delta=0\\) je vozlišče zvezdasto ali degenerirano. Odčitek Tip matrike (točen) je izračunan iz celih števil brez tolerance; slika je ponazoritev ene same matrike.',
+            'Theorem on eigenvalues (FMF Analiza 3, as cited): the type of the portrait is determined by \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\) and changes only across \\(\\delta=0\\), \\(\\tau=0\\) and the parabola \\(\\tau^{2}=4\\delta\\). At \\(\\delta=0\\) there is more than one equilibrium (a line or the whole plane), at \\(\\Delta=0\\) the node is a star or degenerate. The readout Type of the matrix (exact) is computed from integers without a tolerance; the picture is an illustration of one matrix.',
+        ),
+    },
+];
+
+const pp1Example: WorkedExample = {
+    id: 'pp1-euler-radius',
+    title: text('Eulerjev korak na središču', 'One Euler step on the centre'),
+    calculationLatex: '\\lvert x_{k+1}\\rvert^{2}=\\lvert x_k\\rvert^{2}+2h\\,x_k\\cdot Ax_k+h^{2}\\lvert Ax_k\\rvert^{2},\\quad x_k\\cdot Ax_k=0,\\ \\lvert Ax_k\\rvert=\\lvert x_k\\rvert\\ \\Rightarrow\\ \\lvert x_{k+1}\\rvert^{2}=(1+h^{2})\\lvert x_k\\rvert^{2}',
+    resultLatex: '\\lvert x_{63}\\rvert=(1+h^{2})^{31{,}5}\\lvert x_0\\rvert\\approx1{,}3681\\,\\lvert x_0\\rvert\\quad(h=0{,}1)',
+    check: text(
+        'Za \\(A=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\) je \\(x\\cdot Ax=-x_1x_2+x_2x_1=0\\) in \\(\\lvert Ax\\rvert=\\lvert x\\rvert\\). Faktor \\(1+h^{2}\\) je večji od \\(1\\) pri vsakem \\(h\\neq0\\): Eulerjev polmer raste, \\(63\\) korakov po \\(0{,}1\\) je čas \\(6{,}3\\), približno en obhod, in \\((1{,}01)^{31{,}5}\\approx1{,}3681\\). Rezultat je zaokrožen na štiri decimalke; ostane izračun, ne meritev na grafu.',
+        'For \\(A=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\) we have \\(x\\cdot Ax=-x_1x_2+x_2x_1=0\\) and \\(\\lvert Ax\\rvert=\\lvert x\\rvert\\). The factor \\(1+h^{2}\\) exceeds \\(1\\) for every \\(h\\neq0\\): the Euler radius grows, \\(63\\) steps of \\(0{,}1\\) make time \\(6{,}3\\), about one revolution, and \\((1{,}01)^{31{,}5}\\approx1{,}3681\\). The result is rounded to four decimals; it is a computation, not a measurement on the graph.',
+    ),
+};
+
+const pp1Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'pp1-reverse', order: 1,
+        title: text('Matrika \\(-E\\)', 'The matrix \\(-E\\)'),
+        purpose: text('Napovedati, kaj zamenjava matrike \\(E\\) z \\(-E\\) stori s trajektorijami, tipom in lastnimi vrednostmi.', 'Predicting what replacing the matrix \\(E\\) by \\(-E\\) does to trajectories, type and eigenvalues.'),
+        explanation: text(
+            'Odpre se matrika \\(E=\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}\\) iz lekcije o linearnih preslikavah z začetno točko \\((1,0)\\); odčitki Tip matrike (točen), Sled, Determinanta, Diskriminanta in Lastni vrednosti (izračunani) so vidni takoj. Zapiši napoved: kaj se zgodi s trajektorijami (obliko in smerjo), ko \\(E\\) zamenjaš z matriko \\(-E\\), ki ima vsak element nasprotnega predznaka? Kakšen bo tip in kakšni bosta lastni vrednosti? Pomagaj si z enačbo \\(Av=\\lambda v\\).',
+            'The matrix \\(E=\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}\\) from the linear-maps lesson opens with the start point \\((1,0)\\); the readouts Type of the matrix (exact), Trace, Determinant, Discriminant and Eigenvalues (computed) are visible at once. Write down a prediction: what happens to the trajectories (shape and direction) when you replace \\(E\\) by the matrix \\(-E\\), every entry of which has the opposite sign? What will the type and the eigenvalues be? Use the equation \\(Av=\\lambda v\\) to help.',
+        ),
+        formulaIds: ['pp1-eigen', 'pp1-classify'],
+        observationPrompt: text(
+            'V polja Matrika A: a (vrstica 1, stolpec 1), b, c in d vpiši \\(-4\\), \\(-1\\), \\(-2\\) in \\(-3\\). Preberi Tip matrike (točen), Sled, Determinanta, Diskriminanta, Lastni vrednosti (izračunani) in vrstico Začetna točka 1; primerjaj z napovedjo.',
+            'Type \\(-4\\), \\(-1\\), \\(-2\\) and \\(-3\\) into the fields Matrix A: a (row 1, column 1), b, c and d. Read Type of the matrix (exact), Trace, Determinant, Discriminant, Eigenvalues (computed) and the row Seed 1; compare with your prediction.',
+        ),
+        expectedObservations: [text(
+            'Tip je stabilno vozlišče, sled \\(-7\\), determinanta \\(10\\), diskriminanta \\(9\\), lastni vrednosti \\(-2\\) in \\(-5\\), nasprotni vrednostma \\(2\\) in \\(5\\) matrike \\(E\\). Iz \\(Av=\\lambda v\\) sledi \\((-A)v=-\\lambda v\\): lastne smeri so iste, lastne vrednosti imajo nasprotni predznak. Vrstica Začetna točka 1 se obrne: pri \\(E\\) je bila naprej ustavljena po \\(0{,}34\\) s in nazaj izračunana za vseh \\(10\\) s, pri \\(-E\\) je naprej izračunana za vseh \\(10\\) s in nazaj ustavljena po \\(0{,}34\\) s. Krivulje so iste, smer gibanja je obrnjena: če je \\(x(t)\\) rešitev za \\(E\\), je \\(x(-t)\\) rešitev za \\(-E\\).',
+            'The type is stable node, trace \\(-7\\), determinant \\(10\\), discriminant \\(9\\), eigenvalues \\(-2\\) and \\(-5\\), the opposites of \\(2\\) and \\(5\\) for \\(E\\). From \\(Av=\\lambda v\\) it follows that \\((-A)v=-\\lambda v\\): the eigen-directions are the same, the eigenvalues change sign. The row Seed 1 turns around: for \\(E\\) it was stopped after \\(0{,}34\\) s forward and computed for all \\(10\\) s backward, for \\(-E\\) it is computed for all \\(10\\) s forward and stopped after \\(0{,}34\\) s backward. The curves are the same, the direction of motion is reversed: if \\(x(t)\\) is a solution for \\(E\\), then \\(x(-t)\\) is a solution for \\(-E\\).',
+        )],
+        scene: planeScene('pp1-reverse-scene', PP1_UNSTABLE,
+            'Linearni sistem z \\(E\\), začetna točka \\((1,0)\\): nestabilno vozlišče, sled \\(7\\), determinanta \\(10\\), diskriminanta \\(9\\); naprej ustavljena po \\(0{,}34\\) s, nazaj izračunana za vseh \\(10\\) s.',
+            'Linear system with \\(E\\), start point \\((1,0)\\): unstable node, trace \\(7\\), determinant \\(10\\), discriminant \\(9\\); stopped after \\(0{,}34\\) s forward, computed for all \\(10\\) s backward.'),
+    }),
+    step({
+        id: 'pp1-slow', order: 2,
+        title: text('Trajektorije in lastni smeri', 'Trajectories and the two eigen-directions'),
+        purpose: text('Napovedati, k kateri lastni smeri se trajektorije bližajo ob izhodišču.', 'Predicting which eigen-direction trajectories approach near the origin.'),
+        explanation: text(
+            'Matrika je \\(A=\\begin{pmatrix}-4&-1\\\\-2&-3\\end{pmatrix}\\), narisani lastni smeri sta premici skozi \\((1,1)\\) in \\((1,-2)\\). Odpre se začetna točka \\((1,1)\\) na prvi premici. Izračunaj \\(A(1,1)\\) in \\(A(1,-2)\\) ter ugotovi, kateri lastni vrednosti pripadata. Zapiši napoved: kam se bo ob izhodišču dotikala trajektorija iz začetne točke, ki ne leži na nobeni od obeh premic, in zakaj? Uporabi razcep rešitve iz formule.',
+            'The matrix is \\(A=\\begin{pmatrix}-4&-1\\\\-2&-3\\end{pmatrix}\\), the drawn eigen-directions are the lines through \\((1,1)\\) and \\((1,-2)\\). The start point \\((1,1)\\) on the first line opens. Compute \\(A(1,1)\\) and \\(A(1,-2)\\) and find which eigenvalue belongs to each. Write down a prediction: what will the trajectory from a start point on neither line touch near the origin, and why? Use the decomposition of the solution from the formula.',
+        ),
+        formulaIds: ['pp1-eigen'],
+        observationPrompt: text(
+            'V Začetna točka 1 vpiši \\(x=1\\), \\(y=0\\); z Dodaj začetno točko dodaj še tri začetne točke \\((0,1)\\), \\((-1,0)\\) in \\((0,-1)\\). Primerjaj, k kateri premici se vse trajektorije bližajo ob izhodišču.',
+            'In Seed 1 type \\(x=1\\), \\(y=0\\); with Add a seed add three more start points \\((0,1)\\), \\((-1,0)\\) and \\((0,-1)\\). Compare which line all trajectories approach near the origin.',
+        ),
+        expectedObservations: [text(
+            'Vse štiri trajektorije so naprej izračunane za vseh \\(10\\) s in se ob izhodišču dotikajo premice skozi \\((1,-2)\\), lastne smeri z lastno vrednostjo \\(-2\\): \\(A(1,-2)=(-2,4)=-2\\,(1,-2)\\), \\(A(1,1)=-5\\,(1,1)\\). Za to matriko velja \\(x(t)=c_1e^{-5t}(1,1)+c_2e^{-2t}(1,-2)\\), razmerje členov je \\(e^{-3t}\\to0\\), zato po dolgem času prevlada drugi člen, če je \\(c_2\\neq0\\). Za \\((1,0)\\) je \\(x(0)=\\tfrac23(1,1)+\\tfrac13(1,-2)\\) in \\(x(1)\\approx(0{,}0496;\\,-0{,}0857)\\). Ravne so le trajektorije na obeh lastnih premicah (\\(c_2=0\\) ali \\(c_1=0\\)); vse druge se ukrivijo.',
+            'All four trajectories are computed for all \\(10\\) s forward and touch the line through \\((1,-2)\\) near the origin, the eigen-direction with eigenvalue \\(-2\\): \\(A(1,-2)=(-2,4)=-2\\,(1,-2)\\), \\(A(1,1)=-5\\,(1,1)\\). For this matrix \\(x(t)=c_1e^{-5t}(1,1)+c_2e^{-2t}(1,-2)\\), the ratio of the terms is \\(e^{-3t}\\to0\\), so after a long time the second term dominates if \\(c_2\\neq0\\). For \\((1,0)\\) we have \\(x(0)=\\tfrac23(1,1)+\\tfrac13(1,-2)\\) and \\(x(1)\\approx(0{,}0496;\\,-0{,}0857)\\). Only trajectories on the two eigen-lines (\\(c_2=0\\) or \\(c_1=0\\)) are straight; all others bend.',
+        )],
+        scene: planeScene('pp1-slow-scene', PP1_ON_FAST_LINE,
+            'Matrika \\(A\\) s sledjo \\(-7\\) in determinanto \\(10\\), začetna točka \\((1,1)\\) na premici skozi \\((1,1)\\): naprej izračunana za vseh \\(10\\) s.',
+            'The matrix \\(A\\) with trace \\(-7\\) and determinant \\(10\\), start point \\((1,1)\\) on the line through \\((1,1)\\): computed for all \\(10\\) s forward.'),
+    }),
+    step({
+        id: 'pp1-saddle', order: 3,
+        title: text('Diagonalna matrika z elementoma \\(1\\) in \\(-1\\)', 'The diagonal matrix with entries \\(1\\) and \\(-1\\)'),
+        purpose: text('Napovedati tip in kateri trajektoriji se bližata izhodišču.', 'Predicting the type and which trajectories approach the origin.'),
+        explanation: text(
+            'Odpre se matrika \\(A\\) iz prejšnjega koraka s štirimi začetnimi točkami \\((1,0)\\), \\((0,1)\\), \\((1;0{,}05)\\) in \\((0{,}05;1)\\). V opazovanju jo zamenjaš z \\(a=1\\), \\(b=0\\), \\(c=0\\), \\(d=-1\\), torej \\(x^{\\prime}=x\\), \\(y^{\\prime}=-y\\). Zapiši napoved: kolikšna sta \\(\\tau\\) in \\(\\delta\\) in kakšen je tip? Iz enačb sklepaj, katera od štirih začetnih točk gre proti izhodišču naprej v času, katera nazaj, in kaj se zgodi z drugima?',
+            'The matrix \\(A\\) of the previous step opens with four start points \\((1,0)\\), \\((0,1)\\), \\((1;0{,}05)\\) and \\((0{,}05;1)\\). In the observation you replace it with \\(a=1\\), \\(b=0\\), \\(c=0\\), \\(d=-1\\), that is \\(x^{\\prime}=x\\), \\(y^{\\prime}=-y\\). Write down a prediction: what are \\(\\tau\\) and \\(\\delta\\), and what is the type? From the equations, decide which of the four start points goes towards the origin forward in time, which backward, and what happens to the other two?',
+        ),
+        formulaIds: ['pp1-classify'],
+        observationPrompt: text(
+            'V polja Matrika A vpiši \\(a=1\\), \\(b=0\\), \\(c=0\\), \\(d=-1\\). Preberi Tip matrike (točen), Sled, Determinanta, Lastni vrednosti (izračunani) in vrstice Začetna točka 1 do 4.',
+            'In the Matrix A fields type \\(a=1\\), \\(b=0\\), \\(c=0\\), \\(d=-1\\). Read Type of the matrix (exact), Trace, Determinant, Eigenvalues (computed) and the rows Seed 1 to 4.',
+        ),
+        expectedObservations: [text(
+            'Tip je sedlo, sled \\(0\\), determinanta \\(-1\\), diskriminanta \\(4\\), lastni vrednosti \\(1\\) in \\(-1\\). Začetna točka \\((0,1)\\) je naprej izračunana za vseh \\(10\\) s (po osi \\(y\\) proti izhodišču), \\((1,0)\\) nazaj za vseh \\(10\\) s (po osi \\(x\\)); to sta edini ravni trajektoriji, ki se bližata izhodišču. Točki \\((1;0{,}05)\\) in \\((0{,}05;1)\\) ležita blizu osi, a izhodišču se ne približata: \\((1;0{,}05)\\) zapusti območje naprej po \\(1{,}4\\) s (\\(e^{t}=4\\) pri \\(t=\\ln4\\approx1{,}39\\)) in nazaj po \\(4{,}4\\) s, \\((0{,}05;1)\\) naprej po \\(4{,}4\\) s in nazaj po \\(1{,}4\\) s. Trajektorija blizu osi sledi osi in jo nato zapusti.',
+            'The type is saddle, trace \\(0\\), determinant \\(-1\\), discriminant \\(4\\), eigenvalues \\(1\\) and \\(-1\\). The start point \\((0,1)\\) is computed for all \\(10\\) s forward (along the \\(y\\)-axis towards the origin), \\((1,0)\\) backward for all \\(10\\) s (along the \\(x\\)-axis); these are the only straight trajectories that approach the origin. The points \\((1;0{,}05)\\) and \\((0{,}05;1)\\) lie near an axis but do not approach the origin: \\((1;0{,}05)\\) leaves the region after \\(1{,}4\\) s forward (\\(e^{t}=4\\) at \\(t=\\ln4\\approx1{,}39\\)) and after \\(4{,}4\\) s backward, \\((0{,}05;1)\\) after \\(4{,}4\\) s forward and after \\(1{,}4\\) s backward. A trajectory near an axis follows it and then leaves it.',
+        )],
+        scene: planeScene('pp1-saddle-scene', PP1_FOUR_SEEDS,
+            'Matrika \\(A\\) s sledjo \\(-7\\) in determinanto \\(10\\), štiri začetne točke \\((1,0)\\), \\((0,1)\\), \\((1;0{,}05)\\), \\((0{,}05;1)\\).',
+            'The matrix \\(A\\) with trace \\(-7\\) and determinant \\(10\\), four start points \\((1,0)\\), \\((0,1)\\), \\((1;0{,}05)\\), \\((0{,}05;1)\\).'),
+    }),
+    step({
+        id: 'pp1-parabola', order: 4,
+        title: text('Spreminjanje elementa \\(c\\)', 'Changing the entry \\(c\\)'),
+        purpose: text('Napovedati, pri katerem \\(c\\) se tip vozlišča spremeni, in preveriti, kam pade oznaka v ravnini sled–determinanta.', 'Predicting at which \\(c\\) the node type changes and checking where the mark falls in the trace–determinant plane.'),
+        explanation: text(
+            'Odpre se matrika \\(A=\\begin{pmatrix}-4&-1\\\\c&-3\\end{pmatrix}\\) pri \\(c=-2\\), začetna točka \\((1,0)\\); vstavek Ravnina sled–determinanta kaže oznako in parabolo \\(\\delta=\\tau^{2}/4\\). Spreminjaš le \\(c\\). Izračunaj \\(\\tau\\) in \\(\\delta=ad-bc\\) kot funkciji \\(c\\) in zapiši napoved: pri katerem \\(c\\) je \\(\\Delta=0\\) in kakšen je tip tik pod in tik nad tem \\(c\\)? Kam se premakne oznaka?',
+            'The matrix \\(A=\\begin{pmatrix}-4&-1\\\\c&-3\\end{pmatrix}\\) opens at \\(c=-2\\), start point \\((1,0)\\); the inset Trace–determinant plane shows the mark and the parabola \\(\\delta=\\tau^{2}/4\\). You will change only \\(c\\). Compute \\(\\tau\\) and \\(\\delta=ad-bc\\) as functions of \\(c\\) and write down a prediction: at which \\(c\\) is \\(\\Delta=0\\), and what is the type just below and just above that \\(c\\)? How does the mark move?',
+        ),
+        formulaIds: ['pp1-classify'],
+        observationPrompt: text(
+            'V polje Matrika A: c (vrstica 2, stolpec 1) zaporedoma vpiši vrednosti od \\(-1\\) do \\(1\\) v korakih po \\(0{,}25\\). Pri vsaki preberi Tip matrike (točen), Determinanta, Diskriminanta, Lastni vrednosti (izračunani) in oznako v vstavku.',
+            'In the field Matrix A: c (row 2, column 1) type the values from \\(-1\\) to \\(1\\) in steps of \\(0{,}25\\) in turn. For each, read Type of the matrix (exact), Determinant, Discriminant, Eigenvalues (computed) and the mark in the inset.',
+        ),
+        expectedObservations: [text(
+            'Sled je ves čas \\(-7\\), ker se \\(c\\) v \\(a+d\\) ne pojavi; \\(\\delta=12+c\\) in \\(\\Delta=49-4(12+c)=1-4c\\), torej \\(\\Delta=0\\) pri \\(c=\\tfrac14\\). Pri \\(c=0\\): stabilno vozlišče, \\(\\delta=12\\), \\(\\Delta=1\\). Pri \\(c=0{,}25\\): stabilno degenerirano vozlišče, \\(\\delta=12{,}25=\\tfrac{49}{4}\\), \\(\\Delta=0\\), dvojna lastna vrednost \\(-3{,}5\\) z eno lastno smerjo; oznaka je na paraboli. Pri \\(c=0{,}5\\): stabilna spirala (žarišče), \\(\\delta=12{,}5\\), \\(\\Delta=-1\\), \\(\\lambda=-3{,}5\\pm0{,}5\\,i\\). Oznaka se pomika navpično in pri \\(\\delta=12{,}25\\) prečka parabolo; vozlišče postane spirala, ko \\(\\Delta\\) preide iz pozitivnega v negativno. Tip je izrek o lastnih vrednostih, slika kaže eno matriko.',
+            'The trace stays \\(-7\\) because \\(c\\) does not appear in \\(a+d\\); \\(\\delta=12+c\\) and \\(\\Delta=49-4(12+c)=1-4c\\), so \\(\\Delta=0\\) at \\(c=\\tfrac14\\). At \\(c=0\\): stable node, \\(\\delta=12\\), \\(\\Delta=1\\). At \\(c=0{,}25\\): stable degenerate node, \\(\\delta=12{,}25=\\tfrac{49}{4}\\), \\(\\Delta=0\\), double eigenvalue \\(-3{,}5\\) with one eigen-direction; the mark is on the parabola. At \\(c=0{,}5\\): stable spiral, \\(\\delta=12{,}5\\), \\(\\Delta=-1\\), \\(\\lambda=-3{,}5\\pm0{,}5\\,i\\). The mark moves vertically and crosses the parabola at \\(\\delta=12{,}25\\); the node becomes a spiral when \\(\\Delta\\) passes from positive to negative. The type is a theorem on eigenvalues, the picture shows one matrix.',
+        )],
+        scene: planeScene('pp1-parabola-scene', PP1_NODE,
+            'Matrika s \\(c=-2\\), začetna točka \\((1,0)\\): stabilno vozlišče, sled \\(-7\\), determinanta \\(10\\), diskriminanta \\(9\\); oznaka v vstavku je pri \\(\\tau=-7\\), \\(\\delta=10\\).',
+            'The matrix with \\(c=-2\\), start point \\((1,0)\\): stable node, trace \\(-7\\), determinant \\(10\\), discriminant \\(9\\); the mark in the inset is at \\(\\tau=-7\\), \\(\\delta=10\\).'),
+    }),
+    step({
+        id: 'pp1-centre', order: 5,
+        title: text('Matrika z \\(a=0\\) in \\(b=-1\\)', 'The matrix with \\(a=0\\) and \\(b=-1\\)'),
+        purpose: text('Napovedati, kakšen je tip, ko je sled \\(0\\), in kakšne so trajektorije.', 'Predicting the type when the trace is \\(0\\) and what the trajectories look like.'),
+        explanation: text(
+            'Odpre se matrika \\(\\begin{pmatrix}0&-1\\\\1&d\\end{pmatrix}\\) pri \\(d=-\\tfrac14\\), začetna točka \\((1,0)\\). Spreminjaš le \\(d\\). Izračunaj \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\) kot funkcije \\(d\\). Zapiši napoved: kakšen je tip pri \\(d=0\\), kakšne so lastne vrednosti in ali so trajektorije sklenjene?',
+            'The matrix \\(\\begin{pmatrix}0&-1\\\\1&d\\end{pmatrix}\\) opens at \\(d=-\\tfrac14\\), start point \\((1,0)\\). You will change only \\(d\\). Compute \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\) as functions of \\(d\\). Write down a prediction: what is the type at \\(d=0\\), what are the eigenvalues and are the trajectories closed?',
+        ),
+        formulaIds: ['pp1-classify'],
+        observationPrompt: text(
+            'V polje Matrika A: d (vrstica 2, stolpec 2) vpiši \\(0\\). Preberi Tip matrike (točen), Sled, Determinanta, Diskriminanta, Lastni vrednosti (izračunani), vrstico Začetna točka 1 in oznako v vstavku; primerjaj z odprto matriko.',
+            'In the field Matrix A: d (row 2, column 2) type \\(0\\). Read Type of the matrix (exact), Trace, Determinant, Discriminant, Eigenvalues (computed), the row Seed 1 and the mark in the inset; compare with the matrix that opened.',
+        ),
+        expectedObservations: [text(
+            'Pri \\(d=-\\tfrac14\\) je bila stabilna spirala (sled \\(-0{,}25\\), determinanta \\(1\\), diskriminanta \\(-3{,}9375\\)). Pri \\(d=0\\) je tip središče (center): sled \\(0\\), determinanta \\(1\\), diskriminanta \\(-4\\), \\(\\lambda=0\\pm1\\,i\\); oznaka je na navpični osi pri \\(\\delta=1\\). Vrstica Začetna točka 1 je naprej in nazaj izračunana za vseh \\(10\\) s. Sklenjenost je izrek: pri \\(\\tau=0\\), \\(\\delta>0\\) sta lastni vrednosti \\(\\pm i\\sqrt\\delta\\) in rešitev iz \\((1,0)\\) je \\(x(t)=(\\cos t,\\sin t)\\), krog s periodo \\(2\\pi\\). Narisana orbita je izračunana z RK4 in je ponazoritev.',
+            'At \\(d=-\\tfrac14\\) it was a stable spiral (trace \\(-0{,}25\\), determinant \\(1\\), discriminant \\(-3{,}9375\\)). At \\(d=0\\) the type is centre: trace \\(0\\), determinant \\(1\\), discriminant \\(-4\\), \\(\\lambda=0\\pm1\\,i\\); the mark is on the vertical axis at \\(\\delta=1\\). The row Seed 1 is computed for all \\(10\\) s forward and backward. Closedness is a theorem: for \\(\\tau=0\\), \\(\\delta>0\\) the eigenvalues are \\(\\pm i\\sqrt\\delta\\) and the solution from \\((1,0)\\) is \\(x(t)=(\\cos t,\\sin t)\\), a circle of period \\(2\\pi\\). The drawn orbit is computed with RK4 and is an illustration.',
+        )],
+        scene: planeScene('pp1-centre-scene', PP1_NEAR_CENTRE,
+            'Matrika s \\(d=-\\tfrac14\\), začetna točka \\((1,0)\\): stabilna spirala, sled \\(-0{,}25\\), determinanta \\(1\\), diskriminanta \\(-3{,}9375\\).',
+            'The matrix with \\(d=-\\tfrac14\\), start point \\((1,0)\\): stable spiral, trace \\(-0{,}25\\), determinant \\(1\\), discriminant \\(-3{,}9375\\).'),
+    }),
+    step({
+        id: 'pp1-euler', order: 6,
+        title: text('Euler in RK4 na istem sistemu', 'Euler and RK4 on the same system'),
+        purpose: text('Napovedati smer odklona Eulerjeve metode na središču in ga izračunati.', 'Predicting the direction of the drift of the Euler method on the centre and computing it.'),
+        explanation: text(
+            'Odpre se središče \\(A=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\), začetna točka \\((1,0)\\). Eulerjev korak je \\(x_{k+1}=x_k+h\\,Ax_k\\); graf Eulerja ne riše, orbita je RK4. Preden odpreš izračun, zapiši napoved: ali Eulerjeva orbita na središču ostane krog, se vrti navzven ali navznoter, in zakaj? Pomagaj si s tem, da je \\(Ax_k\\) pravokoten na \\(x_k\\).',
+            'The centre \\(A=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\) opens, start point \\((1,0)\\). The Euler step is \\(x_{k+1}=x_k+h\\,Ax_k\\); the graph does not draw Euler, the orbit is RK4. Before you open the calculation, write down a prediction: does the Euler orbit on the centre stay a circle, spiral outward or spiral inward, and why? Use that \\(Ax_k\\) is perpendicular to \\(x_k\\).',
+        ),
+        formulaIds: ['pp1-euler'],
+        workedExampleId: 'pp1-euler-radius',
+        observationPrompt: text(
+            'Drsnik Čas t premakni na \\(6{,}28\\) in preberi vrstico Začetna točka 1; primerjaj lego kvadratka s točko \\((1,0)\\). Nato izračunaj Eulerjev polmer po \\(126\\) korakih s \\(h=0{,}05\\) in ga primerjaj z \\(1{,}3681\\).',
+            'Move the slider Time t to \\(6{,}28\\) and read the row Seed 1; compare the position of the square with the point \\((1,0)\\). Then compute the Euler radius after \\(126\\) steps with \\(h=0{,}05\\) and compare it with \\(1{,}3681\\).',
+        ),
+        expectedObservations: [text(
+            'Točna rešitev je \\((\\cos t,\\sin t)\\), pri \\(t=6{,}28\\) torej približno \\((1{,}0000;\\,-0{,}0032)\\): kvadratek je blizu \\((1,0)\\), po enem obhodu je orbita videti zaprta. RK4 z \\(h=0{,}02\\) tudi ni točna in se odkloni od kroga, a veliko manj kot Euler; narisane numerične orbite ne imenujemo natančno sklenjene. Pri \\(h=0{,}05\\) je polmer po \\(126\\) korakih (čas \\(6{,}3\\)) \\((1+0{,}05^{2})^{63}\\approx1{,}1704\\): približno polovica logaritma polmera pri \\(h=0{,}1\\) (\\(\\ln1{,}3681\\approx0{,}3134\\), \\(\\ln1{,}1704\\approx0{,}1573\\)); Eulerjev odklon se z manjšim korakom manjša, a ne izgine.',
+            'The exact solution is \\((\\cos t,\\sin t)\\), so at \\(t=6{,}28\\) about \\((1{,}0000;\\,-0{,}0032)\\): the square is near \\((1,0)\\), the orbit looks closed over one revolution. RK4 with \\(h=0{,}02\\) is not exact either and drifts off the circle, but far less than Euler; a drawn numerical orbit is never called exactly closed. With \\(h=0{,}05\\) the radius after \\(126\\) steps (time \\(6{,}3\\)) is \\((1+0{,}05^{2})^{63}\\approx1{,}1704\\): about half the logarithm of the radius for \\(h=0{,}1\\) (\\(\\ln1{,}3681\\approx0{,}3134\\), \\(\\ln1{,}1704\\approx0{,}1573\\)); the Euler drift shrinks with a smaller step but does not vanish.',
+        )],
+        scene: planeScene('pp1-euler-scene', PP1_CENTRE,
+            'Središče \\(\\tau=0\\), \\(\\delta=1\\), začetna točka \\((1,0)\\), naprej in nazaj izračunana za vseh \\(10\\) s; orbita je RK4.',
+            'The centre \\(\\tau=0\\), \\(\\delta=1\\), start point \\((1,0)\\), computed for all \\(10\\) s forward and backward; the orbit is RK4.'),
+    }),
+    step({
+        id: 'pp1-free', order: 7,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Samostojno poiskati matrike z danimi tipi.', 'Finding matrices with given types on your own.'),
+        explanation: text(
+            'Matrika \\(A=\\begin{pmatrix}-4&-1\\\\-2&-3\\end{pmatrix}\\) z eno začetno točko \\((1,0)\\) je spet nastavljena. Spreminjaj elemente matrike in začetne točke. Formula povzame tipe po \\(\\tau\\), \\(\\delta\\) in \\(\\Delta\\).',
+            'The matrix \\(A=\\begin{pmatrix}-4&-1\\\\-2&-3\\end{pmatrix}\\) with one start point \\((1,0)\\) is set again. Change the matrix entries and the start points. The formula summarises the types by \\(\\tau\\), \\(\\delta\\) and \\(\\Delta\\).',
+        ),
+        formulaIds: ['pp1-types'],
+        observationPrompt: text(
+            'Poišči matriko s sledjo \\(0\\), ki ni središče, in matriko z determinanto \\(0\\); preberi Tip matrike (točen) in oznako v vstavku. Poišči še matriko z nestabilno spiralo.',
+            'Find a matrix with trace \\(0\\) that is not a centre and a matrix with determinant \\(0\\); read Type of the matrix (exact) and the mark in the inset. Also find a matrix with an unstable spiral.',
+        ),
+        expectedObservations: [text(
+            'Sled \\(0\\) z determinanto \\(\\delta<0\\) (na primer \\(a=1\\), \\(d=-1\\), \\(b=c=0\\)) je sedlo; pri \\(\\delta=0\\) (na primer \\(a=1\\), ostali elementi \\(0\\)) odčitek pravi premica ravnovesnih točk. Nestabilna spirala potrebuje \\(\\tau>0\\) in \\(\\Delta<0\\), na primer \\(\\tau=0{,}5\\) in \\(\\delta=1\\).',
+            'Trace \\(0\\) with determinant \\(\\delta<0\\) (for example \\(a=1\\), \\(d=-1\\), \\(b=c=0\\)) is a saddle; at \\(\\delta=0\\) (for example \\(a=1\\), all other entries \\(0\\)) the readout says line of equilibria. An unstable spiral needs \\(\\tau>0\\) and \\(\\Delta<0\\), for example \\(\\tau=0{,}5\\) and \\(\\delta=1\\).',
+        )],
+        scene: planeScene('pp1-free-scene', PP1_FREE,
+            'Matrika \\(A\\) s sledjo \\(-7\\) in determinanto \\(10\\), začetna točka \\((1,0)\\); matrika in točke so prosti.',
+            'The matrix \\(A\\) with trace \\(-7\\) and determinant \\(10\\), start point \\((1,0)\\); the matrix and the points are free.'),
+    }),
+];
+
+// ---- PP2 ---------------------------------------------------------------------------------------------------------------------------
+
+const pp2Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'pp2-energy',
+        latex: '\\theta^{\\prime}=\\omega,\\quad \\omega^{\\prime}=-\\sin\\theta,\\quad H(\\theta,\\omega)=\\frac{\\omega^{2}}{2}-\\cos\\theta,\\quad H^{\\prime}=-\\omega\\sin\\theta+\\sin\\theta\\,\\omega=0',
+        notation: text(
+            '\\(\\theta\\) je kot nihala, \\(\\omega\\) kotna hitrost, \\(H\\) energija (kinetična \\(\\omega^{2}/2\\) in potencialna \\(-\\cos\\theta\\)).',
+            '\\(\\theta\\) is the angle of the pendulum, \\(\\omega\\) the angular velocity, \\(H\\) the energy (kinetic \\(\\omega^{2}/2\\) and potential \\(-\\cos\\theta\\)).',
+        ),
+        explanation: text(
+            'Argument: vzdolž rešitve je \\(H^{\\prime}=\\omega\\omega^{\\prime}+\\sin\\theta\\,\\theta^{\\prime}=-\\omega\\sin\\theta+\\sin\\theta\\,\\omega=0\\), zato je \\(H\\) konstantna in je vsaka orbita del nivojnice \\(H\\). To je račun; narisana orbita je številska ponazoritev z majhnim odmikom, ne dokaz.',
+            'Argument: along a solution \\(H^{\\prime}=\\omega\\omega^{\\prime}+\\sin\\theta\\,\\theta^{\\prime}=-\\omega\\sin\\theta+\\sin\\theta\\,\\omega=0\\), so \\(H\\) is constant and every orbit lies on a level curve of \\(H\\). This is a computation; the drawn orbit is a numerical illustration with a small drift, not a proof.',
+        ),
+    },
+    {
+        id: 'pp2-level',
+        latex: '\\omega^{2}=2\\,(H+\\cos\\theta)',
+        notation: text(
+            'Isti \\(H\\) kot zgoraj, razrešen glede na \\(\\omega^{2}\\).',
+            'The same \\(H\\) as above, solved for \\(\\omega^{2}\\).',
+        ),
+        explanation: text(
+            'Ker je \\(\\omega^{2}\\geq0\\), orbita z energijo \\(H\\) leži samo tam, kjer je \\(H+\\cos\\theta\\geq0\\). Z njo lahko iz \\(H\\) izračunaš največji \\(\\lvert\\omega\\rvert\\) (pri \\(\\theta=0\\)) in skrajni \\(\\theta\\) (kjer je \\(\\omega=0\\)).',
+            'Since \\(\\omega^{2}\\geq0\\), an orbit with energy \\(H\\) lies only where \\(H+\\cos\\theta\\geq0\\). With it you can compute from \\(H\\) the largest \\(\\lvert\\omega\\rvert\\) (at \\(\\theta=0\\)) and the extreme \\(\\theta\\) (where \\(\\omega=0\\)).',
+        ),
+    },
+    {
+        id: 'pp2-classes',
+        latex: '\\omega^{2}=2\\,(H+\\cos\\theta)\\geq2\\,(H-1),\\qquad \\cos\\theta\\geq-H',
+        notation: text(
+            'Obe oceni sledita iz \\(\\cos\\theta\\geq-1\\) in \\(\\omega^{2}\\geq0\\).',
+            'Both estimates follow from \\(\\cos\\theta\\geq-1\\) and \\(\\omega^{2}\\geq0\\).',
+        ),
+        explanation: text(
+            'Pri \\(-1<H<1\\) mora veljati \\(\\cos\\theta\\geq-H>-1\\), zato orbita nikoli ne doseže \\(\\cos\\theta=-1\\): ne prečka nobene od premic \\(\\theta=\\pm\\pi,\\pm3\\pi,\\dots\\), ostane med sosednjima sedloma in niha okoli spodnje lege; pri \\(H=-1\\) nihalo miruje v spodnji legi. Pri \\(H>1\\) je \\(\\omega^{2}\\geq2(H-1)>0\\), zato \\(\\omega\\) ne spremeni predznaka in se nihalo vrti. Pri \\(H=1\\) je \\(\\omega=0\\) le pri \\(\\cos\\theta=-1\\), torej v sedlu \\((\\pm\\pi,0)\\): separatrisa. Na osi \\(\\omega\\) je \\(H=1\\) natanko pri \\(\\omega=\\pm2\\), točno na mreži. Odčitek Energija začetne točke primerja \\(H\\) z \\(1\\) in pri \\(\\theta=0\\), \\(\\lvert\\omega\\rvert=2\\) pove, da je točno na separatrisi; \\(\\cos\\) je izračunan, zato drugje trditve o enakosti ni.',
+            'For \\(-1<H<1\\) we need \\(\\cos\\theta\\geq-H>-1\\), so the orbit never reaches \\(\\cos\\theta=-1\\): it crosses none of the lines \\(\\theta=\\pm\\pi,\\pm3\\pi,\\dots\\), stays between two neighbouring saddles and swings about the lower position; for \\(H=-1\\) the pendulum rests in the lower position. For \\(H>1\\) we have \\(\\omega^{2}\\geq2(H-1)>0\\), so \\(\\omega\\) never changes sign and the pendulum rotates. For \\(H=1\\), \\(\\omega=0\\) only at \\(\\cos\\theta=-1\\), that is at the saddle \\((\\pm\\pi,0)\\): the separatrix. On the \\(\\omega\\)-axis \\(H=1\\) exactly at \\(\\omega=\\pm2\\), exact on the grid. The readout Energy of seed compares \\(H\\) with \\(1\\) and says exactly on the separatrix at \\(\\theta=0\\), \\(\\lvert\\omega\\rvert=2\\); \\(\\cos\\) is computed, so there is no claim of equality elsewhere.',
+        ),
+    },
+];
+
+const pp2Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'pp2-small', order: 1,
+        title: text('Majhen začetni odmik', 'A small start angle'),
+        purpose: text('Napovedati energijo in obliko orbite nihala iz začetka \\((1,0)\\) ter jo primerjati z linearnim sistemom.', 'Predicting the energy and shape of the pendulum orbit from \\((1,0)\\) and comparing it with the linear system.'),
+        explanation: text(
+            'Odpre se linearni sistem \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\theta\\) z začetno točko \\((\\theta,\\omega)=(1,0)\\): središče, orbita je krog s polmerom \\(1\\). Pri nihalu je \\(\\omega^{\\prime}=-\\sin\\theta\\), kar je za majhen \\(\\theta\\) blizu \\(-\\theta\\). Zapiši napoved za nihalo z istim začetkom: kolikšna je energija \\(H\\)? Je orbita sklenjena? Je največji \\(\\lvert\\omega\\rvert\\) na orbiti večji, enak ali manjši od \\(1\\)? Uporabi ohranitev \\(H\\) iz formule.',
+            'The linear system \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\theta\\) opens with the start point \\((\\theta,\\omega)=(1,0)\\): a centre, the orbit is a circle of radius \\(1\\). For the pendulum \\(\\omega^{\\prime}=-\\sin\\theta\\), which is close to \\(-\\theta\\) for small \\(\\theta\\). Write down a prediction for the pendulum with the same start: what is the energy \\(H\\)? Is the orbit closed? Is the largest \\(\\lvert\\omega\\rvert\\) on the orbit greater than, equal to or smaller than \\(1\\)? Use the conservation of \\(H\\) from the formula.',
+        ),
+        formulaIds: ['pp2-energy'],
+        observationPrompt: text(
+            'V izbirniku Sistem izberi Nihalo (začetna točka ostane). Preberi vrstico Energija začetne točke 1 in stanje Tip linearizacije; primerjaj z napovedjo.',
+            'In the chooser System pick Pendulum (the start point stays). Read the row Energy of seed 1 and the status Type of the linearization; compare with your prediction.',
+        ),
+        expectedObservations: [text(
+            'Energija začetne točke je \\(H=-\\cos1\\), odčitek pravi \\(H=-0{,}540302<1\\): nihanje (sklenjena orbita). Na orbiti je pri \\(\\theta=0\\) \\(\\omega^{2}=2(H+1)=2(1-\\cos1)\\), torej \\(\\lvert\\omega\\rvert\\approx0{,}9589<1\\): orbita je nekoliko nižja od kroga linearnega sistema. Stanje pravi, da je linearizacija središče in da ni hiperbolična. Ohranitev \\(H\\) je račun iz formule, orbita je ponazoritev.',
+            'The energy of the start point is \\(H=-\\cos1\\), the readout says \\(H=-0{,}540302<1\\): swing (closed orbit). On the orbit at \\(\\theta=0\\) we have \\(\\omega^{2}=2(H+1)=2(1-\\cos1)\\), so \\(\\lvert\\omega\\rvert\\approx0{,}9589<1\\): the orbit is a little lower than the circle of the linear system. The status says the linearization is a centre and not hyperbolic. The conservation of \\(H\\) is a computation from the formula, the orbit is an illustration.',
+        )],
+        scene: planeScene('pp2-small-scene', PP2_LINEAR_CENTRE,
+            'Linearni sistem \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\theta\\), začetna točka \\((1,0)\\): središče, sled \\(0\\), determinanta \\(1\\), naprej in nazaj izračunana za vseh \\(10\\) s.',
+            'The linear system \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\theta\\), start point \\((1,0)\\): centre, trace \\(0\\), determinant \\(1\\), computed for all \\(10\\) s forward and backward.'),
+    }),
+    step({
+        id: 'pp2-larger', order: 2,
+        title: text('Večji začetni odmik', 'A larger start angle'),
+        purpose: text('Napovedati, kako se orbita razlikuje od kroga pri večji energiji.', 'Predicting how the orbit differs from a circle at higher energy.'),
+        explanation: text(
+            'Nihalo z začetkom \\((1,0)\\) je odprto. V opazovanju dodaš še začetni točki \\((2,0)\\) in \\((0;1{,}9)\\). Zapiši napoved: kolikšna je energija vsake? Kolikšen je pri \\((2,0)\\) največji \\(\\lvert\\omega\\rvert\\) in pri \\((0;1{,}9)\\) skrajni \\(\\theta\\), kjer je \\(\\omega=0\\), v primerjavi s krogom s polmerom \\(2\\) oziroma \\(1{,}9\\) v linearnem sistemu?',
+            'The pendulum with start \\((1,0)\\) is open. You will add the start points \\((2,0)\\) and \\((0;1{,}9)\\). Write down a prediction: what is the energy of each? For \\((2,0)\\) what is the largest \\(\\lvert\\omega\\rvert\\), and for \\((0;1{,}9)\\) the extreme \\(\\theta\\) where \\(\\omega=0\\), compared with a circle of radius \\(2\\) and \\(1{,}9\\) respectively in the linear system?',
+        ),
+        formulaIds: ['pp2-level'],
+        observationPrompt: text(
+            'Dvakrat pritisni Dodaj začetno točko in v poljih Začetna točka 2: θ in ω nastavi \\((2,0)\\), v poljih Začetna točka 3: θ in ω pa \\((0;1{,}9)\\). Preberi vrstice Energija začetne točke 1 do 3 in primerjaj oblike orbit.',
+            'Press Add a seed twice and set the fields Seed 2: θ and ω to \\((2,0)\\), and the fields Seed 3: θ and ω to \\((0;1{,}9)\\). Read the rows Energy of seed 1 to 3 and compare the shapes of the orbits.',
+        ),
+        expectedObservations: [text(
+            'Energije so \\(H=-\\cos1\\approx-0{,}540302\\), \\(H=-\\cos2\\approx0{,}416147\\) in \\(H=0{,}805\\), vse manj od \\(1\\): nihanje. Pri \\((2,0)\\) je \\(\\omega^{2}=2(0{,}416147+1)\\) pri \\(\\theta=0\\), torej \\(\\lvert\\omega\\rvert\\approx1{,}683<2\\). Pri \\((0;1{,}9)\\) je skrajni \\(\\theta\\) iz \\(\\cos\\theta=-0{,}805\\), približno \\(2{,}51>1{,}9\\). Obe orbiti torej nista kroga: prva je nižja od kroga s polmerom \\(2\\), druga širša od kroga s polmerom \\(1{,}9\\) in sega proti \\(\\pi\\).',
+            'The energies are \\(H=-\\cos1\\approx-0{,}540302\\), \\(H=-\\cos2\\approx0{,}416147\\) and \\(H=0{,}805\\), all below \\(1\\): swing. For \\((2,0)\\) we have \\(\\omega^{2}=2(0{,}416147+1)\\) at \\(\\theta=0\\), so \\(\\lvert\\omega\\rvert\\approx1{,}683<2\\). For \\((0;1{,}9)\\) the extreme \\(\\theta\\) comes from \\(\\cos\\theta=-0{,}805\\), about \\(2{,}51>1{,}9\\). So neither orbit is a circle: the first is lower than a circle of radius \\(2\\), the second wider than a circle of radius \\(1{,}9\\) and reaches towards \\(\\pi\\).',
+        )],
+        scene: planeScene('pp2-larger-scene', PP2_SMALL,
+            'Nihalo, začetna točka \\((1,0)\\): \\(H=-0{,}540302<1\\), nihanje (sklenjena orbita).',
+            'Pendulum, start point \\((1,0)\\): \\(H=-0{,}540302<1\\), swing (closed orbit).'),
+    }),
+    step({
+        id: 'pp2-cross', order: 3,
+        title: text('Višja energija z začetkom na osi \\(\\omega\\)', 'Higher energy with a start on the \\(\\omega\\)-axis'),
+        purpose: text('Napovedati, kaj odčitek pove pri \\(\\omega=2\\) in \\(\\omega=2{,}25\\).', 'Predicting what the readout says at \\(\\omega=2\\) and \\(\\omega=2{,}25\\).'),
+        explanation: text(
+            'Odprta je začetna točka \\((0;1{,}9)\\) z nihanjem. V opazovanju spreminjaš le \\(\\omega\\) začetne točke, \\(\\theta=0\\). Z \\(\\omega^{2}=2(H+\\cos\\theta)\\) izračunaj \\(H\\) pri \\(\\omega=2\\) in pri \\(\\omega=2{,}25\\) in zapiši napoved: kaj pove odčitek v vsakem primeru in kaj se zgodi z orbito?',
+            'The start point \\((0;1{,}9)\\) with a swing is open. You will change only the \\(\\omega\\) of the start point, with \\(\\theta=0\\). Use \\(\\omega^{2}=2(H+\\cos\\theta)\\) to compute \\(H\\) at \\(\\omega=2\\) and at \\(\\omega=2{,}25\\) and write down a prediction: what does the readout say in each case and what happens to the orbit?',
+        ),
+        formulaIds: ['pp2-level'],
+        observationPrompt: text(
+            'V polje Začetna točka 1: ω vpiši \\(2\\), nato \\(2{,}25\\). Pri vsakem preberi vrstico Energija začetne točke 1 in vrstico Začetna točka 1; opazuj krivuljo Separatrisa.',
+            'In the field Seed 1: ω type \\(2\\), then \\(2{,}25\\). For each read the row Energy of seed 1 and the row Seed 1; watch the curve Separatrix.',
+        ),
+        expectedObservations: [text(
+            'Pri \\(\\omega=2\\) je \\(H=1\\): odčitek pravi točno na separatrisi (\\(\\theta=0\\) in \\(\\lvert\\omega\\rvert=2\\)), točno zato, ker na osi \\(\\omega\\) velja \\(H=1\\) natanko pri \\(\\omega=\\pm2\\); orbita je naprej in nazaj izračunana za vseh \\(10\\) s. Pri \\(\\omega=2{,}25\\) je \\(H=1{,}53125>1\\): vrtenje; orbita ni sklenjena, ker \\(\\omega\\) ne preide skozi \\(0\\) in \\(\\theta\\) stalno narašča; obe polovici sta ustavljeni po \\(2{,}76\\) s, ker zapustita izračunano območje. Prehod iz nihanja v vrtenje je pri \\(H=1\\).',
+            'At \\(\\omega=2\\) we have \\(H=1\\): the readout says exactly on the separatrix (\\(\\theta=0\\) and \\(\\lvert\\omega\\rvert=2\\)), exactly because on the \\(\\omega\\)-axis \\(H=1\\) precisely at \\(\\omega=\\pm2\\); the orbit is computed for all \\(10\\) s forward and backward. At \\(\\omega=2{,}25\\) we have \\(H=1{,}53125>1\\): rotation; the orbit is not closed because \\(\\omega\\) never passes through \\(0\\) and \\(\\theta\\) keeps increasing; both halves are stopped after \\(2{,}76\\) s because they leave the computed region. The change from swing to rotation is at \\(H=1\\).',
+        )],
+        scene: planeScene('pp2-cross-scene', PP2_LARGE,
+            'Nihalo, začetna točka \\((0;1{,}9)\\): \\(H=0{,}805<1\\), nihanje (sklenjena orbita).',
+            'Pendulum, start point \\((0;1{,}9)\\): \\(H=0{,}805<1\\), swing (closed orbit).'),
+    }),
+    step({
+        id: 'pp2-separatrix', order: 4,
+        title: text('Orbita na separatrisi', 'The orbit on the separatrix'),
+        purpose: text('Napovedati, ali orbita na separatrisi doseže sedlo, in preveriti, kje se po \\(10\\) s konča.', 'Predicting whether the orbit on the separatrix reaches the saddle and checking where it ends after \\(10\\) s.'),
+        explanation: text(
+            'Odprta je začetna točka \\((0;2{,}25)\\) z vrtenjem. V opazovanju nastaviš \\(\\omega\\) na \\(2\\), ostane \\(\\theta=0\\). Zapiši napoved: ali orbita po končnem času doseže sedlo \\((\\pi,0)\\)? Navpični črtkani premici pri \\(\\theta=\\pm\\pi\\) označujeta ovitje: \\(\\theta\\) in \\(\\theta+2\\pi\\) sta isti kot, zato sta \\((\\pi,0)\\) in \\((-\\pi,0)\\) isto stanje nihala, pokonci.',
+            'The start point \\((0;2{,}25)\\) with a rotation is open. You will change \\(\\omega\\) to \\(2\\), with \\(\\theta=0\\) staying. Write down a prediction: does the orbit reach the saddle \\((\\pi,0)\\) in finite time? The vertical dashed lines at \\(\\theta=\\pm\\pi\\) mark the wrap: \\(\\theta\\) and \\(\\theta+2\\pi\\) are the same angle, so \\((\\pi,0)\\) and \\((-\\pi,0)\\) are the same state of the pendulum, upright.',
+        ),
+        formulaIds: ['pp2-level'],
+        observationPrompt: text(
+            'V polje Začetna točka 1: ω vpiši \\(2\\), nato drsnik Čas t premakni na \\(10\\). Preberi vrstico Začetna točka 1, stanje ob koncu in lego kvadratka ob navpičnih črtkanih premicah.',
+            'In the field Seed 1: ω type \\(2\\), then move the slider Time t to \\(10\\). Read the row Seed 1, the status at the end and the position of the square next to the vertical dashed lines.',
+        ),
+        expectedObservations: [text(
+            'Orbita je naprej in nazaj izračunana za vseh \\(10\\) s in se konča blizu \\((\\pm3{,}1414;\\,0{,}0002)\\), tik pred sedlom \\(\\pm\\pi\\approx\\pm3{,}1416\\), ne v njem; stanje pravi Konec izračunanih trajektorij. Sedla orbita v končnem času nikoli ne doseže: ravnovesna točka je konstantna rešitev, orbita, ki bi jo dosegla, bi se po enoličnosti z njo ujemala; ob sedlu se razdalja zmanjšuje kot \\(e^{-t}\\) (lastna vrednost \\(-1\\)) in ne doseže \\(0\\). Številska orbita je ponazoritev z omejenim časom.',
+            'The orbit is computed for all \\(10\\) s forward and backward and ends near \\((\\pm3{,}1414;\\,0{,}0002)\\), just short of the saddle \\(\\pm\\pi\\approx\\pm3{,}1416\\), not in it; the status says End of the computed trajectories. The orbit never reaches the saddle in finite time: an equilibrium is a constant solution, and an orbit that reached it would by uniqueness coincide with it; near the saddle the distance shrinks like \\(e^{-t}\\) (eigenvalue \\(-1\\)) and does not reach \\(0\\). The numerical orbit is an illustration with a limited time.',
+        )],
+        scene: planeScene('pp2-separatrix-scene', PP2_ROTATION,
+            'Nihalo, začetna točka \\((0;2{,}25)\\): \\(H=1{,}53125>1\\), vrtenje; obe polovici sta ustavljeni po \\(2{,}76\\) s.',
+            'Pendulum, start point \\((0;2{,}25)\\): \\(H=1{,}53125>1\\), rotation; both halves are stopped after \\(2{,}76\\) s.'),
+    }),
+    step({
+        id: 'pp2-free', order: 5,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Samostojno preizkusiti energijo, nihanje in vrtenje.', 'Trying energy, swing and rotation on your own.'),
+        explanation: text(
+            'Nihalo z začetkom \\((1,0)\\) je spet nastavljeno. Formula pojasni, zakaj je pri \\(H<1\\) nihanje, pri \\(H>1\\) vrtenje in pri \\(H=1\\) separatrisa.',
+            'The pendulum with start \\((1,0)\\) is set again. The formula explains why \\(H<1\\) gives a swing, \\(H>1\\) a rotation and \\(H=1\\) the separatrix.',
+        ),
+        formulaIds: ['pp2-classes'],
+        observationPrompt: text(
+            'Dodaj začetno točko \\((-1,0)\\) in primerjaj njeno energijo z energijo točke \\((1,0)\\). Poišči začetno točko z \\(H>1\\), ki ni na osi \\(\\omega\\).',
+            'With Add a seed add the start point \\((-1,0)\\) and compare its energy with that of \\((1,0)\\). Find a start point with \\(H>1\\) that is not on the \\(\\omega\\)-axis.',
+        ),
+        expectedObservations: [text(
+            'Obe točki imata \\(H=-\\cos1\\approx-0{,}540302\\), ker je \\(\\cos\\) soda funkcija; orbiti sta zrcalni. Primer z \\(H>1\\) zunaj osi je \\((0{,}05;2)\\) z \\(H\\approx1{,}00125\\): vrtenje, odčitek primerja \\(H\\) z \\(1\\); obe polovici sta ustavljeni po \\(8{,}62\\) s oziroma \\(8{,}66\\) s.',
+            'Both points have \\(H=-\\cos1\\approx-0{,}540302\\) because \\(\\cos\\) is an even function; the orbits are mirror images. An example with \\(H>1\\) off the axis is \\((0{,}05;2)\\) with \\(H\\approx1{,}00125\\): rotation, the readout compares \\(H\\) with \\(1\\); the two halves are stopped after \\(8{,}62\\) s and \\(8{,}66\\) s.',
+        )],
+        scene: planeScene('pp2-free-scene', PP2_FREE,
+            'Nihalo, začetna točka \\((1,0)\\): \\(H=-0{,}540302<1\\), nihanje; sistem in točke so prosti.',
+            'Pendulum, start point \\((1,0)\\): \\(H=-0{,}540302<1\\), swing; the system and the points are free.'),
+    }),
 ];
 
 // ---- PP4 ---------------------------------------------------------------------------------------------------------------------------
@@ -412,6 +821,62 @@ const edgeCasesOf = (extra: readonly LocalizedText[]): readonly LocalizedText[] 
     text('\\(r\\) in začetek sta na mreži \\(0{,}01\\); vrednosti zunaj nje graf zavrne.', '\\(r\\) and the start are on the grid \\(0{,}01\\); the graph refuses values outside it.'),
     ...extra,
 ];
+
+const planeSources: GuidedLesson['sources'] = [
+    {
+        id: 'bezeg-phase-plane-implementation',
+        citation: 'Bezeg source: src/dynamics/classify2.ts (the exact type test), rk4.ts, systems2.ts, phaseModel.ts and src/graphs/dynamics/PhasePortraitGraph.tsx; FMF Analiza 3 and Mehanika 1 (cited, not opened).',
+        implementationCorrespondence: 'A scene sets the system, the matrix entries and the seeds of the phase-portrait graph; the type, trace, determinant, discriminant and the energy comparison with 1 are exact tests, the orbits are RK4 (step 0,02) computed for 10 s and are illustrations, never exactly closed.',
+    },
+];
+
+const planeEdgeCases: readonly LocalizedText[] = [
+    text('Elementi matrike in koordinate začetnih točk so na mreži \\(0{,}25\\) oziroma \\(0{,}05\\); vrednosti zunaj nje graf zavrne.', 'Matrix entries and start coordinates are on the grid \\(0{,}25\\) and \\(0{,}05\\); the graph refuses values outside it.'),
+    text('Trajektorije, ki zapustijo izračunano območje, se ustavijo in odčitek to pove; narisane orbite so številske in niso natančno sklenjene.', 'Trajectories that leave the computed region stop and the readout says so; drawn orbits are numerical and not exactly closed.'),
+];
+
+const linearSystem: GuidedLesson = {
+    demonstrationId: 'phase-portrait',
+    title: text('Linearni sistem \\(x^{\\prime}=Ax\\) v ravnini', 'The linear system \\(x^{\\prime}=Ax\\) in the plane'),
+    summary: text(
+        'Linearni sistem \\(x^{\\prime}=Ax\\) v ravnini: lastne smeri, tip portreta, njegov položaj v ravnini sled–determinanta in numerična metoda. Tip je izrek o lastnih vrednostih, slika ponazoritev ene matrike.',
+        'The linear system \\(x^{\\prime}=Ax\\) in the plane: eigen-directions, the type of the portrait, its place in the trace–determinant plane and a numerical method. The type is a theorem on eigenvalues, the picture an illustration of one matrix.',
+    ),
+    prerequisites: [text('Lastne vrednosti in lastne smeri matrike (lekcija o linearnih preslikavah).', 'Eigenvalues and eigen-directions of a matrix (the linear-maps lesson).')],
+    learningGoals: [
+        text('Znaš iz sledi, determinante in diskriminante določiti tip portreta in kdaj se spremeni.', 'Can determine the type of the portrait from trace, determinant and discriminant and say when it changes.'),
+        text('Ločiš izrek o tipu od ponazoritve in veš, da numerična orbita ni natančno sklenjena.', 'Can tell the theorem on the type from the illustration and know that a numerical orbit is not exactly closed.'),
+    ],
+    formulaBlocks: pp1Formulas,
+    workedExamples: [pp1Example],
+    steps: pp1Steps,
+    sources: planeSources,
+    edgeCases: planeEdgeCases,
+    unresolvedQuestions: [],
+};
+
+const pendulum: GuidedLesson = {
+    demonstrationId: 'phase-portrait',
+    title: text('Nihalo v faznem prostoru', 'The pendulum in the phase plane'),
+    summary: text(
+        'Nihalo \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\sin\\theta\\) in njegova energija \\(H\\): orbite v ravnini \\((\\theta,\\omega)\\), ovitje kota in separatrisa. Ohranitev energije je račun, narisane orbite so ponazoritev.',
+        'The pendulum \\(\\theta^{\\prime}=\\omega\\), \\(\\omega^{\\prime}=-\\sin\\theta\\) and its energy \\(H\\): orbits in the \\((\\theta,\\omega)\\) plane, the wrap of the angle and the separatrix. Conservation of energy is a computation, the drawn orbits are an illustration.',
+    ),
+    prerequisites: [text('Linearni sistem \\(x^{\\prime}=Ax\\) v ravnini.', 'The linear system \\(x^{\\prime}=Ax\\) in the plane.')],
+    learningGoals: [
+        text('Znaš z energijo \\(H\\) pojasniti nihanje, vrtenje in separatriso.', 'Can use the energy \\(H\\) to explain swing, rotation and the separatrix.'),
+        text('Znaš pojasniti, kaj se dogaja z orbito na separatrisi ob sedlu.', 'Can explain what happens to the orbit on the separatrix near the saddle.'),
+    ],
+    formulaBlocks: pp2Formulas,
+    workedExamples: [],
+    steps: pp2Steps,
+    sources: planeSources,
+    edgeCases: planeEdgeCases,
+    unresolvedQuestions: [],
+};
+
+export const linearSystemLesson: GuidedLesson = linearSystem;
+export const pendulumLesson: GuidedLesson = pendulum;
 
 const logisticMap: GuidedLesson = {
     demonstrationId: 'logistic-map',

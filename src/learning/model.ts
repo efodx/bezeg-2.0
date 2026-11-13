@@ -1,4 +1,5 @@
 import type {DemonstrationId} from '../demonstrations';
+import type {SystemId} from '../dynamics/systems2';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
 import type {SimsonExampleId, SimsonOffset} from '../compgeo/simsonLineModel';
@@ -528,14 +529,22 @@ export type LessonAction =
     | {readonly kind: 'levelsets'; readonly operation: 'set-constraints'; readonly constraints: readonly {readonly a: number; readonly b: number; readonly c: number}[]}
     | {readonly kind: 'levelsets'; readonly operation: 'set-sweep'; readonly sweep: number}
     /**
-     * LogisticMapGraph's scene actions (PP4, PP5; `set-matrix`, `set-system` and the phase-plane `set-seed` join with the phase-portrait graph). The operations are named after the stored
+     * LogisticMapGraph's scene actions (PP4, PP5). The operations are named after the stored
      * fields: `set-r` sets `R` (the integer r times 100, from 250 to 400), `set-seed` the start `X` (the integer x0 times 100, from 1 to 99) and `set-step` the number of drawn cobweb
      * steps (0 to 60). The merged state must pass `parseLogisticState` before the write, otherwise the action throws and nothing is written; unknown fields are refused; a valid
      * action pauses a running playback. The bifurcation window is not scene state, so there is no `set-zoom`.
+     * PhasePortraitGraph's scene actions (PP1, PP2; `set-zoom` and the equilibrium join with PP3) use three other operations, and each graph refuses the other's:
+     * `set-matrix` sets the four stored entries A, B, C, D of ((a, b), (c, d)) (integer quarter units, entry = A/4, from -16 to 16), `set-system` picks `linear`, `pendulum` or
+     * `weak-spiral` (the matrix and seeds are kept, the equilibrium falls back to 0 where the system lacks it) and `set-seeds` replaces all seeds (1 to 6, seed = X/20 and Y/20,
+     * each from -80 to 80; the angle and angular velocity for the pendulum). The merged state must pass `parsePhaseState` first; unknown fields are refused; a valid action
+     * pauses a running playback.
      */
     | {readonly kind: 'phase'; readonly operation: 'set-r'; readonly R: number}
     | {readonly kind: 'phase'; readonly operation: 'set-seed'; readonly X: number}
     | {readonly kind: 'phase'; readonly operation: 'set-step'; readonly step: number}
+    | {readonly kind: 'phase'; readonly operation: 'set-matrix'; readonly A: number; readonly B: number; readonly C: number; readonly D: number}
+    | {readonly kind: 'phase'; readonly operation: 'set-system'; readonly system: SystemId}
+    | {readonly kind: 'phase'; readonly operation: 'set-seeds'; readonly seeds: readonly {readonly X: number; readonly Y: number}[]}
     /**
      * SolidsGraph's scene actions (SV1, SV2; `set-shear`, `set-discs`, `set-cursor` and `set-axis` join with the stack and revolve lessons). Each equals the control of the same name:
      * `set-solid` picks a solid id (the mode and axis fall back as the chooser does), `set-mode` a mode (the solid falls back), `set-plane` the plane normal (integers -4 to 4, not all

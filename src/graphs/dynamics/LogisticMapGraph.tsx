@@ -628,6 +628,10 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
                 this.refuseUnknown("set-step", fields, ["step"]);
                 this.commitLogistic("set-step", {...state, step: action.step});
                 return;
+            case "set-matrix":
+            case "set-system":
+            case "set-seeds":
+                throw new Error(`phase ${action.operation}: not an operation of the logistic map.`);
             default: {
                 const unsupported: never = action;
                 throw new Error(`phase: no operation in ${JSON.stringify(unsupported)}.`);

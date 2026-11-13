@@ -8,15 +8,17 @@
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {act} from '@testing-library/react';
+import {act, cleanup, fireEvent, screen} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
-import {bifurcationLesson, logisticMapLesson} from './phasePortraitsGuidedLessons';
+import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson, PP1_CENTRE, PP1_FOUR_SEEDS, PP1_NEAR_CENTRE, PP1_NODE, PP1_ON_FAST_LINE, PP1_FREE, PP1_UNSTABLE, PP2_FREE, PP2_LARGE, PP2_LINEAR_CENTRE, PP2_ROTATION, PP2_SMALL} from './phasePortraitsGuidedLessons';
 import {phasePortraitsChapter} from './phasePortraitsChapter';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLesson} from './guidedLessons';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import LogisticMapGraph from '../../graphs/dynamics/LogisticMapGraph';
+import PhasePortraitGraph from '../../graphs/dynamics/PhasePortraitGraph';
+import {enterNumber} from '../../inputs/testEntry';
 import {setLanguage, t} from '../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -437,5 +439,373 @@ describe('the numbers each step quotes are those of its scene, in sl and en', ()
         expect(allSteps().every(step => step.scene)).toBe(true);
         expect(Object.keys(lessons)).toEqual(['pp4', 'pp5']);
         void ((m: Mounted | undefined) => m);
+    });
+});
+
+// ---- PP1 and PP2 on a real PhasePortraitGraph ------------------------------------------------------------------------------------------
+
+const LANGS: readonly Language[] = ['sl', 'en'];
+const ppSteps = () => [...linearSystemLesson.steps, ...pendulumLesson.steps];
+const ppStepOf = (id: string) => ppSteps().find(step => step.id === id)!;
+type PlaneSpec = {readonly system?: string; readonly matrix?: {readonly A: number; readonly B: number; readonly C: number; readonly D: number}; readonly seeds?: readonly {readonly X: number; readonly Y: number}[]};
+/** The scene constants of the lesson file by step; a scene sets them on top of the Demonstration default. */
+const PP_SPECS: Record<string, PlaneSpec> = {
+    'pp1-reverse': PP1_UNSTABLE, 'pp1-slow': PP1_ON_FAST_LINE, 'pp1-saddle': PP1_FOUR_SEEDS, 'pp1-parabola': PP1_NODE, 'pp1-centre': PP1_NEAR_CENTRE, 'pp1-euler': PP1_CENTRE, 'pp1-free': PP1_FREE,
+    'pp2-small': PP2_LINEAR_CENTRE, 'pp2-larger': PP2_SMALL, 'pp2-cross': PP2_LARGE, 'pp2-separatrix': PP2_ROTATION, 'pp2-free': PP2_FREE,
+};
+const ppOpenState = (id: string) => {
+    const spec = PP_SPECS[id];
+    return {system: spec.system ?? 'linear', ...(spec.matrix ?? {A: -16, B: -4, C: -8, D: -12}), seeds: spec.seeds ?? [{X: 20, Y: 0}]};
+};
+
+function mountPhase(language: Language) {
+    setLanguage(language);
+    const graph = createGraph('phase-portrait');
+    if (!(graph instanceof PhasePortraitGraph)) throw new Error('phase-portrait must be the phase portrait graph.');
+    mountGraph(graph);
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    const free = JSON.stringify(graph.state);
+    const stateOf = () => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
+    const open = (id: string, times = 1) => act(() => {
+        capabilities.restoreState(checkpoint);
+        for (let i = 0; i < times; i += 1) for (const action of sceneActions(ppStepOf(id).scene!)) capabilities.apply(action);
+    });
+    const restore = () => act(() => { capabilities.restoreState(checkpoint); });
+    const picked = () => { const s = stateOf(); return {system: s.system, A: s.A, B: s.B, C: s.C, D: s.D, seeds: s.seeds}; };
+    const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
+    const status = () => document.querySelector('[data-phase-status]')?.textContent ?? null;
+    const inset = () => document.querySelector('[data-phase-inset]')?.getAttribute('aria-label') ?? null;
+    const snap = () => JSON.stringify({state: stateOf(), readouts: readouts(), status: status(), inset: inset()});
+    const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+    const dec = (value: string) => (language === 'sl' ? value.replace('.', ',') : value);
+    const typeIn = (label: string, value: string) => act(() => { enterNumber(field(label), dec(value)); });
+    const ui = {
+        entry: (name: 'a' | 'b' | 'c' | 'd', value: string) => typeIn(t(`phase_graph_matrix_${name}_label`), value),
+        /** The first (x or theta) or second (y or omega) coordinate of seed n, by the system on the board. */
+        seed: (n: number, axis: 1 | 2, value: string) => {
+            const pendulum = stateOf().system === 'pendulum';
+            const label = axis === 1
+                ? (pendulum ? t('phase_graph_seed_theta_label', {value0: String(n)}) : t('phase_graph_seed_x_label', {value0: String(n)}))
+                : (pendulum ? t('phase_graph_seed_omega_label', {value0: String(n)}) : t('phase_graph_seed_y_label', {value0: String(n)}));
+            typeIn(label, value);
+        },
+        plus: () => act(() => { fireEvent.click(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})); }),
+        system: (value: string) => act(() => { fireEvent.change(field(t('phase_graph_system_label')), {target: {value}}); }),
+        time: (value: string) => act(() => { enterNumber(field(t('phase_graph_time_label')), value); }),
+    };
+    return {graph, open, restore, free, stateOf, picked, readouts, status, inset, snap, field, ui};
+}
+type PhaseMount = ReturnType<typeof mountPhase>;
+type Ui = PhaseMount['ui'];
+
+/** The learner changes each step's prompt asks for, as control edits: each variant is applied to a fresh opening of the step. */
+const PP_VARIANTS: Record<string, ((ui: Ui) => void)[]> = {
+    'pp1-reverse': [ui => { ui.entry('a', '-4'); ui.entry('b', '-1'); ui.entry('c', '-2'); ui.entry('d', '-3'); }],
+    'pp1-slow': [ui => {
+        ui.seed(1, 1, '1'); ui.seed(1, 2, '0');
+        ui.plus(); ui.plus(); ui.plus();
+        ui.seed(2, 1, '0'); ui.seed(2, 2, '1'); ui.seed(3, 1, '-1'); ui.seed(3, 2, '0'); ui.seed(4, 1, '0'); ui.seed(4, 2, '-1');
+    }],
+    'pp1-saddle': [ui => { ui.entry('a', '1'); ui.entry('b', '0'); ui.entry('c', '0'); ui.entry('d', '-1'); }],
+    'pp1-parabola': [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1].map(c => (ui: Ui) => ui.entry('c', String(c))),
+    'pp1-centre': [ui => ui.entry('d', '0')],
+    'pp1-euler': [ui => ui.time('6.28')],
+    'pp1-free': [
+        ui => { ui.entry('a', '1'); ui.entry('b', '0'); ui.entry('c', '0'); ui.entry('d', '-1'); },
+        ui => { ui.entry('a', '1'); ui.entry('b', '0'); ui.entry('c', '0'); ui.entry('d', '0'); },
+        ui => { ui.entry('a', '0.5'); ui.entry('b', '-1'); ui.entry('c', '1'); ui.entry('d', '0'); },
+    ],
+    'pp2-small': [ui => ui.system('pendulum')],
+    'pp2-larger': [ui => { ui.plus(); ui.plus(); ui.seed(2, 1, '2'); ui.seed(2, 2, '0'); ui.seed(3, 1, '0'); ui.seed(3, 2, '1.9'); }],
+    'pp2-cross': [ui => ui.seed(1, 2, '2'), ui => ui.seed(1, 2, '2.25')],
+    'pp2-separatrix': [ui => { ui.seed(1, 2, '2'); ui.time('10'); }],
+    'pp2-free': [
+        ui => { ui.plus(); ui.seed(2, 1, '-1'); ui.seed(2, 2, '0'); },
+        ui => { ui.plus(); ui.seed(2, 1, '0.05'); ui.seed(2, 2, '2'); },
+    ],
+};
+
+/** The graph strings a prompt names (the label up to the symbol that follows it, the status up to its colon), by step. */
+const nm = (name: () => string) => () => name().replace(/ [τδΔ].*$| H = 1$/, '');
+const statusName = (name: () => string) => () => name().split(':')[0];
+const PP_NAMES: Record<string, (() => string)[]> = {
+    'pp1-reverse': [() => t('phase_graph_matrix_a_label'), nm(() => t('phase_graph_r_type_linear')), nm(() => t('phase_graph_r_tau')), nm(() => t('phase_graph_r_delta')), nm(() => t('phase_graph_r_discriminant')), () => t('phase_graph_r_eigen'), () => t('phase_graph_r_seed', {value0: '1'})],
+    'pp1-slow': [() => t('phase_graph_r_seed', {value0: '1'}), () => t('phase_graph_seeds_plus')],
+    'pp1-saddle': [() => t('phase_graph_matrix_a_label').split(':')[0], nm(() => t('phase_graph_r_type_linear')), nm(() => t('phase_graph_r_tau')), nm(() => t('phase_graph_r_delta')), () => t('phase_graph_r_eigen'), () => t('phase_graph_r_seed', {value0: '1'})],
+    'pp1-parabola': [() => t('phase_graph_matrix_c_label'), nm(() => t('phase_graph_r_type_linear')), nm(() => t('phase_graph_r_delta')), nm(() => t('phase_graph_r_discriminant')), () => t('phase_graph_r_eigen'), () => t('phase_graph_inset_title')],
+    'pp1-centre': [() => t('phase_graph_matrix_d_label'), nm(() => t('phase_graph_r_type_linear')), nm(() => t('phase_graph_r_tau')), nm(() => t('phase_graph_r_delta')), nm(() => t('phase_graph_r_discriminant')), () => t('phase_graph_r_eigen'), () => t('phase_graph_r_seed', {value0: '1'})],
+    'pp1-euler': [() => t('phase_graph_time_label'), () => t('phase_graph_r_seed', {value0: '1'})],
+    'pp1-free': [nm(() => t('phase_graph_r_type_linear'))],
+    'pp2-small': [() => t('phase_graph_system_label'), () => t('phase_graph_system_pendulum').split(' θ')[0], () => t('phase_graph_r_energy', {value0: '1'}), statusName(() => t('phase_graph_status_type_linearization', {value0: '#', value1: '#', value2: '#'}))],
+    'pp2-larger': [() => t('phase_graph_seeds_plus'), () => t('phase_graph_seed_theta_label', {value0: '2'}), () => t('phase_graph_seed_theta_label', {value0: '3'}), () => t('phase_graph_r_energy', {value0: '1'})],
+    'pp2-cross': [() => t('phase_graph_seed_omega_label', {value0: '1'}), () => t('phase_graph_r_energy', {value0: '1'}), () => t('phase_graph_r_seed', {value0: '1'}), nm(() => t('phase_graph_cap_separatrix'))],
+    'pp2-separatrix': [() => t('phase_graph_seed_omega_label', {value0: '1'}), () => t('phase_graph_time_label'), () => t('phase_graph_r_seed', {value0: '1'}), statusName(() => t('phase_graph_status_ended', {value0: '#'}))],
+    'pp2-free': [() => t('phase_graph_seeds_plus')],
+};
+const ppText = (id: string, language: Language) => {
+    const step = ppStepOf(id);
+    return prose([step.explanation[language], step.observationPrompt[language], ...step.expectedObservations.map(o => o[language])].join(' ')).replace(/\s+/g, ' ');
+};
+
+describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
+    it('every step opens its scene out of order and twice in one act, and restore returns the free state', () => {
+        const ids = ppSteps().map(step => step.id);
+        expect(ids).toHaveLength(12);
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            for (let i = 0; i < ids.length; i += 1) {
+                const id = ids[(i * 7) % ids.length];
+                m.open(id);
+                const once = m.snap();
+                expect({language, id, state: m.picked()}).toEqual({language, id, state: ppOpenState(id)});
+                m.open(id, 2);
+                expect({language, id, twice: m.snap() === once}).toEqual({language, id, twice: true});
+            }
+            m.restore();
+            expect(JSON.stringify(m.stateOf())).toBe(m.free);
+            cleanup();
+        }
+    });
+
+    it('every control and readout a prompt names exists in the graph, with the graph string of the language', () => {
+        const missing: string[] = [];
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            for (const step of ppSteps()) {
+                m.open(step.id);
+                const text = ppText(step.id, language);
+                missing.push(...PP_NAMES[step.id].map(name => name()).filter(name => !text.includes(name)).map(name => `${language} ${step.id}: ${name}`));
+                const pendulum = m.stateOf().system === 'pendulum';
+                if (!pendulum) for (const letter of ['a', 'b', 'c', 'd'] as const) expect(m.field(t(`phase_graph_matrix_${letter}_label`))).toBeTruthy();
+                expect(m.field(t('phase_graph_system_label'))).toBeTruthy();
+                expect(m.field(t('phase_graph_time_label'))).toBeTruthy();
+                expect(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})).toBeTruthy();
+                expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
+                expect(document.querySelector('[data-readout="energy-1"] dt')?.textContent ?? null).toBe(pendulum ? t('phase_graph_r_energy', {value0: '1'}) : null);
+                expect(m.field(pendulum ? t('phase_graph_seed_theta_label', {value0: '1'}) : t('phase_graph_seed_x_label', {value0: '1'}))).toBeTruthy();
+                if (!pendulum) for (const [id, label] of [['tau', t('phase_graph_r_tau')], ['delta', t('phase_graph_r_delta')], ['discriminant', t('phase_graph_r_discriminant')], ['eigen', t('phase_graph_r_eigen')], ['type', t('phase_graph_r_type_linear')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);
+                expect(document.querySelector('[data-phase-inset]')).toBeTruthy();
+            }
+            cleanup();
+        }
+        expect(missing).toEqual([]);
+    });
+
+    it('no step opens in the state its prompt asks the learner to produce', () => {
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            for (const step of ppSteps()) {
+                m.open(step.id);
+                const opening = m.snap();
+                for (const [index, change] of PP_VARIANTS[step.id].entries()) {
+                    m.open(step.id);
+                    change(m.ui);
+                    expect({language, id: step.id, variant: index, changed: m.snap() !== opening}).toEqual({language, id: step.id, variant: index, changed: true});
+                }
+            }
+            cleanup();
+        }
+    });
+});
+
+// ---- PP1 and PP2: the numbers quoted, recomputed independently of the graph ----------------------------------------------------------------
+
+type Field = (x: number, y: number) => [number, number];
+const linearField = (a: number, b: number, c: number, d: number): Field => (x, y) => [a * x + b * y, c * x + d * y];
+const pendulumField: Field = (theta, omega) => [omega, -Math.sin(theta)];
+/** An own RK4 (step 0,02) along the field in time direction `sign`: the exit time (the first step whose point has |x| or |y| above 4, null for all 10 s) and the path. */
+function flowOf(field: Field, x0: number, y0: number, sign: 1 | -1) {
+    const g: Field = (x, y) => { const [u, v] = field(x, y); return [sign * u, sign * v]; };
+    const h = 0.02;
+    let x = x0;
+    let y = y0;
+    const path: [number, number][] = [[x, y]];
+    for (let k = 1; k <= 500; k += 1) {
+        const [a1, b1] = g(x, y);
+        const [a2, b2] = g(x + h / 2 * a1, y + h / 2 * b1);
+        const [a3, b3] = g(x + h / 2 * a2, y + h / 2 * b2);
+        const [a4, b4] = g(x + h * a3, y + h * b3);
+        x += h / 6 * (a1 + 2 * a2 + 2 * a3 + a4);
+        y += h / 6 * (b1 + 2 * b2 + 2 * b3 + b4);
+        path.push([x, y]);
+        if (Math.abs(x) > 4 || Math.abs(y) > 4) return {exit: k * h, path, end: [x, y] as [number, number]};
+    }
+    return {exit: null, path, end: [x, y] as [number, number]};
+}
+/** tau, delta, Delta and the eigenvalues (the quadratic formula, the larger real part first; a complex pair as [real, imaginary]). */
+function matrixInfo(a: number, b: number, c: number, d: number) {
+    const tau = a + d;
+    const delta = a * d - b * c;
+    const disc = tau * tau - 4 * delta;
+    const l: [number, number] = disc >= 0 ? [(tau + Math.sqrt(disc)) / 2, (tau - Math.sqrt(disc)) / 2] : [tau / 2, Math.sqrt(-disc) / 2];
+    return {tau, delta, disc, l};
+}
+const matrixType = (a: number, b: number, c: number, d: number): (() => string) => {
+    const {tau, delta, disc} = matrixInfo(a, b, c, d);
+    if (delta < 0) return () => t('phase_graph_type_saddle');
+    if (delta === 0) return () => t('phase_graph_type_line_of_equilibria');
+    if (tau === 0) return () => t('phase_graph_type_centre');
+    if (disc > 0) return tau < 0 ? () => t('phase_graph_type_node_stable') : () => t('phase_graph_type_node_unstable');
+    if (disc === 0) return tau < 0 ? () => t('phase_graph_type_degenerate_stable') : () => t('phase_graph_type_degenerate_unstable');
+    return tau < 0 ? () => t('phase_graph_type_spiral_stable') : () => t('phase_graph_type_spiral_unstable');
+};
+const norm = (text: string | null | undefined) => (text ?? '').replace(/−/g, '-');
+const energyOf = (theta: number, omega: number) => omega * omega / 2 - Math.cos(theta);
+const ppRaw = (id: string, language: Language) => {
+    const step = ppStepOf(id);
+    return [step.explanation[language], step.observationPrompt[language], ...step.expectedObservations.map(o => o[language]), step.scene!.expectedState[language]].join(' ');
+};
+const E_M: [number, number, number, number] = [4, 1, 2, 3];
+const N_M: [number, number, number, number] = [-4, -1, -2, -3];
+
+describe('PP1 and PP2: every number the text quotes is recomputed independently of the graph', () => {
+    it('the independent integrator agrees with the closed forms it is used to confirm', () => {
+        // x(1) from (1,0) for N: x = 2/3 e^-5t (1,1) + 1/3 e^-2t (1,-2)
+        const exact = (t1: number): [number, number] => [2 / 3 * Math.exp(-5 * t1) + Math.exp(-2 * t1) / 3, 2 / 3 * Math.exp(-5 * t1) - 2 / 3 * Math.exp(-2 * t1)];
+        const rk = flowOf(linearField(...N_M), 1, 0, 1).path[50];
+        expect(Math.abs(rk[0] - exact(1)[0]) + Math.abs(rk[1] - exact(1)[1])).toBeLessThan(1e-6);
+        expect(exact(1).map(v => Number(v.toFixed(4)))).toEqual([0.0496, -0.0857]);
+        expect(Math.cos(6.28).toFixed(4)).toBe('1.0000');
+        expect(Math.sin(6.28).toFixed(4)).toBe('-0.0032');
+        const centre = flowOf(linearField(0, -1, 1, 0), 1, 0, 1).path[314];
+        expect([centre[0].toFixed(3), centre[1].toFixed(3)]).toEqual(['1.000', '-0.003']);
+        // Euler on the centre: the iteration radius (1 + h^2)^(n/2), by closed form and by iterating the step
+        const euler = (h: number, n: number) => { let x = 1; let y = 0; for (let i = 0; i < n; i += 1) { [x, y] = [x - h * y, y + h * x]; } return Math.hypot(x, y); };
+        expect([euler(0.1, 63), euler(0.05, 126)].map(v => v.toFixed(4))).toEqual(['1.3681', '1.1704']);
+        expect([(1 + 0.1 ** 2) ** 31.5, (1 + 0.05 ** 2) ** 63].map(v => v.toFixed(4))).toEqual(['1.3681', '1.1704']);
+        expect([Math.log(1.3681), Math.log(1.1704)].map(v => v.toFixed(4))).toEqual(['0.3134', '0.1573']);
+        // the separatrix end after 10 s: theta = 2 asin tanh t, omega = 2 / cosh t
+        const end = [2 * Math.asin(Math.tanh(10)), 2 / Math.cosh(10)];
+        expect(end.map(v => v.toFixed(4))).toEqual(['3.1414', '0.0002']);
+        const flow = flowOf(pendulumField, 0, 2, 1).end;
+        expect(Math.abs(flow[0] - end[0])).toBeLessThan(5e-4);
+        expect(Math.abs(flow[1] - end[1])).toBeLessThan(5e-4);
+        // omega max and the extreme theta of PP2 step 2, with an RK4 cross-check over the 10 s
+        expect([Math.sqrt(2 * (energyOf(1, 0) + 1)), Math.sqrt(2 * (energyOf(2, 0) + 1)), Math.acos(-energyOf(0, 1.9))].map(v => v.toFixed(4))).toEqual(['0.9589', '1.6829', '2.5065']);
+        const maxOmega = (theta: number) => Math.max(...flowOf(pendulumField, theta, 0, 1).path.map(p => Math.abs(p[1])));
+        expect(Math.abs(maxOmega(1) - 0.9589)).toBeLessThan(1e-3);
+        expect(Math.abs(maxOmega(2) - 1.683)).toBeLessThan(1e-3);
+        expect(Math.abs(Math.max(...flowOf(pendulumField, 0, 1.9, 1).path.map(p => p[0])) - 2.5065)).toBeLessThan(5e-3);
+    });
+
+    /** [step, value, digits]: each value must appear in the sl and en text of the step in the format of the language. */
+    const info = (a: number, b: number, c: number, d: number) => matrixInfo(a, b, c, d);
+    const exits = (field: Field, x: number, y: number) => [flowOf(field, x, y, 1).exit, flowOf(field, x, y, -1).exit];
+    const seedExit = (field: Field, x: number, y: number, sign: 1 | -1) => flowOf(field, x, y, sign).exit!;
+    const E = info(...E_M);
+    const N = info(...N_M);
+    const dn = (c: number) => info(-4, -1, c, -3);
+    const nearCentre = info(0, -1, 1, -0.25);
+    const centre = info(0, -1, 1, 0);
+    const saddle = info(1, 0, 0, -1);
+    const unstableSpiral = info(0.5, -1, 1, 0);
+    const QUOTES: [string, string, number, number][] = [
+        ['pp1-reverse', 'tau N', N.tau, 0], ['pp1-reverse', 'delta N', N.delta, 0], ['pp1-reverse', 'Delta N', N.disc, 0], ['pp1-reverse', 'lambda N 1', N.l[0], 0], ['pp1-reverse', 'lambda N 2', N.l[1], 0],
+        ['pp1-reverse', 'lambda E 1', E.l[0], 0], ['pp1-reverse', 'lambda E 2', E.l[1], 0], ['pp1-reverse', 'tau E', E.tau, 0], ['pp1-reverse', 'delta E', E.delta, 0], ['pp1-reverse', 'Delta E', E.disc, 0],
+        ['pp1-reverse', 'E forward exit', seedExit(linearField(...E_M), 1, 0, 1), 2], ['pp1-reverse', '-E backward exit', seedExit(linearField(...N_M), 1, 0, -1), 2],
+        ['pp1-slow', 'A(1,-2) first', -2, 0], ['pp1-slow', 'A(1,-2) second', 4, 0], ['pp1-slow', 'x(1) first', 2 / 3 * Math.exp(-5) + Math.exp(-2) / 3, 4], ['pp1-slow', 'x(1) second', 2 / 3 * Math.exp(-5) - 2 / 3 * Math.exp(-2), 4],
+        ['pp1-saddle', 'tau', saddle.tau, 0], ['pp1-saddle', 'delta', saddle.delta, 0], ['pp1-saddle', 'Delta', saddle.disc, 0], ['pp1-saddle', 'lambda 1', saddle.l[0], 0], ['pp1-saddle', 'lambda 2', saddle.l[1], 0],
+        ['pp1-saddle', '(1;0,05) forward', seedExit(linearField(1, 0, 0, -1), 1, 0.05, 1), 2], ['pp1-saddle', '(1;0,05) backward', seedExit(linearField(1, 0, 0, -1), 1, 0.05, -1), 2],
+        ['pp1-saddle', '(0,05;1) forward', seedExit(linearField(1, 0, 0, -1), 0.05, 1, 1), 2], ['pp1-saddle', '(0,05;1) backward', seedExit(linearField(1, 0, 0, -1), 0.05, 1, -1), 2], ['pp1-saddle', 'ln 4', Math.log(4), 2],
+        ['pp1-parabola', 'tau', dn(0).tau, 0], ['pp1-parabola', 'delta c=0', dn(0).delta, 0], ['pp1-parabola', 'Delta c=0', dn(0).disc, 0], ['pp1-parabola', 'delta c=1/4', dn(0.25).delta, 2], ['pp1-parabola', 'Delta c=1/4', dn(0.25).disc, 0],
+        ['pp1-parabola', 'lambda c=1/4', dn(0.25).l[0], 1], ['pp1-parabola', 'delta c=1/2', dn(0.5).delta, 1], ['pp1-parabola', 'Delta c=1/2', dn(0.5).disc, 0], ['pp1-parabola', 'lambda re c=1/2', dn(0.5).l[0], 1], ['pp1-parabola', 'lambda im c=1/2', dn(0.5).l[1], 1],
+        ['pp1-centre', 'tau near', nearCentre.tau, 2], ['pp1-centre', 'delta near', nearCentre.delta, 0], ['pp1-centre', 'Delta near', nearCentre.disc, 4],
+        ['pp1-centre', 'tau', centre.tau, 0], ['pp1-centre', 'delta', centre.delta, 0], ['pp1-centre', 'Delta', centre.disc, 0], ['pp1-centre', 'lambda re', centre.l[0], 0], ['pp1-centre', 'lambda im', centre.l[1], 0],
+        ['pp1-euler', 'cos 6,28', Math.cos(6.28), 4], ['pp1-euler', 'sin 6,28', Math.sin(6.28), 4], ['pp1-euler', 'radius h=0,1', (1 + 0.1 ** 2) ** 31.5, 4], ['pp1-euler', 'radius h=0,05', (1 + 0.05 ** 2) ** 63, 4],
+        ['pp1-euler', 'ln 1,3681', Math.log(1.3681), 4], ['pp1-euler', 'ln 1,1704', Math.log(1.1704), 4],
+        ['pp1-free', 'saddle delta', saddle.delta, 0], ['pp1-free', 'spiral tau', unstableSpiral.tau, 1], ['pp1-free', 'spiral delta', unstableSpiral.delta, 0],
+        ['pp2-small', 'H', energyOf(1, 0), 6], ['pp2-small', 'omega max', Math.sqrt(2 * (energyOf(1, 0) + 1)), 4],
+        ['pp2-larger', 'H(1,0)', energyOf(1, 0), 6], ['pp2-larger', 'H(2,0)', energyOf(2, 0), 6], ['pp2-larger', 'H(0;1,9)', energyOf(0, 1.9), 3], ['pp2-larger', 'omega max', Math.sqrt(2 * (energyOf(2, 0) + 1)), 3], ['pp2-larger', 'theta max', Math.acos(-energyOf(0, 1.9)), 2],
+        ['pp2-cross', 'H omega 2', energyOf(0, 2), 0], ['pp2-cross', 'H omega 2,25', energyOf(0, 2.25), 5], ['pp2-cross', 'exit', seedExit(pendulumField, 0, 2.25, 1), 2], ['pp2-cross', 'exit backward', seedExit(pendulumField, 0, 2.25, -1), 2],
+        ['pp2-separatrix', 'theta end', 2 * Math.asin(Math.tanh(10)), 4], ['pp2-separatrix', 'omega end', 2 / Math.cosh(10), 4], ['pp2-separatrix', 'pi', Math.PI, 4],
+        ['pp2-free', 'H(1,0)', energyOf(1, 0), 6], ['pp2-free', 'H(-1,0)', energyOf(-1, 0), 6], ['pp2-free', 'H(0,05;2)', energyOf(0.05, 2), 5],
+        ['pp2-free', 'forward exit', seedExit(pendulumField, 0.05, 2, 1), 2], ['pp2-free', 'backward exit', seedExit(pendulumField, 0.05, 2, -1), 2],
+    ];
+
+    it('each quoted value is in the sl and en text of its step (red evidence: change one quoted number)', () => {
+        const missing: string[] = [];
+        for (const language of LANGS) {
+            setLanguage(language);
+            for (const [id, what, value, digits] of QUOTES) if (!hasQuote(ppRaw(id, language), value, digits, language)) missing.push(`${language} ${id} ${what}: ${q(value, digits, language)}`);
+        }
+        expect(missing).toEqual([]);
+    });
+
+    it('the claims about which half-trajectory is stopped and which is complete follow from the independent flow', () => {
+        expect(exits(linearField(...E_M), 1, 0).map(v => v && v.toFixed(2))).toEqual(['0.34', null]);
+        expect(exits(linearField(...N_M), 1, 0).map(v => v && v.toFixed(2))).toEqual([null, '0.34']);
+        for (const [x, y] of [[1, 1], [1, 0], [0, 1], [1, 0.05], [0.05, 1]]) expect(exits(linearField(...N_M), x, y)[0], `N forward from (${x}, ${y})`).toBeNull();
+        expect(exits(linearField(1, 0, 0, -1), 0, 1).map(v => v && v.toFixed(2))).toEqual([null, '1.40']);
+        expect(exits(linearField(1, 0, 0, -1), 1, 0).map(v => v && v.toFixed(2))).toEqual(['1.40', null]);
+        expect(exits(linearField(0, -1, 1, 0), 1, 0)).toEqual([null, null]);
+        expect(exits(pendulumField, 0, 2)).toEqual([null, null]);
+        expect(exits(pendulumField, 1, 0)).toEqual([null, null]);
+        expect(exits(pendulumField, 0, 2.25).map(v => v && v.toFixed(2))).toEqual(['2.76', '2.76']);
+        expect(exits(pendulumField, 0.05, 2).map(v => v && v.toFixed(2))).toEqual(['8.62', '8.66']);
+    });
+});
+
+describe('PP1 and PP2: the readouts after the learner change show the quoted numbers, in sl and en', () => {
+    it('the readouts of the graph match the independent recomputation for every step', () => {
+        const bad: string[] = [];
+        for (const language of LANGS) {
+            const m = mountPhase(language);
+            const dd = (id: string) => norm(document.querySelector(`[data-readout="${id}"] dd`)?.textContent);
+            const has = (what: string, id: string, value: number, digits: number) => {
+                if (!hasQuote(dd(id), value, digits, language)) bad.push(`${language} ${what} ${id}: wants ${q(value, digits, language)} in "${dd(id)}"`);
+            };
+            const includes = (what: string, id: string, part: string) => { if (!dd(id).includes(part)) bad.push(`${language} ${what} ${id}: wants "${part}" in "${dd(id)}"`); };
+            const run = (id: string, variant: number) => { m.open(id); PP_VARIANTS[id][variant](m.ui); };
+            const linear = (id: string, variant: number, a: number, b: number, c: number, d: number) => {
+                run(id, variant);
+                const i = matrixInfo(a, b, c, d);
+                has(`${id}#${variant} tau`, 'tau', i.tau, 4); has(`${id}#${variant} delta`, 'delta', i.delta, 4); has(`${id}#${variant} Delta`, 'discriminant', i.disc, 4);
+                has(`${id}#${variant} eigen`, 'eigen', i.l[0], 4); has(`${id}#${variant} eigen`, 'eigen', i.l[1], 4);
+                includes(`${id}#${variant} type`, 'type', matrixType(a, b, c, d)());
+            };
+            const suffixOf = (text: string) => text.split('#')[1];
+            const seedExit = (field: Field, x: number, y: number, sign: 1 | -1) => flowOf(field, x, y, sign).exit!;
+
+            linear('pp1-reverse', 0, ...N_M);
+            has('pp1-reverse -E backward', 'seed-1', seedExit(linearField(...N_M), 1, 0, -1), 2); has('pp1-reverse -E forward', 'seed-1', 10, 0);
+            run('pp1-slow', 0);
+            for (const n of [1, 2, 3, 4]) has(`pp1-slow seed ${n} forward`, `seed-${n}`, 10, 0);
+            linear('pp1-saddle', 0, 1, 0, 0, -1);
+            const sd = linearField(1, 0, 0, -1);
+            has('saddle (1;0,05) forward', 'seed-3', seedExit(sd, 1, 0.05, 1), 2); has('saddle (1;0,05) backward', 'seed-3', seedExit(sd, 1, 0.05, -1), 2);
+            has('saddle (0,05;1) forward', 'seed-4', seedExit(sd, 0.05, 1, 1), 2); has('saddle (0,05;1) backward', 'seed-4', seedExit(sd, 0.05, 1, -1), 2);
+            has('saddle (0;1) forward', 'seed-2', 10, 0); has('saddle (1;0) backward', 'seed-1', 10, 0);
+            [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1].forEach((c, variant) => linear('pp1-parabola', variant, -4, -1, c, -3));
+            linear('pp1-centre', 0, 0, -1, 1, 0);
+            has('pp1-centre seed 1 forward', 'seed-1', 10, 0);
+            run('pp1-euler', 0);
+            has('pp1-euler time', 'time', 6.28, 2);
+            linear('pp1-free', 0, 1, 0, 0, -1); linear('pp1-free', 1, 1, 0, 0, 0); linear('pp1-free', 2, 0.5, -1, 1, 0);
+
+            run('pp2-small', 0);
+            has('pp2-small H', 'energy-1', energyOf(1, 0), 6);
+            includes('pp2-small hyperbolic', 'hyperbolic', t('phase_graph_no'));
+            if (!(document.querySelector('[data-phase-status]')?.textContent ?? '').includes(t('phase_graph_type_centre'))) bad.push(`${language} pp2-small status lacks the centre`);
+            run('pp2-larger', 0);
+            has('pp2-larger H1', 'energy-1', energyOf(1, 0), 6); has('pp2-larger H2', 'energy-2', energyOf(2, 0), 6); has('pp2-larger H3', 'energy-3', energyOf(0, 1.9), 6);
+            for (const n of [1, 2, 3]) includes(`pp2-larger swing ${n}`, `energy-${n}`, suffixOf(t('phase_graph_energy_swing', {value0: '#'})));
+            run('pp2-cross', 0);
+            has('pp2-cross omega 2 H', 'energy-1', 1, 0); includes('pp2-cross exact', 'energy-1', suffixOf(t('phase_graph_energy_separatrix_exact', {value0: '#'})));
+            has('pp2-cross omega 2 seed', 'seed-1', 10, 0);
+            run('pp2-cross', 1);
+            has('pp2-cross omega 2,25 H', 'energy-1', energyOf(0, 2.25), 5); includes('pp2-cross rotation', 'energy-1', suffixOf(t('phase_graph_energy_rotation', {value0: '#'})));
+            has('pp2-cross omega 2,25 seed', 'seed-1', 2.76, 2);
+            run('pp2-separatrix', 0);
+            has('pp2-separatrix seed', 'seed-1', 10, 0);
+            if (!(document.querySelector('[data-phase-status]')?.textContent ?? '').includes(t('phase_graph_status_ended', {value0: '10'}))) bad.push(`${language} pp2-separatrix status lacks the end of the computed trajectories`);
+            run('pp2-free', 0);
+            has('pp2-free H(1,0)', 'energy-1', energyOf(1, 0), 6); has('pp2-free H(-1,0)', 'energy-2', energyOf(-1, 0), 6);
+            run('pp2-free', 1);
+            has('pp2-free H(0,05;2)', 'energy-2', energyOf(0.05, 2), 5); includes('pp2-free rotation', 'energy-2', suffixOf(t('phase_graph_energy_rotation', {value0: '#'})));
+            has('pp2-free forward', 'seed-2', 8.62, 2); has('pp2-free backward', 'seed-2', 8.66, 2);
+            cleanup();
+        }
+        expect(bad).toEqual([]);
     });
 });
