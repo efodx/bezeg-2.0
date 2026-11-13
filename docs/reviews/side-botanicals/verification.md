@@ -4,6 +4,8 @@
 
 All browser checks ran with Playwright Chromium against `just preview` of the production build of `cca41e8c`, headless, on the owner's Windows machine. The check scripts were temporary and are not in the repository.
 
+Update, later on 2026-11-13: the owner reviewed the preview on 2026-11-13 and dropped growth on scroll: the branches grow from 0 to full size once, over 2.5 s, on every page, as Home already did. There is no scroll listener. Rechecked in the browser on `/bezeg-2.0/learn` at 3440×1440: growth 0.05 on the first frame, 1 after 3.2 s with all 30 parts shown, 1 after scrolling and after navigating to Demonstrations, 1 on the first frame with reduced motion, no page errors. Unit tests, lint, typecheck and build pass. The scroll rows of the growth table below, and the growth 0.6 rows of the performance table, describe the earlier behaviour; the column, smoke and reduced-motion results were not rerun and do not depend on it.
+
 ## Growth (3440×1440)
 
 | State on `/bezeg-2.0/learn` | Growth | Layer opacity | Branch scale | Leaves and heads shown (of 30 per side) |

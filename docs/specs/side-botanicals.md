@@ -25,6 +25,8 @@ The owner settled these in a grilling session, then iterated on the artwork in a
 13. **Growth across routes (handler, 2026-11-13):** the growth reached is kept for the whole visit, including navigation between the three routes and through other routes. A visitor who has seen the branches grown never sees them regrow. A full page reload starts again. The alternative, restarting on each route, would replay the load animation on every header click.
 14. **Content column (handler, 2026-11-13):** Home, Demonstrations and Learn mark the element whose content box is their column with `data-content-column`. Each gutter is the space between the viewport edge (without the scrollbar) and that content box, less 24px, on each side separately; gutters under 100px carry no decoration. A content-box `ResizeObserver` and the window resize keep it current. This replaces the hard-coded 1100px and 1290px widths. User impact: on Demonstrations the layers end 24px from the 1260px column, 15px closer than before; Home and Learn are unchanged. A page without the attribute shows no decoration.
 
+15. **No growth on scroll (owner, 2026-11-13):** the owner reviewed the preview on 2026-11-13 and dropped growth on scroll: the branches grow from 0 to full size once, over 2.5 s, on every page, as Home already did. There is no scroll listener. This replaces the 60% load stage and the scroll stage of decision 9 and the scroll-jump limit of decision 12; the rest of decisions 12 and 13 stands. Reduced motion is still fully grown at once.
+
 ## Approach
 
 - Generate the artwork at runtime from a deterministic, seeded generator (`src/sideBotanicals/`), with no React and no DOM in the geometry. Each flower head is a few merged paths, so a full layout stays at a few hundred elements and roughly 0.5 MB of path data, generated once per gutter size.
@@ -43,6 +45,8 @@ Checked in a browser on 2026-11-13 except where noted; see the [record](../revie
 - Typecheck, lint, the focused unit tests and the production build pass.
 
 ## Acceptance criteria (step 2 and measured column)
+
+Superseded in part by decision 15: on `/bezeg-2.0/learn` at 3440×1440 growth is now 0.05 on the first frame and 1 after the load animation (3.2 s), and stays 1 after scrolling and navigation (browser check, 2026-11-13). The scroll figures in the first item below describe the earlier behaviour.
 
 - Met: at 3440×1440 on `/bezeg-2.0/learn` the first frame shows short, faint branches (growth 0.07), 0.6 after the load animation, 1 at the bottom of the page, and no decrease after scrolling back up.
 - Met: a page that cannot scroll reaches full growth within 3.2 s.

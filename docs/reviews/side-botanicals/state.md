@@ -26,5 +26,7 @@ Step 2 (growth on scroll, `6256c695`) and the measured column (`cca41e8c`) are c
 
 ## Next
 
+Owner decision 2026-11-13 (spec decision 15): no growth on scroll; the branches grow to full size once on load. Implemented on the branch.
+
 1. The owner reviews the preview (`just build`, then `just preview`), then `just publish --recipe runtime`.
 2. The owner decides whether the playground becomes a dev-only route or script in the repository.

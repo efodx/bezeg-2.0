@@ -1,5 +1,7 @@
 # 1. Growth on scroll
 
+Superseded 2026-11-13 by spec decision 15: the owner reviewed the preview on 2026-11-13 and dropped growth on scroll: the branches grow from 0 to full size once, over 2.5 s, on every page, as Home already did. There is no scroll listener. The text below is the original task.
+
 Source: [spec](../../specs/side-botanicals.md), decisions 6, 8 and 9.
 
 ## Goal
