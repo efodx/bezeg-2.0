@@ -34,7 +34,7 @@ Handler 19 checkpoint, 2026-11-13 (rewrite at handoff). The worktree is on branc
 
 ## In flight
 
-- **Seven local commits wait for master to turn green**, base `ea0c12e7` (last published local commit): `889dee4a` (L5 lesson actions), `16ae8392` (L5 content and tests), `8b94d091` (chapter join + card), `3dbd7b68` (capture test fix), `181e0a61` (spec decisions, evaluation entry), `601433c7` (task status), `11af8646` (composition labels). All verified locally (`just check` on `181e0a61` passed; unit/tsc/lint on `11af8646`'s files). The republish of `889dee4a,16ae8392` passed every gate and failed only at `push` (credentials, since fixed by the owner: `gh auth setup-git`; git now uses gh's token). Master is red from another stream's `4e844f56` (all four browser-smoke shards); **elder identity handler 6** owns the fix and promised a message when it is on master and green. Do not touch AppHeader.css, WelcomePage.css, HomeDemonstrationsCarousel.css, DemonstrationWorkspaceIdentity.css, shellTokens.css, index.css or `tests/guided-lessons.smoke.spec.cjs` until then. Then: `just publish --background --recipe runtime --base ea0c12e7 --commits <all ids in base..HEAD>`; the guided-lessons smoke table may conflict (keep both rows); watch the master run.
+- Nothing. Handler 19's eight commits (`889dee4a`..`8b96a7aa`) pushed as `b5525015`; master CI 43520832417 green and deployed. Base for the next publish: the local commit of this note.
 - No worker is running.
 
 ## Owed
@@ -50,8 +50,7 @@ Handler 19 checkpoint, 2026-11-13 (rewrite at handoff). The worktree is on branc
 
 ## Next
 
-1. When elder identity handler 6 reports master green: publish the seven commits (In flight), watch the master run; mark task 09 hosted CI in `docs/tasks/linear-maps/09-batch-c.md`.
-2. Phase portraits 390 px layout and linear-maps 390 px labels (Owed) if the owner wants them before other families.
-3. F4 (chapter guided examples) per chapter once its F3 lessons exist; then the families' remaining batches per `docs/tasks/feature-streams/families-prep.md`.
+1. Phase portraits 390 px layout and linear-maps 390 px labels (Owed) if the owner wants them before other families.
+2. F4 (chapter guided examples) per chapter once its F3 lessons exist; then the families' remaining batches per `docs/tasks/feature-streams/families-prep.md`.
 
 Rules to keep: at most two workers in the stream at once, and only one worker editing the tree at a time (a read-only reviewer and a smoke worker may run beside it); never edit shared host files (`BaseGraph.tsx`, `GraphSession.ts`, `src/inputs/`, the lesson runtime, `src/graphs/base/` apart from test lists). At handoff, launch the successor from this worktree with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium`, and pass this self-spawn rule on.
