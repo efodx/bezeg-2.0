@@ -291,6 +291,16 @@ const chapterInventories = {
         pathExport: 'bsplineGuidedExamplePath',
         expectedFor: bsplineExpectedFor,
     },
+    'phase-portraits': {
+        module: '/src/learning/content/phasePortraitsChapterRegistry.ts',
+        // This registry exports its section rows and a per-section lesson function, not a `{all()}` object: the generator adapts each section on request.
+        registryExport: 'phasePortraitsGuidedExampleDemonstrations',
+        lessonExport: 'phasePortraitsGuidedExampleLesson',
+        pathExport: 'phasePortraitsGuidedExamplePath',
+        expectedFor: phasePortraitsExpectedFor,
+        // The two dynamics Demonstrations of the analysis family: the examples must cover exactly these and open on their routes.
+        identities: {module: '/src/graphs/dynamics/registration.ts', rows: 'dynamicsDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -1660,6 +1670,88 @@ function assertFamilyIdentities(chapterId, examples, rows) {
     for (const id of registered.keys()) assert.ok(examples.some(example => example.demonstrationId === id), `${chapterId}: registered Demonstration ${id} has no example`);
 }
 
+// ---- Phase portraits chapter (phase-portraits): four lessons on two Demonstrations, keyed by the section in the example id. The first scene of each is the Demonstration default
+// plus the `phase` actions below; nothing is random.
+
+/** The `phase` actions of an opening scene by operation: only the operations the authored frame allows. */
+function phaseActions(id, step, allowed) {
+    const actions = step.scene.actions;
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    // The lesson's own scene actions repeat the prepared scene that the adapter also puts first, so two of the same default scene are expected, and applying it twice changes nothing.
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && actions[0].kind === 'prepared-scene', `${id}: the opening scene must start with its prepared scene`);
+    assert.ok(prepared.every(item => item.source === 'demonstration-default' && item.sceneId === prepared[0].sceneId), `${id}: the authored frame starts from the Demonstration default`);
+    const phase = actions.filter(item => item.kind === 'phase');
+    assert.equal(actions.length, prepared.length + phase.length, `${id}: the authored first-frame expectation assumes an opening scene of phase actions only; extend phasePortraitsExpectedFor`);
+    for (const item of phase) assert.ok(allowed.includes(item.operation), `${id}: operation ${item.operation} is not authored; extend phasePortraitsExpectedFor`);
+    return Object.fromEntries(phase.map(item => [item.operation, item]));
+}
+
+function assertMatrix(id, action, entries, text) {
+    assert.deepEqual(['A', 'B', 'C', 'D'].map(key => action?.[key]), entries, `${id}: only the matrix ${text} (stored quarter units) is authored`);
+}
+
+function assertSeeds(id, action, seeds) {
+    assert.deepEqual(action?.seeds, seeds, `${id}: only the seeds ${JSON.stringify(seeds)} (stored units, seed = value / 20) are authored`);
+}
+
+// Authored from src/graphs/dynamics/PhasePortraitGraph.tsx (buildScene) and src/dynamics/phaseModel.ts, not from a capture. Linear system, zoom 0 (view [-4, 4]^2, centre (0, 0)), one seed.
+// Visible curves: the frame, the backward and the forward orbit of the seed (the separatrix, wrap and ring curves show for a nonlinear system only). Points: the equilibrium at the
+// origin, the moving square at time 0 on the seed (1, 0), the seed handle (1, 0), and the two matrix-column handles (the images of (1,0) and (0,1), the columns (A, C) and (B, D)),
+// each with a segment from the origin, all inside the view. Eigen-direction lines: one per real eigen-direction. The texts (legend rows, captions) are left unasserted: the capture hides
+// any over 65 characters after the first-frame check.
+function phaseLinearFrame(columns, lines) {
+    return {types: {curve: 3, line: lines, point: 5, segment: 2}, curveCount: 3, points: [[0, 0], [1, 0], ...columns]};
+}
+
+/** PP1 opens on E = (4 1; 2 3) with the seed (1, 0); E has the eigenvalues 2 and 5 with the eigenvectors (1, -2) and (1, 1): two lines. */
+function phaseLinearSystemExpectedFor(id, step) {
+    const actions = phaseActions(id, step, ['set-system', 'set-matrix', 'set-seeds']);
+    assert.equal(actions['set-system']?.system, 'linear', `${id}: only the linear system is authored`);
+    assertMatrix(id, actions['set-matrix'], [16, 4, 8, 12], 'E = (4 1; 2 3)');
+    assertSeeds(id, actions['set-seeds'], [{X: 20, Y: 0}]);
+    return phaseLinearFrame([[4, 2], [1, 3]], 2);
+}
+
+/** PP2 opens on the linear centre (0 1; -1 0), the linearization of the pendulum, with the seed (1, 0): eigenvalues +-i, no real eigen-direction. */
+function phasePendulumExpectedFor(id, step) {
+    const actions = phaseActions(id, step, ['set-system', 'set-matrix', 'set-seeds']);
+    assert.equal(actions['set-system']?.system, 'linear', `${id}: only the linear centre is authored`);
+    assertMatrix(id, actions['set-matrix'], [0, 4, -4, 0], '(0 1; -1 0)');
+    assertSeeds(id, actions['set-seeds'], [{X: 20, Y: 0}]);
+    return phaseLinearFrame([[0, -1], [1, 0]], 0);
+}
+
+// Authored from src/graphs/dynamics/LogisticMapGraph.tsx (buildScene), not from a capture. Curves: the two panel frames, the diagram, the three marks, the cursor, the map, the diagonal and
+// the cobweb. Points: the fixed point 1 - 1/r on the diagonal, the two 2-cycle markers only for r above 3, the iterate marker only after a step, and the start handle on the diagonal.
+const logisticIterate = (start, r, steps) => { let x = start; for (let i = 0; i < steps; i++) x = r * x * (1 - x); return x; };
+
+/** PP4 opens at r = 2.9, x0 = 0.2 (the Demonstration default) and 20 cobweb steps. */
+function phaseLogisticMapExpectedFor(id, step) {
+    const actions = phaseActions(id, step, ['set-r', 'set-step']);
+    assert.equal(actions['set-r']?.R, 290, `${id}: only r = 2.9 is authored`);
+    assert.equal(actions['set-step']?.step, 20, `${id}: only 20 steps are authored`);
+    const fixed = 1 - 1 / 2.9;
+    const iterate = logisticIterate(0.2, 2.9, 20);
+    return {types: {curve: 7, point: 3}, curveCount: 7, points: [[0.2, 0.2], [fixed, fixed], [iterate, iterate]]};
+}
+
+/** PP5 opens at r = 2.9 with the default start and step 0: no iterate marker. */
+function phaseBifurcationExpectedFor(id, step) {
+    const actions = phaseActions(id, step, ['set-r']);
+    assert.equal(actions['set-r']?.R, 290, `${id}: only r = 2.9 is authored`);
+    const fixed = 1 - 1 / 2.9;
+    return {types: {curve: 7, point: 2}, curveCount: 7, points: [[0.2, 0.2], [fixed, fixed]]};
+}
+
+/** First-frame expectation of a phase-portraits lesson (the four sections of the chapter, keyed by the section in the example id). */
+function phasePortraitsExpectedFor(id, step) {
+    const bySection = {'linear-system': phaseLinearSystemExpectedFor, pendulum: phasePendulumExpectedFor, 'logistic-map': phaseLogisticMapExpectedFor, bifurcation: phaseBifurcationExpectedFor};
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
+    assert.ok(author, `${id}: no authored phase-portraits first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1669,7 +1761,8 @@ async function generateChapterInventory(chapterId) {
         const module = await server.ssrLoadModule(config.module);
         // A catalog-backed chapter exports cheap rows plus `all()`, which adapts every section's lesson on explicit request.
         const exported = module[config.registryExport];
-        const registry = typeof exported?.all === 'function' ? exported.all() : exported;
+        const registry = config.lessonExport ? Object.fromEntries(Object.keys(exported).map(sectionId => [sectionId, module[config.lessonExport](sectionId)]))
+            : typeof exported?.all === 'function' ? exported.all() : exported;
         const pathFor = module[config.pathExport];
         assert.ok(registry && typeof pathFor === 'function', `${chapterId}: registry or path function export is missing`);
         const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;
@@ -1715,4 +1808,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, assertExpectation};

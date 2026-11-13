@@ -307,7 +307,9 @@ describe('the cobweb', () => {
         map.dataX!.forEach((x, i) => expect(map.dataY![i]).toBeCloseTo(2.9 * x * (1 - x), 12));
         expect(curves(graph)[DIAGONAL].dataX).toEqual([0, 1]);
         expect(curves(graph)[DIAGONAL].dataY).toEqual([0, 1]);
-        expect(curves(graph)[COBWEB].dataX).toEqual([0.2]);
+        // Step 0: a zero-length segment at the start, so the curve evaluates to finite points but draws nothing.
+        expect(curves(graph)[COBWEB].dataX).toEqual([0.2, 0.2]);
+        expect(curves(graph)[COBWEB].dataY).toEqual([0.2, 0.2]);
         set(graph, {step: 2});
         const x1 = 2.9 * 0.2 * 0.8;
         const x2 = 2.9 * x1 * (1 - x1);

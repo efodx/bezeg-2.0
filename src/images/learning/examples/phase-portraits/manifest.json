@@ -1,0 +1,1098 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+    "dirty": true,
+    "inputs": "2559a62685c3628ee2e0b8f71f22a1bb872a9d24b587200ee9e4e81cb4289f52",
+    "output": "b140d35164e7ea6f8a268cf27179bf09a40ec1aa5fe6fbca4a7c28c6ea9d9862"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4471/bezeg-2.0/",
+    "stampRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+    "stampDirty": true,
+    "localOutputHash": "b140d35164e7ea6f8a268cf27179bf09a40ec1aa5fe6fbca4a7c28c6ea9d9862",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-Cc4qLzld.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-Cc4qLzld.js",
+        "sha256": "93a595ce00013d763f1304845eed95b76d5e767e7c7cba5403750609ffe392b1",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-wchQfhiq.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/jsx-runtime-wchQfhiq.js",
+        "sha256": "e904df307ac2a4fdff8eb260b201a2089360d65c30eca9f5816fbad06d3b0bb8",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-DXt5eJ5W.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/react-dom-DXt5eJ5W.js",
+        "sha256": "58a117e69b9876874d557aaf15de64462924e8f0309bf9a7e3ffc5b31d632825",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4471/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "fdd0111eb4c1c5fcc8cef12b2d5d482239c7efad146f4f1ad60d78df38f77185",
+    "entries": {
+      "phase-portraits.linear-system.phase-portrait": "7e7ba0794aff108c6c03009760b84c866256cbbd97dec086c1cb1adfad07d74f",
+      "phase-portraits.pendulum.phase-portrait": "b963ba47e86aff1b004288b6481a8eab6cf4725f1f1d542e1c295ce4b1456d6b",
+      "phase-portraits.logistic-map.logistic-map": "02c46bb0e5fac05f936955fbed5e4844d327d6ac0198206b88e2cd1cf7925f30",
+      "phase-portraits.bifurcation.logistic-map": "065e213b4c6df97b8bf14bae613571df899f64a8f0eb20b4a7d3b6d6b1fe5d07"
+    },
+    "presentation": "e19328b457cf9d914b21ed774eb77118813cea5b1f24a56033bc349a907f3103",
+    "buildOutput": "b140d35164e7ea6f8a268cf27179bf09a40ec1aa5fe6fbca4a7c28c6ea9d9862",
+    "buildInputs": "2559a62685c3628ee2e0b8f71f22a1bb872a9d24b587200ee9e4e81cb4289f52"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "phase-portraits.linear-system.phase-portrait",
+        "demonstrationId": "phase-portrait",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5.8,
+            4.4,
+            5.8,
+            -4.4
+          ]
+        }
+      },
+      {
+        "id": "phase-portraits.pendulum.phase-portrait",
+        "demonstrationId": "phase-portrait",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5.8,
+            4.4,
+            5.8,
+            -4.4
+          ]
+        }
+      },
+      {
+        "id": "phase-portraits.logistic-map.logistic-map",
+        "demonstrationId": "logistic-map",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.1,
+            1.15,
+            2.9,
+            -1.3
+          ]
+        }
+      },
+      {
+        "id": "phase-portraits.bifurcation.logistic-map",
+        "demonstrationId": "logistic-map",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.1,
+            1.15,
+            2.9,
+            -1.3
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "phase-portraits.linear-system.phase-portrait",
+      "demonstrationId": "phase-portrait",
+      "path": "/bezeg-2.0/analysis/phase-portrait?example=lesson.phase-portraits.linear-system.phase-portrait",
+      "sceneFingerprint": "ed0a66bddca264ea7ed2775a9be34434fd20791220a669f670898e17f4404d3b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp1-reverse-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp1-reverse-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-system\",\"system\":\"linear\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-matrix\",\"A\":16,\"B\":4,\"C\":8,\"D\":12}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-seeds\",\"seeds\":[{\"X\":20,\"Y\":0}]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "phase-portraits.linear-system.phase-portrait.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "921dfd4fa47f65ae9018ea119e6328c2f9f253b0a9ab9165ae89d17f3ccaa744",
+      "scene": {
+        "visibleElementCount": 34,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 3,
+          "line": 2,
+          "point": 5,
+          "text": 8,
+          "segment": 2
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -4
+            ],
+            [
+              0,
+              -4
+            ],
+            [
+              4,
+              -4
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.961744,
+              -0.018651
+            ],
+            [
+              0.923488,
+              -0.037301
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1.041859,
+              0.021453
+            ],
+            [
+              1.083717,
+              0.042907
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:4,2",
+          "point:1,3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 39,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 14,
+            "curve": 3,
+            "line": 2,
+            "point": 5,
+            "text": 9,
+            "segment": 2
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -4
+              ],
+              [
+                0,
+                -4
+              ],
+              [
+                4,
+                -4
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.961744,
+                -0.018651
+              ],
+              [
+                0.923488,
+                -0.037301
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1.041859,
+                0.021453
+              ],
+              [
+                1.083717,
+                0.042907
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:4,2",
+            "point:1,3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 8,
+        "finalLabelCount": 8,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 3,
+          "line": 2,
+          "point": 5,
+          "text": 8,
+          "segment": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "phase-portraits.pendulum.phase-portrait",
+      "demonstrationId": "phase-portrait",
+      "path": "/bezeg-2.0/analysis/phase-portrait?example=lesson.phase-portraits.pendulum.phase-portrait",
+      "sceneFingerprint": "2a2cd196199b24714d72cf311235400dc886f266c7dc3b951967b4545b4d8ef7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp2-small-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp2-small-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-system\",\"system\":\"linear\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-matrix\",\"A\":0,\"B\":4,\"C\":-4,\"D\":0}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-seeds\",\"seeds\":[{\"X\":20,\"Y\":0}]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "phase-portraits.pendulum.phase-portrait.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "f64752109260fd68bd1e32bba663a08df46d0ef3bd487e57981bd732c3998a6b",
+      "scene": {
+        "visibleElementCount": 30,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 3,
+          "point": 5,
+          "text": 6,
+          "segment": 2
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -4
+            ],
+            [
+              0,
+              -4
+            ],
+            [
+              4,
+              -4
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.9999,
+              -0.009999
+            ],
+            [
+              0.9998,
+              -0.019999
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.9999,
+              0.009999
+            ],
+            [
+              0.9998,
+              0.019999
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:0,-1",
+          "point:1,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 14,
+            "curve": 3,
+            "point": 5,
+            "text": 7,
+            "segment": 2
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -4
+              ],
+              [
+                0,
+                -4
+              ],
+              [
+                4,
+                -4
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.9999,
+                -0.009999
+              ],
+              [
+                0.9998,
+                -0.019999
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.9999,
+                0.009999
+              ],
+              [
+                0.9998,
+                0.019999
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:0,-1",
+            "point:1,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 3,
+          "point": 5,
+          "text": 6,
+          "segment": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "phase-portraits.logistic-map.logistic-map",
+      "demonstrationId": "logistic-map",
+      "path": "/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.logistic-map.logistic-map",
+      "sceneFingerprint": "4e2a558d95adea6b4addde1d4a83d9e93533ddda3c9673e4d0d3ba1eaa7362b8",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp4-settles-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp4-settles-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-r\",\"R\":290}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-step\",\"step\":20}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "phase-portraits.logistic-map.logistic-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d8b5879a4705d458e42e71f1f27ce766c54dfcb0e14f506779e4c8982096470d",
+      "scene": {
+        "visibleElementCount": 32,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 6,
+          "curve": 7,
+          "point": 3,
+          "text": 12
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.004167,
+              0.011983
+            ],
+            [
+              0.008333,
+              0.023965
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0.2,
+              0.2
+            ],
+            [
+              0.2,
+              0.332
+            ],
+            [
+              0.2,
+              0.464
+            ]
+          ],
+          [
+            [
+              1.3,
+              0.6
+            ],
+            [
+              1.3,
+              0.6025
+            ],
+            [
+              1.3,
+              0.605
+            ]
+          ],
+          [
+            [
+              1.698496,
+              0
+            ],
+            [
+              1.698496,
+              0.5
+            ],
+            [
+              1.698496,
+              1
+            ]
+          ],
+          [
+            [
+              1.8,
+              0
+            ],
+            [
+              1.8,
+              0.5
+            ],
+            [
+              1.8,
+              1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.2,0.2",
+          "point:0.6551724137931034,0.6551724137931034",
+          "point:0.6638297127220208,0.6638297127220208"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 48,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "curve": 7,
+            "point": 3,
+            "text": 13
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.004167,
+                0.011983
+              ],
+              [
+                0.008333,
+                0.023965
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0.2,
+                0.2
+              ],
+              [
+                0.2,
+                0.332
+              ],
+              [
+                0.2,
+                0.464
+              ]
+            ],
+            [
+              [
+                1.3,
+                0.6
+              ],
+              [
+                1.3,
+                0.6025
+              ],
+              [
+                1.3,
+                0.605
+              ]
+            ],
+            [
+              [
+                1.698496,
+                0
+              ],
+              [
+                1.698496,
+                0.5
+              ],
+              [
+                1.698496,
+                1
+              ]
+            ],
+            [
+              [
+                1.8,
+                0
+              ],
+              [
+                1.8,
+                0.5
+              ],
+              [
+                1.8,
+                1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.2,0.2",
+            "point:0.6551724137931034,0.6551724137931034",
+            "point:0.6638297127220208,0.6638297127220208"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 12,
+        "finalLabelCount": 12,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 6,
+          "curve": 7,
+          "point": 3,
+          "text": 12
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "phase-portraits.bifurcation.logistic-map",
+      "demonstrationId": "logistic-map",
+      "path": "/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.bifurcation.logistic-map",
+      "sceneFingerprint": "a64b5d3711bca07018dfa9b3f91351f76b17624df16f443aee7487148c65b7ad",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp5-branch-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp5-branch-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-r\",\"R\":290}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "phase-portraits.bifurcation.logistic-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e8d2d06f784d74e83f3deaf488970fee00384793f1adc7e203fbd6a44736cafe",
+      "scene": {
+        "visibleElementCount": 30,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 6,
+          "curve": 7,
+          "point": 2,
+          "text": 11
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.004167,
+              0.011983
+            ],
+            [
+              0.008333,
+              0.023965
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0.2,
+              0.2
+            ],
+            [
+              0.2,
+              0.2
+            ],
+            [
+              0.2,
+              0.2
+            ]
+          ],
+          [
+            [
+              1.3,
+              0.6
+            ],
+            [
+              1.3,
+              0.6025
+            ],
+            [
+              1.3,
+              0.605
+            ]
+          ],
+          [
+            [
+              1.698496,
+              0
+            ],
+            [
+              1.698496,
+              0.5
+            ],
+            [
+              1.698496,
+              1
+            ]
+          ],
+          [
+            [
+              1.8,
+              0
+            ],
+            [
+              1.8,
+              0.5
+            ],
+            [
+              1.8,
+              1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.2,0.2",
+          "point:0.6551724137931034,0.6551724137931034"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 46,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "curve": 7,
+            "point": 2,
+            "text": 12
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.004167,
+                0.011983
+              ],
+              [
+                0.008333,
+                0.023965
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0.2,
+                0.2
+              ],
+              [
+                0.2,
+                0.2
+              ],
+              [
+                0.2,
+                0.2
+              ]
+            ],
+            [
+              [
+                1.3,
+                0.6
+              ],
+              [
+                1.3,
+                0.6025
+              ],
+              [
+                1.3,
+                0.605
+              ]
+            ],
+            [
+              [
+                1.698496,
+                0
+              ],
+              [
+                1.698496,
+                0.5
+              ],
+              [
+                1.698496,
+                1
+              ]
+            ],
+            [
+              [
+                1.8,
+                0
+              ],
+              [
+                1.8,
+                0.5
+              ],
+              [
+                1.8,
+                1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.2,0.2",
+            "point:0.6551724137931034,0.6551724137931034"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 11,
+        "finalLabelCount": 11,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 6,
+          "curve": 7,
+          "point": 2,
+          "text": 11
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "sourceRevision": "eb3335b9a228dc93ca3026565cec5eced8dea9b0",
+        "pageErrors": []
+      }
+    }
+  ]
+}

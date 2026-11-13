@@ -437,6 +437,9 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
                 x.push(iterates[i], iterates[i + 1]);
                 y.push(iterates[i + 1], iterates[i + 1]);
             }
+            // At step 0 the cobweb is only the start (x0, x0): repeat it, so the curve is a zero-length segment that draws nothing
+            // but still evaluates to finite points (a one-point data curve evaluates to NaN, which the preview capture refuses).
+            if (x.length === 1) { x.push(x[0]); y.push(y[0]); }
             return {x, y};
         }, GraphPalette.label, 2, 0);
         this.marker(() => derived().fixedPoint, () => true, "square", GraphPalette.comparisonCurve);

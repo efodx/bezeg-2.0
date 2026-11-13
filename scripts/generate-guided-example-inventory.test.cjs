@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -724,4 +724,37 @@ test('b-spline expectations are authored from the graphs: the hat basis, the de 
     assert.throws(() => bsplineExpectedFor('b.bspline-blossom.bspline-blossom', bs(quad, bezier(false), args([1, 1]))), /only the hidden Bezier/);
     assert.throws(() => bsplineExpectedFor('b.unknown.unknown', bs(quad)), /no authored B-spline/);
     assert.ok(chapterInventories['b-splines']);
+});
+
+test('phase-portraits expectations are authored from the graphs: the linear plane frames, the logistic cobweb and the bifurcation cursor', () => {
+    const ps = (...actions) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const system = value => ({kind: 'phase', operation: 'set-system', system: value});
+    const matrix = (A, B, C, D) => ({kind: 'phase', operation: 'set-matrix', A, B, C, D});
+    const seeds = (...values) => ({kind: 'phase', operation: 'set-seeds', seeds: values.map(([X, Y]) => ({X, Y}))});
+    const r = R => ({kind: 'phase', operation: 'set-r', R});
+    const steps = count => ({kind: 'phase', operation: 'set-step', step: count});
+    assert.deepEqual(phasePortraitsExpectedFor('p.linear-system.phase-portrait', ps(system('linear'), matrix(16, 4, 8, 12), seeds([20, 0]))),
+        {types: {curve: 3, line: 2, point: 5, segment: 2}, curveCount: 3, points: [[0, 0], [1, 0], [4, 2], [1, 3]]});
+    // The adapter repeats the prepared scene of a lesson scene that already starts with its own: two default scenes are accepted.
+    const doubled = step({scene: {actions: [...ps(system('linear'), matrix(16, 4, 8, 12), seeds([20, 0])).scene.actions, {kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}]}});
+    assert.equal(phasePortraitsExpectedFor('p.linear-system.phase-portrait', doubled).curveCount, 3);
+    assert.throws(() => phasePortraitsExpectedFor('p.linear-system.phase-portrait', ps(system('linear'), matrix(-16, -4, -8, -12), seeds([20, 0]))), /only the matrix E/);
+    assert.throws(() => phasePortraitsExpectedFor('p.linear-system.phase-portrait', ps(system('linear'), matrix(16, 4, 8, 12), seeds([20, 0], [0, 20]))), /only the seeds/);
+    assert.throws(() => phasePortraitsExpectedFor('p.linear-system.phase-portrait', ps(system('pendulum'), matrix(16, 4, 8, 12), seeds([20, 0]))), /only the linear system/);
+    assert.throws(() => phasePortraitsExpectedFor('p.linear-system.phase-portrait', ps(system('linear'), matrix(16, 4, 8, 12), seeds([20, 0]), r(290))), /not authored/);
+    assert.deepEqual(phasePortraitsExpectedFor('p.pendulum.phase-portrait', ps(system('linear'), matrix(0, 4, -4, 0), seeds([20, 0]))),
+        {types: {curve: 3, line: 0, point: 5, segment: 2}, curveCount: 3, points: [[0, 0], [1, 0], [0, -1], [1, 0]]});
+    assert.throws(() => phasePortraitsExpectedFor('p.pendulum.phase-portrait', ps(system('pendulum'), seeds([20, 0]))), /only the linear centre/);
+    assert.throws(() => phasePortraitsExpectedFor('p.pendulum.phase-portrait', ps(system('linear'), matrix(0, -4, 4, 0), seeds([20, 0]))), /only the matrix/);
+    const logistic = phasePortraitsExpectedFor('p.logistic-map.logistic-map', ps(r(290), steps(20)));
+    assert.deepEqual([logistic.types, logistic.curveCount], [{curve: 7, point: 3}, 7]);
+    assert.deepEqual(logistic.points.map(point => point.map(value => Number(value.toFixed(6)))), [[0.2, 0.2], [0.655172, 0.655172], [0.66383, 0.66383]]);
+    assert.throws(() => phasePortraitsExpectedFor('p.logistic-map.logistic-map', ps(r(300), steps(20))), /only r = 2\.9/);
+    assert.throws(() => phasePortraitsExpectedFor('p.logistic-map.logistic-map', ps(r(290), steps(5))), /only 20 steps/);
+    assert.throws(() => phasePortraitsExpectedFor('p.logistic-map.logistic-map', ps(r(290), steps(20), {kind: 'phase', operation: 'set-seed', X: 30})), /not authored/);
+    const branch = phasePortraitsExpectedFor('p.bifurcation.logistic-map', ps(r(290)));
+    assert.deepEqual([branch.types, branch.curveCount, branch.points.length], [{curve: 7, point: 2}, 7, 2]);
+    assert.throws(() => phasePortraitsExpectedFor('p.bifurcation.logistic-map', ps(r(290), steps(5))), /not authored/);
+    assert.throws(() => phasePortraitsExpectedFor('p.unknown.unknown', ps()), /no authored phase-portraits/);
+    assert.ok(chapterInventories['phase-portraits']);
 });

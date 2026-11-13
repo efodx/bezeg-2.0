@@ -25,6 +25,7 @@ import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
 import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
 import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
+import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
 import {mathAltText} from './mathAltText';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
@@ -66,6 +67,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     interpolation: interpolationPreviewCopy,
     probability: probabilityPreviewCopy,
     'b-splines': bsplinePreviewCopy,
+    'phase-portraits': phasePortraitsPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

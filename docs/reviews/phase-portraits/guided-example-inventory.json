@@ -1,0 +1,161 @@
+{
+  "examples": [
+    {
+      "id": "phase-portraits.linear-system.phase-portrait",
+      "demonstrationId": "phase-portrait",
+      "path": "/bezeg-2.0/analysis/phase-portrait?example=lesson.phase-portraits.linear-system.phase-portrait",
+      "sceneFingerprint": "ed0a66bddca264ea7ed2775a9be34434fd20791220a669f670898e17f4404d3b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp1-reverse-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp1-reverse-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-system\",\"system\":\"linear\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-matrix\",\"A\":16,\"B\":4,\"C\":8,\"D\":12}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-seeds\",\"seeds\":[{\"X\":20,\"Y\":0}]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "line": 2,
+          "point": 5,
+          "segment": 2
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "phase-portraits.pendulum.phase-portrait",
+      "demonstrationId": "phase-portrait",
+      "path": "/bezeg-2.0/analysis/phase-portrait?example=lesson.phase-portraits.pendulum.phase-portrait",
+      "sceneFingerprint": "2a2cd196199b24714d72cf311235400dc886f266c7dc3b951967b4545b4d8ef7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp2-small-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp2-small-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-system\",\"system\":\"linear\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-matrix\",\"A\":0,\"B\":4,\"C\":-4,\"D\":0}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-seeds\",\"seeds\":[{\"X\":20,\"Y\":0}]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "line": 0,
+          "point": 5,
+          "segment": 2
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "phase-portraits.logistic-map.logistic-map",
+      "demonstrationId": "logistic-map",
+      "path": "/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.logistic-map.logistic-map",
+      "sceneFingerprint": "4e2a558d95adea6b4addde1d4a83d9e93533ddda3c9673e4d0d3ba1eaa7362b8",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp4-settles-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp4-settles-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-r\",\"R\":290}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-step\",\"step\":20}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 7,
+          "point": 3
+        },
+        "curveCount": 7,
+        "points": [
+          [
+            0.2,
+            0.2
+          ],
+          [
+            0.6551724137931034,
+            0.6551724137931034
+          ],
+          [
+            0.6638297127220208,
+            0.6638297127220208
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "phase-portraits.bifurcation.logistic-map",
+      "demonstrationId": "logistic-map",
+      "path": "/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.bifurcation.logistic-map",
+      "sceneFingerprint": "a64b5d3711bca07018dfa9b3f91351f76b17624df16f443aee7487148c65b7ad",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp5-branch-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pp5-branch-scene\",\"source\":\"demonstration-default\"}",
+        "phase: {\"kind\":\"phase\",\"operation\":\"set-r\",\"R\":290}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 7,
+          "point": 2
+        },
+        "curveCount": 7,
+        "points": [
+          [
+            0.2,
+            0.2
+          ],
+          [
+            0.6551724137931034,
+            0.6551724137931034
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
