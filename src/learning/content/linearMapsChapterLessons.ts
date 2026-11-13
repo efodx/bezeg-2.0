@@ -6,15 +6,20 @@ import type {LessonAction, LessonDefinition, LessonFrame, LessonStep, LessonWork
 const words = (sl: string, en: string): LocalizedText => ({sl, en});
 
 const defaultScene = (sceneId: string): LessonAction => ({kind: 'prepared-scene', sceneId, source: 'demonstration-default'});
-const mode = (value: 'basis' | 'determinant' | 'eigen' | 'ellipse' | 'iterate' | 'tracedet'): LessonAction => ({kind: 'linear-map', operation: 'set-mode', mode: value});
+const mode = (value: 'basis' | 'composition' | 'determinant' | 'eigen' | 'ellipse' | 'iterate' | 'tracedet'): LessonAction => ({kind: 'linear-map', operation: 'set-mode', mode: value});
 /** The test vector v of the eigen mode: the angle in degrees on the 0,01 degree grid. */
 const testVector = (angle: number): LessonAction => ({kind: 'linear-map', operation: 'set-test-vector', angle});
 /** The ellipse mode's conic x^T S x = 1 of the symmetric part, drawn or not. */
 const conic = (visible: boolean): LessonAction => ({kind: 'linear-map', operation: 'set-conic', visible});
 const example = (exampleId: Extract<LessonAction, {kind: 'linear-map', operation: 'set-example'}>['exampleId']): LessonAction =>
     ({kind: 'linear-map', operation: 'set-example', exampleId});
-const matrix = (m: Extract<LessonAction, {kind: 'linear-map', operation: 'set-matrix'}>['matrix']): LessonAction =>
-    ({kind: 'linear-map', operation: 'set-matrix', matrix: m});
+const matrix = (m: Extract<LessonAction, {kind: 'linear-map', operation: 'set-matrix'}>['matrix'], target?: 'matrix' | 'secondMatrix'): LessonAction =>
+    target === undefined ? {kind: 'linear-map', operation: 'set-matrix', matrix: m} : {kind: 'linear-map', operation: 'set-matrix', matrix: m, target};
+/** Composition mode: the rotation by k*15 degrees or the reflection in the line at k*7,5 degrees of slot A (`first`) or B (`second`); null frees the entries. */
+const chooseElement = (slot: 'first' | 'second', element: {readonly kind: 'rotation' | 'reflection'; readonly k: number} | null): LessonAction =>
+    ({kind: 'linear-map', operation: 'choose-element', slot, element});
+/** Composition mode: the pivot c (quarter grid); null drops it. */
+const pivot = (c: readonly [number, number] | null): LessonAction => ({kind: 'linear-map', operation: 'set-pivot', pivot: c});
 /** The start vector v0 of the iterate mode (the quarter grid); the step is not reset by it. */
 const start = (v: readonly [number, number]): LessonAction => ({kind: 'linear-map', operation: 'set-start', start: v});
 
@@ -418,6 +423,161 @@ export const linearMapEllipseLesson: LessonDefinition = {
                 'A circle: for example \\(R\\) or \\(\\begin{pmatrix}1&-1\\\\1&1\\end{pmatrix}\\) with \\(\\sigma_1=\\sigma_2=\\sqrt2\\). \\(\\sigma_2=0\\) means \\(\\det A=0\\), for example \\(C\\): the image is a segment, not an ellipse. For \\(N\\) the symmetric part \\(\\begin{pmatrix}2&\\tfrac12\\\\\\tfrac12&1\\end{pmatrix}\\) is positive definite and the conic is an ellipse. For \\(F\\) the symmetric part is \\(F\\) itself, indefinite: the conic is a hyperbola, which the graph describes but does not draw.',
             )],
             actions: [mode('ellipse'), example('basis-default'), conic(false)],
+        }),
+    ],
+};
+
+// L5 runs on the composition mode: A is applied first, B second, and T(P) = c + BA(P - c) + b. The product readout, its determinant and
+// orientation, the kind of the product ("BA je ...", only for a rotation or reflection) and the images T(P_i) of the four fixture control
+// points are visible from the first frame, so every predicting step opens on the previous state, asks for a hand computation, and then names
+// the control that makes the change. There is no readout of B(1/2); the lesson states it as arithmetic. The angle index of a chooser slot is kept
+// when its source changes, so a step that swaps the elements names both choosers and both angle controls.
+
+export const linearMapCompositionLesson: LessonDefinition = {
+    id: 'linear-map-composition-affine',
+    demonstrationId: 'linear-map',
+    title: words('Sestavljanje preslikav in afine preslikave', 'Composition of maps and affine maps'),
+    summary: words(
+        'Kadar preslikava \\(A\\) deluje prva in preslikava \\(B\\) druga, je kompozitum preslikava \\(P\\mapsto B(AP)\\), njena matrika pa je \\(BA\\). Lekcija sestavlja vrtež in zrcaljenje, nato zrcaljenji, doda vzporedni premik in središče vrtenja ter sledi Bézierjevi krivulji skozi tako afino preslikavo \\(T(P)=c+BA(P-c)+b\\). Na koncu poveže gumbe Demonstracije Afine Transformacije z izbiro središča.',
+        'When the map \\(A\\) acts first and the map \\(B\\) second, the composition is the map \\(P\\mapsto B(AP)\\) and its matrix is \\(BA\\). The lesson composes a rotation and a reflection, then two reflections, adds a translation and a centre of rotation, and follows a Bézier curve through such an affine map \\(T(P)=c+BA(P-c)+b\\). At the end it connects the buttons of the Affine transformations Demonstration to the choice of the centre.',
+    ),
+    steps: [
+        framedStep({
+            id: 'comp-order',
+            title: words('Dve preslikavi, ena za drugo', 'Two maps, one after the other'),
+            explanation: words(
+                'Preslikava \\(A\\) deluje prva, \\(B\\) druga: točka \\(P\\) preide v \\(B(AP)\\). Matrika sestavljene preslikave je produkt \\(BA\\), pri katerem preslikava, ki deluje prva, stoji desno; to velja za vsak par matrik. V načinu »Sestavljanje preslikav« je \\(A=R\\) četrtinski vrtež s stolpcema \\((0,1)\\) in \\((-1,0)\\), \\(B=F\\) pa zrcaljenje čez os \\(x\\) z matriko \\(F=\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}\\). Vrtež izbereš s kotom \\(k\\cdot15^\\circ\\) (četrtinski vrtež je \\(k=6\\)), premico zrcaljenja s kotom \\(k\\cdot7{,}5^\\circ\\) (os \\(x\\) je \\(k=0\\)). Graf kaže produkt \\(BA\\) in slike \\(T(P_i)\\) kontrolnih točk \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+                'The map \\(A\\) acts first and \\(B\\) second: the point \\(P\\) goes to \\(B(AP)\\). The matrix of the composed map is the product \\(BA\\), in which the map that acts first stands on the right; this holds for every pair of matrices. In the "Composition of maps" mode, \\(A=R\\) is the quarter turn with columns \\((0,1)\\) and \\((-1,0)\\), and \\(B=F\\) is the reflection in the \\(x\\)-axis with the matrix \\(F=\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}\\). A rotation is chosen by the angle \\(k\\cdot15^\\circ\\) (the quarter turn is \\(k=6\\)), a mirror line by the angle \\(k\\cdot7.5^\\circ\\) (the \\(x\\)-axis is \\(k=0\\)). The graph shows the product \\(BA\\) and the images \\(T(P_i)\\) of the control points \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+            ),
+            worked: worked(
+                words('Produkt \\(FR\\)', 'The product \\(FR\\)'),
+                '\\[\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}=\\begin{pmatrix}1\\cdot0+0\\cdot1&1\\cdot(-1)+0\\cdot0\\\\0\\cdot0+(-1)\\cdot1&0\\cdot(-1)+(-1)\\cdot0\\end{pmatrix}\\]',
+                '\\[FR=\\begin{pmatrix}0&-1\\\\-1&0\\end{pmatrix}\\]',
+                words(
+                    'Vrstici »BA: vrstica 1« in »BA: vrstica 2« v odčitku kažeta iste vrstice.',
+                    'The rows "BA: row 1" and "BA: row 2" of the readout show the same rows.',
+                ),
+            ),
+            prompt: words(
+                'Napovej brez odčitka: ali je produkt v obratnem vrstnem redu, \\(RF\\) (najprej \\(F\\), nato \\(R\\)), enak \\(FR\\)? Izračunaj matriko \\(RF\\), njeno determinanto in premico zrcaljenja (kam gresta \\(e_1\\) in \\(e_2\\)). Preveri v tem vrstnem redu: pri »Vir matrike B« izberi »Vrtež« in »Kot vrtenja B« nastavi na \\(k=6\\); nato pri »Vir matrike A« izberi »Zrcaljenje« in »Kot premice zrcaljenja A« nastavi na \\(k=0\\).',
+                'Predict without the readout: is the product in the other order, \\(RF\\) (first \\(F\\), then \\(R\\)), equal to \\(FR\\)? Compute the matrix \\(RF\\), its determinant and its mirror line (where \\(e_1\\) and \\(e_2\\) go). Check in this order: for "Source of matrix B" choose "Rotation" and set "Rotation angle of B" to \\(k=6\\); then for "Source of matrix A" choose "Reflection" and set "Mirror-line angle of A" to \\(k=0\\).',
+            ),
+            expected: [words(
+                '\\(RF=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\), torej \\(RF\\ne FR=\\begin{pmatrix}0&-1\\\\-1&0\\end{pmatrix}\\): vrstni red je pomemben. Determinanta je pri obeh \\(-1\\), saj je \\(\\det(BA)=\\det B\\,\\det A=1\\cdot(-1)\\). \\(RF\\) pošlje \\(e_1\\) v \\((0,1)\\) in \\(e_2\\) v \\((1,0)\\), zato zamenja koordinati in zrcali čez premico \\(y=x\\) (graf: kot \\(45^\\circ\\), \\(k=6\\)); \\(FR\\) zrcali čez \\(y=-x\\) (\\(135^\\circ\\), \\(k=18\\)).',
+                '\\(RF=\\begin{pmatrix}0&-1\\\\1&0\\end{pmatrix}\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}=\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}\\), so \\(RF\\ne FR=\\begin{pmatrix}0&-1\\\\-1&0\\end{pmatrix}\\): the order matters. Both determinants are \\(-1\\), because \\(\\det(BA)=\\det B\\,\\det A=1\\cdot(-1)\\). \\(RF\\) sends \\(e_1\\) to \\((0,1)\\) and \\(e_2\\) to \\((1,0)\\), so it swaps the coordinates and reflects in the line \\(y=x\\) (graph: angle \\(45^\\circ\\), \\(k=6\\)); \\(FR\\) reflects in \\(y=-x\\) (\\(135^\\circ\\), \\(k=18\\)).',
+            )],
+            actions: [mode('composition')],
+        }),
+        framedStep({
+            id: 'comp-reflections',
+            title: words('Dve zrcaljenji', 'Two reflections'),
+            explanation: words(
+                'Zrcaljenje čez premico skozi izhodišče ohrani dolžine in ima determinanto \\(-1\\). V grafu premico zapišemo s kotom \\(k\\cdot7{,}5^\\circ\\). Zdaj \\(A\\) zrcali čez premico pod kotom \\(22{,}5^\\circ\\) (\\(k=3\\)), \\(B\\) pa je prosta identiteta, zato je \\(BA=A\\). Ko sta obe preslikavi vrtež ali zrcaljenje, vrsto produkta imenuje odčitek »BA je«. Matrike pri kotih, ki niso večkratniki \\(90^\\circ\\), so le približne, zato graf ob njih piše »približno«.',
+                'A reflection in a line through the origin preserves lengths and has determinant \\(-1\\). In the graph the line is written with the angle \\(k\\cdot7.5^\\circ\\). Now \\(A\\) reflects in the line at the angle \\(22.5^\\circ\\) (\\(k=3\\)) and \\(B\\) is the free identity, so \\(BA=A\\). When both maps are rotations or reflections, the readout "BA is" names the kind of the product. The matrices at angles that are not multiples of \\(90^\\circ\\) are only approximate, so the graph writes "approximately" next to them.',
+            ),
+            prompt: words(
+                'Napovej: kakšna preslikava postane \\(BA\\), ko tudi \\(B\\) postane zrcaljenje, in sicer čez os \\(x\\) (\\(k=0\\)): zrcaljenje ali vrtež, s kakšno determinanto, in če je vrtež, za koliko stopinj proti urinemu kazalcu? Nato napovej še rezultat za zamenjani premici (\\(A\\) čez os \\(x\\), \\(B\\) pod \\(22{,}5^\\circ\\)). Preveri: pri »Vir matrike B« izberi »Zrcaljenje« (kot se začne pri \\(k=0\\)); nato »Kot premice zrcaljenja A« nastavi na \\(k=0\\) in »Kot premice zrcaljenja B« na \\(k=3\\).',
+                'Predict: what kind of map does \\(BA\\) become when \\(B\\) also becomes a reflection, in the \\(x\\)-axis (\\(k=0\\)): a reflection or a rotation, with which determinant, and if a rotation, by how many degrees counter-clockwise? Then predict the result for the swapped lines (\\(A\\) in the \\(x\\)-axis, \\(B\\) at \\(22.5^\\circ\\)). Check: for "Source of matrix B" choose "Reflection" (the angle starts at \\(k=0\\)); then set "Mirror-line angle of A" to \\(k=0\\) and "Mirror-line angle of B" to \\(k=3\\).',
+            ),
+            expected: [words(
+                'Determinanta je \\((-1)\\cdot(-1)=1\\), zato produkt ni zrcaljenje: je vrtež, in sicer za dvakratni kot od prve premice do druge (izrek): \\(2\\,(0^\\circ-22{,}5^\\circ)=-45^\\circ\\), torej \\(315^\\circ\\) (graf: »vrtež za 315°«, \\(k=21\\)); graf piše »približno 1«, ker je matrika približna. Pri zamenjanih premicah je zasuk \\(2\\,(22{,}5^\\circ-0^\\circ)=+45^\\circ\\) (\\(k=3\\)): vrstni red spet šteje. Slika \\(T(P_0)\\) je približno \\((0{,}707,\\,-0{,}707)\\), pri zamenjanih premicah približno \\((0{,}707,\\,0{,}707)\\).',
+                'The determinant is \\((-1)\\cdot(-1)=1\\), so the product is not a reflection: it is a rotation, by twice the angle from the first line to the second (a theorem): \\(2\\,(0^\\circ-22.5^\\circ)=-45^\\circ\\), that is \\(315^\\circ\\) (graph: "rotation by 315°", \\(k=21\\)); the graph writes "approximately 1" because the matrix is approximate. For the swapped lines the rotation is \\(2\\,(22.5^\\circ-0^\\circ)=+45^\\circ\\) (\\(k=3\\)): the order counts again. The image \\(T(P_0)\\) is approximately \\((0.707,\\,-0.707)\\), and for the swapped lines approximately \\((0.707,\\,0.707)\\).',
+            )],
+            actions: [mode('composition'), chooseElement('first', {kind: 'reflection', k: 3}), chooseElement('second', null), matrix([[1, 0], [0, 1]], 'secondMatrix')],
+        }),
+        framedStep({
+            id: 'comp-translation',
+            title: words('Vzporedni premik', 'Translation'),
+            explanation: words(
+                'Afina preslikava je linearni del, ki mu sledi vzporedni premik: \\(T(P)=BA\\,P+b\\). Vektor \\(b\\) vnesemo v polji »Vzporedni premik b: x« in »Vzporedni premik b: y«; koordinati sta večkratnika \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Spet je \\(A=R\\), \\(B=F\\) in \\(b=(0,0)\\); kontrolne točke so \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+                'An affine map is a linear part followed by a translation: \\(T(P)=BA\\,P+b\\). The vector \\(b\\) is entered in the fields "Translation b: x" and "Translation b: y"; the coordinates are multiples of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\). Again \\(A=R\\), \\(B=F\\) and \\(b=(0,0)\\); the control points are \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+            ),
+            prompt: words(
+                'Napovej pri \\(b=(2,1)\\) sliki \\(T(P_0)\\) in \\(T(P_1)\\) ter ali se vrstici produkta in determinanta spremenijo. Preveri: vpiši \\(2\\) v »Vzporedni premik b: x« in \\(1\\) v »Vzporedni premik b: y«.',
+                'Predict, for \\(b=(2,1)\\), the images \\(T(P_0)\\) and \\(T(P_1)\\) and whether the rows of the product and the determinant change. Check: enter \\(2\\) in "Translation b: x" and \\(1\\) in "Translation b: y".',
+            ),
+            expected: [words(
+                '\\(T(P_0)=FR\\,(1,0)+b=(0,-1)+(2,1)=(2,0)\\) in \\(T(P_1)=(-3,-2)+(2,1)=(-1,-1)\\). Vrstici produkta in determinanta \\(-1\\) se ne spremenijo: premik spremeni le slike. Ker je \\(T(0)=b\\), pri \\(b\\ne0\\) preslikava ni linearna, je pa afina.',
+                '\\(T(P_0)=FR\\,(1,0)+b=(0,-1)+(2,1)=(2,0)\\) and \\(T(P_1)=(-3,-2)+(2,1)=(-1,-1)\\). The rows of the product and the determinant \\(-1\\) do not change: the translation changes only the images. Since \\(T(0)=b\\), for \\(b\\ne0\\) the map is not linear, but it is affine.',
+            )],
+            actions: [mode('composition')],
+        }),
+        framedStep({
+            id: 'comp-pivot',
+            title: words('Vrtenje okoli točke', 'Turning about a point'),
+            explanation: words(
+                'Vrtenje okoli točke \\(c\\), ki ni izhodišče, je afina preslikava: odštejemo \\(c\\), zavrtimo, prištejemo \\(c\\). Splošno je \\(T(P)=c+M(P-c)+b=MP+t\\) z \\(M=BA\\) in \\(t=b+c-Mc\\); graf vektor \\(t\\) prikaže v vrstici »Vektor t v T(P) = BA·P + t«, ko je središče vklopljeno. Zdaj je \\(A=R\\) četrtinski vrtež, \\(B\\) pa prosta identiteta, torej \\(BA=R\\), brez premika in brez središča (\\(c\\) je izhodišče).',
+                'Turning about a point \\(c\\) that is not the origin is an affine map: subtract \\(c\\), turn, add \\(c\\). In general \\(T(P)=c+M(P-c)+b=MP+t\\) with \\(M=BA\\) and \\(t=b+c-Mc\\); the graph shows the vector \\(t\\) in the row "Vector t in T(P) = BA·P + t" while the centre is switched on. Now \\(A=R\\) is the quarter turn and \\(B\\) is the free identity, so \\(BA=R\\), with no translation and no centre (\\(c\\) is the origin).',
+            ),
+            prompt: words(
+                'Napovej: kam gredo \\(P_0,\\dots,P_3\\) pri četrtinskem vrtenju okoli \\(c=(3,1)\\) in kolikšen je \\(t\\)? Izračunaj \\(P-c\\), zavrti (\\(R(x,y)=(-y,x)\\)) in prištej \\(c\\). Preveri: vklopi »Uporabi središče vrtenja c« in vpiši \\(3\\) v »Središče c: x« ter \\(1\\) v »Središče c: y«.',
+                'Predict: where do \\(P_0,\\dots,P_3\\) go under the quarter turn about \\(c=(3,1)\\), and what is \\(t\\)? Compute \\(P-c\\), turn it (\\(R(x,y)=(-y,x)\\)) and add \\(c\\). Check: switch on "Use a pivot c" and enter \\(3\\) in "Pivot c: x" and \\(1\\) in "Pivot c: y".',
+            ),
+            expected: [words(
+                '\\(P-c=(-2,-1),(-1,2),(1,1),(2,-2)\\); po vrtenju \\((1,-2),(-2,-1),(-1,1),(2,2)\\); po prištevanju \\(c\\) je \\(T(P)=(4,-1),(1,0),(2,2),(5,3)\\). Vektor \\(t=c-Rc=(3,1)-(-1,3)=(4,-2)\\), kar kaže tudi odčitek. Središče \\(c\\) ostane na mestu: \\(T(c)=c\\).',
+                '\\(P-c=(-2,-1),(-1,2),(1,1),(2,-2)\\); after the turn \\((1,-2),(-2,-1),(-1,1),(2,2)\\); after adding \\(c\\), \\(T(P)=(4,-1),(1,0),(2,2),(5,3)\\). The vector \\(t=c-Rc=(3,1)-(-1,3)=(4,-2)\\), which the readout also shows. The centre \\(c\\) stays put: \\(T(c)=c\\).',
+            )],
+            actions: [mode('composition'), chooseElement('second', null), matrix([[1, 0], [0, 1]], 'secondMatrix')],
+        }),
+        framedStep({
+            id: 'comp-bezier',
+            title: words('Krivulja in njene kontrolne točke', 'The curve and its control points'),
+            explanation: words(
+                'Kubična Bézierjeva krivulja je \\(B(t)=\\sum_{i=0}^{3}b_{i,3}(t)\\,P_i\\) z utežmi \\(b_{i,3}(t)\\); pri \\(t=\\tfrac12\\) so uteži \\(\\tfrac18,\\tfrac38,\\tfrac38,\\tfrac18\\). Zdaj je vklopljeno središče \\(c=(3,1)\\); graf riše izvorno krivuljo in njeno sliko pri \\(T\\). Graf ne izpisuje točke \\(B(\\tfrac12)\\); njen izračun je spodaj.',
+                'The cubic Bézier curve is \\(B(t)=\\sum_{i=0}^{3}b_{i,3}(t)\\,P_i\\) with the weights \\(b_{i,3}(t)\\); at \\(t=\\tfrac12\\) the weights are \\(\\tfrac18,\\tfrac38,\\tfrac38,\\tfrac18\\). Now the centre \\(c=(3,1)\\) is switched on; the graph draws the source curve and its image under \\(T\\). The graph does not print the point \\(B(\\tfrac12)\\); its computation is below.',
+            ),
+            worked: worked(
+                words('Točka \\(B(\\tfrac12)\\)', 'The point \\(B(\\tfrac12)\\)'),
+                '\\[B(1/2)=\\tfrac18\\,\\bigl(P_0+3P_1+3P_2+P_3\\bigr)=\\tfrac18\\,\\bigl((1,0)+3(2,3)+3(4,2)+(5,-1)\\bigr)\\]',
+                '\\[B(1/2)=\\left(3,\\tfrac74\\right)\\]',
+                words(
+                    'Vsota uteži je \\(\\tfrac18+\\tfrac38+\\tfrac38+\\tfrac18=1\\).',
+                    'The weights add up to \\(\\tfrac18+\\tfrac38+\\tfrac38+\\tfrac18=1\\).',
+                ),
+            ),
+            prompt: words(
+                'Napovej \\(T(B(\\tfrac12))\\) na dva načina: (1) preslikaj točko \\(B(\\tfrac12)=(3,\\tfrac74)\\) kot v prejšnjem koraku; (2) z istimi utežmi sestavi točko iz slik \\(T(P_i)\\) v odčitku. Izračunaj še razpolovišče točk \\(P_1\\), \\(P_2\\), njegovo sliko in razpolovišče slik \\(T(P_1)\\), \\(T(P_2)\\). Na sliki preveri, da slika krivulje poteka skozi to točko (graf točke ne označi: odčitaj jo na mreži). Nato izklopi »Uporabi središče vrtenja c«, napovej, kam gre \\(B(\\tfrac12)\\) zdaj, in preveri.',
+                'Predict \\(T(B(\\tfrac12))\\) in two ways: (1) map the point \\(B(\\tfrac12)=(3,\\tfrac74)\\) as in the previous step; (2) combine the images \\(T(P_i)\\) of the readout with the same weights. Also compute the midpoint of \\(P_1\\) and \\(P_2\\), its image, and the midpoint of the images \\(T(P_1)\\) and \\(T(P_2)\\). On the picture check that the image of the curve passes through that point (the graph does not mark it: read it off the grid). Then switch off "Use a pivot c", predict where \\(B(\\tfrac12)\\) goes now, and check.',
+            ),
+            expected: [words(
+                '(1) \\(P-c=(0,\\tfrac34)\\), po vrtenju \\((-\\tfrac34,0)\\), torej \\(T(B(\\tfrac12))=(\\tfrac94,1)\\). (2) \\(\\tfrac18\\bigl((4,-1)+3(1,0)+3(2,2)+(5,3)\\bigr)=(\\tfrac{18}{8},\\tfrac88)=(\\tfrac94,1)\\): enaka točka, ker afina preslikava ohrani uteženo vsoto z vsoto uteži \\(1\\), torej \\(T(B(t))=\\sum_i b_{i,3}(t)\\,T(P_i)\\) (izrek; npr. Farin, Curves and Surfaces for CAGD, 5. izd.). Razpolovišče \\(P_1\\), \\(P_2\\) je \\((3,\\tfrac52)\\), njegova slika \\((\\tfrac32,1)\\) je razpolovišče slik \\((1,0)\\) in \\((2,2)\\). Brez središča (\\(c\\) je izhodišče) gre \\(B(\\tfrac12)\\) v \\(R(3,\\tfrac74)=(-\\tfrac74,3)\\). Slika ponazarja izrek, ga ne dokazuje.',
+                '(1) \\(P-c=(0,\\tfrac34)\\), after the turn \\((-\\tfrac34,0)\\), so \\(T(B(\\tfrac12))=(\\tfrac94,1)\\). (2) \\(\\tfrac18\\bigl((4,-1)+3(1,0)+3(2,2)+(5,3)\\bigr)=(\\tfrac{18}{8},\\tfrac88)=(\\tfrac94,1)\\): the same point, because an affine map preserves a weighted sum whose weights add to \\(1\\), so \\(T(B(t))=\\sum_i b_{i,3}(t)\\,T(P_i)\\) (a theorem; for example Farin, Curves and Surfaces for CAGD, 5th ed.). The midpoint of \\(P_1\\) and \\(P_2\\) is \\((3,\\tfrac52)\\), and its image \\((\\tfrac32,1)\\) is the midpoint of the images \\((1,0)\\) and \\((2,2)\\). Without the centre (\\(c\\) is the origin), \\(B(\\tfrac12)\\) goes to \\(R(3,\\tfrac74)=(-\\tfrac74,3)\\). The picture illustrates the theorem and does not prove it.',
+            )],
+            actions: [mode('composition'), chooseElement('second', null), matrix([[1, 0], [0, 1]], 'secondMatrix'), pivot([3, 1])],
+        }),
+        framedStep({
+            id: 'comp-affine-link',
+            title: words('Gumbi Demonstracije Afine Transformacije', 'The buttons of the Affine transformations Demonstration'),
+            explanation: words(
+                'Demonstracija Afine Transformacije ima lekcijo »Afine transformacije Bézierjeve krivulje« (korak »Četrtinski obrat okoli središča«), ki isto krivuljo zavrti za četrtino obrata okoli njenega središča. Gumbi Demonstracije vrtijo po \\(18^\\circ\\); gumba za vrtenje in zrcaljenje delujeta okoli povprečja kontrolnih točk, gumb za merilo okoli središča pravokotnika, ki objame kontrolne točke; nobeden ne deluje okoli izhodišča. Rezultat gumbov se zato ujema s to lekcijo le, kadar je tukaj uporabljeno središče \\(c\\) enako njihovemu. Kontrolne točke so spet \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+                'The Affine transformations Demonstration has the lesson "Affine transformations of a Bézier curve" (step "A quarter-turn about its centre"), which turns the same curve by a quarter turn about its centre. The buttons of the Demonstration turn by \\(18^\\circ\\); the buttons for turning and reflecting act about the mean of the control points, the button for scaling about the centre of the rectangle that bounds the control points; none acts about the origin. The result of the buttons therefore matches this lesson only when the centre \\(c\\) used here equals theirs. The control points are again \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+            ),
+            prompt: words(
+                'Napovej: kje je povprečje kontrolnih točk \\(P_0,\\dots,P_3\\), torej središče, okoli katerega bi gumb za vrtenje zavrtel to krivuljo? Primerjaj s središčem \\(c\\), ki ga kaže graf. Nato odpri omenjeno lekcijo in preveri, da je njen obrat okoli iste točke.',
+                'Predict: where is the mean of the control points \\(P_0,\\dots,P_3\\), that is, the centre about which the turn button would turn this curve? Compare it with the centre \\(c\\) the graph shows. Then open that lesson and check that its turn is about the same point.',
+            ),
+            expected: [words(
+                'Povprečje je \\(\\bigl(\\tfrac{1+2+4+5}{4},\\tfrac{0+3+2-1}{4}\\bigr)=(3,1)\\), torej enako \\(c\\); tudi središče pravokotnika (\\(x\\) od \\(1\\) do \\(5\\), \\(y\\) od \\(-1\\) do \\(3\\)) je \\((3,1)\\). Pri tej krivulji se zato gumbi ujemajo s to lekcijo; pri drugi krivulji se središči lahko razlikujeta, ujemanje pa velja le, če vpišeš njuno točko.',
+                'The mean is \\(\\bigl(\\tfrac{1+2+4+5}{4},\\tfrac{0+3+2-1}{4}\\bigr)=(3,1)\\), equal to \\(c\\); the centre of the rectangle (\\(x\\) from \\(1\\) to \\(5\\), \\(y\\) from \\(-1\\) to \\(3\\)) is also \\((3,1)\\). For this curve the buttons therefore match this lesson; for another curve the two centres can differ, and the match holds only if you enter their point.',
+            )],
+            actions: [mode('composition'), chooseElement('second', null), matrix([[1, 0], [0, 1]], 'secondMatrix'), pivot([3, 1])],
+        }),
+        framedStep({
+            id: 'comp-explore',
+            title: words('Prosto raziskovanje', 'Free exploration'),
+            explanation: words(
+                'Obe matriki sta prosti identiteti. Vnose spreminjaj s številskimi vnosi (večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\)) ali pa izberi vrtež ali zrcaljenje; dodaš lahko vzporedni premik in središče. Pri izbranih kotih so matrike približne, zato graf ob njih piše »približno«; trditve o produktih veljajo za vse matrike.',
+                'Both matrices are the free identity. Change the entries with the numeric entries (multiples of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\)) or choose a rotation or a reflection; you can add a translation and a centre. At the chosen angles the matrices are approximate, so the graph writes "approximately" next to them; the statements about products hold for all matrices.',
+            ),
+            prompt: words(
+                'Poišči (a) par matrik \\(A\\), \\(B\\) z \\(BA\\ne AB\\), (b) par matrik, od katerih nobena ni identiteta, z \\(BA=AB\\), ter (c) par, pri katerem je \\(BA\\) identiteta, čeprav nobena od matrik ni identiteta. Nato dodaj vzporedni premik in središče ter preberi vektor \\(t\\).',
+                'Find (a) a pair of matrices \\(A\\), \\(B\\) with \\(BA\\ne AB\\), (b) a pair, neither the identity, with \\(BA=AB\\), and (c) a pair whose product \\(BA\\) is the identity although neither is the identity. Then add a translation and a centre and read the vector \\(t\\).',
+            ),
+            expected: [words(
+                '(a) \\(R\\) in \\(F\\) iz prvega koraka. (b) Npr. \\(A=B=R\\) (\\(BA=-I\\)) ali strižni preslikavi \\(\\begin{pmatrix}1&1\\\\0&1\\end{pmatrix}\\) in \\(\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}\\), katerih produkt je \\(\\begin{pmatrix}1&3\\\\0&1\\end{pmatrix}\\) v obeh vrstnih redih. (c) Matriki \\(\\begin{pmatrix}1&1\\\\0&1\\end{pmatrix}\\) in \\(\\begin{pmatrix}1&-1\\\\0&1\\end{pmatrix}\\): produkt je \\(I\\), \\(B=A^{-1}\\). Pri središču in premiku velja \\(t=b+c-BA\\,c\\).',
+                '(a) \\(R\\) and \\(F\\) from the first step. (b) For example \\(A=B=R\\) (\\(BA=-I\\)) or the shears \\(\\begin{pmatrix}1&1\\\\0&1\\end{pmatrix}\\) and \\(\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}\\), whose product is \\(\\begin{pmatrix}1&3\\\\0&1\\end{pmatrix}\\) in both orders. (c) The matrices \\(\\begin{pmatrix}1&1\\\\0&1\\end{pmatrix}\\) and \\(\\begin{pmatrix}1&-1\\\\0&1\\end{pmatrix}\\): the product is \\(I\\), \\(B=A^{-1}\\). With a centre and a translation, \\(t=b+c-BA\\,c\\).',
+            )],
+            actions: [mode('composition'), chooseElement('first', null), chooseElement('second', null), matrix([[1, 0], [0, 1]], 'matrix'), matrix([[1, 0], [0, 1]], 'secondMatrix')],
         }),
     ],
 };

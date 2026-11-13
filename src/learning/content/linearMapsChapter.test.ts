@@ -5,14 +5,14 @@ import {classifyEigen, exactlyParallel} from '../../linear/eigen2';
 import {singular} from '../../linear/singular2';
 import {deriveEigen, eigenSnapAngle} from '../../graphs/linear/eigenScene';
 import {deriveConic, deriveEllipse} from '../../graphs/linear/ellipseScene';
-import {setLanguage} from '../../localization';
+import {setLanguage, t} from '../../localization';
 import {getChapterGuidedExamples, resolveGuidedExample} from '../chapter/guidedExamples';
 import {authoredGuidedLessonIds, getGuidedLessonOwners, guidedLessonLaunchPath} from '../chapter/guidedLessonOwnership';
 import type {LessonDefinition} from '../model';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {linearMapsChapter} from './linearMapsChapter';
-import {linearMapEigenLesson, linearMapEllipseLesson, linearMapPowerMethodLesson, linearMapStabilityLesson} from './linearMapsChapterLessons';
+import {linearMapCompositionLesson, linearMapEigenLesson, linearMapEllipseLesson, linearMapPowerMethodLesson, linearMapStabilityLesson} from './linearMapsChapterLessons';
 import {companionOfDrag, deriveIteration, deriveTraceDet, iterateAt, STABILITY_TRIANGLE, TRACE_DET_DRAG_LIMIT} from '../../graphs/linear/iterationScene';
 import {SETTLED_ANGLE_DEGREES} from '../../linear/iterate2';
 import {discreteStabilityTD, exactTraceDet} from '../../linear/stability2';
@@ -856,5 +856,398 @@ describe('the numbers in the L7 prose', () => {
         expect(td([[-1 / 2, 0], [0, -1 / 2]])).toMatchObject({tau: -1, delta: 1 / 4, stability: {kind: 'inside'}, flowStable: true});
         expect(td(IDENTITY)).toMatchObject({tau: 2, delta: 1, stability: {kind: 'edge'}});
         expect(td(Z_SPIRAL)).toMatchObject({tau: 2, delta: 2, discriminant: -4, stability: {kind: 'outside'}});
+    });
+});
+
+// L5 (composition and affine maps). The lesson is not registered in the chapter yet; the tests import it directly.
+const MINUS = '−';
+const compOrderElementSl = 'zrcaljenje čez premico pod kotom 135° (k = 18)';
+const compOrderElementEn = 'reflection in the line at the angle 135° (k = 18)';
+const compImages = (points: readonly (readonly [number, number])[]): Record<string, string> =>
+    Object.fromEntries(points.map((point, index) => [`image-${index}`, `(${point.map(value => (value < 0 ? `${MINUS}${-value}` : String(value))).join(', ')})`]));
+const compFixture = [[1, 0], [2, 3], [4, 2], [5, -1]] as const;
+const compDefaultImages = compImages([[0, -1], [-3, -2], [-2, -4], [1, -5]]);
+const compQuarterImages = compImages([[0, 1], [-3, 2], [-2, 4], [1, 5]]);
+const compPivotImages = compImages([[4, -1], [1, 0], [2, 2], [5, 3]]);
+
+interface CompExpectation {
+    readonly actions?: readonly object[];
+    readonly det: string;
+    readonly detEn?: string;
+    readonly element?: {readonly sl: string; readonly en: string};
+    readonly images: Record<string, string>;
+    readonly t?: string;
+    readonly noT?: boolean;
+}
+const compExpectations: Record<string, CompExpectation> = {
+    'comp-order': {det: `${MINUS}1`, element: {sl: compOrderElementSl, en: compOrderElementEn}, images: compDefaultImages, noT: true},
+    'comp-reflections': {det: `približno ${MINUS}1`, detEn: `approximately ${MINUS}1`, images: {}, noT: true},
+    'comp-translation': {det: `${MINUS}1`, element: {sl: compOrderElementSl, en: compOrderElementEn}, images: compDefaultImages, noT: true},
+    'comp-pivot': {det: '1', images: compQuarterImages, noT: true},
+    'comp-bezier': {det: '1', images: compPivotImages, t: `(4, ${MINUS}2)`},
+    'comp-affine-link': {det: '1', images: compPivotImages, t: `(4, ${MINUS}2)`},
+    'comp-explore': {det: '1', images: compImages(compFixture), noT: true},
+};
+const compAction = (operation: string, extra: object) => ({kind: 'linear-map', operation, ...extra});
+const compChoose = (slot: 'first' | 'second', element: object | null) => compAction('choose-element', {slot, element});
+
+describe('L5: scenes in one synchronous tick, read in sl and en', () => {
+    const lesson = linearMapCompositionLesson;
+    const stepIds = Object.keys(compExpectations);
+    const stepText = (stepId: string, language: 'sl' | 'en'): string => {
+        const found = lesson.steps.find(item => item.id === stepId);
+        const strings: string[] = [];
+        const walk = (node: unknown): void => {
+            if (typeof node === 'string') strings.push(node);
+            else if (Array.isArray(node)) node.forEach(walk);
+            else if (node && typeof node === 'object') {
+                const record = node as Record<string, unknown>;
+                if (typeof record.sl === 'string' && typeof record.en === 'string') strings.push(record[language] as string);
+                else Object.values(record).forEach(walk);
+            }
+        };
+        walk(found?.frames);
+        return strings.join('\n');
+    };
+    const dirty = (graph: any) => {
+        for (const action of [
+            compAction('set-mode', {mode: 'composition'}), compChoose('first', {kind: 'reflection', k: 9}), compChoose('second', {kind: 'rotation', k: 5}),
+            compAction('set-translation', {translation: [1, -3]}), compAction('set-pivot', {pivot: [-2, 2]}),
+        ]) graph.applyLessonAction(action);
+    };
+    const checkOpening = (graph: any, stepId: string, language: 'sl' | 'en') => {
+        const expected = compExpectations[stepId];
+        expect(graph.model.mode, stepId).toBe('composition');
+        expect(readout(graph, 'product-det'), `${stepId} det`).toBe(language === 'en' && expected.detEn ? expected.detEn : expected.det);
+        for (const [id, value] of Object.entries(expected.images)) expect(readout(graph, id), `${stepId} ${id}`).toBe(value);
+        // With B the free identity (comp-reflections) the graph shows no "BA je" row: the prose says the row appears only when both slots are elements.
+        expect(readout(graph, 'product-element'), `${stepId} product-element`).toBe(expected.element?.[language]);
+        if (expected.t) expect(readout(graph, 't'), `${stepId} t`).toBe(expected.t);
+        if (expected.noT) expect(readout(graph, 't'), `${stepId} t`).toBeUndefined();
+    };
+
+    test('every step has an expectation and every expectation a step', () => {
+        expect(lesson.steps.map(item => item.id)).toEqual(stepIds);
+    });
+
+    for (const stepId of stepIds) {
+        for (const language of ['sl', 'en'] as const) {
+            test(`${lesson.id} / ${stepId} (${language}): opening state and readouts after a dragged state`, () => {
+                const graph = makeGraph();
+                dirty(graph);
+                runStep(graph, lesson, stepId);
+                setLanguage(language);
+                checkOpening(graph, stepId, language);
+            });
+        }
+    }
+
+    test('the openings do not depend on the order of the steps and survive running a step twice in one act', () => {
+        const graph = makeGraph();
+        for (const stepId of [...stepIds].reverse()) {
+            runStep(graph, lesson, stepId);
+            checkOpening(graph, stepId, 'sl');
+        }
+        for (const stepId of ['comp-bezier', 'comp-pivot', 'comp-bezier', 'comp-order']) {
+            const step = lesson.steps.find(item => item.id === stepId)!;
+            for (const action of [...step.scene!.actions, ...step.scene!.actions]) graph.applyLessonAction(action);
+            graph.store.setState({...graph.model});
+            checkOpening(graph, stepId, 'sl');
+        }
+    });
+
+    test('the specific openings: free identity in slot B, no pivot, the product of the two reflections', () => {
+        const graph = makeGraph();
+        runStep(graph, lesson, 'comp-pivot');
+        expect(graph.model).toMatchObject({secondMatrix: [[1, 0], [0, 1]], element: {kind: 'rotation', k: 6}});
+        expect(graph.model.secondElement).toBeUndefined();
+        expect(graph.model.pivot).toBeUndefined();
+        runStep(graph, lesson, 'comp-reflections');
+        expect(graph.model).toMatchObject({element: {kind: 'reflection', k: 3}, secondMatrix: [[1, 0], [0, 1]]});
+        expect(graph.model.secondElement).toBeUndefined();
+        runStep(graph, lesson, 'comp-bezier');
+        expect(graph.model.pivot).toEqual([3, 1]);
+    });
+
+    test('restoring on exit returns the free state', () => {
+        const graph = makeGraph();
+        const before = JSON.stringify(graph.model);
+        const checkpoint = graph.captureLessonState();
+        for (const stepId of stepIds) runStep(graph, lesson, stepId);
+        expect(JSON.stringify(graph.model)).not.toBe(before);
+        graph.restoreLessonState(checkpoint);
+        expect(JSON.stringify(graph.model)).toBe(before);
+    });
+
+    test('every control and readout label a prompt names exists in the graph strings, in both languages', () => {
+        const labels = (language: 'sl' | 'en'): Record<string, string[]> => {
+            setLanguage(language);
+            return {
+                'comp-order': [t('linear_map_comp_source_label', {value0: 'A'}), t('linear_map_comp_source_label', {value0: 'B'}), t('linear_map_comp_source_reflection'),
+                    t('linear_map_comp_source_rotation'), t('linear_map_comp_angle_reflection', {value0: 'A'}), t('linear_map_comp_angle_rotation', {value0: 'B'}),
+                    t('linear_map_comp_readout_row', {value0: 'BA', value1: '1'}), t('linear_map_comp_readout_row', {value0: 'BA', value1: '2'})],
+                'comp-reflections': [t('linear_map_comp_angle_reflection', {value0: 'A'}), t('linear_map_comp_angle_reflection', {value0: 'B'}), t('linear_map_comp_readout_product_element')],
+                'comp-translation': [t('linear_map_comp_translation_x'), t('linear_map_comp_translation_y')],
+                'comp-pivot': [t('linear_map_comp_pivot_toggle'), t('linear_map_comp_pivot_x'), t('linear_map_comp_pivot_y'), t('linear_map_comp_readout_t')],
+                'comp-bezier': [t('linear_map_comp_pivot_toggle')],
+            };
+        };
+        for (const language of ['sl', 'en'] as const) {
+            for (const [stepId, names] of Object.entries(labels(language))) {
+                const text = stepText(stepId, language);
+                for (const name of names) expect(text, `${stepId} (${language}) names "${name}"`).toContain(name);
+            }
+        }
+    });
+
+    test('no step opens on the state its prompt asks the learner to produce', () => {
+        const graph = makeGraph();
+        runStep(graph, lesson, 'comp-order');
+        expect(graph.model.element).not.toEqual({kind: 'reflection', k: 0});
+        expect(graph.model.secondElement).not.toEqual({kind: 'rotation', k: 6});
+        runStep(graph, lesson, 'comp-reflections');
+        expect(graph.model.secondElement).toBeUndefined();
+        expect(graph.model.element).not.toEqual({kind: 'reflection', k: 0});
+        runStep(graph, lesson, 'comp-translation');
+        expect(graph.model.translation ?? [0, 0]).toEqual([0, 0]);
+        runStep(graph, lesson, 'comp-pivot');
+        expect(graph.model.pivot).toBeUndefined();
+        runStep(graph, lesson, 'comp-bezier');
+        expect(graph.model.pivot).toEqual([3, 1]);
+    });
+
+    test('the states reached through the controls give the readouts the observations quote', () => {
+        const apply = (graph: any, ...actions: object[]) => { for (const action of actions) graph.applyLessonAction(action); graph.store.setState({...graph.model}); };
+        for (const language of ['sl', 'en'] as const) {
+            const graph = makeGraph();
+            setLanguage(language);
+            // Swap, B first: B Rotation k=0 -> BA = R; B k=6 -> BA = -I; A Reflection (index kept, k=6) -> line at 90 degrees; A k=0 -> RF, line 45 degrees.
+            const rotationText = (degrees: number, k: number) => language === 'sl' ? `vrtež za ${degrees}° (k = ${k})` : `rotation by ${degrees}° (k = ${k})`;
+            const lineText = (degrees: number, k: number) => language === 'sl' ? `zrcaljenje čez premico pod kotom ${degrees}° (k = ${k})` : `reflection in the line at the angle ${degrees}° (k = ${k})`;
+            runStep(graph, lesson, 'comp-order');
+            apply(graph, compChoose('second', {kind: 'rotation', k: 0}));
+            expect(readout(graph, 'product-element')).toBe(rotationText(90, 6));
+            apply(graph, compChoose('second', {kind: 'rotation', k: 6}));
+            expect(readout(graph, 'product-element')).toBe(rotationText(180, 12));
+            apply(graph, compChoose('first', {kind: 'reflection', k: 6}));
+            expect(readout(graph, 'product-element')).toBe(lineText(90, 12));
+            apply(graph, compChoose('first', {kind: 'reflection', k: 0}));
+            expect(readout(graph, 'product-element')).toBe(lineText(45, 6));
+            for (const [id, value] of Object.entries(compImages([[0, 1], [3, 2], [2, 4], [-1, 5]]))) expect(readout(graph, id), id).toBe(value);
+            expect(readout(graph, 'product-det')).toBe(`${MINUS}1`);
+            // Two reflections: the opening BA = A (line 22,5 degrees); B Reflection (k=0) -> rotation 315 degrees; then A k=0, B k=3 -> rotation 45 degrees.
+            runStep(graph, lesson, 'comp-reflections');
+            expect(readout(graph, 'product-det')).toBe(language === 'sl' ? `približno ${MINUS}1` : `approximately ${MINUS}1`);
+            apply(graph, compChoose('second', {kind: 'reflection', k: 0}));
+            expect(readout(graph, 'product-det')).toBe(language === 'sl' ? 'približno 1' : 'approximately 1');
+            expect(readout(graph, 'product-element')).toBe(rotationText(315, 21));
+            expect(readout(graph, 'image-0')).toBe(language === 'sl' ? `približno (0,7071, ${MINUS}0,7071)` : `approximately (0.7071, ${MINUS}0.7071)`);
+            apply(graph, compChoose('first', {kind: 'reflection', k: 0}));
+            expect(readout(graph, 'product-element')).toBe(rotationText(0, 0));
+            apply(graph, compChoose('second', {kind: 'reflection', k: 3}));
+            expect(readout(graph, 'product-element')).toBe(rotationText(45, 3));
+            expect(readout(graph, 'image-0')).toBe(language === 'sl' ? 'približno (0,7071, 0,7071)' : 'approximately (0.7071, 0.7071)');
+            // Translation (2,1).
+            runStep(graph, lesson, 'comp-translation');
+            apply(graph, compAction('set-translation', {translation: [2, 1]}));
+            for (const [id, value] of Object.entries(compImages([[2, 0], [-1, -1], [0, -3], [3, -4]]))) expect(readout(graph, id), id).toBe(value);
+            expect(readout(graph, 'product-det')).toBe(`${MINUS}1`);
+            expect(readout(graph, 'product-element')).toBe(language === 'sl' ? compOrderElementSl : compOrderElementEn);
+            // Pivot on (3,1), then off.
+            runStep(graph, lesson, 'comp-pivot');
+            apply(graph, compAction('set-pivot', {pivot: [0, 0]}));
+            expect(readout(graph, 't')).toBe('(0, 0)');
+            apply(graph, compAction('set-pivot', {pivot: [3, 1]}));
+            expect(readout(graph, 't')).toBe(`(4, ${MINUS}2)`);
+            for (const [id, value] of Object.entries(compPivotImages)) expect(readout(graph, id), id).toBe(value);
+            runStep(graph, lesson, 'comp-bezier');
+            apply(graph, compAction('set-pivot', {pivot: null}));
+            expect(readout(graph, 't')).toBeUndefined();
+            expect(graph.model.pivot).toBeUndefined();
+            for (const [id, value] of Object.entries(compQuarterImages)) expect(readout(graph, id), id).toBe(value);
+        }
+    });
+});
+
+describe('the numbers in the L5 prose', () => {
+    type P = readonly [number, number];
+    type M = readonly [P, P];
+    const mul = (x: M, y: M): M => [
+        [x[0][0] * y[0][0] + x[0][1] * y[1][0] + 0, x[0][0] * y[0][1] + x[0][1] * y[1][1] + 0],
+        [x[1][0] * y[0][0] + x[1][1] * y[1][0] + 0, x[1][0] * y[0][1] + x[1][1] * y[1][1] + 0],
+    ];
+    const act = (m: M, p: P): P => [m[0][0] * p[0] + m[0][1] * p[1], m[1][0] * p[0] + m[1][1] * p[1]];
+    const detOf = (m: M) => m[0][0] * m[1][1] - m[0][1] * m[1][0];
+    const R: M = [[0, -1], [1, 0]];
+    const F: M = [[1, 0], [0, -1]];
+    const points: readonly P[] = [[1, 0], [2, 3], [4, 2], [5, -1]];
+    const rot = (degrees: number): M => {
+        const a = degrees * Math.PI / 180;
+        return [[Math.cos(a), -Math.sin(a)], [Math.sin(a), Math.cos(a)]];
+    };
+    const refl = (degrees: number): M => {
+        const a = 2 * degrees * Math.PI / 180;
+        return [[Math.cos(a), Math.sin(a)], [Math.sin(a), -Math.cos(a)]];
+    };
+    const affine = (m: M, b: P) => (p: P): P => { const q = act(m, p); return [q[0] + b[0], q[1] + b[1]]; };
+    const aboutCentre = (m: M, c: P) => (p: P): P => { const q = act(m, [p[0] - c[0], p[1] - c[1]]); return [c[0] + q[0], c[1] + q[1]]; };
+    const lerp = (u: P, v: P, s: number): P => [(1 - s) * u[0] + s * v[0], (1 - s) * u[1] + s * v[1]];
+    const casteljau = (q: readonly P[], s: number): P => {
+        let level = q;
+        while (level.length > 1) level = level.slice(1).map((next, index) => lerp(level[index], next, s));
+        return level[0];
+    };
+    const bernstein = (q: readonly P[]): P => {
+        const w = [1 / 8, 3 / 8, 3 / 8, 1 / 8];
+        return [0, 1].map(axis => q.reduce((sum, p, index) => sum + w[index] * p[axis], 0)) as unknown as P;
+    };
+    const close = (actual: P, expected: P) => { expect(actual[0]).toBeCloseTo(expected[0], 12); expect(actual[1]).toBeCloseTo(expected[1], 12); };
+    const allText = (language: 'sl' | 'en'): string => {
+        const strings: string[] = [];
+        const walk = (node: unknown): void => {
+            if (typeof node === 'string') strings.push(node);
+            else if (Array.isArray(node)) node.forEach(walk);
+            else if (node && typeof node === 'object') {
+                const record = node as Record<string, unknown>;
+                if (typeof record.sl === 'string' && typeof record.en === 'string') strings.push(record[language] as string);
+                else Object.values(record).forEach(walk);
+            }
+        };
+        walk(linearMapCompositionLesson.steps.map(item => item.frames));
+        return strings.join('\n');
+    };
+
+    test('step 1: RF, FR and RR are the integer matrices quoted, and the determinants are exact', () => {
+        expect(mul(F, R)).toEqual([[0, -1], [-1, 0]]);
+        expect(mul(R, F)).toEqual([[0, 1], [1, 0]]);
+        expect(mul(R, R)).toEqual([[-1, 0], [0, -1]]);
+        expect([detOf(R), detOf(F), detOf(mul(F, R)), detOf(mul(R, F)), detOf(mul(R, R))]).toEqual([1, -1, -1, -1, 1]);
+        expect(mul(R, F)).not.toEqual(mul(F, R));
+        // RF sends e1 to (0,1), e2 to (1,0): the mirror line y = x (45 degrees, k = 6); FR reflects in y = -x (135 degrees, k = 18).
+        expect([act(mul(R, F), [1, 0]), act(mul(R, F), [0, 1])]).toEqual([[0, 1], [1, 0]]);
+        expect(45 / 7.5).toBe(6);
+        expect(135 / 7.5).toBe(18);
+        close([mul(F, R)[0][0], mul(F, R)[0][1]], [refl(135)[0][0], refl(135)[0][1]]);
+        close([mul(R, F)[1][0], mul(R, F)[1][1]], [refl(45)[1][0], refl(45)[1][1]]);
+        // The reflection chosen by the swap (A reflection k=0, B rotation k=6) is RF.
+        const swapped = mul(rot(90), refl(0));
+        for (const row of [0, 1]) close(swapped[row], mul(R, F)[row]);
+    });
+
+    test('step 2: a product of two reflections is the rotation by twice the angle difference, for every pair of k', () => {
+        for (let a = 0; a < 24; a += 1) {
+            for (let b = 0; b < 24; b += 1) {
+                const product = mul(refl(b * 7.5), refl(a * 7.5));
+                const expected = rot(2 * (b - a) * 7.5);
+                for (const row of [0, 1]) close(product[row], expected[row]);
+                expect(detOf(product)).toBeCloseTo(1, 12);
+            }
+        }
+        // The quoted pairs: first line 22,5 degrees, second 0 -> -45 = 315 degrees (k = 21); swapped -> +45 degrees (k = 3).
+        expect(2 * (0 - 22.5)).toBe(-45);
+        expect(((2 * (0 - 22.5)) % 360 + 360) % 360).toBe(315);
+        expect(315 / 15).toBe(21);
+        expect(45 / 15).toBe(3);
+        const first = mul(refl(0), refl(22.5));
+        const swapped = mul(refl(22.5), refl(0));
+        close(act(first, [1, 0]), [Math.SQRT1_2, -Math.SQRT1_2]);
+        close(act(swapped, [1, 0]), [Math.SQRT1_2, Math.SQRT1_2]);
+        expect(Math.SQRT1_2).toBeCloseTo(0.707, 3);
+        // The opening BA = A (B the identity) is the reflection in the line at 22,5 degrees.
+        expect(detOf(refl(22.5))).toBeCloseTo(-1, 12);
+        // Equal lines: rotation by 0 (the identity).
+        const equal = mul(refl(22.5), refl(22.5));
+        for (const row of [0, 1]) close(equal[row], [[1, 0], [0, 1]][row] as unknown as P);
+        expect(22.5 / 7.5).toBe(3);
+    });
+
+    test('step 3: the translation b = (2,1) moves T(P0) and T(P1) to (2,0) and (-1,-1) and does not touch the linear part', () => {
+        const fr = mul(F, R);
+        const T = affine(fr, [2, 1]);
+        expect([T(points[0]), T(points[1]), T(points[2]), T(points[3])]).toEqual([[2, 0], [-1, -1], [0, -3], [3, -4]]);
+        expect(act(fr, [1, 0])).toEqual([0, -1]);
+        expect(act(fr, [2, 3])).toEqual([-3, -2]);
+        expect(T([0, 0])).toEqual([2, 1]);
+        expect(detOf(fr)).toBe(-1);
+    });
+
+    test('steps 4 to 6: the quarter turn about c = (3,1): P - c, rotated, images, t, and T(c) = c', () => {
+        const c: P = [3, 1];
+        const minusC = points.map(p => [p[0] - c[0], p[1] - c[1]] as P);
+        expect(minusC).toEqual([[-2, -1], [-1, 2], [1, 1], [2, -2]]);
+        expect(minusC.map(p => act(R, p))).toEqual([[1, -2], [-2, -1], [-1, 1], [2, 2]]);
+        const T = aboutCentre(R, c);
+        expect(points.map(T)).toEqual([[4, -1], [1, 0], [2, 2], [5, 3]]);
+        // T(P) = M P + t with t = c - R c.
+        const rc = act(R, c);
+        expect(rc).toEqual([-1, 3]);
+        const t: P = [c[0] - rc[0], c[1] - rc[1]];
+        expect(t).toEqual([4, -2]);
+        expect(points.map(p => affine(R, t)(p))).toEqual(points.map(T));
+        expect(T(c)).toEqual(c);
+        // The opening of step 4 (no pivot): R alone.
+        expect(points.map(p => act(R, p))).toEqual([[0, 1], [-3, 2], [-2, 4], [1, 5]]);
+    });
+
+    test('step 5: B(1/2) = (3, 7/4); T(B(1/2)) = (9/4, 1) both ways, and (-7/4, 3) without the centre; the midpoint and its image', () => {
+        const c: P = [3, 1];
+        const half = bernstein(points);
+        close(half, [3, 7 / 4]);
+        close(casteljau(points, 0.5), half);
+        expect(8 * half[0]).toBeCloseTo(1 + 6 + 12 + 5, 12);
+        expect(8 * half[1]).toBeCloseTo(0 + 9 + 6 - 1, 12);
+        const T = aboutCentre(R, c);
+        const direct = T(half);
+        const images = points.map(T);
+        const viaImages = casteljau(images, 0.5);
+        close(direct, [9 / 4, 1]);
+        close(viaImages, [9 / 4, 1]);
+        close(bernstein(images), [9 / 4, 1]);
+        expect(8 * viaImages[0]).toBeCloseTo(18, 12);
+        expect(8 * viaImages[1]).toBeCloseTo(8, 12);
+        // Without the centre the map is R and B(1/2) goes to (-7/4, 3).
+        close(act(R, half), [-7 / 4, 3]);
+        close(casteljau(points.map(p => act(R, p)), 0.5), [-7 / 4, 3]);
+        // Midpoint of P1 and P2 and its image against the midpoint of the images.
+        const mid = lerp(points[1], points[2], 0.5);
+        close(mid, [3, 5 / 2]);
+        close(T(mid), [3 / 2, 1]);
+        close(lerp(images[1], images[2], 0.5), [3 / 2, 1]);
+        close(lerp(images[1], images[2], 0.5), T(mid));
+        // The pivot case also for another affine map: the preservation holds for T(P) = A P + b.
+        const generic = affine([[2, -1], [1, 3]], [-2, 5]);
+        close(casteljau(points.map(generic), 0.37), generic(casteljau(points, 0.37)));
+    });
+
+    test('step 6: the mean of the control points and the centre of their bounding rectangle are (3,1)', () => {
+        const mean: P = [points.reduce((sum, p) => sum + p[0], 0) / 4, points.reduce((sum, p) => sum + p[1], 0) / 4];
+        expect(mean).toEqual([3, 1]);
+        const xs = points.map(p => p[0]);
+        const ys = points.map(p => p[1]);
+        expect([Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]).toEqual([1, 5, -1, 3]);
+        expect([(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2]).toEqual([3, 1]);
+        expect([FIXTURE_CONTROL_POINTS[0], FIXTURE_CONTROL_POINTS[1], FIXTURE_CONTROL_POINTS[2], FIXTURE_CONTROL_POINTS[3]]).toEqual(points);
+    });
+
+    test('step 7: the shear pairs and the inverse pair as stated', () => {
+        const s1: M = [[1, 1], [0, 1]];
+        const s2: M = [[1, 2], [0, 1]];
+        expect(mul(s2, s1)).toEqual([[1, 3], [0, 1]]);
+        expect(mul(s1, s2)).toEqual([[1, 3], [0, 1]]);
+        expect(mul(s1, [[1, -1], [0, 1]])).toEqual([[1, 0], [0, 1]]);
+        expect(mul(R, R)).toEqual([[-1, 0], [0, -1]]);
+    });
+
+    test('the quoted numbers appear in the sl and en text', () => {
+        const quoted = [
+            '\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}', '\\begin{pmatrix}0&-1\\\\-1&0\\end{pmatrix}', '45^\\circ', 'k=6', '135^\\circ', 'k=18',
+            '315^\\circ', 'k=21', '(2,0)', '(-1,-1)', '(4,-1),(1,0),(2,2),(5,3)', '(4,-2)', '(-2,-1),(-1,2),(1,1),(2,-2)',
+            '(3,\\tfrac74)', '(\\tfrac94,1)', '(-\\tfrac74,3)', '(3,\\tfrac52)', '(\\tfrac32,1)', '\\tfrac{18}{8}', '(3,1)',
+            '(0,-1)+(2,1)', '(-3,-2)+(2,1)', '\\tfrac{1+2+4+5}{4}', '\\tfrac{0+3+2-1}{4}',
+        ];
+        for (const language of ['sl', 'en'] as const) {
+            const text = allText(language);
+            for (const snippet of quoted) expect(text, `${language}: ${snippet}`).toContain(snippet);
+        }
     });
 });

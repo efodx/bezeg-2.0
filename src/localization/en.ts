@@ -2270,7 +2270,7 @@ export const en: Record<keyof typeof sl, string> = {
     "linear_map_status_eigen_v_kernel": "v lies in the kernel of A: Av = 0, so v is mapped to the zero vector (eigenvalue 0, exact).",
     "linear_map_mode_ellipse": "Ellipse and singular directions",
     "linear_map_mode_composition": "Composition of maps",
-    "linear_map_comp_note": "Map A is applied first, B second: the image of P is B(A P), and the matrix of the composition is the product B A (the order matters). The affine map T(P) = c + BA(P − c) + b is a composition followed by the translation b. Rotations and reflections are chosen at multiples of an angle, so their entries are usually only approximate.",
+    "linear_map_comp_note": "Map A is applied first, B second: the image of P is B(A P), and the matrix of the composition is the product B A. The affine map T(P) = c + BA(P − c) + b is a composition followed by the translation b. Rotations and reflections are chosen at multiples of an angle, so their entries are usually only approximate.",
     "linear_map_comp_group_a": "Map A (applied first)",
     "linear_map_comp_group_b": "Map B (applied second)",
     "linear_map_comp_source_label": "Source of matrix {value0}",

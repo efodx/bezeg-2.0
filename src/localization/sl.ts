@@ -2269,7 +2269,7 @@ export const sl = {
     "linear_map_status_eigen_v_kernel": "v leži v jedru matrike A: Av = 0, torej se v preslika v ničelni vektor (lastna vrednost 0, točno).",
     "linear_map_mode_ellipse": "Elipsa in singularne smeri",
     "linear_map_mode_composition": "Sestavljanje preslikav",
-    "linear_map_comp_note": "Preslikava A deluje prva, B druga: slika točke P je B(A P), matrika kompozituma pa je produkt B A (vrstni red je pomemben). Afina preslikava T(P) = c + BA(P − c) + b je kompozitum, ki mu sledi še vzporedni premik b. Vrtež in zrcaljenje sta izbrana pri večkratnikih kota, zato so njuni členi običajno le približni.",
+    "linear_map_comp_note": "Preslikava A deluje prva, B druga: slika točke P je B(A P), matrika kompozituma pa je produkt B A. Afina preslikava T(P) = c + BA(P − c) + b je kompozitum, ki mu sledi še vzporedni premik b. Vrtež in zrcaljenje sta izbrana pri večkratnikih kota, zato so njuni členi običajno le približni.",
     "linear_map_comp_group_a": "Preslikava A (prva)",
     "linear_map_comp_group_b": "Preslikava B (druga)",
     "linear_map_comp_source_label": "Vir matrike {value0}",
