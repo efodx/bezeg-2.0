@@ -4,6 +4,7 @@ import {render} from '@testing-library/react';
 import {MemoryRouter, Route, Routes} from 'react-router-dom';
 import App from '../App';
 import {fitToGutter} from './SideBotanicals';
+import {gutterWidths} from './gutters';
 import {ELDER_SETTINGS} from './elderGeometry';
 
 function setViewport(width: number, matches: boolean) {
@@ -15,15 +16,28 @@ function setViewport(width: number, matches: boolean) {
     })) as unknown as typeof window.matchMedia;
 }
 
+/** jsdom has no layout: the marked column reports a centred box of this width (px), or the given edges. */
+let column: number | {left: number; right: number} = 1100;
+beforeEach(() => {
+    column = 1100;
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        if (!this.hasAttribute('data-content-column')) return new DOMRect();
+        const edges = typeof column === 'number' ? {left: (window.innerWidth - column) / 2, right: (window.innerWidth + column) / 2} : column;
+        return new DOMRect(edges.left, 0, edges.right - edges.left, 900);
+    });
+});
+afterEach(() => vi.restoreAllMocks());
+
 function renderAt(path: string) {
+    const page = <main data-content-column/>;
     return render(<MemoryRouter initialEntries={[path]}>
         <Routes>
             <Route path="/bezeg-2.0" element={<App/>}>
-                <Route index element={<div/>}/>
-                <Route path="demonstrations" element={<div/>}/>
-                <Route path="learn" element={<div/>}/>
-                <Route path="learn/bezier-curves" element={<div/>}/>
-                <Route path="demonstrations/:id" element={<div/>}/>
+                <Route index element={page}/>
+                <Route path="demonstrations" element={page}/>
+                <Route path="learn" element={page}/>
+                <Route path="learn/bezier-curves" element={page}/>
+                <Route path="demonstrations/:id" element={page}/>
             </Route>
         </Routes>
     </MemoryRouter>);
@@ -87,4 +101,38 @@ test('reduced motion writes full growth on the decoration root before paint', ()
     setViewport(3440, true); // the matchMedia stub also reports reduced motion
     renderAt('/bezeg-2.0/learn');
     expect(document.querySelector<HTMLElement>('.side-botanicals-root')!.style.getPropertyValue('--growth')).toBe('1');
+});
+
+test('each gutter is the space beside the column less a 24px margin, rounded down', () => {
+    expect(gutterWidths({left: 1170, right: 2270}, 3440)).toEqual({left: 1146, right: 1146});
+    expect(gutterWidths({left: 400.6, right: 1500}, 2400)).toEqual({left: 376, right: 876}); // sides are independent
+    expect(gutterWidths({left: 123.9, right: 1800}, 1920)).toEqual({left: 0, right: 0}); // 99px and 96px: too narrow
+    expect(gutterWidths({left: 124, right: 1796}, 1920)).toEqual({left: 100, right: 100});
+    expect(gutterWidths({left: -20, right: 5000}, 3440)).toEqual({left: 0, right: 0}); // column wider than the viewport
+});
+
+test('the layers are sized from the measured column, each side on its own', () => {
+    setViewport(3440, true);
+    column = {left: 900, right: 2700};
+    renderAt('/bezeg-2.0/learn');
+    expect([...svgs()].map((svg) => (svg as SVGElement).style.width)).toEqual(['876px', '716px']);
+});
+
+test('a side whose gutter is too narrow gets no layer', () => {
+    setViewport(3440, true);
+    column = {left: 80, right: 2400};
+    renderAt('/bezeg-2.0/learn');
+    expect(svgs()).toHaveLength(1);
+    expect(svgs()[0]).toHaveClass('side-botanicals-right');
+});
+
+test('a page without a marked column gets no decoration until one arrives', async () => {
+    setViewport(3440, true);
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0']}>
+        <Routes><Route path="/bezeg-2.0" element={<App/>}><Route index element={<div id="late"/>}/></Route></Routes>
+    </MemoryRouter>);
+    expect(svgs()).toHaveLength(0);
+    container.querySelector('#late')!.setAttribute('data-content-column', '');
+    container.querySelector('#late')!.appendChild(document.createElement('p')); // a child-list change, as when a page loads
+    await vi.waitFor(() => expect(svgs()).toHaveLength(2));
 });

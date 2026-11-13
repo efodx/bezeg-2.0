@@ -27,7 +27,7 @@ function App() {
                     <a href="/bezeg-2.0/learn/bezier-curves">{t('chapter_return')}</a> · <button onClick={clearNavigationFailure}>{t('chapter_dismiss')}</button>
                 </aside>}
                 <Outlet/>
-                {showsSideBotanicals(pathname) && <SideBotanicals column={pathname.includes('/demonstrations') ? 1290 : 1100}/>}
+                {showsSideBotanicals(pathname) && <SideBotanicals route={pathname}/>}
             </div>
         </SiteContext.Provider>
     );

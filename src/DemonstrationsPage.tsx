@@ -96,7 +96,7 @@ export function DemonstrationsPage() {
         updateFilters({query: ''}, false);
     };
 
-    return <main className="demonstrations-page">
+    return <main className="demonstrations-page" data-content-column>
         <header className="demonstrations-page-heading">
             <span className="demonstrations-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('demonstrations')}</h1>

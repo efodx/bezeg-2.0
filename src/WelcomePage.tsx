@@ -9,7 +9,7 @@ export function WelcomePage() {
     const t = useT();
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
-    return <main className="welcome-page">
+    return <main className="welcome-page" data-content-column>
         <header className="welcome-intro">
             <svg className="welcome-botanical" viewBox="0 0 420 290" aria-hidden="true" focusable="false">
             <g className="welcome-botanical-stems">

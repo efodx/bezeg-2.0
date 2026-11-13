@@ -1,6 +1,7 @@
-import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {buildSide, ELDER_SETTINGS, HEAD_AMP_FACTOR, ElderSide, ElderSettings} from './elderGeometry';
 import {startGrowth} from './growth';
+import {COLUMN_SELECTOR, columnEdges, Gutters, gutterWidths} from './gutters';
 import './SideBotanicals.css';
 
 const MIN_WIDTH = 1600;
@@ -31,44 +32,65 @@ export function fitToGutter(settings: ElderSettings, boxW: number): ElderSetting
         left: Math.min(BRANCHES, settings.left), right: Math.min(BRANCHES, settings.right), heads: Math.min(HEADS, settings.heads)};
 }
 
-interface Viewport {gutter: number; height: number}
-const HIDDEN: Viewport = {gutter: 0, height: 0};
+interface Viewport extends Gutters {height: number}
+const HIDDEN: Viewport = {left: 0, right: 0, height: 0};
 
-function measure(column: number): Viewport {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function' || !window.matchMedia(`(min-width: ${MIN_WIDTH}px)`).matches) return HIDDEN;
-    const gutter = Math.max(0, (window.innerWidth - column) / 2 - 24);
-    return gutter < 100 ? HIDDEN : {gutter: Math.round(gutter), height: Math.round(window.innerHeight)};
+function measure(column: Element | null): Viewport {
+    if (!column || typeof window.matchMedia !== 'function' || !window.matchMedia(`(min-width: ${MIN_WIDTH}px)`).matches) return HIDDEN;
+    // The fixed layers span the viewport without the scrollbar, so the right gutter is measured from that edge.
+    const {left, right} = gutterWidths(columnEdges(column), document.documentElement.clientWidth || window.innerWidth);
+    return left || right ? {left, right, height: Math.round(window.innerHeight)} : HIDDEN;
 }
 
-function useViewport(column: number): Viewport {
-    const [viewport, setViewport] = useState<Viewport>(() => measure(column));
-    useEffect(() => {
+/** Gutters beside the content column of the page at `route`, kept current while the window or the column resizes. */
+function useViewport(route: string): Viewport {
+    const [viewport, setViewport] = useState<Viewport>(HIDDEN);
+    // A layout effect: the page root is in the document by now, and the first paint already has the branches.
+    useLayoutEffect(() => {
         let frame = 0;
-        const update = () => {
-            frame = 0;
-            const next = measure(column);
-            setViewport((prev) => prev.gutter === next.gutter && prev.height === next.height ? prev : next);
-        };
+        let column: Element | null = null;
         const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+        const columnResize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule);
+        // Only while the column is missing, for example while a page is still loading.
+        const columnArrival = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => {
+            if (document.querySelector(COLUMN_SELECTOR)) schedule();
+        });
+        function update() {
+            frame = 0;
+            if (!column?.isConnected) {
+                columnResize?.disconnect();
+                column = document.querySelector(COLUMN_SELECTOR);
+                if (column) {
+                    columnArrival?.disconnect();
+                    columnResize?.observe(column); // Content box, so a change of the column's padding counts too.
+                } else columnArrival?.observe(document.body, {childList: true, subtree: true});
+            }
+            const next = measure(column);
+            setViewport((prev) => prev.left === next.left && prev.right === next.right && prev.height === next.height ? prev : next);
+        }
         window.addEventListener('resize', schedule);
         update();
         return () => {
             window.removeEventListener('resize', schedule);
+            columnResize?.disconnect();
+            columnArrival?.disconnect();
             if (frame) cancelAnimationFrame(frame);
         };
-    }, [column]);
+    }, [route]);
     return viewport;
 }
 
-/** `column` is the width of the page content column the branches must stay clear of. */
-export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {settings?: ElderSettings; column?: number}) {
-    const {gutter, height} = useViewport(column);
+/** `route` is the current pathname; the page there marks its content column with `data-content-column`. */
+export function SideBotanicals({settings = ELDER_SETTINGS, route}: {settings?: ElderSettings; route: string}) {
+    const {left, right, height} = useViewport(route);
     const sides = useMemo(() => {
-        if (!gutter) return null;
-        const boxW = gutter * BOX_H / height;
-        const fitted = fitToGutter(settings, boxW);
-        return (['left', 'right'] as ElderSide[]).map((side) => ({side, branches: buildSide(fitted, side, boxW, BOX_H), boxW}));
-    }, [gutter, height, settings]);
+        const gutters = ([['left', left], ['right', right]] as [ElderSide, number][]).filter(([, gutter]) => gutter > 0);
+        if (!gutters.length) return null;
+        return gutters.map(([side, gutter]) => {
+            const boxW = gutter * BOX_H / height;
+            return {side, gutter, boxW, branches: buildSide(fitToGutter(settings, boxW), side, boxW, BOX_H)};
+        });
+    }, [left, right, height, settings]);
     const root = useRef<HTMLDivElement>(null);
     const shown = sides !== null;
     // Before the first paint, so reduced motion and a growth already reached in this visit never flash a smaller state.
@@ -80,7 +102,7 @@ export function SideBotanicals({settings = ELDER_SETTINGS, column = 1100}: {sett
     if (!sides) return null;
     const mask = `linear-gradient(to right,#000 40%,rgb(0 0 0 / ${1 - settings.fade}) 100%)`;
     return <div ref={root} className="side-botanicals-root">
-        {sides.map(({side, branches, boxW}) => <svg key={side} className={`side-botanicals side-botanicals-${side}`}
+        {sides.map(({side, gutter, branches, boxW}) => <svg key={side} className={`side-botanicals side-botanicals-${side}`}
             viewBox={`0 0 ${Math.round(boxW * 10) / 10} ${BOX_H}`} aria-hidden="true" focusable="false"
             style={{width: `${gutter}px`, '--opacity': settings.opacity, WebkitMaskImage: mask, maskImage: mask, '--amp': `${settings.amp}deg`, '--head-amp': `${Math.round(settings.amp * HEAD_AMP_FACTOR * 10) / 10}deg`} as React.CSSProperties}>
             {branches.map((b, i) => <g key={i} className="side-botanicals-branch"

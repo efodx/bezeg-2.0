@@ -95,7 +95,7 @@ export function LearningPage() {
     }, {sections: 0, examples: 0});
 
     return <main className="learning-page" ref={mainRef}>
-        <div className="learning-page-inner">
+        <div className="learning-page-inner" data-content-column>
             <header className="learning-heading">
                 <span className="learning-eyebrow">Bezeg · {language === 'sl' ? 'Učenje' : 'Learn'}</span>
                 <h1>{language === 'sl' ? 'Uči se z branjem in raziskovanjem' : 'Learn through reading and exploration'}</h1>
