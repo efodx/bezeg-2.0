@@ -27,7 +27,7 @@ Comparison of production-build renders at 1440×900 and 390×844 against `/` and
 - Use shell tokens from `src/shellTokens.css` for every colour role; no new hard-coded hex values remain in `LearningPage.css` (the chapter-shared rules at the end of the file are out of scope, see below). Focus uses `--bezeg-shell-focus`.
 - Canvas is `--bezeg-shell-canvas`. Add the 48px grid backdrop using the Demonstrations page technique (`::before`, `--bezeg-shell-grid`, a vertical mask). No botanical artwork: it stays the homepage's signature.
 - Content width becomes 1100px, matching home.
-- Add the eyebrow, styled like `.welcome-eyebrow`: **"Bezeg · Učenje"** / **"Bezeg · Learn"** (matches the header's navigation label).
+- Add the eyebrow, styled like `.welcome-eyebrow`: **"Bezeg · Učenje"** / **"Bezeg · Learn"** (matches the header's navigation label). **Superseded 2026-11-13** by the main views polish: the eyebrow is removed from Home, Demonstrations and Learn, so the opening is heading, copy, count line and start action (this also amends the Opening paragraph and acceptance criterion 1 below). Reasons: it repeated the header brand and the active navigation item, the three views styled it differently (bold uppercase here, regular mixed case on the other two), and [the lesson panel refinement](lesson-panel-visual-refinement.md) had already removed redundant eyebrows. Rejected alternative: keep all three and unify their style, which keeps the repetition. Handler decision under the owner's standing "decide and report" preference; it is a separate commit so it can be reverted alone.
 
 ### Opening
 

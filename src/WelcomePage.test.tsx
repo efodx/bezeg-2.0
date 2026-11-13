@@ -92,7 +92,6 @@ test('the homepage presents its introduction and catalogue shortcut before the c
 
     for (const language of ['sl', 'en'] as const) {
         act(() => setLanguage(language));
-        expect(screen.getByText(t('bezeg_explore_curves'))).toBeVisible();
         expect(screen.getByRole('heading', {level: 1, name: t('home_headline')})).toBeVisible();
         expect(screen.getByText(t('home_introduction'))).toBeVisible();
 

@@ -36,7 +36,6 @@ export function WelcomePage() {
                 <g transform="translate(341 54) scale(.72)"><circle r="5"/><circle cx="-8" cy="-5" r="4.5"/><circle cx="8" cy="-5" r="4.5"/><circle cx="-8" cy="5" r="4.5"/><circle cx="8" cy="5" r="4.5"/><circle cy="-11" r="4.5"/><circle cy="11" r="4.5"/></g>
             </g>
             </svg>
-            <span className="welcome-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('home_headline')}</h1>
             <p>{t('home_introduction')}</p>
             <Link className="welcome-primary" to="/bezeg-2.0/demonstrations">

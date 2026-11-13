@@ -243,7 +243,6 @@ export const sl = {
     "construction_parameter_t": "Parameter konstrukcije t",
     "show_intermediate_construction_steps_at_the_selected_parameter": "Pokaže vmesne korake konstrukcije pri izbranem parametru.",
     "elevate_degree": "Dvigni stopnjo",
-    "bezeg_explore_curves": "Bezeg · Raziskuj krivulje",
     "hide_tools": "Skrij orodja",
     "open_tools": "Odpri orodja",
     "exit_presentation": "Zapri predstavitev",

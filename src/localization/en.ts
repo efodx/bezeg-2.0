@@ -244,7 +244,6 @@ export const en: Record<keyof typeof sl, string> = {
     "construction_parameter_t": "Construction parameter t",
     "show_intermediate_construction_steps_at_the_selected_parameter": "Show intermediate construction steps at the selected parameter.",
     "elevate_degree": "Elevate degree",
-    "bezeg_explore_curves": "Bezeg · Explore curves",
     "hide_tools": "Hide tools",
     "open_tools": "Open tools",
     "exit_presentation": "Exit presentation",

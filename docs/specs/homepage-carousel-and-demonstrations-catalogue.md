@@ -19,7 +19,7 @@ This is a bounded change to page composition and carousel ownership. It preserve
 
 Use the existing shared header, followed by:
 
-1. The existing eyebrow, headline, and introduction: “Bezeg · Raziskuj krivulje”, “Matematika, ki jo lahko premakneš.”, and “Spremeni točko ali parameter. Opazuj obliko. Razumi povezavo.”
+1. The existing eyebrow, headline, and introduction: “Bezeg · Raziskuj krivulje”, “Matematika, ki jo lahko premakneš.”, and “Spremeni točko ali parameter. Opazuj obliko. Razumi povezavo.” **Amended 2026-11-13** (main views polish): the “Bezeg · Raziskuj krivulje” eyebrow is removed here and on the Demonstrations page, and its `bezeg_explore_curves` catalog key is deleted; headline and introduction are unchanged. It repeated the header brand and active navigation item. Rejected alternative: keep it and unify its style with Learn's. The full reasoning is in [the Learn landing spec](learn-landing-visual-alignment.md#shell-alignment).
 2. An explicit **“Vse demonstracije →”** shortcut to `/bezeg-2.0/demonstrations`, positioned near the introduction and before the carousel in visual and reading order. Reuse the existing `all_demonstrations` translation and its English counterpart. This replaces the homepage's “Začni raziskovati” action label.
 3. The full-width starting-demonstrations carousel, retaining the “Začetne demonstracije” section label and its large selected preview, family, title, prompt, graph/lesson actions, previous/next controls, position counter, and compact horizontal choice strip.
 4. The existing project description, author/mentor attribution, and contact information beneath the carousel. Preserve the actual localized footer content.

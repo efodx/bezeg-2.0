@@ -97,7 +97,6 @@ export function LearningPage() {
     return <main className="learning-page" ref={mainRef}>
         <div className="learning-page-inner" data-content-column>
             <header className="learning-heading">
-                <span className="learning-eyebrow">Bezeg · {language === 'sl' ? 'Učenje' : 'Learn'}</span>
                 <h1>{language === 'sl' ? 'Uči se z branjem in raziskovanjem' : 'Learn through reading and exploration'}</h1>
                 <p className="learning-lead">{language === 'sl'
                     ? 'Preberi razdelek, odpri vodeni primer ob grafu in se vrni k branju. Vrstni red je le predlog; vsako poglavje lahko odpreš samostojno.'

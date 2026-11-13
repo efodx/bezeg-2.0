@@ -98,7 +98,6 @@ export function DemonstrationsPage() {
 
     return <main className="demonstrations-page" data-content-column>
         <header className="demonstrations-page-heading">
-            <span className="demonstrations-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('demonstrations')}</h1>
             <div className="demonstrations-catalog-intro">
                 <p>{t('explore_by_topic')}</p>

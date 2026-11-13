@@ -3,9 +3,8 @@
 .learning-page ::selection { background: var(--bezeg-shell-nav-active); color: var(--bezeg-shell-ink); }
 .learning-page-inner { width: min(100%, 1100px); margin: 0 auto; }
 .learning-page h1, .learning-page h2, .learning-page h3 { overflow-wrap: anywhere; }
-.learning-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "eyebrow action" "title action" "copy action" "meta action"; align-items: center; column-gap: 36px; row-gap: 4px; margin: 0 0 clamp(32px, 4.5vw, 52px); padding: 4px 0 0; }
-.learning-eyebrow { grid-area: eyebrow; color: var(--bezeg-shell-eyebrow); font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
-.learning-heading h1 { grid-area: title; max-width: 17ch; margin: 8px 0 12px; color: var(--bezeg-shell-ink); font-size: clamp(34px, 4.2vw, 52px); font-weight: 700; line-height: 1.08; text-wrap: balance; }
+.learning-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title action" "copy action" "meta action"; align-items: center; column-gap: 36px; row-gap: 4px; margin: 0 0 clamp(32px, 4.5vw, 52px); padding: 4px 0 0; }
+.learning-heading h1 { grid-area: title; max-width: 17ch; margin: 0 0 12px; color: var(--bezeg-shell-ink); font-size: clamp(34px, 4.2vw, 52px); font-weight: 700; line-height: 1.08; text-wrap: balance; }
 .learning-lead { grid-area: copy; max-width: 38rem; margin: 0; color: var(--bezeg-shell-ink-secondary); font-size: 17px; line-height: 1.55; }
 .learning-counts { grid-area: meta; margin: 10px 0 0; color: var(--bezeg-shell-ink-secondary); font-size: 13px; }
 .learning-open { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; gap: 8px; padding: 0 22px; box-sizing: border-box; border-radius: 8px; background: var(--bezeg-shell-action); color: var(--bezeg-shell-on-action); box-shadow: var(--bezeg-shell-shadow-action); font-weight: 700; text-decoration: none; white-space: nowrap; }
@@ -69,7 +68,7 @@
     .learning-family, .learning-outline summary::before { transition: none; }
 }
 @media (max-width: 820px) {
-    .learning-heading { grid-template-columns: minmax(0, 1fr); grid-template-areas: "eyebrow" "title" "copy" "meta" "action"; }
+    .learning-heading { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "copy" "meta" "action"; }
     .learning-start { justify-self: start; margin-top: 18px; }
 }
 @media (max-width: 700px) {
