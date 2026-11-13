@@ -19,13 +19,13 @@
 .workspace-breadcrumb a { text-decoration-color: var(--workspace-rule); text-underline-offset: 4px; }
 .workspace-breadcrumb a:hover { color: var(--workspace-green); text-decoration-color: currentColor; }
 .workspace-heading h1 {
-    margin: 0 0 9px;
+    margin: 0 0 7px;
     font-family: var(--bezeg-font-display);
     font-size: clamp(2.25rem, 4.3vw, 3.5rem);
-    font-weight: 550;
+    font-weight: var(--bezeg-type-display-weight);
     font-optical-sizing: auto;
-    letter-spacing: -.025em;
-    line-height: 1.05;
+    letter-spacing: var(--bezeg-type-page-tracking);
+    line-height: var(--bezeg-type-page-leading);
     text-wrap: balance;
 }
 .workspace-heading p { max-width: 64ch; font-size: .9rem; line-height: 1.55; }
@@ -117,7 +117,8 @@
     .demonstration-workspace, .demonstration-workspace.is-presenting { padding: 22px 16px 44px; gap: 16px; }
     .workspace-heading { gap: 14px; padding: 0; }
     .workspace-breadcrumb { margin-bottom: 13px; font-size: .72rem; }
-    .workspace-heading h1 { font-size: clamp(2rem, 7.5vw, 2.8rem); line-height: 1.08; }
+    /* The 9px margin keeps the phone heading at its former height, so a guided lesson's panel below gains nothing. */
+    .workspace-heading h1 { margin-bottom: 9px; font-size: clamp(2rem, 7.5vw, 2.8rem); }
     .workspace-actions { gap: 6px; }
     .workspace-actions > button, .workspace-actions > a { font-size: .75rem; }
     .workspace-graph #jgbox, .is-presenting .workspace-graph #jgbox { height: 42vh !important; min-height: 280px; }

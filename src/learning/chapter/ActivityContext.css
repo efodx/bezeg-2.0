@@ -13,7 +13,7 @@
 }
 .activity-context-heading { grid-area: heading; min-width: 0; max-width: 72ch; }
 .activity-context-prompt { grid-area: prompt; min-width: 0; max-width: 72ch; }
-.chapter-activity-context h2 { font: 600 1.4rem var(--bezeg-font-display); margin: 8px 0; }
+.chapter-activity-context h2 { font: var(--bezeg-type-title-weight) 1.4rem/var(--bezeg-type-item-leading) var(--bezeg-font-display); letter-spacing: var(--bezeg-type-item-tracking); margin: 8px 0; text-wrap: balance; }
 .chapter-activity-context p { margin: 6px 0; line-height: 1.6; overflow-wrap: anywhere; }
 .chapter-activity-context a { color: var(--bezeg-moss); }
 .activity-context-actions {

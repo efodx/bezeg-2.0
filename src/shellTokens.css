@@ -18,14 +18,28 @@
 }
 
 /* Type roles. The display face names things (pages, chapters, demonstrations, sections); the system sans operates
-   things (controls, labels, running copy). Optical size follows the font size. */
+   things (controls, labels, running copy). Optical size follows the font size.
+   One logic for every title: the larger the role, the lighter the weight, the tighter the tracking and the closer
+   the lines. Hero and page titles (one per page) take the display weight; every smaller title takes the title weight.
+   A rule that needs its own size (workspace title, chapter reader, cards, lesson frames) still takes its role's
+   weight, tracking and leading from here. */
 :root {
     font-optical-sizing: auto;
     --bezeg-font-display: "Literata", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-    --bezeg-type-hero: clamp(2.5rem, 6.1vw, 5.25rem);
+    --bezeg-type-hero: clamp(2.625rem, 1.6rem + 4.6vw, 5rem);
     --bezeg-type-page: clamp(2.25rem, 4.6vw, 3.75rem);
     --bezeg-type-section: clamp(1.4rem, 2.2vw, 1.7rem);
     --bezeg-type-item: clamp(1.2rem, 1.8vw, 1.42rem);
+    --bezeg-type-display-weight: 550;
+    --bezeg-type-title-weight: 600;
+    --bezeg-type-hero-tracking: -.022em;
+    --bezeg-type-page-tracking: -.018em;
+    --bezeg-type-section-tracking: -.01em;
+    --bezeg-type-item-tracking: -.003em;
+    --bezeg-type-hero-leading: 1.05;
+    --bezeg-type-page-leading: 1.08;
+    --bezeg-type-section-leading: 1.2;
+    --bezeg-type-item-leading: 1.25;
 }
 
 /* Incumbent header/home palette. Keep state relationships explicit; see DESIGN.md. */

@@ -120,7 +120,7 @@
 .guided-lesson-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
 .guided-lesson-frame { animation: guided-lesson-frame-in .18s ease-out; }
 .guided-lesson-frame-label { display:block; color:var(--bezeg-shell-ink-secondary, #526152); font-size:12px; font-weight:500; }
-.guided-lesson-frame h3 { margin:0 0 6px; font-family: var(--bezeg-font-display); font-size:22px; font-weight:600; line-height:1.2; text-wrap:balance; overflow-wrap:anywhere; }
+.guided-lesson-frame h3 { margin:0 0 6px; font-family: var(--bezeg-font-display); font-size:22px; font-weight:var(--bezeg-type-title-weight); letter-spacing:var(--bezeg-type-item-tracking); line-height:1.2; text-wrap:balance; overflow-wrap:anywhere; }
 .guided-lesson-frame p { margin:0 0 10px; line-height:1.55; }
 .guided-lesson-notation { margin:0 0 10px; padding:8px 12px; background:#f0f3e8; border-radius:6px; overflow-wrap:anywhere; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; }
 .guided-lesson-reading .guided-lesson-frame > :last-child, .guided-lesson-worked-example > :last-child { margin-bottom:0; }
@@ -143,7 +143,7 @@
 .guided-lesson-animation-controls { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
 .guided-lesson-animation-controls button { display:inline-flex; align-items:center; gap:6px; min-height:44px; }
 .guided-lesson-animation-icon { flex:none; }
-.guided-lesson .guided-lesson-completion-title { margin:0; font-family: var(--bezeg-font-display); font-size:1.4rem; font-weight:600; line-height:1.25; overflow-wrap:anywhere; }
+.guided-lesson .guided-lesson-completion-title { margin:0; font-family: var(--bezeg-font-display); font-size:1.4rem; font-weight:var(--bezeg-type-title-weight); letter-spacing:var(--bezeg-type-item-tracking); line-height:var(--bezeg-type-item-leading); overflow-wrap:anywhere; }
 .guided-lesson-heading .guided-lesson-completion-title { flex:1 1 9ch; min-width:0; }
 .guided-lesson-completion-title:focus { outline:none; }
 .guided-lesson-complete .guided-lesson-reading { flex:none; min-height:0; overflow:visible; }

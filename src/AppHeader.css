@@ -37,9 +37,9 @@
     text-decoration: none;
     font-family: var(--bezeg-font-display);
     font-size: 30px;
-    font-weight: 650;
+    font-weight: var(--bezeg-type-title-weight);
     line-height: 1;
-    letter-spacing: -.025em;
+    letter-spacing: var(--bezeg-type-section-tracking);
 }
 
 .app-brand:hover { color: var(--bezeg-shell-action-hover); }
