@@ -125,7 +125,7 @@ export const sl = {
     "interpolation_to_curve": "Interpolacija → krivulja",
     "ph_curve_to_offsets": "PH krivulja → odmiki",
     "explore_by_topic": "Raziskuj po temah. Začni s tistim, kar te zanima.",
-    "catalog_summary": "{value0} tem · {value1} prikazov",
+    "catalog_summary": "{value0} tem · {value1} demonstracij",
     "demonstration_count_one": "{value0} prikaz",
     "demonstration_count_two": "{value0} prikaza",
     "demonstration_count_few": "{value0} prikazi",

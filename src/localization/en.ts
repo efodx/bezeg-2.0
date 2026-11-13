@@ -126,7 +126,7 @@ export const en: Record<keyof typeof sl, string> = {
     "interpolation_to_curve": "Interpolation → curve",
     "ph_curve_to_offsets": "PH curve → offsets",
     "explore_by_topic": "Explore by topic. Start with what interests you.",
-    "catalog_summary": "{value0} families · {value1} demonstrations",
+    "catalog_summary": "{value0} topics · {value1} demonstrations",
     "demonstration_count_one": "{value0} demonstration",
     "demonstration_count_two": "{value0} demonstrations",
     "demonstration_count_few": "{value0} demonstrations",
