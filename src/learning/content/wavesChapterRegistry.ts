@@ -2,14 +2,15 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {wavesSuperpositionLesson, wavesBeatsLesson} from './wavesGuidedLessons';
+import {wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson} from './wavesGuidedLessons';
 
 export const WAVES_CHAPTER_ID = 'waves';
 
-/** Section id to the Demonstration of its activity (spec WV1, WV2: two sections on one Demonstration, in teaching order). Section ids are those of wavesChapter.ts. */
+/** Section id to the Demonstration of its activity (spec WV1 to WV3: three sections on one Demonstration, in teaching order). Section ids are those of wavesChapter.ts. */
 export const wavesGuidedExampleDemonstrations = {
     'superposition-and-phase': 'waves',
     'beats': 'waves',
+    'standing-waves': 'waves',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type WavesSectionId = keyof typeof wavesGuidedExampleDemonstrations;
@@ -18,6 +19,7 @@ export type WavesSectionId = keyof typeof wavesGuidedExampleDemonstrations;
 const sectionContent = {
     'superposition-and-phase': {id: 'waves-superposition', content: () => wavesSuperpositionLesson},
     'beats': {id: 'waves-beats', content: () => wavesBeatsLesson},
+    'standing-waves': {id: 'waves-standing', content: () => wavesStandingLesson},
 } as const;
 
 const adapted = new Map<WavesSectionId, LessonDefinition>();

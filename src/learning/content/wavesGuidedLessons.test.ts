@@ -1,5 +1,5 @@
 /**
- * WV1 and WV2 (waves): every scene lands in the state the text states (the real graph, one synchronous sequence of actions from a restored checkpoint, out of
+ * WV1, WV2 and WV3 (waves): every scene lands in the state the text states (the real graph, one synchronous sequence of actions from a restored checkpoint, out of
  * order and twice), and every number a step quotes is bound to its step. The expected values are computed here with closed forms written for this test
  * (A = sqrt(A1^2 + A2^2 + 2 A1 A2 cos dphi), the phase by atan2, the beat frequency |f1 - f2|, the mean (f1 + f2) / 2, the envelope 2 |cos(pi df t)| and the
  * heights of the phasors), not with the waves model or the graph, and compared with the real readouts; the quoted numbers are generated from the same values and
@@ -7,7 +7,7 @@
  */
 import {act} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
-import {wavesBeatsLesson, wavesSuperpositionLesson} from './wavesGuidedLessons';
+import {wavesBeatsLesson, wavesStandingLesson, wavesSuperpositionLesson} from './wavesGuidedLessons';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
 import type {LessonAction} from '../model';
@@ -275,4 +275,213 @@ test('the closed forms reproduce the quoted reference values', () => {
     expect(envelopeAt(10, 12, 0.1)).toBeCloseTo(1.618, 3);
     // the identity of the formula block: the product of the slow and the fast factor equals the sum at any time
     for (const time of [0, 0.013, 0.1, 0.37]) expect(2 * Math.cos(PI * 2 * time) * Math.cos(PI * 22 * time)).toBeCloseTo(beatsHeight(10, 12, time), 12);
+});
+
+// ---- WV3: standing waves ----------------------------------------------------------------------------------------------------------------
+// Closed forms written for this test: the sum of a sin(kx - wt) and a sin(kx + wt) with k = m pi / 2 (m half waves on the length 2) and w = 2 pi, summed term by
+// term, never through the product; the nodes 2n/m, the antinodes (2n+1)/m, the wavelength 4/m, the amplitude 2a. The graph's readouts are compared with them.
+
+const standingK = (m: number) => (m * PI) / 2;
+const standingW = 2 * PI;
+const termSum = (m: number, a: number, x: number, t: number) => a * Math.sin(standingK(m) * x - standingW * t) + a * Math.sin(standingK(m) * x + standingW * t);
+const nodePositions = (m: number) => Array.from({length: m + 1}, (_, n) => (2 * n) / m);
+const antinodePositions = (m: number) => Array.from({length: m}, (_, n) => (2 * n + 1) / m);
+const wavelengthOf = (m: number) => 4 / m;
+const joined = (values: readonly number[]) => values.map(value => readoutNumber(value, 3)).join('; ');
+
+interface StandingSetup { readonly m: number; readonly a: number }
+const STANDING_DEFAULT: StandingSetup = {m: 2, a: 1};
+function standingRows(c: StandingSetup, time: number): Record<string, string> {
+    return {
+        time: `${readoutNumber(time, 2)} s`, 'half-waves': `${c.m}`, wavelength: readoutNumber(wavelengthOf(c.m), 3), period: '1 s',
+        nodes: joined(nodePositions(c.m)), antinodes: joined(antinodePositions(c.m)), 'antinode-amplitude': readoutNumber(2 * c.a, 3),
+    };
+}
+const standingStep = (c: StandingSetup, t: number): Expected => ({state: {mode: 'standing', halfWaves: c.m, a1: c.a}, t, rows: standingRows(c, t), quotes: []});
+
+/** Every scene starts from the default (m = 2, a = 1): what the learner is asked to produce is not already on the graph. Only step 3 starts at another time. */
+const WV3: Record<string, Expected> = {
+    'wv3-two-waves': standingStep(STANDING_DEFAULT, 0),
+    'wv3-move': standingStep(STANDING_DEFAULT, 0),
+    'wv3-identity': standingStep(STANDING_DEFAULT, 0.5),
+    'wv3-nodes': standingStep(STANDING_DEFAULT, 0),
+    'wv3-half-waves': standingStep(STANDING_DEFAULT, 0),
+    'wv3-explore': standingStep(STANDING_DEFAULT, 0),
+};
+
+/** The numbers each WV3 step quotes (explanation, observations, worked example, expected-state text) with the digits the text writes, from the closed forms. */
+const WV3_QUOTES: Record<string, readonly Quote[]> = {
+    'wv3-two-waves': [q(2, 0)],
+    'wv3-move': [q(0.25, 2), q(wavelengthOf(2) * 0.25, 1)],
+    'wv3-identity': [q(0.25, 2), q(0.75, 2), q(0.5, 1), q(termSum(2, 1, 0.5, 0.5), 0)],
+    'wv3-nodes': [q(0.1, 1), q(termSum(2, 1, 0.5, 0.1), 3)],
+    'wv3-half-waves': [q(nodePositions(3)[1], 3), q(nodePositions(3)[2], 3), q(antinodePositions(3)[0], 3), q(antinodePositions(3)[2], 3), q(wavelengthOf(3), 3)],
+    'wv3-explore': [q(wavelengthOf(4), 0), q(nodePositions(4)[1], 1), q(nodePositions(4)[3], 1), q(2 * 1.5, 0), q(1.5, 1)],
+};
+/** Decimals a step writes that are inputs or formula arguments, not readouts. */
+const WV3_INPUTS: Record<string, readonly string[]> = {'wv3-nodes': ['0.2', '0.5', '1.5']};
+const only3 = (c: StandingSetup, time: number, ...ids: string[]) => Object.fromEntries(Object.entries(standingRows(c, time)).filter(([id]) => ids.includes(id)));
+const WV3_SPACE = ['half-waves', 'wavelength', 'nodes', 'antinodes', 'antinode-amplitude'];
+
+test('WV3: ordered steps, ownership of the two new sections and lesson ids, and a worked example', () => {
+    expect(wavesStandingLesson.steps.map(step => step.order)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(wavesStandingLesson.steps.map(step => step.id)).toEqual(Object.keys(WV3));
+    expect(new Set(wavesStandingLesson.steps.map(step => step.scene!.id)).size).toBe(6);
+    const owned = getChapterOwnedLessons('waves')!;
+    expect(owned.rows().find(([section]) => section === 'standing-waves')).toEqual(['standing-waves', 'waves']);
+    const lesson = owned.lesson('standing-waves')!;
+    expect(lesson.steps).toHaveLength(6);
+    expect(lesson.steps.every(step => step.scene)).toBe(true);
+    expect(lesson.id).toBe('waves-standing');
+    expect(owned.lesson('superposition-and-phase')!.id).toBe('waves-superposition');
+    expect(owned.lesson('beats')!.id).toBe('waves-beats');
+    expect(wavesStandingLesson.workedExamples).toHaveLength(1);
+    expect(wavesStandingLesson.steps.filter(step => step.workedExampleId).map(step => step.workedExampleId)).toEqual(['wv3-product-check']);
+});
+
+test('WV3: every scene lands in the stated state and readouts, in one synchronous sequence from a restored checkpoint, out of order and twice; leaving restores the free state', () => {
+    checkScenes(wavesStandingLesson, WV3);
+});
+
+test('WV3: the changes the text asks the learner to make give the readouts it quotes, and the scene does not already hold them', () => {
+    // step 2: the slider moves to 0.25 (the scene is at 0)
+    learnerChanges(wavesStandingLesson, 'wv3-move', [0, 0.25, 0.5, 1].map(time => ({actions: [setTime(time)], rows: only3(STANDING_DEFAULT, time, 'time', ...WV3_SPACE)})));
+    // step 4: the time is set to 0.1; the nodes and antinodes do not move
+    learnerChanges(wavesStandingLesson, 'wv3-nodes', [0.1, 0.3, 0.9].map(time => ({actions: [setTime(time)], rows: only3(STANDING_DEFAULT, time, 'time', 'nodes', 'antinodes')})));
+    // step 5: three half waves are typed
+    learnerChanges(wavesStandingLesson, 'wv3-half-waves', [{actions: [components({halfWaves: 3})], rows: only3({m: 3, a: 1}, 0, ...WV3_SPACE)}]);
+    // step 6: four half waves, then amplitude 1.5 of each wave
+    learnerChanges(wavesStandingLesson, 'wv3-explore', [
+        {actions: [components({halfWaves: 4})], rows: only3({m: 4, a: 1}, 0, ...WV3_SPACE)},
+        {actions: [components({a1: 1.5})], rows: only3({m: 4, a: 1.5}, 0, ...WV3_SPACE)},
+    ]);
+    // whatever m the learner tries (1 to 6) the readouts agree with the closed forms
+    for (const m of [1, 2, 3, 4, 5, 6]) learnerChanges(wavesStandingLesson, 'wv3-explore', [{actions: [components({halfWaves: m})], rows: only3({m, a: 1}, 0, ...WV3_SPACE)}]);
+    // the scenes of steps 2, 5 and 6 hold neither the time nor the numbers asked for
+    expect(WV3['wv3-move'].t).not.toBe(0.25);
+    expect(WV3['wv3-half-waves'].state.halfWaves).not.toBe(3);
+    expect(WV3['wv3-explore'].state).toEqual({mode: 'standing', halfWaves: 2, a1: 1});
+});
+
+test('WV3: the status text after the scenes applied one after another without a restore (recorded, the graph is not changed)', () => {
+    const m = mountWaves();
+    try {
+        const seen: string[] = [];
+        for (const step of wavesStandingLesson.steps) {
+            m.learner(...sceneActions(step.scene!));
+            seen.push(`${step.id} t=${m.graph.time}: ${document.querySelector('[data-waves-status]')?.textContent ?? ''}`);
+        }
+        console.info(`WV3-STATUS\n${seen.join('\n')}`);
+        expect(seen).toHaveLength(6);
+    } finally {
+        m.mounted.view.unmount();
+    }
+});
+
+test('WV3: the identity, nodes, antinodes, wavelength, amplitude and flat times recomputed on a grid, and the quoted values', () => {
+    for (const m of [1, 2, 3, 4, 5, 6]) {
+        const k = standingK(m);
+        let worst = 0;
+        for (let i = 0; i <= 200; i++) for (let j = 0; j <= 200; j++) {
+            const x = i / 100, t = j / 200;
+            worst = Math.max(worst, Math.abs(termSum(m, 1, x, t) - 2 * Math.sin(k * x) * Math.cos(standingW * t)));
+        }
+        expect(worst).toBeLessThan(1e-12);
+        expect(2 * PI / k).toBeCloseTo(wavelengthOf(m), 12);
+        for (const x of nodePositions(m)) for (const t of [0, 0.13, 0.5, 0.77]) expect(Math.abs(termSum(m, 1, x, t))).toBeLessThan(1e-12);
+        for (const x of antinodePositions(m)) expect(Math.abs(Math.sin(k * x))).toBeCloseTo(1, 12);
+        let top = 0;
+        for (let i = 0; i <= 2048; i++) top = Math.max(top, termSum(m, 1.5, i / 1024, 0));
+        expect(top).toBeCloseTo(3, 4);
+    }
+    // the times at which the sum is zero everywhere on the length, for m = 2: exactly 1/4 and 3/4
+    const flat: number[] = [];
+    for (let j = 0; j <= 400; j++) {
+        const t = j / 400;
+        let worst = 0;
+        for (let i = 0; i <= 2048; i++) worst = Math.max(worst, Math.abs(termSum(2, 1, i / 1024, t)));
+        if (worst < 1e-9) flat.push(t);
+    }
+    expect(flat).toEqual([0.25, 0.75]);
+    // each wave moves by (lambda / T) t: a quarter of the wavelength, 0.5, at t = 1/4
+    expect(wavelengthOf(2) * 0.25).toBeCloseTo(0.5, 12);
+    // the worked example at k = pi, w = 2 pi, x = 1/2, t = 1/2
+    expect(Math.sin(PI / 2 - PI)).toBeCloseTo(-1, 12);
+    expect(Math.sin(PI / 2 + PI)).toBeCloseTo(-1, 12);
+    expect(2 * Math.sin(PI / 2) * Math.cos(PI)).toBeCloseTo(-2, 12);
+    expect(termSum(2, 1, 0.5, 0.5)).toBeCloseTo(-2, 12);
+    // step 4: the antinodes at time 0.1
+    expect(termSum(2, 1, 0.5, 0.1)).toBeCloseTo(1.618, 3);
+    expect(termSum(2, 1, 1.5, 0.1)).toBeCloseTo(-1.618, 3);
+    const example = wavesStandingLesson.workedExamples![0];
+    expect(example.resultLatex).toBe('-2');
+    expect(example.calculationLatex).toContain('-1+(-1)');
+    expect(example.calculationLatex).toContain('2\\cdot1\\cdot(-1)');
+});
+
+type Step = GuidedLesson['steps'][number];
+const wv3Texts = (step: Step, language: 'sl' | 'en') => {
+    const example = (wavesStandingLesson.workedExamples ?? []).find(e => e.id === step.workedExampleId);
+    return [step.explanation[language], ...step.expectedObservations.map(o => o[language]), step.scene!.expectedState[language], ...(example ? [example.check[language]] : [])];
+};
+
+test('WV3: quoted numbers are bound to their step in both languages, sl and en carry the same numbers, and no other decimal is quoted', () => {
+    const lesson = wavesStandingLesson;
+    for (const step of lesson.steps) {
+        const quotes = WV3_QUOTES[step.id];
+        for (const language of ['sl', 'en'] as const) {
+            const everything = wv3Texts(step, language).join(' ');
+            for (const quote of quotes) {
+                const value = proseNumber(quote.value, quote.digits, language);
+                expect({id: step.id, language, value, found: hasNumber(everything, value)}).toEqual({id: step.id, language, value, found: true});
+            }
+        }
+        const formulas = (lesson.formulaBlocks ?? []).filter(block => step.formulaIds.includes(block.id)).flatMap(block => [block.explanation.en, block.notation.en]);
+        const allowed = new Set(quotes.map(quote => proseNumber(Math.abs(quote.value), quote.digits, 'en')).concat(WV3_INPUTS[step.id] ?? []));
+        const texts = [step.title.en, step.purpose.en, step.observationPrompt.en, ...wv3Texts(step, 'en'), ...formulas];
+        const unaccounted = [...new Set(texts.flatMap(decimalsIn))].filter(value => !allowed.has(value));
+        expect({id: step.id, unaccounted}).toEqual({id: step.id, unaccounted: []});
+    }
+    // sl and en parity over the whole lesson: the same decimal numbers (the Slovenian comma written as a point)
+    const every = (language: 'sl' | 'en') => [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.purpose, step.explanation, step.observationPrompt, ...step.expectedObservations, step.scene!.expectedState]),
+        ...(lesson.workedExamples ?? []).flatMap(e => [e.title, e.check]), ...(lesson.formulaBlocks ?? []).flatMap(b => [b.notation, b.explanation])].map(t => prose(t[language]));
+    const numbers = (language: 'sl' | 'en') => [...new Set(every(language).flatMap(t => [...t.matchAll(/(?<![0-9.,])[0-9]+[.,][0-9]+/g)].map(match => match[0].replace(',', '.'))))].sort();
+    expect(numbers('sl')).toEqual(numbers('en'));
+    expect(numbers('sl').length).toBeGreaterThan(0);
+});
+
+test('WV3: a prediction is not answered before the learner makes it (explanation, worked example, formulas, summary, titles), in both languages', () => {
+    const lesson = wavesStandingLesson;
+    const step = (id: string) => lesson.steps.find(s => s.id === id)!;
+    const formulaText = (s: Step, language: 'sl' | 'en') => (lesson.formulaBlocks ?? []).filter(block => s.formulaIds.includes(block.id)).flatMap(block => [block.explanation[language], block.notation[language], block.latex]);
+    const prior = (id: string, language: 'sl' | 'en') => [step(id).title[language], step(id).explanation[language],
+        ...(lesson.workedExamples ?? []).filter(e => e.id === step(id).workedExampleId).flatMap(e => [e.title[language], e.calculationLatex, e.resultLatex, e.check[language]]),
+        ...formulaText(step(id), language)].join(' ');
+    const answers: Record<string, readonly RegExp[]> = {
+        'wv3-two-waves': [/prekrivat/i, /coincide/i],
+        'wv3-move': [/ravna/i, /straight line/i, /povsod nič/i, /zero everywhere/i, /ne potuje/i, /does not travel/i, /nikamor/i],
+        'wv3-identity': [/0\{,\}75/, /0\.75/, /tfrac\{3\}\{4\}/, /3\/4/],
+        'wv3-nodes': [/1\{,\}618/, /1\.618/, /0\{,\}2\\pi/, /0\.2\\pi/, /ostanejo/i, /stay at the same/i, /stoji/i, /stand still/i],
+        'wv3-half-waves': [/0\{,\}667/, /0\.667/, /1\{,\}333/, /1\.333/, /tfrac\{4\}\{3\}/, /tfrac\{2\}\{3\}/, /štirje/i, /four nodes/i],
+        'wv3-explore': [/pet vozlov/i, /five nodes/i, /1\{,\}5/, /1\.5/, /\\\(4\\\)/],
+    };
+    for (const [id, patterns] of Object.entries(answers)) for (const language of ['sl', 'en'] as const) for (const pattern of patterns) {
+        expect({id, language, pattern: String(pattern), leaked: pattern.test(prior(id, language))}).toEqual({id, language, pattern: String(pattern), leaked: false});
+    }
+    // the summary is rendered before step 1: it answers nothing of steps 2 and 4
+    for (const language of ['sl', 'en'] as const) {
+        for (const pattern of [/ne potuje/i, /does not travel/i, /mirujo/i, /fixed nodes/i, /stand still/i, /stojijo/i, /\\cos/]) {
+            expect({language, pattern: String(pattern), leaked: pattern.test(lesson.summary[language])}).toEqual({language, pattern: String(pattern), leaked: false});
+        }
+    }
+});
+
+test('WV3: no lesson text holds a control character (a single backslash before t, b, f, r or v turned a LaTeX command into one)', () => {
+    const lesson = wavesStandingLesson;
+    const every = [lesson.title, lesson.summary, ...lesson.prerequisites, ...lesson.learningGoals, ...lesson.edgeCases,
+        ...lesson.steps.flatMap(step => [step.title, step.purpose, step.explanation, step.observationPrompt, ...step.expectedObservations, step.scene!.expectedState]),
+        ...(lesson.workedExamples ?? []).flatMap(e => [e.title, e.check]), ...(lesson.formulaBlocks ?? []).flatMap(b => [b.notation, b.explanation])];
+    for (const t of every) for (const language of ['sl', 'en'] as const) {
+        expect({text: t[language].slice(0, 30), control: /[\u0008\u0009\u000b\u000c\u000d]/.test(t[language])}).toEqual({text: t[language].slice(0, 30), control: false});
+    }
 });

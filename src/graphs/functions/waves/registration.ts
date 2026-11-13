@@ -3,7 +3,7 @@ import type {Definition} from '../../../demonstrations';
 /**
  * Cheap metadata of the waves row of the functions family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The row has its guided lessons (WV1 and WV2, chapter-owned by the waves chapter).
+ * live in `collections.ts`. The row has its guided lessons (WV1 to WV3, chapter-owned by the waves chapter).
  * It sits in its own directory because `src/graphs/functions` is a legacy-registered directory; the graph file stays where it is.
  */
 export const wavesFamilyId = 'waves';

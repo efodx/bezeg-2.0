@@ -406,7 +406,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
     levelSetsChapter, // Level sets batch A: the linear-programming lesson (LS5) of levelSetsGuidedLessons.ts; after numerical methods (gradient descent and constrained optimization follow root finding) and before the Fourier series chapter.
     fourierChapter, // Fourier series batch A: the partial-sum and Gibbs lesson (F1, F3) of fourierSeriesGuidedLessons.ts.
-    wavesChapter, // Waves batch A: WV1 and WV2 (wavesGuidedLessons.ts); directly after the Fourier series, whose harmonics are the waves added here; the standing-wave and sampling lessons join later.
+    wavesChapter, // Waves batch A: WV1 to WV3 (wavesGuidedLessons.ts); directly after the Fourier series, whose harmonics are the waves added here; the sampling lessons join later.
     combinatoricsChapter, // Combinatorics and Pascal's triangle batch A: CB1 and CB2 (combinatoricsGuidedLessons.ts); the lessons of batches B and C join later; sits before probability, whose binomial distribution follows it.
     probabilityChapter, // Probability and statistics batch A: the density and binomial-to-normal lessons (P1, P2) of probabilityGuidedLessons.ts; ends the functions strand.
     randomnessChapter, // Randomness batch A: RS1 and RS2 (randomnessGuidedLessons.ts); directly after the probability chapter, whose binomial-to-normal and central limit sections these lessons are compared with; ends the functions strand.

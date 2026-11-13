@@ -37,7 +37,7 @@ import {bsplineNurbsGuidedLessons} from './bsplineNurbsGuidedLessons';
 import {bsplineBlossomGuidedLessons} from './bsplineBlossomGuidedLessons';
 import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
-import {wavesSuperpositionLesson, wavesBeatsLesson} from './wavesGuidedLessons';
+import {wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson} from './wavesGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
 import {bifurcationLesson, logisticMapLesson} from './phasePortraitsGuidedLessons';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
@@ -105,7 +105,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['bsplineBlossomGuidedLessons', bsplineBlossomGuidedLessons],
     ['fourierSeriesGuidedLessons', fourierSeriesGuidedLessons],
     ['fourierCoefficientsGuidedLessons', fourierCoefficientsGuidedLessons],
-    ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson]],
+    ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson]],
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
     ['phasePortraitsGuidedLessons', [logisticMapLesson, bifurcationLesson]],
@@ -243,7 +243,7 @@ test('scans every lesson module', () => {
             'circle-construction', 'circle-construction', 'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 to CG4
             'curve-kinematics', 'curve-kinematics', 'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 to KN4
             'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 and MC2
-            'waves', 'waves', // wavesGuidedLessons.ts: WV1 and WV2
+            'waves', 'waves', 'waves', // wavesGuidedLessons.ts: WV1 to WV3
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
             'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP4 and PP5

@@ -33,7 +33,7 @@ const step = (content: StepContent): GuidedLessonStep => ({
     ],
 });
 
-/** The fields `set-components` may carry (the stored fields of the sum and beats pictures). */
+/** The fields `set-components` may carry (the stored fields of the sum, beats and standing-wave pictures). */
 export interface WavesSceneComponents {
     readonly a1?: number;
     readonly p1?: number;
@@ -43,11 +43,12 @@ export interface WavesSceneComponents {
     readonly f2?: number;
     readonly showPhasors?: boolean;
     readonly showEnvelope?: boolean;
+    readonly halfWaves?: number;
 }
 
 /** What a waves scene sets: the kind of waves (the Demonstration default is the sum), the components and the time in seconds. */
 export interface WavesSceneSpec {
-    readonly mode?: 'sum' | 'beats';
+    readonly mode?: 'sum' | 'beats' | 'standing';
     readonly components?: WavesSceneComponents;
     readonly t: number;
 }
@@ -359,6 +360,155 @@ const wv2Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- WV3 -------------------------------------------------------------------------------------------------------------------------
+
+/** The standing wave of WV3: two waves of amplitude 1 on the length 2 with 2 half waves (wavelength 2, period 1 s), the Demonstration default of the mode. */
+export const WV3_DEFAULT = {halfWaves: 2, a1: 1} as const;
+/** Step 5: three half waves (wavelength 4/3). */
+export const WV3_THREE = {halfWaves: 3, a1: 1} as const;
+/** Step 6: four half waves (wavelength 1) and amplitude 1.5 of each wave. */
+export const WV3_EXPLORE = {halfWaves: 4, a1: 1.5} as const;
+
+const wv3Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'standing-identity',
+        latex: '\\sin(kx-\\omega t)+\\sin(kx+\\omega t)=2\\sin kx\\,\\cos\\omega t',
+        notation: text(
+            '\\(x\\) je lega, \\(t\\) čas v sekundah, \\(k\\) pove, kako gosto so valovi razporejeni po osi \\(x\\) (valovna dolžina je \\(\\lambda=\\tfrac{2\\pi}{k}\\)), \\(\\omega\\) pa je krožna frekvenca (perioda je \\(T=\\tfrac{2\\pi}{\\omega}\\)). Prvi člen je val v desno, drugi val v levo.',
+            '\\(x\\) is the position, \\(t\\) the time in seconds, \\(k\\) tells how densely the waves are spread along the \\(x\\)-axis (the wavelength is \\(\\lambda=\\tfrac{2\\pi}{k}\\)), and \\(\\omega\\) is the angular frequency (the period is \\(T=\\tfrac{2\\pi}{\\omega}\\)). The first term is a wave moving right, the second a wave moving left.',
+        ),
+        explanation: text(
+            'Enakost sledi iz obrazca \\(\\sin a+\\sin b=2\\sin\\tfrac{a+b}{2}\\cos\\tfrac{a-b}{2}\\) za \\(a=kx-\\omega t\\) in \\(b=kx+\\omega t\\): polovična vsota je \\(kx\\), polovična razlika je \\(-\\omega t\\), kosinus pa je soda funkcija. Velja za vsak \\(x\\) in vsak \\(t\\). Prvi faktor \\(2\\sin kx\\) je odvisen samo od lege, drugi faktor \\(\\cos\\omega t\\) samo od časa; zato vsota ni potujoč val, ampak produkt obeh. Graf uporablja \\(k=\\tfrac{m\\pi}{2}\\) in \\(\\omega=2\\pi\\), kjer je \\(m\\) število polvalov na dolžini \\(2\\).',
+            'The equality follows from the identity \\(\\sin a+\\sin b=2\\sin\\tfrac{a+b}{2}\\cos\\tfrac{a-b}{2}\\) for \\(a=kx-\\omega t\\) and \\(b=kx+\\omega t\\): half the sum is \\(kx\\), half the difference is \\(-\\omega t\\), and the cosine is an even function. It holds for every \\(x\\) and every \\(t\\). The first factor \\(2\\sin kx\\) depends only on the position, the second factor \\(\\cos\\omega t\\) only on the time; so the sum is not a travelling wave but the product of the two. The graph uses \\(k=\\tfrac{m\\pi}{2}\\) and \\(\\omega=2\\pi\\), where \\(m\\) is the number of half waves on the length \\(2\\).',
+        ),
+    },
+];
+
+const wv3Examples: readonly WorkedExample[] = [
+    {
+        id: 'wv3-product-check',
+        title: text('Obrazec pri \\(k=\\pi\\), \\(\\omega=2\\pi\\), \\(x=\\tfrac12\\) in \\(t=\\tfrac12\\ \\mathrm{s}\\)', 'The identity at \\(k=\\pi\\), \\(\\omega=2\\pi\\), \\(x=\\tfrac12\\) and \\(t=\\tfrac12\\ \\mathrm{s}\\)'),
+        calculationLatex: '\\sin\\left(\\tfrac{\\pi}{2}-\\pi\\right)+\\sin\\left(\\tfrac{\\pi}{2}+\\pi\\right)=-1+(-1),\\qquad 2\\sin\\tfrac{\\pi}{2}\\,\\cos\\pi=2\\cdot1\\cdot(-1)',
+        resultLatex: '-2',
+        check: text(
+            'Obe strani dasta \\(-2\\), kakor je prvi izraz po vrsti \\(\\sin(-\\tfrac{\\pi}{2})=-1\\) in \\(\\sin\\tfrac{3\\pi}{2}=-1\\). Na grafu je ob času \\(0{,}5\\ \\mathrm{s}\\) romb pri \\(x=0{,}5\\) na višini \\(-2\\).',
+            'Both sides give \\(-2\\), as the terms on the left are \\(\\sin(-\\tfrac{\\pi}{2})=-1\\) and \\(\\sin\\tfrac{3\\pi}{2}=-1\\). On the graph at time \\(0.5\\ \\mathrm{s}\\) the diamond at \\(x=0.5\\) is at height \\(-2\\).',
+        ),
+    },
+];
+
+const wv3Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'wv3-two-waves', order: 1,
+        title: text('Dva vala v nasprotnih smereh', 'Two waves in opposite directions'),
+        purpose: text('Napovedati vsoto dveh enakih valov, ki potujeta v nasprotnih smereh, ob času \\(0\\).', 'Predicting the sum of two equal waves travelling in opposite directions at time \\(0\\).'),
+        explanation: text(
+            'Vrsta valovanja je zdaj Stoječe valovanje. Graf nariše dva vala z amplitudo \\(1\\): črtkani val potuje v desno, drugi črtkani val v levo; debela krivulja je njuna vsota. Obseg je dolžina \\(2\\), polvalov je \\(2\\), perioda je \\(1\\ \\mathrm{s}\\). Napoved: kakšne oblike je vsota ob času \\(0\\) in kolikšna je njena največja višina? Odčitki že kažejo odgovor; najprej zapiši napoved.',
+            'The kind of waves is now Standing wave. The graph draws two waves of amplitude \\(1\\): one dashed wave travels right, the other dashed wave left; the thick curve is their sum. The graph covers the length \\(2\\), there are \\(2\\) half waves and the period is \\(1\\ \\mathrm{s}\\). Prediction: what shape does the sum have at time \\(0\\), and how high does it reach? The readouts already show the answer; write down the prediction first.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi Amplitudo hrbta in Valovno dolžino.', 'Write down the prediction, then read the Amplitude of an antinode and the Wavelength.'),
+        expectedObservations: [text(
+            'Vsota je val iste oblike, dvakrat višji: amplituda hrbta je \\(2\\), valovna dolžina je \\(2\\), ker se vala prekrivata.',
+            'The sum is a wave of the same shape, twice as high: the amplitude of an antinode is \\(2\\) and the wavelength is \\(2\\), because the waves coincide.',
+        )],
+        scene: wavesScene('wv3-two-waves-scene', {mode: 'standing', components: WV3_DEFAULT, t: 0},
+            'Stoječe valovanje, \\(2\\) polvala, amplituda vsakega vala \\(1\\), čas \\(0\\): amplituda hrbta \\(2\\), valovna dolžina \\(2\\).',
+            'Standing wave, \\(2\\) half waves, amplitude of each wave \\(1\\), time \\(0\\): amplitude of an antinode \\(2\\), wavelength \\(2\\).'),
+    }),
+    step({
+        id: 'wv3-move', order: 2,
+        title: text('Pusti, da vala potujeta', 'Let the waves travel'),
+        purpose: text('Napovedati vsoto, ko se vala premakneta vsak za četrtino valovne dolžine.', 'Predicting the sum once each wave has moved by a quarter of the wavelength.'),
+        explanation: text(
+            'Drsnik Čas t premika čas od \\(0\\) do \\(1\\ \\mathrm{s}\\); predvajanje dela isto. Črtkana vala se pri tem razmikata: desni se pomika v desno, levi v levo, vsak za \\(\\tfrac{\\lambda}{T}\\,t\\), pri \\(t=\\tfrac14\\ \\mathrm{s}\\) torej vsak za četrtino valovne dolžine, to je za \\(0{,}5\\). Napoved: kakšna je vsota ob času \\(0{,}25\\ \\mathrm{s}\\) in kaj se z debelo krivuljo zgodi med časoma \\(0\\) in \\(1\\ \\mathrm{s}\\)? Ali potuje v desno ali v levo? Najprej zapiši napoved, nato premakni drsnik.',
+            'The time slider Time t moves the time from \\(0\\) to \\(1\\ \\mathrm{s}\\); playing does the same. The dashed waves move apart: the right one moves right, the left one left, each by \\(\\tfrac{\\lambda}{T}\\,t\\), so at \\(t=\\tfrac14\\ \\mathrm{s}\\) each has moved a quarter of the wavelength, that is \\(0.5\\). Prediction: what is the sum at time \\(0.25\\ \\mathrm{s}\\), and what happens to the thick curve between \\(0\\) and \\(1\\ \\mathrm{s}\\)? Does it travel right or left? Write down the prediction first, then move the slider.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato s časom \\(0{,}25\\ \\mathrm{s}\\) in drugimi časi preveri debelo krivuljo.', 'Write down the prediction, then check the thick curve at time \\(0.25\\ \\mathrm{s}\\) and at other times.'),
+        expectedObservations: [text(
+            'Ob času \\(0{,}25\\ \\mathrm{s}\\) je vsota povsod nič: debela krivulja je ravna črta. Nikamor ne potuje; v času do \\(1\\ \\mathrm{s}\\) se samo izprazni in se napolni nazaj, ob \\(0{,}5\\ \\mathrm{s}\\) je zrcalna slika (navzdol), ob \\(1\\ \\mathrm{s}\\) spet takšna kot ob \\(0\\).',
+            'At time \\(0.25\\ \\mathrm{s}\\) the sum is zero everywhere: the thick curve is a straight line. It does not travel anywhere; up to \\(1\\ \\mathrm{s}\\) it only empties and fills again, at \\(0.5\\ \\mathrm{s}\\) it is the mirror image (flipped down), at \\(1\\ \\mathrm{s}\\) it is again as at \\(0\\).',
+        )],
+        scene: wavesScene('wv3-move-scene', {mode: 'standing', components: WV3_DEFAULT, t: 0},
+            'Stoječe valovanje, \\(2\\) polvala, čas \\(0\\); po premiku drsnika na \\(0{,}25\\ \\mathrm{s}\\) je vsota povsod nič, desni val je premaknjen za \\(0{,}5\\) v desno, levi za \\(0{,}5\\) v levo.',
+            'Standing wave, \\(2\\) half waves, time \\(0\\); after moving the slider to \\(0.25\\ \\mathrm{s}\\) the sum is zero everywhere, the right wave has moved \\(0.5\\) to the right and the left wave \\(0.5\\) to the left.'),
+    }),
+    step({
+        id: 'wv3-identity', order: 3,
+        title: text('Vsota kot produkt', 'The sum as a product'),
+        purpose: text('Utemeljiti stoječe valovanje z enakostjo \\(\\sin(kx-\\omega t)+\\sin(kx+\\omega t)=2\\sin kx\\cos\\omega t\\) in z njo napovedati čase, ko je vsota povsod nič.', 'Justifying the standing wave by the identity \\(\\sin(kx-\\omega t)+\\sin(kx+\\omega t)=2\\sin kx\\cos\\omega t\\) and using it to predict the times when the sum is zero everywhere.'),
+        explanation: text(
+            'Izračunaj vsoto na dva načina: po členih in po produktu, pri \\(x=\\tfrac12\\) in \\(t=\\tfrac12\\ \\mathrm{s}\\) (izračun spodaj). Obrazec velja za vsak \\(x\\) in \\(t\\), zato ga lahko uporabiš tudi drugje. Napoved: po obrazcu poišči vse čase med \\(0\\) in \\(1\\ \\mathrm{s}\\), ko je vsota povsod nič; en tak čas, \\(0{,}25\\ \\mathrm{s}\\), že poznaš. Zapiši napoved in jo preveri z drsnikom.',
+            'Compute the sum in two ways: term by term and by the product, at \\(x=\\tfrac12\\) and \\(t=\\tfrac12\\ \\mathrm{s}\\) (the calculation below). The identity holds for every \\(x\\) and \\(t\\), so you can use it elsewhere too. Prediction: use the identity to find all times between \\(0\\) and \\(1\\ \\mathrm{s}\\) at which the sum is zero everywhere; you already know one such time, \\(0.25\\ \\mathrm{s}\\). Write down the prediction and check it with the slider.',
+        ),
+        formulaIds: ['standing-identity'],
+        workedExampleId: 'wv3-product-check',
+        observationPrompt: text('Zapiši napoved, nato preveri izračun z romboma in poišči čase z ravno krivuljo.', 'Write down the prediction, then check the calculation with the diamonds and find the times with a flat curve.'),
+        expectedObservations: [text(
+            'Vsota je povsod nič, kadar je \\(\\cos\\omega t=0\\), torej \\(2\\pi t=\\tfrac{\\pi}{2}\\) ali \\(\\tfrac{3\\pi}{2}\\): pri \\(t=0{,}25\\ \\mathrm{s}\\) in \\(t=0{,}75\\ \\mathrm{s}\\). Ob \\(0{,}5\\ \\mathrm{s}\\) je romb pri \\(x=0{,}5\\) na višini \\(-2\\).',
+            'The sum is zero everywhere when \\(\\cos\\omega t=0\\), that is \\(2\\pi t=\\tfrac{\\pi}{2}\\) or \\(\\tfrac{3\\pi}{2}\\): at \\(t=0.25\\ \\mathrm{s}\\) and \\(t=0.75\\ \\mathrm{s}\\). At \\(0.5\\ \\mathrm{s}\\) the diamond at \\(x=0.5\\) is at height \\(-2\\).',
+        )],
+        scene: wavesScene('wv3-identity-scene', {mode: 'standing', components: WV3_DEFAULT, t: 0.5},
+            'Stoječe valovanje, \\(2\\) polvala, čas \\(0{,}5\\ \\mathrm{s}\\): vsota je \\(-2\\sin kx\\), romb pri \\(x=0{,}5\\) je na višini \\(-2\\).',
+            'Standing wave, \\(2\\) half waves, time \\(0.5\\ \\mathrm{s}\\): the sum is \\(-2\\sin kx\\), the diamond at \\(x=0.5\\) is at height \\(-2\\).'),
+    }),
+    step({
+        id: 'wv3-nodes', order: 4,
+        title: text('Vozli in hrbti', 'Nodes and antinodes'),
+        purpose: text('Napovedati višini hrbtov ob času \\(0{,}1\\ \\mathrm{s}\\) in ali se vozli premikajo.', 'Predicting the heights of the antinodes at time \\(0.1\\ \\mathrm{s}\\) and whether the nodes move.'),
+        explanation: text(
+            'Kvadrati na grafu označujejo vozle, rombi pa hrbte; njihove lege si prebral že v prvem koraku. Napoved: nastavi čas na \\(0{,}1\\ \\mathrm{s}\\). Po obrazcu \\(2\\sin kx\\cos\\omega t\\) napovej, na kateri višini sta zdaj oba hrbta, in ali se vozli premikajo, ko spreminjaš čas. Zapiši napoved, nato premakni drsnik po vsem oknu.',
+            'The squares on the graph mark the nodes and the diamonds the antinodes; you have already read their positions in the first step. Prediction: set the time to \\(0.1\\ \\mathrm{s}\\). Using the formula \\(2\\sin kx\\cos\\omega t\\), predict at what height the two antinodes are now, and whether the nodes move as you change the time. Write down the prediction, then move the slider through the whole window.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi Vozle valovanja in Hrbte ter premakni drsnik časa.', 'Write down the prediction, then read the Nodes and the Antinodes and move the time slider.'),
+        expectedObservations: [text(
+            'Ob času \\(0{,}1\\ \\mathrm{s}\\) je hrbet pri \\(x=0{,}5\\) na višini \\(2\\cos 0{,}2\\pi\\approx1{,}618\\), hrbet pri \\(x=1{,}5\\) pa na \\(-1{,}618\\): sosednja hrbta sta nasprotna. Vozli (pri \\(x=0\\), \\(1\\) in \\(2\\)) ostanejo pri istih \\(x\\) ob vsakem času; premikajo se samo višine hrbtov, po \\(2\\cos 2\\pi t\\) in v mejah amplitude \\(2\\).',
+            'At time \\(0.1\\ \\mathrm{s}\\) the antinode at \\(x=0.5\\) is at height \\(2\\cos 0.2\\pi\\approx1.618\\) and the antinode at \\(x=1.5\\) at \\(-1.618\\): neighbouring antinodes are opposite. The nodes (at \\(x=0\\), \\(1\\) and \\(2\\)) stay at the same \\(x\\) at every time; only the heights of the antinodes change, following \\(2\\cos 2\\pi t\\) and within the amplitude \\(2\\).',
+        )],
+        scene: wavesScene('wv3-nodes-scene', {mode: 'standing', components: WV3_DEFAULT, t: 0},
+            'Stoječe valovanje, \\(2\\) polvala, čas \\(0\\): začetno stanje; po nastavitvi časa \\(0{,}1\\ \\mathrm{s}\\) sta hrbta na višinah \\(1{,}618\\) in \\(-1{,}618\\), vozli ostanejo pri \\(0\\), \\(1\\), \\(2\\).',
+            'Standing wave, \\(2\\) half waves, time \\(0\\): the starting state; after setting the time to \\(0.1\\ \\mathrm{s}\\) the antinodes are at heights \\(1.618\\) and \\(-1.618\\), the nodes stay at \\(0\\), \\(1\\), \\(2\\).'),
+    }),
+    step({
+        id: 'wv3-half-waves', order: 5,
+        title: text('Spremeni število polvalov', 'Change the number of half waves'),
+        purpose: text('Napovedati število in lege vozlov ter valovno dolžino za tri polvale.', 'Predicting the number and positions of the nodes and the wavelength for three half waves.'),
+        explanation: text(
+            'Polval je del krivulje med dvema sosednjima vozloma. V polje Število polvalov vpiši \\(3\\) (dovoljena cela števila so od \\(1\\) do \\(6\\)); dolžina ostane \\(2\\). Napoved: koliko vozlov bo vključno z obema krajiščema, kje bodo in kolikšna bo valovna dolžina? Namig: valovna dolžina obsega dva polvala. Zapiši napoved, nato preberi odčitke.',
+            'A half wave is the part of the curve between two neighbouring nodes. Type \\(3\\) into the field Number of half waves (allowed are the whole numbers from \\(1\\) to \\(6\\)); the length stays \\(2\\). Prediction: how many nodes will there be including both ends, where will they be, and what will the wavelength be? Hint: the wavelength contains two half waves. Write down the prediction, then read the readouts.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Zapiši napoved, nato preberi Vozle valovanja, Hrbte in Valovno dolžino.', 'Write down the prediction, then read the Nodes, the Antinodes and the Wavelength.'),
+        expectedObservations: [text(
+            'Vozli so štirje, pri \\(0\\), približno \\(0{,}667\\), približno \\(1{,}333\\) in \\(2\\) (razmik \\(\\tfrac23\\)); hrbti so pri približno \\(0{,}333\\), \\(1\\) in približno \\(1{,}667\\), amplituda hrbta je \\(2\\). Valovna dolžina je \\(\\tfrac43\\), približno \\(1{,}333\\), dvakratnik razmika vozlov. Pri \\(m\\) polvalih na dolžini \\(2\\) je vozlov \\(m+1\\) in \\(\\lambda=\\tfrac4m\\).',
+            'There are four nodes, at \\(0\\), approximately \\(0.667\\), approximately \\(1.333\\) and \\(2\\) (spacing \\(\\tfrac23\\)); the antinodes are at approximately \\(0.333\\), \\(1\\) and approximately \\(1.667\\), the amplitude of an antinode is \\(2\\). The wavelength is \\(\\tfrac43\\), approximately \\(1.333\\), twice the node spacing. For \\(m\\) half waves on the length \\(2\\) there are \\(m+1\\) nodes and \\(\\lambda=\\tfrac4m\\).',
+        )],
+        scene: wavesScene('wv3-half-waves-scene', {mode: 'standing', components: WV3_DEFAULT, t: 0},
+            'Stoječe valovanje, \\(2\\) polvala, čas \\(0\\): začetno stanje; po vpisu \\(3\\) polvalov so vozli pri \\(0\\), \\(0{,}667\\), \\(1{,}333\\), \\(2\\) in valovna dolžina je \\(1{,}333\\).',
+            'Standing wave, \\(2\\) half waves, time \\(0\\): the starting state; after typing \\(3\\) half waves the nodes at \\(0\\), \\(0.667\\), \\(1.333\\), \\(2\\); wavelength \\(1.333\\).'),
+    }),
+    step({
+        id: 'wv3-explore', order: 6,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Preizkusiti pravilo na svojih številih polvalov in amplitudah.', 'Trying the rule on your own numbers of half waves and amplitudes.'),
+        explanation: text(
+            'Spreminjaj število polvalov od \\(1\\) do \\(6\\) in amplitudo vsakega vala ter premikaj čas. Napovej število vozlov, valovno dolžino in amplitudo hrbta, preden ju prebereš. Izbrana števila so ponazoritev; enakost za vsoto velja za vsak \\(k\\) in \\(\\omega\\). Za izbirni pogled naprej: vzorci, ki jih tukaj vidiš, so tudi načini nihanja idealne strune, vpete na obeh koncih; vsako nihanje take strune je vsota takih vzorcev (Fourierova vrsta), a tega za lekcijo ne potrebuješ.',
+            'Change the number of half waves from \\(1\\) to \\(6\\) and the amplitude of each wave, and move the time. Predict the number of nodes, the wavelength and the amplitude of an antinode before reading them. The chosen numbers are an illustration; the identity for the sum holds for every \\(k\\) and \\(\\omega\\). An optional look ahead: the patterns you see here are also the modes of an ideal string fixed at both ends; every vibration of such a string is a sum of such patterns (a Fourier series), but you do not need this for the lesson.',
+        ),
+        formulaIds: [],
+        observationPrompt: text('Poišči število polvalov z valovno dolžino \\(1\\) in amplitudo hrbta, ko ima vsak val amplitudo \\(1{,}5\\).', 'Find the number of half waves giving wavelength \\(1\\), and the amplitude of an antinode when each wave has amplitude \\(1.5\\).'),
+        expectedObservations: [text(
+            'Pri \\(4\\) polvalih je valovna dolžina \\(1\\), vozlov je \\(5\\), pri \\(0\\), \\(0{,}5\\), \\(1\\), \\(1{,}5\\), \\(2\\). Pri amplitudi \\(1{,}5\\) vsakega vala je amplituda hrbta \\(3\\).',
+            'At \\(4\\) half waves the wavelength is \\(1\\) and there are \\(5\\) nodes, at \\(0\\), \\(0.5\\), \\(1\\), \\(1.5\\), \\(2\\). With amplitude \\(1.5\\) of each wave the amplitude of an antinode is \\(3\\).',
+        )],
+        scene: wavesScene('wv3-explore-scene', {mode: 'standing', components: WV3_DEFAULT, t: 0},
+            'Stoječe valovanje, \\(2\\) polvala, amplituda vsakega vala \\(1\\): začetno stanje; po nastavitvi \\(4\\) polvalov in amplitude \\(1{,}5\\) je valovna dolžina \\(1\\), pet vozlov, amplituda hrbta \\(3\\).',
+            'Standing wave, \\(2\\) half waves, amplitude of each wave \\(1\\): the starting state; after setting \\(4\\) half waves and amplitude \\(1.5\\) the wavelength is \\(1\\), five nodes, amplitude of an antinode \\(3\\).'),
+    }),
+];
+
 // ---- Lessons ---------------------------------------------------------------------------------------------------------------------
 
 const sources: GuidedLesson['sources'] = [
@@ -419,5 +569,31 @@ const wv2: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
+const wv3: GuidedLesson = {
+    demonstrationId: 'waves',
+    title: text('Stoječe valovanje', 'Standing waves'),
+    summary: text(
+        'Dva enaka vala, ki potujeta v nasprotnih smereh, se seštejeta v vzorec z vozli in hrbti; vozle, hrbte in obrazec za vsoto spoznaš po korakih.',
+        'Two equal waves travelling in opposite directions add up to a pattern with nodes and antinodes; you meet the nodes, the antinodes and the formula for the sum step by step.',
+    ),
+    prerequisites: [text('Lekcija Seštevanje valov in faza (prva lekcija poglavja) ter kosinusni in sinusni val.', 'The lesson Superposition and phase (the first lesson of the chapter) and the cosine and sine wave.')],
+    learningGoals: [
+        text('Veš, da je vsota dveh enakih valov v nasprotnih smereh produkt \\(2\\sin kx\\cos\\omega t\\), torej vzorec, ki ne potuje, in da to utemeljiš z enakostjo za vsoto sinusov.', 'Know that the sum of two equal waves in opposite directions is the product \\(2\\sin kx\\cos\\omega t\\), a pattern that does not travel, and justify it by the identity for a sum of sines.'),
+        text('Veš, da so vozli lege, kjer je \\(\\sin kx=0\\), in da ostanejo na istem mestu ob vsakem času, hrbti pa imajo amplitudo \\(2A\\).', 'Know that the nodes are the positions where \\(\\sin kx=0\\) and that they stay in place at every time, while the antinodes have amplitude \\(2A\\).'),
+        text('Veš, da je na dolžini \\(2\\) pri \\(m\\) polvalih \\(m+1\\) vozlov in valovna dolžina \\(\\tfrac4m\\).', 'Know that on the length \\(2\\) with \\(m\\) half waves there are \\(m+1\\) nodes and the wavelength is \\(\\tfrac4m\\).'),
+    ],
+    formulaBlocks: wv3Formulas,
+    workedExamples: wv3Examples,
+    steps: wv3Steps,
+    sources,
+    edgeCases: [
+        text('Graf vedno nariše oba vala hkrati, zato enega samega vala ni mogoče pokazati; njuno vsoto vidimo takoj.', 'The graph always draws both waves at once, so a single wave cannot be shown on its own; their sum is visible at once.'),
+        text('Ob časih \\(\\tfrac14\\ \\mathrm{s}\\) in \\(\\tfrac34\\ \\mathrm{s}\\) je vsota povsod nič, čeprav vala obstajata; vozli pa so nič ob vsakem času.', 'At the times \\(\\tfrac14\\ \\mathrm{s}\\) and \\(\\tfrac34\\ \\mathrm{s}\\) the sum is zero everywhere although the two waves exist; the nodes are zero at every time.'),
+        text('Dolžina \\(2\\), perioda \\(1\\ \\mathrm{s}\\) in cela števila polvalov od \\(1\\) do \\(6\\) so izbira modela; enakost za vsoto sinusov velja za vsak \\(k\\) in \\(\\omega\\). Navedeni položaji vozlov so ponazoritev.', 'The length \\(2\\), the period \\(1\\ \\mathrm{s}\\) and whole numbers of half waves from \\(1\\) to \\(6\\) are the model\'s choice; the identity for a sum of sines holds for every \\(k\\) and \\(\\omega\\). The stated node positions are an illustration.'),
+    ],
+    unresolvedQuestions: [],
+};
+
 export const wavesSuperpositionLesson: GuidedLesson = wv1;
 export const wavesBeatsLesson: GuidedLesson = wv2;
+export const wavesStandingLesson: GuidedLesson = wv3;

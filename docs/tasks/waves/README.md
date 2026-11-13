@@ -12,7 +12,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [02 State model and waves graph](02-waves-graph.md) | A–C | F2a | Controls step 5 | 01 | done (uncommitted, awaiting review) |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11; split into 04–06 |
 | [04 Batch A: WV1–WV2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 done; F4 to F6 not started |
-| [05 Batch B: WV3 lesson](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | not started |
+| [05 Batch B: WV3 lesson](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | F3 done 2026-11-13 (WV3); F4–F6 next |
 | [06 Batch C: WV4–WV5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | not started |
 
 ## Slovenian terms (F0 decision)
