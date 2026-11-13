@@ -71,7 +71,7 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'recursion-growth': {chapterId: 'recursion', sectionId: 'sequences'},
     // Solids batch A: the cube-sections lesson (SV1) in the solids chapter; the prism-and-pyramid lesson (SV2) is the second owner, derived from the chapter.
     'solids': {chapterId: 'solids', sectionId: 'cube-sections'},
-    // Phase portraits: the linear-system lesson (PP1) in the phase-portraits chapter, the pendulum lesson (PP2) its second owner, derived from the chapter; the logistic-map demonstration is owned by the same chapter below (PP4, PP5).
+    // Phase portraits: the linear-system lesson (PP1) in the phase-portraits chapter, the pendulum lesson (PP2) and the linearization lesson (PP3) its further owners, derived from the chapter; the logistic-map demonstration is owned by the same chapter below (PP4, PP5).
     'phase-portrait': {chapterId: 'phase-portraits', sectionId: 'linear-system'},
     // Phase portraits batch C: the logistic-map lesson (PP4) in the phase-portraits chapter; the bifurcation lesson (PP5) is the second owner, derived from the chapter.
     'logistic-map': {chapterId: 'phase-portraits', sectionId: 'logistic-map'},

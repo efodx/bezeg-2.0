@@ -6,4 +6,4 @@ Slices F3–F6 as in [07](07-batch-c-lessons.md), which runs first; the lessons 
 
 Acceptance: the spec's acceptance for PP3; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: F3 slice 1 done 2026-11-13 (handler 17): scene actions `set-zoom` and `set-equilibrium` with host tests and a probe of the PP3 openings ([note](../../reviews/feature-streams/families-prep/notes/pp-b-s1.md)); the lesson content, tests, join, smoke and card are next.
+Status: F3 PP3 written and joined (handler 18); F5 card and F6 gate next. Earlier: F3 slice 1 done 2026-11-13 (handler 17): scene actions `set-zoom` and `set-equilibrium` with host tests and a probe of the PP3 openings ([note](../../reviews/feature-streams/families-prep/notes/pp-b-s1.md)); the lesson content, tests, join, smoke and card are next.

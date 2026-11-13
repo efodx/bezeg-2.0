@@ -185,6 +185,7 @@ describe('launch paths and example resolution', () => {
         ['canonical example, solids SV2', '?example=lesson.solids.pyramid-sections.solids', 'solids', 'solids-pyramid-sections', {chapterId: 'solids', sectionId: 'pyramid-sections'}],
         ['canonical example, phase portraits PP1', '?example=lesson.phase-portraits.linear-system.phase-portrait', 'phase-portrait', 'phase-portraits-linear-system', {chapterId: 'phase-portraits', sectionId: 'linear-system'}],
         ['canonical example, phase portraits PP2', '?example=lesson.phase-portraits.pendulum.phase-portrait', 'phase-portrait', 'phase-portraits-pendulum', {chapterId: 'phase-portraits', sectionId: 'pendulum'}],
+        ['canonical example, phase portraits PP3', '?example=lesson.phase-portraits.linearization.phase-portrait', 'phase-portrait', 'phase-portraits-linearization', {chapterId: 'phase-portraits', sectionId: 'linearization'}],
         ['canonical example, phase portraits PP4', '?example=lesson.phase-portraits.logistic-map.logistic-map', 'logistic-map', 'phase-portraits-logistic-map', {chapterId: 'phase-portraits', sectionId: 'logistic-map'}],
         ['canonical example, phase portraits PP5', '?example=lesson.phase-portraits.bifurcation.logistic-map', 'logistic-map', 'phase-portraits-bifurcation', {chapterId: 'phase-portraits', sectionId: 'bifurcation'}],
         ['canonical example, level sets LS5', '?example=lesson.level-sets.linear-programming.linear-program', 'linear-program', 'level-sets-linear-programming', {chapterId: 'level-sets', sectionId: 'linear-programming'}],

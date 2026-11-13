@@ -69,3 +69,16 @@ Chapter, registration, preview copy, tests, smoke (later slices).
 
 ## Review (handler 18)
 Sonnet review (`.command-logs/pp-b/review.md` stub; findings in the handler's record): 1 blocking, 5 non-blocking. Applied by the handler: step 5 no longer says the ring difference survives the zoom (the counts stay, the picture shrinks less at zoom 3); step 1 tells the learner the (0,0) readouts flash while the system is picked; step 2 says the start points are in view at time 0; step 4 says J of the weak spiral is −J of the pendulum; step 5 prompt asks picture versus computation only (and is gender-neutral). Accepted: the always-visible decision row hints step 2's prediction (graph without view modes). Checks after the edits: tsc, lint, unit (lesson, notation, dynamics) green.
+
+## Slice 3: chapter join
+
+### Written
+- `phasePortraitsChapterRegistry.ts`: section `linearization` (`phase-portraits-linearization`, Demonstration `phase-portrait`) between `pendulum` and `logistic-map`. `phasePortraitsChapter.ts`: section `linearization` (title, Jacobian formula, four paragraphs, investigation prompt): Hartman-Grobman as a theorem (FMF Analiza 3), zoom as illustration; example `x'=x+y^2, y'=-2y` (J = diag(1,-2), saddle) and the 1-D pair `x'=-x^3`, `x'=x^3`; the pendulum points and the weak spiral are not answered.
+- Wiring: `guidedLessonOwnership.ts` (comment only, ownership derived); tests `familyChapters.test.ts` (min 4 -> 5), `authoredChapterCoverage.test.ts` (179 -> 180, expected id), `lessonLookup.characterization.test.ts` (PP3 row), `guidedExamplePreviews.test.ts` (id listed as `pending`, as AB-B-4 did), `lessonSmokeCoverage.test.ts` (extra row). Smoke: row `phase-portrait-linearization` (6 steps, minFrames 12), unified minimum 5. Docs: `localization.md` row, task 06 status line.
+
+### Outcome
+tsc clean; unit `src/learning src/graphs/dynamics` passed (before the last prose edit), `src/learning/content chapter runtime` passed after it; lint passed; build passed; `just smoke-lesson` phase-portrait and phase-portrait-linearization/pendulum: all passed. Red run showed 4 expected failures (`s3-red.log`).
+
+### Not verified
+- No preview copy row: the card test requires copy keys to equal non-pending ids, so the row and PNG arrive with the F5 card.
+- Chapter page not inspected visually; full unified smoke not run.

@@ -13,7 +13,7 @@ const rowIds = [...spec.matchAll(/^\s+id: '([a-z0-9-]+)'/gm)].map(match => match
 const registeredRows = (/^const LESSONS = \[([^\]]*)\];/m.exec(spec)?.[1] ?? '').split(',').map(name => name.trim()).filter(Boolean);
 const sectionRows = ['patch-bilinear-patch', 'patch-control-net', 'patch-boundary-iso-curves', 'patch-properties', 'patch-square-vs-triangular'];
 // Second lessons on a shared demonstration that get a row of their own (opened by example id), besides the demonstration's default row.
-const extraLessonRows = ['phase-portrait-pendulum'];
+const extraLessonRows = ['phase-portrait-pendulum', 'phase-portrait-linearization'];
 
 test('every available demonstration has exactly one default smoke row and patch sections add only their explicit extras', () => {
     expect(rowIds.length).toBeGreaterThan(0);

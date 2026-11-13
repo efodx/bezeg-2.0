@@ -275,7 +275,8 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'phase-portraits', copy: phasePortraitsPreviewCopy,
         ids: ['phase-portraits.bifurcation.logistic-map', 'phase-portraits.linear-system.phase-portrait',
             'phase-portraits.logistic-map.logistic-map', 'phase-portraits.pendulum.phase-portrait'],
-        counts: [[7, 2], [3, 5], [7, 3], [3, 5]]},
+        counts: [[7, 2], [3, 5], [7, 3], [3, 5]],
+        pending: ['phase-portraits.linearization.phase-portrait']}, // Its card arrives with the PP3 card slice (F5).
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
