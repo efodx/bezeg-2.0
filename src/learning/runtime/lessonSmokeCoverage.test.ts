@@ -12,11 +12,14 @@ const patchRowIds = [...patchRowsSource.matchAll(/patchRow\(\{\s*id: '([a-z0-9-]
 const rowIds = [...spec.matchAll(/^\s+id: '([a-z0-9-]+)'/gm)].map(match => match[1]).concat(patchRowIds);
 const registeredRows = (/^const LESSONS = \[([^\]]*)\];/m.exec(spec)?.[1] ?? '').split(',').map(name => name.trim()).filter(Boolean);
 const sectionRows = ['patch-bilinear-patch', 'patch-control-net', 'patch-boundary-iso-curves', 'patch-properties', 'patch-square-vs-triangular'];
+// Second lessons on a shared demonstration that get a row of their own (opened by example id), besides the demonstration's default row.
+const extraLessonRows = ['phase-portrait-pendulum'];
 
 test('every available demonstration has exactly one default smoke row and patch sections add only their explicit extras', () => {
     expect(rowIds.length).toBeGreaterThan(0);
     expect(new Set(rowIds).size).toBe(rowIds.length);
-    const defaults = rowIds.filter(id => !sectionRows.includes(id));
+    const defaults = rowIds.filter(id => !sectionRows.includes(id) && !extraLessonRows.includes(id));
+    expect(rowIds).toEqual(expect.arrayContaining(extraLessonRows));
     expect([...defaults].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect([...patchRowIds].filter(id => sectionRows.includes(id)).sort()).toEqual([...sectionRows].sort());
 });

@@ -53,3 +53,16 @@ Design to reuse (all checked against the lesson text, brief-s2c.md items 1-5):
 - Red: `.command-logs/pp-a/s2d-red.log` (sl `1{,}683` changed to `1{,}684`, failed, restored). Green log `.command-logs/pp-a/s2d-unit.log`: 188 passed, 1 failed (below). `npx tsc --noEmit` clean.
 - One red test left on purpose: en text of PP2 step 5 observationPrompt (`phasePortraitsGuidedLessons.ts:532`) says "Add the start point" but the button/graph string is "Add a seed" (sl matches: "Dodaj začetno točko"). Fix: en prompt to "Press Add a seed, set the start point ...".
 - Not checked against the graph: the end position of the Euler/RK4 square at t = 6,28 and the separatrix end at t = 10 (the readouts print no end positions; independent RK4 and closed forms only). The earlier suspected mismatches "Type of linearization" / "End of computed trajectories" do not occur (names match).
+
+## Slice 3: chapter join and wiring (worker)
+
+### Written
+- `phasePortraitsChapterRegistry.ts`: sections `linear-system` (`phase-portraits-linear-system`) and `pendulum` (`phase-portraits-pendulum`) on `phase-portrait`, first in order. `phasePortraitsChapter.ts`: two sections (title, formula, example, four paragraphs, investigation prompt), `purpose` and `prerequisites` widened to phase planes, prerequisite link `linear-maps#eigen-directions`. Examples use matrices and starts the lessons do not (A = (0 1; -2 -3); starts (0,1) and (0,3)); no lesson prediction is answered.
+- Wiring: `guidedLessonOwnership.ts` (`'phase-portrait'`), `guidedExamplePreviewCopy.ts` (one row `'phase-portrait'`, keyed by Demonstration, so PP2's preview shares PP1's text, as PP5 shares PP4's), `graphs/dynamics/registration.ts` (no `lesson: false`), `LearningPage.tsx` unchanged (topicPreviews has one entry per chapter).
+- Tests: `registrationComposition.test.ts`, `familyChapters.test.ts` (min 4, pending list), `authoredChapterCoverage.test.ts` (177 -> 179, expected ids), `lessonLookup.characterization.test.ts` (list, rows PP1, PP2), `lessonCatalog.test.ts`, `lessonSmokeCoverage.test.ts` (new `extraLessonRows` for the PP2 row). Smoke rows `phase-portrait` (7 steps, minFrames 15) and `phase-portrait-pendulum` (5 steps, minFrames 10, example-id path); unified minimum 4. Docs: localization row, task status.
+
+### Outcome
+- Red: `s3-red.log` (4 files, 7 tests failed before the source edit). tsc clean (`s3-tsc.log`). `just unit src/learning src/graphs/dynamics` (`s3-unit.log`): 2 failed. (a) `lessonSmokeCoverage`: my row id; fixed, passes (`s3-unit2.log`). (b) `phasePortraitsGuidedLessons.test.ts` "chapter prose quotes the numbers": hard-codes section indices `[0, 1]` for PP4 and PP5, now `[2, 3]`; file is outside my paths, NOT fixed. Scripts tests 57/57 (`s3-scripts.log`). Build passed (`s3-build.log`). `just smoke-lesson phase-portrait phase-portrait-pendulum`: 4 passed (`s3-smoke.log`; PP1 title regex because the math renders "x ′ = A x").
+- Single backslashes: 0 outside `String.raw` formulas; LF.
+### Not verified
+Full unit rerun after fix (b) and the smoke fix; no PNGs (previews for the new ids image-less); Slovenian prose unread; browser look.

@@ -54,7 +54,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'waves' ? [`waves.${section.id}.waves`] : []),
                     ...(chapter.id === 'recursion' ? [`recursion.${section.id}.recursion-growth`] : []),
                     ...(chapter.id === 'solids' ? [`solids.${section.id}.solids`] : []),
-                    ...(chapter.id === 'phase-portraits' ? [`phase-portraits.${section.id}.logistic-map`] : []),
+                    ...(chapter.id === 'phase-portraits' ? [`phase-portraits.${section.id}.${section.id === 'linear-system' || section.id === 'pendulum' ? 'phase-portrait' : 'logistic-map'}`] : []),
                     ...(chapter.id === 'level-sets' ? [`level-sets.${section.id}.linear-program`] : []),
                     ...(chapter.id === 'randomness' ? [`randomness.${section.id}.prob-simulation`] : []),
                     ...(chapter.id === 'combinatorics' ? [`combinatorics.${section.id}.${section.id === 'counting-and-choices' ? 'counting-tree' : 'lattice-paths'}`] : []),
@@ -68,7 +68,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(177);
-        expect(new Set(allReferences).size).toBe(177);
+        expect(allReferences).toHaveLength(179);
+        expect(new Set(allReferences).size).toBe(179);
     }
 });

@@ -6,4 +6,4 @@ Slices F3–F6 as in [07](07-batch-c-lessons.md), which runs first; the lessons 
 
 Acceptance: the spec's acceptance for PP1–PP2; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: blocked on linear-maps Batch B.
+Status: F3 PP1–PP2 written and joined (handler 17); F5 cards and F6 gate next.

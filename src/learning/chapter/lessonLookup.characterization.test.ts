@@ -136,9 +136,9 @@ describe('fallback and unavailable lessons', () => {
     });
 
     it('returns undefined for every Demonstration that opts out of lessons', () => {
-        // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, phase-portrait, logistic-map, solids, contour-map, linear-program, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
+        // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, solids, contour-map, linear-program, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'recursion-cobweb', 'phase-portrait', 'contour-map']);
+        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'recursion-cobweb', 'contour-map']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();
@@ -183,6 +183,8 @@ describe('launch paths and example resolution', () => {
         ['canonical example, recursion RG3', '?example=lesson.recursion.compound-interest.recursion-growth', 'recursion-growth', 'recursion-interest', {chapterId: 'recursion', sectionId: 'compound-interest'}],
         ['canonical example, solids SV1', '?example=lesson.solids.cube-sections.solids', 'solids', 'solids-cube-sections', {chapterId: 'solids', sectionId: 'cube-sections'}],
         ['canonical example, solids SV2', '?example=lesson.solids.pyramid-sections.solids', 'solids', 'solids-pyramid-sections', {chapterId: 'solids', sectionId: 'pyramid-sections'}],
+        ['canonical example, phase portraits PP1', '?example=lesson.phase-portraits.linear-system.phase-portrait', 'phase-portrait', 'phase-portraits-linear-system', {chapterId: 'phase-portraits', sectionId: 'linear-system'}],
+        ['canonical example, phase portraits PP2', '?example=lesson.phase-portraits.pendulum.phase-portrait', 'phase-portrait', 'phase-portraits-pendulum', {chapterId: 'phase-portraits', sectionId: 'pendulum'}],
         ['canonical example, phase portraits PP4', '?example=lesson.phase-portraits.logistic-map.logistic-map', 'logistic-map', 'phase-portraits-logistic-map', {chapterId: 'phase-portraits', sectionId: 'logistic-map'}],
         ['canonical example, phase portraits PP5', '?example=lesson.phase-portraits.bifurcation.logistic-map', 'logistic-map', 'phase-portraits-bifurcation', {chapterId: 'phase-portraits', sectionId: 'bifurcation'}],
         ['canonical example, level sets LS5', '?example=lesson.level-sets.linear-programming.linear-program', 'linear-program', 'level-sets-linear-programming', {chapterId: 'level-sets', sectionId: 'linear-programming'}],

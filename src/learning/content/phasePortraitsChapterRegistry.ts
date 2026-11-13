@@ -2,12 +2,14 @@ import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
-import {bifurcationLesson, logisticMapLesson} from './phasePortraitsGuidedLessons';
+import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson} from './phasePortraitsGuidedLessons';
 
 export const PHASE_PORTRAITS_CHAPTER_ID = 'phase-portraits';
 
-/** Section id to the Demonstration of its activity (spec PP4, PP5: two sections on one Demonstration, in teaching order). Section ids are those of phasePortraitsChapter.ts; the phase-plane sections (PP1 to PP3) join with the phase-portrait graph. */
+/** Section id to the Demonstration of its activity (spec PP1, PP2, PP4, PP5, in teaching order: two sections on the phase-portrait Demonstration, then two on the logistic-map Demonstration). Section ids are those of phasePortraitsChapter.ts; PP3 (linearization) joins later. */
 export const phasePortraitsGuidedExampleDemonstrations = {
+    'linear-system': 'phase-portrait',
+    'pendulum': 'phase-portrait',
     'logistic-map': 'logistic-map',
     'bifurcation': 'logistic-map',
 } as const satisfies Record<string, DemonstrationId>;
@@ -16,6 +18,8 @@ export type PhasePortraitsSectionId = keyof typeof phasePortraitsGuidedExampleDe
 
 /** The catalog-format content of each section's activity; adapted to a LessonDefinition only when that section is requested. */
 const sectionContent = {
+    'linear-system': {id: 'phase-portraits-linear-system', content: () => linearSystemLesson},
+    'pendulum': {id: 'phase-portraits-pendulum', content: () => pendulumLesson},
     'logistic-map': {id: 'phase-portraits-logistic-map', content: () => logisticMapLesson},
     'bifurcation': {id: 'phase-portraits-bifurcation', content: () => bifurcationLesson},
 } as const;

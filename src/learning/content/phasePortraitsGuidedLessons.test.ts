@@ -410,7 +410,8 @@ describe('the numbers each step quotes are those of its scene, in sl and en', ()
     test('the chapter prose quotes the numbers the recomputation gives', () => {
         const sections = phasePortraitsChapter.sections;
         const prosePart = (index: number, language: Language) => [...sections[index].paragraphs, ...Object.values(sections[index].investigationPrompts ?? {})].map(paragraph => paragraph[language]).join(' ');
-        const [pp4, pp5] = [0, 1];
+        const [pp4, pp5] = ['logistic-map', 'bifurcation'].map(id => sections.findIndex(section => section.id === id));
+        expect([pp4, pp5]).not.toContain(-1);
         for (const language of ['sl', 'en'] as const) {
             const first = prosePart(pp4, language);
             const second = prosePart(pp5, language);
