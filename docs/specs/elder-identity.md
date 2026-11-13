@@ -24,7 +24,7 @@ The owner approved directions 1 to 3 of a proposal and asked for a preview befor
 
 ## Acceptance criteria
 
-- No outlined sprig remains: `welcome-botanical`, `workspace-botanical` and `demonstration-picker-botanical` draw generated paper-cut art or are removed, with their old stylesheet rules.
+- No outlined sprig remains: `welcome-botanical`, `workspace-botanical` and `demonstration-picker-botanical` draw generated paper-cut art or are removed, with their old stylesheet rules. (Outcome, 2026-11-13: all three were removed and nothing replaces them; the paper-cut replacements of this round were rejected.)
 - At 1366, 820 and 390px in both languages, Home, Demonstrations, Learn, one chapter page, one workspace and one guided lesson show no horizontal document overflow, and no artwork covers text or intercepts a click.
 - At 1600px and wider Home and Learn show the gutters and neither the sprig nor the hedge.
 - A workspace in presentation mode shows no elder artwork.
@@ -37,8 +37,8 @@ The owner approved directions 1 to 3 of a proposal and asked for a preview befor
 
 Owner decision, 2026-11-13: titles change site-wide to the serif Literata, self-hosted in `src/fonts/literata/` (variable roman, Latin and Latin Extended subsets, SIL OFL 1.1). A design exploration with Fraunces was tried first and rejected for its letterforms.
 
-- Titles in the header wordmark, Home, Demonstrations, catalogue cards, picker, Home carousel, Learn, chapter pages, activity context, guided lesson frames and the workspace heading use `--bezeg-font-display` and four size tokens (hero, page, section, item) from `src/shellTokens.css`. The Home headline is weight 700, other titles 600 to 700. Running text, controls and MathJax keep their faces.
-- The older outlined drawings on Home, the workspace heading and the picker are removed; the headline shoot and the lesson stem stay (next section).
+- Titles in the header wordmark, Home, Demonstrations, catalogue cards, picker, Home carousel, Learn, chapter pages, activity context, guided lesson frames and the workspace heading use `--bezeg-font-display` and four size tokens (hero, page, section, item) from `src/shellTokens.css`. Each page's one `h1` is weight 550 and every smaller title and the wordmark 600 (the polish round of 2026-11-13; [DESIGN.md](../../DESIGN.md#title-typography-literata) carries the shipped numbers). Running text, controls and MathJax keep their faces.
+- The older outlined drawings on Home (`welcome-botanical`), the workspace heading and the picker are removed with their stylesheet rules. Home below 1600px therefore shows no elder drawing; the header mark and, at 1600px and wider, the side botanicals carry the motif. The headline shoot and the lesson stem of the next section are not in the app (see Status).
 - Acceptance: every title renders in Literata with correct Slovenian letters (`document.fonts.check('700 40px Literata', 'jčšž')`), no title is clipped, no horizontal overflow at 1366, 820 and 390px, and no request goes to a font CDN.
 
 ## Headline shoot behind the text

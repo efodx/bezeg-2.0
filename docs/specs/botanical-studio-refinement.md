@@ -27,4 +27,9 @@ This is a visual refinement of the established product, with creative direction 
 
 The handler owns the shared font/header, workspace refinement, integration, review, acceptance and Git. A bounded worker owns Home and its carousel styles. Browser acceptance uses a production build of this checkout, not the supplied preview whose source revision is unknown. Evidence belongs in `docs/reviews/botanical-studio-refinement/`.
 
+## Later owner decisions (2026-11-13)
+
+- **Display face.** The owner chose Literata as the site's one display face on this layout; the Newsreader of the first pass is removed with its files. Home headline, featured title, workspace title and wordmark read `--bezeg-font-display`. Reason: one title voice across Home, workspace, Learn and chapters instead of two serifs. Details: [elder identity, title typography](elder-identity.md#title-typography-literata) and [DESIGN.md](../../DESIGN.md#title-typography-literata).
+- **Home drawing.** The outlined elderflower in the Home intro ("keep the existing elderflower as a restrained brand detail" above) was removed in the typography polish round that the owner asked an independent critic to lead: at 18 to 32% opacity it read as a watermark beside the headline and its outline style differed from the filled side botanicals. User impact: below 1600px the Home hero shows no elder drawing; the header mark stays, and the side botanicals show at 1600px and wider.
+
 The image study in the chat is an exploratory composition reference, not a source of new copy or shipping pixels. The existing mathematical preview media remains the content authority.
