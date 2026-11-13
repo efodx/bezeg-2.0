@@ -19,8 +19,8 @@ Keep tightly coupled cores with you; delegate tests and smoke. Run at most three
 
 **Budgets.** The project hook signals everyone after each tool call. Workers get `HANDOFF` at 135k (Haiku 78k) and return partial with a note. Continue from that note with a fresh worker when the old history is unnecessary.
 
-- `BUDGET SOFT` (175k): dispatch nothing new and start no new step. Finish, integrate and verify.
-- `BUDGET HANDOFF` (215k Opus, 190k others): send `HANDOFF` to running workers, collect notes, and close out.
+- `BUDGET SOFT` (175k; Fable 315k): dispatch nothing new and start no new step. Finish, integrate and verify.
+- `BUDGET HANDOFF` (215k Opus, 342k Fable, 190k others): send `HANDOFF` to running workers, collect notes, and close out.
 
 **Accept.** Diff against acceptance, confirm observed pre-change failures, apply [review routing](../agent-workflow.md#review-routing), run focused `just` checks (`just --list`; never bare `npm test`, `npx vitest` or `npx playwright`), and smoke when a route, control, lesson or rendering path changes. Record the [evaluation entry](../../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log).
 

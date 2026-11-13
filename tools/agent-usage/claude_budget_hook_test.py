@@ -52,6 +52,18 @@ class Hook(unittest.TestCase):
         self.main.write_text(assistant(190000) + '\n')
         self.assertIn('BUDGET HANDOFF', self.run_hook())
 
+    def test_fable_handler_thresholds_are_80_percent_higher(self):
+        self.main.write_text(assistant(314999, 'claude-fable-5-2') + '\n')
+        self.assertIsNone(self.run_hook())
+        self.main.write_text(assistant(315000, 'claude-fable-5-2') + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook())
+        self.main.write_text(assistant(341999, 'claude-fable-5-2') + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook())
+        self.main.write_text(assistant(342000, 'claude-fable-5-2') + '\n')
+        self.assertIn('BUDGET HANDOFF', self.run_hook())
+        self.main.write_text(assistant(472500, 'claude-fable-5-2') + '\n')
+        self.assertIn('passed 472,500', self.run_hook(env={'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}))
+
     def test_handler_scale_raises_both_handler_thresholds(self):
         scaled = {'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}
         self.main.write_text(assistant(262499, 'claude-opus-5-5') + '\n')

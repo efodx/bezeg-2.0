@@ -5,7 +5,7 @@ request input from its transcript and prints a message as additional context, so
 HANDOFF without the handler spending a turn on it. It prints nothing below the threshold or when
 telemetry is missing, and repeats on each call past a threshold, so a missed signal costs one
 tool call. Flags override thresholds for live tests. BEZEG_HANDLER_BUDGET_SCALE (a positive number,
-set per worktree in .claude/settings.local.json under "env") scales the handler's default thresholds.
+set per worktree in .claude/settings.local.json under "env") scales the handler's default thresholds, which depend on its model (handler_limits).
 """
 import argparse, json, os, sys
 from pathlib import Path
@@ -66,10 +66,18 @@ def handler_scale():
     return scale if scale > 0 else 1.0
 
 
+def handler_limits(model):
+    """Default (soft, hard) handler thresholds for a model, before BEZEG_HANDLER_BUDGET_SCALE."""
+    if 'fable' in model:
+        return 315000, 342000  # Owner decision 2026-11-14: 80% above the 175k / 190k of other non-Opus models.
+    return 175000, 215000 if 'opus' in model else 190000
+
+
 def handler_message(tokens, model, args):
     scale = handler_scale()
-    hard = args.hard or round((215000 if 'opus' in model else 190000) * scale)
-    soft = args.soft or round(175000 * scale)
+    soft_default, hard_default = handler_limits(model)
+    hard = args.hard or round(hard_default * scale)
+    soft = args.soft or round(soft_default * scale)
     if tokens >= hard:
         return (f'BUDGET HANDOFF: handler input {tokens:,} reached {hard:,}. Send HANDOFF to running workers, collect '
                 'their notes, and hand off now (docs/agent-workflow.md#handler-context-budget-claude).')
