@@ -1,0 +1,1667 @@
+[
+ {
+  "id": "bernstein",
+  "path": "/bernstein",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "complex-multiplication",
+  "path": "/complex-multiplication",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "Re",
+   "Im",
+   "z = 1 + i, w = izw = −1 + iarg: π/4 + π/2 = 3π/4krog: z; kvadrat: w; romb: zw"
+  ]
+ },
+ {
+  "id": "bezier",
+  "path": "/bezier/curve",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3"
+  ]
+ },
+ {
+  "id": "decasteljau",
+  "path": "/bezier/decasteljau",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p00",
+   "p10",
+   "p20",
+   "p30",
+   "p40",
+   "p01",
+   "p11",
+   "p21",
+   "p31",
+   "p02",
+   "p12",
+   "p22",
+   "p03",
+   "p13",
+   "p04"
+  ]
+ },
+ {
+  "id": "decasteljau-alternative",
+  "path": "/bezier/decasteljau2",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "p4",
+   "",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "affine",
+  "path": "/bezier/affine",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "supported-rotation-steps",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3"
+  ]
+ },
+ {
+  "id": "subdivision",
+  "path": "/bezier/subdivision-2",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p00",
+   "p10",
+   "p20",
+   "p30",
+   "p01",
+   "p11",
+   "p21",
+   "p02",
+   "p12",
+   "p03"
+  ]
+ },
+ {
+  "id": "repeated-subdivision",
+  "path": "/bezier/subdivision",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3"
+  ]
+ },
+ {
+  "id": "extrapolation",
+  "path": "/bezier/extrapolation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   ""
+  ]
+ },
+ {
+  "id": "elevation",
+  "path": "/bezier/elevation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "exact-degree-elevation",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3"
+  ]
+ },
+ {
+  "id": "reduction",
+  "path": "/bezier/reduction",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "Točno nižljiva (toleranca 10⁻⁹)",
+   "Največja napaka (vzorčena): 0."
+  ]
+ },
+ {
+  "id": "arc-length-param",
+  "path": "/bezier/arc-length",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "t = 0, s(t) = 0",
+   "L = 6,390976",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "bezier-clipping",
+  "path": "/bezier/clipping",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "rational",
+  "path": "/rational/base",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "parameter-sweep",
+  "text": []
+ },
+ {
+  "id": "rational-decasteljau",
+  "path": "/rational/rational-decasteljau",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p00",
+   "p10",
+   "p20",
+   "p30",
+   "p01",
+   "p11",
+   "p21",
+   "p02",
+   "p12",
+   "p03"
+  ]
+ },
+ {
+  "id": "rational-elevation",
+  "path": "/rational/rational-elevation",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "exact-degree-elevation",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "w0=1.00",
+   "w1=2.00",
+   "w2=1.00",
+   "w3=1.00"
+  ]
+ },
+ {
+  "id": "rational-extrapolation",
+  "path": "/rational/rational-extrapolation",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "w0=1.00",
+   "w1=2.00",
+   "w2=1.00",
+   "w3=1.00",
+   ""
+  ]
+ },
+ {
+  "id": "rational-subdivision",
+  "path": "/rational/rational-subdivision",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "farin",
+  "path": "/rational/farin-points",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "pointer-drag",
+  "text": [
+   "0.67",
+   "0.33",
+   "0.50"
+  ]
+ },
+ {
+  "id": "circle",
+  "path": "/rational/circlen",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p0",
+   "p1",
+   "p2",
+   "p0",
+   "p1",
+   "p2"
+  ]
+ },
+ {
+  "id": "spline-cn",
+  "path": "/spline/spline",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0(1)",
+   "p1(1)",
+   " p2(1)=p0(2)",
+   " p2(2)=p0(3)",
+   " p2(3)=p0(4)",
+   " p2(4)=p0(5)",
+   "p2(5)",
+   "p1(2)",
+   "p1(3)",
+   "p1(4)",
+   "p1(5)"
+  ]
+ },
+ {
+  "id": "spline-c1",
+  "path": "/spline/c1spline",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0(1)",
+   "p1(1)",
+   "p1(2)",
+   "p1(3)",
+   "p1(4)",
+   "p2(4)",
+   " p2(1)=p0(2)",
+   " p2(2)=p0(3)",
+   " p2(3)=p0(4)"
+  ]
+ },
+ {
+  "id": "spline-c2",
+  "path": "/spline/c2spline",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p−1",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "p4",
+   "p5",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "spline-g1",
+  "path": "/spline/g1spline",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0(1)",
+   "p1(1)",
+   " p2(1)=p0(2)",
+   " p2(2)=p0(3)",
+   "p2(3)",
+   "p1(2)",
+   "p1(3)"
+  ]
+ },
+ {
+  "id": "spline-g1-symmetric",
+  "path": "/spline/g1-sym-spline",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0(1)",
+   "p1(1)",
+   "p1(2)",
+   "p1(3)",
+   "p1(4)",
+   "p2(4)",
+   " p2(1)=p0(2)",
+   " p2(2)=p0(3)",
+   " p2(3)=p0(4)"
+  ]
+ },
+ {
+  "id": "ph-cubic",
+  "path": "/ph/cubic",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "Dolžina loka: 10,333"
+  ]
+ },
+ {
+  "id": "ph-quintic",
+  "path": "/ph/quintic",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "p4",
+   "p5",
+   "Dolžina loka: 9,233"
+  ]
+ },
+ {
+  "id": "spline-parameterization",
+  "path": "/param/param/alphaparam2",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p−1",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "p4",
+   "p5",
+   "p6",
+   "p7",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "weighted-parameterization",
+  "path": "/param/param/alphaparam",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "uniform-parameterization",
+  "path": "/param/param/uniform",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "−2",
+   "−3",
+   "−4",
+   "p0",
+   "p1",
+   "p2",
+   "p3",
+   "p4",
+   "p5",
+   "Dolžina loka: 16,717",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "curve-parametric",
+  "path": "/curve-geometry/parametric",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Hitrost r′ = (1, 1), velikost 1,4142\nDolžina loka: 8\nPloščina: 9,4248"
+  ]
+ },
+ {
+  "id": "curve-curvature",
+  "path": "/curve-geometry/curvature",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "T",
+   "N",
+   "Ukrivljenost κ = 2Krivinski polmer R = 0,5Smerni kot tangente φ = 0°"
+  ]
+ },
+ {
+  "id": "curve-comb",
+  "path": "/curve-geometry/comb",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Stik 1: ukrivljenost κ levo 1,3333, desno 0,6667, skok −0,6667"
+  ]
+ },
+ {
+  "id": "curve-evolute",
+  "path": "/curve-geometry/evolute",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "T",
+   "N",
+   "Ukrivljenost κ = 0,5247Krivinski polmer R = 1,9057Smerni kot tangente φ = 50,1944°Točka evolute E = (−0,864, 1,58)",
+   "E"
+  ]
+ },
+ {
+  "id": "curve-offset",
+  "path": "/curve-geometry/offset",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Razdalja d = −1.",
+   "Osti vzporednice: 2.",
+   "Črtkana vzporednica je vzorčena, zato približna.",
+   ""
+  ]
+ },
+ {
+  "id": "curve-envelope",
+  "path": "/curve-geometry/envelope",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Število premic: 16.",
+   "t = 0,5.",
+   ""
+  ]
+ },
+ {
+  "id": "interp-lagrange",
+  "path": "/interpolation/lagrange",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "Lagrange: t = 1,5 (na [0, 3]), uteži −0,0625; 0,5625; 0,5625; −0,0625, točka (2, 2,8125)\nBézier: t = 0,5 (na [0, 1]), uteži 0,125; 0,375; 0,375; 0,125, točka (2, 1,875)"
+  ]
+ },
+ {
+  "id": "interp-hermite",
+  "path": "/interpolation/hermite",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Catmull-Romov zlepek, napetost 1"
+  ]
+ },
+ {
+  "id": "interp-runge",
+  "path": "/interpolation/runge",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "Interpolacija, stopnja n = 10, Enakomerno razporejene točkef: Rungejeva funkcija 1/(1 + 25x²)Največja napaka na mreži: 1,916 pri x = 0,9402Interpolacijske točke so označene s pikami na grafu f."
+  ]
+ },
+ {
+  "id": "interp-least-squares",
+  "path": "/interpolation/least-squares",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Prileganje: polinom stopnje 1y = 0,9x + 0,9Vsota kvadratov ostankov: 0,7Pike so podatki, navpične črte so ostanki, ploščina kvadrata je ostanek na kvadrat."
+  ]
+ },
+ {
+  "id": "interp-subdivision",
+  "path": "/interpolation/subdivision",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "Chaikinovo pravilo, korak 1 od 6, 8 oglišč"
+  ]
+ },
+ {
+  "id": "bspline-basis",
+  "path": "/bspline/basis",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "0 (×3)",
+   "1",
+   "2 (×3)",
+   "t = 0,5: neničelne bazne funkcije stopnje 2N0,2 = 0,25   N1,2 = 0,625   N2,2 = 0,125vsota = 1",
+   "definicijsko območje [0, 2]"
+  ]
+ },
+ {
+  "id": "bspline-deboor",
+  "path": "/bspline/deboor",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "t = 0,5, vozelni razpon [u2, u3) = [0, 1)raven 0: P0 = (0; 0)   P1 = (1; 2)   P2 = (3; 2)raven 1: P11 = (0,5; 1)   P21 = (1,5; 2)razmerja α11 = 0,5   α21 = 0,25raven 2: P22 = (1; 1,5)razmerja α22 = 0,5točka krivulje C(t) = (1; 1,5)"
+  ]
+ },
+ {
+  "id": "bspline-insertion",
+  "path": "/bspline/insertion",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "bspline-extraction",
+  "path": "/bspline/extraction",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": []
+ },
+ {
+  "id": "bspline-nurbs",
+  "path": "/bspline/nurbs",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": []
+ },
+ {
+  "id": "bspline-blossom",
+  "path": "/bspline/blossom",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f(0; 0,5)"
+  ]
+ },
+ {
+  "id": "patch-tensor",
+  "path": "/patches/tensor",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "surface-orbit",
+  "text": []
+ },
+ {
+  "id": "patch-decasteljau",
+  "path": "/patches/decasteljau",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "surface-orbit",
+  "text": []
+ },
+ {
+  "id": "patch-derivatives",
+  "path": "/patches/derivatives",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "surface-orbit",
+  "text": []
+ },
+ {
+  "id": "patch-subdivision",
+  "path": "/patches/subdivision",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "surface-orbit",
+  "text": []
+ },
+ {
+  "id": "patch-joins",
+  "path": "/patches/joins",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "surface-orbit",
+  "text": []
+ },
+ {
+  "id": "patch-triangular",
+  "path": "/patches/triangular",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "surface-orbit",
+  "text": []
+ },
+ {
+  "id": "patch-coons",
+  "path": "/patches/coons",
+  "ann": "retain-surface-view-native-labels",
+  "mode": "pointer-drag",
+  "text": []
+ },
+ {
+  "id": "linear-function",
+  "path": "/functions/linear",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   " Δx = 2 ",
+   " Δy = 4 ",
+   "y = 2x + 1"
+  ]
+ },
+ {
+  "id": "exponential-function",
+  "path": "/functions/exponential",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f(x) = 2^x"
+  ]
+ },
+ {
+  "id": "trigonometric-functions",
+  "path": "/functions/trigonometric",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f(x) = sin(x)"
+  ]
+ },
+ {
+  "id": "function-transformation",
+  "path": "/functions/transformations",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "y = −2 f(0,5(x − 3)) + 1(u, f(u)) = (2; 4) → (7; −7)"
+  ]
+ },
+ {
+  "id": "function-inverse",
+  "path": "/functions/inverse",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f(x) = x² (x ≥ 0), f⁻¹(x) = √xP = (2; 4) → P′ = (4; 2)naklon v P: 4; naklon v P′: 0,25"
+  ]
+ },
+ {
+  "id": "polynomial-zeros",
+  "path": "/functions/polynomial-zeros",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "×2",
+   "p(x) = (x + 2)(x − 1)²stopnja 3"
+  ]
+ },
+ {
+  "id": "rational-function",
+  "path": "/functions/rational-functions",
+  "ann": "retain-weight-text-hide-point-names",
+  "mode": "parameter-sweep",
+  "text": [
+   "x = 2",
+   "y = x + 2",
+   "r(x)/q(x) = 0,375",
+   "f(x) = (x + 1)(x − 1) / (x − 2)stopnja števca 2, imenovalca 1"
+  ]
+ },
+ {
+  "id": "geometric-series",
+  "path": "/functions/geometric-series",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Sₙ = a(1 − qⁿ)/(1 − q)a = 1, q = 0,5, n = 1delna vsota Sₙ = 1limita a/(1 − q) = 2napaka |L − Sₙ| = 1levi stolpec: člen; desni stolpec: delna vsota Sₙ"
+  ]
+ },
+ {
+  "id": "conic-focal",
+  "path": "/functions/conics",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "|PF| = ε·|Pd|ε = 0,8, ℓ = 1,8: elipsa|PF| = 5, |Pd| = 6,25, razmerje 0,8|PF| + |PF₂| = 10"
+  ]
+ },
+ {
+  "id": "continuity",
+  "path": "/functions/continuity",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "−1",
+   "−2",
+   "1",
+   "2",
+   "3",
+   "4",
+   "−1",
+   "(1,3−a)",
+   "(1,a)",
+   "skok 1 pri x = 1limita z leve 1, z desne 2",
+   "−3",
+   "−4"
+  ]
+ },
+ {
+  "id": "derivative",
+  "path": "/functions/derivative",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f(x) = x²naklon sekante 3, f′(x₀) = 2"
+  ]
+ },
+ {
+  "id": "definite-integral",
+  "path": "/functions/integral",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = x²vsota 2,037, integral 2,6667"
+  ]
+ },
+ {
+  "id": "area-between-curves",
+  "path": "/functions/area-between",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f",
+   "g",
+   "∫(g − f) dx = 4,8975ploščina = 4,8975f(x) = (x − 2)²g(x) = 3 − (x − 2)²"
+  ]
+ },
+ {
+  "id": "arc-length",
+  "path": "/functions/arc-length",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = sin xlomljenka 3,7242, lok 3,8202"
+  ]
+ },
+ {
+  "id": "bisection",
+  "path": "/analysis/bisection",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = x² − 2korak 1, širina 0,5"
+  ]
+ },
+ {
+  "id": "root-finding",
+  "path": "/analysis/root-finding",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = x² − 2korak 1, napaka 0,085786437627"
+  ]
+ },
+ {
+  "id": "quadrature",
+  "path": "/analysis/quadrature",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "f(x) = sin xn = 2, približek 1,5708, napaka 0,4292napaka(n/2) / napaka(n) = 4,66"
+  ]
+ },
+ {
+  "id": "euler-method",
+  "path": "/analysis/euler-method",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "y' = yh = 0,5, y(1) ≈ 2,25, napaka 0,4683napaka(2h) / napaka(h) = 1,53"
+  ]
+ },
+ {
+  "id": "mean-value",
+  "path": "/analysis/mean-value",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = x²naklon sekante 2, tangente 1"
+  ]
+ },
+ {
+  "id": "accumulation",
+  "path": "/analysis/accumulation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "+",
+   "f(x) = sin xf: polna črtaA: črtkana črtaA(x) = 1,4161 (s predznakom)naklon tangente na A v točki x: 0,9093"
+  ]
+ },
+ {
+  "id": "darboux",
+  "path": "/analysis/darboux",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = x²n = 4, integral = 2,6667L = 1,75, U = 3,75poln: spodnja vsota L; črtkan: zgornja vsota U"
+  ]
+ },
+ {
+  "id": "extrema",
+  "path": "/analysis/extrema",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "−",
+   "+",
+   "f(−1) = 1krajiščelokalni maksimum",
+   "f(2) = 4krajiščelokalni maksimum, globalni maksimum",
+   "f(0) = 0f′ = 0lokalni minimum, globalni minimum",
+   "f(x) = x²a = −1, b = 2globalni min 0 pri x = 0; globalni maks 4 pri x = 2kvadrat: krajišče; romb: stacionarna točka; trikotnik: ostri vogalzgoraj: predznak f′ na delu (+ narašča, − pada)"
+  ]
+ },
+ {
+  "id": "convexity",
+  "path": "/analysis/convexity",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = x²a = −1, b = 1,5, t = 0,5sklep: skritpolna črta: tetiva; črtkana črta: tangenta"
+  ]
+ },
+ {
+  "id": "taylor",
+  "path": "/analysis/taylor",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "f(x) = eˣc = 0, n = 2, x = 1Tₙ(x) = 2,5, f(x) = 2,7183napaka |f(x) − Tₙ(x)| = 0,2183ocena napake: skritapolna črta: f; črtkana črta: Tₙ; navpična črta pri x: napaka"
+  ]
+ },
+ {
+  "id": "sequence",
+  "path": "/analysis/sequence",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "N = 5",
+   "aₙ = 1/nε = 0,3, L = 0, N = 5prikazani členi: 16, v pasu: 13certifikat: N delujekrogec: člen v pasu; križec: člen izven pasu"
+  ]
+ },
+ {
+  "id": "uniform-convergence",
+  "path": "/analysis/uniform-convergence",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "fₙ(x) = xⁿ na [0; 0,8]n = 5, x = 0,5, ε = 0,1pri x: napaka 0,03125, N(x) = 4sup |fₙ − f| = 0,32768, dosežen pri x = 0,8skupni N = 11polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x"
+  ]
+ },
+ {
+  "id": "fourier-series",
+  "path": "/analysis/fourier-series",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Fourierova vrsta: f(x) = sgn x, x ∈ (−π, π)N = 11, x = 0,5, ε = 0,1Sₙ(x) = 0,90241, f(x) = 1, napaka 0,097589Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
+  ]
+ },
+ {
+  "id": "fourier-coefficients",
+  "path": "/analysis/fourier-coefficients",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Produkt f · cos xa₁ = −1,27324Integral kvadrata 6,57974; Parsevalova vsota 6,57967polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
+  ]
+ },
+ {
+  "id": "epicycles",
+  "path": "/analysis/epicycles",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": []
+ },
+ {
+  "id": "fixed-point",
+  "path": "/analysis/fixed-point",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "x1",
+   "T(x) = (x + 1) / 2korak k = 1, xₖ = 0,5ocena napake: skritakrogec: približek; križec: negibna točka"
+  ]
+ },
+ {
+  "id": "prob-density",
+  "path": "/probability/density",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "X ∼ N(0; 1²)Ploščina pod gostoto med a in b: 68,27 %"
+  ]
+ },
+ {
+  "id": "prob-binomial-normal",
+  "path": "/probability/binomial-normal",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "X ∼ B(20; 0,5)Povprečje 10, σ = 2,24P(X ≤ 8) = 0,25172"
+  ]
+ },
+ {
+  "id": "prob-clt",
+  "path": "/probability/clt",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Standardizirana vsota n = 3 neodvisnih kopijKolmogorova razdalja K_n = 0,02492 (le za to obliko in ta n)"
+  ]
+ },
+ {
+  "id": "prob-summary",
+  "path": "/probability/summary",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "sredina",
+   "mediana",
+   "Število vrednosti: 7"
+  ]
+ },
+ {
+  "id": "prob-correlation",
+  "path": "/probability/correlation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "regresijska premica za y",
+   "Razsevni diagram, točk: 4Korelacijski koeficient r = 0,8468"
+  ]
+ },
+ {
+  "id": "linear-map",
+  "path": "/linear-map",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "a₁ = (2, 1),  a₂ = (−1, 1)"
+  ]
+ },
+ {
+  "id": "complex-reciprocal",
+  "path": "/complex-reciprocal",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Re",
+   "Im",
+   "z = 0,5 + 0,5i, w = 2 + iz̄ = 0,5 − 0,5i1/z = 1 − ikrog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'"
+  ]
+ },
+ {
+  "id": "complex-roots",
+  "path": "/complex-roots",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Re",
+   "Im",
+   "w = 2i, n = 3z₀ = 1,0911 + 0,63iz₁ = −1,0911 + 0,63iz₂ = −1,2599ikvadrat: w; krog: koren z_k; romb: preizkusna točka z"
+  ]
+ },
+ {
+  "id": "triangle-centres",
+  "path": "/triangle-centres",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "Vrsta trikotnika: ostrokotni"
+  ]
+ },
+ {
+  "id": "inscribed-angle",
+  "path": "/inscribed-angle",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "∠APB = 66,8°; ∠ACB = 66,8°; središčni kot = 133,6°"
+  ]
+ },
+ {
+  "id": "euler-line",
+  "path": "/euler-line",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "Eulerjeva premica: O, G in H so kolinearne"
+  ]
+ },
+ {
+  "id": "simson-line",
+  "path": "/simson-line",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Nožišča D, E, F: kolinearna"
+  ]
+ },
+ {
+  "id": "inversion",
+  "path": "/inversion",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "Krožnica mimo središča C → krožnica"
+  ]
+ },
+ {
+  "id": "orientation",
+  "path": "/compgeo/orientation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "+8: levi zavoj"
+  ]
+ },
+ {
+  "id": "polygon-area",
+  "path": "/compgeo/polygon-area",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "+12",
+   "+18",
+   "+12"
+  ]
+ },
+ {
+  "id": "convex-hull",
+  "path": "/compgeo/convex-hull",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "point-in-polygon",
+  "path": "/compgeo/point-in-polygon",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "1"
+  ]
+ },
+ {
+  "id": "hull-robustness",
+  "path": "/compgeo/hull-robustness",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "bezier-hulls",
+  "path": "/compgeo/bezier-hulls",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "ear-clipping",
+  "path": "/compgeo/ear-clipping",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "-",
+  "text": []
+ },
+ {
+  "id": "point-set-triangulation",
+  "path": "/compgeo/point-set-triangulation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": []
+ },
+ {
+  "id": "delaunay",
+  "path": "/compgeo/delaunay",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "neustrezen rob"
+  ]
+ },
+ {
+  "id": "voronoi",
+  "path": "/compgeo/voronoi",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "↓",
+   "←",
+   "↓",
+   "→",
+   "→",
+   "↑",
+   "↑",
+   "↑",
+   "←"
+  ]
+ },
+ {
+  "id": "voronoi-degenerate",
+  "path": "/compgeo/voronoi-degenerate",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "pointer-drag",
+  "text": [
+   "↓",
+   "←",
+   "↓",
+   "→",
+   "→",
+   "↑",
+   "↑",
+   "←"
+  ]
+ },
+ {
+  "id": "interval-sweep",
+  "path": "/compgeo/interval-sweep",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "a",
+   "b",
+   "c",
+   "d",
+   "e"
+  ]
+ },
+ {
+  "id": "segment-intersections",
+  "path": "/compgeo/segment-intersections",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "s1",
+   "s2",
+   "s3",
+   "s4"
+  ]
+ },
+ {
+  "id": "monotone-partition",
+  "path": "/compgeo/monotone-partition",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "v6 začetno",
+   "v4 začetno",
+   "v5 zlivno",
+   "v2 razcepno"
+  ]
+ },
+ {
+  "id": "monotone-triangulation",
+  "path": "/compgeo/monotone-triangulation",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": [
+   "v4 zgornje oglišče",
+   "v5 leva veriga",
+   "v2 leva veriga",
+   "v3 spodnje oglišče"
+  ]
+ },
+ {
+  "id": "fortune",
+  "path": "/compgeo/fortune",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "discrete-exact-steps",
+  "text": []
+ },
+ {
+  "id": "projective-cross-ratio",
+  "path": "/projective/cross-ratio",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Dvorazmerje izvirnih točk (A, B; C, D) = 9/8, decimalno 1,125",
+   "Dvorazmerje slik (A′, B′; C′, D′) = 9/8, decimalno 1,125",
+   ""
+  ]
+ },
+ {
+  "id": "projective-pascal",
+  "path": "/projective/pascal",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "-",
+  "text": []
+ },
+ {
+  "id": "projective-pole-polar",
+  "path": "/projective/pole-polar",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": []
+ },
+ {
+  "id": "projective-five-point",
+  "path": "/projective/five-point",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "w² = 1/2, w ≈ 0,7071"
+  ]
+ },
+ {
+  "id": "projective-three-views",
+  "path": "/projective/three-views",
+  "ann": "hide-point-names-retain-concept-text",
+  "mode": "parameter-sweep",
+  "text": [
+   "Izvirna ravnina",
+   "Slika: elipsa",
+   "",
+   "",
+   "L: y = 2"
+  ]
+ }
+]
