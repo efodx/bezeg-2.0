@@ -6,7 +6,8 @@ import {triangleSolverPresetCollection} from "./trigPresetCollection";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
+import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import type {LessonAction} from "../../learning/model";
@@ -145,8 +146,6 @@ const DATA_FIELDS = {
     asa: [{name: "angleA", kind: "angle"}, {name: "angleB", kind: "angle"}, {name: "c", kind: "side"}],
     ssa: [{name: "a", kind: "side"}, {name: "b", kind: "side"}, {name: "angleA", kind: "angle"}],
 } as const satisfies Record<string, readonly DataField[]>;
-/** Counts instances so that the vertex help id of two graphs on one page never collides. */
-let helpInstances = 0;
 const FIELD_SYMBOL: Readonly<Record<string, string>> = {a: "a", b: "b", c: "c", angleA: "A", angleB: "B"};
 
 /**
@@ -168,7 +167,6 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     /** The view the board was last framed for: "fixed" for sides and circle, the state key in solve mode (so a user zoom is kept). */
     private framedKey = "";
     private readonly status = new SettledReadout();
-    private readonly vertexHelpId = `triangle-solver-vertex-help-${++helpInstances}`;
 
     override getInitialState(): TriangleSolverGraphState {
         return {initialized: false, ...DEFAULT_TRIANGLE_STATE};
@@ -792,29 +790,27 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             for (const field of DATA_FIELDS[state.data.type]) {
                 const side = field.kind === "side";
                 commands.push(
-                    <NumberInput key={`${state.data.type}-${field.name}`} label={this.dataLabel(field)} value={this.dataValue(field.name)}
-                                 min={side ? SIDE_MIN : SOLVER_ANGLE_MIN} max={side ? SIDE_MAX : SOLVER_ANGLE_MAX}
-                                 step={side ? 0.25 : 1} bigStep={side ? 1 : 10} grid={side ? 0.25 : 1} integer={!side} decimals={side ? 2 : 0}
-                                 help={side ? t("triangle_solver_side_help") : t("triangle_solver_solve_help")}
-                                 onChange={value => this.editData(field.name, field.kind, value)}/>,
+                    <Slider key={`${state.data.type}-${field.name}`} customText={this.dataLabel(field)} value={this.dataValue(field.name) ?? (side ? SIDE_MIN : SOLVER_ANGLE_MIN)}
+                            min={side ? SIDE_MIN : SOLVER_ANGLE_MIN} max={side ? SIDE_MAX : SOLVER_ANGLE_MAX}
+                            step={side ? 0.25 : 1} bigStep={side ? 1 : 10} grid={side ? 0.25 : 1} decimals={side ? 2 : 0}
+                            onChange={value => this.editData(field.name, field.kind, value)}/>,
                 );
             }
             return commands;
         }
-        commands.push(<p key="vertex-help" id={this.vertexHelpId} className="number-input-help">{t("triangle_solver_vertex_help", {
-            value0: formatNumber(VERTEX_X_MIN, currentLanguage()), value1: formatNumber(VERTEX_X_MAX, currentLanguage()),
-            value2: formatNumber(VERTEX_Y_MIN, currentLanguage()), value3: formatNumber(VERTEX_Y_MAX, currentLanguage())})}</p>);
-        for (const vertex of VERTICES) {
-            for (const axis of ["x", "y"] as const) {
-                commands.push(
-                    <NumberInput key={`${vertex}-${axis}`} label={t("triangle_solver_vertex_label", {value0: vertex, value1: axis})}
-                                 value={state[vertex][axis]} min={axis === "x" ? VERTEX_X_MIN : VERTEX_Y_MIN}
-                                 max={axis === "x" ? VERTEX_X_MAX : VERTEX_Y_MAX} step={VERTEX_STEP}
-                                 bigStep={VERTEX_BIG_STEP} integer decimals={0} describedBy={this.vertexHelpId}
-                                 onChange={value => this.editVertex(vertex, axis, value)}/>,
-                );
-            }
-        }
+        commands.push(<div key="vertices" className="inspector-group">
+            <PointListInput title={t("triangle_solver_vertices_title")} points={VERTICES.map(vertex => [state[vertex].x, state[vertex].y] as const)}
+                            pointLabel={index => t("triangle_solver_vertex_name", {value0: VERTICES[index]})} step={VERTEX_STEP} bigStep={VERTEX_BIG_STEP} integer decimals={0}
+                            onCommit={(index, [x, y]) => {
+                                if (x < VERTEX_X_MIN || x > VERTEX_X_MAX || y < VERTEX_Y_MIN || y > VERTEX_Y_MAX) return t("triangle_solver_vertex_rejected", {
+                                    value0: formatNumber(VERTEX_X_MIN, currentLanguage()), value1: formatNumber(VERTEX_X_MAX, currentLanguage()),
+                                    value2: formatNumber(VERTEX_Y_MIN, currentLanguage()), value3: formatNumber(VERTEX_Y_MAX, currentLanguage())});
+                                const vertex = VERTICES[index];
+                                if (x !== state[vertex].x && !this.editVertex(vertex, "x", x)) return t("number_rejected_hint");
+                                if (y !== state[vertex].y && !this.editVertex(vertex, "y", y)) return t("number_rejected_hint");
+                            }}/>
+            <p className="inspector-help">{t("triangle_solver_vertex_help")}</p>
+        </div>);
         return commands;
     }
 

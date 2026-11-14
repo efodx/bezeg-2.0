@@ -29,12 +29,12 @@ const setMode = (mode: WavesMode): LessonAction => ({kind: 'waves', operation: '
 const setTime = (value: number): LessonAction => ({kind: 'waves', operation: 'set-time', t: value});
 const setComponents = (fields: Omit<ComponentsAction, 'kind' | 'operation'>): LessonAction => ({kind: 'waves', operation: 'set-components', ...fields});
 const setSampling = (fields: Omit<SamplingAction, 'kind' | 'operation'>): LessonAction => ({kind: 'waves', operation: 'set-sampling', ...fields});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+const field = (label: string) => (screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const toggle = (key: 'waves_graph_show_phasors' | 'waves_graph_show_envelope' | 'waves_graph_show_alias' | 'waves_graph_show_join' | 'waves_graph_show_sinc') =>
     act(() => { fireEvent.click(field(t(key))); });
 const choose = (mode: WavesMode) => act(() => { fireEvent.change(field(t('waves_graph_mode_label')), {target: {value: mode}}); });
-const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider'), {target: {value: String(value)}}); });
+const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider', {name: 'Čas t'}), {target: {value: String(value)}}); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-waves-status]')?.textContent;
 const stateOf = (graph: WavesGraph) => JSON.parse(JSON.stringify({...graph.state, time: graph.time, playing: graph.playing})) as Record<string, unknown>;

@@ -39,7 +39,8 @@ type Shown = {elType: string; evalVisProp(name: string): unknown; visProp: Recor
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-triangle-status]')!.textContent;
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** A slider's exact field is named "<label>, vrednost"; a point row field is found by its own label. */
+const field = (label: string) => (screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement;
 /** Board objects without the point and tick labels, which the board creates and drops itself when the view changes. */
 const countObjects = (board: JXG.Board) => (board.objectsList as unknown as Shown[]).filter(o => o.elType !== 'label').length;
 const dragListeners = (point: JXG.Point) => (point as EventedPoint).eventHandlers.drag?.length ?? 0;
@@ -203,11 +204,11 @@ test('the other data types solve and draw: SSS, SAS and ASA', () => {
 test('keyboard steps move a vertex coordinate by one grid unit, Shift or a Page key by five', () => {
     const {graph} = mountGraph();
     expect([VERTEX_STEP, VERTEX_BIG_STEP]).toEqual([1, 5]);
-    act(() => { fireEvent.keyDown(field('Oglišče A, koordinata x'), {key: 'ArrowUp'}); });
+    act(() => { fireEvent.keyDown(field('Oglišče A, x'), {key: 'ArrowUp'}); });
     expect(graph.state.A).toEqual({x: 1, y: 0});
-    act(() => { fireEvent.keyDown(field('Oglišče A, koordinata x'), {key: 'ArrowDown', shiftKey: true}); });
-    expect(graph.state.A).toEqual({x: VERTEX_X_MIN, y: 0}); // 1 - 5 = -4 is clamped
-    act(() => { fireEvent.keyDown(field('Oglišče C, koordinata y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('Oglišče A, x'), {key: 'ArrowDown', shiftKey: true}); });
+    expect(graph.state.A).toEqual({x: 1, y: 0}); // 1 - 5 = -4 is outside the range: refused, never clamped
+    act(() => { fireEvent.keyDown(field('Oglišče C, y'), {key: 'PageUp'}); });
     expect(graph.state.C).toEqual({x: 2, y: 9});
     expect(graph.handles().C!.Y()).toBe(9);
     expect(readout('side-b')).toMatch(/^√/);
@@ -287,7 +288,7 @@ test('the status, labels and readouts follow a language switch', () => {
     act(() => { setLanguage('en'); });
     expect(status()).toBe('The triangle is acute; the angle at C is acute: c² = 49, a² + b² = 61, correction 2·CA·CB = 12.');
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('The triangle is acute');
-    expect(screen.getByLabelText('Vertex A, coordinate x')).toBeInTheDocument();
+    expect(screen.getByLabelText('Vertex A, x')).toBeInTheDocument();
     expect(readout('side-a')).toBe('√41 ≈ 6.40312');
     expect(texts(graph)).toContain('correction 2·CA·CB = 12');
     act(() => { graph.setState({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
@@ -347,40 +348,37 @@ test('vertices dragged or typed stay left of the bars and inside the fixed view'
     expect(VERTEX_X_MAX).toBeLessThan(BAR_X);
     // typed values outside the range are refused by the field (with a range hint), so the state keeps its last valid vertex
     solve(graph, {C: {x: 2, y: 4}});
-    act(() => { enterNumber(field('Oglišče C, koordinata x'), '12'); });
+    act(() => { enterNumber(field('Oglišče C, x'), '12'); });
     expect(graph.state.C.x).toBe(2);
-    act(() => { enterNumber(field('Oglišče C, koordinata x'), '-9'); });
+    act(() => { enterNumber(field('Oglišče C, x'), '-9'); });
     expect(graph.state.C.x).toBe(2);
-    act(() => { enterNumber(field('Oglišče C, koordinata x'), '8'); });
+    act(() => { enterNumber(field('Oglišče C, x'), '8'); });
     expect(graph.state.C.x).toBe(VERTEX_X_MAX);
-    act(() => { fireEvent.keyDown(field('Oglišče C, koordinata x'), {key: 'ArrowUp'}); });
+    act(() => { fireEvent.keyDown(field('Oglišče C, x'), {key: 'ArrowUp'}); });
     expect(graph.state.C.x).toBe(VERTEX_X_MAX);
-    act(() => { fireEvent.keyDown(field('Oglišče B, koordinata y'), {key: 'PageUp'}); });
-    act(() => { fireEvent.keyDown(field('Oglišče B, koordinata y'), {key: 'PageUp'}); });
-    act(() => { fireEvent.keyDown(field('Oglišče B, koordinata y'), {key: 'PageUp'}); });
-    expect(graph.state.B.y).toBe(VERTEX_Y_MAX);
+    act(() => { fireEvent.keyDown(field('Oglišče B, y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('Oglišče B, y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('Oglišče B, y'), {key: 'PageUp'}); });
+    expect(graph.state.B.y).toBe(VERTEX_Y_MAX - 1); // the third step would pass 11: refused, never clamped
     dragHandleTo(graph.handles().B!, 3, -30);
     expect(graph.state.B).toEqual({x: 3, y: VERTEX_Y_MIN});
-    expect(field('Oglišče C, koordinata x').getAttribute('aria-valuemax')).toBe(`${VERTEX_X_MAX}`);
 });
 
-test('every vertex field points to the vertex help and the side fields show their range', () => {
+test('the vertex rows state the grid, a typed value outside the range is refused with the range, and the side sliders carry their range', () => {
     const {graph} = mountGraph();
-    const help = document.querySelector('[id^="triangle-solver-vertex-help"]')!;
-    expect(help.textContent).toContain('Puščici gor in dol');
-    // the range of both coordinates is stated, from the same constants the fields and the drag clamp use
+    const help = [...document.querySelectorAll('.inspector-help')].find(node => node.textContent?.includes('celoštevilski mreži'))!;
+    expect(help.textContent).toContain('Povlečete jih lahko tudi na graf');
+    // the refusal states both ranges, from the same constants the rows and the drag clamp use
     expect(VERTEX_X_MIN).toBe(-2);
     expect([VERTEX_X_MAX, VERTEX_Y_MIN, VERTEX_Y_MAX]).toEqual([8, -7, 11]);
-    expect(help.textContent).toMatch(/koordinata x od [−-]2 do 8, koordinata y od [−-]7 do 11/);
-    for (const vertex of ['A', 'B', 'C']) {
-        for (const axis of ['x', 'y']) {
-            expect(field(`Oglišče ${vertex}, koordinata ${axis}`).getAttribute('aria-describedby')).toContain(help.id);
-        }
-    }
+    act(() => { enterNumber(field('Oglišče C, x'), '12'); });
+    expect(document.body.textContent).toMatch(/x od [−-]2 do 8, y od [−-]7 do 11/);
     solve(graph, {mode: 'solve'});
-    expect(document.body.textContent).toContain('Stranica od 0,25 do 12.');
-    act(() => { setLanguage('en'); });
-    expect(document.body.textContent).toContain('Side from 0.25 to 12.');
+    const side = screen.getByRole('slider', {name: 'Stranica a'}) as HTMLInputElement;
+    expect([side.min, side.max, side.step]).toEqual(['0.25', '12', '0.25']);
+    const angle = (name: string) => screen.getByRole('slider', {name}) as HTMLInputElement;
+    solve(graph, {data: {type: 'asa', angleA: 40, angleB: 60, c: 6}});
+    expect([angle('Kot A (°)').min, angle('Kot A (°)').max, angle('Kot A (°)').step]).toEqual(['1', '179', '1']);
 });
 
 test('the tangent status names the right angle at B', () => {
@@ -389,17 +387,6 @@ test('the tangent status names the right angle at B', () => {
     expect(status()).toContain('pravi kot pri B');
     act(() => { setLanguage('en'); });
     expect(status()).toContain('right angle at B');
-});
-
-test('two graphs on one page give their vertex help different ids', () => {
-    mountGraph();
-    mountGraph();
-    const ids = Array.from(document.querySelectorAll('[id^="triangle-solver-vertex-help"]')).map(node => node.id);
-    expect(ids).toHaveLength(2);
-    expect(new Set(ids).size).toBe(2);
-    for (const input of screen.getAllByLabelText('Oglišče A, koordinata x')) {
-        expect(ids).toContain(input.getAttribute('aria-describedby')!.split(' ').find(id => id.startsWith('triangle-solver-vertex-help')));
-    }
 });
 
 test('the data type select says that changing it replaces the entered values, and it does', () => {

@@ -34,7 +34,7 @@ export const trigonometryChapter: FamilyChapter = {
         withExample('radian-sine-cosine', {
             id: 'radian-sine-cosine',
             demonstrationIds: ['unit-circle'],
-            investigationPrompts: {'unit-circle': text('Vpiši kot ali ga povleci po krožnici in opazuj, kako se spreminjata koordinati točke ter njuna predznaka po kvadrantih.', 'Type an angle or drag it around the circle and watch how the coordinates of the point and their signs change by quadrant.')},
+            investigationPrompts: {'unit-circle': text('Nastavi kot z drsnikom ali ga povleci po krožnici in opazuj, kako se spreminjata koordinati točke ter njuna predznaka po kvadrantih.', 'Set an angle with the slider or drag it around the circle and watch how the coordinates of the point and their signs change by quadrant.')},
             title: text('Radian, sinus in kosinus na enotski krožnici', 'Radian, sine and cosine on the unit circle'),
             formula: String.raw`P(\theta)=(\cos\theta,\ \sin\theta),\qquad \sin^2\theta+\cos^2\theta=1`,
             paragraphs: [

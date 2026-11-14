@@ -194,7 +194,7 @@ const tr1Steps: readonly GuidedLessonStep[] = [
             'At \\(0^\\circ\\), \\(30^\\circ\\), \\(45^\\circ\\), \\(60^\\circ\\) and \\(90^\\circ\\) the values of \\(\\sin\\theta\\) are \\(0\\), \\(\\tfrac12\\), \\(\\tfrac{\\sqrt2}{2}\\), \\(\\tfrac{\\sqrt3}{2}\\), \\(1\\), and the values of \\(\\cos\\theta\\) are the same numbers in reverse order. At \\(45^\\circ\\) the legs are equal, so \\(2\\cos^2\\theta=1\\) and \\(\\cos\\theta=\\tfrac{\\sqrt2}{2}\\). For these angles the graph writes the exact value; at other angles it writes a rounded value marked \\(\\approx\\).',
         ),
         formulaIds: [],
-        observationPrompt: text('Vnesi vsak od petih kotov in primerjaj izpisane natančne vrednosti s tabelo; nato vnesi \\(50^\\circ\\) in poglej, kaj se spremeni.', 'Enter each of the five angles and compare the exact values shown with the table; then enter \\(50^\\circ\\) and see what changes.'),
+        observationPrompt: text('Nastavi vsakega od petih kotov in primerjaj izpisane natančne vrednosti s tabelo; nato nastavi \\(50^\\circ\\) in poglej, kaj se spremeni.', 'Set each of the five angles and compare the exact values shown with the table; then set \\(50^\\circ\\) and see what changes.'),
         expectedObservations: [text('Pri petih posebnih kotih je izpisana natančna vrednost, pri \\(50^\\circ\\) le zaokrožena z znakom \\(\\approx\\).', 'At the five special angles an exact value is shown; at \\(50^\\circ\\) only a rounded value marked \\(\\approx\\).')],
         scene: scene('tr1-special-scene', {first: 45, cosine: true},
             'Kot je \\(45^\\circ\\); \\(\\cos\\theta=\\tfrac{\\sqrt2}{2}\\approx0{,}7071068\\) in \\(\\sin\\theta=\\tfrac{\\sqrt2}{2}\\approx0{,}7071068\\), natančno izpisano.',

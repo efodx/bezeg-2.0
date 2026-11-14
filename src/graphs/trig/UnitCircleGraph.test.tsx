@@ -11,7 +11,7 @@ import {pointOnCircle} from '../../trig/unitCircle';
 import {angleFromHalfDegrees} from '../../trig/angle';
 import {deriveUnitCircle} from '../../trig/trigModel';
 import {
-    ANGLE_BIG_STEP_DEGREES, ANGLE_STEP_DEGREES, exactPlain, HANDLE_TOUCH_RADIUS, HIT_SLACK, TRACE_ORIGIN_X, traceX, UnitCircleGraph, unrolledTrace,
+    exactPlain, HANDLE_TOUCH_RADIUS, HIT_SLACK, TRACE_ORIGIN_X, traceX, UnitCircleGraph, unrolledTrace,
 } from './UnitCircleGraph';
 
 beforeAll(installBoardShims);
@@ -31,7 +31,8 @@ function mountGraph(strict = false) {
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The angle slider's exact field is named "<label>, vrednost"; the multiple-of-pi entry is found by its own label. */
+const field = (label: string) => (screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement;
 const handleOf = (graph: ObservedUnitCircleGraph) => graph.handles().angle!;
 const curves = (graph: ObservedUnitCircleGraph) => graph.liveBoard().objectsList.filter((o): o is JXG.Curve => o instanceof JXG.Curve && o.elType === 'curve');
 type EventedPoint = JXG.Point & {eventHandlers: Record<string, unknown[]>; triggerEventHandlers(names: string[], args: unknown[]): void};
@@ -71,9 +72,8 @@ test('a typed angle in degrees or in multiples of pi snaps to half-degrees and i
 
     act(() => { enterNumber(field('Kot θ (°)'), '135,3'); });
     expect(graph.state.angle).toBe(271);
-    // the field itself says it used 135,5; the model note is only for an entry that is not exactly a half-degree multiple
-    expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
-    expect(document.body.textContent).toContain('135,5');
+    // the slider's exact field has no grid, so the model's note says that 135,5 was used
+    expect(document.querySelector('[data-unit-circle-note]')!.textContent).toContain('135,5');
 
     act(() => { enterNumber(field('Kot θ (večkratnik števila π)'), '0,75'); });
     expect(graph.state.angle).toBe(270);
@@ -85,7 +85,13 @@ test('a typed angle in degrees or in multiples of pi snaps to half-degrees and i
 });
 
 describe('range of the typed angles', () => {
-    test.each([['Kot θ (°)', '400'], ['Kot θ (°)', '360'], ['Kot θ (°)', '-30'], ['Kot θ (večkratnik števila π)', '2'], ['Kot θ (večkratnik števila π)', '-0,25']])(
+    test.each([['Kot θ (°)', '400', 80], ['Kot θ (°)', '360', 0], ['Kot θ (°)', '-30', 660]])('%s: %s wraps around the circle, as the angle slider does', (label, typed, angle) => {
+        const {graph} = mountGraph();
+        act(() => { enterNumber(field(label), typed); });
+        expect(graph.state.angle).toBe(angle);
+    });
+
+    test.each([['Kot θ (večkratnik števila π)', '2'], ['Kot θ (večkratnik števila π)', '-0,25']])(
         '%s: %s is refused with the range hint, not wrapped', (label, typed) => {
             const {graph} = mountGraph();
             act(() => { enterNumber(field(label), typed); });
@@ -94,18 +100,17 @@ describe('range of the typed angles', () => {
             expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
         });
 
-    test('the second angle is refused outside its range too, and every angle field states the range in its help', () => {
+    test('the second angle wraps like the first, and the multiple of pi states its range in its help', () => {
         const {graph} = mountGraph();
         act(() => { graph.setState({showAddition: true}); });
         act(() => { enterNumber(field('Drugi kot β (°)'), '360'); });
-        expect(graph.state.secondAngle).toBe(90);
+        expect(graph.state.secondAngle).toBe(0);
         act(() => { enterNumber(field('Drugi kot β (°)'), '359,5'); });
         expect(graph.state.secondAngle).toBe(719);
         const help = (label: string) => document.getElementById(field(label).getAttribute('aria-describedby')!.split(' ').find(id => id.endsWith('-help'))!)!.textContent;
-        expect(help('Kot θ (°)')).toContain('od 0° do 359,5°');
-        expect(help('Drugi kot β (°)')).toContain('od 0° do 359,5°');
         expect(help('Kot θ (večkratnik števila π)')).toContain('od 0π do 1,9972π');
-        expect(field('Kot θ (°)').getAttribute('aria-valuemax')).toBe('359.5');
+        const slider = screen.getByRole('slider', {name: 'Kot θ (°)'}) as HTMLInputElement;
+        expect([slider.min, slider.max, slider.step]).toEqual(['0', '360', '1']);
     });
 });
 
@@ -200,7 +205,7 @@ test.each([
     expect(graph.state.angle).toBe((Number(typed) * 2) % 720);
 });
 
-test('the angle shows as a reduced multiple of pi on the half-degree grid, and the help names the keys that work', () => {
+test('the angle shows as a reduced multiple of pi on the half-degree grid', () => {
     mountGraph();
     act(() => { enterNumber(field('Kot θ (°)'), '315'); });
     expect(readout('angle')).toBe('315°, 7π/4 rad');
@@ -210,7 +215,6 @@ test('the angle shows as a reduced multiple of pi on the half-degree grid, and t
     expect(readout('angle')).toBe('30°, π/6 rad');
     act(() => { enterNumber(field('Kot θ (°)'), '0,5'); });
     expect(readout('angle')).toBe('0,5°, π/360 rad');
-    expect(document.body.textContent).toContain('Puščici gor in dol');
 });
 
 test('the traces carry on-graph names, the cosine name only while the cosine is shown', () => {
@@ -223,16 +227,15 @@ test('the traces carry on-graph names, the cosine name only while the cosine is 
     expect(labels()).toEqual(['sin θ:on', 'cos θ:on']);
 });
 
-test('keyboard steps are 0,5 degrees for an arrow and 5 degrees for Shift with an arrow or a Page key', () => {
+test('keyboard steps are one degree for an arrow and ten degrees for Shift with an arrow or a Page key (the angle slider)', () => {
     const {graph} = mountGraph();
-    expect([ANGLE_STEP_DEGREES, ANGLE_BIG_STEP_DEGREES]).toEqual([0.5, 5]);
     const input = field('Kot θ (°)');
     act(() => { fireEvent.keyDown(input, {key: 'ArrowUp'}); });
-    expect(graph.state.angle).toBe(121);
+    expect(graph.state.angle).toBe(122);
     act(() => { fireEvent.keyDown(field('Kot θ (°)'), {key: 'ArrowDown', shiftKey: true}); });
-    expect(graph.state.angle).toBe(111);
+    expect(graph.state.angle).toBe(102);
     act(() => { fireEvent.keyDown(field('Kot θ (°)'), {key: 'PageUp'}); });
-    expect(graph.state.angle).toBe(121);
+    expect(graph.state.angle).toBe(122);
 });
 
 test('dragging snaps the handle to the nearest half-degree on the circle and updates state and readout', () => {

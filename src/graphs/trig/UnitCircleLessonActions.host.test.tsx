@@ -24,7 +24,7 @@ const mount = (): UnitCircleGraph => {
 const apply = (graph: UnitCircleGraph, action: LessonAction) => act(() => { graph.getLessonCapabilities().apply(action); });
 const setAngle = (which: 'first' | 'second', degrees: number): LessonAction => ({kind: 'trig', operation: 'set-angle', which, degrees});
 const setOverlay = (overlay: 'cosine' | 'symmetries' | 'addition', on: boolean): LessonAction => ({kind: 'trig', operation: 'set-overlay', overlay, on});
-const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
+const type = (label: string, value: string) => act(() => { enterNumber((screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement, value); });
 const toggle = (name: string) => act(() => { fireEvent.click(screen.getByRole('checkbox', {name})); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const stateOf = (graph: UnitCircleGraph) => ({angle: graph.state.angle, secondAngle: graph.state.secondAngle, cosine: graph.state.showCosine, symmetries: graph.state.showSymmetries, addition: graph.state.showAddition});

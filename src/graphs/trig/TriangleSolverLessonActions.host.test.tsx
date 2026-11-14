@@ -24,7 +24,7 @@ const mount = (): TriangleSolverGraph => {
 const apply = (graph: TriangleSolverGraph, action: LessonAction) => act(() => { graph.getLessonCapabilities().apply(action); });
 const setMode = (mode: 'sides' | 'circle' | 'solve'): LessonAction => ({kind: 'triangle', operation: 'set-mode', mode});
 const setVertex = (vertex: 'A' | 'B' | 'C', x: number, y: number): LessonAction => ({kind: 'triangle', operation: 'set-vertex', vertex, x, y});
-const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
+const type = (label: string, value: string) => act(() => { enterNumber((screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement, value); });
 const pick = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Način'), {target: {value}}); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const stateOf = (graph: TriangleSolverGraph) => ({mode: graph.state.mode, A: graph.state.A, B: graph.state.B, C: graph.state.C, data: graph.state.data});
@@ -51,7 +51,7 @@ test.each([
     ['C', -2, 11],
 ] as const)('set-vertex %s reaches the state of its two coordinate fields', (vertex, x, y) => {
     const viaAction = after(graph => apply(graph, setVertex(vertex, x, y)));
-    const viaControl = after(() => { type(`Oglišče ${vertex}, koordinata x`, String(x)); type(`Oglišče ${vertex}, koordinata y`, String(y)); });
+    const viaControl = after(() => { type(`Oglišče ${vertex}, x`, String(x)); type(`Oglišče ${vertex}, y`, String(y)); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state[vertex]).toEqual({x, y});
 });

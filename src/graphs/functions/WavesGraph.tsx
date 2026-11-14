@@ -5,7 +5,6 @@ import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
 import {BooleanField} from "../../inputs/BooleanField";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -60,12 +59,6 @@ const wrapDegrees = (degrees: number): number => {
 const MODE_KEYS = {
     sum: "waves_graph_mode_sum", beats: "waves_graph_mode_beats", standing: "waves_graph_mode_standing", sampling: "waves_graph_mode_sampling",
 } as const;
-
-type FieldLabelKey = "waves_graph_a1_sum_label" | "waves_graph_a1_each_label" | "waves_graph_a1_tone_label" | "waves_graph_p1_label" | "waves_graph_a2_label"
-    | "waves_graph_p2_label" | "waves_graph_f_both_label" | "waves_graph_f1_beats_label" | "waves_graph_f2_beats_label" | "waves_graph_f_tone_label"
-    | "waves_graph_fs_label" | "waves_graph_half_waves_label" | "waves_graph_extra_label" | "waves_graph_p1_tone_label";
-type FieldHelpKey = "waves_graph_a_sum_help" | "waves_graph_a_each_help" | "waves_graph_a_tone_help" | "waves_graph_p_help" | "waves_graph_f_both_help"
-    | "waves_graph_f_beats_help" | "waves_graph_f_tone_help" | "waves_graph_fs_help" | "waves_graph_half_waves_help" | "waves_graph_extra_help";
 
 interface DrawnCurve {
     dataX: number[];
@@ -984,15 +977,6 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
-    private numberField(field: WavesNumericField, labelKey: FieldLabelKey, helpKey: FieldHelpKey, decimals: number, bigStep: number): JSX.Element {
-        const range = WAVES_FIELD_RANGES[field];
-        const params = {value0: dec(range.min, decimals), value1: dec(range.max, decimals), value2: dec(range.step, decimals)};
-        return <NumberInput key={field} label={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
-                            grid={range.step} decimals={decimals} help={t(helpKey, params)}
-                            rejectedHint={t("waves_graph_field_rejected", {value0: params.value0, value1: params.value1})}
-                            onChange={value => this.editNumber(field, value)}/>;
-    }
-
     private toggle(field: WavesToggleField, labelKey: "waves_graph_show_phasors" | "waves_graph_show_envelope" | "waves_graph_show_alias" | "waves_graph_show_join" | "waves_graph_show_sinc",
                    helpKey: "waves_graph_show_phasors_help" | "waves_graph_show_envelope_help" | "waves_graph_show_alias_help" | "waves_graph_show_join_help" | "waves_graph_show_sinc_help"): JSX.Element {
         return <BooleanField key={field} variant="switch" label={t(labelKey)} help={t(helpKey)} checked={this.state[field]} onChange={on => this.editToggle(field, on)}/>;
@@ -1000,35 +984,51 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
 
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
+        const R = WAVES_FIELD_RANGES;
         const commands: JSX.Element[] = [
             <ChoiceSelect key="mode" label={t("waves_graph_mode_label")} value={state.mode} help={t("waves_graph_mode_help")}
                           options={WAVES_MODES.map(value => ({value, text: t(MODE_KEYS[value])}))}
                           onChange={value => { const mode = WAVES_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
         ];
         if (state.mode === "sum") {
-            commands.push(this.numberField("a1", "waves_graph_a1_sum_label", "waves_graph_a_sum_help", 2, 1),
-                this.numberField("p1", "waves_graph_p1_label", "waves_graph_p_help", 0, 15),
-                this.numberField("a2", "waves_graph_a2_label", "waves_graph_a_sum_help", 2, 1),
-                this.numberField("p2", "waves_graph_p2_label", "waves_graph_p_help", 0, 15),
-                this.numberField("f1", "waves_graph_f_both_label", "waves_graph_f_both_help", 0, 5),
+            commands.push(<Slider key="a1" customText={t("waves_graph_a1_sum_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/>,
+                <Slider key="p1" customText={t("waves_graph_p1_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
+                    onChange={value => this.editNumber("p1", value)}/>,
+                <Slider key="a2" customText={t("waves_graph_a2_label")} value={state.a2} min={R.a2.min} max={R.a2.max} step={R.a2.step} grid={R.a2.step} bigStep={1}
+                    onChange={value => this.editNumber("a2", value)}/>,
+                <Slider key="p2" customText={t("waves_graph_p2_label")} value={state.p2} min={R.p2.min} max={R.p2.max} step={R.p2.step} grid={R.p2.step} bigStep={15}
+                    onChange={value => this.editNumber("p2", value)}/>,
+                <Slider key="f1" customText={t("waves_graph_f_both_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
+                    onChange={value => this.editNumber("f1", value)}/>,
                 this.toggle("showPhasors", "waves_graph_show_phasors", "waves_graph_show_phasors_help"));
         } else if (state.mode === "beats") {
-            commands.push(this.numberField("a1", "waves_graph_a1_each_label", "waves_graph_a_each_help", 2, 1),
-                this.numberField("f1", "waves_graph_f1_beats_label", "waves_graph_f_beats_help", 0, 5),
-                this.numberField("f2", "waves_graph_f2_beats_label", "waves_graph_f_beats_help", 0, 5),
+            commands.push(<Slider key="a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/>,
+                <Slider key="f1" customText={t("waves_graph_f1_beats_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5} help={t("waves_graph_f_beats_help")}
+                    onChange={value => this.editNumber("f1", value)}/>,
+                <Slider key="f2" customText={t("waves_graph_f2_beats_label")} value={state.f2} min={R.f2.min} max={R.f2.max} step={R.f2.step} grid={R.f2.step} bigStep={5} help={t("waves_graph_f_beats_help")}
+                    onChange={value => this.editNumber("f2", value)}/>,
                 this.toggle("showEnvelope", "waves_graph_show_envelope", "waves_graph_show_envelope_help"));
         } else if (state.mode === "standing") {
-            commands.push(this.numberField("a1", "waves_graph_a1_each_label", "waves_graph_a_each_help", 2, 1),
-                this.numberField("halfWaves", "waves_graph_half_waves_label", "waves_graph_half_waves_help", 0, 1));
+            commands.push(<Slider key="a1" customText={t("waves_graph_a1_each_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/>,
+                <Slider key="halfWaves" customText={t("waves_graph_half_waves_label")} value={state.halfWaves} min={R.halfWaves.min} max={R.halfWaves.max} step={R.halfWaves.step} grid={R.halfWaves.step} bigStep={1} help={t("waves_graph_half_waves_help")}
+                    onChange={value => this.editNumber("halfWaves", value)}/>);
         } else {
-            commands.push(this.numberField("a1", "waves_graph_a1_tone_label", "waves_graph_a_tone_help", 2, 1),
-                this.numberField("p1", "waves_graph_p1_tone_label", "waves_graph_p_help", 0, 15),
-                this.numberField("f1", "waves_graph_f_tone_label", "waves_graph_f_tone_help", 0, 5),
-                this.numberField("fs", "waves_graph_fs_label", "waves_graph_fs_help", 0, 6),
+            commands.push(<Slider key="a1" customText={t("waves_graph_a1_tone_label")} value={state.a1} min={R.a1.min} max={R.a1.max} step={R.a1.step} grid={R.a1.step} bigStep={1}
+                    onChange={value => this.editNumber("a1", value)}/>,
+                <Slider key="p1" customText={t("waves_graph_p1_tone_label")} value={state.p1} min={R.p1.min} max={R.p1.max} step={R.p1.step} grid={R.p1.step} bigStep={15}
+                    onChange={value => this.editNumber("p1", value)}/>,
+                <Slider key="f1" customText={t("waves_graph_f_tone_label")} value={state.f1} min={R.f1.min} max={R.f1.max} step={R.f1.step} grid={R.f1.step} bigStep={5}
+                    onChange={value => this.editNumber("f1", value)}/>,
+                <Slider key="fs" customText={t("waves_graph_fs_label")} value={state.fs} min={R.fs.min} max={R.fs.max} step={R.fs.step} grid={R.fs.step} bigStep={6} help={t("waves_graph_fs_help")}
+                    onChange={value => this.editNumber("fs", value)}/>,
                 this.toggle("showAlias", "waves_graph_show_alias", "waves_graph_show_alias_help"),
                 this.toggle("showJoin", "waves_graph_show_join", "waves_graph_show_join_help"),
                 this.toggle("showSinc", "waves_graph_show_sinc", "waves_graph_show_sinc_help"));
-            if (state.showSinc) commands.push(this.numberField("extra", "waves_graph_extra_label", "waves_graph_extra_help", 0, 48));
+            if (state.showSinc) commands.push(<Slider key="extra" customText={t("waves_graph_extra_label")} value={state.extra} min={R.extra.min} max={R.extra.max} step={R.extra.step} grid={R.extra.step} bigStep={48}
+                    onChange={value => this.editNumber("extra", value)}/>);
         }
         return commands;
     }

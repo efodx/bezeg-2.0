@@ -44,12 +44,14 @@ function mountGraph(strict = false) {
     return {graph, view};
 }
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** A numeric field is the exact field of its slider (named "<label>, vrednost"); a switch or the mode select is found by its label. */
+const field = (label: string) => (screen.queryByRole('spinbutton', {name: `${label}, vrednost`}) ?? screen.getByLabelText(label)) as HTMLInputElement;
+const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-const slider = () => screen.getByRole('slider') as HTMLInputElement;
+const slider = () => rangeOf('Čas t');
 const status = () => document.querySelector('[data-waves-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
@@ -423,41 +425,40 @@ describe('the captions on a narrow board (390 x 480 px)', () => {
 });
 
 describe('controls', () => {
-    test('every numeric field, switch, the mode choice and the slider is described by help that states its range', () => {
+    test('every numeric field is a slider over its own range and step; switches, the mode choice and the time slider are described', () => {
         const {graph} = mountGraph();
         const ranges = WAVES_FIELD_RANGES;
-        const rangeText = (name: keyof typeof ranges, _decimals: number) => {
-            const r = ranges[name];
-            const dec = (v: number) => String(v).replace('.', ',').replace('-', MINUS);
-            return `od ${dec(r.min)} do ${dec(r.max)}`;
+        const sliderOf = (label: string, name: keyof typeof ranges) => {
+            const r = ranges[name], range = rangeOf(label);
+            expect([Number(range.min), Number(range.max), Number(range.step)], label).toEqual([r.min, r.max, r.step]);
         };
-        expect(describedText(field(t('waves_graph_a1_sum_label')))).toContain(rangeText('a1', 2));
-        expect(describedText(field(t('waves_graph_p1_label')))).toContain(rangeText('p1', 0));
-        expect(describedText(field(t('waves_graph_a2_label')))).toContain(rangeText('a2', 2));
-        expect(describedText(field(t('waves_graph_p2_label')))).toContain(rangeText('p2', 0));
-        expect(describedText(field(t('waves_graph_f_both_label')))).toContain(rangeText('f1', 0));
+        sliderOf(t('waves_graph_a1_sum_label'), 'a1');
+        sliderOf(t('waves_graph_p1_label'), 'p1');
+        sliderOf(t('waves_graph_a2_label'), 'a2');
+        sliderOf(t('waves_graph_p2_label'), 'p2');
+        sliderOf(t('waves_graph_f_both_label'), 'f1');
         expect(describedText(field(t('waves_graph_show_phasors'))).length).toBeGreaterThan(10);
         expect(describedText(field(t('waves_graph_mode_label'))).length).toBeGreaterThan(10);
         expect(describedText(slider())).toContain('Čas od 0 do 1 s');
         choose('beats');
-        expect(describedText(field(t('waves_graph_a1_each_label')))).toContain(rangeText('a1', 2));
-        expect(describedText(field(t('waves_graph_f1_beats_label')))).toContain(rangeText('f1', 0));
-        expect(describedText(field(t('waves_graph_f2_beats_label')))).toContain(rangeText('f2', 0));
+        sliderOf(t('waves_graph_a1_each_label'), 'a1');
+        sliderOf(t('waves_graph_f1_beats_label'), 'f1');
+        sliderOf(t('waves_graph_f2_beats_label'), 'f2');
         expect(describedText(field(t('waves_graph_show_envelope'))).length).toBeGreaterThan(10);
         expect(describedText(slider())).toContain('Čas od 0 do 2 s');
         choose('standing');
-        expect(describedText(field(t('waves_graph_half_waves_label')))).toContain(rangeText('halfWaves', 0));
+        sliderOf(t('waves_graph_half_waves_label'), 'halfWaves');
         choose('sampling');
-        expect(describedText(field(t('waves_graph_a1_tone_label')))).toContain(rangeText('a1', 2));
-        expect(describedText(field(t('waves_graph_p1_tone_label')))).toContain(rangeText('p1', 0));
-        expect(describedText(field(t('waves_graph_f_tone_label')))).toContain(rangeText('f1', 0));
-        expect(describedText(field(t('waves_graph_fs_label')))).toContain(rangeText('fs', 0));
+        sliderOf(t('waves_graph_a1_tone_label'), 'a1');
+        sliderOf(t('waves_graph_p1_tone_label'), 'p1');
+        sliderOf(t('waves_graph_f_tone_label'), 'f1');
+        sliderOf(t('waves_graph_fs_label'), 'fs');
         for (const key of ['waves_graph_show_alias', 'waves_graph_show_join', 'waves_graph_show_sinc'] as const) {
             expect(describedText(field(t(key))).length, key).toBeGreaterThan(10);
         }
         act(() => { fireEvent.click(field(t('waves_graph_show_sinc'))); });
         expect(graph.state.showSinc).toBe(true);
-        expect(describedText(field(t('waves_graph_extra_label')))).toContain(rangeText('extra', 0));
+        sliderOf(t('waves_graph_extra_label'), 'extra');
     });
 
     test('a typed number outside the range is refused (never clamped) with the range stated; an off-grid one is rounded and announced', () => {

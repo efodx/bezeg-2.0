@@ -5,6 +5,7 @@ import {Preset} from "../base/presets/Presets";
 import {unitCirclePresetCollection} from "./trigPresetCollection";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
+import AngleSlider from "../../inputs/AngleSlider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import type {LessonAction} from "../../learning/model";
@@ -537,11 +538,6 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
         return true;
     }
 
-    private degreesHelp(): string {
-        const language = currentLanguage();
-        return t("unit_circle_angle_help", {value0: formatNumber(0, language, 1), value1: formatNumber(ANGLE_MAX_DEGREES, language, 1)});
-    }
-
     /** The legend entries for the styles of the symmetric points and the second radius, shown while those are drawn. */
     legendItems(): {id: string; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] {
         const items: {id: string; color: string; label: string; kind: "cross" | "plus" | "diamond" | "dashed-line"}[] = [];
@@ -561,9 +557,8 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
         const commands: JSX.Element[] = [
-            <NumberInput key="degrees" label={t("unit_circle_angle_degrees_label")} value={degreesOf(angleFromHalfDegrees(state.angle))}
-                         step={ANGLE_STEP_DEGREES} bigStep={ANGLE_BIG_STEP_DEGREES} decimals={1} min={0} max={ANGLE_MAX_DEGREES}
-                         grid={ANGLE_STEP_DEGREES} help={this.degreesHelp()} onChange={value => this.editAngle("angle", "degrees", value)}/>,
+            <AngleSlider key="degrees" customText={t("unit_circle_angle_degrees_label")} value={degreesOf(angleFromHalfDegrees(state.angle))}
+                         onChange={value => this.editAngle("angle", "degrees", value)}/>,
             <NumberInput key="pi" label={t("unit_circle_angle_pi_label")} value={state.angle / 360}
                          step={1 / 360} bigStep={1 / 72} decimals={4} min={0} max={ANGLE_MAX_PI} grid={1 / 360}
                          help={t("unit_circle_angle_pi_help", {
@@ -571,9 +566,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
                          onChange={value => this.editAngle("angle", "pi", value)}/>,
         ];
         if (state.showAddition) {
-            commands.push(<NumberInput key="second" label={t("unit_circle_second_angle_label")} value={state.secondAngle / 2}
-                                       step={ANGLE_STEP_DEGREES} bigStep={ANGLE_BIG_STEP_DEGREES} decimals={1} min={0} max={ANGLE_MAX_DEGREES}
-                                       grid={ANGLE_STEP_DEGREES} help={this.degreesHelp()}
+            commands.push(<AngleSlider key="second" customText={t("unit_circle_second_angle_label")} value={state.secondAngle / 2}
                                        onChange={value => this.editAngle("secondAngle", "degrees", value)}/>);
         }
         if (this.adjustedTo !== undefined && this.adjustedKey === this.stateKey()) {
