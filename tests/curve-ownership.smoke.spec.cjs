@@ -23,12 +23,11 @@ async function openSaveTools(page) {
 
 async function createPreset(page, id) {
     const save = await openSaveTools(page);
-    await save.getByRole('button', {name: 'Save preset', exact: true}).click();
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-    await dialog.getByLabel('Preset name').fill(id);
-    await dialog.getByRole('button', {name: 'Save', exact: true}).click();
-    await expect(dialog).toBeHidden();
+    await save.locator('button.preset-save').click();
+    const name = save.locator('#preset-save-name');
+    await name.fill(id);
+    await name.press('Enter');
+    await expect(name).toBeHidden();
 }
 
 async function generatePresetFigures(page, ids) {

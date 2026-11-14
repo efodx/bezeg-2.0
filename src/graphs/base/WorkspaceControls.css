@@ -342,10 +342,44 @@
     .workspace-inspector .inspector-heading > div:first-child { flex:1 1 100%; min-width:0; padding-right:0; }
     .workspace-inspector .inspector-heading > button { position:static; margin-left:auto; }
 }
-
-/* Presets block (control-choice step 4b, S1): Reset, Save, Delete in three equal columns; Export and Import in two; Generate images full width. */
-.preset-actions { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
-.preset-actions > .btn { padding-inline: .25rem; grid-column: span 2; min-width: 0; margin: 0; border-radius: var(--bezeg-control-radius); line-height: 1.25; overflow-wrap: break-word; }
-.preset-actions > .btn:nth-child(n+4):nth-child(-n+5) { grid-column: span 3; }
-.preset-actions > span { grid-column: 1 / -1; }
-.preset-actions > span > .btn { width: 100%; }
+/* Presets block: a list of saved states, one primary save action (inline form), then the backup. 40px targets, no horizontal overflow at 310px. */
+.preset-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.preset-panel > .inspector-help, .preset-panel .preset-field-message { margin: 0; }
+.preset-panel .preset-subheading { margin: 0; font-size: 1rem; font-weight: 700; color: var(--bezeg-control-ink); }
+.preset-panel .preset-list { list-style: none; margin: 0; padding: 0; border: var(--bezeg-control-border); border-radius: 8px; background: var(--bezeg-control-surface); overflow: hidden; }
+.preset-panel .preset-row { border-top: 1px solid var(--bezeg-shell-rule, #d6dccb); min-width: 0; }
+.preset-panel .preset-row:first-child { border-top: 0; }
+.preset-panel .preset-row[data-selected] { background: color-mix(in srgb, var(--bezeg-shell-action, #244c37) 12%, var(--bezeg-control-surface)); box-shadow: inset 4px 0 0 var(--bezeg-shell-action, #244c37); }
+.preset-panel .preset-row[data-selected] .preset-row-name { font-weight: 700; }
+.preset-panel .preset-row-main { display: flex; align-items: stretch; min-width: 0; }
+.preset-panel .preset-row-select, .preset-panel .preset-row-menu, .preset-panel .preset-menu-item, .preset-panel .preset-file-button, .preset-panel .preset-action, .preset-panel .preset-action-quiet-link {
+    min-height: 40px; font: inherit; font-size: var(--bezeg-control-font-size); color: var(--bezeg-control-ink); cursor: pointer; margin: 0;
+}
+.preset-panel .preset-row-select { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 6px 12px; text-align: left; background: transparent; border: 0; font-size: 1rem; }
+.preset-panel .preset-row-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preset-panel .preset-row-badge { flex: none; font-size: .8rem; color: var(--bezeg-control-help-ink, #5b675a); }
+.preset-panel .preset-row-menu { flex: none; width: 44px; background: transparent; border: 0; font-size: 1.2rem; line-height: 1; }
+.preset-panel .preset-row-select:hover, .preset-panel .preset-row-menu:hover, .preset-panel .preset-menu-item:hover { background: color-mix(in srgb, var(--bezeg-control-ink) 7%, transparent); }
+.preset-panel .preset-row-panel { display: flex; flex-direction: column; gap: 8px; padding: 4px 12px 12px; }
+.preset-panel .preset-menu { gap: 0; padding: 0 0 4px; }
+.preset-panel .preset-menu-item { text-align: left; padding: 6px 12px 6px 24px; background: transparent; border: 0; }
+.preset-panel .preset-rename-input, .preset-panel .preset-name-input { min-height: 40px; width: 100%; box-sizing: border-box; padding: 6px 10px; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--bezeg-control-surface); color: var(--bezeg-control-ink); font: inherit; font-size: var(--bezeg-control-field-font-size); }
+.preset-panel .preset-field-label { font-weight: 600; font-size: .9rem; }
+.preset-panel .preset-field-message { font-size: .85rem; line-height: 1.4; color: var(--bezeg-control-ink); }
+.preset-panel .preset-field-message[role="alert"] { color: #9b2c2c; }
+.preset-panel .preset-confirm-text { margin: 0; font-size: .9rem; }
+.preset-panel .preset-save-box, .preset-panel .preset-save-form { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.preset-panel .preset-button-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.preset-panel .preset-action, .preset-panel .preset-file-button { padding: 6px 8px; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--bezeg-control-surface); line-height: 1.25; overflow-wrap: anywhere; }
+.preset-panel .preset-action-primary { width: 100%; background: var(--bezeg-shell-action, #244c37); border-color: var(--bezeg-shell-action, #244c37); color: var(--bezeg-shell-on-action, #fff); font-weight: 600; }
+.preset-panel .preset-save-box > .preset-action-primary { min-height: 44px; font-size: 1rem; }
+.preset-panel .preset-action-danger { border-color: #9b2c2c; color: #9b2c2c; }
+.preset-panel .preset-row-select, .preset-panel .preset-row-menu, .preset-panel .preset-menu-item { border-radius: 0; }
+.preset-panel .preset-quiet-actions { display: flex; justify-content: flex-start; margin-top: -4px; }
+.preset-panel .preset-action-quiet-link { padding: 4px 2px; background: transparent; border: 0; color: var(--bezeg-control-help-ink, #5b675a); font-size: .9rem; text-decoration: underline; text-underline-offset: .18em; }
+.preset-panel .preset-backup { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding-top: 16px; border-top: 1px solid var(--bezeg-shell-rule, #d6dccb); }
+.preset-panel .preset-backup > .inspector-help { margin: 0; }
+.preset-panel .preset-figures { display: flex; flex-direction: column; gap: 8px; }
+.preset-panel .preset-figures > span > .btn { width: 100%; }
+.preset-panel .preset-row-select:focus-visible, .preset-panel .preset-row-menu:focus-visible, .preset-panel .preset-menu-item:focus-visible, .preset-panel .preset-action:focus-visible, .preset-panel .preset-file-button:focus-visible, .preset-panel .preset-action-quiet-link:focus-visible, .preset-panel .preset-rename-input:focus-visible, .preset-panel .preset-name-input:focus-visible { outline: var(--bezeg-control-focus); outline-offset: calc(var(--bezeg-control-focus-offset) * -1); }
+.preset-panel .preset-action-primary[aria-disabled="true"], .preset-panel .preset-row-select[aria-disabled="true"], .preset-panel .preset-row-menu[aria-disabled="true"], .preset-panel .preset-menu-item[aria-disabled="true"], .preset-panel .preset-file-button[aria-disabled="true"], .preset-panel .preset-action-quiet-link[aria-disabled="true"] { opacity: .6; cursor: default; border-style: dashed; }

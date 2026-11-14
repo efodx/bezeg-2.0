@@ -350,6 +350,28 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
         this.requestRender();
     }
 
+    /** Renames a stored preset; a renamed selected preset stays selected. A refusal is shown as the notice. */
+    renamePreset(id: string, newName: string): void {
+        const service = this.presetService;
+        if (!service || this.exportBusy) return;
+        const outcome = service.renamePreset(id, newName);
+        this.presetNoticeValue = outcome.problem;
+        if (!outcome.problem && this.selectedPresetIdValue === id) this.selectedPresetIdValue = newName.trim();
+        this.presetListVersionValue++;
+        this.requestRender();
+    }
+
+    /** Deletes the stored preset `id`; the selection moves only when `id` is the selected one (see deleteSelectedPreset). */
+    deletePreset(id: string): Promise<void> {
+        if (id === this.selectedPresetIdValue) return this.deleteSelectedPreset();
+        const service = this.presetService;
+        if (!service || !id || this.exportBusy) return Promise.resolve();
+        this.presetNoticeValue = service.removePreset(id).problem;
+        this.presetListVersionValue++;
+        this.requestRender();
+        return Promise.resolve();
+    }
+
     /** Deletes the selected preset and loads the first remaining one, or the default scene. */
     deleteSelectedPreset(): Promise<void> {
         const service = this.presetService;
@@ -499,7 +521,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             {this.presetService && <PresetSelector presetService={this.presetService}
                 selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion} notice={this.presetNoticeValue}
                 onSelect={id => { void this.selectPreset(id); }} onReset={() => { void this.reset(); }}
-                onSave={name => this.saveCurrentPreset(name)} onDelete={() => { void this.deleteSelectedPreset(); }}
+                onSave={name => this.saveCurrentPreset(name)} onDelete={id => { void this.deletePreset(id); }} onRename={(id, name) => this.renamePreset(id, name)}
                 onImported={() => { void this.reloadAfterImport(); }}
                 batchExporter={presets => this.exportPresetFigures(presets)}/>}</div>
             <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage showLabel={false} presetId={this.selectedPresetId} saveAsSVG={name => this.saveAsSVG(name)}

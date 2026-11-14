@@ -1,10 +1,12 @@
 import {LocalizedError, useT} from "../../localization";
 import React, {useRef, useState} from "react";
 import {Alert, Button, Form, Modal} from "react-bootstrap";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {commitPresetImport, preflightPresetImport, PresetImportPlan} from "./presets/PresetImport";
 import {appStorage} from "../../storage/appStorage";
 
-export function PresetImportDialog({onImported, disabled}: {onImported: () => void, disabled?: boolean}) {
+/** `unavailableReason` (e.g. a running lesson) keeps the trigger focusable but inert and states why. */
+export function PresetImportDialog({onImported, unavailableReason}: {onImported: () => void, unavailableReason?: string}) {
     const t = useT();
     const [show, setShow] = useState(false);
     const [error, setError] = useState<Error | string>("");
@@ -13,7 +15,7 @@ export function PresetImportDialog({onImported, disabled}: {onImported: () => vo
     const readVersion = useRef(0);
     const close = () => {readVersion.current++; setShow(false); setPlan(undefined); setError(""); setReading(false);};
     return <>
-        <Button disabled={disabled} onClick={() => setShow(true)}>{t("import_presets")}</Button>
+        <UnavailableButton className="preset-file-button" reason={unavailableReason} onPress={() => setShow(true)}>{t("import_presets")}</UnavailableButton>
         <Modal show={show} onHide={close}>
             <Modal.Header closeButton closeLabel={t("close")}><Modal.Title>{t("import_presets")}</Modal.Title></Modal.Header>
             <Modal.Body>

@@ -3057,7 +3057,7 @@ test.describe('Rational elevation outside lessons', () => {
         });
         await page.goto(RATIONAL, {waitUntil: 'domcontentloaded'});
         await page.locator('.inspector-tabs').getByRole('button', {name: 'Save'}).click();
-        await page.locator('#inspector-save').getByRole('combobox', {name: 'Presets'}).selectOption('smoke-farin');
+        await page.locator('#inspector-save').locator('li[data-preset-id="smoke-farin"] button.preset-row-select').click();
         await expect.poll(async () => (await boardStats(page)).sliders, {message: '3 Farin sliders for 4 points'}).toBe(3);
         await page.locator('.inspector-tabs').getByRole('button', {name: 'Edit'}).click();
         await page.getByRole('button', {name: 'Elevate degree'}).click();

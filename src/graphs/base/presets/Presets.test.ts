@@ -99,3 +99,37 @@ describe('persisted collection integrity', () => {
         expect(localStorage.getItem('bezeg-2.0:preset-b-spline')).toBe('{broken');
     });
 });
+
+describe('renaming a stored preset', () => {
+    const key = 'bezeg-2.0:preset-bezier-curve';
+    const stored = [
+        {id: 'a', data: [['JSXBezierCurve', {points: [[0, 0], [1, 2], [3, 0]]}]], graphState: {initialized: true}},
+        {id: 'b'},
+        {id: 'c'}
+    ];
+
+    test('changes the id in place, keeping order and every other field', () => {
+        localStorage.setItem(key, JSON.stringify({data: stored}));
+        const service = new PresetService('bezier-curve');
+
+        const outcome = service.renamePreset('b', ' beta ');
+
+        expect(outcome.problem).toBeUndefined();
+        expect(service.loadPresets().data).toEqual([stored[0], {id: 'beta'}, stored[2]]);
+    });
+
+    test.each([['a duplicate', 'b', 'c'], ['an empty', 'b', ''], ['a whitespace-only', 'b', '   '], ['an unknown source', 'zzz', 'q']])('refuses %s name and changes nothing', (_, from, to) => {
+        localStorage.setItem(key, JSON.stringify({data: stored}));
+        const before = localStorage.getItem(key);
+        const outcome = new PresetService('bezier-curve').renamePreset(from, to);
+        expect(outcome.problem).toBeDefined();
+        expect(localStorage.getItem(key)).toBe(before);
+    });
+
+    test('leaves an unreadable collection untouched', () => {
+        localStorage.setItem(key, '{not json');
+        const outcome = new PresetService('bezier-curve').renamePreset('a', 'b');
+        expect(outcome.problem?.key).toBe('stored_presets_unreadable_left_unchanged');
+        expect(localStorage.getItem(key)).toBe('{not json');
+    });
+});

@@ -104,15 +104,12 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     expect(savedGeometry.length).toBeGreaterThan(0);
 
     const presetArea = await showPresetTools(inspector);
-    await presetArea.getByRole('button', {name: 'Save preset', exact: true}).click();
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-    await dialog.getByLabel('Preset name').fill('smoke-edited-bezier');
-    await dialog.getByRole('button', {name: 'Save', exact: true}).click();
+    await presetArea.locator('button.preset-save').click();
+    await presetArea.locator('#preset-save-name').fill('smoke-edited-bezier');
+    await presetArea.locator('#preset-save-name').press('Enter');
 
     const savedPresetArea = await showPresetTools(inspector);
-    const presetSelector = savedPresetArea.getByRole('combobox', {name: 'Presets'});
-    await expect(presetSelector).toHaveValue('smoke-edited-bezier');
+    await expect(savedPresetArea.locator('li[data-preset-id="smoke-edited-bezier"] button.preset-row-select')).toHaveAttribute('aria-current', 'true');
     const changedInspector = await selectBezierCurve(page);
     const changedEditor = await openPointEditor(changedInspector);
     await changedEditor.getByRole('spinbutton', {name: 'p₀, x'}).fill('-0.4');
@@ -124,9 +121,9 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     await expect.poll(() => geometrySignature(page)).not.toBe(savedGeometry);
 
     const changedPresetArea = await showPresetTools(changedInspector);
-    const livePresetSelector = changedPresetArea.getByRole('combobox', {name: 'Presets'});
-    await expect(livePresetSelector).toBeVisible();
-    await livePresetSelector.selectOption('');
+    const defaultRow = changedPresetArea.locator('li[data-preset-id=""] button.preset-row-select');
+    await expect(defaultRow).toBeVisible();
+    await defaultRow.click();
     const defaultInspector = await selectBezierCurve(page);
     const defaultEditor = await openPointEditor(defaultInspector);
     await defaultEditor.getByRole('spinbutton', {name: 'p₀, x'}).fill('0.1');
@@ -136,9 +133,9 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     await expect.poll(() => geometrySignature(page)).not.toBe(savedGeometry);
 
     const defaultPresetArea = await showPresetTools(defaultInspector);
-    const defaultPresetSelector = defaultPresetArea.getByRole('combobox', {name: 'Presets'});
-    await expect(defaultPresetSelector).toBeVisible();
-    await defaultPresetSelector.selectOption('smoke-edited-bezier');
+    const savedRow = defaultPresetArea.locator('li[data-preset-id="smoke-edited-bezier"] button.preset-row-select');
+    await expect(savedRow).toBeVisible();
+    await savedRow.click();
 
     const reopenedInspector = await selectBezierCurve(page);
     const reopenedEditor = await openPointEditor(reopenedInspector);

@@ -124,6 +124,23 @@ export class PresetService {
         return this.update(presets => { presets.data = presets.data.filter(preset => preset.id !== id); });
     }
 
+    /**
+     * Changes the id (the name) of a stored preset in place: order and every other field stay. The new name is trimmed; an
+     * empty or already used name, or a missing source, is refused with a `problem` and nothing is written. An unreadable
+     * collection is never overwritten.
+     */
+    renamePreset(id: string, newName: string): PresetsOutcome {
+        const name = newName.trim();
+        const presets = this.loadPresets();
+        if (presets.problem) return presets;
+        const preset = presets.data.find(candidate => candidate.id === id);
+        if (!preset) return {...presets, problem: message("state_missing")};
+        if (name === "") return {...presets, problem: message("state_name_required")};
+        if (name !== id && presets.data.some(candidate => candidate.id === name)) return {...presets, problem: message("state_name_taken")};
+        preset.id = name;
+        return this.write(presets);
+    }
+
     savePreset(preset: Preset): PresetsOutcome {
         return this.update(presets => {
             const storedPreset = presets.data.find(preset2 => preset2.id === preset.id);

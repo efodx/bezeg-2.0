@@ -118,7 +118,7 @@ test('select, save, delete and import presets work without unmounting the graph'
     act(() => graph.saveCurrentPreset('mine'));
     expect(graph.selectedPresetId).toBe('mine');
     expect(graph.presetService?.getPreset('mine')).toBeDefined();
-    expect(screen.getByRole('combobox', {name: /Prednastavitve|Presets/, hidden: true})).toHaveValue('mine');
+    expect(screen.getByRole('button', {name: /^mine/, hidden: true}).getAttribute('aria-current')).toBe('true');
 
     // Selecting the default scene replaces the scene in place.
     await settle(() => graph.selectPreset(''));
