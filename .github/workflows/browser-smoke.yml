@@ -13,7 +13,7 @@ on:
 permissions:
   contents: read
 
-# The checks run as parallel jobs: static checks, four Vitest shards, and the build feeding four Chromium smoke shards;
+# The checks run as parallel jobs: static checks, six Vitest shards, and the build feeding four Chromium smoke shards;
 # the `smoke` job gates them as one check.
 # Each job cancels the same job of an obsolete run; the group names a shard so shards of one run never cancel each other.
 # The daily run has its own groups, so a push and the daily run never cancel each other. The deploy job is not cancelled.
@@ -80,8 +80,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The PartSequencer in vite.config.mts spreads the *.partN.test.* files over the shards.
-        shard: [1, 2, 3, 4]
+        # The PartSequencer in vite.config.mts spreads the *.partN.test.* files over the shards. Six since 2026-11-14
+        # (phase 8 change 9 of docs/specs/verification-throughput.md): the unit shards set the hosted wall.
+        shard: [1, 2, 3, 4, 5, 6]
     concurrency:
       group: browser-smoke-${{ github.event_name == 'schedule' && 'daily' || github.event.pull_request.number || github.ref }}-unit-${{ matrix.shard }}
       cancel-in-progress: true
@@ -95,8 +96,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Run unit tests (shard ${{ matrix.shard }}/4)
-        run: npm test -- --shard=${{ matrix.shard }}/4
+      - name: Run unit tests (shard ${{ matrix.shard }}/6)
+        run: npm test -- --shard=${{ matrix.shard }}/6
         env:
           CI: 'true'
           BEZEG_SWEEP_ROTATION: ${{ needs.scope.outputs.sweep_rotation }}

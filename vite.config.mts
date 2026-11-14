@@ -27,16 +27,22 @@ const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(fil
  * per-file times of four hosted runs, predicts 576 / 618 / 542 / 622 file-s on four shards; runner speed still varies
  * about 1.6x between jobs. See docs/reviews/verification-throughput/phase2b-ci-shards.md. Unlisted files keep the hash
  * split. A shard number above the shard count wraps.
+ *
+ * Re-spread for six shards on 2026-11-14 (phase 8 change 9, T02): with six, the part files fill shards 1 and 2 most
+ * (part N goes to shard N, so lesson restoration parts 7 and 8 join 1 and 2), so the pins go to shards 3 to 6, the
+ * heaviest single files (scene replacement, graph teardown) to 5 and 6, which hold one part each. Costs from the local
+ * `just test-cost` cache of that day; refine from the daily run's `unit-durations-*` artifacts.
  */
 const PINNED_SHARDS: Record<string, number> = {
-    'src/graphs/base/sceneReplacementContract.test.tsx': 2,
-    'src/graphs/base/sharedControls.graphs.test.tsx': 3,
-    'src/learning/content/curveGeometryGuidedLessons.envelope.test.ts': 3,
-    'src/learning/content/epicyclesGuidedLessons.test.ts': 3,
-    'src/learning/content/sceneContentAgainstGraphs.test.tsx': 1,
-    'src/learning/content/interpolationGuidedLessons.test.ts': 1,
-    'src/learning/content/compgeoBezierHullsLesson.test.ts': 1,
-    'src/learning/content/triangleGeometryChapter.test.ts': 1,
+    'src/graphs/base/sceneReplacementContract.test.tsx': 5,
+    'src/graphs/base/graphTeardownContract.test.tsx': 6,
+    'src/graphs/base/sharedControls.graphs.test.tsx': 5,
+    'src/learning/content/curveGeometryGuidedLessons.envelope.test.ts': 5,
+    'src/learning/content/epicyclesGuidedLessons.test.ts': 6,
+    'src/learning/content/sceneContentAgainstGraphs.test.tsx': 4,
+    'src/learning/content/interpolationGuidedLessons.test.ts': 3,
+    'src/learning/content/compgeoBezierHullsLesson.test.ts': 3,
+    'src/learning/content/triangleGeometryChapter.test.ts': 4,
 };
 const pinnedShard = (file: TestSpecification) => {
     const path = file.moduleId.replace(/\\/g, '/');
