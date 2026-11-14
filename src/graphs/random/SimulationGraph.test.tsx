@@ -772,3 +772,116 @@ describe('a scene replacement (families-prep F2b registration)', () => {
         expect(graph.liveBoard().getBoundingBox()).toEqual(framed);
     });
 });
+
+/** Board texts as pixel boxes from the board's top left corner (the glyph box from its anchor), and the drawn curves as pixel polylines. */
+function pixelLayout(graph: ObservedGraph) {
+    const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; getBoundingBox(): number[]; infobox?: unknown};
+    const [left, top] = board.getBoundingBox();
+    const toPx = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+    const boxes = probes(graph).filter(o => o.elType === 'text' && o.plaintext !== '0,0' && (o as unknown) !== board.infobox).map(o => {
+        const text = o.plaintext ?? '';
+        const probe = o as Probe & {X(): number; Y(): number};
+        const size = Number(o.evalVisProp('fontsize')) || 14;
+        const [x, y] = toPx(probe.X(), probe.Y());
+        // A top-anchored (stacked) text wraps at the right edge of the board: its box is as wide as the room and as tall as its lines.
+        const room = Math.max(((board as unknown as {canvasWidth: number}).canvasWidth || 600) - x, 1);
+        const full = text.length * size * 0.514;
+        const ax = o.evalVisProp('anchorx'), ay = o.evalVisProp('anchory');
+        const wraps = ay === 'top' && full > room;
+        const w = wraps ? room : full, h = size * 1.15 * (wraps ? Math.ceil(full / room) : 1);
+        const x0 = ax === 'right' ? x - w : ax === 'middle' ? x - w / 2 : x;
+        const y0 = ay === 'bottom' ? y - h : ay === 'top' ? y : y - h / 2;
+        return {text, x0, y0, x1: x0 + w, y1: y0 + h};
+    }).filter(box => box.text !== '');
+    const lines = curves(graph).map(c => {
+        const pieces: Array<Array<[number, number]>> = [[]];
+        (c.dataX ?? []).forEach((x, i) => {
+            const y = (c.dataY ?? [])[i];
+            if (!Number.isFinite(x) || !Number.isFinite(y)) { pieces.push([]); return; }
+            pieces[pieces.length - 1].push(toPx(x, y));
+        });
+        return pieces.filter(p => p.length > 0);
+    });
+    return {boxes, lines};
+}
+
+/** True when a polyline piece passes through the box. */
+function touches(piece: Array<[number, number]>, box: {x0: number; y0: number; x1: number; y1: number}): boolean {
+    const inside = (x: number, y: number) => x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1;
+    if (piece.length === 1) return inside(piece[0][0], piece[0][1]);
+    for (let i = 1; i < piece.length; i++) {
+        const [ax, ay] = piece[i - 1], [bx, by] = piece[i];
+        const steps = Math.max(2, Math.ceil(Math.hypot(bx - ax, by - ay) / 2));
+        for (let s = 0; s <= steps; s++) if (inside(ax + ((bx - ax) * s) / steps, ay + ((by - ay) * s) / steps)) return true;
+    }
+    return false;
+}
+
+describe.each([[600, 400], [364, 440], [840, 520]])('board texts clear of curves, bars and the board edge (%i x %i px)', (W, H) => {
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    const check = (graph: ObservedGraph, label: string) => {
+        const {boxes, lines} = pixelLayout(graph);
+        expect([(graph.liveBoard() as unknown as {canvasWidth: number}).canvasWidth, (graph.liveBoard() as unknown as {canvasHeight: number}).canvasHeight]).toEqual([W, H]);
+        expect(boxes.length, label).toBeGreaterThan(0);
+        const problems: string[] = [];
+        for (const box of boxes) {
+            if (box.y0 < 6 - 1e-6) problems.push(`"${box.text}" top gap ${box.y0.toFixed(1)}`);
+            if (H - box.y1 < 6 - 1e-6) problems.push(`"${box.text}" bottom gap ${(H - box.y1).toFixed(1)}`);
+            if (lines.flat().some(piece => touches(piece, box))) problems.push(`"${box.text}" touches a curve`);
+        }
+        boxes.forEach((box, i) => boxes.slice(i + 1).forEach(other => {
+            if (box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0) problems.push(`"${box.text}" overlaps "${other.text}"`);
+        }));
+        expect(problems, label).toEqual([]);
+    };
+
+    test('Galton: the captions clear every bar for a tall heap (one ball), a flat one and the opening, with and without the second seed', () => {
+        const {graph} = mountGraph();
+        for (const trials of [1, 5, 1000]) {
+            act(() => { graph.editTrials(trials); });
+            for (const overlay of [false, true]) {
+                act(() => { graph.editOverlay(overlay); });
+                check(graph, `galton n=${trials} overlay=${overlay}`);
+            }
+        }
+    });
+
+    test('Coin frequency: the caption rows stand 6 px from the top, the axis note 6 px from the bottom, all clear of the curves', () => {
+        const {graph} = mountGraph();
+        chooseMode('frequency');
+        act(() => { graph.editTrials(10); });
+        check(graph, 'frequency n=10');
+        act(() => { graph.editOverlay(true); });
+        check(graph, 'frequency overlay');
+    });
+
+    test('Coin frequency: the log axis title clears the upper dashed band of the lower plot by 6 px, also for the largest count', () => {
+        const {graph} = mountGraph();
+        chooseMode('frequency');
+        for (const n of [10, 1000, 100000, 10 ** 6]) {
+            act(() => { graph.editTrials(n); });
+            const {boxes, lines} = pixelLayout(graph);
+            const title = boxes.find(box => box.text.includes(t('random_graph_cap_log_axis')));
+            expect(title, `title at n=${n}`).toBeDefined();
+            const grown = {...title!, x0: title!.x0 - 6, x1: title!.x1 + 6, y0: title!.y0 - 6, y1: title!.y1 + 6};
+            expect(lines.flat().some(piece => touches(piece, grown)), `title within 6 px of a curve at n=${n}`).toBe(false);
+        }
+    });
+
+    test.each(RANDOM_MODES.filter(mode => mode !== 'galton' && mode !== 'frequency'))('%s: the captions clear the curves and the board edge', mode => {
+        // The long caption rows of these modes need the width of a desktop board; the phone board is read in the browser smoke.
+        if (W < 400) return;
+        const {graph} = mountGraph();
+        chooseMode(mode);
+        check(graph, mode);
+        if (['walk', 'markov'].includes(mode)) { act(() => { graph.editOverlay(true); }); check(graph, `${mode} overlay`); }
+    });
+});

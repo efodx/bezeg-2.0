@@ -128,7 +128,8 @@ describe('captions on the narrowest board (390 px: about 330 x 440 px of plot)',
         const [left, top, right, bottom] = scene.frame;
         const perUnit = HEIGHT_PX / (top - bottom);
         const span = right - left;
-        const caps = scene.captions;
+        // Stack rows (`top`, `bottom`) stand in pixels from the edge of the board, 18 px apart; only the captions in data coordinates are checked here.
+        const caps = scene.captions.filter(c => c.top === undefined && c.bottom === undefined);
         for (let i = 0; i < caps.length; i++) for (let j = i + 1; j < caps.length; j++) {
             if (Math.abs(caps[i].x - caps[j].x) > 0.45 * span) continue; // texts this far apart start beside each other
             expect(Math.abs(caps[i].y - caps[j].y) * perUnit, `${caps[i].key} / ${caps[j].key}`).toBeGreaterThanOrEqual(ROW_PX - 1e-9);
@@ -448,7 +449,7 @@ describe('RS3 second shape: the whole circle in the square', () => {
 
 describe('RS2 second plot: heads minus n/2', () => {
     const pointAt = (layer: Layer, count: number) => layer.y[layer.x.findIndex(x => Math.abs(x - Math.log10(count)) < 1e-12)];
-    const unplace = (y: number, scale: number) => ((y + 0.75) / 0.5) * scale;
+    const unplace = (y: number, scale: number) => ((y + 0.88) / 0.4) * scale;
 
     test('seed 42 (spec): -4, -5, -7, +11 heads from half at n = 10, 100, 1000, 10000; zero line at the centre', () => {
         // The drawn counts are 1..40 and multiples of n/240, so each spec count is the end of its own run (a prefix of the same stream).
@@ -458,7 +459,7 @@ describe('RS2 second plot: heads minus n/2', () => {
             expectWellFormed(scene);
             const scale = scene.captions.find(c => c.key === 'diffScale')?.values?.[0] ?? NaN;
             closeTo(unplace(pointAt(scene.layers.diff, count), scale), difference, 1e-9);
-            expect(scene.layers.diffZero.y).toEqual([-0.75, -0.75]);
+            expect(scene.layers.diffZero.y).toEqual([-0.88, -0.88]);
         }
     });
 
@@ -491,8 +492,8 @@ describe('RS2 second plot: heads minus n/2', () => {
         const {scene} = build({mode: 'frequency', n: 10000});
         const [, top, , bottom] = scene.frame;
         const all = [...scene.layers.diff.y, ...scene.layers.diffBand.y.filter(v => !Number.isNaN(v))];
-        all.forEach(v => { expect(v).toBeLessThanOrEqual(-0.25 + 1e-12); expect(v).toBeGreaterThanOrEqual(-1.25 - 1e-12); });
-        expect(bottom).toBeLessThan(-1.25);
+        all.forEach(v => { expect(v).toBeLessThanOrEqual(-0.48 + 1e-12); expect(v).toBeGreaterThanOrEqual(-1.28 - 1e-12); });
+        expect(bottom).toBeLessThan(-1.28);
         expect(top).toBeGreaterThan(1.08); // the caption rows stand above the plot
         expect(scene.captions.map(c => c.key)).toEqual(expect.arrayContaining(['diff', 'diffBand', 'diffScale']));
     });
@@ -524,7 +525,7 @@ describe('overlaid seeds', () => {
     test('the vertical scale of the second plot also holds the second seed', () => {
         const {scene} = buildOverlay({mode: 'frequency', n: 10000, seed2: 7});
         const scale = scene.captions.find(c => c.key === 'diffScale')?.values?.[0] ?? NaN;
-        for (const y of scene.layers.diff2.y) expect(Math.abs(((y + 0.75) / 0.5) * scale)).toBeLessThanOrEqual(scale + 1e-9);
+        for (const y of scene.layers.diff2.y) expect(Math.abs(((y + 0.88) / 0.4) * scale)).toBeLessThanOrEqual(scale + 1e-9);
     });
 
     test('galton: the second heap holds the kernel counts of the second seed as shares summing to 1; the first heap is untouched', () => {

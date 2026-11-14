@@ -56,8 +56,8 @@ const descentWindows = {
 // its own mode's frame (the Galton board: x from -0.8 to 10.8, y from 1.28 to -1.14; the coin frequency at 10 tosses: x from -0.15 to 1.15, y from 1.55 to -1.47), which keeps the unequal x and y scales of the graph.
 // The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
 const randomnessWindows = {
-    'randomness.galton-board.prob-simulation': [0.469, 1.015, 9.531, -0.875],
-    'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.22, 1.008, -1.14],
+    'randomness.galton-board.prob-simulation': [0.469, 1.252, 9.531, -0.918],
+    'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.398, 1.008, -1.648],
 };
 
 // The growth cards: the board frames each panel in its own window (the sequence panel: x from -0.7 to 7.2, y from 17.55 to -1.3 for the six terms up to 13; the one-year interest panel: x from -0.12 to 1.05,

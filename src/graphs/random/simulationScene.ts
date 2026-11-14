@@ -31,6 +31,13 @@ export interface Caption {
     readonly y: number;
     /** Optional number the caption names (how many paths, points or intervals are drawn). */
     readonly count?: number;
+    /** Stack row from the top (`top`) or the bottom (`bottom`) edge of the board: the graph stands the caption there in pixels, in a band above the scene frame, whatever the board size; `x` is still its data x. */
+    readonly top?: number;
+    readonly bottom?: number;
+    /** Pixels under the horizontal axis (y = 0): the caption stands there whatever the board size (the tick numbers take the first 24). */
+    readonly axis?: number;
+    /** The caption stands under the previous one, whose height (it wraps on a narrow board) the graph measures. */
+    readonly after?: true;
     /**
      * Other numbers the caption names: `box`, `boxStart` [state 0 or 1]; `move` [from, to, numerator, denominator]; `diffScale` [heads];
      * `seedOne`, `seedTwo` [seed]; `missLaw` [intervals, first count, last count]; `missRun` [misses].
@@ -122,8 +129,9 @@ export function sceneFor(state: RandomState, sim: RandomSim, exact: RandomExact,
 }
 
 /** The captions that tell the two seeds apart (solid: the seed field, dotted: the second seed); present only while a second run is drawn. */
-function seedCaptions(state: RandomState, sim2: RandomSim | undefined, x: number, y: number, dy: number): Caption[] {
-    return sim2 ? [{key: 'seedOne', x, y, values: [state.seed]}, {key: 'seedTwo', x, y: y - dy, values: [state.seed2]}] : [];
+function seedCaptions(state: RandomState, sim2: RandomSim | undefined, x: number, y: number, dy: number, topRow?: number): Caption[] {
+    if (!sim2) return [];
+    return [{key: 'seedOne', x, y, values: [state.seed], ...(topRow === undefined ? {} : {top: topRow})}, {key: 'seedTwo', x, y: y - dy, values: [state.seed2], ...(topRow === undefined ? {} : {top: topRow + 1})}];
 }
 
 function galtonScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?: RandomSim): SceneData {
@@ -131,7 +139,8 @@ function galtonScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
     const rows = state.rows;
     const slots = Array.from({length: rows + 1}, (_, k) => k);
     const freq = sim.counts.map(c => (sim.trials > 0 ? c / sim.trials : 0));
-    const height = Math.max(Math.max(...exact.masses) * 1.35, Math.max(...freq) * 1.05, 0.05);
+    const freq2 = sim2?.kind === 'galton' ? sim2.counts.map(c => (sim2.trials > 0 ? c / sim2.trials : 0)) : [];
+    const height = Math.max(Math.max(...exact.masses) * 1.35, Math.max(...freq, ...freq2) * 1.05, 0.05);
     const yPath = (r: number) => -height * (0.1 + (0.85 * r) / rows);
     const xPath = (r: number, rights: number) => rows / 2 + (2 * rights - r) / 2;
     const pegs: Array<{x: number[]; y: number[]}> = [];
@@ -144,7 +153,7 @@ function galtonScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
     });
     const earlier = Array.from({length: Math.max(drawn - 1, 0)}, (_, b) => polyline(b));
     const latest = drawn > 0 ? polyline(drawn - 1) : {x: [], y: []};
-    const heap2 = sim2?.kind === 'galton' ? verticalBars(slots, sim2.counts.map(c => (sim2.trials > 0 ? c / sim2.trials : 0)), 0.5) : EMPTY_LAYER;
+    const heap2 = sim2?.kind === 'galton' ? verticalBars(slots, freq2, 0.5) : EMPTY_LAYER;
     return {
         frame: [-1, height * 1.12, rows + 1, -height * 1.08],
         layers: {
@@ -157,10 +166,11 @@ function galtonScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
         },
         captions: [
             // Right of the vertical axis, and the path caption under the axis labels: no axis line strikes through a caption.
-            {key: 'heap', x: 0.1, y: height * 1.08},
-            {key: 'bars', x: 0.1, y: height * 0.98},
-            {key: 'path', x: 0.1, y: -height * 0.15, count: drawn},
-            ...seedCaptions(state, sim2, 0.1, height * 0.88, height * 0.1),
+            // The heap and bar captions stand in a pixel band above the frame (above every bar, which reach at most 0.96 of `height`).
+            {key: 'heap', x: 0.1, y: height * 1.08, top: 0},
+            {key: 'bars', x: 0.1, y: height * 0.98, top: 1},
+            {key: 'path', x: 0.1, y: -height * 0.15, count: drawn, bottom: 0},
+            ...seedCaptions(state, sim2, 0.1, height * 0.88, height * 0.1, 2),
         ],
     };
 }
@@ -175,8 +185,8 @@ export const LOG_TITLE_Y = -0.17;
 const bandRow = (rows: number, i: number) => PLOT_TOP + CAPTION_ROW * (rows - i);
 
 /** Position of the second plot (heads minus half the tosses) under the running frequency: centre line and half height. */
-const DIFF_CENTRE = -0.75;
-const DIFF_HALF = 0.5;
+const DIFF_CENTRE = -0.88;
+const DIFF_HALF = 0.4;
 
 function frequencyScene(state: RandomState, sim: RandomSim, sim2?: RandomSim): SceneData {
     if (sim.kind !== 'frequency') throw new Error('frequency scene needs frequency data');
@@ -204,7 +214,7 @@ function frequencyScene(state: RandomState, sim: RandomSim, sim2?: RandomSim): S
     const place = (d: number) => DIFF_CENTRE + (DIFF_HALF * d) / scale;
     const rows = 3 + (second ? 2 : 0);
     return {
-        frame: [-0.12 * xmax - 0.1, PLOT_TOP + CAPTION_ROW * rows + 0.07, xmax * 1.05 + 0.1, -1.42],
+        frame: [-0.12 * xmax - 0.1, PLOT_TOP + 0.04, xmax * 1.05 + 0.1, -1.3],
         layers: {
             running: running(sim.curve),
             running2: second ? running(second.curve) : EMPTY_LAYER,
@@ -216,14 +226,15 @@ function frequencyScene(state: RandomState, sim: RandomSim, sim2?: RandomSim): S
             diffZero: {x: [0, xmax], y: [DIFF_CENTRE, DIFF_CENTRE]},
         },
         captions: [
-            {key: 'running', x: 0.05 * xmax, y: bandRow(rows, 0)},
-            {key: 'half', x: 0.05 * xmax, y: bandRow(rows, 1)},
-            {key: 'band', x: 0.05 * xmax, y: bandRow(rows, 2)},
-            {key: 'logAxis', x: xmax * 0.25, y: LOG_TITLE_Y},
-            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW),
-            {key: 'diff', x: 0.05 * xmax, y: LOG_TITLE_Y - 0.13},
-            {key: 'diffBand', x: 0.05 * xmax, y: LOG_TITLE_Y - 0.13 - CAPTION_ROW},
-            {key: 'diffScale', x: 0.05 * xmax, y: -1.34, values: [scale]},
+            // The three rows (five with the second seed) stand in a pixel band above the plot, the scale note in one under the lower plot.
+            {key: 'running', x: 0.05 * xmax, y: bandRow(rows, 0), top: 0},
+            {key: 'half', x: 0.05 * xmax, y: bandRow(rows, 1), top: 1},
+            {key: 'band', x: 0.05 * xmax, y: bandRow(rows, 2), top: 2},
+            {key: 'logAxis', x: xmax * 0.25, y: LOG_TITLE_Y, axis: 30},
+            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW, 3),
+            {key: 'diff', x: 0.05 * xmax, y: -1.5, bottom: 2},
+            {key: 'diffBand', x: 0.05 * xmax, y: -1.4, bottom: 1},
+            {key: 'diffScale', x: 0.05 * xmax, y: -1.34, values: [scale], bottom: 0},
         ],
     };
 }
@@ -281,10 +292,10 @@ function areaScene(state: RandomState, sim: RandomSim): SceneData {
             {key: 'points', x: whole ? -1.08 : 0.02, y: top - 0.04, count: drawn},
             whole ? {key: 'circleWhole', x: -1.08, y: bottom + 0.05} : {key: 'circle', x: 0.05, y: -0.07},
             {key: 'estimate', x: left, y: top - 0.04},
-            {key: 'truth', x: left, y: Math.PI / 4 + 0.03},
+            {key: 'truth', x: left, y: Math.PI / 4 + 0.07},
             {key: 'errorBar', x: left, y: Math.PI / 4 - 0.1},
-            {key: 'inside', x: left, y: 0.5},
-            {key: 'outside', x: left, y: 0.4},
+            {key: 'inside', x: left, y: 0.56},
+            {key: 'outside', x: left, y: 0.34},
         ],
     };
 }
@@ -335,25 +346,25 @@ function markovDiagram(s: number, a: number, b: number, start: 0 | 1, drop: numb
         const {num, den} = percentFraction(percent);
         return {key: 'move', x, y, values: [from, to, num, den]};
     };
-    const arrowRight = [{x: [0.3 * s, 0.7 * s], y: [-0.43 - drop, -0.43 - drop]}, {x: [0.66 * s, 0.7 * s, 0.66 * s], y: [-0.39 - drop, -0.43 - drop, -0.47 - drop]}];
-    const arrowLeft = [{x: [0.7 * s, 0.3 * s], y: [-0.57 - drop, -0.57 - drop]}, {x: [0.34 * s, 0.3 * s, 0.34 * s], y: [-0.53 - drop, -0.57 - drop, -0.61 - drop]}];
+    const arrowRight = [{x: [0.34 * s, 0.66 * s], y: [-0.43 - drop, -0.43 - drop]}, {x: [0.62 * s, 0.66 * s, 0.62 * s], y: [-0.39 - drop, -0.43 - drop, -0.47 - drop]}];
+    const arrowLeft = [{x: [0.66 * s, 0.34 * s], y: [-0.57 - drop, -0.57 - drop]}, {x: [0.38 * s, 0.34 * s, 0.38 * s], y: [-0.53 - drop, -0.57 - drop, -0.61 - drop]}];
     const loop = (x0: number, x1: number) => [{x: [x0, x0, x1, x1], y: [-0.35 - drop, -0.24 - drop, -0.24 - drop, -0.35 - drop]}, {x: [x1 - 0.015 * s, x1, x1 + 0.015 * s], y: [-0.31 - drop, -0.35 - drop, -0.31 - drop]}];
     return {
-        boxes: join([rectangle(0.04 * s, 0.3 * s, -0.65 - drop, -0.35 - drop), rectangle(0.7 * s, 0.96 * s, -0.65 - drop, -0.35 - drop)]),
+        boxes: join([rectangle(0.03 * s, 0.34 * s, -0.65 - drop, -0.35 - drop), rectangle(0.66 * s, 0.97 * s, -0.65 - drop, -0.35 - drop)]),
         arrows: join([...arrowRight, ...arrowLeft, ...loop(0.12 * s, 0.22 * s), ...loop(0.78 * s, 0.88 * s)]),
         captions: [
-            {key: start === 0 ? 'boxStart' : 'box', x: 0.06 * s, y: -0.5 - drop, values: [0]},
-            {key: start === 1 ? 'boxStart' : 'box', x: 0.72 * s, y: -0.5 - drop, values: [1]},
-            cap(0, 1, a, 0.31 * s, -0.37 - drop),
-            cap(1, 0, b, 0.31 * s, -0.63 - drop),
-            cap(0, 0, 100 - a, 0.04 * s, -0.19 - drop),
-            cap(1, 1, 100 - b, 0.7 * s, -0.19 - drop),
+            {key: start === 0 ? 'boxStart' : 'box', x: 0.05 * s, y: -0.5 - drop, values: [0]},
+            {key: start === 1 ? 'boxStart' : 'box', x: 0.68 * s, y: -0.5 - drop, values: [1]},
+            cap(0, 1, a, 0.35 * s, -0.32 - drop),
+            cap(1, 0, b, 0.35 * s, -0.68 - drop),
+            cap(0, 0, 100 - a, 0.04 * s, -0.12 - drop),
+            cap(1, 1, 100 - b, 0.7 * s, -0.12 - drop),
         ],
     };
 }
 
 /** The diagram hangs this far below the axis title (it moved down to leave a row for it under the tick labels). */
-const DIAGRAM_DROP = 0.12;
+const DIAGRAM_DROP = 0.2;
 
 function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?: RandomSim): SceneData {
     if (sim.kind !== 'markov' || exact.kind !== 'markov') throw new Error('markov scene needs markov data');
@@ -364,7 +375,7 @@ function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
     const diagram = markovDiagram(span, state.markovA, state.markovB, state.markovStart, DIAGRAM_DROP);
     const rows = 3 + (second ? 2 : 0);
     return {
-        frame: [-0.12 * span - 0.1, PLOT_TOP + CAPTION_ROW * rows + 0.07, span * 1.05 + 0.1, -0.9 - DIAGRAM_DROP],
+        frame: [-0.12 * span - 0.1, PLOT_TOP + 0.04, span * 1.05 + 0.1, -0.9 - DIAGRAM_DROP],
         layers: {
             share: running(sim.curve),
             share2: second ? running(second.curve) : EMPTY_LAYER,
@@ -374,11 +385,11 @@ function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
             arrows: diagram.arrows,
         },
         captions: [
-            {key: 'share', x: 0.05 * xmax, y: bandRow(rows, 0)},
-            {key: 'exactA', x: 0.05 * xmax, y: bandRow(rows, 1)},
-            {key: 'stationary', x: 0.05 * xmax, y: bandRow(rows, 2)},
+            {key: 'share', x: 0.05 * xmax, y: bandRow(rows, 0), top: 0},
+            {key: 'exactA', x: 0.05 * xmax, y: bandRow(rows, 1), top: 1},
+            {key: 'stationary', x: 0.05 * xmax, y: bandRow(rows, 2), top: 2},
             {key: 'logAxis', x: xmax * 0.25, y: LOG_TITLE_Y},
-            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW),
+            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW, 3),
             ...diagram.captions,
         ],
     };
@@ -416,8 +427,8 @@ function intervalScene(state: RandomState, sim: RandomSim, exact: RandomExact): 
         const at = centres[sim.misses - window.first];
         observed = {x: [at, at], y: [0, LAW_HEIGHT + 8]};
         lawCaptions.push(
-            {key: 'missLaw', x: LAW_LEFT, y: 108, values: [sim.trials, window.first, window.first + window.masses.length - 1]},
-            {key: 'missRun', x: LAW_LEFT, y: 100, values: [sim.misses]},
+            {key: 'missLaw', x: LAW_LEFT, y: 108, top: 0, values: [sim.trials, window.first, window.first + window.masses.length - 1]},
+            {key: 'missRun', x: LAW_LEFT, y: 100, after: true, values: [sim.misses]},
         );
     }
     return {
@@ -431,9 +442,9 @@ function intervalScene(state: RandomState, sim: RandomSim, exact: RandomExact): 
             observed,
         },
         captions: [
-            {key: 'mean', x: 50.2, y: 108},
-            {key: 'miss', x: 16, y: 108},
-            {key: 'cover', x: 16, y: -3.5, count: drawn},
+            {key: 'mean', x: 50.2, y: 108, top: 0},
+            {key: 'miss', x: 16, y: 108, top: 0},
+            {key: 'cover', x: 16, y: -3.5, count: drawn, bottom: 0},
             ...lawCaptions,
         ],
     };

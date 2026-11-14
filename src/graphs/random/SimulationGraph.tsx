@@ -96,6 +96,34 @@ function modeName(mode: RandomMode): string {
     }
 }
 
+/** Pixels: the gap of a text from the board edge, the height of one stacked caption row. */
+const EDGE_PX = 6;
+const CAPTION_ROW_PX = 18;
+/** The board height assumed before there is a board. */
+const DEFAULT_HEIGHT_PX = 400;
+const DEFAULT_WIDTH_PX = 600;
+/** A generous width of one glyph of a 14 px caption, to estimate where a caption wraps. */
+const GLYPH_PX = 7.2;
+const LEFT_PX = 36;
+
+/**
+ * The frame of a scene with room in pixels for its stacked caption rows (above and under the data) and `EDGE_PX` of air at the top and bottom edge,
+ * for a board `height` px tall (0: unknown): the data keeps its place in the plot, whatever the board size.
+ */
+export function framedScene(scene: SceneData, height: number, width = 0): [number, number, number, number] {
+    const [left, top, right, bottom] = scene.frame;
+    const rows = (key: "top" | "bottom") => scene.captions.reduce((most, caption) => Math.max(most, (caption[key] ?? -1) + 1), 0);
+    const topPx = EDGE_PX + (rows("top") > 0 ? CAPTION_ROW_PX * rows("top") + 2 : 0);
+    const bottomPx = EDGE_PX + (rows("bottom") > 0 ? CAPTION_ROW_PX * rows("bottom") + 2 : 0);
+    const h = height > 0 ? height : DEFAULT_HEIGHT_PX;
+    const plot = Math.max(h - topPx - bottomPx, h / 3);
+    const perPx = (top - bottom) / plot;
+    // The y tick numbers stand left of the vertical axis: at least `LEFT_PX` between it and the left edge.
+    const w = width > 0 ? width : DEFAULT_WIDTH_PX;
+    const wide = left < 0 && right > 0 && (-left * w) / (right - left) < LEFT_PX ? (-LEFT_PX * right) / (w - LEFT_PX) : left;
+    return [wide, top + topPx * perPx, right, bottom - bottomPx * perPx];
+}
+
 function trialsLabel(mode: RandomMode): string {
     switch (mode) {
         case "galton": return t("random_graph_n_galton");
@@ -168,6 +196,7 @@ interface DrawnCurve {
  */
 export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
     private objects: JXG.GeometryElement[] = [];
+    private texts: JXG.Text[] = [];
     private viewCache?: {state: RandomGraphState; key: string; view: RunView};
     private exactCache?: {key: string; exact: RandomExact};
     private drawnMode?: RandomMode;
@@ -236,8 +265,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
     }
 
     protected override initialView(): [number, number, number, number] {
-        const [left, top, right, bottom] = sceneFor(DEFAULT_RANDOM_STATE, simulate(DEFAULT_RANDOM_STATE), exactFor(DEFAULT_RANDOM_STATE)).frame;
-        return [left, top, right, bottom];
+        return framedScene(sceneFor(DEFAULT_RANDOM_STATE, simulate(DEFAULT_RANDOM_STATE), exactFor(DEFAULT_RANDOM_STATE)), this.boardHeight(), this.boardWidth());
     }
 
     // ---- Derived numbers ------------------------------------------------------------------------------------------------
@@ -321,12 +349,12 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
     }
 
     private frameKey(): string {
-        return `${this.state.mode}/${this.view().scene.frame.map(value => value.toFixed(4)).join(",")}`;
+        return `${this.state.mode}/${this.view().scene.frame.map(value => value.toFixed(4)).join(",")}/${this.boardHeight()}x${this.boardWidth()}`;
     }
 
     /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
-        const frame = this.view().scene.frame;
+        const frame = framedScene(this.view().scene, this.boardHeight(), this.boardWidth());
         const key = this.frameKey();
         if (this.keepNextFrame) {
             this.keepNextFrame = false;
@@ -364,12 +392,46 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         this.drawnCaptions = count;
         for (let i = 0; i < count; i++) {
             const caption = () => this.view().scene.captions[i];
-            this.own(board.create("text", [() => caption()?.x ?? 0, () => caption()?.y ?? 0, () => {
+            // A stacked caption is anchored at the edge it is stacked from, so a wrapped one grows away from the edge.
+            const first = caption();
+            const anchorY = first?.after || first?.top !== undefined ? "top" : first?.bottom !== undefined ? "bottom" : "middle";
+            this.texts[i] = this.own(board.create("text", [() => caption()?.x ?? 0, () => this.captionY(caption(), i), () => {
                 const current = caption();
                 return current ? captionText(current, this.state) : "";
-            }], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", fixed: true, highlight: false, withLabel: false}));
+            }], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY, fixed: true, highlight: false, withLabel: false}));
         }
         this.drawnFrame = "";
+    }
+
+    /** The data y of a caption: a stack row stands in pixels from the top or bottom edge of the window the board shows, any other caption at its scene y. */
+    private captionY(caption: Caption | undefined, index: number): number {
+        if (!caption) return 0;
+        if (!this.hasBoard || !(this.board.unitY > 0)) return caption.y;
+        if (caption.axis !== undefined) return -caption.axis / this.board.unitY;
+        if (caption.after) {
+            const previous = this.texts[index - 1];
+            // The text wraps at the right edge of the board: its height is the larger of the measured one (one frame behind) and an estimate of the wrapped lines.
+            const words = previous ? captionText(this.view().scene.captions[index - 1], this.state) : "";
+            const [, , right] = this.board.getBoundingBox();
+            const room = previous ? Math.max((right - previous.X()) * this.board.unitX, 1) : 1;
+            const lines = Math.max(1, Math.ceil((words.length * GLYPH_PX) / room));
+            const height = Math.max(previous?.getSize?.()[1] ?? 0, lines * (CAPTION_ROW_PX - 1));
+            return (previous ? previous.Y() : caption.y) - (height + 2) / this.board.unitY;
+        }
+        const row = caption.top ?? caption.bottom;
+        if (row === undefined) return caption.y;
+        const [, top, , bottom] = this.board.getBoundingBox();
+        const offset = (EDGE_PX + CAPTION_ROW_PX * row) / this.board.unitY;
+        return caption.top !== undefined ? top - offset : bottom + offset;
+    }
+
+    /** The height of the board in pixels, or 0 before there is a board. */
+    private boardHeight(): number {
+        return this.hasBoard && this.board.canvasHeight > 0 ? this.board.canvasHeight : 0;
+    }
+
+    private boardWidth(): number {
+        return this.hasBoard && this.board.canvasWidth > 0 ? this.board.canvasWidth : 0;
     }
 
     private disposeScene(): void {
@@ -379,6 +441,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             if (alive.length) board.removeObject(alive);
         }
         this.objects = [];
+        this.texts = [];
         this.drawnMode = undefined;
         this.drawnCaptions = 0;
         this.drawnFrame = "";
