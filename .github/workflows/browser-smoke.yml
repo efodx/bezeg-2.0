@@ -74,7 +74,9 @@ jobs:
     needs: scope
     if: needs.scope.outputs.full_verification == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The scheduled run checks every catalog sweep entry and needs longer (T03, phase 8 change 8 of
+    # docs/specs/verification-throughput.md): run 43413497282 was cancelled at 15 minutes.
+    timeout-minutes: ${{ github.event_name == 'schedule' && 25 || 15 }}
     strategy:
       fail-fast: false
       matrix:
