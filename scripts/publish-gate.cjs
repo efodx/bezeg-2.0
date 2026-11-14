@@ -481,6 +481,19 @@ const gitSync = (cwd, args) => {
     return result.stdout.trim();
 };
 
+/**
+ * Copies the origin checkout's incremental typecheck state into a new publish worktree, so the gate's typecheck rechecks
+ * only what differs (phase 8 change 3). TypeScript compares each file's content hash, so a stale or foreign file only
+ * costs time. The lint cache is keyed by absolute path and is not copied.
+ */
+function seedTypecheckCache(origin, worktree) {
+    const {CACHE_FILES, LOG_DIR_NAME} = require('./commands.cjs');
+    const source = path.join(origin, LOG_DIR_NAME, CACHE_FILES.tsc);
+    if (!fs.existsSync(source)) return;
+    fs.mkdirSync(path.join(worktree, LOG_DIR_NAME), {recursive: true});
+    fs.copyFileSync(source, path.join(worktree, LOG_DIR_NAME, CACHE_FILES.tsc));
+}
+
 /** Removes a publish worktree. Its node_modules link goes first, so Git never follows it into the shared install. */
 function removePublishWorktree(root, worktree) {
     const link = path.join(worktree, 'node_modules');
@@ -612,6 +625,7 @@ async function publishBackground({cwd = process.cwd(), base, commits, recipe, la
         gitSync(root, ['worktree', 'add', '--detach', worktree, last]);
         const modules = path.join(root, 'node_modules');
         if (fs.existsSync(modules)) fs.symlinkSync(fs.realpathSync(modules), path.join(worktree, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
+        seedTypecheckCache(root, worktree);
         const args = ['--recipe', recipe, '--base', declaredBase, '--commits', declared.join(','), '--result-file', resultPath, '--origin', root, '--log-path', logPath];
         const pid = await launch({cwd: worktree, args, logPath});
         if (!Number.isInteger(pid)) throw new GateStop('The background gate did not start (no process id).');

@@ -536,6 +536,20 @@ test('background creates a worktree at the last declared commit and returns befo
     assert.equal(f.remoteHead(), f.base);
 });
 
+test('background seeds the new worktree with the origin checkout\'s typecheck cache, and works without one', async t => {
+    const f = fixture(t);
+    const first = commitFile(f.work, 'src/a.txt', 'a\n');
+    const bare = await background(f, [first]).run();
+    assert.equal(bare.ok, true, bare.message);
+    assert.equal(fs.existsSync(path.join(bare.worktree, '.command-logs', 'tsc.tsbuildinfo')), false);
+    fs.rmSync(path.join(f.work, '.command-logs', `publish-${bare.id}.pending`), {force: true});
+    fs.mkdirSync(path.join(f.work, '.command-logs'), {recursive: true});
+    fs.writeFileSync(path.join(f.work, '.command-logs', 'tsc.tsbuildinfo'), '{"fixture":true}');
+    const seeded = await background(f, [first]).run();
+    assert.equal(seeded.ok, true, seeded.message);
+    assert.equal(fs.readFileSync(path.join(seeded.worktree, '.command-logs', 'tsc.tsbuildinfo'), 'utf8'), '{"fixture":true}');
+});
+
 test('a background run that succeeds writes an ok result and removes its worktree', async t => {
     const f = fixture(t);
     const commit = commitFile(f.work, 'src/a.txt', 'a\n');

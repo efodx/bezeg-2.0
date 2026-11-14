@@ -10,6 +10,8 @@ const {warnSelectorRemovals} = require('./selector-removal-check.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const LOG_DIR_NAME = '.command-logs';
+// Typecheck and lint caches, in LOG_DIR_NAME; a background publish worktree is seeded with them (publish-gate.cjs).
+const CACHE_FILES = {tsc: 'tsc.tsbuildinfo', eslint: 'eslintcache.json'};
 const STAMP_NAME = '.bezeg-build-provenance.json';
 const TAIL_LIMIT = 16 * 1024;
 
@@ -434,8 +436,11 @@ async function executeCommand(command, rawArgs = [], options = {}) {
     const free = (name, step) => gate ? {...step, acquire: () => gate.free(name)} : step;
     const slotted = step => gate ? {...step, acquire: () => gate.slot()} : step;
     const nodeStep = (label, file, argv = [], env = process.env) => ({label, executable: process.execPath, args: [file, ...argv], env});
-    const tsc = () => free('typecheck', nodeStep('typecheck', localTool(root, 'typescript'), ['--noEmit', '--pretty', 'false']));
-    const lint = argv => free('lint', nodeStep('lint', localTool(root, 'eslint'), argv.length ? argv : ['.']));
+    // Typecheck and lint keep caches in this checkout's own log directory, not in node_modules, which worktrees share
+    // through a junction (phase 8 change 3, T02). The lint configuration has no type-aware rules, so a per-file result
+    // cannot go stale through another file. Hosted CI calls tsc and eslint directly and stays uncached.
+    const tsc = () => free('typecheck', nodeStep('typecheck', localTool(root, 'typescript'), ['--noEmit', '--pretty', 'false', '--incremental', '--tsBuildInfoFile', path.join(root, LOG_DIR_NAME, CACHE_FILES.tsc)]));
+    const lint = argv => free('lint', nodeStep('lint', localTool(root, 'eslint'), ['--cache', '--cache-strategy', 'content', '--cache-location', path.join(root, LOG_DIR_NAME, CACHE_FILES.eslint), ...(argv.length ? argv : ['.'])]));
     const build = () => free('build', npmStep('build'));
     const unit = argv => slotted({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
     const alwaysRunStep = files => ({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', '--maxWorkers=2', ...files]});
@@ -573,4 +578,4 @@ if (require.main === module) {
     cli(process.argv.slice(2));
 }
 
-module.exports = {appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};
+module.exports = {CACHE_FILES, LOG_DIR_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};

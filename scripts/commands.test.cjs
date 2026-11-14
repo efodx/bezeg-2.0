@@ -313,7 +313,10 @@ test('check-changed runs typecheck, lint and only the affected unit tests agains
         assert.equal(await commands.execute('check-changed', ['abc1234'], {root, env}), 0);
         assert.equal(await commands.execute('check-changed', [], {root, env}), 0);
         const lines = fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line));
-        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint .', 'npm test', 'npm test', 'npm run', 'tsc --noEmit', 'eslint .', 'npm test', 'npm test', 'npm run']);
+        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint --cache', 'npm test', 'npm test', 'npm run', 'tsc --noEmit', 'eslint --cache', 'npm test', 'npm test', 'npm run']);
+        // Typecheck and lint caches live in this checkout's log directory; lint still targets the whole tree.
+        assert.deepEqual(lines[0].slice(1), ['--noEmit', '--pretty', 'false', '--incremental', '--tsBuildInfoFile', path.join(root, '.command-logs', 'tsc.tsbuildinfo')]);
+        assert.deepEqual(lines[1].slice(1), ['--cache', '--cache-strategy', 'content', '--cache-location', path.join(root, '.command-logs', 'eslintcache.json'), '.']);
         assert.deepEqual(lines[2].slice(1), ['test', '--', '--run', '--changed', 'abc1234', '--passWithNoTests']);
         assert.deepEqual(lines[3].slice(1, 3), ['test', '--']);
         assert.deepEqual(lines[3].slice(5), ALWAYS_RUN);
@@ -334,7 +337,7 @@ test('typecheck runs only the local compiler', async () => {
     fs.writeFileSync(path.join(root, 'node_modules/typescript/bin/tsc'), `require('node:fs').appendFileSync(${JSON.stringify(events)}, JSON.stringify(process.argv.slice(2)))`);
     try {
         assert.equal(await commands.execute('typecheck', [], {root}), 0);
-        assert.deepEqual(JSON.parse(fs.readFileSync(events, 'utf8')), ['--noEmit', '--pretty', 'false']);
+        assert.deepEqual(JSON.parse(fs.readFileSync(events, 'utf8')), ['--noEmit', '--pretty', 'false', '--incremental', '--tsBuildInfoFile', path.join(root, '.command-logs', 'tsc.tsbuildinfo')]);
         assert.equal(fs.existsSync(path.join(root, '.bezeg-build-provenance.json')), false);
     } finally { cleanup(root); }
 });
@@ -347,7 +350,8 @@ test('lint runs the local ESLint on the repository or on the given paths', async
     try {
         assert.equal(await commands.execute('lint', [], {root}), 0);
         assert.equal(await commands.execute('lint', ['tests', '--max-warnings', '0'], {root}), 0);
-        assert.deepEqual(fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [['.'], ['tests', '--max-warnings', '0']]);
+        const cache = ['--cache', '--cache-strategy', 'content', '--cache-location', path.join(root, '.command-logs', 'eslintcache.json')];
+        assert.deepEqual(fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [[...cache, '.'], [...cache, 'tests', '--max-warnings', '0']]);
     } finally { cleanup(root); }
 });
 
