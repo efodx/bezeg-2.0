@@ -283,3 +283,14 @@ describe('JsxSurfaceView', () => {
         expect(boardCount()).toBe(baseline);
     });
 });
+
+
+describe('JsxSurfaceView board text', () => {
+    it('gives the view3d angle readouts (az, el, bank) the shared board face, not the browser default', async () => {
+        const {host, view} = await mount();
+        const readouts = Array.from(host.querySelectorAll<HTMLElement>('.JXGtext')).filter(e => /^(az|el|bank) =/.test(e.textContent ?? ''));
+        expect(readouts.length).toBe(3);
+        for (const readout of readouts) expect(readout.style.fontFamily, readout.textContent ?? '').toContain('Literata');
+        view.dispose();
+    });
+});

@@ -1,4 +1,5 @@
 import {JSXGraph} from 'jsxgraph';
+import {applyBoardTextDefaults} from '../../styles/BoardText';
 import {browserRasterServices, rasterizeBoard, type RasterServices} from './jsxCapture';
 import {meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} from './jsxDepthOrder';
 import {JsxInteraction} from './jsxInteraction';
@@ -534,7 +535,10 @@ export class JsxSurfaceView implements SurfaceView {
             pan: {enabled: false}, zoom: {enabled: false, wheel: false, pinch: false},
             keepAspectRatio: false, renderer: 'svg' as const,
         };
-        const board = JSXGraph.initBoard(container, boardOptions) as unknown as JxgBoard;
+        const created = JSXGraph.initBoard(container, boardOptions);
+        // This board is not made by GraphSession: its hidden view3d angle readouts (az, el, bank) would otherwise fall back to Arial.
+        applyBoardTextDefaults(created);
+        const board = created as unknown as JxgBoard;
         this.board = board;
         const frame = view3dFrame({width: w, height: h});
         const view = board.create('view3d', [frame.llftCorner, frame.size, [[-1, 1], [-1, 1], [-1, 1]]], {

@@ -194,6 +194,26 @@ describe('line labels', () => {
         }
     });
 
+    test('a label keeps off the tick label strips beside the axes', () => {
+        const strip = [5, -10, 6, 10] as const;
+        const placed = lineLabelPlacement(rising, undefined, true, {...view, avoid: [strip]});
+        const left = placed.anchorX === 'right' ? placed.x - view.width : placed.x;
+        expect(left >= strip[2] || left + view.width <= strip[0]).toBe(true);
+    });
+
+    test('a label does not cross the other line', () => {
+        const placed = lineLabelPlacement(rising, [0, 3, 10, 3], true, view);
+        const left = placed.anchorX === 'right' ? placed.x - view.width : placed.x;
+        const bottom = placed.anchorY === 'bottom' ? placed.y : placed.y - view.height;
+        expect(3 <= bottom || 3 >= bottom + view.height, `label ${left}..${left + view.width} x ${bottom}`).toBe(true);
+    });
+
+    test('on a narrow board a label with no clear position is hidden, otherwise it keeps its place', () => {
+        const blocked = {...view, top: 1};
+        expect(lineLabelPlacement(rising, undefined, true, {...blocked, hideWhenBlocked: true}).hidden).toBe(true);
+        expect(lineLabelPlacement(rising, undefined, true, blocked).hidden).toBeUndefined();
+    });
+
     test('a label wider than the line stays on the line', () => {
         expect(lineLabelPlacement([8, 4, 10, 5], [8, 6, 10, 9], true, view)).toMatchObject({x: 8, y: 4, anchorX: 'left'});
     });

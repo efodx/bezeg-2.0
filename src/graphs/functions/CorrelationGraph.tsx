@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE, COMPACT_BOARD_WIDTH} from "./BaseFunctionGraph";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
@@ -29,12 +29,24 @@ export interface LineLabelPlacement {
     y: number;
     anchorX: "left" | "right";
     anchorY: "top" | "bottom";
+    /** Set when no position was clear on a board that asked for hiding (`LineLabelView.hideWhenBlocked`). */
+    hidden?: true;
 }
 
 /** The gap kept between a line label and the view's right edge. */
 const LINE_LABEL_MARGIN_PX = 12;
 /** The gap kept between a line label and the edge of a point marker. */
 const LINE_LABEL_POINT_GAP_PX = 3;
+
+/** The room the y-axis and x-axis tick labels take beside their axis, which a line label keeps off. */
+const TICK_STRIP_WIDTH_PX = 30;
+const TICK_STRIP_HEIGHT_PX = 20;
+/** The corner the caption covers: up to this wide and this many label-font lines tall. */
+const CAPTION_AVOID_MAX_PX = 360;
+const CAPTION_AVOID_LINES = 3.6;
+/** The caption's shrink rule in `BaseFunctionGraph.caption` (11 px floor, full size from 700 px), which a line label follows. */
+const CAPTION_FLOOR_FONT = 11;
+const CAPTION_FULL_BOARD_WIDTH = 700;
 
 /** Where a label may sit along its line, as a share of the line's width from the left, in the order they are tried. */
 const LINE_LABEL_ALONG = [0.85, 0.75, 0.65, 0.55, 0.45];
@@ -51,6 +63,10 @@ export interface LineLabelView {
     clearX: number;
     clearY: number;
     points: readonly CorrelationPoint[];
+    /** Rectangles `[left, bottom, right, top]` the label keeps off (the caption corner and the strips the axis tick labels occupy). */
+    avoid?: readonly (readonly [number, number, number, number])[];
+    /** On a narrow board, a label with no clear position is hidden (`hidden`) instead of drawn over a line, tick or point. */
+    hideWhenBlocked?: boolean;
 }
 
 function yOnLine([xa, ya, xb, yb]: ViewLine, x: number): number {
@@ -72,13 +88,25 @@ function placeAlong(along: number, ordered: ViewLine, other: ViewLine | undefine
     return {x: moved, y: yOnLine(ordered, moved), anchorX: "left", anchorY};
 }
 
-function labelIsClear({x, y, anchorX, anchorY}: LineLabelPlacement, view: LineLabelView): boolean {
+/** Whether the line passes through the open box, so that a label sitting on one side of its line does not count as crossing it. */
+function lineCrossesBox(line: ViewLine, left: number, bottom: number, right: number, top: number): boolean {
+    const slack = (top - bottom) * 0.1;
+    for (let i = 0; i <= 8; i++) {
+        const y = yOnLine(line, left + (right - left) * i / 8);
+        if (y > bottom + slack && y < top - slack) return true;
+    }
+    return false;
+}
+
+function labelIsClear({x, y, anchorX, anchorY}: LineLabelPlacement, view: LineLabelView, lines: readonly ViewLine[]): boolean {
     const left = anchorX === "right" ? x - view.width : x;
     const bottom = anchorY === "bottom" ? y : y - view.height;
     const right = left + view.width, top = bottom + view.height;
     if (left < view.left || right > view.right || bottom < view.bottom || top > view.top) return false;
-    return !view.points.some(([px, py]) => px > left - view.clearX && px < right + view.clearX
-        && py > bottom - view.clearY && py < top + view.clearY);
+    if (view.points.some(([px, py]) => px > left - view.clearX && px < right + view.clearX
+        && py > bottom - view.clearY && py < top + view.clearY)) return false;
+    if (view.avoid?.some(([al, ab, ar, at]) => left < ar && right > al && bottom < at && top > ab)) return false;
+    return !lines.some(line => lineCrossesBox(line, left, bottom, right, top));
 }
 
 /**
@@ -86,12 +114,16 @@ function labelIsClear({x, y, anchorX, anchorY}: LineLabelPlacement, view: LineLa
  * wedge they open (the upper line's label above it, the lower line's below it, `wins` deciding when they coincide); alone, the
  * side where a right-anchored label clears its line. Text that has to run to the right of its point moves back along the line
  * by its `width`, so it stays in view. A label that would leave the view or cover a point steps back along the line; if no
- * position is clear it keeps the first one. It stops before the left part of the board, which holds the caption.
+ * position is clear (inside the view, off the points, the tick strips and both lines) it keeps the first one, or on a narrow board
+ * is hidden: the legend and inspector name the line. It stops before the left part of the board, which holds the caption.
  */
 export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, wins: boolean, view: LineLabelView): LineLabelPlacement {
     const ordered: ViewLine = line[0] <= line[2] ? line : [line[2], line[3], line[0], line[1]];
     const placements = LINE_LABEL_ALONG.map(along => placeAlong(along, ordered, other, wins, view));
-    return placements.find(placement => labelIsClear(placement, view)) ?? placements[0];
+    const lines = other ? [ordered, other] : [ordered];
+    const clear = placements.find(placement => labelIsClear(placement, view, lines));
+    if (clear) return clear;
+    return view.hideWhenBlocked ? {...placements[0], hidden: true} : placements[0];
 }
 
 
@@ -133,6 +165,12 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
 
     protected override exampleView() {
         return {key: JSON.stringify(this.model.points), box: [...fitCorrelationView(this.model.points)] as BoundingBox};
+    }
+
+    /** A line label is 0.9 of the setting, shrinks with the board as the caption does and is never larger than the caption. */
+    private lineLabelFontSize(): number {
+        const caption = Math.max(CAPTION_FLOOR_FONT, this.displaySettings.fontSize * Math.min(1, this.boardWidth() / CAPTION_FULL_BOARD_WIDTH));
+        return Math.min(caption, Math.max(10, this.displaySettings.fontSize * 0.9));
     }
 
     private viewOf(model: CorrelationModel): CorrelationView {
@@ -300,6 +338,16 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
                 const l = pick();
                 if (!l) return undefined;
                 const [left, top, right, bottom] = board.getBoundingBox();
+                const tickStrips = (l0: number, t0: number, r0: number, b0: number) => {
+                    const yAxis = Math.max(l0, Math.min(0, r0)), xAxis = Math.max(b0, Math.min(0, t0));
+                    const captionWidth = Math.min(0.55 * board.canvasWidth, CAPTION_AVOID_MAX_PX) / board.unitX;
+                    const captionHeight = CAPTION_AVOID_LINES * this.lineLabelFontSize() / board.unitY;
+                    return [
+                        [l0, t0 - captionHeight, l0 + captionWidth, t0],
+                        [yAxis - TICK_STRIP_WIDTH_PX / board.unitX, b0, yAxis + 2 / board.unitX, t0],
+                        [l0, xAxis - TICK_STRIP_HEIGHT_PX / board.unitY, r0, xAxis + 2 / board.unitY],
+                    ] as const;
+                };
                 const clearPx = Math.max(4, this.displaySettings.pointSize) + LINE_LABEL_POINT_GAP_PX;
                 return lineLabelPlacement(l, other(), wins, {
                     left, top, right, bottom,
@@ -307,12 +355,14 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
                     height: (drawn.text?.size?.[1] ?? 0) / board.unitY,
                     clearX: clearPx / board.unitX, clearY: clearPx / board.unitY,
                     points: model().points,
+                    avoid: tickStrips(left, top, right, bottom),
+                    hideWhenBlocked: board.canvasWidth < COMPACT_BOARD_WIDTH,
                 });
             };
             drawn.text = this.own(board.create("text", [() => placement()?.x ?? 0, () => placement()?.y ?? 0, label], {
                 anchorX: () => placement()?.anchorX ?? "right", anchorY: () => placement()?.anchorY ?? "bottom",
-                fixed: true, highlight: false, parse: false, strokeColor: color, fontSize: () => Math.max(10, this.displaySettings.fontSize * 0.9),
-                cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: () => pick() !== undefined,
+                fixed: true, highlight: false, parse: false, strokeColor: color, fontSize: () => this.lineLabelFontSize(),
+                cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: () => pick() !== undefined && !placement()?.hidden,
             })) as unknown as {size?: number[]};
         };
         line(yOnX, xOnY, true, GraphPalette.primaryCurve, 0, () => t("prob_correlation_board_line_y"));
