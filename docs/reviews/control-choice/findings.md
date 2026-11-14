@@ -34,6 +34,42 @@ Ranked by routes affected. "Decision" is the handler's (owner delegated design j
 
 Not changed, with reason: the dashed border of an unavailable field or button (a shared-controls decision; it marks "not available now", and the reason sits next to it); checkboxes versus switches (S9).
 
+## Closing sweep (handler 3, 2026-11-14)
+
+Same command, same 138 routes and three views, after steps 4a to 4e: 189, 184 and 189 compositions. Detector hits fell from about 1,240 to 201, on 14 routes (ranged-field 120 on 9, ragged-buttons 27 on 2, point-as-fields 24 on 1, said-twice 21 on 2, long-help 9 on 3), and no crop is empty. The handler opened desktop sheet 01 (the 14 most shared compositions: Presets, readouts, sliders, point lists, Display tab), the step 4a to 4d after images and the eight defect images, not the other 47 sheets.
+
+What was done with S1 to S17:
+
+| # | State |
+| --- | --- |
+| S1, S7, S8, S10, S11 | Fixed in step 4b (Presets grid, playback and view grids, point collection, point list title and name column). Five view buttons sit as 3 + 2 in three equal columns |
+| S2, S3, S4, S6, S14 | Fixed in step 4a. `no-gap` has no hit left |
+| S5 | Widget help deleted or cut in step 4c (ten keys deleted, five shortened). Three control helps of three lines remain; see below |
+| S9 | Euler line and unit circle shortened; five labels open (row S9 above) |
+| S12 | `NumberGrid` (step 4d): LinearMap and PhasePortrait matrices in their own rows and columns, the knot editor as one wrapping row, four cells per line |
+| S13 | Fixed in step 4c for Inversion, lattice paths, contours, solids and the PH offsets. Delaunay and `rational/circlen` are not duplicates; see below |
+| S15 | `describedBy` on `Slider`, `CountSetter` and `PointListInput` |
+| S16 | The Fourier coefficients table uses `InspectorDisclosure` |
+| S17 | The empty crops were real: a status group with nothing to say (`.inspector-group.function-status` on Euler's method, polynomial zeros, density) still took 13 px and drew a rule. An empty group now takes no room. The Presentation crops #460 and #476 of the first sweep were not traced |
+| M6 | Not done: the stacked count setters of the counting tree keep one line each. A compact count row needs a shared-control decision and nothing is broken |
+
+Remaining detector hits, each with its reason:
+
+| Detector | Where | Reason |
+| --- | --- | --- |
+| ranged-field | interval sweep, segment intersections | Segment and interval rows of `PointSetControls`: they wait for a row editor (two points, or two ends, per row). Recorded exception |
+| ranged-field | density `a`, `b`; linear `k`, `n`; polynomial and rational zeros; the unit circle's multiple of π; the simulation seed; the inserted knot | Typed on purpose, each with its reason in `decisions.json`: the range is a validity limit, not something to explore |
+| point-as-fields, ragged-buttons (1 + 1) | segment intersections, interval sweep | The same segment and interval rows |
+| long-help (3 lines) | `complex-euler`, `interpolation/runge`, `curve-geometry/kinematics` | Each explains what a switch adds to the drawing, not the widget. One line over the limit; left as teaching text |
+| said-twice | `compgeo/delaunay` | The second copy is the live region for screen readers, not a visible duplicate |
+| said-twice | `rational/circlen` | One switch label per curve group; two curves are shown |
+
+Found while making the catalogue pictures (step 4e), not fixed: at 200 % text a `ValueListInput` runs past the inspector width and `PlaybackButtons` text leaves its box; a `ToolTippedButton` labelled "+" is 32 px wide, under the 44 px touch target. The fixture's catalogue group is therefore shown only with `?catalogue=1`, outside the layout checks. These are the next shared-control fixes.
+
+Also open: the phase portrait names its seed rows "Začetna točka 1", which wraps in the name column; the lessons quote that name in many steps, so it stays until the lessons are edited with it.
+
+Before and after images of the five reported defects: [`defects/`](defects/) (1 Descent radius, 2 Inversion radius and point, 3 the editing-mode box, 4 and 5 the point list).
+
 ## Seen during the migration slices (handler 2, 2026-11-14)
 
 | # | What | Where | Fault | Proposed fix |

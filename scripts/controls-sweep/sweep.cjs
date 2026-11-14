@@ -84,7 +84,10 @@ function inspect() {
                 for (const b of buttons) { const mid = (b.top + b.bottom) / 2; const row = rows.find(r => Math.abs(r.mid - mid) <= Math.max(4, b.height / 2)); if (row) row.boxes.push(b); else rows.push({mid, boxes: [b]}); }
                 const left = Math.min(...buttons.map(b => b.left)); const right = Math.max(...buttons.map(b => b.right));
                 const gridRow = boxes => { const widths = boxes.map(b => b.width); return Math.max(...widths) - Math.min(...widths) <= 1 && Math.abs(Math.min(...boxes.map(b => b.left)) - left) <= 1 && Math.abs(Math.max(...boxes.map(b => b.right)) - right) <= 1; };
-                if (!rows.every(row => gridRow(row.boxes))) hit('ragged-buttons', el, `${buttons.length} buttons on ${rows.length} lines (${rows.map(row => row.boxes.length).join(' + ')})`);
+                // Equal columns with a shorter last row (five buttons as 3 + 2) are a grid too: every button has one width and every row starts at the left edge.
+                const widths = buttons.map(b => b.width);
+                const columns = Math.max(...widths) - Math.min(...widths) <= 1 && rows.every(row => Math.abs(Math.min(...row.boxes.map(b => b.left)) - left) <= 1);
+                if (!columns && !rows.every(row => gridRow(row.boxes))) hit('ragged-buttons', el, `${buttons.length} buttons on ${rows.length} lines (${rows.map(row => row.boxes.length).join(' + ')})`);
             }
         }
         // Text or a control cut by its own box.
