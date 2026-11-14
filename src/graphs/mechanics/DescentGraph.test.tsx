@@ -407,8 +407,8 @@ describe('typed input and dragging', () => {
         const described = (element: HTMLElement) => (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
             .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
         const slideName = (key: 'descent_graph_radius_label' | 'descent_graph_theta1_label') => screen.getByRole('slider', {name: t(key)}) as HTMLInputElement;
-        // The range is shown by the slider (its bounds), so the help no longer states it; the slider is described by its bounds and its help.
-        expect(described(slideName('descent_graph_radius_label'))).toContain('0,25');
+        // The range is the slider's own `min` and `max` (shown at the ends of the track, control-choice S2); the help states only the meaning.
+        expect(slideName('descent_graph_radius_label').min).toBe('0.25');
         expect(described(slideName('descent_graph_radius_label'))).toContain('Merjen v metrih.');
         expect(described(field(t('descent_graph_mode_label'))).length).toBeGreaterThan(10);
         // The time slider shows its own bounds; its help no longer restates them (control-choice S5).

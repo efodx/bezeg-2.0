@@ -360,15 +360,15 @@ describe('typed input and the time', () => {
         choose('projectile');
         const ranges = FIELD_RANGES;
         // The range is the slider's own bounds; only the meaning of b is help text.
-        const bounds = (key: Parameters<typeof rangeSlider>[0]) => describedText(rangeSlider(key));
-        expect(bounds('kinematics_graph_v0_label')).toContain(`${ranges.v0.min}`);
-        expect(bounds('kinematics_graph_v0_label')).toContain(`${ranges.v0.max}`);
-        expect(bounds('kinematics_graph_alpha_label')).toContain(`${ranges.alpha.max}`);
+        // The bounds are the range input's own `min` and `max` (shown at the ends of the track, control-choice S2).
+        const bounds = (key: Parameters<typeof rangeSlider>[0]) => { const input = rangeSlider(key) as HTMLInputElement; return [input.min, input.max]; };
+        expect(bounds('kinematics_graph_v0_label')).toEqual([`${ranges.v0.min}`, `${ranges.v0.max}`]);
+        expect(bounds('kinematics_graph_alpha_label')[1]).toBe(`${ranges.alpha.max}`);
         choose('circular');
-        expect(bounds('kinematics_graph_radius_label')).toContain('0,5');
-        expect(bounds('kinematics_graph_omega_label')).toContain('0,5');
-        expect(bounds('kinematics_graph_b_label')).toContain('0,9');
-        expect(bounds('kinematics_graph_b_label')).toContain(t('kinematics_graph_b_help'));
+        expect(bounds('kinematics_graph_radius_label')).toContain('0.5');
+        expect(bounds('kinematics_graph_omega_label')).toContain('0.5');
+        expect(bounds('kinematics_graph_b_label')).toContain('0.9');
+        expect(describedText(rangeSlider('kinematics_graph_b_label'))).toContain(t('kinematics_graph_b_help'));
         for (const key of ['kinematics_graph_show_velocity', 'kinematics_graph_show_acceleration', 'kinematics_graph_split', 'kinematics_graph_trace'] as const) {
             expect(describedText(field(t(key))).length, key).toBeGreaterThan(10);
         }
