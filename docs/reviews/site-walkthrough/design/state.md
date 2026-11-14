@@ -47,6 +47,19 @@ Published on `master` as `a6dd7a97` on 2026-11-14 (fourth gate attempt); the CI 
 5. `convexity` can join the homepage pool once G06 is fixed; the pool is one list.
 6. The import and figure-batch dialogs keep their old style, and the figure batch was not moved beside the image export.
 
+## Next: follow-ups the owner asked to continue (2026-11-14), for handler 2
+
+Handler 1 reached its context budget and hands these over. None needs an owner choice. Suggested slices, smallest first:
+
+1. Remove the unused `src/graphs/base/ResetButton.tsx` (confirm with Grep that nothing imports it, including tests and fixtures).
+2. Botanicals only on real chapters: `showsSideBotanicals` in `src/sideBotanicals/SideBotanicals.tsx` accepts any `/bezeg-2.0/learn/<segment>`. Either the chapter page that renders the error state omits `data-content-column` (the decoration then measures no column and renders nothing, with no chapter list in the main bundle), or the route check gets the chapter ids. Prefer the first; add a test.
+3. Browser smoke for the preset row actions: rename, overwrite and delete with inline confirmation, in `tests/workflows.smoke.spec.cjs` beside the save test. Selectors: `li[data-preset-id]`, `button.preset-row-select`, `button.preset-row-menu`, `.preset-rename-input`, `.preset-confirm-cancel`. Tell the worker to lint `tests/`.
+4. Controls sweep on the new panel: `node scripts/controls-sweep/sweep.cjs --port <dev port> --workers 3` (see `docs/controls.md`); the `ragged-buttons` detector is the one to watch. Fix what it reports.
+5. Import and figure-batch dialogs in the site's style (gallery option P01 A shows the look: `img/p01-a-restyled-dialog.png`), and move the figure-batch button beside the image export in the same tab (`BaseGraph.tsx` renders `SaveImage` under `export_figure`). These are the remaining parts of the owner-approved P02 proposal; record them in the spec's acceptance section when done.
+6. `convexity` joins `src/homeDemonstrationPool.ts` only after the `graphs` session fixes G06; check its state note, do not wait on it.
+
+Lessons from this run: a change to `BaseGraph.tsx` makes the publish gate select most unit tests, and the gate queues for a test slot (hours when other sessions publish), so batch slices into one gate. Workers must lint every file they edit, including `tests/`, and Grep other tests for names and roles they change.
+
 ## Running processes
 
 - `just preview 4332` serves the build of this tree; `tailscale serve --http=4332` publishes it. Rebuild with `just build` after further changes.
