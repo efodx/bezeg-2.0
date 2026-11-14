@@ -1,4 +1,5 @@
 import {FourierComplex} from './fourier';
+import {EPICYCLE_OUTLINE_DATA} from './epicycleOutlines';
 import {
     ClosedLoop,
     EPICYCLE_MAX_N,
@@ -39,7 +40,14 @@ export const EPICYCLE_DEFAULT_N = 5;
 export const EPICYCLE_TRACE_SAMPLES = 2000;
 
 export const EPICYCLE_PARAMETRIZATIONS = ['equal', 'chord'] as const;
-export const EPICYCLE_EXAMPLE_IDS = ['circle', 'diamond', 'uneven'] as const;
+/** The editable examples: a loop of 4 to 8 vertices. */
+export const EPICYCLE_LOOP_EXAMPLE_IDS = ['circle', 'diamond', 'uneven'] as const;
+/** The fixed outlines (G07): a closed polygon from shipped data, not editable, with `N` and the parametrization still free. */
+export const EPICYCLE_OUTLINE_IDS = ['slovenia', 'cat', 'blossom'] as const;
+/** Every example the select offers: the three loops, then the three outlines. */
+export const EPICYCLE_EXAMPLE_IDS = [...EPICYCLE_LOOP_EXAMPLE_IDS, ...EPICYCLE_OUTLINE_IDS] as const;
+export type EpicycleLoopExampleId = typeof EPICYCLE_LOOP_EXAMPLE_IDS[number];
+export type EpicycleOutlineId = typeof EPICYCLE_OUTLINE_IDS[number];
 export type EpicycleExampleId = typeof EPICYCLE_EXAMPLE_IDS[number];
 
 export type EpicycleSpan =
@@ -52,6 +60,11 @@ export interface EpicycleModel {
     readonly spans: readonly EpicycleSpan[];
     readonly N: number;
     readonly parametrization: Parametrization;
+    /**
+     * Set for a fixed outline: `vertices` and `spans` are then the shipped data of that outline (every span a line), edits of them
+     * are refused, and a stored model with this id gets them from the shipped data whatever vertices it stores.
+     */
+    readonly outline?: EpicycleOutlineId;
 }
 
 /** The rule a rejected value broke. Callers localize it; the range and the choices travel with it. */
@@ -63,6 +76,8 @@ export type EpicycleIssue =
     | {readonly kind: 'n'; readonly min: number; readonly max: number}
     | {readonly kind: 'parametrization'; readonly allowed: readonly Parametrization[]}
     | {readonly kind: 'example'; readonly allowed: readonly EpicycleExampleId[]}
+    | {readonly kind: 'outline'; readonly allowed: readonly EpicycleOutlineId[]}
+    | {readonly kind: 'fixed-outline'}
     | {readonly kind: 'index'}
     | {readonly kind: 'no-control'};
 
@@ -116,10 +131,30 @@ function unevenModel(): EpicycleModel {
     };
 }
 
+/**
+ * The default N of an outline: 20 (41 circles). See docs/reviews/site-walkthrough/graphs/g07/worker-model.md for the partial
+ * sums; N = 50 is the limit and the slider's end.
+ */
+export const EPICYCLE_OUTLINE_DEFAULT_N = 20;
+
+function outlineModel(id: EpicycleOutlineId): EpicycleModel {
+    const points = EPICYCLE_OUTLINE_DATA[id].points;
+    return {
+        vertices: points.map(([x, y]) => pt(x, y)),
+        spans: points.map((): EpicycleSpan => ({kind: 'line'})),
+        N: EPICYCLE_OUTLINE_DEFAULT_N,
+        parametrization: 'equal',
+        outline: id,
+    };
+}
+
 const EXAMPLE_BUILDERS: Readonly<Record<EpicycleExampleId, () => EpicycleModel>> = {
     circle: circleModel,
     diamond: diamondModel,
     uneven: unevenModel,
+    slovenia: () => outlineModel('slovenia'),
+    cat: () => outlineModel('cat'),
+    blossom: () => outlineModel('blossom'),
 };
 
 export const DEFAULT_EPICYCLE_EXAMPLE: EpicycleExampleId = 'circle';
@@ -131,6 +166,9 @@ export const isEpicycleExampleId = (value: unknown): value is EpicycleExampleId 
 export function epicycleExample(id: EpicycleExampleId): EpicycleModel {
     return EXAMPLE_BUILDERS[id]();
 }
+
+export const isEpicycleOutlineId = (value: unknown): value is EpicycleOutlineId =>
+    typeof value === 'string' && (EPICYCLE_OUTLINE_IDS as readonly string[]).includes(value);
 
 export const defaultEpicycleModel = (): EpicycleModel => epicycleExample(DEFAULT_EPICYCLE_EXAMPLE);
 
@@ -145,6 +183,7 @@ const isN = (value: unknown): value is number => isFiniteNumber(value) && Number
 const coordinateIssue = (): EpicycleIssue => ({kind: 'coordinate', min: EPICYCLE_COORDINATE_MIN, max: EPICYCLE_COORDINATE_MAX});
 const nIssue = (): EpicycleIssue => ({kind: 'n', min: 0, max: EPICYCLE_MAX_N});
 const parametrizationIssue = (): EpicycleIssue => ({kind: 'parametrization', allowed: EPICYCLE_PARAMETRIZATIONS});
+const outlineIssue = (): EpicycleIssue => ({kind: 'outline', allowed: EPICYCLE_OUTLINE_IDS});
 const vertexCountIssue = (): EpicycleIssue => ({kind: 'vertex-count', min: EPICYCLE_MIN_VERTICES, max: EPICYCLE_MAX_VERTICES});
 
 /** Every point of the model: vertices, then the controls of the cubic spans. */
@@ -165,7 +204,15 @@ function allPoints(model: Pick<EpicycleModel, 'vertices' | 'spans'>): LoopPoint[
 export function checkEpicycleModel(data: unknown): EpicycleCheck {
     const reject = (issue: EpicycleIssue | undefined): EpicycleCheck => ({ok: false, issue});
     if (data === null || typeof data !== 'object' || Array.isArray(data)) return reject(undefined);
-    const {vertices, spans, N, parametrization} = data as Record<string, unknown>;
+    const {vertices, spans, N, parametrization, outline} = data as Record<string, unknown>;
+    if (outline !== undefined) {
+        // A fixed outline: its loop is the shipped data; only N and the parametrization are read from the stored model.
+        if (!isEpicycleOutlineId(outline)) return reject(outlineIssue());
+        if (isFiniteNumber(N) && !isN(N)) return reject(nIssue());
+        if (!isN(N)) return reject(undefined);
+        if (!isParametrization(parametrization)) return reject(parametrizationIssue());
+        return {ok: true, model: {...outlineModel(outline), N, parametrization}};
+    }
     if (!Array.isArray(vertices)) return reject(undefined);
     if (vertices.length < EPICYCLE_MIN_VERTICES || vertices.length > EPICYCLE_MAX_VERTICES) return reject(vertexCountIssue());
     if (!vertices.every(isPoint)) return reject(undefined);
@@ -205,8 +252,9 @@ export function parseEpicycleModel(data: unknown): EpicycleModel | undefined {
 
 /** The example whose loop (vertices and spans) the model still has, whatever N and the parametrization; undefined after an edit. */
 export function matchEpicycleExample(model: EpicycleModel): EpicycleExampleId | undefined {
+    if (model.outline !== undefined) return isEpicycleOutlineId(model.outline) ? model.outline : undefined;
     const same = (a: LoopPoint, b: LoopPoint) => a.x === b.x && a.y === b.y;
-    return EPICYCLE_EXAMPLE_IDS.find((id) => {
+    return EPICYCLE_LOOP_EXAMPLE_IDS.find((id) => {
         const e = epicycleExample(id);
         return e.vertices.length === model.vertices.length
             && e.vertices.every((v, i) => same(v, model.vertices[i]))
@@ -249,6 +297,7 @@ const isIndex = (value: unknown, count: number): value is number => typeof value
  * of the span arriving at it) move by the same delta; if that puts any point out of range, the whole edit is rejected.
  */
 export function moveEpicycleVertex(model: EpicycleModel, index: unknown, x: unknown, y: unknown): EpicycleEdit {
+    if (model.outline !== undefined) return {ok: false, issue: {kind: 'fixed-outline'}};
     const m = model.vertices.length;
     if (!isIndex(index, m)) return {ok: false, issue: {kind: 'index'}};
     if (!inRange(x) || !inRange(y)) return {ok: false, issue: coordinateIssue()};
@@ -265,8 +314,9 @@ export function moveEpicycleVertex(model: EpicycleModel, index: unknown, x: unkn
     return finishEdit(model, vertices, spans);
 }
 
-/** Moves one control (1 or 2 of span `index`) only; corners are allowed. */
+/** Moves one control (1 or 2 of span `index`) only; corners are allowed. An outline refuses this and the vertex move with `fixed-outline`. */
 export function moveEpicycleControl(model: EpicycleModel, index: unknown, which: unknown, x: unknown, y: unknown): EpicycleEdit {
+    if (model.outline !== undefined) return {ok: false, issue: {kind: 'fixed-outline'}};
     if (!isIndex(index, model.spans.length) || (which !== 1 && which !== 2)) return {ok: false, issue: {kind: 'index'}};
     const span = model.spans[index];
     if (span.kind !== 'cubic') return {ok: false, issue: {kind: 'no-control'}};

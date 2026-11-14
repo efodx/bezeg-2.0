@@ -361,7 +361,7 @@ const diagnoseEpicycle: Diagnosis = data => {
  * and the remaining fields go through `checkSceneState`. The model itself is still restored from the Preset data. Not yet in the
  * Demonstration map below: the route and the catalog entry come later.
  */
-const EPICYCLE_FIELDS: readonly string[] = Object.keys(defaultEpicycleModel());
+const EPICYCLE_FIELDS: readonly string[] = [...Object.keys(defaultEpicycleModel()), "outline"];
 export const epicyclePresetCollection: PresetCollection<EpicycleModel> = (() => {
     const base = functionCollection("epicycle", parseEpicycleModel, diagnoseEpicycle);
     return Object.freeze({

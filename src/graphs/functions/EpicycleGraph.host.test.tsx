@@ -561,3 +561,102 @@ test('a run already playing when reduced motion turns on keeps Pause available a
         window.matchMedia = original;
     }
 });
+
+describe('fixed outlines (G07)', () => {
+    const outlineIds = ['slovenia', 'cat', 'blossom'] as const;
+    const fixedSentence = () => document.querySelector('[data-testid="epicycle-outline-fixed"]');
+    const handleCount = (model: EpicycleModel) => model.vertices.length + 2 * model.spans.filter(span => span.kind === 'cubic').length;
+
+    test.each(outlineIds)('choosing %s draws its outline with no handles and no coordinate lists, and N changes the trace', id => {
+        const {graph} = mount();
+        const baseline = graph.ownedObjects();
+        act1(graph, example(id));
+        const outline = epicycleExample(id);
+        expect(outline.vertices.length).toBeGreaterThan(8);
+        expect(graph.modelNow().outline).toBe(id);
+        expect(graph.modelNow().vertices).toHaveLength(outline.vertices.length);
+        expect(graph.curves()[1].dataX).toHaveLength(EPICYCLE_TRACE_SAMPLES + 1);
+        expect(graph.visibleHandles()).toBe(0);
+        expect(screen.queryByText('Krajišča')).toBeNull();
+        expect(screen.queryByText('Kontrolne točke')).toBeNull();
+        expect(fixedSentence()?.textContent).toMatch(/določen vnaprej.*N/);
+        const before = [...graph.curves()[4].dataX!];
+        act1(graph, setN(30));
+        expect(graph.modelNow().N).toBe(30);
+        expect(graph.curves()[4].dataX).not.toEqual(before);
+        expect(graph.ownedObjects()).toBe(baseline);
+    });
+
+    test('switching between an outline and a loop restores or removes the handles and the lists', () => {
+        const {graph} = mount();
+        act1(graph, example('cat'));
+        expect(graph.visibleHandles()).toBe(0);
+        act1(graph, example('circle'));
+        expect(graph.visibleHandles()).toBe(4 + 8);
+        expect(graph.vertexPoint(1).X()).toBe(graph.modelNow().vertices[1].x);
+        expect(fixedSentence()).toBeNull();
+        expect(vertexField(0, 'x')).toBeTruthy();
+        act1(graph, example('blossom'), example('uneven'));
+        expect(graph.visibleHandles()).toBe(handleCount(graph.modelNow()));
+        act1(graph, example('slovenia'));
+        expect(graph.visibleHandles()).toBe(0);
+    });
+
+    test('moving the time or the animation, or changing N, does not analyse the loop again', () => {
+        const {graph, scheduler} = mount();
+        act1(graph, example('slovenia'));
+        const analysis = graph.analysis();
+        act(() => graph.setTime(1.5));
+        expect(graph.analysis()).toBe(analysis);
+        act(() => graph.play());
+        act(() => scheduler.advance(16));
+        act(() => scheduler.advance(500));
+        expect(graph.time).toBeGreaterThan(0);
+        expect(graph.analysis()).toBe(analysis);
+        const trace = graph.trace();
+        act(() => scheduler.advance(300));
+        expect(graph.trace()).toBe(trace);
+        act1(graph, setN(7));
+        expect(graph.analysis()).toBe(analysis);
+        expect(graph.trace()).not.toBe(trace);
+        act1(graph, param('chord'));
+        expect(graph.analysis()).not.toBe(analysis);
+    });
+
+    test('an outline Preset round-trips, an unknown outline is refused, and a stored loop Preset imports as before', () => {
+        const {graph} = mount();
+        act1(graph, example('cat'), setN(12), param('chord'));
+        const stored = JSON.parse(JSON.stringify(graph.exportPresetData())) as EpicycleModel;
+        expect(stored.outline).toBe('cat');
+        const collection = graph.presetCollection();
+        expect(collection.check(stored)).toEqual({data: stored});
+        act(() => { graph.importPreset({id: 'default', data: defaultEpicycleModel()}); });
+        expect(graph.visibleHandles()).toBe(4 + 8);
+        act(() => { graph.importPreset({id: 'stored', data: stored}); });
+        expect(graph.modelNow()).toEqual(stored);
+        expect(graph.visibleHandles()).toBe(0);
+        expect(fixedSentence()).not.toBeNull();
+        // Imported vertices come from the shipped data, whatever the file holds.
+        const forged = {...stored, vertices: stored.vertices.slice(0, 4), spans: stored.spans.slice(0, 4)};
+        const checked = collection.check(forged);
+        expect('data' in checked && (checked.data as EpicycleModel).vertices).toHaveLength(epicycleExample('cat').vertices.length);
+        const unknown = collection.check({...stored, outline: 'dog'});
+        expect('rejection' in unknown).toBe(true);
+        expect('rejection' in unknown ? renderMessage(unknown.rejection) : '').toMatch(/Obris mora biti eden od: slovenia, cat, blossom\..*Popravi vrednost v datoteki\.$/);
+        const state = collection.checkGraphState?.({outline: 'dog', N: 5});
+        expect(state && renderMessage(state)).toMatch(/Obris mora biti eden od/);
+        const loop = JSON.parse(JSON.stringify(epicycleExample('uneven'))) as EpicycleModel;
+        expect(collection.check(loop)).toEqual({data: loop});
+        act(() => { graph.importPreset({id: 'loop', data: loop}); });
+        expect(graph.modelNow()).toEqual(loop);
+        expect(graph.visibleHandles()).toBe(handleCount(loop));
+    });
+
+    test('an edit of an outline is refused', () => {
+        const {graph} = mount();
+        act1(graph, example('slovenia'));
+        expect(() => graph.setVertex(0, 0, 0)).toThrow();
+        expect(() => graph.setControl(0, 1, 0, 0)).toThrow();
+        expect(graph.modelNow().vertices).toEqual(epicycleExample('slovenia').vertices);
+    });
+});

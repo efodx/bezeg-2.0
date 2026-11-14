@@ -14,6 +14,8 @@ export function epicycleIssueMessage(issue: EpicycleIssue): Message {
         case "n": return message("epicycle_issue_n", {value0: issue.min, value1: issue.max});
         case "parametrization": return message("epicycle_issue_parametrization", {value0: issue.allowed.join(", ")});
         case "example": return message("epicycle_issue_example", {value0: issue.allowed.join(", ")});
+        case "outline": return message("epicycle_issue_outline", {value0: issue.allowed.join(", ")});
+        case "fixed-outline": return message("epicycle_issue_fixed_outline");
         case "index": return message("epicycle_issue_index");
         case "no-control": return message("epicycle_issue_no_control");
     }

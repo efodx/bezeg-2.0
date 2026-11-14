@@ -364,12 +364,12 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             return point;
         };
         this.vertexHandles = Array.from({length: MAX_VERTICES}, (_, i) => handle(
-            () => i < this.model.vertices.length, "o", COLORS.vertex, markerSize, point => this.dragVertex(i, point)));
+            () => this.model.outline === undefined && i < this.model.vertices.length, "o", COLORS.vertex, markerSize, point => this.dragVertex(i, point)));
         const controlHandles: JXG.Point[] = [];
         for (let i = 0; i < MAX_VERTICES; i++) {
             for (const which of [1, 2] as const) {
                 controlHandles.push(handle(
-                    () => this.model.spans[i]?.kind === "cubic", "[]", COLORS.control, () => Math.max(3, markerSize() * 0.8), point => this.dragControl(i, which, point)));
+                    () => this.model.outline === undefined && this.model.spans[i]?.kind === "cubic", "[]", COLORS.control, () => Math.max(3, markerSize() * 0.8), point => this.dragControl(i, which, point)));
             }
         }
         this.controlHandles = controlHandles;
@@ -395,6 +395,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         const place = (point: JXG.Point | undefined, x: number, y: number) => {
             if (point && (point.X() !== x || point.Y() !== y)) point.moveTo([x, y]);
         };
+        if (this.model.outline !== undefined) return; // an outline has no handles; the hidden pool keeps its last positions
         this.model.vertices.forEach((v, i) => place(this.vertexHandles[i], v.x, v.y));
         this.model.spans.forEach((span, i) => {
             if (span.kind !== "cubic") return;
@@ -464,6 +465,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     private exampleText(id: EpicycleExampleId | "custom"): string {
         const names = {
             circle: t("epicycle_example_circle"), diamond: t("epicycle_example_diamond"), uneven: t("epicycle_example_uneven"),
+            slovenia: t("epicycle_example_slovenia"), cat: t("epicycle_example_cat"), blossom: t("epicycle_example_blossom"),
             custom: t("epicycle_example_custom"),
         };
         return names[id];
@@ -499,9 +501,11 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                     && <ReadoutHelp hooks={{"data-testid": "epicycle-chord-fallback"}}>{t("epicycle_chord_fallback")}</ReadoutHelp>}
             </div>
             <EpicyclePlayback graph={this}/>
-            <InspectorDisclosure title={t("epicycle_handles_summary")}>
-                {this.renderHandleFields(state)}
-            </InspectorDisclosure>
+            {state.outline !== undefined
+                ? <p className="inspector-help" data-testid="epicycle-outline-fixed">{t("epicycle_outline_fixed_help")}</p>
+                : <InspectorDisclosure title={t("epicycle_handles_summary")}>
+                    {this.renderHandleFields(state)}
+                </InspectorDisclosure>}
         </>;
     }
 
@@ -549,9 +553,12 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             {id: "circles", color: COLORS.circles, label: t("epicycle_legend_circles"), kind: "line"},
             {id: "trace", color: COLORS.trace, label: t("epicycle_legend_trace"), kind: "line"},
             {id: "loop", color: COLORS.loop, label: t("epicycle_legend_loop"), kind: "line"},
-            {id: "polygon", color: COLORS.polygon, label: t("epicycle_legend_polygon"), kind: "dashed-line"},
-            {id: "vertices", color: COLORS.vertex, label: t("epicycle_legend_vertices"), kind: "dot"},
-            {id: "controls", color: COLORS.control, label: t("epicycle_legend_controls"), kind: "diamond"},
+            // A fixed outline has no handles, so the legend does not list them.
+            ...(this.model.outline !== undefined ? [] : [
+                {id: "polygon", color: COLORS.polygon, label: t("epicycle_legend_polygon"), kind: "dashed-line"},
+                {id: "vertices", color: COLORS.vertex, label: t("epicycle_legend_vertices"), kind: "dot"},
+                {id: "controls", color: COLORS.control, label: t("epicycle_legend_controls"), kind: "diamond"},
+            ] as const),
         ]}/>;
     }
 }

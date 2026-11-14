@@ -6,8 +6,11 @@ import {
     loopCoefficients,
     validateLoop,
 } from './closedSpline';
+import {EPICYCLE_OUTLINE_DATA} from './epicycleOutlines';
 import {
     EPICYCLE_EXAMPLE_IDS,
+    EPICYCLE_OUTLINE_DEFAULT_N,
+    EPICYCLE_OUTLINE_IDS,
     EPICYCLE_TRACE_SAMPLES,
     EpicycleModel,
     analyzeEpicycle,
@@ -18,6 +21,7 @@ import {
     epicycleLoop,
     epicycleTerms,
     epicycleTrace,
+    isEpicycleOutlineId,
     matchEpicycleExample,
     maxTraceError,
     moveEpicycleControl,
@@ -351,5 +355,96 @@ describe('mathematics through the model', () => {
         expect(centre).toBeLessThan(1e-9);
         for (let i = 1; i < terms.length; i++) expect(terms[i].modulus).toBeLessThanOrEqual(terms[i - 1].modulus * (1 + 1e-12));
         expect(epicycleTerms(circle, 0).terms).toEqual([]);
+    });
+});
+
+describe('fixed outlines (G07)', () => {
+    const outline = (id: 'slovenia' | 'cat' | 'blossom') => epicycleExample(id);
+
+    it('offers the three outlines after the three loops, and the default is unchanged', () => {
+        expect([...EPICYCLE_OUTLINE_IDS]).toEqual(['slovenia', 'cat', 'blossom']);
+        expect([...EPICYCLE_EXAMPLE_IDS]).toEqual(['circle', 'diamond', 'uneven', 'slovenia', 'cat', 'blossom']);
+        expect(matchEpicycleExample(defaultEpicycleModel())).toBe('circle');
+        for (const id of EPICYCLE_OUTLINE_IDS) expect(isEpicycleOutlineId(id)).toBe(true);
+        expect(isEpicycleOutlineId('circle')).toBe(false);
+        expect(isEpicycleOutlineId(undefined)).toBe(false);
+    });
+
+    it('builds an outline model of line spans with the default N and the outline id', () => {
+        for (const id of EPICYCLE_OUTLINE_IDS) {
+            const m = outline(id);
+            expect(m.outline).toBe(id);
+            expect(m.N).toBe(EPICYCLE_OUTLINE_DEFAULT_N);
+            expect(m.parametrization).toBe('equal');
+            expect(m.vertices.length).toBe(EPICYCLE_OUTLINE_DATA[id].points.length);
+            expect(m.spans.length).toBe(m.vertices.length);
+            expect(m.spans.every((s) => s.kind === 'line')).toBe(true);
+            expect(validateLoop(epicycleLoop(m))).toEqual({ok: true});
+            expect(matchEpicycleExample(m)).toBe(id);
+        }
+        // The loop examples carry no outline key at all.
+        expect('outline' in epicycleExample('circle')).toBe(false);
+    });
+
+    it('refuses vertex and control edits with fixed-outline, whatever the arguments', () => {
+        const m = outline('cat');
+        expect(moveEpicycleVertex(m, 0, 0, 0)).toEqual({ok: false, issue: {kind: 'fixed-outline'}});
+        expect(moveEpicycleVertex(m, 9999, 'x', 0)).toEqual({ok: false, issue: {kind: 'fixed-outline'}});
+        expect(moveEpicycleControl(m, 0, 1, 0, 0)).toEqual({ok: false, issue: {kind: 'fixed-outline'}});
+    });
+
+    it('keeps the outline when N or the parametrization changes', () => {
+        const m = outline('slovenia');
+        const n = ok(setEpicycleN(m, 33));
+        expect(n.outline).toBe('slovenia');
+        expect(n.N).toBe(33);
+        const p = ok(setEpicycleParametrization(n, 'chord'));
+        expect(p.outline).toBe('slovenia');
+        expect(p.parametrization).toBe('chord');
+        expect(matchEpicycleExample(p)).toBe('slovenia');
+    });
+
+    it('chooses an outline from a loop and back, keeping N and the parametrization', () => {
+        const loop = {...ok(setEpicycleN(defaultEpicycleModel(), 12)), parametrization: 'chord' as const};
+        const chosen = ok(chooseEpicycleExample(loop, 'blossom'));
+        expect(chosen.outline).toBe('blossom');
+        expect(chosen.N).toBe(12);
+        expect(chosen.parametrization).toBe('chord');
+        const back = ok(chooseEpicycleExample(chosen, 'diamond'));
+        expect('outline' in back).toBe(false);
+        expect(back.vertices.length).toBe(4);
+        expect(back.N).toBe(12);
+    });
+
+    it('round-trips an outline model through JSON and takes the vertices from the shipped data', () => {
+        for (const id of EPICYCLE_OUTLINE_IDS) {
+            const m = {...outline(id), N: 17, parametrization: 'chord' as const};
+            expect(parseEpicycleModel(JSON.parse(JSON.stringify(m)))).toEqual(m);
+        }
+        // Stored vertices (any, even none or too many) are ignored; N and the parametrization are kept.
+        const stored = {outline: 'cat', N: 7, parametrization: 'chord', vertices: [{x: 99, y: 99}], spans: []};
+        const parsed = parseEpicycleModel(stored);
+        expect(parsed).toEqual({...outline('cat'), N: 7, parametrization: 'chord'});
+        expect(parseEpicycleModel({outline: 'cat', N: 7, parametrization: 'chord'})).toEqual(parsed);
+    });
+
+    it('refuses an unknown outline id with the allowed list, and bad N or parametrization of an outline', () => {
+        const allowed = [...EPICYCLE_OUTLINE_IDS];
+        expect(issueOf({...clone(outline('cat')), outline: 'moon'})).toEqual({kind: 'outline', allowed});
+        expect(issueOf({...clone(outline('cat')), outline: null})).toEqual({kind: 'outline', allowed});
+        expect(issueOf({...clone(outline('cat')), outline: 3})).toEqual({kind: 'outline', allowed});
+        expect(issueOf({...clone(defaultEpicycleModel()), outline: 'circle'})).toEqual({kind: 'outline', allowed});
+        expect(issueOf({...clone(outline('cat')), N: 51})).toEqual({kind: 'n', min: 0, max: EPICYCLE_MAX_N});
+        expect(issueOf({...clone(outline('cat')), parametrization: 'arc'})).toEqual({kind: 'parametrization', allowed: ['equal', 'chord']});
+        expect(issueOf({outline: 'cat', parametrization: 'equal'})).toBeUndefined();
+    });
+
+    it('still validates a stored model without an outline as before (4 to 8 vertices)', () => {
+        const tooMany = clone(outline('cat'));
+        delete tooMany.outline;
+        expect(issueOf(tooMany)).toEqual({kind: 'vertex-count', min: 4, max: 8});
+        for (const id of ['circle', 'diamond', 'uneven'] as const) {
+            expect(parseEpicycleModel(clone(epicycleExample(id)))).toEqual(epicycleExample(id));
+        }
     });
 });
