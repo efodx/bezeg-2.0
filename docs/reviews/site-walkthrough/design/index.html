@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg site walkthrough: design options (package C)</title>
+<style>
+    :root { --ink: #19372f; --muted: #526152; --rule: #d6dccb; --panel: #fffdf5; --page: #f7f5e9; --action: #244c37; --ochre: #9a6a1c; }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.55 system-ui, "Segoe UI", sans-serif; }
+    main { max-width: 1500px; margin: 0 auto; padding: 28px 24px 80px; }
+    h1 { margin: 0 0 6px; font: 600 34px/1.15 Georgia, serif; }
+    h2 { margin: 56px 0 6px; padding-top: 22px; border-top: 1px solid var(--rule); font: 600 26px/1.2 Georgia, serif; }
+    h2 small { color: var(--ochre); font: 700 14px system-ui; letter-spacing: .06em; margin-right: 8px; }
+    p { max-width: 78ch; margin: 6px 0 12px; }
+    .lead { color: var(--muted); }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+    nav a { padding: 5px 11px; border: 1px solid var(--rule); border-radius: 999px; background: var(--panel); color: var(--ink); font-size: 14px; text-decoration: none; }
+    .options { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 18px; margin-top: 14px; }
+    .options.wide { grid-template-columns: 1fr; }
+    .options.narrow { grid-template-columns: repeat(auto-fit, minmax(260px, 340px)); }
+    figure { margin: 0; padding: 12px; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); }
+    figure.pick { border: 2px solid var(--action); box-shadow: 0 6px 22px rgb(25 55 47 / .12); }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid #e6e8dc; border-radius: 6px; }
+    figure .pair { display: grid; gap: 8px; }
+    figcaption { margin-bottom: 10px; }
+    figcaption b { font-size: 17px; }
+    figcaption span { display: block; color: var(--muted); font-size: 14px; }
+    .tag { display: inline-block; margin-left: 8px; padding: 1px 9px; border-radius: 999px; background: var(--action); color: #fff; font-size: 12px; font-weight: 700; vertical-align: 2px; }
+    .why { margin-top: 12px; padding: 10px 14px; border-left: 3px solid var(--action); background: #eef2e3; border-radius: 0 8px 8px 0; max-width: 90ch; }
+    table { border-collapse: collapse; margin: 10px 0; font-size: 15px; }
+    td, th { padding: 5px 12px 5px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+    .pool { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-width: 1100px; }
+    .pool div { padding: 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); font-size: 13.5px; font-weight: 600; }
+</style>
+<main>
+<h1>Site walkthrough: design options</h1>
+<p class="lead">Package C of the 2026-11-14 walkthrough. Every image is rendered from the real page of the current production build with the option applied on top; nothing here is implemented yet. Each item has two or three options, the recommended one is framed in green, and the choice is yours. Click an image to open it at full size.</p>
+<nav>
+    <a href="#h02">H02 homepage selection</a><a href="#h03">H03 carousel navigation</a><a href="#h04">H04 route to learning</a>
+    <a href="#l01">L01 chapter numbering</a><a href="#l04">L04 Back button</a><a href="#l05">L05 botanicals on chapters</a>
+    <a href="#p01">P01 save dialog</a><a href="#p02">P02 presets panel</a><a href="#g07">G07 epicycles subject</a>
+</nav>
+
+<h2 id="home"><small>H02 · H03 · H04</small>Homepage with all three recommendations</h2>
+<p>The recommended options for the three homepage items together: the new label and pool, cards instead of arrows and a counter, and a second button to the learning overview.</p>
+<div class="options wide"><figure class="pick"><a href="img/home-recommended.png"><img src="img/home-recommended.png" alt="Homepage with the recommended options"></a></figure></div>
+
+<h2 id="h02"><small>H02</small>Homepage selection: pool, label, rotation</h2>
+<p>Settled: a rotating selection from a curated pool of attractive demonstrations. Three details to choose.</p>
+<p><b>Pool (recommended):</b> the nine demonstrations you named as positive references. Convexity and concavity joins once its capture animates smoothly (G06). The pool is one list in the code, so the graphs session can add entries as captures improve.</p>
+<div class="pool"><div>Epicikli</div><div>Negibna točka in iteracija</div><div>Akumulirani integral</div><div>Določeni integral</div><div>Inverzna funkcija in logaritem</div><div>Kompleksno množenje</div><div>Subdivizija</div><div>Darbouxove vsote</div><div>De Casteljau</div></div>
+<table>
+    <tr><th>Label</th><th></th></tr>
+    <tr><td><b>Izbor demonstracij</b> / A selection of demonstrations <span class="tag">recommended</span></td><td>Says it is a sample, and cannot be read as "chosen by you".</td></tr>
+    <tr><td>Izbrane demonstracije / Featured demonstrations</td><td>Familiar wording; "izbrane" can read as the visitor's own selection.</td></tr>
+    <tr><td>Za pokušino / A taste</td><td>Warmer and informal; less clear to a screen-reader user as a region name.</td></tr>
+</table>
+<table>
+    <tr><th>Rotation</th><th></th></tr>
+    <tr><td><b>Six at random per visit</b> <span class="tag">recommended</span></td><td>Each full page load draws six of the pool in random order. The set stays the same while moving around the site and back to Home, so Back returns to what you saw. Nothing is stored.</td></tr>
+    <tr><td>One set per day</td><td>Everyone sees the same six on the same day, which suits a classroom ("open the third one"); a reload never changes it.</td></tr>
+    <tr><td>Whole pool, shuffled</td><td>All nine cards every time in random order; the card row then scrolls sideways again.</td></tr>
+</table>
+
+<h2 id="h03"><small>H03</small>Carousel navigation</h2>
+<div class="options">
+    <figure><figcaption><b>Current</b><span>Arrows and a counter between the preview and a strip of small tiles.</span></figcaption><a href="img/h03-current.png"><img src="img/h03-current.png" alt=""></a></figure>
+    <figure class="pick"><figcaption><b>A. Cards are the navigation</b><span class="tag">recommended</span><span>No arrows, no counter. Six picture cards fill the row; the selected card carries a progress line while the selection advances by itself.</span></figcaption><a href="img/h03-a-cards.png"><img src="img/h03-a-cards.png" alt=""></a></figure>
+    <figure><figcaption><b>B. Arrows on the preview's edges</b><span>No counter; quiet arrows sit on the large card. The tile strip stays as it is.</span></figcaption><a href="img/h03-b-edge-arrows.png"><img src="img/h03-b-edge-arrows.png" alt=""></a></figure>
+    <figure><figcaption><b>C. Only remove</b><span>Arrows and counter removed, tiles unchanged.</span></figcaption><a href="img/h03-c-rail-only.png"><img src="img/h03-c-rail-only.png" alt=""></a></figure>
+</div>
+<p class="why"><b>Why A:</b> it is the direction you suggested, and the cards then show what each demonstration looks like, which the 52 px thumbnails cannot. Keyboard arrow keys keep working in every option. Cost: the row is taller, so at 1440 × 900 its lower edge falls just below the first screen.</p>
+
+<h2 id="h04"><small>H04</small>Route to the learning overview</h2>
+<div class="options">
+    <figure><figcaption><b>Current</b></figcaption><a href="img/h04-current.png"><img src="img/h04-current.png" alt=""></a></figure>
+    <figure class="pick"><figcaption><b>A. Two buttons</b><span class="tag">recommended</span><span>"Vsa učna vsebina" beside "Vse demonstracije", the same wording as the chapter return control.</span></figcaption><a href="img/h04-a-two-buttons.png"><img src="img/h04-a-two-buttons.png" alt=""></a></figure>
+    <figure><figcaption><b>B. Two doors</b><span>Larger cards with a line about what is behind each.</span></figcaption><a href="img/h04-b-doors.png"><img src="img/h04-b-doors.png" alt=""></a></figure>
+</div>
+<p class="why"><b>Why A:</b> it answers the request with the least weight and keeps the selection high on the first screen. B explains more but pushes the carousel further down and competes with it.</p>
+
+<h2 id="l01"><small>L01</small>Chapter section numbering</h2>
+<p>Left: Bézier curves (numbered today). Right: Convexity and hulls, one of the chapters that are not numbered today.</p>
+<div class="options">
+    <figure><figcaption><b>A. No numbers anywhere</b></figcaption><div class="pair"><a href="img/l01-a-none-bezier.png"><img src="img/l01-a-none-bezier.png" alt=""></a><a href="img/l01-a-none-family.png"><img src="img/l01-a-none-family.png" alt=""></a></div></figure>
+    <figure class="pick"><figcaption><b>B. Numbers everywhere</b><span class="tag">recommended</span><span>Heading number and contents number in every chapter.</span></figcaption><div class="pair"><a href="img/l01-b-everywhere-bezier.png"><img src="img/l01-b-everywhere-bezier.png" alt=""></a><a href="img/l01-b-everywhere-family.png"><img src="img/l01-b-everywhere-family.png" alt=""></a></div></figure>
+    <figure><figcaption><b>C. Numbers in the contents list only</b><span>Headings stay clean.</span></figcaption><div class="pair"><a href="img/l01-c-contents-only-bezier.png"><img src="img/l01-c-contents-only-bezier.png" alt=""></a><a href="img/l01-c-contents-only-family.png"><img src="img/l01-c-contents-only-family.png" alt=""></a></div></figure>
+</div>
+<p class="why"><b>Why B:</b> a number ties each heading to its line in the contents list and gives a teacher something to say aloud ("razdelek 4"). It comes from the shared chapter presentation, so no chapter can drift again.</p>
+
+<h2 id="l04"><small>L04</small>Guided example Back button</h2>
+<div class="options">
+    <figure><figcaption><b>Current</b><span>Solid white on the cream panel.</span></figcaption><a href="img/l04-current.png"><img src="img/l04-current.png" alt=""></a></figure>
+    <figure class="pick"><figcaption><b>B. Sage tint</b><span class="tag">recommended</span><span>The tint the panel already uses for its formula and note boxes.</span></figcaption><a href="img/l04-b-tinted.png"><img src="img/l04-b-tinted.png" alt=""></a></figure>
+    <figure><figcaption><b>A. Outline only</b><span>Transparent, the panel shows through.</span></figcaption><a href="img/l04-a-outline.png"><img src="img/l04-a-outline.png" alt=""></a></figure>
+    <figure><figcaption><b>C. Quiet text</b><span>No frame, like "Skrij" and "Končaj" above it.</span></figcaption><a href="img/l04-c-quiet.png"><img src="img/l04-c-quiet.png" alt=""></a></figure>
+</div>
+<p class="why"><b>Why B:</b> it keeps the placement and the frame you like and replaces the white with a colour already in the panel. A is almost indistinguishable from today, because the panel itself is nearly white. C loses the frame.</p>
+
+<h2 id="l05"><small>L05</small>Side botanicals on chapter reading pages</h2>
+<p>Settled: they appear. Shown at 2560 × 1300 on Bézier curves. The detail to choose is their strength.</p>
+<div class="options">
+    <figure class="pick"><figcaption><b>A. As on Home and Demonstrations</b><span class="tag">recommended</span></figcaption><a href="img/l05-a-as-elsewhere.png"><img src="img/l05-a-as-elsewhere.png" alt=""></a></figure>
+    <figure><figcaption><b>B. Calmer beside reading</b><span>Half strength on chapter pages.</span></figcaption><a href="img/l05-b-calmer.png"><img src="img/l05-b-calmer.png" alt=""></a></figure>
+</div>
+<p class="why"><b>Why A:</b> you said the existing decoration is not distracting, and one treatment across the site is simpler. The branches stay outside the contents list and the margin notes; below 1600 px nothing is drawn, as today.</p>
+
+<h2 id="p01"><small>P01</small>Save-preset dialog</h2>
+<div class="options">
+    <figure><figcaption><b>Current</b></figcaption><a href="img/p01-current.png"><img src="img/p01-current.png" alt=""></a></figure>
+    <figure class="pick"><figcaption><b>A. Dialog in the site's style</b><span class="tag">recommended</span><span>Cream panel, title in the display face, green action, "Prekliči", and a line saying what saving does.</span></figcaption><a href="img/p01-a-restyled-dialog.png"><img src="img/p01-a-restyled-dialog.png" alt=""></a></figure>
+</div>
+<div class="options narrow">
+    <figure><figcaption><b>B. No dialog: save in the panel</b><span>The name field opens in the Shrani tab; the graph stays uncovered.</span></figcaption><a href="img/p01-b-inline-save.png"><img src="img/p01-b-inline-save.png" alt=""></a></figure>
+</div>
+<p class="why"><b>Why A:</b> the same style then covers all four preset dialogs (save, delete, import, figure batch) in one change. B is the better long-term direction and is part of the P02 proposal below.</p>
+
+<h2 id="p02"><small>P02</small>Presets panel</h2>
+<p>Today the panel is a dropdown and six equal buttons. The proposal lists saved states as rows, makes saving the one prominent action, puts rename, overwrite and delete in each row's menu, and separates backup (export and import of a file). The figure batch moves beside the image export below. Stored presets keep their current shape, so existing presets and exported files still load.</p>
+<div class="options narrow">
+    <figure><figcaption><b>Current</b></figcaption><a href="img/p02-current-panel.png"><img src="img/p02-current-panel.png" alt=""></a></figure>
+    <figure class="pick"><figcaption><b>Proposed</b><span class="tag">recommended</span></figcaption><a href="img/p02-b-proposed-panel.png"><img src="img/p02-b-proposed-panel.png" alt=""></a></figure>
+</div>
+<p class="why"><b>Also yours to choose:</b> whether the user-facing word changes from "prednastavitve" (presets) to "shranjena stanja" (saved states), as the mockup shows. It describes what a student actually saves; the file format and the code keep "preset".</p>
+
+<h2 id="g07"><small>G07</small>Epicycles subject</h2>
+<p>Four candidates, each traced with 6, 20 and 60 circles to show how the approximation improves. The subject is your choice; the graphs session implements it.</p>
+<div class="options wide">
+    <figure><a href="img/g07-slovenia.png"><img src="img/g07-slovenia.png" alt="Outline of Slovenia"></a></figure>
+    <figure><a href="img/g07-clef.png"><img src="img/g07-clef.png" alt="Treble clef"></a></figure>
+    <figure><a href="img/g07-cat.png"><img src="img/g07-cat.png" alt="Cat"></a></figure>
+    <figure><a href="img/g07-flower.png"><img src="img/g07-flower.png" alt="Elderflower blossom"></a></figure>
+</div>
+<p class="why"><b>Notes:</b> the cat and Slovenia show the largest difference between few and many circles, which is the point of the example. The treble clef is recognizable already at 20. The blossom ties to the site's identity but is too easy: six circles nearly finish it. The Slovenia outline here is a rough sketch.</p>
+</main>

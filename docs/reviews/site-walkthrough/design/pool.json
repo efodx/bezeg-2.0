@@ -1,0 +1,74 @@
+[
+ {
+  "route": "analysis/epicycles",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/epicycles-CBKzw36m.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "analysis/fixed-point",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/fixed-point-DjmIV45Q.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "analysis/accumulation",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/accumulation-CvZfAvK9.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "functions/integral",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/definite-integral-mt6rxX6d.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "functions/inverse",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/function-inverse-DEG04iey.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "complex-multiplication",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/complex-multiplication-CSoQmyV0.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "bezier/subdivision-2",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/subdivision-Bx-sxL_V.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "analysis/darboux",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/darboux-Dt9TUJ5_.png",
+  "cardClass": "demonstration-card-open"
+ },
+ {
+  "route": "bezier/decasteljau",
+  "found": true,
+  "title": null,
+  "family": "Bernsteinovi Polinomi",
+  "img": "/bezeg-2.0/assets/decasteljau-DyIGq2M6.png",
+  "cardClass": "demonstration-card-open"
+ }
+]

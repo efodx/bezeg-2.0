@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="sl">
+<meta charset="utf-8">
+<title>Epicycles subject candidates (G07)</title>
+<style>
+    body { margin: 0; padding: 16px; background: #f7f5e9; font: 14px/1.4 system-ui, sans-serif; color: #19372f; }
+    .subject { display: grid; grid-template-columns: repeat(4, 300px); gap: 12px; margin-bottom: 18px; padding: 12px; width: max-content; background: #fffdf5; border: 1px solid #d6dccb; border-radius: 12px; }
+    .subject h2 { grid-column: 1 / -1; margin: 0; font: 600 20px Georgia, serif; }
+    figure { margin: 0; }
+    figcaption { margin-top: 2px; color: #526152; font-size: 12.5px; text-align: center; }
+    canvas { display: block; width: 300px; height: 300px; background: #fff; border: 1px solid #e3e6d8; border-radius: 8px; }
+</style>
+<body>
+<script>
+// Each subject is a closed outline. Glyph subjects are traced from the rendered glyph; the others are point lists.
+const SLOVENIA = [[13.71,46.52],[13.9,46.5],[14.15,46.44],[14.5,46.4],[14.8,46.5],[15.02,46.6],[15.3,46.64],[15.65,46.7],[15.99,46.68],[16.0,46.8],[16.11,46.87],[16.33,46.84],[16.45,46.66],[16.6,46.48],[16.42,46.5],[16.28,46.52],[16.3,46.39],[16.15,46.4],[15.9,46.29],[15.65,46.22],[15.6,46.1],[15.7,45.95],[15.69,45.84],[15.45,45.8],[15.3,45.7],[15.33,45.63],[15.35,45.49],[15.17,45.42],[14.9,45.48],[14.7,45.53],[14.55,45.64],[14.4,45.52],[14.25,45.5],[14.0,45.49],[13.8,45.47],[13.6,45.47],[13.57,45.53],[13.72,45.56],[13.74,45.6],[13.9,45.64],[13.8,45.75],[13.6,45.83],[13.64,45.95],[13.48,46.0],[13.55,46.12],[13.4,46.22],[13.38,46.3],[13.48,46.37],[13.58,46.42],[13.65,46.45]]
+    .map(([lon, lat]) => [lon * 0.69, -lat]);
+function flower() {
+    const points = [];
+    for (let i = 0; i < 720; i++) {
+        const a = i / 720 * 2 * Math.PI;
+        const r = 1 + .42 * Math.cos(5 * a) + .06 * Math.cos(10 * a);
+        points.push([r * Math.cos(a - Math.PI / 2), r * Math.sin(a - Math.PI / 2)]);
+    }
+    return points;
+}
+function traceGlyph(text, font) {
+    const size = 400, c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d', {willReadFrequently: true});
+    g.font = font; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = 5; g.lineJoin = 'round';
+    g.strokeText(text, size / 2, size / 2); g.fillText(text, size / 2, size / 2);
+    const data = g.getImageData(0, 0, size, size).data;
+    const mask = (x, y) => x >= 0 && y >= 0 && x < size && y < size && data[(y * size + x) * 4 + 3] > 90;
+    const dirs = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+    let best = [];
+    const seen = new Set();
+    for (let y0 = 0; y0 < size; y0++) for (let x0 = 0; x0 < size; x0++) {
+        if (!mask(x0, y0) || mask(x0 - 1, y0) || seen.has(y0 * size + x0)) continue;
+        // Moore boundary trace, clockwise, from a pixel whose left neighbour is empty.
+        const pts = []; let x = x0, y = y0, dir = 6;
+        for (let guard = 0; guard < 40000; guard++) {
+            pts.push([x, y]); seen.add(y * size + x);
+            let moved = false;
+            for (let i = 0; i < 8; i++) {
+                const d = (dir + 5 + i) % 8, nx = x + dirs[d][0], ny = y + dirs[d][1];
+                if (mask(nx, ny)) { x = nx; y = ny; dir = d; moved = true; break; }
+            }
+            if (!moved || (x === x0 && y === y0)) break;
+        }
+        if (pts.length > best.length) best = pts;
+    }
+    return best;
+}
+function resample(points, count) {
+    const closed = [...points, points[0]], lengths = [0];
+    for (let i = 1; i < closed.length; i++) lengths.push(lengths[i - 1] + Math.hypot(closed[i][0] - closed[i - 1][0], closed[i][1] - closed[i - 1][1]));
+    const total = lengths[lengths.length - 1], result = [];
+    let j = 1;
+    for (let i = 0; i < count; i++) {
+        const s = i / count * total;
+        while (lengths[j] < s) j++;
+        const u = (s - lengths[j - 1]) / (lengths[j] - lengths[j - 1] || 1);
+        result.push([closed[j - 1][0] + u * (closed[j][0] - closed[j - 1][0]), closed[j - 1][1] + u * (closed[j][1] - closed[j - 1][1])]);
+    }
+    return result;
+}
+function normalise(points) {
+    const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const half = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2;
+    return points.map(([x, y]) => [(x - cx) / half, (y - cy) / half]);
+}
+function coefficients(points) {
+    const M = points.length, result = new Map();
+    for (let k = -M / 4; k <= M / 4; k++) {
+        let re = 0, im = 0;
+        points.forEach(([x, y], m) => {
+            const a = -2 * Math.PI * k * m / M;
+            re += x * Math.cos(a) - y * Math.sin(a); im += x * Math.sin(a) + y * Math.cos(a);
+        });
+        result.set(k, [re / M, im / M]);
+    }
+    return result;
+}
+// The N circles with the largest radii, as the app's epicycles do when N grows.
+function strongest(coeffs, circles) {
+    return [...coeffs.entries()].filter(([k]) => k !== 0).sort((a, b) => Math.hypot(...b[1]) - Math.hypot(...a[1])).slice(0, circles);
+}
+function draw(canvas, target, coeffs, circles) {
+    const g = canvas.getContext('2d'), S = canvas.width, scale = S * .4, at = p => [S / 2 + p[0] * scale, S / 2 + p[1] * scale];
+    const path = (points, style, width) => {
+        g.beginPath(); points.forEach((p, i) => { const [x, y] = at(p); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+        g.closePath(); g.strokeStyle = style; g.lineWidth = width; g.stroke();
+    };
+    path(target, '#c9cdbd', 2);
+    if (!circles) { path(target, '#19372f', 3); return; }
+    const terms = strongest(coeffs, circles), centre = coeffs.get(0);
+    const point = t => terms.reduce(([x, y], [k, [re, im]]) => {
+        const a = 2 * Math.PI * k * t;
+        return [x + re * Math.cos(a) - im * Math.sin(a), y + re * Math.sin(a) + im * Math.cos(a)];
+    }, centre);
+    // The chain of circles at one instant.
+    let [x, y] = centre;
+    const t0 = .12;
+    g.lineWidth = 1.5;
+    for (const [k, [re, im]] of terms.slice(0, 14)) {
+        const a = 2 * Math.PI * k * t0, nx = x + re * Math.cos(a) - im * Math.sin(a), ny = y + re * Math.sin(a) + im * Math.cos(a);
+        g.beginPath(); g.arc(...at([x, y]), Math.hypot(re, im) * scale, 0, 7); g.strokeStyle = 'rgb(120 135 160 / .45)'; g.stroke();
+        g.beginPath(); g.moveTo(...at([x, y])); g.lineTo(...at([nx, ny])); g.strokeStyle = '#b5553c'; g.stroke();
+        [x, y] = [nx, ny];
+    }
+    path(Array.from({length: 900}, (_, i) => point(i / 900)), '#1f5f9c', 4);
+}
+const subjects = [
+    ['slovenia', 'Obris Slovenije', () => SLOVENIA, 'skica obrisa; izvedba bi vzela natančnejše podatke o meji'],
+    ['clef', 'Violinski ključ', () => traceGlyph('\u{1D11E}', '330px "Segoe UI Symbol", "Noto Music", serif'), 'obris znaka'],
+    ['cat', 'Mačka', () => traceGlyph('\u{1F408}', '300px "Segoe UI Emoji", "Noto Color Emoji", sans-serif'), 'obris silhuete'],
+    ['flower', 'Bezgov cvet', flower, 'petlistni cvet, znak strani'],
+];
+for (const [id, title, make, note] of subjects) {
+    const target = normalise(resample(make(), 512)), coeffs = coefficients(target);
+    const section = document.createElement('section');
+    section.className = 'subject'; section.id = id;
+    section.innerHTML = `<h2>${title} <small style="font:400 13px system-ui;color:#526152">(${note})</small></h2>`;
+    for (const circles of [0, 6, 20, 60]) {
+        const figure = document.createElement('figure'), canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 600;
+        draw(canvas, target, coeffs, circles);
+        figure.append(canvas);
+        figure.insertAdjacentHTML('beforeend', `<figcaption>${circles ? `N = ${circles} krožnic` : 'ciljna krivulja'}</figcaption>`);
+        section.append(figure);
+    }
+    document.body.append(section);
+}
+document.body.dataset.ready = 'true';
+</script>
+</body>
+</html>
