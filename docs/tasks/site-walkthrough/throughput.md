@@ -8,6 +8,6 @@ Rule for this queue, from the owner on 2026-11-14: the session measures and prop
 | --- | --- | --- |
 | 1 | 8a: measure local runs, the four representative changes, hosted runs, the `docs:` pushes and cost against value; write [the remeasure note](../../reviews/verification-throughput/remeasure-2026-11-14.md) | Done 2026-11-14 |
 | 2 | 8b: ranked proposal and the routine / full policy (T03), in the state note under "For the owner" | Done 2026-11-14; approved by the owner the same day |
-| 3 | Implement the approved changes in the state note's order (1, 3, 7, 8, 2, 4, timing of 6, 10, 5, 9): name the wait, measure before and after on the same representative change, record what still guards a narrowed check | Not started; handler 2. The slot change of 6 goes back to the owner with its timing |
+| 3 | Implement the approved changes in the state note's order (1, 3, 7, 8, 2, 4, timing of 6, 10, 5, 9): name the wait, measure before and after on the same representative change, record what still guards a narrowed check | In progress. Handler 2 committed 7, 1, 3, 8, 10 and 2 and dispatched 4; 6 (timing), 5 and 9 remain. The slot change of 6 goes back to the owner with its timing |
 | 4 | Write the approved routine / full policy into [the command guide](../../commands.md); name the daily run's reader | Reader named 2026-11-14 (the handlers; card, workflow and command guide). The policy table waits for the owner's answer on the slice tier |
 | 5 | Close phase 8: acceptance V1–V5 met or given a recorded reason | V1 and V5 met by step 1; V2–V4 follow steps 3 and 4 |
