@@ -13,6 +13,7 @@ const LOG_DIR_NAME = '.command-logs';
 // Typecheck and lint caches, in LOG_DIR_NAME; a background publish worktree is seeded with them (publish-gate.cjs).
 const CACHE_FILES = {tsc: 'tsc.tsbuildinfo', eslint: 'eslintcache.json'};
 const STAMP_NAME = '.bezeg-build-provenance.json';
+const TIMINGS_NAME = 'timings.jsonl';
 const TAIL_LIMIT = 16 * 1024;
 
 function collectFiles(root, relative = '') {
@@ -342,6 +343,24 @@ async function assertProvenance(root) {
     return stamp;
 }
 
+const seconds = ms => Math.round(ms / 100) / 10;
+
+// The number of test files Vitest reports at the end of a run, or null when the output has no summary.
+function testFileCount(tail) {
+    const text = (tail ? tail.toString() : '').replace(new RegExp(`${String.fromCharCode(27)}[[][0-9;]*m`, 'g'), '');
+    const match = [...text.matchAll(/Test Files\s+[^\n]*?\((\d+)\)/g)].at(-1);
+    return match ? Number(match[1]) : null;
+}
+
+// One JSON line per run in TIMINGS_NAME: slot and memory wait, seconds and selected test files per step (phase 8 change
+// 10, T02). The next remeasure reads this file instead of parsing logs. A write failure never fails the run.
+function recordTiming(root, entry) {
+    try {
+        fs.mkdirSync(path.join(root, LOG_DIR_NAME), {recursive: true});
+        fs.appendFileSync(path.join(root, LOG_DIR_NAME, TIMINGS_NAME), `${JSON.stringify(entry)}\n`);
+    } catch { /* timing is a record, not a check */ }
+}
+
 async function runPlan({root, scope, steps, env = process.env, longLived = false, onStart, provenance, label: initialLabel}) {
     let label = initialLabel;
     const log = logPath(root);
@@ -354,21 +373,30 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
         catch { state = {revision: 'unknown', dirty: 'unknown'}; }
         onStart({log, state});
     }
+    const timings = [];
     for (const step of steps) {
         // A step may take a gate (free-memory check, or a machine-wide slot) just before it runs and release it right after.
         let held;
+        const waitStart = Date.now();
+        let runStart = waitStart;
+        let stepResult;
         try {
             held = step.acquire ? await step.acquire() : undefined;
+            runStart = Date.now();
             if (held?.label) label = held.label;
             const {acquire: _acquire, ...rest} = step;
             const full = {...rest, cwd: root, env: {...env, ...held?.env}, log, verbose: env.BEZEG_VERBOSE === '1'};
-            result = await runChild(full);
-        } finally { held?.release?.(); }
+            result = stepResult = await runChild(full);
+        } finally {
+            held?.release?.();
+            timings.push({step: step.label, waitSeconds: seconds(runStart - waitStart), seconds: seconds(Date.now() - runStart), ...(step.label === 'test' ? {testFiles: testFileCount(stepResult?.tail)} : {}), ...(held?.label ? {gate: held.label} : {})});
+        }
         warned ||= result.warned;
         if (result.code !== 0) break;
         if (longLived) break;
     }
     const duration = ((Date.now() - started) / 1000).toFixed(1);
+    recordTiming(root, {at: new Date(started).toISOString(), scope, code: result.code, seconds: Number(duration), steps: timings, pid: process.pid});
     if (!state) {
         try { state = await gitState(root); }
         catch { state = {revision: 'unknown', dirty: 'unknown'}; }
@@ -578,4 +606,4 @@ if (require.main === module) {
     cli(process.argv.slice(2));
 }
 
-module.exports = {CACHE_FILES, LOG_DIR_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};
+module.exports = {CACHE_FILES, LOG_DIR_NAME, TIMINGS_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};

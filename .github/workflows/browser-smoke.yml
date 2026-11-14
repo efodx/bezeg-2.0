@@ -101,6 +101,17 @@ jobs:
           CI: 'true'
           BEZEG_SWEEP_ROTATION: ${{ needs.scope.outputs.sweep_rotation }}
           BEZEG_SWEEP_BASE: ${{ needs.scope.outputs.sweep_base }}
+      # Per-file durations of the full daily run, for `just test-cost --results <dir>` (phase 8 change 10 of
+      # docs/specs/verification-throughput.md): `gh run download <run> -p 'unit-durations-*' -D <dir>`.
+      - name: Save per-file test durations
+        if: always() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-durations-${{ matrix.shard }}
+          path: node_modules/.vite/vitest/*/results.json
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 30
 
   build:
     needs: scope

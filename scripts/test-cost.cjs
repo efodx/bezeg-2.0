@@ -65,6 +65,28 @@ function findResults() {
     return candidates[0] ?? null;
 }
 
+/**
+ * Per-file seconds from every results.json under dir, such as the unit shards' artifacts of a scheduled CI run
+ * (`gh run download <run> -p 'unit-durations-*' -D <dir>`). Shards run disjoint files; a file found twice keeps its
+ * longest duration.
+ */
+function readResultsDir(dir) {
+    const found = [];
+    const visit = current => {
+        for (const entry of fs.readdirSync(current, {withFileTypes: true})) {
+            const full = path.join(current, entry.name);
+            if (entry.isDirectory()) visit(full);
+            else if (entry.name === 'results.json') found.push(full);
+        }
+    };
+    visit(dir);
+    const files = {};
+    for (const file of found) {
+        for (const [name, seconds] of Object.entries(parseResults(JSON.parse(fs.readFileSync(file, 'utf8'))))) files[name] = Math.max(files[name] ?? 0, seconds);
+    }
+    return {files, count: found.length};
+}
+
 function revision() {
     try {
         return execFileSync('git', ['rev-parse', '--short', 'HEAD'], {cwd: ROOT, encoding: 'utf8'}).trim();
@@ -79,13 +101,27 @@ function cli(args, out = process.stdout) {
     const save = args.includes('--save');
     const topIndex = args.indexOf('--top');
     const top = topIndex >= 0 ? Number(args[topIndex + 1]) : 15;
-    if (!Number.isInteger(top) || top < 1) throw new Error('Usage: just test-cost [--save] [--top N]');
-    const resultsFile = findResults();
-    if (!resultsFile) {
-        out.write('No Vitest results cache found. Run `just check` or `just unit` first.\n');
-        return 1;
+    const resultsIndex = args.indexOf('--results');
+    const resultsDir = resultsIndex >= 0 ? args[resultsIndex + 1] : undefined;
+    if (!Number.isInteger(top) || top < 1 || (resultsIndex >= 0 && !resultsDir)) throw new Error('Usage: just test-cost [--save] [--top N] [--results <dir>]');
+    let files;
+    if (resultsDir) {
+        if (!fs.existsSync(resultsDir)) throw new Error(`No such directory: ${resultsDir}`);
+        const read = readResultsDir(resultsDir);
+        if (!read.count) {
+            out.write(`No results.json under ${resultsDir}.\n`);
+            return 1;
+        }
+        files = read.files;
+        out.write(`Read ${read.count} results.json file${read.count === 1 ? '' : 's'} under ${resultsDir}.\n`);
+    } else {
+        const resultsFile = findResults();
+        if (!resultsFile) {
+            out.write('No Vitest results cache found. Run `just check` or `just unit` first.\n');
+            return 1;
+        }
+        files = parseResults(JSON.parse(fs.readFileSync(resultsFile, 'utf8')));
     }
-    const files = parseResults(JSON.parse(fs.readFileSync(resultsFile, 'utf8')));
     const summary = summarize(files, top);
     if (save) {
         fs.mkdirSync(path.dirname(BASELINE), {recursive: true});
@@ -112,6 +148,6 @@ function cli(args, out = process.stdout) {
     return 0;
 }
 
-module.exports = {parseResults, summarize, diff, cli};
+module.exports = {parseResults, readResultsDir, summarize, diff, cli};
 
 if (require.main === module) process.exitCode = cli(process.argv.slice(2));

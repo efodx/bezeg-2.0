@@ -2,7 +2,10 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {parseResults, summarize, diff} = require('./test-cost.cjs');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const {parseResults, readResultsDir, summarize, diff, cli} = require('./test-cost.cjs');
 
 const raw = {
     version: 1,
@@ -41,4 +44,20 @@ test('diff flags a partial run when the file count is well below the baseline', 
     const d = diff({f0: 2}, {files, total: 10}, {limit: 10});
     assert.equal(d.partial, true);
     assert.deepEqual(d.increases, [['f0', 1]]);
+});
+
+test('--results reads every shard results.json under a directory and keeps the longest duration per file', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bezeg-test-cost-'));
+    try {
+        for (const [shard, files] of [['unit-durations-1', {'a.test.ts': {duration: 2000}}], ['unit-durations-2', {'b.test.ts': {duration: 4000}, 'a.test.ts': {duration: 500}}]]) {
+            fs.mkdirSync(path.join(dir, shard, 'hash'), {recursive: true});
+            fs.writeFileSync(path.join(dir, shard, 'hash', 'results.json'), JSON.stringify({version: 1, projects: {'': {files}}}));
+        }
+        assert.deepEqual(readResultsDir(dir), {files: {'a.test.ts': 2, 'b.test.ts': 4}, count: 2});
+        let text = '';
+        assert.equal(cli(['--results', dir, '--top', '1'], {write: chunk => { text += chunk; }}), 0);
+        assert.match(text, /Read 2 results\.json files/);
+        assert.match(text, /4\.0 {2}b\.test\.ts/);
+        assert.throws(() => cli(['--results']), /Usage/);
+    } finally { fs.rmSync(dir, {recursive: true, force: true}); }
 });

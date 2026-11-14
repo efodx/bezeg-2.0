@@ -29,6 +29,31 @@ function fixture() {
 
 function cleanup(root) { fs.rmSync(root, {recursive: true, force: true}); }
 
+test('every run appends one timing line: wait and seconds per step, and the test files Vitest reported', async () => {
+    const root = fixture();
+    const print = text => ['-e', `process.stdout.write(${JSON.stringify(text)})`];
+    const slow = () => new Promise(resolve => setTimeout(() => resolve({label: 'test slot 1/2, 5 workers', release() {}}), 120));
+    try {
+        const steps = [{label: 'typecheck', executable: process.execPath, args: print('ok\n')},
+            {label: 'test', executable: process.execPath, args: print('\x1b[2m Test Files \x1b[22m \x1b[1m\x1b[32m326 passed\x1b[39m\x1b[22m (326)\n'), acquire: slow},
+            {label: 'test', executable: process.execPath, args: [...print('no summary'), '-e', 'process.exit(3)']}];
+        assert.equal(await commands.runPlan({root, scope: 'check-changed', env: {}, steps}), 3);
+        await commands.runPlan({root, scope: 'unit', env: {}, steps: [steps[0]]});
+        const lines = fs.readFileSync(path.join(root, '.command-logs', commands.TIMINGS_NAME), 'utf8').trim().split('\n').map(line => JSON.parse(line));
+        assert.equal(lines.length, 2);
+        const [first] = lines;
+        assert.equal(first.scope, 'check-changed');
+        assert.equal(first.code, 3);
+        assert.deepEqual(first.steps.map(step => step.step), ['typecheck', 'test', 'test']);
+        assert.ok(first.steps[1].waitSeconds >= 0.1, JSON.stringify(first.steps[1]));
+        assert.equal(first.steps[1].testFiles, 326);
+        assert.equal(first.steps[1].gate, 'test slot 1/2, 5 workers');
+        assert.equal(first.steps[2].testFiles, null);
+        assert.equal('testFiles' in first.steps[0], false);
+        assert.equal(lines[1].scope, 'unit');
+    } finally { cleanup(root); }
+});
+
 test('runs plans in order, stops at failure and preserves the original code', async () => {
     const root = fixture();
     const events = path.join(root, 'events.log');
@@ -37,8 +62,8 @@ test('runs plans in order, stops at failure and preserves the original code', as
         const code = await commands.runPlan({root, scope: 'fail-fast', env: {}, steps: [step('first', 'first'), step('second', 'second', 23), step('never', 'never')]});
         assert.equal(code, 23);
         assert.equal(fs.readFileSync(events, 'utf8'), 'first\nsecond\n');
-        assert.equal(fs.readdirSync(path.join(root, '.command-logs')).length, 1);
-        assert.ok(fs.statSync(path.join(root, '.command-logs', fs.readdirSync(path.join(root, '.command-logs'))[0])).size > 0);
+        assert.equal(fs.readdirSync(path.join(root, '.command-logs')).filter(name => name.endsWith('.log')).length, 1);
+        assert.ok(fs.statSync(path.join(root, '.command-logs', fs.readdirSync(path.join(root, '.command-logs')).find(name => name.endsWith('.log')))).size > 0);
     } finally { cleanup(root); }
 });
 
@@ -191,7 +216,7 @@ test('CLI keeps a broken summary pipe from crashing or reporting success', {time
         wrapperChild.stdout.destroy();
         const result = await closed;
         assert.equal(result.code, 1);
-        assert.equal(fs.readdirSync(path.join(root, '.command-logs')).length, 1);
+        assert.equal(fs.readdirSync(path.join(root, '.command-logs')).filter(name => name.endsWith('.log')).length, 1);
     } finally {
         if (wrapperChild.exitCode === null) wrapperChild.kill('SIGKILL');
         cleanup(root);
