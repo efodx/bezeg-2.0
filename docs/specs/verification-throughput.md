@@ -249,7 +249,7 @@ Acceptance:
 
 ### Phase 8: remeasure after phases 0–7, local waiting first (owner report 2026-11-14)
 
-Status: step 8a measured on 2026-11-14 in [the remeasure note](../reviews/verification-throughput/remeasure-2026-11-14.md); V1 and V5 are met there. Step 8b is a ranked proposal in [the throughput state note](../reviews/site-walkthrough/throughput/state.md) and waits for the owner: on 2026-11-14 he limited this phase to measuring and proposing, so nothing below is changed until he approves the specific change. Source: [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#8-verification-throughput-and-architecture-investigation), items T01–T05.
+Status: step 8a measured on 2026-11-14 in [the remeasure note](../reviews/verification-throughput/remeasure-2026-11-14.md); V1 and V5 are met there. Step 8b is a ranked proposal in [the throughput state note](../reviews/site-walkthrough/throughput/state.md). On 2026-11-14 the owner limited this phase to measuring and proposing, then approved the proposal (see "Owner decisions" below); implementation has not started. Source: [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#8-verification-throughput-and-architecture-investigation), items T01–T05.
 
 The owner reports that CI still takes about 12 minutes for small changes. On 2026-11-14 he added that the wait is local as well: agents wait for tests before they can continue, and this is a constant blocker. Local agent waiting is therefore the first thing this phase measures and the measure its changes are judged by.
 
@@ -280,7 +280,8 @@ Policy to record with the decision (T03): which checks run on every change, whic
 Owner decisions on the proposal, 2026-11-14:
 
 - **Reader of the daily run (T03):** the handlers. Each reads the latest scheduled run at session start and reports or repairs a failure; GitHub's e-mail to the owner stays on. Written into [the workflow](../agent-workflow.md#daily-full-run), the handler card and [the command guide](../commands.md). The alternative was the owner alone through GitHub's e-mail. The run itself is not yet reliable (green once in three days, one cancellation at the 15-minute job limit); repairing it is proposal 8 and is not approved yet.
-- **Whether the gate may leave unaffected graph and lesson tests to CI:** open. The owner asked how often those tests caught bugs locally. In the week measured, never: of 51 red local runs, six failed in such tests, all on time limits or a cache file under load ([remeasure note, section 6](../reviews/verification-throughput/remeasure-2026-11-14.md#6-did-the-tests-a-narrower-selection-would-skip-catch-bugs-locally)).
+- **The proposal as a whole:** approved ("I agree with all of your recommendations"). Read as the ten changes of the state note in the recommended order, with the slot change (6) timed first and brought back to him before anything is changed. Each change still records its before and after and its guard here as it lands.
+- **Whether the gate may leave unaffected graph and lesson tests to CI:** yes, as part of that approval. CI runs everything per push before deploying, and the stream whose push goes red repairs it before pushing anything else. The owner had asked how often those tests caught bugs locally. In the week measured, never: of 51 red local runs, six failed in such tests, all on time limits or a cache file under load ([remeasure note, section 6](../reviews/verification-throughput/remeasure-2026-11-14.md#6-did-the-tests-a-narrower-selection-would-skip-catch-bugs-locally)).
 
 Acceptance:
 

@@ -1,14 +1,16 @@
 # Throughput session state (site walkthrough, package A)
 
-Written by handler 1 on 2026-11-14 after step 8a. Queue: [throughput queue](../../../tasks/site-walkthrough/throughput.md). Spec: [verification throughput, phase 8](../../../specs/verification-throughput.md#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14). Evidence: [remeasure note](../../verification-throughput/remeasure-2026-11-14.md).
+Written by handler 1 on 2026-11-14 at its handoff, after step 8a and the owner's approval of the proposal. Queue: [throughput queue](../../../tasks/site-walkthrough/throughput.md). Spec: [verification throughput, phase 8](../../../specs/verification-throughput.md#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14). Evidence: [remeasure note](../../verification-throughput/remeasure-2026-11-14.md).
 
 ## For the owner
 
 **Ready to read:** the [remeasure note](../../verification-throughput/remeasure-2026-11-14.md). It is a document, so there is no preview and no Tailscale address; port 4334 is unused.
 
-**Nothing has been changed.** The intake session relayed your correction during the measurement: this session measures and proposes, and waits for your approval of each change. I followed it. No script, slot setting, gate, workflow, test or brief wording was touched.
+**Approved by you on 2026-11-14:** "I agree with all of your recommendations." I read that as the ten changes below in the order I recommended, the policy table, and leaving unaffected graph and lesson tests to CI (change 4). Change 6 is only timed first, and its numbers come back to you before any slot setting changes, as I recommended. Tell the handler if you meant less: changes 5, 8, 9 and 10 were in the table but not in my "start with" sentence.
 
-**Your decision:** which of the changes below to approve, and the two choices marked "your choice".
+**What exists now:** the measurement and the daily-run reader rule (documentation). No script, slot setting, gate, workflow or test has been changed yet. Handler 2 (Opus, medium effort) implements the approved changes one small commit at a time and reports each with its before and after here.
+
+**Nothing waits on you** until change 6 has been timed.
 
 ### Headline numbers (week of 2026-11-07 to 11-14)
 
@@ -41,7 +43,11 @@ Savings are estimates from this week's volumes unless marked measured. "Guard" s
 
 Not proposed: deleting or merging tests for speed. The overlaps found are small (under 3% of cost) and unverified.
 
-I would start with 1, 3 and 7 (small, low risk, independent), then 2, then 4 with its measurements, and time 6 before deciding it.
+Approved order: 1, 3 and 7 (small, low risk, independent), then 8, then 2, then 4 with its measurements, then the timing of 6, then 10, 5 and 9. The place of 8, 10, 5 and 9 in that order is the handler's.
+
+### Changes made, with before and after
+
+None yet. Handler 2 adds one row per change: the wait it removes, the representative change it was timed on, seconds before and after, and what still guards a narrowed check.
 
 ### Proposed routine / full policy (T03), your choice
 
@@ -55,20 +61,35 @@ I would start with 1, 3 and 7 (small, low risk, independent), then 2, then 4 wit
 
 **Choice 1, decided 2026-11-14:** the handlers read the daily run. Each handler reads the latest scheduled run at session start and reports or repairs a failure; GitHub's e-mail to you stays on. This is now in the handler card, the workflow and the command guide. It uses `gh run list` directly, so no script changed. The run itself still needs change 8 to be reliable.
 
-**Choice 2, open:** whether the slice tier may leave unaffected graph and lesson tests to CI (change 4). That is the step that removes most of the 15 minutes, and it is the one that can let a red push through to CI.
+**Choice 2, decided 2026-11-14:** the slice tier may leave unaffected graph and lesson tests to CI (change 4). That is the step that removes most of the 15 minutes, and it is the one that can let a red push through to CI.
 
 You asked how often those tests caught bugs locally. **In the week measured, never.** Of 51 red local runs (17 gate failures, 23 `check-changed`, 11 whole-suite), 45 failed in a test the narrower selection would still run, or in no test at all. Six gate runs failed in tests it would skip, all on 2026-11-14: five on test time limits and worker start-up under load, one on a missing cache file. None was an assertion about behavior, and together they cost 4.5 hours of gate time. Details and limits: [remeasure note, section 6](../../verification-throughput/remeasure-2026-11-14.md#6-did-the-tests-a-narrower-selection-would-skip-catch-bugs-locally). Not examined: what failed in the 18 red hosted runs of those days, which would show how often CI is already the one that catches a defect.
 
 ## State
 
-- Step 8a is done and step 8b is a proposal; see the queue. V1 and V5 of phase 8 are met by the note. V2, V3 and V4 wait for approved changes.
+- Step 8a is done and the proposal is approved; see the queue. V1 and V5 of phase 8 are met by the note. V2, V3 and V4 are met as the changes land.
 - Not measured, and said so in the note: CPU load during runs, handler idle time behind a background gate, the CSS change end to end, per-file durations on CI.
 - The measurement scripts and outputs are in `.command-logs/remeasure/` of this worktree (not committed). `node_modules` here is a junction to the main checkout's; remove it with `cmd /c rmdir node_modules`, never recursively.
-- No successor is launched: the remaining work needs the owner's approval.
-- **Successor model (owner, 2026-11-14):** the successor of this chat is Opus at medium effort, not Fable. Launch it from this directory with `claude --bg -n "walkthrough throughput handler 2" --agent bezeg-handler --model opus --effort medium --permission-mode auto "<prompt>"` (`claude --help` lists both flags). Its budget thresholds are the Opus ones (175k soft, 215k handoff).
+- Handler 2 was launched by handler 1 at this handoff.
+- **Successor model (owner, 2026-11-14):** every successor in this chain is Opus at medium effort, not Fable. Launch it from this directory with `claude --bg -n "walkthrough throughput handler 2" --agent bezeg-handler --model opus --effort medium --permission-mode auto "<prompt>"` (`claude --help` lists both flags). Its budget thresholds are the Opus ones (175k soft, 215k handoff).
 - Daily run at this session's start: 43585378440 (2026-11-14), green.
-- Corrected session rule to pass on: measure, propose and wait for the owner's approval of each specific change; do not launch a successor while only waiting on him.
+- Session rule to pass on: implement only what the owner approved (the ten changes and the policy table); anything beyond them, and the slot change of 6, is proposed to him first. Do not launch a successor while only waiting on him.
 
 ## For the next handler
 
-Continue only with changes the owner has approved, one small commit each, covered by `just tooling-test` where scripts change. For each: name the wait, time the same representative change before and after (the four in the note, section 2), and record in the spec what still guards a narrowed check. Changes to `scripts/commands.cjs`, the gate, slots or the workflow affect every running session: say in this note what they must do differently. If brief wording changes, change `docs/agent-workflow.md` in the same commit as the card.
+Work through the approved changes in the order above, one small commit each, published with `just publish --background`. For each: name the wait, time the same representative change before and after, add a row under "Changes made", and record in the spec (phase 8) what still guards a narrowed check. Changes to `scripts/commands.cjs`, the gate, slots or the workflow affect every running session: cover them with `just tooling-test`, and say under "For the owner" what other sessions must do differently, if anything. If brief or card wording changes, change `docs/agent-workflow.md` in the same commit. Time on this machine is the owner's complaint: do not run a whole suite to verify a script change when the scripts' own tests cover it.
+
+Probe tools, in `.command-logs/remeasure/` (throwaway, not committed; run from the worktree root): `select-probe.cjs <file>...` lists what Vitest's `--changed` selects for a one-line edit (3–19 s, no test run); `hubs.cjs` and `sim-split.cjs` hold the static import graph, which reproduces Vitest's selection; `incremental.cjs` times typecheck and lint with caches; `caught.cjs` classifies red runs. The representative edits are `src/graphs/dynamics/LogisticMapGraph.tsx`, `src/localization/sl.ts`, `src/graphs/base/WorkspaceControls.css` and `src/learning/content/linearMapsChapterLessons.ts`.
+
+Brief inputs per change:
+
+1. **CSS-only selection.** `scripts/commands.cjs`, the `check-changed` branch (it already has the changed list from `git diff --name-only`). When every changed file outside `docs/` and Markdown is a `.css` or `.scss` file, replace the `--changed` Vitest step with a filtered run of the tests that read stylesheet source: `src/graphs/base/controls/OperationApplyReason.test.tsx`, `src/inputs/ControlRow.test.ts`, `src/learning/playground/LookUnderneath.test.tsx`. Keep that list beside the always-run tier in `scripts/check-changed-always-run.cjs`, and search once more for tests that read `.css` in another way before fixing it. The gate's `runtime` recipe calls `check-changed`, so it follows. Tests in `scripts/commands.test.cjs`. Before: the stylesheet edit selects 326 files and was never timed; time it once before the change if a slot is free, otherwise record the selection count as the before. Guard to record: build, smoke, CI per push.
+2. **Harness split.** `src/graphs/base/realGraphTestHarness.tsx`: `createGraph` (line 65) is the only user of `allGraphFactories` and of the patch and solids graph imports (lines 11–21). Move it, with the fake surface view wiring it needs, to its own module; 57 test files import `createGraph` and need the new path. A `bezeg-worker` slice. The harness is under `src/graphs/base/`, a shared path, so this change itself runs every graph. Before and after: `select-probe.cjs` on the graph edit (299 files now, 109 simulated) and one timed `check-changed` of that edit.
+3. **Caches.** `tsc()` and `lint()` steps in `scripts/commands.cjs`. Put the cache files in the worktree's own `.command-logs/` (worktrees share `node_modules` through a junction, so not there). `tsc --incremental --tsBuildInfoFile`, `eslint --cache --cache-location --cache-strategy content`. `eslint.config.*` shows no type-aware configuration (no `project` or `projectService`); confirm before relying on a per-file cache. CI must stay uncached: check how the workflow's "Check TypeScript" and "Lint" steps call the tools. Direct timings are in the note, section 5; repeat them through `just typecheck` and `just lint`.
+4. **Registry-bounded selection.** A selector module in `scripts/` with its own tests, used by `check-changed` instead of Vitest's `--changed`: follow a changed file to the tests that reach it, without passing `src/graphs/allGraphFactories.ts`, `src/graphs/graphLoaders.ts`, the family `runtime.ts` loaders, the lesson registries (`src/learning/content/*Registry.ts`, `chapterOwnedLessons.ts`, `src/learning/runtime/lessonCatalog.ts`), `src/localization/index.ts`, `src/demonstrations.ts` and `src/Routes.tsx`. A shared-path change (the list in `scripts/transient-state-scope.cjs`), a configuration or setup file, or anything the selector cannot resolve selects everything, as today. The catalog sweeps and the always-run tier always run; the sweeps already choose their sample and reached entries themselves. `caught.cjs` has a working version of the cut and shared rules. Check the selector against `vitest list --changed` with no cut first; the static graph gave 345 against Vitest's 326 for the stylesheet, which is unexplained. Time all four representative changes before and after. Record the guard in the spec's "Decisions taken": CI runs everything per push; a red push is fixed by the stream that pushed it before it pushes anything else. Then write the policy table into `docs/commands.md` (V4).
+5. **Directory-wide filtered runs take a slot.** `needsSlot` in `scripts/commands.cjs` and `scripts/test-slots.cjs`. It needs the number of matching files before the run starts.
+6. **Lone-run workers: time only.** One whole-suite `just unit` at 5 workers and one at 10 (`BEZEG_TEST_WORKERS`), each while no other slot is held, with the number of other sessions running noted. Report both under "For the owner" and wait for his answer before touching slot sizing.
+7. **Documentation allowlist.** `isDocumentation` in `scripts/ci-change-scope.cjs` (line 56) and its test "recognizes only the exact documentation allowlist". Ten files under `src/` mention a `docs/` path (for example `src/learning/chapter/authoredChapterCoverage.test.ts`, `guidedExamplePreviews.test.ts`, `retainedExamples.test.ts`): read what they open, and keep any file a test or the build reads outside the allowlist. The cases seen were PNG and JSON under `docs/reviews/`, `docs/controls/` and `docs/tasks/`, and `DESIGN.md`.
+8. **Daily run.** `.github/workflows/browser-smoke.yml`, the `unit` job's `timeout-minutes: 15`: 25 for the scheduled run. Run 43413497282 was cancelled at the limit; 43585378440 used 12 of 15 minutes.
+9. **CI wall.** The `PartSequencer` in `vite.config.mts` spreads part files over four shards; shard durations in one run ranged from 285 s to 489 s. Balance by cost or go to six shards, and compare hosted walls before and after.
+10. **Timing record.** `runPlan` in `scripts/commands.cjs`: one JSON line per run in `.command-logs/` with the slot wait, seconds per step and files selected. Doing this early makes the other before-and-after measurements cheaper.
