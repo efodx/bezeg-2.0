@@ -246,6 +246,11 @@ const captureText = {
     'conic-focal': {keep: [], strip: []},
     // Three views: the captions of the panels and the label of L go; moss marks the original and blue the image.
     'projective-three-views': {keep: [], strip: []},
+    // Rational curves: the weight labels (smartlabels) go; the control polygon, the curve and its markers carry the idea, the weights are checked from the model.
+    'rational-extrapolation': {keep: [], strip: []},
+    'rational-subdivision': {keep: [], strip: []},
+    // Farin points: the ratio numbers and the weights go; the Farin points and the curve carry the idea.
+    farin: {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

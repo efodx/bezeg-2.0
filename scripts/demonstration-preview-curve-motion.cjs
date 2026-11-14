@@ -122,14 +122,17 @@ function checkRationalSubdivision(sample, first, assert) {
     const weights = [1,2,1,1], t = 0.5, children = rationalSubdivision(controls, weights, t);
     const curves = sample.observed.curves.filter(curve => curve.samples.length === 401 && curve.max-curve.min > 1e-9);
     assert.equal(curves.length, 2, `Exact rational subdivision must show two child curves, found ${curves.length}`);
-    // Capture presentation deliberately omits colliding labels. Verify all source
-    // labels numerically, and require each child's distinguishing inner weight on screen.
-    const remainingLabels = [...(sample.observed.declaredWeightLabels || sample.observed.weightLabels)];
+    // The capture text policy may hide every weight label, so the weights are read from the declared labels
+    // (the .smart-label-point2 nodes, present and numerically current whether shown or not), never from what is visible.
+    // Every source label is verified numerically, and each child's distinguishing inner weight must be among them.
+    const declared = sample.observed.declaredWeightLabels;
+    assert.ok(Array.isArray(declared) && declared.length === 8, `Rational subdivision declares ${declared?.length} weight labels instead of eight`);
+    const remainingLabels = [...declared];
     for (const [childIndex, child] of children.entries()) {
-        assert.ok(sample.observed.weightLabels.some(text => {
+        assert.ok(declared.some(text => {
             const match=text.match(/=\s*(-?\d+(?:[.,]\d+)?)/);
             return match && Math.abs(Number(match[1].replace(',','.'))-child.weights[1])<=.011;
-        }), `Rational subdivision child ${childIndex+1} distinguishing inner weight must be visible`);
+        }), `Rational subdivision child ${childIndex+1} distinguishing inner weight must be declared`);
         for (const [i, point] of child.controls.entries()) assert.ok(hasVisiblePoint(sample.observed.visiblePoints, point),
             `Rational subdivision child ${childIndex + 1} control ${i} is not visible at its exact homogeneous coordinate`);
         for (let i = 0; i < child.controls.length - 1; i++) assert.ok(hasVisibleSegment(sample.observed.visibleSegments, child.controls[i], child.controls[i + 1]),
@@ -139,7 +142,7 @@ function checkRationalSubdivision(sample, first, assert) {
                 const match = text.match(/=\s*(-?\d+(?:[.,]\d+)?)/);
                 return match && Math.abs(Number(match[1].replace(',', '.')) - weight) <= 0.011;
             });
-            assert.ok(labelIndex >= 0, `Rational subdivision child ${childIndex + 1} weight w${i}=${weight.toFixed(2)} is not visibly labeled`);
+            assert.ok(labelIndex >= 0, `Rational subdivision child ${childIndex + 1} weight w${i}=${weight.toFixed(2)} is not among the declared weight labels`);
             remainingLabels.splice(labelIndex, 1);
         }
     }
@@ -324,7 +327,7 @@ const motionSpecs = {
         invariants:['Extension point agrees with independent rational evaluation for t > 1', 'Weights and controls remain fixed; denominator stays nonzero'],
     },
     'rational-subdivision': {
-        presentationDependencyIfMissing: 'Both child polygons and each child’s distinguishing inner weight must be visible; all eight source weight labels must agree with homogeneous subdivision. Colliding labels may be omitted under the existing selective-label policy.',
+        presentationDependencyIfMissing: 'Both child polygons must be visible; all eight declared source weight labels (shown or hidden by the capture text policy) must agree with homogeneous subdivision, including each child’s distinguishing inner weight.',
         mode:'discrete-exact-steps',controlCount:4,checkpoints:[
             {value:'setup',actions:[]},{value:'subdivided',actions:[{kind:'button',label:'Subdiviziraj'},
                 {kind:'toggle',label:'Kontrolni poligon',value:true,index:1},

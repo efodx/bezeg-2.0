@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B7, rational curves</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B7: rational curves (G02)</h1>
+<p>Three catalog captures, before and after. <a href="b6.html">B6</a>. The weight labels (JSXGraph smartlabels) and the Farin ratio numbers are removed from the capture; the curve, the polygons and the markers carry the idea. Weights are still checked from the model.</p>
+<h2>1. Rational extrapolation</h2>
+<p>The four weight labels are gone; polygon, curve and the four control points remain.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b7/before/rational-extrapolation.webm" poster="b7/before/rational-extrapolation.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b7/after/rational-extrapolation.webm" poster="b7/after/rational-extrapolation.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Rational subdivision</h2>
+<p>The weight labels are gone. The new poster also shows the two child polygons and their points: the app at HEAD draws the de Casteljau scheme before Subdiviziraj, which the older poster pre-dated.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b7/before/rational-subdivision.webm" poster="b7/before/rational-subdivision.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b7/after/rational-subdivision.webm" poster="b7/after/rational-subdivision.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Farin points</h2>
+<p>The ratio numbers 0.67, 0.33, 0.50 and the weights are gone; the Farin points (open circles) and the curve remain.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b7/before/farin.webm" poster="b7/before/farin.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b7/after/farin.webm" poster="b7/after/farin.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>

@@ -691,6 +691,8 @@ const motionSpecs = {
     },
     farin: {
         mode: 'pointer-drag', controlCount: 4, presentEachFrame: false,
+        // The restore rebuilds the Farin ratio texts; present again so the capture-text policy hides the new objects (presentEachFrame stays off).
+        presentAfterRestore: true,
         // The full settle() re-typesets MathJax on every frame; with the moving weight labels that crashed the renderer
         // at about frame 31. Two animation frames are enough here: the labels are plain board text updated by JSXGraph.
         settle: page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))),
@@ -1645,7 +1647,7 @@ async function captureDrag(browser, d, spec, directory, baseUrl, presentBoard) {
             // pressSettle (farin only): let JSXGraph process the hover and the press before the first drag move, or the glider can lag one frame.
             if(i===spec.schedule.press){await page.mouse.move(start.x,start.y);if(spec.pressSettle)await spec.pressSettle(page);await page.mouse.down();if(spec.pressSettle)await spec.pressSettle(page);}
             if(i>spec.schedule.press-1 && i<spec.schedule.release){const at=await screen(target.x,target.y);await page.mouse.move(at.x,at.y);}
-            if(i===spec.schedule.release){await page.mouse.up();await spec.restore(page,ctx);}
+            if(i===spec.schedule.release){await page.mouse.up();await spec.restore(page,ctx);if(spec.presentAfterRestore)await presentBoard(page.locator('#jgbox'),d,recipe,presentation);}
             await (spec.settle||settle)(page);
             if(process.env.PREVIEW_SAMPLE_DELAY_MS)await page.waitForTimeout(Number(process.env.PREVIEW_SAMPLE_DELAY_MS));
             if(spec.presentEachFrame!==false)await presentBoard(page.locator('#jgbox'),d,recipe,

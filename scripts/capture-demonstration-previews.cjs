@@ -205,7 +205,7 @@ async function captureSurface(page, demonstration, recipe, outputDirectory) {
 
 /**
  * Capture-text policy (C1). Runs inside the page, so it is self-contained and is passed to presentBoard's evaluate as source.
- * `textObjects` are JSXGraph text objects (rendNode in the DOM); `policy` is {keep, strip}, each a list of {source, flags}.
+ * `textObjects` are JSXGraph text objects and smartlabels (rendNode in the DOM; smartlabels are judged alike but never stripped); `policy` is {keep, strip}, each a list of {source, flags}.
  * A line (or a text object without line divs) is hidden unless a keep pattern matches it; kept plain-text lines lose their strip matches.
  * Hiding is DOM-only (display none) and idempotent: it is re-applied on every frame because JSXGraph rewrites text on update.
  */
@@ -224,6 +224,7 @@ function applyCaptureText(textObjects, policy) {
         (lines.length ? lines : [node]).forEach(unit => {
             let text = unit.textContent || '';
             if (matches(keep, text)) {
+                if (object.elType === 'smartlabel' && matches(build(policy.strip), text)) throw new Error('capture text: a strip pattern applies to the kept smartlabel "' + text + '"; smartlabels cannot be stripped');
                 if (!unit.children.length) {
                     const stripped = build(policy.strip).reduce((rest, pattern) => rest.replace(pattern, ''), text);
                     if (stripped !== text) { unit.textContent = stripped; text = stripped; }
@@ -287,7 +288,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     if (options.text) {
                         const applyText = new Function('return (' + options.applyCaptureTextSource + ')')();
                         const pointLabels = new Set(Object.values(board.objects || {}).filter(o => o.elType === 'point' && o.label).map(o => o.label));
-                        applyTextPolicy = () => applyText(Object.values(board.objects || {}).filter(o => o.elType === 'text' &&
+                        applyTextPolicy = () => applyText(Object.values(board.objects || {}).filter(o => ['text', 'smartlabel'].includes(o.elType) &&
                             !axisGridObjects.has(o) && !pointLabels.has(o) && o.visProp?.visible !== false && o.visProp?.visible !== 'false'), options.text);
                         applyTextPolicy();
                     }

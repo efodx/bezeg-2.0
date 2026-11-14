@@ -20,7 +20,7 @@ const captionHtml = '<div class="JXGtext"><div>Korelacija 4 točk</div><div>Kore
 
 test('only the recipes with a capture-text verdict (pilot and batch B1) carry text, the others keep their annotation and no policy', () => {
     const withText = Object.values(recipes).filter(recipe => recipe.text).map(recipe => recipe.id).sort();
-    assert.deepEqual(withText, ['arc-length-param', 'conic-focal', 'curve-comb', 'curve-curvature', 'curve-envelope', 'curve-evolute', 'curve-offset', 'curve-parametric', 'interp-hermite', 'interp-lagrange', 'interp-least-squares', 'interp-runge', 'interp-subdivision', 'ph-cubic', 'ph-quintic', 'prob-binomial-normal', 'prob-clt', 'prob-correlation', 'prob-density', 'prob-summary', 'projective-three-views', 'reduction', 'uniform-parameterization']);
+    assert.deepEqual(withText, ['arc-length-param', 'conic-focal', 'curve-comb', 'curve-curvature', 'curve-envelope', 'curve-evolute', 'curve-offset', 'curve-parametric', 'farin', 'interp-hermite', 'interp-lagrange', 'interp-least-squares', 'interp-runge', 'interp-subdivision', 'ph-cubic', 'ph-quintic', 'prob-binomial-normal', 'prob-clt', 'prob-correlation', 'prob-density', 'prob-summary', 'projective-three-views', 'rational-extrapolation', 'rational-subdivision', 'reduction', 'uniform-parameterization']);
     for (const id of withText) assert.equal(recipes[id].annotations, 'capture-text-policy');
     assert.equal(recipes.bezier.annotations, 'hide-point-names-retain-concept-text');
     assert.equal(captureTextPolicy(recipes.bezier), undefined);
@@ -108,4 +108,18 @@ test('C3: kept capture text carries no run of three letters apart from mathemati
     }
     // Unnamed board text such as "0,0" is only ever hidden evidence, never checked.
     assert.deepEqual(foreignLetterRuns('0,0'), []);
+});
+
+test('smartlabels are judged like text: hidden unless kept, recorded as evidence, and never stripped', () => {
+    const objects = dom('<div>$$w_{0}=1.00$$</div><div>$$w_{1}=2.00$$</div>').map(object => ({...object, elType: 'smartlabel'}));
+    const result = applyCaptureText(objects, policy([]));
+    assert.ok(objects.every(object => !shown(object.rendNode)));
+    assert.deepEqual(result.textHidden, ['$$w_{0}=1.00$$', '$$w_{1}=2.00$$']);
+    const kept = applyCaptureText(objects, policy([/w_\{1\}/]));
+    assert.deepEqual([shown(objects[0].rendNode), shown(objects[1].rendNode)], [false, true]);
+    assert.deepEqual(kept.textKept, ['$$w_{1}=2.00$$']);
+    // A strip pattern that would change a kept smartlabel is an error: its content is owned by JSXGraph.
+    assert.throws(() => applyCaptureText(objects, policy([/w_\{1\}/], [/^\$\$/])), /smartlabel/);
+    // A strip pattern that does not touch it is harmless.
+    assert.doesNotThrow(() => applyCaptureText(objects, policy([/w_\{1\}/], [/^nothing/])));
 });
