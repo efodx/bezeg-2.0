@@ -277,6 +277,11 @@ Step 8b, decide from 8a. These are hypotheses to test against the measurement, n
 
 Policy to record with the decision (T03): which checks run on every change, which are sampled locally, which rotate in CI, and when everything runs. The daily full run from phase 7 already exists; this step confirms it runs, is green and is read by someone, and documents the whole policy in one place in [the command guide](../commands.md).
 
+Owner decisions on the proposal, 2026-11-14:
+
+- **Reader of the daily run (T03):** the handlers. Each reads the latest scheduled run at session start and reports or repairs a failure; GitHub's e-mail to the owner stays on. Written into [the workflow](../agent-workflow.md#daily-full-run), the handler card and [the command guide](../commands.md). The alternative was the owner alone through GitHub's e-mail. The run itself is not yet reliable (green once in three days, one cancellation at the 15-minute job limit); repairing it is proposal 8 and is not approved yet.
+- **Whether the gate may leave unaffected graph and lesson tests to CI:** open. The owner asked how often those tests caught bugs locally. In the week measured, never: of 51 red local runs, six failed in such tests, all on time limits or a cache file under load ([remeasure note, section 6](../reviews/verification-throughput/remeasure-2026-11-14.md#6-did-the-tests-a-narrower-selection-would-skip-catch-bugs-locally)).
+
 Acceptance:
 
 - **V1:** The remeasure note states, for each of the four representative changes, where the time goes locally and on CI, with the logs or run ids it came from.

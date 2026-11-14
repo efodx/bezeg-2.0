@@ -228,7 +228,40 @@ One timing of each, in this worktree on master `dbf3ff60`, run one after another
 
 An incremental typecheck saves about 70 s on a one-file graph edit and about 95 s when nothing changed, and saves nothing on an edit to a localization catalog, which 727 modules import. A cached lint saves about 43 s. Not checked: whether any lint rule in use reads type information from other files, in which case a per-file cache could keep a stale result.
 
-## 6. The phase 8 hypotheses against the measurement
+## 6. Did the tests a narrower selection would skip catch bugs locally?
+
+Asked by the owner on 2026-11-14, about proposal 4 of the state note (a selection that follows a change to the tests that import it but not through the all-graphs registry, the lesson registries or the localization catalogs). Answer for this week: **no behavior failure was caught by such a test in any local run.**
+
+Method: every local run of the week that ran the changed-file selection or the whole suite and ended red, 51 in all. For each, the failing test files and error lines from the log, and the slice's changed files, were compared against the import graph with the registries cut. A failing test counts as "still run" when the slice changed it, when it imports a changed file without passing a registry, when it is a catalog sweep or in the always-run tier, or when the slice changed a shared path, which keeps selecting everything.
+
+| Runs | Red | Failing test would still run | No test failed (lint, worker start-up) or none named | Failing test would be left to CI |
+| --- | --- | --- | --- | --- |
+| Gate, `verify:check-changed` | 17 | 7 | 4 | 6 |
+| `check-changed` in a worktree | 23 | 23, two of them unplaced | 0 | 0 |
+| Whole-suite `unit` | 11 | 11, one in a file that no longer exists | 0 | 0 |
+
+The six gate runs whose failing tests the narrower selection would have skipped, all on 2026-11-14:
+
+| Time (UTC) | Worktree | Gate seconds | Failing tests | Error |
+| --- | --- | --- | --- | --- |
+| 01:00 | `stream-families-prep` | 2,054 | `InscribedAngleGraph.host`, `LinearMapIteration.host` | Test timed out in 60000 ms and in 15000 ms |
+| 01:33 | `stream-families-prep` | 1,843 | `FortuneGraph.host` | `ENOENT` on a file in `node_modules/.vitest-cache` |
+| 03:26 | `stream-families-prep` | 424 | four `registrationLoading` tests | Test timed out in 15000 ms |
+| 05:47 | `stream-control-choice` | 4,902 | six `registrationLoading` tests | Test timed out in 15000 ms; worker start timeouts |
+| 07:14 | `stream-families-prep` | 2,915 | `graphCollectionIdentity` | Test timed out in 15000 ms; worker start timeouts |
+| 08:26 | `stream-families-prep` | 4,220 | `CurveOperationPanel` | Test timed out in 15000 ms |
+
+None is an assertion about behavior. All six are time limits or a cache file under load, in tests unrelated to the slice, and they cost 4.5 hours of gate time. A seventh gate run (06:15, 5,642 s) failed on worker start timeouts alone. The one gate failure that was a real defect (04:14, `sharedControls.graphs.test.tsx`, an assertion on the accumulation field) is in a test that imports files the slice changed, so it stays selected.
+
+Limits:
+
+- One week of logs; the gate's logs start on 11-09.
+- For 15 of the 17 gate failures only the runner's tail excerpt of the test log survives. In the six above, the number of failing files in the excerpt equals Vitest's own count.
+- For worktree runs the changed files are reconstructed from the worktree's reflog (the branch at the run plus the commits of the next four hours), so uncommitted work is approximated. Two runs were logged in kept publish worktrees without a reflog; they duplicate gate rows and their failures are the same timeouts and the same accumulation assertion.
+- The import graph is today's, not the one at each run.
+- Not examined: the 18 hosted runs that went red on the four days read (3, 12, 1 and 2). Those are failures the current local selection already let through, and what failed in them would say how often CI is the one that catches a defect today.
+
+## 7. The phase 8 hypotheses against the measurement
 
 | Hypothesis | Verdict | Evidence |
 | --- | --- | --- |

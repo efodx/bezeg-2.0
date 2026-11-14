@@ -2,6 +2,8 @@
 
 A running Claude handler's working summary of [the workflow](../agent-workflow.md). Read your state note, then this card, then start the next slice. Reach the workflow by section when this card names one or a task leaves it. When a rule here changes, change the workflow section too.
 
+**Daily run.** At session start, read the latest scheduled full run: `gh run list --workflow browser-smoke.yml --event schedule --limit 1`. If it did not succeed, say so under "For the owner" in your state note, and repair it before you push anything else when the failure is in your stream's area ([daily full run](../agent-workflow.md#daily-full-run)).
+
 **Routing.** Pass the model on every dispatch.
 
 | Assignment | Agent | Model |

@@ -88,6 +88,10 @@ Account for every acceptance criterion with observed evidence or an explicit gap
 
 Record accepted/blocked time and complete the [evaluation record](../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log) from current-task evidence, then commit and push under the repository Git rules. Research, review, and smoke assignments count too; useful handler-only cases provide comparisons. Keep verification gaps explicit.
 
+### Daily full run
+
+Hosted CI runs every unit test, every catalog sweep entry and every smoke spec once a day on a schedule, without deploying ([CI rotation](commands.md)). Its readers are the handlers (owner decision 2026-11-14, [verification throughput](specs/verification-throughput.md) phase 8, T03): each handler reads the latest scheduled run when its session starts, with `gh run list --workflow browser-smoke.yml --event schedule --limit 1`. A run that failed or was cancelled goes under "For the owner" in that handler's state note, with the run id and the failing job. The handler whose stream owns the failing area repairs it before pushing anything else; a failure nobody's stream owns is reported and left for the owner to assign. GitHub's e-mail to the owner for a failed scheduled run stays on as a second reader. Several handlers may report the same run; that is accepted.
+
 ### Review routing
 
 Scope each independent review to where the [evaluation log](agent-workflow/evaluation-log.md) shows reviewers finding defects. Engineering review found missed consumers, lifecycle and state bugs, vacuous assertions, and focus or keyboard gaps. Mathematical review found errors in newly written mathematics. Final re-reviews after repair, and mathematical reviews of regrouped content, mostly returned no finding.

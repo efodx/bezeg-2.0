@@ -53,9 +53,11 @@ I would start with 1, 3 and 7 (small, low risk, independent), then 2, then 4 wit
 | Daily | Hosted CI, 03:17 UTC | Everything, every sweep entry. No deploy. A red daily run already makes the next push run every entry |
 | On demand | Before pushing a change to restoration, Presets, scene replacement or lesson structure outside the shared paths | `BEZEG_SWEEPS=all just unit`, as the command guide says today |
 
-**Your choice 1:** who reads the daily run. Options: (a) you, through GitHub's e-mail for a failed scheduled run; (b) the first handler session of each day, as a rule on the handler card, with `just ci` showing the latest daily verdict. I recommend (b), with (a) left on.
+**Choice 1, decided 2026-11-14:** the handlers read the daily run. Each handler reads the latest scheduled run at session start and reports or repairs a failure; GitHub's e-mail to you stays on. This is now in the handler card, the workflow and the command guide. It uses `gh run list` directly, so no script changed. The run itself still needs change 8 to be reliable.
 
-**Your choice 2:** whether the slice tier may leave unaffected graph and lesson tests to CI (change 4). That is the step that removes most of the 15 minutes, and it is the one that can let a red push through to CI.
+**Choice 2, open:** whether the slice tier may leave unaffected graph and lesson tests to CI (change 4). That is the step that removes most of the 15 minutes, and it is the one that can let a red push through to CI.
+
+You asked how often those tests caught bugs locally. **In the week measured, never.** Of 51 red local runs (17 gate failures, 23 `check-changed`, 11 whole-suite), 45 failed in a test the narrower selection would still run, or in no test at all. Six gate runs failed in tests it would skip, all on 2026-11-14: five on test time limits and worker start-up under load, one on a missing cache file. None was an assertion about behavior, and together they cost 4.5 hours of gate time. Details and limits: [remeasure note, section 6](../../verification-throughput/remeasure-2026-11-14.md#6-did-the-tests-a-narrower-selection-would-skip-catch-bugs-locally). Not examined: what failed in the 18 red hosted runs of those days, which would show how often CI is already the one that catches a defect.
 
 ## State
 
@@ -63,6 +65,9 @@ I would start with 1, 3 and 7 (small, low risk, independent), then 2, then 4 wit
 - Not measured, and said so in the note: CPU load during runs, handler idle time behind a background gate, the CSS change end to end, per-file durations on CI.
 - The measurement scripts and outputs are in `.command-logs/remeasure/` of this worktree (not committed). `node_modules` here is a junction to the main checkout's; remove it with `cmd /c rmdir node_modules`, never recursively.
 - No successor is launched: the remaining work needs the owner's approval.
+- **Successor model (owner, 2026-11-14):** the successor of this chat is Opus at medium effort, not Fable. Launch it from this directory with `claude --bg -n "walkthrough throughput handler 2" --agent bezeg-handler --model opus --effort medium --permission-mode auto "<prompt>"` (`claude --help` lists both flags). Its budget thresholds are the Opus ones (175k soft, 215k handoff).
+- Daily run at this session's start: 43585378440 (2026-11-14), green.
+- Corrected session rule to pass on: measure, propose and wait for the owner's approval of each specific change; do not launch a successor while only waiting on him.
 
 ## For the next handler
 
