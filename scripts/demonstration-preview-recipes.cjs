@@ -1,6 +1,7 @@
 // Capture-only choreography. Labels are the shipped Slovenian controls, never React/graph internals.
 const assert = require('node:assert/strict');
 const {waitForSurfaceViewDrawn} = require('./surface-view-evidence.cjs');
+const {numberFieldLocator} = require('./number-field-locator.cjs');
 const button = (label, count = 1) => ({kind: 'button', label, count});
 const toggle = (label, value = true) => ({kind: 'toggle', label, value});
 const field = (label, value, kind = 'range', index = 0) => ({kind, label, value, index});
@@ -251,7 +252,10 @@ async function applyAction(page, action) {
     let control = action.kind === 'button' ? (action.group
         ? page.getByRole('group',{name:action.group,exact:true,includeHidden:true}).getByRole('button',{name:action.label,exact:true,includeHidden:true})
         : page.getByRole('button', {name: action.label, exact: true, includeHidden: true}))
-        : page.getByLabel(action.label, {exact: true}).nth(action.index || 0);
+        // A CountSetter's group is named by its label too; only the input is the control to drive.
+        : (['number', 'range'].includes(action.kind) ? page.getByLabel(action.label, {exact: true}).and(page.locator('input')) : page.getByLabel(action.label, {exact: true})).nth(action.index || 0);
+    // A Slider takes a typed value in its exact field, named "<label>, vrednost"; a plain number field keeps its own label.
+    if (action.kind === 'number') control = await numberFieldLocator(page, action.label, control);
     assert.equal(await control.count(), 1, `Unsupported or ambiguous ${action.kind} control: ${action.label}`);
     if (!await control.isVisible()) {
         for (const tab of ['Prikaz', 'Uredi']) {

@@ -8,6 +8,7 @@ const path = require('node:path');
 const {recipes, applyRecipe, readSurfaceFraming, sameCamera, pointsOutsideFrame, settle} = require('../demonstration-preview-recipes.cjs');
 const {drivenMotions} = require('./_schema.cjs');
 const {newSceneContext, openRecipeScene} = require('./_scene.cjs');
+const {numberFieldLocator} = require('../number-field-locator.cjs');
 
 // Shared timing, as movePhase in the motion module: 12 holds, 71 moving frames, 13 holds. The pointer is down from PRESS to RELEASE.
 const PRESS = 11, RELEASE = 84;
@@ -295,6 +296,8 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     // The id survives a label that embeds the value; a control without an id keeps its label locator.
     const range = rangeId ? page.locator(`[id=${JSON.stringify(rangeId)}]`) : control;
     const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
+    // A Slider's exact field takes the typed value; the range stays the element that is read back.
+    const typed = row.control.kind === 'number' ? await numberFieldLocator(page, row.control.label, range) : range;
     let previousValue = parse(await range.inputValue());
     assert.ok(Math.abs(previousValue - row.path[0]) < 1e-9, `${row.id}: the scene starts at ${previousValue}, but the row path starts at ${row.path[0]}`);
     const known = new Map(initial.strokesById);
@@ -302,7 +305,7 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     for (let i = 0; i < kit.frameCount; i++) {
         const target = kit.sweepValue(i, {sweep: {waypoints: row.path, step: row.control.step}});
         const steps = Math.round((target - previousValue) / row.control.step);
-        if (row.control.kind === 'number' && Math.abs(target - previousValue) > 1e-12) { await range.fill(String(target)); await range.press('Tab'); }
+        if (row.control.kind === 'number' && Math.abs(target - previousValue) > 1e-12) { await typed.fill(String(target)); await typed.press('Tab'); }
         else if (steps) { await range.focus(); for (let k = 0; k < Math.abs(steps); k++) await range.press(steps > 0 ? 'ArrowRight' : 'ArrowLeft'); }
         await settle(page);
         await presentFixed(page, d, presentBoard, fixedBox, row);

@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const {numberFieldLocator} = require('./number-field-locator.cjs');
 
 /** Inspector tabs a recipe can open, as the stable ids of `aria-controls="inspector-<id>"` (Uredi, Prikaz, Shrani). */
 const TAB_IDS = ['edit', 'display', 'save'];
@@ -61,7 +62,9 @@ async function applyControlStep(page, step) {
     }
     const scope = page.locator('#inspector-content section:not([hidden])');
     const role = CONTROL_ROLES[step.control];
-    const control = scope.getByRole(role, {name: step.label, exact: true});
+    let control = scope.getByRole(role, {name: step.label, exact: true});
+    // A Slider's exact field is named "<label>, vrednost" (English "<label>, value"); a plain number field keeps the label.
+    if (step.control === 'number') control = await numberFieldLocator(scope, step.label, control);
     const found = await control.count();
     assert.ok(found > 0, `no visible ${step.control} named "${step.label}" in the open inspector tab; check the label and add a select-tab step before it`);
     assert.equal(found, 1, `${step.control} "${step.label}" is ambiguous (${found} controls share that name)`);

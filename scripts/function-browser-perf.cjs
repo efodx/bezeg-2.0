@@ -29,7 +29,9 @@ const shots07 = [
     {file: 's6-hyperbola-v2.png', route: C, width: 1280, height: 720, example: 'hyperbola'},
     {file: 's6-bridge-v2.png', route: C, width: 1280, height: 720, example: 'bridge'},
 ];
-const setRange = (page, label, value) => page.getByLabel(label).first().evaluate((el, v) => {
+// A Slider's label names its range input and, as "<label>, vrednost", its exact field that precedes the range in the document.
+const rangeInput = (page, label) => page.getByLabel(label).and(page.locator('input[type="range"]')).first();
+const setRange = (page, label, value) => rangeInput(page, label).evaluate((el, v) => {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, String(v));
     el.dispatchEvent(new Event('input', {bubbles: true})); el.dispatchEvent(new Event('change', {bubbles: true}));
 }, value);
@@ -63,7 +65,7 @@ async function runOnce07(browser, c) {
             await page.waitForFunction(() => /Predvajaj/.test(document.querySelector('[data-action="play-pause"]').textContent), null, {timeout: 60000});
             t1 = await page.evaluate(() => performance.now());
         } else {
-            const eps = page.getByLabel(/Numerična ekscentričnost/).first();
+            const eps = rangeInput(page, /Numerična ekscentričnost/);
             const lo = Number(await eps.getAttribute('min')), hi = Number(await eps.getAttribute('max'));
             await startSampling(page);
             t0 = await page.evaluate(() => performance.now());

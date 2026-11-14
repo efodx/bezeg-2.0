@@ -8,6 +8,7 @@ const patchSurfaceMotion = require('./patch-surface-motion.cjs');
 const clipRows = require('./demonstration-clip-rows/index.cjs');
 const {captureRow} = require('./demonstration-clip-rows/_driver.cjs');
 const {validateRow} = require('./demonstration-clip-rows/_schema.cjs');
+const {numberFieldLocator} = require('./number-field-locator.cjs');
 const {stillColourPixel} = require('./demonstration-clip-rows/_jump.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral', ...patchSurfaceMotion.surfaceMotionIds, ...clipRows.rowIds];
@@ -1060,10 +1061,10 @@ const motionSpecs = {
             const theta = Math.PI / 2 + 2 * Math.PI * progress;
             return {x: Math.cos(theta), y: Math.sin(theta)};
         },
-        // Exact restore after release through the Re w and Im w number fields (the drag already ends on the grid point i).
+        // Exact restore after release through the w, Re and w, Im fields (the drag already ends on the grid point i).
         restore: async page => {
-            await applyAction(page,{kind:'number',label:'Re w',value:0});
-            await applyAction(page,{kind:'number',label:'Im w',value:1});
+            await applyAction(page,{kind:'number',label:'w, Re',value:0});
+            await applyAction(page,{kind:'number',label:'w, Im',value:1});
         },
         // Board text: the operand, product and argument lines, read from the caption's rendered text.
         observe: page => page.locator('#jgbox').evaluate(container => {
@@ -1074,14 +1075,14 @@ const motionSpecs = {
         // check() asserts z, w and the product inside it every frame.
         schedule: {kind: 'monotone-ease', phase: 'clamp((frame-12)/71)', progress: '(1 - cos(π·phase))/2', theta: 'π/2 + 2π·progress',
             zeroDisplacementFrames: '0-12 (w holds at i)', settledFrames: '83-95 (w holds at i)', movingFrames: '13-82', press: 13, release: 83,
-            restore: 'number fields Re w = 0 and Im w = 1 after release (exact)',
+            restore: 'fields w, Re = 0 and w, Im = 1 after release (exact)',
             input: 'pointer drag of the w square on the board, one press and one release'},
         // Encoder: CRF 14 as in farin (see encoderBudget for the measured sizes).
         crf: 14,
         encoderBudget: 'CRF 14: 287913 B with the recipe window bottom at -1.6 (297310 B at -1.1, where the product left the frame; there CRF 13 was 309149, CRF 12 324011, CRF 10 350903, all over the 307200 B ceiling); no label or amplitude change was made',
         invariants: ['z unchanged (1e-9)', 'w equals the 0.05-grid-rounded circle point at the scheduled theta (1e-9)',
             'Product point equals z·w from the reported z and w (1e-9)', 'Caption operand and product text equal the reported values (argument line checked when shown)',
-            'Final w equals the starting i exactly (restore through the Re w and Im w fields)', 'Only w changes; the product follows w',
+            'Final w equals the starting i exactly (restore through the w, Re and w, Im fields)', 'Only w changes; the product follows w',
             'First and last source frames equal the recipe state'],
         check(sample, previous, first, spec) {
             const i = sample.index;
@@ -1686,12 +1687,14 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         assert.equal(controls0.length,spec.controlCount,`Expected ${spec.controlCount} draggable control points`);
         // The range is inside the animation panel behind the inspector tabs; reveal it as applyAction does.
         if (spec.sweep.revealControl) await spec.sweep.revealControl(page);
-        let control=page.getByLabel(spec.control.label,{exact:true});
+        let control=page.getByLabel(spec.control.label,{exact:true}).and(page.locator('input'));// a CountSetter's group carries the same name
         assert.equal(await control.count(),1,`Unsupported or ambiguous range control: ${spec.control.label}`);
         for(const tab of ['Prikaz','Uredi']){if(await control.isVisible())break;await page.getByRole('button',{name:tab,exact:true}).click();}
         assert.ok(await control.isVisible(),`Range control ${spec.control.label} is still hidden after revealing the inspector tabs`);
         const rangeId=await control.getAttribute('id');
         let range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
+        // A Slider's exact field takes the typed value; the range stays the element that is read back.
+        const typed=spec.control.kind === 'number' ? await numberFieldLocator(page,spec.control.label,range) : range;
         const {sweep}=spec;
         const parseInput = value => Number(String(value).replace('−', '-').replace(',', '.'));
         let previousValue=parseInput(await range.inputValue());
@@ -1703,8 +1706,8 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
             const target=sweepValue(i,spec);
             const steps=Math.round((target-previousValue)/sweep.step);
             if (spec.control.kind === 'number' && Math.abs(target - previousValue) > 1e-12) {
-                await range.fill(String(target));
-                await range.press('Tab');
+                await typed.fill(String(target));
+                await typed.press('Tab');
             } else if(steps) {
                 await range.focus();
                 for(let k=0;k<Math.abs(steps);k++)await range.press(steps>0?'ArrowRight':'ArrowLeft');
