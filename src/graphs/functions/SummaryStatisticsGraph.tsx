@@ -31,6 +31,9 @@ const MEAN_Y = -0.5;
 const MEDIAN_Y = -0.95;
 const BAND_BOTTOM = -1.7;
 const BAND_TOP = -1.3;
+/** Roles by hue (and shape): the mean and its spread are blue, a triangle; the median and the box it sits in are moss, a square; the data stay ochre. */
+const MEAN_COLOR = GraphPalette.comparisonCurve;
+const MEDIAN_COLOR = GraphPalette.primaryCurve;
 
 /**
  * Mean, median, standard deviation and the box plot (lesson P4): up to 15 values as dots on a number line, a box plot above
@@ -219,7 +222,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
 
         // The sigma band: a filled strip below the axis, [mean - sigma, mean + sigma].
         const band = this.own(board.create("curve", [[], []], {
-            fillColor: GraphPalette.additionalCurves[0], fillOpacity: 0.3, strokeColor: GraphPalette.additionalCurves[0], strokeWidth: thin,
+            fillColor: MEAN_COLOR, fillOpacity: 0.28, strokeColor: MEAN_COLOR, strokeWidth: this.displayThinWidth(0.8),
             highlight: false, fixed: true, visible: () => model().sigmaBand && view().sigma !== undefined,
         })) as unknown as FillCurve;
         band.updateDataArray = () => {
@@ -235,7 +238,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
 
         // The box plot: box, median line, whiskers and their caps in one curve (NaN separates the parts).
         const box = this.own(board.create("curve", [[], []], {
-            strokeColor: GraphPalette.primaryCurve, fillOpacity: 0, strokeWidth: this.displayStrokeWidth, highlight: false, fixed: true,
+            strokeColor: MEDIAN_COLOR, fillOpacity: 0, strokeWidth: this.displayThinWidth(1.4), highlight: false, fixed: true,
             visible: boxShown,
         })) as unknown as FillCurve;
         box.updateDataArray = () => {
@@ -284,17 +287,18 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
 
         // The mean (triangle) and median (square) markers below the axis, large enough for projection and captioned on the
         // board, so they are told apart by shape and word, not by colour alone.
-        const marker = (face: string, color: string, x: () => number, y: number, caption: () => string) => {
+        // A JSXGraph square of size s is 2s wide, a triangle of size s is narrower: `scale` evens their visual weight.
+        const marker = (face: string, color: string, x: () => number, y: number, caption: () => string, scale = 1) => {
             this.own(board.create("point", [x, y], {
                 ...this.styles.point.default, name: "", withLabel: false, face, fixed: true, highlight: false, fillColor: color,
-                strokeColor: GraphPalette.pointOutline, size: () => Math.max(8, this.displaySettings.pointSize + 4),
+                strokeColor: GraphPalette.pointOutline, size: () => scale * Math.max(10, this.displaySettings.pointSize + 6),
             }));
             this.own(board.create("text", [() => x() + 14 / board.unitX, y, caption], {
                 anchorY: "middle", fixed: true, highlight: false, color, fontSize: 15,
             }));
         };
-        marker("triangleup", GraphPalette.comparisonCurve, () => view().mean, MEAN_Y, () => t("prob_summary_mark_mean"));
-        marker("square", GraphPalette.additionalCurves[1], () => view().median, MEDIAN_Y, () => t("prob_summary_mark_median"));
+        marker("triangleup", MEAN_COLOR, () => view().mean, MEAN_Y, () => t("prob_summary_mark_mean"));
+        marker("square", MEDIAN_COLOR, () => view().median, MEDIAN_Y, () => t("prob_summary_mark_median"), 0.7);
 
         // The draggable dots, horizontally only.
         this.pointObjects = [];
@@ -418,12 +422,12 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
             {id: "values", color: GraphPalette.controlPoint, label: t("prob_summary_legend_values"), kind: "dot"},
-            {id: "mean", color: GraphPalette.comparisonCurve, label: t("prob_summary_legend_mean"), kind: "dot"},
-            {id: "median", color: GraphPalette.additionalCurves[1], label: t("prob_summary_legend_median"), kind: "dot"},
-            {id: "box", color: GraphPalette.primaryCurve, label: t("prob_summary_legend_box"), kind: "line"},
+            {id: "mean", color: MEAN_COLOR, label: t("prob_summary_legend_mean"), kind: "dot"},
+            {id: "median", color: MEDIAN_COLOR, label: t("prob_summary_legend_median"), kind: "dot"},
+            {id: "box", color: MEDIAN_COLOR, label: t("prob_summary_legend_box"), kind: "line"},
             {id: "outlier", color: GraphPalette.warningText, label: t("prob_summary_legend_outlier"), kind: "dot"},
             {id: "fence", color: GraphPalette.referenceCurve, label: t("prob_summary_legend_fence"), kind: "dashed-line"},
-            {id: "band", color: GraphPalette.additionalCurves[0], label: t("prob_summary_legend_band"), kind: "area"},
+            {id: "band", color: MEAN_COLOR, label: t("prob_summary_legend_band"), kind: "area"},
         ]}/>;
     }
 }

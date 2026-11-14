@@ -19,7 +19,7 @@ beforeEach(() => { setLanguage('sl'); localStorage.clear(); });
 
 type BoardObject = {
     elType?: string; dataX?: number[]; dataY?: number[]; visPropCalc?: { visible?: boolean };
-    visProp?: { strokecolor?: string; face?: string }; X(): number; Y(): number; moveTo(to: number[]): void;
+    visProp?: { strokecolor?: string; fillcolor?: string; face?: string }; X(): number; Y(): number; moveTo(to: number[]): void;
     triggerEventHandlers(names: string[], args: unknown[]): void;
 };
 
@@ -40,7 +40,7 @@ class ObservedSummaryGraph extends SummaryStatisticsGraph {
     /** The box-plot curve (20 data points) when it exists and is shown. */
     box() { return this.curve(GraphPalette.primaryCurve, 20).filter(o => o.visPropCalc?.visible === true); }
     fences() { return this.curve(GraphPalette.referenceCurve, 5).filter(o => o.visPropCalc?.visible === true); }
-    band() { return this.curve(GraphPalette.additionalCurves[0], 5).filter(o => o.visPropCalc?.visible === true); }
+    band() { return this.curve(GraphPalette.comparisonCurve, 5).filter(o => o.visPropCalc?.visible === true); }
     drag(index: number, x: number) {
         const handle = this.handles()[index];
         act(() => { handle.moveTo([x, handle.Y()]); handle.triggerEventHandlers(['drag'], []); });
@@ -108,6 +108,17 @@ test('board: seven dots on the axis (ties stacked), mean triangle, median square
     expect(Math.max(...boxX)).toBe(8);
     expect(boxX.slice(0, 4)).toEqual([5, 6.5, 6.5, 5]);
     expect(graph.captionPlainLines().join('\n')).toMatch(/Število vrednosti: 7/);
+});
+
+test('roles by hue and shape: the mean and its band are blue (triangle), the median and the box are moss (square), the data stay ochre', () => {
+    const {graph} = mount();
+    act(() => { graph.lesson({kind: 'function-visibility', target: 'summary-sigma-band', visible: true} as LessonAction); });
+    const fill = (face: string) => graph.faces(face)[0].visProp?.fillcolor?.toLowerCase();
+    expect(fill('triangleup')).toBe(GraphPalette.comparisonCurve);
+    expect(fill('square')).toBe(GraphPalette.primaryCurve);
+    expect(graph.handles()[0].visProp?.fillcolor?.toLowerCase()).toBe(GraphPalette.controlPoint);
+    expect(graph.band()).toHaveLength(1);
+    expect(graph.box()).toHaveLength(1);
 });
 
 test('the outlier example flags 30: a diamond marker in the box row, the value in the list, the view refitted around 30', () => {

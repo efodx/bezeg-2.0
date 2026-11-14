@@ -18,6 +18,8 @@ import {
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
+const AREA_COLOR = GraphPalette.comparisonCurve;
+
 /**
  * Density and probability as area (lesson P1): the density of X ~ N(mu, sigma^2) with the area between two draggable ends a and b
  * on the x-axis, its size as a percentage, and the standardized ends z_a and z_b. The model is `{mu, sigma, a, b}`
@@ -118,7 +120,14 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the area, the density, then the two ends on the axis.
-        this.signedFill(GraphPalette.additionalCurves[0], () => this.fillOf(this.model));
+        // The area is the subject: its own hue (blue, as the normal area of the binomial graph), with a visible boundary at a and b.
+        this.signedFill(AREA_COLOR, () => this.fillOf(this.model));
+        for (const which of ["a", "b"] as const) {
+            const height = () => normalPdf(model()[which], model().mu, model().sigma);
+            this.own(board.create("curve", [() => model()[which], (t: number) => t * height(), 0, 1], {
+                strokeColor: AREA_COLOR, strokeWidth: this.displayThinWidth(0.9), highlight: false, fixed: true, visible: () => model().a <= model().b,
+            }));
+        }
         this.own(board.create("functiongraph", [(x: number) => normalPdf(x, model().mu, model().sigma)], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth,
         }));
@@ -203,7 +212,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
             {id: "curve", color: GraphPalette.primaryCurve, label: t("prob_density_legend_curve"), kind: "line"},
-            {id: "area", color: GraphPalette.additionalCurves[0], label: t("prob_density_legend_area"), kind: "area"},
+            {id: "area", color: AREA_COLOR, label: t("prob_density_legend_area"), kind: "area"},
         ]}/>;
     }
 }

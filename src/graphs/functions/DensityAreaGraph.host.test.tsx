@@ -10,6 +10,7 @@ import {DomainError} from './BaseFunctionGraph';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {fitDensityView, DEFAULT_DENSITY_AREA_MODEL, DENSITY_EXAMPLES, DENSITY_FILL_STRIPS} from '../../analysis/densityAreaModel';
 import {normalPdf} from '../../analysis/distributions';
+import {GraphPalette} from '../styles/GraphPalette';
 import {functionPresetCollections} from './functionPresetCollections';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
@@ -18,7 +19,7 @@ vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeEach(() => { setLanguage('sl'); localStorage.clear(); });
 
 type BoardObject = {
-    elType?: string; dataX?: number[]; dataY?: number[]; X(): number; Y(): number; moveTo(to: number[]): void;
+    elType?: string; visProp?: { fillcolor?: string; strokecolor?: string }; dataX?: number[]; dataY?: number[]; X(): number; Y(): number; moveTo(to: number[]): void;
     triggerEventHandlers(names: string[], args: unknown[]): void;
 };
 
@@ -120,6 +121,16 @@ test('the sliders refuse nothing inside the range and the model refuses sigma <=
     expect(graph.modelNow()).toBe(before);
     act(() => { setLanguage('en'); });
     expect(() => graph.callSetSigma(-2)).toThrow(/standard deviation σ must be a number between 0\.1 and 20/i);
+});
+
+test('roles: the area is blue with its own boundary, the density curve stays moss', () => {
+    const {graph} = mount();
+    // the fill and a boundary at a and at b, all blue
+    expect(graph.objects().filter(object => object.elType === 'curve' && object.visProp?.strokecolor?.toLowerCase() === GraphPalette.comparisonCurve)).toHaveLength(3);
+    const fill = graph.fills()[0].visProp;
+    expect(fill?.fillcolor?.toLowerCase()).toBe(GraphPalette.comparisonCurve);
+    expect(fill?.strokecolor?.toLowerCase()).toBe(GraphPalette.comparisonCurve);
+    expect(graph.objects().some(object => object.elType === 'curve' && object.visProp?.strokecolor?.toLowerCase() === GraphPalette.primaryCurve)).toBe(true);
 });
 
 test('dragging an end snaps to 0.01, keeps the glider on the axis and moves the readouts and the fill', () => {
