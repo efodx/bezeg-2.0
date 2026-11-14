@@ -53,6 +53,20 @@ const CAPTION_CHAR_PX = 7.5;
 /** The lines a caption takes on a board `width` px wide (10 px margin each side): the browser wraps it at the edge of the board. */
 const captionLines = (text: string, width: number): number => Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / Math.max(width - 20, 100)));
 
+/** Room left of the y axis for its numbers ("0,8" at 14 px) plus a gap: a narrow board widens the window to the left until the axis stands this far from the edge. */
+const AXIS_NUMBER_PAD_PX = 34;
+/** The cursor caption wraps by words at the width a right-anchored box may take (from the left padding to the diagram's right edge): `<br>` makes the line breaks explicit. */
+const wrapWords = (text: string, maxChars: number): string => {
+    const lines: string[] = [];
+    let line = "";
+    for (const word of text.split(" ")) {
+        if (line !== "" && line.length + 1 + word.length > maxChars) { lines.push(line); line = word; } else line = line === "" ? word : `${line} ${word}`;
+    }
+    if (line !== "") lines.push(line);
+    return lines.join("<br>");
+};
+const cursorChars = (width: number): number => Math.max(10, Math.floor((width - AXIS_NUMBER_PAD_PX - 24) / CAPTION_CHAR_PX));
+
 const dec = (value: number, digits = 6): string => formatNumber(value, currentLanguage(), digits);
 
 /** The board x of a value of r. */
@@ -378,12 +392,13 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
 
     /** The opening window for this board: `VIEW_BOX`, lowered and raised where the caption column and the cursor caption need more pixels than the box leaves. */
     private openingWindow(): [number, number, number, number] {
-        const [left, top, right, bottom] = VIEW_BOX;
+        const [boxLeft, top, right, bottom] = VIEW_BOX;
         const height = this.board.canvasHeight;
         const width = this.board.canvasWidth;
+        const left = width > AXIS_NUMBER_PAD_PX * 2 ? Math.min(boxLeft, -(AXIS_NUMBER_PAD_PX * right) / (width - AXIS_NUMBER_PAD_PX)) : boxLeft;
         const needed = TICK_ROW_PX + ROW_PX * (1 + this.columnTexts().reduce((sum, text) => sum + captionLines(text(), width), 0)) + ROW_PX / 2;
         const cursor = t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()});
-        const neededTop = 8 + ROW_PX * captionLines(cursor, width) + 4;
+        const neededTop = 8 + ROW_PX * wrapWords(cursor, cursorChars(width)).split("<br>").length + 4;
         if (!(height > needed + neededTop)) return [left, top, right, bottom];
         // A span of `px` pixels is px / unit board units, with unit = height / (top + depth): solved by iteration (it settles in a few steps).
         let upper = top;
@@ -471,7 +486,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const column = this.columnTexts();
         const columnRow = (index: number) => () => -(TICK_ROW_PX + ROW_PX * (1 + column.slice(0, index).reduce((sum, text) => sum + captionLines(text(), this.board.canvasWidth), 0)));
         const columnColors = [GraphPalette.comparisonCurve, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label];
-        column.forEach((text, index) => this.caption(() => -0.1, () => 0, 4, columnRow(index), text, columnColors[index], {anchorY: "top"}));
+        column.forEach((text, index) => this.caption(() => this.scaleOf().left, () => 0, 4, columnRow(index), text, columnColors[index], {anchorY: "top"}));
         this.caption(() => startOf(this.state.X), () => 0, 6, 8, () => t("phase_graph_logistic_cap_start", {value0: dec(startOf(this.state.X), 2)}), GraphPalette.constructionAccent);
         this.caption(() => derived().fixedPoint, () => derived().fixedPoint, 8, -14, () => t("phase_graph_logistic_cap_fixed", {value0: dec(derived().fixedPoint)}),
             GraphPalette.comparisonCurve, {anchorY: "top"});
@@ -487,7 +502,7 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         this.caption(() => diagramX(BIFURCATION_R_MAX), () => 0, 0, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(BIFURCATION_R_MAX, 0)}),
             GraphPalette.label, {anchorY: "top", anchorX: "right"});
         this.caption(() => diagramX(3), () => 0, 3, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(3, 0)}), GraphPalette.label, {anchorY: "top"});
-        this.caption(() => diagramX(BIFURCATION_R_MAX), () => 1, 0, 8, () => t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()}),
+        this.caption(() => diagramX(BIFURCATION_R_MAX), () => 1, 0, 8, () => wrapWords(t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()}), cursorChars(this.board.canvasWidth)),
             GraphPalette.constructionAccent, {anchorX: "right"});
         // The still curves are skipped by every regular update, so their visibility is only computed by a full one; once per build.
         board.fullUpdate();

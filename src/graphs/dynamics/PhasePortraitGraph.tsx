@@ -125,6 +125,8 @@ const SEPARATRIX_SAMPLES = 240;
 /** The seed captions: an estimate of a letter's width, the height of the text box, the clear gap to the trajectory and the points tested of it. */
 const SEED_CAPTION_CHAR_PX = 7.5;
 const SEED_CAPTION_HEIGHT_PX = 18;
+/** The measured width of a letter of a caption (the estimate above leaves room): the box that hides the axis numbers under a seed caption. */
+const SEED_CAPTION_DRAWN_CHAR_PX = 6.6;
 const SEED_CAPTION_CLEAR_PX = 8;
 const SEED_CAPTION_SAMPLES = 200;
 /** The equilibrium caption sits this many px below the point (up is positive): under the row of the x axis numbers. */
@@ -173,10 +175,17 @@ const viewBox = (derived: PhaseDerived): [number, number, number, number] => {
 };
 
 type LegendRow = {text: () => string; visible: () => boolean; color: string};
-const LEGEND_CHAR_PX = 7.5;
+/** A board narrower than this sets the legend smaller (12 px, 18 px a line): the eleven wrapped lines of the pendulum's legend at 14 px reached the x axis. */
+const NARROW_BOARD_PX = 500;
+export const isNarrowBoard = (width: number): boolean => width < NARROW_BOARD_PX;
+const legendFontPx = (compact: boolean): number => compact ? 12 : 14;
+/** The pixels a legend line takes down the stack. */
+const legendPitchPx = (compact: boolean): number => compact ? 18 : 20;
+const legendCharPx = (compact: boolean): number => compact ? 6.5 : 7.5;
 /** The lines a legend row takes on a board `width` px wide (10 px margin each side): the browser wraps it at the edge of the board. */
+const linesOf = (text: string, width: number, compact: boolean): number => Math.max(1, Math.ceil((text.length * legendCharPx(compact)) / Math.max(width - 20, 100)));
 export function legendLines(text: string, width: number): number {
-    return Math.max(1, Math.ceil((text.length * LEGEND_CHAR_PX) / Math.max(width - 20, 100)));
+    return linesOf(text, width, isNarrowBoard(width));
 }
 
 const viewKey = (box: readonly number[]): string => box.map(value => value.toFixed(6)).join(",");
@@ -507,7 +516,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         this.scene.own(board.create("point", [() => this.derived().centre[0], () => this.derived().centre[1]], {
             name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "x", strokeColor: GraphPalette.label, fillColor: GraphPalette.label,
         }));
-        this.pixelText(() => this.derived().centre[0], () => this.derived().centre[1], 8, EQUILIBRIUM_CAPTION_DY,
+        this.pixelText(() => this.derived().centre[0], () => this.derived().centre[1], () => this.equilibriumCaptionDx(), EQUILIBRIUM_CAPTION_DY,
             () => t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}), GraphPalette.label);
 
         // The moving points of the playback: hollow squares at the orbit's point at the current time.
@@ -562,6 +571,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         }
         this.columnRows = columnRows;
 
+        this.compactLegend = isNarrowBoard(board.canvasWidth);
         // The legend: stacked from the top left, only the visible rows take a place. It names every element the readout names.
         const rows: readonly LegendRow[] = [
             {text: () => t("phase_graph_cap_trajectories"), visible: () => true, color: GraphPalette.primaryCurve},
@@ -581,24 +591,26 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         this.legendRows = rows;
         rows.forEach((row, index) => {
             // A row wider than the board wraps: the rows above add up the lines each takes, so none runs into the next.
-            const place = () => rows.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + legendLines(other.text(), board.canvasWidth), 0);
+            const place = () => rows.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + linesOf(other.text(), board.canvasWidth, this.compactLegend), 0);
             this.scene.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + place() * 20) / uy; },
+                () => { const {top, uy} = this.scaleOf(); return top - (10 + place() * legendPitchPx(this.compactLegend)) / uy; },
                 () => row.text(),
-            ], {strokeColor: row.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
+            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
         });
         // The matrix columns' captions: a second stack from the bottom left corner up, the last column lowest.
         columnRows.forEach((row, index) => {
-            const place = () => columnRows.slice(index + 1).filter(other => other.visible()).reduce((sum, other) => sum + legendLines(other.text(), board.canvasWidth), 0);
+            const place = () => columnRows.slice(index + 1).filter(other => other.visible()).reduce((sum, other) => sum + linesOf(other.text(), board.canvasWidth, this.compactLegend), 0);
             this.scene.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {bottom, uy} = this.scaleOf(); return bottom + (10 + place() * 20) / uy; },
+                () => { const {bottom, uy} = this.scaleOf(); return bottom + (10 + place() * legendPitchPx(this.compactLegend)) / uy; },
                 () => row.text(),
-            ], {strokeColor: row.color, fontSize: 14, anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
+            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
         });
     }
 
+    /** Whether the legend is set small: decided once per build from the board's width (the font of a text is fixed at its creation). */
+    private compactLegend = false;
     private legendRows: readonly LegendRow[] = [];
     private columnRows: readonly LegendRow[] = [];
 
@@ -610,9 +622,9 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const boxOf = (rows: readonly LegendRow[], fromTop: boolean): readonly [number, number, number, number] | undefined => {
             const shown = rows.filter(row => row.visible());
             if (shown.length === 0) return undefined;
-            const lines = shown.reduce((sum, row) => sum + legendLines(row.text(), width), 0);
-            const wide = Math.min(Math.max(...shown.map(row => row.text().length * LEGEND_CHAR_PX)), width - 20) + 10;
-            const tall = 10 + lines * 20;
+            const lines = shown.reduce((sum, row) => sum + linesOf(row.text(), width, this.compactLegend), 0);
+            const wide = Math.min(Math.max(...shown.map(row => row.text().length * legendCharPx(this.compactLegend))), width - 20) + 10;
+            const tall = 10 + lines * legendPitchPx(this.compactLegend);
             return fromTop ? [0, 0, wide + 10, tall] : [0, height - tall, wide + 10, height];
         };
         return [boxOf(this.legendRows, true), boxOf(this.columnRows, false)].filter((box): box is readonly [number, number, number, number] => box !== undefined);
@@ -623,7 +635,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         const axis = this.styles.axis;
         const boardExists = (): boolean => this.hasBoard;
         const covered = (x0: number, y0: number, x1: number, y1: number): boolean =>
-            this.stackBoxes().some(b => x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1]);
+            [...this.stackBoxes(), ...this.equilibriumBox(), ...this.seedBoxes()].some(b => x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1]);
         const hiding = (labelOf: ((this: object, ...label: unknown[]) => string) | undefined, box: (x: number, y: number) => readonly [number, number, number, number]) =>
             function (this: object, ...label: unknown[]): string {
                 const tick = label[0] as {usrCoords?: number[]} | undefined;
@@ -649,6 +661,44 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
             x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: hiding(labelOfX, onX)}},
             y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: hiding(labelOfY, onY)}},
         };
+    }
+
+    /** The screen box (px from the board's top left corner, y down) of the equilibrium caption: an axis number under it is not written. */
+    private equilibriumBox(): ReadonlyArray<readonly [number, number, number, number]> {
+        if (!this.hasBoard) return [];
+        const {ux, uy, left, top} = this.scaleOf();
+        const [cx, cy] = this.derived().centre;
+        const width = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}).length;
+        const x0 = (cx - left) * ux + this.equilibriumCaptionDx();
+        const y0 = (top - cy) * uy - EQUILIBRIUM_CAPTION_DY - 10;
+        return [[x0, y0, x0 + width, y0 + SEED_CAPTION_HEIGHT_PX + 4]];
+    }
+
+    /** The screen boxes of the seed captions shown (an axis number under one is not written); kept per frame, as every tick asks. */
+    private seedBoxCache: {key: string; boxes: ReadonlyArray<readonly [number, number, number, number]>} = {key: "", boxes: []};
+    private seedBoxes(): ReadonlyArray<readonly [number, number, number, number]> {
+        if (!this.hasBoard) return [];
+        const {ux, uy, left, top} = this.scaleOf();
+        const shown = this.seedHandles.map((handle, index) => ({handle, index})).filter(({index}) => this.seedShown(index));
+        const key = [ux, uy, left, top, this.board.canvasWidth, this.legendRows.length, ...shown.flatMap(({handle}) => [handle.X(), handle.Y()]), this.derived().centre.join()].join("|");
+        if (key === this.seedBoxCache.key) return this.seedBoxCache.boxes;
+        const boxes = shown.map(({handle, index}) => {
+            const [dx, dy] = this.seedCaptionOffset(index, handle);
+            const width = SEED_CAPTION_DRAWN_CHAR_PX * t("phase_graph_cap_seed", {value0: String(index + 1)}).length;
+            const x0 = (handle.X() - left) * ux + dx;
+            const yMid = (top - handle.Y()) * uy - dy;
+            return [x0, yMid - SEED_CAPTION_HEIGHT_PX / 2, x0 + width, yMid + SEED_CAPTION_HEIGHT_PX / 2] as const;
+        });
+        this.seedBoxCache = {key, boxes};
+        return boxes;
+    }
+
+    /** The equilibrium caption starts 8 px right of the point; near the right edge it moves left so that its whole text stays on the board (the browser would shift it onto the legend or the seed captions). */
+    private equilibriumCaptionDx(): number {
+        const {ux, left} = this.scaleOf();
+        const width = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}).length;
+        const at = (this.derived().centre[0] - left) * ux;
+        return Math.min(8, this.board.canvasWidth - 10 - width - at);
     }
 
     /** A caption at a board point plus a pixel offset (up is positive). */
@@ -678,7 +728,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         if (orbit) { take(orbit.forward); take(orbit.backward); }
         const [cx, cy] = this.derived().centre;
         const equilibriumWidth = SEED_CAPTION_CHAR_PX * t("phase_graph_cap_equilibrium", {value0: typeLabel(this.derived().plane.type)}).length;
-        for (let along = 0; along <= equilibriumWidth; along += 8) obstacles.push([(cx - sx) * ux + 8 + along, (cy - sy) * uy + EQUILIBRIUM_CAPTION_DY]);
+        for (let along = 0; along <= equilibriumWidth; along += 8) obstacles.push([(cx - sx) * ux + this.equilibriumCaptionDx() + along, (cy - sy) * uy + EQUILIBRIUM_CAPTION_DY]);
         // The legend and the column captions are obstacles too (their boxes, in px from the handle, y up).
         const hx = (sx - this.scaleOf().left) * ux;
         const hy = (this.scaleOf().top - sy) * uy;

@@ -95,7 +95,9 @@ describe('mount and the numbers', () => {
     test('a new board opens on the exact window, not widened to the board aspect (the diagram and the cobweb use different units)', () => {
         const {graph} = mountGraph();
         const box = graph.liveBoard().getBoundingBox().map(value => Number(value.toFixed(6)));
-        expect([box[0], box[2]]).toEqual([VIEW_BOX[0], VIEW_BOX[2]]);
+        // The right edge is the window's; the left edge is widened where the board is narrow so that the y axis numbers have room.
+        expect(box[2]).toEqual(VIEW_BOX[2]);
+        expect(box[0]).toBeLessThanOrEqual(VIEW_BOX[0]);
         // The top and the bottom are the window's, extended only as far as the captions need on this (small) board.
         expect(box[1]).toBeGreaterThanOrEqual(VIEW_BOX[1]);
         expect(box[3]).toBeLessThanOrEqual(VIEW_BOX[3]);

@@ -868,7 +868,7 @@ describe('the legend on a narrow board (390 x 480 px)', () => {
             expect(stops[0].evalVisProp('anchory')).toBe('bottom');
             for (let i = 0; i + 1 < rows.length; i++) {
                 const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
-                expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(legendLines(String(rows[i].plaintext), 390) * 20 - 0.5);
+                expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(legendLines(String(rows[i].plaintext), 390) * 18 - 0.5);
             }
         });
     }
