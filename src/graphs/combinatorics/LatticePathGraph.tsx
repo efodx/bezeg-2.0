@@ -58,6 +58,35 @@ export const triangleY = (row: number): number => 19.5 - 1.4 * row;
 export const BAR_BASE = 10.5;
 export const BAR_HEIGHT = 7;
 export const barX = (index: number): number => 1.6 + 1.5 * index;
+/** Bar and label metrics in pixels: bar thickness (at most), the gap kept between bars, the coefficient font and its row pitch, rows above a bar, power labels. */
+const BAR_STROKE_PX = 10;
+const BAR_GAP_PX = 6;
+const BAR_FONT_PX = 13;
+const BAR_LABEL_GAP_PX = 6;
+const BAR_LABEL_ROWS = 3;
+/** Labels of positive bars stay under this height: the two captions stand above it (a long one wraps on a narrow board). */
+const BAR_LABEL_CEILING = 20.8;
+/** The expansion captions: font, pitch of two rows (text height and 4 px), the margin to the board edges, the widest wrapped lines and a character's width in em. */
+const CAPTION_FONT_PX = 11;
+const CAPTION_ROW_PX = 20;
+const CAPTION_MARGIN_PX = 4;
+const CAPTION_LINES = 4;
+const CAPTION_CHAR_EM = 0.42;
+/** A line is at most this long: the card captures hide a board text of more than 65 characters, so a long caption is never one such line. */
+const CAPTION_LINE_CHARS = 60;
+/** A power label: its text height, the gap between the foot of its bar and its top edge, the gap kept to the y axis by the caption stack. */
+const POWER_HEIGHT_PX = 16;
+const POWER_GAP_PX = 5;
+const AXIS_GAP_PX = 6;
+const POWER_X_PX = 7;
+const POWER_DIGIT_PX = 5;
+
+interface BarLabelLayout {
+    readonly coefficient: boolean[];
+    readonly coefficientY: number[];
+    readonly power: boolean[];
+    readonly powerY: number[];
+}
 /** The most count labels on the grid: a + b <= 12 gives at most 7 * 7 points. */
 export const CELL_POOL = 49;
 const POOL = 13;
@@ -437,14 +466,93 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             addPolyline(poly, [[0.4, BAR_BASE], [20.8, BAR_BASE]]);
             return poly;
         }, GraphPalette.axis, 1, 0);
-        this.curve(() => this.barData(), GraphPalette.primaryCurve, 14, 0);
+        this.barCurve = this.curve(() => this.barData(), GraphPalette.primaryCurve, BAR_STROKE_PX, 0);
         for (let j = 0; j < POOL; j++) {
-            this.caption(() => (j <= this.state.n ? countText(this.expansion().coefficients[j]) : ""), barX(j), () => this.barLabelY(j), GraphPalette.label,
-                () => j <= this.state.n, {anchorX: "middle", fontSize: 13});
-            this.caption(() => `x${superscript(this.state.n - j)}`, barX(j), 1.2, GraphPalette.label, () => j <= this.state.n, {anchorX: "middle"});
+            this.caption(() => (this.barLabels().coefficient[j] ? countText(this.expansion().coefficients[j]) : ""), barX(j), () => this.barLabels().coefficientY[j] ?? 0,
+                GraphPalette.label, () => this.barLabels().coefficient[j] === true, {anchorX: "middle", fontSize: BAR_FONT_PX});
+            this.caption(() => `x${superscript(this.state.n - j)}`, barX(j), () => this.barLabels().powerY[j] ?? 0, GraphPalette.label,
+                () => this.barLabels().power[j] === true, {anchorX: "middle"});
         }
-        this.caption(() => t("combinatorics_lattice_cap_expansion"), -1.2, 23.4, GraphPalette.label);
-        this.caption(() => binomialText(this.state.n, this.state.c), -1.2, 22.4, GraphPalette.primaryCurve);
+        // The captions are written line by line, wrapped to the board's width, in a stack from the top edge: a long caption can not wrap on its own over the title.
+        for (let line = 0; line < CAPTION_LINES; line++) {
+            this.caption(() => this.captionStack().lines[line] ?? "", () => this.captionLeft(), () => this.captionRowY(line), GraphPalette.label, true, {fontSize: CAPTION_FONT_PX});
+        }
+        this.caption(() => binomialText(this.state.n, this.state.c), () => this.captionLeft(), () => this.captionRowY(this.captionStack().lines.length), GraphPalette.primaryCurve,
+            true, {fontSize: CAPTION_FONT_PX});
+    }
+
+    /**
+     * The board's axes: in the expansion view a tick number that the caption stack would cover (the y tick numbers stand left of the axis, up to the top
+     * rows) is not written, as in the phase portraits.
+     */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const graph = this;
+        const labelOfX = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const labelOfY = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const hiding = (labelOf: ((this: object, ...label: unknown[]) => string) | undefined, box: (x: number, y: number) => readonly [number, number, number, number]) =>
+            function (this: object, ...label: unknown[]): string {
+                const tick = label[0] as {usrCoords?: number[]} | undefined;
+                if (tick?.usrCoords && graph.hasBoard && graph.covered(...box(tick.usrCoords[1], tick.usrCoords[2]))) return "";
+                return labelOf ? labelOf.apply(this, label) : "";
+            };
+        const onX = (x: number): readonly [number, number, number, number] => {
+            const {ux, uy} = graph.pxUnits();
+            const [left, top] = graph.board.getBoundingBox();
+            return [(x - left) * ux - 16, top * uy, (x - left) * ux + 16, top * uy + 24];
+        };
+        const onY = (_x: number, y: number): readonly [number, number, number, number] => {
+            const {ux, uy} = graph.pxUnits();
+            const [left, top] = graph.board.getBoundingBox();
+            return [-left * ux - 46, (top - y) * uy - 12, -left * ux, (top - y) * uy + 12];
+        };
+        return {
+            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: hiding(labelOfX, onX)}},
+            y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: hiding(labelOfY, onY)}},
+        };
+    }
+
+    /** Whether the screen box (px from the board's top left corner, y down) meets the expansion's caption stack. */
+    private covered(x0: number, y0: number, x1: number, y1: number): boolean {
+        if (!this.hasBoard || this.state.view !== "expansion") return false;
+        const bottomPx = (this.board.getBoundingBox()[1] - this.captionStack().bottomY) * this.pxUnits().uy;
+        return y0 < bottomPx && y1 > 0 && x0 < this.board.canvasWidth && x1 > this.captionLeftPx();
+    }
+
+    /** The stack starts right of the y axis (a little right of x = 0) or, when the axis is off the board, at the margin. */
+    private captionLeftPx(): number {
+        const axisPx = (0 - this.board.getBoundingBox()[0]) * this.pxUnits().ux;
+        return Math.max(CAPTION_MARGIN_PX, axisPx + AXIS_GAP_PX);
+    }
+
+    private captionLeft(): number {
+        return this.board.getBoundingBox()[0] + this.captionLeftPx() / this.pxUnits().ux;
+    }
+
+    /** The y of caption row `row` (0 is the topmost): rows are CAPTION_ROW_PX apart from the top edge, in pixels at any board size. */
+    private captionRowY(row: number): number {
+        return this.board.getBoundingBox()[1] - (CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + row * CAPTION_ROW_PX) / this.pxUnits().uy;
+    }
+
+    /** The expansion caption wrapped to the board's width (at most CAPTION_LINES lines) and the y under which the stack, title included, ends. */
+    private captionStack(): {lines: string[]; bottomY: number} {
+        const chars = Math.max(12, Math.min(CAPTION_LINE_CHARS, Math.floor((this.board.canvasWidth - this.captionLeftPx() - CAPTION_MARGIN_PX) / (CAPTION_FONT_PX * CAPTION_CHAR_EM))));
+        const lines: string[] = [];
+        // Whole clauses (broken after "; ") are one line each; only a clause that is too long for the board wraps word by word.
+        for (const clause of t("combinatorics_lattice_cap_expansion").split(/(?<=;) /)) {
+            if (clause.length <= chars) { lines.push(clause); continue; }
+            let line: string | undefined;
+            for (const word of clause.split(" ")) {
+                if (line !== undefined && line.length + 1 + word.length <= chars) line = `${line} ${word}`;
+                else { if (line !== undefined) lines.push(line); line = word; }
+            }
+            if (line !== undefined) lines.push(line);
+        }
+        if (lines.length > CAPTION_LINES) lines.splice(CAPTION_LINES - 1, lines.length, lines.slice(CAPTION_LINES - 1).join(" "));
+        const rows = lines.length + 1;
+        const bottomPx = CAPTION_MARGIN_PX + (rows - 1) * CAPTION_ROW_PX + CAPTION_FONT_PX * 1.25;
+        return {lines, bottomY: this.board.getBoundingBox()[1] - bottomPx / this.pxUnits().uy};
     }
 
     /** Bar heights are coefficients over the largest absolute coefficient: drawing only, the labels carry the exact digits. */
@@ -461,11 +569,84 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         return poly;
     }
 
-    /** The label sits beyond the end of its bar (above a positive bar, below a negative one) and alternates two heights. */
-    private barLabelY(index: number): number {
-        const height = this.barHeights()[index] ?? 0;
-        const stagger = (index % 2) * 0.9;
-        return height >= 0 ? BAR_BASE + height + 0.6 + stagger : BAR_BASE + height - 0.6 - stagger;
+    private pxUnits(): {ux: number; uy: number} {
+        const ux = Number.isFinite(this.board.unitX) && this.board.unitX > 0 ? this.board.unitX : 1;
+        const uy = Number.isFinite(this.board.unitY) && this.board.unitY > 0 ? this.board.unitY : 1;
+        return {ux, uy};
+    }
+
+    /** The bars are as thick as the board lets them, keeping a gap of at least BAR_GAP_PX between neighbours (the pitch is 1.5 units). */
+    private barStrokePx(): number {
+        return Math.max(2, Math.min(BAR_STROKE_PX, this.pxUnits().ux * 1.5 - BAR_GAP_PX));
+    }
+
+    private barCurve?: JXG.Curve;
+    private barLabelCache?: {key: string; layout: BarLabelLayout};
+
+    /**
+     * Which bar and power labels are written and where, in pixels so that they clear the bars at every board size. A power label is written
+     * when it fits the pitch (otherwise every second, third ... one, always including x^0). A coefficient label sits above its bar (below a
+     * negative one) in the first of BAR_LABEL_ROWS rows where it touches no bar, no power label and no earlier coefficient label; a label
+     * that fits in no row (or would reach the captions) is not written (the readout and the status text carry every coefficient).
+     */
+    private barLabels(): BarLabelLayout {
+        const {ux, uy} = this.pxUnits();
+        const {n} = this.state;
+        const coefficients = this.expansion().coefficients;
+        const key = [ux, uy, this.board.canvasWidth, n, coefficients.map(countText).join("|")].join(",");
+        if (this.barLabelCache?.key === key) return this.barLabelCache.layout;
+        const layout: BarLabelLayout = {coefficient: [], coefficientY: [], power: [], powerY: []};
+        // The thickness follows the board's scale here, written straight into the attribute and the drawn node (a setAttribute would update the board from inside
+        // its own update, and a function-valued stroke width is not re-rendered when only the scale changed, as with a card window).
+        const strokePx = this.barStrokePx();
+        if (this.barCurve && this.barCurve.visProp.strokewidth !== strokePx) {
+            this.barCurve.visProp.strokewidth = strokePx;
+            this.barCurve.rendNode?.setAttribute("stroke-width", String(strokePx));
+        }
+        const pitch = 1.5 * ux;
+        const stroke = this.barStrokePx();
+        const obstacles: Array<{x0: number; x1: number; y0: number; y1: number}> = [];
+        const heights = this.barHeights().map(height => height * uy);
+        for (let j = 0; j <= n; j++) {
+            const x = j * pitch;
+            const low = Math.min(0, heights[j]), high = Math.max(0, heights[j]);
+            obstacles.push({x0: x - stroke / 2, x1: x + stroke / 2, y0: low, y1: high});
+            // the label stands under the foot of its bar (the baseline, or the end of a negative bar)
+            const centre = low - POWER_GAP_PX - POWER_HEIGHT_PX / 2;
+            layout.powerY[j] = BAR_BASE + centre / uy;
+        }
+        // A power label is thinned only where its pixel box would meet the box of one already written: x^0 first, then towards x^n.
+        let writtenEdge = Infinity;
+        for (let j = n; j >= 0; j--) {
+            const width = POWER_X_PX + POWER_DIGIT_PX * String(n - j).length;
+            const x = j * pitch;
+            if (x + width / 2 > writtenEdge) continue;
+            layout.power[j] = true;
+            writtenEdge = x - width / 2;
+            const centre = (layout.powerY[j] - BAR_BASE) * uy;
+            obstacles.push({x0: x - width / 2, x1: x + width / 2, y0: centre - POWER_HEIGHT_PX / 2, y1: centre + POWER_HEIGHT_PX / 2});
+        }
+        const ceiling = Math.min(BAR_LABEL_CEILING, this.captionStack().bottomY);
+        const margin = 2;
+        const rowPx = BAR_FONT_PX * 1.25 + 4;
+        for (let j = 0; j <= n; j++) {
+            const text = countText(coefficients[j]);
+            const w = text.length * BAR_FONT_PX * 0.58;
+            const x = j * pitch;
+            const up = heights[j] >= 0;
+            for (let row = 0; row < BAR_LABEL_ROWS; row++) {
+                const edge = heights[j] + (up ? 1 : -1) * (BAR_LABEL_GAP_PX + row * rowPx);
+                const box = {x0: x - w / 2 - margin, x1: x + w / 2 + margin, y0: up ? edge : edge - rowPx, y1: up ? edge + rowPx : edge};
+                if (up && box.y1 > (ceiling - BAR_BASE) * uy) break;
+                if (obstacles.some(o => o.x0 < box.x1 && o.x1 > box.x0 && o.y0 < box.y1 && o.y1 > box.y0)) continue;
+                obstacles.push(box);
+                layout.coefficient[j] = true;
+                layout.coefficientY[j] = BAR_BASE + (up ? edge + rowPx / 2 : edge - rowPx / 2) / uy;
+                break;
+            }
+        }
+        this.barLabelCache = {key, layout};
+        return layout;
     }
 
     // ---- Dragging: one snapping path for the target ---------------------------------------------------------------------

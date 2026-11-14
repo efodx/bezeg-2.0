@@ -27,6 +27,11 @@ import {addPolyline, binomText, countText, emptyPoly, Poly, SceneObjects, smallT
 export interface CountingTreeGraphState extends BaseGraphState, CountingState {}
 
 /** The fixed view box: the tree, the table, the letters and the bars all sit inside it, the captions are above and below. */
+/** The pitch of two stacked 15 px caption rows: the text height and 4 px between them. */
+const CAPTION_ROW_PX = 24;
+const CAPTION_FONT_PX = 15;
+const CAPTION_MARGIN_PX = 6;
+const ROOT_DOT_PX = 6;
 export const VIEW_BOX: [number, number, number, number] = [-0.5, 24.5, 24.5, -2.5];
 export const STEP = 1;
 export const BIG_STEP = 5;
@@ -372,8 +377,22 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
             this.caption(() => this.leafText(i), () => treeLeafX(i, this.tree().leaves.length), () => TREE_BOTTOM - 0.5 - 1.1 * (i % this.tree().rows),
                 GraphPalette.label, () => i < this.tree().leaves.length, {anchorX: "middle", anchorY: "top", fontSize: this.tree().leaves.length > 32 ? 11 : 14});
         }
-        this.caption(() => t("combinatorics_counting_cap_tree"), -0.3, 23.4, GraphPalette.label);
-        this.caption(() => this.treeTitle(), -0.3, 22.4, GraphPalette.primaryCurve);
+        // The two caption rows stand in pixels from the top edge, above the root dot, when the board has room there (the first caption row, the title one caption row
+        // (15 px text and at least 4 px between the rows) under it); on a short board the root dot is too near the top and the rows stand under the leaf numbers instead.
+        const rowY = (row: number) => () => {
+            const unit = this.board.unitY > 0 ? this.board.unitY : 1;
+            const [, top, , bottom] = this.board.getBoundingBox();
+            const centre = CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + row * CAPTION_ROW_PX;
+            return this.captionsAtTop() ? top - centre / unit : Math.max(bottom, VIEW_BOX[3]) + (CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + (1 - row) * CAPTION_ROW_PX) / unit;
+        };
+        this.caption(() => t("combinatorics_counting_cap_tree"), -0.3, rowY(0), GraphPalette.label);
+        this.caption(() => this.treeTitle(), -0.3, rowY(1), GraphPalette.primaryCurve);
+    }
+
+    /** Whether the two caption rows (and the root dot's radius under them) fit between the top edge and the root dot. */
+    private captionsAtTop(): boolean {
+        const unit = this.board.unitY > 0 ? this.board.unitY : 1;
+        return (this.board.getBoundingBox()[1] - TREE_TOP) * unit >= CAPTION_MARGIN_PX + CAPTION_ROW_PX + CAPTION_FONT_PX * 1.25 + ROOT_DOT_PX;
     }
 
     private treeTitle(): string {

@@ -634,3 +634,153 @@ describe('the opening view frames the grid', () => {
         expect(boxOf(graph)[2]).toBeGreaterThanOrEqual(7);
     });
 });
+
+describe('expansion board texts', () => {
+    type Box = {x0: number; x1: number; y0: number; y1: number};
+    const overlap = (a: Box, b: Box) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+    // The shim board shows 23 units over about 17 px per unit (a phone-width board); a view box 36.5 units wide gives about 11 px per unit (a stress case); 45 gives about 9 px per unit (the phone board of the 390 px screenshots).
+    const sizes: ReadonlyArray<readonly [number, number]> = [[21.5, 400], [35, 400], [45, 400]];
+    const collect = (graph: ObservedGraph) => {
+        const board = graph.liveBoard();
+        const [left, top] = board.getBoundingBox();
+        const ux = board.unitX, uy = board.unitY;
+        const px = (x: number, y: number): [number, number] => [(x - left) * ux, (top - y) * uy];
+        const [axis, barsCurve] = probes(graph).filter(o => o.elType === 'curve');
+        void axis;
+        const strokeWidth = Number((barsCurve as unknown as {evalVisProp(name: string): unknown}).evalVisProp('strokeWidth'));
+        const bars: Box[] = [];
+        for (let i = 0; i + 1 < (barsCurve.dataX ?? []).length; i += 3) {
+            const [x, y0] = px(barsCurve.dataX![i], barsCurve.dataY![i]);
+            const [, y1] = px(barsCurve.dataX![i + 1], barsCurve.dataY![i + 1]);
+            bars.push({x0: x - strokeWidth / 2, x1: x + strokeWidth / 2, y0: Math.min(y0, y1), y1: Math.max(y0, y1)});
+        }
+        const labels = probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible') && (o as unknown as {plaintext: string}).plaintext !== '')
+            .map(o => {
+                const text = (o as unknown as {plaintext: string}).plaintext;
+                const fontSize = Number(o.evalVisProp('fontSize'));
+                const [x, y] = px(o.X!(), o.Y!());
+                const w = text.startsWith("x") ? 7 + 5 * (text.length - 1) : text.length * fontSize * 0.58 + 4, h = fontSize * 1.25 + 4;
+                return {text, x, y, box: {x0: x - w / 2, x1: x + w / 2, y0: y - h / 2, y1: y + h / 2}};
+            }).filter(l => /^(−?[\d\s.,]+|x[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/.test(l.text));
+        return {bars, labels, strokeWidth, ux};
+    };
+
+    test.each(sizes.flatMap(size => [[1, 1], [6, 2], [12, 1], [12, 9]].map(([n, c]) => [...size, n, c])))(
+        'view box right %d (%i), n = %i, c = %i: bars keep a gap, no label touches a bar or another label',
+        (right, _height, n, c) => {
+            const {graph} = mountGraph();
+            chooseView('expansion');
+            act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, right, -2.2], true); });
+            set(graph, {n, c});
+            const {bars, labels, strokeWidth, ux} = collect(graph);
+            expect(ux * 1.5 - strokeWidth).toBeGreaterThanOrEqual(4);
+            // the labels of the bars themselves (x-powers lie under the base line, away from every bar)
+            const bodies = labels.filter(l => l.y < Math.max(...bars.map(b => b.y1)));
+            expect(bodies.length).toBeGreaterThan(0);
+            for (const l of labels) for (const b of bars) expect([l.text, overlap(l.box, b)]).toEqual([l.text, false]);
+            for (let i = 0; i < labels.length; i++) for (let j = i + 1; j < labels.length; j++) {
+                expect([labels[i].text, labels[j].text, overlap(labels[i].box, labels[j].box)]).toEqual([labels[i].text, labels[j].text, false]);
+            }
+            // the exponent x^0 is always written
+            expect(labels.some(l => l.text === 'x⁰')).toBe(true);
+        });
+});
+
+/** The shims give every element 600 x 400 px; runs `body` with elements (so the board) of `width` x `height` px, then restores the shim size. */
+function withElementSize(width: number, height: number, body: () => void): void {
+    const apply = (w: number, h: number) => {
+        for (const [name, size] of [['clientWidth', w], ['clientHeight', h], ['offsetWidth', w], ['offsetHeight', h]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: w, bottom: h, width: w, height: h, toJSON: () => ({})}) as DOMRect;
+    };
+    apply(width, height);
+    try { body(); } finally { apply(600, 400); }
+}
+
+describe('expansion captions', () => {
+    // 600 x 400 is the shim board, 360 x 295 the phone board of the 390 px screenshots, 300 x 260 a wider short board.
+    test.each([[600, 400], [360, 295], [420, 320]])('a %d x %d px board: no caption line overlaps another caption, a bar or the board edge', (boardWidth, boardHeight) => withElementSize(boardWidth, boardHeight, () => {
+        const {graph} = mountGraph();
+        chooseView('expansion');
+        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); });
+        set(graph, {n: 1, c: 1});
+        const board = graph.liveBoard();
+        const [left, top] = board.getBoundingBox();
+        const ux = board.unitX, uy = board.unitY;
+        const width = Number(board.canvasWidth);
+        const captions = probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible') && (o as unknown as {plaintext: string}).plaintext !== ''
+            && !/^(−?[\d\s.,]+|x[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/.test((o as unknown as {plaintext: string}).plaintext))
+            .map(o => {
+                const text = (o as unknown as {plaintext: string}).plaintext;
+                const fontSize = Number(o.evalVisProp('fontSize'));
+                const x = (o.X!() - left) * ux, y = (top - o.Y!()) * uy;
+                const w = text.length * fontSize * 0.55, h = fontSize * 1.25;
+                return {text, box: {x0: x, x1: x + w, y0: y - h / 2, y1: y + h / 2}};
+            });
+        expect(captions.length).toBeGreaterThanOrEqual(2);
+        for (const a of captions) {
+            expect([a.text, a.box.x0 >= 0 && a.box.x1 <= width, a.box.y0 >= 0]).toEqual([a.text, true, true]);
+        }
+        for (let i = 0; i < captions.length; i++) for (let j = i + 1; j < captions.length; j++) {
+            const a = captions[i].box, b = captions[j].box;
+            expect([captions[i].text, captions[j].text, a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0]).toEqual([captions[i].text, captions[j].text, false]);
+            if (a.x0 < b.x1 && a.x1 > b.x0) expect(Math.abs((a.y0 + a.y1) / 2 - (b.y0 + b.y1) / 2) - 13 * 1.25).toBeGreaterThanOrEqual(3);
+        }
+        const bars = probes(graph).filter(o => o.elType === 'curve')[1];
+        const barTop = Math.min(...(bars.dataY ?? [0]).filter(Number.isFinite).map(y => (top - y) * uy));
+        for (const a of captions) expect([a.text, a.box.y1 <= barTop]).toEqual([a.text, true]);
+    }));
+});
+
+describe('expansion power labels and caption stack', () => {
+    const POWER = /^x[⁰¹²³⁴⁵⁶⁷⁸⁹]+$/;
+    const SIZES = [[600, 400], [360, 295], [840, 520]] as const;
+    const texts = (graph: ObservedGraph) => {
+        const board = graph.liveBoard();
+        const [left, top] = board.getBoundingBox();
+        return probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible') && (o as unknown as {plaintext: string}).plaintext !== '').map(o => {
+            const text = (o as unknown as {plaintext: string}).plaintext;
+            return {text, x: (o.X!() - left) * board.unitX, y: (top - o.Y!()) * board.unitY, size: Number(o.evalVisProp('fontSize'))};
+        });
+    };
+
+    test.each(SIZES)('a %d x %d px board: every power is written at n = 1 and each sits just under the baseline', (w, h) => withElementSize(w, h, () => {
+        const {graph} = mountGraph();
+        chooseView('expansion');
+        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); });
+        for (const n of [1, 2, 3]) {
+            set(graph, {n, c: 1});
+            const board = graph.liveBoard();
+            const baseline = (board.getBoundingBox()[1] - 10.5) * board.unitY;
+            const powers = texts(graph).filter(t => POWER.test(t.text));
+            expect(powers.map(p => p.text).sort()).toEqual(Array.from({length: n + 1}, (_, k) => `x${'⁰¹²³⁴⁵⁶⁷⁸⁹'[k]}`).sort());
+            for (const p of powers) {
+                const topEdge = p.y - 8; // the text is about 16 px high
+                expect([p.text, topEdge - baseline >= 3, topEdge - baseline <= 10]).toEqual([p.text, true, true]);
+            }
+        }
+    }));
+
+    test('the 420 x 260 px card board: both powers of n = 1 are written (the boxes fit the 12.5 px pitch)', () => withElementSize(420, 260, () => {
+        const {graph} = mountGraph();
+        chooseView('expansion');
+        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 48.5, 0.3], false); });
+        set(graph, {n: 1, c: 1});
+        expect(texts(graph).filter(t => POWER.test(t.text)).map(t => t.text).sort()).toEqual(['x¹', 'x⁰']);
+    }));
+
+    test.each(SIZES)('a %d x %d px board: the caption stack stands right of the y axis', (w, h) => withElementSize(w, h, () => {
+        const {graph} = mountGraph();
+        chooseView('expansion');
+        act(() => { graph.liveBoard().setBoundingBox([-1.5, 24.5, 21.5, -2.2], false); });
+        set(graph, {n: 6, c: 1});
+        const board = graph.liveBoard();
+        const axisPx = (0 - board.getBoundingBox()[0]) * board.unitX;
+        const stack = texts(graph).filter(t => t.y < 70 && !POWER.test(t.text) && !/^−?\d+$/.test(t.text));
+        expect(stack.length).toBeGreaterThanOrEqual(2);
+        for (const t of stack) expect([t.text, t.x >= axisPx + 3]).toEqual([t.text, true]);
+        // whole clauses: no caption line starts or ends inside the parenthesis
+        const lines = stack.map(t => t.text).filter(t => t.includes(':'));
+        for (const line of lines) expect(line.length).toBeLessThanOrEqual(60);
+        expect(lines.some(l => l.endsWith(';'))).toBe(true);
+    }));
+});

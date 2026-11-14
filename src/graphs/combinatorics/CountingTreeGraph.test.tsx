@@ -371,7 +371,7 @@ describe('rebuild and state change', () => {
                 expect(text.X!()).toBeGreaterThanOrEqual(left);
                 expect(text.X!()).toBeLessThanOrEqual(right);
                 expect(text.Y!()).toBeGreaterThanOrEqual(bottom);
-                expect(text.Y!()).toBeLessThanOrEqual(top);
+                expect(text.Y!()).toBeLessThanOrEqual(graph.liveBoard().getBoundingBox()[1]); // the caption rows stand in pixels from the board's own top edge
             }
         }
     });
@@ -741,4 +741,76 @@ describe('the table is legible: no text runs into another', () => {
         const {graph} = mountGraph();
         expect(graph.displaySettings.getAxisSelect()).toBe('none');
     });
+});
+
+describe('tree captions', () => {
+    test.each([[24.5, 'a board of about 17 px per unit'], [40, 'a stress board of about 10 px per unit']])(
+        'the two caption rows keep at least 4 px between them (view box right %d, %s)', (right) => {
+            const {graph} = mountGraph();
+            set(graph, {view: 'choices', n: 3, k: 2, repetition: false});
+            act(() => { graph.liveBoard().setBoundingBox([-0.5, 24.5, right, -2.5], true); });
+            const board = graph.liveBoard();
+            const rows = shown(graph).filter(o => {
+                const text = (o as unknown as {plaintext: string}).plaintext;
+                return text === t('combinatorics_counting_cap_tree') || text.includes('n = 3, k = 2');
+            }).sort((a, b) => b.Y!() - a.Y!());
+            expect(rows).toHaveLength(2);
+            const fontSize = Number(rows[0].evalVisProp('fontSize'));
+            const pitchPx = (rows[0].Y!() - rows[1].Y!()) * board.unitY;
+            expect(pitchPx - fontSize * 1.25).toBeGreaterThanOrEqual(4);
+        });
+});
+
+
+/** The shims give every element 600 x 400 px; runs `body` with elements (so the board) of `width` x `height` px, then restores the shim size. */
+function withElementSize(width: number, height: number, body: () => void): void {
+    const apply = (w: number, h: number) => {
+        for (const [name, size] of [['clientWidth', w], ['clientHeight', h], ['offsetWidth', w], ['offsetHeight', h]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: w, bottom: h, width: w, height: h, toJSON: () => ({})}) as DOMRect;
+    };
+    apply(width, height);
+    try { body(); } finally { apply(600, 400); }
+}
+
+describe('tree caption placement', () => {
+    // 600 x 400 is the shim board, 360 x 295 the phone board of the 390 px screenshots (the title ran under the root dot there), 840 x 520 the card.
+    test.each([[600, 400], [360, 295], [840, 520]])('on a %d x %d px board every caption row is clear of the root dot, the branches, the leaf numbers and the edges', (width, height) => withElementSize(width, height, () => {
+        const {graph} = mountGraph();
+        set(graph, {view: 'choices', n: 3, k: 2, repetition: false});
+        act(() => {
+            graph.liveBoard().setBoundingBox([-0.5, 24.5, 24.5, -2.5], false);
+        });
+        const board = graph.liveBoard();
+        const [left, top] = board.getBoundingBox();
+        const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+        const boxes = shown(graph).filter(o => (o as unknown as {plaintext: string}).plaintext !== '').map(o => {
+            const text = (o as unknown as {plaintext: string}).plaintext;
+            const fontSize = Number(o.evalVisProp('fontSize'));
+            const [x, y] = px(o.X!(), o.Y!());
+            const w = text.length * fontSize * 0.55, h = fontSize * 1.25;
+            const x0 = o.evalVisProp('anchorX') === 'middle' ? x - w / 2 : x;
+            const y0 = o.evalVisProp('anchorY') === 'top' ? y : y - h / 2;
+            return {text, box: {x0, x1: x0 + w, y0, y1: y0 + h}};
+        });
+        const captions = boxes.filter(b => b.text === t('combinatorics_counting_cap_tree') || b.text.includes('n = 3, k = 2'));
+        expect(captions).toHaveLength(2);
+        const hit = (a: {x0: number; x1: number; y0: number; y1: number}, [x, y]: [number, number], pad: number) => x > a.x0 - pad && x < a.x1 + pad && y > a.y0 - pad && y < a.y1 + pad;
+        const root = probes(graph).find(o => o.elType === 'point' && Math.abs(o.X!() - (TREE_LEFT + TREE_WIDTH / 2)) < 1e-9 && o.Y!() === TREE_TOP)!;
+        const edges = curves(graph)[0];
+        for (const c of captions) {
+            expect([c.text, hit(c.box, px(root.X!(), root.Y!()), 5 + 1)]).toEqual([c.text, false]);
+            for (let i = 0; i + 1 < edges.x.length; i++) {
+                if (!Number.isFinite(edges.x[i]) || !Number.isFinite(edges.x[i + 1])) continue;
+                for (let s = 0; s <= 20; s++) {
+                    const point = px(edges.x[i] + ((edges.x[i + 1] - edges.x[i]) * s) / 20, edges.y[i] + ((edges.y[i + 1] - edges.y[i]) * s) / 20);
+                    expect([c.text, hit(c.box, point, 2)]).toEqual([c.text, false]);
+                }
+            }
+            expect([c.text, c.box.x0 >= 0 && c.box.x1 <= width && c.box.y0 >= 0 && c.box.y1 <= height]).toEqual([c.text, true]);
+            for (const other of boxes) if (other !== c && other.text !== '0,0') { // '0,0' is the axis origin label of the shim, not drawn on the app board
+                const a = c.box, b = other.box;
+                expect([c.text, other.text, a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0]).toEqual([c.text, other.text, false]);
+            }
+        }
+    }));
 });

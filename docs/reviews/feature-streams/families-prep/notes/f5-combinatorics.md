@@ -10,3 +10,29 @@
   - counting-and-choices: "list drevesa = ena izbira" and "Variacije: n = 3, k = 2" are adjacent lines with almost no gap (nearly touching, no overlap); the second ends left of the root dot; leaf labels 12 .. 32 sit under the branch ends, clear.
   - binomial-theorem: the left "1" sits on the left bar (the bar covers it); the right "1" touches the top of the right bar; "x^1" and "x^0" are close but do not touch; "(x + 1)^1" clear. The two bars (n = 1, 1.5 units apart) touch.
 - Preview server on 4519 stopped; port closed. Logs: `.command-logs/f5-cards/combinatorics/`.
+
+## Label pass (handler 20)
+
+- Binomial-theorem card (`LatticePathGraph.tsx`, `barLabels`, `barStrokePx`): bar and label metrics in pixels. Bar thickness at most 10 px and at least 6 px gap to the neighbour (card pitch 16 px); coefficient labels sit 6 px above a bar (below a negative one) in the first of 3 rows where they touch no bar, power label or earlier label, under height 20.8; a label that fits no row is not written (readout and status carry all coefficients). Power labels are written every k-th (always including x^0) when `x^12` and its neighbour would not fit the pitch. Card n = 1: both "1" clear of the bars, bars apart, only x^0 written (x^1 dropped at the card scale); 1366 n = 1, 6, 12 all labels written, all clear; 390 n = 12: x^12, x^10, x^8 ... every other power, some coefficients on a second row.
+- Capture race found: a stroke change makes the browser animate stroke-width, and the card capture reads the stale 14 px; so the default thickness is 10 px (no change needed at the card pitch).
+- Counting card (`CountingTreeGraph.tsx`): the title row is 24 px under the first caption row (4 px gap) at any scale.
+- Tests: `LatticePathGraph.test.tsx` "expansion board texts" (3 scales x 4 states), red before the fix (red.log), green after; `CountingTreeGraph.test.tsx` "tree captions" (2 scales), red (red2.log), green.
+- OPEN: at 390 the counting title ("Variacije: n = 3, k = 2") reaches under the root dot (pre-existing, slightly closer now); the two expansion captions wrap and overlap each other and the "(x + 1)^n" title at 390 (pre-existing, not in the defect list). Not run: `just lint`, `src/learning/chapter` unit run, `guidedExamplePreviews` stale-glob edit. tsc passed (tsc.log), `src/graphs/combinatorics` unit passed (green2.log).
+
+## Label pass follow-up
+
+- Counting tree (`CountingTreeGraph.tsx`, `captionsAtTop`): the two caption rows stand in pixels from the top edge when the board has room above the root dot (6 px margin, 24 px pitch, dot radius); on a short board (390: 38 px above the dot) they stand under the leaf numbers, from the bottom edge. Card, 1366 and 390 all clear of the dot and branches.
+- Expansion captions (`LatticePathGraph.tsx`, `captionStack`): the caption is written line by line, wrapped to the board width (at most 60 characters a line: the card capture hides a longer board text) in a stack from the top edge, the "(x + 1)^n" title under the last line; the coefficient ceiling and the y tick numbers (`defaultAxesAttributes`, `covered`) follow the stack. Font 15 -> 13 px.
+- Tests (board sizes set through the element size shim): `LatticePathGraph.test.tsx` "expansion captions" (600x400, 360x295, 420x320) red with wrapping off, green; `CountingTreeGraph.test.tsx` "tree caption placement" (600x400, 360x295, 840x520) red before the change at 360x295. The old "inside the view box" text check now compares with the board's own top edge.
+- Recaptured `--family combinatorics`; the guidedExamplePreviews comment edited (stale glob). Unit `src/graphs/combinatorics src/learning/chapter`, tsc and lint pass (logs in `.command-logs/label-pass/combinatorics/`).
+- Remaining: at 390 and 1366 the y axis line runs through the expansion caption text; the 4-row stack (very narrow boards) would meet the bar tops. Preview 4519 stopped.
+
+## Label pass follow-up 2
+
+- Expansion (`LatticePathGraph.tsx`, `barLabels`, `captionStack`, `captionLeftPx`): power labels stand 5 px under the foot of their bar (the baseline, or the end of a negative bar), clear of tick numbers; thinned only where their pixel box (7 + 5 per digit px) would meet an already written one, x^0 first. n = 1 writes both at the 840 card (bars 12.5 px apart on the 2x card board), 390 and 1366. The caption stack starts right of the y axis (6 px) and breaks after "; " (whole clauses, at most 60 characters; a clause wraps by words only when the board is too narrow); font 13 -> 11 px; the y tick numbers hide only where the stack really covers them.
+- Tests: `LatticePathGraph.test.tsx` "expansion power labels and caption stack" (3 board sizes, powers at n = 1..3 within 3 to 10 px under the baseline, stack right of the axis, whole clauses) red (red3.log, 6 failures), green; the 420 x 260 card board test red with the old 8 px + 3 box (red4.log), green. The old box formula in "expansion board texts" now 7 + 5 per digit.
+- Recapture, 1366/390 at n = 1, 6, 12 viewed. Remaining: at 390 n = 12 the power labels touch (pitch 13.6 px); 390 y axis no longer crosses the stack. Unit, tsc, lint pass (unit7, tsc7, lint7 logs); port 4519 closed.
+
+### Handler 21 review
+
+- Accepted with one open item: at 390 px and n = 12 the power labels stand side by side and touch ("x⁹x⁸x⁷…"). The thinning estimate (`POWER_X_PX` 7 + `POWER_DIGIT_PX` 5 per label) is below the drawn width (about 15–16 px against a bar pitch of about 15.6 px). A wider estimate would drop "x¹" on the n = 1 card, where the text renders smaller; the fix is to thin from measured text widths (the drawn text's bounding box) rather than an estimate.
