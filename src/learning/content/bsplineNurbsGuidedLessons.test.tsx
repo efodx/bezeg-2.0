@@ -5,7 +5,8 @@ import {
 } from './bsplineNurbsGuidedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import type {BSplineNurbsState} from '../../graphs/curves/bspline/BSplineNurbsGraph';
 import {angleDegrees} from '../../graphs/curves/bspline/bsplineNurbsModel';
 import {setLanguage} from '../../localization';

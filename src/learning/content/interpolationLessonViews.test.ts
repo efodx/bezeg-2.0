@@ -2,7 +2,8 @@ import {act} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {interpolationGuidedLessons} from './interpolationGuidedLessons';
 import type {LessonAction} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});

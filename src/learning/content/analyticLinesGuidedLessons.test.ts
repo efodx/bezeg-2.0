@@ -11,7 +11,8 @@ import {fileURLToPath} from 'node:url';
 import {lineAngleLesson, lineDistanceLesson, lineFormsLesson, lineNormalLesson} from './analyticLinesGuidedLessons';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {LineGeometryGraph} from '../../graphs/lines/LineGeometryGraph';
 import {setLanguage} from '../../localization';
 

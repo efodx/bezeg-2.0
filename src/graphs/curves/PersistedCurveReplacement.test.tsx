@@ -6,7 +6,8 @@
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {act} from '@testing-library/react';
 import {appStorage} from '../../storage/appStorage';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
+import {createGraph} from '../base/createTestGraph';
 import type {Preset} from '../base/presets/Presets';
 import type {DemonstrationId} from '../../demonstrations';
 

@@ -1,7 +1,8 @@
 import {runInNewContext} from 'node:vm';
 import {setFlagsFromString} from 'node:v8';
 import {beforeAll, describe, expect, it} from 'vitest';
-import {createGraph, installBoardShims, mountGraph, surfaceViewOf} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, surfaceViewOf} from '../base/realGraphTestHarness';
+import {createGraph} from '../base/createTestGraph';
 import {JsxSurfaceView} from './surface-view/jsxSurfaceView';
 import {letBoardTimersFire} from './surface-view/jsxLifecycleProbe.test-helper';
 import type {SurfaceScene} from './surface-view/surfaceScene';

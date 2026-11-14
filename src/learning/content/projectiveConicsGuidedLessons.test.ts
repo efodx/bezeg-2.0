@@ -7,7 +7,8 @@ import {sceneActions} from '../runtime/lessonCatalog';
 import {projectiveConicsGuidedLessons} from './projectiveConicsGuidedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {CrossRatioGraph} from '../../graphs/projective/CrossRatioGraph';
 import {setLanguage} from '../../localization';
 

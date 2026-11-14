@@ -10,7 +10,8 @@ import {binomialTheoremLesson, countingTreeLesson, latticePathsLesson, pascalIde
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
 import type {LessonAction, LocalizedText} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {CountingTreeGraph} from '../../graphs/combinatorics/CountingTreeGraph';
 import {LatticePathGraph} from '../../graphs/combinatorics/LatticePathGraph';
 import {setLanguage, t} from '../../localization';

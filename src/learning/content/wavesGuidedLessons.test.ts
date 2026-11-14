@@ -11,7 +11,8 @@ import {wavesBeatsLesson, wavesStandingLesson, wavesSuperpositionLesson} from '.
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
 import type {LessonAction} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {WavesGraph} from '../../graphs/functions/WavesGraph';
 import {setLanguage} from '../../localization';
 

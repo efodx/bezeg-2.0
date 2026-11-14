@@ -13,7 +13,8 @@
 import {act} from '@testing-library/react';
 import JXG from 'jsxgraph';
 import BaseGraph, {BaseGraphState} from '../../graphs/base/BaseGraph';
-import {createGraph, installBoardShims, type MountedGraph, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, type MountedGraph, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {applyActions, changeScene, flipSwitches, full, hodograph, internals, sceneActions} from '../../graphs/base/realGraphScenes';
 import type {DemonstrationId} from '../../demonstrations';
 import {appStorage} from '../../storage/appStorage';

@@ -7,7 +7,8 @@ import {sceneActions} from '../runtime/lessonCatalog';
 import {unitCircleAdditionLesson, unitCircleRadianLesson} from './trigUnitCircleGuidedLessons';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson, GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {UnitCircleGraph} from '../../graphs/trig/UnitCircleGraph';
 import {setLanguage} from '../../localization';
 

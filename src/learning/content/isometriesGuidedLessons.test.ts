@@ -12,7 +12,8 @@ import {fileURLToPath} from 'node:url';
 import {isometryClassifyLesson, isometryDilationLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {IsometryGraph} from '../../graphs/isometry/IsometryGraph';
 import {setLanguage} from '../../localization';
 

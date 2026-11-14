@@ -4,7 +4,8 @@ import {LessonSession} from '../runtime/LessonSession';
 import {arcLengthGuidedLessons} from './arcLengthGuidedLessons';
 import type {LessonAction, LessonDefinition} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import type ArcLengthParametrizationGraph from '../../graphs/curves/arclength/ArcLengthParametrizationGraph';
 import {setLanguage} from '../../localization';
 

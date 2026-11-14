@@ -1,7 +1,8 @@
 /** Wave 2 slice K4: the curve boards without the structured list get the shared edit-only typed point list; one typed coordinate reaches the model and the drawn point. */
 import {act, screen} from '@testing-library/react';
 import {appStorage} from '../../storage/appStorage';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, waitUntil} from '../base/realGraphTestHarness';
+import {createGraph} from '../base/createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
 import {enterNumber} from '../../inputs/testEntry';
 import {curveAccess} from '../base/curveGraphTestAccess';

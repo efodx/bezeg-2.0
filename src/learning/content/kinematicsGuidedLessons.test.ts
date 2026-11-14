@@ -16,7 +16,8 @@ import {kinematicsGuidedExampleLesson} from './kinematicsChapterRegistry';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
 import type {LessonAction} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {KinematicsGraph} from '../../graphs/curves/kinematics/KinematicsGraph';
 import {setLanguage} from '../../localization';
 

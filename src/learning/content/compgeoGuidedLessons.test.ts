@@ -5,7 +5,8 @@ import {getLessonForDemonstration, sceneActions} from '../runtime/lessonCatalog'
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction} from '../model';
 import {UnsupportedLessonActionError} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {OrientationGraph} from '../../graphs/compgeo/OrientationGraph';
 import {PolygonAreaGraph} from '../../graphs/compgeo/PolygonAreaGraph';
 import {orientationReadout} from '../../graphs/compgeo/orientationReadout';

@@ -5,7 +5,8 @@ import {
 } from './bsplineBlossomGuidedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import type {BSplineBlossomState} from '../../graphs/curves/bspline/BSplineBlossomGraph';
 import type {BlossomSnapshot, CurveCheck} from '../../graphs/curves/bspline/bsplineBlossomModel';
 import {blossomSnapshot} from '../../graphs/curves/bspline/bsplineBlossomModel';

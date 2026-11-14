@@ -1,23 +1,14 @@
 /**
  * Test support for mounting real graphs from `graphFactories` through the real `GraphHost` and a real JSXGraph board
  * in jsdom, and for describing what a graph currently shows. Observations name actual board objects and controls, so a
- * missing or empty scene shows up as a difference instead of passing silently.
+ * missing or empty scene shows up as a difference instead of passing silently. `createGraph` (a graph by demonstration
+ * id) lives in `createTestGraph`, so that importing this harness does not import every graph.
  */
 import React from 'react';
 import {act, render, RenderResult} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from './GraphHost';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
-import {allGraphFactories as graphFactories} from '../allGraphFactories';
-import type {DemonstrationId} from '../../demonstrations';
-import TensorDeCasteljauGraph from '../patches/TensorDeCasteljauGraph';
-import TensorDerivativesGraph from '../patches/TensorDerivativesGraph';
-import TensorSubdivisionGraph from '../patches/TensorSubdivisionGraph';
-import TensorJoinGraph from '../patches/TensorJoinGraph';
-import TensorPatchGraph from '../patches/TensorPatchGraph';
-import TriangularPatchGraph from '../patches/TriangularPatchGraph';
-import CoonsPatchGraph from '../patches/CoonsPatchGraph';
-import SolidsGraph from '../solids/SolidsGraph';
 import {cameraSignature, FakeSurfaceView, sceneSignature} from '../patches/FakeSurfaceView';
 
 /**
@@ -55,21 +46,11 @@ export interface MountedGraph {
 /** The fake views of graphs without a board (their main view is a surface view), by graph. */
 const surfaceViews = new WeakMap<object, FakeSurfaceView>();
 
+/** Records the fake surface view of a graph made by `createGraph` (in `createTestGraph`). */
+export const registerSurfaceView = (graph: object, view: FakeSurfaceView): void => { surfaceViews.set(graph, view); };
+
 /** The fake surface view of a graph created by `createGraph`, or undefined for a graph with a JSXGraph board. */
 export const surfaceViewOf = (graph: BaseGraph<BaseGraphState>): FakeSurfaceView | undefined => surfaceViews.get(graph);
-
-/**
- * A graph as `graphFactories` builds it, except that a graph with a surface view gets a fake one: jsdom has no WebGL,
- * and the real view would fail to start. Every other graph is the factory's own.
- */
-export function createGraph(id: DemonstrationId): BaseGraph<BaseGraphState> {
-    if (id !== 'patch-tensor' && id !== 'patch-decasteljau' && id !== 'patch-derivatives' && id !== 'patch-subdivision' && id !== 'patch-joins' && id !== 'patch-triangular' && id !== 'patch-coons' && id !== 'solids') return graphFactories[id]();
-    const view = new FakeSurfaceView();
-    const options = {viewFactory: () => view};
-    const graph = id === 'solids' ? new SolidsGraph(options) : id === 'patch-tensor' ? new TensorPatchGraph(options) : id === 'patch-decasteljau' ? new TensorDeCasteljauGraph(options) : id === 'patch-derivatives' ? new TensorDerivativesGraph(options) : id === 'patch-subdivision' ? new TensorSubdivisionGraph(options) : id === 'patch-joins' ? new TensorJoinGraph(options) : id === 'patch-coons' ? new CoonsPatchGraph(options) : new TriangularPatchGraph(options);
-    surfaceViews.set(graph, view);
-    return graph as unknown as BaseGraph<BaseGraphState>;
-}
 
 export function mountGraph(graph: BaseGraph<BaseGraphState>): MountedGraph {
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);

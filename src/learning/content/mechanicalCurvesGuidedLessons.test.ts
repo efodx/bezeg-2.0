@@ -12,7 +12,8 @@ import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTauto
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {GuidedLesson} from './guidedLessons';
 import type {LessonAction} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {DescentGraph} from '../../graphs/mechanics/DescentGraph';
 import {beadParameter, DEFAULT_DESCENT_STATE, deriveDescent} from '../../mechanics/trackModel';
 import {setLanguage, t} from '../../localization';

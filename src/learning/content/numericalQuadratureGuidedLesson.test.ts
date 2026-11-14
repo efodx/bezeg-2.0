@@ -7,7 +7,8 @@ import {sceneActions} from '../runtime/lessonCatalog';
 import {quadratureGuidedLessons} from './numericalQuadratureGuidedLesson';
 import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {setLanguage} from '../../localization';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});

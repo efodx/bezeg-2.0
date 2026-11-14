@@ -2,7 +2,8 @@
 import {act, fireEvent, screen} from '@testing-library/react';
 import {t} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
+import {createGraph} from './createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
 import {enterNumber} from '../../inputs/testEntry';
 import {SelectedCurveOption} from './CurveEditingFeature';

@@ -16,15 +16,8 @@ import {appStorage} from '../../storage/appStorage';
 import {capturePNGBlob} from './export/FigureCapture';
 import {inject, type Mock} from 'vitest';
 import {classNames, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE} from './catalogSweepScope';
-import {
-    controlsSignature,
-    createGraph,
-    installBoardShims,
-    mountGraph,
-    REAL_GRAPH_TEST_TIMEOUT,
-    settle,
-    waitUntil,
-} from './realGraphTestHarness';
+import {controlsSignature, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
+import {createGraph} from './createTestGraph';
 import {
     applyActions,
     changeScene,

@@ -6,7 +6,8 @@ import {
 } from './bezierClippingGuidedLessons';
 import type {LessonAction, LessonDefinition} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {BEZIER_CLIPPING_STEP_INTERVAL_MS, type BezierClippingGraph} from '../../graphs/compgeo/BezierClippingGraph';
 import {bezierClippingReadout, widestAliveWidth} from '../../graphs/compgeo/bezierClippingReadout';
 import {setLanguage} from '../../localization';

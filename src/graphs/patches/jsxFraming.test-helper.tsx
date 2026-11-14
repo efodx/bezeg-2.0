@@ -4,7 +4,8 @@
  * `points` of the polygons and polylines and point3d coordinates, not the pure projection).
  */
 import {act} from '@testing-library/react';
-import {createGraph, mountGraph, surfaceViewOf} from '../base/realGraphTestHarness';
+import {mountGraph, surfaceViewOf} from '../base/realGraphTestHarness';
+import {createGraph} from '../base/createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
 import {defaultPatchPresets, defaultTriangularPatchPresets, derivativesStartingPatches, joinStartingScenes, type DefaultPatchPreset} from './patchPresetCollections';
 import type {PatchCollectionPresetData} from './patchDto';

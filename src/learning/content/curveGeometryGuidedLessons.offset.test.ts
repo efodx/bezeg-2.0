@@ -4,7 +4,8 @@ import {LessonSession} from '../runtime/LessonSession';
 import {curveGeometryGuidedLessons, OFFSET_SEGMENT} from './curveGeometryGuidedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {currentLanguage, setLanguage, t} from '../../localization';
 import {fitBoundingBox} from '../../graphs/base/fitBoundingBox';
 

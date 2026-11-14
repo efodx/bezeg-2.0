@@ -7,7 +7,8 @@
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import type {DemonstrationId} from '../../../demonstrations';
 import {appStorage} from '../../../storage/appStorage';
-import {createGraph, installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
+import {installBoardShims, mountGraph, observeScene, REAL_GRAPH_TEST_TIMEOUT, settle} from '../realGraphTestHarness';
+import {createGraph} from '../createTestGraph';
 import {commitPresetImport, preflightPresetImport, presetCollections} from './PresetImport';
 import {legacyG1SplinePresetCollection} from '../../curves/spline/collections';
 

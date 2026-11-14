@@ -11,7 +11,8 @@ import {linearProgrammingLesson, LS5_DEGENERATE, LS5_LINE_SIX, LS5_LINE_TWELVE, 
 import {levelSetsChapter} from './levelSetsChapter';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import {LinearProgramGraph} from '../../graphs/levelsets/LinearProgramGraph';
 import {setLanguage, t} from '../../localization';
 

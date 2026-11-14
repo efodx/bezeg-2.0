@@ -16,7 +16,8 @@ import {familyChapters} from './familyChapters';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLesson} from './guidedLessons';
-import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {createGraph} from '../../graphs/base/createTestGraph';
 import SolidsGraph from '../../graphs/solids/SolidsGraph';
 import {setLanguage} from '../../localization';
 
