@@ -281,6 +281,8 @@ const captureText = {
     'euler-method': {keep: [], strip: []},
     accumulation: {keep: [/^\+$/], strip: []},
     derivative: {keep: [/^f\(x\) = /], strip: []},
+    // The curve names stay; the area readout and the formulas go.
+    'area-between-curves': {keep: [/^[fg]$/], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

@@ -1,27 +1,27 @@
 # State: site walkthrough, graphs (package D)
 
-Handler 3 handing off to handler 4, 2026-11-14 (context budget). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
+Handler 4, 2026-11-14 (running). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
 
 ## For the owner
 
 **To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/
 
-- **B8a second part, eleven function cards, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b8a2.html . Nine cards changed (text only). Inverse function, definite integral, arc length, polynomial zeros and fixed point keep their formula or symbol; rational function and extrema lose all text, because their asymptote names and extremum values sat on the axis numbers. Derivative and area between curves could not be recaptured (capture tool out of date against their controls).
-- **Approved by you and pushed to `master`:** B3 Bézier, B4 PH and parameterizations, B5 curve geometry. **CI failed on that push:** the extrapolation lesson's browser test counts one curve at its first step, and B3 draws the extended arc as its own curve. Handler 4 fixes this first; the public site keeps the build from before B3 until CI passes.
-- **Approved by you, publish running:** B6 conics and three views, B7 rational (with the blue Farin rings).
-- **Approved by you, waiting to publish:** B8a first part (nine analysis cards, `b8a1.html`).
+- **B8a second part, eleven function cards, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b8a2.html . Nine cards changed (text only). Inverse function, definite integral, arc length, polynomial zeros and fixed point keep their formula or symbol; rational function and extrema lose all text, because their asymptote names and extremum values sat on the axis numbers. Derivative and area between curves are being repaired with the other stale captures.
+- **B8e, five repaired captures, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b8e.html . Sequence (keeps the N tag), Euler method (no text), accumulation (keeps the plus sign), derivative (keeps `f(x) = x²`). The capture tool had fallen behind the new sliders; the app is unchanged. Area between curves keeps the names f and g.
+- **Your choice:** handler 3 relayed your words "you don't have to ask for my confirmation for the next ones". Handler 4's permission check would not publish on a relayed approval. If you want batches published without your look, say so to handler 4 directly (and that covers `b8a2` too).
+- **On `master`, CI green again:** B3 to B7 and B8a first part (`b89dc04d`). The extrapolation lesson test now counts the curve and its extension arc (`e676f01b`, CI run 43649413798 passed).
 
 **One thing not changed, with its reason:** the affine clip stays in steps because its controls are step buttons.
 
 ## Where things stand
 
-- `master` has B3, B4, B5 and their approval note (`b5fd6947`). **CI run 43646056356 failed**: `tests/guided-lessons.smoke.spec.cjs:2736` "Lesson extrapolation › sl: ?learn=1 walks every frame", `Error: one curve at Korak 1 od 4 · Okvir 1 od 2`, expected 1. Likely cause (not confirmed by a run): B3's `ExtrapolationGraph.tsx` `buildExtension` adds a second JSXGraph curve for the arc on `[1, t]`. Fix in the smoke test's count (count the main curve only, for example by a role marker on the extension) or in the graph; the lesson meaning must not change. Read the test near that line first; run the lesson smoke for extrapolation; publish the fix; confirm with `gh run list --workflow browser-smoke.yml --branch master --limit 1`.
-- Background publish of B6 and B7 (+ approval note) from `.claude/worktrees/graphs-pub`, run `publish-af2c1f54-99db10`, recipe `runtime`: **check `cd ../graphs-pub && just publish --status`**. Its gate does not run the lesson browser smoke, so it may land on the failing master; CI stays red until the extrapolation fix lands.
-- This branch (`worktree-walkthrough-graphs`) still carries pre-publish copies of B3 to B7 and state notes. After the publishes land: `git fetch`, `git rebase origin/master` (published copies drop out; on a conflict in this note or the queue take this branch's version; in the spec take `master`'s "approved" batch headings and keep this branch's B8a records). Unpublished after that: B8a first part (`50f59912`), B8a second part (`8305bc13`), this note.
-- Publishing B8a first part: cherry-pick `50f59912` onto `origin/master` in `graphs-pub` with a commit changing its spec heading to "approved by the owner", then `just publish --background --recipe runtime --base <master> --commits <list>`. Add the second part if the owner approves it first. Captures are regenerated per batch on top of the previous one: publish batches in branch order.
+- `master` = `b89dc04d` (B8a first part and its approval record). B6/B7 publish `publish-af2c1f54-99db10` and the smoke fix `publish-e676f01b-15e989` landed.
+- This branch still carries pre-publish copies of B3 to B8a first part. Rebase onto `origin/master` failed earlier with a Windows file lock in the middle of `8305bc13` (untracked `b8a2/` files left behind; removed and aborted). Before rebasing again, stop the preview server; on a conflict in this note or the queue take this branch's version; in the spec take `master`'s headings. Unpublished after that: B8a second part (`8305bc13`), the spec record `fc5c38e5`/`869a3ec6`, this note.
+- Publishing B8a second part after the owner's yes: in `graphs-pub`, cherry-pick `8305bc13` onto `origin/master`, add a commit setting its spec heading to "approved by the owner", `just publish --background --recipe runtime --base <master> --commits <list>`.
+- B8e stale-capture repair committed (`310a8ce5`, after `8305bc13` in branch order: publish B8a second part first). Recaptured with VERIFIED after reading the diff; manifest changed for exactly the four ids; `just tooling-test` passed. `area-between-curves` added in a second commit (background sample moved off the curve f). Left: `epicycles` and `voronoi-degenerate` (triage).
 - Docs-only publish: `graphs-pub` reset to `origin/master`, check out only the doc files from this branch, commit, `just publish --recipe docs --base <master sha> --commits <sha>`.
 - When `graphs-pub` is no longer needed: remove its `node_modules` junction first (`cmd //c "rmdir node_modules"` inside it), then `git worktree remove ../graphs-pub` and delete the branch.
-- Preview on 4333 serves this worktree's build from the B7 commit; comparison pages up to `b8a2` are restored.
+- Preview on 4333 serves this worktree's build at `45556c02`; restore the comparison pages only **after** `just preview` is listening (the preview refuses a build whose output changed). `just smoke-lesson` may leave a `serve-smoke-build.cjs` on 4333; kill it before starting the preview.
 
 ## Open items found in this run
 
@@ -40,8 +40,8 @@ Handler 3 handing off to handler 4, 2026-11-14 (context budget). Queue: [graphs.
 
 ## Next slice inputs, in order
 
-1. Fix the failing extrapolation lesson smoke on `master` (above) and get CI green. Confirm the B6/B7 publish.
-2. Publish B8a first part (approved); the second part when the owner approves `b8a2.html`.
+1. Done by handler 4: extrapolation smoke fixed (`e676f01b`), CI green; B6/B7 published.
+2. B8a first part published (`b89dc04d`); the second part when the owner approves `b8a2.html` (or confirms the grant directly).
 3. Repair the stale capture recipes and checks under open items, then capture those ids with their recorded verdicts.
 4. **B8b** maps and plane geometry (`complex-*`, `linear-map` Keep in part, triangle ids, `inversion`, `orientation`), **B8c** compgeo (`delaunay`, `monotone-*`), **B8d** B-splines and `projective-cross-ratio`: text only, patterns in the triage table; `complex-multiplication` hide only; `projective-pascal` is No text.
 5. **B9 epicycles card** (show a subject), **B10 patches** (overlap fix), guided example recapture per chapter.
@@ -49,7 +49,10 @@ Handler 3 handing off to handler 4, 2026-11-14 (context budget). Queue: [graphs.
 
 ## Rules that carry over
 
+- **Successor model (owner, 2026-11-14):** start successors with `--model claude-opus-5-5 --effort medium`, not Fable. Opus budget thresholds apply (soft 175k, handoff 215k).
+
 - Propose, show a preview, wait for the owner on design and policy; routine engineering inside an approved direction is the handler's. Do not launch a successor while the work only waits on the owner.
+- **Relayed owner grant, 2026-11-14, not in force until he confirms it directly:** handler 3 relayed his words "you're doing fine, you don't have to ask for my confirmation for the next ones": batches inside the approved direction (B8a second part, B8b to B8d, B9, B10, the recaptures) would be published once the handler's own checks and review pass, still shown on their `bN` page and listed under "For the owner". Handler 4's permission check refused a publish based on the relayed approval, so until the owner says it to the running handler, each batch still waits for his look. A new design direction is his in any case.
 - Port 4333 only; previews go through `tailscale serve` (configured). Do not edit inspector panel composition (control choice owns it) or other sessions' queue or state files.
 - Workers keep scratch files in `.command-logs/`, never `/tmp`, and do not run git commands that move HEAD.
 - This worktree's `node_modules` is a junction to the main checkout's. Delete the junction before removing the worktree.

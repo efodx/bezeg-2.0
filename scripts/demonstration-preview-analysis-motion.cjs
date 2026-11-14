@@ -202,7 +202,8 @@ function createAnalysisMotionSpecs(helpers = {}) {
                     assert.ok(close(parseLocalized(sample.observed.readouts.signed), signedArea, 6e-5), `Signed area readout differs from its antiderivative at frame ${sample.index}`);
                     assert.ok(close(parseLocalized(sample.observed.readouts.unsigned), Math.abs(signedArea), 6e-5), `Unsigned area readout differs from ∫|g-f| at frame ${sample.index}`);
                     if (sample.index === 95) assert.equal(sample.capture.sha256, first.capture.sha256, 'Area loop is not seamless');
-                }, {checkControls: sample => {
+                }, {backgroundSample: {x: 235, y: 40}, // (40, 40) sits beside the curve f, whose chroma bleeds into it in the encoded clip.
+                    checkControls: sample => {
                     const points = sample.observed.points;
                     const a = points.find(p => /(?:\$\$)?a(?:\$\$)?/.test(p.name || ''));
                     const bPoint = points.find(p => /(?:\$\$)?b(?:\$\$)?/.test(p.name || ''));
