@@ -2449,7 +2449,7 @@ const sequence: GuidedLesson = {
             formulaIds: ['sequence-definition', 'sequence-definition-condition'],
             frames: [frame('sequence-definition-explanation', 'explanation'), frame('sequence-definition-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=\\frac14\\), torej ali je \\(|a_n|<\\frac14\\) za vsak \\(n\\ge5\\), in ali bo deloval \\(N=4\\); poskusi tudi druge vrednosti v polju Prag N in šele nato pritisni Pokaži certifikat.',
+                'Napovej, ali bo \\(N=5\\) deloval za \\(\\varepsilon=\\frac14\\), torej ali je \\(|a_n|<\\frac14\\) za vsak \\(n\\ge5\\), in ali bo deloval \\(N=4\\); poskusi tudi druge vrednosti z drsnikom Prag N in šele nato pritisni Pokaži certifikat.',
                 'Predict whether \\(N=5\\) works for \\(\\varepsilon=\\frac14\\), that is whether \\(|a_n|<\\frac14\\) for every \\(n\\ge5\\), and whether \\(N=4\\) will work; also try other values in the Threshold N field, and only then press Show certificate.',
             ),
             expectedObservations: [
@@ -2482,7 +2482,7 @@ const sequence: GuidedLesson = {
             formulaIds: ['sequence-definition', 'sequence-definition-condition', 'sequence-reciprocal-threshold'], workedExampleId: 'sequence-reciprocal-example',
             frames: [frame('sequence-threshold-explanation', 'explanation'), frame('sequence-threshold-calculation', 'calculation'), frame('sequence-threshold-observation', 'observation')],
             observationPrompt: text(
-                'Preberi najmanjši delujoči \\(N\\) in oceno v odčitkih. Nato v polje vnesi \\(N=10\\), preberi, zakaj ne deluje, in se vrni na \\(N=11\\).',
+                'Preberi najmanjši delujoči \\(N\\) in oceno v odčitkih. Nato z drsnikom Prag N nastavi \\(N=10\\), preberi, zakaj ne deluje, in se vrni na \\(N=11\\).',
                 'Read the least working \\(N\\) and the bound in the readouts. Then enter \\(N=10\\) in the field, read why it does not work, and return to \\(N=11\\).',
             ),
             expectedObservations: [text(
@@ -2509,7 +2509,7 @@ const sequence: GuidedLesson = {
             formulaIds: ['sequence-reciprocal-threshold'],
             frames: [frame('sequence-small-epsilon-explanation', 'explanation'), frame('sequence-small-epsilon-observation', 'observation')],
             observationPrompt: text(
-                'Po obrazcu izračunaj najmanjši delujoči \\(N\\) za \\(\\varepsilon=0{,}01\\), napovej, ali bo med prikazanimi členi, vnesi ga v polje Prag N in šele nato pritisni Pokaži certifikat. Nato vnesi še \\(N=100\\).',
+                'Po obrazcu izračunaj najmanjši delujoči \\(N\\) za \\(\\varepsilon=0{,}01\\), napovej, ali bo med prikazanimi členi, nastavi ga z drsnikom Prag N in šele nato pritisni Pokaži certifikat. Nato nastavi še \\(N=100\\).',
                 'Compute the least working \\(N\\) for \\(\\varepsilon=0.01\\) from the formula, predict whether it will be among the shown terms, enter it in the Threshold N field, and only then press Show certificate. Then also enter \\(N=100\\).',
             ),
             expectedObservations: [
@@ -2542,7 +2542,7 @@ const sequence: GuidedLesson = {
             formulaIds: ['sequence-reciprocal-threshold'],
             frames: [frame('sequence-alternating-explanation', 'explanation'), frame('sequence-alternating-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali je najmanjši delujoči \\(N\\) pri \\(\\varepsilon=0{,}1\\) enak kot pri \\(\\frac1n\\); vnesi ga v polje Prag N in šele nato pritisni Pokaži certifikat.',
+                'Napovej, ali je najmanjši delujoči \\(N\\) pri \\(\\varepsilon=0{,}1\\) enak kot pri \\(\\frac1n\\); nastavi ga z drsnikom Prag N in šele nato pritisni Pokaži certifikat.',
                 'Predict whether the least working \\(N\\) at \\(\\varepsilon=0.1\\) is the same as for \\(\\frac1n\\); enter it in the Threshold N field, and only then press Show certificate.',
             ),
             expectedObservations: [
@@ -2641,7 +2641,7 @@ const sequence: GuidedLesson = {
             formulaIds: ['sequence-definition', 'sequence-definition-condition'],
             frames: [frame('sequence-free-explanation', 'explanation'), frame('sequence-free-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali je \\(L=0{,}5\\) limita zaporedja \\(\\frac1n\\); vnesi ga v polje in pritisni Pokaži certifikat. Nato skrij certifikat, izberi drug primer in napovej, preden ga spet pokažeš.',
+                'Napovej, ali je \\(L=0{,}5\\) limita zaporedja \\(\\frac1n\\); nastavi ga z drsnikom Kandidat za limito L in pritisni Pokaži certifikat. Nato skrij certifikat, izberi drug primer in napovej, preden ga spet pokažeš.',
                 'Predict whether \\(L=0.5\\) is the limit of the sequence \\(\\frac1n\\); enter it in the field and press Show certificate. Then hide the certificate, choose another example and predict before you show it again.',
             ),
             expectedObservations: [text(
@@ -2965,7 +2965,7 @@ const fixedPoint: GuidedLesson = {
             formulaIds: ['fixed-point-bounds'],
             frames: [frame('fixed-point-rounding-explanation', 'explanation'), frame('fixed-point-rounding-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato vnesi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
+                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato z drsnikom Začetek x₀ nastavi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
                 'Predict whether \\(x_{27}\\) is exactly \\(1\\) because the readout shows \\(1\\); press Show error bound and read the bound. Then enter \\(x_0=1\\) and read why the iteration does not move.',
             ),
             expectedObservations: [
@@ -2998,7 +2998,7 @@ const fixedPoint: GuidedLesson = {
             formulaIds: ['fixed-point-reflection', 'fixed-point-reflection-derivative'],
             frames: [frame('fixed-point-reflection-explanation', 'explanation'), frame('fixed-point-reflection-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato vnesi \\(x_0=0{,}5\\) in primerjaj.',
+                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato z drsnikom Začetek x₀ nastavi \\(x_0=0{,}5\\) in primerjaj.',
                 'Predict where the iteration from \\(x_0=0.2\\) is heading; press Show error bound and read why there is no bound. Then enter \\(x_0=0.5\\) and compare.',
             ),
             expectedObservations: [
@@ -3253,7 +3253,7 @@ const uniformConvergence: GuidedLesson = {
             formulaIds: ['uniform-power-threshold'],
             frames: [frame('uniform-whole-interval-explanation', 'explanation'), frame('uniform-whole-interval-observation', 'observation')],
             observationPrompt: text(
-                'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato vnesi \\(x=0{,}99\\) v polje Točka x.',
+                'Napovej točkovni prag \\(N(0{,}9)\\) in \\(N(0{,}99)\\) pri \\(\\varepsilon=0{,}1\\); preveri pri \\(x=0{,}9\\) in nato z drsnikom Točka x nastavi \\(x=0{,}99\\).',
                 'Predict the pointwise thresholds \\(N(0.9)\\) and \\(N(0.99)\\) at \\(\\varepsilon=0.1\\); check at \\(x=0.9\\) and then enter \\(x=0.99\\) in the Point x field.',
             ),
             expectedObservations: [
@@ -3319,7 +3319,7 @@ const uniformConvergence: GuidedLesson = {
             formulaIds: ['uniform-definition', 'uniform-definition-uniform'],
             frames: [frame('uniform-pointwise-explanation', 'explanation'), frame('uniform-pointwise-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, pri katerem najmanjšem \\(n\\) je napaka v točki \\(x=0{,}5\\) manjša od \\(\\varepsilon=0{,}1\\), in preveri z gumboma − in + ali s poljem Indeks n. Nato vnesi \\(x=0{,}8\\) v polje Točka x in primerjaj prag \\(N(x)\\).',
+                'Napovej, pri katerem najmanjšem \\(n\\) je napaka v točki \\(x=0{,}5\\) manjša od \\(\\varepsilon=0{,}1\\), in preveri z gumboma − in + ali s poljem Indeks n. Nato z drsnikom Točka x nastavi \\(x=0{,}8\\) in primerjaj prag \\(N(x)\\).',
                 'Predict the least \\(n\\) for which the error at \\(x=0.5\\) is below \\(\\varepsilon=0.1\\), and check with the − and + buttons or the Index n field. Then enter \\(x=0.8\\) in the Point x field and compare the threshold \\(N(x)\\).',
             ),
             expectedObservations: [
@@ -3412,7 +3412,7 @@ const uniformConvergence: GuidedLesson = {
             formulaIds: ['uniform-power-threshold'],
             frames: [frame('uniform-domain-change-explanation', 'explanation'), frame('uniform-domain-change-observation', 'observation')],
             observationPrompt: text(
-                'Napovej skupni \\(N\\) za \\(r=0{,}95\\) in \\(\\varepsilon=0{,}1\\); pritisni Pokaži supremum, nato povečaj \\(n\\) na \\(45\\) in preberi stanje. Nazadnje v polje Konec območja r vnesi \\(1\\) in primerjaj.',
+                'Napovej skupni \\(N\\) za \\(r=0{,}95\\) in \\(\\varepsilon=0{,}1\\); pritisni Pokaži supremum, nato povečaj \\(n\\) na \\(45\\) in preberi stanje. Nazadnje z drsnikom Konec območja r nastavi \\(1\\) in primerjaj.',
                 'Predict the shared \\(N\\) for \\(r=0.95\\) and \\(\\varepsilon=0.1\\); press Show supremum, then increase \\(n\\) to \\(45\\) and read the status. Finally enter \\(1\\) in the Domain end r field and compare.',
             ),
             expectedObservations: [

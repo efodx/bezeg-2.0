@@ -220,9 +220,9 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
                         rejectedHint={t("prob_binomial_p_slider_rejected")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/>
                 <NumberInput label={t("prob_binomial_p_exact_label")} value={state.p} min={0} max={1} step={0.01} decimals={4}
                              rejectedHint={t("prob_binomial_p_help")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/>
-                <NumberInput label={t("prob_binomial_k_label")} value={state.k} min={0} max={state.n} step={1} integer
-                             rejectedHint={t("prob_binomial_k_rejected", {value0: state.n})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>
+                <Slider customText={t("prob_binomial_k_label")} value={state.k} min={0} max={state.n} step={1}
+                        rejectedHint={t("prob_binomial_k_rejected", {value0: state.n})}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>
                 <p className="inspector-help">{t("prob_binomial_k_help")}</p>
             </div>
             <div className="inspector-group">

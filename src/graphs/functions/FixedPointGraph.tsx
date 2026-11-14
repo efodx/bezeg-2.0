@@ -4,7 +4,8 @@ import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLesson
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
@@ -362,13 +363,16 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("fixed_point_x0_label")} value={state.x0} min={example.a} max={example.b} step={0.01} decimals={2}
-                             rejectedHint={t("fixed_point_x0_rejected_hint", {value0: formatNumber(example.a, language), value1: formatNumber(example.b, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
-                <NumberInput label={t("fixed_point_digits_label")} value={state.digits} min={FIXED_POINT_MIN_DIGITS} max={FIXED_POINT_MAX_DIGITS} step={1} decimals={0}
+                <Slider customText={t("fixed_point_x0_label")} value={state.x0} min={example.a} max={example.b} step={0.01}
+                        rejectedHint={t("fixed_point_x0_rejected_hint", {value0: formatNumber(example.a, language), value1: formatNumber(example.b, language)})}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
+            </div>
+            <div className="inspector-group">
+                <CountSetter label={t("fixed_point_digits_label")} n={state.digits} min={FIXED_POINT_MIN_DIGITS} max={FIXED_POINT_MAX_DIGITS} help={t("fixed_point_fields_help")}
                              rejectedHint={t("fixed_point_digits_rejected_hint", {value0: FIXED_POINT_MIN_DIGITS, value1: FIXED_POINT_MAX_DIGITS})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setDigits(next))}/>
-                <p className="inspector-help">{t("fixed_point_fields_help")}</p>
+                             onPlus={() => this.ignoreOutOfDomain(() => this.setDigits(state.digits + 1))}
+                             onMinus={() => this.ignoreOutOfDomain(() => this.setDigits(state.digits - 1))}
+                             onSet={next => this.ignoreOutOfDomain(() => this.setDigits(next))}/>
             </div>
             <div className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("fixed_point_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("fixed_point_reset")} playing={playing}

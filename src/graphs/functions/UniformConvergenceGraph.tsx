@@ -2,7 +2,7 @@ import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
@@ -348,17 +348,17 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
                               onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("uniform_r_label")} value={state.r} min={UNIFORM_R_MIN} max={UNIFORM_R_MAX} step={UNIFORM_R_STEP} decimals={2}
-                             rejectedHint={t("uniform_r_rejected_hint", {
-                                 value0: formatNumber(UNIFORM_R_MIN, language), value1: formatNumber(UNIFORM_R_MAX, language), value2: formatNumber(state.x, language),
-                             })}
-                             onChange={next => guardField(this.refusals, () => this.setR(next))}/>
-                <NumberInput label={t("uniform_x_label")} value={state.x} min={0} max={state.r} step={UNIFORM_X_STEP} decimals={2}
-                             rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
-                             onChange={next => guardField(this.refusals, () => this.setX(next))}/>
-                <NumberInput label={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP} decimals={2}
-                             rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
-                             onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
+                <Slider customText={t("uniform_r_label")} value={state.r} min={UNIFORM_R_MIN} max={UNIFORM_R_MAX} step={UNIFORM_R_STEP}
+                        rejectedHint={t("uniform_r_rejected_hint", {
+                            value0: formatNumber(UNIFORM_R_MIN, language), value1: formatNumber(UNIFORM_R_MAX, language), value2: formatNumber(state.x, language),
+                        })}
+                        onChange={next => guardField(this.refusals, () => this.setR(next))}/>
+                <Slider customText={t("uniform_x_label")} value={state.x} min={0} max={UNIFORM_R_MAX} step={UNIFORM_X_STEP}
+                        rejectedHint={t("uniform_x_rejected_hint", {value0: formatNumber(state.r, language)})}
+                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
+                <Slider customText={t("uniform_epsilon_label")} value={state.epsilon} min={UNIFORM_EPSILON_MIN} max={UNIFORM_EPSILON_MAX} step={UNIFORM_EPSILON_STEP}
+                        rejectedHint={t("uniform_epsilon_rejected_hint", {value0: formatNumber(UNIFORM_EPSILON_MIN, language, 2), value1: formatNumber(UNIFORM_EPSILON_MAX, language, 2)})}
+                        onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
                 <p className="inspector-help">{t("uniform_fields_help")}</p>
             </div>
             <div className="inspector-group">

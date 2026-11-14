@@ -91,7 +91,7 @@ const densityArea: GuidedLesson = {
             title: text('Meji in odstotek ploščine', 'The bounds and the percentage of the area'),
             purpose: text('Z vlečenjem mej \\(a\\) in \\(b\\) brati ploščino kot odstotek.', 'Dragging the bounds \\(a\\) and \\(b\\) to read the area as a percentage.'),
             explanation: text(
-                'Meji sta zdaj \\(a=-1{,}5\\) in \\(b=0{,}5\\); pobarvana ploščina je \\(62{,}47\\ \\%\\), kar je verjetnost \\(P(-1{,}5\\le X\\le0{,}5)=0{,}62466\\). Povleci meji po osi ali ju vpiši in opazuj odstotek. Ko postaneta meji enaki, je ploščina \\(0\\): pod eno samo vrednostjo ni ploščine.',
+                'Meji sta zdaj \\(a=-1{,}5\\) in \\(b=0{,}5\\); pobarvana ploščina je \\(62{,}47\\ \\%\\), kar je verjetnost \\(P(-1{,}5\\le X\\le0{,}5)=0{,}62466\\). Povleci meji po osi ali ju nastavi z drsnikoma in opazuj odstotek. Ko postaneta meji enaki, je ploščina \\(0\\): pod eno samo vrednostjo ni ploščine.',
                 'The bounds are now \\(a=-1.5\\) and \\(b=0.5\\); the shaded area is \\(62.47\\ \\%\\), which is the probability \\(P(-1.5\\le X\\le0.5)=0.62466\\). Drag the bounds along the axis or type them and watch the percentage. When the bounds become equal the area is \\(0\\): there is no area under a single value.',
             ),
             formulaIds: ['normal-density-area'],

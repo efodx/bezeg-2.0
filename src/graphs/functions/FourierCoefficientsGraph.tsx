@@ -5,6 +5,8 @@ import {FourierSpectrumBars} from "./FourierSpectrumBars";
 import {FourierDecaySpectra} from "./FourierDecaySpectra";
 import {guard, guardField} from "../base/controls/guard";
 import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, t} from "../../localization";
@@ -407,9 +409,11 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                                                                   value: option, text: this.exampleName(option), disabled: option !== id && state.selections.includes(option),
                                                               }))}
                                                               onChange={next => this.guarded(() => this.setSelection(slot, next))}/>)}
-            <NumberInput label={t("fourier_decay_n_label")} integer value={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX} step={1} decimals={0}
+            <CountSetter label={t("fourier_decay_n_label")} n={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX}
                          rejectedHint={t("fourier_coef_issue_n", {value0: FOURIER_DECAY_N_MIN, value1: FOURIER_DECAY_N_MAX})}
-                         onChange={next => guardField(this.refusals, () => this.setDecayN(next))}/>
+                         onPlus={() => this.guarded(() => this.setDecayN(this.model.n + 1))}
+                         onMinus={() => this.guarded(() => this.setDecayN(this.model.n - 1))}
+                         onSet={next => guardField(this.refusals, () => this.setDecayN(next))}/>
             <ChoiceSelect label={t("fourier_decay_scale_label")} value={state.scale} options={FOURIER_DECAY_SCALES.map(id => ({value: id, text: scaleText[id]}))}
                           onChange={next => this.guarded(() => this.setScale(next))}/>
             <p className="inspector-help">{t("fourier_decay_help")}</p>
@@ -436,15 +440,17 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 <p className="inspector-help">{t("fourier_coef_handles_help")}</p>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("fourier_coef_k_label")} integer value={state.K} min={FOURIER_K_MIN} max={FOURIER_K_MAX} step={1} decimals={0}
+                <CountSetter label={t("fourier_coef_k_label")} n={state.K} min={FOURIER_K_MIN} max={FOURIER_K_MAX}
                              rejectedHint={t("fourier_coef_issue_k", {value0: FOURIER_K_MIN, value1: FOURIER_K_MAX})}
-                             onChange={next => guardField(this.refusals, () => this.setK(next))}/>
+                             onPlus={() => this.guarded(() => this.setK(this.model.K + 1))}
+                             onMinus={() => this.guarded(() => this.setK(this.model.K - 1))}
+                             onSet={next => guardField(this.refusals, () => this.setK(next))}/>
                 <ChoiceSelect label={t("fourier_coef_term_label")} value={state.selected.term}
                               options={FOURIER_COEFFICIENT_TERMS.map(id => ({value: id, text: id === "a" ? t("fourier_coef_term_a") : t("fourier_coef_term_b")}))}
                               onChange={next => this.guarded(() => this.setTerm(next))}/>
-                <NumberInput label={t("fourier_coef_harmonic_label")} integer value={state.selected.k} min={0} max={state.K} step={1} decimals={0}
-                             rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
-                             onChange={next => guardField(this.refusals, () => this.setHarmonic(next))}/>
+                <Slider customText={t("fourier_coef_harmonic_label")} value={state.selected.k} min={0} max={FOURIER_K_MAX} step={1}
+                        rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
+                        onChange={next => guardField(this.refusals, () => this.setHarmonic(next))}/>
                 <p className="inspector-help">{t("fourier_coef_harmonic_help", {value0: formatNumber(state.K, language, 0)})}</p>
                 <OnOffSwitch checked={state.overlay} label={t("fourier_coef_overlay_label")} onChange={next => this.guarded(() => this.setOverlay(next))}/>
             </div>

@@ -3,7 +3,7 @@ import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, formatScientific, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
@@ -275,10 +275,10 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} decimals={9}
-                             rejectedHint={t("bisection_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <NumberInput label={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} decimals={9}
-                             rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+                <Slider customText={t("bisection_a_label")} value={a} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("bisection_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
+                <Slider customText={t("bisection_b_label")} value={b} min={BISECTION_BOUND_MIN} max={BISECTION_BOUND_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("bisection_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
             </div>
             <div className="inspector-group">

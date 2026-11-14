@@ -9,7 +9,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {guard, guardField} from "../base/controls/guard";
 import {FunctionStatus, FunctionStatusLine} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, message, renderMessage, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
@@ -506,27 +506,22 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
 
     private renderHandleFields(state: EpicycleModel): React.ReactNode {
         const hint = renderMessage(epicycleIssueMessage({kind: "coordinate", min: EPICYCLE_COORDINATE_MIN, max: EPICYCLE_COORDINATE_MAX}));
-        const field = (key: string, label: string, value: number, apply: (value: number) => void) =>
-            <NumberInput key={key} label={label} value={value} min={EPICYCLE_COORDINATE_MIN} max={EPICYCLE_COORDINATE_MAX} step={EPICYCLE_VALUE_STEP}
-                         bigStep={EPICYCLE_VALUE_BIG_STEP} decimals={2} rejectedHint={hint} onChange={next => guardField(this.refusals, () => apply(next))}/>;
-        const vertex = (i: number, axis: "x" | "y") => field(
-            `v${i}${axis}`, t("epicycle_vertex_coordinate", {value0: i + 1, value1: axis}), state.vertices[i][axis],
-            next => this.setVertex(i, axis === "x" ? next : this.model.vertices[i].x, axis === "y" ? next : this.model.vertices[i].y));
-        const control = (i: number, which: 1 | 2, axis: "x" | "y") => {
-            const span = state.spans[i];
-            const read = (model: EpicycleModel) => {
-                const s = model.spans[i];
-                return s.kind === "cubic" ? (which === 1 ? s.c1 : s.c2) : {x: 0, y: 0};
-            };
-            return field(`c${i}${which}${axis}`, t("epicycle_control_coordinate", {value0: i + 1, value1: which, value2: axis}),
-                span.kind === "cubic" ? read(state)[axis] : 0,
-                next => this.setControl(i, which, axis === "x" ? next : read(this.model).x, axis === "y" ? next : read(this.model).y));
-        };
+        const commit = (apply: () => void): string | undefined => guardField(this.refusals, apply) ? undefined : hint;
+        const controls = state.spans.flatMap((span, i) => span.kind === "cubic"
+            ? [{span: i, which: 1 as const, point: [span.c1.x, span.c1.y] as const}, {span: i, which: 2 as const, point: [span.c2.x, span.c2.y] as const}]
+            : []);
+        const range = {min: EPICYCLE_COORDINATE_MIN, max: EPICYCLE_COORDINATE_MAX, step: EPICYCLE_VALUE_STEP, bigStep: EPICYCLE_VALUE_BIG_STEP, decimals: 2};
         return <div className="epicycle-fields">
-            {state.vertices.map((_, i) => <React.Fragment key={i}>{vertex(i, "x")}{vertex(i, "y")}</React.Fragment>)}
-            {state.spans.map((span, i) => span.kind === "cubic"
-                ? <React.Fragment key={`c${i}`}>{control(i, 1, "x")}{control(i, 1, "y")}{control(i, 2, "x")}{control(i, 2, "y")}</React.Fragment>
-                : null)}
+            <div className="inspector-group">
+                <PointListInput title={t("epicycle_vertices_title")} points={state.vertices.map(vertex => [vertex.x, vertex.y] as const)}
+                                pointLabel={index => t("epicycle_vertex_name", {value0: index + 1})} {...range}
+                                onCommit={(index, [x, y]) => commit(() => this.setVertex(index, x, y))}/>
+            </div>
+            {controls.length > 0 && <div className="inspector-group">
+                <PointListInput title={t("epicycle_controls_title")} points={controls.map(control => control.point)}
+                                pointLabel={index => t("epicycle_control_name", {value0: controls[index].span + 1, value1: controls[index].which})} {...range}
+                                onCommit={(index, [x, y]) => commit(() => this.setControl(controls[index].span, controls[index].which, x, y))}/>
+            </div>}
             <p className="inspector-help">{t("epicycle_handles_help")}</p>
         </div>;
     }

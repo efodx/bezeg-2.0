@@ -2,7 +2,7 @@ import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
@@ -333,13 +333,12 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
                              onSet={next => guardField(this.refusals, () => this.setN(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP} decimals={2}
-                             rejectedHint={t("fourier_x_rejected_hint", {value0: formatNumber(FOURIER_X_MIN, language), value1: formatNumber(FOURIER_X_MAX, language)})}
-                             onChange={next => guardField(this.refusals, () => this.setX(next))}/>
-                <NumberInput label={t("fourier_epsilon_label")} value={state.epsilon} min={FOURIER_EPSILON_MIN} max={FOURIER_EPSILON_MAX} step={FOURIER_EPSILON_STEP} decimals={2}
-                             rejectedHint={t("fourier_epsilon_rejected_hint", {value0: formatNumber(FOURIER_EPSILON_MIN, language), value1: formatNumber(FOURIER_EPSILON_MAX, language)})}
-                             onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
-                <p className="inspector-help">{t("fourier_fields_help")}</p>
+                <Slider customText={t("fourier_x_label")} value={state.x} min={FOURIER_X_MIN} max={FOURIER_X_MAX} step={FOURIER_X_STEP}
+                        rejectedHint={t("fourier_x_rejected_hint", {value0: formatNumber(FOURIER_X_MIN, language), value1: formatNumber(FOURIER_X_MAX, language)})}
+                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
+                <Slider customText={t("fourier_epsilon_label")} value={state.epsilon} min={FOURIER_EPSILON_MIN} max={FOURIER_EPSILON_MAX} step={FOURIER_EPSILON_STEP}
+                        rejectedHint={t("fourier_epsilon_rejected_hint", {value0: formatNumber(FOURIER_EPSILON_MIN, language), value1: formatNumber(FOURIER_EPSILON_MAX, language)})}
+                        onChange={next => guardField(this.refusals, () => this.setEpsilon(next))}/>
             </div>
         </>;
     }

@@ -1,3 +1,5 @@
 {
-  "src/graphs/compgeo/PointSetControls.tsx#field#label": "keep: segment and interval rows hold four (or two) typed numbers with a select and a remove button in one row; PointListInput holds one point per row, so these rows wait for a shared row editor in step 4"
+  "src/graphs/compgeo/PointSetControls.tsx#field#label": "keep: segment and interval rows hold four (or two) typed numbers with a select and a remove button in one row; PointListInput holds one point per row, so these rows wait for a shared row editor in step 4",
+  "src/graphs/functions/BinomialNormalGraph.tsx#renderControls#t(\"prob_binomial_p_exact_label\")": "keep: the exact field of p accepts any p between 0 and 1 with four decimals while the p slider above it runs from 0.01 to 0.99; the slider's own exact field cannot type outside the slider range, so this is the only place for such p",
+  "src/graphs/functions/FourierCoefficientsGraph.tsx#renderProjectionControls#this.slotLabel(slot)": "keep: one value per drawn handle (a list), but ValueListInput fixes its arrow step at 1 and these values step by 0.05 (Shift 0.5) between -4 and 4, so the keyboard path would change"
 }

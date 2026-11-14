@@ -4,7 +4,7 @@ import {AxisAttributes} from "jsxgraph";
 import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, escapeHtml, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
@@ -360,15 +360,15 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("sequence_epsilon_label")} value={state.epsilon} min={SEQUENCE_EPSILON_MIN} max={SEQUENCE_EPSILON_MAX} step={SEQUENCE_EPSILON_STEP} decimals={2}
-                             rejectedHint={t("sequence_epsilon_rejected_hint", {value0: formatNumber(SEQUENCE_EPSILON_MIN, language, 2), value1: formatNumber(SEQUENCE_EPSILON_MAX, language, 2)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
-                <NumberInput label={t("sequence_limit_label")} value={state.limit} min={SEQUENCE_LIMIT_MIN} max={SEQUENCE_LIMIT_MAX} step={0.1} decimals={2}
-                             rejectedHint={t("sequence_limit_rejected_hint", {value0: formatNumber(SEQUENCE_LIMIT_MIN, language), value1: formatNumber(SEQUENCE_LIMIT_MAX, language)})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setLimit(next))}/>
-                <NumberInput label={t("sequence_threshold_label")} value={state.threshold} min={SEQUENCE_THRESHOLD_MIN} max={SEQUENCE_THRESHOLD_MAX} step={1} decimals={0}
-                             rejectedHint={t("sequence_threshold_rejected_hint", {value0: SEQUENCE_THRESHOLD_MIN, value1: SEQUENCE_THRESHOLD_MAX})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setThreshold(next))}/>
+                <Slider customText={t("sequence_epsilon_label")} value={state.epsilon} min={SEQUENCE_EPSILON_MIN} max={SEQUENCE_EPSILON_MAX} step={SEQUENCE_EPSILON_STEP}
+                        rejectedHint={t("sequence_epsilon_rejected_hint", {value0: formatNumber(SEQUENCE_EPSILON_MIN, language, 2), value1: formatNumber(SEQUENCE_EPSILON_MAX, language, 2)})}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setEpsilon(next))}/>
+                <Slider customText={t("sequence_limit_label")} value={state.limit} min={SEQUENCE_LIMIT_MIN} max={SEQUENCE_LIMIT_MAX} step={0.1} fieldDecimals={2}
+                        rejectedHint={t("sequence_limit_rejected_hint", {value0: formatNumber(SEQUENCE_LIMIT_MIN, language), value1: formatNumber(SEQUENCE_LIMIT_MAX, language)})}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setLimit(next))}/>
+                <Slider customText={t("sequence_threshold_label")} value={state.threshold} min={SEQUENCE_THRESHOLD_MIN} max={SEQUENCE_THRESHOLD_MAX} step={1}
+                        rejectedHint={t("sequence_threshold_rejected_hint", {value0: SEQUENCE_THRESHOLD_MIN, value1: SEQUENCE_THRESHOLD_MAX})}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setThreshold(next))}/>
                 <p className="inspector-help">{t("sequence_fields_help")}</p>
             </div>
             <div className="inspector-group">

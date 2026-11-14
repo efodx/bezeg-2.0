@@ -3,7 +3,7 @@ import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLesson
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import {CountSetter} from "../../inputs/CountSetter";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
@@ -269,13 +269,19 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
                 <Slider customText={t("series_q_label")} min={SERIES_Q_MIN} max={SERIES_Q_MAX} step={0.05} value={state.q}
                         rejectedHint={t("series_q_rejected_hint", rangeHint(SERIES_Q_MIN, SERIES_Q_MAX))}
                         onChange={next => this.ignoreOutOfDomain(() => this.setQ(next))}/>
-                <NumberInput label={t("series_terms_label")} value={state.terms} min={SERIES_TERMS_MIN} max={SERIES_TERMS_MAX} step={1} decimals={0} integer
-                             rejectedHint={t("series_terms_rejected_hint", {value0: SERIES_TERMS_MIN, value1: SERIES_TERMS_MAX})}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setTerms(next))}/>
-                <NumberInput label={t("series_tolerance_label")} value={state.tolerance} min={SERIES_TOLERANCE_MIN} max={SERIES_TOLERANCE_MAX} step={0.01} decimals={3}
-                             rejectedHint={t("series_tolerance_rejected_hint", rangeHint(SERIES_TOLERANCE_MIN, SERIES_TOLERANCE_MAX))}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setTolerance(next))}/>
                 <p className="inspector-help">{t("series_fields_help")}</p>
+            </div>
+            <div className="inspector-group">
+                <CountSetter label={t("series_terms_label")} n={state.terms} min={SERIES_TERMS_MIN} max={SERIES_TERMS_MAX}
+                             rejectedHint={t("series_terms_rejected_hint", {value0: SERIES_TERMS_MIN, value1: SERIES_TERMS_MAX})}
+                             onPlus={() => this.ignoreOutOfDomain(() => this.setTerms(state.terms + 1))}
+                             onMinus={() => this.ignoreOutOfDomain(() => this.setTerms(state.terms - 1))}
+                             onSet={next => this.ignoreOutOfDomain(() => this.setTerms(next))}/>
+            </div>
+            <div className="inspector-group">
+                <Slider customText={t("series_tolerance_label")} min={SERIES_TOLERANCE_MIN} max={SERIES_TOLERANCE_MAX} step={0.01} decimals={3} value={state.tolerance}
+                        rejectedHint={t("series_tolerance_rejected_hint", rangeHint(SERIES_TOLERANCE_MIN, SERIES_TOLERANCE_MAX))}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setTolerance(next))}/>
             </div>
             <div className="inspector-group">
                 <PlaybackButtons placement="graph" groupLabel={t("series_iteration_controls")} nextLabel={t("next_step")} resetLabel={t("reset")} playing={playing}

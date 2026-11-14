@@ -1,7 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {guard, guardField} from "../base/controls/guard";
@@ -328,14 +328,13 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
                               onChange={next => this.guarded(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} decimals={PRECISE}
-                             unavailableReason={fixedCenter ? t("taylor_center_fixed_help") : undefined} reasonShownElsewhere describedBy={fixedCenter ? "taylor-center-help" : undefined}
-                             rejectedHint={t("taylor_center_rejected_hint", {value0: formatNumber(example.centerMin, language), value1: formatNumber(example.centerMax, language)})}
-                             onChange={next => guardField(this.refusals, () => this.setCenter(next))}/>
-                {fixedCenter && <p id="taylor-center-help" className="inspector-help">{t("taylor_center_fixed_help")}</p>}
-                <NumberInput label={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} decimals={PRECISE}
-                             rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
-                             onChange={next => guardField(this.refusals, () => this.setX(next))}/>
+                <Slider customText={t("taylor_center_label")} value={state.center} min={example.centerMin} max={example.centerMax} step={FIELD_STEP} fieldDecimals={PRECISE}
+                        unavailableReason={fixedCenter ? t("taylor_center_fixed_help") : undefined}
+                        rejectedHint={t("taylor_center_rejected_hint", {value0: formatNumber(example.centerMin, language), value1: formatNumber(example.centerMax, language)})}
+                        onChange={next => guardField(this.refusals, () => this.setCenter(next))}/>
+                <Slider customText={t("taylor_x_label")} value={state.x} min={example.xMin} max={example.xMax} step={FIELD_STEP} fieldDecimals={PRECISE}
+                        rejectedHint={t("taylor_x_rejected_hint", {value0: formatNumber(example.xMin, language), value1: formatNumber(example.xMax, language)})}
+                        onChange={next => guardField(this.refusals, () => this.setX(next))}/>
                 <p className="inspector-help">{t("taylor_points_help")}</p>
             </div>
             <div className="inspector-group">

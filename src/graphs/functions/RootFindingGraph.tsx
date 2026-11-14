@@ -3,7 +3,7 @@ import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
 import {NumberLanguage} from "../../analysis/format";
@@ -272,10 +272,10 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("root_finding_x0_label")} value={x0} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} decimals={9}
-                             rejectedHint={t("root_finding_x0_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x0", next))}/>
-                {method === "secant" && <NumberInput label={t("root_finding_x1_label")} value={x1} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} decimals={9}
-                             rejectedHint={t("root_finding_x1_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x1", next))}/>}
+                <Slider customText={t("root_finding_x0_label")} value={x0} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("root_finding_x0_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x0", next))}/>
+                {method === "secant" && <Slider customText={t("root_finding_x1_label")} value={x1} min={ROOT_START_MIN} max={ROOT_START_MAX} step={0.1} fieldDecimals={9}
+                        rejectedHint={t("root_finding_x1_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setStart("x1", next))}/>}
                 <p className="inspector-help">{t("root_finding_starts_help")}</p>
             </div>
             <div className="inspector-group">
