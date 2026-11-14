@@ -1,0 +1,606 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": false,
+  "buildStamp": {
+    "version": 1,
+    "revision": "1af9d2def13c63c783bba0cece348f4444760cef",
+    "dirty": true,
+    "inputs": "ecf1bb3aa6f97e908d8f7c145bb0e670fdda3feb1daa5c1136613fa1d64d8d70",
+    "output": "8e8ba1988b13b516edb8b2ee5ec305ae4521f2b62c826fb25dba2a26b7993e5e"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+    "stampDirty": true,
+    "localOutputHash": "8e8ba1988b13b516edb8b2ee5ec305ae4521f2b62c826fb25dba2a26b7993e5e",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BJ7n_-qZ.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-BJ7n_-qZ.js",
+        "sha256": "733fe83efff105e02d5108033edd5328267540679a4940748abc19c71a1580a4",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "7f6739a290cc0e24f967c5555c47145b825015ece371e878a8c39141ee2330c8",
+    "entries": {
+      "isometries.two-mirrors.isometries": "288a63a5759209870acaea7c10940791ad9a163e43b81a8a8aa28a5218621f0e",
+      "isometries.classifying-a-motion.isometries": "94a28a70d950980976b7c695c9a8abfd12522f96e51c794fab16d77def1fe22f",
+      "isometries.dilation-similarity.isometries": "f287be90c4b215806e2df56edf79cfe377d108044255f4967936c020ad953114"
+    },
+    "presentation": "c8cffa7bdb73383cf618ecbb4ef3fd4d110517cebb4932b9d2cc44839ce9d6fd",
+    "buildOutput": "8e8ba1988b13b516edb8b2ee5ec305ae4521f2b62c826fb25dba2a26b7993e5e",
+    "buildInputs": "ecf1bb3aa6f97e908d8f7c145bb0e670fdda3feb1daa5c1136613fa1d64d8d70"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "isometries.two-mirrors.isometries",
+        "demonstrationId": "isometries",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.4,
+            5.6,
+            10.9,
+            -3.9
+          ]
+        }
+      },
+      {
+        "id": "isometries.classifying-a-motion.isometries",
+        "demonstrationId": "isometries",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.4,
+            5.6,
+            10.9,
+            -3.9
+          ]
+        }
+      },
+      {
+        "id": "isometries.dilation-similarity.isometries",
+        "demonstrationId": "isometries",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.4,
+            5.6,
+            10.9,
+            -3.9
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "isometries.two-mirrors.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.two-mirrors.isometries",
+      "sceneFingerprint": "f909b6a05bca2c99ca4f7bc8f8252ec19fc4e0dfbe46e2421e5a776e58fc80f5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l1-first-image-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l1-first-image-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"mirrors\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mirrors\",\"mirrors\":{\"1\":{\"p\":{\"x\":0,\"y\":0},\"q\":{\"x\":1,\"y\":0}},\"2\":{\"p\":{\"x\":0,\"y\":0},\"q\":{\"x\":2,\"y\":1}}}}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "isometries.two-mirrors.isometries.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1769f2d1d80a38f9822c1947e880b7f92d9d08db60f5e5d5a44489459f50e59e",
+      "scene": {
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "curve": 3,
+          "text": 6,
+          "point": 5,
+          "line": 2
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              3
+            ],
+            [
+              1.6,
+              3.8
+            ],
+            [
+              2.2,
+              4.6
+            ]
+          ],
+          [
+            [
+              3,
+              -1
+            ],
+            [
+              4,
+              -1
+            ],
+            [
+              5,
+              -1
+            ]
+          ],
+          [
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              5,
+              1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:line",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:2,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 3,
+            "text": 6,
+            "point": 5,
+            "line": 2
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                3
+              ],
+              [
+                1.6,
+                3.8
+              ],
+              [
+                2.2,
+                4.6
+              ]
+            ],
+            [
+              [
+                3,
+                -1
+              ],
+              [
+                4,
+                -1
+              ],
+              [
+                5,
+                -1
+              ]
+            ],
+            [
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:line",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:2,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "text": 6,
+          "point": 5,
+          "line": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+        "sourceRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "isometries.classifying-a-motion.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.classifying-a-motion.isometries",
+      "sceneFingerprint": "063c39bfa993ab4e0716d682c380ead1920eb9e74a872111c431146b5139cc48",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l2-reflection-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l2-reflection-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"classify\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mirror-count\",\"count\":1}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mirrors\",\"mirrors\":{\"1\":{\"p\":{\"x\":1,\"y\":0},\"q\":{\"x\":2,\"y\":1}}}}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "isometries.classifying-a-motion.isometries.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2027128f54ad5c6e4ee6dabc9cd27a6a1225ffffe70e806fb135dc70dc79dbd2",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "curve": 2,
+          "text": 4,
+          "point": 2,
+          "line": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          [
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              5,
+              1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:line",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:1,0",
+          "point:2,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 2,
+            "text": 4,
+            "point": 2,
+            "line": 2
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            [
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:line",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:1,0",
+            "point:2,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "text": 4,
+          "point": 2,
+          "line": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+        "sourceRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "isometries.dilation-similarity.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.dilation-similarity.isometries",
+      "sceneFingerprint": "2850d7927ade9886fbfb4e048e2946143a58368ee9029bcf09eb71ded486a49e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l3-image-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l3-image-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"similarity\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-dilation\",\"centre\":{\"x\":1,\"y\":1},\"k\":1.5,\"turn\":\"r0\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "isometries.dilation-similarity.isometries.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "f7a4c12709db34960c603c2446363bdffd85d0a3167da25629b5cb9fbeb7391a",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 2,
+          "segment": 4,
+          "text": 4
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.5,
+              -0.5
+            ],
+            [
+              2.5,
+              -0.5
+            ],
+            [
+              5.5,
+              -0.5
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              4,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:line",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:1,1",
+          "point:2.5,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 32,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 2,
+            "point": 2,
+            "segment": 4,
+            "text": 4
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.5,
+                -0.5
+              ],
+              [
+                2.5,
+                -0.5
+              ],
+              [
+                5.5,
+                -0.5
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:line",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:1,1",
+            "point:2.5,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 2,
+          "segment": 4,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+        "sourceRevision": "1af9d2def13c63c783bba0cece348f4444760cef",
+        "pageErrors": []
+      }
+    }
+  ]
+}

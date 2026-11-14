@@ -23,6 +23,7 @@ import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
 import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
 import {analyticLinesPreviewCopy} from '../content/analyticLinesPreviewCopy';
+import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
 interface InventoryEntry {
@@ -286,6 +287,9 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['analytic-lines.angle-between-lines.line-geometry', 'analytic-lines.distance-point-line.line-geometry', 'analytic-lines.forms-of-a-line.line-geometry',
             'analytic-lines.normal-parallel-perpendicular.line-geometry'],
         counts: [[1, 5], [0, 4], [0, 2], [0, 4]]},
+    {chapterId: 'isometries', copy: isometriesPreviewCopy,
+        ids: ['isometries.classifying-a-motion.isometries', 'isometries.dilation-similarity.isometries', 'isometries.two-mirrors.isometries'],
+        counts: [[2, 2], [2, 2], [3, 5]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

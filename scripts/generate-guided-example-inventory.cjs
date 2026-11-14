@@ -321,6 +321,16 @@ const chapterInventories = {
         // The one line-geometry Demonstration: the four examples must cover it and open on its route.
         identities: {module: '/src/graphs/lines/registration.ts', rows: 'lineDemonstrationRows'},
     },
+    isometries: {
+        module: '/src/learning/content/isometriesChapterRegistry.ts',
+        // Like analytic lines: section rows plus a per-section lesson function.
+        registryExport: 'isometriesGuidedExampleDemonstrations',
+        lessonExport: 'isometriesGuidedExampleLesson',
+        pathExport: 'isometriesGuidedExamplePath',
+        expectedFor: isometriesExpectedFor,
+        // The one isometries Demonstration: the three examples must cover it and open on its route.
+        identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -1908,6 +1918,56 @@ function analyticLinesExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Isometries chapter (isometries): three lessons on the one isometries Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default, then
+// `isometry` set-mode, set-mirror-count (classify only) and set-mirrors, or set-mode and set-dilation; nothing is random.
+
+/** Asserts the opening scene is the prepared default followed by exactly the `isometry` operations in `operations`, in that order; returns the isometry actions. */
+function isometriesOpening(id, step, operations) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `isometry:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    return own;
+}
+
+// Authored from src/graphs/isometry/IsometryGraph.tsx (buildScene), not from a capture. Mirrors and classify modes: the motif curve and one curve per image (one per mirror); per mirror a line and two handle
+// points; a rotation adds its centre as a cross marker point, a reflection or glide adds the axis line (a glide also an arrow). Captions are texts and are left unasserted.
+// Similarity mode: the motif and the image curve, the centre and the ratio handle k = centre + (k, 0), three dashed rays and the segment from the centre to the image of vertex 1.
+const isometriesFrames = {
+    // Two mirrors through (0, 0) with directions (1, 0) and (2, 1) meet at one point, so the composite is a rotation about the origin (the cross marker there): 2 lines, 4 handles and the marker.
+    'two-mirrors': (id, step) => {
+        const [mode, mirrors] = isometriesOpening(id, step, ['set-mode', 'set-mirrors']);
+        assert.equal(mode.mode, 'mirrors', `${id}: only the mirrors mode is authored`);
+        assert.deepEqual(mirrors.mirrors, {'1': {p: {x: 0, y: 0}, q: {x: 1, y: 0}}, '2': {p: {x: 0, y: 0}, q: {x: 2, y: 1}}}, `${id}: only the mirrors (0, 0)-(1, 0) and (0, 0)-(2, 1) are authored`);
+        return {types: {line: 2, curve: 3, point: 5, segment: 0}, curveCount: 3, points: [[0, 0], [1, 0], [2, 1]]};
+    },
+    // One mirror (1, 0)-(2, 1): a reflection, so the axis line is drawn too (on top of the mirror) and there is no cross marker.
+    'classifying-a-motion': (id, step) => {
+        const [mode, count, mirrors] = isometriesOpening(id, step, ['set-mode', 'set-mirror-count', 'set-mirrors']);
+        assert.equal(mode.mode, 'classify', `${id}: only the classify mode is authored`);
+        assert.equal(count.count, 1, `${id}: only one mirror is authored`);
+        assert.deepEqual(mirrors.mirrors, {'1': {p: {x: 1, y: 0}, q: {x: 2, y: 1}}}, `${id}: only the mirror (1, 0)-(2, 1) is authored`);
+        return {types: {line: 2, curve: 2, point: 2, segment: 0}, curveCount: 2, points: [[1, 0], [2, 1]]};
+    },
+    // Centre (1, 1), k = 3/2: the ratio handle sits at (2.5, 1); four segments (three rays and the centre-to-image line).
+    'dilation-similarity': (id, step) => {
+        const [mode, dilation] = isometriesOpening(id, step, ['set-mode', 'set-dilation']);
+        assert.equal(mode.mode, 'similarity', `${id}: only the similarity mode is authored`);
+        assert.deepEqual([dilation.centre, dilation.k, dilation.turn], [{x: 1, y: 1}, 1.5, 'r0'], `${id}: only the centre (1, 1), k = 3/2 and no turn are authored`);
+        return {types: {line: 0, curve: 2, point: 2, segment: 4}, curveCount: 2, points: [[1, 1], [2.5, 1]]};
+    },
+};
+
+/** First-frame expectation of an isometries lesson (the three sections of the chapter, keyed by the section in the example id). */
+function isometriesExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(isometriesFrames, section) ? isometriesFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored isometries first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1964,4 +2024,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, assertExpectation};

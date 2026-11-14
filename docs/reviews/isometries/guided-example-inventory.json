@@ -1,0 +1,114 @@
+{
+  "examples": [
+    {
+      "id": "isometries.two-mirrors.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.two-mirrors.isometries",
+      "sceneFingerprint": "f909b6a05bca2c99ca4f7bc8f8252ec19fc4e0dfbe46e2421e5a776e58fc80f5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l1-first-image-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l1-first-image-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"mirrors\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mirrors\",\"mirrors\":{\"1\":{\"p\":{\"x\":0,\"y\":0},\"q\":{\"x\":1,\"y\":0}},\"2\":{\"p\":{\"x\":0,\"y\":0},\"q\":{\"x\":2,\"y\":1}}}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 2,
+          "curve": 3,
+          "point": 5,
+          "segment": 0
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "isometries.classifying-a-motion.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.classifying-a-motion.isometries",
+      "sceneFingerprint": "063c39bfa993ab4e0716d682c380ead1920eb9e74a872111c431146b5139cc48",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l2-reflection-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l2-reflection-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"classify\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mirror-count\",\"count\":1}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mirrors\",\"mirrors\":{\"1\":{\"p\":{\"x\":1,\"y\":0},\"q\":{\"x\":2,\"y\":1}}}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 2,
+          "curve": 2,
+          "point": 2,
+          "segment": 0
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "isometries.dilation-similarity.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.dilation-similarity.isometries",
+      "sceneFingerprint": "2850d7927ade9886fbfb4e048e2946143a58368ee9029bcf09eb71ded486a49e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l3-image-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l3-image-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"similarity\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-dilation\",\"centre\":{\"x\":1,\"y\":1},\"k\":1.5,\"turn\":\"r0\"}"
+      ],
+      "expected": {
+        "types": {
+          "line": 0,
+          "curve": 2,
+          "point": 2,
+          "segment": 4
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            1,
+            1
+          ],
+          [
+            2.5,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

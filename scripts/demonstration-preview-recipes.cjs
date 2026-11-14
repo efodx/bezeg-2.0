@@ -85,6 +85,8 @@ const targets = {
     'triangle-solver': ['Default sides-mode triangle A = (0, 0), B = (7, 0), C = (2, 4) with the cosine-rule length bars to its right and the correction readout under them', [], [-1.5, 7.2, 16.5, -3.9]],
     // The lessons' handles lie in x from -3 to 5 and y from -2 to 5 (the foot and the arc caption included); the window keeps the 840:520 aspect.
     'line-geometry': ['Default line mode with the line through P and Q, the handles and the construction of the active mode, framed around the lesson points', [], [-7, 6.5, 8.5, -3.1]],
+    // The lessons' figures lie in x from -1.5 to 5.5 and y from -4 to 4.8 (the images, the captions and the mirror handles included); the window keeps the 840:520 aspect.
+    isometries: ['Default mirrors mode with the motif, its two images, the mirrors and the composite, framed around the lesson figures', [], [-4.4, 5.6, 10.9, -3.9]],
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
     // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,

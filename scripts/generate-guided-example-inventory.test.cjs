@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -810,4 +810,23 @@ test('analytic-lines expectations are authored from the graph: each mode names i
     assert.throws(() => analyticLinesExpectedFor('a.forms-of-a-line.line-geometry', lines('forms', {P: [-2, 1], Q: [4, 4], T: [0, 0]})), /exactly the handles/);
     assert.throws(() => analyticLinesExpectedFor('a.unknown.line-geometry', lines('forms', {})), /no authored analytic-lines/);
     assert.ok(chapterInventories['analytic-lines']);
+});
+
+test('isometries expectations are authored from the graph: mirrors with a rotation centre, a reflection with its axis, and the dilation rays', () => {
+    const mirror = (px, py, qx, qy) => ({p: {x: px, y: py}, q: {x: qx, y: qy}});
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const mirrors = open([{kind: 'isometry', operation: 'set-mode', mode: 'mirrors'}, {kind: 'isometry', operation: 'set-mirrors', mirrors: {'1': mirror(0, 0, 1, 0), '2': mirror(0, 0, 2, 1)}}]);
+    const two = isometriesExpectedFor('i.two-mirrors.isometries', mirrors);
+    assert.deepEqual([two.types, two.curveCount, two.points], [{line: 2, curve: 3, point: 5, segment: 0}, 3, [[0, 0], [1, 0], [2, 1]]]);
+    const classify = open([{kind: 'isometry', operation: 'set-mode', mode: 'classify'}, {kind: 'isometry', operation: 'set-mirror-count', count: 1},
+        {kind: 'isometry', operation: 'set-mirrors', mirrors: {'1': mirror(1, 0, 2, 1)}}]);
+    assert.deepEqual(isometriesExpectedFor('i.classifying-a-motion.isometries', classify).types, {line: 2, curve: 2, point: 2, segment: 0});
+    const dilation = open([{kind: 'isometry', operation: 'set-mode', mode: 'similarity'}, {kind: 'isometry', operation: 'set-dilation', centre: {x: 1, y: 1}, k: 1.5, turn: 'r0'}]);
+    const dil = isometriesExpectedFor('i.dilation-similarity.isometries', dilation);
+    assert.deepEqual([dil.types, dil.points], [{line: 0, curve: 2, point: 2, segment: 4}, [[1, 1], [2.5, 1]]]);
+    assert.throws(() => isometriesExpectedFor('i.two-mirrors.isometries', open([{kind: 'isometry', operation: 'set-mode', mode: 'classify'}, {kind: 'isometry', operation: 'set-mirrors', mirrors: {'1': mirror(0, 0, 1, 0), '2': mirror(0, 0, 2, 1)}}])), /only the mirrors mode/);
+    assert.throws(() => isometriesExpectedFor('i.two-mirrors.isometries', open([{kind: 'isometry', operation: 'set-mode', mode: 'mirrors'}])), /the opening scene is/);
+    assert.throws(() => isometriesExpectedFor('i.dilation-similarity.isometries', open([{kind: 'isometry', operation: 'set-mode', mode: 'similarity'}, {kind: 'isometry', operation: 'set-dilation', centre: {x: 1, y: 1}, k: 2, turn: 'r0'}])), /only the centre/);
+    assert.throws(() => isometriesExpectedFor('i.unknown.isometries', mirrors), /no authored isometries/);
+    assert.ok(chapterInventories.isometries);
 });
