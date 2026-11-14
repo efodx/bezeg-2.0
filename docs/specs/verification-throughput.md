@@ -249,15 +249,15 @@ Acceptance:
 
 ### Phase 8: remeasure after phases 0–7, local waiting first (owner report 2026-11-14)
 
-Status: proposed 2026-11-14; nothing measured or changed yet beyond the hosted run list below. Source: [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#8-verification-throughput-and-architecture-investigation), items T01–T05.
+Status: step 8a measured on 2026-11-14 in [the remeasure note](../reviews/verification-throughput/remeasure-2026-11-14.md); V1 and V5 are met there. Step 8b is a ranked proposal in [the throughput state note](../reviews/site-walkthrough/throughput/state.md) and waits for the owner: on 2026-11-14 he limited this phase to measuring and proposing, so nothing below is changed until he approves the specific change. Source: [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#8-verification-throughput-and-architecture-investigation), items T01–T05.
 
 The owner reports that CI still takes about 12 minutes for small changes. On 2026-11-14 he added that the wait is local as well: agents wait for tests before they can continue, and this is a constant blocker. Local agent waiting is therefore the first thing this phase measures and the measure its changes are judged by.
 
 Observed on 2026-11-14 from `gh run list` (run creation to last update, so queueing and deployment are included):
 
 - The 24 successful full runs on master from 2026-11-13 and 11-14 took 9.1–14.9 min, median 12.2 min. The record on 2026-11-09 was 8:39 from trigger to deploy. Hosted time has regrown by about a third in five days, after phases 2, 4, 6 and 7.
-- Documentation-only runs took 0.5–0.6 min. At least six pushes whose head commit is titled `docs:` ran full verification (for example `2370f88e`, 12.2 min). The cause is not established; a multi-commit push or the red-latest-run rule from phase 0 would each explain it.
-- More than 80 Git worktrees are registered on this machine. How many run checks at the same time is not measured.
+- Documentation-only runs took 0.5–0.6 min. At least six pushes whose head commit is titled `docs:` ran full verification (for example `2370f88e`, 12.2 min). Measured since: of nine such pushes on 11-13 and 11-14, four carried code in the same push and five carried a PNG, a JSON file or `DESIGN.md`, which the documentation allowlist does not include; the red-latest-run rule caused none.
+- More than 80 Git worktrees are registered on this machine. Measured since: one test-running command was active for 62% of the busy time of the week, two for 28%, three or more for 10%.
 
 Step 8a, measurement only. Write the result to `docs/reviews/verification-throughput/remeasure-2026-11-14.md`.
 
