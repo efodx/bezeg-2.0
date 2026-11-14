@@ -19,8 +19,9 @@ Rule (planning session, 2026-11-14): propose, show a preview, wait for the owner
 | 9a | B1 Probability, B2 Interpolation | G02–G04 | Done, on `master` (`7b634d9d`, CI green) |
 | 9b | B3 Bézier (`extrapolation`, `repeated-subdivision`, `reduction`) | G02–G04 | Shown to the owner; `affine` unchanged with reason; `bezier` blocked on the capture tool |
 | 9c | B4 PH and parameterizations, with the `bezier` card | G02–G04 | Shown to the owner (`b4.html`) |
-| 9d | B5 curve geometry | G02–G04 | In work; the owner agreed to the rust-red osculating circle |
-| 9e | B6–B8, B10 | G02–G04 | Next, one at a time |
+| 9d | B5 curve geometry | G02–G04 | Shown to the owner (`b5.html`); he agreed to the rust-red osculating circle beforehand |
+| 9e | B6 conics and three views | G02–G04 | In work |
+| 9f | B7, B8, B10 | G02–G04 | Next, one at a time |
 | 10 | Epicycles catalog card with a subject (B9) | G07 | After 9c; its recipe label is stale |
 | 11 | Repair the `bezier` restore step | G02 | Done (`49e6013a`, not yet published) |
 | 12 | Recapture guided example images per chapter | G02 | Open |
