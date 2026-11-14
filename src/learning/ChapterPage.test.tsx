@@ -76,6 +76,27 @@ test('chapter wayfinding keeps the shareable section hash and uses an icon link'
     expect(container.querySelector('.chapter-section-heading')).not.toHaveTextContent('¶');
 });
 
+test('the return control and the previous / next cards share one chevron and keep their accessible names (L02, L03)', () => {
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
+        <ChapterPage/>
+    </MemoryRouter>);
+    const back = container.querySelector<HTMLAnchorElement>('.chapter-trail .learning-back')!;
+    const previous = container.querySelector<HTMLAnchorElement>('.learning-neighbors .learning-neighbor--previous')!;
+    const next = container.querySelector<HTMLAnchorElement>('.learning-neighbors .learning-neighbor--next')!;
+    const drawings = [back, previous, next].map(link => {
+        const chevrons = link.querySelectorAll('svg.chapter-chevron[aria-hidden="true"]');
+        expect(chevrons).toHaveLength(1);
+        return chevrons[0].querySelector('path')!.getAttribute('d');
+    });
+    expect(new Set(drawings).size).toBe(1);
+    expect(next.querySelector('svg')).toHaveClass('chapter-chevron--next');
+    expect(previous.querySelector('svg')).toHaveClass('chapter-chevron--previous');
+
+    expect(back).toHaveAccessibleName('Vsa učna vsebina');
+    expect(previous.textContent).toMatch(/^Prejšnje poglavje: \S/);
+    expect(next.textContent).toMatch(/^Naslednje poglavje: \S/);
+});
+
 test('Bézier sections show all retained cards with stable bilingual preview bindings', async () => {
     const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
         <ChapterPage/>

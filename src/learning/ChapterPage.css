@@ -42,9 +42,14 @@
 /* Chapter heading: trail, title, purpose and prerequisites. */
 .chapter-heading { padding: 0 0 28px; border-bottom: 1px solid var(--chapter-border); }
 .chapter-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 0 0 22px; }
-.chapter-trail .learning-back { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 5px 12px 5px 10px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 8px; background: var(--chapter-paper); color: var(--chapter-link); font-size: calc(var(--chapter-text) * .9); font-weight: 650; line-height: 1.35; text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
-.chapter-trail .learning-back:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
-.chapter-trail .learning-back svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* One chevron serves the return control and the previous / next cards (L02, L03). */
+.chapter-chevron { flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chapter-chevron--next { transform: scaleX(-1); }
+/* The return control is a small-caps text link: the same label style as the catalog's family line, in the link colour.
+   The negative margin puts the chevron on the content column's edge while the hover fill keeps its padding. */
+.chapter-trail .learning-back { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; margin-left: -10px; padding: 0 10px; border-radius: 8px; color: var(--chapter-link); font-size: 12px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-decoration: none; text-transform: uppercase; transition: background-color .15s ease-out; }
+.chapter-trail .learning-back:hover { background: var(--bezeg-shell-control-hover); }
+.chapter-trail .learning-back .chapter-chevron { width: 7px; height: 12px; }
 .chapter-trail-position { color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .9); font-variant-numeric: tabular-nums; }
 .chapter-trail-position::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 14px 2px 0; border-radius: 50%; background: var(--chapter-accent); vertical-align: middle; }
 .chapter-heading h1 { max-width: 24ch; margin: 0; color: var(--chapter-ink); font: var(--bezeg-type-display-weight) clamp(2.1rem, 3.9vw, calc(var(--chapter-text) * 3.1))/var(--bezeg-type-page-leading) var(--bezeg-font-display); letter-spacing: var(--bezeg-type-page-tracking); text-wrap: balance; }
@@ -114,16 +119,14 @@
 .chapter-source h2 { margin: 0 0 6px; color: var(--chapter-ink); font: var(--bezeg-type-title-weight) calc(var(--chapter-text) * 1.3)/var(--bezeg-type-item-leading) var(--bezeg-font-display); letter-spacing: var(--bezeg-type-item-tracking); }
 .chapter-source p { max-width: var(--chapter-measure); margin: 0; text-wrap: pretty; }
 .learning-neighbors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
-.learning-neighbors a { display: grid; align-content: center; gap: 3px; min-height: 72px; box-sizing: border-box; padding: 12px 18px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 10px; background: var(--chapter-paper); color: var(--chapter-ink); text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
+.learning-neighbors a { display: flex; align-items: center; gap: 16px; min-height: 72px; box-sizing: border-box; padding: 12px 18px; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 10px; background: var(--chapter-paper); color: var(--chapter-ink); text-decoration: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
 .learning-neighbors a:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
-.learning-neighbor--next { grid-column: 2; text-align: right; }
-.learning-neighbor-label { color: var(--chapter-muted); font-size: calc(var(--chapter-text) * .82); line-height: 1.35; }
-/* Direction arrows are decoration: the alternative-text form keeps them out of the link's accessible name. */
-.learning-neighbor--previous .learning-neighbor-label::before { content: "← "; content: "← " / ""; }
-.learning-neighbor--next .learning-neighbor-label::after { content: " →"; content: " →" / ""; }
-/* The colon stays in the link text for assistive technology; the label sits on its own line, so it is not drawn. */
-.learning-neighbor-colon { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.learning-neighbor-title { font: var(--bezeg-type-title-weight) calc(var(--chapter-text) * 1.15)/var(--bezeg-type-item-leading) var(--bezeg-font-display); letter-spacing: var(--bezeg-type-item-tracking); overflow-wrap: anywhere; text-wrap: balance; }
+.learning-neighbor--next { grid-column: 2; flex-direction: row-reverse; text-align: right; }
+.learning-neighbors .chapter-chevron { width: 11px; height: 19px; color: var(--chapter-link); }
+/* The card's side and its chevron say "previous" or "next" (L02); the words stay in the link text for assistive
+   technology and are not drawn. */
+.learning-neighbor-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.learning-neighbor-title { flex: 1 1 auto; min-width: 0; font: var(--bezeg-type-title-weight) calc(var(--chapter-text) * 1.15)/var(--bezeg-type-item-leading) var(--bezeg-font-display); letter-spacing: var(--bezeg-type-item-tracking); overflow-wrap: anywhere; text-wrap: balance; }
 
 .chapter-contents-mobile { display: none; }
 .chapter-page a:focus-visible, .chapter-page summary:focus-visible, .chapter-formula:focus-visible, .chapter-section-heading h2:focus-visible, .chapter-paragraph mjx-container[data-chapter-scrollable-math]:focus-visible, .chapter-exploration-prompt mjx-container[data-chapter-scrollable-math]:focus-visible { outline: 3px solid var(--chapter-focus); outline-offset: 3px; }

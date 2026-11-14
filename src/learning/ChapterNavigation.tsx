@@ -19,11 +19,16 @@ export function ChapterSectionPermalink({id, title, language}: SectionLink & {la
     </a>;
 }
 
+/** The one chevron of chapter navigation (L02, L03): previous, next and the return control. "next" is the same path mirrored in CSS. */
+export function ChapterChevron({direction}: {direction: 'previous' | 'next'}) {
+    return <svg className={`chapter-chevron chapter-chevron--${direction}`} aria-hidden="true" viewBox="0 0 12 20" focusable="false"><path d="M10 2 2 10l8 8"/></svg>;
+}
+
 export function ChapterTrail({chapterId}: {chapterId: string}) {
     const {language} = useLanguage();
     const position = learningChapters.findIndex(chapter => chapter.id === chapterId) + 1;
     return <p className="chapter-trail">
-        <Link className="learning-back" to={`/bezeg-2.0/learn#${chapterId}`}><svg aria-hidden="true" viewBox="0 0 20 20" focusable="false"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10h9"/></svg>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}</Link>
+        <Link className="learning-back" to={`/bezeg-2.0/learn#${chapterId}`}><ChapterChevron direction="previous"/>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}</Link>
         <span className="chapter-trail-position">{language === 'sl' ? `Poglavje ${position} od ${learningChapters.length}` : `Chapter ${position} of ${learningChapters.length}`}</span>
     </p>;
 }
@@ -103,7 +108,7 @@ export function ChapterNeighbors({chapterId}: {chapterId: string}) {
     const previous = learningChapters[index - 1];
     const next = learningChapters[index + 1];
     return <nav className="learning-neighbors" aria-label={language === 'sl' ? 'Poglavja po vrsti' : 'Chapters in order'}>
-        {previous && <Link className="learning-neighbor--previous" to={`/bezeg-2.0/learn/${previous.id}`}><span className="learning-neighbor-label">{language === 'sl' ? 'Prejšnje poglavje' : 'Previous chapter'}<span className="learning-neighbor-colon">:</span></span> <span className="learning-neighbor-title">{previous.title[language]}</span></Link>}
-        {next && <Link className="learning-neighbor--next" to={`/bezeg-2.0/learn/${next.id}`}><span className="learning-neighbor-label">{language === 'sl' ? 'Naslednje poglavje' : 'Next chapter'}<span className="learning-neighbor-colon">:</span></span> <span className="learning-neighbor-title">{next.title[language]}</span></Link>}
+        {previous && <Link className="learning-neighbor--previous" to={`/bezeg-2.0/learn/${previous.id}`}><ChapterChevron direction="previous"/><span className="learning-neighbor-label">{language === 'sl' ? 'Prejšnje poglavje' : 'Previous chapter'}<span className="learning-neighbor-colon">:</span></span> <span className="learning-neighbor-title">{previous.title[language]}</span></Link>}
+        {next && <Link className="learning-neighbor--next" to={`/bezeg-2.0/learn/${next.id}`}><ChapterChevron direction="next"/><span className="learning-neighbor-label">{language === 'sl' ? 'Naslednje poglavje' : 'Next chapter'}<span className="learning-neighbor-colon">:</span></span> <span className="learning-neighbor-title">{next.title[language]}</span></Link>}
     </nav>;
 }
