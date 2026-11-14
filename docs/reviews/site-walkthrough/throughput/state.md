@@ -4,18 +4,9 @@ Rewritten by handler 3 on 2026-11-14 with nine changes landed or publishing and 
 
 ## For the owner
 
-**Your decision: change 6, may a lone slot holder use 10 workers?** Each run below is one whole-suite `just unit` of all 931 test files, on master's code of 2026-11-14:
+**Change 6, decided by you on 2026-11-14 ("yes") and implemented:** a `unit`, `check` or `check-changed` run that takes a test slot while no other slot is held now gets 10 workers instead of 5, and its summary says `alone`. A run that starts beside it gets 5 and shares the CPU until the lone run ends. Smoke runs keep 5, since browsers were not timed. `BEZEG_TEST_LONE_WORKERS` overrides the count. Timing: 739 s alone at 10 workers; the 5-worker run (1,422 s) shared the CPU with another gate, so it is not a clean baseline.
 
-| Workers | Wall | Other slot held during the run |
-| --- | --- | --- |
-| 10 | **739 s** | Never: the run was alone throughout |
-| 5 (today's setting) | 1,422 s | Yes, in 89 of 97 samples taken every 15 s: another session's publish gate ran beside it |
-
-- **The 5-worker run is not a clean baseline.** It shared the CPU almost throughout, so the two runs cannot be compared directly.
-- **The 2026-11-02 measurements point the same way:** one run alone at 10 workers used 95% of the CPU, and two runs at 5 workers each kept total throughput within 5% of one 10-worker run. A lone run at 5 leaves about half the machine idle.
-- **My recommendation: yes, but only while the other slot is free.** When no other slot is held, a slot holder gets 10 workers. A run that starts beside it gets its 5 and shares an oversubscribed CPU until the first run ends; nothing is narrowed.
-- **The alternative** is to time one more lone 5-worker run first. That is about 15 more minutes of machine time, at a quiet moment.
-- **Nothing in `scripts/test-slots.cjs` changes until you answer.**
+**Phase 8 is complete:** all ten changes are landed and V1–V5 are met. Two follow-ups are left for whoever reads the daily run at 03:17 UTC on 2026-11-15 (the handler card already asks every handler to read it): whether it finished within the new 25-minute limit (change 8), and whether its per-file durations (change 10) show one of the six shards clearly longest, in which case `PINNED_SHARDS` in `vite.config.mts` can be refined by cost.
 
 **Where things stand (handler 3, 2026-11-14):**
 
@@ -45,7 +36,7 @@ Rewritten by handler 3 on 2026-11-14 with nine changes landed or publishing and 
 - CI runs six unit shards instead of four (change 9). Nothing to do; job names gain shards 5 and 6.
 - Tests needing `createGraph` import it from `src/graphs/base/createTestGraph.ts` (change 2).
 
-**Waits on you:** change 6, above.
+**Waits on you:** nothing.
 
 **Session note:** at your request, handler 3 stopped the obsolete handlers with their processes on 2026-11-14: throughput 1 and 2, graphs 1, polish 1 (its internal preview on port 4342 went with it) and control-choice 3.
 
@@ -130,10 +121,4 @@ You asked how often those tests caught bugs locally. **In the week measured, nev
 
 ## For the next handler
 
-1. **Owner's answer on change 6.**
-   - If yes: in `scripts/test-slots.cjs`, give a slot holder 10 workers when no other slot is held at acquisition, and 5 otherwise. Cover it in `commands.test.cjs`/`just tooling-test`, update the slot paragraph of `docs/commands.md`, and say under "For the owner" what other sessions notice: a second run beside a lone one is slower until the first ends.
-   - If he wants a clean baseline first: one lone 5-worker `just unit` with `.command-logs/t6/run.sh` edited to `for w in 5`.
-2. **After 03:17 UTC:**
-   - Note under change 8 whether the scheduled run finished within 25 minutes.
-   - Download its `unit-durations-*` artifacts (`gh run download <run> -p 'unit-durations-*' -D .command-logs/durations`) and read them with `just test-cost --results .command-logs/durations`. If one shard is clearly longest, refine `PINNED_SHARDS` in `vite.config.mts` by cost.
-3. **Close phase 8.** Mark V2 and V3 met in the spec and the queue once change 6 is settled. V1, V4 and V5 are met.
+No successor was launched: the objective is complete. A later session that reads the 2026-11-15 daily run may do the two follow-ups under "For the owner".
