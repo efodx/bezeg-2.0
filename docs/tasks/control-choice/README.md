@@ -30,12 +30,13 @@ These settle what a worker would otherwise ask. The [controls catalogue](../../c
 | 1 | Catalogue `docs/controls.md`, links from AGENTS.md and the family template, inventory script and table | done |
 | 2a | Pilot: compgeo. `InversionPanel` (defect 2), `SimsonLinePanel`, `CircleConstructionGraph`, `HullRobustnessControls`, `PointSetControls` (segment rows, kept) | done, `ed06f50a` and the big-step repair after it |
 | 2b | Pilot: `mechanics/DescentGraph` (defect 1), `curves/kinematics/KinematicsGraph`, `dynamics/PhasePortraitGraph`, `dynamics/LogisticMapGraph`, `lines/LineGeometryGraph`, `linear/LinearMapGraph` (start point only; matrix cells stay) | Descent and Kinematics done (`7ad886af`, `aecf4295`); PhasePortrait, LogisticMap, LineGeometry and LinearMap moved to 2h |
-| 2c | Functions, analysis: Accumulation, ArcLength, AreaBetweenCurves, Convexity, Darboux, DefiniteIntegral, Derivative, Euler, Extrema, MeanValue, Quadrature | after the pilots are reviewed |
+| 2c | Functions, analysis: Accumulation, ArcLength, AreaBetweenCurves, Convexity, Darboux, DefiniteIntegral, Derivative, Euler, Extrema, MeanValue, Quadrature | done (worker commit `b1447c61`, picked onto the handler branch) |
 | 2d | Functions, series and iteration: BinomialNormal, Bisection, DensityArea, Epicycle, FixedPoint, FourierCoefficients, FourierSeries, GeometricSeries, RootFinding, Sequence, Taylor, UniformConvergence | after the pilots |
 | 2e | Functions, school graphs and trig: FunctionInverse, FunctionTransformation, LinearFunction, PolynomialZeros, RationalFunction, Waves, ZeroListEditor, TriangleSolver, UnitCircle | after the pilots |
 | 2f | Complex (five graphs), isometry, level sets (two graphs) | after the pilots |
 | 2g | Combinatorics (two), random Simulation, recursion (Growth, Cobweb), B-spline Insertion and Nurbs (`KnotEditor` is a recorded exception) | after the pilots |
 | 2h | `dynamics/PhasePortraitGraph` (seeds are a point list; matrix cells stay), `dynamics/LogisticMapGraph`, `lines/LineGeometryGraph`, `linear/LinearMapGraph` (start point; matrix cells stay) | after the pilots |
+| 2i | Capture recipes follow the controls: preview, clip and control-step scripts under `scripts/` that address a migrated field by label and kind `number` (for example `demonstration-preview-analysis-motion.cjs`, 'Točka dotika c') are pointed at the slider's exact field or the point row, and their recipe tests rerun. Added by handler 2 after the 2c worker flagged it | after 2c–2h |
 | 3 | Sweep: capture every route, contact sheets by composition, detectors, critique, ranked findings (spec Part B) | after step 2, so it judges the migrated panels |
 | 4 | Shared-component fixes from the findings; shared number grid for matrices; catalogue pictures from the fixture | after step 3 |
 | 5 | Close-out: inventory has no open reading, spec acceptance checked, before and after images recorded | last |
@@ -47,6 +48,7 @@ These settle what a worker would otherwise ask. The [controls catalogue](../../c
 - `Slider` treats an integer step as integer-only; a field that accepted decimals needs `fieldDecimals`.
 - `PointListInput` has `bigStep` since the pilots; pass the graph's old big step so PageUp and Shift keep their size.
 - With `integer` a point row refuses 2,4; with `grid={1}` it rounds with a notice. Keep whichever the old field did.
+- Twelve graphs is too many for one Sonnet worker: the 2d worker reached its budget with the source done and no test updated. Slices from 2e on hold about six graphs; the common brief is [slice-brief.md](slice-brief.md).
 - The machine is CPU-bound: a 35 s fixture run waited 25 minutes for a test slot while two workers and a publish gate ran. Run two workers at most.
 
 ## Findings already seen
