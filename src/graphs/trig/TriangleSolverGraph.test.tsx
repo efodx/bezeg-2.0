@@ -9,7 +9,7 @@ import {enterNumber} from '../../inputs/testEntry';
 import {appStorage} from '../../storage/appStorage';
 import {GraphPalette} from '../styles/GraphPalette';
 import {
-    BAR_ROW_AB, BAR_ROW_C, BAR_X, HANDLE_TOUCH_RADIUS, HIT_SLACK, measureDrawn, RAY_OVERSHOOT, TriangleSolverGraph, VERTEX_BIG_STEP, VERTEX_STEP,
+    BAR_ROW_AB, BAR_ROW_C, BAR_X, HANDLE_TOUCH_RADIUS, HIT_SLACK, measureDrawn, RAY_OVERSHOOT, sideNamePlace, TriangleSolverGraph, VERTEX_BIG_STEP, VERTEX_STEP,
     VERTEX_X_MAX, VERTEX_X_MIN, VERTEX_Y_MAX, VERTEX_Y_MIN,
 } from './TriangleSolverGraph';
 
@@ -552,5 +552,69 @@ describe('a replaced scene frames the solve data only when it brings no view of 
         expect(graph.selectedPresetId).toBe('bare');
         expect(graph.state.mode).toBe('solve');
         expect(boxOf(graph)).toEqual(framed);
+    });
+});
+
+describe('the side names a, b, c sit beside their sides, outside the triangle', () => {
+    type Pt = {x: number; y: number};
+    /** Pixel distance from a point to a segment, and which side of the line it lies on relative to a reference point. */
+    const toPixels = (p: Pt, board: JXG.Board): Pt => ({x: p.x * board.unitX, y: -p.y * board.unitY});
+    const distanceToSegment = (p: Pt, a: Pt, b: Pt) => {
+        const t = Math.max(0, Math.min(1, ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (((b.x - a.x) ** 2 + (b.y - a.y) ** 2) || 1)));
+        return Math.hypot(p.x - a.x - t * (b.x - a.x), p.y - a.y - t * (b.y - a.y));
+    };
+    const nameAt = (graph: Observed, name: string): Pt => {
+        const text = objects(graph).find(o => o.elType === 'text' && visible(o) && (o as unknown as {plaintext: string}).plaintext === name) as unknown as JXG.Text;
+        return {x: text.X(), y: text.Y()};
+    };
+    const clearOfSide = (graph: Observed, name: string, p: Pt, q: Pt, r: Pt) => {
+        const board = graph.liveBoard();
+        const at = toPixels(nameAt(graph, name), board);
+        const [a, b, other] = [toPixels(p, board), toPixels(q, board), toPixels(r, board)];
+        // the 15 px letter is about 10 x 18 px: its nearest corner must clear the line by at least 4 px
+        expect(distanceToSegment(at, a, b)).toBeGreaterThanOrEqual(5 + 4);
+        const cross = (v: Pt) => (b.x - a.x) * (v.y - a.y) - (b.y - a.y) * (v.x - a.x);
+        expect(Math.sign(cross(at))).toBe(-Math.sign(cross(other)));
+    };
+
+    test.each([
+        ['the default triangle', {A: {x: 0, y: 0}, B: {x: 7, y: 0}, C: {x: 2, y: 4}}],
+        ['an obtuse triangle', {A: {x: 0, y: 0}, B: {x: 6, y: 1}, C: {x: -2, y: 3}}],
+        ['a very flat triangle', {A: {x: 0, y: 0}, B: {x: 7, y: 1}, C: {x: 3, y: 1}}],
+    ])('%s', (_label, vertices) => {
+        const {graph} = mountGraph();
+        solve(graph, vertices);
+        const {A, B, C} = vertices;
+        clearOfSide(graph, 'a', B, C, A);
+        clearOfSide(graph, 'b', C, A, B);
+        clearOfSide(graph, 'c', A, B, C);
+    });
+
+    test('the placement is the midpoint moved outward by a pixel distance that does not depend on the scale', () => {
+        const p = {x: 0, y: 0};
+        const q = {x: 4, y: 0};
+        const r = {x: 1, y: 3};
+        const below = sideNamePlace(p, q, r, 20, 20);
+        expect(below.x).toBeCloseTo(2, 6);
+        expect(below.y).toBeLessThan(0);
+        expect(sideNamePlace(p, q, r, 40, 40).y * 40).toBeCloseTo(below.y * 20, 6);
+    });
+});
+
+describe('the bar texts keep clear of the bars and of each other', () => {
+    const textY = (graph: Observed, match: (plain: string) => boolean) => {
+        const text = objects(graph).find(o => o.elType === 'text' && visible(o) && match((o as unknown as {plaintext: string}).plaintext)) as unknown as JXG.Text;
+        return text.Y() * graph.liveBoard().unitY;
+    };
+    test('the c² name is above its bar and the correction caption above the name, by whole text heights', () => {
+        const {graph} = mountGraph();
+        const rowC = BAR_ROW_C * graph.liveBoard().unitY;
+        const rowAB = BAR_ROW_AB * graph.liveBoard().unitY;
+        const c2 = textY(graph, p => p === 'c²');
+        const caption = textY(graph, p => p.includes('=') && p.includes('CA'));
+        expect(c2 - rowC).toBeGreaterThanOrEqual(13);
+        expect(caption - c2).toBeGreaterThanOrEqual(18);
+        expect(rowAB - textY(graph, p => p === 'a²')).toBeGreaterThanOrEqual(13);
+        expect(rowAB - textY(graph, p => p === 'b²')).toBeGreaterThanOrEqual(13);
     });
 });

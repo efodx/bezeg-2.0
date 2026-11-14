@@ -54,6 +54,31 @@ export const VERTEX_Y_MIN = FIXED_VIEW[3] + VERTEX_MARGIN;
 export const VERTEX_Y_MAX = FIXED_VIEW[1] - VERTEX_MARGIN;
 const clampVertexCoordinate = (axis: "x" | "y", value: number): number =>
     axis === "x" ? Math.min(VERTEX_X_MAX, Math.max(VERTEX_X_MIN, value)) : Math.min(VERTEX_Y_MAX, Math.max(VERTEX_Y_MIN, value));
+/** Pixels from a bar row to the centre of its name (half bar 4, gap 3, half glyph box 9) and from that name to the caption above it. */
+const BAR_NAME_OFFSET = 17;
+const BAR_CAPTION_STEP = 21;
+type Xy = {readonly x: number; readonly y: number};
+/** Side names are 15 px text: half a glyph box, plus a fixed clearance from the side line. */
+const SIDE_NAME_HALF_WIDTH = 5;
+const SIDE_NAME_HALF_HEIGHT = 9;
+const SIDE_NAME_GAP = 7;
+/**
+ * Where the name of side p-q goes: the side's midpoint moved outward (away from the opposite vertex `r`) along its normal by a fixed pixel gap
+ * plus the text box's half extent in that direction, so the line never touches the letter at any slope. Returns user coordinates.
+ */
+export function sideNamePlace(p: Xy, q: Xy, r: Xy, unitX: number, unitY: number): Xy {
+    const mx = (p.x + q.x) / 2;
+    const my = (p.y + q.y) / 2;
+    const dx = (q.x - p.x) * unitX;
+    const dy = -(q.y - p.y) * unitY;
+    const length = Math.hypot(dx, dy);
+    if (length === 0) return {x: mx, y: my};
+    let nx = -dy / length;
+    let ny = dx / length;
+    if (nx * (mx - r.x) * unitX + ny * -(my - r.y) * unitY < 0) { nx = -nx; ny = -ny; }
+    const distance = SIDE_NAME_GAP + Math.abs(nx) * SIDE_NAME_HALF_WIDTH + Math.abs(ny) * SIDE_NAME_HALF_HEIGHT;
+    return {x: mx + (nx * distance) / unitX, y: my - (ny * distance) / unitY};
+}
 /** The SSA ray extends this far past the largest solved side and past the circle about C; the solve view pads the drawing by 1. */
 export const RAY_OVERSHOOT = 2;
 /** The colours of the solid circumcircle and of the SSA arc about C, which the legend states. */
@@ -369,10 +394,11 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         segment(hB, hC, GraphPalette.primaryCurve, 3, 0, inGeometry);
         segment(hC, hA, GraphPalette.primaryCurve, 3, 0, inGeometry);
         segment(hA, hB, GraphPalette.primaryCurve, 3, 0, inGeometry);
-        const mid = (p: Vertex, q: Vertex, axis: "x" | "y"): Place => () => (this.state[p][axis] + this.state[q][axis]) / 2;
-        label(mid("B", "C", "x"), mid("B", "C", "y"), () => "a", GraphPalette.label, inGeometry);
-        label(mid("C", "A", "x"), mid("C", "A", "y"), () => "b", GraphPalette.label, inGeometry);
-        label(mid("A", "B", "x"), mid("A", "B", "y"), () => "c", GraphPalette.label, inGeometry);
+        const sideName = (p: Vertex, q: Vertex, r: Vertex, axis: "x" | "y"): Place => () =>
+            sideNamePlace(this.state[p], this.state[q], this.state[r], this.board.unitX, this.board.unitY)[axis];
+        label(sideName("B", "C", "A", "x"), sideName("B", "C", "A", "y"), () => "a", GraphPalette.label, inGeometry);
+        label(sideName("C", "A", "B", "x"), sideName("C", "A", "B", "y"), () => "b", GraphPalette.label, inGeometry);
+        label(sideName("A", "B", "C", "x"), sideName("A", "B", "C", "y"), () => "c", GraphPalette.label, inGeometry);
 
         // The circumcircle, the diameter B A' and the auxiliary triangle B A' C (circle mode, exact centre and antipode).
         const centre = hidden(() => this.proper()?.sine.circumcentre.x.toNumber() ?? 0, () => this.proper()?.sine.circumcentre.y.toNumber() ?? 0);
@@ -412,11 +438,13 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         const corrFrom = hidden(() => BAR_X + Math.min(squares().c2, squares().a2 + squares().b2) * scale(), () => shorterRow());
         const corrTo = hidden(() => BAR_X + Math.max(squares().c2, squares().a2 + squares().b2) * scale(), () => shorterRow());
         segment(corrFrom, corrTo, GraphPalette.constructionAccent, 8, 2, () => barsDrawn() && squares().corr !== 0);
-        label(() => BAR_X + (squares().c2 * scale()) / 2, () => BAR_ROW_C + 0.55, () => "c²", GraphPalette.label, barsDrawn);
-        label(() => BAR_X + (squares().a2 * scale()) / 2, () => BAR_ROW_AB - 0.55, () => "a²", GraphPalette.primaryCurve, barsDrawn);
-        label(() => BAR_X + ((squares().a2 + squares().b2 / 2) * scale()), () => BAR_ROW_AB - 0.55, () => "b²", GraphPalette.comparisonCurve, barsDrawn);
-        label(() => BAR_X + 3, () => BAR_ROW_AB - 1.6, () => `${t("triangle_solver_bar_correction")} = ${signed(this.proper()?.cosine.correction ?? 0n)}`,
-            GraphPalette.constructionAccent, barsDrawn);
+        // Bar texts keep pixel gaps from the bars (8 px thick): the names hug them, the correction caption stacks above the c² name.
+        const px = (pixels: number): number => pixels / this.board.unitY;
+        label(() => BAR_X + (squares().c2 * scale()) / 2, () => BAR_ROW_C + px(BAR_NAME_OFFSET), () => "c²", GraphPalette.label, barsDrawn);
+        label(() => BAR_X + (squares().a2 * scale()) / 2, () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "a²", GraphPalette.primaryCurve, barsDrawn);
+        label(() => BAR_X + ((squares().a2 + squares().b2 / 2) * scale()), () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "b²", GraphPalette.comparisonCurve, barsDrawn);
+        label(() => BAR_X + BAR_LENGTH / 2, () => BAR_ROW_C + px(BAR_NAME_OFFSET + BAR_CAPTION_STEP),
+            () => `${t("triangle_solver_bar_correction")} = ${signed(this.proper()?.cosine.correction ?? 0n)}`, GraphPalette.constructionAccent, barsDrawn);
 
         // ---- solve mode: the solved triangle(s), and for SSA the height, the ray and the circle of radius a around C
         const point = (index: number, name: "A" | "B" | "C"): Place[] => {

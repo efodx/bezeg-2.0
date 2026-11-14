@@ -1,51 +1,51 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+  "sourceRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "f6df4522b769d548fdd08b790646801e900e1196",
+    "revision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
     "dirty": true,
-    "inputs": "d93beb4013473a30d7c5789549c95af912dc49142547c21db287b087c9dff387",
-    "output": "3f727995da91d313dbff279f7d36e4f30ee6004b577dede77a35fd3338bed53e"
+    "inputs": "c29e4b48f0c152afca12aa4ae01b2cd2c858c7436c2f9edd0752764f36f5318d",
+    "output": "b08f5485d0b51d7173f1aebf5fcad32aef3923eeeb9137cf9d980896060c1d0c"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+    "stampRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
     "stampDirty": true,
-    "localOutputHash": "3f727995da91d313dbff279f7d36e4f30ee6004b577dede77a35fd3338bed53e",
+    "localOutputHash": "b08f5485d0b51d7173f1aebf5fcad32aef3923eeeb9137cf9d980896060c1d0c",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Lrptirgq.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-Lrptirgq.js",
-        "sha256": "d88ce9bd4415e4706caa6835859631269f41b05052c15a40181be99b852acfb6",
+        "name": "index-DmXijmw6.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DmXijmw6.js",
+        "sha256": "27d390bd201225733d4cd425700575be483fe96245b2a80c4d8234f2f596ba0e",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DlWCCaee.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
-        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "name": "jsx-runtime-DrW2-exP.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DrW2-exP.js",
+        "sha256": "645f781abd5f313bdb4914f4f05563d7fb97a2838f2bb62390b2c09e4009d471",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-PxoDYpss.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
-        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "name": "react-dom-YQXKa0tR.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-YQXKa0tR.js",
+        "sha256": "ba565ad359f3bc9bf80eadef20947a6611831881adc1b6c687e767afff2ae70d",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-2Xv9sif5.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-2Xv9sif5.css",
+        "sha256": "c85049f22e9ef276a8a370b44241303e3986034425202138593a5fd49dbab023",
         "matchesLocalBuild": true
       }
     ]
@@ -62,9 +62,9 @@
       "trigonometry.sine-rule.triangle-solver": "bcabb3ae4d6914750bf03ccbfe0f98610cf74f8a219091465c36caecbb582a77",
       "trigonometry.cosine-rule.triangle-solver": "aad9aff9d42316cf5864a19cfa95d1107d9a8631f0060ba8a03fcd1fab1f2b7c"
     },
-    "presentation": "c935daaf41b55c7880a982252947e58645aa01850a937cb4bd13c8ce0e74a934",
-    "buildOutput": "3f727995da91d313dbff279f7d36e4f30ee6004b577dede77a35fd3338bed53e",
-    "buildInputs": "d93beb4013473a30d7c5789549c95af912dc49142547c21db287b087c9dff387"
+    "presentation": "c8ca6b74cc42186a9e84bbab5a49beba15be07a2a0696e0a4f110d99e82df34a",
+    "buildOutput": "b08f5485d0b51d7173f1aebf5fcad32aef3923eeeb9137cf9d980896060c1d0c",
+    "buildInputs": "c29e4b48f0c152afca12aa4ae01b2cd2c858c7436c2f9edd0752764f36f5318d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -155,7 +155,7 @@
       "file": "trigonometry.radian-sine-cosine.unit-circle.png",
       "width": 840,
       "height": 520,
-      "sha256": "b30a3da859e6c60b001a2478e4fbcb7813ed5df2509c36d1935ce62189456098",
+      "sha256": "73a859282d68b9a3a72efa7e1666f2d4f7350989b4a405aa5dbacc3b589fbecb",
       "scene": {
         "visibleElementCount": 18,
         "visibleElementTypes": {
@@ -262,8 +262,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
-        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "buildRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
+        "sourceRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
         "pageErrors": []
       }
     },
@@ -285,7 +285,7 @@
       "file": "trigonometry.addition-formulas.unit-circle.png",
       "width": 840,
       "height": 520,
-      "sha256": "eeef14059252fdcb3483c5f716fd4c95cd0ebf99236f535e5c94e1da2495fc46",
+      "sha256": "3404538f2a6611aa5a1b0005d236883a23b033e428fd49a3fcbac5cc9ef6524c",
       "scene": {
         "visibleElementCount": 23,
         "visibleElementTypes": {
@@ -426,8 +426,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
-        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "buildRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
+        "sourceRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
         "pageErrors": []
       }
     },
@@ -451,7 +451,7 @@
       "file": "trigonometry.sine-rule.triangle-solver.png",
       "width": 840,
       "height": 520,
-      "sha256": "d925f2f41a14bacc298788705a82ab456d4949c7e76b4d3a5bba570c642daaef",
+      "sha256": "ba9d86aa8b63cad9a8e14ea7a9afac298ccbc0ee8e81834b3b39d8b122bcfad0",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -516,8 +516,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
-        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "buildRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
+        "sourceRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
         "pageErrors": []
       }
     },
@@ -541,7 +541,7 @@
       "file": "trigonometry.cosine-rule.triangle-solver.png",
       "width": 840,
       "height": 520,
-      "sha256": "d925f2f41a14bacc298788705a82ab456d4949c7e76b4d3a5bba570c642daaef",
+      "sha256": "ba9d86aa8b63cad9a8e14ea7a9afac298ccbc0ee8e81834b3b39d8b122bcfad0",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -606,8 +606,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
-        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "buildRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
+        "sourceRevision": "6d9ba0ec47bfbe49ef84394c1c687d8b842ffaa0",
         "pageErrors": []
       }
     }
