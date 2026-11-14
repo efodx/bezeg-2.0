@@ -1,5 +1,6 @@
 import {Board, JSXGraph} from "jsxgraph";
 import {DisplaySettings} from "./DisplaySettings";
+import {applyBoardTextDefaults} from "../styles/BoardText";
 
 export type GraphBoardOptions = Parameters<typeof JSXGraph.initBoard>[1];
 
@@ -59,6 +60,7 @@ export class GraphSession {
         if (this.disposed) throw new Error("A disposed graph session cannot create a board.");
         if (this.board) throw new Error("A graph session can own only one board.");
         const board = this.dependencies.initBoard(container, options);
+        applyBoardTextDefaults(board);
         this.board = board;
         sessionsByBoard.set(board, this);
         this.refreshPointerOriginOnPointerDown(board);
@@ -73,6 +75,7 @@ export class GraphSession {
     createAuxiliaryBoard(container: string | HTMLElement, options: GraphBoardOptions): {board: Board; release: () => void} {
         if (!this.isAlive) throw new Error("An inactive graph session cannot create an auxiliary board.");
         const board = this.dependencies.initBoard(container, options);
+        applyBoardTextDefaults(board);
         const stopRefreshingOrigin = this.refreshPointerOriginOnPointerDown(board);
         let released = false;
         const release = () => {

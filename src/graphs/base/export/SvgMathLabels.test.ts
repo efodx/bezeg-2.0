@@ -1,5 +1,6 @@
 import {setLanguage} from "../../../localization";
 import {downloadSVG, FigureCaptureTarget} from "./FigureCapture";
+import {BOARD_TEXT_STYLE} from "../../styles/BoardText";
 import {buildSvgWithMathLabels, loadSvgTypesetter, SvgTypesetter} from "./SvgMathLabels";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -144,6 +145,16 @@ test("a plain label becomes svg text with its computed font and position", () =>
     expect(text.getAttribute("fill")).toBe("rgb(9, 8, 7)");
     expect(text.getAttribute("dominant-baseline")).toBe("hanging");
     expect(text.getAttribute("opacity")).toBe("0.5");
+});
+
+test("a plain label in the shared board text style exports the Literata stack, not Arial", () => {
+    const scene = makeScene();
+    addLabel(scene, "Label B", rect(150, 100, 60, 20), `${BOARD_TEXT_STYLE}font-size: 14px`);
+    const clone = buildSvgWithMathLabels(scene.container, scene.root, stubTypesetter);
+    const family = clone.querySelector("g.bezeg-math-labels > text")!.getAttribute("font-family")!;
+    expect(family).toMatch(/^"?Literata/);
+    expect(family).toContain("Georgia");
+    expect(family).not.toMatch(/arial/i);
 });
 
 test("hidden, empty, and out-of-root labels are skipped", () => {

@@ -11,6 +11,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {ReadoutHeading} from "../base/controls/ReadoutParts";
+import {BOARD_TEXT_STYLE} from "../styles/BoardText";
 
 /**
  * Shared foundation of the function and calculus demonstrations (ADR 0007).
@@ -115,8 +116,8 @@ export type LabelPlacement = "above" | "below" | "left" | "right" | "above-left"
 
 export const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-/** The serif of the workspace headings and coordinate editor, so plain board text sits with the MathJax labels (SVG export keeps it). */
-export const BOARD_TEXT_STYLE = 'font-family:Georgia,"Times New Roman",serif;font-variant-numeric:lining-nums;';
+/** The shared plain board text face (see `styles/BoardText.ts`); kept exported here for the graphs that import it. */
+export {BOARD_TEXT_STYLE};
 
 /**
  * Escaped HTML of a plain-text formula with its one-letter variables in italics; names such as sin, cos or dx stay upright
