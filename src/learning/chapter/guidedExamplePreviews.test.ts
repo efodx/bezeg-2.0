@@ -30,6 +30,7 @@ import {wavesPreviewCopy} from '../content/wavesPreviewCopy';
 import {mechanicalCurvesPreviewCopy} from '../content/mechanicalCurvesPreviewCopy';
 import {randomnessPreviewCopy} from '../content/randomnessPreviewCopy';
 import {recursionPreviewCopy} from '../content/recursionPreviewCopy';
+import {levelSetsPreviewCopy} from '../content/levelSetsPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
@@ -321,6 +322,9 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'recursion', copy: recursionPreviewCopy,
         ids: ['recursion.compound-interest.recursion-growth', 'recursion.sequences.recursion-growth'],
         counts: [[8, 0], [1, 1]]},
+    {chapterId: 'level-sets', copy: levelSetsPreviewCopy,
+        ids: ['level-sets.linear-programming.linear-program'],
+        counts: [[6, 6]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

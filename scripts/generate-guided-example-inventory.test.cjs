@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -953,4 +953,15 @@ test('recursion expectations are authored from the graph: the arithmetic bars wi
     assert.throws(() => recursionExpectedFor('r.compound-interest.recursion-growth', open([interest({parts: 1, years: 1})])), /the opening scene is set-map, set-interest/);
     assert.throws(() => recursionExpectedFor('r.unknown.recursion-growth', open([])), /no authored recursion/);
     assert.ok(chapterInventories.recursion);
+});
+
+test('level-sets expectations are authored from the graph: the default region with its six curves and six points', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const frame = levelSetsExpectedFor('l.linear-programming.linear-program', open([]));
+    assert.deepEqual({types: frame.types, curveCount: frame.curveCount}, {types: {curve: 6, point: 6}, curveCount: 6});
+    assert.deepEqual(frame.points, [[0, 0], [3, 0], [2, 3], [0, 4], [3, 2]]);
+    assert.deepEqual(frame.curves[0], [[0, 0], [1.5, 0], [3, 0]]);
+    assert.throws(() => levelSetsExpectedFor('l.linear-programming.linear-program', open([{kind: 'levelsets', operation: 'set-sweep', sweep: 6}])), /Demonstration default alone/);
+    assert.throws(() => levelSetsExpectedFor('l.unknown.linear-program', open([])), /no authored level-sets/);
+    assert.ok(chapterInventories['level-sets']);
 });

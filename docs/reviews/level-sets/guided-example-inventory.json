@@ -1,0 +1,119 @@
+{
+  "examples": [
+    {
+      "id": "level-sets.linear-programming.linear-program",
+      "demonstrationId": "linear-program",
+      "path": "/bezeg-2.0/analysis/linear-program?example=lesson.level-sets.linear-programming.linear-program",
+      "sceneFingerprint": "92f03a5f8469f84ea3c7048f92d9a699aad3a3df8736ac03bbbb896f580fde45",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls5-region-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls5-region-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 6,
+          "point": 6
+        },
+        "curveCount": 6,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "curves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1.5,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ],
+          [
+            [
+              -30,
+              19
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              30,
+              -11
+            ]
+          ],
+          [
+            [
+              13,
+              -30
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              -7,
+              30
+            ]
+          ],
+          [
+            [
+              23,
+              -30
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              -17,
+              30
+            ]
+          ],
+          [
+            [
+              24,
+              -30
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              -16,
+              30
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

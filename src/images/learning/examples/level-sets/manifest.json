@@ -1,0 +1,377 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "a7205f171d2d6389b0dffd519bedee2160055314",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "a7205f171d2d6389b0dffd519bedee2160055314",
+    "dirty": true,
+    "inputs": "68e46b168270ec779e344f397460c6747dc2beb4b15d2da3eb7f4c8035298706",
+    "output": "5417c29a8fa78eec2c1952b778e5fc2f0b40b39d422d19e48cb70bfaa264dd03"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "a7205f171d2d6389b0dffd519bedee2160055314",
+    "stampDirty": true,
+    "localOutputHash": "5417c29a8fa78eec2c1952b778e5fc2f0b40b39d422d19e48cb70bfaa264dd03",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BM2wLPR8.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-BM2wLPR8.js",
+        "sha256": "46978363bc90b784f6d0288ede7b8f35bfcabf69dab17c1465177fee58dace99",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "de90fe214b997c2b7d65f867f18c10392051e002f59683560b4c0c4a18be02ab",
+    "entries": {
+      "level-sets.linear-programming.linear-program": "d9382fc030b6ca37c88b2d0067873df7bd8a0c749a8948107c6dc190466180f1"
+    },
+    "presentation": "22cd8987960caf3de49670f4928f37fed05422f9757c5a0b5315a15ba0a0e307",
+    "buildOutput": "5417c29a8fa78eec2c1952b778e5fc2f0b40b39d422d19e48cb70bfaa264dd03",
+    "buildInputs": "68e46b168270ec779e344f397460c6747dc2beb4b15d2da3eb7f4c8035298706"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "level-sets.linear-programming.linear-program",
+        "demonstrationId": "linear-program",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -9.72,
+            15.64,
+            13.72,
+            1.131
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "level-sets.linear-programming.linear-program",
+      "demonstrationId": "linear-program",
+      "path": "/bezeg-2.0/analysis/linear-program?example=lesson.level-sets.linear-programming.linear-program",
+      "sceneFingerprint": "92f03a5f8469f84ea3c7048f92d9a699aad3a3df8736ac03bbbb896f580fde45",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls5-region-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls5-region-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "level-sets.linear-programming.linear-program.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "833b16f7d45cf5cec056a67e36da6c79a15e70078227c5689a19b6e9d0bd0574",
+      "scene": {
+        "visibleElementCount": 38,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 6,
+          "curve": 6,
+          "text": 15,
+          "point": 6,
+          "segment": 1
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -30,
+              19
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              30,
+              -11
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1.5,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ],
+          [
+            [
+              13,
+              -30
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              -7,
+              30
+            ]
+          ],
+          [
+            [
+              23,
+              -30
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              -17,
+              30
+            ]
+          ],
+          [
+            [
+              24,
+              -30
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              -16,
+              30
+            ]
+          ],
+          [
+            [
+              3,
+              0
+            ],
+            [
+              2.5,
+              1.5
+            ],
+            [
+              2,
+              3
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:3,0",
+          "point:2,3",
+          "point:0,4",
+          "point:3,2",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 43,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 11,
+            "curve": 6,
+            "text": 15,
+            "point": 6,
+            "segment": 1
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -30,
+                19
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                30,
+                -11
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1.5,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            [
+              [
+                13,
+                -30
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                -7,
+                30
+              ]
+            ],
+            [
+              [
+                23,
+                -30
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                -17,
+                30
+              ]
+            ],
+            [
+              [
+                24,
+                -30
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                -16,
+                30
+              ]
+            ],
+            [
+              [
+                3,
+                0
+              ],
+              [
+                2.5,
+                1.5
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:3,0",
+            "point:2,3",
+            "point:0,4",
+            "point:3,2",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 15,
+        "finalLabelCount": 15,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 6,
+          "curve": 6,
+          "text": 15,
+          "point": 6,
+          "segment": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "a7205f171d2d6389b0dffd519bedee2160055314",
+        "sourceRevision": "a7205f171d2d6389b0dffd519bedee2160055314",
+        "pageErrors": []
+      }
+    }
+  ]
+}

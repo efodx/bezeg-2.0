@@ -50,6 +50,8 @@ const targets = {
     'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, framed by the board', []],
     // The simulation graph frames its own scene (the frame of the mode, the caption rows above the plot); the recipe sets no window. The lesson cards open on the Galton board with one ball and the coin frequency with ten tosses.
     // The growth graph frames its own panel (the bars with their captions, or the years with the legend lines); the recipe sets no window and the lesson scenes keep their own. The lesson cards open on the arithmetic bars and the one-year interest.
+    // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets no window. The lesson card opens on the default region.
+    'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, framed by the board', []],
     'recursion-growth': ['Default arithmetic sequence as bars with the marked term and the caption rows, framed by the board', []],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 1000 balls: the pegs, the bars of the binomial law and the heap', []],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-1, 1.37, 1.4, -0.1]],

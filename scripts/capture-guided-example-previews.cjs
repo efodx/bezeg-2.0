@@ -68,7 +68,15 @@ const recursionWindows = {
     'recursion.compound-interest.recursion-growth': [0.008, 1488.863, 0.922, 109.069],
 };
 
+// The linear-programming card: the board lays eight caption rows over the top two thirds of the card and its own opening frame (made on a larger board, a view of about 120 units) shrinks the region to a dot, under the captions.
+// The window keeps equal units (the card is 840 x 520 pixels: 28 pixels a unit) and puts the region with its handle and labels in the strip below the captions, centred on x = 2.
+// The capture widens a requested window by 28 percent about its centre; this is that window shrunk back.
+const levelSetsWindows = {
+    'level-sets.linear-programming.linear-program': [-9.72, 15.64, 13.72, 1.131],
+};
+
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(levelSetsWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: levelSetsWindows[entry.id]}};
     if (Object.hasOwn(recursionWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: recursionWindows[entry.id]}};
     if (Object.hasOwn(randomnessWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: randomnessWindows[entry.id]}};
     if (Object.hasOwn(descentWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: descentWindows[entry.id]}};
@@ -131,6 +139,7 @@ const chapterFamilies = {
     waves: {label: 'waves', idPrefix: 'waves.', identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'}},
     'mechanical-curves': {label: 'mechanical-curves', idPrefix: 'mechanical-curves.', identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'}},
     randomness: {label: 'randomness', idPrefix: 'randomness.', identities: {module: '/src/graphs/random/registration.ts', rows: 'randomDemonstrationRows'}},
+    'level-sets': {label: 'level-sets', idPrefix: 'level-sets.', identities: {module: '/src/graphs/levelsets/registration.ts', rows: 'levelSetsDemonstrationRows'}},
     recursion: {label: 'recursion', idPrefix: 'recursion.', identities: {module: '/src/graphs/recursion/registration.ts', rows: 'recursionDemonstrationRows'}},
     kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},

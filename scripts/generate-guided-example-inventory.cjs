@@ -381,6 +381,16 @@ const chapterInventories = {
         // The one mechanics-descent Demonstration: the three examples must cover it and open on its route.
         identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'},
     },
+    'level-sets': {
+        module: '/src/learning/content/levelSetsChapterRegistry.ts',
+        // Like recursion: section rows plus a per-section lesson function.
+        registryExport: 'levelSetsGuidedExampleDemonstrations',
+        lessonExport: 'levelSetsGuidedExampleLesson',
+        pathExport: 'levelSetsGuidedExamplePath',
+        expectedFor: levelSetsExpectedFor,
+        // The linear-program Demonstration: the example must cover it and open on its route (the contour-map row ships without a lesson).
+        identities: {module: '/src/graphs/levelsets/registration.ts', rows: 'levelSetsDemonstrationRows'},
+    },
     recursion: {
         module: '/src/learning/content/recursionChapterRegistry.ts',
         // Like randomness: section rows plus a per-section lesson function.
@@ -2394,6 +2404,53 @@ function recursionExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Level sets chapter (level-sets): one lesson (LS5, linear programming) on the one linear-program Demonstration. The first scene is the Demonstration default with no `levelsets` action (the contour-map row ships
+// without a lesson). The board (LinearProgramGraph.tsx buildScene) keeps the curves of the hidden rows (visible: false), so only the shown ones count.
+
+/** Asserts the opening scene is the prepared default alone: no constraint, objective or sweep action. */
+function levelSetsOpening(id, step) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    assert.equal(all.length, prepared.length, `${id}: the opening scene is the Demonstration default alone`);
+}
+
+// Authored from LinearProgramGraph.tsx (buildScene), lpScene.ts (viewBox, clipBox, linePoly) and the default x + 2y <= 8, 3x + y <= 9, maximize 3x + 2y, line at k = 9 of lpModel.ts, not from a capture. The vertices are
+// (0, 0), (3, 0), (2, 3), (0, 4) with the optimum 12 at (2, 3); the largest vertex coordinate 4 gives the drawn square [-10, 10]^2 and the clip square [-30, 30]^2, in which every line has the two ends listed below
+// (first the end met on x = -30 or y = -30). A data curve is read at the indices 0, 1/2 and 1 of its points (the first segment).
+const levelSetsFrames = {
+    // LS5 step 1: six visible curves (the region outline, the two constraint lines, the dashed sweep line at k = 9, the objective line through the optimum at 12, and the walk from the origin along the vertices to the
+    // optimum) and six points (the four vertices, the optimum square at (2, 3) and the objective handle at (3, 2)); the hidden origin point is not counted.
+    'linear-programming': (id, step) => {
+        levelSetsOpening(id, step);
+        return {
+            types: {curve: 6, point: 6}, curveCount: 6,
+            points: [[0, 0], [3, 0], [2, 3], [0, 4], [3, 2]],
+            curves: [
+                // The walk: (0, 0) to (3, 0) to (2, 3); the first segment (0, 0) to (3, 0).
+                [[0, 0], [1.5, 0], [3, 0]],
+                // x + 2y = 8 through (-30, 19) and (30, -11).
+                [[-30, 19], [0, 4], [30, -11]],
+                // 3x + y = 9 through (13, -30) and (-7, 30).
+                [[13, -30], [3, 0], [-7, 30]],
+                // The sweep line 3x + 2y = 9 through (23, -30) and (-17, 30).
+                [[23, -30], [3, 0], [-17, 30]],
+                // The objective line 3x + 2y = 12 through (24, -30) and (-16, 30).
+                [[24, -30], [4, 0], [-16, 30]],
+            ],
+        };
+    },
+};
+
+/** First-frame expectation of a level-sets lesson (the one section of the chapter, keyed by the section in the example id). */
+function levelSetsExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(levelSetsFrames, section) ? levelSetsFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored level-sets first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2450,4 +2507,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, assertExpectation};
