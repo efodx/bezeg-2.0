@@ -100,7 +100,7 @@ describe('range of the typed angles', () => {
             expect(document.querySelector('[data-unit-circle-note]')).toBeNull();
         });
 
-    test('the second angle wraps like the first, and the multiple of pi states its range in its help', () => {
+    test('the second angle wraps like the first, and the multiple of pi has a help that says what it means', () => {
         const {graph} = mountGraph();
         act(() => { graph.setState({showAddition: true}); });
         act(() => { enterNumber(field('Drugi kot β (°)'), '360'); });
@@ -108,7 +108,7 @@ describe('range of the typed angles', () => {
         act(() => { enterNumber(field('Drugi kot β (°)'), '359,5'); });
         expect(graph.state.secondAngle).toBe(719);
         const help = (label: string) => document.getElementById(field(label).getAttribute('aria-describedby')!.split(' ').find(id => id.endsWith('-help'))!)!.textContent;
-        expect(help('Kot θ (večkratnik števila π)')).toContain('od 0π do 1,9972π');
+        expect(help('Kot θ (večkratnik števila π)')).toContain('večkratnik števila π');
         const slider = screen.getByRole('slider', {name: 'Kot θ (°)'}) as HTMLInputElement;
         expect([slider.min, slider.max, slider.step]).toEqual(['0', '360', '1']);
     });
@@ -291,7 +291,7 @@ test('the toggles show the cosine, the three symmetric points and the second ang
 
     act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži tudi kosinus'})); });
     expect(graph.state.showCosine).toBe(true);
-    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Prikaži drugi kot β in zasukani koordinatni sistem'})); });
+    act(() => { fireEvent.click(screen.getByRole('checkbox', {name: 'Drugi kot β in zasukani sistem'})); });
     expect(graph.state.showAddition).toBe(true);
     expect(readout('sum-angle')).toBe('105°');
     // The first angle is θ in the field and in the sum (not α), in both languages.

@@ -143,11 +143,11 @@ const targets = {
     // Sample 1: four segments spanning x 0..6 and y -1..5.
     'segment-intersections': ['Sample 1 of four segments at step 25 of 47 of the Bentley-Ottmann sweep: the sweep line at y = 2 and the intersections found above it', [button('Naslednji korak', 24)], [-0.8, 5.8, 6.8, -1.8]],
     // Default triangle A(0,0), B(7,0), C(2,5): circumcircle about O = (7/2, 3/2) with R = 3.81 spans y -2.31..5.31; the window keeps 360:220 around it.
-    'triangle-centres': ['Default acute triangle with all four notable points G, O, I, H, their constructions and the circumcircle', [toggle('Središče očrtane krožnice O (simetrale stranic)'), toggle('Središče včrtane krožnice I (simetrale kotov)'), toggle('Višinska točka H (višine)')], [-3.55, 5.81, 10.55, -2.81]],
+    'triangle-centres': ['Default acute triangle with all four notable points G, O, I, H, their constructions and the circumcircle', [toggle('Središče očrtane krožnice O'), toggle('Središče včrtane krožnice I'), toggle('Višinska točka H')], [-3.55, 5.81, 10.55, -2.81]],
     // The same triangle and circle; the glider P at t = 90 is the top of the circle (3.5, 5.31), on the arc of C, with both inscribed angles and the central angle marked.
     'inscribed-angle': ['Default chord AB with the inscribed angles at C and P, the central angle at O and the radii OA, OB', [toggle('Polmera OA in OB')], [-3.55, 5.81, 10.55, -2.81]],
     // The same triangle and window; the default overlays (O, G, H, the Euler line, the nine-point circle about N) plus the nine points and the circumcircle.
-    'euler-line': ['Default triangle with O, G and H on the Euler line, the nine-point circle about N through its nine points, and the circumcircle', [toggle('Devet točk (krogci: razpolovišča stranic, kvadratki: vznožja višin, rombi: razpolovišča daljic AH, BH, CH)'), toggle('Očrtana krožnica')], [-3.55, 5.81, 10.55, -2.81]],
+    'euler-line': ['Default triangle with O, G and H on the Euler line, the nine-point circle about N through its nine points, and the circumcircle', [toggle('Devet točk'), toggle('Očrtana krožnica')], [-3.55, 5.81, 10.55, -2.81]],
     // The same triangle; P at t = 60 on the circumcircle (5.40, 4.80) with all overlays on (the defaults). The foot E on CA is at (2.40, 6.00),
     // above the sibling window, so the top rises to 6.6 and the width keeps 360:220 about x = 3.5.
     'simson-line': ['Default triangle with P on the circumcircle at t = 60, the perpendiculars from P to the side lines, the collinear feet D, E, F on the Simson line and the pedal triangle', [], [-6.8, 6.6, 8.6, -2.81]],

@@ -278,7 +278,7 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
                                  onPlus={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree + 1))}
                                  onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(this.model.degree - 1))}
                                  onSet={value => this.ignoreOutOfDomain(() => this.setDegree(value))}/>
-                    <p className="inspector-help">{t("interp_lsq_degree_help", {value0: LSQ_DEGREE_MIN, value1: maxDegree})}</p>
+                    <p className="inspector-help">{t("interp_lsq_degree_help")}</p>
                 </>}
                 {state.manualLine && <p className="inspector-help">{t("interp_lsq_degree_manual")}</p>}
             </div>

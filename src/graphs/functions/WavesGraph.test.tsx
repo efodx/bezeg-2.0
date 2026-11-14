@@ -425,7 +425,7 @@ describe('the captions on a narrow board (390 x 480 px)', () => {
 });
 
 describe('controls', () => {
-    test('every numeric field is a slider over its own range and step; switches, the mode choice and the time slider are described', () => {
+    test('every numeric field is a slider over its own range and step; switches and the mode choice are described, the time slider is not (its bounds are its own)', () => {
         const {graph} = mountGraph();
         const ranges = WAVES_FIELD_RANGES;
         const sliderOf = (label: string, name: keyof typeof ranges) => {
@@ -439,13 +439,13 @@ describe('controls', () => {
         sliderOf(t('waves_graph_f_both_label'), 'f1');
         expect(describedText(field(t('waves_graph_show_phasors'))).length).toBeGreaterThan(10);
         expect(describedText(field(t('waves_graph_mode_label'))).length).toBeGreaterThan(10);
-        expect(describedText(slider())).toContain('Čas od 0 do 1 s');
+        expect(describedText(slider())).toBe(''); // the slider shows its own bounds; no help restates them (S5)
         choose('beats');
         sliderOf(t('waves_graph_a1_each_label'), 'a1');
         sliderOf(t('waves_graph_f1_beats_label'), 'f1');
         sliderOf(t('waves_graph_f2_beats_label'), 'f2');
         expect(describedText(field(t('waves_graph_show_envelope'))).length).toBeGreaterThan(10);
-        expect(describedText(slider())).toContain('Čas od 0 do 2 s');
+        expect(describedText(slider())).toBe(''); // the slider shows its own bounds; no help restates them (S5)
         choose('standing');
         sliderOf(t('waves_graph_half_waves_label'), 'halfWaves');
         choose('sampling');

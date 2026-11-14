@@ -1,6 +1,5 @@
 import React, {useEffect, useId, useRef, useState, useSyncExternalStore} from "react";
-import {currentLanguage, useT} from "../../localization";
-import {formatNumber} from "../../analysis/format";
+import {useT} from "../../localization";
 import Slider from "../../inputs/Slider";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
@@ -9,8 +8,6 @@ import {ReadoutHeading, ReadoutList} from "../base/controls/ReadoutParts";
 import type {SurfaceView} from "../patches/surface-view/surfaceScene";
 import type ContourMapGraph from "./ContourMapGraph";
 import {FUNCTION_KEYS} from "./ContourMapGraph";
-
-const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
 
 const REDUCED_REASON_ID = "contour-play-reduced-reason";
 
@@ -35,7 +32,7 @@ export function ContourPlayback(props: {graph: ContourMapGraph}) {
                          {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
         {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_step_slider")}</p>}
         <Slider customText={text("levelsets_graph_steps_label")} min={0} max={last} step={1} grid={1} bigStep={5} decimals={0} value={step}
-                help={text("levelsets_graph_steps_help", params)} rejectedHint={text("levelsets_graph_steps_rejected", params)}
+                rejectedHint={text("levelsets_graph_steps_rejected", params)}
                 onChange={value => graph.setStepIndex(Math.round(value))}/>
     </div>;
 }
@@ -125,6 +122,5 @@ function SurfacePanelOf(props: {graph: ContourMapGraph}) {
         {unavailable
             ? <p role="alert">{text("levelsets_graph_surface_unavailable")}</p>
             : <div ref={hostRef} className="surface-view-host" data-contour-surface="" style={{minHeight: 220}}/>}
-        <p className="inspector-help">{text("levelsets_graph_zscale_value", {value0: dec(graph.zScale(), 6)})}</p>
     </div>;
 }

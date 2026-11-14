@@ -561,8 +561,7 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
                          onChange={value => this.editAngle("angle", "degrees", value)}/>,
             <NumberInput key="pi" label={t("unit_circle_angle_pi_label")} value={state.angle / 360}
                          step={1 / 360} bigStep={1 / 72} decimals={4} min={0} max={ANGLE_MAX_PI} grid={1 / 360}
-                         help={t("unit_circle_angle_pi_help", {
-                             value0: formatNumber(0, currentLanguage(), 4), value1: formatNumber(ANGLE_MAX_PI, currentLanguage(), 4)})}
+                         help={t("unit_circle_angle_pi_help")}
                          onChange={value => this.editAngle("angle", "pi", value)}/>,
         ];
         if (state.showAddition) {

@@ -760,7 +760,6 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
                     <Slider key="route" customText={t("combinatorics_lattice_route_label")} value={state.route + 1} step={STEP} bigStep={ROUTE_BIG_STEP}
                             min={1} max={Number(lattice.count)} grid={1} onChange={value => this.editRoute(value)}/>,
                     <CountSetter key="page" label={t("combinatorics_lattice_page_label")} n={lattice.page + 1} min={1} max={lattice.pages} bigStep={5}
-                                 help={t("combinatorics_lattice_routes_list", {value0: smallText(lattice.page + 1), value1: smallText(lattice.pages)})}
                                  onPlus={() => this.goToPage(lattice.page + 1)} onMinus={() => this.goToPage(lattice.page - 1)}
                                  onSet={value => this.goToPage(value - 1)}/>,
                 );

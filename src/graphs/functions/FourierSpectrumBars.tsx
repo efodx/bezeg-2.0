@@ -1,4 +1,5 @@
 import React, {useId} from "react";
+import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {currentLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {RealCoefficients} from "../../analysis/fourier";
@@ -74,8 +75,7 @@ export function FourierSpectrumBars(props: FourierSpectrumProps) {
                 <text key={k} x={PAD_LEFT + (k + 0.5) * slot} y={H - 6} textAnchor="middle" className="fourier-spectrum-label" style={{fontSize: 11}}>{k}</text>)}
             {bars}
         </svg>
-        <details>
-            <summary>{t("fourier_coef_table_summary")}</summary>
+        <InspectorDisclosure title={t("fourier_coef_table_summary")}>
             <table className="fourier-spectrum-table" data-testid="fourier-spectrum-table">
                 <thead><tr><th scope="col">k</th><th scope="col">aₖ</th><th scope="col">bₖ</th></tr></thead>
                 <tbody>{Array.from({length: K + 1}, (_, k) => <tr key={k} data-k={k}>
@@ -84,6 +84,6 @@ export function FourierSpectrumBars(props: FourierSpectrumProps) {
                     <td data-term="b">{k === 0 ? "—" : show(coefficients.b[k])}</td>
                 </tr>)}</tbody>
             </table>
-        </details>
+        </InspectorDisclosure>
     </figure>;
 }

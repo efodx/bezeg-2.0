@@ -1130,7 +1130,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                           options={CATALOGUE_IDS.map(value => ({value, text: t(FUNCTION_KEYS[value])}))}
                           onChange={value => { const fn = CATALOGUE_IDS.find(candidate => candidate === value); if (fn) this.setFunction(fn); }}/>,
             <Slider key="level" customText={t("levelsets_graph_level")} min={LEVEL_RANGE.min / LEVEL_SCALE} max={LEVEL_RANGE.max / LEVEL_SCALE} step={1 / LEVEL_SCALE}
-                    bigStep={1} decimals={3} value={levelOf(state.level)} help={t("levelsets_graph_level_help", {value0: dec(LEVEL_RANGE.min / LEVEL_SCALE, 0), value1: dec(LEVEL_RANGE.max / LEVEL_SCALE, 0), value2: dec(1 / LEVEL_SCALE, 3)})}
+                    bigStep={1} decimals={3} value={levelOf(state.level)}
                     rejectedHint={t("levelsets_graph_level_rejected", {value0: dec(LEVEL_RANGE.min / LEVEL_SCALE, 0), value1: dec(LEVEL_RANGE.max / LEVEL_SCALE, 0), value2: dec(1 / LEVEL_SCALE, 3)})}
                     valueText={value => t("levelsets_graph_level_value", {value0: dec(value, 3)})} onChange={value => this.setLevel(value)}/>,
             <CountSetter key="count" label={t("levelsets_graph_count")} n={state.levelCount} min={LEVEL_COUNT_RANGE.min} max={LEVEL_COUNT_RANGE.max} bigStep={1}

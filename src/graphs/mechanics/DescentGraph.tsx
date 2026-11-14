@@ -1055,7 +1055,7 @@ function DescentPlayback(props: {graph: DescentGraph}) {
         {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
         <Slider customText={text("descent_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 unavailableReason={runs ? undefined : noRun}
-                help={text("descent_graph_time_help", params)} rejectedHint={text("descent_graph_time_rejected", {value0: params.value0})}
+                rejectedHint={text("descent_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("descent_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
     </div>;
 }

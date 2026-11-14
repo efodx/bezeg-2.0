@@ -769,7 +769,7 @@ function KinematicsPlayback(props: {graph: KinematicsGraph}) {
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={!playing && graph.reducedMotion() ? "reduced-motion" : undefined}/>
         <Slider customText={text("kinematics_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
-                help={text("kinematics_graph_time_help", params)} rejectedHint={text("kinematics_graph_time_rejected", {value0: params.value0})}
+                rejectedHint={text("kinematics_graph_time_rejected", {value0: params.value0})}
                 valueText={value => `${dec(value, 2)} ${text("kinematics_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
     </div>;
 }

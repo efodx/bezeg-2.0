@@ -47,7 +47,8 @@ const dragTo = (point: Shown | JXG.Point, x: number, y: number) => act(() => {
     (point as unknown as Triggerable).triggerEventHandlers(['drag'], []);
 });
 const text = (selector: string) => (document.querySelector(selector)?.textContent ?? '');
-const readout = (id: string) => text(`[data-inversion-readout="${id}"]`);
+// The status chip shows the image sentence once; the readout list leaves out a row that repeats it (control-choice S13).
+const readout = (id: string) => text(`[data-inversion-readout="${id}"]`) || (id === 'image' ? text('[data-inversion-chip]') : '');
 const field = (selector: string) => document.querySelector(selector) as HTMLInputElement;
 const select = (selector: string) => field(`${selector} select`);
 const numberIn = (selector: string) => field(`${selector} input[type="text"]`);

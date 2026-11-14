@@ -602,7 +602,7 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         } else if (state.panel === "interest") {
             commands.push(
                 <NumberInput key="capital" label={t("recursion_graph_growth_capital_label")} value={state.capital} step={1} bigStep={100} min={CAPITAL_RANGE.min}
-                             max={CAPITAL_RANGE.max} grid={1} decimals={0} help={t("recursion_graph_growth_capital_help", this.range(CAPITAL_RANGE, 1))}
+                             max={CAPITAL_RANGE.max} grid={1} decimals={0}
                              rejectedHint={this.rejected(t("recursion_graph_growth_capital_label"), CAPITAL_RANGE, 1)} onChange={value => this.editCapital(value)}/>,
                 <Slider key="rate" customText={t("recursion_graph_growth_rate_label")} value={state.rate / PERCENT_SCALE} step={1 / PERCENT_SCALE} bigStep={1}
                         min={RATE_RANGE.min / PERCENT_SCALE} max={RATE_RANGE.max / PERCENT_SCALE} grid={1 / PERCENT_SCALE} decimals={1}

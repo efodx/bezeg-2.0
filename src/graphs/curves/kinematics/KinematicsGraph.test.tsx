@@ -373,7 +373,7 @@ describe('typed input and the time', () => {
             expect(describedText(field(t(key))).length, key).toBeGreaterThan(10);
         }
         expect(describedText(field(t('kinematics_graph_motion_label'))).length).toBeGreaterThan(10);
-        expect(describedText(slider())).toContain('Čas od 0 do 6,28 s');
+        expect(describedText(slider())).toBe(''); // the time slider shows its own bounds; no help restates them (S5)
     });
 
     test('the time slider reaches the end, refuses beyond it, has a grid, and gives a spoken value with its unit', () => {

@@ -55,7 +55,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
                 <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}</>;
     }
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <>{super.workspaceGraphDisplay()}{this.getFirstJxgCurveIfAny() && <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+        return <>{super.workspaceGraphDisplay()}{this.getFirstJxgCurveIfAny() && <div className="inspector-group">
             <PhOffsetDisplayControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}
             <div className="inspector-group"><h3>{t("arc_length")}</h3>
                 <OnOffSwitch checked={this.state.showArcLength !== false}

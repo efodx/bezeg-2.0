@@ -403,7 +403,7 @@ describe('typed input and dragging', () => {
     });
 
     test('every numeric field, switch and the mode are described by help, and the help states the range; the slider by its range', () => {
-        const {graph} = mountGraph();
+        mountGraph();
         const described = (element: HTMLElement) => (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
             .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
         const slideName = (key: 'descent_graph_radius_label' | 'descent_graph_theta1_label') => screen.getByRole('slider', {name: t(key)}) as HTMLInputElement;
@@ -411,7 +411,8 @@ describe('typed input and dragging', () => {
         expect(described(slideName('descent_graph_radius_label'))).toContain('0,25');
         expect(described(slideName('descent_graph_radius_label'))).toContain('Merjen v metrih.');
         expect(described(field(t('descent_graph_mode_label'))).length).toBeGreaterThan(10);
-        expect(described(slider())).toContain(`od 0 do ${String(graph.derived().tEnd).replace('.', ',')}`.slice(0, 8));
+        // The time slider shows its own bounds; its help no longer restates them (control-choice S5).
+        expect(described(slider())).toBe('');
         chooseMode('track');
         // The three points are one list: one row each, named as the board names them, with the depth note shown once below it.
         for (const point of ['b', 'p1', 'p2'] as const) {

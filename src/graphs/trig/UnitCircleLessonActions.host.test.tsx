@@ -47,7 +47,7 @@ test.each([30, 114.5, 200, 359.5, 0])('set-angle first %s reaches the state of t
 
 test('set-angle second reaches the state of the second angle field, which exists with the addition overlay', () => {
     const viaAction = after(graph => { apply(graph, setOverlay('addition', true)); apply(graph, setAngle('second', 45)); });
-    const viaControl = after(() => { toggle('Prikaži drugi kot β in zasukani koordinatni sistem'); type('Drugi kot β (°)', '45'); });
+    const viaControl = after(() => { toggle('Drugi kot β in zasukani sistem'); type('Drugi kot β (°)', '45'); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.secondAngle).toBe(90);
 });
@@ -55,7 +55,7 @@ test('set-angle second reaches the state of the second angle field, which exists
 test.each([
     ['cosine', 'Prikaži tudi kosinus', 'cosine'],
     ['symmetries', 'Prikaži simetrične točke', 'symmetries'],
-    ['addition', 'Prikaži drugi kot β in zasukani koordinatni sistem', 'addition'],
+    ['addition', 'Drugi kot β in zasukani sistem', 'addition'],
 ] as const)('set-overlay %s reaches the state of its switch, on and off', (overlay, name, key) => {
     const viaAction = after(graph => apply(graph, setOverlay(overlay, true)));
     const viaControl = after(() => toggle(name));

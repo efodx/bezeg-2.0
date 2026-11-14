@@ -364,7 +364,7 @@ describe('fields: ranges, help, refusal, program-changed values', () => {
         expect(shape(t('recursion_graph_growth_q_label'))).toEqual(['-3', '3', '0.1']);
         expect(described(rangeOf(t('recursion_graph_growth_q_label')))).toContain(t('recursion_graph_growth_q_help'));
         panel('interest');
-        expect(described(field(t('recursion_graph_growth_capital_label')))).toBe(t('recursion_graph_growth_capital_help', {value0: '1', value1: '100000'}));
+        expect(described(field(t('recursion_graph_growth_capital_label')))).toBe('');
         expect(shape(t('recursion_graph_growth_rate_label'))).toEqual(['0.5', '40', '0.5']);
         expect(screen.getByRole('group', {name: t('recursion_graph_growth_years_label')})).toBeTruthy();
         expect(described(select(t('recursion_graph_growth_parts_label')))).toBe(t('recursion_graph_growth_parts_help'));

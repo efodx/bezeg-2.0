@@ -41,7 +41,6 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
     const asSolid = (value: string): SolidId => MODE_SOLIDS[state.mode].find(solid => solid === value) ?? MODE_SOLIDS[state.mode][0];
     const axisOptions = AXES.filter(axis => axisAccepts(state.solid, axis)).map(value => ({value, text: t(`solids_graph_axis_${value}`)}));
     const failing = state.mode === 'stack' && stackPair(state.solid) === 'failing';
-    const rangeText = (min: number, max: number) => t('solids_graph_range_help', {value0: formatNumber(min, currentLanguage(), 2), value1: formatNumber(max, currentLanguage(), 2)});
     return <>
         <div className="inspector-group"><h3>{t('solids_graph_heading')}</h3>
             <ChoiceSelect label={t('solids_graph_mode')} value={state.mode} options={modeOptions} help={t(`solids_graph_mode_help_${state.mode}`)}
@@ -52,32 +51,29 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
         {state.mode === 'section' && <div className="inspector-group"><h3>{t('solids_graph_plane_heading')}</h3>
             {NORMAL_LETTERS.map((letter, index) =>
                 <Slider key={letter} customText={t('solids_graph_normal', {value0: letter})} min={NORMAL_RANGE.min} max={NORMAL_RANGE.max} step={1} decimals={0}
-                        value={state.normal[index]} help={rangeText(NORMAL_RANGE.min, NORMAL_RANGE.max)}
+                        value={state.normal[index]}
                         rejectedHint={t('solids_graph_normal_zero')} onChange={value => actions.setNormal(index as 0 | 1 | 2, value)}/>)}
             <Slider customText={t('solids_graph_offset')} min={OFFSET_RANGE.min / OFFSET_SCALE} max={OFFSET_RANGE.max / OFFSET_SCALE} step={1 / OFFSET_SCALE}
                     grid={1 / OFFSET_SCALE} decimals={2} value={state.offset / OFFSET_SCALE}
-                    help={rangeText(OFFSET_RANGE.min / OFFSET_SCALE, OFFSET_RANGE.max / OFFSET_SCALE)}
                     onChange={value => { actions.setOffset(Math.round(value * OFFSET_SCALE)); }}/>
         </div>}
         {state.mode === 'stack' && <div className="inspector-group"><h3>{t('solids_graph_stack_heading')}</h3>
             {failing ? <p className="inspector-help" data-solids-shear-reason="">{t('solids_graph_shear_unavailable')}</p>
                 : <Slider customText={t('solids_graph_shear')} min={SHEAR_RANGE.min / SHEAR_SCALE} max={SHEAR_RANGE.max / SHEAR_SCALE} step={1 / SHEAR_SCALE}
                           grid={1 / SHEAR_SCALE} decimals={2} value={state.shear / SHEAR_SCALE}
-                          help={rangeText(SHEAR_RANGE.min / SHEAR_SCALE, SHEAR_RANGE.max / SHEAR_SCALE)}
                           onChange={value => { actions.setShear(Math.round(value * SHEAR_SCALE)); }}/>}
             <Slider customText={t('solids_graph_cursor')} valueText={value => `${fmt(value, 1)} %`} min={100 * CURSOR_RANGE.min / CURSOR_SCALE} max={100 * CURSOR_RANGE.max / CURSOR_SCALE} step={100 / CURSOR_SCALE}
                     grid={100 / CURSOR_SCALE} decimals={1} value={100 * state.cursor / CURSOR_SCALE}
-                    help={rangeText(100 * CURSOR_RANGE.min / CURSOR_SCALE, 100 * CURSOR_RANGE.max / CURSOR_SCALE)}
                     onChange={value => { actions.setCursor(Math.round(value * CURSOR_SCALE / 100)); }}/>
             <Slider customText={t('solids_graph_slabs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
-                    help={t('solids_graph_count_help', {value0: DISC_RANGE.min, value1: DISC_RANGE.max})} onChange={value => { actions.setDiscs(value); }}/>
+                    onChange={value => { actions.setDiscs(value); }}/>
         </div>}
         {state.mode === 'revolve' && <div className="inspector-group"><h3>{t('solids_graph_revolve_heading')}</h3>
             <ChoiceSelect label={t('solids_graph_axis')} value={state.axis} options={axisOptions} help={t('solids_graph_axis_help')}
                           reason={state.solid === 'sphere' ? t('solids_graph_axis_sphere_only_x') : undefined}
                           onChange={value => actions.setAxis(asAxis(value))}/>
             <Slider customText={t('solids_graph_discs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
-                    help={t('solids_graph_count_help', {value0: DISC_RANGE.min, value1: DISC_RANGE.max})} onChange={value => { actions.setDiscs(value); }}/>
+                    onChange={value => { actions.setDiscs(value); }}/>
         </div>}
     </>;
 }

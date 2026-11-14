@@ -420,7 +420,6 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
     }
 
     private renderProjectionControls(state: FourierCoefficientsModel): React.ReactNode {
-        const language = currentLanguage();
         const slots = fourierSlots(state.layout);
         const layoutText: Record<FourierCoefficientsLayout, string> = {
             abs: t("fourier_coef_layout_abs"), jump: t("fourier_coef_layout_jump"), free: t("fourier_coef_layout_free"),
@@ -450,7 +449,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 <Slider customText={t("fourier_coef_harmonic_label")} value={state.selected.k} min={0} max={state.K} step={1}
                         rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
                         onChange={next => guardField(this.refusals, () => this.setHarmonic(next))}/>
-                <p className="inspector-help">{t("fourier_coef_harmonic_help", {value0: formatNumber(state.K, language, 0)})}</p>
+                <p className="inspector-help">{t("fourier_coef_harmonic_help")}</p>
                 <OnOffSwitch checked={state.overlay} label={t("fourier_coef_overlay_label")} onChange={next => this.guarded(() => this.setOverlay(next))}/>
             </div>
         </>;

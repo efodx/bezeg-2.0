@@ -58,15 +58,16 @@ export function InversionPanel(props: InversionPanelProps) {
     const texts = inversionTexts(props.view, t, language, props.outside, fields.radius);
     // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
     const liveReadout = useStatusReadout(texts.chip, true);
+    const rows = texts.rows.filter(row => row.text !== texts.chip);
     return <div className="inspector-group inversion-panel" data-inversion-state={texts.state} data-inversion-focus-now={fields.focus}>
         <ExampleAndFocus {...props}/>
         <p className="inspector-help pointset-status" data-inversion-chip>{texts.chip}</p>
         {fields.hasCentre && <>
             {fields.focus !== "power" && <RadiusSlider label={t("inversion_radius_label")} field="radius" value={fields.radius} onValue={props.onRadius}/>}
             <FocusFields {...props}/>
-            <ul className="pointset-list inversion-readouts">
-                {texts.rows.map(row => <li key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
-            </ul>
+            {rows.length > 0 && <ul className="pointset-list inversion-readouts">
+                {rows.map(row => <li key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
+            </ul>}
         </>}
         <LiveReadout readout={liveReadout} dataAttribute="inversion-live"/>
     </div>;
