@@ -63,6 +63,8 @@ interface PointListInputProps<R extends readonly number[]> {
     selected?: number;
     /** Called with the index of the pressed row, or undefined when the selected row is pressed again. */
     onSelect?: (index: number | undefined) => void;
+    /** Id of an element that also explains the list (for example a panel's shared help paragraph); linked from the list and from every field. */
+    describedBy?: string;
 }
 
 /** The name of a point as a pressed toggle (C14): `aria-pressed` tells whether it is the selected one. For lists that render rows themselves. */
@@ -114,7 +116,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
     const requestRemoveFocus = useRemoveFocus(root, ".point-list-remove", () => root.current?.parentElement?.querySelector<HTMLElement>(".point-collection button, .point-collection input"));
     const atMinimum = props.minCount !== undefined && points.length <= props.minCount;
     const removeReason = atMinimum ? t("count_at_minimum", {value0: formatNumber(props.minCount ?? 0, currentLanguage(), 0)}) : undefined;
-    return <fieldset className="point-list" ref={root}>
+    return <fieldset className="point-list" ref={root} aria-describedby={props.describedBy}>
         <legend>{props.title}</legend>
         {/* The body measures the room for the rows (a container query); a fieldset cannot. */}
         <div className="point-list-body"><div className="point-list-rows" data-axes={axes.length} data-remove={props.onRemove ? "" : undefined}>
@@ -129,7 +131,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
                 const refused = refusal && refusal.list === points && refusal.index === index && refusal.axis === axis ? refusal.message : undefined;
                 return <div className="point-list-axis" key={axis}>
                     <NumberInput key={epoch} label={`${name}, ${axisName}`} hideLabel compact value={point[axis]} min={min} max={max}
-                                 decimals={decimals} step={props.step ?? 1} bigStep={props.bigStep} rejectedHint={refused} grid={props.grid} integer={props.integer}
+                                 decimals={decimals} step={props.step ?? 1} bigStep={props.bigStep} rejectedHint={refused} grid={props.grid} integer={props.integer} describedBy={props.describedBy}
                                  onChange={value => edit(index, axis, value)}/>
                 </div>;
             };

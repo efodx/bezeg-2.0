@@ -50,6 +50,7 @@ interface Cache {
 /** The drawing of a whole closed curve: sample 0 appended, so no gap shows between the last sample and the first. */
 const closed = (samples: { x: readonly number[]; y: readonly number[] }) => ({x: [...samples.x, samples.x[0]], y: [...samples.y, samples.y[0]]});
 const xy = (samples: readonly FourierComplex[]) => ({x: samples.map(s => s.re), y: samples.map(s => s.im)});
+const subscript = (n: number) => String(n).replace(/\d/g, digit => "₀₁₂₃₄₅₆₇₈₉"[Number(digit)]);
 
 /**
  * The epicycle graph (Fourier series lesson F5, ADR 0040): a closed curve z built from up to 8 end points and line or cubic arcs,
@@ -519,7 +520,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             </div>
             {controls.length > 0 && <div className="inspector-group">
                 <PointListInput title={t("epicycle_controls_title")} points={controls.map(control => control.point)}
-                                pointLabel={index => t("epicycle_control_name", {value0: controls[index].span + 1, value1: controls[index].which})} {...range}
+                                pointLabel={index => t("epicycle_control_name", {value0: subscript(controls[index].span + 1), value1: subscript(controls[index].which)})} {...range}
                                 onCommit={(index, [x, y]) => commit(() => this.setControl(controls[index].span, controls[index].which, x, y))}/>
             </div>}
             <p className="inspector-help">{t("epicycle_handles_help")}</p>

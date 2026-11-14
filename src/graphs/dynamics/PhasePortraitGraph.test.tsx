@@ -344,7 +344,7 @@ describe('the linear handles and numeric input', () => {
     test('every numeric field and the zoom slider is described by the help that states the ranges', () => {
         mountGraph();
         const described = (label: string) => expect(field(label).getAttribute('aria-describedby') ?? '').toContain('phase-portrait-input-help');
-        for (const label of [labels.a(), labels.b(), labels.c(), labels.d()]) described(label);
+        for (const label of [labels.a(), labels.b(), labels.c(), labels.d(), labels.seedX(1), labels.seedY(1)]) described(label);
         const help = document.querySelector('p.form-text[id^="phase-portrait-input-help"]')!.textContent!;
         expect(help).toContain('−4');
         expect(help).toContain('0,25');

@@ -297,11 +297,7 @@
     padding: 0;
 }
 /* Shared playback group (Next step / Play / Pause / Stop / Replay / Reset): equal buttons, primary action emphasized. */
-.inspector-playback {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px;
-}
+.inspector-playback { /* equal-column grid: src/inputs/ControlRow.css */ }
 .inspector-playback button {
     display: flex;
     align-items: center;
@@ -314,7 +310,6 @@
     text-align: center;
 }
 .inspector-playback button span { color: var(--workspace-green); font-size: .9rem; line-height: 1; }
-.inspector-playback > :only-child { grid-column: 1 / -1; }
 .inspector-playback button[aria-disabled="true"] { cursor: default; }
 .inspector-playback button { border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: var(--bezeg-control-surface); color: var(--bezeg-control-ink); }
 .is-presenting .inspector-playback button span { color: #d9b461; }
@@ -347,3 +342,10 @@
     .workspace-inspector .inspector-heading > div:first-child { flex:1 1 100%; min-width:0; padding-right:0; }
     .workspace-inspector .inspector-heading > button { position:static; margin-left:auto; }
 }
+
+/* Presets block (control-choice step 4b, S1): Reset, Save, Delete in three equal columns; Export and Import in two; Generate images full width. */
+.preset-actions { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.preset-actions > .btn { padding-inline: .25rem; grid-column: span 2; min-width: 0; margin: 0; border-radius: var(--bezeg-control-radius); line-height: 1.25; overflow-wrap: break-word; }
+.preset-actions > .btn:nth-child(n+4):nth-child(-n+5) { grid-column: span 3; }
+.preset-actions > span { grid-column: 1 / -1; }
+.preset-actions > span > .btn { width: 100%; }

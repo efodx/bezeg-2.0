@@ -33,6 +33,8 @@ interface CountSetterProps {
     typedMin?: number;
     /** A short explanation shown under the stepper and linked to its group by aria-describedby. */
     help?: string;
+    /** Id of an element that also explains the count (for example a panel's shared help paragraph); joined with the help already linked. */
+    describedBy?: string;
     /** Why minus is unavailable at the lower bound; defaults to "At least {min}.". */
     minReason?: string;
     /** Why plus is unavailable at the upper bound; defaults to "At most {max}.". */
@@ -73,13 +75,13 @@ export function CountSetter(props: CountSetterProps) {
     return <div className="count-setter">
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
-             aria-describedby={joinIds(props.help && `${id}-help`)}>
+             aria-describedby={joinIds(props.help && `${id}-help`, props.describedBy)}>
             <UnavailableButton aria-label={props.minusLabel ?? t("decrease_count")} className="btn btn-primary count-setter-button" reason={minusReason}
                                onPress={() => { setPressed(undefined); props.onMinus(); }} onBlockedPress={() => blocked("min")}>−</UnavailableButton>
             {props.onSet
                 ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, digits)})} hideLabel compact
                                value={n} min={props.decimals !== undefined && props.typedMin !== undefined ? props.typedMin : min} max={max} step={props.step ?? 1} bigStep={props.bigStep} decimals={digits}
-                               integer={props.decimals === undefined} rejectedHint={props.rejectedHint}
+                               integer={props.decimals === undefined} rejectedHint={props.rejectedHint} describedBy={props.describedBy}
                                onChange={value => props.onSet?.(value)}/>
                 : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, digits)})}>
                     {formatNumber(n, language, digits)}</output>}

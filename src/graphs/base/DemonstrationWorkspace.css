@@ -190,11 +190,11 @@
 .workspace-modes, .workspace-curve-picker { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
 .workspace-modes button { font-size: .84rem; }
 /* Board tools as a list of equal buttons: three labels do not fit one line at inspector width, and a ragged second line reads as an afterthought. */
-.editing-mode .workspace-modes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.editing-mode .workspace-modes, .workspace-view-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.workspace-inspector .editing-mode .workspace-modes button, .workspace-inspector .workspace-view-buttons button { min-width: 0; padding-inline: 2px; font-size: .82rem; line-height: 1.25; overflow-wrap: break-word; }
 .workspace-inspector .form-label { color: var(--workspace-ink); font-size: .86rem; font-weight: 650; }
 .workspace-inspector .btn { color: var(--workspace-ink); background: var(--workspace-panel); border-color: var(--workspace-rule); }
 .workspace-inspector .btn:hover { background: var(--workspace-canvas-deep); }
-.workspace-inspector .preset-save { color: white; background: var(--workspace-green); border-color: var(--workspace-green); }
 .workspace-inspector .btn-secondary { background: var(--workspace-ink-soft); }
 .workspace-inspector .btn-group { flex-wrap: wrap; }
 .workspace-inspector .form-check { min-height: 36px; padding-top: 4px; }

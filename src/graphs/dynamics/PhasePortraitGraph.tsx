@@ -1150,7 +1150,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         return <div className="inspector-group" key="seed-points">
             <PointListInput title={t("phase_graph_seeds_title")} points={this.state.seeds.map(seed => [seedOf(seed.X), seedOf(seed.Y)] as const)}
                             pointLabel={index => t("phase_graph_seed_point", {value0: String(index + 1)})} axisLabels={pendulum ? ["θ", "ω"] : ["x", "y"]}
-                            min={SEED_RANGE.min / SEED_SCALE} max={SEED_RANGE.max / SEED_SCALE} step={1 / SEED_SCALE} bigStep={1} decimals={2}
+                            min={SEED_RANGE.min / SEED_SCALE} max={SEED_RANGE.max / SEED_SCALE} step={1 / SEED_SCALE} bigStep={1} decimals={2} describedBy={this.helpId}
                             onCommit={(index, [x, y]) => {
                                 if (!this.editSeedPoint(index, x, y)) return t("phase_graph_seed_rejected", range);
                             }}/>

@@ -3,6 +3,7 @@ import {createPortal} from "react-dom";
 import {PlaybackSlotContext} from "../PlaybackSlotContext";
 import {useT} from "../../../localization";
 import {UnavailableButton} from "../../../inputs/UnavailableButton";
+import "../../../inputs/ControlRow.css";
 
 /** Why a playback button is unavailable; see docs/specs/playback-button-reasons.md. */
 export type PlaybackBlock = 'no-more-steps' | 'playing' | 'at-start' | 'no-run' | 'reduced-motion';

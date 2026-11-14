@@ -8,6 +8,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import '../../src/index.css';
 import '../../src/inputs/controlTokens.css';
+import '../../src/inputs/ControlRow.css';
 import '../../src/bootstrap-overrides.scss';
 import '../../src/App.css';
 import '../../src/graphs/base/DemonstrationWorkspace.css';
@@ -153,6 +154,10 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
             <div className="inspector-control"><Slider min={0} max={1} step={0.05} value={slider} onChange={noop} customText={text.bounded} disabled help={text.reason}/></div>
             <div className="inspector-control"><CountSetter label={text.count} n={count} min={2} max={9} onPlus={() => setCount(count + 1)} onMinus={() => setCount(count - 1)} onSet={setCount} help={text.help}/></div>
             <div className="inspector-control" data-fixture="count-min"><CountSetter label={text.count} n={2} min={2} max={9} onPlus={noop} onMinus={noop} minReason={text.reason}/></div>
+        </div>
+        <div className="inspector-group" data-fixture="playback-rows">
+            <div className="inspector-playback" data-playback-row="3"><button type="button" className="btn">▶</button><button type="button" className="btn">1</button><button type="button" className="btn">2</button></div>
+            <div className="inspector-playback" data-playback-row="4"><button type="button" className="btn">1</button><button type="button" className="btn">2</button><button type="button" className="btn">3</button><button type="button" className="btn">4</button></div>
         </div>
         <div className="inspector-group">
             <h3>{text.points}</h3>

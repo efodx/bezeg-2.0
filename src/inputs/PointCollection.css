@@ -1,7 +1,9 @@
 .point-collection { display: grid; gap: .5rem; }
 .point-collection-label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; overflow-wrap: anywhere; }
 .point-collection-count, .point-collection-reason { margin: 0; color: var(--workspace-ink-soft); font-size: .82rem; line-height: 1.35; }
-.point-collection-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
+.point-collection-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.point-collection-buttons > .btn { min-width: 0; line-height: 1.25; overflow-wrap: break-word; }
+.point-collection-buttons > .btn:only-child { grid-column: 1 / -1; }
 .point-collection .btn { min-height: var(--bezeg-control-height); min-width: var(--bezeg-control-height); }
 .point-collection .btn[aria-disabled="true"] { cursor: default; border-style: dashed; }
 .point-collection .btn[aria-disabled="true"]:not([aria-pressed="true"]) { color: var(--bezeg-control-help-ink, var(--workspace-ink-soft)); }
@@ -23,5 +25,5 @@
 .point-collection-entry .number-input input[type] { width: 100%; min-width: 0; }
 .point-collection-entry .number-input-hint-region { grid-column: 1 / -1; }
 .point-collection-entry .number-input-hint { margin-top: .2rem; }
-.point-collection-entry > .btn { grid-column: 1 / -1; justify-self: start; margin-top: .4rem; }
+.point-collection-entry > .btn { grid-column: 1 / -1; justify-self: stretch; margin-top: .4rem; }
 @media (forced-colors: active) { .point-collection .btn[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: 1; color: GrayText; border-color: GrayText; } }

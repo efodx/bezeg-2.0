@@ -3,7 +3,7 @@ import {useFigureExportState} from "./export/FigureExportOperation";
 import {Preset, PresetService} from "./presets/Presets";
 import React, {useContext, useMemo, useRef, useState} from "react";
 import {PresetLockContext} from "../context/react/PresetLockContext";
-import {Button, ButtonGroup, Form, Modal} from "react-bootstrap";
+import {Button, Form, Modal} from "react-bootstrap";
 import {ResetButton} from "./ResetButton";
 import ToolTippedButton from "../../inputs/ToolTippedButton";
 import {PresetImportDialog} from "./PresetImportDialog";
@@ -232,13 +232,13 @@ export function PresetSelector(props: {
                 <option key={preset.id} value={preset.id}>{preset.id}</option>)}
         </Form.Select>
         <Form.Group className="my-1">
-            <ButtonGroup vertical={true}>
-                <ButtonGroup>
+            <div className="preset-actions">
+                <>
                     <ResetButton onReset={props.onReset} disabled={lessonActive}/>
                     <SaveModal onSave={props.onSave} initialValue={selectedPresetId} disabled={presets.problem !== undefined || lessonActive}></SaveModal>
                     <TrashModal disabled={selectedPreset === undefined || presets.problem !== undefined || lessonActive} trash={props.onDelete}></TrashModal>
-                </ButtonGroup>
-                <ButtonGroup>
+                </>
+                <>
                     <ToolTippedButton tooltip={t("export_presets")} onClick={() => {
                         const backup = presetService.exportAll();
                         setBackupNotice(backup.problem ?? (backup.skipped.length ? message("backup_skipped_unreadable_collections", {value0: backup.skipped.join(", ")}) : undefined));
@@ -251,7 +251,7 @@ export function PresetSelector(props: {
                         return props.batchExporter?.(selected);
                     }} presetService={presetService}/>}
 
-                </ButtonGroup></ButtonGroup></Form.Group>
+                </></div></Form.Group>
 
     </Form.Group>;
 

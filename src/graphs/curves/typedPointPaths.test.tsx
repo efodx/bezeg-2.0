@@ -104,14 +104,14 @@ describe('a typed point refits the view only when it lies outside it (decision 6
 
 test('subdivision: the typed list is named by its curve once the board has several curves (nothing selected lists curve 1)', async () => {
     const graph = await mountReady('subdivision');
-    expect(screen.getByText('Koordinate točk · urejanje s tipkovnico')).toBeTruthy();
+    expect(screen.getByText('Koordinate točk')).toBeTruthy();
     act(() => { (curveAccess(graph).first() as unknown as {subdivide(t: number): unknown}).subdivide(0.5); });
     expect((graph as unknown as {jxgCurves: unknown[]}).jxgCurves.length).toBeGreaterThan(1);
     expect(screen.getByText('Krivulja 1: točke')).toBeTruthy();
-    expect(screen.queryByText('Koordinate točk · urejanje s tipkovnico')).toBeNull();
+    expect(screen.queryByText('Koordinate točk')).toBeNull();
 });
 
 test('decasteljau: a single-curve board keeps the plain list title', async () => {
     await mountReady('decasteljau');
-    expect(screen.getByText('Koordinate točk · urejanje s tipkovnico')).toBeTruthy();
+    expect(screen.getByText('Koordinate točk')).toBeTruthy();
 });

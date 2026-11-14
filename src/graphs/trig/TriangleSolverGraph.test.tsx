@@ -204,11 +204,11 @@ test('the other data types solve and draw: SSS, SAS and ASA', () => {
 test('keyboard steps move a vertex coordinate by one grid unit, Shift or a Page key by five', () => {
     const {graph} = mountGraph();
     expect([VERTEX_STEP, VERTEX_BIG_STEP]).toEqual([1, 5]);
-    act(() => { fireEvent.keyDown(field('Oglišče A, x'), {key: 'ArrowUp'}); });
+    act(() => { fireEvent.keyDown(field('A, x'), {key: 'ArrowUp'}); });
     expect(graph.state.A).toEqual({x: 1, y: 0});
-    act(() => { fireEvent.keyDown(field('Oglišče A, x'), {key: 'ArrowDown', shiftKey: true}); });
+    act(() => { fireEvent.keyDown(field('A, x'), {key: 'ArrowDown', shiftKey: true}); });
     expect(graph.state.A).toEqual({x: 1, y: 0}); // 1 - 5 = -4 is outside the range: refused, never clamped
-    act(() => { fireEvent.keyDown(field('Oglišče C, y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('C, y'), {key: 'PageUp'}); });
     expect(graph.state.C).toEqual({x: 2, y: 9});
     expect(graph.handles().C!.Y()).toBe(9);
     expect(readout('side-b')).toMatch(/^√/);
@@ -288,7 +288,7 @@ test('the status, labels and readouts follow a language switch', () => {
     act(() => { setLanguage('en'); });
     expect(status()).toBe('The triangle is acute; the angle at C is acute: c² = 49, a² + b² = 61, correction 2·CA·CB = 12.');
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('The triangle is acute');
-    expect(screen.getByLabelText('Vertex A, x')).toBeInTheDocument();
+    expect(screen.getByLabelText('A, x')).toBeInTheDocument();
     expect(readout('side-a')).toBe('√41 ≈ 6.40312');
     expect(texts(graph)).toContain('correction 2·CA·CB = 12');
     act(() => { graph.setState({mode: 'solve', data: {type: 'ssa', a: 5, b: 8, angleA: 30}}); });
@@ -348,17 +348,17 @@ test('vertices dragged or typed stay left of the bars and inside the fixed view'
     expect(VERTEX_X_MAX).toBeLessThan(BAR_X);
     // typed values outside the range are refused by the field (with a range hint), so the state keeps its last valid vertex
     solve(graph, {C: {x: 2, y: 4}});
-    act(() => { enterNumber(field('Oglišče C, x'), '12'); });
+    act(() => { enterNumber(field('C, x'), '12'); });
     expect(graph.state.C.x).toBe(2);
-    act(() => { enterNumber(field('Oglišče C, x'), '-9'); });
+    act(() => { enterNumber(field('C, x'), '-9'); });
     expect(graph.state.C.x).toBe(2);
-    act(() => { enterNumber(field('Oglišče C, x'), '8'); });
+    act(() => { enterNumber(field('C, x'), '8'); });
     expect(graph.state.C.x).toBe(VERTEX_X_MAX);
-    act(() => { fireEvent.keyDown(field('Oglišče C, x'), {key: 'ArrowUp'}); });
+    act(() => { fireEvent.keyDown(field('C, x'), {key: 'ArrowUp'}); });
     expect(graph.state.C.x).toBe(VERTEX_X_MAX);
-    act(() => { fireEvent.keyDown(field('Oglišče B, y'), {key: 'PageUp'}); });
-    act(() => { fireEvent.keyDown(field('Oglišče B, y'), {key: 'PageUp'}); });
-    act(() => { fireEvent.keyDown(field('Oglišče B, y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('B, y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('B, y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('B, y'), {key: 'PageUp'}); });
     expect(graph.state.B.y).toBe(VERTEX_Y_MAX - 1); // the third step would pass 11: refused, never clamped
     dragHandleTo(graph.handles().B!, 3, -30);
     expect(graph.state.B).toEqual({x: 3, y: VERTEX_Y_MIN});
@@ -371,7 +371,7 @@ test('the vertex rows state the grid, a typed value outside the range is refused
     // the refusal states both ranges, from the same constants the rows and the drag clamp use
     expect(VERTEX_X_MIN).toBe(-2);
     expect([VERTEX_X_MAX, VERTEX_Y_MIN, VERTEX_Y_MAX]).toEqual([8, -7, 11]);
-    act(() => { enterNumber(field('Oglišče C, x'), '12'); });
+    act(() => { enterNumber(field('C, x'), '12'); });
     expect(document.body.textContent).toMatch(/x od [−-]2 do 8, y od [−-]7 do 11/);
     solve(graph, {mode: 'solve'});
     const side = screen.getByRole('slider', {name: 'Stranica a'}) as HTMLInputElement;

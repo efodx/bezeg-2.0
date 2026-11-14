@@ -766,7 +766,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             case "galton":
                 commands.push(
                     <CountSetter key="rows" label={t("random_graph_rows_label")} n={state.rows} min={ROWS_MIN} max={ROWS_MAX} bigStep={2}
-                                 onPlus={() => this.editRows(state.rows + 1)} onMinus={() => this.editRows(state.rows - 1)} onSet={value => this.editRows(value)}/>,
+                                 onPlus={() => this.editRows(state.rows + 1)} onMinus={() => this.editRows(state.rows - 1)} onSet={value => this.editRows(value)} describedBy={HELP_ID}/>,
                     <Slider key="p" customText={t("random_graph_p_label")} value={state.pPercent} step={PERCENT_STEP} bigStep={20} min={P_MIN} max={P_MAX}
                             grid={PERCENT_STEP} onChange={value => this.editPercent(value)}/>,
                 );

@@ -3,13 +3,13 @@
 .point-list legend { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; padding: 0; margin-bottom: .2rem; }
 /* One line per point: the name, one equal field per axis, then the remove button. The rows share their columns (subgrid), so every
    field lines up with the one above it and with its axis letter in the head row. */
-.point-list-rows { --point-list-axes: 2; display: grid; grid-template-columns: minmax(1.5rem, max-content) repeat(var(--point-list-axes), minmax(0, 1fr)); column-gap: .4rem; row-gap: .35rem; }
+.point-list-rows { --point-list-axes: 2; display: grid; grid-template-columns: fit-content(40%) repeat(var(--point-list-axes), minmax(0, 1fr)); column-gap: .4rem; row-gap: .35rem; }
 .point-list-rows[data-axes="1"] { --point-list-axes: 1; }
 .point-list-rows[data-axes="3"] { --point-list-axes: 3; }
-.point-list-rows[data-remove] { grid-template-columns: minmax(1.5rem, max-content) repeat(var(--point-list-axes), minmax(0, 1fr)) max-content; }
+.point-list-rows[data-remove] { grid-template-columns: fit-content(40%) repeat(var(--point-list-axes), minmax(0, 1fr)) max-content; }
 .point-list-head, .point-list-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; row-gap: 0; align-items: center; }
 .point-list-head { margin-bottom: -.2rem; }
-.point-list-head > span { color: var(--workspace-ink-soft); font-size: .82rem; font-style: italic; line-height: 1.1; text-align: right; padding-right: 8px; }
+.point-list-head > span { color: var(--workspace-ink-soft); font-size: .82rem; font-style: italic; line-height: 1.1; text-align: center; }
 /* The field wrappers add no box: the input sits in its axis column and a refusal hint spans the whole row below it. */
 .point-list-axis, .point-list-axis > .number-input { display: contents; }
 .point-list-row > :first-child { grid-row: 1; grid-column: 1; }

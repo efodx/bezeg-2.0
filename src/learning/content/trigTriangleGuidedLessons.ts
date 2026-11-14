@@ -112,8 +112,8 @@ const tr3Steps: readonly GuidedLessonStep[] = [
         title: text('Premik oglišča', 'Moving a vertex'),
         purpose: text('Napovedati, kaj se zgodi z razmerji, ko premaknemo oglišče.', 'Predicting what happens to the quotients when a vertex moves.'),
         explanation: text(
-            'Oglišče \\(C\\) je zdaj pri \\((6,5)\\). Premikaj ga po mreži, z vlečenjem ali z vrstico Oglišče C (polji x in y), in opazuj tri razmerja. Napovej: ali ostanejo razmerja med seboj enaka in ali ostane enaka tudi njihova skupna vrednost?',
-            'The vertex \\(C\\) is now at \\((6,5)\\). Move it on the grid, by dragging or with the row Vertex C (fields x and y), and watch the three quotients. Predict: do the quotients stay equal to one another, and does their common value stay the same too?',
+            'Oglišče \\(C\\) je zdaj pri \\((6,5)\\). Premikaj ga po mreži, z vlečenjem ali z vrstico \(C\) (polji \(x\) in \(y\)), in opazuj tri razmerja. Napovej: ali ostanejo razmerja med seboj enaka in ali ostane enaka tudi njihova skupna vrednost?',
+            'The vertex \\(C\\) is now at \\((6,5)\\). Move it on the grid, by dragging or with the row \(C\) (fields \(x\) and \(y\)), and watch the three quotients. Predict: do the quotients stay equal to one another, and does their common value stay the same too?',
         ),
         formulaIds: [],
         observationPrompt: text('Primerjaj tri razmerja pri \\(C=(6,5)\\) z razmerji pri \\(C=(2,4)\\) in premakni \\(C\\) še na nekaj drugih točk.', 'Compare the three quotients at \\(C=(6,5)\\) with those at \\(C=(2,4)\\) and move \\(C\\) to a few other points.'),

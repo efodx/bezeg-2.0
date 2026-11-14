@@ -22,7 +22,7 @@ export function SurfaceCameraPanel({camera, actions, children}: {
 }) {
     const t = useT();
     return <div className="inspector-group"><h3>{t("patch_camera_heading")}</h3>
-        <div className="workspace-curve-picker">
+        <div className="workspace-curve-picker workspace-view-buttons">
             <Button onClick={() => actions.applyCameraPreset("front")}>{t("patch_view_front")}</Button>
             <Button onClick={() => actions.applyCameraPreset("top")}>{t("patch_view_top")}</Button>
             <Button onClick={() => actions.applyCameraPreset("side")}>{t("patch_view_side")}</Button>

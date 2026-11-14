@@ -182,6 +182,21 @@ for (const lang of LANGUAGES) {
                 for (const gap of gaps) expect(gap).toBeGreaterThanOrEqual(10);
             });
 
+            // Control-choice step 4b (S7): the buttons of one playback row share its width equally; three share one row, four wrap 2 + 2.
+            if (!view.text200) test('the buttons of a playback row have equal widths', async ({page}) => {
+                await openFixture(page, lang, view);
+                const rows = await page.evaluate(() => [...document.querySelectorAll('[data-playback-row]')].map(row => ({
+                    count: row.getAttribute('data-playback-row'),
+                    widths: [...row.querySelectorAll('button')].map(b => Math.round(b.getBoundingClientRect().width)),
+                    lines: new Set([...row.querySelectorAll('button')].map(b => Math.round(b.getBoundingClientRect().top))).size,
+                })));
+                expect(rows.length, 'measured playback rows (two inspectors, two rows each)').toBe(4);
+                for (const row of rows) {
+                    expect(Math.max(...row.widths) - Math.min(...row.widths), `playback row of ${row.count}: ${row.widths}`).toBeLessThanOrEqual(1);
+                }
+                for (const row of rows) expect(row.lines, `${row.count} buttons`).toBe(row.count === '3' ? 1 : 2);
+            });
+
             test('no label, value or hint is clipped', async ({page}) => {
                 await openFixture(page, lang, view);
                 const result = await page.evaluate(findClipping);

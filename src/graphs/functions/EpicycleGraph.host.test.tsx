@@ -114,7 +114,7 @@ const refusal = () => document.querySelector('[data-refusal-notice]')?.textConte
 const rows = () => document.querySelectorAll('[data-testid="epicycle-table"] tbody tr');
 const cell = (k: number) => document.querySelector(`[data-testid="epicycle-table"] tr[data-k="${k}"] td`)?.textContent;
 const vertexField = (i: number, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Krajišče ${i + 1}, ${axis}$`)) as HTMLInputElement;
-const controlField = (i: number, which: 1 | 2, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Kontrolna točka ${i + 1}\\.${which}, ${axis}$`)) as HTMLInputElement;
+const controlField = (i: number, which: 1 | 2, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^C${'₀₁₂₃₄₅₆₇₈₉'[i + 1]}\\.${'₀₁₂₃₄₅₆₇₈₉'[which]}, ${axis}$`)) as HTMLInputElement;
 const PLAY_LABEL = 'Predvajaj';
 const playButton = () => document.querySelector('[data-action="play-pause"]') as HTMLElement;
 /** Drags a handle as the board does: the position changes, then the drag handlers run. */
