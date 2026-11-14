@@ -34,7 +34,7 @@ test('a typed value outside the range is explained and not committed', () => {
 test('an integer slider shows integers in the field and the bounds', () => {
     render(<Slider customText="Število točk" min={1} max={40} step={1} value={12} onChange={() => undefined}/>);
     expect(screen.getByRole('spinbutton', {name: 'Število točk, vrednost'})).toHaveValue('12');
-    const bounds = document.querySelector('.slider-range')!.textContent ?? '';
+    const bounds = [...document.querySelectorAll('.slider-bound')].map(b => b.textContent).join(' ') ?? '';
     expect(bounds).toContain('40');
     expect(bounds).not.toContain(',');
 });
@@ -66,17 +66,17 @@ test('Shift with an arrow, PageUp and PageDown move the range by the big step (t
     expect(onChange).toHaveBeenLastCalledWith(100);
 });
 
-test('the slider has its own presentation class and lists its range summary and help in aria-describedby', () => {
+test('the slider has its own presentation class and keeps the range in min and max and lists only its help in aria-describedby', () => {
     const {container} = render(<Slider customText="Parameter α" min={0} max={1} value={0.5} help="Kratka razlaga" onChange={() => undefined}/>);
     expect(container.querySelector('form')).toHaveClass('slider-field');
     const range = screen.getByLabelText('Parameter α') as HTMLInputElement;
     expect(range).toHaveAccessibleDescription(expect.stringContaining('Kratka razlaga'));
-    expect(range.getAttribute('aria-describedby')!.split(' ')).toHaveLength(2);
+    expect(range.getAttribute('aria-describedby')!.split(' ')).toHaveLength(1);
 });
 
 test('hideBounds leaves out the min and max labels and their description', () => {
     render(<Slider customText="Točka A" min={0} max={9} step={1} cyclic={10} value={3} hideBounds formatValue={v => `(${v}, 0)`} help="Kratka razlaga" onChange={() => undefined}/>);
-    expect(document.querySelector('.slider-range')).toBeNull();
+    expect(document.querySelector('.slider-bound')).toBeNull();
     const range = screen.getByLabelText('Točka A') as HTMLInputElement;
     expect(range.getAttribute('aria-describedby')!.split(' ')).toHaveLength(1);
     expect(range).toHaveAccessibleDescription('Kratka razlaga');
@@ -169,4 +169,29 @@ test('valueText sets the thumb text without removing the exact field', () => {
     render(<Slider customText="Kot" min={0} max={360} step={1} value={35} valueText={value => `${value}°`} onChange={() => undefined}/>);
     expect(screen.getByLabelText('Kot')).toHaveAttribute('aria-valuetext', '35°');
     expect(screen.getByRole('spinbutton')).toBeInTheDocument();
+});
+
+test('the bounds are plain numbers at the ends of the track, hidden from assistive technology, while the range keeps min and max', () => {
+    render(<Slider customText="Parameter α" min={-4} max={4} step={1} value={0} onChange={() => undefined}/>);
+    expect(document.body.textContent).not.toMatch(/Min|Max/);
+    const bounds = [...document.querySelectorAll('.slider-bound')];
+    expect(bounds.map(b => b.textContent)).toEqual(['−4', '4']);
+    for (const bound of bounds) expect(bound).toHaveAttribute('aria-hidden', 'true');
+    const range = screen.getByLabelText('Parameter α') as HTMLInputElement;
+    expect(range).toHaveAttribute('min', '-4');
+    expect(range).toHaveAttribute('max', '4');
+    expect(document.querySelector('.slider-track')).toHaveAttribute('data-bounds', 'inline');
+});
+
+test('long bounds drop to a row under the track so the track keeps its width', () => {
+    render(<Slider customText="Parameter" min={-10000000} max={10000000} step={1} value={0} onChange={() => undefined}/>);
+    expect(document.querySelector('.slider-track')).toHaveAttribute('data-bounds', 'caption');
+});
+
+test('describedBy reaches the range input and the exact field next to the slider own ids', () => {
+    render(<div><p id="note">Pojasnilo</p><Slider customText="Parameter" min={0} max={1} value={0.5} help="Kratka razlaga" describedBy="note" onChange={() => undefined}/></div>);
+    const range = screen.getByLabelText('Parameter') as HTMLInputElement;
+    expect(range.getAttribute('aria-describedby')!.split(' ')).toContain('note');
+    expect(range).toHaveAccessibleDescription(expect.stringContaining('Pojasnilo'));
+    expect(screen.getByRole('spinbutton').getAttribute('aria-describedby')!.split(' ')).toContain('note');
 });

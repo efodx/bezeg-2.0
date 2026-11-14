@@ -489,7 +489,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     protected workspaceDisplay(): React.ReactNode {
         const graphDisplay = this.workspaceGraphDisplay();
         return <>{graphDisplay && <div className="inspector-display-graph">{graphDisplay}</div>}
-            <InspectorDisclosure title={t("coordinate_system")}><div className="inspector-control"><AxisSelector selected={this.displaySettings.getAxisSelect()}
+            <InspectorDisclosure title={t("coordinate_system")}><div className="inspector-control axis-select-field"><AxisSelector selected={this.displaySettings.getAxisSelect()}
                 onChange={selected => this.setAxisSelect(selected)}/></div></InspectorDisclosure>
             <InspectorDisclosure title={t("element_sizes")}>
                 <SizeRange size={this.displaySettings.getSize()} onChange={size => this.setElementSize(size)}/></InspectorDisclosure></>;

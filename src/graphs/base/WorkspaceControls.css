@@ -90,6 +90,8 @@
 .workspace-inspector .form-label { margin-bottom:5px; }
 .workspace-learning button { font-size:.8rem; }
 #inspector-display .inspector-group > h3 { margin-bottom:8px; }
+/* The disclosure is already titled "Koordinatni sistem": its one select keeps the label as its accessible name but does not show it again. */
+.axis-select-field .form-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 #inspector-display .inspector-control:has(.bool-field) { margin:0; }
 
 /* Accepted A layout: give the inspector a clear context header and quieter, card-like controls. */

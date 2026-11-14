@@ -259,7 +259,7 @@ test('the inspector never shows the table index, and editing a slider keeps the 
     expect(document.body.textContent).not.toContain(`od ${DIRECTION_TABLE_SIZE}`);
     expect(document.querySelectorAll('[data-pascal-handle] input[type="number"]')).toHaveLength(0);
     // The two ends of a point's slider are neighbours on the conic, not extremes: no Min/Max labels.
-    expect(document.querySelectorAll('[data-pascal-handle] .slider-range')).toHaveLength(0);
+    expect(document.querySelectorAll('[data-pascal-handle] .slider-bound')).toHaveLength(0);
 });
 
 test('switching the conic leaves no stale objects and renames the points', () => {

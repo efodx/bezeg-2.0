@@ -45,7 +45,7 @@ The inspector is 310 px wide on desktop (about 286 px of content) and the full w
 
 | Control | Import | For | Notes |
 | --- | --- | --- | --- |
-| `Slider` | `src/inputs/Slider` | A ranged number | `customText` is its name. Exact field unless `formatValue` is set. `grid` snaps typed values with a notice; `cyclic` wraps; `unavailableReason` keeps it focusable; `hideBounds` drops the min and max labels. Arrow is one step, Shift or Page the `bigStep` |
+| `Slider` | `src/inputs/Slider` | A ranged number | `customText` is its name. Exact field unless `formatValue` is set. `grid` snaps typed values with a notice; `cyclic` wraps; `unavailableReason` keeps it focusable; `hideBounds` drops the bounds, which otherwise sit as plain numbers at the two ends of the track (under it when both are long); `describedBy` adds ids to the range and the exact field. Arrow is one step, Shift or Page the `bigStep` |
 | `AngleSlider` | `src/inputs/AngleSlider` | Degrees, 0 to 360, wrapping | Only the name, value and callbacks vary |
 | `CountSetter` | `src/inputs/CountSetter` | An integer count | − value +. Buttons are unavailable with a reason at the bounds. `onSet` makes the value typeable |
 | `NumberInput` | `src/inputs/NumberInput` | A typed number with no useful range; a grid cell | Commits on Enter or blur. Out of range is refused with a message, never clamped. `compact` and `hideLabel` are for cells inside another control |

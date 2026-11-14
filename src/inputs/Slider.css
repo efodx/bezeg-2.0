@@ -1,10 +1,15 @@
-/* A slider owns its look: the name and the exact value field above the range, the bounds below. Hosts may only space it. */
-.slider-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
-/* The label's zero basis keeps it wrapping beside the field; a long name wraps instead of pushing the field out. */
-.slider-label > label { flex: 1 1 0; max-width: 100%; overflow-wrap: break-word; }
+/* A slider owns its look: the name and the exact value field above the range, the two bounds at the ends of the track. Hosts may only space it. */
+.slider-label { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 4px 12px; margin-bottom: 4px; }
+/* The label sizes to its text; a name too long to sit beside the field takes the whole row and the field wraps under it, right aligned (a name wraps to a second line at most at 286 px). */
+.slider-field .slider-label > label { flex: 1 1 auto; max-width: 100%; margin-bottom: 0; overflow-wrap: break-word; }
 .slider-label > .number-input, .slider-label > output { margin-left: auto; }
 .slider-label output { font-size: .8rem; font-variant-numeric: tabular-nums; padding: 1px 6px; background: var(--workspace-canvas-deep); border: 1px solid var(--workspace-rule); border-radius: 2px; align-self: start; }
-.slider-range { display: flex; justify-content: space-between; color: var(--workspace-ink-soft); font-size: .75rem; line-height: 1.4; font-variant-numeric: tabular-nums; margin-top: 2px; margin-bottom: 6px; }
+/* The bounds sit at the two ends of the track's own line. Long bounds (data-bounds="caption") drop under the track, so the track never shrinks below about 150 px. */
+.slider-track { display: flex; align-items: center; gap: 8px; }
+.slider-bound { flex: none; color: var(--workspace-ink-soft); font-size: .75rem; line-height: 1.4; font-variant-numeric: tabular-nums; }
+.slider-track .form-range { flex: 1 1 150px; min-width: 150px; width: auto; }
+.slider-track[data-bounds="caption"] { flex-wrap: wrap; justify-content: space-between; row-gap: 0; }
+.slider-track[data-bounds="caption"] .form-range { order: -1; flex-basis: 100%; }
 .slider-field .form-range { display: block; margin-bottom: 0; }
 /* Track and thumb (the thumb fill goes through --range-thumb-bg, which the global !important rule in bootstrap-overrides.scss reads): the track's edge uses the border token, the thumb the selected surface with a border-token edge; the focus ring shows on the thumb and the field. */
 .slider-field .form-range { background: transparent; --range-thumb-bg: var(--bezeg-control-selected-surface); }

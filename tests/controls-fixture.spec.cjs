@@ -172,6 +172,16 @@ for (const lang of LANGUAGES) {
                 expect(result.problems).toEqual([]);
             });
 
+            // Rhythm of a group (DemonstrationWorkspace.css): a slider directly followed by a slider leaves room between the first track and the second label.
+            if (!view.text200) test('stacked sliders keep at least 10 px between the first slider and the next label', async ({page}) => {
+                await openFixture(page, lang, view);
+                const gaps = await page.evaluate(() => [...document.querySelectorAll('form.slider-field')]
+                    .filter(first => first.nextElementSibling?.matches('form.slider-field'))
+                    .map(first => first.nextElementSibling.querySelector('label').getBoundingClientRect().top - first.getBoundingClientRect().bottom));
+                expect(gaps.length, 'stacked slider pairs').toBeGreaterThan(0);
+                for (const gap of gaps) expect(gap).toBeGreaterThanOrEqual(10);
+            });
+
             test('no label, value or hint is clipped', async ({page}) => {
                 await openFixture(page, lang, view);
                 const result = await page.evaluate(findClipping);

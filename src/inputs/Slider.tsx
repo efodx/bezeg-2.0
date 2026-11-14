@@ -44,7 +44,12 @@ interface SliderProps {
     valueText?: (value: number) => string
     /** Leaves out the min and max labels, for a cyclic slider whose two ends are neighbours rather than extremes. */
     hideBounds?: boolean
+    /** Ids of elements that describe the slider (for example a readout of what it controls); added to the range input's and the exact field's own descriptions. */
+    describedBy?: string
 }
+
+/** Together longer than this, the two bounds would squeeze the track below about 150 px at the inspector's 286 px, so they drop to a row under it. */
+const INLINE_BOUNDS_CHARACTERS = 16;
 
 /** Decimal places of a step as written (0.05 has 2, 0.015 has 3); a step in exponent notation counts as 6. */
 function stepDecimals(step: number): number {
@@ -71,17 +76,20 @@ export default function Slider(props: SliderProps) {
     };
     const exact = props.formatValue === undefined;
     const show = props.formatValue ?? ((value: number) => formatNumber(value, language, decimals));
+    const bounds = props.hideBounds ? undefined : {min: show(props.min), max: show(props.max), inline: show(props.min).length + show(props.max).length <= INLINE_BOUNDS_CHARACTERS};
     return <Form className="slider-field">
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={cyclic === undefined ? props.min : undefined}
                                max={cyclic === undefined ? props.max : undefined} step={step} bigStep={props.bigStep}
                                decimals={fieldDecimals ?? decimals} integer={integer && fieldDecimals === undefined} grid={props.grid} disabled={props.disabled}
-                               unavailableReason={unavailableReason} reasonShownElsewhere describedBy={unavailableReason && `${id}-reason`} rejectedHint={props.rejectedHint}
+                               unavailableReason={unavailableReason} reasonShownElsewhere describedBy={joinIds(unavailableReason && `${id}-reason`, props.describedBy)} rejectedHint={props.rejectedHint}
                                onChange={value => (props.onTypedChange ?? props.onChange)(wrap(value))}
                                onStepChange={value => props.onChange(wrap(value))}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
-        <Form.Range id={id} aria-describedby={joinIds(!props.hideBounds && `${id}-range`, props.help && `${id}-help`, unavailableReason && `${id}-reason`)} min={props.min}
+        <div className="slider-track" data-bounds={bounds === undefined ? "none" : bounds.inline ? "inline" : "caption"}>
+            {bounds && <span className="slider-bound" aria-hidden="true">{bounds.min}</span>}
+            <Form.Range id={id} aria-describedby={joinIds(props.help && `${id}-help`, unavailableReason && `${id}-reason`, props.describedBy)} min={props.min}
                     max={props.max} value={props.value} disabled={props.disabled} aria-disabled={unavailableReason !== undefined ? true : undefined}
                     step={step} aria-valuetext={props.valueText ? props.valueText(props.value) : show(props.value)}
                     onKeyDown={e => {
@@ -96,7 +104,8 @@ export default function Slider(props: SliderProps) {
                         if (next !== props.value) props.onChange(next);
                     }}
                     onChange={e => { if (!inert) props.onChange(Number(e.target.value)); }}></Form.Range>
-        {!props.hideBounds && <div id={`${id}-range`} className="slider-range"><span>{t("min")} {show(props.min)}</span><span>{t("max")} {show(props.max)}</span></div>}
+            {bounds && <span className="slider-bound" aria-hidden="true">{bounds.max}</span>}
+        </div>
         {unavailableReason && <p id={`${id}-reason`} className="inspector-help">{unavailableReason}</p>}
         {props.help && <p id={`${id}-help`} className="inspector-help">{props.help}</p>}
     </Form>;

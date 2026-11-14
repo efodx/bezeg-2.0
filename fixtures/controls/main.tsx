@@ -146,6 +146,8 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
         </div>
         <div className="inspector-group">
             <h3>{t('element_sizes')}</h3>
+            <Slider min={0} max={10} step={1} value={slider * 10} onChange={noop} customText="a"/>
+            <Slider min={0} max={10} step={1} value={slider * 10} onChange={noop} customText="b"/>
             <div className="inspector-control"><Slider min={0} max={1} step={0.05} value={slider} onChange={setSlider} customText={text.longLabel} help={text.help}/></div>
             <div className="inspector-control" data-fixture="slider-refused"><Slider min={0} max={1} step={0.05} value={slider} onChange={refuse} customText={text.bounded} rejectedHint={text.refusal}/></div>
             <div className="inspector-control"><Slider min={0} max={1} step={0.05} value={slider} onChange={noop} customText={text.bounded} disabled help={text.reason}/></div>

@@ -159,6 +159,13 @@
 .inspector-group:last-child { border-bottom: 0; margin-bottom: 0; }
 .inspector-group h3 { margin-bottom: 10px; font-size: .93rem; font-weight: 750; letter-spacing: -.01em; }
 .inspector-group p, .inspector-help { color: var(--workspace-ink-soft); font-size: .82rem; line-height: 1.5; }
+/* Vertical rhythm of a group (:where keeps these at the specificity of one class, so a component's own margin still wins): controls that follow one
+   another are 12 px apart, a heading (or a fieldset, whose legend is its heading) after a control 16 px, a help text stays with its control, and a
+   label keeps its own 4 px to its field. */
+.inspector-group > :where(* + :not(p, .inspector-help)) { margin-top: 12px; }
+.inspector-group > * + h3, .inspector-group > * + h4, .inspector-group > * + h5, .inspector-group > * + fieldset, .inspector-group > * + .inspector-reveals-title { margin-top: 16px; }
+/* A group (its first child is a heading) that follows the graph's own controls block, not another group. */
+#inspector-content > section > :not(.inspector-group) + .inspector-group { margin-top: 16px; }
 .inspector-control { margin: 12px 0; }
 .curve-selection h3 { margin-bottom: 6px; }
 .curve-selection p { margin: 4px 0; }
@@ -352,7 +359,7 @@ body:has(.demonstration-workspace.is-presenting) .app-header .language-selector 
 .is-presenting .inspector-toolbar, .is-presenting .inspector-tabs { background: var(--bezeg-night); border-color: #50617b; }
 .is-presenting .workspace-inspector .form-label, .is-presenting .inspector-group h3 { color: var(--bezeg-night-panel); }
 .is-presenting .inspector-group { border-color: #50617b; }
-.is-presenting .inspector-group p, .is-presenting .inspector-help, .is-presenting .slider-range { color: #b5bfd0; }
+.is-presenting .inspector-group p, .is-presenting .inspector-help, .is-presenting .slider-bound { color: #b5bfd0; }
 /* Bootstrap draws form text and table captions in dark grey and h4 in black: 1.0 to 1.4 : 1 on the Presentation navy. */
 .is-presenting .workspace-inspector .form-text, .is-presenting .workspace-inspector caption { color: var(--bezeg-control-help-ink); }
 .is-presenting .workspace-inspector h4, .is-presenting .decasteljau-animation-panel h4 { color: var(--bezeg-control-ink); }

@@ -537,8 +537,6 @@ export const en: Record<keyof typeof sl, string> = {
     "preview_elevation": "Preview degree elevation",
     "preview_decasteljau_scheme": "Preview construction",
     "decrease_count": "Decrease count",
-    "min": "Min:",
-    "max": "Max:",
     "bezier_curves": "Bézier curves",
     "rational_bezier_curves": "Rational Bézier curves",
     "splines": "Splines",

@@ -536,8 +536,6 @@ export const sl = {
     "preview_elevation": "Predogled dviga stopnje",
     "preview_decasteljau_scheme": "Predogled konstrukcije",
     "decrease_count": "Zmanjšaj število",
-    "min": "Min:",
-    "max": "Max:",
     "bezier_curves": "Bezierjeve Krivulje",
     "rational_bezier_curves": "Racionalne Bezierjeve Krivulje",
     "splines": "Zlepki",
