@@ -9,7 +9,7 @@ import {descentPresetCollection} from "./descentPresetCollection";
 import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import {BooleanField} from "../../inputs/BooleanField";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -23,7 +23,7 @@ import {fitBoundingBox} from "../base/fitBoundingBox";
 import {G} from "../../mechanics/descentTime";
 import type {Track, Vec2} from "../../mechanics/tracks";
 import {
-    beadParameter, checkField, DEFAULT_DESCENT_STATE, DESCENT_MODES, deriveDescent, DescentDerived, DescentMode, DescentState, FIELD_RANGES,
+    beadParameter, checkField, DEFAULT_DESCENT_STATE, DESCENT_MODES, deriveDescent, DescentDerived, DescentMode, DescentState, FIELD_RANGES, isThetaField, QUARTER,
     NumericField, parseDescentState, RaceDerived, RaceTrackId, serializeDescentState, snapDrag, TautochroneDerived, ThetaField, THETA_FIELDS, ToggleField, TrackDerived,
 } from "../../mechanics/trackModel";
 
@@ -65,8 +65,7 @@ const RESIZE_SETTLE_MS = 150;
 const REDUCED_REASON_ID = "descent-play-reduced-reason";
 
 const FIELD_LABEL_KEYS = {
-    radius: "descent_graph_radius_label", endX: "descent_graph_end_x_label", endY: "descent_graph_end_y_label", p1x: "descent_graph_p1x_label",
-    p1y: "descent_graph_p1y_label", p2x: "descent_graph_p2x_label", p2y: "descent_graph_p2y_label", theta1: "descent_graph_theta1_label",
+    radius: "descent_graph_radius_label", theta1: "descent_graph_theta1_label",
     theta2: "descent_graph_theta2_label", theta3: "descent_graph_theta3_label",
 } as const;
 
@@ -954,17 +953,50 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
-    private numberField(field: NumericField, helpKey: "descent_graph_radius_help" | "descent_graph_x_help" | "descent_graph_depth_help" | "descent_graph_control_depth_help"
-        | "descent_graph_theta_help"): JSX.Element {
+    private rangeParams(field: NumericField) {
         const range = FIELD_RANGES[field];
-        const theta = (THETA_FIELDS as readonly string[]).includes(field);
-        const params = {value0: dec(range.min, 2), value1: dec(range.max, theta ? 1 : 2), value2: dec(range.step, 2)};
-        const thetaField = theta ? field as ThetaField : undefined;
-        return <NumberInput key={field} label={t(FIELD_LABEL_KEYS[field])} value={this.state[field]} step={range.step} bigStep={theta ? 0.5 : 1}
-                            min={range.min} max={theta ? Math.PI : range.max} decimals={2} help={t(helpKey, params)}
-                            rejectedHint={t(theta ? "descent_graph_theta_rejected" : "descent_graph_field_rejected", params)}
-                            onChange={value => this.editNumber(field, value)}
-                            onStepChange={thetaField ? value => this.stepTheta(thetaField, value) : undefined}/>;
+        const theta = isThetaField(field);
+        return {value0: dec(range.min, 2), value1: dec(range.max, theta ? 1 : 2), value2: dec(range.step, 2)};
+    }
+
+    /** The radius slider: typed values and drags go through `editNumber` (a drag lands on the grid anyway). */
+    private radiusSlider(): JSX.Element {
+        const range = FIELD_RANGES.radius;
+        return <Slider key="radius" customText={t(FIELD_LABEL_KEYS.radius)} value={this.state.radius} min={range.min} max={range.max} step={range.step} bigStep={1}
+                       decimals={2} help={t("descent_graph_radius_help")} rejectedHint={t("descent_graph_field_rejected", this.rangeParams("radius"))}
+                       onChange={value => this.editNumber("radius", value)}/>;
+    }
+
+    /**
+     * A start parameter: the slider's drag and step keys (`onChange`) snap to the grid (and to π after 3,1) like a handle drag; typed text
+     * (`onTypedChange`) is stored exactly or refused.
+     */
+    private thetaSlider(field: ThetaField, help?: string): JSX.Element {
+        const range = FIELD_RANGES[field];
+        return <Slider key={field} customText={t(FIELD_LABEL_KEYS[field])} value={this.state[field]} min={range.min} max={Math.PI} step={range.step} bigStep={0.5}
+                       decimals={2} help={help} rejectedHint={t("descent_graph_theta_rejected", this.rangeParams(field))}
+                       onChange={value => this.stepTheta(field, value)} onTypedChange={value => this.editNumber(field, value)}/>;
+    }
+
+    /** B, P1 and P2 as three rows of one list; each coordinate has its own range, so a refusal names the range of the field that failed. */
+    private trackPoints(): JSX.Element {
+        const s = this.state;
+        const rows = [
+            {name: "descent_graph_name_b", x: "endX", y: "endY", point: [s.endX, s.endY]},
+            {name: "descent_graph_name_p1", x: "p1x", y: "p1y", point: [s.p1x, s.p1y]},
+            {name: "descent_graph_name_p2", x: "p2x", y: "p2y", point: [s.p2x, s.p2y]},
+        ] as const;
+        return <div className="inspector-group" key="track-points">
+            <PointListInput title={t("descent_graph_points_title")} points={rows.map(row => row.point)} pointLabel={index => t(rows[index].name)}
+                            axisLabels={["x", t("descent_graph_axis_depth")]} decimals={2} step={QUARTER}
+                            onCommit={(index, [x, y]) => {
+                                const row = rows[index];
+                                const failed = ([[row.x, x], [row.y, y]] as const).find(([field, value]) => !checkField(field, value).ok);
+                                if (failed) return t("descent_graph_field_rejected", this.rangeParams(failed[0]));
+                                this.edit({[row.x]: x, [row.y]: y});
+                            }}/>
+            <p className="inspector-help">{t("descent_graph_depth_note")}</p>
+        </div>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -974,19 +1006,17 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
                           options={DESCENT_MODES.map(value => ({value, text: t(MODE_KEYS[value])}))}
                           onChange={value => { const mode = DESCENT_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
         ];
-        if (state.mode === "race") commands.push(this.numberField("radius", "descent_graph_radius_help"));
+        if (state.mode === "race") commands.push(this.radiusSlider());
         else if (state.mode === "track") {
             commands.push(
-                this.numberField("endX", "descent_graph_x_help"), this.numberField("endY", "descent_graph_depth_help"),
-                this.numberField("p1x", "descent_graph_x_help"), this.numberField("p1y", "descent_graph_control_depth_help"),
-                this.numberField("p2x", "descent_graph_x_help"), this.numberField("p2y", "descent_graph_control_depth_help"),
+                this.trackPoints(),
                 <BooleanField key="showCycloid" variant="switch" label={t("descent_graph_show_cycloid")} help={t("descent_graph_show_cycloid_help")}
                               checked={state.showCycloid} onChange={on => this.editToggle("showCycloid", on)}/>,
             );
         } else {
             commands.push(
-                this.numberField("radius", "descent_graph_radius_help"),
-                this.numberField("theta1", "descent_graph_theta_help"), this.numberField("theta2", "descent_graph_theta_help"), this.numberField("theta3", "descent_graph_theta_help"),
+                this.radiusSlider(),
+                this.thetaSlider("theta1", t("descent_graph_theta_help")), this.thetaSlider("theta2"), this.thetaSlider("theta3"),
                 <BooleanField key="showArc" variant="switch" label={t("descent_graph_show_arc")} help={t("descent_graph_show_arc_help")}
                               checked={state.showArc} onChange={on => this.editToggle("showArc", on)}/>,
             );

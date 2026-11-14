@@ -6,7 +6,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
-import type {DescentMode} from '../../mechanics/trackModel';
+import type {DescentMode, NumericField} from '../../mechanics/trackModel';
 import {DescentGraph} from './DescentGraph';
 
 beforeAll(installBoardShims);
@@ -28,10 +28,10 @@ const setMode = (mode: DescentMode): LessonAction => ({kind: 'descent', operatio
 const setTime = (value: number): LessonAction => ({kind: 'descent', operation: 'set-time', t: value});
 const setParams = (params: Omit<ParamsAction, 'kind' | 'operation'>): LessonAction => ({kind: 'descent', operation: 'set-params', ...params});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
-const type = (key: typeof KEYS[keyof typeof KEYS], value: string) => act(() => { enterNumber(field(t(key)), value); });
+const type = (name: NumericField, value: string) => act(() => { enterNumber(field(fieldName(name)), value); });
 const toggle = (key: 'descent_graph_show_cycloid' | 'descent_graph_show_arc') => act(() => { fireEvent.click(field(t(key))); });
 const choose = (mode: DescentMode) => act(() => { fireEvent.change(field(t('descent_graph_mode_label')), {target: {value: mode}}); });
-const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider'), {target: {value: String(value)}}); });
+const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider', {name: t('descent_graph_time_label')}), {target: {value: String(value)}}); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-descent-status]')?.textContent;
 const stateOf = (graph: DescentGraph) => JSON.parse(JSON.stringify({...graph.state, time: graph.time, playing: graph.playing})) as Record<string, unknown>;
@@ -45,11 +45,16 @@ function after(edit: (graph: DescentGraph) => void) {
     return result;
 }
 
-const KEYS = {
-    radius: 'descent_graph_radius_label', endX: 'descent_graph_end_x_label', endY: 'descent_graph_end_y_label',
-    p1x: 'descent_graph_p1x_label', p1y: 'descent_graph_p1y_label', p2x: 'descent_graph_p2x_label', p2y: 'descent_graph_p2y_label',
-    theta1: 'descent_graph_theta1_label', theta2: 'descent_graph_theta2_label', theta3: 'descent_graph_theta3_label',
-} as const;
+/** Accessible names of the controls of each numeric field: the slider's exact field, or the field of a point row ("<point>, <axis>"). */
+const fieldName = (name: NumericField): string => {
+    const point = {endX: ['b', 'x'], endY: ['b', 'depth'], p1x: ['p1', 'x'], p1y: ['p1', 'depth'], p2x: ['p2', 'x'], p2y: ['p2', 'depth']} as const;
+    if (name in point) {
+        const [which, axis] = point[name as keyof typeof point];
+        return `${t(`descent_graph_name_${which}`)}, ${axis === 'x' ? 'x' : t('descent_graph_axis_depth')}`;
+    }
+    const key = {radius: 'descent_graph_radius_label', theta1: 'descent_graph_theta1_label', theta2: 'descent_graph_theta2_label', theta3: 'descent_graph_theta3_label'} as const;
+    return t('number_field_label', {value0: t(key[name as keyof typeof key])});
+};
 
 test('set-mode reaches the state, readouts and status of choosing the experiment in the list', () => {
     for (const mode of ['track', 'tautochrone', 'race'] as const) {
@@ -71,7 +76,7 @@ test('set-time reaches the state, readouts and status of moving the time slider'
 
 test('set-params reaches the state, readouts and status of typing into the fields and the switches', () => {
     const race = after(graph => apply(graph, setParams({radius: 0.25})));
-    expect(race).toEqual(after(() => type(KEYS.radius, '0,25')));
+    expect(race).toEqual(after(() => type('radius', '0,25')));
     expect(race.state).toEqual(expect.objectContaining({radius: 0.25}));
 
     const track = after(graph => {
@@ -80,7 +85,7 @@ test('set-params reaches the state, readouts and status of typing into the field
     });
     const trackControl = after(() => {
         choose('track');
-        for (const [name, value] of [['endX', '3'], ['endY', '1,5'], ['p1x', '0,25'], ['p1y', '1'], ['p2x', '1,5'], ['p2y', '1,75']] as const) type(KEYS[name], value);
+        for (const [name, value] of [['endX', '3'], ['endY', '1,5'], ['p1x', '0,25'], ['p1y', '1'], ['p2x', '1,5'], ['p2y', '1,75']] as const) type(name, value);
         toggle('descent_graph_show_cycloid');
     });
     expect(track).toEqual(trackControl);
@@ -92,7 +97,7 @@ test('set-params reaches the state, readouts and status of typing into the field
     });
     const beadControl = after(() => {
         choose('tautochrone');
-        for (const [name, value] of [['radius', '2'], ['theta1', '1'], ['theta2', '2,05'], ['theta3', '3,1']] as const) type(KEYS[name], value);
+        for (const [name, value] of [['radius', '2'], ['theta1', '1'], ['theta2', '2,05'], ['theta3', '3,1']] as const) type(name, value);
         toggle('descent_graph_show_arc');
     });
     expect(bead).toEqual(beadControl);
@@ -117,9 +122,9 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     cleanup();
     const viaControl = after(() => {
         choose('track');
-        for (const [name, value] of [['endX', '3'], ['endY', '1,5'], ['p1x', '1'], ['p1y', '0,5'], ['p2x', '2'], ['p2y', '1']] as const) type(KEYS[name], value);
+        for (const [name, value] of [['endX', '3'], ['endY', '1,5'], ['p1x', '1'], ['p1y', '0,5'], ['p2x', '2'], ['p2y', '1']] as const) type(name, value);
         slide(1.24);
-        for (const [name, value] of [['p1x', '0,25'], ['p1y', '1'], ['p2x', '1,5'], ['p2y', '1,75']] as const) type(KEYS[name], value);
+        for (const [name, value] of [['p1x', '0,25'], ['p1y', '1'], ['p2x', '1,5'], ['p2y', '1,75']] as const) type(name, value);
         slide(0.99);
     });
     expect(viaControl).toEqual(here);

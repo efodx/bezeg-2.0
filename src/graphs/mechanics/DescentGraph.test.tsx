@@ -51,18 +51,23 @@ const readout = (id: string) => document.querySelector(`[data-readout="${id}"] d
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-const slider = () => screen.getByRole('slider') as HTMLInputElement;
+const slider = () => screen.getByRole('slider', {name: t('descent_graph_time_label')}) as HTMLInputElement;
 const status = () => document.querySelector('[data-descent-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const chooseMode = (mode: DescentMode) => act(() => { fireEvent.change(field(t('descent_graph_mode_label')), {target: {value: mode}}); });
 
-const LABELS = {
-    radius: 'descent_graph_radius_label', endX: 'descent_graph_end_x_label', endY: 'descent_graph_end_y_label',
-    p1x: 'descent_graph_p1x_label', p1y: 'descent_graph_p1y_label', p2x: 'descent_graph_p2x_label', p2y: 'descent_graph_p2y_label',
-    theta1: 'descent_graph_theta1_label', theta2: 'descent_graph_theta2_label', theta3: 'descent_graph_theta3_label',
-} as const satisfies Record<NumericField, string>;
-const label = (name: NumericField) => t(LABELS[name]);
+/** Accessible names of the controls of each numeric field: the slider's exact field, or the field of a point row ("<point>, <axis>"). */
+const fieldName = (name: NumericField): string => {
+    const point = {endX: ['b', 'x'], endY: ['b', 'depth'], p1x: ['p1', 'x'], p1y: ['p1', 'depth'], p2x: ['p2', 'x'], p2y: ['p2', 'depth']} as const;
+    if (name in point) {
+        const [which, axis] = point[name as keyof typeof point];
+        return `${t(`descent_graph_name_${which}`)}, ${axis === 'x' ? 'x' : t('descent_graph_axis_depth')}`;
+    }
+    const key = {radius: 'descent_graph_radius_label', theta1: 'descent_graph_theta1_label', theta2: 'descent_graph_theta2_label', theta3: 'descent_graph_theta3_label'} as const;
+    return t('number_field_label', {value0: t(key[name as keyof typeof key])});
+};
+const label = fieldName;
 
 type Probe = {elType: string; plaintext?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number; evalVisProp(name: string): unknown};
 const probes = (graph: ObservedGraph) => graph.liveBoard().objectsList as unknown as Probe[];
@@ -311,7 +316,7 @@ describe('tautochrone repairs', () => {
         expect(graph.state.theta1).toBe(3.1);
         // The field refuses it (3,1416 is above pi) and its help, read with the field, says how pi is reached.
         expect(document.body.textContent).toContain('Vnesi vrednost med 0 in 3,14.');
-        expect(document.body.textContent).toContain('tudi 3,1416. Korak naprej po 3,1 pride na π');
+        expect(document.body.textContent).toContain('Do π prideš s korakom naprej po 3,1');
         act(() => { fireEvent.keyDown(field(label('theta1')), {key: 'ArrowUp'}); });
         expect(graph.state.theta1).toBe(Math.PI);
         expect(readout('bead-1')).toContain('najnižji');
@@ -401,20 +406,22 @@ describe('typed input and dragging', () => {
         const {graph} = mountGraph();
         const described = (element: HTMLElement) => (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
             .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-        expect(described(field(label('radius')))).toContain('od 0,25 do 3, korak 0,25');
+        const slideName = (key: 'descent_graph_radius_label' | 'descent_graph_theta1_label') => screen.getByRole('slider', {name: t(key)}) as HTMLInputElement;
+        // The range is shown by the slider (its bounds), so the help no longer states it; the slider is described by its bounds and its help.
+        expect(described(slideName('descent_graph_radius_label'))).toContain('0,25');
+        expect(described(slideName('descent_graph_radius_label'))).toContain('Merjen v metrih.');
         expect(described(field(t('descent_graph_mode_label'))).length).toBeGreaterThan(10);
         expect(described(slider())).toContain(`od 0 do ${String(graph.derived().tEnd).replace('.', ',')}`.slice(0, 8));
         chooseMode('track');
-        expect(described(field(label('endX')))).toContain('od 0,25 do 6, korak 0,25');
-        expect(described(field(label('endY')))).toContain('od 0,25 do 4, korak 0,25');
-        expect(described(field(label('p1x')))).toContain('od 0 do 6, korak 0,25');
-        expect(described(field(label('p1y')))).toContain('od -2 do 4'.replace('-', '−'));
+        // The three points are one list: one row each, named as the board names them, with the depth note shown once below it.
+        for (const point of ['b', 'p1', 'p2'] as const) {
+            expect(screen.getByRole('group', {name: t(`descent_graph_name_${point}`)})).toBeTruthy();
+        }
+        expect(document.body.textContent).toContain(t('descent_graph_depth_note'));
         expect(described(field(t('descent_graph_show_cycloid'))).length).toBeGreaterThan(10);
         chooseMode('tautochrone');
-        const thetaHelp = described(field(label('theta1')));
-        expect(thetaHelp).toContain('od 0 do π (3,1416; najnižja točka), korak 0,05');
-        expect(thetaHelp).toContain('Korak naprej po 3,1 pride na π');
-        expect(thetaHelp).not.toContain('od 0 do 3,1,');
+        const thetaHelp = described(slideName('descent_graph_theta1_label'));
+        expect(thetaHelp).toContain('Do π prideš s korakom naprej po 3,1');
         expect(described(field(t('descent_graph_show_arc'))).length).toBeGreaterThan(10);
     });
 
