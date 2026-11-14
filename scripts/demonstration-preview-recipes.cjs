@@ -236,8 +236,24 @@ function pointsOutsideFrame(points, width, height, margin = SURFACE_FRAME_MARGIN
         p.x >= margin && p.x <= width - margin && p.y >= margin && p.y <= height - margin)).map(p => p.id);
 }
 
-function validateRecipes(demonstrations, registry = recipes) {
-    assert.deepEqual(Object.keys(registry).sort(), demonstrations.map(d => d.id).sort(), 'Recipes must exhaustively match shipped IDs');
+/** IDs of the Demonstrations whose capture is stored in the committed manifest (empty when there is none yet). */
+function storedCaptureIds() {
+    try { return require('./demonstration-previews/manifest.json').captures.map(c => c.id); } catch { return []; }
+}
+
+const MATH_NAMES = ['sin', 'cos', 'tan', 'exp', 'log', 'sgn', 'arg', 'Re', 'Im', 'max', 'min'];
+/** Runs of three or more letters in a kept capture text, apart from mathematical function names (capability C3: no prose in a poster). */
+function foreignLetterRuns(text) {
+    const letter = /\p{L}/u.source;
+    const names = new RegExp(`(?<!${letter})(?:${MATH_NAMES.join('|')})(?!${letter})`, 'gu');
+    return text.replace(names, ' ').match(/\p{L}{3,}/gu) || [];
+}
+
+/** A recipe must name a shipped Demonstration; a shipped Demonstration needs one only while it has a stored capture. */
+function validateRecipes(demonstrations, registry = recipes, captured = storedCaptureIds()) {
+    const shipped = demonstrations.map(d => d.id);
+    assert.deepEqual(Object.keys(registry).filter(id => !shipped.includes(id)), [], 'Recipes must exhaustively match shipped IDs (unknown recipe)');
+    assert.deepEqual(captured.filter(id => !registry[id]), [], 'Recipes must exhaustively match shipped IDs (stored capture without recipe)');
     for (const [id, recipe] of Object.entries(registry)) {
         assert.equal(recipe.id, id);
         assert.ok(recipe.intent && recipe.annotations && recipe.checkpoint);
@@ -479,5 +495,5 @@ async function applyRecipe(page, recipe) {
     return recipe.framing.kind === 'surface-view' ? surfaceOutcome(page, recipe.id) : outcome(page, recipe.id);
 }
 
-module.exports = {recipes, validateRecipes, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence,
+module.exports = {recipes, validateRecipes, storedCaptureIds, foreignLetterRuns, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence,
     readSurfaceFraming, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX};

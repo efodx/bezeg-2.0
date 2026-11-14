@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {JSDOM} = require('jsdom');
-const {recipes, validateRecipes} = require('./demonstration-preview-recipes.cjs');
+const {recipes, validateRecipes, foreignLetterRuns} = require('./demonstration-preview-recipes.cjs');
 const {applyCaptureText, captureTextPolicy, serializableRecipe, presentBoard} = require('./capture-demonstration-previews.cjs');
 const catalog = require('../tests/smoke-catalog.cjs');
 
@@ -93,4 +93,19 @@ test('a line that starts matching again is shown again', () => {
     assert.equal(shown(object.rendNode), false);
     applyCaptureText([object], policy([/plain/]));
     assert.equal(shown(object.rendNode), true);
+});
+
+test('C3: kept capture text carries no run of three letters apart from mathematical names', () => {
+    assert.deepEqual(foreignLetterRuns('r = 0,8468'), []);
+    assert.deepEqual(foreignLetterRuns('f(x) = sin(t) + max(Re z, Im z) - arg z'), []);
+    assert.deepEqual(foreignLetterRuns('Korelacijski koeficient r = 0,8'), ['Korelacijski', 'koeficient']);
+    assert.deepEqual(foreignLetterRuns('sinus x'), ['sinus']);
+    const manifest = require('./demonstration-previews/manifest.json');
+    for (const capture of manifest.captures) {
+        if (!recipes[capture.id]?.text) continue;
+        // A capture stored before the policy existed has no textKept yet; the next recapture adds it and is then checked.
+        for (const text of capture.textKept || []) assert.deepEqual(foreignLetterRuns(text), [], `${capture.id}: kept text "${text}"`);
+    }
+    // Unnamed board text such as "0,0" is only ever hidden evidence, never checked.
+    assert.deepEqual(foreignLetterRuns('0,0'), []);
 });

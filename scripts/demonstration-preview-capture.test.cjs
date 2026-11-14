@@ -67,6 +67,10 @@ test('registry exhaustively matches the live catalog and rejects missing/unknown
     validateRecipes(catalog);
     const missing={...recipes};delete missing.bernstein;
     assert.throws(()=>validateRecipes(catalog,missing),/exhaustively/);
+    // A Demonstration with neither recipe nor stored capture is skipped; one with a stored capture needs its recipe.
+    assert.ok(catalog.some(d=>!recipes[d.id]),'the live catalog has uncaptured Demonstrations without a recipe');
+    assert.doesNotThrow(()=>validateRecipes(catalog,recipes,[]));
+    assert.throws(()=>validateRecipes(catalog,recipes,['complex-power']),/stored capture without recipe/);
     assert.throws(()=>validateRecipes(catalog,{...recipes,unknown:{}}),/exhaustively/);
     assert.throws(()=>validateRecipes(catalog,{...recipes,bezier:{...recipes.bezier,actions:[{kind:'bridge'}]}}),/Unsupported/);
 });
@@ -77,7 +81,8 @@ test('unsupported controls fail instead of silently capturing a default',async()
 test('number actions distinguish a rounded input draft from a full-precision graph value',async()=>{
     let shown='3,1416';
     const control={count:async()=>1,isVisible:async()=>true,getAttribute:async()=>null,fill:async()=>{},press:async()=>{},inputValue:async()=>shown};
-    const page={getByLabel:()=>({nth:()=>control}),evaluate:async()=>{}};
+    const labelled={nth:()=>control};labelled.and=()=>labelled;
+    const page={getByLabel:()=>labelled,locator:()=>({}),getByRole:()=>({count:async()=>0}),evaluate:async()=>{}};
     await applyAction(page,{kind:'number',label:'Točka x',value:Math.PI,displayDecimals:4});
     await assert.rejects(applyAction(page,{kind:'number',label:'Točka x',value:Math.PI}));
     shown='3,1415';

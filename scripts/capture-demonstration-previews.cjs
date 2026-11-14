@@ -649,6 +649,7 @@ async function main() {
     if(recaptureIds) {
         assert.ok(!process.env.PREVIEW_IDS,'Diagnostic and full-set recapture modes cannot be combined');
         assert.ok(recaptureIds.length && recaptureIds.every(id=>demonstrations.some(d=>d.id===id)),'Unknown recapture ID');
+        assert.ok(recaptureIds.every(id=>recipes[id]),'Recapture ID without a capture recipe');
         const previous=JSON.parse(fs.readFileSync(publishedManifest,'utf8'));
         assert.equal(previous.version,2);
         const sourceProvenance=selectiveSourceProvenance(previous,graphSourceFingerprint,
@@ -677,7 +678,7 @@ async function main() {
     const browser = await chromium.launch(launchOptions);
     const browserVersion = browser.version();
     try {
-        for (const demonstration of demonstrations.filter(d => recaptureIds ? recaptureIds.includes(d.id) : !process.env.PREVIEW_IDS || process.env.PREVIEW_IDS.split(',').includes(d.id))) {
+        for (const demonstration of demonstrations.filter(d => recipes[d.id]).filter(d => recaptureIds ? recaptureIds.includes(d.id) : !process.env.PREVIEW_IDS || process.env.PREVIEW_IDS.split(',').includes(d.id))) {
             const context = await browser.newContext({
                 viewport,
                 deviceScaleFactor,
@@ -859,7 +860,8 @@ async function main() {
     }
     captures.sort((a,b)=>demonstrations.findIndex(d=>d.id===a.id)-demonstrations.findIndex(d=>d.id===b.id));
     // A selective recapture retains only captured posters, so ids still in POSTER_PENDING are not expected unless named.
-    const expectedCaptures = demonstrations.filter(demonstration => !recaptureIds || demonstration.hasPoster || recaptureIds.includes(demonstration.id));
+    // A Demonstration without a recipe and without a stored capture is skipped (validateRecipes allows it).
+    const expectedCaptures = demonstrations.filter(demonstration => recipes[demonstration.id]).filter(demonstration => !recaptureIds || demonstration.hasPoster || recaptureIds.includes(demonstration.id));
     assert.deepEqual(captures.map(capture => capture.id), expectedCaptures.map(demonstration => demonstration.id),
         'Capture order and exhaustive route metadata no longer match');
     const activePreviewFiles = new Set(captures.map(capture => capture.file));
