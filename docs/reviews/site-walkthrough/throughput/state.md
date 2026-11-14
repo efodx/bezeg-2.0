@@ -4,11 +4,24 @@ Rewritten by handler 3 on 2026-11-14 with nine changes landed or publishing and 
 
 ## For the owner
 
+**Your decision: change 6, may a lone slot holder use 10 workers?** Each run below is one whole-suite `just unit` of all 931 test files, on master's code of 2026-11-14:
+
+| Workers | Wall | Other slot held during the run |
+| --- | --- | --- |
+| 10 | **739 s** | Never: the run was alone throughout |
+| 5 (today's setting) | 1,422 s | Yes, in 89 of 97 samples taken every 15 s: another session's publish gate ran beside it |
+
+- **The 5-worker run is not a clean baseline.** It shared the CPU almost throughout, so the two runs cannot be compared directly.
+- **The 2026-11-02 measurements point the same way:** one run alone at 10 workers used 95% of the CPU, and two runs at 5 workers each kept total throughput within 5% of one 10-worker run. A lone run at 5 leaves about half the machine idle.
+- **My recommendation: yes, but only while the other slot is free.** When no other slot is held, a slot holder gets 10 workers. A run that starts beside it gets its 5 and shares an oversubscribed CPU until the first run ends; nothing is narrowed.
+- **The alternative** is to time one more lone 5-worker run first. That is about 15 more minutes of machine time, at a quiet moment.
+- **Nothing in `scripts/test-slots.cjs` changes until you answer.**
+
 **Where things stand (handler 3, 2026-11-14):**
 
-- Nine of the ten changes are implemented. Seven are on master and deployed: 7, 1, 3, 8, 10, 2 and 4 (last push `063bdec3`, hosted CI green). Changes 5 and 9 are in a background publish (`publish-c4eb8c2a-1558fe`).
-- Change 6 is timing only, as agreed, and its numbers are not in yet. The first attempt was killed from outside after 35 s, and another session took the second slot within 15 s, so it would not have counted as a lone run. One retry is running.
-- The routine / full policy table is in [the command guide](../../../commands.md) under "Routine and full verification" (V4).
+- **All nine implemented changes are on master and deployed:** 7, 1, 3, 8, 10, 2, 4, 5 and 9. The last push is `f16d4c6f`, and hosted CI is green.
+- **Change 9's first hosted run (43623381049):** 9.75 min from push to deploy, against a 12.2-min median before. Its six unit shards took 376–531 s, against 516–772 s with four. That is one run, and runner speed varies about 1.6x between jobs.
+- **Policy:** the routine / full policy table is in [the command guide](../../../commands.md) under "Routine and full verification" (V4).
 
 **The largest change, 4, cut a one-file slice check from about 15 minutes to about 6.** Each figure is one `just check-changed` run against the change alone:
 
@@ -32,9 +45,9 @@ Rewritten by handler 3 on 2026-11-14 with nine changes landed or publishing and 
 - CI runs six unit shards instead of four (change 9). Nothing to do; job names gain shards 5 and 6.
 - Tests needing `createGraph` import it from `src/graphs/base/createTestGraph.ts` (change 2).
 
-**Waits on you:** only change 6, once its numbers are in: whether a slot holder may use 10 workers when it runs alone.
+**Waits on you:** change 6, above.
 
-**Session note:** handler 1's and handler 2's processes were still alive this afternoon. Handler 2 committed two state-note edits on this branch while handler 3 was working, and had left a `check-changed` holding a shared slot for 40 minutes; I stopped that run. If they are still running, you may want to close them.
+**Session note:** at your request, handler 3 stopped the obsolete handlers with their processes on 2026-11-14: throughput 1 and 2, graphs 1, polish 1 (its internal preview on port 4342 went with it) and control-choice 3.
 
 **Ready to read:** the [remeasure note](../../verification-throughput/remeasure-2026-11-14.md). It is a document, so there is no preview and no Tailscale address; port 4334 is unused.
 
@@ -88,8 +101,9 @@ Times are an agent's wall time through `just`, on this shared machine, once each
 | 10 | `9884d291` | Hand-parsing logs to remeasure | — | Logs only | `.command-logs/timings.jsonl`, one line per run; daily per-file durations as artifacts `unit-durations-*`, read by `just test-cost --results <dir>` |
 | 2 | `82f0febe` | Unrelated graph tests selected for a one-graph edit | `LogisticMapGraph.tsx` / `labelLayout.ts`, Vitest `--changed` listing | 299 / 303 files; the gate step for a one-graph fix took 1,016 s (remeasure note) | 109 / 114 files. Timed `check-changed` of the graph edit after 1, 3 and 2: 2,926 s wall, passed, but it ran beside two publish gates and my own before-run on the same CPU, so it is no valid after time; retime it once the machine is quiet (`timings.jsonl` now splits wait from run) |
 | 4 | `06d42948` | Tests reached only through a registry, selected for every one-file edit | The four representative edits, `just check-changed HEAD` (`.command-logs/t4/`) | 299 / 583 / 432 / 303 files; gate median 885 s | 24 / 31 / 20 / 29 files; 1,083 s (368 s slot wait) / 1,070 s (515 s wait) / 359 s / 350 s |
-| 5 | `e08bea1c` (publishing) | Directory-wide filtered runs on 2 workers beside the slots (107 runs of 10 min or more in the week) | `just unit <directory>` matching more than 20 files | No slot, 2 workers | A slot and its 5 workers. Not timed: the saving depends on how many such runs a week brings |
-| 9 | `c4eb8c2a` (publishing) | The slowest unit shard, which sets the hosted wall | Hosted full runs | 4 shards: 516–772 s (run 43591356678), 396–488 s (43588216160); wall median 12.2 min | 6 shards, pins re-spread; first hosted run after the push: not yet observed |
+| 5 | `e08bea1c` | Directory-wide filtered runs on 2 workers beside the slots (107 runs of 10 min or more in the week) | `just unit <directory>` matching more than 20 files | No slot, 2 workers | A slot and its 5 workers. Not timed: the saving depends on how many such runs a week brings |
+| 9 | `c4eb8c2a` | The slowest unit shard, which sets the hosted wall | Hosted full runs | 4 shards: 516–772 s (run 43591356678), 396–488 s (43588216160); wall median 12.2 min | 6 shards: 376–531 s; 9.75 min push to deploy (run 43623381049, one run) |
+| 6 | (not changed) | Half the machine idle while one slot holder runs alone | Whole-suite `just unit`, 931 files | 5 workers: 1,422 s, beside another session's gate (not a lone run) | 10 workers: 739 s, alone throughout. Setting waits for the owner |
 
 ### Proposed routine / full policy (T03), your choice
 
@@ -109,16 +123,17 @@ You asked how often those tests caught bugs locally. **In the week measured, nev
 
 ## State
 
-- Daily run at handler 3's start: 43585378440, green.
-- On master: changes 7, 1, 3 (`791bb648`), then 8, 10, 2, 4 and the docs (`063bdec3`, hosted CI green). Changes 5 (`e08bea1c`) and 9 (`c4eb8c2a`) are in background publish `publish-c4eb8c2a-1558fe` (`runtime` recipe); check `just publish --status`.
-- Removed: branch `tp-backup`, the scratch worktree `throughput-timing` and the change 2 worker worktree with its branch.
-- Change 6 timing: `.command-logs/t6/run.sh` waits until no slot is held, then runs one whole-suite `just unit` at 5 and one at 10 workers; `summary.txt` gets wall time, exit code and the most slots held at once (1 means the run was alone). The first attempt was killed after 35 s (`summary-killed.txt`).
-- Change 4 timings: `.command-logs/t4/` (`summary.txt` and one log per edit).
-- Successor rule: every successor in this chain is Opus at medium effort. Launch from this directory with `claude --bg -n "walkthrough throughput handler <n+1>" --agent bezeg-handler --model opus --effort medium --permission-mode auto "<prompt>"`; thresholds 175k soft, 215k handoff. Implement only what the owner approved (the ten changes and the policy table); the slot change of 6 goes to him first. Do not launch a successor while only waiting on him.
+- Daily run at handler 3's start: 43585378440, green. The first scheduled run with change 8 (25-minute limit) and change 10 (duration artifacts) is due at 03:17 UTC on 2026-11-15.
+- On master: all nine implemented changes (last `f16d4c6f`, hosted run 43623381049 green). Nothing of this session is unpublished except this note.
+- Timing evidence: `.command-logs/t4/` (change 4), `.command-logs/t6/` (change 6: `summary.txt`, slot samples per run).
+- Successor rule: every successor in this chain is Opus at medium effort. Launch from this directory with `claude --bg -n "walkthrough throughput handler <n+1>" --agent bezeg-handler --model opus --effort medium --permission-mode auto "<prompt>"`; thresholds 175k soft, 215k handoff. Implement only what the owner approved; the slot change of 6 goes to him first. Do not launch a successor while only waiting on him.
 
 ## For the next handler
 
-1. Confirm the publish of 5 and 9 (`just publish --status`), then `just ci <sha>`: record the six unit shard durations of the first hosted full run in change 9's row ("After").
-2. Read `.command-logs/t6/summary.txt`. Report both walls under "For the owner" with the number of slots held during each run, and wait for his answer on slot sizing. Change nothing in `scripts/test-slots.cjs` before that.
-3. When the first scheduled run with change 8 has run (03:17 UTC), note under change 8 whether it finished within 25 minutes. Then download its `unit-durations-*` artifacts and, if one shard is still clearly the longest, refine `PINNED_SHARDS` by cost.
-4. Close V2 and V3 in the spec and the queue once change 6 is reported (V4 is done; V1 and V5 were met by the remeasure note).
+1. **Owner's answer on change 6.**
+   - If yes: in `scripts/test-slots.cjs`, give a slot holder 10 workers when no other slot is held at acquisition, and 5 otherwise. Cover it in `commands.test.cjs`/`just tooling-test`, update the slot paragraph of `docs/commands.md`, and say under "For the owner" what other sessions notice: a second run beside a lone one is slower until the first ends.
+   - If he wants a clean baseline first: one lone 5-worker `just unit` with `.command-logs/t6/run.sh` edited to `for w in 5`.
+2. **After 03:17 UTC:**
+   - Note under change 8 whether the scheduled run finished within 25 minutes.
+   - Download its `unit-durations-*` artifacts (`gh run download <run> -p 'unit-durations-*' -D .command-logs/durations`) and read them with `just test-cost --results .command-logs/durations`. If one shard is clearly longest, refine `PINNED_SHARDS` in `vite.config.mts` by cost.
+3. **Close phase 8.** Mark V2 and V3 met in the spec and the queue once change 6 is settled. V1, V4 and V5 are met.
