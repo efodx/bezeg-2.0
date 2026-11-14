@@ -144,6 +144,71 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     await expect.poll(() => geometrySignature(page)).toBe(savedGeometry);
 });
 
+test('preset rows can be renamed, overwritten with the current state, and deleted after confirmation', async ({page}) => {
+    await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
+    await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
+
+    const setX = async value => {
+        const editor = await openPointEditor(await selectBezierCurve(page));
+        const x = editor.getByRole('spinbutton', {name: 'p₀, x'});
+        await x.fill(value);
+        await x.press('Enter');
+    };
+    const expectX = async value => {
+        const editor = await openPointEditor(await selectBezierCurve(page));
+        await expect(editor.getByRole('spinbutton', {name: 'p₀, x'})).toHaveValue(value);
+    };
+    const presetsArea = () => showPresetTools(bezierInspector(page));
+    const row = async id => (await presetsArea()).locator(`li[data-preset-id="${id}"]`);
+
+    await setX('0.65');
+    let area = await presetsArea();
+    await area.locator('button.preset-save').click();
+    await area.locator('#preset-save-name').fill('smoke-row-old');
+    await area.locator('#preset-save-name').press('Enter');
+    await expect(await row('smoke-row-old')).toBeVisible();
+
+    // 1. Rename
+    await (await row('smoke-row-old')).getByRole('button', {name: 'Menu for state smoke-row-old'}).click();
+    await (await row('smoke-row-old')).getByRole('button', {name: 'Rename', exact: true}).click();
+    const renameInput = (await row('smoke-row-old')).locator('.preset-rename-input');
+    await expect(renameInput).toBeVisible();
+    await renameInput.fill('smoke-row-new');
+    await renameInput.press('Enter');
+    await expect(await row('smoke-row-new')).toBeVisible();
+    await expect(await row('smoke-row-old')).toHaveCount(0);
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await expect(await row('smoke-row-old')).toHaveCount(0);
+    await (await row('smoke-row-new')).locator('button.preset-row-select').click();
+    await expectX('0.65');
+
+    // 2. Overwrite with the current state
+    await setX('-0.4');
+    await (await row('smoke-row-new')).getByRole('button', {name: 'Menu for state smoke-row-new'}).click();
+    await (await row('smoke-row-new')).getByRole('button', {name: 'Overwrite with the current state'}).click();
+    await (await row('')).locator('button.preset-row-select').click();
+    await (await row('smoke-row-new')).locator('button.preset-row-select').click();
+    await expect((await row('smoke-row-new')).locator('button.preset-row-select')).toHaveAttribute('aria-current', 'true');
+    await expectX('−0.4');
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await (await row('smoke-row-new')).locator('button.preset-row-select').click();
+    await expectX('−0.4');
+
+    // 3. Delete with inline confirmation
+    await (await row('smoke-row-new')).getByRole('button', {name: 'Menu for state smoke-row-new'}).click();
+    await (await row('smoke-row-new')).getByRole('button', {name: 'Delete', exact: true}).click();
+    await expect((await row('smoke-row-new')).getByRole('group', {name: 'Delete the state "smoke-row-new"?'})).toBeVisible();
+    await (await row('smoke-row-new')).locator('.preset-confirm-cancel').click();
+    await expect(await row('smoke-row-new')).toHaveCount(1);
+    await (await row('smoke-row-new')).getByRole('button', {name: 'Menu for state smoke-row-new'}).click();
+    await (await row('smoke-row-new')).getByRole('button', {name: 'Delete', exact: true}).click();
+    await (await row('smoke-row-new')).getByRole('group').getByRole('button', {name: 'Delete', exact: true}).click();
+    await expect(await row('smoke-row-new')).toHaveCount(0);
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await expect(await row('smoke-row-new')).toHaveCount(0);
+    await expect(await row('')).toBeVisible();
+});
+
 async function fitState(page) {
     return page.locator('#jgbox').evaluate(container => {
         const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container.id || candidate.containerObj === container);
