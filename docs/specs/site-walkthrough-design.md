@@ -1,6 +1,6 @@
 # Site walkthrough: design decisions (package C)
 
-Status: **decided by the owner on 2026-11-14; implementation in progress.** The option tables below are kept as the record of what was offered; [Owner decisions](#owner-decisions-2026-11-14) says what was picked.
+Status: **decided by the owner on 2026-11-14 and implemented the same day; publication and the open items are tracked in [the state note](../reviews/site-walkthrough/design/state.md).** The option tables below are kept as the record of what was offered; [Owner decisions](#owner-decisions-2026-11-14) says what was picked.
 
 ## Owner decisions, 2026-11-14
 
@@ -131,7 +131,14 @@ Candidates, each traced with 6, 20 and 60 circles in the gallery: the outline of
 
 ## Acceptance criteria
 
-Draft; each applies to the option the owner picks.
+Each applies to the option the owner picked. State on 2026-11-14: implemented and checked by unit tests and screenshots (`docs/reviews/site-walkthrough/design/shots/`), except these, which have a recorded reason:
+
+- H03: screenshots at 1440, 1024 and 390 px show no page overflow; touch was covered by the browser smoke, not by hand.
+- L01: the contents numbers are hidden from assistive technology, because a visible number inside the link changed each contents link's accessible name and the ordered list already gives the position.
+- L04: contrast is unchanged from before (same ink on a near-white panel); not measured again.
+- P01: the owner picked option B, so there is no save dialog to restyle; the import and figure-batch dialogs keep their current style, which remains open.
+- P02: the figure batch stays in the presets tab under the backup section; moving it beside the image export was left out of this slice. No browser spec drives rename, overwrite or delete; unit tests do.
+- Smoke: the affected specs were run per test; the full browser smoke runs in CI.
 
 - H02: the homepage section shows six demonstrations drawn from the pool list; the pool is one exported list; the section heading and the choice group's accessible name use the new label in both languages; a test with an injected random source covers the draw and the no-reshuffle-within-a-visit rule; no network or storage use.
 - H03: the homepage has no counter (and no arrow buttons under options A and C); every choice is reachable by pointer, touch and keyboard; arrow keys, autoplay pauses, manual takeover and reduced motion behave as before; no page-level horizontal overflow at 1440, 1024 and 390 px; screenshots at those widths.
