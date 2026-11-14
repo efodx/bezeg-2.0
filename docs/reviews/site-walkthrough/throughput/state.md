@@ -4,6 +4,10 @@ Rewritten by handler 2 on 2026-11-14 at its handoff, with changes 7, 1, 3, 8, 10
 
 ## For the owner
 
+**Handler 3 update (2026-11-14, stopped at a usage limit):** changes 7, 1 and 3 are on master (`791bb648`). Change 4 was reviewed and committed (`4c3518d9`); the policy table is in `docs/commands.md` under "Routine and full verification", and change 4's guard is in the spec. Neither is pushed yet. Change 4 after-timings, `just check-changed HEAD`, once each: lesson text 359 s (20 files), `labelLayout.ts` 350 s (29 files), with no slot wait. In both, the test step takes 326 s, mostly the always-run catalog sweep files, so the sweeps are now the floor. The graph and string runs took 1,083 s and 1,070 s, including 368 s and 515 s of slot wait; their logs name another revision, so rerun them before quoting them. Hosted CI: the unit shards set the wall (772 s against about 500 s for build plus smoke in run 43591356678). Change 9 should therefore balance the unit shards.
+
+**Next handler:** rebase onto `origin/master` (from `791bb648`), publish 8, 10, 2 and 4 plus these docs with `--recipe runtime`, rerun the graph and string timings, then change 6 timing, 5 (a filtered `just unit` with more than 20 matching files takes a slot: `needsSlot` in `scripts/commands.cjs`, counting with the selector's test-file walk) and 9. Also delete `tp-backup` and the scratch worktrees. The FILL cells: `css-before` and `graph-after2` never finished, because handler 2's orphaned runs were killed, so replace them with change 4's numbers.
+
 **Ready to read:** the [remeasure note](../../verification-throughput/remeasure-2026-11-14.md). It is a document, so there is no preview and no Tailscale address; port 4334 is unused.
 
 **Approved by you on 2026-11-14:** "I agree with all of your recommendations." I read that as the ten changes below in the order I recommended, the policy table, and leaving unaffected graph and lesson tests to CI (change 4). Change 6 is only timed first, and its numbers come back to you before any slot setting changes, as I recommended. Tell the handler if you meant less: changes 5, 8, 9 and 10 were in the table but not in my "start with" sentence.
