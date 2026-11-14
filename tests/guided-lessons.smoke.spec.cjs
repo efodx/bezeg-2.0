@@ -592,8 +592,8 @@ const linear = {
         expect(stats.total, `no accumulated objects at ${label}`).toBeLessThanOrEqual(40);
     },
     prepareUserState: async page => {
-        await linearField(page, 'x₂').fill('3');
-        await linearField(page, 'x₂').press('Enter');
+        await linearField(page, 'P2, x').fill('3');
+        await linearField(page, 'P2, x').press('Enter');
         await expect.poll(() => linearEquation(page)).toBe('y = 1.33x + 1');
         return await boardStats(page);
     },
@@ -603,7 +603,7 @@ const linear = {
     },
     assertUserState: async (page, ctx, before) => {
         await expect.poll(() => linearEquation(page), {message: 'user line restored'}).toBe('y = 1.33x + 1');
-        await expect(linearField(page, 'x₂')).toHaveValue('3');
+        await expect(linearField(page, 'P2, x')).toHaveValue('3');
         expect((await boardStats(page)).total).toBe(before.total);
     },
     stableCounts: async page => ({equation: await linearEquation(page)}),
@@ -893,8 +893,8 @@ const bisection = {
     prepareUserState: async page => {
         await page.locator('[data-action="next-step"]').click();
         await expect.poll(() => bisectionReadout(page, 'step')).toBe('1');
-        await page.getByLabel(/Right endpoint b|Desno kraji/).fill('3');
-        await page.getByLabel(/Right endpoint b|Desno kraji/).press('Enter');
+        await page.getByRole('spinbutton', {name: /Right endpoint b|Desno kraji/}).fill('3');
+        await page.getByRole('spinbutton', {name: /Right endpoint b|Desno kraji/}).press('Enter');
         await expect.poll(() => bisectionReadout(page, 'step'), {message: 'an endpoint edit restarts the iteration'}).toBe('0');
         await page.locator('[data-action="next-step"]').click();
         await expect.poll(() => bisectionReadout(page, 'mid')).toBe('2');
