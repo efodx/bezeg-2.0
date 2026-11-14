@@ -99,6 +99,21 @@ describe('DegreeReductionGraph scene', () => {
         } finally { view.unmount(); }
     });
 
+    test('the reduced quadratic has its own thin blue control polygon through its three points, shown and hidden with the reduced curve', () => {
+        const {graph, view} = mount();
+        try {
+            useP(graph);
+            type Data = BoardObject & {visProp: {strokecolor: unknown; strokewidth: unknown; dash: unknown}};
+            const polygons = () => graph.owned().filter(e => e.elType === 'curve' && (e as Data).visProp.strokecolor === GraphPalette.comparisonCurve && (e as Data).visProp.strokewidth === 1 && (e as Data).visProp.dash === 0) as Data[];
+            expect(polygons()).toHaveLength(1);
+            const [polygon] = polygons();
+            near(polygon.dataX!.map((x, i) => [x, polygon.dataY![i]]), [[0, 0], [2, 4.5], [4, 0]]);
+            expect(polygon.visPropCalc.visible).toBe(true);
+            act(() => graph.setReductionShown(false));
+            expect(polygon.visPropCalc.visible).toBe(false);
+        } finally { view.unmount(); }
+    });
+
     test('the board objects match the kernel for P in both modes', () => {
         const {graph, view} = mount();
         try {

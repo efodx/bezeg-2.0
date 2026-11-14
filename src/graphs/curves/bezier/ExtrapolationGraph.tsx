@@ -1,5 +1,6 @@
 import React from 'react';
 
+import {GraphPalette} from "../../styles/GraphPalette";
 import {CurveOperation} from "../../base/controls/BezierCurveControls";
 import {BezierCurveAttributes} from "../object/AbstractJXGBezierCurve";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
@@ -9,7 +10,12 @@ import {extrapolationActions} from "../../base/lesson/curveLessonActions";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {extrapolationPresetCollection} from "./collections";
 
+/** Parameter length the extension keeps at t = 1: about a thousandth of a pixel at classroom sizes, so the element stays drawn and the count of curves is constant. */
+const MIN_EXTENSION = 1e-6;
+
 class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** The part of the curve beyond t = 1, parameters [1, extrapolationT]: its own element drawn over the curve's arc, so it has its own role (solid blue, covering the moss beneath it so the arc reads as one role). */
+    private extensionCurve?: JXG.Curve;
     /** Typed coordinates for the draggable control points (shared edit-only list). */
     protected override workspaceTypedPoints() { return true; }
     defaultPreset(): CurveCollectionPresetData {
@@ -41,6 +47,7 @@ class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
         if (!curve) return;
         curve.createExtrapolationPoint();
         curve.showExtrapolationPoint();
+        this.buildExtension();
         curve.setAttributes({
             allowShrink: false,
             allowExtrapolation: false,
@@ -48,6 +55,32 @@ class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
             allowDecasteljau: false,
             allowSubdivision: false
         } as BezierCurveAttributes);
+    }
+
+    /** The curve itself is drawn up to the extrapolation parameter; this solid blue element is drawn over its part beyond t = 1. Always present (JSXGraph hides a curve of zero length, so at t = 1 it keeps an arc of {@link MIN_EXTENSION} that cannot be seen), so the number of drawn curves does not change while the parameter moves. Idempotent. */
+    private buildExtension() {
+        this.removeExtension();
+        const curve = this.getFirstJxgCurve();
+        if (!curve || !this.board) return;
+        const model = () => curve.getCurve();
+        const role = {...this.styles.curve.default, strokeColor: GraphPalette.comparisonCurve, highlightStrokeColor: GraphPalette.comparisonCurve, dash: 0};
+        this.extensionCurve = this.board.create('curve', [
+            (u: number) => model().eval(u).X(),
+            (u: number) => model().eval(u).Y(),
+            1,
+            () => Math.max(curve.getExtrapolationT(), 1 + MIN_EXTENSION),
+        ], {...role, fixed: true, highlight: false, withLabel: false}) as JXG.Curve;
+    }
+
+    private removeExtension() {
+        const extension = this.extensionCurve;
+        this.extensionCurve = undefined;
+        if (extension && this.board && this.board.objectsList.includes(extension)) this.board.removeObject(extension);
+    }
+
+    protected override disposeFigureSceneResources(): void {
+        super.disposeFigureSceneResources();
+        this.removeExtension();
     }
 
     override importPresetData(str: CurveCollectionPresetData) {

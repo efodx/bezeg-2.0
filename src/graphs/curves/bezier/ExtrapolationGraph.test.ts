@@ -1,6 +1,7 @@
 import ExtrapolationGraph from './ExtrapolationGraph';
 import {BaseBezierCurveGraph} from '../../base/BaseBezierCurveGraph';
 import {PolynomialBezierCurve} from '../../../bezeg/impl/curve/polynomial-bezier-curve';
+import {GraphPalette} from '../../styles/GraphPalette';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 
 const curve = () => new PolynomialBezierCurve([[-4, -2], [-3, 3], [2, 3], [3, -1]].map(([x, y]) => new PointImpl(x, y)));
@@ -19,6 +20,7 @@ function fakeCurve() {
         setExtrapolationT: vi.fn((v: number) => { fake.extrapolationT = v; }),
         getExtrapolationT: () => fake.extrapolationT,
         extrapolate: vi.fn(),
+        getCurve: () => curve(),
     };
     return fake;
 }
@@ -27,7 +29,7 @@ function graphWith(c: any) {
     const graph = Object.create(ExtrapolationGraph.prototype) as any;
     graph.jxgCurves = [c];
     graph.refreshWorkspace = vi.fn();
-    graph.board = {suspendUpdate: vi.fn()};
+    graph.board = {suspendUpdate: vi.fn(), objectsList: [], removeObject: vi.fn(), create: vi.fn((type: string, parents: unknown[], attributes: object) => ({type, parents, attributes}))};
     graph.unsuspendBoardUpdate = vi.fn();
     return graph;
 }
@@ -86,4 +88,27 @@ test('extrapolated curve reparameterizes the original: E(u) = B(t u)', () => {
 test('extrapolated control points at t = 1.2 match the worked example', () => {
     const pts = curve().extrapolate(1.2).getPoints().map(p => [+p.X().toFixed(4), +p.Y().toFixed(4)]);
     expect(pts).toEqual([[-4, -2], [-2.8, 4], [4.16, 2.8], [3.056, -3.872]]);
+});
+
+test('the part beyond t = 1 is its own solid blue element whose points are the curve evaluated there', () => {
+    const c = fakeCurve();
+    const graph = graphWith(c);
+    graph.getFirstJxgCurve = () => c;
+    graph.buildExtension();
+    const [call] = graph.board.create.mock.calls;
+    expect(call[0]).toBe('curve');
+    const [x, y, start, end] = call[1] as [(u: number) => number, (u: number) => number, number, () => number];
+    const original = curve();
+    expect(start).toBe(1);
+    expect(end()).toBe(1.2);
+    [1, 1.05, 1.1, 1.2].forEach(u => {
+        expect(x(u)).toBeCloseTo(original.eval(u).X(), 9);
+        expect(y(u)).toBeCloseTo(original.eval(u).Y(), 9);
+    });
+    expect(call[2].strokeColor).toBe(GraphPalette.comparisonCurve);
+    expect(call[2].strokeColor).not.toBe(GraphPalette.primaryCurve);
+    expect(call[2].dash).toBe(0);
+    c.extrapolationT = 1;
+    expect(end()).toBeCloseTo(1, 5);
+    expect(end()).toBeGreaterThan(1);
 });

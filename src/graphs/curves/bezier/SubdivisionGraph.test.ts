@@ -192,3 +192,16 @@ describe('subdivision mathematics on the default curve', () => {
         for (let k = 1; k <= 5; k++) expect(values[k]).toBeLessThan(values[k - 1]);
     });
 });
+
+test('after every step neighbouring pieces alternate moss and blue along the curve', () => {
+    const graph = makeGraph();
+    lesson(graph, subdivide);
+    lesson(graph, subdivide);
+    // Index order after two steps is [LL, LR-side kept..]; position along the curve is the bit reversal of the index.
+    const colourOf = (piece: any) => piece.jsxCurve.setAttribute.mock.calls.at(-1)[0].strokeColor;
+    const position = (i: number) => ((i & 1) << 1) | (i >> 1);
+    const along = graph.jxgCurves.map((piece: any, i: number) => ({piece, p: position(i)})).sort((a: any, b: any) => a.p - b.p).map((e: any) => colourOf(e.piece));
+    expect(along).toEqual([GraphPalette.primaryCurve, GraphPalette.comparisonCurve, GraphPalette.primaryCurve, GraphPalette.comparisonCurve]);
+    // A piece that was blue and is halved again returns to a solid moss, not the translucent comparison stroke.
+    expect(graph.jxgCurves[1].jsxCurve.setAttribute.mock.calls.at(-1)[0]).toEqual(expect.objectContaining({strokeOpacity: 1, dash: 0}));
+});

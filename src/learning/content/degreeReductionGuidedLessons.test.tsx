@@ -187,11 +187,12 @@ test('each scene sets the points, mode, switches, view and readouts the contract
             expect(formatNumber(result.maxError, 'en', 4), `${label} max`).toBe(c.max);
             expect(formatNumber(result.l2, 'en', 6), `${label} l2`).toBe(c.l2);
             expect(formatNumber(result.bound, 'en', 4), `${label} bound`).toBe(c.bound);
-            // The objects themselves: the quadratic curve and its three points, the elevated curve and its four points.
+            // The objects themselves: the quadratic curve, its own polygon and its three points, the elevated curve and its four points.
             const curves = owned(h).filter(e => e.elType === 'curve');
-            expect(curves, label).toHaveLength(2);
+            expect(curves, label).toHaveLength(3);
             expect(curves[0].evalVisProp('visible'), `${label} quadratic curve`).toBe(c.quadratic);
-            expect(curves[1].evalVisProp('visible'), `${label} elevated curve`).toBe(c.elevation);
+            expect(curves[1].evalVisProp('visible'), `${label} quadratic polygon`).toBe(c.quadratic);
+            expect(curves[2].evalVisProp('visible'), `${label} elevated curve`).toBe(c.elevation);
             expect(visible(h, 'point'), `${label} points`).toBe((c.quadratic ? 3 : 0) + (c.elevation ? 4 : 0));
             if (c.quadratic) expect(curves[0].dataX!.length, label).toBeGreaterThan(50);
             // The view goes through fitBoundingBox at the harness's 600 by 400 canvas, with the curves below the lesson panel.

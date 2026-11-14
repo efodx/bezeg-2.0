@@ -75,6 +75,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.board.suspendUpdate();
         try {
             let oldJsxBezierCurves = this.jxgCurves.map(c => c as JXGBezierCurve);
+            const newPieces: JXGBezierCurve[] = [];
             for (let bezierCurve of oldJsxBezierCurves) {
                 // TODO REDESIGN SUBDIVISIONRESULTCONSUMER...
                 bezierCurve.setSubdivisionResultConsumer(() => "");
@@ -82,14 +83,25 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
                 if (bezierCurve.isShowingControlPolygon()) {
                     newCurve.showControlPolygon();
                 }
-                this.applyCurveVisualRole(newCurve, this.jxgCurves.length);
+                newPieces.push(newCurve);
                 this.jxgCurves.push(newCurve);
             }
+            this.alternatePieceRoles(oldJsxBezierCurves, newPieces);
         } finally {
             this.unsuspendBoardUpdate();
         }
         this.refreshWorkspace();
     };
+
+    /**
+     * Every step halves every piece: the kept (left) halves are the old pieces and the new (right) halves come after them, so along the
+     * curve the pieces alternate old, new, old, new. They alternate moss and blue (solid), so neighbouring pieces differ in hue after every step.
+     */
+    private alternatePieceRoles(kept: JXGBezierCurve[], added: JXGBezierCurve[]) {
+        const first = {...this.styles.curve.series(0), strokeOpacity: 1, dash: 0};
+        kept.forEach(piece => piece.getJxgCurve().setAttribute(first));
+        added.forEach(piece => piece.getJxgCurve().setAttribute({...this.styles.curve.series(1), dash: 0}));
+    }
 
     /**
      * The scheme switch needs a selected curve, so it is offered in Display only while one is selected; its handlers

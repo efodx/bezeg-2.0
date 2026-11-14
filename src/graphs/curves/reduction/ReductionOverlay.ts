@@ -150,6 +150,11 @@ export class ReductionOverlay {
             const r = reduced() ? this.result() : undefined;
             return r ? quadraticSamples(r.quadratic) : empty;
         });
+        // The reduced curve's own control polygon: a thin solid blue line, so it is told from the original cubic's moss polygon.
+        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, strokeOpacity: 0.7, dash: 0, visible: reduced}, () => {
+            const r = reduced() ? this.result() : undefined;
+            return r ? {x: r.quadratic.map(p => p[0]), y: r.quadratic.map(p => p[1])} : empty;
+        });
         for (let i = 0; i < 3; i++) {
             this.create<Point>('point', [() => this.result()?.quadratic[i][0] ?? NaN, () => this.result()?.quadratic[i][1] ?? NaN], {
                 ...auxiliary, visible: reduced, size: 4, face: '<>', strokeColor: GraphPalette.comparisonCurve, fillColor: GraphPalette.comparisonCurve,
