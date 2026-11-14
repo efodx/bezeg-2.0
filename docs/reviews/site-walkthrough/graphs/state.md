@@ -6,7 +6,8 @@ Handler 4, 2026-11-15 (running). Queue: [graphs.md](../../../tasks/site-walkthro
 
 **To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/
 
-- **Approved by you 2026-11-15, publishing:** B8a second part (`b8a2.html`: eleven function cards, text only) and B8e (`b8e.html`: five repaired captures: sequence keeps the N tag, Euler method no text, accumulation keeps the plus sign, derivative keeps `f(x) = x²`, area between curves keeps f and g).
+- **Approved by you 2026-11-15, on `master` (`f44ddd3e`, CI green):** B8a second part (`b8a2.html`: eleven function cards, text only) and B8e (`b8e.html`: five repaired captures: sequence keeps the N tag, Euler method no text, accumulation keeps the plus sign, derivative keeps `f(x) = x²`, area between curves keeps f and g).
+- **Published under your grant, open to your objection: B8b maps and plane geometry** (`b8b.html`). Complex multiplication keeps Re and Im; complex reciprocal and complex roots lose them too, because those cards draw no axes for the names to label; triangle centres and inversion have no text; orientation keeps its signed value "+8". The linear map is not done: its moving grid trips a video check (a capture-tool question, not a design one).
 - **Your grant is in force** (you confirmed it to handler 4, 2026-11-15): from here on, batches inside the approved direction are published after the handler's checks and review, shown on their `bN` page and listed here so you can object afterwards.
 - **On `master`, CI green:** B3 to B7 and B8a first part (`b89dc04d`); the extrapolation lesson test counts the curve and its extension arc (`e676f01b`).
 
@@ -14,7 +15,7 @@ Handler 4, 2026-11-15 (running). Queue: [graphs.md](../../../tasks/site-walkthro
 
 ## Where things stand
 
-- `master` = `b89dc04d` plus the B8a second part and B8e publish from `graphs-pub` (check `cd ../graphs-pub && just publish --status`).
+- `master` has B8a both parts and B8e (`f44ddd3e`, CI run 43652989999 green); B8b publishing from `graphs-pub` (check `just publish --status`).
 - This branch still carries pre-publish copies of everything up to B8e. Rebase onto `origin/master` once that publish lands; an earlier attempt stopped on a Windows file lock mid-pick (untracked `b8a2/` files left behind; removed and aborted), so stop the preview server first. On a conflict in this note or the queue take this branch's version; in the spec take `master`'s headings.
 - B8e: recaptured with VERIFIED after reading the diff; manifest changed for exactly the five ids; `just tooling-test` passed. Left in the open items: `epicycles` and `voronoi-degenerate` (triage).
 - Docs-only publish: `graphs-pub` reset to `origin/master`, check out only the doc files from this branch, commit, `just publish --recipe docs --base <master sha> --commits <sha>`.
@@ -41,6 +42,7 @@ Handler 4, 2026-11-15 (running). Queue: [graphs.md](../../../tasks/site-walkthro
 1. Done by handler 4: extrapolation smoke fixed (`e676f01b`), CI green; B6/B7 published.
 2. Done: B8a both parts and B8e approved by the owner and published by handler 4.
 3. Done in B8e for five ids; `epicycles` and `voronoi-degenerate` stay with B9 and the triage.
+4a. B8b done (`linear-map` open: encoder background check at `scripts/demonstration-preview-motion.cjs:1589`, moving grid, `_jump.cjs:159`).
 4. **B8b** maps and plane geometry (`complex-*`, `linear-map` Keep in part, triangle ids, `inversion`, `orientation`), **B8c** compgeo (`delaunay`, `monotone-*`), **B8d** B-splines and `projective-cross-ratio`: text only, patterns in the triage table; `complex-multiplication` hide only; `projective-pascal` is No text.
 5. **B9 epicycles card** (show a subject), **B10 patches** (overlap fix), guided example recapture per chapter.
 6. The package is done when every example-table row and every Remove or Keep-in-part capture is done or has a recorded reason, and this note says so.
