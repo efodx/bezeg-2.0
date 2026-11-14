@@ -264,6 +264,18 @@ const captureText = {
     'uniform-convergence': {keep: [], strip: []},
     'fourier-series': {keep: [], strip: []},
     'fourier-coefficients': {keep: [], strip: []},
+    // Function concepts (B8a second half): each graph is named by its formula or tag; readouts and captions go.
+    'fixed-point': {keep: [/^x1$/], strip: []},
+    'function-inverse': {keep: [/^f\(x\) = /], strip: []},
+    'polynomial-zeros': {keep: [/^×[2-9]$/, /^p\(x\) = /], strip: []},
+    // The asymptote names sit on the y-axis tick numbers (4 and 8): nothing kept.
+    'rational-function': {keep: [], strip: []},
+    'geometric-series': {keep: [], strip: []},
+    continuity: {keep: [], strip: []},
+    'definite-integral': {keep: [/^f\(x\) = /], strip: []},
+    // The value labels f(-1), f(0), f(2) lie on the axis tick numbers and the dashed guides: nothing kept.
+    extrema: {keep: [], strip: []},
+    'arc-length': {keep: [/^f\(x\) = /], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

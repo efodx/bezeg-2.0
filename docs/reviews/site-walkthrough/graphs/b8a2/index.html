@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B8a, function text sweep</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B8a, second half: function captures, text sweep (G02)</h1>
+<p>Nine catalog captures, before and after. <a href="b8a1.html">First half</a>. Derivative and area between curves are not included: their clip checks do not pass (see worker.md).</p>
+<h2>1. Fixed-point iteration</h2>
+<p>Only the tag x1 stays; the step readouts are gone.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/fixed-point.webm" poster="b8a2/before/fixed-point.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/fixed-point.webm" poster="b8a2/after/fixed-point.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Function and inverse</h2>
+<p>The formula line f(x) = x² (x ≥ 0), f⁻¹(x) = √x stays (the whole caption was hidden before); the other text is gone.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/function-inverse.webm" poster="b8a2/before/function-inverse.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/function-inverse.webm" poster="b8a2/after/function-inverse.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Polynomial zeros</h2>
+<p>The multiplicity tag ×2 and p(x) = (x + 2)(x − 1)² stay.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/polynomial-zeros.webm" poster="b8a2/before/polynomial-zeros.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/polynomial-zeros.webm" poster="b8a2/after/polynomial-zeros.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>4. Rational function</h2>
+<p>No board text. The asymptote names sat on the y-axis tick numbers.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/rational-function.webm" poster="b8a2/before/rational-function.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/rational-function.webm" poster="b8a2/after/rational-function.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>5. Geometric series</h2>
+<p>No board text; bars and the limit line carry the idea.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/geometric-series.webm" poster="b8a2/before/geometric-series.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/geometric-series.webm" poster="b8a2/after/geometric-series.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>6. Continuity</h2>
+<p>No board text; the jump and the open and closed endpoints carry the idea.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/continuity.webm" poster="b8a2/before/continuity.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/continuity.webm" poster="b8a2/after/continuity.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>7. Definite integral</h2>
+<p>Only f(x) = x² stays, at the top right.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/definite-integral.webm" poster="b8a2/before/definite-integral.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/definite-integral.webm" poster="b8a2/after/definite-integral.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>8. Arc length</h2>
+<p>Only f(x) = sin x stays, at the top right.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/arc-length.webm" poster="b8a2/before/arc-length.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/arc-length.webm" poster="b8a2/after/arc-length.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>9. Extrema</h2>
+<p>No board text. The value labels sat on the axis tick numbers; the Slovenian conclusion row is no longer forced onto the poster.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a2/before/extrema.webm" poster="b8a2/before/extrema.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a2/after/extrema.webm" poster="b8a2/after/extrema.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>

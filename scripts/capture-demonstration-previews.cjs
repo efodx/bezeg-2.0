@@ -507,7 +507,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                         return [];
                     });
                     // Greedily retain noncolliding existing weight labels; no invented labels or geometry.
-                    if (['extrema','convexity'].includes(options.demonstrationId)) {
+                    if (options.demonstrationId === 'convexity') {
                         Object.values(board.objects).filter(o => o.elType === 'text').forEach(o => {
                             const rows = [...o.rendNode.children].filter(e => e.tagName === 'DIV');
                             const conclusion = rows.find(e => /globalni min|konveksna na|konkavna na|brez trditve/.test(e.textContent));
@@ -515,7 +515,6 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                             o.rendNode.style.removeProperty('display');
                             rows.forEach(row => row.style.setProperty('display', row === conclusion ? 'block' : 'none', 'important'));
                             o.rendNode.style.cssText += ';position:absolute!important;left:12px!important;top:184px!important;width:336px!important;max-width:336px!important;white-space:normal!important;transform:none!important;clip-path:none!important;right:auto!important;bottom:auto!important;background:#fffdf5!important;opacity:1!important;';
-                            if(options.demonstrationId==='extrema')o.rendNode.style.setProperty('height','36px','important');
                         });
                     }
                     if (['trigonometric-functions','definite-integral'].includes(options.demonstrationId)) {
@@ -747,7 +746,7 @@ async function main() {
                 const scene = await presentBoard(boardLocator, demonstration, recipe);
                 // Convexity deliberately reveals the derivative conclusion at the motion payoff;
                 // its poster shows the geometric comparison first.
-                if (demonstration.id === 'extrema') assert.ok(scene.selectedConclusions.some(c=>c.withinFrame&&c.clipPath==='none'), demonstration.id+' must retain its visible defining conclusion');
+                // (extrema: the capture-text policy decides its text; no conclusion row is forced visible.)
 
                 assert.deepEqual([scene.width, scene.height], [frame.width, frame.height],
                     demonstration.id + ' did not resize to the 360:220 preview frame');

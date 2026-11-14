@@ -465,3 +465,11 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8a1/` (served as `walkt
 - `mean-value`: Remove. The triage proposed keeping the formula, but with the readout gone the one remaining line sits on the axis numbers.
 - `quadrature`, `darboux`, `taylor`, `uniform-convergence`, `fourier-series`, `fourier-coefficients`: Remove.
 - **Not done, capture tool stale against the current controls** (none is a text problem; each fails before the text policy applies): `sequence` (the recipe's ε field reads 0.1 where 0.3 is expected, `demonstration-preview-recipes.cjs:378`), `euler-method` (the row names a control "Začetni y₀" that no longer exists), `accumulation` (the held-state check compares the "Točka x" input with the board and fails since that control became a Slider, `demonstration-preview-concept-motion.cjs:73`). Their verdicts stand (`sequence` keep `^N = \d+$`, `euler-method` Remove, `accumulation` keep `^\+$`) and wait for the repair.
+
+### B8a Functions, second part (handler 3, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8a2/` (served as `walkthrough-graphs/b8a2.html`). Text only.
+
+- Keep the formula line: `function-inverse`, `definite-integral`, `arc-length` (`^f\(x\) = `); `polynomial-zeros` (`^×[2-9]$`, `^p\(x\) = `); `fixed-point` (`^x1$`).
+- Remove: `geometric-series`, `continuity`; `rational-function` and `extrema` too, although the triage proposed keeping asymptote names and extremum values: kept, they lay on the tick numbers and the dashed guides. `extrema`'s per-id override in `capture-demonstration-previews.cjs` (forced conclusion row, its visibility assertion) is dropped; the override now serves `convexity` only.
+- **Not done:** `area-between-curves` (recipe expects "Meja b" to read 3.2, the slider gives 3.22, `demonstration-preview-recipes.cjs:386`); `derivative` (with the formula line kept, the sweep's last frame differs from the recipe frame, `demonstration-preview-motion.cjs:673` via `assertSweepFrame`; not investigated).
