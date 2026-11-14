@@ -1,41 +1,61 @@
 'use strict';
 /*
  * The cat outline: an ORIGINAL silhouette authored for Bezeg (no font glyph, emoji or third-party image was traced).
- * A sitting cat seen from the front: two pointed ears, a round head, a pear-shaped body with a notch between the front paws,
- * and a tail that lies on the ground to the right, rises and curls over at the tip.
+ * A kitten standing in profile, facing left: a big round head with two pointed ears and a small snub nose, a short chubby body,
+ * four stubby legs with round paws, and a tail held straight up that curls forward at the tip.
  *
  * The path is a closed chain of segments, listed clockwise starting at the left ear tip. Each segment is either
  * ['L', x, y] (a line to x, y) or ['C', c1x, c1y, c2x, c2y, x, y] (a cubic Bezier to x, y). y points up; the unit is arbitrary
  * (the generator centres and scales the outline).
  */
 
-const START = [2.0, 11.0];
+const START = [2.0, 10.0];
 
 const SEGMENTS = [
     // between the ears
-    ['C', 2.9, 10.2, 3.7, 9.4, 4.4, 9.4],
-    ['C', 5.1, 9.4, 5.9, 10.2, 6.8, 11.0],
-    // right ear outside, right cheek, chin
-    ['C', 7.4, 10.2, 7.8, 9.4, 7.8, 8.4],
-    ['C', 7.8, 7.4, 7.0, 6.8, 6.2, 6.6],
-    // right side of the body down to where the tail joins
-    ['C', 7.0, 5.8, 7.2, 3.2, 6.9, 1.6],
-    // inside of the tail up to its tip, over the tip, outside of the tail down
-    ['C', 7.9, 1.7, 8.8, 2.4, 8.8, 3.6],
-    ['C', 8.8, 4.6, 8.8, 5.4, 8.4, 5.8],
-    ['C', 8.5, 6.3, 9.5, 6.2, 9.8, 5.0],
-    ['C', 10.1, 4.2, 10.4, 3.2, 10.2, 2.2],
-    ['C', 10.1, 0.8, 9.4, 0.0, 8.5, 0.0],
-    // the ground: tail, right paw, notch between the paws, left paw
-    ['L', 5.0, 0.0],
-    ['C', 4.8, 0.9, 4.55, 1.3, 4.35, 1.3],
-    ['C', 4.15, 1.3, 3.9, 0.9, 3.7, 0.0],
-    ['L', 1.9, 0.0],
-    // left side of the body, neck, left cheek, left ear outside
-    ['C', 1.3, 0.8, 1.2, 2.0, 1.7, 3.0],
-    ['C', 2.0, 4.4, 2.2, 5.8, 2.6, 6.6],
-    ['C', 1.8, 6.8, 1.0, 7.4, 1.0, 8.4],
-    ['C', 1.0, 9.4, 1.4, 10.2, 2.0, 11.0],
+    ['C', 2.4, 9.6, 2.8, 9.1, 3.2, 9.0],
+    ['C', 3.7, 9.1, 4.1, 9.6, 4.5, 10.0],
+    // back of the right ear, back of the head, neck
+    ['C', 4.8, 9.3, 5.1, 8.3, 5.0, 7.4],
+    ['C', 5.2, 6.9, 5.7, 6.7, 6.2, 6.6],
+    // the back, to where the tail rises
+    ['C', 7.0, 6.5, 7.9, 6.5, 8.6, 6.9],
+    // front of the tail up, the curl forward, round the tip, back of the tail down to the rump
+    ['C', 9.1, 7.4, 9.5, 8.2, 9.4, 9.0],
+    ['C', 9.35, 9.5, 8.9, 9.7, 8.5, 9.6],
+    ['C', 8.0, 9.6, 7.9, 10.3, 8.4, 10.4],
+    ['C', 9.4, 10.6, 10.3, 10.0, 10.3, 9.0],
+    ['C', 10.3, 8.0, 10.2, 7.0, 9.9, 6.2],
+    // rump and the far hind leg with its paw
+    ['C', 10.3, 5.2, 10.2, 3.9, 9.9, 3.0],
+    ['L', 9.8, 0.5],
+    ['C', 9.8, 0.2, 9.6, 0.0, 9.3, 0.0],
+    ['C', 9.0, 0.0, 8.8, 0.2, 8.8, 0.5],
+    ['L', 8.8, 2.0],
+    // gap between the hind legs, the near hind leg
+    ['C', 8.8, 2.4, 8.3, 2.4, 8.3, 2.0],
+    ['L', 8.3, 0.5],
+    ['C', 8.3, 0.2, 8.1, 0.0, 7.8, 0.0],
+    ['C', 7.5, 0.0, 7.3, 0.2, 7.3, 0.5],
+    ['L', 7.3, 2.4],
+    // belly
+    ['C', 7.0, 2.9, 6.1, 2.9, 5.8, 2.4],
+    // the two front legs
+    ['L', 5.8, 0.5],
+    ['C', 5.8, 0.2, 5.6, 0.0, 5.3, 0.0],
+    ['C', 5.0, 0.0, 4.8, 0.2, 4.8, 0.5],
+    ['L', 4.8, 2.0],
+    ['C', 4.8, 2.4, 4.3, 2.4, 4.3, 2.0],
+    ['L', 4.3, 0.5],
+    ['C', 4.3, 0.2, 4.1, 0.0, 3.8, 0.0],
+    ['C', 3.5, 0.0, 3.3, 0.2, 3.3, 0.5],
+    ['L', 3.3, 3.2],
+    // chest, chin, the snub nose, forehead, front of the left ear
+    ['C', 3.1, 4.0, 3.2, 4.9, 2.9, 5.5],
+    ['C', 2.3, 5.4, 1.6, 5.7, 1.3, 6.3],
+    ['C', 1.0, 6.5, 0.9, 6.9, 1.1, 7.1],
+    ['C', 1.3, 7.5, 1.2, 8.1, 1.5, 8.6],
+    ['C', 1.6, 9.1, 1.8, 9.6, 2.0, 10.0],
 ];
 
 /** The path as a dense polyline (`perSegment` points per cubic), first point not repeated at the end. */

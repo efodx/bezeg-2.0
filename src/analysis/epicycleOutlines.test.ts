@@ -13,7 +13,7 @@ import {
 
 const COUNTS = {slovenia: 200, cat: 160, blossom: 200} as const;
 /** The sampled maximum error at N = 5, 20, 50 observed when the data was generated, with headroom of about 15 percent. */
-const ERROR_LIMIT_AT_50 = {slovenia: 0.046, cat: 0.039, blossom: 0.006} as const;
+const ERROR_LIMIT_AT_50 = {slovenia: 0.046, cat: 0.052, blossom: 0.006} as const;
 
 const dist = (a: readonly number[], b: readonly number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
