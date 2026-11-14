@@ -4,7 +4,7 @@ import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {JXGBSplineCurve} from "../object/JXGBSplineCurve";
 import {constructionLevelColor, constructionLevelDash, GraphPalette} from "../../styles/GraphPalette";
 import type {ControlPoint} from "./bsplineDeBoorModel";
-import {blossomArgumentText, BlossomSnapshot, blossomSnapshot} from "./bsplineBlossomModel";
+import {blossomArgumentMath, blossomArgumentText, BlossomSnapshot, blossomSnapshot} from "./bsplineBlossomModel";
 
 interface SceneSettings {
     board: Board;
@@ -118,8 +118,8 @@ export class BSplineBlossomScene {
             }
         }
         const final = this.levelPoints[k][0];
-        this.label = this.create<Text>('text', [() => final.X() + 0.1, () => final.Y() + 0.1, () => this.labelText()], {
-            anchorX: 'left', anchorY: 'bottom', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
+        this.label = this.create<Text>('text', [() => final.X() + 0.1, () => final.Y() + 0.1, () => this.labelMathText()], {
+            anchorX: 'left', anchorY: 'bottom', fixed: true, highlight: false, useMathJax: true, parse: false, fontSize: () => this.settings.fontSize(),
             strokeColor: GraphPalette.label,
         });
         // A released scene's handler is inert: its points are gone and must never write the state.
@@ -136,6 +136,11 @@ export class BSplineBlossomScene {
     /** "f(a, b)" with the current arguments, in the language's number format. */
     labelText(): string {
         return `f(${blossomArgumentText(this.settings.args().slice(0, this.degree))})`;
+    }
+
+    /** The drawn form of `labelText()`: TeX in the shared `$$...$$` delimiters, typeset on the board. */
+    labelMathText(): string {
+        return `$$f(${blossomArgumentMath(this.settings.args().slice(0, this.degree))})$$`;
     }
 
     /** Brings the model curve in line with the state (a typed point, a Preset that kept the shape). */

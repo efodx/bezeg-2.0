@@ -19,6 +19,12 @@ export function blossomArgumentText(args: readonly number[]): string {
     return args.map(a => formatNumber(a, language, 3)).join(language === 'sl' ? '; ' : ', ');
 }
 
+/** The arguments of f as TeX: the decimal comma is `{,}` (no space after it) and the separator is followed by a visible space. */
+export function blossomArgumentMath(args: readonly number[]): string {
+    const language = currentLanguage();
+    return args.map(a => formatNumber(a, language, 3).replace(',', '{,}')).join(language === 'sl' ? ';\\ ' : ',\\ ');
+}
+
 /** Largest distance for which f(t, ..., t) counts as equal to the curve point. */
 const EQUAL_TOLERANCE = 1e-9;
 

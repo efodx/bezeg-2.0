@@ -355,6 +355,7 @@ describe('language', () => {
         expect(screen.queryByRole('button', {name: /default|privzeto/i})).toBeNull();
         expect(screen.getByRole('group', {name: 'B-spline degree k'})).toBeTruthy();
         expect(graph.sceneOf().labelText()).toBe('f(0, 0.5)');
+        expect(graph.sceneOf().labelMathText()).toBe('$$f(0,\\ 0.5)$$');
         view.unmount();
     });
 
@@ -362,6 +363,10 @@ describe('language', () => {
         const {graph, view} = mount();
         act(() => { graph.setDegree(3); graph.setArgument(0, 0.25); graph.setArgument(1, 0.5); graph.setArgument(2, 1); });
         expect(graph.sceneOf().labelText()).toBe('f(0,25; 0,5; 1)');
+        expect(graph.sceneOf().labelMathText()).toBe('$$f(0{,}25;\\ 0{,}5;\\ 1)$$');
+        const label = graph.sceneOf().labelElement() as unknown as {visProp: Record<string, unknown>};
+        expect(label.visProp.usemathjax).toBe(true);
+        expect(label.visProp.parse).toBe(false);
         expect(readout('value')).toMatch(/^f\(0,25; 0,5; 1\) = /);
         act(() => { graph.setDegree(2); graph.setArgument(0, 0.5); graph.setArgument(1, 0.5); });
         expect(readout('curve')).toContain('f(0,5; …)');
@@ -443,7 +448,7 @@ describe('import and the live scene', () => {
         near([curve.X(0), curve.Y(0)], other.points[0], 1e-9);
         act(() => board.update());
         const label = scene.labelElement() as unknown as {plaintext: string};
-        expect(label.plaintext).toBe(scene.labelText());
+        expect(label.plaintext).toBe(scene.labelMathText());
         expect(scene.labelText()).toContain(String(args[0]).replace('.', ','));
     });
 });

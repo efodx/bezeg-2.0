@@ -379,3 +379,51 @@ test('a polygon-mode point-set graph exposes at most one always-speaking region,
     expect(document.querySelectorAll('[data-readout-live]').length).toBeLessThanOrEqual(1);
     expect(document.querySelector('[data-pointset-announce]')!.textContent).toBe('Večkotnik je enostaven.');
 });
+
+type Cursored = Shown & {setAttribute(attributes: object): void; visProp: Record<string, unknown>; label?: Shown & {visProp: Record<string, unknown>}};
+const scenePoints = (graph: Observed) => objects(graph, 'point') as Cursored[];
+
+test('a draggable point-set point shows the shared hover cursor and a fixed one does not', () => {
+    const graph = new Observed();
+    mount(graph);
+    const [movable, fixed] = scenePoints(graph);
+    expect(container(graph).style.cursor).not.toBe('pointer');
+    trigger(movable, 'over', []);
+    expect(container(graph).style.cursor).toBe('pointer');
+    trigger(movable, 'out', []);
+    expect(container(graph).style.cursor).toBe('default');
+    fixed.setAttribute({fixed: true});
+    trigger(fixed, 'over', []);
+    expect(container(graph).style.cursor).toBe('default');
+});
+
+test('a rebuilt scene does not leave the pointer cursor of a removed hovered point', () => {
+    const graph = new Observed();
+    mount(graph);
+    trigger(scenePoints(graph)[0], 'over', []);
+    expect(container(graph).style.cursor).toBe('pointer');
+    load(graph, model([[0, 0], [3, 1], [5, 4]]));
+    expect(container(graph).style.cursor).toBe('default');
+});
+
+test('point labels are typeset through the shared MathJax label path while the element keeps its plain name', () => {
+    const graph = new Observed();
+    mount(graph);
+    const [first] = scenePoints(graph);
+    expect(first.name).toBe('P1');
+    expect(first.label?.plaintext).toBe('$$P_{1}$$');
+    expect(first.label?.visProp.usemathjax).toBe(true);
+    expect(first.label?.visProp.parse).toBe(false);
+});
+
+test('segment letters and interval letters are typeset as math', () => {
+    const graph = new Observed();
+    mount(graph);
+    const texts = (pattern: RegExp) => (graph.liveBoard().objectsList as Cursored[]).filter(o => o.elType === 'text' && pattern.test(o.name ?? ''));
+    load(graph, model([[0, 0], [2, 1], [3, 0], [5, 2]], {mode: 'segments'}));
+    expect(texts(/^s\d$/).map(o => o.plaintext)).toEqual(['$$s_{1}$$', '$$s_{2}$$']);
+    load(graph, model([[0, 1], [2, 1], [3, 2], [5, 2]], {mode: 'intervals'}));
+    const letters = texts(/^[ab]$/);
+    expect(letters.map(o => o.plaintext)).toEqual(['$$a$$', '$$b$$']);
+    expect(letters.every(o => o.visProp.usemathjax === true && o.visProp.parse === false)).toBe(true);
+});

@@ -32,7 +32,7 @@ type Live = {liveBoard(): {objectsList: unknown[]}};
 type Shown = {elType: string; name?: string; X?: () => number; Y?: () => number; plaintext?: string; point1?: JXG.Point; point2?: JXG.Point};
 const shown = (graph: Live) => graph.liveBoard().objectsList as Shown[];
 const segmentObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'segment');
-const labelObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'text' && /^s\d+$/.test(o.plaintext ?? ''));
+const labelObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'text' && /^s\d+$/.test(o.name ?? ''));
 const endpointObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
 const pendingObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'point' && o.name === 'pending');
 const endpoints = (graph: Live) => endpointObjects(graph).map(p => [p.X!(), p.Y!()]);
@@ -48,7 +48,7 @@ function expectBoardMatchesModel(graph: SegmentGraph) {
     expect(drawnSegments(graph)).toEqual(modelSegments(graph));
     expect(endpoints(graph)).toEqual(graph.model.points.map(p => [p.x, p.y]));
     const labels = labelObjects(graph);
-    expect(labels.map(l => l.plaintext)).toEqual(modelSegments(graph).map((_, k) => `s${k + 1}`));
+    expect(labels.map(l => l.plaintext)).toEqual(modelSegments(graph).map((_, k) => `$$s_{${k + 1}}$$`));
     labels.forEach((label, k) => {
         const [[ax, ay], [bx, by]] = modelSegments(graph)[k];
         expect([label.X!(), label.Y!()]).toEqual([(ax + bx) / 2, (ay + by) / 2]);
@@ -265,7 +265,7 @@ test('a live language switch re-renders the segment inspector and keeps model, s
     expect(graph.selectedIndex).toBe(2);
     expect(segmentObjects(graph)).toEqual(before.segments);
     expect(labelObjects(graph)).toEqual(before.labels);
-    expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['s1', 's2']);
+    expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['$$s_{1}$$', '$$s_{2}$$']);
     expectBoardMatchesModel(graph);
 });
 

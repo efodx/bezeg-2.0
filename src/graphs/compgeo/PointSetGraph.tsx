@@ -18,6 +18,8 @@ import {polygonSimplicity, PolygonSimplicity} from "../../compgeo/predicates";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {pointSetLabelMath} from "./pointSetLabelMath";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 import {pointSetPersistence, PointSetExtension, PointSetPermittedState, PointSetStepDeclaration, stepExtension, withoutBareImportFields} from "./pointSetPersistence";
 import type {ScenePersistence} from "../base/presets/ScenePersistence";
@@ -798,16 +800,23 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     private createDrawn(key: string, model: PointSetModel): DrawnScene {
         const board = this.board;
         const scale = model.gridStepExponent;
-        const points = model.points.map((gridPoint, i) => {
+        const labelStyle = this.styles.point.default.label as object;
+        // Segment and interval letters: the same attributes, always shown, anchored on the segment.
+        const textStyle = (anchorX: "left" | "middle") => ({...labelStyle, anchorX, anchorY: "bottom", offset: [0, 0], visible: true, fixed: true, highlight: false, layer: 6});
+        const points =model.points.map((gridPoint, i) => {
             const at = gridToBoard(gridPoint, scale);
             const point = board.create("point", [at.x, at.y], {
                 name: this.pointName(i), withLabel: true, size: () => this.selected === i ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === i ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === i ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
-                label: {visible: () => this.displaySettings.pointLabelsVisible, offset: [8, 8], strokeColor: GraphPalette.label},
+                // The shared point-label attributes: MathJax, no parsing, display font size, placement and visibility.
+                label: labelStyle,
                 layer: 7,
             }) as JXG.Point;
+            // The element keeps its plain `name` (inspector, tests, capture); only the drawn label is typeset.
+            point.label?.setText(pointSetLabelMath(this.pointName(i)));
+            bindMovablePointCursor(point, board);
             point.on("down", () => {
                 this.selected = i;
                 this.requestRender();
@@ -832,9 +841,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                     name: `seg${k + 1}`, withLabel: false, strokeColor: () => on() ? GraphPalette.selectedControlPoint : GraphPalette.primaryCurve,
                     strokeWidth: () => this.displaySettings.strokeWidth + (on() ? 2 : 0), highlight: false, fixed: true, layer: 5,
                 }) as JXG.GeometryElement);
-                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, `s${k + 1}`], {
-                    name: `s${k + 1}`, anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, display: "internal", fontSize: 14,
-                    strokeColor: GraphPalette.label, layer: 6,
+                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, pointSetLabelMath(`s${k + 1}`)], {
+                    ...textStyle("left"), name: `s${k + 1}`,
                 }) as JXG.GeometryElement);
             }
         }
@@ -846,9 +854,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                     name: `int${k + 1}`, withLabel: false, strokeColor: () => on() ? GraphPalette.selectedControlPoint : GraphPalette.primaryCurve,
                     strokeWidth: () => this.displaySettings.strokeWidth + (on() ? 2 : 0), highlight: false, fixed: true, layer: 5,
                 }) as JXG.GeometryElement);
-                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, intervalLetter(k)], {
-                    name: intervalLetter(k), anchorX: "middle", anchorY: "bottom", fixed: true, highlight: false, display: "internal", fontSize: 14,
-                    strokeColor: GraphPalette.label, layer: 6,
+                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, pointSetLabelMath(intervalLetter(k))], {
+                    ...textStyle("middle"), name: intervalLetter(k),
                 }) as JXG.GeometryElement);
             }
         }
@@ -884,7 +891,11 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     private removeDrawn(): void {
-        if (this.drawn) this.removeObjects([...this.drawn.labels, ...this.drawn.edges, ...this.drawn.points]);
+        if (this.drawn) {
+            this.removeObjects([...this.drawn.labels, ...this.drawn.edges, ...this.drawn.points]);
+            // A hovered point that is rebuilt never fires `out`; its "pointer" would stay on the board.
+            if (this.hasBoard && this.board.containerObj.style.cursor === "pointer") this.board.containerObj.style.cursor = "default";
+        }
         this.drawn = undefined;
     }
 

@@ -33,7 +33,7 @@ type Live = {liveBoard(): {objectsList: unknown[]}};
 type Shown = {elType: string; name?: string; X?: () => number; Y?: () => number; plaintext?: string; point1?: JXG.Point; point2?: JXG.Point};
 const shown = (graph: Live) => graph.liveBoard().objectsList as Shown[];
 const segmentObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'segment');
-const labelObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'text' && /^[a-j]$/.test(o.plaintext ?? ''));
+const labelObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'text' && /^[a-j]$/.test(o.name ?? ''));
 const endpointObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
 const pendingObjects = (graph: Live) => shown(graph).filter(o => o.elType === 'point' && o.name === 'pending');
 const drawnIntervals = (graph: Live) => segmentObjects(graph).map(s => [[s.point1!.X(), s.point1!.Y()], [s.point2!.X(), s.point2!.Y()]]);
@@ -48,7 +48,7 @@ function expectBoardMatchesModel(graph: IntervalGraph) {
     expect(drawnIntervals(graph)).toEqual(modelIntervals(graph));
     expect(endpointObjects(graph).map(p => [p.X!(), p.Y!()])).toEqual(graph.model.points.map(p => [p.x, p.y]));
     const labels = labelObjects(graph);
-    expect(labels.map(l => l.plaintext)).toEqual(modelIntervals(graph).map((_, k) => intervalLetter(k)));
+    expect(labels.map(l => l.plaintext)).toEqual(modelIntervals(graph).map((_, k) => `$$${intervalLetter(k)}$$`));
     labels.forEach((label, k) => {
         const [[ax], [bx]] = modelIntervals(graph)[k];
         expect([label.X!(), label.Y!()]).toEqual([(ax + bx) / 2, k + 1]);
@@ -89,7 +89,7 @@ test('an intervals scene draws one horizontal segment on its row, one letter lab
     mount(graph);
     load(graph, ivs([0, 4], [-3, 1], [2, 2]));
     expect(segmentObjects(graph)).toHaveLength(3);
-    expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['a', 'b', 'c']);
+    expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['$$a$$', '$$b$$', '$$c$$']);
     expectBoardMatchesModel(graph);
 });
 
@@ -173,7 +173,7 @@ test('removing interval 0 shifts the later intervals down a row on the board; De
     load(graph, ivs([0, 4], [-3, 1], [2, 5]));
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Odstrani interval a'})); });
     expect(graph.model.points).toEqual([{x: -3, y: 1}, {x: 1, y: 1}, {x: 2, y: 2}, {x: 5, y: 2}]);
-    expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['a', 'b']);
+    expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['$$a$$', '$$b$$']);
     expectBoardMatchesModel(graph);
     act(() => { graph.select(3); });
     act(() => { fireEvent.keyDown(container(graph), {key: 'Delete'}); });
