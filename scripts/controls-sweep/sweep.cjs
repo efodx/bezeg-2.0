@@ -69,16 +69,23 @@ function inspect() {
         const sides = ['Top', 'Right', 'Bottom', 'Left'].map(side => parseFloat(s[`border${side}Width`]) > 0 && s[`border${side}Style`] !== 'none');
         if (sides.filter(Boolean).length === 3 && s.backgroundColor !== 'rgba(0, 0, 0, 0)' && el.tagName !== 'INPUT') hit('open-box', el, `missing ${['top', 'right', 'bottom', 'left'][sides.indexOf(false)]} edge`);
         // Help text of more than two lines under a control.
-        if (el.matches('.number-input-help, .inspector-help, .slider-help, .choice-select-help, .bool-field-help, .inspector-group > p') && !el.querySelector('p')) {
+        // Only help that belongs to one control: the paragraphs of a group (`.inspector-help`, `.inspector-group > p`) are a Demonstration's teaching text (findings S5).
+        if (el.matches('.number-input-help, .slider-help, .choice-select-help, .bool-field-help')) {
             const count = Math.round(el.getBoundingClientRect().height / parseFloat(s.lineHeight));
             if (count > 2) hit('long-help', el, `${count} lines`);
         }
         // A disclosure with the browser's own marker instead of the shared chevron.
         if (el.tagName === 'SUMMARY' && s.display === 'list-item' && s.listStyleType !== 'none') hit('native-marker', el, s.listStyleType);
-        // A group of buttons that breaks into lines of unequal length.
+        // A group of buttons that breaks into lines that are not grid rows: a row of a grid has buttons of one width and spans the group from its left edge to its right edge (3 + 2 + 1 in Presets is three such rows).
         if ((el.getAttribute('role') === 'group' || /(^|\s)(control-row|btn-group|[a-z-]*-actions|[a-z-]*-buttons)(\s|$)/.test(el.className)) && !el.matches('.inspector-tabs')) {
             const buttons = [...el.children].filter(child => child.tagName === 'BUTTON' && visible(child)).map(child => child.getBoundingClientRect());
-            if (buttons.length > 1 && lines(buttons) > 1 && buttons.length % lines(buttons) !== 0) hit('ragged-buttons', el, `${buttons.length} buttons on ${lines(buttons)} lines`);
+            if (buttons.length > 1 && lines(buttons) > 1) {
+                const rows = [];
+                for (const b of buttons) { const mid = (b.top + b.bottom) / 2; const row = rows.find(r => Math.abs(r.mid - mid) <= Math.max(4, b.height / 2)); if (row) row.boxes.push(b); else rows.push({mid, boxes: [b]}); }
+                const left = Math.min(...buttons.map(b => b.left)); const right = Math.max(...buttons.map(b => b.right));
+                const gridRow = boxes => { const widths = boxes.map(b => b.width); return Math.max(...widths) - Math.min(...widths) <= 1 && Math.abs(Math.min(...boxes.map(b => b.left)) - left) <= 1 && Math.abs(Math.max(...boxes.map(b => b.right)) - right) <= 1; };
+                if (!rows.every(row => gridRow(row.boxes))) hit('ragged-buttons', el, `${buttons.length} buttons on ${rows.length} lines (${rows.map(row => row.boxes.length).join(' + ')})`);
+            }
         }
         // Text or a control cut by its own box.
         if ((el.tagName === 'INPUT' && el.type === 'text' && el.scrollWidth > el.clientWidth + 1) || (/^(BUTTON|LABEL|P|SPAN|LEGEND|SUMMARY)$/.test(el.tagName) && s.overflow !== 'visible' && el.scrollWidth > el.clientWidth + 1)) hit('clipped', el, `${el.scrollWidth} > ${el.clientWidth}`);
