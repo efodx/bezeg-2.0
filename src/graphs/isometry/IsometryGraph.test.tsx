@@ -541,7 +541,7 @@ describe('controls compliance repairs', () => {
         expect(screen.getAllByRole('spinbutton')).toHaveLength(8);
         expect(field('Q2, y')).toBeInTheDocument();
         chooseMode('classify');
-        expect(slider(t('isometry_graph_length_label'))).toBeInTheDocument();
+        expect(field(t('isometry_graph_length_label'))).toBeInTheDocument();
         chooseMode('similarity');
         expect(slider(t('isometry_graph_k_label'))).toBeInTheDocument();
         expect(field('C, x')).toBeInTheDocument();

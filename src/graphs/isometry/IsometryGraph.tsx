@@ -976,8 +976,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                       const id = CLASSIFY_EXAMPLE_IDS.find(candidate => candidate === value);
                                       if (id) this.setState({...CLASSIFY_EXAMPLES[id]});
                                   }}/>,
-                    <Slider key="length" customText={t("isometry_graph_length_label")} value={state.motionLength} step={1} bigStep={1}
-                            min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX} grid={1} decimals={0} onChange={value => this.editMotionLength(value)}/>,
+                    <CountSetter key="length" label={t("isometry_graph_length_label")} n={state.motionLength} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX}
+                                 onPlus={() => this.editMotionLength(this.state.motionLength + 1)}
+                                 onMinus={() => this.editMotionLength(this.state.motionLength - 1)}
+                                 onSet={value => this.editMotionLength(value)}/>,
                     <PointListInput key="mirror-points" title={t("isometry_graph_mirrors_title")} points={this.mirrorPoints(state.motionLength)}
                                     pointLabel={index => this.mirrorPointName(index)} min={-COORD_LIMIT} max={COORD_LIMIT}
                                     step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} grid={1} decimals={0}
