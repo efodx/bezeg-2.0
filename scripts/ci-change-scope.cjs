@@ -52,9 +52,18 @@ function commit(ref, cwd) {
   return output;
 }
 
+// Files under docs/ that a unit test, smoke spec or the build reads: data and code by extension, and the Markdown
+// files named here. A change to one of them runs the full verification. ci-change-scope.test.cjs checks that every
+// docs/ path a test names is left out of the allowlist.
+const DOCS_READ_BY_TESTS = new Set(['docs/specs/school-function-graphs-lessons.md']);
+const DOCS_DATA = /\.(json|[cm]?js|[jt]sx?)$/i;
+
+// Documentation: every file under docs/ except DOCS_READ_BY_TESTS and data or code files, and Markdown at the root
+// (T05, phase 8 change 7 of docs/specs/verification-throughput.md).
 function isDocumentationPath(filePath) {
-  return /^docs\/.+\.md$/.test(filePath)
-    || /^(README|AGENTS|CLAUDE)\.md$/.test(filePath);
+  if (/^[^/\\]+\.md$/.test(filePath)) return true;
+  if (!/^docs\/[^\\]+$/.test(filePath)) return false;
+  return !DOCS_DATA.test(filePath) && !DOCS_READ_BY_TESTS.has(filePath);
 }
 
 function full(reason, changedPaths = []) {

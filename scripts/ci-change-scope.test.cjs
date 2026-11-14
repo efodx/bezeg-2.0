@@ -42,12 +42,34 @@ const pr = (root, base, head) => determineScope({
 });
 
 test('recognizes only the exact documentation allowlist', () => {
-  for (const file of ['docs/README.md', 'docs/nested/topic.md', 'README.md', 'AGENTS.md', 'CLAUDE.md']) {
+  for (const file of ['docs/README.md', 'docs/nested/topic.md', 'README.md', 'AGENTS.md', 'CLAUDE.md', 'DESIGN.md', 'GLOSSARY.md',
+    'docs/guide.txt', 'docs/README.MD', 'docs/reviews/x/shot.png', 'docs/controls/a.webp', 'docs/tasks/y/notes.txt']) {
     assert.equal(isDocumentationPath(file), true, file);
   }
-  for (const file of ['docs/guide.txt', 'docs/README.MD', 'docs\\anything.md', 'src/README.md', '.github/workflows/build.yml', 'package.json']) {
+  for (const file of ['docs\\anything.md', 'src/README.md', 'src/x.css', '.github/workflows/build.yml', 'package.json', 'README.txt',
+    'docs/reviews/x/guided-example-inventory.json', 'docs/prototypes/bezier-patches/teapot-data.js', 'docs/a.cjs', 'docs/a.ts',
+    'docs/specs/school-function-graphs-lessons.md']) {
     assert.equal(isDocumentationPath(file), false, file);
   }
+});
+
+test('every docs/ file a unit test or smoke spec names stays outside the documentation allowlist', () => {
+  const repo = path.resolve(__dirname, '..');
+  const named = new Set();
+  const visit = dir => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) { if (entry.name !== 'node_modules') visit(full); continue; }
+      // Perf tests write their raw output under docs/; they read nothing there.
+      if (!/\.(test|spec)\.[cm]?[jt]sx?$/.test(entry.name) || /\.perf\.test\./.test(entry.name)) continue;
+      // A quoted path is a read or an import; a path in a comment is not.
+      for (const match of fs.readFileSync(full, 'utf8').matchAll(/['"`](?:\.\.\/)*(docs\/[\w./-]+\.\w+)['"`]/g)) named.add(match[1]);
+    }
+  };
+  visit(path.join(repo, 'src'));
+  visit(path.join(repo, 'tests'));
+  assert.ok(named.size > 0, 'the scan found the known docs/ reads');
+  for (const file of named) assert.equal(isDocumentationPath(file), false, `${file} is read by a test but treated as documentation`);
 });
 
 test('selects documentation-only for a PR using the true merge base', () => {
