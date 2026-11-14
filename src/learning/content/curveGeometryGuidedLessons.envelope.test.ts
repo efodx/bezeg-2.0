@@ -8,6 +8,7 @@ import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../grap
 import {createGraph} from '../../graphs/base/createTestGraph';
 import {setLanguage, t} from '../../localization';
 import {fitBoundingBox} from '../../graphs/base/fitBoundingBox';
+import {FAMILY_BANDS} from '../../graphs/curves/envelope/EnvelopeOverlay';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -57,8 +58,18 @@ function mount() {
 }
 
 const owned = (graph: EnvelopeGraphView) => [...graph.envelope()!.ownedElements()] as Drawn[];
-const familyOf = (graph: EnvelopeGraphView) => owned(graph).filter(element => element.elType === 'curve')[0];
-const highlightOf = (graph: EnvelopeGraphView) => owned(graph).filter(element => element.elType === 'curve')[1];
+const curvesOf = (graph: EnvelopeGraphView) => owned(graph).filter(element => element.elType === 'curve');
+/** The family is drawn as FAMILY_BANDS curves of consecutive lines (the colour runs along them); joined here into one NaN-separated curve. */
+const familyOf = (graph: EnvelopeGraphView): Drawn => {
+    const bands = curvesOf(graph).slice(0, FAMILY_BANDS), dataX: number[] = [], dataY: number[] = [];
+    for (const band of bands) {
+        if (!band.dataX!.length) continue;
+        if (dataX.length) { dataX.push(NaN); dataY.push(NaN); }
+        dataX.push(...band.dataX!); dataY.push(...band.dataY!);
+    }
+    return {elType: 'curve', dataX, dataY, evalVisProp: name => bands[0].evalVisProp(name)};
+};
+const highlightOf = (graph: EnvelopeGraphView) => curvesOf(graph)[FAMILY_BANDS];
 const touchOf = (graph: EnvelopeGraphView) => owned(graph).find(element => element.elType === 'point')!;
 const captionsOf = (graph: EnvelopeGraphView) => owned(graph).filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean);
 /** The actual JSXGraph visibility of the Bezier curve on the board, not the state. */
@@ -454,14 +465,14 @@ test('cycling the scenes keeps the board object count constant, without tick lab
     const h = mount();
     try {
         const initial = countWithoutTickLabels(h.graph);
-        expect(owned(h.graph)).toHaveLength(6);
+        expect(owned(h.graph)).toHaveLength(5 + FAMILY_BANDS); // the family bands, then highlight, point and captions
         const counts = new Set<number>();
         for (let round = 0; round < 3; round++) {
             for (const id of [...stepIds, ...[...stepIds].reverse()]) {
                 h.scene(stepOf(id));
                 h.graph.board.update();
                 counts.add(countWithoutTickLabels(h.graph));
-                expect(owned(h.graph), `${id} owned`).toHaveLength(6);
+                expect(owned(h.graph), `${id} owned`).toHaveLength(5 + FAMILY_BANDS);
             }
         }
         expect([...counts]).toEqual([initial]);
