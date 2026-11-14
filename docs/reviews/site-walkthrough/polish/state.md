@@ -1,6 +1,6 @@
 # Site walkthrough, `polish` session: state
 
-Written by handler 2, 2026-11-14, at the close of the session. Spec: [shell and label polish](../../../specs/site-walkthrough-shell-polish.md) (complete). Queue: [polish](../../../tasks/site-walkthrough/polish.md). Movable-point task: [movable points](../../../tasks/site-walkthrough/movable-points.md).
+Written by handler 2, 2026-11-14, at the close of the session; updated by handler 3 the same day after the label follow-up. Spec: [shell and label polish](../../../specs/site-walkthrough-shell-polish.md) (complete). Queue: [polish](../../../tasks/site-walkthrough/polish.md). Movable-point task: [movable points](../../../tasks/site-walkthrough/movable-points.md).
 
 ## For the owner
 
@@ -8,8 +8,8 @@ The polish package is finished. Nothing waits for a choice from you.
 
 - **Catalog typography (D02), header mark (H05), chapter navigation (L02, L03):** on the public site as you approved them.
 - **Movable points (M03):** every draggable point shows the pointer cursor, and on 18 graphs the names of points, lines and sides are typeset as math at the compact size you chose. Label placement matches where the plain letters stood.
-- **Left out, with the reason in the spec:** the captions on Krožne konstrukcije (`P`, `T1`, `T2`) and the arrow names on Kinematika (`v`, `a`) are still plain letters. They are placed by layout code that measures plain text, so they need their own change. Say so if you want it queued.
-- Catalog posters and clips of the changed graphs show the old labels until the graphs session recaptures them (package D).
+- **Label follow-up (handler 3):** Krožne konstrukcije now typesets `P`, `T1`, `T2`, `A`, `B`, `N`, `Z`; Kinematika typesets the arrow names `v`, `a`, `aₜ`, `aₙ`. Same compact size, same placement. Circle numbers and caption rows stay plain.
+- Catalog posters and clips of the changed graphs (now 20) show the old labels until the graphs session recaptures them (package D).
 
 The preview on port 4331 is closed; everything is on the public site.
 
@@ -22,12 +22,12 @@ The preview on port 4331 is closed; everything is on the public site.
 | M03 stage 1 (cursor) | Published | master `6f6dd0dd` |
 | M03 stage 2 (labels, compact) | Published, owner approved the compact size | master `be63438c` |
 | Spec close-out | Done | spec status, evidence table, "not converted" |
+| M03 stage 2 follow-up (circle constructions, kinematics) and the missing evidence | Published | this commit's parent `0e55f534` |
 
 ## Open, not part of this spec
 
-- `CircleConstructionGraph` captions and `KinematicsGraph` arrow texts: plain, see the spec's "not converted". A follow-up needs a layout check for typeset text widths (`CircleConstructionLabels.test.tsx` measures plain text).
 - Line names `p`, `p′` on Dvorazmerje start left of the board edge; this predates the session.
-- The `graphs` session should know stage 2 has landed, so captures of the 18 graphs are recorded once. This session does not edit that session's files; the owner or its handler reads this line.
+- The `graphs` session should know stage 2 and its follow-up have landed, so captures of the 20 graphs are recorded once. This session does not edit that session's files; the owner or its handler reads this line.
 
 ## Evidence
 
