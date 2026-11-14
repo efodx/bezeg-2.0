@@ -198,7 +198,7 @@ test('CLI keeps a broken summary pipe from crashing or reporting success', {time
     fs.mkdirSync(path.join(root, 'scripts'), {recursive: true});
     fs.copyFileSync(path.join(__dirname, 'commands.cjs'), path.join(root, 'scripts/commands.cjs'));
     fs.copyFileSync(path.join(__dirname, 'test-slots.cjs'), path.join(root, 'scripts/test-slots.cjs'));
-    for (const name of ['check-changed-always-run.cjs', 'selector-removal-check.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(root, 'scripts', name));
+    for (const name of ['check-changed-always-run.cjs', 'selector-removal-check.cjs', 'check-changed-selector.cjs', 'transient-state-scope.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(root, 'scripts', name));
     fs.writeFileSync(path.join(root, 'package.json'), '{}');
     fs.writeFileSync(npmCli, '');
     const wrapper = path.join(root, 'cli-wrapper.cjs');
@@ -333,19 +333,22 @@ test('check-changed runs typecheck, lint and only the affected unit tests agains
     const npmCli = path.join(root, 'npm-cli.js');
     fs.writeFileSync(npmCli, `${append('npm')}; if (process.argv[2] === 'run') require('node:fs').writeFileSync('build/index.html', 'fixture build')`);
     process.env.npm_execpath = npmCli;
+    // The fixture sits inside this checkout: its untracked files are not part of the change under test.
+    fs.writeFileSync(path.join(root, '.gitignore'), '*\n');
     const env = {...process.env, BEZEG_TEST_SLOTS: '1', BEZEG_TEST_WORKERS: '1', BEZEG_MEMORY_FLOOR_GB: '0'};
     try {
         assert.equal(await commands.execute('check-changed', ['abc1234'], {root, env}), 0);
         assert.equal(await commands.execute('check-changed', [], {root, env}), 0);
         const lines = fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line));
-        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint --cache', 'npm test', 'npm test', 'npm run', 'tsc --noEmit', 'eslint --cache', 'npm test', 'npm test', 'npm run']);
+        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint --cache', 'npm test', 'npm test', 'npm run', 'tsc --noEmit', 'eslint --cache', 'npm test', 'npm run']);
+        // An unknown change list (the bad ref) falls back to Vitest --changed; a known change that reaches no test runs only the always-run step.
         // Typecheck and lint caches live in this checkout's log directory; lint still targets the whole tree.
         assert.deepEqual(lines[0].slice(1), ['--noEmit', '--pretty', 'false', '--incremental', '--tsBuildInfoFile', path.join(root, '.command-logs', 'tsc.tsbuildinfo')]);
         assert.deepEqual(lines[1].slice(1), ['--cache', '--cache-strategy', 'content', '--cache-location', path.join(root, '.command-logs', 'eslintcache.json'), '.']);
         assert.deepEqual(lines[2].slice(1), ['test', '--', '--run', '--changed', 'abc1234', '--passWithNoTests']);
         assert.deepEqual(lines[3].slice(1, 3), ['test', '--']);
         assert.deepEqual(lines[3].slice(5), ALWAYS_RUN);
-        assert.deepEqual(lines[7].slice(5, 6), ['origin/master']);
+        assert.deepEqual(lines[7].slice(5), ALWAYS_RUN);
         await commands.assertProvenance(root);
         await assert.rejects(commands.execute('check-changed', ['--all'], {root, env}), /Usage: just check-changed/);
     } finally {
@@ -483,7 +486,7 @@ test('real just preserves quoted recipe arguments when available', t => {
     fs.copyFileSync(path.join(__dirname, '..', 'justfile'), path.join(root, 'justfile'));
     fs.copyFileSync(path.join(__dirname, 'commands.cjs'), path.join(root, 'scripts/commands.cjs'));
     fs.copyFileSync(path.join(__dirname, 'test-slots.cjs'), path.join(root, 'scripts/test-slots.cjs'));
-    for (const name of ['check-changed-always-run.cjs', 'selector-removal-check.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(root, 'scripts', name));
+    for (const name of ['check-changed-always-run.cjs', 'selector-removal-check.cjs', 'check-changed-selector.cjs', 'transient-state-scope.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(root, 'scripts', name));
     const npmCli = commands.resolveNpmCli();
     if (!npmCli) { cleanup(root); return t.skip('npm-cli.js is not available for the end-to-end argument check'); }
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({scripts: {test: 'node print-args.cjs'}}));
@@ -667,7 +670,9 @@ async function withGateFixture(body) {
 }
 
 test('check-changed holds a slot only around the unit step; typecheck, lint and build hold none', () => withGateFixture(async ({root, fakes, read, env}) => {
-    assert.equal(await commands.execute('check-changed', [], {root, env, slots: fakes}), 0);
+    selectionRepo(root);
+    fs.writeFileSync(path.join(root, 'src/a.ts'), 'export const a = 3;\n');
+    assert.equal(await commands.execute('check-changed', ['HEAD'], {root, env, slots: fakes}), 0);
     assert.deepEqual(read(), [
         'admit typecheck spacing=false', 'tsc',
         'admit lint spacing=false', 'lint',
@@ -682,8 +687,9 @@ test('a stylesheet-only change skips the import selection and its slot, and runs
     fs.writeFileSync(path.join(root, 'src/look.css'), 'a {}\n');
     fs.mkdirSync(path.join(root, 'docs'), {recursive: true});
     fs.writeFileSync(path.join(root, 'docs/note.md'), 'note\n');
+    fs.writeFileSync(path.join(root, '.gitignore'), '*\n');
     git('init', '-q');
-    git('add', 'src/look.css', 'docs/note.md');
+    git('add', '-f', 'src/look.css', 'docs/note.md');
     git('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'base');
     fs.writeFileSync(path.join(root, 'src/look.css'), 'a { color: red }\n');
     fs.writeFileSync(path.join(root, 'docs/note.md'), 'changed\n');
@@ -694,6 +700,61 @@ test('a stylesheet-only change skips the import selection and its slot, and runs
         'admit unit spacing=false', 'unit',
         'admit build spacing=false', 'build',
     ]);
+}));
+
+/** A git fixture for the static selection: src/a.ts imported by src/a.test.ts, committed with everything else. */
+function selectionRepo(root) {
+    const git = (...args) => assert.equal(spawnSync('git', args, {cwd: root, windowsHide: true}).status, 0, `git ${args.join(' ')}`);
+    fs.mkdirSync(path.join(root, 'src'), {recursive: true});
+    fs.mkdirSync(path.join(root, 'docs'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'src/a.ts'), 'export const a = 1;\n');
+    fs.writeFileSync(path.join(root, 'src/a.test.ts'), "import {a} from './a';\ntest('a', () => expect(a).toBe(1));\n");
+    fs.writeFileSync(path.join(root, 'src/other.test.ts'), "test('other', () => undefined);\n");
+    fs.writeFileSync(path.join(root, 'docs/note.md'), 'note\n');
+    fs.writeFileSync(path.join(root, '.gitignore'), 'node_modules\n.command-logs\nbuild\nevents.log\n');
+    git('init', '-q');
+    git('add', '-A');
+    git('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'base');
+    return git;
+}
+
+/** Records the arguments of each unit step beside the existing marker lines of the gate fixture. */
+function recordUnitArguments(root, npmCli) {
+    const events = path.join(root, 'events.log');
+    fs.writeFileSync(npmCli, `const fs = require('node:fs'); const run = process.argv[2] === 'run'; fs.appendFileSync(${JSON.stringify(events)}, run ? 'build\\n' : 'unit ' + process.argv.slice(5).join(' ') + '\\n'); if (run) fs.writeFileSync('build/index.html', 'fixture build');`);
+}
+
+test('check-changed runs the statically selected unit tests, including an untracked new test', () => withGateFixture(async ({root, npmCli, fakes, read, env}) => {
+    recordUnitArguments(root, npmCli);
+    selectionRepo(root);
+    fs.writeFileSync(path.join(root, 'src/a.ts'), 'export const a = 2;\n');
+    fs.writeFileSync(path.join(root, 'src/new.test.ts'), "import {a} from './a';\ntest('new', () => a);\n");
+    assert.equal(await commands.execute('check-changed', ['HEAD'], {root, env, slots: fakes}), 0);
+    assert.deepEqual(read(), [
+        'admit typecheck spacing=false', 'tsc',
+        'admit lint spacing=false', 'lint',
+        'slot-acquire check-changed', 'admit check-changed spacing=true', 'unit src/a.test.ts src/new.test.ts', 'slot-release',
+        'admit unit spacing=false', `unit --maxWorkers=2 ${ALWAYS_RUN.join(' ')}`,
+        'admit build spacing=false', 'build',
+    ]);
+}));
+
+test('check-changed falls back to Vitest --changed for a configuration change', () => withGateFixture(async ({root, npmCli, fakes, read, env}) => {
+    recordUnitArguments(root, npmCli);
+    selectionRepo(root);
+    fs.writeFileSync(path.join(root, 'package.json'), '{"scripts": {"build": "fixture"}, "changed": true}');
+    assert.equal(await commands.execute('check-changed', ['HEAD'], {root, env, slots: fakes}), 0);
+    assert.ok(read().includes('unit --changed HEAD --passWithNoTests'), read().join('\n'));
+}));
+
+test('check-changed takes no unit slot when the change reaches no test file', () => withGateFixture(async ({root, npmCli, fakes, read, env}) => {
+    recordUnitArguments(root, npmCli);
+    selectionRepo(root);
+    fs.writeFileSync(path.join(root, 'docs/note.md'), 'changed\n');
+    assert.equal(await commands.execute('check-changed', ['HEAD'], {root, env, slots: fakes}), 0);
+    const events = read();
+    assert.ok(!events.some(line => line.startsWith('slot-acquire')), events.join('\n'));
+    assert.deepEqual(events.filter(line => line.startsWith('unit')), [`unit --maxWorkers=2 ${alwaysRunFiles(['docs/note.md']).join(' ')}`]);
 }));
 
 test('stylesheetOnly needs a stylesheet and nothing but documentation beside it', () => {

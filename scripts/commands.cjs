@@ -7,6 +7,7 @@ const path = require('node:path');
 const {spawn} = require('node:child_process');
 const {STYLESHEET_READERS, alwaysRunFiles, stylesheetOnly} = require('./check-changed-always-run.cjs');
 const {warnSelectorRemovals} = require('./selector-removal-check.cjs');
+const {selectUnitTests} = require('./check-changed-selector.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const LOG_DIR_NAME = '.command-logs';
@@ -473,7 +474,7 @@ async function executeCommand(command, rawArgs = [], options = {}) {
     const unit = argv => slotted({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
     const alwaysRunStep = files => ({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', '--maxWorkers=2', ...files]});
     const smokeBuilt = argv => slotted(npmStep('test:smoke:built', argv));
-    if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/ci-change-scope.test.cjs'), path.join(root, 'scripts/transient-state-scope.test.cjs'), path.join(root, 'scripts/probe-demonstration-clip-routes.test.cjs'), path.join(root, 'scripts/commands.test.cjs'), path.join(root, 'scripts/demonstration-preview-motion-runner.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_jump.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_rows.test.cjs'), path.join(root, 'scripts/publish-gate.test.cjs'), path.join(root, 'scripts/selector-removal-check.test.cjs'), path.join(root, 'scripts/test-cost.test.cjs')]}]);
+    if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/ci-change-scope.test.cjs'), path.join(root, 'scripts/transient-state-scope.test.cjs'), path.join(root, 'scripts/probe-demonstration-clip-routes.test.cjs'), path.join(root, 'scripts/commands.test.cjs'), path.join(root, 'scripts/demonstration-preview-motion-runner.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_jump.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_rows.test.cjs'), path.join(root, 'scripts/publish-gate.test.cjs'), path.join(root, 'scripts/selector-removal-check.test.cjs'), path.join(root, 'scripts/test-cost.test.cjs'), path.join(root, 'scripts/check-changed-selector.test.cjs')]}]);
     if (command === 'clip') {
         if (args.length !== 1 || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(args[0])) throw new Error('Usage: just clip <demonstration-id> (one id, lowercase with hyphens).');
         // PREVIEW_RECAPTURE_VERIFIED_PRESENTATION is an operator assertion: it passes through from the environment, never set here.
@@ -528,7 +529,11 @@ async function executeCommand(command, rawArgs = [], options = {}) {
         // filtered run), because the import-graph selection misses registries reached through file reads.
         // `--relative` changes nothing at the repository root; it keeps a test fixture nested in the repository from
         // reading the host checkout's changes (a committed vite.config.mts change would drop the step there).
-        const changed = await commandOutput('git', root, ['diff', '--name-only', '--relative', ref], 1 << 20).then(text => text.split('\n').filter(Boolean), () => undefined);
+        const changedLines = gitArgs => commandOutput('git', root, gitArgs, 1 << 20).then(text => text.split('\n').filter(Boolean), () => undefined);
+        const tracked = await changedLines(['diff', '--name-only', '--relative', ref]);
+        // Untracked new files are not in the diff: a new test or module has to be seen by the selection.
+        const untracked = tracked ? await changedLines(['ls-files', '--others', '--exclude-standard']) : undefined;
+        const changed = tracked && untracked ? [...new Set([...tracked, ...untracked])] : undefined;
         // A change of stylesheets (and documentation) only reaches the tests that read stylesheet source, so the import
         // selection and its slot are skipped and those tests join the always-run step (phase 8 change 1, T02).
         const cssOnly = stylesheetOnly(changed);
@@ -537,7 +542,13 @@ async function executeCommand(command, rawArgs = [], options = {}) {
         await warnSelectorRemovals({root, base: ref});
         if (cssOnly) process.stderr.write(`Stylesheet-only change: running the ${always.length} always-run and stylesheet-reading test files instead of the import selection.
 `);
-        const selected = cssOnly ? [] : [unit(['--changed', ref, '--passWithNoTests'])];
+        // Static selection (scripts/check-changed-selector.cjs): the tests importing a changed file, not followed through
+        // the registries; hosted CI runs everything per push. Today's Vitest `--changed` run is the fallback.
+        const selection = cssOnly ? undefined : selectUnitTests({root, changed});
+        if (selection?.kind === 'files') process.stderr.write(`Selected ${selection.files.length} unit test files (registries not followed; CI runs all)\n`);
+        else if (selection?.kind === 'fallback') process.stderr.write(`Import selection falls back to Vitest --changed: ${selection.reason}\n`);
+        else if (selection?.kind === 'empty') process.stderr.write('Selected 0 unit test files (registries not followed; CI runs all): no unit step\n');
+        const selected = !selection || selection.kind === 'empty' ? [] : [unit(selection.kind === 'files' ? selection.files : ['--changed', ref, '--passWithNoTests'])];
         const code = await run('check-changed', [tsc(), lint([]), ...selected, ...(always.length ? [free('unit', alwaysRunStep(always))] : [])]);
         return code === 0 ? buildWithProvenance('check-changed build') : code;
     }
