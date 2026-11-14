@@ -3197,9 +3197,9 @@ test.describe('Inversion extras', () => {
         // The inspector is inert while the lesson text is shown; hiding the instructions opens it for editing.
         await lessonPanel(page).getByRole('button', {name: /^Hide (lesson|example) instructions$/}).click();
         await expect(lessonPanel(page)).toHaveCount(0);
-        await expect(page.getByLabel('X: x', {exact: true})).toBeEnabled();
-        await page.getByLabel('X: x', {exact: true}).fill('0');
-        await page.getByLabel('X: y', {exact: true}).fill('0');
+        await expect(page.getByLabel('X, x', {exact: true})).toBeEnabled();
+        await page.getByLabel('X, x', {exact: true}).fill('0');
+        await page.getByLabel('X, y', {exact: true}).fill('0');
         await page.keyboard.press('Tab');
         await expect(page.getByText('The point X is the centre of inversion C, so it has no image.').first()).toBeVisible();
     });
