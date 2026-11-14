@@ -11,5 +11,5 @@
   "src/graphs/random/SimulationGraph.tsx#getGraphCommands#trialsLabel(state.mode)": "keep: trials run to 100 000 (10 000 to 100 000 in four of six modes), so a track cannot set the count; the typed field keeps its help",
   "src/graphs/curves/bspline/BSplineInsertionGraph.tsx#getGraphCommands#t(\"bsi_insert_value\")": "keep: the range of ±100 in steps of 0,01 is a validity limit (20 000 steps on the track); the knot is typed, and the insertion is refused outside the domain",
   "src/graphs/curves/bspline/BSplineNurbsGraph.tsx#getGraphCommands#t(\"bsn_weight\", {value0: index + 1})": "keep: weight, no upper bound (only positive and finite is required)",
-  "src/graphs/curves/bspline/KnotEditor.tsx#KnotEditor#t(\"bsb_knot_name\", {value0: index})": "keep: knot vector editor, a recorded exception (queue 2g)"
-}
+  "src/graphs/curves/bspline/KnotEditor.tsx#KnotEditor#t(\"bsb_knot_name\", {value0: index})": "keep: knot vector editor, a recorded exception (queue 2g)",
+  "src/graphs/recursion/GrowthGraph.tsx#getGraphCommands#t(\"recursion_graph_growth_capital_label\")": "keep: the range 1 to 100 000 in steps of 1 is a validity limit (about 100 000 steps on the track, one pixel is about 400); the capital is typed"}

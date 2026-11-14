@@ -36,7 +36,9 @@ type Shown = {elType: string; evalVisProp(name: string): unknown; visProp: Recor
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-line-status]')!.textContent;
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed coordinate of a point row: its field is named "<point>, x" or "<point>, y". */
+const find = (label: string) => screen.queryByRole('spinbutton', {name: label}) as HTMLInputElement | null;
+const field = (label: string) => screen.getByRole('spinbutton', {name: label}) as HTMLInputElement;
 /** Board objects without the point and tick labels, which the board creates and drops itself when the view changes. */
 const countObjects = (board: JXG.Board) => (board.objectsList as unknown as Shown[]).filter(o => o.elType !== 'label').length;
 const dragListeners = (point: JXG.Point) => (point as EventedPoint).eventHandlers.drag?.length ?? 0;
@@ -326,56 +328,51 @@ test('coincident points give a status and no line, circle or NaN in every mode',
 test('the point fields take typed integers: one field per handle, shown only for the modes that use the handle', () => {
     const {graph} = mountGraph();
     const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-    enter('Točka P, koordinata x', '-5');
-    enter('Točka Q, koordinata y', '7');
+    enter('P, x', '-5');
+    enter('Q, y', '7');
     expect([graph.state.P, graph.state.Q]).toEqual([{x: -5, y: 1}, {x: 4, y: 7}]);
     expect(graph.handles().P!.X()).toBe(-5);
-    expect(screen.queryByLabelText('Točka R, koordinata x')).toBeNull();
+    expect(find('R, x')).toBeNull();
     set(graph, {mode: 'normal'});
-    enter('Točka R, koordinata x', '-4');
-    enter('Točka S, koordinata y', '6');
+    enter('R, x', '-4');
+    enter('S, y', '6');
     expect([graph.state.R, graph.state.S]).toEqual([{x: -4, y: -2}, {x: 2, y: 6}]);
     set(graph, {mode: 'distance'});
-    enter('Točka T, koordinata x', '-8');
+    enter('T, x', '-8');
     expect(graph.state.T).toEqual({x: -8, y: -2});
-    expect(screen.queryByLabelText('Točka R, koordinata x')).toBeNull();
+    expect(find('R, x')).toBeNull();
     set(graph, {mode: 'intersect', target: 'circle'});
-    enter('Točka O, koordinata y', '3');
-    enter('Točka B, koordinata x', '0');
+    enter('O, y', '3');
+    enter('B, x', '0');
     expect([graph.state.O, graph.state.B]).toEqual([{x: 1, y: 3}, {x: 0, y: 1}]);
     expect(graph.handles().B!.X()).toBe(0);
     expect(status()).toMatch(/^Premica /);
 });
 
-test('every point field points at the shared help, and the help names the range and the keys', () => {
-    mountGraph();
-    const help = document.querySelector<HTMLElement>('[id^="line-geometry-point-help-"]')!;
-    expect(help.textContent).toContain(`od −${GRID_LIMIT} do ${GRID_LIMIT}`); // the range comes from the model bound, not from the text
-    expect(help.textContent).toContain('Puščici gor in dol za 1; Shift+puščica ali Page Up in Page Down za 5.');
-    const inputs = screen.getAllByLabelText(/^Točka /);
-    expect(inputs).toHaveLength(4);
-    for (const input of inputs) expect(input.getAttribute('aria-describedby')).toContain(help.id);
-});
-
-test('two instances on one page have distinct help ids, each field pointing at its own', () => {
-    mountGraph();
-    mountGraph();
-    const ids = Array.from(document.querySelectorAll('[id^="line-geometry-point-help-"]')).map(node => node.id);
-    expect(ids).toHaveLength(2);
-    expect(new Set(ids).size).toBe(2);
-    for (const input of screen.getAllByLabelText(/^Točka /)) {
-        expect(ids).toContain(input.getAttribute('aria-describedby')!.split(' ').find(id => id.startsWith('line-geometry-point-help-')));
-    }
+test('the point rows come in groups that belong together: the two points of a line, the circle, the point T', () => {
+    const {graph} = mountGraph();
+    const names = () => ['P', 'Q', 'R', 'S', 'T', 'O', 'B'].flatMap(point => [`${point}, x`, `${point}, y`]).filter(name => find(name) !== null);
+    expect(names()).toEqual(['P, x', 'P, y', 'Q, x', 'Q, y']);
+    set(graph, {mode: 'normal'});
+    expect(names()).toEqual(['P, x', 'P, y', 'Q, x', 'Q, y', 'R, x', 'R, y', 'S, x', 'S, y']);
+    set(graph, {mode: 'distance'});
+    expect(names()).toEqual(['P, x', 'P, y', 'Q, x', 'Q, y', 'T, x', 'T, y']);
+    set(graph, {mode: 'intersect', target: 'circle'});
+    expect(names()).toEqual(['P, x', 'P, y', 'Q, x', 'Q, y', 'O, x', 'O, y', 'B, x', 'B, y']);
+    set(graph, {mode: 'forms'});
+    const before = graph.state;
+    act(() => { enterNumber(field('P, x'), String(GRID_LIMIT + 1)); });
+    expect(graph.state).toBe(before); // outside [-8, 8] is refused, not clamped
 });
 
 test('keyboard steps move a coordinate by one grid unit, Shift or a Page key by five, within [-8, 8]', () => {
     const {graph} = mountGraph();
     expect([POINT_STEP, POINT_BIG_STEP]).toEqual([1, 5]);
-    act(() => { fireEvent.keyDown(field('Točka P, koordinata x'), {key: 'ArrowUp'}); });
+    act(() => { fireEvent.keyDown(field('P, x'), {key: 'ArrowUp'}); });
     expect(graph.state.P).toEqual({x: -1, y: 1});
-    act(() => { fireEvent.keyDown(field('Točka P, koordinata x'), {key: 'ArrowDown', shiftKey: true}); });
+    act(() => { fireEvent.keyDown(field('P, x'), {key: 'ArrowDown', shiftKey: true}); });
     expect(graph.state.P).toEqual({x: -6, y: 1});
-    act(() => { fireEvent.keyDown(field('Točka Q, koordinata y'), {key: 'PageUp'}); });
+    act(() => { fireEvent.keyDown(field('Q, y'), {key: 'PageUp'}); });
     expect(graph.state.Q).toEqual({x: 4, y: 8}); // 4 + 5 = 9 is clamped to 8
     expect(graph.handles().Q!.Y()).toBe(8);
     // P(-6,1) Q(4,8): direction (10, 7), line 7x - 10y = -52
@@ -455,8 +452,7 @@ test('the status, labels and readouts follow a language switch (point format, de
     act(() => { setLanguage('en'); });
     expect(status()).toBe('The line x − 2y = −4 has an implicit, an explicit and an intercept form.');
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('implicit, an explicit and an intercept form');
-    expect(screen.getByLabelText('Point P, coordinate x')).toBeInTheDocument();
-    expect(document.querySelector('[id^="line-geometry-point-help-"]')!.textContent).toContain('from −8 to 8. Up and Down arrows by 1; Shift+arrow or Page Up and Page Down by 5.');
+    expect(field('P, x')).toBeInTheDocument();
     set(graph, {mode: 'distance'});
     expect(status()).toBe('Distance of point T from the line: d² = 121/5, d ≈ 4.9193.');
     expect(readout('foot')).toBe('(4/5, 12/5)');

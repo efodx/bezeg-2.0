@@ -9,7 +9,6 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
-import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
@@ -777,11 +776,11 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const xArgs = this.range(X_RANGE.min, X_RANGE.max, X_SCALE);
         return [
             <Slider key="r" customText={t("phase_graph_logistic_r_label")} min={R_RANGE.min / R_SCALE} max={R_RANGE.max / R_SCALE} step={1 / R_SCALE} bigStep={0.1}
-                    value={rOf(this.state.R)} decimals={2} help={t("phase_graph_logistic_r_help", rArgs)} rejectedHint={t("phase_graph_logistic_r_rejected", rArgs)}
+                    value={rOf(this.state.R)} decimals={2} rejectedHint={t("phase_graph_logistic_r_rejected", rArgs)}
                     onChange={value => this.editR(value)}/>,
-            <NumberInput key="x" label={t("phase_graph_logistic_x_label")} value={startOf(this.state.X)} step={1 / X_SCALE} bigStep={0.1} min={X_RANGE.min / X_SCALE}
-                         max={X_RANGE.max / X_SCALE} decimals={2} help={t("phase_graph_logistic_x_help", xArgs)} rejectedHint={t("phase_graph_logistic_x_rejected", xArgs)}
-                         onChange={value => this.editStart(value)}/>,
+            <Slider key="x" customText={t("phase_graph_logistic_x_label")} value={startOf(this.state.X)} step={1 / X_SCALE} bigStep={0.1} min={X_RANGE.min / X_SCALE}
+                    max={X_RANGE.max / X_SCALE} decimals={2} help={t("phase_graph_logistic_x_help")} rejectedHint={t("phase_graph_logistic_x_rejected", xArgs)}
+                    onChange={value => this.editStart(value)}/>,
         ];
     }
 

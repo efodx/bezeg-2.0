@@ -72,11 +72,14 @@ function countUpdates(curve: Probe): {count: () => number} {
     return {count: () => calls};
 }
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const hasRow = (id: string) => document.querySelector(`[data-readout="${id}"]`) !== null;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
+/** The range input of a slider named `label`. */
+const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as HTMLInputElement;
 const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const status = () => document.querySelector('[data-logistic-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
@@ -422,7 +425,7 @@ describe('every stored-field change pauses a playing run', () => {
 
     test('the r control', () => {
         const graph = playing();
-        act(() => { fireEvent.change(field(t('phase_graph_logistic_r_label')), {target: {value: '3.1'}}); });
+        act(() => { fireEvent.change(rangeOf(t('phase_graph_logistic_r_label')), {target: {value: '3.1'}}); });
         expect(graph.state.R).toBe(310);
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
@@ -503,8 +506,10 @@ describe('typed values and the drag', () => {
     test('both controls state the range in their help (aria-describedby), the slider and the field', () => {
         mountGraph();
         const help = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-        expect(help(field(t('phase_graph_logistic_r_label')))).toContain(t('phase_graph_logistic_r_help', {value0: '2,5', value1: '4', value2: '0,01'}));
-        expect(help(field(xField()))).toContain(t('phase_graph_logistic_x_help', {value0: '0,01', value1: '0,99', value2: '0,01'}));
+        expect(help(rangeOf(t('phase_graph_logistic_r_label')))).not.toContain('v korakih'); // the track shows the range; no help repeats it
+        const range = rangeOf(xField());
+        expect([range.min, range.max, range.step]).toEqual(['0.01', '0.99', '0.01']);
+        expect(help(range)).toContain(t('phase_graph_logistic_x_help'));
     });
 
     test('dragging the start handle snaps to the grid on the diagonal; a drag outside clamps inside (0, 1); non-finite changes nothing', () => {
@@ -709,7 +714,7 @@ describe('language and the catalog', () => {
     test('every phase_graph_logistic key exists in both languages with the same placeholder names, and the source uses exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('phase_graph_logistic_'));
-        expect(keys.length).toBeGreaterThanOrEqual(51);
+        expect(keys.length).toBeGreaterThanOrEqual(50);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];

@@ -5,6 +5,8 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, formatScientific} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -578,40 +580,35 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
                 <ChoiceSelect key="kind" label={t("recursion_graph_growth_kind_label")} value={state.kind} help={t("recursion_graph_growth_kind_help")}
                               options={SEQUENCE_KINDS.map(value => ({value, text: KIND_NAMES[value]()}))}
                               onChange={value => { const kind = SEQUENCE_KINDS.find(candidate => candidate === value); if (kind) this.editKind(kind); }}/>,
-                <NumberInput key="a1" label={t("recursion_graph_growth_a1_label")} value={state.a1} step={1} bigStep={10} min={A1_RANGE.min} max={A1_RANGE.max}
-                             grid={1} decimals={0} help={t("recursion_graph_growth_a1_help", this.range(A1_RANGE, 1))}
-                             rejectedHint={this.rejected(t("recursion_graph_growth_a1_label"), A1_RANGE, 1)} onChange={value => this.editFirstTerm(value)}/>,
+                <Slider key="a1" customText={t("recursion_graph_growth_a1_label")} value={state.a1} step={1} bigStep={10} min={A1_RANGE.min} max={A1_RANGE.max}
+                        grid={1} rejectedHint={this.rejected(t("recursion_graph_growth_a1_label"), A1_RANGE, 1)} onChange={value => this.editFirstTerm(value)}/>,
             );
             if (state.kind === "arithmetic") {
                 commands.push(
-                    <NumberInput key="d" label={t("recursion_graph_growth_d_label")} value={state.d} step={1} bigStep={5} min={D_RANGE.min} max={D_RANGE.max}
-                                 grid={1} decimals={0} help={t("recursion_graph_growth_d_help", this.range(D_RANGE, 1))}
-                                 rejectedHint={this.rejected(t("recursion_graph_growth_d_label"), D_RANGE, 1)} onChange={value => this.editDifference(value)}/>,
+                    <Slider key="d" customText={t("recursion_graph_growth_d_label")} value={state.d} step={1} bigStep={5} min={D_RANGE.min} max={D_RANGE.max}
+                            grid={1} rejectedHint={this.rejected(t("recursion_graph_growth_d_label"), D_RANGE, 1)} onChange={value => this.editDifference(value)}/>,
                 );
             } else {
                 commands.push(
-                    <NumberInput key="q" label={t("recursion_graph_growth_q_label")} value={state.q / Q_SCALE} step={1 / Q_SCALE} bigStep={1} min={Q_RANGE.min / Q_SCALE}
-                                 max={Q_RANGE.max / Q_SCALE} grid={1 / Q_SCALE} decimals={1} help={t("recursion_graph_growth_q_help", this.range(Q_RANGE, Q_SCALE))}
-                                 rejectedHint={this.rejected(t("recursion_graph_growth_q_label"), Q_RANGE, Q_SCALE)} onChange={value => this.editRatio(value)}/>,
+                    <Slider key="q" customText={t("recursion_graph_growth_q_label")} value={state.q / Q_SCALE} step={1 / Q_SCALE} bigStep={1} min={Q_RANGE.min / Q_SCALE}
+                            max={Q_RANGE.max / Q_SCALE} grid={1 / Q_SCALE} decimals={1} help={t("recursion_graph_growth_q_help")}
+                            rejectedHint={this.rejected(t("recursion_graph_growth_q_label"), Q_RANGE, Q_SCALE)} onChange={value => this.editRatio(value)}/>,
                 );
             }
             commands.push(
-                <NumberInput key="n" label={t("recursion_graph_growth_n_label")} value={state.n} step={1} bigStep={5} min={TERMS_RANGE.min} max={TERMS_RANGE.max}
-                             grid={1} decimals={0} help={t("recursion_graph_growth_n_help", this.range(TERMS_RANGE, 1))}
-                             rejectedHint={this.rejected(t("recursion_graph_growth_n_label"), TERMS_RANGE, 1)} onChange={value => this.editTerms(value)}/>,
+                <CountSetter key="n" label={t("recursion_graph_growth_n_label")} n={state.n} min={TERMS_RANGE.min} max={TERMS_RANGE.max} bigStep={5}
+                             onPlus={() => this.editTerms(state.n + 1)} onMinus={() => this.editTerms(state.n - 1)} onSet={value => this.editTerms(value)}/>,
             );
         } else if (state.panel === "interest") {
             commands.push(
                 <NumberInput key="capital" label={t("recursion_graph_growth_capital_label")} value={state.capital} step={1} bigStep={100} min={CAPITAL_RANGE.min}
                              max={CAPITAL_RANGE.max} grid={1} decimals={0} help={t("recursion_graph_growth_capital_help", this.range(CAPITAL_RANGE, 1))}
                              rejectedHint={this.rejected(t("recursion_graph_growth_capital_label"), CAPITAL_RANGE, 1)} onChange={value => this.editCapital(value)}/>,
-                <NumberInput key="rate" label={t("recursion_graph_growth_rate_label")} value={state.rate / PERCENT_SCALE} step={1 / PERCENT_SCALE} bigStep={1}
-                             min={RATE_RANGE.min / PERCENT_SCALE} max={RATE_RANGE.max / PERCENT_SCALE} grid={1 / PERCENT_SCALE} decimals={1}
-                             help={t("recursion_graph_growth_rate_help", this.range(RATE_RANGE, PERCENT_SCALE))}
-                             rejectedHint={this.rejected(t("recursion_graph_growth_rate_label"), RATE_RANGE, PERCENT_SCALE)} onChange={value => this.editRate(value)}/>,
-                <NumberInput key="years" label={t("recursion_graph_growth_years_label")} value={state.years} step={1} bigStep={5} min={YEARS_RANGE.min}
-                             max={YEARS_RANGE.max} grid={1} decimals={0} help={t("recursion_graph_growth_years_help", this.range(YEARS_RANGE, 1))}
-                             rejectedHint={this.rejected(t("recursion_graph_growth_years_label"), YEARS_RANGE, 1)} onChange={value => this.editYears(value)}/>,
+                <Slider key="rate" customText={t("recursion_graph_growth_rate_label")} value={state.rate / PERCENT_SCALE} step={1 / PERCENT_SCALE} bigStep={1}
+                        min={RATE_RANGE.min / PERCENT_SCALE} max={RATE_RANGE.max / PERCENT_SCALE} grid={1 / PERCENT_SCALE} decimals={1}
+                        rejectedHint={this.rejected(t("recursion_graph_growth_rate_label"), RATE_RANGE, PERCENT_SCALE)} onChange={value => this.editRate(value)}/>,
+                <CountSetter key="years" label={t("recursion_graph_growth_years_label")} n={state.years} min={YEARS_RANGE.min} max={YEARS_RANGE.max} bigStep={5}
+                             onPlus={() => this.editYears(state.years + 1)} onMinus={() => this.editYears(state.years - 1)} onSet={value => this.editYears(value)}/>,
                 <ChoiceSelect key="parts" label={t("recursion_graph_growth_parts_label")} value={String(state.parts)} help={t("recursion_graph_growth_parts_help")}
                               options={INTEREST_PARTS.map(value => ({value: String(value), text: PARTS_NAMES[value]()}))}
                               onChange={value => { this.editParts(Number(value)); }}/>,
@@ -621,22 +618,20 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
                 <ChoiceSelect key="model" label={t("recursion_graph_growth_model_label")} value={state.logModel} help={t("recursion_graph_growth_model_help")}
                               options={LOG_MODELS.map(value => ({value, text: MODEL_NAMES[value]()}))}
                               onChange={value => { const model = LOG_MODELS.find(candidate => candidate === value); if (model) this.editModel(model); }}/>,
-                <NumberInput key="y0" label={t("recursion_graph_growth_y0_label")} value={state.y0} step={1} bigStep={100} min={Y0_RANGE.min} max={Y0_RANGE.max}
-                             grid={1} decimals={0} help={t("recursion_graph_growth_y0_help", this.range(Y0_RANGE, 1))}
-                             rejectedHint={this.rejected(t("recursion_graph_growth_y0_label"), Y0_RANGE, 1)} onChange={value => this.editStartValue(value)}/>,
+                <Slider key="y0" customText={t("recursion_graph_growth_y0_label")} value={state.y0} step={1} bigStep={100} min={Y0_RANGE.min} max={Y0_RANGE.max}
+                        grid={1} rejectedHint={this.rejected(t("recursion_graph_growth_y0_label"), Y0_RANGE, 1)} onChange={value => this.editStartValue(value)}/>,
             );
             if (state.logModel === "exponential") {
                 commands.push(
-                    <NumberInput key="logq" label={t("recursion_graph_growth_logq_label")} value={state.logQ / LOG_Q_SCALE} step={1 / LOG_Q_SCALE} bigStep={0.1}
-                                 min={LOG_Q_RANGE.min / LOG_Q_SCALE} max={LOG_Q_RANGE.max / LOG_Q_SCALE} grid={1 / LOG_Q_SCALE} decimals={2}
-                                 help={t("recursion_graph_growth_logq_help", this.range(LOG_Q_RANGE, LOG_Q_SCALE))}
-                                 rejectedHint={this.rejected(t("recursion_graph_growth_logq_label"), LOG_Q_RANGE, LOG_Q_SCALE)} onChange={value => this.editGrowthFactor(value)}/>,
+                    <Slider key="logq" customText={t("recursion_graph_growth_logq_label")} value={state.logQ / LOG_Q_SCALE} step={1 / LOG_Q_SCALE} bigStep={0.1}
+                            min={LOG_Q_RANGE.min / LOG_Q_SCALE} max={LOG_Q_RANGE.max / LOG_Q_SCALE} grid={1 / LOG_Q_SCALE} decimals={2}
+                            rejectedHint={this.rejected(t("recursion_graph_growth_logq_label"), LOG_Q_RANGE, LOG_Q_SCALE)} onChange={value => this.editGrowthFactor(value)}/>,
                 );
             }
             commands.push(
-                <NumberInput key="steps" label={t("recursion_graph_growth_steps_label")} value={state.n} step={1} bigStep={5} min={TERMS_RANGE.min} max={TERMS_RANGE.max}
-                             grid={1} decimals={0} help={t("recursion_graph_growth_steps_help", this.range(TERMS_RANGE, 1))}
-                             rejectedHint={this.rejected(t("recursion_graph_growth_steps_label"), TERMS_RANGE, 1)} onChange={value => this.editTerms(value)}/>,
+                <CountSetter key="steps" label={t("recursion_graph_growth_steps_label")} n={state.n} min={TERMS_RANGE.min} max={TERMS_RANGE.max} bigStep={5}
+                             help={t("recursion_graph_growth_steps_help")}
+                             onPlus={() => this.editTerms(state.n + 1)} onMinus={() => this.editTerms(state.n - 1)} onSet={value => this.editTerms(value)}/>,
             );
         }
         return commands;

@@ -42,7 +42,11 @@ const SCENE_OBJECTS = CURVES + (1 + LOG_POINTS) + 11;
 /** Curve indices in creation order. */
 const BARS = 0, LIMIT = 1, SIMPLE = 2, COMPOUND = 3, RELATIVE = 4, CONTINUOUS = 5, LEGEND = 6, LOG_LINE = 10, CHORD = 11;
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const find = (label: string) => screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] as HTMLInputElement | undefined;
+const field = (label: string) => find(label) ?? screen.getByLabelText(label) as HTMLInputElement;
+/** The range input of a slider named `label`. */
+const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-recursion-status]')!.textContent!;
 const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
@@ -100,7 +104,7 @@ describe('mount and the sequence panel', () => {
         expect(visible(curves(graph))).toHaveLength(1);
         expect(status()).toBe(t('recursion_graph_growth_status_geometric_exact', {value0: '₁₀', value1: '1536', value2: '3069'}));
         expect(shown(graph)).toHaveLength(4);
-        expect(screen.queryByLabelText(t('recursion_graph_growth_d_label'))).toBeNull();
+        expect(find(t('recursion_graph_growth_d_label'))).toBeUndefined();
     });
 
     test('geometric with q = 0,5: the sum is computed, the limit 6 is a line and a caption, and the status says it is not the last term', () => {
@@ -300,7 +304,7 @@ describe('the logarithm panel (n, ln y) on an ordinary axis', () => {
         expect(readout('line')).toBe(t('recursion_graph_growth_line_no'));
         expect(readout('ln-q')).toBeUndefined();
         expect(readout('factor')).toBeUndefined();
-        expect(screen.queryByLabelText(t('recursion_graph_growth_logq_label'))).toBeNull();
+        expect(find(t('recursion_graph_growth_logq_label'))).toBeUndefined();
         expect(status()).toBe(t('recursion_graph_growth_status_log_curve', {value0: '1,386294', value1: '0,19062'}));
         expect(shown(graph)).toContain(t('recursion_graph_growth_cap_points_power'));
         expect(visible(markers(graph))).toHaveLength(11);
@@ -336,38 +340,38 @@ describe('panels', () => {
 
     test('the control set follows the panel', () => {
         mountGraph();
-        const labels = () => [...document.querySelectorAll('label')].map(l => l.textContent);
-        expect(labels()).toEqual(expect.arrayContaining([t('recursion_graph_growth_a1_label'), t('recursion_graph_growth_d_label'), t('recursion_graph_growth_n_label')]));
+        const has = (...labels: string[]) => labels.every(label => find(label) !== undefined);
+        expect(has(t('recursion_graph_growth_a1_label'), t('recursion_graph_growth_d_label'), t('recursion_graph_growth_n_label'))).toBe(true);
         panel('interest');
-        expect(labels()).toEqual(expect.arrayContaining([
-            t('recursion_graph_growth_capital_label'), t('recursion_graph_growth_rate_label'), t('recursion_graph_growth_years_label'), t('recursion_graph_growth_parts_label'),
-        ]));
-        expect(labels()).not.toContain(t('recursion_graph_growth_a1_label'));
+        expect(has(t('recursion_graph_growth_capital_label'), t('recursion_graph_growth_rate_label'), t('recursion_graph_growth_years_label'))).toBe(true);
+        expect(screen.getByRole('combobox', {name: t('recursion_graph_growth_parts_label')})).toBeTruthy();
+        expect(find(t('recursion_graph_growth_a1_label'))).toBeUndefined();
         panel('log');
-        expect(labels()).toEqual(expect.arrayContaining([t('recursion_graph_growth_y0_label'), t('recursion_graph_growth_logq_label'), t('recursion_graph_growth_steps_label')]));
+        expect(has(t('recursion_graph_growth_y0_label'), t('recursion_graph_growth_logq_label'), t('recursion_graph_growth_steps_label'))).toBe(true);
     });
 });
 
 describe('fields: ranges, help, refusal, program-changed values', () => {
-    test('every field is linked to a help that states its range and step', () => {
+    test('sliders carry their range and step, counters their bounds; capital stays typed with its help; only help that explains stays', () => {
         mountGraph();
-        const help = (label: string, text: string) => expect(described(field(label)), label).toBe(text);
+        const shape = (label: string) => { const input = rangeOf(label); return [input.min, input.max, input.step]; };
         expect(described(select(t('recursion_graph_growth_panel_label')))).toBe(t('recursion_graph_growth_panel_help'));
         expect(described(select(t('recursion_graph_growth_kind_label')))).toBe(t('recursion_graph_growth_kind_help'));
-        help(t('recursion_graph_growth_a1_label'), t('recursion_graph_growth_a1_help', {value0: '−100', value1: '100'}));
-        help(t('recursion_graph_growth_d_label'), t('recursion_graph_growth_d_help', {value0: '−20', value1: '20'}));
-        help(t('recursion_graph_growth_n_label'), t('recursion_graph_growth_n_help', {value0: '1', value1: '30'}));
+        expect(shape(t('recursion_graph_growth_a1_label'))).toEqual(['-100', '100', '1']);
+        expect(shape(t('recursion_graph_growth_d_label'))).toEqual(['-20', '20', '1']);
+        expect(screen.getByRole('group', {name: t('recursion_graph_growth_n_label')})).toBeTruthy();
         choose(t('recursion_graph_growth_kind_label'), 'geometric');
-        help(t('recursion_graph_growth_q_label'), t('recursion_graph_growth_q_help', {value0: '−3', value1: '3', value2: '0,1'}));
+        expect(shape(t('recursion_graph_growth_q_label'))).toEqual(['-3', '3', '0.1']);
+        expect(described(rangeOf(t('recursion_graph_growth_q_label')))).toContain(t('recursion_graph_growth_q_help'));
         panel('interest');
-        help(t('recursion_graph_growth_capital_label'), t('recursion_graph_growth_capital_help', {value0: '1', value1: '100000'}));
-        help(t('recursion_graph_growth_rate_label'), t('recursion_graph_growth_rate_help', {value0: '0,5', value1: '40', value2: '0,5'}));
-        help(t('recursion_graph_growth_years_label'), t('recursion_graph_growth_years_help', {value0: '1', value1: '40'}));
+        expect(described(field(t('recursion_graph_growth_capital_label')))).toBe(t('recursion_graph_growth_capital_help', {value0: '1', value1: '100000'}));
+        expect(shape(t('recursion_graph_growth_rate_label'))).toEqual(['0.5', '40', '0.5']);
+        expect(screen.getByRole('group', {name: t('recursion_graph_growth_years_label')})).toBeTruthy();
         expect(described(select(t('recursion_graph_growth_parts_label')))).toBe(t('recursion_graph_growth_parts_help'));
         panel('log');
-        help(t('recursion_graph_growth_y0_label'), t('recursion_graph_growth_y0_help', {value0: '1', value1: '1000'}));
-        help(t('recursion_graph_growth_logq_label'), t('recursion_graph_growth_logq_help', {value0: '0,5', value1: '3', value2: '0,01'}));
-        help(t('recursion_graph_growth_steps_label'), t('recursion_graph_growth_steps_help', {value0: '1', value1: '30'}));
+        expect(shape(t('recursion_graph_growth_y0_label'))).toEqual(['1', '1000', '1']);
+        expect(shape(t('recursion_graph_growth_logq_label'))).toEqual(['0.5', '3', '0.01']);
+        expect(screen.getByRole('group', {name: t('recursion_graph_growth_steps_label')})).toBeTruthy();
         expect(described(select(t('recursion_graph_growth_model_label')))).toBe(t('recursion_graph_growth_model_help'));
     });
 
@@ -552,7 +556,7 @@ describe('language', () => {
         const {graph} = mountGraph();
         act(() => { setLanguage('en'); });
         expect(board(graph)).toBe(t('recursion_graph_growth_board_sequence'));
-        expect(field(t('recursion_graph_growth_a1_label')).labels![0].textContent).toBe(t('recursion_graph_growth_a1_label'));
+        expect(rangeOf(t('recursion_graph_growth_a1_label'))).toBeTruthy();
         expect(shown(graph)).toContain(t('recursion_graph_growth_cap_nth', {value0: '₁₀', value1: '21'}));
         expect(status()).toBe(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
         panel('interest');

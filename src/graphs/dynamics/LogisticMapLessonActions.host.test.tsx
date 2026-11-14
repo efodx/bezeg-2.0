@@ -40,7 +40,8 @@ const apply = (graph: LogisticMapGraph, action: LessonAction) => act(() => { gra
 const setR = (R: number): LessonAction => ({kind: 'phase', operation: 'set-r', R});
 const setSeed = (X: number): LessonAction => ({kind: 'phase', operation: 'set-seed', X});
 const setStep = (step: number): LessonAction => ({kind: 'phase', operation: 'set-step', step});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const rField = () => t('number_field_label', {value0: t('phase_graph_logistic_r_label')});
 const xField = () => t('phase_graph_logistic_x_label');
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });

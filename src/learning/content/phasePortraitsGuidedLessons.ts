@@ -831,8 +831,8 @@ const pp4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Preberi \\(x_5\\), nato v polje Začetek \\(x_0\\) vpiši \\(0{,}21\\) in spet preberi \\(x_5\\) (število narisanih korakov se pri spremembi začetka ohrani). Pritisni Ponastavi, dvakrat pritisni Naslednji korak in preberi \\(x_1\\) in \\(x_2\\); nato spet vpiši \\(0{,}2\\) in ju preberi še za ta začetek.',
-            'Read \\(x_5\\), then type \\(0{,}21\\) in the field Start \\(x_0\\) and read \\(x_5\\) again (the number of drawn steps is kept when the start changes). Press Reset, press Next step twice and read \\(x_1\\) and \\(x_2\\); then type \\(0{,}2\\) again and read them for that start too.',
+            'Preberi \\(x_5\\), nato na drsniku Začetek \\(x_0\\) nastavi \\(0{,}21\\) in spet preberi \\(x_5\\) (število narisanih korakov se pri spremembi začetka ohrani). Pritisni Ponastavi, dvakrat pritisni Naslednji korak in preberi \\(x_1\\) in \\(x_2\\); nato spet vpiši \\(0{,}2\\) in ju preberi še za ta začetek.',
+            'Read \\(x_5\\), then set the slider Start \\(x_0\\) to \\(0{,}21\\) and read \\(x_5\\) again (the number of drawn steps is kept when the start changes). Press Reset, press Next step twice and read \\(x_1\\) and \\(x_2\\); then type \\(0{,}2\\) again and read them for that start too.',
         ),
         expectedObservations: [text(
             'Pri začetku \\(0{,}2\\) je \\(x_5=0{,}585421\\), pri \\(0{,}21\\) je \\(x_5=0{,}209062\\): razlika je okoli \\(0{,}38\\), čeprav sta začetka \\(0{,}01\\) narazen. Za začetka \\(0{,}2\\) in \\(0{,}21\\) je \\(x_1=0{,}64\\) in \\(0{,}6636\\), \\(x_2=0{,}9216\\) in \\(0{,}89294\\). To velja za ta dva začetka: razlika ne naraste pri vsakem koraku (pri \\(x_8\\) sta \\(0{,}401974\\) in \\(0{,}37345\\)).',
@@ -942,8 +942,8 @@ const pp5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Pritisni Naslednji korak šestkrat in zapiši \\(x_{54}\\) do \\(x_{60}\\). Nato vpiši začetek \\(0{,}8\\) in preberi \\(x_{60}\\). Potem vpiši \\(r=3{,}82\\), spet začetek \\(0{,}2\\), in preberi \\(x_{57}\\) in \\(x_{60}\\).',
-            'Press Next step six times and write down \\(x_{54}\\) to \\(x_{60}\\). Then type the start \\(0{,}8\\) and read \\(x_{60}\\). Then type \\(r=3{,}82\\) and the start \\(0{,}2\\) again and read \\(x_{57}\\) and \\(x_{60}\\).',
+            'Pritisni Naslednji korak šestkrat in zapiši \\(x_{54}\\) do \\(x_{60}\\). Nato nastavi začetek \\(0{,}8\\) in preberi \\(x_{60}\\). Potem vpiši \\(r=3{,}82\\), spet začetek \\(0{,}2\\), in preberi \\(x_{57}\\) in \\(x_{60}\\).',
+            'Press Next step six times and write down \\(x_{54}\\) to \\(x_{60}\\). Then set the start \\(0{,}8\\) and read \\(x_{60}\\). Then type \\(r=3{,}82\\) and the start \\(0{,}2\\) again and read \\(x_{57}\\) and \\(x_{60}\\).',
         ),
         expectedObservations: [text(
             'Pri \\(r=3{,}83\\), začetku \\(0{,}2\\) se tri vrednosti ponavljajo: \\(x_{54}=x_{57}=x_{60}=0{,}504667\\), \\(x_{55}=x_{58}=0{,}957417\\), \\(x_{56}=x_{59}=0{,}156149\\); pri začetku \\(0{,}8\\) je spet \\(x_{60}=0{,}504667\\). Pri \\(r=3{,}82\\) je \\(x_{57}=0{,}8626\\) in \\(x_{60}=0{,}193532\\): v teh korakih se nič ne ponovi. Odčitek Perioda ne trdi ničesar; periodo \\(3\\) bi bilo treba računsko preveriti zunaj tega odčitka.',

@@ -25,7 +25,7 @@ const apply = (graph: LineGeometryGraph, action: LessonAction) => act(() => { gr
 type Points = Extract<LessonAction, {kind: 'lines'; operation: 'set-points'}>['points'];
 const setPoints = (points: Points): LessonAction => ({kind: 'lines', operation: 'set-points', points});
 const setMode = (mode: string): LessonAction => ({kind: 'lines', operation: 'set-mode', mode: mode as 'forms'});
-const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
+const type = (label: string, value: string) => act(() => { enterNumber(screen.getByRole('spinbutton', {name: label}) as HTMLInputElement, value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByRole('combobox', {name: label}), {target: {value}}); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const stateOf = (graph: LineGeometryGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
@@ -42,8 +42,8 @@ function after(edit: (graph: LineGeometryGraph) => void) {
 test('set-points reaches the state and readouts of typing into the coordinate fields', () => {
     const viaAction = after(graph => apply(graph, setPoints({P: {x: -4, y: 0}, Q: {x: 4, y: -1}})));
     const viaControl = after(() => {
-        type('Točka P, koordinata x', '-4'); type('Točka P, koordinata y', '0');
-        type('Točka Q, koordinata x', '4'); type('Točka Q, koordinata y', '-1');
+        type('P, x', '-4'); type('P, y', '0');
+        type('Q, x', '4'); type('Q, y', '-1');
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.P).toEqual({x: -4, y: 0});
@@ -54,8 +54,8 @@ test('set-mode reaches the state and readouts of the Prikaz select, and set-poin
     const viaAction = after(graph => { apply(graph, setMode('normal')); apply(graph, setPoints({R: {x: 3, y: -2}, S: {x: 5, y: -2}})); });
     const viaControl = after(() => {
         choose('Prikaz', 'normal');
-        type('Točka R, koordinata x', '3'); type('Točka R, koordinata y', '-2');
-        type('Točka S, koordinata x', '5'); type('Točka S, koordinata y', '-2');
+        type('R, x', '3'); type('R, y', '-2');
+        type('S, x', '5'); type('S, y', '-2');
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.mode).toBe('normal');

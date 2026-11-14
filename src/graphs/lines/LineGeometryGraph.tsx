@@ -5,7 +5,7 @@ import {formatNumber, NumberLanguage} from "../../analysis/format";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -47,7 +47,6 @@ export const RIGHT_ANGLE_SIZE = 0.8;
 const LABEL_OFFSET = 0.9;
 
 /** Counts the graphs built, so the help ids of two instances on one page do not collide. */
-let helpInstances = 0;
 const toDegrees = (radians: number) => (radians * 180) / Math.PI;
 const signed = (value: Rational): string => value.format().replace("-", "−");
 const inView = (x: number, y: number) => Math.abs(x) <= VIEW_HALF && Math.abs(y) <= VIEW_HALF;
@@ -200,7 +199,6 @@ function buildView(state: LineGeometryState): View {
  * session cleanup, on unmount.
  */
 export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeometryState> {
-    private readonly helpId = `line-geometry-point-help-${++helpInstances}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private handles_: Partial<Record<PointField, JXG.Point>> = {};
@@ -700,13 +698,22 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
 
     // ---- Controls -----------------------------------------------------------------------------------------------------
 
-    private editPoint(field: PointField, axis: "x" | "y", value: number): boolean {
-        const snapped = snapGridInput(value, field);
-        if (!snapped.ok) return false;
-        const current = this.state[field];
-        this.setPoint(field, axis === "x" ? snapped.value.value : current.x, axis === "y" ? snapped.value.value : current.y);
+    private editPoint(field: PointField, x: number, y: number): boolean {
+        const snappedX = snapGridInput(x, field);
+        const snappedY = snapGridInput(y, field);
+        if (!snappedX.ok || !snappedY.ok) return false;
+        this.setPoint(field, snappedX.value.value, snappedY.value.value);
         this.requestRender();
         return true;
+    }
+
+    /** One list of rows for the points that belong together (the two points of a line, the centre and rim point of a circle). */
+    private pointGroup(key: string, title: string, fields: readonly PointField[]): JSX.Element {
+        const state = this.state;
+        return <PointListInput key={key} title={title} points={fields.map((field): [number, number] => [state[field].x, state[field].y])}
+                               pointLabel={index => fields[index]} axisLabels={["x", "y"]} min={-GRID_LIMIT} max={GRID_LIMIT} step={POINT_STEP}
+                               bigStep={POINT_BIG_STEP} integer decimals={0}
+                               onCommit={(index, [x, y]) => this.editPoint(fields[index], x, y) ? undefined : t("line_geometry_point_rejected")}/>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -738,18 +745,15 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
                               }}/>,
             );
         }
-        commands.push(<p key="point-help" id={this.helpId} className="number-input-help">{t("line_geometry_point_help", {
-            value0: formatNumber(-GRID_LIMIT, currentLanguage(), 0), value1: formatNumber(GRID_LIMIT, currentLanguage(), 0),
-        })}</p>);
-        for (const field of shownHandles(state)) {
-            for (const axis of ["x", "y"] as const) {
-                commands.push(
-                    <NumberInput key={`${field}-${axis}`} label={t("line_geometry_point_label", {value0: field, value1: axis})}
-                                 value={state[field][axis]} min={-GRID_LIMIT} max={GRID_LIMIT} step={POINT_STEP}
-                                 bigStep={POINT_BIG_STEP} integer decimals={0} describedBy={this.helpId}
-                                 onChange={value => this.editPoint(field, axis, value)}/>,
-                );
-            }
+        const shown = shownHandles(state);
+        const groups: readonly (readonly [string, string, readonly PointField[]])[] = [
+            ["first", t("line_geometry_group_first"), ["P", "Q"]],
+            ["second", t("line_geometry_group_second"), ["R", "S"]],
+            ["circle", t("line_geometry_group_circle"), ["O", "B"]],
+            ["distance", t("line_geometry_group_point"), ["T"]],
+        ];
+        for (const [key, title, fields] of groups) {
+            if (fields.every(field => shown.includes(field))) commands.push(this.pointGroup(key, title, fields));
         }
         return commands;
     }

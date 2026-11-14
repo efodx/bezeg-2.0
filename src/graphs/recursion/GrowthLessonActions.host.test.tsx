@@ -29,7 +29,8 @@ const apply = (graph: GrowthGraph, action: LessonAction) => act(() => { graph.ge
 const setMap = (fields: Omit<MapAction, 'kind' | 'operation'>): LessonAction => ({kind: 'recursion', operation: 'set-map', ...fields});
 const setParams = (fields: Omit<ParamsAction, 'kind' | 'operation'>): LessonAction => ({kind: 'recursion', operation: 'set-params', ...fields});
 const setInterest = (fields: Omit<InterestAction, 'kind' | 'operation'>): LessonAction => ({kind: 'recursion', operation: 'set-interest', ...fields});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByRole('combobox', {name: label}), {target: {value}}); });
 const panel = (value: GrowthPanel) => choose(t('recursion_graph_growth_panel_label'), value);
