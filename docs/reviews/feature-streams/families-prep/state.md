@@ -37,7 +37,7 @@ Handler 21 handed off on 2026-11-14 to handler 22. The worktree is on branch `wo
 
 ## In flight at handoff
 
-- Publish of `25e7a6d9` (isometries follow-up) on base `20b5c935` (`.command-logs/publish-25e7a6d9-ff27dc.json`); this note's commit follows on base `25e7a6d9` (docs recipe). Check `just publish --status`, then the newest master run (`550810f3`'s run is 43593408447).
+- **Stream paused by the owner while master is busy** (2026-11-14). Unpublished, local: `25e7a6d9` (isometries follow-up, verified: unit, tsc, lint) and this note's commits. Its publish was stopped in the gate before any push (`publish-25e7a6d9-ff27dc` stays "pending" in `just publish --status`: ignore it; its worktree is removed). On resume: `just publish --background --recipe runtime --base 20b5c935 --commits <25e7a6d9 and the note commits>`, then watch the newest master run. No full master run has covered `550810f3` (triangle solver) yet: its run and the next two were cancelled by newer pushes; the last green run is 43591356678 on `6c707c06`.
 - No worker is running; the tree is clean apart from this note's commit.
 
 ## Owed
@@ -57,7 +57,7 @@ Handler 21 handed off on 2026-11-14 to handler 22. The worktree is on branch `wo
 
 ## Next
 
-1. Confirm the isometries publish and the master run; publish this note on base `25e7a6d9` (docs recipe).
+1. When the owner resumes the stream: publish `25e7a6d9` with the note commits (In flight) and confirm a green master run that covers `550810f3`.
 2. One Haiku smoke of the triangle solver (drag a vertex, every mode) and the isometries follow-up (adapt `brief-smoke-2.md`; capture only, then a Haiku viewer).
 3. F5 catalog clips and F6 gates per batch (Owed list; memory rule: clips start from the example scene and animate what the lesson asks), then the families' remaining batches (F3 of batches marked "not started" in the family task files) per `docs/tasks/feature-streams/families-prep.md`. F4 is done with F3 in every chapter (chapter sections own their guided examples). Label-pass leftovers (Owed) are optional polish; take them only between larger slices.
 
