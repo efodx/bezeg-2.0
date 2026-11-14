@@ -1,0 +1,615 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "f6df4522b769d548fdd08b790646801e900e1196",
+    "dirty": true,
+    "inputs": "d93beb4013473a30d7c5789549c95af912dc49142547c21db287b087c9dff387",
+    "output": "3f727995da91d313dbff279f7d36e4f30ee6004b577dede77a35fd3338bed53e"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+    "stampDirty": true,
+    "localOutputHash": "3f727995da91d313dbff279f7d36e4f30ee6004b577dede77a35fd3338bed53e",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-Lrptirgq.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-Lrptirgq.js",
+        "sha256": "d88ce9bd4415e4706caa6835859631269f41b05052c15a40181be99b852acfb6",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "ee043aea128bae7140c35ef4a8807dc4b8464d8800035df53f725631df3b0a85",
+    "entries": {
+      "trigonometry.radian-sine-cosine.unit-circle": "474f8b8e252f3c36fabbfc2548b28f4f45512ae1b0c9c16e0d23aa67ed404558",
+      "trigonometry.addition-formulas.unit-circle": "88a9d96ac334b12f9ac7d0f23acee7346dc1441cf8885f01ba516eb3930fd428",
+      "trigonometry.sine-rule.triangle-solver": "bcabb3ae4d6914750bf03ccbfe0f98610cf74f8a219091465c36caecbb582a77",
+      "trigonometry.cosine-rule.triangle-solver": "aad9aff9d42316cf5864a19cfa95d1107d9a8631f0060ba8a03fcd1fab1f2b7c"
+    },
+    "presentation": "c935daaf41b55c7880a982252947e58645aa01850a937cb4bd13c8ce0e74a934",
+    "buildOutput": "3f727995da91d313dbff279f7d36e4f30ee6004b577dede77a35fd3338bed53e",
+    "buildInputs": "d93beb4013473a30d7c5789549c95af912dc49142547c21db287b087c9dff387"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "trigonometry.radian-sine-cosine.unit-circle",
+        "demonstrationId": "unit-circle",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.6,
+            3,
+            8.3,
+            -3.1
+          ]
+        }
+      },
+      {
+        "id": "trigonometry.addition-formulas.unit-circle",
+        "demonstrationId": "unit-circle",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.6,
+            3,
+            8.3,
+            -3.1
+          ]
+        }
+      },
+      {
+        "id": "trigonometry.sine-rule.triangle-solver",
+        "demonstrationId": "triangle-solver",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            7.2,
+            16.5,
+            -3.9
+          ]
+        }
+      },
+      {
+        "id": "trigonometry.cosine-rule.triangle-solver",
+        "demonstrationId": "triangle-solver",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            7.2,
+            16.5,
+            -3.9
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "trigonometry.radian-sine-cosine.unit-circle",
+      "demonstrationId": "unit-circle",
+      "path": "/bezeg-2.0/functions/unit-circle?example=lesson.trigonometry.radian-sine-cosine.unit-circle",
+      "sceneFingerprint": "4074771286f3447ee3915ca1df3e517b19e5fd0db8273e9f40f32fa3f36326d1",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr1-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr1-start-scene\",\"source\":\"demonstration-default\"}",
+        "trig: {\"kind\":\"trig\",\"operation\":\"set-angle\",\"which\":\"first\",\"degrees\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "trigonometry.radian-sine-cosine.unit-circle.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b30a3da859e6c60b001a2478e4fbcb7813ed5df2509c36d1935ce62189456098",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 5,
+          "circle": 1,
+          "curve": 1,
+          "text": 1,
+          "point": 2,
+          "segment": 4
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              1.7,
+              0
+            ],
+            [
+              1.704363,
+              0.004363
+            ],
+            [
+              1.708727,
+              0.008727
+            ]
+          ]
+        ],
+        "checks": [
+          "type:circle",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:1,0",
+          "point:1.7,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "circle": 1,
+            "curve": 1,
+            "text": 1,
+            "point": 2,
+            "segment": 4
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                1.7,
+                0
+              ],
+              [
+                1.704363,
+                0.004363
+              ],
+              [
+                1.708727,
+                0.008727
+              ]
+            ]
+          ],
+          "checks": [
+            "type:circle",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:1,0",
+            "point:1.7,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 5,
+          "circle": 1,
+          "curve": 1,
+          "text": 1,
+          "point": 2,
+          "segment": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "trigonometry.addition-formulas.unit-circle",
+      "demonstrationId": "unit-circle",
+      "path": "/bezeg-2.0/functions/unit-circle?example=lesson.trigonometry.addition-formulas.unit-circle",
+      "sceneFingerprint": "c13f54e2e8190b0b6c7a52d152d64accedcf1b168b55d97cacf00b196eb4e872",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr2-reflect-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr2-reflect-scene\",\"source\":\"demonstration-default\"}",
+        "trig: {\"kind\":\"trig\",\"operation\":\"set-angle\",\"which\":\"first\",\"degrees\":30}",
+        "trig: {\"kind\":\"trig\",\"operation\":\"set-overlay\",\"overlay\":\"symmetries\",\"on\":true}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "trigonometry.addition-formulas.unit-circle.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "eeef14059252fdcb3483c5f716fd4c95cd0ebf99236f535e5c94e1da2495fc46",
+      "scene": {
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 5,
+          "circle": 1,
+          "curve": 2,
+          "text": 1,
+          "point": 5,
+          "segment": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.877583,
+              0.479426
+            ],
+            [
+              0.540302,
+              0.841471
+            ]
+          ],
+          [
+            [
+              1.7,
+              0
+            ],
+            [
+              1.704363,
+              0.004363
+            ],
+            [
+              1.708727,
+              0.008727
+            ]
+          ]
+        ],
+        "checks": [
+          "type:circle",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0.8660254037844387,0.49999999999999994",
+          "point:2.223598775598299,0.49999999999999994",
+          "point:0.8660254037844387,-0.49999999999999994",
+          "point:-0.8660254037844387,0.49999999999999994",
+          "point:-0.8660254037844387,-0.49999999999999994"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "circle": 1,
+            "curve": 2,
+            "text": 1,
+            "point": 5,
+            "segment": 5
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.877583,
+                0.479426
+              ],
+              [
+                0.540302,
+                0.841471
+              ]
+            ],
+            [
+              [
+                1.7,
+                0
+              ],
+              [
+                1.704363,
+                0.004363
+              ],
+              [
+                1.708727,
+                0.008727
+              ]
+            ]
+          ],
+          "checks": [
+            "type:circle",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0.8660254037844387,0.49999999999999994",
+            "point:2.223598775598299,0.49999999999999994",
+            "point:0.8660254037844387,-0.49999999999999994",
+            "point:-0.8660254037844387,0.49999999999999994",
+            "point:-0.8660254037844387,-0.49999999999999994"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 5,
+          "circle": 1,
+          "curve": 2,
+          "text": 1,
+          "point": 5,
+          "segment": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "trigonometry.sine-rule.triangle-solver",
+      "demonstrationId": "triangle-solver",
+      "path": "/bezeg-2.0/triangle-solver?example=lesson.trigonometry.sine-rule.triangle-solver",
+      "sceneFingerprint": "d1bd4a95c7a76cd3b06e295c5e32f84ca67f3f6191eedc61ccff3cef1de7524b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr3-ratios-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr3-ratios-scene\",\"source\":\"demonstration-default\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-mode\",\"mode\":\"sides\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"A\",\"x\":0,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"B\",\"x\":7,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"C\",\"x\":2,\"y\":4}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "trigonometry.sine-rule.triangle-solver.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d925f2f41a14bacc298788705a82ab456d4949c7e76b4d3a5bba570c642daaef",
+      "scene": {
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "point": 3,
+          "segment": 7,
+          "text": 7
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:circle",
+          "curve-count",
+          "point:0,0",
+          "point:2,4",
+          "point:7,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 20,
+            "point": 3,
+            "segment": 7,
+            "text": 7
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:circle",
+            "curve-count",
+            "point:0,0",
+            "point:2,4",
+            "point:7,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 7,
+        "finalLabelCount": 7,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 3,
+          "segment": 7,
+          "text": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "trigonometry.cosine-rule.triangle-solver",
+      "demonstrationId": "triangle-solver",
+      "path": "/bezeg-2.0/triangle-solver?example=lesson.trigonometry.cosine-rule.triangle-solver",
+      "sceneFingerprint": "998294d2e0c3b22c4d2a6d5e3482e7348cd02490fc37969885c0553452e7189a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr4-squares-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr4-squares-scene\",\"source\":\"demonstration-default\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-mode\",\"mode\":\"sides\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"A\",\"x\":0,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"B\",\"x\":7,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"C\",\"x\":2,\"y\":4}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "trigonometry.cosine-rule.triangle-solver.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d925f2f41a14bacc298788705a82ab456d4949c7e76b4d3a5bba570c642daaef",
+      "scene": {
+        "visibleElementCount": 17,
+        "visibleElementTypes": {
+          "point": 3,
+          "segment": 7,
+          "text": 7
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:circle",
+          "curve-count",
+          "point:0,0",
+          "point:2,4",
+          "point:7,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 20,
+            "point": 3,
+            "segment": 7,
+            "text": 7
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:circle",
+            "curve-count",
+            "point:0,0",
+            "point:2,4",
+            "point:7,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 7,
+        "finalLabelCount": 7,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 3,
+          "segment": 7,
+          "text": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "sourceRevision": "f6df4522b769d548fdd08b790646801e900e1196",
+        "pageErrors": []
+      }
+    }
+  ]
+}

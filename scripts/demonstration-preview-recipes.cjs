@@ -81,6 +81,8 @@ const targets = {
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'phase-portrait': ['Default linear system with the stable node of the matrix -E, one seed trajectory and the two eigen-direction lines', [], [-5.8, 4.4, 5.8, -4.4]],
     'logistic-map': ['Default map at r = 2.9 with the diagonal, the cobweb, the fixed point and the bifurcation diagram with its cursor, with room under the axis for the caption column', [], [-0.1, 1.15, 2.9, -1.3]],
+    'unit-circle': ['Default unit circle at the angle 0 with the sine trace unrolled to its right, framed to show the whole circle and a full turn of the trace', [], [-1.6, 3, 8.3, -3.1]],
+    'triangle-solver': ['Default sides-mode triangle A = (0, 0), B = (7, 0), C = (2, 4) with the cosine-rule length bars to its right and the correction readout under them', [], [-1.5, 7.2, 16.5, -3.9]],
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
     // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,

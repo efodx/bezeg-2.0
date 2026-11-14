@@ -301,6 +301,16 @@ const chapterInventories = {
         // The two dynamics Demonstrations of the analysis family: the examples must cover exactly these and open on their routes.
         identities: {module: '/src/graphs/dynamics/registration.ts', rows: 'dynamicsDemonstrationRows'},
     },
+    trigonometry: {
+        module: '/src/learning/content/trigonometryChapterRegistry.ts',
+        // Like phase-portraits: section rows plus a per-section lesson function.
+        registryExport: 'trigonometryGuidedExampleDemonstrations',
+        lessonExport: 'trigonometryGuidedExampleLesson',
+        pathExport: 'trigonometryGuidedExamplePath',
+        expectedFor: trigonometryExpectedFor,
+        // The two trig Demonstrations: the examples must cover exactly these and open on their routes.
+        identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -1775,6 +1785,67 @@ function phasePortraitsExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Trigonometry chapter (trigonometry): four lessons on two Demonstrations, keyed by the section in the example id. The first scene of each is the Demonstration default plus the
+// `trig` or `triangle` actions below; nothing is random.
+
+/** Asserts the opening scene is the prepared Demonstration default, then only `kind` actions with an operation in `allowed`; returns them. */
+function trigonometryActions(id, step, kind, allowed) {
+    const actions = step.scene.actions;
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && actions[0].kind === 'prepared-scene', `${id}: the opening scene must start with its prepared scene`);
+    assert.ok(prepared.every(item => item.source === 'demonstration-default'), `${id}: the authored frame starts from the Demonstration default`);
+    const own = actions.filter(item => item.kind === kind);
+    assert.equal(actions.length, prepared.length + own.length, `${id}: the authored first-frame expectation assumes an opening scene of ${kind} actions only; extend trigonometryExpectedFor`);
+    for (const item of own) assert.ok(allowed.includes(item.operation), `${id}: operation ${item.operation} is not authored; extend trigonometryExpectedFor`);
+    return own;
+}
+
+// Authored from src/graphs/trig/UnitCircleGraph.tsx (buildScene), not from a capture. Visible curves: the sine trace and, for a positive angle, the arc highlight (the cosine trace shows only
+// with its overlay, off here); one circle; five segments (radius, cosine leg, sine leg, dashed height, dashed link to the unrolled marker), four when the sine is 0 because the zero-length sine leg is not drawn. Points: the handle on the circle and the unrolled
+// sine marker at (1.7 + pi * h / 360, sin) for h half-degrees (= 1.7 + the angle in radians); with the symmetries overlay the three mirror images. The second angle, addition overlay and cosine overlay are off.
+const unitCircleFrame = (degrees, symmetries) => {
+    const radians = degrees * Math.PI / 180;
+    const x = Math.cos(radians), y = Math.sin(radians);
+    const points = [[x, y], [1.7 + radians, y], ...(symmetries ? [[x, -y], [-x, y], [-x, -y]] : [])];
+    const segments = y === 0 ? 4 : 5;
+    return {types: {circle: 1, curve: degrees > 0 ? 2 : 1, point: points.length, segment: segments}, curveCount: degrees > 0 ? 2 : 1, points};
+};
+
+/** TR1 opens at the angle 0 with no overlay: the point at (1, 0), on the axis. */
+function trigRadianExpectedFor(id, step) {
+    const own = trigonometryActions(id, step, 'trig', ['set-angle', 'set-overlay']);
+    assert.deepEqual(own, [{kind: 'trig', operation: 'set-angle', which: 'first', degrees: 0}], `${id}: only the angle 0 without overlays is authored`);
+    return unitCircleFrame(0, false);
+}
+
+/** TR2 opens at 30 degrees with the symmetries overlay: the point and its three mirror images. */
+function trigAdditionExpectedFor(id, step) {
+    const own = trigonometryActions(id, step, 'trig', ['set-angle', 'set-overlay']);
+    assert.deepEqual(own, [{kind: 'trig', operation: 'set-angle', which: 'first', degrees: 30}, {kind: 'trig', operation: 'set-overlay', overlay: 'symmetries', on: true}],
+        `${id}: only the angle 30 degrees with the symmetries overlay is authored`);
+    return unitCircleFrame(30, true);
+}
+
+// Authored from src/graphs/trig/TriangleSolverGraph.tsx (buildScene), not from a capture. Sides mode on A = (0, 0), B = (7, 0), C = (2, 4): three vertex handles; three triangle sides;
+// the cosine-rule bars (c^2 = 49 against a^2 + b^2 = 41 + 20 = 61 give three bar segments and, as the correction 12 is not zero, the dashed correction): seven segments in all.
+// No circle (circle mode only) and no curve. Texts (labels, the correction readout) are left unasserted.
+function trigTriangleExpectedFor(id, step) {
+    const own = trigonometryActions(id, step, 'triangle', ['set-mode', 'set-vertex']);
+    const vertex = name => own.find(item => item.operation === 'set-vertex' && item.vertex === name);
+    assert.deepEqual(own.filter(item => item.operation === 'set-mode').map(item => item.mode), ['sides'], `${id}: only the mode sides is authored`);
+    assert.deepEqual(['A', 'B', 'C'].map(name => [vertex(name)?.x, vertex(name)?.y]), [[0, 0], [7, 0], [2, 4]], `${id}: only the triangle A = (0, 0), B = (7, 0), C = (2, 4) is authored`);
+    return {types: {point: 3, segment: 7, circle: 0}, curveCount: 0, points: [[0, 0], [2, 4], [7, 0]]};
+}
+
+/** First-frame expectation of a trigonometry lesson (the four sections of the chapter, keyed by the section in the example id). */
+function trigonometryExpectedFor(id, step) {
+    const bySection = {'radian-sine-cosine': trigRadianExpectedFor, 'addition-formulas': trigAdditionExpectedFor, 'sine-rule': trigTriangleExpectedFor, 'cosine-rule': trigTriangleExpectedFor};
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
+    assert.ok(author, `${id}: no authored trigonometry first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1831,4 +1902,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, assertExpectation};

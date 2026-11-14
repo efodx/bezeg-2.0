@@ -1,0 +1,165 @@
+{
+  "examples": [
+    {
+      "id": "trigonometry.radian-sine-cosine.unit-circle",
+      "demonstrationId": "unit-circle",
+      "path": "/bezeg-2.0/functions/unit-circle?example=lesson.trigonometry.radian-sine-cosine.unit-circle",
+      "sceneFingerprint": "4074771286f3447ee3915ca1df3e517b19e5fd0db8273e9f40f32fa3f36326d1",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr1-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr1-start-scene\",\"source\":\"demonstration-default\"}",
+        "trig: {\"kind\":\"trig\",\"operation\":\"set-angle\",\"which\":\"first\",\"degrees\":0}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 1,
+          "curve": 1,
+          "point": 2,
+          "segment": 4
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            1.7,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "trigonometry.addition-formulas.unit-circle",
+      "demonstrationId": "unit-circle",
+      "path": "/bezeg-2.0/functions/unit-circle?example=lesson.trigonometry.addition-formulas.unit-circle",
+      "sceneFingerprint": "c13f54e2e8190b0b6c7a52d152d64accedcf1b168b55d97cacf00b196eb4e872",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr2-reflect-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr2-reflect-scene\",\"source\":\"demonstration-default\"}",
+        "trig: {\"kind\":\"trig\",\"operation\":\"set-angle\",\"which\":\"first\",\"degrees\":30}",
+        "trig: {\"kind\":\"trig\",\"operation\":\"set-overlay\",\"overlay\":\"symmetries\",\"on\":true}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 1,
+          "curve": 2,
+          "point": 5,
+          "segment": 5
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0.8660254037844387,
+            0.49999999999999994
+          ],
+          [
+            2.223598775598299,
+            0.49999999999999994
+          ],
+          [
+            0.8660254037844387,
+            -0.49999999999999994
+          ],
+          [
+            -0.8660254037844387,
+            0.49999999999999994
+          ],
+          [
+            -0.8660254037844387,
+            -0.49999999999999994
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "trigonometry.sine-rule.triangle-solver",
+      "demonstrationId": "triangle-solver",
+      "path": "/bezeg-2.0/triangle-solver?example=lesson.trigonometry.sine-rule.triangle-solver",
+      "sceneFingerprint": "d1bd4a95c7a76cd3b06e295c5e32f84ca67f3f6191eedc61ccff3cef1de7524b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr3-ratios-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr3-ratios-scene\",\"source\":\"demonstration-default\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-mode\",\"mode\":\"sides\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"A\",\"x\":0,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"B\",\"x\":7,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"C\",\"x\":2,\"y\":4}"
+      ],
+      "expected": {
+        "types": {
+          "point": 3,
+          "segment": 7,
+          "circle": 0
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "trigonometry.cosine-rule.triangle-solver",
+      "demonstrationId": "triangle-solver",
+      "path": "/bezeg-2.0/triangle-solver?example=lesson.trigonometry.cosine-rule.triangle-solver",
+      "sceneFingerprint": "998294d2e0c3b22c4d2a6d5e3482e7348cd02490fc37969885c0553452e7189a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr4-squares-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr4-squares-scene\",\"source\":\"demonstration-default\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-mode\",\"mode\":\"sides\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"A\",\"x\":0,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"B\",\"x\":7,\"y\":0}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-vertex\",\"vertex\":\"C\",\"x\":2,\"y\":4}"
+      ],
+      "expected": {
+        "types": {
+          "point": 3,
+          "segment": 7,
+          "circle": 0
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

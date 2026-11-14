@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -765,4 +765,31 @@ test('phase-portraits expectations are authored from the graphs: the linear plan
     assert.throws(() => phasePortraitsExpectedFor('p.bifurcation.logistic-map', ps(r(290), steps(5))), /not authored/);
     assert.throws(() => phasePortraitsExpectedFor('p.unknown.unknown', ps()), /no authored phase-portraits/);
     assert.ok(chapterInventories['phase-portraits']);
+});
+
+test('trigonometry expectations are authored from the graphs: the unit circle with and without the symmetry markers and the sides-mode triangle with its bars', () => {
+    const ts = (...actions) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const angle = degrees => ({kind: 'trig', operation: 'set-angle', which: 'first', degrees});
+    const overlay = name => ({kind: 'trig', operation: 'set-overlay', overlay: name, on: true});
+    const start = trigonometryExpectedFor('t.radian-sine-cosine.unit-circle', ts(angle(0)));
+    assert.deepEqual([start.types, start.curveCount, start.points], [{circle: 1, curve: 1, point: 2, segment: 4}, 1, [[1, 0], [1.7, 0]]]);
+    const reflect = trigonometryExpectedFor('t.addition-formulas.unit-circle', ts(angle(30), overlay('symmetries')));
+    assert.deepEqual([reflect.types, reflect.curveCount], [{circle: 1, curve: 2, point: 5, segment: 5}, 2]);
+    assert.deepEqual(reflect.points.map(point => point.map(value => Number(value.toFixed(6)))),
+        [[0.866025, 0.5], [2.223599, 0.5], [0.866025, -0.5], [-0.866025, 0.5], [-0.866025, -0.5]]);
+    assert.throws(() => trigonometryExpectedFor('t.radian-sine-cosine.unit-circle', ts(angle(30))), /only the angle 0/);
+    assert.throws(() => trigonometryExpectedFor('t.radian-sine-cosine.unit-circle', ts(angle(0), overlay('cosine'))), /only the angle 0/);
+    assert.throws(() => trigonometryExpectedFor('t.addition-formulas.unit-circle', ts(angle(30), overlay('addition'))), /only the angle 30/);
+    assert.throws(() => trigonometryExpectedFor('t.addition-formulas.unit-circle', ts(angle(30), {kind: 'trig', operation: 'set-zoom'})), /not authored/);
+    const mode = value => ({kind: 'triangle', operation: 'set-mode', mode: value});
+    const vertex = (name, x, y) => ({kind: 'triangle', operation: 'set-vertex', vertex: name, x, y});
+    const triangle = (value, a, b, c) => ts(mode(value), vertex('A', ...a), vertex('B', ...b), vertex('C', ...c));
+    for (const section of ['sine-rule', 'cosine-rule']) {
+        const frame = trigonometryExpectedFor(`t.${section}.triangle-solver`, triangle('sides', [0, 0], [7, 0], [2, 4]));
+        assert.deepEqual([frame.types, frame.curveCount, frame.points], [{point: 3, segment: 7, circle: 0}, 0, [[0, 0], [2, 4], [7, 0]]]);
+        assert.throws(() => trigonometryExpectedFor(`t.${section}.triangle-solver`, triangle('circle', [0, 0], [7, 0], [2, 4])), /only the mode sides/);
+        assert.throws(() => trigonometryExpectedFor(`t.${section}.triangle-solver`, triangle('sides', [0, 0], [7, 0], [6, 5])), /only the triangle/);
+    }
+    assert.throws(() => trigonometryExpectedFor('t.unknown.unknown', ts()), /no authored trigonometry/);
+    assert.ok(chapterInventories.trigonometry);
 });

@@ -22,6 +22,7 @@ import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
 import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
 import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
+import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -276,6 +277,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['phase-portraits.bifurcation.logistic-map', 'phase-portraits.linear-system.phase-portrait', 'phase-portraits.linearization.phase-portrait',
             'phase-portraits.logistic-map.logistic-map', 'phase-portraits.pendulum.phase-portrait'],
         counts: [[7, 2], [3, 5], [3, 5], [7, 3], [3, 5]]},
+    {chapterId: 'trigonometry', copy: trigonometryPreviewCopy,
+        ids: ['trigonometry.addition-formulas.unit-circle', 'trigonometry.cosine-rule.triangle-solver', 'trigonometry.radian-sine-cosine.unit-circle',
+            'trigonometry.sine-rule.triangle-solver'],
+        counts: [[2, 5], [0, 3], [1, 2], [0, 3]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
