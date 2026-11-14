@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -792,4 +792,22 @@ test('trigonometry expectations are authored from the graphs: the unit circle wi
     }
     assert.throws(() => trigonometryExpectedFor('t.unknown.unknown', ts()), /no authored trigonometry/);
     assert.ok(chapterInventories.trigonometry);
+});
+
+test('analytic-lines expectations are authored from the graph: each mode names its handles, lines, arrows and construction points', () => {
+    const lines = (mode, points) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, {kind: 'lines', operation: 'set-mode', mode},
+        {kind: 'lines', operation: 'set-points', points: Object.fromEntries(Object.entries(points).map(([name, [x, y]]) => [name, {x, y}]))}]}});
+    const forms = analyticLinesExpectedFor('a.forms-of-a-line.line-geometry', lines('forms', {P: [-2, 1], Q: [4, 4]}));
+    assert.deepEqual([forms.types, forms.curveCount, forms.points], [{line: 1, point: 2, segment: 0}, 0, [[-2, 1], [4, 4]]]);
+    const normal = analyticLinesExpectedFor('a.normal-parallel-perpendicular.line-geometry', lines('normal', {P: [-2, 1], Q: [4, 4], R: [3, -2], S: [5, -2]}));
+    assert.deepEqual(normal.types, {line: 2, point: 4, segment: 2});
+    const angle = analyticLinesExpectedFor('a.angle-between-lines.line-geometry', lines('angle', {P: [-2, 1], Q: [0, 2], R: [0, 2], S: [1, 5]}));
+    assert.deepEqual([angle.types, angle.curveCount], [{line: 2, point: 5, segment: 2, curve: 1}, 1]);
+    const distance = analyticLinesExpectedFor('a.distance-point-line.line-geometry', lines('distance', {P: [-2, 1], Q: [4, 4], T: [3, -2]}));
+    assert.deepEqual([distance.types, distance.points.at(-1)], [{line: 1, point: 4, segment: 4}, [0.8, 2.4]]);
+    assert.throws(() => analyticLinesExpectedFor('a.forms-of-a-line.line-geometry', lines('normal', {P: [-2, 1], Q: [4, 4]})), /only the mode forms/);
+    assert.throws(() => analyticLinesExpectedFor('a.forms-of-a-line.line-geometry', lines('forms', {P: [-2, 1], Q: [4, 5]})), /only the handles/);
+    assert.throws(() => analyticLinesExpectedFor('a.forms-of-a-line.line-geometry', lines('forms', {P: [-2, 1], Q: [4, 4], T: [0, 0]})), /exactly the handles/);
+    assert.throws(() => analyticLinesExpectedFor('a.unknown.line-geometry', lines('forms', {})), /no authored analytic-lines/);
+    assert.ok(chapterInventories['analytic-lines']);
 });

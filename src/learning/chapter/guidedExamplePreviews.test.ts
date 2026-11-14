@@ -22,6 +22,7 @@ import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
 import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
 import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
+import {analyticLinesPreviewCopy} from '../content/analyticLinesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
 interface InventoryEntry {
@@ -281,6 +282,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['trigonometry.addition-formulas.unit-circle', 'trigonometry.cosine-rule.triangle-solver', 'trigonometry.radian-sine-cosine.unit-circle',
             'trigonometry.sine-rule.triangle-solver'],
         counts: [[2, 5], [0, 3], [1, 2], [0, 3]]},
+    {chapterId: 'analytic-lines', copy: analyticLinesPreviewCopy,
+        ids: ['analytic-lines.angle-between-lines.line-geometry', 'analytic-lines.distance-point-line.line-geometry', 'analytic-lines.forms-of-a-line.line-geometry',
+            'analytic-lines.normal-parallel-perpendicular.line-geometry'],
+        counts: [[1, 5], [0, 4], [0, 2], [0, 4]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

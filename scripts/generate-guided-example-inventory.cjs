@@ -311,6 +311,16 @@ const chapterInventories = {
         // The two trig Demonstrations: the examples must cover exactly these and open on their routes.
         identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'},
     },
+    'analytic-lines': {
+        module: '/src/learning/content/analyticLinesChapterRegistry.ts',
+        // Like trigonometry: section rows plus a per-section lesson function.
+        registryExport: 'analyticLinesGuidedExampleDemonstrations',
+        lessonExport: 'analyticLinesGuidedExampleLesson',
+        pathExport: 'analyticLinesGuidedExamplePath',
+        expectedFor: analyticLinesExpectedFor,
+        // The one line-geometry Demonstration: the four examples must cover it and open on its route.
+        identities: {module: '/src/graphs/lines/registration.ts', rows: 'lineDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -1846,6 +1856,58 @@ function trigonometryExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Analytic lines chapter (analytic-lines): four lessons on the one line-geometry Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default,
+// then a `lines` set-mode and one set-points naming every handle of the mode; nothing is random.
+
+/** Asserts the opening scene is the prepared default, a set-mode and one set-points naming exactly `handles`, and that the points are the authored ones; returns them by handle. */
+function analyticLinesPoints(id, step, mode, handles, authored) {
+    // The lesson adapter repeats the prepared scene, so one or two prepared-scene actions open it.
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene') && all.length === prepared.length + 2,
+        `${id}: the opening scene must be the Demonstration default, a set-mode and a set-points`);
+    const actions = all.slice(prepared.length);
+    assert.deepEqual(actions[0], {kind: 'lines', operation: 'set-mode', mode}, `${id}: only the mode ${mode} is authored`);
+    assert.ok(actions[1].kind === 'lines' && actions[1].operation === 'set-points', `${id}: the last opening action must be set-points`);
+    const given = actions[1].points;
+    assert.deepEqual(Object.keys(given).sort(), [...handles].sort(), `${id}: the set-points must name exactly the handles ${handles.join(', ')}`);
+    const points = Object.fromEntries(Object.entries(given).map(([name, point]) => [name, [point.x, point.y]]));
+    assert.deepEqual(points, authored, `${id}: only the handles ${JSON.stringify(authored)} are authored`);
+    return points;
+}
+
+// Authored from src/graphs/lines/LineGeometryGraph.tsx (buildScene), not from a capture. Visible objects per mode: the line l through P and Q (one line), the line m through R and S only in
+// the normal and angle modes; handles P, Q (forms), P, Q, R, S (normal, angle) or P, Q, T (distance); the normal mode adds the two normal arrows (segments); the angle mode the two direction
+// arrows u and v (segments), the common point X as a point and the arc (one curve); the distance mode the arrow PT, the foot F as a point, the arrow F to T and the two sides of the right angle (four segments).
+const analyticLinesFrames = {
+    'forms-of-a-line': (id, step) => {
+        const points = analyticLinesPoints(id, step, 'forms', ['P', 'Q'], {P: [-2, 1], Q: [4, 4]});
+        return {types: {line: 1, point: 2, segment: 0}, curveCount: 0, points: [points.P, points.Q]};
+    },
+    'normal-parallel-perpendicular': (id, step) => {
+        const points = analyticLinesPoints(id, step, 'normal', ['P', 'Q', 'R', 'S'], {P: [-2, 1], Q: [4, 4], R: [3, -2], S: [5, -2]});
+        return {types: {line: 2, point: 4, segment: 2}, curveCount: 0, points: [points.P, points.Q, points.R, points.S]};
+    },
+    // l through (-2, 1), (0, 2) and m through (0, 2), (1, 5) cross at the shared handle (0, 2), where X also sits.
+    'angle-between-lines': (id, step) => {
+        const points = analyticLinesPoints(id, step, 'angle', ['P', 'Q', 'R', 'S'], {P: [-2, 1], Q: [0, 2], R: [0, 2], S: [1, 5]});
+        return {types: {line: 2, point: 5, segment: 2, curve: 1}, curveCount: 1, points: [points.P, points.Q, points.S, [0, 2]]};
+    },
+    // The foot of T = (3, -2) on l (direction (6, 3) from (-2, 1)): t = ((5, -3) . (6, 3)) / 45 = 7/15, F = (-2 + 6 * 7/15, 1 + 3 * 7/15) = (0.8, 2.4).
+    'distance-point-line': (id, step) => {
+        const points = analyticLinesPoints(id, step, 'distance', ['P', 'Q', 'T'], {P: [-2, 1], Q: [4, 4], T: [3, -2]});
+        return {types: {line: 1, point: 4, segment: 4}, curveCount: 0, points: [points.P, points.Q, points.T, [0.8, 2.4]]};
+    },
+};
+
+/** First-frame expectation of an analytic-lines lesson (the four sections of the chapter, keyed by the section in the example id). */
+function analyticLinesExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(analyticLinesFrames, section) ? analyticLinesFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored analytic-lines first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1902,4 +1964,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, assertExpectation};

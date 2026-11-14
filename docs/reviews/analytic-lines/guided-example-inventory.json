@@ -1,0 +1,165 @@
+{
+  "examples": [
+    {
+      "id": "analytic-lines.forms-of-a-line.line-geometry",
+      "demonstrationId": "line-geometry",
+      "path": "/bezeg-2.0/line-geometry?example=lesson.analytic-lines.forms-of-a-line.line-geometry",
+      "sceneFingerprint": "fed895e10d4c6b283bb5e9eac48e78c3dee9b9bf98ff3457bef3fdb7a9a7484e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-mode\",\"mode\":\"forms\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-points\",\"points\":{\"P\":{\"x\":-2,\"y\":1},\"Q\":{\"x\":4,\"y\":4}}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 1,
+          "point": 2,
+          "segment": 0
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            -2,
+            1
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "analytic-lines.normal-parallel-perpendicular.line-geometry",
+      "demonstrationId": "line-geometry",
+      "path": "/bezeg-2.0/line-geometry?example=lesson.analytic-lines.normal-parallel-perpendicular.line-geometry",
+      "sceneFingerprint": "38123cec52e00b1f1b9f81968a25badfbf3f2262dd2baf2ff3cf7c6dd8eb7fd5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l2-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l2-predict-scene\",\"source\":\"demonstration-default\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-mode\",\"mode\":\"normal\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-points\",\"points\":{\"P\":{\"x\":-2,\"y\":1},\"Q\":{\"x\":4,\"y\":4},\"R\":{\"x\":3,\"y\":-2},\"S\":{\"x\":5,\"y\":-2}}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 2,
+          "point": 4,
+          "segment": 2
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            -2,
+            1
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            3,
+            -2
+          ],
+          [
+            5,
+            -2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "analytic-lines.angle-between-lines.line-geometry",
+      "demonstrationId": "line-geometry",
+      "path": "/bezeg-2.0/line-geometry?example=lesson.analytic-lines.angle-between-lines.line-geometry",
+      "sceneFingerprint": "2cf21416e002bf7646c75ac4ff436378c18c743b5d35e6b67708e5a56e7a7699",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-mode\",\"mode\":\"angle\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-points\",\"points\":{\"P\":{\"x\":-2,\"y\":1},\"Q\":{\"x\":0,\"y\":2},\"R\":{\"x\":0,\"y\":2},\"S\":{\"x\":1,\"y\":5}}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 2,
+          "point": 5,
+          "segment": 2,
+          "curve": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            -2,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "analytic-lines.distance-point-line.line-geometry",
+      "demonstrationId": "line-geometry",
+      "path": "/bezeg-2.0/line-geometry?example=lesson.analytic-lines.distance-point-line.line-geometry",
+      "sceneFingerprint": "c603f02c797d8c46411d0ec8bd3ef664c5e17dd9b984180f766f8b9eccf0f42c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l4-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l4-predict-scene\",\"source\":\"demonstration-default\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-mode\",\"mode\":\"distance\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-points\",\"points\":{\"P\":{\"x\":-2,\"y\":1},\"Q\":{\"x\":4,\"y\":4},\"T\":{\"x\":3,\"y\":-2}}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 1,
+          "point": 4,
+          "segment": 4
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            -2,
+            1
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            3,
+            -2
+          ],
+          [
+            0.8,
+            2.4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
