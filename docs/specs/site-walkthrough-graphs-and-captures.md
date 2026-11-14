@@ -390,7 +390,7 @@ Found on the way, for the triage:
 - C4 cross-family look (acceptance 9): `docs/reviews/site-walkthrough/graphs/typography/smoke-h2.md`, routes `/bezier/decasteljau`, `/rational/base`, `/ph/cubic`, `/curve-geometry/envelope`, `/functions/derivative`, `/analysis/epicycles`, `/probability/correlation`, `/inscribed-angle`, `/compgeo/delaunay`, `/projective/three-views`, `/patches/tensor`.
 - Triage: `docs/reviews/site-walkthrough/graphs/blocker-triage.md`. It proposes B10 Patches and a split of B8 into four; three legacy clips (`mean-value`, `accumulation`, `sequence`) have a continuous control.
 
-### B1 Probability (handler 2, 2026-11-14; shown to the owner, not yet published)
+### B1 Probability (handler 2, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b1/` (served as `walkthrough-graphs/b1.html` on the preview).
 
@@ -400,7 +400,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b1/` (served as `walkthr
 - The capture fingerprint includes the recipes file, so any batch that edits a recipe needs `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1` once, after reading the recipe diff to confirm that only the batch's ids changed.
 - Not checked: inspector at 310 px against a before screenshot (control code is untouched; only legend swatch colours changed); the 390 px and English screenshots in `b1/live/` were taken but not all viewed.
 
-### B2 Interpolation (handler 2, 2026-11-14; shown to the owner, not yet published)
+### B2 Interpolation (handler 2, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b2/` (served as `walkthrough-graphs/b2.html` on the preview).
 
