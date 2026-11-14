@@ -399,3 +399,13 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b1/` (served as `walkthr
 - `prob-binomial-normal`: text only, keep `^X ∼ B\(`. `prob-clt`: text only, Remove.
 - The capture fingerprint includes the recipes file, so any batch that edits a recipe needs `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1` once, after reading the recipe diff to confirm that only the batch's ids changed.
 - Not checked: inspector at 310 px against a before screenshot (control code is untouched; only legend swatch colours changed); the 390 px and English screenshots in `b1/live/` were taken but not all viewed.
+
+### B2 Interpolation (handler 2, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b2/` (served as `walkthrough-graphs/b2.html` on the preview).
+
+- `interp-least-squares`: squares in `warningText` with fill opacity 0.4 and a full-strength 1.1 edge (were 0.22, 0.7, 0.35); line moss, data ochre. The recipe sets the second and third points to `(1, 3)` and `(2, 1.4)` so the residuals are about 1 and 1.3 and the squares can be seen; with the default data they are 0.1 to 0.7 and read as specks. Window `[-0.9, 4.7, 4.9, -0.1]`. Text: Remove.
+- `interp-lagrange`: shared points ochre with the light outline (were near-black); curves unchanged (moss solid, blue dashed). `InterpolationScene.ts` is used by `/interpolation/lagrange` only. Text: Remove.
+- `interp-hermite`, `interp-runge`: text only, Remove. Hermite's data points are still dark (not in this batch's scope; candidate for B8).
+- The `interp-runge` row named a button that no longer exists (`Povečaj stopnjo n za 1`, now `Povečaj število`); the label was corrected. The triage found the same kind of stale label on `epicycles` and `voronoi-degenerate`.
+- **Open for the package: guided example images.** The lesson chapters hold their own stored images of these graphs (`scripts/capture-guided-example-previews.cjs`, alt text in `src/learning/content/*PreviewCopy.ts`). A style change makes them differ from the live graph until the chapter is recaptured. B1 and B2 updated the alt text to the new colours; the images themselves are not recaptured yet. Do one recapture per affected chapter after the style batches (probability, interpolation, curve geometry for the envelope, and any chapter whose images show plain board text, which changed face with Literata).

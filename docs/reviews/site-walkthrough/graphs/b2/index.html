@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B2, interpolation</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B2: interpolation (G02, G03, G04)</h1>
+<p>Four catalog captures, before and after. The live graphs keep their text; only the catalog capture loses it. <a href="index.html">Pilot page</a>, <a href="b1.html">B1 probability</a>.</p>
+<h2>1. Least squares</h2>
+<p>The squares are kept and now have a clear fill and edge. The card uses four points whose residuals are large enough for the squares to be seen, and the frame holds the points and the line. All words are removed from the capture. <a href="../interpolation/least-squares">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b2/before/interp-least-squares.webm" poster="b2/before/interp-least-squares.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b2/after/interp-least-squares.webm" poster="b2/after/interp-least-squares.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Through the points or near them</h2>
+<p>The shared points are ochre with a light outline, as control points are everywhere else, instead of nearly black. The interpolating curve stays green and solid, the Bézier curve blue and dashed. The two readout lines are removed from the capture. <a href="../interpolation/lagrange">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b2/before/interp-lagrange.webm" poster="b2/before/interp-lagrange.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b2/after/interp-lagrange.webm" poster="b2/after/interp-lagrange.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Hermite and Catmull-Rom</h2>
+<p>Capture text only: the line of words is removed. <a href="../interpolation/hermite">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b2/before/interp-hermite.webm" poster="b2/before/interp-hermite.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b2/after/interp-hermite.webm" poster="b2/after/interp-hermite.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>4. Runge phenomenon</h2>
+<p>Capture text only: the three lines of words are removed. <a href="../interpolation/runge">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b2/before/interp-runge.webm" poster="b2/before/interp-runge.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b2/after/interp-runge.webm" poster="b2/after/interp-runge.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>

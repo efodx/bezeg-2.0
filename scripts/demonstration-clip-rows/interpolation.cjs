@@ -39,7 +39,7 @@ module.exports = [
     {
         id: 'interp-runge',
         motion: 'discrete-exact-steps',
-        control: {kind: 'stepper', label: 'Povečaj stopnjo n za 1', step: 1},
+        control: {kind: 'stepper', label: 'Povečaj število', step: 1},
         // Cumulative presses from the poster degree n=10 (the graph default): up to n=16 and back.
         path: [0, 2, 4, 6, 4, 2, 0],
         lessonQuote: 'Višaj stopnjo za nekaj korakov in opazuj, kako se spreminja polinom ob krajiščih.',

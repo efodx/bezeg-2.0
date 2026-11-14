@@ -20,7 +20,7 @@ const captionHtml = '<div class="JXGtext"><div>Korelacija 4 točk</div><div>Kore
 
 test('only the recipes with a capture-text verdict (pilot and batch B1) carry text, the others keep their annotation and no policy', () => {
     const withText = Object.values(recipes).filter(recipe => recipe.text).map(recipe => recipe.id).sort();
-    assert.deepEqual(withText, ['curve-envelope', 'interp-subdivision', 'prob-binomial-normal', 'prob-clt', 'prob-correlation', 'prob-density', 'prob-summary']);
+    assert.deepEqual(withText, ['curve-envelope', 'interp-hermite', 'interp-lagrange', 'interp-least-squares', 'interp-runge', 'interp-subdivision', 'prob-binomial-normal', 'prob-clt', 'prob-correlation', 'prob-density', 'prob-summary']);
     for (const id of withText) assert.equal(recipes[id].annotations, 'capture-text-policy');
     assert.equal(recipes.bezier.annotations, 'hide-point-names-retain-concept-text');
     assert.equal(captureTextPolicy(recipes.bezier), undefined);

@@ -56,9 +56,9 @@ const targets = {
     'recursion-growth': ['Default arithmetic sequence as bars with the marked term and the caption rows, framed by the board', []],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 1000 balls: the pegs, the bars of the binomial law and the heap', []],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
-    'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
+    'interp-lagrange': ['Default interpolation points (ochre) with the Lagrange polynomial through them (moss, solid), without board text', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
-    'interp-least-squares': ['Default four points with the best line and the squares of its residuals', [], [-1.2, 4.6, 5.7, 0.4]],
+    'interp-least-squares': ['Four points (0,1), (1,3), (2,1.4), (3,4) with the best line and visibly large squares of its residuals, framed on the data and the line segment', [field('Točka 2, y', 3, 'number'), field('Točka 3, y', 1.4, 'number')], [-0.9, 4.7, 4.9, -0.1]],
     'interp-hermite': ['Default points with the Catmull-Rom curve and its tangents', []],
     'interp-subdivision': ['Default control polygon with the first refinement of the subdivision curve (one Naslednji korak)', [button('Naslednji korak')]],
     'bspline-basis': ['Default clamped quadratic knot vector (0, 0, 0, 1, 2, 2, 2) with the basis functions, the knot editor and the slider at its opening parameter', [], [-0.35, 1.15, 2.35, -0.6]],
@@ -213,6 +213,11 @@ const SURFACE_FRAME_MARGIN_PX = 6;
 const captureText = {
     'curve-envelope': {keep: [], strip: []},
     'interp-subdivision': {keep: [], strip: []},
+    // Interpolation: the curves, points and squares carry the idea; no board text on these four posters.
+    'interp-lagrange': {keep: [], strip: []},
+    'interp-runge': {keep: [], strip: []},
+    'interp-least-squares': {keep: [], strip: []},
+    'interp-hermite': {keep: [], strip: []},
     // Keep only the correlation line, as `r = 0,8468`; the title and the regression-line label go.
     'prob-correlation': {keep: [/\br = /], strip: [/^Korelacijski koeficient /]},
     // Distribution and bell curve: the area and its bounds are the subject; only the distribution name stays, the readout lines go.
