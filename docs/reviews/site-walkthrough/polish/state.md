@@ -1,59 +1,62 @@
 # Site walkthrough, `polish` session: state
 
-Written by handler 1, 2026-11-14. Spec: [shell and label polish](../../../specs/site-walkthrough-shell-polish.md). Queue: [polish](../../../tasks/site-walkthrough/polish.md).
+Written by handler 1 at its context handoff, 2026-11-14. Spec: [shell and label polish](../../../specs/site-walkthrough-shell-polish.md). Queue: [polish](../../../tasks/site-walkthrough/polish.md). Movable-point task: [movable points](../../../tasks/site-walkthrough/movable-points.md).
 
 ## For the owner
 
-Ready to look at, on the tailnet:
+Nothing needs a choice from you right now. Your answers so far are all applied or in progress:
 
-- **Before and after page:** `http://desktop-a0j72sv.tail2032db.ts.net:4331/bezeg-2.0/review/index.html`
-- **The site with every change:** `http://desktop-a0j72sv.tail2032db.ts.net:4331/bezeg-2.0/`. Pages to look at: Home (`/bezeg-2.0/`), Demonstrations (`/bezeg-2.0/demonstrations`), a chapter (`/bezeg-2.0/learn/bezier-curves`), Interval Sweep (`/bezeg-2.0/compgeo/interval-sweep`), Blossoming (`/bezeg-2.0/bspline/blossom`).
+- **Catalog typography (D02):** approved, on the public site.
+- **Header mark (H05):** you picked the outlined flower and asked for better centring. Built and centred on the wordmark's line; being published.
+- **Chapter navigation (L02, L03):** you picked option 2 (title and chevron only; small-caps return link). Built; being published.
+- **Movable points (M03):** you approved both stages. The cursor stage is written for 29 graphs and under repair; the label stage follows.
 
-Choices only you can make. Each is built and visible in the preview but not on the public site:
-
-1. **H05, header mark.** Approve the smaller mark sized from the wordmark, or say what to change.
-2. **D02, catalog typography.** Approve the 14 px topic list, the small-caps family line on cards and the 13 px actions with an arrow, or say which of the three to change.
-3. **L02 / L03, chapter navigation.** Approve the shared arrow and the label line. For the "All learning content" control pick treatment A (quiet link, in the live preview) or B (bordered button with the new arrow, shown on the comparison page).
-4. **M03, shared movable-point path.** Answer the [recommendation](../../../specs/site-walkthrough-shell-polish.md#recommendation-for-the-shared-movable-point-path-m03-waiting-for-the-owner): both stages (cursor, then math labels), the cursor stage only, or leave the remaining graphs.
-
-Already decided by you and done: the footer is removed (H01, on the public site), capture corners follow the card (D01), Interval Sweep and blossoming have math labels and the drag cursor (M01, M02).
+To look at the header mark and the chapter navigation as built: `http://desktop-a0j72sv.tail2032db.ts.net:4331/bezeg-2.0/` (Home for the mark, `/bezeg-2.0/learn/bezier-curves` for the navigation). The page at `/bezeg-2.0/review/index.html` may be gone after a rebuild; the round 2 options are kept in the repository under `docs/reviews/site-walkthrough/polish/evidence-round2/`.
 
 ## State of the queue
 
 | Item | State | Where |
 | --- | --- | --- |
-| H01 | Published | `02f34ce2` on `master` |
-| D01 | Accepted; in the publish that carries this note | branch `worktree-walkthrough-polish` |
-| M01, M02 | Accepted; in the publish that carries this note | branch `worktree-walkthrough-polish` |
-| M03 inventory | Done | [point inventory](../point-inventory.md) |
-| H05 | Proposal, waiting for the owner | local branch `walkthrough-polish-proposals` |
-| L02, L03 | Proposal, waiting for the owner | local branch `walkthrough-polish-proposals` |
-| D02 | Proposal, waiting for the owner | local branch `walkthrough-polish-proposals` |
-| M03 migration | Waiting for the owner's answer | recommendation in the spec |
+| H01 | Published | `02f34ce2` |
+| D01 | Published | in `954e9803` |
+| M01, M02 | Published | in `954e9803` |
+| D02 | Published, owner approved | `8b928549` |
+| H05 | Owner picked option B; committed, not yet published | `aa16744f` on `worktree-walkthrough-polish` |
+| L02, L03 | Owner picked option 2; committed, not yet published | `af01f20e` on `worktree-walkthrough-polish` |
+| M03 stage 1b | Worker done, uncommitted in the working tree, not yet reviewed by a handler | see below |
+| M03 stage 1a | Worker partial, uncommitted, 12 ownership tests fail | see below |
+| M03 stage 2 | Not started | task file |
+| Spec close-out | Not done | see below |
 
-`src/WelcomePage.*` is released to the `design` session: H01 is on `master`.
+## Next steps, in order
 
-## Branches and preview
+1. **Publish H05 and L02 / L03.** `just publish --background --recipe runtime --base 8b9285497e0435b5714b46ec7119bd2c6a6cc620 --commits aa16744ff0698367f935bf5ada70871f21423b50,af01f20e8827491395a50dd74285110360334400` (fetch first; if master moved, the gate rebases). Checks already run on these two commits: `just unit src/learning/ChapterPage.test.tsx` (pass), typecheck (pass), lint on the changed files (pass), screenshots at 1440 / 820 / 390 / 360 px (header 73 / 65 px unchanged, one row on phones; neighbour cards keep position, 72 to 73 px tall). A smoke run of `tests/unified-learning.smoke.spec.cjs` and `tests/home.smoke.spec.cjs` was started and had not reported when this note was written: rerun it (`just smoke <both specs> --port 4341`) and read the result before publishing. The new chapter test's failure on the old code was not observed (it selects a class that did not exist).
+2. **M03 stage 1a repair.** The worker replaced the hand-written cursor handlers in 14 graphs and `JXGRationalBezierCurve.ts` and wrote `src/graphs/base/movablePointCursor.static.test.ts`. Twelve existing ownership tests fail (`expected [0,1,1] to equal [0,0,0]`) because the old code removed its `over` / `out` handlers on dispose and `bindMovablePointCursor` returns nothing. Fix: make `bindMovablePointCursor` return a release function (`() => void`, calling `point.off` for both handlers; existing callers ignore it) and have each converted graph register that release where it registered the old handlers (`scene.listen` / `listeners` / `offs`). Then rerun the unit tests of the 14 graphs. Worker note: `.command-logs/polish/m03-1a-note.md` (ignored file, on this machine).
+3. **Static check, rule (b).** It still flags ten files with draggable points and no binding that neither batch owned: `base/BaseCurveGraph.tsx`, compgeo `InscribedAngle`, `Inversion`, `PointInPolygon`, `SimsonLine`, `Voronoi` (extra handles), `linear/compositionBoard.ts`, `eigenBoard.ts`, `iterationBoard.ts`, `patches/parameterInset.ts`. Bind each or allow-list it with a reason; this is a third small batch (1c). The check must pass before stage 1 is committed.
+4. **Review and accept stage 1.** Batch 1b (15 graphs, note `.command-logs/polish/m03-1b-note.md`) passed its own typecheck, lint and unit runs but has not been reviewed: read the diff by file, run `points.cjs` on a sample, and note that `complex-roots`, `bspline/basis` and `Descent` have no hover evidence (their handles are not SVG ellipses, so the probe cannot see them). `src/graphs/base/` and `src/graphs/curves/object/` change in stage 1, so the transient-state scope widens to every graph: budget for a long gate, or run `BEZEG_TRANSIENT_STATE=sample` locally and let CI rotate. Commit stage 1 as one or two commits (1a + check, 1b) and publish.
+5. **M03 stage 2 (labels).** List batches by family in the task file from the inventory (about 27 graphs with plain point labels), one worker per family, before and after screenshots reviewed by the handler. Do not rename elements that capture recipes (`scripts/demonstration-preview-recipes.cjs`), clip rows (`scripts/demonstration-clip-rows/`), tests or Presets address; `pointSetLabelMath` shows the pattern (keep `name`, set the label text). Tell the `graphs` session when it lands so captures are recorded once.
+6. **Close out.** Update the spec: status, the evidence table (C2 met by D02; N1 to N3 and F2 for the picked options, with new screenshots; P3 and P5 after stage 1 and 2), the "Recommendation" heading (approved, both stages), and record H05's reason in the spec: the owner judged the green tile the problem and picked the outlined flower, so the header uses a new mark file while `elderflower.svg` and the tab and phone icons stay. Append the continuation to the evaluation entry `2026-11-14: site walkthrough, shell and label polish`. Remove the tailnet entry (`tailscale serve --http=4331 off`) and stop the preview when the owner has nothing left to look at. Delete the local branches `walkthrough-polish-proposals` and `walkthrough-polish-h05` (superseded; never pushed).
 
-- `worktree-walkthrough-polish`: the line that is pushed. Only owner-settled items and documentation go here.
-- `walkthrough-polish-proposals` (local only, never pushed): the pushed line plus one commit per held item: H05 (`style: size the header mark from the wordmark`), L02 / L03 (`style: one arrow for chapter navigation and a quiet return control`), D02 (`style: catalog topic list, card family line and card actions`). The preview is built from this branch. `walkthrough-polish-h05` is an older copy of the H05 commit and can be deleted.
-- Preview: `just preview 4331` from this worktree with the proposals branch checked out, published with `tailscale serve --bg --http=4331 http://127.0.0.1:4331`. The comparison page is `build/review/`, generated by `node docs/reviews/site-walkthrough/polish/gallery.cjs` from screenshots in `.command-logs/polish/` (ignored); a copy is kept in [evidence](evidence/index.html). `just build` removes `build/review/`, and `just smoke-built` refuses to run while it is there: move it aside for a smoke run and put it back.
+## Working tree
 
-## Next steps for whoever continues
+On branch `worktree-walkthrough-polish`, two unpushed commits (step 1) and uncommitted work:
 
-1. When the owner approves an item: on `worktree-walkthrough-polish`, cherry-pick that item's commit from the proposals branch (apply any change he asked for first), run its focused checks, and publish. For the catalog also run `tests/demonstrations.smoke.spec.cjs`, which has not been run against D02.
-2. If he picks treatment B for L03: in `src/learning/ChapterPage.css` give `.learning-back` back its border, fill and padding from before the proposal and keep the shared arrow; the worker's note `.command-logs/polish/l02-note.md` has the exact temporary rule (ignored file; it may be gone, the before rule is in `git show dbf3ff60:src/learning/ChapterPage.css`, line 45).
-3. If he approves M03: write task files under `docs/tasks/site-walkthrough/` for the batches named in the recommendation, cursor stage first with the static check, then labels by family with a screenshot review each.
-4. After everything is approved or dropped: set the spec's status to implemented, complete the evidence table (C2, N1 to N3, F2, P3, P5), remove the serve entry (`tailscale serve --http=4331 off`), stop the preview and delete the proposals branch.
+- Stage 1a and 1b edits under `src/graphs/**` (about 31 files plus three test files and the new static test). Leave them in place; do not discard.
+- `docs/tasks/site-walkthrough/movable-points.md`, `docs/reviews/site-walkthrough/polish/mockups.cjs`, `gallery-round2.cjs`, `evidence-round2/` and this note: commit these with the next documentation commit (step 1's publish can carry them as a third commit).
+- A dev server a worker started on port 4342 may still be listening; the worker could not stop it. It is harmless; stop it if the port is needed.
+
+## Preview
+
+`just preview 4331` serves `build/`; the tailnet entry for 4331 is up. `build/` was last produced by a smoke run on the working tree, so it contains the header mark, the chapter navigation and the uncommitted stage 1 cursor edits. After step 1 rebuild it (`just build`) so the preview shows a clean revision, and confirm `http://desktop-a0j72sv.tail2032db.ts.net:4331/bezeg-2.0/` answers. Vite's dev server answers on `localhost`, not `127.0.0.1`.
 
 ## Not verified
 
-- No real touch device. High-contrast mode not checked.
-- The catalog clip did not start in the scripted hover at 1440 px; it did at 1024 and 390 px, and the image and video share one rule.
-- Of the point-set lessons only `interval-sweep`, `convex-hull` and `voronoi` were smoke-run with the new labels (plus `bspline-blossom`).
-- Catalog posters and clips of the 22 point-set graphs and of blossoming still show the old labels; recapture belongs to package D (`graphs` session).
-- Accessible names of the chapter controls were compared as link text, not through the accessibility tree.
+- No real touch device; high-contrast mode not checked.
+- The catalog clip did not start in the scripted hover at 1440 px (it did at 1024 and 390 px).
+- Accessible names of the chapter controls were checked as link text and one `toHaveAccessibleName`, not through a browser's accessibility tree.
+- Catalog posters and clips of the point-set graphs and blossoming still show the old labels (package D recaptures).
+- The header mark in presentation mode (night header) was not looked at.
 
 ## Session rules to pass on
 
-The rules in the launch prompt apply, with one correction from the owner on 2026-11-14 that replaces "decide without asking": items with one correct result are pushed when verified; visual-taste and architecture questions are shown in the preview and wait for his approval; routine engineering choices stay with the handler. Do not launch a successor while the remaining work is only waiting on the owner.
+The launch prompt's rules apply (worktree and branch, queue and state files, Tailscale previews on port 4331 only, narrow checks, `just publish --background`, intake IDs in commits), with the owner's correction of 2026-11-14 in place of "decide without asking": items with one correct result are pushed when verified; visual-taste and architecture questions are shown in a preview and wait for his approval; routine engineering choices stay with the handler. At a context handoff, commit and push the state note, then start a successor from this directory with `claude --bg -n "walkthrough polish handler <n+1>" --agent bezeg-handler --model claude-fable-5-2 --permission-mode auto "<prompt>"` naming this note and repeating these rules. Do not launch a successor while the remaining work only waits on the owner or the objective is complete.
