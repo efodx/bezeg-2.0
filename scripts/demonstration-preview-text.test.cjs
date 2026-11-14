@@ -18,9 +18,9 @@ const shown = node => node.style.display !== 'none';
 
 const captionHtml = '<div class="JXGtext"><div>Korelacija 4 točk</div><div>Korelacijski koeficient r = 0,8468</div></div>';
 
-test('only the three pilot recipes carry text, the others keep their annotation and no policy', () => {
+test('only the recipes with a capture-text verdict (pilot and batch B1) carry text, the others keep their annotation and no policy', () => {
     const withText = Object.values(recipes).filter(recipe => recipe.text).map(recipe => recipe.id).sort();
-    assert.deepEqual(withText, ['curve-envelope', 'interp-subdivision', 'prob-correlation']);
+    assert.deepEqual(withText, ['curve-envelope', 'interp-subdivision', 'prob-binomial-normal', 'prob-clt', 'prob-correlation', 'prob-density', 'prob-summary']);
     for (const id of withText) assert.equal(recipes[id].annotations, 'capture-text-policy');
     assert.equal(recipes.bezier.annotations, 'hide-point-names-retain-concept-text');
     assert.equal(captureTextPolicy(recipes.bezier), undefined);

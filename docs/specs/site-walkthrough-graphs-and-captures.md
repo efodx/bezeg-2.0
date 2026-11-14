@@ -382,3 +382,20 @@ Found on the way, for the triage:
 - `just preview` refuses a dirty `src/`; a worker that must serve while another edits uses `SMOKE_PORT=<port> node scripts/serve-smoke-build.cjs`.
 - Every board carries an unnamed text `0,0`; it appears in `textHidden`, so the C3 check must expect it.
 - The capture pads every coordinate window by 14 percent a side; windows are chosen with that in mind.
+
+### Capabilities after the pilot (handler 2, 2026-11-14)
+
+- `convexity` (C5, G06): a `parameter-sweep` row, `0.5 → −0.5 → 1.8 → 0.5`. The path leaves `[a, b]` once because the quoted lesson sentence asks the student to move `t` out of the interval and back; the approved `… → 1 → …` stayed inside. R1–R8 unchanged from the old poster (scene and colours are the same).
+- `curve-envelope`: the current line and its touching point are `GraphPalette.emphasis` (rust red), the owner's pick from five candidates (`docs/reviews/site-walkthrough/graphs/accent/`) after amber and dark ink were rejected.
+- C4 cross-family look (acceptance 9): `docs/reviews/site-walkthrough/graphs/typography/smoke-h2.md`, routes `/bezier/decasteljau`, `/rational/base`, `/ph/cubic`, `/curve-geometry/envelope`, `/functions/derivative`, `/analysis/epicycles`, `/probability/correlation`, `/inscribed-angle`, `/compgeo/delaunay`, `/projective/three-views`, `/patches/tensor`.
+- Triage: `docs/reviews/site-walkthrough/graphs/blocker-triage.md`. It proposes B10 Patches and a split of B8 into four; three legacy clips (`mean-value`, `accumulation`, `sequence`) have a continuous control.
+
+### B1 Probability (handler 2, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b1/` (served as `walkthrough-graphs/b1.html` on the preview).
+
+- `prob-summary`: mean and its ±σ band blue (`comparisonCurve`), triangle; median moss (`primaryCurve`) like the box, square, drawn at 0.7 of the triangle's size because a JSXGraph square is wider than a triangle of the same size. Data stay ochre. The recipe turns the band on and frames `[2.4, 2.85, 11.2, −2.53]`; the right edge is 11.2 so the row's sweep of the last value to 10.8 stays in frame, which leaves the drawing left of centre (R-yardstick: framing not centred, accepted for the motion). Text: Remove.
+- `prob-density`: the area is blue with its bounds at `a` and `b` drawn; the curve stays moss. Text: keep `^X ∼ N\(`.
+- `prob-binomial-normal`: text only, keep `^X ∼ B\(`. `prob-clt`: text only, Remove.
+- The capture fingerprint includes the recipes file, so any batch that edits a recipe needs `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1` once, after reading the recipe diff to confirm that only the batch's ids changed.
+- Not checked: inspector at 310 px against a before screenshot (control code is untouched; only legend swatch colours changed); the 390 px and English screenshots in `b1/live/` were taken but not all viewed.

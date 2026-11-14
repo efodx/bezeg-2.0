@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B1, probability</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B1: probability (G02, G03, G04)</h1>
+<p>Four catalog captures, before and after. The live graphs keep their text; only the catalog capture loses it. <a href="index.html">Back to the pilot page</a>.</p>
+<h2>1. Mean, median, standard deviation and box plot</h2>
+<p>Before, the drawing was small and the mean and median were told apart only by their words. Now the mean is a blue triangle with its blue standard-deviation band, the median a moss square like the box, and the drawing fills more of the frame. All words are removed from the capture. <a href="../probability/summary">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b1/before/prob-summary.webm" poster="b1/before/prob-summary.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b1/after/prob-summary.webm" poster="b1/after/prob-summary.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Density and probability as area</h2>
+<p>Before, the curve and the area shared one green. Now the area is blue with its two bounds drawn, and the curve stays green. Only the name of the distribution is kept. <a href="../probability/density">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b1/before/prob-density.webm" poster="b1/before/prob-density.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b1/after/prob-density.webm" poster="b1/after/prob-density.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Binomial and normal</h2>
+<p>Capture text only: the distribution name is kept, the two readout lines are removed. <a href="../probability/binomial-normal">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b1/before/prob-binomial-normal.webm" poster="b1/before/prob-binomial-normal.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b1/after/prob-binomial-normal.webm" poster="b1/after/prob-binomial-normal.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>4. Central limit theorem</h2>
+<p>Capture text only: the two lines of words are removed. <a href="../probability/clt">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b1/before/prob-clt.webm" poster="b1/before/prob-clt.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b1/after/prob-clt.webm" poster="b1/after/prob-clt.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>

@@ -114,7 +114,7 @@ const targets = {
     // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,
     // where the standardized sum is visibly close to, but not yet on, the normal curve.
     'prob-clt': ['Skewed base density at n = 3: the standardized sum approaching the standard normal curve', [field('Primer', 'skewed', 'select'), field('Število seštevancev n', 3)], [-3.6, 0.47, 3.6, -0.03]],
-    'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
+    'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with the blue mean triangle, the moss median square, the box plot and the mean +- sigma band (school rule)', [toggle('Pas okoli sredine (± standardni odklon)')], [2.4, 2.85, 11.2, -2.53]],
     'prob-correlation': ['Outlier example points (0,1), (1,2), (2,2), (3,8) with the regression line and the long residuals', [field('Primer', 'outlier', 'select')], [-1, 9, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
     // The default circle is a single epicycle, so the poster takes the Romb example and three Povečaj N za 1 steps (N = 3): the chain circles with the tip and the approximating curve.
@@ -215,6 +215,12 @@ const captureText = {
     'interp-subdivision': {keep: [], strip: []},
     // Keep only the correlation line, as `r = 0,8468`; the title and the regression-line label go.
     'prob-correlation': {keep: [/\br = /], strip: [/^Korelacijski koeficient /]},
+    // Distribution and bell curve: the area and its bounds are the subject; only the distribution name stays, the readout lines go.
+    'prob-density': {keep: [/^X ∼ N\(/], strip: []},
+    'prob-binomial-normal': {keep: [/^X ∼ B\(/], strip: []},
+    // The standardized sum approaching the normal curve, and the data with their mean and median, need no words on the poster.
+    'prob-clt': {keep: [], strip: []},
+    'prob-summary': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
