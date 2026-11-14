@@ -1,56 +1,58 @@
 # State: site walkthrough, graphs (package D)
 
-Handler 2, 2026-11-14. Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md).
+Handler 3, 2026-11-14. Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
 
 ## For the owner
 
 **To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/
 
-- Before and after of the four changed captures: http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/index.html
-- Epicycles (G07): `/analysis/epicycles`, "Obris Slovenije", "Mačka" (the new kitten, approved), "Bezgov cvet".
-- Envelope (G02): `/curve-geometry/envelope`, family blue to teal, current line and touching point in rust red (your pick B).
-- Convexity (G06): the catalog card now sweeps smoothly, leaving the interval once as the lesson asks.
+- **Batch B3, Bézier, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b3.html . Extrapolation (the arc past the end is blue), repeated subdivision (pieces alternate green and blue), degree reduction (the reduced curve has its own blue polygon). On degree reduction the two curves nearly coincide, so the polygons carry the difference: say if you want a scene where the curves differ visibly.
+- **Batch B4, PH and parameterizations, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b4.html . PH offsets are one blue family fading outward from the green base curve; the sample points on the three parameterization graphs are larger blue dots with a light outline; readouts are gone from the cards. The initial Bézier card can be recaptured again and is framed a little tighter.
+- **B5 curvature, in work:** you agreed to the direction (the osculating circle as the one rust-red accent, solid, with a faint fill; the parabola framed tighter). It will appear as `b5.html`.
+- Your "I agree" of this evening was taken as agreement with the B5 direction only, not as approval to publish B3.
 
-**Nothing waits on you now.** The next thing you will be asked to look at is each family batch (B1 to B8) on the preview.
+**On the public site** (CI passed): pilot captures, Literata graph text, epicycles outlines with the kitten, correlation label fix, convexity sweep, rust envelope line, B1 probability, B2 interpolation, the triage.
 
-**Decided by you on 2026-11-14:** the capture-text rule (with `r` kept on the correlation card), the three pilot directions, Literata for graph text, the convexity sweep, the kitten, rust red for the envelope's current line (amber and dark ink rejected).
+**One thing not changed, with its reason:** the affine clip stays in steps because its controls are step buttons.
 
 ## Where things stand
 
-Publishing: the branch was rebased onto `origin/master` (`063bdec3`) and a background publish of every branch commit (pilot, capture fixes, envelope colours, epicycles outlines, Literata, correlation label fix, convexity sweep, kitten, rust envelope) was started with `just publish --background --recipe runtime` (run `publish-c32e7d7a-b1a793`). **Check `just publish --status` first.** If it failed, read its log, fix, and republish; until it passes nothing of this package is on `master` beyond the spec.
+- `master` has this package up to `7b634d9d` (B1, B2, triage; CI green). This branch is rebased onto it and carries, unpublished: B3 (`16f9296d`, `a0908328`), the previous state note, B4 graph changes (`edf853d1`), the `bezier` restore fix (`49e6013a`), B4 captures (`d6f922ba`), then this note.
+- Publishing an approved batch: the commits sit in order on this branch, so publish from the oldest unpublished commit through the approved batch with `just publish --background --base origin/master --commits <oldest-first list>`. B4's captures were recorded on top of B3's manifest, so B3 goes first or together with B4. If the owner approves B4 but not B3, regenerate the manifest by a capture run on a branch without B3; never merge it by hand.
+- Docs-only publish (this note, the queue): use the helper worktree `.claude/worktrees/graphs-pub` reset to `origin/master`, check out only the doc files from this branch, commit, `just publish --recipe docs`. When `graphs-pub` is no longer needed: remove its `node_modules` junction first (`cmd //c "rmdir node_modules"` inside it), then `git worktree remove ../graphs-pub` and delete the branch.
+- B5 part A (curvature overlay drawing and copy) was dispatched to a worker; its note is `b5/worker.md`. Part B (recipes, captures, page) follows after part A is accepted, committed and built.
 
-Verified before publishing: `just check-changed` passed on the pre-rebase tip (2331 s); `just tooling-test` passed; full `just lint` passed; two browser passes (record: `typography/smoke-h2.md`; screenshots in `.command-logs/h2-smoke/`, `h2-smoke2/`, `h2-fix/`): ten of eleven families showed plain text in Literata and the eleventh (hidden surface readouts) was fixed; epicycles outlines without control polygon; inspector at 310 px; preset round trip; SVG and PNG export; catalog cards load and play; correlation label clear at 390 px and desktop.
+Verified for B4: unit tests of the touched graphs with observed pre-change failures (offset colour, marker fill), typecheck, full lint, `just tooling-test`, build, the seven captures within 300 KiB and only those seven changed in the manifest, after posters viewed by the handler (`ph-cubic`, `uniform-parameterization`, `spline-parameterization`, `arc-length-param`), sl 1440 live screenshots viewed by the worker. Not verified: most 390 px and English screenshots, inspector at 310 px, `just check-changed` for B3 and B4 (it runs in the publish).
 
-Not verified: the epicycles arm moving after "Predvajaj" was not isolated in the recheck (frames differed, cause not separated); no drag or slider interaction was exercised in the browser; after the rebase only the gate's own checks cover the merge with master.
+## Open items found in this run
 
-Open small items:
-- Exported envelope PNG shows "Število premic: 16 ." with a stray space the page does not show.
-- `/curve-geometry/envelope`: the label of `p1` sits on the family lines at the origin; `/compgeo/delaunay`: `P1`, `P4` labels touch edges (point labels are M01, the polish session's).
-- `/functions/exponential` caret text (recorded in the spec as a separate defect).
-- 68 fixed `fontSize` literals listed in `typography/worker.md`.
+- `bezier` capture: repaired (`49e6013a`). The point list field shows the dragged value for a frame after a typed commit, so the restore step types directly and the clip's last-frame check asserts the exact return.
+- **Guided example images** (lesson chapters' own stored images, `scripts/capture-guided-example-previews.cjs`): style changes leave them in the old colours. Recapture once per affected chapter after the style batches: probability, interpolation, curve geometry (envelope, curvature), Bézier (B3 graphs), PH and parameterizations (B4), and chapters whose images show plain board text (Literata). Alt text was updated in B1 and B2 only.
+- Stale recipe labels: `epicycles` ("Povečaj N za 1") and `voronoi-degenerate` ("Trapez") fail on the current build (triage); fix `epicycles` in B9.
+- `affine`: smooth motion needs a continuous control or new drawing code; a design question for the owner if it is to change.
+- `/curve-geometry/offset` shares the PH offset style: its single offset is now 0.6 of the base width (was 0.85). Look at it in B5.
+- `interp-hermite` data points are still dark; exported envelope PNG has a stray space in "Število premic: 16 ."; 68 fixed `fontSize` literals (`typography/worker.md`); the epicycles arm after "Predvajaj" was not isolated in a browser check.
 
-## Capture facts learned (use these)
+## Capture and preview facts (use these)
 
-- `just clip <id>` takes one id and fails validation while any other changed recipe or removed legacy spec is stale. Recapture changed ids together: `PREVIEW_BASE_URL=http://127.0.0.1:4333/bezeg-2.0 PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1 PREVIEW_RECAPTURE_IDS=a,b,c node scripts/capture-demonstration-previews.cjs`. Add `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1` only when the capture tool's presentation code changed and you have read that diff.
-- A capture run rewrites the whole manifest and asset map in registration order; a large diff there is reordering. Compare by capture id, not by line.
-- `just preview` does not build: run `just build` on a clean `src/` first, stop the old server by PID (`netstat -ano | grep "127.0.0.1:4333 "`), then `just preview 4333`. A rebuild removes `build/walkthrough-graphs/`: copy `docs/reviews/site-walkthrough/graphs/pilot/{index.html,before,after}` and `accent/` back into it.
-- Linting a subset of paths fails on unused suppressions; run the full `just lint`. When a recorded violation disappears, remove only that entry from `eslint-suppressions.json`.
-- The graph palette has `emphasis` (rust red) for the one element a cool family is read against; the owner dislikes amber and near-black against blue.
+- Recapture a batch's ids together: `PREVIEW_BASE_URL=http://127.0.0.1:<port>/bezeg-2.0 PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1 PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1 PREVIEW_RECAPTURE_IDS=a,b,c node scripts/capture-demonstration-previews.cjs`. The fingerprint includes the recipes and motion files, so every batch that edits one needs the VERIFIED flag once; set it only after reading the script diffs and confirming that only the batch's ids changed. `just clip <id>` works for one id when nothing else is stale.
+- A capture run rewrites the manifest and asset map in registration order; compare by capture id. It records dirty source files, so no other worker may edit `src/` during a capture run.
+- `just preview` does not build: `just build` on a clean `src/`, stop the old server by PID (`netstat -ano | grep ":4333 "`), start `just preview 4333`, and only then run `sh .command-logs/restore-pages.sh` (the preview refuses to start when `build/` differs from the runner's build, and every build removes the owner's comparison pages). The script copies `pilot/`, `accent/` and every `bN/` page into `build/walkthrough-graphs/`; `.command-logs` is untracked, so recreate the script from this description if it is gone.
+- Full `just lint` only (a subset fails on unused suppressions). `just publish --background` needs `--base` and `--commits` (oldest first, comma-separated).
+- Split a batch into two workers: "graph changes, copy and unit tests" (then the handler commits, builds and restarts the preview), then "recipes, capture, live screenshots, posters review, page" against the running 4333 server, read-only (B4: about 6 and 18 minutes).
+- Palette roles settled with the owner: moss primary curve, blue second role (dashed when it lies near the first), ochre points with a light outline, `GraphPalette.emphasis` (rust red) for one accent; no amber or near-black accent against blue. When a colour is rejected, show several candidates side by side (`accent/` is the model).
 
 ## Next slice inputs, in order
 
-1. **Confirm the publish** (`just publish --status`), then `just ci` for the deploy.
-2. **Blocker triage** over all 118 captures with the text policy applied, written to `docs/reviews/site-walkthrough/graphs/blocker-triage.md` (spec, "Batches", row T): per capture, the text verdict, whether its row or legacy spec still passes, what the frame loses, what blocks it; list which of the remaining legacy held-state clips can become sweeps (G06) and which stay discrete with the reason.
-3. **Batches B1 to B8** (spec, "Batches"), file-disjoint, two workers at a time. Each batch: style changes on the graph, recipes and rows, recapture its ids together, before and after on the preview page, batch record in the spec, then show the owner. Acceptance 5 to 9 of the spec apply to every changed graph.
-4. **Epicycles card (G07-f, batch B9):** recipe and row with an outline as the subject.
-5. Later pass: the `fontSize` literals.
-
-Worker notes: `pilot/`, `g07/`, `typography/`, `c5/`, `accent/` in this folder.
+1. B3 and B4: wait for the owner's yes on `b3.html` and `b4.html`, then publish; check CI with `gh run list --workflow browser-smoke.yml --branch master --limit 1`.
+2. **B5 curve geometry**: accept part A (curvature circle in `GraphPalette.emphasis`, solid, faint fill), then part B: `curve-curvature` window tighter around the parabola (its row sweeps `t` from 0.5 to 0.8 and the circle must stay in frame), text keep `^[TN]$`; `curve-evolute` keep `^[TNE]$`; `curve-comb`, `curve-offset`, `curve-parametric` Remove. Page `b5.html`.
+3. **B6 conics and three views**, **B7 rational** (first the capability fix: C1 must reach smartlabel weight labels, and `rational-subdivision`'s clip check must read the model, triage summary items 1 and 3), **B8** split a to d as the triage proposes (`extrema` last, after its `presentBoard` override is dropped), **B9 epicycles card**, **B10 patches** (overlap fix). One batch at a time through the capture step; show each on a `bN.html` page (copy `b4/index.html`), record it in the spec's "Batch records", wait for the owner before publishing it.
+4. The guided example recapture per chapter.
+5. The package is done when every example-table row and every Remove or Keep-in-part capture is done or has a recorded reason, and this note says so.
 
 ## Rules that carry over
 
-- Propose, show a preview, wait for the owner on design and policy; routine engineering inside an approved direction is the handler's. When a colour or drawing is rejected, show several candidates side by side instead of a second single guess. Do not launch a successor while the work only waits on the owner.
-- Port 4333 only. Previews for the owner go through `tailscale serve` (already configured for 4333). Do not edit inspector panel composition (control choice owns it) or other sessions' files.
-- Workers keep scratch files in `.command-logs/`, never `/tmp`; a worker that must serve while another edits uses `SMOKE_PORT=<port> node scripts/serve-smoke-build.cjs`.
+- Propose, show a preview, wait for the owner on design and policy; routine engineering inside an approved direction is the handler's. Do not launch a successor while the work only waits on the owner.
+- Port 4333 only; previews go through `tailscale serve` (configured). Do not edit inspector panel composition (control choice owns it) or other sessions' queue or state files.
+- Workers keep scratch files in `.command-logs/`, never `/tmp`, and do not run git commands that move HEAD.
 - This worktree's `node_modules` is a junction to the main checkout's. Delete the junction before removing the worktree.
-- Rebasing onto `origin/master`: `docs/agent-workflow/evaluation-log.md` and this session's docs already on master conflict mechanically; keep master's side, then rewrite this note. `scripts/commands.cjs` conflicts where both sides add test files to the `tooling-test` list: keep both.
