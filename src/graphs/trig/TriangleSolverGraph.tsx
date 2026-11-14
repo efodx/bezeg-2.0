@@ -376,13 +376,13 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             }));
         // `math`: the text is only the name of a point, side or angle, typeset with the display font size of the point labels.
         // With `raw` the text is already in math form (the squares c^2, a^2, b^2).
-        const labelStyle = this.styles.point.default.label as unknown as {fontSize: () => number};
+        const labelStyle = this.styles.point.namedLabel;
         const label = (x: Place, y: Place, text: () => string, color: string, visible: Visible, math: boolean | "raw" = false) =>
             this.own(board.create("text", [x, y, math === true ? () => pointLabelMath(text()) : text], {
                 strokeColor: color, fontSize: 15, ...(math ? {fontSize: labelStyle.fontSize, useMathJax: true, parse: false} : {}), anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
             }) as JXG.Text);
         const handleAttributes = (name: string): JXG.PointAttributes => ({
-            name, withLabel: true, label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"], size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
+            name, withLabel: true, label: {...(this.styles.point.namedLabel as object)} as JXG.PointAttributes["label"], size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false, visible: inGeometry,
             precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
         });
@@ -415,7 +415,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         const antipodeAt = (axis: "x" | "y"): Place => () => this.proper()?.sine.antipode[axis].toNumber() ?? 0;
         const antipode = this.own(board.create("point", [antipodeAt("x"), antipodeAt("y")], {
             fixed: true, highlight: false, withLabel: true, name: "A′", face: "diamond", size: 5, fillColor: GraphPalette.constructionAccent,
-            strokeColor: GraphPalette.pointOutline, visible: circleDrawn, label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"],
+            strokeColor: GraphPalette.pointOutline, visible: circleDrawn, label: {...(this.styles.point.namedLabel as object)} as JXG.PointAttributes["label"],
         }));
         antipode.label?.setText(pointLabelMath("A′"));
         segment(hB, antipode, GraphPalette.constructionAccent, 3, 0, circleDrawn);

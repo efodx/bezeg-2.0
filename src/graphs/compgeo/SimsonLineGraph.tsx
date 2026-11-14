@@ -373,13 +373,13 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
             () => this.read(v => v.feet[i].board?.x), () => this.read(v => v.feet[i].board?.y),
         ], {
             name, withLabel: true, size: 4, face: "square", fillColor: COLOUR.perpendicular, strokeColor: COLOUR.perpendicular,
-            highlight: false, fixed: true, showInfobox: false, layer: 7, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+            highlight: false, fixed: true, showInfobox: false, layer: 7, label: {...(this.styles.point.namedLabel as object), offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point, name));
         const start = view.p.board ?? {x: 0, y: 0};
         const point = board.create("point", [start.x, start.y], {
             name: view.mode === "exact" ? "P′" : "P", withLabel: true, size: 6, face: "o", fillColor: GraphPalette.additionalCurves[0],
             strokeColor: GraphPalette.pointOutline, strokeWidth: 2, highlightFillColor: GraphPalette.selectedControlPoint,
-            showInfobox: false, layer: 8, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+            showInfobox: false, layer: 8, label: {...(this.styles.point.namedLabel as object), offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
         point.label?.setText(pointLabelMath(view.mode === "exact" ? "P′" : "P"));
         bindMovablePointCursor(point, this.board);
@@ -486,7 +486,7 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
             }) as JXG.GeometryElement,
             mathLabelled(this.board.create("point", [centre.x, centre.y], {
                 name: "O", withLabel: true, size: 4, face: "cross", fillColor: COLOUR.circle, strokeColor: COLOUR.circle,
-                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.namedLabel as object), offset: [8, 8], strokeColor: GraphPalette.label},
             }) as JXG.GeometryElement, "O"),
         ];
     }

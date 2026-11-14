@@ -443,7 +443,7 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
                 fillColor: GraphPalette.derivedPoint,
                 strokeColor: GraphPalette.selectedControlPointOutline,
                 strokeWidth: () => this.isQueryActive ? 3 : 2,
-                label: {...(this.styles.point.default.label as object), visible: true, offset: [8, 8], strokeColor: GraphPalette.label},
+                label: {...(this.styles.point.namedLabel as object), visible: true, offset: [8, 8], strokeColor: GraphPalette.label},
             }) as JXG.Point;
             created.label?.setText(pointLabelMath("q"));
             created.on("down", () => {

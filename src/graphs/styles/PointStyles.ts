@@ -42,6 +42,9 @@ export function decasteljauLabelLayout(level: number, pointIndex: number, pointC
     return {direction: index < center ? 6 : 2, ring};
 }
 
+/** Named labels are typeset at this share of the display font size (owner choice, M03). */
+const NAMED_LABEL_SCALE = 0.75;
+
 /** Point attribute presets whose callbacks read the display settings of one graph. */
 export function createPointStyles(settings: DisplaySettings) {
 const pointStyle = dynamicAttributes<PointAttributes>({
@@ -64,6 +67,20 @@ const pointStyle = dynamicAttributes<PointAttributes>({
     },
     name: "",
 });
+
+/**
+ * The label of a named point, line or side on graphs that draw their own handles: the shared math label at a compact size
+ * (these graphs carry many names close together), shown and hidden with its element.
+ */
+const namedLabel = {
+    ...(pointStyle.label as object),
+    fontSize: () => settings.fontSize * NAMED_LABEL_SCALE,
+    // JSXGraph's own label placement, which these graphs' offsets were chosen for.
+    anchorX: "left",
+    anchorY: "middle",
+    offset: [10, 10],
+    visible: "inherit",
+};
 
 const hodographPointStyle = dynamicAttributes<PointAttributes>({
     ...pointStyle,
@@ -133,6 +150,7 @@ function pi(i: number, visible: () => boolean): PointAttributes {
 return {
     pi: pi,
     default: pointStyle,
+    namedLabel,
     hodograph: hodographPointStyle,
     fixed: fixedPointStyle,
     splineJoin: {...fixedPointStyle, fillColor: GraphPalette.splineJoin, highlightFillColor: GraphPalette.splineJoin},

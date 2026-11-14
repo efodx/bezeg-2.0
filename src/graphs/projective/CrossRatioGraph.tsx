@@ -309,7 +309,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         }) as JXG.Point);
         const defined = () => this.scene().status === "ok";
         // The shared point-label attributes (MathJax, no parsing, display font size, visibility); the graph keeps its own placement.
-        const mathLabel = (own: object) => ({...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label, ...own});
+        const mathLabel = (own: object) => ({...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label, ...own});
         // The element keeps its plain `name`; only the drawn label is typeset.
         const typeset = <E extends JXG.GeometryElement>(element: E, name: string): E => {
             element.label?.setText(pointLabelMath(name));

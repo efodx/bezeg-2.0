@@ -415,7 +415,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             return arc && arc.status === "ok" ? arc : undefined;
         };
         // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
-        const label = {...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label};
+        const label = {...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label};
         const curveOf = (fill: (curve: FillCurve) => void, attributes: Record<string, unknown>) => {
             const curve = add(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes}) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
             curve.updateDataArray = () => fill(curve);

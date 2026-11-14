@@ -491,7 +491,7 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
     private createHandle(handle: Handle): JXG.Point {
         const point = this.board.create("point", [handle.position.x, handle.position.y], {
             name: handle.name, withLabel: true, size: 5, face: "o", fillColor: handle.colour, strokeColor: GraphPalette.pointOutline, strokeWidth: 2,
-            highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+            highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8, label: {...(this.styles.point.namedLabel as object), offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
         point.label?.setText(pointLabelMath(handle.name));
         bindMovablePointCursor(point, this.board);
@@ -609,7 +609,7 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
         if (!finite(at.x, at.y)) return [];
         return [mathLabelled(this.board.create("point", [at.x, at.y], {
             name, withLabel: true, size: 4, face: "o", fillColor: colour, strokeColor: colour, highlight: false, fixed: true, showInfobox: false,
-            layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label}, ...extra,
+            layer: 6, label: {...(this.styles.point.namedLabel as object), offset: [8, 8], strokeColor: GraphPalette.label}, ...extra,
         }) as JXG.GeometryElement, name)];
     }
 

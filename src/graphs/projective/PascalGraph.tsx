@@ -397,7 +397,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             return element;
         };
         // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
-        const label = {...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label};
+        const label = {...(this.styles.point.namedLabel as object), strokeColor: GraphPalette.label};
         // The element keeps its plain `name`; only the drawn label is typeset.
         const typeset = <E extends JXG.GeometryElement>(element: E, name: string): E => {
             element.label?.setText(pointLabelMath(name));

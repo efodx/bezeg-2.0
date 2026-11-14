@@ -426,7 +426,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 return axis === 0 ? left + (box.x0 + box.x1) / 2 / board.unitX : top - (box.y0 + box.y1) / 2 / board.unitY;
             };
             // `math`: the text is only the name of a handle (one letter), typeset with the display font size of the point labels.
-            const mathStyle = math ? {fontSize: (this.styles.point.default.label as unknown as {fontSize: () => number}).fontSize, useMathJax: true, parse: false} : {};
+            const mathStyle = math ? {fontSize: (this.styles.point.namedLabel).fontSize, useMathJax: true, parse: false} : {};
             return this.own(board.create("text", [place(0), place(1), math ? () => pointLabelMath(content()) : content], {
                 strokeColor: color, fontSize: captionFont(), ...mathStyle, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
             }) as JXG.Text);

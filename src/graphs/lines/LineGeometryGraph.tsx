@@ -484,7 +484,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         const marker = (x: Place, y: Place, face: PointFace, color: string, size: number, visible: Visible, name = "") => {
             const point = this.own(board.create("point", [x, y], {
                 fixed: true, highlight: false, withLabel: name !== "", name, face, size, fillColor: color, visible,
-                ...(name !== "" ? {label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"]} : {}),
+                ...(name !== "" ? {label: {...(this.styles.point.namedLabel as object)} as JXG.PointAttributes["label"]} : {}),
                 ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
             if (name !== "") point.label?.setText(pointLabelMath(name));
@@ -496,7 +496,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             }));
         // A text sits at the centre of its placed box (see `labelBoxes`), or at the data position when the board has no size yet.
         // A text that is only the name of a line, vector or segment is typeset (MathJax, the display font size of the point labels).
-        const labelStyle = this.styles.point.default.label as unknown as {fontSize: () => number};
+        const labelStyle = this.styles.point.namedLabel;
         const label = (id: string, x: Place, y: Place, text: () => string, color: string, visible: Visible, math = false) =>
             this.own(board.create("text", [
                 () => { const box = this.labelBoxes()[id]; return box ? board.getBoundingBox()[0] + (box.x0 + box.x1) / 2 / board.unitX : x(); },
@@ -510,7 +510,7 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
                 strokeColor: color, strokeWidth: 3, fixed: true, highlight: false, withLabel: false, visible,
             }));
         const handleAttributes = (field: PointField): JXG.PointAttributes => ({
-            name: field, withLabel: true, label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"], size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
+            name: field, withLabel: true, label: {...(this.styles.point.namedLabel as object)} as JXG.PointAttributes["label"], size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false, visible: handleShown(field),
             precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
         });

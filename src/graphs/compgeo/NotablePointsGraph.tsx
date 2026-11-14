@@ -275,7 +275,7 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
             if (!place) return;
             objects.push(mathLabelled(this.board.create("point", [place.x, place.y], {
                 name: CENTRE_SYMBOL[id], withLabel: true, size: 5, face: CENTRE_FACE[id], fillColor: colour, strokeColor: colour,
-                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.namedLabel as object), offset: [8, 8], strokeColor: GraphPalette.label},
             }) as JXG.GeometryElement, CENTRE_SYMBOL[id]));
         };
         if (id === "centroid") {

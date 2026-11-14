@@ -450,7 +450,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     private text(content: () => string, x: () => number, y: () => number, color: string, visible: () => boolean,
                  options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"; math?: boolean} = {}): void {
         // `math`: the content is only a point name, typeset with the display font size of the point labels.
-        const math = options.math ? {fontSize: (this.styles.point.default.label as unknown as {fontSize: () => number}).fontSize, useMathJax: true, parse: false} : {};
+        const math = options.math ? {fontSize: (this.styles.point.namedLabel).fontSize, useMathJax: true, parse: false} : {};
         this.own(this.board.create("text", [x, y, options.math ? () => pointLabelMath(content()) : content], {
             strokeColor: color, fontSize: 14, ...math, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "middle", fixed: true, highlight: false, withLabel: false, visible,
         }) as JXG.Text);
