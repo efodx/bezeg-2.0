@@ -78,6 +78,10 @@
 
 /* Keep the inspector's existing disclosure controls independent of topic navigation. */
 .editing-mode summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
     cursor: pointer;
     min-height: var(--bezeg-control-height);
     padding: 12px 0;
@@ -178,6 +182,8 @@
 .workspace-learning button { flex-shrink: 0; font-size: .78rem; }
 .workspace-modes, .workspace-curve-picker { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
 .workspace-modes button { font-size: .84rem; }
+/* Board tools as a list of equal buttons: three labels do not fit one line at inspector width, and a ragged second line reads as an afterthought. */
+.editing-mode .workspace-modes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
 .workspace-inspector .form-label { color: var(--workspace-ink); font-size: .86rem; font-weight: 650; }
 .workspace-inspector .btn { color: var(--workspace-ink); background: var(--workspace-panel); border-color: var(--workspace-rule); }
 .workspace-inspector .btn:hover { background: var(--workspace-canvas-deep); }
@@ -295,8 +301,9 @@
     letter-spacing: .01em;
     list-style: none;
 }
-.inspector-disclosure > summary::-webkit-details-marker { display: none; }
-.inspector-disclosure > summary::before {
+/* The editing-mode box shares the chevron, so every disclosure in the inspector opens the same way. */
+.inspector-disclosure > summary::-webkit-details-marker, .editing-mode > summary::-webkit-details-marker { display: none; }
+.inspector-disclosure > summary::before, .editing-mode > summary::before {
     content: "";
     width: 7px;
     height: 7px;
@@ -306,7 +313,7 @@
     transform: rotate(-45deg) translateY(-1px);
     transition: transform .15s ease;
 }
-.inspector-disclosure[open] > summary::before { transform: rotate(45deg) translate(-1px, -1px); }
+.inspector-disclosure[open] > summary::before, .editing-mode[open] > summary::before { transform: rotate(45deg) translate(-1px, -1px); }
 .inspector-disclosure > summary:hover { color: var(--workspace-green); }
 .inspector-disclosure > summary:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .inspector-disclosure-body { padding: 2px 0 12px; }
