@@ -81,6 +81,8 @@ const xyPoint = (x: number, y: number): string => pointText(dec(x), dec(y));
 const degrees = (radians: number): string => `${dec2((radians * 180) / Math.PI)}°`;
 /** The room a handle or marker takes beyond its size, in px, for the pixel placement of the board texts. */
 const MARKER_PAD_PX = 3;
+/** A point name that has a clear spot within this many px of its marker (centre to box) sits there. */
+const NEAR_PX = 30;
 
 /** A line as text, for example `13 x = 25` or `6 x + 12 y = 66`. */
 function lineText(line: Line): string {
@@ -175,7 +177,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     private builtKey: string | undefined;
     private readonly status = new SettledReadout();
     /** The board texts of the scene (see `labelBoxes`): what each says, the data points it may sit beside, and when it is shown. */
-    private captionList: Array<{id: string; text: () => string; anchors: () => ReadonlyArray<readonly [number, number]>; visible: () => boolean}> = [];
+    private captionList: Array<{id: string; text: () => string; anchors: () => ReadonlyArray<readonly [number, number]>; visible: () => boolean; own: boolean}> = [];
     private layoutCache?: {key: string; state: Readonly<IsometryGraphState>; boxes: Record<string, PxBox>};
 
     override getInitialState(): IsometryGraphState {
@@ -373,6 +375,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             }
         }
         const items: LabelItem[] = [];
+        const ownedIds = new Set(this.captionList.filter(c => c.own).map(c => c.id));
         const font = board.unitX < 20 ? 12 : 15;
         for (const c of this.captionList) {
             if (!c.visible()) continue;
@@ -382,6 +385,43 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             if (first) items.push({id: c.id, ax: first[0], ay: first[1], alts: rest, w: text.length * font * 0.55 + 8, h: font + 7});
         }
         const boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        // A name of a point (the centre, a handle) lies nearer to its own marker than to any other marker, clear of what is drawn (the rule of the circle constructions):
+        // a box that is not moves to the cheapest spot on rings round the point, up and to the right first.
+        const overlap = (p: PxBox, q: PxBox) => p.x0 < q.x1 && p.x1 > q.x0 && p.y0 < q.y1 && p.y1 > q.y0;
+        for (const item of items) {
+            const box = boxes[item.id];
+            if (!box || !ownedIds.has(item.id)) continue;
+            const others = markers.filter(([mx, my]) => Math.hypot(mx - item.ax, my - item.ay) >= 1);
+            const nearest = (b: PxBox) => {
+                const [cx, cy] = [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2];
+                const own = Math.hypot(cx - item.ax, cy - item.ay);
+                return others.every(([mx, my]) => Math.hypot(cx - mx, cy - my) > own);
+            };
+            const penalty = (c: PxBox) => {
+                let cost = 0;
+                for (const [id, other] of Object.entries(boxes)) if (id !== item.id && overlap(c, other)) cost += 100;
+                for (const [mx, my, mr] of markers) if (mx + mr > c.x0 && mx - mr < c.x1 && my + mr > c.y0 && my - mr < c.y1) cost += 60;
+                for (const [x, y] of samples) if (x >= c.x0 + 2 && x <= c.x1 - 2 && y >= c.y0 + 2 && y <= c.y1 - 2) cost += 8;
+                return cost;
+            };
+            const owned = nearest(box);
+            const current = penalty(box);
+            const gap = (b: PxBox) => Math.hypot(Math.max(b.x0 - item.ax, 0, item.ax - b.x1), Math.max(b.y0 - item.ay, 0, item.ay - b.y1)); // from the marker centre to the box
+            if (owned && current === 0 && gap(box) <= NEAR_PX) continue; // a clear name already beside its marker stays
+            let best: PxBox | undefined;
+            let bestCost = Infinity;
+            let bestPenalty = Infinity;
+            for (const r of [14, 18, 22, 26, 30, 34, 38, 44, 54, 66]) for (let k = 0; k < 32; k++) {
+                const angle = -Math.PI / 4 + (k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 16);
+                const [cx, cy] = [item.ax + r * Math.cos(angle), item.ay + r * Math.sin(angle)];
+                const c: PxBox = {x0: cx - item.w / 2, y0: cy - item.h / 2, x1: cx + item.w / 2, y1: cy + item.h / 2};
+                if (c.x0 < 4 || c.y0 < 4 || c.x1 > width - 4 || c.y1 > height - 4 || !nearest(c)) continue;
+                const pen = penalty(c);
+                const cost = pen + r * 0.15 + k * 0.1;
+                if (cost < bestCost) { bestCost = cost; best = c; bestPenalty = pen; }
+            }
+            if (best && (!owned || bestPenalty < current || (bestPenalty === current && gap(best) < gap(box)))) boxes[item.id] = best;
+        }
         this.layoutCache = {key, state: this.state, boxes};
         return boxes;
     }
@@ -399,12 +439,12 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
 
         // ---- Primitives. Every one is owned; the accessors return finite numbers whatever the mode of the cached view is. ----
         const hidden = (x: Coordinate, y: Coordinate) =>
-            this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: ""}));
+            this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: "", showInfobox: false}));
         // A cross or plus face has no fill: JSXGraph draws it with the stroke alone, so the stroke carries the colour.
         const strokeOnly = (face: PointFace) => face === "cross" || face === "plus" || face === "x" || face === "+";
         const marker = (x: Coordinate, y: Coordinate, face: PointFace, color: string, size: number, visible: Visible = true) =>
             this.own(board.create("point", [x, y], {
-                fixed: true, highlight: false, withLabel: false, name: "", face, size, fillColor: color, visible,
+                fixed: true, highlight: false, withLabel: false, name: "", showInfobox: false, face, size, fillColor: color, visible,
                 ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
         const segment = (a: JXG.Point, b: JXG.Point, color: string, width: number, dash: number, visible: Visible = true) =>
@@ -415,10 +455,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         const captionFont = () => (board.unitX < 20 ? 12 : 15);
         type Anchors = () => ReadonlyArray<readonly [number, number]>;
         /** A text sits at the centre of its placed box (see `labelBoxes`) beside the first of its anchors, or on it before the board has a size. */
-        const caption = (text: string | (() => string), anchors: Anchors, color: string, visible: Visible = true, math = false) => {
+        const caption = (text: string | (() => string), anchors: Anchors, color: string, visible: Visible = true, math = false, own = false) => {
             const id = `caption-${this.captionList.length}`;
             const content = typeof text === "string" ? () => text : text;
-            this.captionList.push({id, text: content, anchors, visible: typeof visible === "function" ? visible : () => visible});
+            this.captionList.push({id, text: content, anchors, visible: typeof visible === "function" ? visible : () => visible, own});
             const place = (axis: 0 | 1) => () => {
                 const box = this.labelBoxes()[id];
                 if (!box) return anchors()[0]?.[axis] ?? 0;
@@ -458,7 +498,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             return point;
         };
         const label = (name: () => string, id: HandleId, color: string, visible: Visible = true, math = false) =>
-            caption(name, () => [this.handleTarget(id)], color, visible, math);
+            caption(name, () => [this.handleTarget(id)], color, visible, math, true);
         const numberAt = (read: () => number | undefined) => () => {
             const value = read();
             return value !== undefined && Number.isFinite(value) ? value : 0;
@@ -524,7 +564,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             caption(text("isometry_graph_cap_centre"), () => {
                 const [x, y] = [centreOf("x")(), centreOf("y")()];
                 return [[x, y], [x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]];
-            }, GraphPalette.constructionAccent, isRotation);
+            }, GraphPalette.constructionAccent, isRotation, true);
             const axisLine = () => {
                 const c = classOf();
                 return c?.kind === "reflection" || c?.kind === "glide" ? c.axis : null;
@@ -592,7 +632,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             curveOf(() => (this.state.rosetteMirrors ? rosetteMirrorPoly(this.state.rosetteN) : EMPTY_POLY), GraphPalette.constructionLevels[1], 1, 3,
                 () => this.state.rosetteMirrors);
             marker(0, 0, "cross", GraphPalette.constructionAccent, 6);
-            caption(text("isometry_graph_cap_centre"), atPoint(0, 0), GraphPalette.constructionAccent);
+            caption(text("isometry_graph_cap_centre"), atPoint(0, 0), GraphPalette.constructionAccent, true, false, true);
             // Two pools of markers: circles for direct images, diamonds for reflected ones; an image beyond the pool end is hidden.
             for (const reflected of [false, true] as const) {
                 for (let j = 0; j < ROSETTE_N_MAX; j++) {

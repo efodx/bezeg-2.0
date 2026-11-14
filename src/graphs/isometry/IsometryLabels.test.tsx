@@ -92,3 +92,50 @@ describe('IsometryGraph board text placement', () => {
         });
     }
 });
+
+describe('IsometryGraph name ownership and the coordinate infobox', () => {
+    it('no point of any scene can raise the grey coordinate infobox (it lands on the texts near the origin)', () => {
+        for (const [name, scene] of Object.entries(SCENES)) {
+            const board = mountScene(scene).liveBoard();
+            const points = (board.objectsList as unknown as Array<Shown & {evalVisProp(n: string): unknown}>).filter(o => o.elType === 'point' && (o.evalVisProp('visible') as boolean | string) !== false);
+
+            for (const p of points) expect(p.evalVisProp('showinfobox'), `${name}: a point can show the infobox`).toBe(false);
+        }
+    });
+
+    const gapToBox = (box: PxBox, x: number, y: number) => Math.hypot(Math.max(box.x0 - x, 0, x - box.x1), Math.max(box.y0 - y, 0, y - box.y1));
+    const centreGap = (scene: Partial<IsometryState>, graph = mountScene(scene)) => {
+        const {labels, markers} = drawn(graph);
+        const label = labels.find(l => l.text === 'središče')!;
+        expect(label, 'the centre name is shown').toBeDefined();
+        const [cx, cy] = [(label.box.x0 + label.box.x1) / 2, (label.box.y0 + label.box.y1) / 2];
+        const ranked = markers.map(([x, y]) => ({x, y, d: Math.hypot(cx - x, cy - y)})).sort((a, b) => a.d - b.d);
+        const own = ranked[0];
+        const tied = ranked.filter(m => Math.hypot(m.x - own.x, m.y - own.y) < 1);
+        return {gap: gapToBox(label.box, own.x, own.y), owned: ranked.filter(m => !tied.includes(m)).every(m => m.d > own.d), box: label.box, own};
+    };
+
+    it('the centre name of the dilation stays within 34 px of its own marker, nearer to it than to the ratio handle, wherever the centre is', () => {
+        const worst: string[] = [];
+        const graph = mountScene({mode: 'similarity'});
+        for (const x of [-6, -2, 0, 3, 7]) for (const y of [-5, 0, 2, 6]) for (const k of [2, -0.5, 1]) {
+            act(() => { graph.setState({dilationCentre: {x, y}, dilationK: k}); });
+            act(() => { graph.liveBoard().update(); });
+            const r = centreGap({}, graph);
+            if (r.gap > 34 || !r.owned) worst.push(`centre (${x}, ${y}) k ${k}: ${Math.round(r.gap)} px, owned ${r.owned}`);
+        }
+        expect(worst).toEqual([]);
+    });
+
+    it('the centre name of the rosette sits beside the cross', () => {
+        const r = centreGap(SCENES.rosette);
+        expect(r.gap).toBeLessThanOrEqual(34);
+        expect(r.owned).toBe(true);
+    });
+
+    it('the centre name of a classified rotation is nearest to its own cross and no farther than before the pass (the figure is crowded there)', () => {
+        const r = centreGap(SCENES.classifyRotation);
+        expect(r.owned).toBe(true);
+        expect(r.gap, `the name is ${Math.round(r.gap)} px from its marker`).toBeLessThanOrEqual(46);
+    });
+});
