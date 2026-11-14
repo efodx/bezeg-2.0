@@ -2,6 +2,10 @@
 #   start: on SessionStart, sweep orphaned trees a Claude shell started (dev servers, previews,
 #          test runs, wait loops) whose owning claude.exe has exited or crashed.
 #   end:   on SessionEnd, the ending session's own trees get the same treatment.
+#   tick:  on Stop (each turn end), the start sweep at most once per 10 minutes machine-wide.
+# start and tick also stop superseded handlers: background bezeg-handler sessions that are idle,
+# done, idle for 15+ minutes, and have a newer live bezeg-handler session in the same worktree.
+# They are stopped with `claude stop`, which keeps the conversation (`claude attach <id>` resumes).
 # Handoff rule: a tree is kept while a live Claude session that started after the tree exists in
 # the same working directory (worktree). A successor handler started by `claude --bg` in its
 # predecessor's worktree therefore inherits the predecessor's previews and servers; they are
@@ -9,7 +13,7 @@
 # Never touched: claude.exe processes and anything below them, detached background publish gates
 # (docs/adr/0043-background-publish-worktree.md), Codex/ChatGPT and user-terminal trees.
 # -DryRun prints the decisions; SESSION_CLEANUP_SESSIONS_DIR points tests at fake session records.
-param([ValidateSet('start', 'end')][string]$Mode = 'start', [switch]$DryRun)
+param([ValidateSet('start', 'end', 'tick')][string]$Mode = 'start', [switch]$DryRun)
 $ErrorActionPreference = 'SilentlyContinue'
 
 if ($Mode -eq 'end') {
@@ -17,6 +21,12 @@ if ($Mode -eq 'end') {
     try { $reason = ([Console]::In.ReadToEnd() | ConvertFrom-Json).reason } catch {}
     # /clear ends the transcript but the process keeps running with its MCP servers and tasks.
     if ($reason -eq 'clear') { exit 0 }
+}
+if ($Mode -eq 'tick' -and -not $DryRun) {
+    $stamp = Join-Path $env:TEMP 'bezeg-session-cleanup.stamp'
+    $last = Get-Item $stamp
+    if ($last -and $last.LastWriteTime -gt (Get-Date).AddMinutes(-10)) { exit 0 }
+    Set-Content $stamp '' 
 }
 
 Add-Type -TypeDefinition @'
@@ -81,7 +91,8 @@ $sessions = foreach ($f in Get-ChildItem $(if ($env:SESSION_CLEANUP_SESSIONS_DIR
     $started = [DateTimeOffset]::FromUnixTimeMilliseconds([long]$j.startedAt).LocalDateTime
     if ([math]::Abs(($proc.CreationDate - $started).TotalMinutes) -gt 10) { continue }  # reused PID
     if ($Mode -eq 'end' -and $self -and [int]$j.pid -eq [int]$self.ProcessId) { continue }
-    [pscustomobject]@{ Pid = [int]$j.pid; Cwd = (Norm $j.cwd); Started = $proc.CreationDate }
+    [pscustomobject]@{ Pid = [int]$j.pid; Cwd = (Norm $j.cwd); Started = $proc.CreationDate; Agent = $j.agent
+        StatusAt = $(if ($j.statusUpdatedAt) { [DateTimeOffset]::FromUnixTimeMilliseconds([long]$j.statusUpdatedAt).LocalDateTime }) }
 }
 
 # A worktree is its own home; elsewhere the cwd itself is.
@@ -148,6 +159,23 @@ if ($Mode -eq 'end' -and $self) {
     foreach ($k in Get-Kids $self) {
         if ($mine[[int]$k.ProcessId] -or $k.Name -eq 'claude.exe' -or (Test-Gate $k)) { continue }
         $targets[[int]$k.ProcessId] = @($k, "session ended: $reason")
+    }
+}
+
+# Superseded handlers (start/tick). Their SessionEnd hook then hands their trees to the successor.
+if ($Mode -ne 'end') {
+    $agents = @(claude agents --json 2>$null | Out-String | ConvertFrom-Json | ForEach-Object { $_ })
+    foreach ($a in $agents) {
+        if ($a.kind -ne 'background' -or $a.status -ne 'idle' -or $a.state -ne 'done' -or -not $a.id) { continue }
+        if ($self -and [int]$a.pid -eq [int]$self.ProcessId) { continue }
+        $s = $sessions | Where-Object { $_.Pid -eq [int]$a.pid }
+        if (-not $s -or $s.Agent -ne 'bezeg-handler' -or -not $s.StatusAt -or $s.StatusAt -gt (Get-Date).AddMinutes(-15)) { continue }
+        $wtHome = Get-Home $s.Cwd
+        $newer = $sessions | Where-Object { $_.Agent -eq 'bezeg-handler' -and $_.Started -gt $s.Started -and (Get-Home $_.Cwd) -eq $wtHome }
+        if (-not $newer) { continue }
+        if ($DryRun) { 'stop session {0} pid {1} {2} (superseded by pid {3})' -f $a.id, $a.pid, $a.name, (@($newer)[0].Pid); continue }
+        Add-Content -Encoding utf8 $log ("{0} {1} stop session {2} pid {3} {4} (superseded by pid {5})" -f (Get-Date -Format s), $Mode, $a.id, $a.pid, $a.name, (@($newer)[0].Pid))
+        claude stop $a.id 2>&1 | Out-Null
     }
 }
 
