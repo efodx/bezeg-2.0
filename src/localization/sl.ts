@@ -1879,7 +1879,7 @@ export const sl = {
     "fourier_coef_handle_value": "Vrednost f pri x = {value0}",
     "fourier_coef_handle_left": "Leva limita f pri x = {value0}",
     "fourier_coef_handle_right": "Desna limita f pri x = {value0}",
-    "fourier_coef_handles_help": "Vrednosti so števila med −4 in 4. Vlečenje jih zaokroži na 0,05, tipki ↑ in ↓ jih spremenita za 0,05 (s Shift za 0,5). Vneseno število se ne zaokroži.",
+    "fourier_coef_handles_help": "Vlečenje ročice na grafu vrednost zaokroži na 0,05. Vneseno število se ne zaokroži.",
     "fourier_coef_k_label": "Največji harmonik K",
     "fourier_coef_term_label": "Izbrani koeficient",
     "fourier_coef_term_a": "aₖ (kosinus)",

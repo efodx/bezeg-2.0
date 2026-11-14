@@ -1880,7 +1880,7 @@ export const en: Record<keyof typeof sl, string> = {
     "fourier_coef_handle_value": "Value of f at x = {value0}",
     "fourier_coef_handle_left": "Left limit of f at x = {value0}",
     "fourier_coef_handle_right": "Right limit of f at x = {value0}",
-    "fourier_coef_handles_help": "Values are numbers between −4 and 4. Dragging rounds them to 0.05, the ↑ and ↓ keys change them by 0.05 (with Shift by 0.5). A typed number is not rounded.",
+    "fourier_coef_handles_help": "Dragging a handle on the graph rounds its value to 0.05. A typed number is not rounded.",
     "fourier_coef_k_label": "Highest harmonic K",
     "fourier_coef_term_label": "Selected coefficient",
     "fourier_coef_term_a": "aₖ (cosine)",

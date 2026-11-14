@@ -4,7 +4,6 @@ import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FourierSpectrumBars} from "./FourierSpectrumBars";
 import {FourierDecaySpectra} from "./FourierDecaySpectra";
 import {guard, guardField} from "../base/controls/guard";
-import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
 import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -433,10 +432,10 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                               onChange={next => this.guarded(() => this.setLayout(next))}/>
             </div>
             <div className="inspector-group">
-                {slots.map(slot => <NumberInput key={slot.index} label={this.slotLabel(slot)} value={state.values[slot.index]} min={FOURIER_VALUE_MIN} max={FOURIER_VALUE_MAX}
-                                                step={FOURIER_VALUE_STEP} bigStep={FOURIER_VALUE_BIG_STEP} decimals={2}
-                                                rejectedHint={t("fourier_coef_issue_value", {value0: FOURIER_VALUE_MIN, value1: FOURIER_VALUE_MAX})}
-                                                onChange={next => guardField(this.refusals, () => this.setValue(slot.index, next))}/>)}
+                {slots.map(slot => <Slider key={slot.index} customText={this.slotLabel(slot)} value={state.values[slot.index]} min={FOURIER_VALUE_MIN} max={FOURIER_VALUE_MAX}
+                                           step={FOURIER_VALUE_STEP} bigStep={FOURIER_VALUE_BIG_STEP} decimals={2}
+                                           rejectedHint={t("fourier_coef_issue_value", {value0: FOURIER_VALUE_MIN, value1: FOURIER_VALUE_MAX})}
+                                           onChange={next => guardField(this.refusals, () => this.setValue(slot.index, next))}/>)}
                 <p className="inspector-help">{t("fourier_coef_handles_help")}</p>
             </div>
             <div className="inspector-group">
@@ -448,7 +447,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 <ChoiceSelect label={t("fourier_coef_term_label")} value={state.selected.term}
                               options={FOURIER_COEFFICIENT_TERMS.map(id => ({value: id, text: id === "a" ? t("fourier_coef_term_a") : t("fourier_coef_term_b")}))}
                               onChange={next => this.guarded(() => this.setTerm(next))}/>
-                <Slider customText={t("fourier_coef_harmonic_label")} value={state.selected.k} min={0} max={FOURIER_K_MAX} step={1}
+                <Slider customText={t("fourier_coef_harmonic_label")} value={state.selected.k} min={0} max={state.K} step={1}
                         rejectedHint={t("fourier_coef_issue_harmonic", {value0: 0, value1: state.K})}
                         onChange={next => guardField(this.refusals, () => this.setHarmonic(next))}/>
                 <p className="inspector-help">{t("fourier_coef_harmonic_help", {value0: formatNumber(state.K, language, 0)})}</p>

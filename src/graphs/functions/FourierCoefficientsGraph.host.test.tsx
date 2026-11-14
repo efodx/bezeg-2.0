@@ -60,7 +60,7 @@ class ObservedFourierCoefficientsGraph extends FourierCoefficientsGraph {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const label = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const tableCell = (k: number, term: 'a' | 'b') => document.querySelector(`[data-testid="fourier-spectrum-table"] tr[data-k="${k}"] td[data-term="${term}"]`)?.textContent;
-const handleFields = () => screen.getAllByLabelText(/^(Vrednost f pri x|Leva limita f pri x|Desna limita f pri x) = /) as HTMLInputElement[];
+const handleFields = () => screen.getAllByRole('spinbutton', {name: /^(Vrednost f pri x|Leva limita f pri x|Desna limita f pri x) = /}) as HTMLInputElement[];
 const field = (name: RegExp) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 const overlaySwitch = () => screen.getByLabelText(/^Pokaži delno vsoto S_K$/) as HTMLInputElement;
 /** The app's Slovenian number text: decimal comma, minus sign, no trailing zeros. */
