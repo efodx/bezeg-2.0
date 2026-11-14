@@ -440,7 +440,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b5/` (served as `walkthr
 - `curve-comb`, `curve-offset`, `curve-parametric`: text only, Remove. `curve-offset` (about 40% wide) and `curve-parametric` (about 41% high) are marginal on R5; no window was changed because their sweeps need the room.
 - Not checked: inspector at 310 px (no control code changed); most 390 px and English screenshots in `b5/live/` were taken but not viewed. At 390 px the curvature readout overlaps the small graph, as it did before this batch.
 
-### B6 Conics and three views (handler 3, 2026-11-14; shown to the owner, not yet published)
+### B6 Conics and three views (handler 3, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b6/` (served as `walkthrough-graphs/b6.html` on the preview).
 
@@ -448,7 +448,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b6/` (served as `walkthr
 - `projective-three-views`: the image conic is blue, the source stays moss, the line `L` is the rust-red accent, the panel frames are thin and light. The recipe sets `c = 1.4` (the default 2 gives an image a few pixels wide on a card) and the row sweeps `1.4 → −0.4 → 1.4`; its control label was stale and now names the slider "Višina premice L (c)" in steps of 0.1. Window `[-11.6, 7.2, 11.6, -7]`: a tighter one fails the in-frame check, because image points reach `x = 11.5` during the sweep. Text: Remove; moss and blue tell the original from the image. Yardstick: R5 partly (panels about three quarters of the frame). The Demonstration shows two panels in this state.
 - Not checked: `just tooling-test` after the last recipe edit (`c = 1.4`; the capture passed, the publish gate runs the test); the English 1440 three-views screenshot and the English 390 px ones. At 390 px the label of `L` overlaps the line, as before this batch.
 
-### B7 Rational (handler 3, 2026-11-14; shown to the owner, not yet published)
+### B7 Rational (handler 3, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b7/` (served as `walkthrough-graphs/b7.html` on the preview).
 
