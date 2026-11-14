@@ -1,6 +1,6 @@
 /**
- * Pixel placement of the board texts of the linear program: the vertex coordinates, the objective handle's caption and the constraint
- * names. Each text takes the free spot nearest to its anchor from a bounded ring of candidates, so it clears the markers, the drawn
+ * Pixel placement of board texts (first written for the linear program, also used by the line geometry graph): point and line names,
+ * captions and coordinate texts. Each text takes the free spot nearest to its anchor from a bounded ring of candidates, so it clears the markers, the drawn
  * lines, the axes with their numbers, the legend stack and the texts placed before it. Pure: boxes are in pixels from the board's top
  * left corner, y down.
  */

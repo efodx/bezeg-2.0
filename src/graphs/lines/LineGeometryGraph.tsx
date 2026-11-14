@@ -19,6 +19,7 @@ import {
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {lineGeometryPresetCollection} from "./linePresetCollection";
+import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
 /** The scene state: the mode, what the intersect mode meets, and the integer grid handles. */
 export type LineGeometryGraphState = BaseGraphState & LineGeometryState;
@@ -45,6 +46,11 @@ export const NORMAL_ARROW_LENGTH = 3;
 export const ARC_RADIUS = 3;
 export const RIGHT_ANGLE_SIZE = 0.8;
 const LABEL_OFFSET = 0.9;
+/** The estimate of a board text's size (15 px font) and of the room a marker takes, for the pixel placement of the texts. */
+const LABEL_CHAR_PX = 8;
+const LABEL_HEIGHT_PX = 22;
+const MARKER_RADIUS_PX = 9;
+const ARROWHEAD_RADIUS_PX = 14;
 
 /** Counts the graphs built, so the help ids of two instances on one page do not collide. */
 const toDegrees = (radians: number) => (radians * 180) / Math.PI;
@@ -367,6 +373,91 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         return element;
     }
 
+    private layoutCache: {key: string; boxes: Record<string, PxBox>} = {key: "", boxes: {}};
+
+    /**
+     * The boxes (px from the board's top left corner, y down) of the board texts, each the free spot nearest to its anchor that clears the
+     * handles and markers, the drawn lines, arrows and arc, and the texts placed before it (a bounded search, see `placeLpLabels`).
+     */
+    labelBoxes(): Record<string, PxBox> {
+        if (!this.hasBoard || !(this.board.canvasWidth > 0) || !(this.board.canvasHeight > 0)) return {};
+        const [left, top] = this.board.getBoundingBox();
+        const ux = Number.isFinite(this.board.unitX) && this.board.unitX > 0 ? this.board.unitX : 1;
+        const uy = Number.isFinite(this.board.unitY) && this.board.unitY > 0 ? this.board.unitY : 1;
+        const width = this.board.canvasWidth, height = this.board.canvasHeight;
+        const key = [ux, uy, left, top, width, height, this.stateKey(), currentLanguage()].join("|");
+        if (key === this.layoutCache.key) return this.layoutCache.boxes;
+        const state = this.state;
+        const view = this.view();
+        const toPx = (p: GridXY): readonly [number, number] => [(p.x - left) * ux, (top - p.y) * uy];
+        const mid = (p: GridXY, q: GridXY): GridXY => ({x: (p.x + q.x) / 2, y: (p.y + q.y) / 2});
+        const along = (p: GridXY, q: GridXY, t: number): GridXY => ({x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t});
+        const samples: Array<readonly [number, number]> = [];
+        const segmentOf = (p: GridXY, q: GridXY) =>
+            samples.push(...sampleLine([p.x, q.x], [p.y, q.y], (a, b) => toPx({x: a, y: b}), width, height, 4, 500));
+        const lineOf = (p: GridXY, q: GridXY) => {
+            const length = Math.hypot(q.x - p.x, q.y - p.y);
+            if (length > 0) segmentOf(along(p, q, -60 / length), along(p, q, 60 / length));
+        };
+        const items: LabelItem[] = [];
+        const add = (id: string, text: string, anchors: readonly GridXY[]) => {
+            const [first, ...rest] = anchors.map(toPx);
+            if (first) items.push({id, ax: first[0], ay: first[1], alts: rest, w: text.length * LABEL_CHAR_PX + 8, h: LABEL_HEIGHT_PX});
+        };
+        const markerPoints: GridXY[] = shownHandles(state).map(field => state[field]);
+        /** The wide head of an arrow, about one unit before its tip (the stroke samples cover only the shaft). */
+        const headPoints: GridXY[] = [];
+        const headOf = (p: GridXY, q: GridXY) => headPoints.push(along(p, q, Math.max(0, 1 - 0.9 / (Math.hypot(q.x - p.x, q.y - p.y) || 1))));
+        const mode = state.mode;
+        const meets = mode === "intersect" && state.target === "lines";
+        const second = (mode === "normal" || mode === "angle" || meets) && view.derived.second !== undefined;
+        if (view.derived.first) lineOf(state.P, state.Q);
+        if (second) lineOf(state.R, state.S);
+        if (view.crossing && (mode === "angle" || meets)) markerPoints.push(view.crossing);
+        // The names of the lines go first: beside the line, near the middle of its two points, else along the line.
+        const lineAnchors = (p: GridXY, q: GridXY) => [0.5, 0.25, 0.75, 0, 1, -0.3, 1.3].map(t => along(p, q, t));
+        if (view.derived.first) add("first", "ℓ", lineAnchors(state.P, state.Q));
+        if (second) add("second", "m", lineAnchors(state.R, state.S));
+        if (mode === "normal") {
+            for (const arrow of [view.normalArrow, view.secondNormalArrow]) if (arrow) { segmentOf(arrow.from, arrow.to); headOf(arrow.from, arrow.to); }
+            if (view.normalArrow) add("n1", "n₁", [view.normalArrow.to, along(view.normalArrow.from, view.normalArrow.to, 0.5)]);
+            if (view.secondNormalArrow) add("n2", "n₂", [view.secondNormalArrow.to, along(view.secondNormalArrow.from, view.secondNormalArrow.to, 0.5)]);
+        }
+        if (mode === "angle" && view.derived.first && second) {
+            const {crossing, arc} = view;
+            if (crossing && arc) {
+                for (let i = 0; i <= 11; i++) {
+                    const angle = arc.start + (arc.sweep * i) / 11;
+                    samples.push(toPx({x: crossing.x + ARC_RADIUS * Math.cos(angle), y: crossing.y + ARC_RADIUS * Math.sin(angle)}));
+                }
+                add("alpha", `α = ${formatNumber(arc.degrees, currentLanguage(), 4)}°`, [arc.label]);
+            }
+            add("u", "u", [along(state.P, state.Q, 0.5), along(state.P, state.Q, 0.25), along(state.P, state.Q, 0.75)]);
+            add("v", "v", [along(state.R, state.S, 0.5), along(state.R, state.S, 0.25), along(state.R, state.S, 0.75)]);
+        }
+        if (mode === "distance" && view.foot) {
+            markerPoints.push(view.foot);
+            segmentOf(state.P, state.T);
+            add("pt", "PT", [mid(state.P, state.T), along(state.P, state.T, 0.35), along(state.P, state.T, 0.65)]);
+            if (view.rightAngle) {
+                segmentOf(view.foot, state.T);
+                headOf(view.foot, state.T);
+                segmentOf(view.rightAngle[0], view.rightAngle[1]);
+                segmentOf(view.rightAngle[1], view.rightAngle[2]);
+                add("ptn", "PTₙ", [along(view.foot, state.T, 0.55), along(view.foot, state.T, 0.3)]);
+                const distanceText = `d ≈ ${formatNumber(view.derived.distance?.distance ?? NaN, currentLanguage(), 4)}`;
+                add("d", distanceText, [along(view.foot, state.T, 0.4), along(view.foot, state.T, 0.7), along(view.foot, state.T, 0.2)]);
+            }
+        }
+        const markers = [
+            ...markerPoints.map((p): readonly [number, number, number] => [...toPx(p), MARKER_RADIUS_PX]),
+            ...headPoints.map((p): readonly [number, number, number] => [...toPx(p), ARROWHEAD_RADIUS_PX]),
+        ];
+        const boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        this.layoutCache = {key, boxes};
+        return boxes;
+    }
+
     private buildScene(): void {
         this.disposeScene();
         const board = this.board;
@@ -397,8 +488,13 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             this.own(board.create("segment", [a, b], {
                 strokeColor: color, strokeWidth: width, dash, fixed: true, highlight: false, visible, withLabel: false, lastArrow,
             }));
-        const label = (x: Place, y: Place, text: () => string, color: string, visible: Visible) =>
-            this.own(board.create("text", [x, y, text], {
+        // A text sits at the centre of its placed box (see `labelBoxes`), or at the data position when the board has no size yet.
+        const label = (id: string, x: Place, y: Place, text: () => string, color: string, visible: Visible) =>
+            this.own(board.create("text", [
+                () => { const box = this.labelBoxes()[id]; return box ? board.getBoundingBox()[0] + (box.x0 + box.x1) / 2 / board.unitX : x(); },
+                () => { const box = this.labelBoxes()[id]; return box ? board.getBoundingBox()[1] - (box.y0 + box.y1) / 2 / board.unitY : y(); },
+                text,
+            ], {
                 strokeColor: color, fontSize: 15, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
             }));
         const line = (a: JXG.Point, b: JXG.Point, color: string, visible: Visible) =>
@@ -424,48 +520,48 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         // ---- the lines, each through two owned hidden points that follow the state
         line(hidden(at("P", "x"), at("P", "y")), hidden(at("Q", "x"), at("Q", "y")), GraphPalette.primaryCurve, firstDrawn);
         line(hidden(at("R", "x"), at("R", "y")), hidden(at("S", "x"), at("S", "y")), GraphPalette.comparisonCurve, secondDrawn);
-        label(() => this.view().firstLabel?.x ?? 0, () => this.view().firstLabel?.y ?? 0, () => "ℓ", GraphPalette.primaryCurve, firstDrawn);
-        label(() => this.view().secondLabel?.x ?? 0, () => this.view().secondLabel?.y ?? 0, () => "m", GraphPalette.comparisonCurve, secondDrawn);
+        label("first", () => this.view().firstLabel?.x ?? 0, () => this.view().firstLabel?.y ?? 0, () => "ℓ", GraphPalette.primaryCurve, firstDrawn);
+        label("second", () => this.view().secondLabel?.x ?? 0, () => this.view().secondLabel?.y ?? 0, () => "m", GraphPalette.comparisonCurve, secondDrawn);
 
         // ---- normal mode: the normal arrows n₁ on the first line and n₂ on the second
-        const normalArrowOf = (pick: (view: View) => NormalArrow | undefined, caption: string) => {
+        const normalArrowOf = (id: string, pick: (view: View) => NormalArrow | undefined, caption: string) => {
             const drawn: Visible = () => mode() === "normal" && pick(this.view()) !== undefined;
             const end = (key: "from" | "to", axis: "x" | "y"): Place => () => pick(this.view())?.[key][axis] ?? 0;
             segment(hidden(end("from", "x"), end("from", "y")), hidden(end("to", "x"), end("to", "y")), GraphPalette.constructionAccent, 4, 0, drawn, true);
-            label(() => pick(this.view())?.label.x ?? 0, () => pick(this.view())?.label.y ?? 0, () => caption, GraphPalette.constructionAccent, drawn);
+            label(id, () => pick(this.view())?.label.x ?? 0, () => pick(this.view())?.label.y ?? 0, () => caption, GraphPalette.constructionAccent, drawn);
         };
-        normalArrowOf(view => view.normalArrow, "n₁");
-        normalArrowOf(view => view.secondNormalArrow, "n₂");
+        normalArrowOf("n1", view => view.normalArrow, "n₁");
+        normalArrowOf("n2", view => view.secondNormalArrow, "n₂");
 
         // ---- angle mode: the direction vectors u (P to Q) and v (R to S), the arc at the common point
         const angleDrawn: Visible = () => mode() === "angle" && bothDrawn();
         segment(h("P"), h("Q"), GraphPalette.primaryCurve, 2, 2, angleDrawn, true);
         segment(h("R"), h("S"), GraphPalette.comparisonCurve, 2, 2, angleDrawn, true);
         const middle = (a: PointField, b: PointField, axis: "x" | "y", shift: number): Place => () => (this.state[a][axis] + this.state[b][axis]) / 2 + shift;
-        label(middle("P", "Q", "x", 0.7), middle("P", "Q", "y", -0.7), () => "u", GraphPalette.primaryCurve, angleDrawn);
-        label(middle("R", "S", "x", 0.7), middle("R", "S", "y", -0.7), () => "v", GraphPalette.comparisonCurve, angleDrawn);
+        label("u", middle("P", "Q", "x", 0.7), middle("P", "Q", "y", -0.7), () => "u", GraphPalette.primaryCurve, angleDrawn);
+        label("v", middle("R", "S", "x", 0.7), middle("R", "S", "y", -0.7), () => "v", GraphPalette.comparisonCurve, angleDrawn);
         const arcDrawn: Visible = () => angleDrawn() && this.view().arc !== undefined;
         this.own(board.create("curve", [
             (s: number) => (this.view().crossing?.x ?? 0) + ARC_RADIUS * Math.cos((this.view().arc?.start ?? 0) + s * (this.view().arc?.sweep ?? 0)),
             (s: number) => (this.view().crossing?.y ?? 0) + ARC_RADIUS * Math.sin((this.view().arc?.start ?? 0) + s * (this.view().arc?.sweep ?? 0)),
             0, 1,
         ], {strokeColor: GraphPalette.constructionAccent, strokeWidth: 3, fixed: true, highlight: false, withLabel: false, visible: arcDrawn}));
-        label(() => this.view().arc?.label.x ?? 0, () => this.view().arc?.label.y ?? 0,
+        label("alpha", () => this.view().arc?.label.x ?? 0, () => this.view().arc?.label.y ?? 0,
             () => `α = ${formatNumber(this.view().arc?.degrees ?? NaN, currentLanguage(), 4)}°`, GraphPalette.constructionAccent, arcDrawn);
 
         // ---- distance mode: PT, the foot F, the projection of PT on the normal (the vector F to T) and the right angle at F
         const distanceDrawn: Visible = () => mode() === "distance" && this.view().foot !== undefined;
         const offLine: Visible = () => distanceDrawn() && this.view().rightAngle !== undefined;
         segment(h("P"), h("T"), GraphPalette.referenceCurve, 2, 2, distanceDrawn, true);
-        label(() => this.view().pointVectorLabel?.x ?? 0, () => this.view().pointVectorLabel?.y ?? 0, () => "PT", GraphPalette.referenceCurve, distanceDrawn);
+        label("pt", () => this.view().pointVectorLabel?.x ?? 0, () => this.view().pointVectorLabel?.y ?? 0, () => "PT", GraphPalette.referenceCurve, distanceDrawn);
         const foot = marker(() => this.view().foot?.x ?? 0, () => this.view().foot?.y ?? 0, "diamond", GraphPalette.constructionAccent, 5, distanceDrawn, "F");
         segment(foot, h("T"), GraphPalette.constructionAccent, 4, 0, offLine, true);
-        label(() => this.view().projectionLabel?.x ?? 0, () => this.view().projectionLabel?.y ?? 0, () => "PTₙ", GraphPalette.constructionAccent, offLine);
+        label("ptn", () => this.view().projectionLabel?.x ?? 0, () => this.view().projectionLabel?.y ?? 0, () => "PTₙ", GraphPalette.constructionAccent, offLine);
         const corner = (index: 0 | 1 | 2) => hidden(() => this.view().rightAngle?.[index].x ?? 0, () => this.view().rightAngle?.[index].y ?? 0);
         const [r0, r1, r2] = [corner(0), corner(1), corner(2)];
         segment(r0, r1, GraphPalette.constructionAccent, 2, 0, offLine);
         segment(r1, r2, GraphPalette.constructionAccent, 2, 0, offLine);
-        label(() => this.view().distanceLabel?.x ?? 0, () => this.view().distanceLabel?.y ?? 0,
+        label("d", () => this.view().distanceLabel?.x ?? 0, () => this.view().distanceLabel?.y ?? 0,
             () => `d ≈ ${formatNumber(this.view().derived.distance?.distance ?? NaN, currentLanguage(), 4)}`, GraphPalette.constructionAccent, offLine);
 
         // ---- intersect mode: the common point of two lines (also the anchor of the angle arc), or the circle and its points

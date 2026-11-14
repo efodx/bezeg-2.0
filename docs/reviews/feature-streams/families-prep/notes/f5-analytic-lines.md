@@ -6,3 +6,10 @@
 - Frames viewed: forms one green line, two dots; normal green and horizontal blue lines, arrows n1 and n2; angle two lines, arc with value, u/v labels overlapping the line labels; distance PT dashed, foot arrow, corner mark, d value.
 - Alt text uses plain letters (no `\ell` in alt: mathAltText rejects backslashes) and states no first-step answer; the images do show the angle and d values.
 - Preview server on 4519 stopped; port closed. Logs: `.command-logs/f5-cards/analytic-lines/`.
+
+## Label pass (handler 20)
+
+- `LineGeometryGraph.tsx` `labelBoxes()` places every board text (names of the lines, n1/n2, u/v, the angle value, PT, PTn, d) by the bounded candidate search `placeLpLabels` (imported from `src/graphs/levelsets/lpLabelLayout.ts`, unchanged): clear of handles, foot and crossing markers, arrow heads, the drawn lines, the arc and each other. No new locale keys; texts and ids unchanged.
+- Defects before/after: u and v no longer sit on the names (angle card); d value, PT and PTn clear of the arrow and the dashed segment, l clear of the right-angle mark (distance card); l beside the line between the handles (forms card); n1 sits at its own arrow (normal card).
+- Test `src/graphs/lines/LineGeometryLabels.test.tsx`: seven scenes (the four card openings and three more); red before the fix (6 of 7 failed: l on a line or marker, v on a line, PT on a marker), green after.
+- Not changed: the handle name labels (P, Q, T, F) and axis tick numbers are not obstacles; at 390 px a name can touch a tick number. The inventory `expected` checks pass unchanged. Logs: `.command-logs/label-pass/analytic-lines/`.

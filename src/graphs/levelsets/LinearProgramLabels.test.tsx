@@ -6,7 +6,7 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {DEFAULT_LP_STATE} from '../../optimization/lpModel';
 import LinearProgramGraph from './LinearProgramGraph';
-import type {PxBox} from './lpLabelLayout';
+import type {PxBox} from '../legend/boardLabelPlacement';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));

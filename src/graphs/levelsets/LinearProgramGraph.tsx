@@ -23,7 +23,7 @@ import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
 import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {Memo} from "./Memo";
-import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "./lpLabelLayout";
+import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import type {LessonAction} from "../../learning/model";
