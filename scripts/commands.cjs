@@ -481,6 +481,17 @@ async function execute(command, rawArgs = [], options = {}) {
     finally { claim?.release(); }
 }
 
+/** cmd.exe rejects a command line over 8191 characters; npm runs the test script through it, so a long file list falls back to `--changed`. */
+const MAX_UNIT_ARGS_LENGTH = 7000;
+
+/** The Vitest arguments of check-changed's selected unit step: the selected files, `--changed <ref>` as the fallback, or none. */
+function selectedUnitArgs(selection, ref) {
+    if (!selection || selection.kind === 'empty') return [];
+    const changedArgs = ['--changed', ref, '--passWithNoTests'];
+    if (selection.kind !== 'files') return changedArgs;
+    return selection.files.join(' ').length > MAX_UNIT_ARGS_LENGTH ? changedArgs : selection.files;
+}
+
 async function executeCommand(command, rawArgs = [], options = {}) {
     const root = options.root || ROOT;
     const args = [...rawArgs];
@@ -573,7 +584,10 @@ async function executeCommand(command, rawArgs = [], options = {}) {
         if (selection?.kind === 'files') process.stderr.write(`Selected ${selection.files.length} unit test files (registries not followed; CI runs all)\n`);
         else if (selection?.kind === 'fallback') process.stderr.write(`Import selection falls back to Vitest --changed: ${selection.reason}\n`);
         else if (selection?.kind === 'empty') process.stderr.write('Selected 0 unit test files (registries not followed; CI runs all): no unit step\n');
-        const selected = !selection || selection.kind === 'empty' ? [] : [unit(selection.kind === 'files' ? selection.files : ['--changed', ref, '--passWithNoTests'])];
+        const unitArgs = selectedUnitArgs(selection, ref);
+        if (selection?.kind === 'files' && unitArgs[0] === '--changed') process.stderr.write(`The selected file list is too long for one Windows command line (${MAX_UNIT_ARGS_LENGTH} characters): running Vitest --changed instead
+`);
+        const selected = unitArgs.length ? [unit(unitArgs)] : [];
         const code = await run('check-changed', [tsc(), lint([]), ...selected, ...(always.length ? [free('unit', alwaysRunStep(always))] : [])]);
         return code === 0 ? buildWithProvenance('check-changed build') : code;
     }
@@ -642,4 +656,4 @@ if (require.main === module) {
     cli(process.argv.slice(2));
 }
 
-module.exports = {CACHE_FILES, FILTERED_SLOT_FILES, LOG_DIR_NAME, TIMINGS_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, filteredUnitFileCount, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};
+module.exports = {selectedUnitArgs, MAX_UNIT_ARGS_LENGTH, CACHE_FILES, FILTERED_SLOT_FILES, LOG_DIR_NAME, TIMINGS_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, filteredUnitFileCount, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};

@@ -898,3 +898,14 @@ test('every always-run path exists and mounts no real board', () => {
         assert.doesNotMatch(fs.readFileSync(absolute, 'utf8'), /realGraphTestHarness|initBoard|mountGraph|createGraph/, `${file} mounts a real board`);
     }
 });
+
+test('check-changed falls back to --changed when the selected files do not fit one Windows command line', () => {
+    const {selectedUnitArgs, MAX_UNIT_ARGS_LENGTH} = require('./commands.cjs');
+    assert.deepEqual(selectedUnitArgs(undefined, 'origin/master'), []);
+    assert.deepEqual(selectedUnitArgs({kind: 'empty'}, 'origin/master'), []);
+    assert.deepEqual(selectedUnitArgs({kind: 'fallback', reason: 'shared'}, 'origin/master'), ['--changed', 'origin/master', '--passWithNoTests']);
+    assert.deepEqual(selectedUnitArgs({kind: 'files', files: ['src/a.test.ts', 'src/b.test.ts']}, 'origin/master'), ['src/a.test.ts', 'src/b.test.ts']);
+    const many = Array.from({length: 400}, (unused, i) => `src/graphs/family/SomeLongGraphName${i}.host.test.tsx`);
+    assert.ok(many.join(' ').length > MAX_UNIT_ARGS_LENGTH);
+    assert.deepEqual(selectedUnitArgs({kind: 'files', files: many}, 'origin/master'), ['--changed', 'origin/master', '--passWithNoTests']);
+});
