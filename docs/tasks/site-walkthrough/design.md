@@ -4,14 +4,14 @@ Source spec: [site walkthrough design](../../specs/site-walkthrough-design.md). 
 
 | # | Slice | Intake | State |
 | --- | --- | --- | --- |
-| 1 | Mockup gallery with a recommendation per item and epicycles subject candidates | all, G07 | Done 2026-11-14; served on port 4332 |
+| 1 | Mockup gallery with a recommendation per item and epicycles subject candidates | all, G07 | Done 2026-11-14 |
 | 2 | Proposal spec with draft acceptance criteria | all | Done 2026-11-14 |
-| 3 | Owner picks an option per item | all | **Waiting for the owner** |
-| 4 | L04 Back button style | L04 | Blocked on 3 |
-| 5 | L01 numbering through shared chapter components | L01 | Blocked on 3 |
-| 6 | L05 botanicals on chapter pages; record the reversal in `side-botanicals.md` | L05 | Blocked on 3 |
-| 7 | P01 dialog style for the preset dialogs | P01 | Blocked on 3 |
-| 8 | Homepage: pool, label, rotation, navigation, learning route | H02, H03, H04 | Blocked on 3 and on `polish` slice 3 reaching `master` |
-| 9 | P02 presets panel, as picked | P02 | Blocked on 3; coordinate with control choice |
-
-Slices 4 to 7 touch separate files and can run in parallel once picked.
+| 3 | Owner picks an option per item | all | Done 2026-11-14; recorded in the spec |
+| 4 | L04 Back button: outline only | L04 | Implemented by the handler; needs screenshot and publish |
+| 5 | L01 numbers everywhere through a shared heading component | L01 | Worker running (with 6) |
+| 6 | L05 botanicals on chapter pages; reversal recorded in `side-botanicals.md` | L05 | Worker running (with 5) |
+| 7 | P01 B and P02: presets list panel with inline save, row menu, backup section | P01, P02 | Worker running |
+| 8 | Homepage carousel: pool, per-visit draw, picture cards | H02, H03 | Worker running; does not touch `WelcomePage.*` |
+| 9 | Homepage label "Izbor demonstracij" and the second button to learning | H02, H04 | Waits for `polish` slice 3 (footer, header brand) on `master` |
+| 10 | Browser smoke names for the presets panel under `tests/` | P02 | After 7 |
+| 11 | G07 subjects passed to `graphs` | G07 | Sent 2026-11-14 |

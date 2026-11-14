@@ -1,6 +1,29 @@
 # Site walkthrough: design decisions (package C)
 
-Status: **proposed, waiting for the owner's choices** (2026-11-14). No option below is decided and no app code has changed.
+Status: **decided by the owner on 2026-11-14; implementation in progress.** The option tables below are kept as the record of what was offered; [Owner decisions](#owner-decisions-2026-11-14) says what was picked.
+
+## Owner decisions, 2026-11-14
+
+The owner reviewed the gallery and picked:
+
+| Item | Decision |
+| --- | --- |
+| H02 label | "Izbor demonstracij" / "A selection of demonstrations". |
+| H02 pool | Not the nine positive references: those were only the ones he happened to be looking at, and they lean on a few families. The handler chooses attractive demonstrations of different graph types; see [the pool](#h02-pool-handler-2026-11-14). |
+| H02 rotation | Six at random per visit, as recommended. |
+| H03 | Option A (cards, no arrows or counter), with two corrections: nicer text on the small cards, and a different selected-card accent (the progress line on the top edge "looks weird"). |
+| H04 | Option A, two buttons. |
+| L01 | Option B, numbers everywhere. |
+| L04 | Option A, outline only (not the recommended tint). |
+| L05 | Option A, as elsewhere. |
+| P01 and P02 | P01 option B (save inside the panel) together with the P02 list panel. He did not comment on the wording; the handler uses the mockup's "shranjena stanja" for the list and keeps "prednastavitve" for the tab's heading and the file actions, so the change is small and easy to reverse. |
+| G07 | Slovenia and the cat; all four subjects if adding examples is easy. Passed to the `graphs` session. |
+
+### H02 pool (handler, 2026-11-14)
+
+Chosen from the catalogue captures (contact sheets `pool-sheet-1.png` and `pool-sheet-2.png` in the gallery's `img/` folder), leaving out everything in the intake's "needs visual refinement" table: `epicycles`, `fixed-point`, `accumulation`, `definite-integral`, `function-inverse`, `complex-multiplication`, `decasteljau`, `subdivision`, `patch-tensor`, `patch-coons`, `voronoi`, `fortune`, `inscribed-angle`, `linear-map`, `curve-comb`, `prob-binomial-normal`, `interp-runge`, `euler-method`.
+
+Draw rule: six entries, no two from the same family, so every visit shows six kinds of graph. This rule is the answer to "too connected to some families"; a plain random draw from this pool could still show three analysis graphs.
 
 Source: [site walkthrough intake](site-walkthrough-intake-2026-11-14.md), sections 4, 5, 6, 9 and 11. Covers H02, H03, H04, L01, L04, L05, P01 and P02, and proposes subjects for G07, which the `graphs` session implements.
 
