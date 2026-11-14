@@ -3,6 +3,7 @@ import {vi} from 'vitest';
 import {render} from '@testing-library/react';
 import {MemoryRouter, Route, Routes} from 'react-router-dom';
 import App from '../App';
+import {FamilyChapterPage} from '../learning/FamilyChapterPage';
 import {fitToGutter, showsSideBotanicals} from './SideBotanicals';
 import {gutterWidths} from './gutters';
 import {ELDER_SETTINGS} from './elderGeometry';
@@ -135,6 +136,17 @@ test('a page without a marked column gets no decoration until one arrives', asyn
     container.querySelector('#late')!.setAttribute('data-content-column', '');
     container.querySelector('#late')!.appendChild(document.createElement('p')); // a child-list change, as when a page loads
     await vi.waitFor(() => expect(svgs()).toHaveLength(2));
+});
+
+test('an unknown chapter path shows the error page without decoration', async () => {
+    setViewport(3440, true);
+    render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/no-such-chapter']}>
+        <Routes><Route path="/bezeg-2.0" element={<App/>}><Route path="learn/:chapterId" element={<FamilyChapterPage/>}/></Route></Routes>
+    </MemoryRouter>);
+    expect(document.querySelector('main.learning-page')).not.toBeNull();
+    expect(document.querySelector('[data-content-column]')).toBeNull();
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    expect(svgs()).toHaveLength(0);
 });
 
 test('showsSideBotanicals allows the landing pages and chapter reading pages, with or without a trailing slash', () => {

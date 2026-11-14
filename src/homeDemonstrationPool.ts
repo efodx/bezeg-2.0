@@ -6,7 +6,7 @@ export const homeDemonstrationPool: readonly DemonstrationId[] = [
     'epicycles', 'fixed-point', 'accumulation', 'definite-integral', 'function-inverse',
     'complex-multiplication', 'decasteljau', 'subdivision', 'patch-tensor', 'patch-coons',
     'voronoi', 'fortune', 'inscribed-angle', 'linear-map', 'curve-comb',
-    'prob-binomial-normal', 'interp-runge', 'euler-method',
+    'prob-binomial-normal', 'interp-runge', 'euler-method', 'convexity',
 ];
 
 export const homeDemonstrationCount = 6;
