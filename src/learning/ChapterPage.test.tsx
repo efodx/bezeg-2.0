@@ -1,12 +1,13 @@
 import React from 'react';
 import {act, render, waitFor} from '@testing-library/react';
-import {MemoryRouter} from 'react-router-dom';
+import {MemoryRouter, Route, Routes} from 'react-router-dom';
 import {afterEach, beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {bezierChapter} from './content/bezierChapter';
 import {getChapterGuidedExamples} from './chapter/guidedExamples';
 import {exampleReferences} from './chapter/orderedContent';
 import {ChapterPage} from './ChapterPage';
+import {FamilyChapterPage} from './FamilyChapterPage';
 
 vi.mock('./playground/DrawingPlayground', () => ({default: ({mode}: {mode: string}) => <div data-testid="stub-playground" data-mode={mode}/>}));
 vi.mock('./playground/LookUnderneath', () => ({default: () => <div data-testid="stub-playground" data-mode="inspect"/>}));
@@ -148,4 +149,25 @@ test.each(['sl', 'en'] as const)('draws the playground in motivation and inspect
     expect(inspect?.getAttribute('data-mode')).toBe('inspect');
     expect(draw?.previousElementSibling?.className).toBe('chapter-paragraph');
     expect(inspect?.nextElementSibling?.textContent).toContain(language === 'sl' ? 'Te zamisli' : 'These ideas');
+});
+
+test('every chapter shows two-digit section numbers beside headings and numbers in the contents list', () => {
+    const pages: [string, React.ReactElement, string][] = [
+        ['/bezeg-2.0/learn/bezier-curves', <ChapterPage/>, '/bezeg-2.0/learn/bezier-curves'],
+        ['/bezeg-2.0/learn/sweep-algorithms', <FamilyChapterPage/>, '/bezeg-2.0/learn/:chapterId'],
+    ];
+    for (const [initial, element, path] of pages) {
+        const {container, unmount} = render(<MemoryRouter initialEntries={[initial]}>
+            <Routes><Route path={path} element={element}/></Routes>
+        </MemoryRouter>);
+        const headings = [...container.querySelectorAll('.chapter-section-heading')];
+        expect(headings.length, initial).toBeGreaterThan(1);
+        headings.forEach((heading, index) => {
+            expect(heading.querySelector(':scope > span')?.textContent, initial).toBe(String(index + 1).padStart(2, '0'));
+            expect(heading.querySelector('h2')?.textContent, initial).not.toMatch(/^\d\d/);
+        });
+        const numbers = [...container.querySelectorAll('.chapter-toc-number')].map(node => node.textContent);
+        expect(numbers.slice(0, headings.length), initial).toEqual(headings.map((_, index) => String(index + 1)));
+        unmount();
+    }
 });

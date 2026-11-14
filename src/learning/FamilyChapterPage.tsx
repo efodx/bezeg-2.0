@@ -8,7 +8,8 @@ import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import type {LocalizedText} from './model';
 import {type OrderedChapterContent, type PlaygroundContent} from './chapter/orderedContent';
-import {ChapterContents, ChapterNeighbors, ChapterSectionPermalink, ChapterTrail} from './ChapterNavigation';
+import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
+import {ChapterSectionHeading} from './ChapterSectionHeading';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {linkedParagraph} from './chapter/linkedParagraph';
@@ -84,7 +85,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
     }, [chapter.id]);
 
     return <main className="chapter-page">
-        <div className="chapter-layout">
+        <div className="chapter-layout" data-content-column>
             <ChapterContents sections={contentsSections} chapterId={chapter.id}/>
             <article className="chapter-article" ref={articleRef}>
                 <header className="chapter-heading">
@@ -95,8 +96,8 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                         {chapter.prerequisiteLinks?.length ? <ul className="chapter-prerequisite-links">{chapter.prerequisiteLinks.map(link => <li key={link.path}><Link to={link.path}>{link.title[language]}</Link></li>)}</ul> : null}
                     </div>
                 </header>
-                {chapter.sections.map(section => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
-                    <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><ChapterSectionPermalink id={section.id} title={section.title[language]} language={language}/></div>
+                {chapter.sections.map((section, index) => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
+                    <ChapterSectionHeading id={section.id} title={section.title[language]} index={index} language={language}/>
                     <div className="chapter-section-body">
                         {sectionContent(section).map((block, blockIndex) => {
                             if (block.kind === 'playground') return <PlaygroundBlock key={`${section.id}-playground-${blockIndex}`} block={block}/>;

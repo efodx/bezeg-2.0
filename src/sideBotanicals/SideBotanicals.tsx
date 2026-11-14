@@ -126,7 +126,10 @@ export function SideBotanicals({settings = ELDER_SETTINGS, route}: {settings?: E
 
 const TARGET_PATHS = ['/bezeg-2.0', '/bezeg-2.0/demonstrations', '/bezeg-2.0/learn'];
 
-/** Only the home, demonstrations and learn landing pages carry the decoration. */
+const CHAPTER_PATH = /^\/bezeg-2\.0\/learn\/[^/]+$/;
+
+/** The home, demonstrations and learn landing pages and the chapter reading pages (`/learn/<chapter>`) carry the decoration. */
 export function showsSideBotanicals(pathname: string): boolean {
-    return TARGET_PATHS.includes(pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname);
+    const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+    return TARGET_PATHS.includes(path) || CHAPTER_PATH.test(path);
 }

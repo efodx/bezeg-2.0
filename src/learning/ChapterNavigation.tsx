@@ -45,7 +45,7 @@ function SidebarNeighbors({chapterId}: {chapterId: string}) {
     </nav>;
 }
 
-export function ChapterContents({sections, chapterId, showNumbers = false}: {sections: readonly SectionLink[]; chapterId: string; showNumbers?: boolean}) {
+export function ChapterContents({sections, chapterId}: {sections: readonly SectionLink[]; chapterId: string}) {
     const {language} = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
@@ -89,7 +89,7 @@ export function ChapterContents({sections, chapterId, showNumbers = false}: {sec
 
     const contents = <nav className="chapter-toc" aria-label={language === 'sl' ? 'Vsebina poglavja' : 'Chapter contents'}>
         <p className="chapter-toc-title">{language === 'sl' ? 'V tem poglavju' : 'In this chapter'}</p>
-        <ol>{sections.map((section, index) => <li key={section.id}><a href={`#${section.id}`} aria-current={currentSection === section.id ? 'location' : undefined} onClick={event => goToSection(event, section.id)}><span>{section.title}</span>{showNumbers && <span className="chapter-toc-number">{index + 1}</span>}</a></li>)}</ol>
+        <ol>{sections.map((section, index) => <li key={section.id}><a href={`#${section.id}`} aria-current={currentSection === section.id ? 'location' : undefined} onClick={event => goToSection(event, section.id)}><span>{section.title}</span><span className="chapter-toc-number">{index + 1}</span></a></li>)}</ol>
     </nav>;
 
     const currentIndex = sections.findIndex(section => section.id === currentSection);

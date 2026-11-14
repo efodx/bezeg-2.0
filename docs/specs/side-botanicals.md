@@ -11,7 +11,7 @@ On ultrawide screens the content of `/bezeg-2.0/`, `/bezeg-2.0/demonstrations` a
 The owner settled these in a grilling session, then iterated on the artwork in a mockup and a playground.
 
 1. **Motion:** branches sway gently in the wind (step 1). Later they grow as the page scrolls (step 2). Each step ships separately.
-2. **Placement:** one shared shell component, `SideBotanicals`, rendered by `App` only on the three routes above. It never appears in the graph workspace, in lessons or on chapter pages, where the graph must stay prominent.
+2. **Placement:** one shared shell component, `SideBotanicals`, rendered by `App` only on the three routes above. It never appears in the graph workspace or in lessons, where the graph must stay prominent. Until 2026-11-14 it also never appeared on chapter pages; decision 16 reverses that for chapter reading pages.
 3. **Artwork:** new artwork, not the old `welcome-botanical` corner sprig. The owner rejected the first drafts (single upright stems drawn in the sprig's style). An independent critique found that they read as "flagpoles", looked botanically like yarrow rather than elder, and mixed three visual styles. The chosen direction is elder branches arching in from the outer viewport edge, at different heights on each side, in a paper-cut style: fills only and no outlines; tapered grey-olive stems; pinnate leaves in opposite pairs of lance-shaped leaflets in two sage tones; domed creamy flower heads in three-quarter view, built from clusters of five-petalled florets with ochre centres.
 4. **Width gate:** rendered only when the viewport is at least 1600px wide and only within the gutter beside the content column. Below that width nothing is rendered.
 5. **Weight:** decorative only (`aria-hidden`, no pointer events, never focusable), fixed to the viewport, and fading toward the content edge. The number of branches, their size, opacity and sway come from the owner's playground settings (`Elder branch settings: {...}`). Until the owner sends final settings, the playground defaults apply.
@@ -26,6 +26,7 @@ The owner settled these in a grilling session, then iterated on the artwork in a
 14. **Content column (handler, 2026-11-13):** Home, Demonstrations and Learn mark the element whose content box is their column with `data-content-column`. Each gutter is the space between the viewport edge (without the scrollbar) and that content box, less 24px, on each side separately; gutters under 100px carry no decoration. A content-box `ResizeObserver` and the window resize keep it current. This replaces the hard-coded 1100px and 1290px widths. User impact: on Demonstrations the layers end 24px from the 1260px column, 15px closer than before; Home and Learn are unchanged. A page without the attribute shows no decoration.
 
 15. **No growth on scroll (owner, 2026-11-13):** the owner reviewed the preview on 2026-11-13 and dropped growth on scroll: the branches grow from 0 to full size once, over 2.5 s, on every page, as Home already did. There is no scroll listener. This replaces the 60% load stage and the scroll stage of decision 9 and the scroll-jump limit of decision 12; the rest of decisions 12 and 13 stands. Reduced motion is still fully grown at once.
+16. **Chapter reading pages (owner, 2026-11-14, site walkthrough intake L05):** placement rule 2 is reversed for chapter reading pages, `/bezeg-2.0/learn/<chapter>` (`ChapterPage` and `FamilyChapterPage`; `showsSideBotanicals` matches exactly one segment after `/learn/`). The owner finds the decoration adds character and is not distracting while reading. Graph workspace, lessons and every other route stay without it. The content column is the `.chapter-layout` element, marked `data-content-column`; its `max-width` is the two grid tracks plus the gap, so its box runs from the left edge of the contents list to the right edge of the article and branches stay clear of both. The 1600px gate, fixed behind-content layer, reduced motion, `aria-hidden` and `pointer-events: none` are unchanged.
 
 ## Approach
 
@@ -37,7 +38,7 @@ The owner settled these in a grilling session, then iterated on the artwork in a
 Checked in a browser on 2026-11-13 except where noted; see the [record](../reviews/side-botanicals/verification.md).
 
 - At 3440×1440 and 2560×1440, the three routes show the branches in both gutters, and they sway. At 1920×1080 the branches show if the gutter allows. At 1280×800 nothing is rendered: no SVG in the DOM.
-- No decoration on any other route, for example a Demonstration route, `/bezeg-2.0/learn/bezier-curves`, or a lesson.
+- No decoration on any other route, for example a Demonstration route or a lesson. Until 2026-11-14 this also covered chapter reading pages such as `/bezeg-2.0/learn/bezier-curves`; decision 16 now includes them.
 - The decoration never covers or intercepts the content: it has `pointer-events: none`, sits behind the content in stacking order, and does not cause horizontal scrolling.
 - With reduced motion, no animation runs.
 - The same settings and seed always produce identical path data (unit test).

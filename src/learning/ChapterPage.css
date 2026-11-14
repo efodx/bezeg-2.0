@@ -20,7 +20,8 @@
 }
 .chapter-page ::selection { background: var(--bezeg-shell-nav-active); color: var(--bezeg-shell-ink); }
 .chapter-page h1, .chapter-page h2, .chapter-page h3 { overflow-wrap: anywhere; }
-.chapter-layout { display: grid; grid-template-columns: minmax(190px, calc(var(--chapter-text) * 15.1)) minmax(0, calc(var(--chapter-text) * 47.5)); gap: clamp(24px, 4vw, 58px); justify-content: center; align-items: start; }
+/* The max-width is the sum of the two tracks and the gap, so the box ends where the article ends; side botanicals measure their gutters from it (data-content-column). */
+.chapter-layout { --chapter-gap: clamp(24px, 4vw, 58px); display: grid; grid-template-columns: minmax(190px, calc(var(--chapter-text) * 15.1)) minmax(0, calc(var(--chapter-text) * 47.5)); gap: var(--chapter-gap); justify-content: center; align-items: start; max-width: calc(var(--chapter-text) * 62.6 + var(--chapter-gap)); margin-inline: auto; }
 .chapter-article { min-width: 0; max-width: calc(var(--chapter-text) * 47.5); }
 /* Reserves roughly the playground canvas (viewBox 1000×625) so lazy loading does not shift the page. */
 .chapter-playground-loading { aspect-ratio: 16 / 10; width: 100%; margin: 1rem 0; }

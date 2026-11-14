@@ -3,7 +3,7 @@ import {vi} from 'vitest';
 import {render} from '@testing-library/react';
 import {MemoryRouter, Route, Routes} from 'react-router-dom';
 import App from '../App';
-import {fitToGutter} from './SideBotanicals';
+import {fitToGutter, showsSideBotanicals} from './SideBotanicals';
 import {gutterWidths} from './gutters';
 import {ELDER_SETTINGS} from './elderGeometry';
 
@@ -77,7 +77,7 @@ test('renders nothing on a narrow viewport', () => {
     expect(svgs()).toHaveLength(0);
 });
 
-test.each(['/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/demonstrations/anything'])('renders nothing on %s', (path) => {
+test.each(['/bezeg-2.0/learn/bezier-curves/extra', '/bezeg-2.0/demonstrations/anything'])('renders nothing on %s', (path) => {
     setViewport(3440, true);
     renderAt(path);
     expect(svgs()).toHaveLength(0);
@@ -135,4 +135,16 @@ test('a page without a marked column gets no decoration until one arrives', asyn
     container.querySelector('#late')!.setAttribute('data-content-column', '');
     container.querySelector('#late')!.appendChild(document.createElement('p')); // a child-list change, as when a page loads
     await vi.waitFor(() => expect(svgs()).toHaveLength(2));
+});
+
+test('showsSideBotanicals allows the landing pages and chapter reading pages, with or without a trailing slash', () => {
+    for (const path of ['/bezeg-2.0', '/bezeg-2.0/demonstrations', '/bezeg-2.0/learn', '/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/learn/bezier-curves/', '/bezeg-2.0/learn/sweep-algorithms']) {
+        expect(showsSideBotanicals(path), path).toBe(true);
+    }
+});
+
+test('showsSideBotanicals rejects graphs, lessons and non-chapter learn routes', () => {
+    for (const path of ['/bezeg-2.0/bezier', '/bezeg-2.0/demonstrations/bezier', '/bezeg-2.0/learn/bezier-curves/extra', '/bezeg-2.0/learn/a/b/c', '/bezeg-2.0/harness/collision-playground']) {
+        expect(showsSideBotanicals(path), path).toBe(false);
+    }
 });
