@@ -117,7 +117,7 @@ function VariantA({entries}: {entries: OpeningEntry[]}) {
                 <DemonstrationActions entry={feature}/>
             </div>
         </article>
-        <nav className="demonstrations-prototype-index" aria-label={t('starting_demonstrations')}>
+        <nav className="demonstrations-prototype-index" aria-label={t('demonstration_selection')}>
             <h3>{t('explore_by_topic')}</h3>
             <ol>
                 {routes.map((entry, index) => <li key={entry.demonstration.id}>
@@ -235,7 +235,7 @@ function VariantC({entries}: {entries: OpeningEntry[]}) {
             </button>
         </div>
         <div className="demonstrations-prototype-c-rail" ref={choiceRail}
-            role="group" aria-label={t('starting_demonstrations')}>
+            role="group" aria-label={t('demonstration_selection')}>
             {entries.map((entry, index) => <button key={entry.demonstration.id}
                 ref={button => { choiceButtons.current[index] = button; }}
                 type="button" className="demonstrations-prototype-c-choice"
@@ -315,7 +315,7 @@ export function DemonstrationsOpeningPrototype({demonstrations, families}: {
     });
 
     return <>
-        <h2 id="starting-demonstrations">{t('starting_demonstrations')}</h2>
+        <h2 id="starting-demonstrations">{t('demonstration_selection')}</h2>
         {current.key === 'A' ? <VariantA entries={entries}/>
             : current.key === 'B' ? <VariantB entries={entries}/>
                 : <VariantC entries={entries}/>}

@@ -188,7 +188,7 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
             </div>
         </article>
         <div className="demonstrations-opening-rail" ref={choiceRailRef}
-            role="group" aria-label={t('starting_demonstrations')}
+            role="group" aria-label={t('demonstration_selection')}
             onWheel={event => {
                 // Vertical wheel input scrolls the page, not the row; shift+wheel scrolls the row horizontally.
                 const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY)

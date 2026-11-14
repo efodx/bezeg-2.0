@@ -100,7 +100,7 @@ test('the homepage presents its introduction and catalogue shortcut before the c
 
         const shortcut = screen.getByRole('link', {name: new RegExp(t('all_demonstrations'))});
         expect(shortcut).toHaveAttribute('href', '/bezeg-2.0/demonstrations');
-        const carousel = screen.getByRole('region', {name: t('starting_demonstrations')});
+        const carousel = screen.getByRole('region', {name: t('demonstration_selection')});
         expect(shortcut.compareDocumentPosition(carousel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
         // H01: the homepage ends with the carousel; it carries no footer, credit or contact line.
@@ -115,9 +115,9 @@ test('the opening carousel advances on a six-second dwell and resets its interva
     vi.useFakeTimers();
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
     const carousel = opening.querySelector('.demonstrations-opening')!;
-    const choiceGroup = within(opening).getByRole('group', {name: 'Začetne demonstracije'});
+    const choiceGroup = within(opening).getByRole('group', {name: 'Izbor demonstracij'});
     const choices = within(choiceGroup).getAllByRole('button');
     const currentTitle = () => within(opening).getByRole('heading', {level: 3}).textContent;
 
@@ -162,8 +162,8 @@ test('manual carousel actions and row scrolling take control for the page visit'
     vi.useFakeTimers();
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
-    const choiceGroup = within(opening).getByRole('group', {name: 'Začetne demonstracije'});
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
+    const choiceGroup = within(opening).getByRole('group', {name: 'Izbor demonstracij'});
     const choices = within(choiceGroup).getAllByRole('button');
 
     // Scroll-snap settling fires scroll events without user input; it must not stop autoplay.
@@ -216,8 +216,8 @@ test('shift plus vertical wheel scrolls the choice row horizontally and takes co
     vi.useFakeTimers();
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
-    const choiceGroup = within(opening).getByRole('group', {name: 'Začetne demonstracije'});
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
+    const choiceGroup = within(opening).getByRole('group', {name: 'Izbor demonstracij'});
     const choices = within(choiceGroup).getAllByRole('button');
 
     fireEvent.wheel(choiceGroup, {deltaY: 120});
@@ -235,8 +235,8 @@ test('shift plus vertical wheel scrolls the choice row horizontally and takes co
 test('arrow keys on a focused action keep focus there when the choice row is below the viewport', () => {
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
-    const choiceGroup = within(opening).getByRole('group', {name: 'Začetne demonstracije'});
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
+    const choiceGroup = within(opening).getByRole('group', {name: 'Izbor demonstracij'});
     const choices = within(choiceGroup).getAllByRole('button');
     const top = window.innerHeight + 200;
     const railBounds: DOMRect = {
@@ -272,7 +272,7 @@ test('arrow selection from preview actions preserves focus and updates the selec
 
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
     const preview = opening.querySelector('.demonstrations-opening-preview');
     const bezier = openingDemonstrations()[0];
     const bernstein = openingDemonstrations()[1];
@@ -327,8 +327,8 @@ test('reduced-motion users get a manual-only carousel with the matching preview 
     };
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
-    const choices = within(within(opening).getByRole('group', {name: 'Začetne demonstracije'})).getAllByRole('button');
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
+    const choices = within(within(opening).getByRole('group', {name: 'Izbor demonstracij'})).getAllByRole('button');
     const first = openingDemonstrations()[0];
 
     expect(opening.querySelector('.demonstrations-opening-image img')).toHaveAttribute('src', demonstrationPreviewAssets[first.id]);
@@ -368,8 +368,8 @@ test('autoplay pauses for visibility, disposes on navigation, and resets on a fr
 
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     const view = render(<RouterProvider router={router}/>);
-    const opening = screen.getByRole('region', {name: 'Začetne demonstracije'});
-    const choices = within(within(opening).getByRole('group', {name: 'Začetne demonstracije'})).getAllByRole('button');
+    const opening = screen.getByRole('region', {name: 'Izbor demonstracij'});
+    const choices = within(within(opening).getByRole('group', {name: 'Izbor demonstracij'})).getAllByRole('button');
     const currentTitle = () => within(opening).getByRole('heading', {level: 3}).textContent;
 
     act(() => {vi.advanceTimersByTime(2000);});
@@ -396,12 +396,12 @@ test('autoplay pauses for visibility, disposes on navigation, and resets on a fr
     const previousObserver = routeObserver;
     await act(async () => {await router.navigate('/bezeg-2.0/demonstrations');});
     expect(previousObserver?.disconnected).toBe(true);
-    expect(screen.queryByRole('region', {name: 'Začetne demonstracije'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', {name: 'Izbor demonstracij'})).not.toBeInTheDocument();
     act(() => {vi.advanceTimersByTime(30000);});
 
     await act(async () => {await router.navigate('/bezeg-2.0');});
-    const revisitedOpening = screen.getByRole('region', {name: 'Začetne demonstracije'});
-    const revisitedChoices = within(within(revisitedOpening).getByRole('group', {name: 'Začetne demonstracije'})).getAllByRole('button');
+    const revisitedOpening = screen.getByRole('region', {name: 'Izbor demonstracij'});
+    const revisitedChoices = within(within(revisitedOpening).getByRole('group', {name: 'Izbor demonstracij'})).getAllByRole('button');
     expect(revisitedChoices[0]).toHaveAttribute('aria-pressed', 'true');
     act(() => {vi.advanceTimersByTime(5999);});
     expect(revisitedChoices[0]).toHaveAttribute('aria-pressed', 'true');

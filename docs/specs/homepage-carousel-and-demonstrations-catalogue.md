@@ -100,3 +100,14 @@ The independently expandable catalogue and faithful route-default preview decisi
 Source: the 2026-10-15 design interview, with explicit confirmation of the complete brief. Built-in image generation is used for an exploratory homepage view and catalogue view. These images answer the composition question; generated text, dimensions, logos, and mathematical marks are not production assets or authoritative content. The owner approved the final homepage and catalogue accuracy revisions on 2026-10-15. Their prompt record is `bezeg-homepage-catalogue-mockup-prompts.md` in the originating conversation artifact directory; the existing production previews and logo remain authoritative assets.
 
 The original design delivery recorded the specification and image studies only; the subsequent implementation follows this bounded brief. Sidebar navigation, search/filtering, new card descriptions, new carousel controls, altered timing, new preview artwork, and broader catalogue redesign remain outside this scope.
+
+## Changed on 2026-11-14 (site walkthrough H02, H03, H04)
+
+The owner's picks in [site walkthrough design](site-walkthrough-design.md#owner-decisions-2026-11-14) replace parts of this spec:
+
+- The section is labelled "Izbor demonstracij" / "A selection of demonstrations", not "Začetne demonstracije".
+- The six fixed ids and their order are replaced by a per-visit draw of six from the pool in `src/homeDemonstrationPool.ts`, no two from one family. The first choice of that draw is selected on mount.
+- The previous / next controls and the position counter are removed. The compact choice strip is a row of picture cards, which at 1440 × 900 may end below the first viewport.
+- The introduction has a second link, "Vsa učna vsebina →", to `/bezeg-2.0/learn`.
+
+Timing, pauses, manual takeover, reduced motion and keyboard arrow keys are unchanged.

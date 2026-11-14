@@ -67,7 +67,7 @@ test('the catalogue shows every demonstration in teaching order with useful card
     await expect(page.getByRole('heading', {level: 1})).toHaveCount(1);
     await expect(page.getByText('Explore by topic. Start with what interests you.')).toBeVisible();
     await expect(page.getByText(`${demonstrations.families.length} topics · ${demonstrations.length} demonstrations`)).toBeVisible();
-    await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toHaveCount(0);
+    await expect(page.getByRole('region', {name: 'A selection of demonstrations'})).toHaveCount(0);
 
     const catalog = page.getByRole('region', {name: 'All demonstrations'});
     await expect(catalog).toBeVisible();

@@ -30,8 +30,9 @@ test('the homepage owns the starting carousel and its actions lead to the select
     await expect(page.getByText('Change a point or parameter. Observe the shape. Understand the connection.')).toBeVisible();
     const shortcut = page.getByRole('link', {name: /All demonstrations/});
     await expect(shortcut).toHaveAttribute('href', '/bezeg-2.0/demonstrations');
+    await expect(page.getByRole('main').getByRole('link', {name: /All learning content/})).toHaveAttribute('href', '/bezeg-2.0/learn');
 
-    const opening = page.getByRole('region', {name: 'Starting demonstrations'});
+    const opening = page.getByRole('region', {name: 'A selection of demonstrations'});
     await expect(opening).toBeVisible();
     await expect(page.getByRole('region', {name: 'All demonstrations'})).toHaveCount(0);
     await expect(page.locator('footer')).toHaveCount(0);
@@ -47,7 +48,7 @@ test('the homepage owns the starting carousel and its actions lead to the select
     expect(pageOrder.carouselIsLast).toBe(true);
 
     await expect(opening.locator('.demonstrations-opening-image')).toHaveCount(STARTING_COUNT);
-    const choices = opening.getByRole('group', {name: 'Starting demonstrations'}).getByRole('button');
+    const choices = opening.getByRole('group', {name: 'A selection of demonstrations'}).getByRole('button');
     const drawn = await drawnEntries(choices);
     expect(new Set(drawn.map(entry => entry.demonstration.family)).size, 'the six families are distinct').toBe(STARTING_COUNT);
     expect(new Set(drawn.map(entry => entry.demonstration.id)).size).toBe(STARTING_COUNT);
@@ -80,17 +81,17 @@ test('the homepage owns the starting carousel and its actions lead to the select
     await shortcut.click();
     await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
     await page.goBack();
-    await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toBeVisible();
+    await expect(page.getByRole('region', {name: 'A selection of demonstrations'})).toBeVisible();
     const afterBack = await drawnEntries(choices);
     expect(afterBack.map(entry => entry.name), 'client-side return keeps the same six in the same order').toEqual(drawn.map(entry => entry.name));
     await shortcut.click();
     await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
     await expect(page.getByRole('region', {name: 'All demonstrations'})).toBeVisible();
-    await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toHaveCount(0);
+    await expect(page.getByRole('region', {name: 'A selection of demonstrations'})).toHaveCount(0);
     await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
     await page.goBack();
-    await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toBeVisible();
+    await expect(page.getByRole('region', {name: 'A selection of demonstrations'})).toBeVisible();
 });
 
 test('the homepage fits the target widths in Slovenian and English', async ({page}) => {
@@ -100,8 +101,8 @@ test('the homepage fits the target widths in Slovenian and English', async ({pag
     try {
         await slPage.goto('/bezeg-2.0/', {waitUntil: 'domcontentloaded'});
         for (const [currentPage, language, headline, intro, shortcutName, carouselName] of [
-            [page, 'en', 'Mathematics you can move.', 'Change a point or parameter. Observe the shape. Understand the connection.', /All demonstrations/, 'Starting demonstrations'],
-            [slPage, 'sl', 'Matematika, ki jo lahko premakneš.', 'Spremeni točko ali parameter. Opazuj obliko. Razumi povezavo.', /Vse demonstracije/, 'Začetne demonstracije'],
+            [page, 'en', 'Mathematics you can move.', 'Change a point or parameter. Observe the shape. Understand the connection.', /All demonstrations/, 'A selection of demonstrations'],
+            [slPage, 'sl', 'Matematika, ki jo lahko premakneš.', 'Spremeni točko ali parameter. Opazuj obliko. Razumi povezavo.', /Vse demonstracije/, 'Izbor demonstracij'],
         ]) {
             for (const width of [390, 724, 1440]) {
                 await currentPage.setViewportSize({width, height: 900});
@@ -135,8 +136,8 @@ test('a newly selected homepage preview plays one silent pass and returns to its
     await page.setViewportSize({width:1440, height:900});
     await page.emulateMedia({reducedMotion:'no-preference'});
     await openEnglish(page, '/bezeg-2.0/');
-    const opening = page.getByRole('region', {name: 'Starting demonstrations'});
-    const choices = opening.getByRole('group', {name: 'Starting demonstrations'}).getByRole('button');
+    const opening = page.getByRole('region', {name: 'A selection of demonstrations'});
+    const choices = opening.getByRole('group', {name: 'A selection of demonstrations'}).getByRole('button');
     await expect(opening.locator('video[src]')).toHaveCount(0);
     expect(requests).toHaveLength(0);
     await page.evaluate(() => {
@@ -178,8 +179,8 @@ test('touch selection starts the selected homepage clip at 390px', async ({page}
     try {
         const touchPage = await context.newPage();
         await openEnglish(touchPage, '/bezeg-2.0/');
-        const opening = touchPage.getByRole('region', {name:'Starting demonstrations'});
-        const choices = opening.getByRole('group', {name:'Starting demonstrations'}).getByRole('button');
+        const opening = touchPage.getByRole('region', {name:'A selection of demonstrations'});
+        const choices = opening.getByRole('group', {name:'A selection of demonstrations'}).getByRole('button');
         const drawn = await drawnEntries(choices);
         const clipIndex = drawn.findIndex((entry, index) => index > 0 && entry.demonstration.hasMotion);
         expect(clipIndex, 'a drawn demonstration after the first carries a clip').toBeGreaterThan(0);

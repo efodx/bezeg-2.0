@@ -13,12 +13,17 @@ export function WelcomePage() {
         <header className="welcome-intro">
             <h1>{t('home_headline')}</h1>
             <p>{t('home_introduction')}</p>
-            <Link className="welcome-primary" to="/bezeg-2.0/demonstrations">
-                {t('all_demonstrations')} <span aria-hidden="true">→</span>
-            </Link>
+            <div className="welcome-actions">
+                <Link className="welcome-primary" to="/bezeg-2.0/demonstrations">
+                    {t('all_demonstrations')} <span aria-hidden="true">→</span>
+                </Link>
+                <Link className="welcome-secondary" to="/bezeg-2.0/learn">
+                    {t('all_learning_content')} <span aria-hidden="true">→</span>
+                </Link>
+            </div>
         </header>
         <section className="welcome-showcase" aria-labelledby="starting-demonstrations">
-            <h2 id="starting-demonstrations">{t('starting_demonstrations')}</h2>
+            <h2 id="starting-demonstrations">{t('demonstration_selection')}</h2>
             <HomeDemonstrationsCarousel/>
         </section>
     </main>;

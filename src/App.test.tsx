@@ -22,12 +22,12 @@ test('renders the app shell around its nested route and navigates through the he
     expect(appHeader).toBeVisible();
     expect(within(appHeader).getByRole('link', {name: 'Bezeg · home'})).toHaveAttribute('href', '/bezeg-2.0');
     expect(screen.getByRole('heading', {level: 1, name: 'Mathematics you can move.'})).toBeVisible();
-    expect(screen.getByRole('region', {name: 'Starting demonstrations'})).toBeVisible();
+    expect(screen.getByRole('region', {name: 'A selection of demonstrations'})).toBeVisible();
 
     fireEvent.click(screen.getByRole('link', {name: /All demonstrations/}));
     expect(screen.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
     expect(screen.getByRole('region', {name: 'All demonstrations'})).toBeVisible();
-    expect(screen.queryByRole('region', {name: 'Starting demonstrations'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', {name: 'A selection of demonstrations'})).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('link', {name: 'Bezeg · home'}));
     expect(screen.getByRole('heading', {level: 1, name: 'Mathematics you can move.'})).toBeVisible();
