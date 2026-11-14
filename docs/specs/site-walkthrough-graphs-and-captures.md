@@ -409,3 +409,13 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b2/` (served as `walkthr
 - `interp-hermite`, `interp-runge`: text only, Remove. Hermite's data points are still dark (not in this batch's scope; candidate for B8).
 - The `interp-runge` row named a button that no longer exists (`Povečaj stopnjo n za 1`, now `Povečaj število`); the label was corrected. The triage found the same kind of stale label on `epicycles` and `voronoi-degenerate`.
 - **Open for the package: guided example images.** The lesson chapters hold their own stored images of these graphs (`scripts/capture-guided-example-previews.cjs`, alt text in `src/learning/content/*PreviewCopy.ts`). A style change makes them differ from the live graph until the chapter is recaptured. B1 and B2 updated the alt text to the new colours; the images themselves are not recaptured yet. Do one recapture per affected chapter after the style batches (probability, interpolation, curve geometry for the envelope, and any chapter whose images show plain board text, which changed face with Literata).
+
+### B3 Bézier (handler 2, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b3/` (served as `walkthrough-graphs/b3.html` on the preview).
+
+- `extrapolation`: the arc on `[1, t]` is its own curve in `comparisonCurve` (solid, drawn over the main curve, which the legacy sweep check needs as one stroke). Poster at `t = 1.3`; the sweep is `1.3 → 1 → 1.3` because `t = 1.5` leaves the camera.
+- `repeated-subdivision`: neighbouring pieces alternate moss and blue (`alternatePieceRoles`); the poster is one subdivision on, and the legacy clip steps 1, 2, 3, 1. Its check now compares the pieces against the graph's default cubic as a constant, since the first frame no longer shows the original polygon.
+- `reduction`: the reduced curve has its own thin blue polygon with diamond markers. On the default scene the two curves nearly coincide, so the polygons carry the distinction (R-yardstick: roles told apart by polygon, not by curve). Text: Remove. Drag amplitude 3.1 (was 3.3) to keep the clip at 270 KiB.
+- `affine`: unchanged. Its controls are step buttons, so the clip stays discrete; a pale reference of the original needs new drawing code.
+- `bezier`: unchanged, **blocked**: the legacy drag clip's restore step clicks `.point-coordinate-editor summary` (`scripts/demonstration-preview-motion.cjs:508`), a class the inspector no longer has, so `bezier` cannot be recaptured and a full regeneration fails there. Repair the restore step against the current coordinate controls before B3's `bezier` item or any full run.

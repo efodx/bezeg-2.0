@@ -233,7 +233,7 @@ const motionSpecs = {
     },
     extrapolation: {
         mode: 'parameter-sweep', controlCount: 4, control: {label: 'Parameter ekstrapolacije t', kind: 'range'},
-        sweep: {waypoints: [1, 1.2, 1], step: 0.005, start: 1,
+        sweep: {waypoints: [1.3, 1, 1.3], step: 0.005, start: 1.3,
             readout: {read: ({range}) => range.getAttribute('aria-valuetext'), matches: (s, v) => Math.abs(Number(String(s).replace(',', '.')) - v) < 0.011},
             observe: boardGeometry,
             check(sample, previous, first, spec) {

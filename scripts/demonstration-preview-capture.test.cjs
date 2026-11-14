@@ -92,7 +92,8 @@ test('semantic assertions reject empty, wrong-degree, missing-Farin and unreveal
     assert.throws(()=>assertOutcomeEvidence('bernstein',{}),/semantic/);
     const evidence={curves:2,points:[],readouts:{},reveals:{},controls:[]};
     assert.throws(()=>assertOutcomeEvidence('bernstein',evidence),/four/);
-    assert.throws(()=>assertOutcomeEvidence('repeated-subdivision',evidence),/original curve/);
+    assert.throws(()=>assertOutcomeEvidence('repeated-subdivision',{...evidence,curves:1}),/two halves/);
+    assertOutcomeEvidence('repeated-subdivision',evidence);
     assert.throws(()=>assertOutcomeEvidence('farin',evidence));
     assert.throws(()=>assertOutcomeEvidence('extrema',evidence),/reveal/);
     const linear={curves:5,points:[{x:2,y:1},{x:-1,y:1}],readouts:{},reveals:{},controls:[{label:'Primer matrike',value:'basis-default'}]};
@@ -122,12 +123,12 @@ test('geometric-series capture requires its visible bars, limit segment and matc
 test('step provenance requires exact consecutive states and the common camera',()=>{
     const camera=[-1,2,3,-2];
     const spec=motionSpecs['repeated-subdivision'];
-    const P=[{x:0,y:0},{x:0,y:1},{x:1,y:1},{x:1,y:0}];
+    const P=[[-4,-3],[-3,3],[3,3],[4,-3]].map(([x,y])=>({x,y}));
     let firstFrame=0;
     const motion={id:'repeated-subdivision',frameCount:96,sampleRate:24,duration:4,camera,schedule:spec.schedule,invariants:spec.invariants,
         samples:spec.checkpoints.map((c,i)=>{
             const curves=2**c.value;
-            const result={checkpoint:c.value,phase:c.phase,actions:c.actions,firstFrame,holdFrames:spec.holds[i],capture:{sha256:c.value===0?'poster':'refined'},
+            const result={checkpoint:c.value,phase:c.phase,actions:c.actions,firstFrame,holdFrames:spec.holds[i],capture:{sha256:i===0||i===spec.checkpoints.length-1?'poster':'refined'},
                 state:{box:[...camera],curves,points:P.map(p=>({...p,draggable:true})),curveSamples:Array.from({length:curves},(_,piece)=>Array.from({length:21},(_,j)=>{
                     const p=bernsteinPoint(P,(piece+j/20)/curves);return [p.x,p.y];
                 }))}};

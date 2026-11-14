@@ -1252,7 +1252,7 @@ function assertSteppedSequence(motion, stepped) {
 // All actions are replayed through supported UI controls, never synthetic geometry.
 for (const [id, values, holds] of [
     ['bisection', [1, 2, 3, 4, 1], [18, 12, 12, 42, 12]],
-    ['repeated-subdivision', [0, 1, 2, 0], [20, 18, 46, 12]],
+    ['repeated-subdivision', [1, 2, 3, 1], [20, 18, 46, 12]],
 ]) {
     motionSpecs[id] = {
         mode: 'discrete-exact-steps', recipeAligned: true,
@@ -1264,7 +1264,7 @@ for (const [id, values, holds] of [
         invariants: id === 'bisection'
             ? ['Independent x²−2 brackets retain √2 and halve width at every exact step (1e-9); midpoint and function readouts agree (1e-6)', 'Hold step 4, then restart at frame 84; fixed camera and identical poster endpoints']
             : ['Each exact round yields 2^k polynomial pieces covering B(t) at corresponding parameters (1e-8)', 'Hold refined control polygons, then restart at frame 84; identical poster endpoints'],
-        checkStep(sample, first) {
+        checkStep(sample, _first) {
             if (id === 'bisection') {
                 let a = 1, b = 2, mid;
                 for (let k = 0; k < sample.checkpoint; k++) {
@@ -1280,8 +1280,8 @@ for (const [id, values, holds] of [
             } else {
                 const count = 2 ** sample.checkpoint;
                 assert.equal(sample.state.curves, count);
-                const P = first.state.points.filter(p => p.draggable);
-                assert.equal(P.length, 4, 'Original control polygon missing');
+                // The poster is already one subdivision on, so the original polygon is the graph's default cubic (SubdivisionGraph.defaultPreset), not the first frame's points.
+                const P = [[-4, -3], [-3, 3], [3, 3], [4, -3]].map(([x, y]) => ({x, y}));
                 const used = new Set();
                 for (let piece = 0; piece < count; piece++) {
                     const match = sample.state.curveSamples.findIndex((samples, index) => !used.has(index) && samples.every((p, j) => {
@@ -1462,11 +1462,11 @@ function assertMotionEvidence(motion, specifications = motionSpecs) {
     if(['repeated-subdivision','bisection'].includes(motion.id)) {
         assert.equal(motion.samples.length,3);
         motion.samples.forEach((sample,i)=>{
-            assert.equal(sample.checkpoint,motion.id==='bisection'?i+1:i);
+            assert.equal(sample.checkpoint,i+1);
             assert.equal(sample.firstFrame,i*32);assert.equal(sample.holdFrames,32);
             assert.deepEqual(sample.state.box,motion.camera);
             if(motion.id==='bisection')assert.equal(sample.state.readouts.step,String(i+1));
-            else assert.equal(sample.state.curves,2**i);
+            else assert.equal(sample.state.curves,2**(i+1));
         });
     } else if(motion.id==='affine') {
         assertSteppedSequence(motion,steppedClips.affine);
@@ -1800,7 +1800,7 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
             for(let checkpoint=0;checkpoint<3;checkpoint++) {
                 const {page,context}=await openRoute(browser,d,baseUrl);
                 try {
-                    const steps=id==='bisection'?checkpoint+1:checkpoint;
+                    const steps=checkpoint+1;
                     if(steps)await applyAction(page,{kind:'button',label:id==='bisection'?'Naslednji korak':'Subdiviziraj',count:steps});
                     const sample=await captureHold(page,d,recipes[id].framing.window,presentBoard,directory,checkpoint*32,32);
                     if(id==='repeated-subdivision')assert.equal(sample.state.curves,2**steps);

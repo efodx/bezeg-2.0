@@ -14,10 +14,10 @@ const targets = {
     'decasteljau-alternative': ['Component curves and interpolation at t=0.5', []],
     affine: ['Original curve and polygon; supported rotations are shown in motion', [polygon], [-4.2, 3.8, 4.2, -3.8]],
     subdivision: ['Pre-Subdivide construction at the split parameter, with both coloured portions and supporting polygon', [polygon]],
-    'repeated-subdivision': ['Original curve and coarse polygon before exact successive refinement', [], [-5, 4.5, 4.5, -4]],
-    extrapolation: ['Polynomial curve at the interval boundary t=1, with its control polygon', [field('Parameter ekstrapolacije t', 1), polygon], [-5, 4.5, 4.5, -6]],
+    'repeated-subdivision': ['The curve after the first Subdiviziraj: two halves in alternating colours with their polygons, before further exact refinement', [button('Subdiviziraj')], [-5, 4.5, 4.5, -4]],
+    extrapolation: ['Polynomial curve extended to t=1.3: the original arc and the blue extension beyond t=1, with its control polygon', [field('Parameter ekstrapolacije t', 1.3), polygon], [-5, 4.5, 4.5, -6.4]],
     elevation: ['Original cubic polygon; exact one-degree elevation is shown in motion', [toggle('Pokaži nove točke na kontrolnem poligonu', false), polygon], [-5, 4.3, 5, -3.5]],
-    reduction: ['Default elevated quadratic with its reduced curve and elevated net', [toggle('Pokaži zvišano mrežo kvadratne krivulje')]],
+    reduction: ['Default elevated quadratic with its reduced curve (dashed blue) over the cubic and the own polygon of the reduced curve, without the status sentences', []],
     'arc-length-param': ['Default cubic with equal-t and equal-arc points on the curve', []],
     'bezier-clipping': ['Default crossing pair of quadratic Bezier curves after four clips: the fat line around the clipping curve, the kept ranges thick and the discarded ranges faded; hulls and control polygons off, as in the lesson', [toggle('Kontrolni poligoni', false), toggle('Konveksna ovojnica', false), button('Naslednji korak', 4)], [-2.58, 4.3, 6.58, -1.3]],
     rational: ['Unselected rational curve at w₁=2, with four fixed controls and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), field('Vrednost uteži', 2, 'number'), button('Prekliči izbiro')], [-6.6, 2.8, 6.6, -5.2]],
@@ -226,6 +226,8 @@ const captureText = {
     // The standardized sum approaching the normal curve, and the data with their mean and median, need no words on the poster.
     'prob-clt': {keep: [], strip: []},
     'prob-summary': {keep: [], strip: []},
+    // Degree reduction: the cubic, its reduction and the two polygons carry the idea; the status sentences go (the inspector keeps them).
+    reduction: {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
@@ -426,7 +428,7 @@ function assertOutcomeEvidence(id, evidence) {
     if (id === 'bernstein') {
         assert.equal(evidence.curves, 4, 'Cubic Bernstein must show four functions');
     }
-    if (id === 'repeated-subdivision') assert.equal(evidence.curves, 1, 'Initial subdivision checkpoint must show the original curve');
+    if (id === 'repeated-subdivision') assert.equal(evidence.curves, 2, 'Initial subdivision checkpoint must show the two halves of one subdivision');
     if (id === 'farin') {
         assert.ok(evidence.controls.some(c=>c.label==='Farinove Točke' && c.checked));
         for (const [x,y] of [[-10/3,1],[-1,3],[3.5,0]]) assert.ok(evidence.points.some(p => Math.abs(p.x-x)<1e-8 && Math.abs(p.y-y)<1e-8), `Missing exact Farin division (${x},${y}): ${JSON.stringify(evidence.points)}`);

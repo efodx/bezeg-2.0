@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B3, Bézier</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B3: Bézier (G02, G03, G04)</h1>
+<p>Three catalog captures, before and after. <a href="index.html">Pilot page</a>, <a href="b1.html">B1 probability</a>, <a href="b2.html">B2 interpolation</a>.</p>
+<h2>1. Extrapolation</h2>
+<p>Before, the arc beyond the end of the curve looked like the curve itself. Now the part of the curve past t = 1 is blue and the original arc stays green. <a href="../bezier/extrapolation">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b3/before/extrapolation.webm" poster="b3/before/extrapolation.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b3/after/extrapolation.webm" poster="b3/after/extrapolation.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Repeated subdivision</h2>
+<p>Before, the card was a bare curve and the pieces could not be told apart. Now the card starts after one subdivision, and neighbouring pieces alternate green and blue, also on the live graph. <a href="../bezier/subdivision">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b3/before/repeated-subdivision.webm" poster="b3/before/repeated-subdivision.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b3/after/repeated-subdivision.webm" poster="b3/after/repeated-subdivision.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Degree reduction</h2>
+<p>The reduced curve now has its own thin blue control polygon with diamond markers, so it is told apart from the original even where the two curves nearly coincide. The status sentences are removed from the capture. <a href="../bezier/reduction">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b3/before/reduction.webm" poster="b3/before/reduction.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b3/after/reduction.webm" poster="b3/after/reduction.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>Not changed in this batch</h2>
+<ul>
+<li><b>Affine transformations:</b> its controls are step buttons (18°, ×1.2, ±0.5), so the clip cannot sweep smoothly without a new control; showing the original position as a pale reference needs new drawing code. Left as it is for now.</li>
+<li><b>Initial Bézier curve:</b> its clip could not be recaptured because the capture tool looks for a coordinate editor that the inspector no longer has. Left as it is until the tool is repaired.</li>
+</ul>
+</main>
+</body>
+</html>
