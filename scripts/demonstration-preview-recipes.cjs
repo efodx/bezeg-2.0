@@ -38,7 +38,7 @@ const targets = {
     'weighted-parameterization': ['Non-neutral alpha exposes uneven sample density', [field('Parameter α', 0.25)]],
     'uniform-parameterization': ['Weighted parameterization checkpoint with ten interior markers; the clip compares this with uniform arc-length spacing', [field('Izberi parametrizacijo', 'alpha', 'select'), field('Število točk', 10)]],
     'curve-parametric': ['Default cycloid with its generating circle, velocity vector and tangent at the opening parameter', []],
-    'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
+    'curve-curvature': ['Default parabola y = x² with the osculating circle, its centre and the arrows T and N at the opening parameter, framed so the circle stays inside up to t = 0.65', [], [-2.2, 1.65, 2.2, -1.05]],
     'curve-comb': ['Default quadratic C1 spline with the curvature comb switched on, showing the jump of the comb at the joins', [field('Krivulja', 'c1', 'select'), toggle('Glavnik ukrivljenosti')], [-8, 4.9, 8, -4.9]],
     'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at t = 0.8, where the labels E, N and T are apart', [field('Parameter t', 0.8)], [-5.2, 5, 5.2, -1.2]],
     'curve-offset': ['Default parabola with the sampled offset at d = -1 and its two cusps marked', [field('Razdalja d', '-1'), toggle('Osti vzporednice')]],
@@ -234,6 +234,14 @@ const captureText = {
     // Parameterization: the sample markers carry the idea; the t, s(t) and L readouts go.
     'uniform-parameterization': {keep: [], strip: []},
     'arc-length-param': {keep: [], strip: []},
+    // Curve geometry: the tags T and N name the two drawn arrows and stay; the curvature, radius and angle readout lines go.
+    'curve-curvature': {keep: [/^[TN]$/], strip: []},
+    // The evolute poster keeps the tags E, N and T that name the evolute point and the two arrows.
+    'curve-evolute': {keep: [/^[TNE]$/], strip: []},
+    // The comb, the offset and the cycloid are carried by their curves and markers; no board text on these posters.
+    'curve-comb': {keep: [], strip: []},
+    'curve-offset': {keep: [], strip: []},
+    'curve-parametric': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

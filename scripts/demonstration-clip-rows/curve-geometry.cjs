@@ -22,8 +22,8 @@ module.exports = [
         id: 'curve-curvature',
         motion: 'parameter-sweep',
         control: {kind: 'slider', label: 'Parameter t', step: 0.01},
-        // The poster is the default parabola at t = 0.5 (CURVATURE_T_DEFAULT). The circle leaves the fixed default camera [-5, 5, 5, -5] before t = 0.89 (preflight), so the slider stops at 0.8.
-        path: [0.5, 0.8, 0.5],
+        // The poster is the default parabola at t = 0.5 (CURVATURE_T_DEFAULT). The recipe window [-2.2, 1.65, 2.2, -1.05] (the capture pads it by 14 percent a side) holds the circle, whose top is y = 3x² + 0.5 + R with R = (1 + 4x²)^1.5 / 2 at x = 2t - 1, up to t = 0.65 (top 1.56); at 0.7 the top is 2.03 and touches the padded edge, so the slider stops at 0.65.
+        path: [0.5, 0.65, 0.5],
         lessonQuote: 'Nastavi \\(t=1\\) in primerjaj izpis z vrednostmi v besedilu.',
         discreteReason: null,
     },

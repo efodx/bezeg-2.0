@@ -430,3 +430,12 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b4/` (served as `walkthr
 - `bezier` (B3's open item): the restore step of its drag clip now types into the point list's fields, so the clip and a full regeneration run again. Window `[-5, 3.4, 4, -4.4]` (was `[-5, 4.5, 4.5, -4]`). The curve style is unchanged: a shared style change is not made for this card alone.
 - The clip check that finds the sample markers by fill (`scripts/demonstration-preview-curve-motion.cjs:161`) reads the new colour.
 - Not checked: inspector at 310 px against a before screenshot (no control code changed); most 390 px and English screenshots in `b4/live/` were taken but not viewed.
+
+### B5 Curve geometry (handler 3, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b5/` (served as `walkthrough-graphs/b5.html` on the preview).
+
+- `curve-curvature`: the osculating circle and its centre are `GraphPalette.emphasis` (rust red), the circle solid at width 2.5 over a faint disc (fill opacity 0.08); it was a thin dashed ochre circle in the control points' hue. The degenerate tangent line takes the same colour and stays dashed. Window `[-2.2, 1.65, 2.2, -1.05]`; the row sweeps `t` from 0.5 to 0.65 and back (was 0.8) so the circle stays inside the tighter frame. Text: keep `^[TN]$`. Yardstick: R5 is not met (the subject is about 36% of the width and 58% of the height): the lower control point and the circle's top fix the height, and the frame is wider than the scene. A control point inside the disc was dragged in the browser, so the fill does not take pointer events.
+- `curve-evolute`: shares the overlay. There the circle is context (`circleRole: 'context'`): a thin rust ring (width 1.5) with no disc, because the evolute and the point `E` are the subject. Text: keep `^[TNE]$`. The scene is unchanged; `T` and `N` sit close together at `t = 0.8` as before.
+- `curve-comb`, `curve-offset`, `curve-parametric`: text only, Remove. `curve-offset` (about 40% wide) and `curve-parametric` (about 41% high) are marginal on R5; no window was changed because their sweeps need the room.
+- Not checked: inspector at 310 px (no control code changed); most 390 px and English screenshots in `b5/live/` were taken but not viewed. At 390 px the curvature readout overlaps the small graph, as it did before this batch.
