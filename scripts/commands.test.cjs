@@ -521,16 +521,25 @@ test('test slots queue a third holder, reclaim dead holders and release on deman
     try {
         const first = await slots.acquireSlot({command: 'unit', root: 'a', env, stderr, pollMs: 20});
         const second = await slots.acquireSlot({command: 'smoke', root: 'b', env, stderr, pollMs: 20});
-        assert.deepEqual([first.index, second.index, first.workers], [1, 2, 4]);
+        // The first holder was alone, so it got both slots' workers; the second started beside it and got its share.
+        assert.deepEqual([first.index, second.index, first.workers, first.lone, second.workers, second.lone], [1, 2, 8, true, 4, false]);
         let thirdIndex;
         const third = slots.acquireSlot({command: 'check', root: 'c', env, stderr, pollMs: 20}).then(slot => { thirdIndex = slot.index; return slot; });
         await new Promise(resolve => setTimeout(resolve, 100));
         assert.equal(thirdIndex, undefined);
         assert.match(messages.join(''), /all 2 busy: unit in a \(pid \d+\); smoke in b/);
         second.release();
-        assert.equal((await third).index, 2);
+        const thirdSlot = await third;
+        assert.deepEqual([thirdSlot.index, thirdSlot.workers, thirdSlot.lone], [2, 4, false]);
+        // Smoke keeps its share even alone; BEZEG_TEST_LONE_WORKERS overrides the lone count.
         first.release();
-        (await third).release();
+        thirdSlot.release();
+        const smokeAlone = await slots.acquireSlot({command: 'smoke', root: 'd', env, stderr, pollMs: 20});
+        assert.deepEqual([smokeAlone.workers, smokeAlone.lone], [4, false]);
+        smokeAlone.release();
+        const override = await slots.acquireSlot({command: 'unit', root: 'e', env: {...env, BEZEG_TEST_LONE_WORKERS: '6'}, stderr, pollMs: 20});
+        assert.deepEqual([override.workers, override.lone], [6, true]);
+        override.release();
         // A holder whose process is gone, or a long-abandoned unreadable file, does not keep its slot.
         fs.writeFileSync(path.join(dir, 'slot-1.json'), JSON.stringify({pid: 2 ** 30, command: 'unit', root: 'x', started: Date.now()}));
         fs.writeFileSync(path.join(dir, 'slot-2.json'), '{');

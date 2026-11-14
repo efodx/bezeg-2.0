@@ -118,6 +118,29 @@ function slotDir(env = process.env) {
     return env.BEZEG_TEST_SLOT_DIR || path.join(os.tmpdir(), 'bezeg-test-slots');
 }
 
+// A Vitest run that takes a slot while no other slot is held gets every slot's workers (phase 8 change 6 of
+// docs/specs/verification-throughput.md, owner decision 2026-11-14): measured that day, a whole-suite run took 739 s
+// alone at 10 workers, where a lone run at 5 left half the machine idle. A run that starts beside it later gets its own
+// share and the CPU is oversubscribed until the lone run ends. Smoke keeps its share: browsers were not measured.
+// BEZEG_TEST_LONE_WORKERS overrides the count.
+const LONE_COMMANDS = new Set(['unit', 'check', 'check-changed']);
+
+function loneWorkers({slots, workers, env = process.env}) {
+    return positiveInt(env.BEZEG_TEST_LONE_WORKERS, 'BEZEG_TEST_LONE_WORKERS') ?? workers * slots;
+}
+
+function otherHolderLive(dir, ownFile, now = Date.now()) {
+    let names;
+    try { names = fs.readdirSync(dir).filter(name => /^slot-\d+\.json$/.test(name)); }
+    catch { return false; }
+    return names.some(name => {
+        const file = path.join(dir, name);
+        if (samePath(file, ownFile)) return false;
+        const holder = readHolder(file);
+        return holder ? !stale(holder, now) : true;
+    });
+}
+
 async function acquireSlot({command, root, env = process.env, dir = slotDir(env), pollMs = 2000, stderr = process.stderr} = {}) {
     const {slots, workers} = machineBudget({env});
     const owner = {pid: process.pid, command, root};
@@ -134,7 +157,8 @@ async function acquireSlot({command, root, env = process.env, dir = slotDir(env)
             const onExit = () => fs.rmSync(result.file, {force: true});
             process.once('exit', onExit);
             const release = () => { process.removeListener('exit', onExit); onExit(); };
-            return {index: result.index, slots, workers, release};
+            const lone = LONE_COMMANDS.has(command) && slots > 1 && !otherHolderLive(dir, result.file);
+            return {index: result.index, slots, workers: lone ? loneWorkers({slots, workers, env}) : workers, lone, release};
         }
         if (!waitingSince) {
             waitingSince = Date.now();
@@ -251,4 +275,4 @@ function lowerPriority(env = process.env) {
     catch { /* not permitted on this platform: run at normal priority */ }
 }
 
-module.exports = {FILTERED_UNIT_WORKERS, acquireSlot, admitByMemory, claimRun, fitWorkers, lowerPriority, machineBudget, memoryFloorGB, tryAcquire};
+module.exports = {FILTERED_UNIT_WORKERS, LONE_COMMANDS, acquireSlot, admitByMemory, claimRun, fitWorkers, lowerPriority, machineBudget, memoryFloorGB, tryAcquire};

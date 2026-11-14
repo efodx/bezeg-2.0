@@ -467,7 +467,7 @@ async function execute(command, rawArgs = [], options = {}) {
                 const {freeGB} = await lib.admitByMemory({command, env: baseEnv});
                 const workers = lib.fitWorkers(slot.workers, freeGB, baseEnv);
                 // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
-                const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${workers} workers` : `${workers} workers, no slot`;
+                const label = slot.index ? `test slot ${slot.index}/${slot.slots}${slot.lone ? ' alone' : ''}, ${workers} workers` : `${workers} workers, no slot`;
                 return {env: {BEZEG_TEST_WORKERS: String(workers)}, label, release: slot.release};
             } catch (error) {
                 slot.release();
