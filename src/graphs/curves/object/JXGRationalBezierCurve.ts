@@ -267,6 +267,13 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                     {
                         size: () => this.displaySettings.pointSize,
                         moveOnUp: false,
+                        // A Farin point is a blue ring on the polygon leg (the second role), not JSXGraph's black slider knob;
+                        // the slider's tick marks say nothing here and are not drawn.
+                        fillColor: GraphPalette.boardSurface,
+                        strokeColor: GraphPalette.comparisonCurve,
+                        highlightFillColor: GraphPalette.boardSurface,
+                        highlightStrokeColor: GraphPalette.comparisonCurve,
+                        withTicks: false,
                         point1: {needsRegularUpdate: true},
                         point2: {needsRegularUpdate: true},
                         ticks: {needsRegularUpdate: true},
