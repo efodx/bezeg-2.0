@@ -1,0 +1,95 @@
+{
+  "examples": [
+    {
+      "id": "randomness.galton-board.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.galton-board.prob-simulation",
+      "sceneFingerprint": "a0955f2bedec8d430808f771e97b6f5f90e99ccdcf5700e7d152179c0074111c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs1-one-ball-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs1-one-ball-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 4
+        },
+        "curveCount": 4,
+        "points": [],
+        "curves": [
+          [
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0.000488
+            ],
+            [
+              -0.5,
+              0.000977
+            ]
+          ],
+          [
+            [
+              4.95,
+              -0.105
+            ],
+            [
+              5,
+              -0.105
+            ],
+            [
+              5.05,
+              -0.105
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "randomness.law-of-large-numbers.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.law-of-large-numbers.prob-simulation",
+      "sceneFingerprint": "6b91cdbad6ee0f9968993ef4fe0c01a0e10c57a4e3bc871f89ac39bdf701c9b2",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs2-ten-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs2-ten-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"frequency\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":10}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 6
+        },
+        "curveCount": 6,
+        "points": [],
+        "curves": [
+          [
+            [
+              0,
+              0.5
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              0.5
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

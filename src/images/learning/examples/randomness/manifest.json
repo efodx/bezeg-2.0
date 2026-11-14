@@ -1,0 +1,553 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+    "dirty": true,
+    "inputs": "916af9ff230c3b82c54a56a42ac5efddec427c62fe91dcb3dd2262040ad33601",
+    "output": "10f03c99ed829f2ae3f885297eec599e5d0ee409e42a532955b1a1125b081ced"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+    "stampDirty": true,
+    "localOutputHash": "10f03c99ed829f2ae3f885297eec599e5d0ee409e42a532955b1a1125b081ced",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-DpUh4dYs.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DpUh4dYs.js",
+        "sha256": "cd84545213802cfe561f03f24ee51d7b38606f8581540f4677bced6e1558e158",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "44b37e302e1f6758666ee4cce3882fa9f94ded4b10bf65d1ee4cadb73b3187c0",
+    "entries": {
+      "randomness.galton-board.prob-simulation": "c6ea5225af9da4b75a666c729236d490a4e921fd345a9eac660f8c2a13ed2762",
+      "randomness.law-of-large-numbers.prob-simulation": "7ebacb11410180de033cf9d81fb85928465c51c7bdbf0f8510001a17d4751e3e"
+    },
+    "presentation": "feff98123523e26c8584161ac5a419bc09c916a0999b493887af7c4bfb68796e",
+    "buildOutput": "10f03c99ed829f2ae3f885297eec599e5d0ee409e42a532955b1a1125b081ced",
+    "buildInputs": "916af9ff230c3b82c54a56a42ac5efddec427c62fe91dcb3dd2262040ad33601"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "randomness.galton-board.prob-simulation",
+        "demonstrationId": "prob-simulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.469,
+            1.015,
+            9.531,
+            -0.875
+          ]
+        }
+      },
+      {
+        "id": "randomness.law-of-large-numbers.prob-simulation",
+        "demonstrationId": "prob-simulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.008,
+            1.22,
+            1.008,
+            -1.14
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "randomness.galton-board.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.galton-board.prob-simulation",
+      "sceneFingerprint": "a0955f2bedec8d430808f771e97b6f5f90e99ccdcf5700e7d152179c0074111c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs1-one-ball-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs1-one-ball-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "randomness.galton-board.prob-simulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "73aa50105d0d3194b76771346774653a4a2a76dc035902b6d2d7fd4a6d9dac2f",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "curve": 4,
+          "text": 3
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0.000488
+            ],
+            [
+              -0.5,
+              0.000977
+            ]
+          ],
+          [
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0
+            ]
+          ],
+          [
+            [
+              4.95,
+              -0.105
+            ],
+            [
+              5,
+              -0.105
+            ],
+            [
+              5.05,
+              -0.105
+            ]
+          ],
+          [
+            [
+              5,
+              -0.105
+            ],
+            [
+              4.75,
+              -0.149625
+            ],
+            [
+              4.5,
+              -0.19425
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 31,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 20,
+            "curve": 4,
+            "text": 3
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0.000488
+              ],
+              [
+                -0.5,
+                0.000977
+              ]
+            ],
+            [
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0
+              ]
+            ],
+            [
+              [
+                4.95,
+                -0.105
+              ],
+              [
+                5,
+                -0.105
+              ],
+              [
+                5.05,
+                -0.105
+              ]
+            ],
+            [
+              [
+                5,
+                -0.105
+              ],
+              [
+                4.75,
+                -0.149625
+              ],
+              [
+                4.5,
+                -0.19425
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 5,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+        "sourceRevision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "randomness.law-of-large-numbers.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.law-of-large-numbers.prob-simulation",
+      "sceneFingerprint": "6b91cdbad6ee0f9968993ef4fe0c01a0e10c57a4e3bc871f89ac39bdf701c9b2",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs2-ten-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs2-ten-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"frequency\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":10}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "randomness.law-of-large-numbers.prob-simulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "fa21142c692f89d32c9095410b8c17b27bc9bbe26c6bafae1b83c8605298d4e5",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "curve": 6,
+          "text": 7
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -0.6875
+            ],
+            [
+              0.150515,
+              -0.65625
+            ],
+            [
+              0.30103,
+              -0.625
+            ]
+          ],
+          [
+            [
+              0,
+              -0.75
+            ],
+            [
+              0.5,
+              -0.75
+            ],
+            [
+              1,
+              -0.75
+            ]
+          ],
+          [
+            [
+              0,
+              -0.8125
+            ],
+            [
+              0.150515,
+              -0.78125
+            ],
+            [
+              0.30103,
+              -0.75
+            ]
+          ],
+          [
+            [
+              0,
+              0.5
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              0.5
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.150515,
+              0.25
+            ],
+            [
+              0.30103,
+              0.5
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.150515,
+              1
+            ],
+            [
+              0.30103,
+              1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 6,
+            "text": 7
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -0.6875
+              ],
+              [
+                0.150515,
+                -0.65625
+              ],
+              [
+                0.30103,
+                -0.625
+              ]
+            ],
+            [
+              [
+                0,
+                -0.75
+              ],
+              [
+                0.5,
+                -0.75
+              ],
+              [
+                1,
+                -0.75
+              ]
+            ],
+            [
+              [
+                0,
+                -0.8125
+              ],
+              [
+                0.150515,
+                -0.78125
+              ],
+              [
+                0.30103,
+                -0.75
+              ]
+            ],
+            [
+              [
+                0,
+                0.5
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                0.5
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.150515,
+                0.25
+              ],
+              [
+                0.30103,
+                0.5
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.150515,
+                1
+              ],
+              [
+                0.30103,
+                1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 7,
+        "finalLabelCount": 7,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 6,
+          "text": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+        "sourceRevision": "8afa57333e1524c433bfb468d224dbb41784f5bb",
+        "pageErrors": []
+      }
+    }
+  ]
+}

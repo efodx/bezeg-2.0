@@ -52,7 +52,16 @@ const descentWindows = {
     'mechanical-curves.tautochrone.mechanics-descent': [-2.370, 0.717, 2.678, -2.409],
 };
 
+// The simulation cards: the captions sit in plot units (rows 0.1 to 0.11 apart), so at the default capture size, where both axes get one scale, they overlap and the figure is a thin strip. Each card takes the window of
+// its own mode's frame (the Galton board: x from -0.8 to 10.8, y from 1.28 to -1.14; the coin frequency at 10 tosses: x from -0.15 to 1.15, y from 1.55 to -1.47), which keeps the unequal x and y scales of the graph.
+// The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
+const randomnessWindows = {
+    'randomness.galton-board.prob-simulation': [0.469, 1.015, 9.531, -0.875],
+    'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.22, 1.008, -1.14],
+};
+
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(randomnessWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: randomnessWindows[entry.id]}};
     if (Object.hasOwn(descentWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: descentWindows[entry.id]}};
     if (Object.hasOwn(wavesWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: wavesWindows[entry.id]}};
     if (Object.hasOwn(kinematicsCircleWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: kinematicsCircleWindows[entry.id]}};
@@ -112,6 +121,7 @@ const chapterFamilies = {
     'circle-geometry': {label: 'circle-geometry', idPrefix: 'circle-geometry.', identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'}},
     waves: {label: 'waves', idPrefix: 'waves.', identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'}},
     'mechanical-curves': {label: 'mechanical-curves', idPrefix: 'mechanical-curves.', identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'}},
+    randomness: {label: 'randomness', idPrefix: 'randomness.', identities: {module: '/src/graphs/random/registration.ts', rows: 'randomDemonstrationRows'}},
     kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},
@@ -232,6 +242,8 @@ function inspectBoard(page) {
         if (!board) throw new Error('route-owned JSXGraph board is missing');
         const visible = Object.values(board.objects || {}).filter(object => {
             if (!object?.rendNode?.isConnected || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
+            // A data curve with no points draws nothing (the simulation graph keeps one curve per layer, also the empty ones); it is no visible curve and has no samples.
+            if (object.elType === 'curve' && Array.isArray(object.dataX) && object.dataX.length === 0) return false;
             const style = getComputedStyle(object.rendNode);
             return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
         });

@@ -381,6 +381,16 @@ const chapterInventories = {
         // The one mechanics-descent Demonstration: the three examples must cover it and open on its route.
         identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'},
     },
+    randomness: {
+        module: '/src/learning/content/randomnessChapterRegistry.ts',
+        // Like waves: section rows plus a per-section lesson function.
+        registryExport: 'randomnessGuidedExampleDemonstrations',
+        lessonExport: 'randomnessGuidedExampleLesson',
+        pathExport: 'randomnessGuidedExamplePath',
+        expectedFor: randomnessExpectedFor,
+        // The one prob-simulation Demonstration: the two examples must cover it and open on its route.
+        identities: {module: '/src/graphs/random/registration.ts', rows: 'randomDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -2285,6 +2295,50 @@ function mechanicalCurvesExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Randomness chapter (randomness): two lessons on the one prob-simulation Demonstration, keyed by the section in the example id. The simulation is seeded (the Demonstration default is the Galton board, 10 rows,
+// p = 1/2, seed 42, 1000 balls), so the first frame is deterministic. Every layer of the mode is one board curve (an empty layer draws nothing and is not counted); the graph draws no points and its captions are text.
+
+/** Asserts the opening scene is the prepared default then exactly the listed `random` operations (with their fields); returns the actions after the default. */
+function randomnessOpening(id, step, operations) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `random:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    return own;
+}
+
+// Authored from src/graphs/random/SimulationGraph.tsx (LAYER_STYLES) and simulationScene.ts (galtonScene, frequencyScene), not from a capture.
+const randomnessFrames = {
+    // RS1 step 1: the Galton board with one ball shown (position 1 of the 1000 of seed 42). Four curves: the exact bars, the heap, the pegs and the latest path; the second heap (no overlay) and the
+    // earlier paths (only one ball is drawn) are empty.
+    'galton-board': (id, step) => {
+        const [position] = randomnessOpening(id, step, ['set-position']);
+        assert.equal(position.shown, 1, `${id}: only the board with one ball shown is authored`);
+        // A data curve is read at the parameters 0, 1/2 and 1 by linear interpolation along its points. The exact bars start with the first bar of slot 0: x = -1/2, y from 0 up to C(10,0)/1024 = 0.000977 (and 0.000488 midway). The first peg (row 0, centre x = 5) is a segment of width 0.1 at y = -0.1 h, with the
+        // plot height h = max(1.35 * 252/1024, 1.05 * 1, 0.05) = 1.05 because the one ball shown makes the heap bar 1 high.
+        return {types: {curve: 4}, curveCount: 4, points: [], curves: [[[-0.5, 0], [-0.5, 0.000488], [-0.5, 0.000977]], [[4.95, -0.105], [5, -0.105], [5.05, -0.105]]]};
+    },
+    // RS2 step 1: the coin frequency mode with 10 tosses of seed 42. Six curves: the running frequency, the line 1/2, the 95 percent band, the heads-minus-half plot, its band and its zero line; the two
+    // runs of the second seed are empty without the overlay.
+    'law-of-large-numbers': (id, step) => {
+        const [mode, run] = randomnessOpening(id, step, ['set-mode', 'set-run']);
+        assert.equal(mode.mode, 'frequency', `${id}: only the frequency mode is authored`);
+        assert.deepEqual({...run, kind: undefined, operation: undefined}, {n: 10, kind: undefined, operation: undefined}, `${id}: only 10 tosses (seed unchanged) are authored`);
+        // The line 1/2 runs from x = 0 to the end of the log axis, log10 of 10 tosses = 1, at the height 1/2.
+        return {types: {curve: 6}, curveCount: 6, points: [], curves: [[[0, 0.5], [0.5, 0.5], [1, 0.5]]]};
+    },
+};
+
+/** First-frame expectation of a randomness lesson (the two sections of the chapter, keyed by the section in the example id). */
+function randomnessExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(randomnessFrames, section) ? randomnessFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored randomness first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2341,4 +2395,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, assertExpectation};

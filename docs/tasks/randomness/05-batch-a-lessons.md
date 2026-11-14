@@ -11,4 +11,4 @@ Handler decisions (handler 12, 2026-11-12): the chapter sits in the Learn strand
 
 Acceptance: the spec's acceptance for RS1–RS2; every number quoted in lesson text matches the scene for its stated seed; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; statistics are never presented as proof; the `binomial-normal-approximation` and `clt-standardized-sum` lessons behave as before.
 
-Status: F3 done 2026-11-12 (handler 12; RS1 and RS2, chapter skeleton, host and content tests; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-rand-a.md)); F4–F6 next.
+Status: F3 done 2026-11-12 (handler 12; RS1 and RS2, chapter skeleton, host and content tests; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-rand-a.md)); F4 done with F3 (chapter sections with guided examples); F5 cards captured (handler 20); catalog clip and F6 next.

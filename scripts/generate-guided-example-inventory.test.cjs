@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -922,4 +922,18 @@ test('mechanical-curves expectations are authored from the graph: the race, trac
     assert.throws(() => mechanicalCurvesExpectedFor('m.drag-the-track.mechanics-descent', open([time(0)])), /the opening scene is set-mode, set-time/);
     assert.throws(() => mechanicalCurvesExpectedFor('m.unknown.mechanics-descent', open([])), /no authored mechanical-curves/);
     assert.ok(chapterInventories['mechanical-curves']);
+});
+
+test('randomness expectations are authored from the graph: the Galton board with one ball and the coin frequency with ten tosses', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const position = shown => ({kind: 'random', operation: 'set-position', shown});
+    const mode = value => ({kind: 'random', operation: 'set-mode', mode: value});
+    const run = fields => ({kind: 'random', operation: 'set-run', ...fields});
+    assert.deepEqual(randomnessExpectedFor('r.galton-board.prob-simulation', open([position(1)])), {types: {curve: 4}, curveCount: 4, points: [], curves: [[[-0.5, 0], [-0.5, 0.000488], [-0.5, 0.000977]], [[4.95, -0.105], [5, -0.105], [5.05, -0.105]]]});
+    assert.deepEqual(randomnessExpectedFor('r.law-of-large-numbers.prob-simulation', open([mode('frequency'), run({n: 10})])), {types: {curve: 6}, curveCount: 6, points: [], curves: [[[0, 0.5], [0.5, 0.5], [1, 0.5]]]});
+    assert.throws(() => randomnessExpectedFor('r.galton-board.prob-simulation', open([position(10)])), /one ball/);
+    assert.throws(() => randomnessExpectedFor('r.law-of-large-numbers.prob-simulation', open([mode('frequency'), run({n: 100})])), /only 10 tosses/);
+    assert.throws(() => randomnessExpectedFor('r.law-of-large-numbers.prob-simulation', open([run({n: 10})])), /the opening scene is set-mode, set-run/);
+    assert.throws(() => randomnessExpectedFor('r.unknown.prob-simulation', open([])), /no authored randomness/);
+    assert.ok(chapterInventories.randomness);
 });
