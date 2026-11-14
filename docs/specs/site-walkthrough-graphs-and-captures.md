@@ -1,10 +1,12 @@
 # Site walkthrough: graphs and captures (package D)
 
-Status: **proposed** 2026-11-14, awaiting the owner's approval. Written for the owner's [site walkthrough](site-walkthrough-intake-2026-11-14.md), package D, session `graphs`, against `master` at `dbf3ff60`. Phase 1 (this spec) is planning; phase 2 is a three-example pilot shown as a preview; phase 3, the rest in batches, does not start until the owner approves the pilot and the policy. Queue: [docs/tasks/site-walkthrough/graphs.md](../tasks/site-walkthrough/graphs.md). State: [docs/reviews/site-walkthrough/graphs/state.md](../reviews/site-walkthrough/graphs/state.md).
+Status: **approved by the owner 2026-11-14** after the pilot preview; phase 3 is in progress. Written for the owner's [site walkthrough](site-walkthrough-intake-2026-11-14.md), package D, session `graphs`, against `master` at `dbf3ff60`. Phase 1 (this spec) is planning; phase 2 is a three-example pilot shown as a preview; phase 3, the rest in batches, does not start until the owner approves the pilot and the policy. Queue: [docs/tasks/site-walkthrough/graphs.md](../tasks/site-walkthrough/graphs.md). State: [docs/reviews/site-walkthrough/graphs/state.md](../reviews/site-walkthrough/graphs/state.md).
 
 Covers intake IDs **G01–G07** and the intake's example table.
 
-**What the owner approves.** The capture-text policy and its per-capture table, the shared typography treatment (G01), the per-example directions, the G06 fix and the yardstick drawn from the positive references are recommendations. Each names the alternatives considered. Nothing here changes a graph, a style or a capture on `master` until it is approved; facts found by investigation (ids, routes, today's fonts, the cause of G06) are stated as facts.
+**Owner's answers, 2026-11-14, on the pilot preview.** (1) The capture-text rule, including the kept `r` on the correlation card: yes. (2) The three pilot directions: "All look good direction, but you can maybe play with the colors or something to make them even nicer." (3) Literata for plain graph text: "I'm okay with that." (4) Convexity as a smooth sweep: yes. The sections below keep their wording as proposals with alternatives; these answers settle them. Per-row verdicts and per-example directions in later batches follow the approved rule and are shown on the preview as they land.
+
+**What the owner was asked to approve.** The capture-text policy and its per-capture table, the shared typography treatment (G01), the per-example directions, the G06 fix and the yardstick drawn from the positive references are recommendations. Each names the alternatives considered. Nothing here changes a graph, a style or a capture on `master` until it is approved; facts found by investigation (ids, routes, today's fonts, the cause of G06) are stated as facts.
 
 ## Goal and limits
 
@@ -236,6 +238,35 @@ It is built to. `convexity` is one of 18 clips still on the pre-row "exact held 
 **Recommended fix (capability C5).** It follows the owner's settled rule for clips (smooth motion wherever possible), but it drops a staged reveal an earlier spec chose, so it is shown on the preview before it is published. Replace the held-state spec with a lesson-guided row: `parameter-sweep` on the tangent point from `0.5` to `−0.5` to `1` and back, quoting the lesson sentence that asks for it. The `f″` reveal is dropped from the clip: it only changed a line of text, which the text policy removes anyway. The poster scene, the chord, the curve and the colours do not change.
 
 The same cause applies to the other legacy held-state clips whose control is continuous. The blocker triage lists which of the 18 can become sweeps; those whose control is a count (`bernstein`, `darboux`, `definite-integral`, the subdivisions) stay discrete with their reason.
+
+## G07: epicycles subjects
+
+**Owner's pick, 2026-11-14** (recorded in the [design state note](../reviews/site-walkthrough/design/state.md)): add the outline of Slovenia and the cat; the treble clef and the elderflower blossom too if adding examples is easy. The existing graph's look is kept.
+
+**What it takes.** The epicycles loop is a small editable spline: 4 to 8 vertices with draggable handles and two coordinate lists in the inspector (`src/analysis/epicycleModel.ts`). An outline needs 100 to 250 points, so a subject is not a fourth entry in the example list; it is a second kind of loop.
+
+**Design (handler's engineering choices inside the pick).**
+
+- **G07-a Fixed outlines.** The model gains an optional `outline` id. A model with an outline takes its vertices from shipped data (a closed polygon of line spans, resampled evenly by arc length, inside the existing coordinate range), keeps `N` and the parametrization editable, and rejects vertex and handle edits with a new issue kind. The Fourier coefficients stay exact: line spans already have closed-form coefficients in `closedSpline.ts`. Alternative considered: raise the vertex cap to 250 for everyone; rejected because 250 draggable handles and 250 inspector rows are unusable.
+- **G07-b Presets.** A stored outline preset holds the outline id, `N` and the parametrization; on load the vertices come from the shipped data. Old presets are unchanged and still load. An unknown outline id is refused with an actionable message.
+- **G07-c Graph.** For an outline the vertex handles and the two coordinate lists are not shown; everything else (circles, trace, time, `N`, error readout) works as before. Hiding the lists is the only inspector change and is conditional rendering of existing controls, agreed here because [control choice](control-choice-and-composition.md) owns the panel's composition, not which model it edits.
+- **G07-d Subjects and their sources.**
+  - Slovenia: border from Natural Earth (public domain), simplified and resampled. The design session's outline was a hand sketch and is not used.
+  - Cat: an original silhouette authored for Bezeg. The design mockup traced an emoji glyph from a system font; shipping an outline traced from a proprietary font is not acceptable, so the shipped cat will differ from the mockup. **The owner should look at it.**
+  - Elderflower blossom: the mockup's formula, `r = 1 + 0.42 cos 5a + 0.06 cos 10a`.
+  - Treble clef: not added. The mockup traced it from a system font as well, and no freely licensed outline is at hand; "easy" does not hold. It can follow if a free source is chosen.
+- **G07-e Number of circles.** `N` stays at most 50 (101 circles). If Slovenia is not recognisable at 50, the limit is revisited with a measurement, not raised blindly.
+- **G07-f Catalog card.** The card should show a subject, not the uneven loop. That is a capture change and waits for captures to be runnable (see the pilot record); until then the card is unchanged.
+
+**Acceptance.**
+
+1. The example select offers the three subjects in both languages; choosing one draws its outline, and `N` from 1 to 50 draws an increasingly close trace.
+2. For each outline, the partial sum at `N = 50` is within a stated sampled error of the outline, and the error does not increase from `N = 5` to `20` to `50` (tested against an independent direct numerical integration of the coefficients, 1e-6).
+3. Each outline is closed, has no repeated consecutive point, lies inside the coordinate range, and its data file names its source.
+4. Vertex and handle edits on an outline are refused by the model with the new issue; the graph shows no handles and no coordinate lists.
+5. Presets: an outline preset round-trips; existing preset fixtures load unchanged; an unknown outline id gives the localized refusal.
+6. Analysis plus trace for the largest outline at `N = 50` is measured; moving the time slider does not redo the coefficient analysis.
+7. The lesson's scenes and the three existing examples behave as before (their tests pass unchanged).
 
 ## What the positive references have in common
 
