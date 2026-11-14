@@ -1,4 +1,8 @@
 {
+  "src/graphs/functions/LinearFunctionGraph.tsx#renderControls#t(\"slope_k_label\")": "keep: the range of ±1000 is a validity limit, not a range to explore; on a 256 px track one pixel would be about 8, so a slider cannot set a slope",
+  "src/graphs/functions/LinearFunctionGraph.tsx#renderControls#t(\"intercept_n_label\")": "keep: same validity limit of ±1000 as the slope",
+  "src/graphs/functions/DensityAreaGraph.tsx#renderControls#t(\"prob_density_a_label\")": "keep: the range of ±400 in steps of 0,01 is a validity limit (80 000 steps on the track); the end is dragged on the board or typed",
+  "src/graphs/functions/DensityAreaGraph.tsx#renderControls#t(\"prob_density_b_label\")": "keep: same validity limit as the left end",
   "src/graphs/compgeo/PointSetControls.tsx#field#label": "keep: segment and interval rows hold four (or two) typed numbers with a select and a remove button in one row; PointListInput holds one point per row, so these rows wait for a shared row editor in step 4",
   "src/graphs/functions/ZeroListEditor.tsx#ZeroListEditor#`${prefix}${t(\"zero_list_position_label\", {value0: index + 1})}`": "keep: each row holds the position, a multiplicity select and a remove button, and the position is on a 0,1 grid with its own refusal; ValueListInput has one step of 1, no grid and no per-row select, so the zero list waits for a shared row editor in step 4"
 }

@@ -198,7 +198,7 @@ test('both languages: a live language switch keeps the scene, the model and the 
     expect(graph.modelNow()).toBe(model);
     expect(graph.ownedObjects()).toBe(objects);
     expect(screen.getByRole('spinbutton', {name: /^Highest harmonic K$/})).toBeInTheDocument();
-    expect(screen.getAllByLabelText(/^Value of f at x = /)).toHaveLength(2);
+    expect(screen.getAllByRole('spinbutton', {name: /^Value of f at x = /})).toHaveLength(2);
     expect(graph.handleHeights(2)[1]).toBeCloseTo(0.5, 12);
     expect(readout('square-integral')).toMatch(/^\d+\.\d{1,5}$/);
     act(() => { setLanguage('sl'); });

@@ -3,6 +3,7 @@ import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
+import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {normalPdf} from "../../analysis/distributions";
@@ -173,10 +174,10 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
                         rejectedHint={sigmaRejected} onChange={next => this.ignoreOutOfDomain(() => this.setSigma(next))}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("prob_density_a_label")} value={state.a} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <Slider customText={t("prob_density_b_label")} value={state.b} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
+                <NumberInput label={t("prob_density_a_label")} value={state.a} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
+                <NumberInput label={t("prob_density_b_label")} value={state.b} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
                 <p className="inspector-help">{t("prob_density_bounds_help")}</p>
             </div>
         </>;

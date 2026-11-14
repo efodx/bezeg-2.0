@@ -18,6 +18,7 @@ Common part of every step-2 slice brief. The dispatch message adds the slice's f
 - An integer that counts things (terms, steps, subintervals, harmonics, digits shown) is a `CountSetter`. An integer that picks a position or index (which harmonic, which `k` of a distribution, a threshold `N`) is a `Slider`.
 - An angle uses `AngleSlider` when the catalogue's entry fits its unit and range; otherwise a `Slider`, and say why.
 - A repeated field per list item (one field per zero, per slot, per sample) stays a list: use `ValueListInput` if its entry fits, otherwise keep the fields and record `keep: <reason>` in `decisions.json`.
+- A range that is only a validity limit stays a `NumberInput` with a `keep:` entry: when `(max - min) / step` is above about 1000 the track cannot set the value (Linear's slope within ±1000, Density's ends within ±400 by 0,01). Such a field keeps its old help.
 - Put each control in its own `inspector-group` or keep the graph's existing grouping. Never stack a slider directly on a caption.
 - Unchanged: state shape, Presets, routes, lesson actions, mathematics, commit timing, refusal messages.
 

@@ -48,8 +48,8 @@ const typeIn = (label: RegExp, value: number) => act(() => {
     fireEvent.change(field(label), {target: {value: String(value)}});
     fireEvent.keyDown(field(label), {key: 'Enter'});
 });
-const typeA = (value: number) => typeIn(/^Leva meja a, vrednost$|^Left end a, value$/, value);
-const typeB = (value: number) => typeIn(/^Desna meja b, vrednost$|^Right end b, value$/, value);
+const typeA = (value: number) => typeIn(/^Leva meja a$|^Left end a$/, value);
+const typeB = (value: number) => typeIn(/^Desna meja b$|^Right end b$/, value);
 const slider = (label: RegExp) => screen.getByLabelText(label, {selector: 'input[type="range"]'}) as HTMLInputElement;
 const exampleSelect = () => screen.getByLabelText(/^Primer$|^Example$/) as HTMLSelectElement;
 const status = () => document.querySelector('[data-prob-density="status"]')?.textContent;
@@ -227,8 +227,8 @@ test('Reset restores the defaults, the fields, the readouts, the view and the bo
     graph.drag('b', 140);
     await settle(() => graph.reset());
     expect(graph.modelNow()).toEqual(DEFAULT_DENSITY_AREA_MODEL);
-    expect(field(/^Leva meja a, vrednost$/).value).toBe('−1');
-    expect(field(/^Desna meja b, vrednost$/).value).toBe('1');
+    expect(field(/^Leva meja a$/).value).toBe('−1');
+    expect(field(/^Desna meja b$/).value).toBe('1');
     expect(readout('area-percent')).toBe('68,27');
     expect(graph.handle('b').X()).toBe(1);
     expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(-4, 6);
@@ -300,7 +300,7 @@ test('a live language switch updates the board text, the labels and the readouts
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
     expect(graph.captionPlainLines().join('\n')).toMatch(/X ∼ N\(0, 1²\)/);
-    expect(screen.getByLabelText(/^Left end a, value$/, {selector: 'input:not([type="range"])'})).toBeTruthy();
+    expect(screen.getByLabelText(/^Left end a$/, {selector: 'input:not([type="range"])'})).toBeTruthy();
     expect(graph.modelNow().b).toBe(2);
     act(() => { setLanguage('sl'); });
     expect(graph.captionPlainLines().join('\n')).toMatch(/N\(0; 1²\)/);

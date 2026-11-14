@@ -34,8 +34,8 @@ function mount() {
 test('wiring: the k field is a shared number field and a typed slope reaches the model', () => {
     const graph = mount();
     const before = graph.modelNow();
-    expect(field(/^Naklon k, vrednost$/)).toHaveAttribute('role', 'spinbutton');
-    typeIn(/^Naklon k, vrednost$/, before.y2 - before.y1 === 0 ? 1 : 3);
+    expect(field(/^Naklon k$/)).toHaveAttribute('role', 'spinbutton');
+    typeIn(/^Naklon k$/, before.y2 - before.y1 === 0 ? 1 : 3);
     const after = graph.modelNow();
     expect(after.x1).toBe(before.x1);
     expect(after.y2).not.toBe(before.y2);
@@ -46,10 +46,10 @@ test('k and n are unavailable with the vertical-line reason, and a typed value i
     typeIn(/^P2, x$/, graph.modelNow().x1);
     const model = graph.modelNow();
     expect(model.x2).toBe(model.x1);
-    for (const label of [/^Naklon k, vrednost$/, /^Začetna vrednost n, vrednost$/]) {
+    for (const label of [/^Naklon k$/, /^Začetna vrednost n$/]) {
         expect(field(label)).toHaveAttribute('aria-disabled', 'true');
-        expect(document.getElementById(field(label).getAttribute('aria-describedby') ?? '')).toHaveTextContent(/Navpična premica ni graf funkcije/);
+        expect(field(label)).toHaveAttribute('title', expect.stringMatching(/Navpična premica ni graf funkcije/));
     }
-    typeIn(/^Naklon k, vrednost$/, 5);
+    typeIn(/^Naklon k$/, 5);
     expect(graph.modelNow()).toEqual(model);
 });

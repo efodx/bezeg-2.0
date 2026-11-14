@@ -1,7 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
-import Slider from "../../inputs/Slider";
+import {NumberInput} from "../../inputs/NumberInput";
 import {PointListInput} from "../../inputs/PointListInput";
 import {currentLanguage, message, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
@@ -197,12 +197,14 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
                                 }}/>
             </div>
             <div className="inspector-group">
-                <Slider customText={t("slope_k_label")} value={hasKn ? line.k : 0} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
-                        min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
-                <Slider customText={t("intercept_n_label")} value={hasKn ? line.n : 0} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
-                        min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
+                <div className="function-points-grid">
+                    <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
+                                 min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
+                                 onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
+                    <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
+                                 min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
+                                 onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
+                </div>
                 <p className="inspector-help">{t("linear_kn_help")}</p>
             </div>
         </>;
