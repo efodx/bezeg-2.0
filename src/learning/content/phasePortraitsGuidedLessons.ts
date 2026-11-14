@@ -286,7 +286,7 @@ const pp1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['pp1-eigen'],
         observationPrompt: text(
-            'V Začetna točka 1 vpiši \\(x=1\\), \\(y=0\\); z Dodaj začetno točko dodaj še tri začetne točke \\((0,1)\\), \\((-1,0)\\) in \\((0,-1)\\). Primerjaj, k kateri premici se vse trajektorije bližajo ob izhodišču.',
+            'V vrstici Začetna točka 1 vpiši \\(x=1\\), \\(y=0\\); z Dodaj začetno točko dodaj še tri začetne točke \\((0,1)\\), \\((-1,0)\\) in \\((0,-1)\\). Primerjaj, k kateri premici se vse trajektorije bližajo ob izhodišču.',
             'In Seed 1 type \\(x=1\\), \\(y=0\\); with Add a seed add three more start points \\((0,1)\\), \\((-1,0)\\) and \\((0,-1)\\). Compare which line all trajectories approach near the origin.',
         ),
         expectedObservations: [text(
@@ -478,7 +478,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['pp2-level'],
         observationPrompt: text(
-            'Dvakrat pritisni Dodaj začetno točko in v poljih Začetna točka 2: θ in ω nastavi \\((2,0)\\), v poljih Začetna točka 3: θ in ω pa \\((0;1{,}9)\\). Preberi vrstice Energija začetne točke 1 do 3 in primerjaj oblike orbit.',
+            'Dvakrat pritisni Dodaj začetno točko in v vrstici Začetna točka 2 nastavi θ in ω na \\((2,0)\\), v vrstici Začetna točka 3 pa na \\((0;1{,}9)\\). Preberi vrstice Energija začetne točke 1 do 3 in primerjaj oblike orbit.',
             'Press Add a seed twice and set the fields Seed 2: θ and ω to \\((2,0)\\), and the fields Seed 3: θ and ω to \\((0;1{,}9)\\). Read the rows Energy of seed 1 to 3 and compare the shapes of the orbits.',
         ),
         expectedObservations: [text(
@@ -499,7 +499,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['pp2-level'],
         observationPrompt: text(
-            'V polje Začetna točka 1: ω vpiši \\(2\\), nato \\(2{,}25\\). Pri vsakem preberi vrstico Energija začetne točke 1 in vrstico Začetna točka 1; opazuj krivuljo Separatrisa.',
+            'V vrstici Začetna točka 1 v polje ω vpiši \\(2\\), nato \\(2{,}25\\). Pri vsakem preberi vrstico Energija začetne točke 1 in vrstico Začetna točka 1; opazuj krivuljo Separatrisa.',
             'In the field Seed 1: ω type \\(2\\), then \\(2{,}25\\). For each read the row Energy of seed 1 and the row Seed 1; watch the curve Separatrix.',
         ),
         expectedObservations: [text(
@@ -520,7 +520,7 @@ const pp2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['pp2-level'],
         observationPrompt: text(
-            'V polje Začetna točka 1: ω vpiši \\(2\\), nato drsnik Čas t premakni na \\(10\\). Preberi vrstico Začetna točka 1, stanje ob koncu in lego kvadratka ob navpičnih črtkanih premicah.',
+            'V vrstici Začetna točka 1 v polje ω vpiši \\(2\\), nato drsnik Čas t premakni na \\(10\\). Preberi vrstico Začetna točka 1, stanje ob koncu in lego kvadratka ob navpičnih črtkanih premicah.',
             'In the field Seed 1: ω type \\(2\\), then move the slider Time t to \\(10\\). Read the row Seed 1, the status at the end and the position of the square next to the vertical dashed lines.',
         ),
         expectedObservations: [text(

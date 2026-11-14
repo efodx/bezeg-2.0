@@ -106,11 +106,11 @@ describe('the composition mode on the real graph', () => {
         selectMode('composition');
         act(() => { fireEvent.click(screen.getByLabelText(t('linear_map_comp_pivot_toggle'))); });
         expect(graph.modelNow().pivot).toEqual([0, 0]);
-        act(() => { enterNumber(screen.getByLabelText(t('linear_map_comp_pivot_x')), '3'); });
-        act(() => { enterNumber(screen.getByLabelText(t('linear_map_comp_pivot_y')), '1'); });
+        act(() => { enterNumber(screen.getByLabelText('c, x'), '3'); });
+        act(() => { enterNumber(screen.getByLabelText('c, y'), '1'); });
         expect(graph.modelNow().pivot).toEqual([3, 1]);
         expect(readout('t')).toBeDefined();
-        act(() => { enterNumber(screen.getByLabelText(t('linear_map_comp_translation_x')), '1,3'); });
+        act(() => { enterNumber(screen.getByLabelText('b, x'), '1,3'); });
         expect(graph.modelNow().translation?.[0]).toBe(1.25);
         act(() => { fireEvent.click(screen.getByLabelText(t('linear_map_comp_pivot_toggle'))); });
         expect(graph.modelNow()).not.toHaveProperty('pivot');

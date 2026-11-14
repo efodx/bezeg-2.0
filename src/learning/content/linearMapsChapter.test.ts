@@ -988,8 +988,8 @@ describe('L5: scenes in one synchronous tick, read in sl and en', () => {
                     t('linear_map_comp_source_rotation'), t('linear_map_comp_angle_reflection', {value0: 'A'}), t('linear_map_comp_angle_rotation', {value0: 'B'}),
                     t('linear_map_comp_readout_row', {value0: 'BA', value1: '1'}), t('linear_map_comp_readout_row', {value0: 'BA', value1: '2'})],
                 'comp-reflections': [t('linear_map_comp_angle_reflection', {value0: 'A'}), t('linear_map_comp_angle_reflection', {value0: 'B'}), t('linear_map_comp_readout_product_element')],
-                'comp-translation': [t('linear_map_comp_translation_x'), t('linear_map_comp_translation_y')],
-                'comp-pivot': [t('linear_map_comp_pivot_toggle'), t('linear_map_comp_pivot_x'), t('linear_map_comp_pivot_y'), t('linear_map_comp_readout_t')],
+                'comp-translation': [t('linear_map_comp_translation_title')],
+                'comp-pivot': [t('linear_map_comp_pivot_toggle'), t('linear_map_comp_pivot_title'), t('linear_map_comp_readout_t')],
                 'comp-bezier': [t('linear_map_comp_pivot_toggle')],
             };
         };

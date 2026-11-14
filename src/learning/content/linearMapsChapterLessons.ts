@@ -489,11 +489,11 @@ export const linearMapCompositionLesson: LessonDefinition = {
             id: 'comp-translation',
             title: words('Vzporedni premik', 'Translation'),
             explanation: words(
-                'Afina preslikava je linearni del, ki mu sledi vzporedni premik: \\(T(P)=BA\\,P+b\\). Vektor \\(b\\) vnesemo v polji »Vzporedni premik b: x« in »Vzporedni premik b: y«; koordinati sta večkratnika \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Spet je \\(A=R\\), \\(B=F\\) in \\(b=(0,0)\\); kontrolne točke so \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
+                'Afina preslikava je linearni del, ki mu sledi vzporedni premik: \\(T(P)=BA\\,P+b\\). Vektor \\(b\\) vnesemo v polji x in y vrstice »Vzporedni premik b«; koordinati sta večkratnika \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Spet je \\(A=R\\), \\(B=F\\) in \\(b=(0,0)\\); kontrolne točke so \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
                 'An affine map is a linear part followed by a translation: \\(T(P)=BA\\,P+b\\). The vector \\(b\\) is entered in the fields "Translation b: x" and "Translation b: y"; the coordinates are multiples of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\). Again \\(A=R\\), \\(B=F\\) and \\(b=(0,0)\\); the control points are \\(P_0=(1,0)\\), \\(P_1=(2,3)\\), \\(P_2=(4,2)\\), \\(P_3=(5,-1)\\).',
             ),
             prompt: words(
-                'Napovej pri \\(b=(2,1)\\) sliki \\(T(P_0)\\) in \\(T(P_1)\\) ter ali se vrstici produkta in determinanta spremenijo. Preveri: vpiši \\(2\\) v »Vzporedni premik b: x« in \\(1\\) v »Vzporedni premik b: y«.',
+                'Napovej pri \\(b=(2,1)\\) sliki \\(T(P_0)\\) in \\(T(P_1)\\) ter ali se vrstici produkta in determinanta spremenijo. Preveri: vpiši \\(2\\) v polje x in \\(1\\) v polje y vrstice »Vzporedni premik b«.',
                 'Predict, for \\(b=(2,1)\\), the images \\(T(P_0)\\) and \\(T(P_1)\\) and whether the rows of the product and the determinant change. Check: enter \\(2\\) in "Translation b: x" and \\(1\\) in "Translation b: y".',
             ),
             expected: [words(
@@ -510,7 +510,7 @@ export const linearMapCompositionLesson: LessonDefinition = {
                 'Turning about a point \\(c\\) that is not the origin is an affine map: subtract \\(c\\), turn, add \\(c\\). In general \\(T(P)=c+M(P-c)+b=MP+t\\) with \\(M=BA\\) and \\(t=b+c-Mc\\); the graph shows the vector \\(t\\) in the row "Vector t in T(P) = BA·P + t" while the centre is switched on. Now \\(A=R\\) is the quarter turn and \\(B\\) is the free identity, so \\(BA=R\\), with no translation and no centre (\\(c\\) is the origin).',
             ),
             prompt: words(
-                'Napovej: kam gredo \\(P_0,\\dots,P_3\\) pri četrtinskem vrtenju okoli \\(c=(3,1)\\) in kolikšen je \\(t\\)? Izračunaj \\(P-c\\), zavrti (\\(R(x,y)=(-y,x)\\)) in prištej \\(c\\). Preveri: vklopi »Uporabi središče vrtenja c« in vpiši \\(3\\) v »Središče c: x« ter \\(1\\) v »Središče c: y«.',
+                'Napovej: kam gredo \\(P_0,\\dots,P_3\\) pri četrtinskem vrtenju okoli \\(c=(3,1)\\) in kolikšen je \\(t\\)? Izračunaj \\(P-c\\), zavrti (\\(R(x,y)=(-y,x)\\)) in prištej \\(c\\). Preveri: vklopi »Uporabi središče vrtenja c« in vpiši \\(3\\) v polje x in \\(1\\) v polje y vrstice »Središče c«.',
                 'Predict: where do \\(P_0,\\dots,P_3\\) go under the quarter turn about \\(c=(3,1)\\), and what is \\(t\\)? Compute \\(P-c\\), turn it (\\(R(x,y)=(-y,x)\\)) and add \\(c\\). Check: switch on "Use a pivot c" and enter \\(3\\) in "Pivot c: x" and \\(1\\) in "Pivot c: y".',
             ),
             expected: [words(
@@ -722,7 +722,7 @@ export const linearMapPowerMethodLesson: LessonDefinition = {
             id: 'power-explore',
             title: words('Prosto raziskovanje', 'Free exploration'),
             explanation: words(
-                'Matriko spreminjaj z ročicama ali s številskimi vnosi, začetni vektor z ročico ali v poljih »Začetni vektor«; vsi vnosi so večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf stanje (dominantna lastna vrednost, enaka absolutna vrednost, kompleksni lastni vrednosti, večkratnik identitete, ena lastna smer) določi točno, kote, raztegnitve in razmerja pa izračuna; ustalitev smeri je dogovorjena toleranca.',
+                'Matriko spreminjaj z ročicama ali s številskimi vnosi, začetni vektor z ročico ali v vrstici \\(v_0\\) skupine »Začetni vektor«; vsi vnosi so večkratniki \\(\\tfrac14\\) med \\(-4\\) in \\(4\\). Graf stanje (dominantna lastna vrednost, enaka absolutna vrednost, kompleksni lastni vrednosti, večkratnik identitete, ena lastna smer) določi točno, kote, raztegnitve in razmerja pa izračuna; ustalitev smeri je dogovorjena toleranca.',
                 'Change the matrix with the handles or the numeric entries and the start vector with the handle or in the "Start vector" fields; all entries are multiples of \\(\\tfrac14\\) between \\(-4\\) and \\(4\\). The graph decides the case (dominant eigenvalue, equal absolute values, complex eigenvalues, a multiple of the identity, one eigen-direction) exactly, and computes the angles, stretches and ratios; the settling of the direction is an agreed tolerance.',
             ),
             prompt: words(

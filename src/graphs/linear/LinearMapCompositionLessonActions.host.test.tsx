@@ -37,7 +37,7 @@ const setAngle = (name: 'A' | 'B', kind: 'rotation' | 'reflection', k: number) =
 const entry = (name: string, row: number, column: number) =>
     screen.getByLabelText(t('linear_map_comp_entry_label', {value0: name, value1: String(row), value2: String(column)})) as HTMLInputElement;
 const field = (key: 'translation_x' | 'translation_y' | 'pivot_x' | 'pivot_y', value: string) =>
-    act(() => { enterNumber(screen.getByLabelText(t(`linear_map_comp_${key}`)), value); });
+    act(() => { enterNumber(screen.getByLabelText({translation_x: 'b, x', translation_y: 'b, y', pivot_x: 'c, x', pivot_y: 'c, y'}[key]), value); });
 
 const composition = {kind: 'linear-map', operation: 'set-mode', mode: 'composition'};
 const choose = (slot: string, element?: object | null) => ({kind: 'linear-map', operation: 'choose-element', slot, element});

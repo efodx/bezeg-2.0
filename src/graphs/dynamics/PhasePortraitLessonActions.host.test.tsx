@@ -49,10 +49,10 @@ const type = (label: string, value: string) => act(() => { enterNumber(field(lab
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const chooseSystem = (system: string) => act(() => { fireEvent.change(field(t('phase_graph_system_label')), {target: {value: system}}); });
 const entry = (name: 'a' | 'b' | 'c' | 'd', value: string) => type(t(`phase_graph_matrix_${name}_label`), value);
-const seedX = (n: number, value: string) => type(t('phase_graph_seed_x_label', {value0: String(n)}), value);
-const seedY = (n: number, value: string) => type(t('phase_graph_seed_y_label', {value0: String(n)}), value);
-const seedTheta = (n: number, value: string) => type(t('phase_graph_seed_theta_label', {value0: String(n)}), value);
-const seedOmega = (n: number, value: string) => type(t('phase_graph_seed_omega_label', {value0: String(n)}), value);
+const seedX = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, x`, value);
+const seedY = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, y`, value);
+const seedTheta = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, θ`, value);
+const seedOmega = (n: number, value: string) => type(`${t('phase_graph_seed_point', {value0: String(n)})}, ω`, value);
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-phase-status]')?.textContent;
 const inset = () => document.querySelector('[data-phase-inset]')?.getAttribute('aria-label');

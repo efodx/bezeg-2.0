@@ -487,8 +487,8 @@ function mountPhase(language: Language) {
         seed: (n: number, axis: 1 | 2, value: string) => {
             const pendulum = stateOf().system === 'pendulum';
             const label = axis === 1
-                ? (pendulum ? t('phase_graph_seed_theta_label', {value0: String(n)}) : t('phase_graph_seed_x_label', {value0: String(n)}))
-                : (pendulum ? t('phase_graph_seed_omega_label', {value0: String(n)}) : t('phase_graph_seed_y_label', {value0: String(n)}));
+                ? `${t('phase_graph_seed_point', {value0: String(n)})}, ${pendulum ? 'θ' : 'x'}`
+                : `${t('phase_graph_seed_point', {value0: String(n)})}, ${pendulum ? 'ω' : 'y'}`;
             typeIn(label, value);
         },
         plus: () => act(() => { fireEvent.click(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})); }),
@@ -539,9 +539,9 @@ const PP_NAMES: Record<string, (() => string)[]> = {
     'pp1-euler': [() => t('phase_graph_time_label'), () => t('phase_graph_r_seed', {value0: '1'})],
     'pp1-free': [nm(() => t('phase_graph_r_type_linear'))],
     'pp2-small': [() => t('phase_graph_system_label'), () => t('phase_graph_system_pendulum').split(' θ')[0], () => t('phase_graph_r_energy', {value0: '1'}), statusName(() => t('phase_graph_status_type_linearization', {value0: '#', value1: '#', value2: '#'}))],
-    'pp2-larger': [() => t('phase_graph_seeds_plus'), () => t('phase_graph_seed_theta_label', {value0: '2'}), () => t('phase_graph_seed_theta_label', {value0: '3'}), () => t('phase_graph_r_energy', {value0: '1'})],
-    'pp2-cross': [() => t('phase_graph_seed_omega_label', {value0: '1'}), () => t('phase_graph_r_energy', {value0: '1'}), () => t('phase_graph_r_seed', {value0: '1'}), nm(() => t('phase_graph_cap_separatrix'))],
-    'pp2-separatrix': [() => t('phase_graph_seed_omega_label', {value0: '1'}), () => t('phase_graph_time_label'), () => t('phase_graph_r_seed', {value0: '1'}), statusName(() => t('phase_graph_status_ended', {value0: '#'}))],
+    'pp2-larger': [() => t('phase_graph_seeds_plus'), () => t('phase_graph_seed_point', {value0: '2'}), () => t('phase_graph_seed_point', {value0: '3'}), () => t('phase_graph_r_energy', {value0: '1'})],
+    'pp2-cross': [() => t('phase_graph_seed_point', {value0: '1'}), () => t('phase_graph_r_energy', {value0: '1'}), () => t('phase_graph_r_seed', {value0: '1'}), nm(() => t('phase_graph_cap_separatrix'))],
+    'pp2-separatrix': [() => t('phase_graph_seed_point', {value0: '1'}), () => t('phase_graph_time_label'), () => t('phase_graph_r_seed', {value0: '1'}), statusName(() => t('phase_graph_status_ended', {value0: '#'}))],
     'pp2-free': [() => t('phase_graph_seeds_plus')],
 };
 const ppText = (id: string, language: Language) => {
@@ -584,7 +584,7 @@ describe('PP1 and PP2 open on a real PhasePortraitGraph, in sl and en', () => {
                 expect(screen.getByRole('button', {name: t('phase_graph_seeds_plus')})).toBeTruthy();
                 expect(document.querySelector('[data-readout="seed-1"] dt')?.textContent).toBe(t('phase_graph_r_seed', {value0: '1'}));
                 expect(document.querySelector('[data-readout="energy-1"] dt')?.textContent ?? null).toBe(pendulum ? t('phase_graph_r_energy', {value0: '1'}) : null);
-                expect(m.field(pendulum ? t('phase_graph_seed_theta_label', {value0: '1'}) : t('phase_graph_seed_x_label', {value0: '1'}))).toBeTruthy();
+                expect(m.field(`${t('phase_graph_seed_point', {value0: '1'})}, ${pendulum ? 'θ' : 'x'}`)).toBeTruthy();
                 if (!pendulum) for (const [id, label] of [['tau', t('phase_graph_r_tau')], ['delta', t('phase_graph_r_delta')], ['discriminant', t('phase_graph_r_discriminant')], ['eigen', t('phase_graph_r_eigen')], ['type', t('phase_graph_r_type_linear')]]) expect(document.querySelector(`[data-readout="${id}"] dt`)?.textContent).toBe(label);
                 expect(document.querySelector('[data-phase-inset]')).toBeTruthy();
             }

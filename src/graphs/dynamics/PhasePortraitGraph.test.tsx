@@ -91,8 +91,9 @@ function run(graph: ObservedGraph, limit = 400) {
 }
 const labels = {
     a: () => t('phase_graph_matrix_a_label'), b: () => t('phase_graph_matrix_b_label'), c: () => t('phase_graph_matrix_c_label'), d: () => t('phase_graph_matrix_d_label'),
-    seedX: (n: number) => t('phase_graph_seed_x_label', {value0: String(n)}), seedY: (n: number) => t('phase_graph_seed_y_label', {value0: String(n)}),
-    seedTheta: (n: number) => t('phase_graph_seed_theta_label', {value0: String(n)}), seedOmega: (n: number) => t('phase_graph_seed_omega_label', {value0: String(n)}),
+    // A seed is one row of a point list: its fields are named "<point>, <axis>".
+    seedX: (n: number) => `${t('phase_graph_seed_point', {value0: String(n)})}, x`, seedY: (n: number) => `${t('phase_graph_seed_point', {value0: String(n)})}, y`,
+    seedTheta: (n: number) => `${t('phase_graph_seed_point', {value0: String(n)})}, θ`, seedOmega: (n: number) => `${t('phase_graph_seed_point', {value0: String(n)})}, ω`,
     system: () => t('phase_graph_system_label'),
 };
 const chooseSystem = (system: string) => act(() => { fireEvent.change(field(labels.system()), {target: {value: system}}); });
@@ -343,7 +344,7 @@ describe('the linear handles and numeric input', () => {
     test('every numeric field and the zoom slider is described by the help that states the ranges', () => {
         mountGraph();
         const described = (label: string) => expect(field(label).getAttribute('aria-describedby') ?? '').toContain('phase-portrait-input-help');
-        for (const label of [labels.a(), labels.b(), labels.c(), labels.d(), labels.seedX(1), labels.seedY(1)]) described(label);
+        for (const label of [labels.a(), labels.b(), labels.c(), labels.d()]) described(label);
         const help = document.querySelector('p.form-text[id^="phase-portrait-input-help"]')!.textContent!;
         expect(help).toContain('−4');
         expect(help).toContain('0,25');

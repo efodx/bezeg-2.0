@@ -4,6 +4,7 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelP
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
@@ -288,12 +289,16 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     /** Typed start coordinate: refused (false) unless it is on the grid inside [-4, 4]; the other coordinate stays. */
     protected setStartFromInput(axis: 0 | 1, input: number): boolean {
-        const snapped = snapStartInput(input, "start");
-        if (!snapped.ok || snapped.value.adjusted) return false;
         const current = startOf(this.model);
-        const next: Vec2 = axis === 0 ? [snapped.value.value, current[1]] : [current[0], snapped.value.value];
+        return axis === 0 ? this.setStartPointFromInput(input, current[1]) : this.setStartPointFromInput(current[0], input);
+    }
+
+    /** A typed start row (both coordinates): refused as a whole unless both are on the grid inside [-4, 4]. */
+    protected setStartPointFromInput(x: number, y: number): boolean {
+        const [sx, sy] = [snapStartInput(x, "start"), snapStartInput(y, "start")];
+        if (!sx.ok || sx.value.adjusted || !sy.ok || sy.value.adjusted) return false;
         this.notice = undefined;
-        this.commitModel({...this.model, start: next});
+        this.commitModel({...this.model, start: [sx.value.value, sy.value.value]});
         return true;
     }
 
@@ -490,12 +495,14 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         return true;
     }
 
-    /** One coordinate of the translation or the pivot from typed input; refused unless on the grid inside [-4, 4]. */
-    protected setVectorFromInput(field: VectorField, axis: 0 | 1, input: number): boolean {
-        const edited = editVectorCoordinate(this.model, field, axis, input);
-        if (!edited.ok) throw new DomainError(edited.error.message);
-        if (edited.value.adjusted) return false;
-        this.commitModel(edited.value.state);
+    /** The translation or the pivot as a typed row (both coordinates): refused as a whole unless both are on the grid inside [-4, 4]. */
+    protected setVectorPointFromInput(field: VectorField, x: number, y: number): boolean {
+        const first = editVectorCoordinate(this.model, field, 0, x);
+        if (!first.ok) throw new DomainError(first.error.message);
+        const second = editVectorCoordinate(first.value.state, field, 1, y);
+        if (!second.ok) throw new DomainError(second.error.message);
+        if (first.value.adjusted || second.value.adjusted) return false;
+        this.commitModel(second.value.state);
         return true;
     }
 
@@ -872,10 +879,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const startHelpId = `linear-map-start-help-${this.uid}`;
         const stepCounterId = `linear-map-step-counter-${this.uid}`;
         const start = startOf(state);
-        const startEntry = (axis: 0 | 1) => (
-            <NumberInput label={axis === 0 ? t("linear_map_start_x_label") : t("linear_map_start_y_label")} value={start[axis]} step={MATRIX_ENTRY_STEP}
-                         decimals={2} min={-4} max={4} describedBy={startHelpId} rejectedHint={t("linear_map_start_rejected")}
-                         onChange={next => this.setStartFromInput(axis, next)}/>
+        const startRow = (
+            <PointListInput title={t("linear_map_start_title")} points={[[start[0], start[1]] as const]} pointLabel={() => "v₀"}
+                            step={MATRIX_ENTRY_STEP} bigStep={1} decimals={2} min={-4} max={4}
+                            onCommit={(_, [x, y]) => { if (!this.setStartPointFromInput(x, y)) return t("linear_map_start_rejected"); }}/>
         );
         const playing = this.isPlaying();
         const step = stepOf(state);
@@ -931,10 +938,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             </div>}
             {iterating && <div className="inspector-group">
                 <p className="inspector-help" data-linear-map-iterate-gloss="">{t("linear_map_note_iterate")}</p>
-                <div className="function-points-grid">
-                    {startEntry(0)}
-                    {startEntry(1)}
-                </div>
+                {startRow}
                 <p id={startHelpId} className="inspector-help">{t("linear_map_start_help")}</p>
                 <ReducedMotion>{() =>
                     <PlaybackButtons placement="graph" groupLabel={t("linear_map_playback_group")} nextLabel={t("next_step")} resetLabel={t("reset")}
@@ -991,10 +995,12 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 </div>
             );
         };
-        const vectorEntry = (field: VectorField, axis: 0 | 1, label: string, helpId: string) => (
-            <NumberInput label={label} value={(state[field] ?? [0, 0])[axis]} describedBy={helpId} {...gridProps}
-                         onChange={next => this.accepted(() => this.setVectorFromInput(field, axis, next))}/>
-        );
+        const vectorRow = (field: VectorField, title: string, name: string) => {
+            const vector = state[field] ?? [0, 0];
+            return <PointListInput title={title} points={[[vector[0], vector[1]] as const]} pointLabel={() => name}
+                                   step={MATRIX_ENTRY_STEP} grid={MATRIX_ENTRY_STEP} bigStep={1} decimals={2} min={-4} max={4}
+                                   onCommit={(_, [x, y]) => { if (!this.accepted(() => this.setVectorPointFromInput(field, x, y))) return t("linear_map_start_rejected"); }}/>;
+        };
         const translationHelpId = `linear-map-comp-translation-help-${this.uid}`;
         const pivotHelpId = `linear-map-comp-pivot-help-${this.uid}`;
         return <>
@@ -1002,19 +1008,13 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             {slotGroup("first", "A")}
             {slotGroup("second", "B")}
             <div className="inspector-group">
-                <div className="function-points-grid">
-                    {vectorEntry("translation", 0, t("linear_map_comp_translation_x"), translationHelpId)}
-                    {vectorEntry("translation", 1, t("linear_map_comp_translation_y"), translationHelpId)}
-                </div>
+                {vectorRow("translation", t("linear_map_comp_translation_title"), "b")}
                 <p id={translationHelpId} className="inspector-help">{t("linear_map_comp_translation_help")}</p>
             </div>
             <div className="inspector-group">
                 <OnOffSwitch checked={state.pivot !== undefined} label={t("linear_map_comp_pivot_toggle")}
                              onChange={checked => this.ignoreOutOfDomain(() => this.setPivotOn(checked))}/>
-                {state.pivot !== undefined && <div className="function-points-grid">
-                    {vectorEntry("pivot", 0, t("linear_map_comp_pivot_x"), pivotHelpId)}
-                    {vectorEntry("pivot", 1, t("linear_map_comp_pivot_y"), pivotHelpId)}
-                </div>}
+                {state.pivot !== undefined && vectorRow("pivot", t("linear_map_comp_pivot_title"), "c")}
                 <p id={pivotHelpId} className="inspector-help">{t("linear_map_comp_pivot_help")}</p>
                 {state.pivot === undefined && <p className="inspector-help" data-linear-map-pivot-off="">{t("linear_map_comp_pivot_off")}</p>}
             </div>

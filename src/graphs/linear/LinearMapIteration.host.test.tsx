@@ -135,7 +135,7 @@ describe('Presets stored before Batch D load unchanged', () => {
         const {graph} = mountGraph();
         act(() => { graph.importPresetData((checked as {data: LinearMapState}).data); });
         expect(JSON.parse(JSON.stringify(graph.exportPresetData()))).toEqual(stored);
-        expect(field(t('linear_map_start_x_label')).value).toBe('−1,25');
+        expect(field('v₀, x').value).toBe('−1,25');
         expect(counter()).toBe(t('step_counter', {value0: 7, value1: ITERATE_STEP_MAX}));
         expect('rejection' in linearMapPresetCollection.check({...stored, start: [0.3, 0]})).toBe(true);
     });
@@ -171,8 +171,8 @@ describe('actions, start handle and typed start', () => {
         dragTo(graph.startPoint(), 2.13, -0.9);
         expect(graph.modelNow().start).toEqual([2.25, -1]);
         expect([graph.startPoint().X(), graph.startPoint().Y()]).toEqual([2.25, -1]);
-        expect(field(t('linear_map_start_x_label')).value).toBe('2,25');
-        expect(field(t('linear_map_start_y_label')).value).toBe('−1');
+        expect(field('v₀, x').value).toBe('2,25');
+        expect(field('v₀, y').value).toBe('−1');
         dragTo(graph.startPoint(), 9, -9);
         expect(graph.modelNow().start).toEqual([4, -4]);
     });
@@ -180,12 +180,12 @@ describe('actions, start handle and typed start', () => {
     test('a typed start off the grid is refused with the hint and changes nothing; on the grid it is accepted', () => {
         const {graph} = mountGraph();
         iterate(graph);
-        act(() => { enterNumber(field(t('linear_map_start_x_label')), '0.3'); });
+        act(() => { enterNumber(field('v₀, x'), '0.3'); });
         expect(graph.modelNow().start).toEqual([1, 0]);
         expect(document.body.textContent).toContain(t('linear_map_start_rejected'));
-        act(() => { enterNumber(field(t('linear_map_start_x_label')), '5'); });
+        act(() => { enterNumber(field('v₀, x'), '5'); });
         expect(graph.modelNow().start).toEqual([1, 0]);
-        act(() => { enterNumber(field(t('linear_map_start_y_label')), '-1,5'); });
+        act(() => { enterNumber(field('v₀, y'), '-1,5'); });
         expect(graph.modelNow().start).toEqual([1, -1.5]);
         expect(graph.typeStart(0, 0.3)).toBe(false);
         act(() => { expect(graph.typeStart(0, 2)).toBe(true); });
@@ -620,7 +620,7 @@ describe('review repairs (F2a task 11)', () => {
         expect(screen.getByRole('button', {name: t('next_step')}).getAttribute('aria-describedby')).toContain(counterElement.id);
         const gloss = document.querySelector('[data-linear-map-iterate-gloss]')!;
         expect(gloss.textContent).toBe(t('linear_map_note_iterate'));
-        expect(gloss.compareDocumentPosition(field(t('linear_map_start_x_label'))) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect(gloss.compareDocumentPosition(field('v₀, x')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
     test('the tracedet mode is named for the plane in both languages', () => {

@@ -12,6 +12,7 @@ import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
@@ -936,6 +937,19 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
         return true;
     }
 
+    /** A typed seed row (both coordinates): refused as a whole unless both are on the 1/20 grid inside [-4, 4]. */
+    editSeedPoint(index: number, x: number, y: number): boolean {
+        const seed = this.state.seeds[index];
+        if (!seed) return false;
+        const checkedX = typedInteger(x, SEED_SCALE, SEED_RANGE, "X");
+        const checkedY = typedInteger(y, SEED_SCALE, SEED_RANGE, "Y");
+        if (!checkedX.ok || !checkedY.ok) return false;
+        if (checkedX.value !== seed.X || checkedY.value !== seed.Y) {
+            this.edit({seeds: this.state.seeds.map((other, i) => (i === index ? {...other, X: checkedX.value, Y: checkedY.value} : other))});
+        }
+        return true;
+    }
+
     /** The number of seeds, 1 to 6: more seeds are taken from a fixed list of grid points, fewer drop the last ones. */
     setSeedCount(count: number): boolean {
         if (!Number.isInteger(count) || count < SEEDS_MIN || count > SEEDS_MAX) return false;
@@ -1130,15 +1144,17 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                             onChange={value => this.editEntry(field, value)}/>;
     }
 
-    private seedFields(index: number): JSX.Element[] {
-        const seed = this.state.seeds[index];
+    private seedList(): JSX.Element {
         const pendulum = this.state.system === "pendulum";
-        const n = String(index + 1);
-        const axis = (key: "X" | "Y", label: string) => <NumberInput key={`seed-${index}-${key}`} label={label} value={seedOf(seed[key])} step={1 / SEED_SCALE} bigStep={1}
-            min={SEED_RANGE.min / SEED_SCALE} max={SEED_RANGE.max / SEED_SCALE} decimals={2} describedBy={this.helpId}
-            onChange={value => this.editSeed(index, key, value)}/>;
-        return [axis("X", t(pendulum ? "phase_graph_seed_theta_label" : "phase_graph_seed_x_label", {value0: n})),
-            axis("Y", t(pendulum ? "phase_graph_seed_omega_label" : "phase_graph_seed_y_label", {value0: n}))];
+        const range = {value0: dec(SEED_RANGE.min / SEED_SCALE, 0), value1: dec(SEED_RANGE.max / SEED_SCALE, 0), value2: dec(1 / SEED_SCALE, 2)};
+        return <div className="inspector-group" key="seed-points">
+            <PointListInput title={t("phase_graph_seeds_title")} points={this.state.seeds.map(seed => [seedOf(seed.X), seedOf(seed.Y)] as const)}
+                            pointLabel={index => t("phase_graph_seed_point", {value0: String(index + 1)})} axisLabels={pendulum ? ["θ", "ω"] : ["x", "y"]}
+                            min={SEED_RANGE.min / SEED_SCALE} max={SEED_RANGE.max / SEED_SCALE} step={1 / SEED_SCALE} bigStep={1} decimals={2}
+                            onCommit={(index, [x, y]) => {
+                                if (!this.editSeedPoint(index, x, y)) return t("phase_graph_seed_rejected", range);
+                            }}/>
+        </div>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -1163,7 +1179,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                          onPlus={() => this.setSeedCount(state.seeds.length + 1)} onMinus={() => this.setSeedCount(state.seeds.length - 1)}
                          onSet={value => this.setSeedCount(value)}/>,
         );
-        state.seeds.forEach((_, index) => commands.push(...this.seedFields(index)));
+        commands.push(this.seedList());
         commands.push(
             <Slider key="zoom" customText={t("phase_graph_zoom_label")} min={ZOOM_RANGE.min} max={ZOOM_RANGE.max} step={1} grid={1} bigStep={1} value={state.zoom}
                     decimals={0} help={t("phase_graph_zoom_help", {value0: String(ZOOM_RANGE.min), value1: String(ZOOM_RANGE.max), value2: dec(halfWidthOf(state.zoom), 4)})}
