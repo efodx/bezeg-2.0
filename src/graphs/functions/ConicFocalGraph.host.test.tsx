@@ -6,6 +6,7 @@ import {GraphHost} from '../base/GraphHost';
 import {renderMessage, setLanguage} from '../../localization';
 import {functionPresetCollections} from './functionPresetCollections';
 import {CONIC_EXAMPLE_MODELS, conicFocalView} from '../../analysis/conicFocalModel';
+import {GraphPalette} from '../styles/GraphPalette';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -26,11 +27,20 @@ interface BoardPoint {
     triggerEventHandlers(events: string[], args: unknown[]): void;
 }
 
+interface StyledSegment {
+    elType: string;
+    point1: {X(): number; Y(): number};
+    point2: {X(): number; Y(): number};
+    evalVisProp(name: string): unknown;
+}
+
 /** A real graph through the real host and a real JSXGraph board (jsdom). */
 class ObservedConicGraph extends ConicFocalGraph {
     modelNow() { return this.model; }
     ownedObjects() { return this.generatedObjectCount; }
     boardObjects() { return this.board.objectsList.length; }
+    boardSegments() { return (this.board.objectsList as unknown as StyledSegment[]).filter(object => object.elType === 'segment'); }
+    boardLines() { return (this.board.objectsList as unknown as StyledSegment[]).filter(object => object.elType === 'line'); }
     editEpsilon(value: number) { this.setEpsilon(value); }
     editEll(value: number) { this.setEll(value); }
     editPhi(value: number) { this.setPhi(value); }
@@ -68,6 +78,29 @@ test('mounts on the ellipse with the spec numbers: |PF| 5, |Pd| 6.25, ratio 0.8,
     const p = graph.boardP();
     expect(p.X()).toBeCloseTo(0, 6);
     expect(p.Y()).toBeCloseTo(3, 6);
+});
+
+test('the defining distances are drawn as a blue |PF| and a rust-red |Pd| of the conic width; the second-focus segment is quiet and dashed', () => {
+    const {graph} = mountGraph();
+    const colour = (s: StyledSegment) => String(s.evalVisProp('strokecolor')).toLowerCase();
+    const length = (s: StyledSegment) => Math.hypot(s.point1.X() - s.point2.X(), s.point1.Y() - s.point2.Y());
+    const segments = graph.boardSegments();
+    const pf = segments.find(s => colour(s) === GraphPalette.comparisonCurve.toLowerCase())!;
+    const pd = segments.find(s => colour(s) === GraphPalette.emphasis.toLowerCase())!;
+    const quiet = segments.find(s => colour(s) === GraphPalette.referenceCurve.toLowerCase())!;
+    expect([pf, pd, quiet].every(Boolean)).toBe(true);
+    expect(Number(pf.evalVisProp('strokewidth'))).toBeGreaterThanOrEqual(2.5);
+    expect(Number(pd.evalVisProp('strokewidth'))).toBe(Number(pf.evalVisProp('strokewidth')));
+    expect(Number(pf.evalVisProp('dash'))).toBe(0);
+    expect(Number(pd.evalVisProp('dash'))).toBe(0);
+    expect(Number(quiet.evalVisProp('dash'))).toBeGreaterThan(0);
+    expect(Number(quiet.evalVisProp('strokewidth'))).toBeLessThan(Number(pf.evalVisProp('strokewidth')));
+    expect(length(pf)).toBeCloseTo(num('pf'), 6);
+    expect(length(pd)).toBeCloseTo(num('pd'), 6);
+    expect(length(pf)).toBeCloseTo(num('ratio') * length(pd), 6);
+    const [directrix] = graph.boardLines();
+    expect(String(directrix.evalVisProp('strokecolor')).toLowerCase()).toBe(GraphPalette.referenceCurve.toLowerCase());
+    expect(Number(directrix.evalVisProp('dash'))).toBeGreaterThan(0);
 });
 
 test('the parabola and hyperbola examples show the spec numbers; the ratio equals the eccentricity', () => {

@@ -38,6 +38,8 @@ export interface ThreeViewsGraphState extends BaseGraphState {
 const STEPS: Readonly<Record<string, number>> = {ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1};
 const TENTHS_PER_UNIT = 10;
 const CIRCLE_SAMPLES = 120;
+/** The panel frames are context: half the width they had, in the quiet tick colour, so the conics read stronger. */
+const FRAME_WIDTH = 0.5;
 
 const sourceX = (x: number): number => SOURCE_CENTRE + SOURCE_SCALE * x;
 const sourceY = (y: number): number => SOURCE_SCALE * y;
@@ -303,7 +305,7 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
 
         // The panel frames and titles.
         for (const centre of [SOURCE_CENTRE, IMAGE_CENTRE]) {
-            fixedCurve(() => frame(centre), {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1, layer: 1});
+            fixedCurve(() => frame(centre), {strokeColor: GraphPalette.tick, strokeWidth: FRAME_WIDTH, layer: 1});
         }
         text(() => SOURCE_CENTRE - PANEL_HALF_WIDTH + 0.2, () => PANEL_HALF_HEIGHT - 0.5, () => describeThreeViews(this.scene(), t, currentLanguage()).sourceTitle);
         text(() => IMAGE_CENTRE - PANEL_HALF_WIDTH + 0.2, () => PANEL_HALF_HEIGHT - 0.5, () => describeThreeViews(this.scene(), t, currentLanguage()).imageTitle);
@@ -327,7 +329,7 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         fixedCurve(() => {
             const height = sourceY(this.scene().cValue);
             return {x: [SOURCE_CENTRE - PANEL_HALF_WIDTH, SOURCE_CENTRE + PANEL_HALF_WIDTH], y: [height, height]};
-        }, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, layer: 3});
+        }, {strokeColor: GraphPalette.emphasis, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth), layer: 5});
         text(() => SOURCE_CENTRE + PANEL_HALF_WIDTH - 1.6, () => sourceY(this.scene().cValue) + 0.3, () => `L: y = ${describeThreeViews(this.scene(), t, currentLanguage()).cText}`);
 
         // The points where L meets the circle (one or two, none when L misses it).
@@ -346,7 +348,7 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         fixedCurve(() => {
             const d = this.polyline(this.scene());
             return {x: d.x.map(imageX), y: d.y};
-        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4});
+        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4});
 
         // The asymptote directions (hyperbola) or the axis direction (parabola): a dashed ray to the window edge and a marker for the point at infinity.
         for (const index of [0, 1] as const) {

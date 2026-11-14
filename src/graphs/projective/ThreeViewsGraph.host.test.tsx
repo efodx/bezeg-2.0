@@ -7,6 +7,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {typeNumber} from './controlsTest';
+import {GraphPalette} from '../styles/GraphPalette';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -102,6 +103,24 @@ test('the slider commits tenths (its value is c) and the type changes ellipse, p
     expect(line('infinity')).toContain('(1, 1)');
     expect(line('infinity')).toContain('asimptot');
     expect(line('equation')).toContain('X² − Y² + 1 = 0');
+});
+
+test('roles: moss source conic, blue image conic of the same width, one rust-red line L at least as wide, quiet thin frames', () => {
+    const graph = new Observed();
+    mount(graph);
+    const colour = (c: Curve) => String(c.evalVisProp('strokecolor')).toLowerCase();
+    const width = (c: Curve) => Number(c.evalVisProp('strokewidth'));
+    const byColour = (hex: string) => curves(graph).filter(c => colour(c) === hex.toLowerCase());
+    const [source] = byColour(GraphPalette.primaryCurve);
+    const [image] = byColour(GraphPalette.comparisonCurve);
+    const [lineL] = byColour(GraphPalette.emphasis);
+    expect([byColour(GraphPalette.primaryCurve), byColour(GraphPalette.comparisonCurve), byColour(GraphPalette.emphasis)].map(list => list.length)).toEqual([1, 1, 1]);
+    expect(width(image)).toBe(width(source));
+    expect(width(lineL)).toBeGreaterThanOrEqual(width(source));
+    const frames = byColour(GraphPalette.tick);
+    expect(frames).toHaveLength(2);
+    frames.forEach(frame => expect(width(frame)).toBeLessThanOrEqual(width(source) / 2));
+    expect(byColour(GraphPalette.constructionAccent).filter(c => c.evalVisProp('visible') !== false)).toHaveLength(0);
 });
 
 test('the hyperbola is drawn as one polyline broken once (two branches, never joined)', () => {

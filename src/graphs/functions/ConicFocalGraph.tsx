@@ -143,6 +143,9 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         const view = () => this.viewOf(this.model);
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.6);
+        // The directrix is context but must stay at least as strong as the axes; the two defining distances are content, half as wide again as the conic.
+        const directrixWidth = this.displayThinWidth(0.8);
+        const distanceWidth = () => strokeWidth() * 1.5;
         const compact = () => this.boardWidth() < COMPACT_BOARD_WIDTH;
         const hasDirectrix = () => view().conic.directrix !== undefined;
         const hasSecondFocus = () => view().secondFocus !== null;
@@ -154,7 +157,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
             [() => directrix().nx * directrix().d, () => directrix().ny * directrix().d],
             [() => directrix().nx * directrix().d - directrix().ny, () => directrix().ny * directrix().d + directrix().nx],
         ], {
-            strokeColor: GraphPalette.referenceCurve, dash: DIRECTRIX_DASH, strokeWidth: thin, highlight: false, fixed: true, withLabel: false,
+            strokeColor: GraphPalette.referenceCurve, dash: DIRECTRIX_DASH, strokeWidth: directrixWidth, highlight: false, fixed: true, withLabel: false,
             visible: hasDirectrix,
         }));
         [0, 1].forEach(index => {
@@ -177,18 +180,18 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
             bridge.dataY = samples.map(point => point.y);
         };
 
-        const segment = (from: () => [number, number], to: () => [number, number], color: string, dash: number | undefined, visible: () => boolean) =>
+        const segment = (from: () => [number, number], to: () => [number, number], color: string, dash: number | undefined, visible: () => boolean, width: () => number = thin) =>
             this.own(board.create("segment", [from, to], {
-                strokeColor: color, strokeWidth: thin, ...(dash === undefined ? {} : {dash}), highlight: false, fixed: true, withLabel: false,
+                strokeColor: color, strokeWidth: width, ...(dash === undefined ? {} : {dash}), highlight: false, fixed: true, withLabel: false,
                 firstArrow: false, lastArrow: false, visible,
             }));
         const focus = (): [number, number] => [view().conic.focus.x, view().conic.focus.y];
         const second = (): [number, number] => [view().secondFocus?.x ?? 0, view().secondFocus?.y ?? 0];
         const pointP = (): [number, number] => [view().p.x, view().p.y];
         const foot = (): [number, number] => [view().foot?.x ?? 0, view().foot?.y ?? 0];
-        segment(pointP, focus, GraphPalette.constructionAccent, undefined, () => true);
-        segment(pointP, foot, GraphPalette.constructionLevels[3], undefined, hasDirectrix);
-        segment(pointP, second, GraphPalette.constructionLevels[3], 2, hasSecondFocus);
+        segment(pointP, focus, GraphPalette.comparisonCurve, undefined, () => true, distanceWidth);
+        segment(pointP, foot, GraphPalette.emphasis, undefined, hasDirectrix, distanceWidth);
+        segment(pointP, second, GraphPalette.referenceCurve, 2, hasSecondFocus);
 
         const fixedPoint = (name: string, at: () => [number, number], color: string, visible: () => boolean) =>
             this.own(board.create("point", [() => at()[0], () => at()[1]], {
@@ -287,7 +290,8 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         return <FunctionLegend items={[
             {id: "conic", color: GraphPalette.primaryCurve, label: t("conic_legend_conic"), kind: "line"},
             {id: "directrix", color: GraphPalette.referenceCurve, label: t("conic_legend_directrix"), kind: "dashed-line"},
-            {id: "distances", color: GraphPalette.constructionAccent, label: t("conic_legend_distances"), kind: "line"},
+            {id: "pf", color: GraphPalette.comparisonCurve, label: t("conic_legend_pf"), kind: "line"},
+            {id: "pd", color: GraphPalette.emphasis, label: t("conic_legend_pd"), kind: "line"},
             {id: "bridge", color: GraphPalette.comparisonCurve, label: t("conic_legend_bridge"), kind: "dashed-line"},
             {id: "focus", color: GraphPalette.constructionAccent, label: t("conic_legend_focus"), kind: "dot"},
         ]}/>;
