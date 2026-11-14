@@ -276,6 +276,11 @@ const captureText = {
     // The value labels f(-1), f(0), f(2) lie on the axis tick numbers and the dashed guides: nothing kept.
     extrema: {keep: [], strip: []},
     'arc-length': {keep: [/^f\(x\) = /], strip: []},
+    // Repaired capture tooling (B8e): the sequence keeps its N tag; the accumulation keeps its plus sign; the Euler readouts are values the motion shows.
+    sequence: {keep: [/^N( = \d+)?$/], strip: []},
+    'euler-method': {keep: [], strip: []},
+    accumulation: {keep: [/^\+$/], strip: []},
+    derivative: {keep: [/^f\(x\) = /], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
@@ -384,7 +389,14 @@ async function applyAction(page, action) {
         // A declared display precision checks that draft; the concept's board check
         // must independently verify the full-precision mathematical coordinate.
         const displayed = action.displayDecimals === undefined ? action.value : Number(action.value.toFixed(action.displayDecimals));
-        assert.equal(readLocalizedNumber(await control.inputValue()), displayed);
+        // A Slider's exact field commits the typed value a moment after blur (it first shows the previous or a transient draft), so wait for it to settle.
+        let shown;
+        for (let attempt = 0; attempt < 40; attempt++) {
+            shown = readLocalizedNumber(await control.inputValue());
+            if (shown === displayed) break;
+            await page.waitForTimeout(50);
+        }
+        assert.equal(shown, displayed);
     } else {
         // Native range keyboard handling is the same supported UI path as pointer dragging.
         const config = await control.evaluate(e => ({min: Number(e.min), max: Number(e.max), step: Number(e.step) || 1}));

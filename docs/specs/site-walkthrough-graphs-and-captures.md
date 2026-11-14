@@ -472,4 +472,15 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8a2/` (served as `walkt
 
 - Keep the formula line: `function-inverse`, `definite-integral`, `arc-length` (`^f\(x\) = `); `polynomial-zeros` (`^×[2-9]$`, `^p\(x\) = `); `fixed-point` (`^x1$`).
 - Remove: `geometric-series`, `continuity`; `rational-function` and `extrema` too, although the triage proposed keeping asymptote names and extremum values: kept, they lay on the tick numbers and the dashed guides. `extrema`'s per-id override in `capture-demonstration-previews.cjs` (forced conclusion row, its visibility assertion) is dropped; the override now serves `convexity` only.
-- **Not done:** `area-between-curves` (recipe expects "Meja b" to read 3.2, the slider gives 3.22, `demonstration-preview-recipes.cjs:386`); `derivative` (with the formula line kept, the sweep's last frame differs from the recipe frame, `demonstration-preview-motion.cjs:673` via `assertSweepFrame`; not investigated).
+- **Not done:** `area-between-curves` (recipe expects "Meja b" to read 3.2, the slider gives 3.22, `demonstration-preview-recipes.cjs:386`); `derivative` (with the formula line kept, the sweep's last frame differs from the recipe frame, `demonstration-preview-motion.cjs:673` via `assertSweepFrame`; not investigated). Both handled in B8e.
+
+### B8e Capture-tool repair (handler 4, 2026-11-15; shown to the owner, waiting for his look)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8e/` (served as `walkthrough-graphs/b8e.html`). The capture tool, not the app, was out of date.
+
+- Slider fields commit a typed value shortly after blur, so a recipe's readback now waits for the committed value (`applyAction` in `demonstration-preview-recipes.cjs`); the value check itself is unchanged. This cleared `sequence` (ε read 0.1 for 0.3) and the "Meja b" 3.22 of `area-between-curves`.
+- `euler-method`: the clip row names the current control "P₀, y₀". Text Remove.
+- `accumulation`: the held-state check reads "Točka x, vrednost", the Slider that replaced the "Točka x" field. Keeps `^\+$`.
+- `derivative`: JSXGraph rewrites the moving readout each frame and undid the hiding; a sweep now re-presents every frame for a recipe with a `text` entry. Keeps `^f\(x\) = `, clear of the tick numbers.
+- `sequence`: keeps the tag, which reads "N" on the board, so the pattern is `^N( = \d+)?$` (the triage's `^N = \d+$` matched nothing).
+- **Not done:** `area-between-curves` fails "Decoded background changed at frame 0" (blue 244 for 245 at pixel (40,40), every run), a video-encoding tolerance in its motion spec (`demonstration-preview-analysis-motion.cjs:190-212`), not a text problem. No text entry added yet.

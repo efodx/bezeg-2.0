@@ -70,7 +70,7 @@ function createConceptMotionSpecs(helpers = {}) {
     const accumulationCheck = (sample, first, spec) => {
         const o = sample.observed;
         const x = o.points.find(point => point.name === '$$x$$')?.x;
-        assert.ok(close(inputNumber(sample, 'Točka x'), x, 5e-5), 'The displayed x must match the full-precision board coordinate');
+        assert.ok(close(inputNumber(sample, 'Točka x, vrednost'), x, 5e-5), 'The displayed x must match the full-precision board coordinate');
         const a = inputNumber(sample, 'Spodnja meja a');
         assert.ok(close(a, 0, 1e-9), 'Accumulation lower bound a must remain 0');
         assert.ok([2, Math.PI, 4].some(value => close(x, value, 1e-7)), `Unexpected exact x checkpoint ${x}`);

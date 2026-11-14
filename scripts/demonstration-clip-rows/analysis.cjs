@@ -12,7 +12,7 @@ module.exports = [
     {
         id: 'euler-method',
         motion: 'parameter-sweep',
-        control: {kind: 'number', label: 'Začetni y₀', step: 0.01},
+        control: {kind: 'number', label: 'P₀, y₀', step: 0.01},
         // Start y0 = 1 (DEFAULT_EULER_MODEL in eulerModel.ts:33, x0 = 0, step 0.5, end x = 1); y0 goes down so the exact curve and the polyline stay under the camera top (3); 0.2 and 0.6 left it at the bottom, 0.8 gave too few distinct frames, so it stops at 0.5.
         path: [1, 0.75, 0.5, 0.75, 1],
         lessonQuote: 'Povleci začetno točko in opazuj, kako se spremenita lomljenka ter napaka.',

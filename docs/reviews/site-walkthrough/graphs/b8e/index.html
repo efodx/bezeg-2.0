@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B8e, repaired capture tooling</title>
+<style>
+body{margin:0;padding:24px;background:#f5f7ef;color:#2f3a31;font:16px/1.5 Georgia,serif}main{max-width:1500px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:500;margin:0 0 8px}h2{font-size:1.3rem;font-weight:600;margin:40px 0 4px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:12px}
+figure{margin:0;background:#fffdf5;border:1px solid #d5dccf;border-radius:6px;padding:10px}
+figcaption{font:600 .85rem/1.3 system-ui,sans-serif;text-transform:uppercase;color:#5b6a5c;margin-bottom:6px}
+video{width:100%;height:auto;display:block}
+</style></head><body><main>
+<h1>Batch B8e: four captures after the tooling repair (G03, G04)</h1>
+<p>After files are diagnostic captures (not yet written to the catalog); area between curves is not included.</p>
+<h2>1. Sequence</h2><p>The N tag stays on the threshold line; the readout lines are gone. (Pattern ^N( = \d+)?$, because the board tag reads "N", not "N = 5".)</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/sequence.webm" poster="before/sequence.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/sequence.webm" poster="after/sequence.png" autoplay loop muted playsinline></video></figure></div>
+<h2>2. Euler method</h2><p>No board text; the polyline, the exact curve and the field carry the idea.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/euler-method.webm" poster="before/euler-method.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/euler-method.webm" poster="after/euler-method.png" autoplay loop muted playsinline></video></figure></div>
+<h2>3. Accumulation</h2><p>Only the plus sign of the signed area stays; the readout lines are gone.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/accumulation.webm" poster="before/accumulation.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/accumulation.webm" poster="after/accumulation.png" autoplay loop muted playsinline></video></figure></div>
+<h2>4. Derivative</h2><p>The formula line f(x) = x² stays, the readout line is gone in every frame of the clip.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/derivative.webm" poster="before/derivative.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/derivative.webm" poster="after/derivative.png" autoplay loop muted playsinline></video></figure></div>
+</main></body></html>

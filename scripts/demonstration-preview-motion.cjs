@@ -1720,7 +1720,8 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
             }
             if (Math.abs(target - previousValue) > 1e-12 && sweep.afterChange) await sweep.afterChange(page, target);
             await (spec.settle||settle)(page);
-            if (spec.recipeAligned) await presentBoard(page.locator('#jgbox'), d, recipe, {...presentation, camera:fixedBox});
+            // A capture-text recipe is re-presented every frame too: JSXGraph rewrites a moving readout's text and undoes the hiding (B8e).
+            if (spec.recipeAligned || recipe.text) await presentBoard(page.locator('#jgbox'), d, recipe, {...presentation, camera:fixedBox});
             const value=parseInput(await range.inputValue());
             const shown=await sweep.readout.read({page,range});
             assert.ok(Math.abs(value-target)<1e-9,`Input ${value} differs from scheduled ${target} at frame ${i}`);
