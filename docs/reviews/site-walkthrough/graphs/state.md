@@ -6,11 +6,9 @@ Handler 3, 2026-11-14. Queue: [graphs.md](../../../tasks/site-walkthrough/graphs
 
 **To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/
 
-- **Batch B3, Bézier, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b3.html . Extrapolation (the arc past the end is blue), repeated subdivision (pieces alternate green and blue), degree reduction (the reduced curve has its own blue polygon). On degree reduction the two curves nearly coincide, so the polygons carry the difference: say if you want a scene where the curves differ visibly.
-- **Batch B4, PH and parameterizations, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b4.html . PH offsets are one blue family fading outward from the green base curve; the sample points on the three parameterization graphs are larger blue dots with a light outline; readouts are gone from the cards. The initial Bézier card can be recaptured again and is framed a little tighter.
-- **Batch B5, curve geometry, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b5.html . On the curvature card the osculating circle is the rust-red accent, solid over a faint disc, and the frame is tighter (the circle still fills only about a third of the width, because the control points set the height). On the evolute card the same circle is a thin ring so the blue evolute leads. Readouts are gone from all five cards; `T`, `N`, `E` stay.
-- **B6 conics and three views, in work:** distance to the focus blue and distance to the directrix rust red on the conic card; on the three views the image conic blue, the moving line rust red, lighter frames. It will appear as `b6.html`.
-- Your "I agree" of this evening was taken as agreement with the B5 direction only, not as approval to publish B3.
+- **Batch B6, conics and three views, waits for your yes:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/b6.html . Conic card: the distance to the focus is a strong blue segment, the distance to the directrix a strong rust-red one, the frame is tight on the ellipse and directrix; the legend now has one line per distance. Three views: the image conic is blue, the moving line rust red, the frames light; the card starts with the line closer to the circle (c = 1.4) because at the default the image is a few pixels wide.
+- **B7 rational curves, in work:** weights and ratio numbers leave the three cards (`rational-extrapolation`, `rational-subdivision`, `farin`). It will appear as `b7.html`.
+- **Approved by you this evening and being published:** B3 Bézier, B4 PH and parameterizations, B5 curve geometry (with the thin ring on the evolute card).
 
 **On the public site** (CI passed): pilot captures, Literata graph text, epicycles outlines with the kitten, correlation label fix, convexity sweep, rust envelope line, B1 probability, B2 interpolation, the triage.
 
@@ -18,13 +16,11 @@ Handler 3, 2026-11-14. Queue: [graphs.md](../../../tasks/site-walkthrough/graphs
 
 ## Where things stand
 
-- `master` has this package up to `7b634d9d` (B1, B2, triage; CI green). This branch is rebased onto it and carries, unpublished: B3 (`16f9296d`, `a0908328`), the previous state note, B4 graph changes (`edf853d1`), the `bezier` restore fix (`49e6013a`), B4 captures (`d6f922ba`), B5 (`7b1fe5e0`, `04208bc8`, `9ba253cf`), and state notes in between (the published copies drop out at the next rebase).
-- Publishing an approved batch: the commits sit in order on this branch, so publish from the oldest unpublished commit through the approved batch with `just publish --background --base origin/master --commits <oldest-first list>`. B4's captures were recorded on top of B3's manifest, so B3 goes first or together with B4. If the owner approves B4 but not B3, regenerate the manifest by a capture run on a branch without B3; never merge it by hand.
-- Docs-only publish (this note, the queue): use the helper worktree `.claude/worktrees/graphs-pub` reset to `origin/master`, check out only the doc files from this branch, commit, `just publish --recipe docs`. When `graphs-pub` is no longer needed: remove its `node_modules` junction first (`cmd //c "rmdir node_modules"` inside it), then `git worktree remove ../graphs-pub` and delete the branch.
-- B6 part A (conic and three-views drawing and copy) was dispatched to a worker; its note is `b6/worker.md`. Part B (recipes, captures, page) follows after part A is accepted, committed and built.
-- Verified for B5: unit tests with an observed pre-change failure for the circle style (the context-ring test was added by the handler and not seen failing), typecheck, full lint, `just tooling-test`, build, five captures within 300 KiB and only those five changed in the manifest, the curvature, evolute and offset posters viewed by the handler, a control point dragged through the disc in the browser, SVG export contains the rust colour. Not verified: most 390 px and English screenshots, inspector at 310 px.
-
-Verified for B4: unit tests of the touched graphs with observed pre-change failures (offset colour, marker fill), typecheck, full lint, `just tooling-test`, build, the seven captures within 300 KiB and only those seven changed in the manifest, after posters viewed by the handler (`ph-cubic`, `uniform-parameterization`, `spline-parameterization`, `arc-length-param`), sl 1440 live screenshots viewed by the worker. Not verified: most 390 px and English screenshots, inspector at 310 px, `just check-changed` for B3 and B4 (it runs in the publish).
+- `master` has this package up to B2 and the triage, plus the state notes. A background publish of B3, B4, B5 and the approval note is running from the helper worktree `.claude/worktrees/graphs-pub` (branch `graphs-pub`, run `publish-a2716d27-f84a3d`, recipe `runtime`, nine cherry-picked commits). **Check `cd ../graphs-pub && just publish --status`**; when it says ok, check CI with `gh run list --workflow browser-smoke.yml --branch master --limit 1`, then `git fetch` and `git rebase origin/master` in this worktree when no worker is running (published copies drop out; the old note commit `912f1616` also carries handler 2's evaluation entry, which is not on `master`: keep that file's hunk and take `master`'s state note and queue). If it failed, read `.command-logs/publish-a2716d27-f84a3d.log` there, fix, and republish.
+- This branch carries, unpublished: B6 graph changes (`5d40f57f`) and B6 captures (`df07185b`), shown to the owner on `b6.html`.
+- B7 (capability: the capture-text policy reaches smartlabels; `rational-subdivision`'s check reads the model; then three captures) was dispatched to one worker; its note is `b7/worker.md`.
+- Docs-only publish (this note, the queue): `graphs-pub` reset to `origin/master`, check out only the doc files from this branch, commit, `just publish --recipe docs --base <master sha> --commits <sha>`. Not while a background publish from `graphs-pub` is pending. When `graphs-pub` is no longer needed: remove its `node_modules` junction first (`cmd //c "rmdir node_modules"` inside it), then `git worktree remove ../graphs-pub` and delete the branch.
+- Verified for B6: unit tests with observed pre-change failures for both graphs, `src/learning/content` tests, typecheck, full lint, build, `just tooling-test` and lint after the worker's capture, both captures within 300 KiB and only those two changed in the manifest, both after posters viewed by the handler, legend at 310 px in both languages viewed by the worker, SVG export has both colours. Not verified: `just tooling-test` after the handler's last recipe edit (c = 1.4; the capture itself passed), English three-views screenshot.
 
 ## Open items found in this run
 
@@ -46,11 +42,13 @@ Verified for B4: unit tests of the touched graphs with observed pre-change failu
 
 ## Next slice inputs, in order
 
-1. B3 and B4: wait for the owner's yes on `b3.html` and `b4.html`, then publish; check CI with `gh run list --workflow browser-smoke.yml --branch master --limit 1`.
-2. B5: wait for the owner's yes on `b5.html`, then publish with B3 and B4 or after them.
-3. **B6 conics and three views**: accept part A, then part B: `conic-focal` window tighter (its row sweeps the eccentricity, so the conic changes shape: keep the motion in frame), `projective-three-views` window so the panels fill the frame; both text Remove. Page `b6.html`. Then **B7 rational** (first the capability fix: C1 must reach smartlabel weight labels, and `rational-subdivision`'s clip check must read the model, triage summary items 1 and 3), **B8** split a to d as the triage proposes (`extrema` last, after its `presentBoard` override is dropped), **B9 epicycles card**, **B10 patches** (overlap fix). One batch at a time through the capture step; show each on a `bN.html` page (copy `b4/index.html`), record it in the spec's "Batch records", wait for the owner before publishing it.
-4. The guided example recapture per chapter.
-5. The package is done when every example-table row and every Remove or Keep-in-part capture is done or has a recorded reason, and this note says so.
+1. Confirm the B3 to B5 publish and CI (above), rebase, and say so under "For the owner".
+2. B6: wait for the owner's yes on `b6.html`, then publish.
+3. **B7 rational**: accept the worker's capability change and three captures; page `b7.html`; wait for the owner.
+4. **B8** split a to d as the triage proposes: B8a functions and analysis (`extrema` last, after its `presentBoard` override at `capture-demonstration-previews.cjs:508-516, :568, :749` is dropped), B8b maps and plane geometry, B8c compgeo, B8d B-splines and `projective-cross-ratio`. Text only; patterns are in the triage table. `complex-multiplication` and `root-finding` are hide-only (no `strip`). `linear-map` needs Keep in part, `projective-pascal` is No text. One worker per sub-batch, recipes and captures only, against the running 4333 server.
+5. **B9 epicycles card** (recipe label stale; show a subject), **B10 patches** (overlap fix), the `voronoi-degenerate` stale label.
+6. The guided example recapture per chapter.
+7. The package is done when every example-table row and every Remove or Keep-in-part capture is done or has a recorded reason, and this note says so.
 
 ## Rules that carry over
 

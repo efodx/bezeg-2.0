@@ -17,11 +17,13 @@ Rule (planning session, 2026-11-14): propose, show a preview, wait for the owner
 | 7 | C5 convexity sweep | G06 | Done |
 | 8 | Blocker triage over all 118 captures | G02, G03 | Done (`docs/reviews/site-walkthrough/graphs/blocker-triage.md`) |
 | 9a | B1 Probability, B2 Interpolation | G02–G04 | Done, on `master` (`7b634d9d`, CI green) |
-| 9b | B3 Bézier (`extrapolation`, `repeated-subdivision`, `reduction`) | G02–G04 | Shown to the owner; `affine` unchanged with reason; `bezier` blocked on the capture tool |
-| 9c | B4 PH and parameterizations, with the `bezier` card | G02–G04 | Shown to the owner (`b4.html`) |
-| 9d | B5 curve geometry | G02–G04 | Shown to the owner (`b5.html`); he agreed to the rust-red osculating circle beforehand |
-| 9e | B6 conics and three views | G02–G04 | In work |
-| 9f | B7, B8, B10 | G02–G04 | Next, one at a time |
+| 9b | B3 Bézier | G02–G04 | On `master` (`b5fd6947`); CI failed on the extrapolation lesson smoke, fix first |
+| 9c | B4 PH and parameterizations, with the `bezier` card | G02–G04 | On `master` (`b5fd6947`) |
+| 9d | B5 curve geometry | G02–G04 | On `master` (`b5fd6947`) |
+| 9e | B6 conics and three views | G02–G04 | Approved; publish running |
+| 9f | B7 rational (policy reaches smartlabels) | G02–G04 | Approved; publish running |
+| 9h | B8a functions and analysis | G03, G04 | First part approved, not published; second part shown (`b8a2.html`); five ids wait for capture-tool repairs |
+| 9g | B8b to B8d text sweep, B10 patches | G02–G04 | Next, one at a time |
 | 10 | Epicycles catalog card with a subject (B9) | G07 | After 9c; its recipe label is stale |
-| 11 | Repair the `bezier` restore step | G02 | Done (`49e6013a`, not yet published) |
+| 11 | Repair the `bezier` restore step | G02 | Done, on `master` |
 | 12 | Recapture guided example images per chapter | G02 | Open |
