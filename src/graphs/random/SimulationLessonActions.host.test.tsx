@@ -42,7 +42,8 @@ const setMode = (mode: RandomMode): LessonAction => ({kind: 'random', operation:
 const setRun = (fields: Omit<RunAction, 'kind' | 'operation'>): LessonAction => ({kind: 'random', operation: 'set-run', ...fields});
 const setOverlay = (fields: Omit<OverlayAction, 'kind' | 'operation'>): LessonAction => ({kind: 'random', operation: 'set-overlay', ...fields});
 const setPosition = (shown: number): LessonAction => ({kind: 'random', operation: 'set-position', shown});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const chooseMode = (mode: RandomMode) => act(() => { fireEvent.change(field(t('random_graph_mode_label')), {target: {value: mode}}); });
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });

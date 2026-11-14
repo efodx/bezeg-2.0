@@ -40,7 +40,8 @@ function mountGraph(strict = false) {
     return {graph, view};
 }
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const button = (label: string) => screen.getByRole('button', {name: label});
 const press = (label: string) => act(() => { fireEvent.click(button(label)); });
@@ -60,6 +61,8 @@ const drawing = (graph: ObservedGraph) => curves(graph).map(o => JSON.stringify(
 type FieldKey = 'random_graph_seed_label' | 'random_graph_n_galton' | 'random_graph_rows_label' | 'random_graph_p_label' | 'random_graph_n_frequency'
     | 'random_graph_n_area' | 'random_graph_n_walk' | 'random_graph_steps_label' | 'random_graph_n_markov' | 'random_graph_a_label'
     | 'random_graph_b_label' | 'random_graph_n_interval' | 'random_graph_sample_label';
+/** Seed and trials stay typed fields; the rest are a counter and sliders that show their own range. */
+const TYPED_FIELDS: readonly FieldKey[] = ['random_graph_seed_label', 'random_graph_n_galton', 'random_graph_n_frequency', 'random_graph_n_area', 'random_graph_n_walk', 'random_graph_n_markov', 'random_graph_n_interval'];
 const FIELDS: Readonly<Record<RandomMode, readonly FieldKey[]>> = {
     galton: ['random_graph_seed_label', 'random_graph_n_galton', 'random_graph_rows_label', 'random_graph_p_label'],
     frequency: ['random_graph_seed_label', 'random_graph_n_frequency'],
@@ -196,7 +199,7 @@ describe('invalid input', () => {
 });
 
 describe('numeric fields, help and keyboard', () => {
-    test('every numeric field of every mode follows its input and is described by the mode help, which states the ranges', () => {
+    test('every numeric field of every mode follows its input; seed and trials are described by the mode help, the sliders and the counter show their own range', () => {
         const {graph} = mountGraph();
         const entries: Readonly<Record<FieldKey, [string, (s: typeof graph.state) => unknown, unknown]>> = {
             random_graph_seed_label: ['77', s => s.seed, 77],
@@ -217,19 +220,19 @@ describe('numeric fields, help and keyboard', () => {
             chooseMode(mode);
             const help = document.getElementById(HELP_ID)!;
             expect(help.textContent).toMatch(/^Seme 0 do 999/);
-            const labels = [...document.querySelectorAll<HTMLInputElement>('input[role="spinbutton"]')].map(input => input.labels?.[0]?.textContent);
-            expect(labels, mode).toEqual(expect.arrayContaining(FIELDS[mode].map(key => t(key))));
-            expect(labels.filter(label => label?.startsWith(t('random_graph_seed_label'))), mode).toHaveLength(1);
+            const labels = [...document.querySelectorAll<HTMLInputElement>('input[role="spinbutton"]')].map(input => input.labels?.[0]?.textContent ?? '');
+            for (const key of FIELDS[mode]) expect(labels.some(label => label === t(key) || label.startsWith(`${t(key)}, `)), `${mode} ${key}`).toBe(true);
+            expect(labels.filter(label => label.startsWith(t('random_graph_seed_label'))), mode).toHaveLength(1);
             for (const key of FIELDS[mode]) {
                 const input = field(t(key));
-                expect(input.getAttribute('aria-describedby') ?? '', key).toContain(HELP_ID);
+                if (TYPED_FIELDS.includes(key)) expect(input.getAttribute('aria-describedby') ?? '', key).toContain(HELP_ID);
                 const [typed, read, expected] = entries[key];
                 enter(t(key), typed);
                 expect(read(graph.state), `${mode} ${key}`).toBe(expected);
             }
             expect(graph.state.mode).toBe(mode);
         }
-        expect(document.getElementById(HELP_ID)!.textContent).toContain('16');
+        expect((screen.getByRole('slider', {name: t('random_graph_sample_label')}) as HTMLInputElement).min).toBe('16');
         // The Markov start state is a choice, not a number.
         chooseMode('markov');
         act(() => { fireEvent.change(field(t('random_graph_start_label')), {target: {value: '1'}}); });
@@ -431,7 +434,7 @@ describe('language', () => {
 });
 
 describe('overlay, second seed, shape and the time between stops', () => {
-    const slider = () => screen.getByRole('slider') as HTMLInputElement;
+    const slider = () => screen.getByRole('slider', {name: t('random_graph_speed_label')}) as HTMLInputElement;
     const overlaySwitch = () => screen.getByRole('checkbox', {name: t('random_graph_overlay_label')}) as HTMLInputElement;
     const turnOverlay = () => act(() => { fireEvent.click(overlaySwitch()); });
     const layerY = (graph: ObservedGraph, name: string) => JSON.stringify(Array.from(graph.view().scene.layers[name].y));
@@ -649,7 +652,7 @@ describe('the board is rebuilt when the caption count changes', () => {
 });
 
 describe('review repairs', () => {
-    const slider = () => screen.getByRole('slider') as HTMLInputElement;
+    const slider = () => screen.getByRole('slider', {name: t('random_graph_speed_label')}) as HTMLInputElement;
     const turnOverlay = () => act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('random_graph_overlay_label')})); });
 
     test('the speed help states its range and step', () => {

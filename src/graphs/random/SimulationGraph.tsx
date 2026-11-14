@@ -7,6 +7,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {BooleanField} from "../../inputs/BooleanField";
 import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
@@ -730,12 +731,12 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         const state = this.state;
         const common = {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0), value2: dec(N_MIN, 0), value3: dec(N_MAX[state.mode], 0)};
         switch (state.mode) {
-            case "galton": return t("random_graph_input_help_galton", {...common, value4: dec(ROWS_MIN, 0), value5: dec(ROWS_MAX, 0), value6: dec(P_MIN, 0), value7: dec(P_MAX, 0)});
+            case "galton": return t("random_graph_input_help_galton", common);
             case "frequency": return t("random_graph_input_help_frequency", common);
             case "area": return t("random_graph_input_help_area", common);
-            case "walk": return t("random_graph_input_help_walk", {...common, value4: dec(WALK_STEPS_MIN, 0), value5: dec(WALK_STEPS_MAX, 0)});
-            case "markov": return t("random_graph_input_help_markov", {...common, value4: dec(CHAIN_MIN, 0), value5: dec(CHAIN_MAX, 0)});
-            case "interval": return t("random_graph_input_help_interval", {...common, value4: dec(SAMPLE_SIZE_MIN, 0), value5: dec(SAMPLE_SIZE_MAX, 0)});
+            case "walk": return t("random_graph_input_help_walk", common);
+            case "markov": return t("random_graph_input_help_markov", common);
+            case "interval": return t("random_graph_input_help_interval", common);
         }
     }
 
@@ -764,10 +765,10 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         switch (state.mode) {
             case "galton":
                 commands.push(
-                    <NumberInput key="rows" label={t("random_graph_rows_label")} value={state.rows} step={1} bigStep={2} min={ROWS_MIN} max={ROWS_MAX}
-                                 {...whole} onChange={value => this.editRows(value)}/>,
-                    <NumberInput key="p" label={t("random_graph_p_label")} value={state.pPercent} step={PERCENT_STEP} bigStep={20} min={P_MIN} max={P_MAX}
-                                 grid={PERCENT_STEP} {...whole} onChange={value => this.editPercent(value)}/>,
+                    <CountSetter key="rows" label={t("random_graph_rows_label")} n={state.rows} min={ROWS_MIN} max={ROWS_MAX} bigStep={2}
+                                 onPlus={() => this.editRows(state.rows + 1)} onMinus={() => this.editRows(state.rows - 1)} onSet={value => this.editRows(value)}/>,
+                    <Slider key="p" customText={t("random_graph_p_label")} value={state.pPercent} step={PERCENT_STEP} bigStep={20} min={P_MIN} max={P_MAX}
+                            grid={PERCENT_STEP} onChange={value => this.editPercent(value)}/>,
                 );
                 break;
             case "area":
@@ -776,23 +777,23 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                                             onChange={value => { const shape = AREA_SHAPES.find(candidate => candidate === value); if (shape) this.editShape(shape); }}/>);
                 break;
             case "walk":
-                commands.push(<NumberInput key="steps" label={t("random_graph_steps_label")} value={state.walkSteps} step={1} bigStep={10}
-                                           min={WALK_STEPS_MIN} max={WALK_STEPS_MAX} {...whole} onChange={value => this.editWalkSteps(value)}/>);
+                commands.push(<Slider key="steps" customText={t("random_graph_steps_label")} value={state.walkSteps} step={1} bigStep={10}
+                                  min={WALK_STEPS_MIN} max={WALK_STEPS_MAX} onChange={value => this.editWalkSteps(value)}/>);
                 break;
             case "markov":
                 commands.push(
-                    <NumberInput key="a" label={t("random_graph_a_label")} value={state.markovA} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
-                                 grid={PERCENT_STEP} {...whole} onChange={value => this.editChain("markovA", value)}/>,
-                    <NumberInput key="b" label={t("random_graph_b_label")} value={state.markovB} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
-                                 grid={PERCENT_STEP} {...whole} onChange={value => this.editChain("markovB", value)}/>,
+                    <Slider key="a" customText={t("random_graph_a_label")} value={state.markovA} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
+                            grid={PERCENT_STEP} onChange={value => this.editChain("markovA", value)}/>,
+                    <Slider key="b" customText={t("random_graph_b_label")} value={state.markovB} step={PERCENT_STEP} bigStep={20} min={CHAIN_MIN} max={CHAIN_MAX}
+                            grid={PERCENT_STEP} onChange={value => this.editChain("markovB", value)}/>,
                     <ChoiceSelect key="start" label={t("random_graph_start_label")} value={String(state.markovStart)}
                                   options={[{value: "0", text: t("random_graph_start_a")}, {value: "1", text: t("random_graph_start_b")}]}
                                   onChange={value => this.editStart(value === "1" ? 1 : 0)}/>,
                 );
                 break;
             case "interval":
-                commands.push(<NumberInput key="sample" label={t("random_graph_sample_label")} value={state.sampleSize} step={1} bigStep={10}
-                                           min={SAMPLE_SIZE_MIN} max={SAMPLE_SIZE_MAX} {...whole} onChange={value => this.editSampleSize(value)}/>);
+                commands.push(<Slider key="sample" customText={t("random_graph_sample_label")} value={state.sampleSize} step={1} bigStep={10}
+                                  min={SAMPLE_SIZE_MIN} max={SAMPLE_SIZE_MAX} onChange={value => this.editSampleSize(value)}/>);
                 break;
             default:
                 break;

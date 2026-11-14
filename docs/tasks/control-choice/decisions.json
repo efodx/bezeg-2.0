@@ -5,5 +5,11 @@
   "src/graphs/functions/DensityAreaGraph.tsx#renderControls#t(\"prob_density_b_label\")": "keep: same validity limit as the left end",
   "src/graphs/compgeo/PointSetControls.tsx#field#label": "keep: segment and interval rows hold four (or two) typed numbers with a select and a remove button in one row; PointListInput holds one point per row, so these rows wait for a shared row editor in step 4",
   "src/graphs/functions/ZeroListEditor.tsx#ZeroListEditor#`${prefix}${t(\"zero_list_position_label\", {value0: index + 1})}`": "keep: each row holds the position, a multiplicity select and a remove button, and the position is on a 0,1 grid with its own refusal; ValueListInput has one step of 1, no grid and no per-row select, so the zero list waits for a shared row editor in step 4",
-  "src/graphs/trig/UnitCircleGraph.tsx#getGraphCommands#t(\"unit_circle_angle_pi_label\")": "keep: radian entry of the same angle, the lesson's subject"
+  "src/graphs/trig/UnitCircleGraph.tsx#getGraphCommands#t(\"unit_circle_angle_pi_label\")": "keep: radian entry of the same angle, the lesson's subject",
+  "src/graphs/random/SimulationGraph.tsx#getGraphCommands#t(\"random_graph_seed_label\")": "keep: seed",
+  "src/graphs/random/SimulationGraph.tsx#getGraphCommands#t(\"random_graph_seed2_label\")": "keep: seed",
+  "src/graphs/random/SimulationGraph.tsx#getGraphCommands#trialsLabel(state.mode)": "keep: trials run to 100 000 (10 000 to 100 000 in four of six modes), so a track cannot set the count; the typed field keeps its help",
+  "src/graphs/curves/bspline/BSplineInsertionGraph.tsx#getGraphCommands#t(\"bsi_insert_value\")": "keep: the range of ±100 in steps of 0,01 is a validity limit (20 000 steps on the track); the knot is typed, and the insertion is refused outside the domain",
+  "src/graphs/curves/bspline/BSplineNurbsGraph.tsx#getGraphCommands#t(\"bsn_weight\", {value0: index + 1})": "keep: weight, no upper bound (only positive and finite is required)",
+  "src/graphs/curves/bspline/KnotEditor.tsx#KnotEditor#t(\"bsb_knot_name\", {value0: index})": "keep: knot vector editor, a recorded exception (queue 2g)"
 }
