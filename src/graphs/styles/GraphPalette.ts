@@ -14,6 +14,8 @@ export const GraphPalette = {
     pointOutline: "#fffdf5",
     controlPolygon: "#a8b39c",
     constructionAccent: "#bf8542",
+    /** The one element a cool-coloured family is read against: the site ink, dark enough to lead over blues and teals without a warm hue. */
+    emphasis: "#19372f",
     constructionLevels: ["#98a494", "#bf8542", "#7186a2", "#8d7d9d", "#6d8a7d", "#b27863"] as const,
     axis: "#788477",
     tick: "#b7c1b5",

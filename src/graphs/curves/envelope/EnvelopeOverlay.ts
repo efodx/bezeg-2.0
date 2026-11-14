@@ -152,8 +152,8 @@ export class EnvelopeOverlay {
             });
         }
 
-        // The line at t and its touching point: the construction accent, above the family, the line clearly wider than a family line.
-        this.dataCurve({strokeColor: GraphPalette.constructionAccent, strokeWidth: CURRENT_LINE_WIDTH, visible: () => this.settings.touchShown()}, () => {
+        // The line at t and its touching point: the dark emphasis colour (the owner found amber poor against the blue family), above the family, the line clearly wider than a family line.
+        this.dataCurve({strokeColor: GraphPalette.emphasis, strokeWidth: CURRENT_LINE_WIDTH, visible: () => this.settings.touchShown()}, () => {
             const segment = this.settings.touchShown() ? this.current() : undefined;
             return segment ? {x: [segment.q0[0], segment.q1[0]], y: [segment.q0[1], segment.q1[1]]} : NONE;
         });
@@ -163,7 +163,7 @@ export class EnvelopeOverlay {
             () => this.current()?.touch[1] ?? NaN,
         ], {
             fixed: true, withLabel: false, highlight: false, name: '', size: 4, strokeColor: GraphPalette.pointOutline,
-            fillColor: GraphPalette.constructionAccent, visible: () => this.settings.touchShown() && this.current() !== undefined,
+            fillColor: GraphPalette.emphasis, visible: () => this.settings.touchShown() && this.current() !== undefined,
         });
 
         const box = () => board.getBoundingBox();
