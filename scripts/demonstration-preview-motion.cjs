@@ -501,14 +501,18 @@ const motionSpecs = {
         mode: 'pointer-drag', controlCount: 4,
         start: ctx => ctx.points[1],
         path: (moved, displacement) => ({x: moved.x + 1.8 * displacement, y: moved.y + 2.1 * displacement}),
-        // Coordinate editor restore: the moved control point is set back to its exact start coordinates.
+        // Point list restore: the moved control point is set back to its exact start coordinates.
         restore: async (page, ctx) => {
             const moved = ctx.points[1];
             await applyAction(page,{kind:'button',label:'Krivulja1'});
-            await page.locator('.point-coordinate-editor summary').click();
-            await page.getByLabel('p1 x',{exact:true}).fill(String(moved.x));
-            await page.getByLabel('p1 y',{exact:true}).fill(String(moved.y));
-            await page.getByRole('button',{name:'Uporabi koordinate',exact:true}).click();
+            // The selected curve's point list has one row per control point, with fields named "p₁, x" and "p₁, y".
+            // Typed directly, not through applyAction: the field's text is redrawn a frame after the commit, so an immediate
+            // read-back sees the dragged value. The last-frame check below asserts the exact return on the board instead.
+            for (const [axis, value] of [['x', moved.x], ['y', moved.y]]) {
+                const field = page.getByLabel(`p₁, ${axis}`,{exact:true});
+                await field.fill(String(value));
+                await field.press('Tab');
+            }
             await applyAction(page,{kind:'button',label:'Prekliči izbiro'});
         },
         check(sample, previous, first) {
@@ -528,7 +532,7 @@ const motionSpecs = {
         },
         schedule: {kind: 'sin2-out-and-back', phase: 'clamp((frame-12)/71)', displacement: 'sin²(π·phase)',
             zeroDisplacementFrames: '0-12 and 83-95', movingFrames: '13-82', press: 13, release: 83,
-            restore: 'coordinate editor (exact)'},
+            restore: 'point list fields (exact)'},
         invariants: ['Only the dragged control point changes position during the drag', 'Other control points stay within 1e-9 of their start',
             'Curve path recomputes from the moved point and returns exactly to the start', 'Stroke widths do not compound across frames'],
     },
