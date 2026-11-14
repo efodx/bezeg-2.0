@@ -119,3 +119,14 @@ test('rejects nonfinite published frame coordinates and projected camera values'
         assert.throws(() => validateSurfaceEvidence(e), /Invalid guided surface evidence/);
     }
 });
+
+test('accepts a solid owner with three finite samples and rejects one with a bad sample', () => {
+    const result = validateSurfaceEvidence(fixture('solid'));
+    assert.deepEqual(result.ownerIds, ['solid-owner-0']);
+    const bad = fixture('solid');
+    bad.renderedOwners[0].geometrySamples[1][2] = NaN;
+    assert.throws(() => validateSurfaceEvidence(bad), /Invalid guided surface evidence/);
+    const wrongKind = fixture('solid');
+    wrongKind.renderedOwners[0].kind = 'sphere';
+    assert.throws(() => validateSurfaceEvidence(wrongKind), /supported kind/);
+});

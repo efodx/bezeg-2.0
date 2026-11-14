@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, solidsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -964,4 +964,19 @@ test('level-sets expectations are authored from the graph: the default region wi
     assert.throws(() => levelSetsExpectedFor('l.linear-programming.linear-program', open([{kind: 'levelsets', operation: 'set-sweep', sweep: 6}])), /Demonstration default alone/);
     assert.throws(() => levelSetsExpectedFor('l.unknown.linear-program', open([])), /no authored level-sets/);
     assert.ok(chapterInventories['level-sets']);
+});
+
+test('solids expectations are authored from the graph rule: the camera re-derived for the fitted box, one solid owner', () => {
+    const lesson = (solid, offset) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, {kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'},
+        {kind: 'solids', operation: 'set-solid', solid}, {kind: 'solids', operation: 'set-mode', mode: 'section'}, {kind: 'solids', operation: 'set-plane', normal: [0, 0, 1], offset}]}});
+    const cube = solidsExpectedFor('s.cube-sections.solids', lesson('cube', 2)).surface;
+    assert.deepEqual(cube.camera, {az: -0.9, el: 0.5, distance: 9, target: [0.5, 0.5, 0.5]});
+    assert.deepEqual(cube.owners.map(({id, kind}) => ({id, kind})), [{id: 'solid-0', kind: 'solid'}]);
+    const prism = solidsExpectedFor('s.pyramid-sections.solids', lesson('square-prism', 0)).surface;
+    assert.deepEqual(prism.camera.target, [0, 0, 0]);
+    assert.ok(Math.abs(prism.camera.distance - 12.62746084) < 1e-6);
+    assert.deepEqual(prism.owners[0].geometrySamples[2], [1, 1, 0]);
+    assert.throws(() => solidsExpectedFor('s.cube-sections.solids', lesson('cube', 3)), /stored offset 2/);
+    assert.throws(() => solidsExpectedFor('s.unknown.solids', lesson('cube', 2)), /no authored solids/);
+    assert.ok(chapterInventories.solids);
 });

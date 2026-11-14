@@ -381,6 +381,15 @@ const chapterInventories = {
         // The one mechanics-descent Demonstration: the three examples must cover it and open on its route.
         identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'},
     },
+    solids: {
+        module: '/src/learning/content/solidsChapterRegistry.ts',
+        // Like level-sets: section rows plus a per-section lesson function; both sections open on the one solids Demonstration (a surface view).
+        registryExport: 'solidsGuidedExampleDemonstrations',
+        lessonExport: 'solidsGuidedExampleLesson',
+        pathExport: 'solidsGuidedExamplePath',
+        expectedFor: solidsExpectedFor,
+        identities: {module: '/src/graphs/solids/registration.ts', rows: 'solidsDemonstrationRows'},
+    },
     'level-sets': {
         module: '/src/learning/content/levelSetsChapterRegistry.ts',
         // Like recursion: section rows plus a per-section lesson function.
@@ -2451,6 +2460,79 @@ function levelSetsExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Solids chapter (solids): the lessons of SV1 (cube-sections) and SV2 (pyramid-sections) open on the one solids Demonstration, a surface view. The first scene of each is the Demonstration default, then set-solid,
+// set-mode section and set-plane (solidsGuidedLessons.ts SV1_PARALLEL: the cube cut by z = 1/2; SV2_PRISM: the square prism cut by z = 0). A surface card is checked by its camera and its rendered mesh owner, not by board elements.
+
+/**
+ * The camera the graph shows after set-solid changes the solid (SolidsGraph.tsx frameSolid / resetView, surfaceMath.ts fitCameraTo and fitDistance), re-derived here from the rule and not read from a capture: the authored
+ * viewing angles az -0.9 and el 0.5 are kept; the target is the centre of the bounding box of the points the view frames (the eight corners of the solid's box and the four corners of the cutting-plane quad); the distance is
+ * the radius of the bounding sphere of that box over sin(half the field of view), times 1.08. The vertical field is 38 degrees; the horizontal field is only narrower for a portrait host (aspect below 1), and the lesson
+ * host is landscape, so the vertical half angle decides and the distance does not depend on the capture frame size. A host of aspect below 1 would give another distance and the capture would refuse the frame.
+ */
+function solidsFittedCamera(points) {
+    const min = [0, 1, 2].map(axis => Math.min(...points.map(p => p[axis])));
+    const max = [0, 1, 2].map(axis => Math.max(...points.map(p => p[axis])));
+    const radius = Math.max(0.5, Math.hypot(max[0] - min[0], max[1] - min[1], max[2] - min[2]) / 2);
+    const halfFov = (38 * Math.PI) / 360;
+    return {az: -0.9, el: 0.5, distance: Math.min(80, Math.max(1.5, radius / Math.sin(halfFov) * 1.08)), target: [0, 1, 2].map(axis => (min[axis] + max[axis]) / 2)};
+}
+
+/** The framed points of a box cut by the horizontal plane z = d: the box corners and the plane quad (a square in the plane about the box centre, half side 0.6 of the box diagonal, SolidsScene planeQuad). */
+function solidsFramedPoints(min, max, d) {
+    const corners = [];
+    for (const x of [min[0], max[0]]) for (const y of [min[1], max[1]]) for (const z of [min[2], max[2]]) corners.push([x, y, z]);
+    const half = 0.6 * Math.hypot(max[0] - min[0], max[1] - min[1], max[2] - min[2]);
+    const mid = [0, 1].map(axis => (min[axis] + max[axis]) / 2);
+    for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) corners.push([mid[0] + half * sx, mid[1] + half * sy, d]);
+    return corners;
+}
+
+/** Asserts the opening scene is exactly the Demonstration default, then the given solid, the section mode and the horizontal plane (normal (0, 0, 1)) at the stored offset; no camera action. */
+function solidsOpening(id, step, solid, offset) {
+    // The lesson adapter may repeat the prepared-scene action; every leading one must be the Demonstration default.
+    const lead = step.scene.actions.findIndex(item => item.kind !== 'prepared-scene');
+    const prepared = step.scene.actions.slice(0, lead < 0 ? 0 : lead), rest = step.scene.actions.slice(lead < 0 ? 0 : lead);
+    assert.ok(prepared.length >= 1 && prepared.every(item => item.source === 'demonstration-default'), `${id}: the opening scene must start with the Demonstration default`);
+    assert.deepEqual(rest.map(({kind, operation, solid: s, mode, normal, offset: o, view}) => ({kind, operation, solid: s, mode, normal, offset: o, view})), [
+        {kind: 'solids', operation: 'set-solid', solid, mode: undefined, normal: undefined, offset: undefined, view: undefined},
+        {kind: 'solids', operation: 'set-mode', solid: undefined, mode: 'section', normal: undefined, offset: undefined, view: undefined},
+        {kind: 'solids', operation: 'set-plane', solid: undefined, mode: undefined, normal: [0, 0, 1], offset, view: undefined},
+    ], `${id}: the opening scene is the ${solid} cut by the horizontal plane at stored offset ${offset}`);
+}
+
+// Authored from solid.ts (cube, prism builders: vertex and face order), section.ts (sectionConvex, clipSolid: kept vertices first, then the cut points in face order; faces in the solid's order; the cap last) and
+// solidsScene.ts meshOf (fan triangulation, owner solid-0), not from a capture. The owner publishes the first vertex of the first, the middle (index floor(12 / 2) = 6) and the last of its 12 triangles.
+const solidsFrames = {
+    // SV1 step 1: the cube [0, 1]^3 cut by z = 1/2 (stored offset 2, d = offset / 4). Kept vertices 0..3 (z = 0); cut points in face order: edge (1,5), (0,4), (2,6), (3,7) at z = 1/2. Triangles: face 0 (0,2,3), (0,3,1);
+    // face 2, 3, 4, 5 two each; the cap (the cut loop reversed to be outward, starting at the cut of edge (3,7) = (1, 1, 1/2)) last. First triangle starts at vertex 0 = (0, 0, 0); triangle 6 is the first of face 4 = [0, cut04, cut26, 2],
+    // starting at vertex 0 again; the last triangle starts at the cap's first vertex (1, 1, 1/2).
+    'cube-sections': (id, step) => {
+        solidsOpening(id, step, 'cube', 2);
+        // Every action of this scene writes the state it already has (the Demonstration default is the cube in section mode at z = 1/2), so nothing reframes the camera: it is the authored default of solidsModel.ts
+        // DEFAULT_SOLIDS_STATE (az -0.9, el 0.5, distance 9, target (1/2, 1/2, 1/2)), not a fitted one.
+        return {surface: {camera: {az: -0.9, el: 0.5, distance: 9, target: [0.5, 0.5, 0.5]},
+            owners: [{id: 'solid-0', kind: 'solid', geometrySamples: [[0, 0, 0], [0, 0, 0], [1, 1, 0.5]]}],
+            geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
+    },
+    // SV2 step 1: the square prism [-1, 1]^2 x [-1.5, 1.5] cut by z = 0 (stored offset 0). Base vertices 0..3 at z = -1.5 are kept; cut points in face order (1,5), (0,4), (2,6), (3,7) = (1,-1,0), (-1,-1,0), (1,1,0), (-1,1,0). Triangles:
+    // the bottom face [3,2,1,0] (two, the first starts at vertex 3 = (-1, 1, -1.5)), the four side faces (two each; triangle 6 is the first of face 4 = [2, 3, cut37, cut26], starting at vertex 2 = (1, 1, -1.5)), the cap last, starting at
+    // the cut of edge (2,6) = (1, 1, 0) once the loop is reversed to be outward.
+    'pyramid-sections': (id, step) => {
+        solidsOpening(id, step, 'square-prism', 0);
+        return {surface: {camera: solidsFittedCamera(solidsFramedPoints([-1, -1, -1.5], [1, 1, 1.5], 0)),
+            owners: [{id: 'solid-0', kind: 'solid', geometrySamples: [[-1, 1, -1.5], [1, 1, -1.5], [1, 1, 0]]}],
+            geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
+    },
+};
+
+/** First-frame expectation of a solids lesson (keyed by the section in the example id). */
+function solidsExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(solidsFrames, section) ? solidsFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored solids first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2507,4 +2589,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, solidsExpectedFor, solidsFittedCamera, assertExpectation};

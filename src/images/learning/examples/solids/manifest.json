@@ -1,0 +1,624 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+    "dirty": true,
+    "inputs": "1655a815ecaaf1d6693f95eb1b45cc3ac40600e471abc52a05bc0788d8b2f75f",
+    "output": "11a2991b5d543b7302b10d1a436a012823c5716b7b282e9e8626e84de2418cdc"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+    "stampDirty": true,
+    "localOutputHash": "11a2991b5d543b7302b10d1a436a012823c5716b7b282e9e8626e84de2418cdc",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-C9ifWzHT.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-C9ifWzHT.js",
+        "sha256": "0e5918690af9ef4803527e324b0952e57c82eeed7d3f7c72de8c59213bc1077f",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "c898c46184e331e1baa98413047e2dee9eca10aef9e7ed10b1df4f568d9147a5",
+    "entries": {
+      "solids.cube-sections.solids": "831f1545bbefa77a9c5925f1f56f62daeda2b6c5a9b317a6979cbeb2354baef8",
+      "solids.pyramid-sections.solids": "47c4313b955df9821a7acf6757aae8ef1b252146a8377e631a217efa2214c7da"
+    },
+    "presentation": "62351f3d82fb7ac6ddfab170a14b92aba5ce63551d90355b4a38c9ae6d9dec41",
+    "buildOutput": "11a2991b5d543b7302b10d1a436a012823c5716b7b282e9e8626e84de2418cdc",
+    "buildInputs": "1655a815ecaaf1d6693f95eb1b45cc3ac40600e471abc52a05bc0788d8b2f75f"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "solids.cube-sections.solids",
+        "demonstrationId": "solids",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 9,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "controlPointCount": 0
+        }
+      },
+      {
+        "id": "solids.pyramid-sections.solids",
+        "demonstrationId": "solids",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 9,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "controlPointCount": 0
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "solids.cube-sections.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.cube-sections.solids",
+      "sceneFingerprint": "1fb75679f693defc740ac82a2c07b19239014314db53f7e5d46594a6875beeb5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv1-parallel-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv1-parallel-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"cube\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"section\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-plane\",\"normal\":[0,0,1],\"offset\":2}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "solids.cube-sections.solids.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d94358db332ee4b9bad1ab43f503e6f74e82afd035c4366bd80999bd3f58f9f4",
+      "scene": {
+        "view": "surface",
+        "surfaceRenderer": "jsx-svg",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": -0.9,
+          "el": 0.5,
+          "distance": 9,
+          "target": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "meshBounds": {
+          "left": 180.297,
+          "top": 116.777,
+          "right": 239.238,
+          "bottom": 163.957,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "solid-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "solid-0",
+            "kind": "solid",
+            "geometrySamples": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                0.5
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [],
+        "visibleLabelBounds": [
+          {
+            "id": "v-0",
+            "left": 221.5,
+            "top": 156,
+            "right": 230.546875,
+            "bottom": 172
+          },
+          {
+            "id": "v-1",
+            "left": 246.5,
+            "top": 138.1875,
+            "right": 255.546875,
+            "bottom": 154.1875
+          },
+          {
+            "id": "v-2",
+            "left": 189.09375,
+            "top": 141.6875,
+            "right": 198.140625,
+            "bottom": 157.6875
+          },
+          {
+            "id": "v-4",
+            "left": 221.6875,
+            "top": 117.296875,
+            "right": 230.734375,
+            "bottom": 133.296875
+          },
+          {
+            "id": "v-5",
+            "left": 248,
+            "top": 101.59375,
+            "right": 257.046875,
+            "bottom": 117.59375
+          },
+          {
+            "id": "v-6",
+            "left": 187.5,
+            "top": 104.59375,
+            "right": 196.546875,
+            "bottom": 120.59375
+          },
+          {
+            "id": "v-7",
+            "left": 214.6875,
+            "top": 90.796875,
+            "right": 223.734375,
+            "bottom": 106.796875
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "surfaceRenderer": "jsx-svg",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 9,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "meshBounds": {
+            "left": 431.655,
+            "top": 272.631,
+            "right": 569.26,
+            "bottom": 382.776,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "solid-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  1,
+                  0.5
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": []
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "solid-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "v-0",
+            "left": 221.5,
+            "top": 156,
+            "right": 230.546875,
+            "bottom": 172
+          },
+          {
+            "id": "v-1",
+            "left": 246.5,
+            "top": 138.1875,
+            "right": 255.546875,
+            "bottom": 154.1875
+          },
+          {
+            "id": "v-2",
+            "left": 189.09375,
+            "top": 141.6875,
+            "right": 198.140625,
+            "bottom": 157.6875
+          },
+          {
+            "id": "v-4",
+            "left": 221.6875,
+            "top": 117.296875,
+            "right": 230.734375,
+            "bottom": 133.296875
+          },
+          {
+            "id": "v-5",
+            "left": 248,
+            "top": 101.59375,
+            "right": 257.046875,
+            "bottom": 117.59375
+          },
+          {
+            "id": "v-6",
+            "left": 187.5,
+            "top": 104.59375,
+            "right": 196.546875,
+            "bottom": 120.59375
+          },
+          {
+            "id": "v-7",
+            "left": 214.6875,
+            "top": 90.796875,
+            "right": 223.734375,
+            "bottom": 106.796875
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+        "sourceRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "solids.pyramid-sections.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.pyramid-sections.solids",
+      "sceneFingerprint": "b43760fde3f78eac29c839d18955057718082942870ee48bd494993ff1bd1af3",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv2-prism-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv2-prism-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"square-prism\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"section\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-plane\",\"normal\":[0,0,1],\"offset\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "solids.pyramid-sections.solids.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e6f61d7c0c82ebefa6ed2434521a38840979b725df7ce0c93302e2ae4f0fe448",
+      "scene": {
+        "view": "surface",
+        "surfaceRenderer": "jsx-svg",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": -0.9,
+          "el": 0.5,
+          "distance": 12.627460845979783,
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 167.516,
+          "top": 111.652,
+          "right": 251.54,
+          "bottom": 192.021,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "solid-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "solid-0",
+            "kind": "solid",
+            "geometrySamples": [
+              [
+                -1,
+                1,
+                -1.5
+              ],
+              [
+                1,
+                1,
+                -1.5
+              ],
+              [
+                1,
+                1,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [],
+        "visibleLabelBounds": [
+          {
+            "id": "v-0",
+            "left": 223,
+            "top": 184,
+            "right": 232.046875,
+            "bottom": 200
+          },
+          {
+            "id": "v-1",
+            "left": 257.296875,
+            "top": 156.6875,
+            "right": 266.34375,
+            "bottom": 172.6875
+          },
+          {
+            "id": "v-3",
+            "left": 177.796875,
+            "top": 161.890625,
+            "right": 186.84375,
+            "bottom": 177.890625
+          },
+          {
+            "id": "v-4",
+            "left": 223.6875,
+            "top": 99.296875,
+            "right": 232.734375,
+            "bottom": 115.296875
+          },
+          {
+            "id": "v-5",
+            "left": 262,
+            "top": 78.296875,
+            "right": 271.046875,
+            "bottom": 94.296875
+          },
+          {
+            "id": "v-6",
+            "left": 213.390625,
+            "top": 64.796875,
+            "right": 222.4375,
+            "bottom": 80.796875
+          },
+          {
+            "id": "v-7",
+            "left": 172.890625,
+            "top": 82.1875,
+            "right": 181.9375,
+            "bottom": 98.1875
+          }
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "surfaceRenderer": "jsx-svg",
+          "frame": {
+            "width": 1002,
+            "height": 607
+          },
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 12.627460845979783,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 401.817,
+            "top": 260.665,
+            "right": 597.979,
+            "bottom": 448.295,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "solid-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  -1,
+                  1,
+                  -1.5
+                ],
+                [
+                  1,
+                  1,
+                  -1.5
+                ],
+                [
+                  1,
+                  1,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": []
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "solid-0"
+        ],
+        "visibleLabelBounds": [
+          {
+            "id": "v-0",
+            "left": 223,
+            "top": 184,
+            "right": 232.046875,
+            "bottom": 200
+          },
+          {
+            "id": "v-1",
+            "left": 257.296875,
+            "top": 156.6875,
+            "right": 266.34375,
+            "bottom": 172.6875
+          },
+          {
+            "id": "v-3",
+            "left": 177.796875,
+            "top": 161.890625,
+            "right": 186.84375,
+            "bottom": 177.890625
+          },
+          {
+            "id": "v-4",
+            "left": 223.6875,
+            "top": 99.296875,
+            "right": 232.734375,
+            "bottom": 115.296875
+          },
+          {
+            "id": "v-5",
+            "left": 262,
+            "top": 78.296875,
+            "right": 271.046875,
+            "bottom": 94.296875
+          },
+          {
+            "id": "v-6",
+            "left": 213.390625,
+            "top": 64.796875,
+            "right": 222.4375,
+            "bottom": 80.796875
+          },
+          {
+            "id": "v-7",
+            "left": 172.890625,
+            "top": 82.1875,
+            "right": 181.9375,
+            "bottom": 98.1875
+          }
+        ]
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+        "sourceRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+        "pageErrors": []
+      }
+    }
+  ]
+}

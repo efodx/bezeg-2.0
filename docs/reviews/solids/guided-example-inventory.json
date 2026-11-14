@@ -1,0 +1,116 @@
+{
+  "examples": [
+    {
+      "id": "solids.cube-sections.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.cube-sections.solids",
+      "sceneFingerprint": "1fb75679f693defc740ac82a2c07b19239014314db53f7e5d46594a6875beeb5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv1-parallel-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv1-parallel-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"cube\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"section\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-plane\",\"normal\":[0,0,1],\"offset\":2}"
+      ],
+      "expected": {
+        "surface": {
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 9,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "owners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  1,
+                  0.5
+                ]
+              ]
+            }
+          ],
+          "geometryTolerance": 0.000001,
+          "cameraTolerance": 0.000001
+        }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "solids.pyramid-sections.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.pyramid-sections.solids",
+      "sceneFingerprint": "b43760fde3f78eac29c839d18955057718082942870ee48bd494993ff1bd1af3",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv2-prism-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv2-prism-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"square-prism\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"section\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-plane\",\"normal\":[0,0,1],\"offset\":0}"
+      ],
+      "expected": {
+        "surface": {
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 12.627460845979783,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "owners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  -1,
+                  1,
+                  -1.5
+                ],
+                [
+                  1,
+                  1,
+                  -1.5
+                ],
+                [
+                  1,
+                  1,
+                  0
+                ]
+              ]
+            }
+          ],
+          "geometryTolerance": 0.000001,
+          "cameraTolerance": 0.000001
+        }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

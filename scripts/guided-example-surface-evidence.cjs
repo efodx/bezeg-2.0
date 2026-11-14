@@ -3,7 +3,7 @@
 const crypto = require('node:crypto');
 const {inspectSurfaceViewInPage} = require('./surface-view-evidence.cjs');
 
-const OWNER_KINDS = new Set(['tensor', 'triangular', 'join', 'teapot']);
+const OWNER_KINDS = new Set(['tensor', 'triangular', 'join', 'teapot', 'solid']);
 const TEAPOT_PATCH_COUNT = 32;
 /** Set by readPublishedSurfaceEvidence only after the in-page check found a drawn SVG surface view. */
 const SVG_RENDERER = 'jsx-svg';

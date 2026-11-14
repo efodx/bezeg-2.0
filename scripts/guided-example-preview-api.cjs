@@ -195,7 +195,7 @@ function validateExpected(id, expected) {
 function validateExpectedSurface(id, surface) {
     assert.ok(surface && typeof surface === 'object' && !Array.isArray(surface), `${id}: expected.surface must be an object`);
     assert.ok(Array.isArray(surface.owners) && surface.owners.length > 0, `${id}: expected.surface.owners must be nonempty authored evidence`);
-    const kinds = new Set(['tensor', 'triangular', 'join', 'teapot']);
+    const kinds = new Set(['tensor', 'triangular', 'join', 'teapot', 'solid']);
     const ids = new Set();
     for (const [index, owner] of surface.owners.entries()) {
         assert.ok(owner && typeof owner === 'object' && typeof owner.id === 'string' && owner.id.length > 0,

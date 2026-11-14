@@ -140,6 +140,7 @@ const chapterFamilies = {
     'mechanical-curves': {label: 'mechanical-curves', idPrefix: 'mechanical-curves.', identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'}},
     randomness: {label: 'randomness', idPrefix: 'randomness.', identities: {module: '/src/graphs/random/registration.ts', rows: 'randomDemonstrationRows'}},
     'level-sets': {label: 'level-sets', idPrefix: 'level-sets.', identities: {module: '/src/graphs/levelsets/registration.ts', rows: 'levelSetsDemonstrationRows'}},
+    solids: {label: 'solids', idPrefix: 'solids.', identities: {module: '/src/graphs/solids/registration.ts', rows: 'solidsDemonstrationRows'}},
     recursion: {label: 'recursion', idPrefix: 'recursion.', identities: {module: '/src/graphs/recursion/registration.ts', rows: 'recursionDemonstrationRows'}},
     kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},

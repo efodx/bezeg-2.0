@@ -1,0 +1,20 @@
+# Solids F5: example card images (handler 20 worker) - PARTIAL (budget handoff)
+
+Done
+- Handler lifted the owner-kind blocker: `'solid'` added to `OWNER_KINDS` (`scripts/guided-example-surface-evidence.cjs:6`) and to the second copy of the kind list in `scripts/guided-example-preview-api.cjs:198` (the inventory validator refused it too). Test added in `guided-example-surface-evidence.test.cjs` (solid owner validates; NaN sample and unknown kind fail).
+- Inventory: `chapterInventories.solids` + `solidsExpectedFor` in `generate-guided-example-inventory.cjs`; `docs/reviews/solids/guided-example-inventory.json` (2 entries). Mesh-owner samples (first vertex of first, middle, last of 12 triangles of `solid-0`) hand-derived from solid.ts, section.ts and solidsScene.ts; the capture accepted them unchanged. Cameras: prism (pyramid-sections step 1 is the square prism, not the pyramid) re-derived by `solidsFittedCamera` (bounding sphere of box corners and plane quad, vertical field 38 degrees, x1.08; aspect-independent for a landscape host): distance 12.6274608, matched the published one. Cube: first scene writes only existing state, so no reframe: camera is the authored default (az -0.9, el 0.5, distance 9, target 0.5^3). My first guess (fitted 5.1498) was wrong and the capture refused it (probe `probe-camera.cjs`); corrected from the graph code, not copied from the capture.
+- Capture family `solids` in `capture-guided-example-previews.cjs:143`; recipe row `solids` plus `surfaceCameras`/`surfaceControlPointCounts` entries in `demonstration-preview-recipes.cjs` (the card capture needs a recipe for the Demonstration; camera is the default cube camera).
+- Registration in `guidedExamplePreviews.ts` and a `functionsCards` row (counts [[1,0],[1,0]]) in the test.
+- Observed pre-PNG failure: `publishes the solids example cards ...` ENOENT on `src/images/learning/examples/solids/manifest.json` (`.command-logs/f5-cards/solids/f5-prepng.log`).
+- Captured (`just build` ok, preview 4519, capture log `f5-capture.log`), both viewed: cube-sections shows the lower part of the cube under a translucent plane with blue section outline, four dots and vertex numbers 1 to 8, but small in the card (default camera, not refit; not clipped); pyramid-sections shows the lower part of the prism with the plane larger than the card figure, vertices 1 to 8. Server stopped; port 4519 closed.
+- Copy `solidsPreviewCopy.ts` written (alt without counts or shapes, no answers).
+- Readouts that show step 1's answer (control panel, not in the card): Presek, Stevilo stranic preseka, Ploscina preseka, Prostornina spodnjega dela (cube: 4 sides, area 1, volume 0,5; prism: 4, 4, 6).
+
+Not done / not run (next worker)
+- Cached glob after capture: run `just unit src/learning/chapter src/learning/content/familyChapters.test.ts` (f5-unit.log); if the preview test says PNG undefined, edit the comment above `chapterImageUrls` in `guidedExamplePreviews.ts`.
+- `node --test scripts/ci-change-scope.test.cjs scripts/transient-state-scope.test.cjs`, `npx tsc --noEmit --pretty false`, `just lint <changed ts/cjs>`, `node .command-logs/pp-a/rawcheck.cjs src/learning/content/solidsPreviewCopy.ts`, `scripts/demonstration-preview-capture.test.cjs` (the new `solids` recipe row should leave its missing list; run to confirm, and the surface recipe validation of the added camera).
+- Docs: `docs/commands.md` line 70 family list, `closeout-card-images.md` section, task status in `docs/tasks/solids/05-batch-a-lessons.md`.
+- Done earlier: `node --test scripts/generate-guided-example-inventory.test.cjs scripts/guided-example-surface-evidence.test.cjs` 47/47 pass (`f5-scripts.log`).
+
+## Closeout (continuation)
+- Preview test first failed (glob stale): real edit to the `chapterImageUrls` comment; then `just unit src/learning/chapter src/learning/content/familyChapters.test.ts` passed (`f5-unit.log`). node scope/evidence/inventory tests 0 fail (`f5-node.log`), tsc 0, lint 0, rawcheck 0 singles. Capture test: only the known exhaustive-recipe failure (`f5-capture.log`). Docs: commands.md line 70, closeout-card-images.md section 19, task status.

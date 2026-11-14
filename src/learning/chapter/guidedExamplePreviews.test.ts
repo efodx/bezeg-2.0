@@ -31,6 +31,7 @@ import {mechanicalCurvesPreviewCopy} from '../content/mechanicalCurvesPreviewCop
 import {randomnessPreviewCopy} from '../content/randomnessPreviewCopy';
 import {recursionPreviewCopy} from '../content/recursionPreviewCopy';
 import {levelSetsPreviewCopy} from '../content/levelSetsPreviewCopy';
+import {solidsPreviewCopy} from '../content/solidsPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
@@ -325,6 +326,10 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'level-sets', copy: levelSetsPreviewCopy,
         ids: ['level-sets.linear-programming.linear-program'],
         counts: [[6, 6]]},
+    // Both solids cards are surface cards: the count row is the one rendered solid owner and no board points.
+    {chapterId: 'solids', copy: solidsPreviewCopy,
+        ids: ['solids.cube-sections.solids', 'solids.pyramid-sections.solids'],
+        counts: [[1, 0], [1, 0]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
