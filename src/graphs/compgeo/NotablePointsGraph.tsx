@@ -5,6 +5,7 @@ import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {
     activeExampleId, analyseNotablePoints, BOARD_COORDINATE_CAP, BoardXY, CENTRE_IDS, CentreId, inBox, NotableAnalysis,
@@ -48,6 +49,12 @@ const CENTRE_COLOUR: Readonly<Record<CentreId, string>> = {
 };
 const CENTRE_DASH: Readonly<Record<CentreId, number>> = {centroid: 2, circumcentre: 3, incentre: 0, orthocentre: 4};
 const CENTRE_FACE: Readonly<Record<CentreId, string>> = {centroid: "x", circumcentre: "+", incentre: "diamond", orthocentre: "square"};
+
+/** The drawn label of a named point is typeset; the element keeps its plain name. */
+function mathLabelled<T extends JXG.GeometryElement>(point: T, name: string): T {
+    (point as unknown as JXG.Point).label?.setText(pointLabelMath(name));
+    return point;
+}
 
 /**
  * The declared scene fields (`pointSetPersistence`): the example id, checked as the Preset collection checks it, fallback `"default"`
@@ -266,10 +273,10 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         };
         const point = (place: BoardXY | undefined) => {
             if (!place) return;
-            objects.push(this.board.create("point", [place.x, place.y], {
+            objects.push(mathLabelled(this.board.create("point", [place.x, place.y], {
                 name: CENTRE_SYMBOL[id], withLabel: true, size: 5, face: CENTRE_FACE[id], fillColor: colour, strokeColor: colour,
-                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {offset: [8, 8], strokeColor: GraphPalette.label},
-            }) as JXG.GeometryElement);
+                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+            }) as JXG.GeometryElement, CENTRE_SYMBOL[id]));
         };
         if (id === "centroid") {
             if (analysis.classification.kind !== "degenerate") {

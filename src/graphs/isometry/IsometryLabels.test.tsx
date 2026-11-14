@@ -55,7 +55,7 @@ function drawn(graph: Probe) {
     const labels = shown.filter(o => o.elType === 'text').map(o => {
         const text = o as unknown as JXG.Text & {plaintext?: string};
         const [cx, cy] = toPx(text.X(), text.Y());
-        const w = (text.plaintext ?? '').length * 7 + 4;
+        const w = (text.plaintext ?? '').replace(/\$\$/g, '').length * 7 + 4;
         return {text: text.plaintext ?? '', box: {x0: cx - w / 2, y0: cy - 9, x1: cx + w / 2, y1: cy + 9} as PxBox};
     }).filter(l => l.text !== '' && !/^[-−\d.,]+$/.test(l.text)); // the axis tick numbers are not the graph's captions
     const markers = shown.filter(o => o.elType === 'point').map(o => toPx(o.X!(), o.Y!()));

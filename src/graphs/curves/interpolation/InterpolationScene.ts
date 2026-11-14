@@ -4,6 +4,8 @@ import {barycentricWeights, bezierCurvePoint, lagrangeBasis, ParameterRule, Poin
 import {GraphPalette} from "../../styles/GraphPalette";
 import {convexHullOf, interpolationRejection, parametersOf, readoutAt, readoutLines} from "./interpolationModel";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
+import {stylesForBoard} from "../../styles/GraphStyles";
+import {pointLabelMath} from "../../styles/pointLabelMath";
 
 interface SceneSettings {
     board: Board;
@@ -131,7 +133,11 @@ export class InterpolationScene {
         points.forEach((p, i) => {
             const point = this.create<Point>('point', [p[0], p[1]], {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.controlPoint, highlightFillColor: GraphPalette.selectedControlPoint, highlight: true,
+                // The shared point-label attributes: MathJax, no parsing, display font size, placement and visibility.
+                label: {...(stylesForBoard(this.board).point.default.label as object), visible: "inherit"},
             });
+            // The element keeps its plain `name`; only the drawn label is typeset.
+            point.label?.setText(pointLabelMath(`P${i}`));
             bindMovablePointCursor(point, this.board);
             point.on('drag', () => {
                 // A released scene's point may still receive an event: it must not write the state of its successor.

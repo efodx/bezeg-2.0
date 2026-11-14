@@ -45,6 +45,15 @@ const curves = (graph: ObservedInterpolationGraph) => {
 };
 
 describe('InterpolationGraph on a real board', () => {
+    test('data point labels are typeset as math while the element name stays plain', () => {
+        const {graph, view} = mount();
+        const point = graph.sceneOf().pointElements()[1] as any;
+        expect(point.name).toBe('P1');
+        expect(point.label.plaintext).toBe('$$P_{1}$$');
+        expect(point.label.evalVisProp('usemathjax')).toBe(true);
+        view.unmount();
+    });
+
     test('the drawn Lagrange curve passes through every data point, for uniform and chord parameters', () => {
         const {graph, view} = mount();
         for (const rule of ['uniform', 'chord'] as const) {

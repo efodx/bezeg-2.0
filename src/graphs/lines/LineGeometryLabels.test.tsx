@@ -49,10 +49,10 @@ function drawn(graph: Probe) {
     const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
     const width = board.canvasWidth, height = board.canvasHeight;
     const shown = (board.objectsList as unknown as Shown[]).filter(o => Boolean(o.evalVisProp('visible')));
-    const labels = shown.filter(o => o.elType === 'text' && o.visProp.fontsize === 15).map(o => {
+    const labels = shown.filter(o => o.elType === 'text' && (o.visProp.fontsize === 15 || o.visProp.usemathjax === true)).map(o => {
         const text = o as unknown as JXG.Text & {plaintext?: string};
         const [cx, cy] = toPx(text.X(), text.Y());
-        const w = (text.plaintext ?? '').length * 8 + 4;
+        const w = (text.plaintext ?? '').replace(/\$\$|[\{}_]|ell/g, '').length * 8 + 4;
         return {text: text.plaintext ?? '', box: {x0: cx - w / 2, y0: cy - 10, x1: cx + w / 2, y1: cy + 10} as PxBox};
     });
     const markers = shown.filter(o => o.elType === 'point').map(o => toPx((o as unknown as JXG.Point).X(), (o as unknown as JXG.Point).Y()));

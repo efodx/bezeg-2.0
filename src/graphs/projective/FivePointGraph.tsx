@@ -20,6 +20,7 @@ import {fivePointPersistence} from "./projectivePersistence";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {pointLabelMath} from "../styles/pointLabelMath";
 
 /**
  * The five-point graph (K4 of projective-conics-lessons, ADR 0033): five draggable points A to E on the 1/5 grid, the unique conic through
@@ -413,7 +414,8 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
             const arc = this.scene().arc;
             return arc && arc.status === "ok" ? arc : undefined;
         };
-        const label = {strokeColor: GraphPalette.label};
+        // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
+        const label = {...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label};
         const curveOf = (fill: (curve: FillCurve) => void, attributes: Record<string, unknown>) => {
             const curve = add(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes}) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
             curve.updateDataArray = () => fill(curve);
@@ -489,10 +491,16 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         }
 
         // P1, the Farin points and the shoulder.
-        const derived = (name: string, at: () => readonly [number, number] | undefined, face: string, size: number) => add(board.create("point", [() => at()?.[0] ?? 0, () => at()?.[1] ?? 0], {
+        const createDerived = (name: string, at: () => readonly [number, number] | undefined, face: string, size: number) => add(board.create("point", [() => at()?.[0] ?? 0, () => at()?.[1] ?? 0], {
             name, withLabel: true, size, face, fixed: true, showInfobox: false, fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline,
             highlight: false, layer: 6, label: {...label, offset: [8, -12]}, visible: () => at() !== undefined,
         }) as JXG.Point);
+        // The element keeps its plain `name`; only the drawn label is typeset.
+        const derived = (name: string, at: () => readonly [number, number] | undefined, face: string, size: number) => {
+            const point = createDerived(name, at, face, size);
+            point.label?.setText(pointLabelMath(name));
+            return point;
+        };
         const of = (pick: (arc: NonNullable<ReturnType<typeof okArc>>) => {x: number; y: number}) => (): readonly [number, number] | undefined => {
             const arc = okArc();
             return arc ? [pick(arc).x, pick(arc).y] : undefined;
@@ -513,6 +521,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
                 label: {...label, offset: [8, 8]}, layer: 7,
             }) as JXG.Point);
+            point.label?.setText(pointLabelMath(name));
             point.on("down", () => {
                 this.selected = i;
                 this.requestRender();

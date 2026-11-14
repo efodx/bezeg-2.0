@@ -109,6 +109,15 @@ function distanceToPolyline(p: number[], line: number[][]): number {
 
 describe('SubdivisionCurveGraph on a real board', () => {
 
+    test('data point labels are typeset as math while the element name stays plain', () => {
+        const {graph, view} = mount();
+        const point = graph.sceneOf().pointElements()[1] as any;
+        expect(point.name).toBe('P1');
+        expect(point.label.plaintext).toBe('$$P_{1}$$');
+        expect(point.label.evalVisProp('usemathjax')).toBe(true);
+        view.unmount();
+    });
+
     test('the default scene is the open polygon, Chaikin, round 0, playback stopped; the id and collection are fixed', () => {
         const {graph, view, scheduler} = mount();
         expect(graph.exportPresetData()).toEqual(DEFAULT_SUBDIVISION_PRESET);

@@ -73,6 +73,15 @@ const hermiteData = (overrides: Partial<HermitePresetData> = {}): HermitePresetD
 });
 
 describe('HermiteGraph on a real board', () => {
+    test('data point labels are typeset as math while the element name stays plain', () => {
+        const {graph, view} = mount();
+        const point = graph.sceneOf().pointElements()[1] as any;
+        expect(point.name).toBe('P1');
+        expect(point.label.plaintext).toBe('$$P_{1}$$');
+        expect(point.label.evalVisProp('usemathjax')).toBe(true);
+        view.unmount();
+    });
+
     test.each(['uniform', 'chord'] as const)('Hermite mode (%s): the drawn curve has the value and the global derivative m_i at every point', rule => {
         const {graph, view} = mount();
         const data = hermiteData({parameterRule: rule});

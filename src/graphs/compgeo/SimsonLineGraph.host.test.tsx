@@ -541,3 +541,12 @@ test('a drag of P, of P-prime and of a vertex with every overlay on keeps the bo
     const out = process.env.SIMSON_DRAG_OUT;
     if (out) writeFileSync(out, JSON.stringify({glider, exact: exactRun, vertex}, null, 1));
 });
+
+const labelText = (o: object | undefined) => (o as {label?: {plaintext?: string}} | undefined)?.label?.plaintext;
+test('the labels of P, O and the feet are typeset as math while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    showAllOverlays(graph);
+    expect(labelText(exact(graph, 'P')[0])).toBe('$$P$$');
+    expect(labelText(exact(graph, 'O')[0])).toBe('$$O$$');
+});

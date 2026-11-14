@@ -6,6 +6,7 @@ import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {
     activeInscribedExampleId, analyseInscribedAngle, BoardXY, gliderTFromBoard, InscribedAnalysis, InscribedCircleAnalysis,
@@ -66,6 +67,12 @@ const INSCRIBED_EXTENSION: PointSetExtension = Object.freeze({
         finiteNumberField("t", inscribedExample("default").t),
     ],
 });
+
+/** The drawn label of a named point is typeset; the element keeps its plain name. */
+function mathLabelled(point: JXG.Point, name: string): JXG.Point {
+    point.label?.setText(pointLabelMath(name));
+    return point;
+}
 
 export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     private unsubscribeLanguage?: () => void;
@@ -277,17 +284,18 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
                 strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5, highlight: false, fixed: true, layer: 5, withLabel: false,
                 name: "inscribed-chord",
             }) as JXG.GeometryElement,
-            board.create("point", centre, {
+            mathLabelled(board.create("point", centre, {
                 name: "O", withLabel: true, size: 4, face: "cross", fillColor: GraphPalette.comparisonCurve, strokeColor: GraphPalette.comparisonCurve,
-                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {offset: [8, 8], strokeColor: GraphPalette.label},
-            }) as JXG.GeometryElement,
+                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+            }) as JXG.Point, "O"),
         );
         const start = circle.glider?.board ?? circle.board?.centre ?? {x: 0, y: 0};
         const glider = board.create("point", [start.x, start.y], {
             name: "P", withLabel: true, size: 6, face: "o", fillColor: GraphPalette.additionalCurves[0], strokeColor: GraphPalette.pointOutline,
             strokeWidth: 2, highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8,
-            label: {offset: [8, 8], strokeColor: GraphPalette.label},
+            label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
+        glider.label?.setText(pointLabelMath("P"));
         bindMovablePointCursor(glider, this.board);
         glider.on("drag", () => this.dragGlider(glider));
         this.glider = glider;

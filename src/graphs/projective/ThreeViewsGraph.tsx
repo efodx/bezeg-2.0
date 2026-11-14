@@ -5,6 +5,7 @@ import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {
@@ -274,7 +275,8 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
             all.push(element);
             return element;
         };
-        const label = {strokeColor: GraphPalette.label};
+        // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
+        const label = {...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label};
         const curveOf = (fill: (curve: FillCurve) => void, attributes: Record<string, unknown>) => {
             const curve = add(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes}) as unknown as JXG.GeometryElement) as unknown as FillCurve & JXG.GeometryElement;
             curve.updateDataArray = () => fill(curve);
@@ -288,10 +290,16 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         const text = (x: () => number, y: () => number, content: () => string, attributes: Record<string, unknown> = {}) => add(board.create("text", [x, y, content], {
             fixed: true, highlight: false, strokeColor: GraphPalette.label, layer: 8, ...attributes,
         }) as JXG.GeometryElement);
-        const marker = (name: string, at: () => readonly [number, number] | undefined, attributes: Record<string, unknown>) => add(board.create("point", [() => at()?.[0] ?? 0, () => at()?.[1] ?? 0], {
+        const createMarker = (name: string, at: () => readonly [number, number] | undefined, attributes: Record<string, unknown>) => add(board.create("point", [() => at()?.[0] ?? 0, () => at()?.[1] ?? 0], {
             name, withLabel: true, fixed: true, showInfobox: false, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 7,
             label: {...label, offset: [8, 8]}, visible: () => at() !== undefined, ...attributes,
         }) as JXG.Point);
+        // The element keeps its plain `name`; only the drawn label is typeset.
+        const marker = (name: string, at: () => readonly [number, number] | undefined, attributes: Record<string, unknown>) => {
+            const point = createMarker(name, at, attributes);
+            point.label?.setText(pointLabelMath(name));
+            return point;
+        };
 
         // The panel frames and titles.
         for (const centre of [SOURCE_CENTRE, IMAGE_CENTRE]) {

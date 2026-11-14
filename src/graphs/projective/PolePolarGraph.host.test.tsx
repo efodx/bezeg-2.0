@@ -84,7 +84,7 @@ test('an ideal P is drawn as an arrow, never as a far finite point; the parabola
     act(() => { graph.loadExample('infinity'); });
     expect(line('status')).toContain('točka v neskončnosti');
     expect(line('polar')).toContain('x = 0');
-    expect(boardTexts(graph).some(text => text.includes('∞'))).toBe(true);
+    expect(boardTexts(graph).some(text => text.includes('\\infty'))).toBe(true);
     for (const object of objects(graph)) {
         if (object.elType !== 'point' || !object.X) continue;
         expect(Math.abs(object.X())).toBeLessThan(40);
@@ -301,4 +301,19 @@ test('the scene leaves no anonymous helper on the board: a Preset replacement ke
     view.unmount();
     expect(leftovers(board)).toEqual([]);
     vi.restoreAllMocks();
+});
+
+type LabelOf = {label?: {plaintext?: string; visProp: {usemathjax?: boolean; parse?: boolean}}};
+const labelOf = (graph: Observed, elType: string, name: string) => (named(graph, elType, name)[0] as unknown as LabelOf).label;
+
+test('names of points and lines are typeset through the shared MathJax label path while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelOf(graph, 'point', 'P')?.plaintext).toBe('$$P$$');
+    expect(labelOf(graph, 'point', 'S')?.plaintext).toBe('$$S$$');
+    expect(labelOf(graph, 'point', 'T₁')?.plaintext).toBe('$$T_{1}$$');
+    expect(labelOf(graph, 'line', 't₁')?.plaintext).toBe('$$t_{1}$$');
+    expect(labelOf(graph, 'line', 'p')?.plaintext).toBe('$$p$$');
+    expect(labelOf(graph, 'point', 'P')?.visProp.usemathjax).toBe(true);
+    expect(labelOf(graph, 'point', 'P')?.visProp.parse).toBe(false);
 });

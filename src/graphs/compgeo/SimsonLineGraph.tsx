@@ -9,6 +9,7 @@ import {onLanguageChange, t} from "../../localization";
 import {GridPoint, isGridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {inBox} from "../../compgeo/notablePointsModel";
 import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
@@ -70,6 +71,12 @@ const COLOUR = {
     perpendicular: GraphPalette.additionalCurves[0], simson: GraphPalette.additionalCurves[1], pedal: GraphPalette.additionalCurves[1],
 };
 const SIDE_NAMES = ["BC", "CA", "AB"] as const;
+
+/** The drawn label of a named point is typeset; the element keeps its plain name. */
+function mathLabelled<T extends JXG.GeometryElement>(point: T, name: string): T {
+    (point as unknown as JXG.Point).label?.setText(pointLabelMath(name));
+    return point;
+}
 
 /**
  * The persisted scene beyond the model and the overlays (task 08 batch 6b), each field read as the collection's `checkGraphState`
@@ -345,7 +352,10 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         if (!view || !this.pointObject) return;
         const point = this.pointObject;
         const name = view.mode === "exact" ? "P′" : "P";
-        if (point.name !== name) point.setAttribute({name});
+        if (point.name !== name) {
+            point.setAttribute({name});
+            point.label?.setText(pointLabelMath(name));
+        }
         const place = view.p.board;
         point.setAttribute({visible: place !== undefined});
         if (place && (point.X() !== place.x || point.Y() !== place.y)) {
@@ -359,18 +369,19 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         const board = this.board;
         // JSXGraph may add hidden helper points; the graph owns whatever a build added.
         const before = new Set<unknown>(board.objectsList as unknown[]);
-        this.footObjects = FOOT_NAMES.map((name, i) => board.create("point", [
+        this.footObjects = FOOT_NAMES.map((name, i) => mathLabelled(board.create("point", [
             () => this.read(v => v.feet[i].board?.x), () => this.read(v => v.feet[i].board?.y),
         ], {
             name, withLabel: true, size: 4, face: "square", fillColor: COLOUR.perpendicular, strokeColor: COLOUR.perpendicular,
-            highlight: false, fixed: true, showInfobox: false, layer: 7, label: {offset: [8, 8], strokeColor: GraphPalette.label},
-        }) as JXG.Point);
+            highlight: false, fixed: true, showInfobox: false, layer: 7, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+        }) as JXG.Point, name));
         const start = view.p.board ?? {x: 0, y: 0};
         const point = board.create("point", [start.x, start.y], {
             name: view.mode === "exact" ? "P′" : "P", withLabel: true, size: 6, face: "o", fillColor: GraphPalette.additionalCurves[0],
             strokeColor: GraphPalette.pointOutline, strokeWidth: 2, highlightFillColor: GraphPalette.selectedControlPoint,
-            showInfobox: false, layer: 8, label: {offset: [8, 8], strokeColor: GraphPalette.label},
+            showInfobox: false, layer: 8, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
+        point.label?.setText(pointLabelMath(view.mode === "exact" ? "P′" : "P"));
         bindMovablePointCursor(point, this.board);
         point.on("drag", () => this.dragMoving(point));
         this.pointObject = point;
@@ -473,10 +484,10 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
                 strokeColor: COLOUR.circle, strokeWidth: 2, fillOpacity: 0, highlight: false, fixed: true, layer: 3, withLabel: false,
                 name: "circumcircle",
             }) as JXG.GeometryElement,
-            this.board.create("point", [centre.x, centre.y], {
+            mathLabelled(this.board.create("point", [centre.x, centre.y], {
                 name: "O", withLabel: true, size: 4, face: "cross", fillColor: COLOUR.circle, strokeColor: COLOUR.circle,
-                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {offset: [8, 8], strokeColor: GraphPalette.label},
-            }) as JXG.GeometryElement,
+                highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+            }) as JXG.GeometryElement, "O"),
         ];
     }
 

@@ -14,6 +14,7 @@ import {gridToBoard, PointSetModel, snapToGrid} from "../../compgeo/pointSetMode
 import {NOTCHED_PENTAGON, PENTAGRAM_VERTICES} from "../../compgeo/pointInPolygon";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {formatSigned} from "./orientationReadout";
 import {PointInPolygonReadout, pointInPolygonReadout, rayMarkers} from "./pointInPolygonReadout";
 import {POINT_IN_POLYGON_OVERLAY_IDS, pointInPolygonPresetCollection} from "./pointInPolygonPresetCollection";
@@ -442,8 +443,9 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
                 fillColor: GraphPalette.derivedPoint,
                 strokeColor: GraphPalette.selectedControlPointOutline,
                 strokeWidth: () => this.isQueryActive ? 3 : 2,
-                label: {visible: true, offset: [8, 8], strokeColor: GraphPalette.label},
+                label: {...(this.styles.point.default.label as object), visible: true, offset: [8, 8], strokeColor: GraphPalette.label},
             }) as JXG.Point;
+            created.label?.setText(pointLabelMath("q"));
             created.on("down", () => {
                 this.queryActive = true;
                 this.select(undefined);

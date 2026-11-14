@@ -220,3 +220,17 @@ test('the on-board ratio text is hidden on a narrow board (the status region car
     expect(ratioTexts().some(o => o.visPropCalc?.visible)).toBe(false);
     expect(document.body.textContent).toContain('9/8');
 });
+
+type LabelOf = {label?: {plaintext?: string; visProp: {usemathjax?: boolean; parse?: boolean}}};
+const labelOf = (graph: Observed, elType: string, name: string) => (objects(graph).find(o => o.elType === elType && o.name === name) as unknown as LabelOf).label;
+
+test('names of points and lines are typeset through the shared MathJax label path while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelOf(graph, 'point', 'A')?.plaintext).toBe('$$A$$');
+    expect(labelOf(graph, 'point', 'A′')?.plaintext).toBe("$$A'$$");
+    expect(labelOf(graph, 'line', 'p')?.plaintext).toBe('$$p$$');
+    expect(labelOf(graph, 'line', 'p′')?.plaintext).toBe("$$p'$$");
+    expect(labelOf(graph, 'point', 'A')?.visProp.usemathjax).toBe(true);
+    expect(labelOf(graph, 'point', 'A')?.visProp.parse).toBe(false);
+});

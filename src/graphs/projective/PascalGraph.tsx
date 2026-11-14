@@ -17,6 +17,7 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PascalControls} from "./PascalControls";
 import {definingPoints} from "./definingPoints";
 import {PASCAL_POINT_NAMES, SIDE_NAMES} from "./pascalText";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {pascalPresetCollection} from "./projectivePresetCollection";
 import {pascalPersistence} from "./projectivePersistence";
@@ -395,7 +396,13 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             definingPoints(element).forEach(helper => { if (!all.includes(helper)) all.push(helper); });
             return element;
         };
-        const label = {strokeColor: GraphPalette.label};
+        // The shared point-label attributes (MathJax, no parsing, display font size, visibility); each element adds its own offset.
+        const label = {...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label};
+        // The element keeps its plain `name`; only the drawn label is typeset.
+        const typeset = <E extends JXG.GeometryElement>(element: E, name: string): E => {
+            element.label?.setText(pointLabelMath(name));
+            return element;
+        };
         const lineOptions = {highlight: false, fixed: true, withLabel: true} as const;
 
         // The conic, drawn from the sampler; a hyperbola's branches and a line pair's lines are one polyline broken by NaN.
@@ -411,11 +418,11 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         // The six sides of the hexagon: lines through two vertices, dashed by opposite pair. A side between coinciding vertices is hidden.
         for (let i = 0; i < 6; i++) {
             const coefficients = (): [number, number, number] => lineCoefficients(this.scene().sides[i]) ?? HIDDEN_LINE;
-            add(board.create("line", [() => coefficients()[0], () => coefficients()[1], () => coefficients()[2]], {
+            add(typeset(board.create("line", [() => coefficients()[0], () => coefficients()[1], () => coefficients()[2]], {
                 ...lineOptions, strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: DASHES[i % 3], layer: 3,
                 name: SIDE_NAMES[i], label: {...label, offset: sideLabelOffset(i)},
                 visible: () => lineCoefficients(this.scene().sides[i]) !== undefined,
-            }) as JXG.GeometryElement);
+            }) as JXG.GeometryElement, SIDE_NAMES[i]));
         }
 
         // The Pascal line: absent unless the points are collinear, and never drawn when it is the line at infinity.
@@ -424,10 +431,10 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             return result.status === "ok" && result.line !== null ? result.line : undefined;
         };
         const lineAt = (): [number, number, number] => lineCoefficients(pascalLine()) ?? HIDDEN_LINE;
-        add(board.create("line", [() => lineAt()[0], () => lineAt()[1], () => lineAt()[2]], {
+        add(typeset(board.create("line", [() => lineAt()[0], () => lineAt()[1], () => lineAt()[2]], {
             ...lineOptions, strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth, layer: 4,
             name: "p", label: {...label, offset: [-24, 10]}, visible: () => lineCoefficients(pascalLine()) !== undefined,
-        }) as JXG.GeometryElement);
+        }) as JXG.GeometryElement, "p"));
 
         // The three Pascal points: finite and inside the view they are markers, ideal ones are arrows below (named in the status, not on the board), others are text only.
         for (let i = 0; i < 3; i++) {
@@ -436,12 +443,12 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
                 const found = view();
                 return found?.kind === "finite" ? found.view[axis] : 0;
             };
-            add(board.create("point", [() => at("x"), () => at("y")], {
+            add(typeset(board.create("point", [() => at("x"), () => at("y")], {
                 name: PASCAL_POINT_NAMES[i], withLabel: true, size: 5, face: FACES[i], fixed: true, showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 6,
                 label: {...label, offset: [8, -12]},
                 visible: () => { const found = this.scene().pascalPoints[i]; return found !== undefined && found.view.kind === "finite" && !found.offBox; },
-            }) as JXG.Point);
+            }) as JXG.Point, PASCAL_POINT_NAMES[i]));
 
             // An ideal point has a direction only: an arrow from the origin along it, at its own distance, with its own name.
             const marker = () => {
@@ -464,13 +471,13 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         // The six handles, labelled A to F (A₁ to B₃ on a line pair). Dragging snaps to the nearest table direction.
         const handles = names.map((name, handle) => {
             const start = toAffine(this.scene().handles[handle]);
-            const point = add(board.create("point", [start.kind === "finite" ? start.view.x : 0, start.kind === "finite" ? start.view.y : 0], {
+            const point = add(typeset(board.create("point", [start.kind === "finite" ? start.view.x : 0, start.kind === "finite" ? start.view.y : 0], {
                 name, withLabel: true, size: () => this.selected === handle ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === handle ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === handle ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === handle ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
                 label: {...label, offset: [8, 8]}, layer: 7,
-            }) as JXG.Point);
+            }) as JXG.Point, name));
             point.on("down", () => {
                 this.selected = handle;
                 this.requestRender();

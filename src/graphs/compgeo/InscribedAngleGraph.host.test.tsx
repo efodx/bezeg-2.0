@@ -394,3 +394,11 @@ test('a scripted drag of P and of a vertex keeps the board in step and finite; t
     const out = process.env.INSCRIBED_DRAG_OUT;
     if (out) writeFileSync(out, JSON.stringify({p, v}, null, 1));
 });
+
+const labelText = (o: object | undefined) => (o as {label?: {plaintext?: string}} | undefined)?.label?.plaintext;
+test('the labels of O and P are typeset as math while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelText(named(graph, 'O').find(o => o.name === 'O'))).toBe('$$O$$');
+    expect(labelText(glider(graph))).toBe('$$P$$');
+});

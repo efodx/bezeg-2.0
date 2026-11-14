@@ -382,3 +382,11 @@ test('wiring: the shared example chooser mounts and choosing an example loads it
     fireEvent.change(chooser, {target: {value: 'right'}});
     expect(graph.exampleId).toBe('right');
 });
+
+const labelText = (o: object | undefined) => (o as {label?: {plaintext?: string}} | undefined)?.label?.plaintext;
+test('the labels of the centres are typeset as math while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    showAllCentres(graph);
+    for (const symbol of ['G', 'O', 'I', 'H']) expect(labelText(named(graph, symbol).find(o => o.name === symbol)), symbol).toBe(`$$${symbol}$$`);
+});

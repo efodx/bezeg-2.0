@@ -353,3 +353,10 @@ test('the Preset carries the polygon as data and q in graphState; a fractional o
     expect(pointInPolygonPresetCollection.checkGraphState?.({query: {x: 1, y: 3}, overlays: {ray: true, values: false}})).toBeUndefined();
     expect(pointInPolygonPresetCollection.checkGraphState?.({overlays: {fan: true}})).toBeDefined();
 });
+
+const labelText = (o: object | undefined) => (o as {label?: {plaintext?: string}} | undefined)?.label?.plaintext;
+test('the label of q is typeset as math while the element keeps its plain name', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelText(queryObject(graph))).toBe('$$q$$');
+});

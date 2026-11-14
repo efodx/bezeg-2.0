@@ -15,6 +15,7 @@ import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {fitBoundingBox, FitPoint} from "../base/fitBoundingBox";
 import {angleBetween} from "../../compgeo/circle";
 import {Rational, RationalPoint} from "../../compgeo/rational";
@@ -373,12 +374,15 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             this.own(board.create("segment", [a, b], {
                 strokeColor: color, strokeWidth: width, dash, fixed: true, highlight: false, visible, withLabel: false, lastArrow,
             }));
-        const label = (x: Place, y: Place, text: () => string, color: string, visible: Visible) =>
-            this.own(board.create("text", [x, y, text], {
-                strokeColor: color, fontSize: 15, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
-            }));
+        // `math`: the text is only the name of a point, side or angle, typeset with the display font size of the point labels.
+        // With `raw` the text is already in math form (the squares c^2, a^2, b^2).
+        const labelStyle = this.styles.point.default.label as unknown as {fontSize: () => number};
+        const label = (x: Place, y: Place, text: () => string, color: string, visible: Visible, math: boolean | "raw" = false) =>
+            this.own(board.create("text", [x, y, math === true ? () => pointLabelMath(text()) : text], {
+                strokeColor: color, fontSize: 15, ...(math ? {fontSize: labelStyle.fontSize, useMathJax: true, parse: false} : {}), anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
+            }) as JXG.Text);
         const handleAttributes = (name: string): JXG.PointAttributes => ({
-            name, withLabel: true, size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
+            name, withLabel: true, label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"], size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false, visible: inGeometry,
             precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
         });
@@ -386,6 +390,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         // ---- sides and circle modes: the triangle on three draggable grid vertices
         const handleFor = (vertex: Vertex) => {
             const handle = this.own(board.create("point", [this.state[vertex].x, this.state[vertex].y], handleAttributes(vertex)));
+            handle.label?.setText(pointLabelMath(vertex));
             this.handles_[vertex] = handle;
             return handle;
         };
@@ -397,9 +402,9 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         segment(hA, hB, GraphPalette.primaryCurve, 3, 0, inGeometry);
         const sideName = (p: Vertex, q: Vertex, r: Vertex, axis: "x" | "y"): Place => () =>
             sideNamePlace(this.state[p], this.state[q], this.state[r], this.board.unitX, this.board.unitY)[axis];
-        label(sideName("B", "C", "A", "x"), sideName("B", "C", "A", "y"), () => "a", GraphPalette.label, inGeometry);
-        label(sideName("C", "A", "B", "x"), sideName("C", "A", "B", "y"), () => "b", GraphPalette.label, inGeometry);
-        label(sideName("A", "B", "C", "x"), sideName("A", "B", "C", "y"), () => "c", GraphPalette.label, inGeometry);
+        label(sideName("B", "C", "A", "x"), sideName("B", "C", "A", "y"), () => "a", GraphPalette.label, inGeometry, true);
+        label(sideName("C", "A", "B", "x"), sideName("C", "A", "B", "y"), () => "b", GraphPalette.label, inGeometry, true);
+        label(sideName("A", "B", "C", "x"), sideName("A", "B", "C", "y"), () => "c", GraphPalette.label, inGeometry, true);
 
         // The circumcircle, the diameter B A' and the auxiliary triangle B A' C (circle mode, exact centre and antipode).
         const centre = hidden(() => this.proper()?.sine.circumcentre.x.toNumber() ?? 0, () => this.proper()?.sine.circumcentre.y.toNumber() ?? 0);
@@ -410,8 +415,9 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         const antipodeAt = (axis: "x" | "y"): Place => () => this.proper()?.sine.antipode[axis].toNumber() ?? 0;
         const antipode = this.own(board.create("point", [antipodeAt("x"), antipodeAt("y")], {
             fixed: true, highlight: false, withLabel: true, name: "A′", face: "diamond", size: 5, fillColor: GraphPalette.constructionAccent,
-            strokeColor: GraphPalette.pointOutline, visible: circleDrawn,
+            strokeColor: GraphPalette.pointOutline, visible: circleDrawn, label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"],
         }));
+        antipode.label?.setText(pointLabelMath("A′"));
         segment(hB, antipode, GraphPalette.constructionAccent, 3, 0, circleDrawn);
         segment(antipode, hC, GraphPalette.comparisonCurve, 2, 2, auxDrawn);
 
@@ -441,9 +447,9 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         segment(corrFrom, corrTo, GraphPalette.constructionAccent, 8, 2, () => barsDrawn() && squares().corr !== 0);
         // Bar texts keep pixel gaps from the bars (8 px thick): the names hug them, the correction caption stacks above the c² name.
         const px = (pixels: number): number => pixels / this.board.unitY;
-        label(() => BAR_X + (squares().c2 * scale()) / 2, () => BAR_ROW_C + px(BAR_NAME_OFFSET), () => "c²", GraphPalette.label, barsDrawn);
-        label(() => BAR_X + (squares().a2 * scale()) / 2, () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "a²", GraphPalette.primaryCurve, barsDrawn);
-        label(() => BAR_X + ((squares().a2 + squares().b2 / 2) * scale()), () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "b²", GraphPalette.comparisonCurve, barsDrawn);
+        label(() => BAR_X + (squares().c2 * scale()) / 2, () => BAR_ROW_C + px(BAR_NAME_OFFSET), () => "$$c^2$$", GraphPalette.label, barsDrawn, "raw");
+        label(() => BAR_X + (squares().a2 * scale()) / 2, () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "$$a^2$$", GraphPalette.primaryCurve, barsDrawn, "raw");
+        label(() => BAR_X + ((squares().a2 + squares().b2 / 2) * scale()), () => BAR_ROW_AB - px(BAR_NAME_OFFSET), () => "$$b^2$$", GraphPalette.comparisonCurve, barsDrawn, "raw");
         label(() => BAR_X + BAR_LENGTH / 2, () => BAR_ROW_C + px(BAR_NAME_OFFSET + BAR_CAPTION_STEP),
             () => `${t("triangle_solver_bar_correction")} = ${signed(this.proper()?.cosine.correction ?? 0n)}`, GraphPalette.constructionAccent, barsDrawn);
 
@@ -465,14 +471,14 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             segment(c, a, color, 3, dash, triangleDrawn(index));
             const [bx, by] = point(index, "B");
             label(() => bx() + 0.4, () => by() - 0.5, () => (this.view().drawn.length > 1 ? t(index === 0 ? "triangle_solver_label_b1" : "triangle_solver_label_b2") : "B"),
-                color, triangleDrawn(index));
+                color, triangleDrawn(index), true);
         };
         triangle(0, GraphPalette.primaryCurve, 0);
         triangle(1, GraphPalette.comparisonCurve, 2);
         const [ax, ay] = point(0, "A");
         const [cx, cy] = point(0, "C");
-        label(() => ax() - 0.5, () => ay() - 0.5, () => "A", GraphPalette.label, triangleDrawn(0));
-        label(() => cx(), () => cy() + 0.6, () => "C", GraphPalette.label, triangleDrawn(0));
+        label(() => ax() - 0.5, () => ay() - 0.5, () => "A", GraphPalette.label, triangleDrawn(0), true);
+        label(() => cx(), () => cy() + 0.6, () => "C", GraphPalette.label, triangleDrawn(0), true);
 
         const ssaOrigin = hidden(() => 0, () => 0);
         const ssaEnd = hidden(() => this.view().rayEnd, () => 0);
@@ -485,7 +491,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
             strokeColor: SSA_ARC_COLOR, strokeWidth: 2, fillColor: "none", highlightFillColor: "none", fixed: true,
             highlight: false, withLabel: false, visible: ssaDrawn,
         }));
-        label(() => (this.view().ssa?.C.x ?? 0) - 0.5, () => (this.view().ssa?.C.y ?? 0) / 2, () => "h", GraphPalette.constructionAccent, ssaDrawn);
+        label(() => (this.view().ssa?.C.x ?? 0) - 0.5, () => (this.view().ssa?.C.y ?? 0) / 2, () => "h", GraphPalette.constructionAccent, ssaDrawn, true);
 
         for (const vertex of VERTICES) this.wireDrag(vertex);
         this.drawnKey = this.stateKey();

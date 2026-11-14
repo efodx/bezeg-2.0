@@ -567,7 +567,7 @@ describe('review repairs', () => {
         const {graph} = mountGraph();
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['zrcalo 1', 'zrcalo 2', 'lik', 'slika 1', 'slika 2', 'središče']));
         chooseMode('similarity');
-        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['središče', 'k', 'lik', 'slika 1']));
+        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['središče', '$$k$$', 'lik', 'slika 1']));
         chooseMode('rosette');
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['središče', 'točka lika', 'slika 1', 'slika 2', 'slika 3', 'slika 4', 'slika 5']));
         expect(shownCaptions(graph)).not.toContain('slika 6');

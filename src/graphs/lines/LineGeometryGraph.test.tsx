@@ -87,7 +87,10 @@ test('mounts the forms mode: every form of x - 2y = -4, the status, the line thr
     // the handles carry their names on the board, not only a colour
     expect(namedPoints(graph).map(p => p.name).sort()).toEqual(['P', 'Q']);
     expect(pointNamed(graph, 'P')).toEqual({name: 'P', x: -2, y: 1});
-    expect(texts(graph)).toContain('ℓ');
+    expect(texts(graph)).toContain('$$\\ell$$');
+    // a handle's drawn label is its name typeset; the element keeps the plain name
+    const handleP = (objects(graph) as unknown as JXG.Point[]).find(o => o.elType === 'point' && o.name === 'P');
+    expect((handleP?.label as unknown as {plaintext?: string} | undefined)?.plaintext).toBe('$$P$$');
     expect(shownCircles(graph)).toHaveLength(0);
     NO_NAN();
 });
@@ -134,7 +137,7 @@ test('normal mode: the arrow of fixed length 3 along the exact normal (1, -2), t
     expect(readout('slopes')).toBe('−1');
     expect(readout('relation')).toBe('pravokotni');
     expect(status()).toBe('Skalarni produkt normalnih vektorjev je 0, zato sta premici pravokotni.');
-    expect(texts(graph)).toEqual(expect.arrayContaining(['ℓ', 'm', 'n₁', 'n₂']));
+    expect(texts(graph)).toEqual(expect.arrayContaining(['$$\\ell$$', '$$m$$', '$$n_{1}$$', '$$n_{2}$$']));
     // the readout rows name what the board captions
     expect(document.querySelector('[data-readout="normal-1"] dt')?.textContent).toBe('Normalni vektor n₁, prva premica (ℓ)');
     expect(document.querySelector('[data-readout="normal-2"] dt')?.textContent).toBe('Normalni vektor n₂, druga premica (m)');
@@ -170,7 +173,7 @@ test('angle mode: 45 degrees between x - 2y = -4 and y = 3x, the arc of radius 3
     const a0 = Math.atan2(at(0).y - CROSS.y, at(0).x - CROSS.x);
     const a1 = Math.atan2(at(1).y - CROSS.y, at(1).x - CROSS.x);
     expect(Math.abs(a1 - a0) * 180 / Math.PI).toBeCloseTo(45, 9);
-    expect(texts(graph)).toEqual(expect.arrayContaining(['α = 45°', 'u', 'v']));
+    expect(texts(graph)).toEqual(expect.arrayContaining(['α = 45°', '$$u$$', '$$v$$']));
     expect(pointNamed(graph, 'X')!.x).toBeCloseTo(CROSS.x, 12);
     expect(pointNamed(graph, 'X')!.y).toBeCloseTo(CROSS.y, 12);
     // the direction vectors are drawn as arrows P to Q and R to S
@@ -205,7 +208,7 @@ test('distance mode: the foot (4/5, 12/5), the segment from the foot to T, the r
     expect(readout('distance')).toBe('≈ 4,9193');
     expect(readout('foot')).toBe('(4/5; 12/5)');
     expect(status()).toBe('Razdalja točke T od premice: d² = 121/5, d ≈ 4,9193.');
-    expect(texts(graph)).toEqual(expect.arrayContaining(['d ≈ 4,9193', 'PT', 'PTₙ']));
+    expect(texts(graph)).toEqual(expect.arrayContaining(['d ≈ 4,9193', '$$PT$$', '$$PT_{n}$$']));
     // the projection segment F to T is captioned PTₙ and the readout row names the same caption
     expect(document.querySelector('[data-readout="projection"] dt')?.textContent).toBe('Pravokotna projekcija PT na normalo (PTₙ)');
     // T on the line: distance 0, no drop segment, no right angle

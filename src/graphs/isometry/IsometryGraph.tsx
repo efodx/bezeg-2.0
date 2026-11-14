@@ -15,6 +15,7 @@ import {CheckboxGroup} from "../../inputs/CheckboxGroup";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {Line} from "../../compgeo/circle";
 import {Rational, RationalPoint} from "../../compgeo/rational";
 import type {GridPoint} from "../../compgeo/grid";
@@ -414,7 +415,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         const captionFont = () => (board.unitX < 20 ? 12 : 15);
         type Anchors = () => ReadonlyArray<readonly [number, number]>;
         /** A text sits at the centre of its placed box (see `labelBoxes`) beside the first of its anchors, or on it before the board has a size. */
-        const caption = (text: string | (() => string), anchors: Anchors, color: string, visible: Visible = true) => {
+        const caption = (text: string | (() => string), anchors: Anchors, color: string, visible: Visible = true, math = false) => {
             const id = `caption-${this.captionList.length}`;
             const content = typeof text === "string" ? () => text : text;
             this.captionList.push({id, text: content, anchors, visible: typeof visible === "function" ? visible : () => visible});
@@ -424,9 +425,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 const [left, top] = board.getBoundingBox();
                 return axis === 0 ? left + (box.x0 + box.x1) / 2 / board.unitX : top - (box.y0 + box.y1) / 2 / board.unitY;
             };
-            return this.own(board.create("text", [place(0), place(1), content], {
-                strokeColor: color, fontSize: captionFont(), anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
-            }));
+            // `math`: the text is only the name of a handle (one letter), typeset with the display font size of the point labels.
+            const mathStyle = math ? {fontSize: (this.styles.point.default.label as unknown as {fontSize: () => number}).fontSize, useMathJax: true, parse: false} : {};
+            return this.own(board.create("text", [place(0), place(1), math ? () => pointLabelMath(content()) : content], {
+                strokeColor: color, fontSize: captionFont(), ...mathStyle, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
+            }) as JXG.Text);
         };
         const atPoint = (x: Coordinate, y: Coordinate): Anchors => () => [[typeof x === "function" ? x() : x, typeof y === "function" ? y() : y]];
         /** The corners of a polygon, each a place a name of it may sit beside. */
@@ -454,8 +457,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             this.handleMap.set(id, point);
             return point;
         };
-        const label = (name: () => string, id: HandleId, color: string, visible: Visible = true) =>
-            caption(name, () => [this.handleTarget(id)], color, visible);
+        const label = (name: () => string, id: HandleId, color: string, visible: Visible = true, math = false) =>
+            caption(name, () => [this.handleTarget(id)], color, visible, math);
         const numberAt = (read: () => number | undefined) => () => {
             const value = read();
             return value !== undefined && Number.isFinite(value) ? value : 0;
@@ -581,7 +584,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             segment(centre, hidden(corner(0, "x", "image"), corner(0, "y", "image")), GraphPalette.constructionAccent, 1, 2);
             handle("k", GraphPalette.comparisonCurve, "diamond");
             label(text("isometry_graph_cap_centre"), "centre", GraphPalette.controlPoint);
-            label(text("isometry_graph_cap_k"), "k", GraphPalette.comparisonCurve);
+            label(text("isometry_graph_cap_k"), "k", GraphPalette.comparisonCurve, true, true);
             caption(text("isometry_graph_cap_motif"), cornersOf(() => sim()?.motif), GraphPalette.label);
             caption(imageText(1), cornersOf(() => sim()?.image), GraphPalette.primaryCurve);
         } else if (mode === "rosette") {

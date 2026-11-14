@@ -5,6 +5,7 @@ import {GraphSession} from "../base/GraphSession";
 import {onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {BOARD_COORDINATE_CAP, BoardXY, inBox} from "../../compgeo/notablePointsModel";
 import {
@@ -54,6 +55,12 @@ const NINE_COLOUR: Readonly<Record<NinePointKind, string>> = {
     midpoint: GraphPalette.comparisonCurve, foot: GraphPalette.additionalCurves[0], vertexMidpoint: GraphPalette.additionalCurves[1],
 };
 const NINE_NAME: Readonly<Record<NinePointKind, string>> = {midpoint: "nine-midpoint-", foot: "nine-foot-", vertexMidpoint: "nine-vertex-midpoint-"};
+
+/** The drawn label of a named point is typeset; the element keeps its plain name. */
+function mathLabelled<T extends JXG.GeometryElement>(point: T, name: string): T {
+    (point as unknown as JXG.Point).label?.setText(pointLabelMath(name));
+    return point;
+}
 
 /**
  * The declared scene fields (`pointSetPersistence`): the example id, checked as the Preset collection checks it, fallback `"default"`
@@ -215,10 +222,10 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
         const place = analysis[id].board;
         if (!place) return [];
         const faces: Record<EulerPlaceId, string> = {h: "square", g: "x", o: "+", n: "cross"};
-        return [this.board.create("point", [place.x, place.y], {
+        return [mathLabelled(this.board.create("point", [place.x, place.y], {
             name: EULER_PLACE_SYMBOL[id], withLabel: true, size: 5, face: faces[id], fillColor: COLOUR[id], strokeColor: COLOUR[id],
-            highlight: false, fixed: true, showInfobox: false, layer: 6, label: {offset: [8, 8], strokeColor: GraphPalette.label},
-        }) as JXG.GeometryElement];
+            highlight: false, fixed: true, showInfobox: false, layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
+        }) as JXG.GeometryElement, EULER_PLACE_SYMBOL[id])];
     }
 
     /** The infinite line through O with the exact direction H - O; the board clips it to the view. Nothing when H = O or O is too far. */

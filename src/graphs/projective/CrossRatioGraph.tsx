@@ -18,6 +18,7 @@ import {idealMarker, orientedUnit} from "./idealMarker";
 import {crossRatioPresetCollection} from "./projectivePresetCollection";
 import {crossRatioPersistence} from "./projectivePersistence";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {pointLabelMath} from "../styles/pointLabelMath";
 
 /**
  * The cross-ratio graph (K1 of projective-conics-lessons, ADR 0033). Two lines, a centre `O`, four points A-D on the first
@@ -307,25 +308,32 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             visible: false, fixed: true, withLabel: false, showInfobox: false, name: "",
         }) as JXG.Point);
         const defined = () => this.scene().status === "ok";
+        // The shared point-label attributes (MathJax, no parsing, display font size, visibility); the graph keeps its own placement.
+        const mathLabel = (own: object) => ({...(this.styles.point.default.label as object), visible: "inherit", strokeColor: GraphPalette.label, ...own});
+        // The element keeps its plain `name`; only the drawn label is typeset.
+        const typeset = <E extends JXG.GeometryElement>(element: E, name: string): E => {
+            element.label?.setText(pointLabelMath(name));
+            return element;
+        };
         const centreAt = () => model().centre;
 
         // The two lines. The first is fixed at y = 0; the second passes through the draggable M and N.
         const first = [hidden(() => 0, () => 0), hidden(() => 1, () => 0)];
-        add(board.create("line", first, {
+        add(typeset(board.create("line", first, {
             straightFirst: true, straightLast: true, strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth,
-            highlight: false, fixed: true, layer: 4, name: "p", withLabel: true, label: {strokeColor: GraphPalette.label, offset: [-24, 10]},
-        }) as JXG.GeometryElement);
+            highlight: false, fixed: true, layer: 4, name: "p", withLabel: true, label: mathLabel({offset: [-24, 10]}),
+        }) as JXG.GeometryElement, "p"));
 
         const handles = Array.from({length: HANDLE_COUNT}, (_, i) => {
             const at = handlePosition(model(), i);
             const names = ["A", "B", "C", "D", "O", "M", "N"];
-            const handle = add(board.create("point", [at.x, at.y], {
+            const handle = add(typeset(board.create("point", [at.x, at.y], {
                 name: names[i], withLabel: true, size: () => this.selected === i ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === i ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === i ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,
-                label: {offset: [8, 8], strokeColor: GraphPalette.label}, layer: 7,
-            }) as JXG.Point);
+                label: mathLabel({offset: [8, 8]}), layer: 7,
+            }) as JXG.Point, names[i]));
             handle.on("down", () => {
                 this.selected = i;
                 this.requestRender();
@@ -335,10 +343,10 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             handle.on("drag", () => this.dragHandle(i, handle));
             return handle;
         });
-        add(board.create("line", [handles[5], handles[6]], {
+        add(typeset(board.create("line", [handles[5], handles[6]], {
             straightFirst: true, straightLast: true, strokeColor: GraphPalette.comparisonCurve, strokeWidth: () => this.displaySettings.strokeWidth,
-            highlight: false, fixed: true, layer: 4, name: "p′", withLabel: true, label: {strokeColor: GraphPalette.label, offset: [-24, 10]},
-        }) as JXG.GeometryElement);
+            highlight: false, fixed: true, layer: 4, name: "p′", withLabel: true, label: mathLabel({offset: [-24, 10]}),
+        }) as JXG.GeometryElement, "p′"));
 
         // Image i: the finite image, or the end of the ray toward an ideal one; direction unit is oriented along the ray.
         const unitOf = (i: number): readonly [number, number] | undefined => {
@@ -362,12 +370,12 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 2, highlight: false, fixed: true, layer: 3,
                 visible: () => defined() || this.scene().status === "coincident-points",
             }) as JXG.GeometryElement);
-            add(board.create("point", [() => imageAt(i, 0), () => imageAt(i, 1)], {
+            add(typeset(board.create("point", [() => imageAt(i, 0), () => imageAt(i, 1)], {
                 name: `${NAMES[i]}′`, withLabel: true, size: 4, face: "o", fixed: true, showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.pointOutline, highlight: false, layer: 6,
-                label: {offset: [8, -12], strokeColor: GraphPalette.label},
+                label: mathLabel({offset: [8, -12]}),
                 visible: finite,
-            }) as JXG.Point);
+            }) as JXG.Point, `${NAMES[i]}′`));
         }
 
         // The point at infinity: an arrow along the direction on the second line, with its own text label.
@@ -385,8 +393,8 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         }) as JXG.GeometryElement);
         add(board.create("text", [() => marker()?.to[0] ?? 0, () => (marker()?.to[1] ?? 0) + 0.4, () => {
             const index = this.scene().idealIndex;
-            return index === undefined ? "" : `${NAMES[index]}′ = ∞`;
-        }], {fixed: true, highlight: false, strokeColor: GraphPalette.warningText, layer: 8, visible: () => marker() !== undefined}) as JXG.GeometryElement);
+            return index === undefined ? "" : pointLabelMath(`${NAMES[index]}′ = ∞`);
+        }], {useMathJax: true, parse: false, fontSize: () => this.displaySettings.fontSize, fixed: true, highlight: false, strokeColor: GraphPalette.warningText, layer: 8, visible: () => marker() !== undefined}) as JXG.GeometryElement);
 
         // Text on the board: status and the exact cross-ratio, rebuilt from the scene and the language on every update.
         const readout = () => describeCrossRatio(this.scene(), t, currentLanguage());

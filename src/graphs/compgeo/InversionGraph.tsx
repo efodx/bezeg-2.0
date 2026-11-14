@@ -9,6 +9,7 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {GridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {
     CircleSpec, INVERSION_COORDINATE_MAX, INVERSION_RADIUS_MAX, InversionExampleId, inversionExample, InversionSource, isCircleSpec,
@@ -106,6 +107,12 @@ interface Handle {
     readonly colour: string;
     readonly position: XY;
     readonly apply: (x: number, y: number) => void;
+}
+
+/** The drawn label of a named point is typeset; the element keeps its plain name. */
+function mathLabelled<T extends JXG.GeometryElement>(point: T, name: string): T {
+    (point as unknown as JXG.Point).label?.setText(pointLabelMath(name));
+    return point;
 }
 
 const finite = (...values: number[]) => values.every(Number.isFinite);
@@ -475,14 +482,18 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
         if (!this.vertex || !list.includes(this.vertex)) this.vertex = list.find(object => object.elType === "point" && object.name === "P1");
         if (!this.vertex) return;
         const name = view.kind === "scene" && view.focus === "power" ? "P" : "C";
-        if (this.vertex.name !== name) this.vertex.setAttribute({name});
+        if (this.vertex.name !== name) {
+            this.vertex.setAttribute({name});
+            (this.vertex as JXG.Point).label?.setText(pointLabelMath(name));
+        }
     }
 
     private createHandle(handle: Handle): JXG.Point {
         const point = this.board.create("point", [handle.position.x, handle.position.y], {
             name: handle.name, withLabel: true, size: 5, face: "o", fillColor: handle.colour, strokeColor: GraphPalette.pointOutline, strokeWidth: 2,
-            highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8, label: {offset: [8, 8], strokeColor: GraphPalette.label},
+            highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
+        point.label?.setText(pointLabelMath(handle.name));
         bindMovablePointCursor(point, this.board);
         point.on("drag", () => {
             if (this.inSnap || this.graphInteractionLocked) return;
@@ -596,10 +607,10 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
 
     private dotObject(at: XY, name: string, colour: string, extra: object = {}): JXG.GeometryElement[] {
         if (!finite(at.x, at.y)) return [];
-        return [this.board.create("point", [at.x, at.y], {
+        return [mathLabelled(this.board.create("point", [at.x, at.y], {
             name, withLabel: true, size: 4, face: "o", fillColor: colour, strokeColor: colour, highlight: false, fixed: true, showInfobox: false,
-            layer: 6, label: {offset: [8, 8], strokeColor: GraphPalette.label}, ...extra,
-        }) as JXG.GeometryElement];
+            layer: 6, label: {...(this.styles.point.default.label as object), visible: "inherit", offset: [8, 8], strokeColor: GraphPalette.label}, ...extra,
+        }) as JXG.GeometryElement, name)];
     }
 
     private createFigure(view: InversionView): void {

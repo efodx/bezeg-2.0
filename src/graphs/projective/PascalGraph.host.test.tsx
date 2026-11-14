@@ -98,7 +98,7 @@ test('an ideal Pascal point is drawn as a labelled arrow, never as a far finite 
     expect(visible(graph, 'point', 'P₁')).toEqual([false]);
     expect(visible(graph, 'point', 'P₂')).toEqual([true]);
     // the status names the point at infinity; no on-board label is placed at the clipped edge
-    expect(boardTexts(graph).some(text => text.includes('∞'))).toBe(false);
+    expect(boardTexts(graph).some(text => text.includes('∞') || text.includes('\\infty'))).toBe(false);
     const arrows = objects(graph).filter(o => o.elType === 'segment' && o.visPropCalc?.visible);
     expect(arrows).toHaveLength(1);
     for (const object of objects(graph)) {
@@ -403,4 +403,18 @@ test('the scene leaves no anonymous helper on the board: a Preset replacement ke
 test('side names step apart along the line by more than a label width, so parallel or coincident sides do not pile up', () => {
     const offsets = [0, 1, 2, 3, 4, 5].map(sideLabelOffset);
     for (let i = 1; i < offsets.length; i++) expect(offsets[i][0] - offsets[i - 1][0]).toBeGreaterThanOrEqual(16);
+});
+
+type LabelOf = {label?: {plaintext?: string; visProp: {usemathjax?: boolean; parse?: boolean}}};
+const labelOf = (graph: Observed, elType: string, name: string) => (named(graph, elType, name)[0] as unknown as LabelOf).label;
+
+test('names of points and lines are typeset through the shared MathJax label path while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelOf(graph, 'point', 'A')?.plaintext).toBe('$$A$$');
+    expect(labelOf(graph, 'point', 'P₁')?.plaintext).toBe('$$P_{1}$$');
+    expect(labelOf(graph, 'line', 's₁')?.plaintext).toBe('$$s_{1}$$');
+    expect(labelOf(graph, 'line', 'p')?.plaintext).toBe('$$p$$');
+    expect(labelOf(graph, 'point', 'A')?.visProp.usemathjax).toBe(true);
+    expect(labelOf(graph, 'point', 'A')?.visProp.parse).toBe(false);
 });

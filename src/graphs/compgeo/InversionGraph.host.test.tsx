@@ -589,3 +589,12 @@ test('angle tangents scale with the view, and no after-tangent is drawn for an i
     noNaN(graph);
     expectFiniteBoard(graph);
 });
+
+const labelText = (o: object | undefined) => (o as {label?: {plaintext?: string}} | undefined)?.label?.plaintext;
+test('the labels of the handles and image points are typeset as math while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelText(exact(graph, 'X')[0])).toBe('$$X$$');
+    expect(labelText(exact(graph, 'r')[0])).toBe('$$r$$');
+    expect(labelText(exact(graph, 'X′')[0])).toBe("$$X'$$");
+});

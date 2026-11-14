@@ -151,6 +151,8 @@ describe('mount and the drawing, per mode', () => {
         expect(texts).toContain(t('descent_graph_cap_end_computed', {value0: '3,14', value1: '2'}));
         expect(texts).toContain(t('descent_graph_cap_units', {value0: '9,81'}));
         for (const name of ['line', 'arc', 'cycloid'] as const) expect(texts).toContain(t(`descent_graph_name_${name}`));
+        // the start and end tags are point names, typeset
+        expect(texts).toEqual(expect.arrayContaining(['$$A$$', '$$B$$']));
     });
 
     test('the track mode with collinear, evenly spaced control points is the straight line: its time is the hand value L / sqrt(g y)', () => {

@@ -17,6 +17,7 @@ import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
@@ -447,15 +448,17 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     }
 
     private text(content: () => string, x: () => number, y: () => number, color: string, visible: () => boolean,
-                 options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"} = {}): void {
-        this.own(this.board.create("text", [x, y, content], {
-            strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "middle", fixed: true, highlight: false, withLabel: false, visible,
-        }));
+                 options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"; math?: boolean} = {}): void {
+        // `math`: the content is only a point name, typeset with the display font size of the point labels.
+        const math = options.math ? {fontSize: (this.styles.point.default.label as unknown as {fontSize: () => number}).fontSize, useMathJax: true, parse: false} : {};
+        this.own(this.board.create("text", [x, y, options.math ? () => pointLabelMath(content()) : content], {
+            strokeColor: color, fontSize: 14, ...math, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "middle", fixed: true, highlight: false, withLabel: false, visible,
+        }) as JXG.Text);
     }
 
     /** A text beside a board point, shifted by a few screen pixels. */
-    private tagText(content: () => string, at: () => readonly [number, number], color: string, visible: () => boolean, dx = 9, dy = 9): void {
-        this.text(content, () => at()[0] + dx / this.scaleOf().ux, () => at()[1] + dy / this.scaleOf().uy, color, visible);
+    private tagText(content: () => string, at: () => readonly [number, number], color: string, visible: () => boolean, dx = 9, dy = 9, math = false): void {
+        this.text(content, () => at()[0] + dx / this.scaleOf().ux, () => at()[1] + dy / this.scaleOf().uy, color, visible, {math});
     }
 
     private handleSpecs(): HandleSpec[] {
@@ -521,12 +524,12 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
             name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "[]", fillColor: GraphPalette.label, strokeColor: GraphPalette.pointOutline,
             visible: () => this.mode() !== "tautochrone",
         }));
-        this.tagText(() => t("descent_graph_name_a"), () => [0, 0], GraphPalette.label, () => this.mode() !== "tautochrone", 8, 8);
+        this.tagText(() => t("descent_graph_name_a"), () => [0, 0], GraphPalette.label, () => this.mode() !== "tautochrone", 8, 8, true);
         this.own(board.create("point", [() => (race() ? race()!.end[0] : 0), () => (race() ? -race()!.end[1] : 0)], {
             name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "[]", fillColor: GraphPalette.label, strokeColor: GraphPalette.pointOutline,
             visible: () => this.mode() === "race",
         }));
-        this.tagText(() => t("descent_graph_name_b"), () => (race() ? [race()!.end[0], -race()!.end[1]] : [0, 0]), GraphPalette.label, () => this.mode() === "race", 8, 8);
+        this.tagText(() => t("descent_graph_name_b"), () => (race() ? [race()!.end[0], -race()!.end[1]] : [0, 0]), GraphPalette.label, () => this.mode() === "race", 8, 8, true);
 
         // The handles: draggable, with touch-sized hit zones; the numeric fields are the keyboard path.
         this.handles = this.handleSpecs().map(spec => {

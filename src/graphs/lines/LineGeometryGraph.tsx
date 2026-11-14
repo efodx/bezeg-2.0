@@ -10,6 +10,7 @@ import {PointListInput} from "../../inputs/PointListInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {Rational, RationalPoint} from "../../compgeo/rational";
 import {
@@ -480,37 +481,45 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             this.own(board.create("point", [x, y], {visible: false, fixed: true, withLabel: false, name: ""}));
         // A cross or plus face is drawn by its stroke alone, so the stroke must carry the colour (a white outline would hide it).
         const strokeOnly = (face: PointFace) => face === "cross" || face === "plus" || face === "x" || face === "+";
-        const marker = (x: Place, y: Place, face: PointFace, color: string, size: number, visible: Visible, name = "") =>
-            this.own(board.create("point", [x, y], {
+        const marker = (x: Place, y: Place, face: PointFace, color: string, size: number, visible: Visible, name = "") => {
+            const point = this.own(board.create("point", [x, y], {
                 fixed: true, highlight: false, withLabel: name !== "", name, face, size, fillColor: color, visible,
+                ...(name !== "" ? {label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"]} : {}),
                 ...(strokeOnly(face) ? {strokeColor: color, strokeWidth: 2} : {strokeColor: GraphPalette.pointOutline}),
             }));
+            if (name !== "") point.label?.setText(pointLabelMath(name));
+            return point;
+        };
         const segment = (a: JXG.Point, b: JXG.Point, color: string, width: number, dash: number, visible: Visible, lastArrow = false) =>
             this.own(board.create("segment", [a, b], {
                 strokeColor: color, strokeWidth: width, dash, fixed: true, highlight: false, visible, withLabel: false, lastArrow,
             }));
         // A text sits at the centre of its placed box (see `labelBoxes`), or at the data position when the board has no size yet.
-        const label = (id: string, x: Place, y: Place, text: () => string, color: string, visible: Visible) =>
+        // A text that is only the name of a line, vector or segment is typeset (MathJax, the display font size of the point labels).
+        const labelStyle = this.styles.point.default.label as unknown as {fontSize: () => number};
+        const label = (id: string, x: Place, y: Place, text: () => string, color: string, visible: Visible, math = false) =>
             this.own(board.create("text", [
                 () => { const box = this.labelBoxes()[id]; return box ? board.getBoundingBox()[0] + (box.x0 + box.x1) / 2 / board.unitX : x(); },
                 () => { const box = this.labelBoxes()[id]; return box ? board.getBoundingBox()[1] - (box.y0 + box.y1) / 2 / board.unitY : y(); },
-                text,
+                math ? () => pointLabelMath(text()) : text,
             ], {
-                strokeColor: color, fontSize: 15, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
-            }));
+                strokeColor: color, fontSize: 15, ...(math ? {fontSize: labelStyle.fontSize, useMathJax: true, parse: false} : {}), anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
+            }) as JXG.Text);
         const line = (a: JXG.Point, b: JXG.Point, color: string, visible: Visible) =>
             this.own(board.create("line", [a, b], {
                 strokeColor: color, strokeWidth: 3, fixed: true, highlight: false, withLabel: false, visible,
             }));
         const handleAttributes = (field: PointField): JXG.PointAttributes => ({
-            name: field, withLabel: true, size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
+            name: field, withLabel: true, label: {...(this.styles.point.default.label as object), visible: "inherit"} as JXG.PointAttributes["label"], size: 7, face: "o", fillColor: GraphPalette.controlPoint, strokeColor: GraphPalette.pointOutline,
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false, visible: handleShown(field),
             precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
         });
 
         // ---- handles on the integer grid, one per stored point field
         for (const field of POINT_FIELDS) {
-            this.handles_[field] = this.own(board.create("point", [this.state[field].x, this.state[field].y], handleAttributes(field)));
+            const handle = this.own(board.create("point", [this.state[field].x, this.state[field].y], handleAttributes(field)));
+            handle.label?.setText(pointLabelMath(field));
+            this.handles_[field] = handle;
         }
         const h = (field: PointField): JXG.Point => {
             const handle = this.handles_[field];
@@ -521,15 +530,15 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         // ---- the lines, each through two owned hidden points that follow the state
         line(hidden(at("P", "x"), at("P", "y")), hidden(at("Q", "x"), at("Q", "y")), GraphPalette.primaryCurve, firstDrawn);
         line(hidden(at("R", "x"), at("R", "y")), hidden(at("S", "x"), at("S", "y")), GraphPalette.comparisonCurve, secondDrawn);
-        label("first", () => this.view().firstLabel?.x ?? 0, () => this.view().firstLabel?.y ?? 0, () => "ℓ", GraphPalette.primaryCurve, firstDrawn);
-        label("second", () => this.view().secondLabel?.x ?? 0, () => this.view().secondLabel?.y ?? 0, () => "m", GraphPalette.comparisonCurve, secondDrawn);
+        label("first", () => this.view().firstLabel?.x ?? 0, () => this.view().firstLabel?.y ?? 0, () => "ℓ", GraphPalette.primaryCurve, firstDrawn, true);
+        label("second", () => this.view().secondLabel?.x ?? 0, () => this.view().secondLabel?.y ?? 0, () => "m", GraphPalette.comparisonCurve, secondDrawn, true);
 
         // ---- normal mode: the normal arrows n₁ on the first line and n₂ on the second
         const normalArrowOf = (id: string, pick: (view: View) => NormalArrow | undefined, caption: string) => {
             const drawn: Visible = () => mode() === "normal" && pick(this.view()) !== undefined;
             const end = (key: "from" | "to", axis: "x" | "y"): Place => () => pick(this.view())?.[key][axis] ?? 0;
             segment(hidden(end("from", "x"), end("from", "y")), hidden(end("to", "x"), end("to", "y")), GraphPalette.constructionAccent, 4, 0, drawn, true);
-            label(id, () => pick(this.view())?.label.x ?? 0, () => pick(this.view())?.label.y ?? 0, () => caption, GraphPalette.constructionAccent, drawn);
+            label(id, () => pick(this.view())?.label.x ?? 0, () => pick(this.view())?.label.y ?? 0, () => caption, GraphPalette.constructionAccent, drawn, true);
         };
         normalArrowOf("n1", view => view.normalArrow, "n₁");
         normalArrowOf("n2", view => view.secondNormalArrow, "n₂");
@@ -539,8 +548,8 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         segment(h("P"), h("Q"), GraphPalette.primaryCurve, 2, 2, angleDrawn, true);
         segment(h("R"), h("S"), GraphPalette.comparisonCurve, 2, 2, angleDrawn, true);
         const middle = (a: PointField, b: PointField, axis: "x" | "y", shift: number): Place => () => (this.state[a][axis] + this.state[b][axis]) / 2 + shift;
-        label("u", middle("P", "Q", "x", 0.7), middle("P", "Q", "y", -0.7), () => "u", GraphPalette.primaryCurve, angleDrawn);
-        label("v", middle("R", "S", "x", 0.7), middle("R", "S", "y", -0.7), () => "v", GraphPalette.comparisonCurve, angleDrawn);
+        label("u", middle("P", "Q", "x", 0.7), middle("P", "Q", "y", -0.7), () => "u", GraphPalette.primaryCurve, angleDrawn, true);
+        label("v", middle("R", "S", "x", 0.7), middle("R", "S", "y", -0.7), () => "v", GraphPalette.comparisonCurve, angleDrawn, true);
         const arcDrawn: Visible = () => angleDrawn() && this.view().arc !== undefined;
         this.own(board.create("curve", [
             (s: number) => (this.view().crossing?.x ?? 0) + ARC_RADIUS * Math.cos((this.view().arc?.start ?? 0) + s * (this.view().arc?.sweep ?? 0)),
@@ -554,10 +563,10 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         const distanceDrawn: Visible = () => mode() === "distance" && this.view().foot !== undefined;
         const offLine: Visible = () => distanceDrawn() && this.view().rightAngle !== undefined;
         segment(h("P"), h("T"), GraphPalette.referenceCurve, 2, 2, distanceDrawn, true);
-        label("pt", () => this.view().pointVectorLabel?.x ?? 0, () => this.view().pointVectorLabel?.y ?? 0, () => "PT", GraphPalette.referenceCurve, distanceDrawn);
+        label("pt", () => this.view().pointVectorLabel?.x ?? 0, () => this.view().pointVectorLabel?.y ?? 0, () => "PT", GraphPalette.referenceCurve, distanceDrawn, true);
         const foot = marker(() => this.view().foot?.x ?? 0, () => this.view().foot?.y ?? 0, "diamond", GraphPalette.constructionAccent, 5, distanceDrawn, "F");
         segment(foot, h("T"), GraphPalette.constructionAccent, 4, 0, offLine, true);
-        label("ptn", () => this.view().projectionLabel?.x ?? 0, () => this.view().projectionLabel?.y ?? 0, () => "PTₙ", GraphPalette.constructionAccent, offLine);
+        label("ptn", () => this.view().projectionLabel?.x ?? 0, () => this.view().projectionLabel?.y ?? 0, () => "PTₙ", GraphPalette.constructionAccent, offLine, true);
         const corner = (index: 0 | 1 | 2) => hidden(() => this.view().rightAngle?.[index].x ?? 0, () => this.view().rightAngle?.[index].y ?? 0);
         const [r0, r1, r2] = [corner(0), corner(1), corner(2)];
         segment(r0, r1, GraphPalette.constructionAccent, 2, 0, offLine);

@@ -80,7 +80,9 @@ test('mounts the sides mode: the exact cosine-rule numbers, the correction term,
     expect(shownCircles(graph)).toHaveLength(0);
     // the correction 2·CA·CB is on the graph beside the bars, which stay in their rows
     expect(texts(graph)).toContain('popravek 2·CA·CB = 12');
-    expect(texts(graph)).toEqual(expect.arrayContaining(['c²', 'a²', 'b²']));
+    // the vertex handles carry their names typeset; the element keeps the plain name
+    expect((graph.handles().A!.label as unknown as {plaintext?: string}).plaintext).toBe('$$A$$');
+    expect(texts(graph)).toEqual(expect.arrayContaining(['$$c^2$$', '$$a^2$$', '$$b^2$$']));
     // the bars sit right of the triangle, c² on its row and a², b² on the row below it, read back from the board
     const barY = (color: string) => shownSegments(graph, color).filter(s => s.point1.X() >= BAR_X).map(s => [s.point1.Y(), s.point2.Y()]);
     expect(barY(GraphPalette.referenceCurve)).toEqual([[BAR_ROW_C, BAR_ROW_C]]);
@@ -168,7 +170,7 @@ test('SSA a = 5, b = 8, A = 30 degrees draws two triangles in two colours, measu
     // construction: height, ray and the circle of radius a around C
     expect(shownCircles(graph)).toHaveLength(1);
     expect(shownCircles(graph)[0].Radius()).toBe(5);
-    expect(texts(graph)).toEqual(expect.arrayContaining(['h', 'B₁', 'B₂']));
+    expect(texts(graph)).toEqual(expect.arrayContaining(['$$h$$', '$$B_{1}$$', '$$B_{2}$$']));
 });
 
 test('SSA with a = 3,5 has no triangle and a = 4 is the tangent case with one right triangle', () => {
@@ -564,7 +566,7 @@ describe('the side names a, b, c sit beside their sides, outside the triangle', 
         return Math.hypot(p.x - a.x - t * (b.x - a.x), p.y - a.y - t * (b.y - a.y));
     };
     const nameAt = (graph: Observed, name: string): Pt => {
-        const text = objects(graph).find(o => o.elType === 'text' && visible(o) && (o as unknown as {plaintext: string}).plaintext === name) as unknown as JXG.Text;
+        const text = objects(graph).find(o => o.elType === 'text' && visible(o) && (o as unknown as {plaintext: string}).plaintext === `$$${name}$$`) as unknown as JXG.Text;
         return {x: text.X(), y: text.Y()};
     };
     const clearOfSide = (graph: Observed, name: string, p: Pt, q: Pt, r: Pt) => {
@@ -610,11 +612,11 @@ describe('the bar texts keep clear of the bars and of each other', () => {
         const {graph} = mountGraph();
         const rowC = BAR_ROW_C * graph.liveBoard().unitY;
         const rowAB = BAR_ROW_AB * graph.liveBoard().unitY;
-        const c2 = textY(graph, p => p === 'c²');
+        const c2 = textY(graph, p => p === '$$c^2$$');
         const caption = textY(graph, p => p.includes('=') && p.includes('CA'));
         expect(c2 - rowC).toBeGreaterThanOrEqual(13);
         expect(caption - c2).toBeGreaterThanOrEqual(18);
-        expect(rowAB - textY(graph, p => p === 'a²')).toBeGreaterThanOrEqual(13);
-        expect(rowAB - textY(graph, p => p === 'b²')).toBeGreaterThanOrEqual(13);
+        expect(rowAB - textY(graph, p => p === '$$a^2$$')).toBeGreaterThanOrEqual(13);
+        expect(rowAB - textY(graph, p => p === '$$b^2$$')).toBeGreaterThanOrEqual(13);
     });
 });

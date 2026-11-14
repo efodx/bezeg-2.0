@@ -257,3 +257,16 @@ test('the angle slider says why it is unavailable while the point is off, and ty
     typeNumber(/Višina premice L.*vrednost/, '9');
     expect(graph.model.c).toBe(3);
 });
+
+type LabelOf = {label?: {plaintext?: string; visProp: {usemathjax?: boolean; parse?: boolean}}};
+const labelOf = (graph: Observed, elType: string, name: string) => (named(graph, elType, name)[0] as unknown as LabelOf).label;
+
+test('names of points and lines are typeset through the shared MathJax label path while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelOf(graph, 'point', 'Q₁')?.plaintext).toBe('$$Q_{1}$$');
+    expect(labelOf(graph, 'point', 'Q₁′')?.plaintext).toBe("$$Q_{1}'$$");
+    expect(labelOf(graph, 'point', 'P')?.plaintext).toBe('$$P$$');
+    expect(labelOf(graph, 'point', 'Q₁')?.visProp.usemathjax).toBe(true);
+    expect(labelOf(graph, 'point', 'Q₁')?.visProp.parse).toBe(false);
+});

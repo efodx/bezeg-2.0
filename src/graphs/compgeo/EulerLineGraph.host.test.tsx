@@ -344,3 +344,11 @@ test('wiring: the shared example chooser mounts and choosing an example loads it
     fireEvent.change(chooser, {target: {value: 'right'}});
     expect(graph.exampleId).toBe('right');
 });
+
+const labelText = (o: object | undefined) => (o as {label?: {plaintext?: string}} | undefined)?.label?.plaintext;
+test('the labels of H, G, O and N are typeset as math while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    showAllOverlays(graph);
+    for (const symbol of ['H', 'G', 'O']) expect(labelText(named(graph, symbol).find(o => o.name === symbol)), symbol).toBe(`$$${symbol}$$`);
+});

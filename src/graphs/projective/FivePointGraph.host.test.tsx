@@ -261,3 +261,17 @@ test('a typed coordinate outside the range is refused with a message, not clampe
     typeNumber('Točka C, x', '0.5');
     expect(graph.model.points[2].x).toBe(8);
 });
+
+type LabelOf = {label?: {plaintext?: string; visProp: {usemathjax?: boolean; parse?: boolean}}};
+const labelOf = (graph: Observed, elType: string, name: string) => (named(graph, elType, name)[0] as unknown as LabelOf).label;
+
+test('names of points and lines are typeset through the shared MathJax label path while the elements keep their plain names', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelOf(graph, 'point', 'A')?.plaintext).toBe('$$A$$');
+    expect(labelOf(graph, 'point', 'P₁')?.plaintext).toBe('$$P_{1}$$');
+    expect(labelOf(graph, 'point', 'F₂')?.plaintext).toBe('$$F_{2}$$');
+    expect(labelOf(graph, 'point', 'S')?.plaintext).toBe('$$S$$');
+    expect(labelOf(graph, 'point', 'A')?.visProp.usemathjax).toBe(true);
+    expect(labelOf(graph, 'point', 'A')?.visProp.parse).toBe(false);
+});
