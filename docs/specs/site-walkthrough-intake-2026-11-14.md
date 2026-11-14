@@ -140,7 +140,26 @@ Order: A first, because every other package pays the same wait. B and E can run 
 - **G05:** the clips stream is treated as complete. It left some captures unfinished; package D works from the current state of the captures and does not wait for that stream. Its remaining queue entry (`projective-pascal`, in [the clips stream file](../tasks/feature-streams/clips.md)) is not a dependency.
 - **T01:** the wait is local as well as on CI. Agents wait for tests before they can continue, and the owner calls this a constant blocker. Phase 8 measures local agent waiting first.
 
+- **H01:** remove the footer completely, including the contact line. The owner will add contact details back once he is ready to give the site's link to other people.
+- **Sequencing:** the planner chooses the order and may run packages in parallel sessions.
+- **Previews:** the owner reaches this machine only through Tailscale. Every preview offered for his review is served to the tailnet; see [Sessions](#sessions-2026-11-14).
+
 Decisions 2, 3, 4, 5 and 8 remain open. The planner settles 2–5 through mockups or a written policy and records the reason in the package spec; 8 follows the phase 8 measurement.
+
+### Sessions, 2026-11-14
+
+Four handler sessions run in parallel, each in its own worktree and branch, pushing accepted slices to `master` under AGENTS.md. Each keeps its queue in `docs/tasks/site-walkthrough/<id>.md` and its state note in `docs/reviews/site-walkthrough/<id>/state.md`. Package E waits: its audit should describe the site after packages B and C land, and it keeps one more session off a CPU-bound machine.
+
+| Id | Package | Port | First deliverable |
+| --- | --- | --- | --- |
+| `throughput` | A | 4334 | The phase 8a remeasure note |
+| `polish` | B | 4331 | Slice 3 (footer, header brand), because package C also edits the homepage |
+| `design` | C | 4332 | A mockup gallery with a recommended option per item, and epicycles subject candidates |
+| `graphs` | D | 4333 | The package D spec: capture-text policy, per-example table with route ids, graph typography research; then a pilot of three examples |
+
+Shared files: `src/WelcomePage.*` belongs to `polish` until slice 3 is pushed, then to `design`. Localization edits (`sl.ts`, `en.ts`) are pushed promptly by whichever session makes them. `graphs` does not edit inspector panels, which [control choice](control-choice-and-composition.md) owns.
+
+Previews for the owner: build and serve the worktree with `just preview <port>`, publish that port to the tailnet with `tailscale serve --bg --http=<port> http://127.0.0.1:<port>`, and give the owner the address `http://desktop-a0j72sv.tail2032db.ts.net:<port>/` plus the app's base path. `tailscale serve status` lists the ports already taken. Remove the entry (`tailscale serve --http=<port> off`) and stop the server when the preview is no longer needed. A `localhost` address is of no use to the owner.
 
 ### Names resolved (decision 7)
 
@@ -150,7 +169,7 @@ Decisions 2, 3, 4, 5 and 8 remain open. The planner settles 2–5 through mockup
 | "de Joule" | De Casteljau | `de_casteljau_construction`, `de_casteljau_scheme` |
 | "Firing points" | Farin points | `farin_points` |
 | "oscillating circle" | Curvature and the osculating circle | `curvature_circle_title` |
-| "Kobeg" | Cobweb diagram, probable | Only a legend string (`fixed_point_legend_cobweb`) and `RecursionCobwebGraph` were found; the catalog entry is to be confirmed in package D. |
+| "Kobeg" | The cobweb diagram of `RecursionCobwebGraph` | Confirmed by the owner, 2026-11-14. |
 
 Route ids for the other rows of the example table are assigned in package D's spec, not here.
 

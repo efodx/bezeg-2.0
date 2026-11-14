@@ -1,6 +1,6 @@
 # Site walkthrough: shell and label polish
 
-Status: proposed 2026-11-14. Package B of the [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#11-disposition-2026-11-14). Not started; no task files yet.
+Status: scheduled 2026-11-14 by the owner; run by the `polish` session listed in the intake. Package B of the [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#11-disposition-2026-11-14). Not started; no task files yet.
 
 Source: intake items D01, D02, L02, L03, H01, H05, M01, M02 and M03. These are the items that need no owner decision before work starts. The file references below were located by search on `master` at `f1d33fa4`; no browser investigation was done, so each slice starts by reproducing its item in a screenshot.
 
@@ -46,7 +46,7 @@ Acceptance:
 
 Evidence: `src/WelcomePage.tsx` lines 24–26 and `.welcome-page footer` in `src/WelcomePage.css`; `src/AppHeader.tsx` lines 14–15 (a 34 px `elderflower.svg` beside the wordmark).
 
-- **H01.** Remove the footer element, its styles and its localization keys from `sl.ts` and `en.ts` where nothing else uses them. User impact, to record at closeout: the homepage no longer shows the project description, the author and supervisor credit or the contact line for suggestions and bug reports.
+- **H01.** Remove the footer element, its styles and its localization keys from `sl.ts` and `en.ts` where nothing else uses them. User impact, to record at closeout: the homepage no longer shows the project description, the author and supervisor credit or the contact line for suggestions and bug reports. The owner confirmed on 2026-11-14 that all three go; contact details return when he is ready to share the site.
 - **H05.** Review the icon's size, spacing and alignment beside the wordmark. The icon file itself is not replaced; the tab and phone icons are not touched. The phone header must stay on one row at 390 and 360 px, as [botanical studio refinement](botanical-studio-refinement.md) measured.
 
 Acceptance:
