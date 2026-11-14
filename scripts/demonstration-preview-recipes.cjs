@@ -251,6 +251,19 @@ const captureText = {
     'rational-subdivision': {keep: [], strip: []},
     // Farin points: the ratio numbers and the weights go; the Farin points and the curve carry the idea.
     farin: {keep: [], strip: []},
+    // Analysis, keep the function name: the graph is named by its f(x) line; the other readouts go (root-finding is hidden only,
+    // never stripped: its clip row reads "korak N, napaka E" from the page).
+    bisection: {keep: [/^f\(x\) = /], strip: []},
+    'root-finding': {keep: [/^f\(x\) = /], strip: []},
+    // Mean value: the formula line would sit on the axis numbers once the readout is gone, and the parabola needs no name.
+    'mean-value': {keep: [], strip: []},
+    // Analysis, no board text: areas, steps, bounds, series and coefficients are carried by the graphs and markers.
+    quadrature: {keep: [], strip: []},
+    darboux: {keep: [], strip: []},
+    taylor: {keep: [], strip: []},
+    'uniform-convergence': {keep: [], strip: []},
+    'fourier-series': {keep: [], strip: []},
+    'fourier-coefficients': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

@@ -456,3 +456,12 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b7/` (served as `walkthr
 - `rational-extrapolation`, `rational-subdivision`, `farin`: text Remove; no weight, ratio number or point name on the cards. The new `rational-subdivision` poster also shows the two child polygons, which the graph draws today; the old poster predated that.
 - `farin`: the Farin points are blue rings (`comparisonCurve` on the board colour) and the slider tick marks are not drawn; they were JSXGraph's default black slider knobs with stray ticks on the polygon legs. No unit assertion covers the knob style (the existing tests mock the slider); it was checked on the recaptured poster. The drag clip's restore rebuilds the ratio texts, so the capture presents the board once more after the restore (`presentAfterRestore`, `farin` only).
 - Not checked: live screenshots of `/rational/farin-points` in both languages and at 390 px, inspector at 310 px (no control code changed), SVG export.
+
+### B8a Functions and analysis, first part (handler 3, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8a1/` (served as `walkthrough-graphs/b8a1.html` on the preview). Text only; no window, action or clip changed.
+
+- `bisection`, `root-finding`: keep `^f\(x\) = `. `root-finding` is hide only, because its row driver reads the step line from the page.
+- `mean-value`: Remove. The triage proposed keeping the formula, but with the readout gone the one remaining line sits on the axis numbers.
+- `quadrature`, `darboux`, `taylor`, `uniform-convergence`, `fourier-series`, `fourier-coefficients`: Remove.
+- **Not done, capture tool stale against the current controls** (none is a text problem; each fails before the text policy applies): `sequence` (the recipe's ε field reads 0.1 where 0.3 is expected, `demonstration-preview-recipes.cjs:378`), `euler-method` (the row names a control "Začetni y₀" that no longer exists), `accumulation` (the held-state check compares the "Točka x" input with the board and fails since that control became a Slider, `demonstration-preview-concept-motion.cjs:73`). Their verdicts stand (`sequence` keep `^N = \d+$`, `euler-method` Remove, `accumulation` keep `^\+$`) and wait for the repair.

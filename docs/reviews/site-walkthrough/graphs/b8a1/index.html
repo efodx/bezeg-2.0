@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B8a, analysis text sweep</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B8a: analysis captures, text sweep (G02)</h1>
+<p>Nine catalog captures, before and after. <a href="b7.html">B7</a>. Board text follows the capture-text policy. Euler method, accumulation and sequence are not included: their clip checks or rows no longer match the app controls.</p>
+<h2>1. Bisection</h2>
+<p>Only f(x) = x² − 2 stays; the interval, midpoint and step readouts are gone.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/bisection.webm" poster="b8a1/before/bisection.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/bisection.webm" poster="b8a1/after/bisection.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Root finding</h2>
+<p>Only f(x) = x² − 2 stays (hidden, not stripped: the clip row reads the step line from the page).</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/root-finding.webm" poster="b8a1/before/root-finding.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/root-finding.webm" poster="b8a1/after/root-finding.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Quadrature</h2>
+<p>No board text; the sine, its triangles and the bounds carry the idea.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/quadrature.webm" poster="b8a1/before/quadrature.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/quadrature.webm" poster="b8a1/after/quadrature.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>4. Mean value theorem</h2>
+<p>Only f(x) = x² stays; the readouts are gone. The kept label sits on the axis tick numbers.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/mean-value.webm" poster="b8a1/before/mean-value.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/mean-value.webm" poster="b8a1/after/mean-value.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>5. Darboux sums</h2>
+<p>No board text; lower and upper step sums are carried by the shading and dashes.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/darboux.webm" poster="b8a1/before/darboux.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/darboux.webm" poster="b8a1/after/darboux.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>6. Taylor polynomial</h2>
+<p>No board text; the function, the polynomial and the markers remain.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/taylor.webm" poster="b8a1/before/taylor.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/taylor.webm" poster="b8a1/after/taylor.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>7. Uniform convergence</h2>
+<p>No board text; the band, limit and supremum marker remain.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/uniform-convergence.webm" poster="b8a1/before/uniform-convergence.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/uniform-convergence.webm" poster="b8a1/after/uniform-convergence.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>8. Fourier series</h2>
+<p>No board text; the partial sum, the band and the markers remain.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/fourier-series.webm" poster="b8a1/before/fourier-series.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/fourier-series.webm" poster="b8a1/after/fourier-series.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>9. Fourier coefficients</h2>
+<p>No board text; the function, its handles and the signed areas remain.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b8a1/before/fourier-coefficients.webm" poster="b8a1/before/fourier-coefficients.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b8a1/after/fourier-coefficients.webm" poster="b8a1/after/fourier-coefficients.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>
