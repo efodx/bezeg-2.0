@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B6, conics and three views</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B6: conic focal distances and three views (G02)</h1>
+<p>Two catalog captures, before and after. <a href="b5.html">B5</a>.</p>
+<h2>1. Conic: focus, directrix, eccentricity</h2>
+<p>|PF| is a strong blue segment, |Pd| a strong rust-red one, the second-focus segment a quiet dashed grey. The four readout lines are removed; the window is tighter (x -5.3 to 6.5). The clip dips epsilon to 0.5 (was 0.2) so the directrix stays in frame.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b6/before/conic-focal.webm" poster="b6/before/conic-focal.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b6/after/conic-focal.webm" poster="b6/after/conic-focal.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. One conic, three views</h2>
+<p>The image conic is blue, the line L rust red, the panel frames thin and light. Captions and the label of L are removed. The window is only slightly tighter: image points Q1' and Q2' travel to x 11.5, y 7 during the sweep.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b6/before/projective-three-views.webm" poster="b6/before/projective-three-views.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b6/after/projective-three-views.webm" poster="b6/after/projective-three-views.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>

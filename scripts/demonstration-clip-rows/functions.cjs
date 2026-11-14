@@ -31,8 +31,8 @@ module.exports = [
         id: 'conic-focal',
         motion: 'parameter-sweep',
         control: {kind: 'slider', label: 'Numerična ekscentričnost ε', step: 0.05},
-        // The poster scene is the ellipse with eps=0.8, l=1.8. eps goes across 1 to 1.6 (hyperbola) and back, then down to 0.2 and back.
-        path: [0.8, 1.6, 0.8, 0.2, 0.8],
+        // The poster scene is the ellipse with eps=0.8, l=1.8. eps goes across 1 to 1.6 (hyperbola) and back, then down to 0.5 and back (the directrix stays at x 7.6 or less, inside the poster frame).
+        path: [0.8, 1.6, 0.8, 0.5, 0.8],
         lessonQuote: 'Z drsnikom pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.',
         discreteReason: null,
         // Spec decision "conic-focal keeps the lesson's crossing of eps = 1" (handler 5).

@@ -73,7 +73,7 @@ const targets = {
     'function-transformation': ['Default transformed graph with the faint base graph and the marked point mapped to its image', [], [-6, 7, 12, -9]],
     'polynomial-zeros': ['Default polynomial with its zeros marked and the multiplicity of each', [], [-5, 6, 5, -6]],
     'geometric-series': ['Default geometric series with its partial-sum bars and the limit', [], [-1, 3.5, 12, -1.5]],
-    'conic-focal': ['Default conic with its focus, directrix and the focal distances', [], [-8, 8, 8, -8]],
+    'conic-focal': ['Default conic with its focus, directrix and the focal distances', [], [-5.3, 3.6, 6.5, -3.6]],
     'rational-function': ['Default rational function with its zero, pole and oblique asymptote', [], [-4.7, 8, 12.7, -2.6]],
     'function-inverse': ['Default function and its inverse mirrored over y = x with the point P and its mirror', [], [-4, 9, 11, -4]],
     continuity: ['Actual jump and distinct open and closed endpoints', [], [-2.3, 4.3, 3.2, -1]],
@@ -175,7 +175,7 @@ const targets = {
     'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
     'projective-pole-polar': ['Default point P outside the ellipse with its polar and the two tangents from P', [], [-12, 10.5, 12, -10.5]],
     'projective-five-point': ['Default five points on an ellipse with the unique conic through them and the highlighted arc', [], [-12, 10.5, 12, -10.5]],
-    'projective-three-views': ['Default circle, line L and the two image views of the circle under the projective map', [], [-12, 10.5, 12, -10.5]],
+    'projective-three-views': ['Default circle, line L and the two image views of the circle under the projective map; L is set to c = 1.4, close above the circle, so the image ellipse is large enough to see', [field('Višina premice L (c)', 1.4)], [-11.6, 7.2, 11.6, -7]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
@@ -242,6 +242,10 @@ const captureText = {
     'curve-comb': {keep: [], strip: []},
     'curve-offset': {keep: [], strip: []},
     'curve-parametric': {keep: [], strip: []},
+    // Conic focal: the four readout lines go; the blue |PF| and the rust red |Pd| segments carry the ratio.
+    'conic-focal': {keep: [], strip: []},
+    // Three views: the captions of the panels and the label of L go; moss marks the original and blue the image.
+    'projective-three-views': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

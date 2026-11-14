@@ -21,9 +21,9 @@ module.exports = [
     {
         id: 'projective-three-views',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Višina premice L (c, v desetinkah)', step: 1},
-        // The poster keeps the default c = 2 (slider 20 tenths): the line L misses the circle. Sliding to -0.4 (slider -4) passes the touching c = 1 and crosses the circle; the slider's integer step is a tenth of c.
-        path: [20, -4, 20],
+        control: {kind: 'slider', label: 'Višina premice L (c)', step: 0.1},
+        // The recipe sets c = 1.4 (the default 2 gives an image too small to see on a card): the line L misses the circle. Sliding to c = -0.4 passes the touching c = 1 and crosses the circle; the slider now counts c itself in steps of 0.1.
+        path: [1.4, -0.4, 1.4],
         lessonQuote: 'Napovej vrsto slike krožnice, ko je premica \\(L\\) zunaj nje, nato jo drsi do dotika in čez.',
         discreteReason: null,
     },
