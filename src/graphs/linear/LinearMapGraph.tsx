@@ -3,7 +3,7 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {FunctionStatus} from "../functions/FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import {NumberGrid, type NumberGridCell} from "../../inputs/NumberGrid";
 import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -862,11 +862,10 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         // Reset also names the identity example and clears the message, so it is unavailable only when all of that already holds.
         const atIdentity = state.exampleId === "identity" && this.notice === undefined
             && state.matrix.every((row, r) => row.every((value, c) => value === IDENTITY[r][c]));
-        const entry = (row: Row, column: Column) => (
-            <NumberInput label={this.entryLabel(row, column)} value={state.matrix[row][column]} step={MATRIX_ENTRY_STEP} decimals={2}
-                         describedBy="linear-map-entries-help linear-map-notice"
-                         onChange={next => this.ignoreOutOfDomain(() => this.setEntryFromInput(row, column, next))}/>
-        );
+        const entry = (row: Row, column: Column): NumberGridCell => ({
+            label: this.entryLabel(row, column), value: state.matrix[row][column], step: MATRIX_ENTRY_STEP, decimals: 2,
+            onChange: next => this.ignoreOutOfDomain(() => this.setEntryFromInput(row, column, next)),
+        });
         const notice = this.notice;
         const iterating = state.mode === "iterate";
         const composing = state.mode === "composition";
@@ -901,12 +900,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             </div>
             {composing && this.compositionControls(state)}
             {!composing && <div className="inspector-group">
-                <div className="function-points-grid">
-                    {entry(0, 0)}
-                    {entry(1, 0)}
-                    {entry(0, 1)}
-                    {entry(1, 1)}
-                </div>
+                <NumberGrid label={t("linear_map_matrix_caption")} columns={2} cells={[entry(0, 0), entry(0, 1), entry(1, 0), entry(1, 1)]}
+                            describedBy="linear-map-entries-help linear-map-notice"/>
                 <p id="linear-map-entries-help" className="inspector-help">{t("linear_map_entries_help")}</p>
                 <div id="linear-map-notice" role="status" aria-live="polite">
                     {notice && <p className="inspector-help" data-linear-map-notice={notice.kind}>
@@ -968,11 +963,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             const element = elementOf(state, slot);
             const entries = freeEntriesOf(state, slot);
             const entriesHelpId = `linear-map-comp-entries-help-${slot}-${this.uid}`;
-            const entry = (row: Row, column: Column) => (
-                <NumberInput label={t("linear_map_comp_entry_label", {value0: name, value1: String(row + 1), value2: String(column + 1)})}
-                             value={entries[row][column]} describedBy={entriesHelpId} {...gridProps}
-                             onChange={next => this.accepted(() => this.setSlotEntryFromInput(slot, row, column, next))}/>
-            );
+            const entry = (row: Row, column: Column): NumberGridCell => ({
+                label: t("linear_map_comp_entry_label", {value0: name, value1: String(row + 1), value2: String(column + 1)}),
+                value: entries[row][column], ...gridProps,
+                onChange: next => this.accepted(() => this.setSlotEntryFromInput(slot, row, column, next)),
+            });
             return (
                 <div className="inspector-group" role="group" aria-label={t(slot === "first" ? "linear_map_comp_group_a" : "linear_map_comp_group_b")}
                      data-linear-map-slot={slot}>
@@ -989,7 +984,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                                         formatValue={k => this.angleText(element.kind, k)} valueText={k => this.angleText(element.kind, k)}
                                         onChange={next => this.ignoreOutOfDomain(() => this.setAngleIndex(slot, next))}/>}
                     {!element && <>
-                        <div className="function-points-grid">{entry(0, 0)}{entry(0, 1)}{entry(1, 0)}{entry(1, 1)}</div>
+                        <NumberGrid label={t("linear_map_comp_matrix_caption", {value0: name})} columns={2} describedBy={entriesHelpId}
+                                    cells={[entry(0, 0), entry(0, 1), entry(1, 0), entry(1, 1)]}/>
                         <p id={entriesHelpId} className="inspector-help">{t("linear_map_comp_entries_help")}</p>
                     </>}
                 </div>

@@ -172,6 +172,30 @@ for (const lang of LANGUAGES) {
                 expect(result.problems).toEqual([]);
             });
 
+            // A number grid: the cells of one grid are equally wide, a matrix keeps its rows (two lines for 2 x 2) and the cells share the
+            // grid's left and right edges, so nothing leaves the content width.
+            test('number grid cells are equally wide, a 2 x 2 matrix sits on two lines and nothing leaves the grid', async ({page}) => {
+                await openFixture(page, lang, view);
+                const result = await page.evaluate(() => {
+                    const problems = [];
+                    const measure = name => {
+                        const cells = document.querySelector(`[data-fixture="${name}"] .number-grid-cells`);
+                        const box = cells.getBoundingClientRect();
+                        const fields = [...cells.querySelectorAll('input')].map(el => el.getBoundingClientRect());
+                        const widths = fields.map(r => r.width);
+                        if (Math.max(...widths) - Math.min(...widths) > 1) problems.push(name + ': cells differ in width (' + widths.map(Math.round).join(', ') + ')');
+                        if (fields.some(r => r.left < box.left - 1 || r.right > box.right + 1)) problems.push(name + ': a cell leaves the grid');
+                        return {count: fields.length, lines: new Set(fields.map(r => Math.round(r.top))).size};
+                    };
+                    const matrix = measure('number-grid-matrix');
+                    const wrap = measure('number-grid-wrap');
+                    if (matrix.count !== 4 || matrix.lines !== 2) problems.push('the matrix is not 2 x 2: ' + JSON.stringify(matrix));
+                    if (wrap.count !== 7 || wrap.lines < 2) problems.push('the knot row does not wrap into lines: ' + JSON.stringify(wrap));
+                    return problems;
+                });
+                expect(result).toEqual([]);
+            });
+
             // Rhythm of a group (DemonstrationWorkspace.css): a slider directly followed by a slider leaves room between the first track and the second label.
             if (!view.text200) test('stacked sliders keep at least 10 px between the first slider and the next label', async ({page}) => {
                 await openFixture(page, lang, view);

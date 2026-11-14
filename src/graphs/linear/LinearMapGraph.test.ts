@@ -76,7 +76,8 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls()]);
-    const [x1, y1, x2, y2] = found.NumberInput;
+    // The matrix is one NumberGrid whose cells come in row-major order (a₁: x, a₂: x, a₁: y, a₂: y); each cell carries its field's props.
+    const [x1, x2, y1, y2] = (found.NumberGrid[0].props.cells as object[]).map(cell => ({props: cell as any}));
     const button = (action: string) => (found.UnavailableButton ?? []).find((element: any) => element.props['data-action'] === action);
     const selects = found.ChoiceSelect;
     return {x1, y1, x2, y2, button, selects, notices: (found.p ?? []).filter((p: any) => p.props['data-linear-map-notice']), found};

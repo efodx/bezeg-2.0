@@ -7,7 +7,7 @@ import {joinIds} from "./describedBy";
 import {ReplacementRevision} from "./replacementRevision";
 import "./NumberInput.css";
 
-interface NumberInputProps {
+export interface NumberInputProps {
     label: React.ReactNode;
     /** Current model value; undefined shows an empty field (for example the slope of a vertical line). */
     value: number | undefined;

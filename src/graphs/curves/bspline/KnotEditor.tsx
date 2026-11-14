@@ -1,6 +1,6 @@
-import React, {useId, useState} from "react";
+import React, {useState} from "react";
 import {Language, useLanguage, useT} from "../../../localization";
-import {NumberInput} from "../../../inputs/NumberInput";
+import {NumberGrid, type NumberGridCell} from "../../../inputs/NumberGrid";
 import {KNOT_LIMIT, KNOT_SNAP} from "./bsplineBasisModel";
 
 interface KnotEditorProps {
@@ -29,7 +29,6 @@ interface Refusal {
 export function KnotEditor(props: KnotEditorProps) {
     const t = useT();
     const {language} = useLanguage();
-    const titleId = useId();
     const knotsKey = props.knots.join(",");
     const [refusal, setRefusal] = useState<Refusal | undefined>(undefined);
     // Remounting the fields clears NumberInput's own rejected hint and the refused draft along with the reason.
@@ -38,17 +37,17 @@ export function KnotEditor(props: KnotEditorProps) {
         setRefusal(undefined);
         setGeneration(generation + 1);
     }
-    return <div className="inspector-group" role="group" aria-labelledby={titleId}>
-        <h3 id={titleId}>{t("bsb_knots_title")}</h3>
-        <p className="inspector-help">{t("bsb_knots_help")}</p>
-        {props.knots.map((knot, index) =>
-            <NumberInput key={`${index}:${generation}`} label={t("bsb_knot_name", {value0: index})} value={knot} step={KNOT_SNAP} decimals={3}
-                         min={-KNOT_LIMIT} max={KNOT_LIMIT} compact
-                         rejectedHint={refusal?.index === index ? refusal.text : undefined}
-                         onChange={value => {
-                             const text = props.onEdit(index, value);
-                             setRefusal(text === undefined ? undefined : {index, text, knots: knotsKey, language});
-                             return text === undefined;
-                         }}/>)}
+    // The generation is part of the grid's key: remounting clears the cells' own rejected hints and refused drafts.
+    return <div className="inspector-group">
+        <NumberGrid key={generation} label={t("bsb_knots_title")} columns="wrap" help={t("bsb_knots_help")}
+                    cells={props.knots.map((knot, index): NumberGridCell => ({
+                        label: t("bsb_knot_name", {value0: index}), value: knot, step: KNOT_SNAP, decimals: 3, min: -KNOT_LIMIT, max: KNOT_LIMIT,
+                        rejectedHint: refusal?.index === index ? refusal.text : undefined,
+                        onChange: value => {
+                            const text = props.onEdit(index, value);
+                            setRefusal(text === undefined ? undefined : {index, text, knots: knotsKey, language});
+                            return text === undefined;
+                        },
+                    }))}/>
     </div>;
 }

@@ -11,7 +11,7 @@ import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
-import {NumberInput} from "../../inputs/NumberInput";
+import {NumberGrid, type NumberGridCell} from "../../inputs/NumberGrid";
 import {PointListInput} from "../../inputs/PointListInput";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -1138,10 +1138,9 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
     private entryField(field: "A" | "B" | "C" | "D", labelKey: "phase_graph_matrix_a_label" | "phase_graph_matrix_b_label" | "phase_graph_matrix_c_label"
-        | "phase_graph_matrix_d_label"): JSX.Element {
-        return <NumberInput key={field} label={t(labelKey)} value={entryOf(this.state[field])} step={1 / ENTRY_SCALE} bigStep={1} min={ENTRY_RANGE.min / ENTRY_SCALE}
-                            max={ENTRY_RANGE.max / ENTRY_SCALE} decimals={2} describedBy={this.helpId}
-                            onChange={value => this.editEntry(field, value)}/>;
+        | "phase_graph_matrix_d_label"): NumberGridCell {
+        return {label: t(labelKey), value: entryOf(this.state[field]), step: 1 / ENTRY_SCALE, bigStep: 1, min: ENTRY_RANGE.min / ENTRY_SCALE,
+            max: ENTRY_RANGE.max / ENTRY_SCALE, decimals: 2, onChange: value => this.editEntry(field, value)};
     }
 
     private seedList(): JSX.Element {
@@ -1170,8 +1169,9 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                                         onChange={value => this.editEquilibrium(Number(value))}/>);
         }
         if (state.system === "linear") {
-            commands.push(this.entryField("A", "phase_graph_matrix_a_label"), this.entryField("B", "phase_graph_matrix_b_label"),
-                this.entryField("C", "phase_graph_matrix_c_label"), this.entryField("D", "phase_graph_matrix_d_label"));
+            commands.push(<NumberGrid key="matrix" label={t("phase_graph_matrix_caption")} columns={2} describedBy={this.helpId}
+                                      cells={[this.entryField("A", "phase_graph_matrix_a_label"), this.entryField("B", "phase_graph_matrix_b_label"),
+                                          this.entryField("C", "phase_graph_matrix_c_label"), this.entryField("D", "phase_graph_matrix_d_label")]}/>);
         }
         commands.push(
             <CountSetter key="seeds" label={t("phase_graph_seeds_label")} n={state.seeds.length} min={SEEDS_MIN} max={SEEDS_MAX} bigStep={1}

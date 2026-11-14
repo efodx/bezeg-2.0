@@ -1,0 +1,16 @@
+/* Typed cells in the rows and columns of a matrix, or one wrapping row of equal cells. The cells are compact NumberInputs: their
+   wrappers add no box, so each input sits in its own grid cell and a refusal hint spans the whole row under it (dense packing puts
+   the next row's cells below it). The row gap is zero and each input carries its own vertical margin, so the empty hint regions
+   (kept in the DOM for their live announcements) take no space. */
+.number-grid { display: grid; gap: .2rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+.number-grid-caption { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; line-height: 1.1; overflow-wrap: anywhere; }
+.number-grid-cells { --number-grid-columns: 2; display: grid; grid-auto-flow: row dense; column-gap: 8px; row-gap: 0; margin: -4px 0; min-width: 0;
+    grid-template-columns: repeat(var(--number-grid-columns), minmax(0, 1fr)); }
+/* About five characters per cell at least (digits, a sign and the padding); the cells then share the line equally. */
+.number-grid-cells[data-columns="wrap"] { grid-template-columns: repeat(auto-fill, minmax(calc(5.5ch + 20px), 1fr)); }
+.number-grid-cells > .number-input { display: contents; }
+.number-grid-cells > .number-input input[type] { width: 100%; min-width: 0; margin: 4px 0; }
+.number-grid-cells .number-input-hint-region { grid-column: 1 / -1; }
+.number-grid-cells .number-input-hint, .number-grid-cells .number-input-help { margin: 4px 0 0; }
+.number-grid-help { margin: 0; color: var(--workspace-ink-soft, #5b675a); font-size: .78rem; line-height: 1.35; }
+.is-presenting .number-grid-help, .is-presenting .number-grid-caption { color: #b5bfd0; }

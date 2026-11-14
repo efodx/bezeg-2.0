@@ -19,6 +19,7 @@ import {BooleanField} from '../../src/inputs/BooleanField';
 import {ChoiceSelect} from '../../src/inputs/ChoiceSelect';
 import {CountSetter} from '../../src/inputs/CountSetter';
 import {InspectorDisclosure} from '../../src/inputs/InspectorDisclosure';
+import {NumberGrid} from '../../src/inputs/NumberGrid';
 import {NumberInput} from '../../src/inputs/NumberInput';
 import {PointCollection} from '../../src/inputs/PointCollection';
 import {PointListInput, type PointRow, type PointRow3} from '../../src/inputs/PointListInput';
@@ -52,6 +53,8 @@ const text = {
         points: 'Točke',
         pointsLong: 'Zelo dolga oznaka zbirke kontrolnih točk, ki mora v ozki plošči preiti v več vrstic',
         pointName: 'Točka',
+        matrix: 'Matrika A',
+        knots: 'Vozel',
     },
     en: {
         longLabel: 'A very long setting label that has to wrap onto several lines in the narrow panel without any clipped text',
@@ -73,6 +76,8 @@ const text = {
         points: 'Points',
         pointsLong: 'A very long label of the collection of control points that has to wrap onto several lines in the narrow panel',
         pointName: 'Point',
+        matrix: 'Matrix A',
+        knots: 'Knot',
     },
 }[lang];
 
@@ -169,6 +174,14 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
             <div className="inspector-control">
                 <PointListInput title={text.group} points={cube} axisLabels={['x', 'y', 'z']} pointLabel={i => `${text.pointName} ${i + 1}`} min={-10} max={10} grid={0.5}
                     onCommit={(i, value) => { setCube(cube.map((row, at) => at === i ? value : row)); }}/>
+            </div>
+            <div className="inspector-control" data-fixture="number-grid-matrix">
+                <NumberGrid label={text.matrix} columns={2}
+                    cells={[1, 0.5, -2, 4].map((value, at) => ({label: `${text.matrix} ${at + 1}`, value, onChange: noop, min: -4, max: 4, step: 0.25}))}/>
+            </div>
+            <div className="inspector-control" data-fixture="number-grid-wrap">
+                <NumberGrid label={text.knots} columns="wrap" help={text.help}
+                    cells={[0, 0, 0, 0.25, 0.5, 0.75, 1].map((value, at) => ({label: `${text.knots} ${at}`, value, onChange: noop, decimals: 3, step: 0.01}))}/>
             </div>
             <div className="inspector-control">
                 <PointCollection label={text.pointsLong} count={points} min={2} max={6} onAdd={() => setPoints(points + 1)}

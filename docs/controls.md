@@ -20,7 +20,7 @@ Start from the value the student changes, not from the widget.
 | Several independent choices in one set | `CheckboxGroup` | Separate switches |
 | A result hidden until asked | `RevealButton` | `OnOffSwitch` |
 | A run through steps or time | `PlaybackButtons`, with a `Slider` for the position | Own Play, Pause and Reset buttons |
-| A matrix | `NumberInput` cells in the matrix's own rows and columns, until the shared number grid lands | Column vectors as point rows (that transposes the notation) |
+| A matrix, or a row of typed numbers (a knot vector) | `NumberGrid`: typed cells in the matrix's own rows and columns, or one wrapping row | Column vectors as point rows (that transposes the notation) |
 | A number with no useful range | `NumberInput` | — |
 
 Rules that the table implies:
@@ -50,6 +50,7 @@ The inspector is 310 px wide on desktop (about 286 px of content) and the full w
 | `CountSetter` | `src/inputs/CountSetter` | An integer count | − value +. Buttons are unavailable with a reason at the bounds. `onSet` makes the value typeable |
 | `NumberInput` | `src/inputs/NumberInput` | A typed number with no useful range; a grid cell | Commits on Enter or blur. Out of range is refused with a message, never clamped. `compact` and `hideLabel` are for cells inside another control |
 | `PointListInput` | `src/inputs/PointListInput` | Typed coordinates of one or more points; the keyboard path for dragging | 1, 2 or 3 axes (`axisLabels`). `onRemove` adds a remove button per row; `onSelect` makes the name a pressed toggle. A single point is a list of one |
+| `NumberGrid` | `src/inputs/NumberGrid` | Typed numbers laid out as a matrix or as one wrapping row (knot vector) | `label` (caption and group name), `columns` (a count or `"wrap"`), `cells` in row-major order (each the `NumberInput` props with its accessible `label`), `describedBy`, `help`. Cells are compact `NumberInput`s with no visible label of their own; refusal hints come under the cell's row |
 | `PointCollection` | `src/inputs/PointCollection` | Count, add (button, typed entry, board mode), clear | Sits above its `PointListInput` |
 | `ValueListInput` | `src/inputs/ValueListInput` | A list of single numbers | Same commit and refusal rules as the point list |
 | `ChoiceSelect` | `src/inputs/ChoiceSelect` | One of several named options | Native select. A `custom` option appears only while the scene matches no example |
