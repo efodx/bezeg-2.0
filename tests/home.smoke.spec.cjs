@@ -20,18 +20,17 @@ test('the homepage owns the starting carousel and its actions lead to the select
     const opening = page.getByRole('region', {name: 'Starting demonstrations'});
     await expect(opening).toBeVisible();
     await expect(page.getByRole('region', {name: 'All demonstrations'})).toHaveCount(0);
-    await expect(page.locator('main footer')).toContainText('Bezeg is a web tool for exploring the properties of Bézier and PH curves graphically.');
+    await expect(page.locator('footer')).toHaveCount(0);
     const pageOrder = await shortcut.evaluate(link => {
         const page = link.closest('main');
         const showcase = page?.querySelector('section');
-        const footer = page?.querySelector('footer');
         return {
             shortcutBeforeCarousel: Boolean(showcase && link.compareDocumentPosition(showcase) & Node.DOCUMENT_POSITION_FOLLOWING),
-            carouselBeforeFooter: Boolean(showcase && footer && showcase.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING),
+            carouselIsLast: Boolean(showcase && page.lastElementChild === showcase),
         };
     });
     expect(pageOrder.shortcutBeforeCarousel).toBe(true);
-    expect(pageOrder.carouselBeforeFooter).toBe(true);
+    expect(pageOrder.carouselIsLast).toBe(true);
 
     await expect(opening.locator('.demonstrations-opening-image')).toHaveCount(startingIds.length);
     const openingImage = opening.locator('.demonstrations-opening-image[data-selected="true"] img');

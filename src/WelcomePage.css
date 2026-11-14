@@ -70,14 +70,6 @@
     border-radius: 18px;
     box-shadow: var(--bezeg-shell-shadow-card);
 }
-.welcome-page footer {
-    margin-top: auto;
-    border-top: 1px solid var(--bezeg-shell-rule);
-    padding-top: 18px;
-    color: var(--bezeg-shell-ink-secondary);
-    font-size: 12px;
-    line-height: 1.7;
-}
 .welcome-page :focus-visible { outline: 3px solid var(--bezeg-shell-focus); outline-offset: 3px; }
 
 @media (max-width: 820px) {

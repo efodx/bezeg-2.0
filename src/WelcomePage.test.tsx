@@ -86,7 +86,7 @@ function openingDemonstrations() {
 }
 
 
-test('the homepage presents its introduction and catalogue shortcut before the carousel and keeps the localized footer', () => {
+test('the homepage presents its introduction and catalogue shortcut before the carousel and ends without a footer', () => {
     const router = createMemoryRouter(routes, {initialEntries: ['/bezeg-2.0']});
     render(<RouterProvider router={router}/>);
 
@@ -100,12 +100,10 @@ test('the homepage presents its introduction and catalogue shortcut before the c
         const carousel = screen.getByRole('region', {name: t('starting_demonstrations')});
         expect(shortcut.compareDocumentPosition(carousel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-        const footer = document.querySelector('main footer')!;
-        expect(footer).toBeVisible();
-        expect(footer).toHaveTextContent(t('bezeg_is_a_web_tool_for_exploring_the_properties_of_bezier_and_ph_curves_graphically'));
-        expect(footer).toHaveTextContent(t('i_kevin_stampar_developed_bezeg_for_my_masters_thesis_with_guidance_from_my_supervisor_prof_dr_emil_zagar'));
-        expect(footer).toHaveTextContent(t('send_suggestions_or_bug_reports_to_clovekkevingmailcom'));
-        expect(carousel.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        // H01: the homepage ends with the carousel; it carries no footer, credit or contact line.
+        expect(document.querySelector('footer')).toBeNull();
+        expect(document.querySelector('main')!.lastElementChild).toBe(carousel);
+        expect(document.querySelector('main')).not.toHaveTextContent(/gmail\.com|Žagar/);
         expect(screen.queryByRole('img', {name: t('curve_illustration')})).not.toBeInTheDocument();
         expect(screen.queryByText(t('control_points_shape'))).not.toBeInTheDocument();
     }

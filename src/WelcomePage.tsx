@@ -21,8 +21,5 @@ export function WelcomePage() {
             <h2 id="starting-demonstrations">{t('starting_demonstrations')}</h2>
             <HomeDemonstrationsCarousel/>
         </section>
-        <footer>{t('bezeg_is_a_web_tool_for_exploring_the_properties_of_bezier_and_ph_curves_graphically')}<br/>
-            {t('i_kevin_stampar_developed_bezeg_for_my_masters_thesis_with_guidance_from_my_supervisor_prof_dr_emil_zagar')}<br/>
-            {t('send_suggestions_or_bug_reports_to_clovekkevingmailcom')}</footer>
     </main>;
 }
