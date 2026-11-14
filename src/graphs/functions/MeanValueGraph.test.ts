@@ -86,7 +86,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputB, inputC] = found.NumberInput;
+    const [inputA, inputB, inputC] = found.Slider;
     const toggle = revealButton(found, 'toggle-matches');
     if (!toggle) throw new Error('no toggle-matches reveal button');
     return {found, inputA, inputB, inputC, toggle};
@@ -353,8 +353,8 @@ test('a < c < b is enforced by every setter: out-of-order values are rejected an
 test('the number fields carry the ordering in their range, report rejection and show the rule', () => {
     const graph = makeGraph();
     const {inputA, inputB, inputC} = controls(graph);
-    expect([inputA, inputB, inputC].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
-        ['Levo krajišče a', -4, 0.5, 0], ['Desno krajišče b', 0.5, 4, 2], ['Točka dotika c', 0, 2, 0.5],
+    expect([inputA, inputB, inputC].map((input: any) => [input.props.customText, input.props.min, input.props.max, input.props.value])).toEqual([
+        ['Levo krajišče a', -4, 4, 0], ['Desno krajišče b', -4, 4, 2], ['Točka dotika c', -4, 4, 0.5],
     ]);
     expect(inputA.props.onChange(0.5)).toBe(false); // would make a = c
     expect(inputB.props.onChange(0.5)).toBe(false);
@@ -362,11 +362,11 @@ test('the number fields carry the ordering in their range, report rejection and 
     expect(graph.model).toMatchObject({a: 0, b: 2, c: 0.5});
     expect(inputA.props.onChange(0.4)).toBe(true);
     expect(graph.model.a).toBe(0.4);
-    expect(controls(graph).inputC.props.min).toBe(0.4);
+    expect(controls(graph).inputC.props.min).toBe(-4);
     expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < c < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
-    expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
-    expect(controls(graph).inputC.props.label).toBe('Point of tangency c');
+    expect(controls(graph).inputA.props.customText).toBe('Left endpoint a');
+    expect(controls(graph).inputC.props.customText).toBe('Point of tangency c');
 });
 
 test('the Show matching point control toggles the reveal and names its state in words', () => {

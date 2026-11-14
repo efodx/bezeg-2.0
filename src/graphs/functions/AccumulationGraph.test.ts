@@ -94,7 +94,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputX] = found.NumberInput;
+    const [inputA, inputX] = found.Slider;
     const toggle = revealButton(found, 'toggle-accumulation');
     if (!toggle) throw new Error('no toggle-accumulation reveal button');
     return {found, inputA, inputX, toggle};
@@ -365,7 +365,7 @@ test('every control writes the same model as its lesson action: function, a, x a
 test('the controls carry the range, label every field, name the reveal state in words and offer the three functions', () => {
     const graph = makeGraph();
     const {inputA, inputX, toggle, found} = controls(graph);
-    expect([inputA, inputX].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
+    expect([inputA, inputX].map((input: any) => [input.props.customText, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Spodnja meja a', ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_MAX, 0], ['Točka x', ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_MAX, 2],
     ]);
     expect(toggle.props.children).toBe('Pokaži akumulacijo A');
@@ -377,8 +377,8 @@ test('the controls carry the range, label every field, name the reveal state in 
     expect(controls(graph).toggle.props['data-revealed']).toBe(true);
     setLanguage('en');
     expect(controls(graph).toggle.props.children).toBe('Hide accumulation A');
-    expect(controls(graph).inputA.props.label).toBe('Lower bound a');
-    expect(controls(graph).inputX.props.label).toBe('Point x');
+    expect(controls(graph).inputA.props.customText).toBe('Lower bound a');
+    expect(controls(graph).inputX.props.customText).toBe('Point x');
     expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Accumulation A')).toBe(true);
     // x may be left of a: the fields do not tie one to the other
     expect(controls(graph).inputX.props.onChange(-3)).toBe(true);

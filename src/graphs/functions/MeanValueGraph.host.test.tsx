@@ -52,7 +52,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     expect(statusIds()).toEqual(['differ', 'matches']);
 
     // c through the real labelled field: the endpoints and the secant do not change
-    const inputC = screen.getByLabelText('Točka dotika c') as HTMLInputElement;
+    const inputC = screen.getByLabelText('Točka dotika c, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputC, '1'); });
     expect(graph.modelNow()).toEqual({example: 'square', a: 0, b: 2, c: 1, revealed: true});
     expect(readout('tangent-slope')).toBe('2');
@@ -61,7 +61,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     expect(statusIds()).toEqual(['agree', 'matches']);
 
     // an endpoint that would pass c is refused with a hint and leaves the model alone
-    const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
+    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputA, '1'); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2, c: 1});
     expect(screen.getByText('Krajišče a mora ostati levo od c (a < c). Najprej premakni c.')).toBeInTheDocument();
@@ -74,7 +74,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     act(() => { fireEvent.change(select, {target: {value: 'abs'}}); });
     expect(graph.modelNow()).toEqual({example: 'abs', a: -1, b: 1, c: 0.5, revealed: false});
     expect(showButton().textContent).toBe('Pokaži ujemajočo točko');
-    act(() => { enterNumber(screen.getByLabelText('Točka dotika c'), '0'); });
+    act(() => { enterNumber(screen.getByLabelText('Točka dotika c, vrednost'), '0'); });
     expect(readout('tangent-slope')).toBe('ne obstaja');
     expect(readout('difference')).toBe('ne obstaja');
     expect(statusIds()).toEqual(['hypothesis', 'corner']);

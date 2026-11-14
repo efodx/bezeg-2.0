@@ -73,7 +73,7 @@ const mount = () => {
     giveView(graph);
     return {graph, view};
 };
-const slider = () => screen.getByRole('slider') as HTMLInputElement;
+const slider = () => screen.getByRole('slider', {name: 'Korak h'}) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label), value); });
 const click = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
 const texts = (graph: ObservedEulerGraph) => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text').map((text: any) => String(text.plaintext)).join('|');
@@ -127,21 +127,21 @@ test('the field has finite marks whose slope is F(x, y); the polyline starts at 
 
 test('x0 and y0 by number field and by dragging move the polyline and the readouts; the drag does not rebuild the field', () => {
     const {graph} = mount();
-    type('Začetni y₀', '2');
+    type('P₀, y₀', '2');
     expect(graph.modelNow().y0).toBe(2);
     expect(graph.polyline().dataY[1]).toBe(3);
     expect(readout('value')).toBe('4,5');
-    type('Začetni x₀', '0,5');
+    type('P₀, x₀', '0,5');
     expect(graph.modelNow().x0).toBe(0.5);
     expect(readout('steps')).toBe('1');
 
     // a value that would break the model is refused and the model stays
-    type('Začetni y₀', '50');
+    type('P₀, y₀', '50');
     expect(graph.modelNow().y0).toBe(2);
-    type('Začetni x₀', '2');
+    type('P₀, x₀', '2');
     expect(graph.modelNow().x0).toBe(0.5);
 
-    type('Začetni x₀', '0');
+    type('P₀, x₀', '0');
     const builds = graph.builds();
     dragTo(graph, 0, 1);
     expect(graph.modelNow()).toMatchObject({x0: 0, y0: 1});
@@ -251,7 +251,7 @@ test('Next step reveals the polyline one step at a time and Show all restores it
 test('a blow-up run stops the polyline at the last finite point, says so, and hides the exact value', () => {
     const {graph} = mount();
     act(() => { fireEvent.change(screen.getByLabelText('Enačba'), {target: {value: 'blow-up'}}); });
-    type('Končni x', '3');
+    type('Končni x, vrednost', '3');
     const ids = statusIds();
     expect(ids).toContain('no-exact');
     expect(ids.some(id => id === 'left-window' || id === 'non-finite')).toBe(true);
@@ -288,7 +288,7 @@ test('Preset import and Reset restore the controls and the board objects; unmoun
     act(() => { graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-3, 4, 4, -2]}}); });
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Enačba') as HTMLSelectElement).value).toBe('linear-relaxation');
-    expect((screen.getByLabelText('Začetni x₀') as HTMLInputElement).value).toBe('−1');
+    expect((screen.getByLabelText('P₀, x₀') as HTMLInputElement).value).toBe('−1');
     expect(slider().value).toBe('3');
     expect(graph.initialPoint().X()).toBe(-1);
     expect(graph.polyline().dataX).toHaveLength(4);

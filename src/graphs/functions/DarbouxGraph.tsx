@@ -1,7 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, FillCurve, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {CountSetter} from "../../inputs/CountSetter";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {FunctionStatus} from "./FunctionStatus";
@@ -278,9 +278,9 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("darboux_a_label")} value={a} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("darboux_a_label")} value={a} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("darboux_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <NumberInput label={t("darboux_b_label")} value={b} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("darboux_b_label")} value={b} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("darboux_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("darboux_order_help")}</p>
             </div>

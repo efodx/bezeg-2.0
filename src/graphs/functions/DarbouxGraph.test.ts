@@ -94,7 +94,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputB] = found.NumberInput;
+    const [inputA, inputB] = found.Slider;
     const [inputN] = found.CountSetter;
     const button = (action: string) => [...(found.button ?? []), ...(found.UnavailableButton ?? [])].find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {found, inputA, inputB, inputN, refine: button('refine'), toggleLower: button('toggle-lower'), toggleUpper: button('toggle-upper')};
@@ -312,7 +312,7 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
     const graph = makeGraph();
     const {inputA, inputB, inputN} = controls(graph);
-    expect([inputA, inputB].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
+    expect([inputA, inputB].map((input: any) => [input.props.customText, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -7, 7, 0], ['Desno krajišče b', -7, 7, 2],
     ]);
     expect([inputN.props.label, inputN.props.min, inputN.props.max, inputN.props.n]).toEqual(['Število delov n', 1, 128, 4]);
@@ -328,7 +328,7 @@ test('the number fields carry their ranges, report rejection with a hint and sho
     expect(inputA.props.onChange(1.5)).toBe(true);
     expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
-    expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
+    expect(controls(graph).inputA.props.customText).toBe('Left endpoint a');
     expect(controls(graph).inputN.props.label).toBe('Number of parts n');
 });
 

@@ -4,7 +4,7 @@ import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
@@ -13,7 +13,7 @@ import {formatNumber, formatSignificant} from "../../analysis/format";
 import {EULER_EXAMPLE_IDS, EULER_X_MAX, EULER_X_MIN, eulerExample, EulerExampleId, STEP_SIZES} from "../../analysis/odeEuler";
 import {
     chooseEulerExample, chooseEulerStep, DEFAULT_EULER_MODEL, EULER_DRAG_STEP, EULER_Y0_BOUND, EulerEdit, EulerModel, eulerView, EulerView, exactAt,
-    exactReaches, moveEulerInitial, nextRevealed, setEulerEnd, setEulerRevealed, setEulerShowExact, setEulerX0, setEulerY0,
+    exactReaches, moveEulerInitial, nextRevealed, setEulerEnd, setEulerRevealed, setEulerShowExact,
 } from "../../analysis/eulerModel";
 import {fieldMarks, FieldMarks, FieldSize} from "../../analysis/eulerField";
 import {ERROR_DISPLAY_DIGITS} from "../../analysis/quadratureModel";
@@ -284,17 +284,23 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("euler_ode_x0_label")} value={model.x0} min={EULER_X_MIN} max={EULER_X_MAX} step={EULER_DRAG_STEP}
-                             rejectedHint={t("euler_ode_x0_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.apply(setEulerX0(this.model, next)))}/>
-                <NumberInput label={t("euler_ode_y0_label")} value={model.y0} min={-EULER_Y0_BOUND} max={EULER_Y0_BOUND} step={EULER_DRAG_STEP}
-                             rejectedHint={t("euler_ode_y0_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.apply(setEulerY0(this.model, next)))}/>
+                <PointListInput title={t("euler_ode_start_title")} points={[[model.x0, model.y0]]} pointLabel={() => "P₀"}
+                                axisLabels={["x₀", "y₀"]} min={-EULER_Y0_BOUND} max={EULER_Y0_BOUND} decimals={PRECISE} step={EULER_DRAG_STEP}
+                                onCommit={(_, [x0, y0]) => {
+                                    try {
+                                        this.setInitial(x0, y0);
+                                    } catch (error) {
+                                        if (error instanceof DomainError) return error.message;
+                                        throw error;
+                                    }
+                                }}/>
                 <p className="inspector-help">{t("euler_ode_initial_help")}</p>
             </div>
             <div className="inspector-group">
                 <Slider customText={t("euler_ode_step_label")} min={0} max={STEP_SIZES.length - 1} step={1} value={stepIndex}
                         formatValue={index => formatNumber(STEP_SIZES[Math.round(index)] ?? NaN, language, PRECISE)} help={t("euler_ode_step_help")}
                         onChange={next => this.ignoreOutOfDomain(() => this.setStep(STEP_SIZES[Math.round(next)]))}/>
-                <NumberInput label={t("euler_ode_end_label")} value={model.xEnd} min={EULER_X_MIN} max={EULER_X_MAX} step={EULER_DRAG_STEP}
+                <Slider customText={t("euler_ode_end_label")} value={model.xEnd} min={EULER_X_MIN} max={EULER_X_MAX} step={EULER_DRAG_STEP}
                              rejectedHint={t("euler_ode_end_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setEnd(next))}/>
             </div>
             <div className="inspector-group">

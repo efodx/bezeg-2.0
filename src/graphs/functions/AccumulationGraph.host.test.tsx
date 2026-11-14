@@ -52,12 +52,12 @@ test('a real board hides A until the reveal button is pressed; the inputs move a
     expect(statusIds()).toEqual(['rising']);
 
     // x through the real labelled field, then x left of a
-    const inputX = screen.getByLabelText('Točka x') as HTMLInputElement;
+    const inputX = screen.getByLabelText('Točka x, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputX, '3.5'); });
     expect(graph.modelNow()).toEqual({fn: 'sin', a: 0, x: 3.5, accumulationVisible: true});
     expect(readout('signed-integral')).toBe('1,9365'); // 1 - cos 3.5
     expect(statusIds()).toEqual(['falling']);
-    const inputA = screen.getByLabelText('Spodnja meja a') as HTMLInputElement;
+    const inputA = screen.getByLabelText('Spodnja meja a, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputA, '5'); });
     expect(graph.modelNow()).toMatchObject({a: 5, x: 3.5});
     expect(statusIds()).toEqual(['reversed', 'falling']);

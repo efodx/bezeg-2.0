@@ -85,7 +85,7 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect([...document.querySelectorAll('.inspector-help')].filter(element => /128/.test(element.textContent ?? '') && !element.closest('.number-input'))).toHaveLength(1);
 
     // an endpoint that would reach the other one is refused with the rule; a valid one is applied
-    const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
+    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputA, '2'); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2});
     expect(screen.getByText('Krajišče a mora ostati levo od b (a < b). Najprej premakni b.')).toBeInTheDocument();

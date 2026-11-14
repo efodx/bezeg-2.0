@@ -2,7 +2,6 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {
@@ -161,9 +160,9 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         const {a, b, n} = this.model;
         return <>
             <div className="inspector-group">
-                <NumberInput label={t("arc_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider customText={t("arc_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <NumberInput label={t("arc_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider customText={t("arc_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
                 <p className="inspector-help">{t("arc_bounds_help")}</p>
             </div>

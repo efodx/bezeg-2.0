@@ -2,7 +2,7 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatLineEquation, formatNumber, NumberLanguage} from "../../analysis/format";
@@ -367,11 +367,11 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("convexity_a_label")} value={state.a} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("convexity_a_label")} value={state.a} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("convexity_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <NumberInput label={t("convexity_b_label")} value={state.b} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("convexity_b_label")} value={state.b} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("convexity_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
-                <NumberInput label={t("convexity_t_label")} value={state.t} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("convexity_t_label")} value={state.t} min={CONVEXITY_X_MIN} max={CONVEXITY_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("convexity_t_rejected_hint", range)} onChange={next => this.ignoreOutOfDomain(() => this.setT(next))}/>
                 <p className="inspector-help">{t("convexity_order_help")}</p>
             </div>

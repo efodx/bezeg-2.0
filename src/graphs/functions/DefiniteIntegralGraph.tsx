@@ -2,7 +2,6 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
@@ -192,9 +191,9 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("integral_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider customText={t("integral_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <NumberInput label={t("integral_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider customText={t("integral_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
                 <p className="inspector-help">{t("integral_bounds_help")}</p>
             </div>

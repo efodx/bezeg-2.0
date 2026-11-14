@@ -43,7 +43,7 @@ const mount = () => {
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return {graph, view};
 };
-const range = () => screen.getByRole('slider') as HTMLInputElement;
+const range = () => screen.getByRole('slider', {name: 'Število podintervalov n'}) as HTMLInputElement;
 
 test('the default scene shows the lesson example and the readouts follow n by keyboard-equivalent slider input and by the number field', () => {
     const {graph} = mount();
@@ -132,7 +132,7 @@ test('Preset import and Reset restore the controls and the board objects; unmoun
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Pravilo') as HTMLSelectElement).value).toBe('simpson');
     expect((screen.getByLabelText('Funkcija') as HTMLSelectElement).value).toBe('exp');
-    expect((screen.getByLabelText('Spodnja meja a') as HTMLInputElement).value).toBe('−1');
+    expect((screen.getByLabelText('Spodnja meja a, vrednost') as HTMLInputElement).value).toBe('−1');
     expect(range().value).toBe('12');
     expect(readout('half-error')).not.toBe('ni');
     expect(boardObjects(graph)).toBe(baseline);

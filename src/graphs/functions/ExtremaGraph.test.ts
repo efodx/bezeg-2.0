@@ -90,7 +90,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputB] = found.NumberInput;
+    const [inputA, inputB] = found.Slider;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {found, inputA, inputB, toggle: button('toggle-classification')};
 };
@@ -319,7 +319,7 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
     const graph = makeGraph();
     const {inputA, inputB} = controls(graph);
-    expect([inputA, inputB].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
+    expect([inputA, inputB].map((input: any) => [input.props.customText, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -4, 4, -1], ['Desno krajišče b', -4, 4, 2],
     ]);
     expect(inputA.props.onChange(2)).toBe(false); // a = b
@@ -331,8 +331,8 @@ test('the number fields carry their ranges, report rejection with a hint and sho
     expect(inputB.props.rejectedHint).toMatch(/a < b/);
     expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
-    expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
-    expect(controls(graph).inputB.props.label).toBe('Right endpoint b');
+    expect(controls(graph).inputA.props.customText).toBe('Left endpoint a');
+    expect(controls(graph).inputB.props.customText).toBe('Right endpoint b');
 });
 
 test('the toggle names its state in words, editing a and b keeps the classification and choosing an example hides it', () => {

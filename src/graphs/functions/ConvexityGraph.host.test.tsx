@@ -58,18 +58,18 @@ test('a real board shows chord and tangent: the fields, the example and the Show
     expect(boardObjects(graph)).toBe(baseline);
 
     // t through the labelled field keeps the reveal; a point outside [a, b] withdraws the tangent claim
-    const inputT = screen.getByLabelText('Točka dotika tangente t') as HTMLInputElement;
+    const inputT = screen.getByLabelText('Točka dotika tangente t, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputT, '1.8'); });
     expect(graph.modelNow()).toMatchObject({t: 1.8, secondDerivativeVisible: true});
     expect(readout('tangent-verdict')).toBe('brez trditve: t je zunaj [a, b]');
     expect(statusIds()).toEqual(['revealed', 'tangent-outside']);
 
     // an order violation is refused with the rule and leaves the model alone
-    const inputB = screen.getByLabelText('Desno krajišče b') as HTMLInputElement;
+    const inputB = screen.getByLabelText('Desno krajišče b, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputB, '-2'); });
     expect(graph.modelNow()).toMatchObject({a: -1, b: 1.5});
     expect(screen.getByText('Krajišče b mora ostati desno od a (a < b). Najprej premakni a.')).toBeInTheDocument();
-    const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
+    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputA, '9'); });
     expect(graph.modelNow()).toMatchObject({a: -1, b: 1.5});
 

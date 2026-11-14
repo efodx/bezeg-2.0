@@ -2,7 +2,6 @@ import React from "react";
 import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, t, messageNumber} from "../../localization";
@@ -148,7 +147,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
+                <Slider customText={t("derivative_x0_label")} value={x0} min={X0_MIN} max={X0_MAX} step={X0_STEP}
                              onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
                 <Slider customText={t("derivative_h_label")} min={H_MIN} max={H_MAX} step={H_STEP} value={h}
                         help={t("derivative_h_help")} formatValue={localizedSliderValue}

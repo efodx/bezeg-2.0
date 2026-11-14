@@ -2,7 +2,7 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -368,9 +368,9 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("extrema_a_label")} value={a} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("extrema_a_label")} value={a} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("extrema_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <NumberInput label={t("extrema_b_label")} value={b} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("extrema_b_label")} value={b} min={EXTREMA_X_MIN} max={EXTREMA_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("extrema_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
                 <p className="inspector-help">{t("extrema_order_help")}</p>
             </div>

@@ -2,7 +2,7 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -309,10 +309,10 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("accumulation_a_label")} value={a} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <NumberInput label={t("accumulation_x_label")} value={x} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
+                <Slider customText={t("accumulation_a_label")} value={a} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
+                <Slider customText={t("accumulation_x_label")} value={x} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
                 <p className="inspector-help">{t("accumulation_bounds_help")}</p>
             </div>
         </>;

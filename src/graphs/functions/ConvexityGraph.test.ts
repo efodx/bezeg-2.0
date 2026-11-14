@@ -91,7 +91,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputA, inputB, inputT] = found.NumberInput;
+    const [inputA, inputB, inputT] = found.Slider;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {found, inputA, inputB, inputT, toggle: button('toggle-second-derivative')};
 };
@@ -368,7 +368,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
     const graph = makeGraph();
     const {inputA, inputB, inputT} = controls(graph);
-    expect([inputA, inputB, inputT].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
+    expect([inputA, inputB, inputT].map((input: any) => [input.props.customText, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -2, 2, -1], ['Desno krajišče b', -2, 2, 1.5], ['Točka dotika tangente t', -2, 2, 0.5],
     ]);
     expect(inputA.props.onChange(1.5)).toBe(false); // a = b
@@ -383,9 +383,9 @@ test('the number fields carry their ranges, report rejection with a hint and sho
     expect(inputT.props.rejectedHint).toBe('Točka t mora biti število med −2 in 2.');
     expect(collect([graph.renderControls(), graph.renderReveals()]).p.some((element: any) => /a < b/.test(String(element.props.children)))).toBe(true);
     setLanguage('en');
-    expect(controls(graph).inputA.props.label).toBe('Left endpoint a');
-    expect(controls(graph).inputB.props.label).toBe('Right endpoint b');
-    expect(controls(graph).inputT.props.label).toBe('Tangent point t');
+    expect(controls(graph).inputA.props.customText).toBe('Left endpoint a');
+    expect(controls(graph).inputB.props.customText).toBe('Right endpoint b');
+    expect(controls(graph).inputT.props.customText).toBe('Tangent point t');
     expect(controls(graph).inputT.props.rejectedHint).toBe('The point t must be a number between −2 and 2.');
 });
 

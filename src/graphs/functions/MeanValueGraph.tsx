@@ -2,7 +2,7 @@ import React from "react";
 import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -303,11 +303,11 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("mean_value_a_label")} value={a} min={MVT_X_MIN} max={c} step={0.1} decimals={PRECISE}
+                <Slider customText={t("mean_value_a_label")} value={a} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("mean_value_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <NumberInput label={t("mean_value_b_label")} value={b} min={c} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
+                <Slider customText={t("mean_value_b_label")} value={b} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("mean_value_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
-                <NumberInput label={t("mean_value_c_label")} value={c} min={a} max={b} step={0.1} decimals={PRECISE}
+                <Slider customText={t("mean_value_c_label")} value={c} min={MVT_X_MIN} max={MVT_X_MAX} step={0.1} decimals={PRECISE}
                              rejectedHint={t("mean_value_c_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setC(next))}/>
                 <p className="inspector-help">{t("mean_value_order_help")}</p>
             </div>

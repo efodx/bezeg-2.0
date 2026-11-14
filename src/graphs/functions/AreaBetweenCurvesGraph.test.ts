@@ -420,8 +420,8 @@ test('controls: mode select with three correctly labelled options, bound inputs 
     expect(() => select.onChange('under')).not.toThrow();
     expect(graph.model.mode).toBe('under-g');
 
-    expect(found.NumberInput).toHaveLength(2);
-    const [inputA, inputB] = found.NumberInput.map(node => node.props);
+    expect(found.Slider).toHaveLength(2);
+    const [inputA, inputB] = found.Slider.map(node => node.props);
     expect([inputA.min, inputA.max, inputB.min, inputB.max]).toEqual([-1, 5, -1, 5]);
     expect([inputA.value, inputB.value]).toEqual([2 - S, 2 + S]);
     inputA.onChange(-0.5);

@@ -3,7 +3,6 @@ import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
@@ -223,9 +222,9 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
             <div className="inspector-group">
-                <NumberInput label={t("quadrature_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider customText={t("quadrature_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              rejectedHint={t("quadrature_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <NumberInput label={t("quadrature_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
+                <Slider customText={t("quadrature_b_label")} value={b} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
                              rejectedHint={t("quadrature_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
                 <p className="inspector-help">{t("quadrature_bounds_help")}</p>
             </div>

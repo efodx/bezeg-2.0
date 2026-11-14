@@ -277,16 +277,16 @@ test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips
     expect(() => found.ChoiceSelect[0].props.onChange('cos')).not.toThrow();
     expect(graph.model.fn).toBe('sin');
 
-    expect(found.NumberInput).toHaveLength(1);
-    expect([found.NumberInput[0].props.min, found.NumberInput[0].props.max, found.NumberInput[0].props.value, found.NumberInput[0].props.step]).toEqual([-4, 4, 1, 0.01]);
-    found.NumberInput[0].props.onChange(-2.5);
+    expect(found.Slider).toHaveLength(2);
+    expect([found.Slider[0].props.min, found.Slider[0].props.max, found.Slider[0].props.value, found.Slider[0].props.step]).toEqual([-4, 4, 1, 0.01]);
+    found.Slider[0].props.onChange(-2.5);
     expect(graph.model.x0).toBe(-2.5);
-    expect(() => found.NumberInput[0].props.onChange(7)).not.toThrow();
+    expect(() => found.Slider[0].props.onChange(7)).not.toThrow();
     expect(graph.model.x0).toBe(-2.5);
     expect([pointP(graph).x, pointP(graph).y]).toEqual([-2.5, Math.sin(-2.5)]);
 
-    expect(found.Slider).toHaveLength(1);
-    const slider = found.Slider[0].props;
+    expect(found.Slider).toHaveLength(2);
+    const slider = found.Slider[1].props;
     expect([slider.min, slider.max, slider.step, slider.value]).toEqual([-2, 2, 0.01, 1]);
     slider.onChange(-2 + 150 * 0.01); // -0.5 up to rounding noise
     expect(graph.model.h).toBe(-0.5);
