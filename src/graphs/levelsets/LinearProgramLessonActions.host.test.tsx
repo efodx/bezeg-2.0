@@ -26,7 +26,8 @@ const apply = (graph: LinearProgramGraph, action: LessonAction) => act(() => { g
 const setObjective = (p: number, q: number): LessonAction => ({kind: 'levelsets', operation: 'set-objective', p, q});
 const setConstraints = (constraints: Rows): LessonAction => ({kind: 'levelsets', operation: 'set-constraints', constraints});
 const setSweep = (sweep: number): LessonAction => ({kind: 'levelsets', operation: 'set-sweep', sweep});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** A slider's exact field is the spinbutton named "<label>, vrednost". */
+const field = (label: string) => screen.getByRole('spinbutton', {name: t('number_field_label', {value0: label})}) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);

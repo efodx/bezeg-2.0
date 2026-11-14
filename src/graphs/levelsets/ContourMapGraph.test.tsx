@@ -13,6 +13,7 @@ import {CATALOGUE, CATALOGUE_IDS} from '../../levelsets/functions2';
 import {DESCENT_MAX_STEPS} from '../../levelsets/descent';
 import ContourMapGraph, {DRAWN_STYLE, STEP_MS} from './ContourMapGraph';
 import {ContourSurfacePanel} from './ContourPanels';
+import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -94,6 +95,26 @@ describe('ContourMapGraph', () => {
         expect(graph.setProbe(0, 0.123)).toBe(false);
         expect(graph.setLevel(1000)).toBe(false);
         expect(graph.state).toBe(before);
+    });
+
+    it('the probe and the descent start are point rows, the point on the line a slider; a typed value goes through the same checked edit', () => {
+        const {graph} = mountGraph();
+        const spin = (name: string) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
+        act(() => { graph.setMode('gradient'); });
+        expect(screen.getByRole('group', {name: t('levelsets_graph_probe_title')})).toBeInTheDocument();
+        act(() => { enterNumber(spin('P, x'), '1,5'); });
+        expect(graph.probePoint().x).toBe(1.5);
+        act(() => { enterNumber(spin('P, y'), '0,123'); });
+        expect(graph.probePoint().y).not.toBe(0.123);
+        expect(screen.getByText(t('levelsets_graph_point_rejected', {value0: '2', value1: '0,05'}))).toBeInTheDocument();
+        act(() => { graph.setMode('descent'); });
+        expect(screen.getByRole('group', {name: t('levelsets_graph_start_title')})).toBeInTheDocument();
+        act(() => { enterNumber(spin('P0, x'), '1,25'); });
+        expect(graph.state.start[0]).toBe(5);
+        act(() => { graph.setMode('lagrange'); });
+        act(() => { enterNumber(screen.getByRole('spinbutton', {name: t('number_field_label', {value0: t('levelsets_graph_line_x')})}), '1,5'); });
+        expect(graph.state.lineParam).toBe(6);
+        expect(screen.getByRole('slider', {name: t('levelsets_graph_line_x')})).toBeInTheDocument();
     });
 
     it('descent: steps, refused index, and reduced motion blocks Play', () => {

@@ -7,7 +7,7 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import {BooleanField} from "../../inputs/BooleanField";
 import Slider from "../../inputs/Slider";
 import type {ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -57,7 +57,6 @@ export const ARROW_FRACTION = 0.4;
 const TANGENT_HALF = 0.3;
 /** The circle marks its tangent points only while they are few (they are all of the circle for the bowl). */
 const TANGENT_MARKS = 8;
-let helpInstances = 0;
 
 /** Every stored field, derived from the defaults; a test compares it with the keys of `ContourState` so a new field cannot miss the pause rule. */
 export const STORED_FIELDS = Object.keys(DEFAULT_CONTOUR_STATE) as (keyof ContourState)[];
@@ -141,8 +140,6 @@ type LevelCurves = {readonly chosen: Poly; readonly others: Poly; readonly lengt
  */
 export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPresetData> implements SurfaceCameraActions {
     private readonly scene = new SceneObjects();
-    /** Per instance, so two mounted graphs never share the id that `aria-describedby` points at. */
-    readonly helpId = `contour-input-help-${++helpInstances}`;
     private probeHandle?: JXG.Point;
     private startHandle?: JXG.Point;
     private pointHandle?: JXG.Point;
@@ -1117,22 +1114,14 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
-    private inputHelp(): JSX.Element {
-        const half = dec(this.half(), 0);
-        return <p key="help" id={this.helpId} className="form-text">{t("levelsets_graph_input_help", {
-            value0: dec(LEVEL_RANGE.min / LEVEL_SCALE, 0), value1: dec(LEVEL_RANGE.max / LEVEL_SCALE, 0), value2: dec(1 / LEVEL_SCALE, 3),
-            value3: half, value4: dec(1 / PROBE_SCALE, 2), value5: dec(1 / START_SCALE, 2),
-            value6: dec(STEP_RANGE.min, 0), value7: dec(STEP_RANGE.max, 0),
-            value8: dec(lineParamOf(LINE_PARAM_RANGE.min), 0), value9: dec(lineParamOf(LINE_PARAM_RANGE.max), 0),
-        })}</p>;
-    }
 
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
-        const describedBy = this.helpId;
-        const axisField = (axis: 0 | 1, label: string, value: number, scale: number, edit: (axis: 0 | 1, value: number) => boolean) =>
-            <NumberInput key={`${label}`} label={label} value={value} step={1 / scale} bigStep={1} min={-this.half()} max={this.half()} decimals={2} describedBy={describedBy}
-                         onChange={next => edit(axis, next)}/>;
+        /** Applies one row of a point list: only an axis that changed goes through its own checked edit; a refusal is the row's message. */
+        const commitPoint = (current: readonly number[], next: readonly number[], scale: number, edit: (axis: 0 | 1, value: number) => boolean): string | void => {
+            const accepted = (current[0] === next[0] || edit(0, next[0])) && (current[1] === next[1] || edit(1, next[1]));
+            if (!accepted) return t("levelsets_graph_point_rejected", {value0: dec(this.half(), 0), value1: dec(1 / scale, 2)});
+        };
         const commands: JSX.Element[] = [
             <ChoiceSelect key="mode" label={t("levelsets_graph_mode")} value={state.mode} help={t(MODE_HELP_KEYS[state.mode])}
                           options={CONTOUR_MODES.map(value => ({value, text: t(MODE_KEYS[value])}))}
@@ -1152,16 +1141,19 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         ];
         if (this.showsProbe()) {
             const p = this.probePoint();
-            commands.push(axisField(0, t("levelsets_graph_probe_x"), p.x, PROBE_SCALE, (axis, value) => this.setProbe(axis, value)),
-                axisField(1, t("levelsets_graph_probe_y"), p.y, PROBE_SCALE, (axis, value) => this.setProbe(axis, value)));
+            commands.push(<PointListInput key="probe" title={t("levelsets_graph_probe_title")} points={[[p.x, p.y]]} axisLabels={["x", "y"]} pointLabel={() => "P"}
+                                          min={-this.half()} max={this.half()} step={1 / PROBE_SCALE} bigStep={1} decimals={2}
+                                          onCommit={(_index, value) => commitPoint([p.x, p.y], value, PROBE_SCALE, (axis, next) => this.setProbe(axis, next))}/>);
         }
         if (this.showsGradient()) {
             commands.push(<BooleanField key="numeric" variant="checkbox" label={t("levelsets_graph_numeric")} help={t("levelsets_graph_numeric_help")} checked={state.numeric}
-                                        describedBy={describedBy} onChange={checked => this.setNumeric(checked)}/>);
+                                        onChange={checked => this.setNumeric(checked)}/>);
         }
         if (this.showsDescent()) {
-            commands.push(axisField(0, t("levelsets_graph_start_x"), startOf(state.start[0]), START_SCALE, (axis, value) => this.setStart(axis, value)),
-                axisField(1, t("levelsets_graph_start_y"), startOf(state.start[1]), START_SCALE, (axis, value) => this.setStart(axis, value)),
+            const start: [number, number] = [startOf(state.start[0]), startOf(state.start[1])];
+            commands.push(<PointListInput key="start" title={t("levelsets_graph_start_title")} points={[start]} pointLabel={() => "P0"}
+                                          min={-this.half()} max={this.half()} step={1 / START_SCALE} bigStep={1} decimals={2}
+                                          onCommit={(_index, value) => commitPoint(start, value, START_SCALE, (axis, next) => this.setStart(axis, next))}/>,
                 <Slider key="step" customText={t("levelsets_graph_step")} min={STEP_RANGE.min} max={STEP_RANGE.max} step={1} grid={1} bigStep={1} decimals={0} value={state.step}
                         help={t("levelsets_graph_step_help", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max), value2: dec(STEP_RANGE.min / STEP_SCALE, 2), value3: dec(STEP_RANGE.max / STEP_SCALE, 2)})}
                         rejectedHint={t("levelsets_graph_step_rejected", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max)})}
@@ -1175,9 +1167,9 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                         reason={hills ? t("levelsets_graph_constraint_hills_reason") : undefined}
                                         onChange={value => { const id = CONSTRAINT_IDS.find(candidate => candidate === value); if (id) this.setConstraint(id); }}/>);
             if (this.constraint() === "line") {
-                commands.push(<NumberInput key="line-x" label={t("levelsets_graph_line_x")} value={lineParamOf(state.lineParam)} step={1 / LINE_PARAM_SCALE} bigStep={1}
-                                           min={lineParamOf(LINE_PARAM_RANGE.min)} max={lineParamOf(LINE_PARAM_RANGE.max)} decimals={2} describedBy={describedBy}
-                                           onChange={value => this.setLineX(value)}/>);
+                commands.push(<Slider key="line-x" customText={t("levelsets_graph_line_x")} value={lineParamOf(state.lineParam)} step={1 / LINE_PARAM_SCALE} bigStep={1}
+                                      min={lineParamOf(LINE_PARAM_RANGE.min)} max={lineParamOf(LINE_PARAM_RANGE.max)} decimals={2}
+                                      onChange={value => this.setLineX(value)}/>);
             } else {
                 commands.push(<Slider key="circle" customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min} max={CIRCLE_PARAM_RANGE.max} step={1} grid={1} bigStep={6}
                                       decimals={0} value={state.circleParam}
@@ -1187,7 +1179,6 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                       onChange={value => this.setCircleStep(value)}/>);
             }
         }
-        commands.push(this.inputHelp());
         return commands;
     }
 

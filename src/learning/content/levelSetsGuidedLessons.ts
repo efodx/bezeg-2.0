@@ -151,7 +151,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
             'We look for the largest value of the objective function \\(3x+2y\\). The points with the same value \\(k\\) lie on the line \\(3x+2y=k\\); different \\(k\\) give parallel lines. Now \\(k=6\\) and the line crosses the region. Write down a prediction: where does the line move as you increase \\(k\\), and when does it leave the region? This is an illustration, not a proof.',
         ),
         formulaIds: [],
-        observationPrompt: text('V polje Vrednost k premice cilja vpiši \\(9\\) in nato \\(12\\) ter opazuj, kam se premakne črtkana premica.', 'In the field Value k of the objective line type \\(9\\) and then \\(12\\) and watch where the dashed line moves.'),
+        observationPrompt: text('Z drsnikom Vrednost k premice cilja nastavi \\(9\\) in nato \\(12\\) ter opazuj, kam se premakne črtkana premica.', 'With the slider Value k of the objective line set \\(9\\) and then \\(12\\) and watch where the dashed line moves.'),
         expectedObservations: [text(
             'Pri \\(k=6\\) odčitek Premica cilja pri izbranem k kaže \\(3x+2y=6\\); pri \\(k=9\\) gre premica skozi oglišče \\((3;\\ 0)\\), pri \\(k=12\\) skozi \\((2;\\ 3)\\).',
             'At \\(k=6\\) the readout Objective line at the chosen k shows \\(3x+2y=6\\); at \\(k=9\\) the line passes through the vertex \\((3,\\ 0)\\), at \\(k=12\\) through \\((2,\\ 3)\\).',
@@ -170,7 +170,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['lp-vertex'],
         workedExampleId: 'ls5-vertices',
-        observationPrompt: text('Preberi Največja vrednost (točno) in Optimalna točka; nato vpiši \\(k=13\\) in preveri, da premica ne seka več dopustnega območja.', 'Read Largest value (exact) and Optimal point; then type \\(k=13\\) and check that the line no longer crosses the feasible region.'),
+        observationPrompt: text('Preberi Največja vrednost (točno) in Optimalna točka; nato z drsnikom nastavi \\(k=13\\) in preveri, da premica ne seka več dopustnega območja.', 'Read Largest value (exact) and Optimal point; then set \\(k=13\\) with the slider and check that the line no longer crosses the feasible region.'),
         expectedObservations: [text(
             'Največja vrednost je \\(12\\) v točki \\((2;\\ 3)\\); odčitek Premica cilja skozi optimum je \\(3x+2y=12\\), enaka premici pri \\(k=12\\).',
             'The largest value is \\(12\\) at the point \\((2,\\ 3)\\); the readout Objective line through the optimum is \\(3x+2y=12\\), the same as the line at \\(k=12\\).',
@@ -243,7 +243,7 @@ const ls5Steps: readonly GuidedLessonStep[] = [
             'With the constraint \\(x-y\\le2\\) (and \\(x,y\\ge0\\)) the region is unbounded: the points \\((t,\\ t)\\) are all feasible and the value \\(x+y=2t\\) grows beyond every bound. So the graph states that the objective is unbounded and gives the direction of growth \\((1,\\ 1)\\); there is no simplex walk, since the region is not a bounded polygon. The weighted-average argument covers a bounded polygon; on an unbounded region the objective may have no largest value, as here, and when it has one, it is still at a vertex. Write down a prediction: what does the graph say if you change the constraint to \\(x+y\\le-1\\)? Then explore on your own with other constraints and another direction \\((p,\\ q)\\).',
         ),
         formulaIds: [],
-        observationPrompt: text('Preberi Stanje in Smer rasti brez meje; nato v pogoju 1 vpiši \\(b=1\\) in \\(c=-1\\) ter preberi stanje. Nato spreminjaj pogoje in smer po želji.', 'Read Status and Direction of unbounded growth; then in constraint 1 type \\(b=1\\) and \\(c=-1\\) and read the status. Then change the constraints and the direction as you like.'),
+        observationPrompt: text('Preberi Stanje in Smer rasti brez meje; nato v pogoju 1 z drsnikoma nastavi \\(b=1\\) in \\(c=-1\\) ter preberi stanje. Nato spreminjaj pogoje in smer po želji.', 'Read Status and Direction of unbounded growth; then in constraint 1 set \\(b=1\\) and \\(c=-1\\) with the sliders and read the status. Then change the constraints and the direction as you like.'),
         expectedObservations: [text(
             'Območje je neomejeno z \\(2\\) oglišči \\((0;\\ 0)\\) in \\((2;\\ 0)\\); stanje: cilj ni omejen, smer \\((1;\\ 1)\\). Po spremembi v \\(x+y\\le-1\\) graf izpiše, da dopustnega območja ni (prazno območje, optimuma ni).',
             'The region is unbounded with \\(2\\) vertices \\((0,\\ 0)\\) and \\((2,\\ 0)\\); status: the objective is unbounded, direction \\((1,\\ 1)\\). After the change to \\(x+y\\le-1\\) the graph says there is no feasible region (empty region, no optimum).',

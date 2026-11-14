@@ -6,7 +6,9 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
+import {PointListInput} from "../../inputs/PointListInput";
 import {BooleanField} from "../../inputs/BooleanField";
 import {CheckboxGroup} from "../../inputs/CheckboxGroup";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
@@ -74,8 +76,6 @@ const pointText = (x: string, y: string): string => t("isometry_graph_point_form
 const ratPoint = (p: RationalPoint): string => pointText(rat(p.x), rat(p.y));
 const xyPoint = (x: number, y: number): string => pointText(dec(x), dec(y));
 const degrees = (radians: number): string => `${dec2((radians * 180) / Math.PI)}°`;
-/** Counts the graphs built, so the ids of two instances on one page do not collide. */
-let instances = 0;
 
 /** A line as text, for example `13 x = 25` or `6 x + 12 y = 66`. */
 function lineText(line: Line): string {
@@ -161,8 +161,6 @@ const FEATURE_NAMES = ["vertical", "horizontal", "halfTurn", "glide"] as const;
  * The board is rebuilt only when the mode (or, in the classify mode, the number of mirrors) changes; other edits move handles and redraw.
  */
 export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> {
-    private readonly instanceNumber = ++instances;
-    private readonly helpId = `isometry-input-help-${this.instanceNumber}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
@@ -912,25 +910,30 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         }
     }
 
-    private coordinateInput(key: string, label: string, value: number, onChange: (value: number) => boolean): JSX.Element {
-        return <NumberInput key={key} label={label} value={value} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT}
-                            grid={1} decimals={0} describedBy={this.helpId} onChange={onChange}/>;
+    /** The points of the first `count` mirrors as one list: P1, Q1, P2, Q2, ... */
+    private mirrorPoints(count: number): [number, number][] {
+        const points: [number, number][] = [];
+        for (let i = 0; i < count; i++) {
+            const mirror = this.state.mirrors[i];
+            points.push([mirror.p.x, mirror.p.y], [mirror.q.x, mirror.q.y]);
+        }
+        return points;
     }
 
-    private mirrorInputs(index: 0 | 1 | 2): JSX.Element[] {
-        const inputs: JSX.Element[] = [];
-        for (const end of ["p", "q"] as const) {
-            const point = this.state.mirrors[index][end];
-            const name = String(index + 1);
-            const endName = end === "p" ? "P" : "Q";
-            inputs.push(
-                this.coordinateInput(`m${index}${end}x`, t("isometry_graph_mirror_x", {value0: name, value1: endName}), point.x,
-                    value => this.editMirror(index, end, "x", value)),
-                this.coordinateInput(`m${index}${end}y`, t("isometry_graph_mirror_y", {value0: name, value1: endName}), point.y,
-                    value => this.editMirror(index, end, "y", value)),
-            );
-        }
-        return inputs;
+    private mirrorPointName(index: number): string {
+        return `${index % 2 === 0 ? "P" : "Q"}${Math.floor(index / 2) + 1}`;
+    }
+
+    /** Applies the coordinates of one row: only an axis that changed goes through its own snapping edit; a refusal is returned as the row's message. */
+    private commitPoint(current: {x: number, y: number}, [x, y]: readonly number[], edit: (axis: "x" | "y", value: number) => boolean): string | void {
+        const accepted = (current.x === x || edit("x", x)) && (current.y === y || edit("y", y));
+        if (!accepted) return t("isometry_graph_point_rejected", {value0: dec(-COORD_LIMIT), value1: dec(COORD_LIMIT)});
+    }
+
+    private commitMirrorPoint(index: number, value: readonly number[]): string | void {
+        const mirrorIndex = Math.floor(index / 2) as 0 | 1 | 2;
+        const end = index % 2 === 0 ? "p" : "q";
+        return this.commitPoint(this.state.mirrors[mirrorIndex][end], value, (axis, next) => this.editMirror(mirrorIndex, end, axis, next));
     }
 
     private turnName(turn: DilationTurn): string {
@@ -957,7 +960,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         ];
         switch (state.mode) {
             case "mirrors":
-                commands.push(...this.mirrorInputs(0), ...this.mirrorInputs(1));
+                commands.push(
+                    <PointListInput key="mirror-points" title={t("isometry_graph_mirrors_title")} points={this.mirrorPoints(2)}
+                                    pointLabel={index => this.mirrorPointName(index)} min={-COORD_LIMIT} max={COORD_LIMIT}
+                                    step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} grid={1} decimals={0}
+                                    onCommit={(index, value) => this.commitMirrorPoint(index, value)}/>);
                 break;
             case "classify": {
                 const example = matchingClassifyExample(state);
@@ -969,21 +976,24 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                                       const id = CLASSIFY_EXAMPLE_IDS.find(candidate => candidate === value);
                                       if (id) this.setState({...CLASSIFY_EXAMPLES[id]});
                                   }}/>,
-                    <NumberInput key="length" label={t("isometry_graph_length_label")} value={state.motionLength} step={1} bigStep={1} min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX} grid={1}
-                                 decimals={0} describedBy={this.helpId} onChange={value => this.editMotionLength(value)}
-                                 help={t("isometry_graph_length_help", {value0: dec(MOTION_LENGTH_MIN), value1: dec(MOTION_LENGTH_MAX)})}/>,
+                    <Slider key="length" customText={t("isometry_graph_length_label")} value={state.motionLength} step={1} bigStep={1}
+                            min={MOTION_LENGTH_MIN} max={MOTION_LENGTH_MAX} grid={1} decimals={0} onChange={value => this.editMotionLength(value)}/>,
+                    <PointListInput key="mirror-points" title={t("isometry_graph_mirrors_title")} points={this.mirrorPoints(state.motionLength)}
+                                    pointLabel={index => this.mirrorPointName(index)} min={-COORD_LIMIT} max={COORD_LIMIT}
+                                    step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} grid={1} decimals={0}
+                                    onCommit={(index, value) => this.commitMirrorPoint(index, value)}/>,
                 );
-                for (let i = 0; i < state.motionLength; i++) commands.push(...this.mirrorInputs(i === 0 ? 0 : i === 1 ? 1 : 2));
                 break;
             }
             case "similarity":
                 commands.push(
-                    this.coordinateInput("cx", t("isometry_graph_centre_x"), state.dilationCentre.x, value => this.editCentre("x", value)),
-                    this.coordinateInput("cy", t("isometry_graph_centre_y"), state.dilationCentre.y, value => this.editCentre("y", value)),
-                    <NumberInput key="k" label={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
-                                 max={K_MAX} grid={RATIO_STEP} decimals={2} describedBy={this.helpId} onChange={value => this.editRatio(value)}
-                                 onStepChange={value => this.stepRatio(value)}
-                                 rejectedHint={t("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})}/>,
+                    <PointListInput key="centre" title={t("isometry_graph_centre_title")} points={[[state.dilationCentre.x, state.dilationCentre.y]]}
+                                    pointLabel={() => "C"} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP}
+                                    grid={1} decimals={0}
+                                    onCommit={(_index, value) => this.commitPoint(this.state.dilationCentre, value, (axis, next) => this.editCentre(axis, next))}/>,
+                    <Slider key="k" customText={t("isometry_graph_k_label")} value={state.dilationK} step={RATIO_STEP} bigStep={RATIO_BIG_STEP} min={-K_MAX}
+                            max={K_MAX} grid={RATIO_STEP} decimals={2} onChange={value => this.stepRatio(value)} onTypedChange={value => this.editRatio(value)}
+                            rejectedHint={t("isometry_graph_k_rejected", {value0: dec(K_MIN), value1: dec(K_MAX)})}/>,
                     <ChoiceSelect key="turn" label={t("isometry_graph_turn_label")} value={state.dilationTurn}
                                   options={DILATION_TURNS.map(turn => ({value: turn, text: this.turnName(turn)}))}
                                   help={t("isometry_graph_turn_help")}
@@ -995,30 +1005,29 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 break;
             case "rosette":
                 commands.push(
-                    <NumberInput key="n" label={t("isometry_graph_n_label")} value={state.rosetteN} step={SMALL_INTEGER_STEP} bigStep={SMALL_INTEGER_BIG_STEP}
-                                 min={ROSETTE_N_MIN} max={ROSETTE_N_MAX} grid={1} decimals={0} describedBy={this.helpId} onChange={value => this.editRosetteN(value)}/>,
+                    <CountSetter key="n" label={t("isometry_graph_n_label")} n={state.rosetteN} min={ROSETTE_N_MIN} max={ROSETTE_N_MAX}
+                                 onPlus={() => this.editRosetteN(this.state.rosetteN + 1)} onMinus={() => this.editRosetteN(this.state.rosetteN - 1)}
+                                 onSet={value => this.editRosetteN(value)}/>,
                     <BooleanField key="mirrors" variant="switch" label={t("isometry_graph_rosette_mirrors_label")} checked={state.rosetteMirrors}
-                                  describedBy={this.helpId} onChange={checked => this.setState({rosetteMirrors: checked})}/>,
-                    this.coordinateInput("px", t("isometry_graph_point_x"), state.rosettePoint.x, value => this.editPoint("x", value)),
-                    this.coordinateInput("py", t("isometry_graph_point_y"), state.rosettePoint.y, value => this.editPoint("y", value)),
+                                  onChange={checked => this.setState({rosetteMirrors: checked})}/>,
+                    <PointListInput key="point" title={t("isometry_graph_point_title")} points={[[state.rosettePoint.x, state.rosettePoint.y]]}
+                                    pointLabel={() => "P"} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP}
+                                    grid={1} decimals={0}
+                                    onCommit={(_index, value) => this.commitPoint(this.state.rosettePoint, value, (axis, next) => this.editPoint(axis, next))}/>,
                 );
                 break;
             case "frieze":
-                commands.push(<CheckboxGroup key="features" label={t("isometry_graph_features_group")} describedBy={this.helpId}
+                commands.push(<CheckboxGroup key="features" label={t("isometry_graph_features_group")}
                                              options={FEATURE_NAMES.map(name => ({key: name, label: t(FEATURE_KEYS[name]), checked: state.friezeFeatures[name]}))}
                                              onChange={(key, checked) => {
                                                  const name = FEATURE_NAMES.find(candidate => candidate === key);
                                                  if (name) this.setFeature(name, checked);
                                              }}/>);
-                commands.push(<NumberInput key="period" label={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
-                                           bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0} describedBy={this.helpId}
-                                           onChange={value => this.editPeriod(value)}/>);
+                commands.push(<Slider key="period" customText={t("isometry_graph_period_label")} value={state.friezePeriod} step={SMALL_INTEGER_STEP}
+                                      bigStep={SMALL_INTEGER_BIG_STEP} min={PERIOD_MIN} max={PERIOD_MAX} grid={1} decimals={0}
+                                      onChange={value => this.editPeriod(value)}/>);
                 break;
         }
-        commands.push(<p key="help" id={this.helpId} className="form-text">{t("isometry_graph_input_help", {
-            value0: dec(-COORD_LIMIT), value1: dec(COORD_LIMIT), value2: dec(K_MIN), value3: dec(K_MAX), value4: dec(ROSETTE_N_MIN),
-            value5: dec(ROSETTE_N_MAX), value6: dec(PERIOD_MIN), value7: dec(PERIOD_MAX),
-        })}</p>);
         return commands;
     }
 

@@ -407,8 +407,8 @@ const l3Steps: readonly GuidedLessonStep[] = [
         title: text('Razmerje \\(k\\) in ploščine', 'The ratio \\(k\\) and the areas'),
         purpose: text('Videti, kako razteg spremeni dolžine in ploščine.', 'Seeing how a dilation changes lengths and areas.'),
         explanation: text(
-            'Razteg dolžine pomnoži z \\(|k|\\) in ohrani kote, zato je podoben lik enake oblike. Zdaj je \\(k=3\\), središče je še vedno \\((1,1)\\); poskusi tudi druge vrednosti \\(k\\) v polju za razmerje. Preden prebereš odčitek, napovej, s čim se pomnoži ploščina trikotnika.',
-            'A dilation multiplies lengths by \\(|k|\\) and keeps angles, so the image has the same shape. Now \\(k=3\\), the centre is still \\((1,1)\\); also try other values of \\(k\\) in the ratio field. Before reading the readout, predict what the area of the triangle is multiplied by.',
+            'Razteg dolžine pomnoži z \\(|k|\\) in ohrani kote, zato je podoben lik enake oblike. Zdaj je \\(k=3\\), središče je še vedno \\((1,1)\\); poskusi tudi druge vrednosti \\(k\\) z drsnikom za razmerje. Preden prebereš odčitek, napovej, s čim se pomnoži ploščina trikotnika.',
+            'A dilation multiplies lengths by \\(|k|\\) and keeps angles, so the image has the same shape. Now \\(k=3\\), the centre is still \\((1,1)\\); also try other values of \\(k\\) with the ratio slider. Before reading the readout, predict what the area of the triangle is multiplied by.',
         ),
         formulaIds: ['dilation'],
         observationPrompt: text('Zapiši napoved, nato preberi razmerje dolžin, razmerje ploščin in obe ploščini.', 'Write down your prediction, then read the ratio of lengths, the ratio of areas and both areas.'),

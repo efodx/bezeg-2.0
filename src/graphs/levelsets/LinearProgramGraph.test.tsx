@@ -166,7 +166,7 @@ describe('LinearProgramGraph', () => {
 
     it('refuses a typed value through the input and keeps the state', () => {
         const {graph} = mountGraph();
-        const input = screen.getByLabelText(t('levelsets_graph_lp_sweep'));
+        const input = screen.getByRole('spinbutton', {name: t('number_field_label', {value0: t('levelsets_graph_lp_sweep')})});
         act(() => { fireEvent.change(input, {target: {value: '500'}}); fireEvent.blur(input); });
         expect(graph.state.sweep).toBe(DEFAULT_LP_STATE.sweep);
     });

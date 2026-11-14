@@ -31,9 +31,11 @@ function mountGraph(strict = false) {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusText = () => document.querySelector('[data-isometry-status]')!.textContent;
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
-const mirrorX = (n: number, end: 'P' | 'Q') => t('isometry_graph_mirror_x', {value0: String(n), value1: end});
-const mirrorY = (n: number, end: 'P' | 'Q') => t('isometry_graph_mirror_y', {value0: String(n), value1: end});
+/** A control by name: a slider's exact field is named "<label>, vrednost", a point row's field "<point>, <axis>"; selects and switches are found by label. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name.replace(/, vrednost$/, '') === label})[0]
+    ?? screen.getByLabelText(label)) as HTMLInputElement;
+const mirrorX = (n: number, end: 'P' | 'Q') => `${end}${n}, x`;
+const mirrorY = (n: number, end: 'P' | 'Q') => `${end}${n}, y`;
 type EventedPoint = JXG.Point & {eventHandlers: Record<string, unknown[]>; triggerEventHandlers(names: string[], args: unknown[]): void};
 /** How many drag, over and out handlers a handle carries. */
 const handlerCounts = (point: JXG.Point) =>
@@ -329,14 +331,14 @@ describe('numeric input per handle', () => {
 
         chooseMode('similarity');
         act(() => {
-            enterNumber(field(t('isometry_graph_centre_x')), '-2'); enterNumber(field(t('isometry_graph_centre_y')), '3'); enterNumber(field(t('isometry_graph_k_label')), '-2,25');
+            enterNumber(field('C, x'), '-2'); enterNumber(field('C, y'), '3'); enterNumber(field(t('isometry_graph_k_label')), '-2,25');
         });
         expect(position('centre')).toEqual([-2, 3]);
         expect(position('k')).toEqual([-4.25, 3]);
 
         chooseMode('rosette');
         act(() => {
-            enterNumber(field(t('isometry_graph_point_x')), '5'); enterNumber(field(t('isometry_graph_point_y')), '-6'); enterNumber(field(t('isometry_graph_n_label')), '7');
+            enterNumber(field('P, x'), '5'); enterNumber(field('P, y'), '-6'); enterNumber(field(t('isometry_graph_n_label')), '7');
         });
         expect(position('point')).toEqual([5, -6]);
         expect(graph.state.rosetteN).toBe(7);
@@ -417,7 +419,6 @@ describe('keyboard and touch', () => {
         chooseMode('frieze');
         act(() => { fireEvent.keyDown(field(t('isometry_graph_period_label')), {key: 'ArrowUp'}); });
         expect(graph.state.friezePeriod).toBe(5);
-        expect(document.body.textContent).toContain('Puščici gor in dol');
     });
 
 });
@@ -533,18 +534,22 @@ describe('controls compliance repairs', () => {
         expect(graph.state.dilationK).toBe(-0.25);
     });
 
-    test('the mirror count has its own help stating 1 to 3, and each instance has its own help ids', () => {
-        const {graph} = mountGraph();
-        chooseMode('classify');
-        const length = field(t('isometry_graph_length_label'));
-        const own = Array.from(document.querySelectorAll('.number-input-help')).map(node => node.textContent);
-        expect(own).toContain(t('isometry_graph_length_help', {value0: '1', value1: '3'}));
-        expect(length.getAttribute('aria-describedby')).toMatch(/isometry-input-help-\d+/);
+    test('every mode offers its numbers as the catalogue says: sliders, point rows and a count setter, no free number field', () => {
         mountGraph();
-        const ids = Array.from(document.querySelectorAll('[id^="isometry-input-help-"]')).map(node => node.id);
-        expect(new Set(ids).size).toBe(ids.length);
-        expect(ids.length).toBeGreaterThanOrEqual(2);
-        expect(graph.state.mode).toBe('classify');
+        const slider = (label: string) => screen.getByRole('slider', {name: label});
+        expect(screen.getByRole('group', {name: t('isometry_graph_mirrors_title')})).toBeInTheDocument();
+        expect(screen.getAllByRole('spinbutton')).toHaveLength(8);
+        expect(field('Q2, y')).toBeInTheDocument();
+        chooseMode('classify');
+        expect(slider(t('isometry_graph_length_label'))).toBeInTheDocument();
+        chooseMode('similarity');
+        expect(slider(t('isometry_graph_k_label'))).toBeInTheDocument();
+        expect(field('C, x')).toBeInTheDocument();
+        chooseMode('rosette');
+        expect(screen.getByRole('group', {name: t('isometry_graph_n_label')})).toBeInTheDocument();
+        expect(screen.queryByRole('slider', {name: t('isometry_graph_n_label')})).toBeNull();
+        chooseMode('frieze');
+        expect(slider(t('isometry_graph_period_label'))).toBeInTheDocument();
     });
 
     test('a frieze with no feature checked is a valid state: the translations alone, p1, no bad text', () => {
@@ -558,30 +563,6 @@ describe('controls compliance repairs', () => {
 });
 
 describe('review repairs', () => {
-    test('every numeric field of every mode is described by the key help, which states the ranges', () => {
-        const {graph} = mountGraph();
-        const described = (label: string) => {
-            const input = field(label);
-            expect(input.getAttribute('aria-describedby') ?? '').toContain('isometry-input-help');
-        };
-        for (const end of ['P', 'Q'] as const) for (const n of [1, 2]) { described(mirrorX(n, end)); described(mirrorY(n, end)); }
-        chooseMode('classify');
-        described(t('isometry_graph_length_label'));
-        chooseMode('similarity');
-        for (const key of ['isometry_graph_centre_x', 'isometry_graph_centre_y', 'isometry_graph_k_label'] as const) described(t(key));
-        chooseMode('rosette');
-        for (const key of ['isometry_graph_n_label', 'isometry_graph_point_x', 'isometry_graph_point_y', 'isometry_graph_rosette_mirrors_label'] as const) described(t(key));
-        chooseMode('frieze');
-        for (const key of ['isometry_graph_period_label', 'isometry_graph_feature_vertical', 'isometry_graph_feature_horizontal',
-            'isometry_graph_feature_half_turn', 'isometry_graph_feature_glide'] as const) described(t(key));
-        const help = document.querySelector('[id^="isometry-input-help-"]')!.textContent!;
-        expect(help).toContain('od −16 do 16');
-        expect(help).toContain('od 0,25 do 4');
-        expect(help).toContain('od 1 do 12');
-        expect(help).toContain('od 4 do 8');
-        expect(graph.state.mode).toBe('frieze');
-    });
-
     test('the board names every element the readouts name, in both languages', () => {
         const {graph} = mountGraph();
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['zrcalo 1', 'zrcalo 2', 'lik', 'slika 1', 'slika 2', 'središče']));
@@ -638,15 +619,6 @@ describe('review repairs', () => {
         expect(shownCaptions(graph)).toContain(`frieze type ${type}`);
     });
 
-    test('the key help states the keyboard step of each field type', () => {
-        mountGraph();
-        const help = document.querySelector('[id^="isometry-input-help-"]')!.textContent!;
-        expect(help).toContain('koordinate za 1');
-        expect(help).toContain('razmerje k za 1/4');
-        expect(help).toContain('za 5, 1 ter 2');
-        expect(COORDINATE_BIG_STEP).toBe(5);
-    });
-
     test('angles and rosette points are labelled computed', () => {
         const {graph} = mountGraph();
         for (const id of ['angle', 'half-angle']) expect(document.querySelector(`[data-readout="${id}"] dt`)!.textContent).toMatch(/izračunano/);
@@ -675,7 +647,7 @@ test('the status, the labels and the board name follow a language switch', () =>
     mountGraph();
     act(() => { setLanguage('en'); });
     expect(statusText()).toBe('Composite motion: rotation; the orientation of the image is kept.');
-    expect(screen.getByLabelText('Mirror 1, point P: x')).toBeInTheDocument();
+    expect(field('P1, x')).toBeInTheDocument();
     expect(document.querySelector('[data-readout-live]')!.textContent).toContain('rotation');
     expect(readout('half-angle')).toBe('26.57°');
     expect(document.querySelector(`[aria-label="${t('isometry_graph_board_label')}"]`)).not.toBeNull();

@@ -4,7 +4,7 @@ import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {CountSetter} from "../../inputs/CountSetter";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import type {ReadoutListRow} from "../base/controls/ReadoutParts";
 import {SettledReadout} from "../base/controls/LiveReadout";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -38,7 +38,6 @@ export const HANDLE_MOUSE_RADIUS = 8;
 const VERTEX_POOL = 7;
 /** A row added by the count control: x + y <= 30 changes the region only when it is far from the others. */
 export const NEW_ROW: LpConstraint = {a: 1, b: 1, c: BOUND_RANGE.max};
-let helpInstances = 0;
 
 const samePair = (a: LpState["objective"], b: LpState["objective"]): boolean => a.p === b.p && a.q === b.q;
 const sameRows = (a: readonly LpConstraint[], b: readonly LpConstraint[]): boolean =>
@@ -87,8 +86,6 @@ type Geometry = {readonly box: Box; readonly clip: Box; readonly region: Poly; r
  */
 export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPresetData> {
     private readonly scene = new SceneObjects();
-    /** Per instance, so two mounted graphs never share the id that `aria-describedby` points at. */
-    readonly helpId = `lp-input-help-${++helpInstances}`;
     private objectiveHandle?: JXG.Point;
     private readonly solutionMemo = new Memo<LpSolution>();
     private readonly geometryMemo = new Memo<Geometry>();
@@ -650,18 +647,8 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
-    private inputHelp(): JSX.Element {
-        return <p key="help" id={this.helpId} className="form-text">{t("levelsets_graph_lp_input_help", {
-            value0: integerText(COEFFICIENT_RANGE.min), value1: integerText(COEFFICIENT_RANGE.max), value2: integerText(BOUND_RANGE.min), value3: integerText(BOUND_RANGE.max),
-            value4: integerText(OBJECTIVE_RANGE.min), value5: integerText(OBJECTIVE_RANGE.max), value6: integerText(SWEEP_RANGE.min), value7: integerText(SWEEP_RANGE.max),
-        })}</p>;
-    }
-
     override getGraphCommands(): JSX.Element[] {
         const state = this.state;
-        const describedBy = this.helpId;
-        const whole = (key: string, label: string, value: number, range: {min: number; max: number}, edit: (value: number) => boolean) =>
-            <NumberInput key={key} label={label} value={value} step={1} bigStep={5} min={range.min} max={range.max} decimals={0} integer describedBy={describedBy} onChange={edit}/>;
         const commands: JSX.Element[] = [
             <CountSetter key="count" label={t("levelsets_graph_lp_count")} n={state.constraints.length} min={ROW_COUNT_RANGE.min} max={ROW_COUNT_RANGE.max} bigStep={1}
                          minusLabel={t("levelsets_graph_lp_count_minus")} plusLabel={t("levelsets_graph_lp_count_plus")}
@@ -672,20 +659,26 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         state.constraints.forEach((k, index) => {
             const n = String(index + 1);
             commands.push(
-                whole(`a-${index}`, t("levelsets_graph_lp_row_a", {value0: n}), k.a, COEFFICIENT_RANGE, value => this.setCoefficient(index, "a", value)),
-                whole(`b-${index}`, t("levelsets_graph_lp_row_b", {value0: n}), k.b, COEFFICIENT_RANGE, value => this.setCoefficient(index, "b", value)),
-                whole(`c-${index}`, t("levelsets_graph_lp_row_c", {value0: n}), k.c, BOUND_RANGE, value => this.setBound(index, value)),
+                <Slider key={`a-${index}`} customText={t("levelsets_graph_lp_row_a", {value0: n})} value={k.a} step={1} bigStep={5} min={COEFFICIENT_RANGE.min} max={COEFFICIENT_RANGE.max} decimals={0}
+                        rejectedHint={t("levelsets_graph_lp_coefficients_rejected")}
+                        onChange={value => this.setCoefficient(index, "a", value)}/>,
+                <Slider key={`b-${index}`} customText={t("levelsets_graph_lp_row_b", {value0: n})} value={k.b} step={1} bigStep={5} min={COEFFICIENT_RANGE.min} max={COEFFICIENT_RANGE.max} decimals={0}
+                        rejectedHint={t("levelsets_graph_lp_coefficients_rejected")}
+                        onChange={value => this.setCoefficient(index, "b", value)}/>,
+                <Slider key={`c-${index}`} customText={t("levelsets_graph_lp_row_c", {value0: n})} value={k.c} step={1} bigStep={5} min={BOUND_RANGE.min} max={BOUND_RANGE.max} decimals={0}
+                        onChange={value => this.setBound(index, value)}/>,
             );
         });
         commands.push(
-            whole("p", t("levelsets_graph_lp_objective_p"), state.objective.p, OBJECTIVE_RANGE, value => this.setObjective(0, value)),
-            whole("q", t("levelsets_graph_lp_objective_q"), state.objective.q, OBJECTIVE_RANGE, value => this.setObjective(1, value)),
-            <NumberInput key="sweep" label={t("levelsets_graph_lp_sweep")} value={state.sweep} step={1} bigStep={5} min={SWEEP_RANGE.min} max={SWEEP_RANGE.max} decimals={0} integer
-                         describedBy={describedBy} help={t("levelsets_graph_lp_sweep_help", {value0: integerText(SWEEP_RANGE.min), value1: integerText(SWEEP_RANGE.max)})}
+            <Slider key="p" customText={t("levelsets_graph_lp_objective_p")} value={state.objective.p} step={1} bigStep={5} min={OBJECTIVE_RANGE.min} max={OBJECTIVE_RANGE.max} decimals={0}
+                    onChange={value => this.setObjective(0, value)}/>,
+            <Slider key="q" customText={t("levelsets_graph_lp_objective_q")} value={state.objective.q} step={1} bigStep={5} min={OBJECTIVE_RANGE.min} max={OBJECTIVE_RANGE.max} decimals={0}
+                    onChange={value => this.setObjective(1, value)}/>,
+            <Slider key="sweep" customText={t("levelsets_graph_lp_sweep")} value={state.sweep} step={1} bigStep={5} min={SWEEP_RANGE.min} max={SWEEP_RANGE.max} decimals={0}
+                    help={t("levelsets_graph_lp_sweep_help")}
                          rejectedHint={t("levelsets_graph_lp_sweep_rejected", {value0: integerText(SWEEP_RANGE.min), value1: integerText(SWEEP_RANGE.max)})}
                          unavailableReason={this.flat() ? t("levelsets_graph_lp_sweep_reason") : undefined}
                          onChange={value => this.setSweep(value)}/>,
-            this.inputHelp(),
         );
         return commands;
     }
