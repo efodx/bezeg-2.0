@@ -51,7 +51,7 @@ test.each([
     ['C', -2, 11],
 ] as const)('set-vertex %s reaches the state of its two coordinate fields', (vertex, x, y) => {
     const viaAction = after(graph => apply(graph, setVertex(vertex, x, y)));
-    const viaControl = after(() => { type(`Oglišče ${vertex}, x`, String(x)); type(`Oglišče ${vertex}, y`, String(y)); });
+    const viaControl = after(() => { type(`${vertex}, x`, String(x)); type(`${vertex}, y`, String(y)); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state[vertex]).toEqual({x, y});
 });
