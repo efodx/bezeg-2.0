@@ -1,6 +1,6 @@
 # Control choice and composition
 
-**Status:** proposed, 2026-11-14 (owner request). Follows [shared graph controls](shared-graph-controls.md) (behaviour, complete 2026-11-11) and [graph control visual polish](control-visual-polish.md) (tokens, complete 2026-11-12). Not yet scheduled: no task files exist.
+**Status:** scheduled, 2026-11-14 (owner request; started the same day). Queue: [control choice tasks](../tasks/control-choice/README.md). Follows [shared graph controls](shared-graph-controls.md) (behaviour, complete 2026-11-11) and [graph control visual polish](control-visual-polish.md) (tokens, complete 2026-11-12).
 
 ## Problem
 
