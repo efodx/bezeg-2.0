@@ -1,64 +1,56 @@
 # State: site walkthrough, graphs (package D)
 
-Handler 1 handing off to handler 2, 2026-11-14. Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md).
+Handler 2, 2026-11-14. Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md).
 
 ## For the owner
 
 **To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/
 
-- **Epicycles subjects (G07):** `/analysis/epicycles`, choose "Obris Slovenije", "Mačka" or "Bezgov cvet" under "Primer". The cat is an original silhouette, not the mockup's: the mockup traced an emoji from a system font, which cannot be shipped. **Is this cat good enough, or do you want a different drawing?** The treble clef is not added, for the same reason: no freely licensed outline is at hand.
-- **Graph text in Literata (G01):** every graph on the preview. Compare `/ph/cubic`, `/curve-geometry/envelope` or `/compgeo/delaunay` with the public site.
-- **Envelope colours:** `/curve-geometry/envelope`. The line family shades from blue to teal; the current line and its touching point are amber.
-- **Pilot before and after:** http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/index.html (the "after" clips there predate the envelope colours and Literata).
+- Before and after of the four changed captures: http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/index.html
+- Epicycles (G07): `/analysis/epicycles`, "Obris Slovenije", "Mačka" (the new kitten, approved), "Bezgov cvet".
+- Envelope (G02): `/curve-geometry/envelope`, family blue to teal, current line and touching point in rust red (your pick B).
+- Convexity (G06): the catalog card now sweeps smoothly, leaving the interval once as the lesson asks.
 
-None of this is on the public site yet: it has been built and unit-tested but not looked at across graph families in a browser, which the next handler does before publishing.
+**Nothing waits on you now.** The next thing you will be asked to look at is each family batch (B1 to B8) on the preview.
 
-**Approved by you on 2026-11-14:** the capture-text rule (with `r` kept on the correlation card), the three pilot directions with leave to refine colours, Literata for graph text, and the convexity clip as a smooth sweep.
-
-## Handler 2 interim (2026-11-14, stopped at a usage limit; nothing published)
-
-**Owner feedback received, not yet acted on:** (1) envelope: the amber current line looks bad with the blue family, pick another accent and show it; (2) epicycles cat: the first (mockup) cat was much cuter, draw an original one just as cute (owner trusts the handler; the emoji trace still cannot ship).
-
-Committed on the branch: `a86933cd` (envelope lesson test reads the eight bands; it failed 9 tests in `just check-changed`), `ad717160` (correlation line label clear of lines, ticks, caption, hidden on a compact board with no room; surface boards take the shared text face). Verified: focused unit runs, typecheck, full `just lint`, screenshots in `.command-logs/h2-fix/`. Smoke record: `typography/smoke-h2.md` (10 of 11 families Literata; epicycles outlines, 310 px inspector, preset round trip, SVG/PNG export passed).
-
-**Uncommitted in the working tree, unreviewed:**
-- C5 convexity row (`scripts/demonstration-clip-rows/analysis.cjs`, path `0.5 → −0.5 → 1.8 → 0.5` so the clip leaves `[a, b]` as the quoted lesson sentence asks), legacy specs removed from the two motion scripts, tests, one pruned entry in `eslint-suppressions.json`. Note: `c5/worker.md`. `just tooling-test` passed before the path edit; rerun it.
-- `tests/smoke-catalog.cjs`: the provenance check compared a recipe's RegExp text patterns as `{}`; it now compares the stored `{source, flags}` form. Needs a tooling test.
-- Recaptured media and manifest for `curve-envelope`, `interp-subdivision`, `prob-correlation`, `convexity` (all passed the capture checks, each under 300 KiB). **Read the diff before committing:** `src/demonstrationPreviewAssets.ts` and the manifest show large diffs that look like reordering or line endings, not understood yet. Convexity poster at 1.8 not checked frame by frame.
-
-Capture facts: `just clip` takes one id, but a run fails validation while any other changed recipe is stale, so recapture changed ids together: `PREVIEW_BASE_URL=http://127.0.0.1:4333/bezeg-2.0 PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1 PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1 PREVIEW_RECAPTURE_IDS=a,b,c node scripts/capture-demonstration-previews.cjs`. The envelope clip must be recaptured again after the accent change. The preview on 4333 serves a build with `ad717160`'s content; `build/walkthrough-graphs/` (pilot comparison page) was removed by the rebuild and must be copied back. `just check-changed` has not passed end to end. Open small item: exported envelope PNG shows "Število premic: 16 ." with a stray space.
+**Decided by you on 2026-11-14:** the capture-text rule (with `r` kept on the correlation card), the three pilot directions, Literata for graph text, the convexity sweep, the kitten, rust red for the envelope's current line (amber and dark ink rejected).
 
 ## Where things stand
 
-On `master`: the spec and this note only. On branch `worktree-walkthrough-graphs`, unpublished, oldest first:
+Publishing: the branch was rebased onto `origin/master` (`063bdec3`) and a background publish of every branch commit (pilot, capture fixes, envelope colours, epicycles outlines, Literata, correlation label fix, convexity sweep, kitten, rust envelope) was started with `just publish --background --recipe runtime` (run `publish-c32e7d7a-b1a793`). **Check `just publish --status` first.** If it failed, read its log, fix, and republish; until it passes nothing of this package is on `master` beyond the spec.
 
-| Commit | Content | Verified | Still owed before publishing |
-| --- | --- | --- | --- |
-| `f92d765d`, `58037e7f`, `a93910a4` | Pilot: capture-text capability C1, envelope window, subdivision and correlation styling, trial media | Unit tests, typecheck, lint, tooling tests, browser pass of both routes in both languages | Real `just clip` of the three ids; export check |
-| `79ec6207`, `68cac7e4` | Docs (pilot record, approval, G07 plan). `79ec6207`'s four doc files are already on `master` as `4891aa32` | n/a | The rebase will meet identical content; keep either side |
-| `aac4f2ca` | Captures run again (a Demonstration with no media and no recipe is skipped), C3 word check, two test files added to `just tooling-test` | `just tooling-test` passed | none |
-| `773b25ba` | Envelope colours | `just unit src/graphs/curves/envelope`, lint | A look in the browser; the worker rebuilt the overlay file after overwriting it once, so read the diff |
-| `37881fcc` | Epicycles outlines: model, data, generator, graph, localization | 75 model tests, 72 graph and lesson tests, typecheck, lint, localization test | Browser look in both languages, inspector at 310 px, a preset export and import by hand, legend edit by the handler is untested (it hides the polygon, vertices and controls entries for an outline) |
-| `53ad11b6` | Literata as the board text default (`src/graphs/styles/BoardText.ts`, applied in `GraphSession.ts`) | Its own tests, styles, export, CorrelationGraph, linear, GraphSession suites, lint, typecheck | `just check-changed` never ran (queued over 10 minutes; a stray run from the worker may still be queued); the cross-family look of acceptance 9; text-measuring layouts on real pages |
+Verified before publishing: `just check-changed` passed on the pre-rebase tip (2331 s); `just tooling-test` passed; full `just lint` passed; two browser passes (record: `typography/smoke-h2.md`; screenshots in `.command-logs/h2-smoke/`, `h2-smoke2/`, `h2-fix/`): ten of eleven families showed plain text in Literata and the eleventh (hidden surface readouts) was fixed; epicycles outlines without control polygon; inspector at 310 px; preset round trip; SVG and PNG export; catalog cards load and play; correlation label clear at 390 px and desktop.
 
-The build being served is revision `53ad11b6`. `just preview 4333` and the `tailscale serve` entry for 4333 were started by handler 1; if the address does not answer, run `just preview 4333` again from this worktree and copy `docs/reviews/site-walkthrough/graphs/pilot/{index.html,before,after}` into `build/walkthrough-graphs/` (a rebuild removes that folder).
+Not verified: the epicycles arm moving after "Predvajaj" was not isolated in the recheck (frames differed, cause not separated); no drag or slider interaction was exercised in the browser; after the rebase only the gate's own checks cover the merge with master.
+
+Open small items:
+- Exported envelope PNG shows "Število premic: 16 ." with a stray space the page does not show.
+- `/curve-geometry/envelope`: the label of `p1` sits on the family lines at the origin; `/compgeo/delaunay`: `P1`, `P4` labels touch edges (point labels are M01, the polish session's).
+- `/functions/exponential` caret text (recorded in the spec as a separate defect).
+- 68 fixed `fontSize` literals listed in `typography/worker.md`.
+
+## Capture facts learned (use these)
+
+- `just clip <id>` takes one id and fails validation while any other changed recipe or removed legacy spec is stale. Recapture changed ids together: `PREVIEW_BASE_URL=http://127.0.0.1:4333/bezeg-2.0 PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1 PREVIEW_RECAPTURE_IDS=a,b,c node scripts/capture-demonstration-previews.cjs`. Add `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1` only when the capture tool's presentation code changed and you have read that diff.
+- A capture run rewrites the whole manifest and asset map in registration order; a large diff there is reordering. Compare by capture id, not by line.
+- `just preview` does not build: run `just build` on a clean `src/` first, stop the old server by PID (`netstat -ano | grep "127.0.0.1:4333 "`), then `just preview 4333`. A rebuild removes `build/walkthrough-graphs/`: copy `docs/reviews/site-walkthrough/graphs/pilot/{index.html,before,after}` and `accent/` back into it.
+- Linting a subset of paths fails on unused suppressions; run the full `just lint`. When a recorded violation disappears, remove only that entry from `eslint-suppressions.json`.
+- The graph palette has `emphasis` (rust red) for the one element a cool family is read against; the owner dislikes amber and near-black against blue.
 
 ## Next slice inputs, in order
 
-1. **Verify what is built.** `just check-changed`. Then a `bezeg-smoke` pass (Sonnet, first pass of new UI) with screenshots of one route per family for the typography look: `/bezier/decasteljau`, `/rational/base`, `/ph/cubic`, `/curve-geometry/envelope`, `/functions/derivative`, `/analysis/epicycles` (each outline), `/probability/correlation`, `/inscribed-angle`, `/compgeo/delaunay`, `/projective/three-views`, `/patches/tensor`; desktop and 390 px; inspector at 310 px for epicycles; SVG and PNG export of one graph. Look at the screenshots yourself. On the epicycles outline check that no dashed control polygon is drawn over the outline.
-2. **Recapture the pilot clips for real**, one at a time, against the preview: `PREVIEW_BASE_URL=http://127.0.0.1:4333/bezeg-2.0 PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1 just clip curve-envelope`, then `interp-subdivision` and `prob-correlation` without the flag. Look at each poster. Update `pilot/after/` and the comparison page.
-3. **Publish** with `just publish --background --recipe runtime` (list every commit after the base). Typography reaches every poster: stored posters now differ from the live graphs in face only where they show plain text, and each batch recaptures its own.
-4. **C5 convexity sweep** (spec, G06): replace the held-state spec in `scripts/demonstration-preview-concept-motion.cjs` with a `parameter-sweep` row in `scripts/demonstration-clip-rows/analysis.cjs` on "Točka dotika tangente t", `0.5 → −0.5 → 1 → 0.5`, quoting the lesson sentence; `just clip convexity`.
-5. **Blocker triage** over all 118 captures with the text policy applied, written to `docs/reviews/site-walkthrough/graphs/blocker-triage.md`; then batches B1 to B8 (spec, "Batches"). Per-row verdicts follow the approved rule; show each batch on the preview.
-6. **Epicycles card (G07-f):** recipe and row with an outline as the subject, once item 2 has shown captures work.
-7. Later pass: 68 fixed `fontSize` literals listed in `docs/reviews/site-walkthrough/graphs/typography/worker.md`.
+1. **Confirm the publish** (`just publish --status`), then `just ci` for the deploy.
+2. **Blocker triage** over all 118 captures with the text policy applied, written to `docs/reviews/site-walkthrough/graphs/blocker-triage.md` (spec, "Batches", row T): per capture, the text verdict, whether its row or legacy spec still passes, what the frame loses, what blocks it; list which of the remaining legacy held-state clips can become sweeps (G06) and which stay discrete with the reason.
+3. **Batches B1 to B8** (spec, "Batches"), file-disjoint, two workers at a time. Each batch: style changes on the graph, recipes and rows, recapture its ids together, before and after on the preview page, batch record in the spec, then show the owner. Acceptance 5 to 9 of the spec apply to every changed graph.
+4. **Epicycles card (G07-f, batch B9):** recipe and row with an outline as the subject.
+5. Later pass: the `fontSize` literals.
 
-Worker notes: `docs/reviews/site-walkthrough/graphs/pilot/`, `g07/`, `typography/` (on the branch).
+Worker notes: `pilot/`, `g07/`, `typography/`, `c5/`, `accent/` in this folder.
 
 ## Rules that carry over
 
-- Propose, show a preview, wait for the owner on design and policy; routine engineering inside an approved direction is the handler's. This replaced "decide without asking" on 2026-11-14 (recorded in the intake). Do not launch a successor while the work only waits on the owner.
-- Port 4333 only. Previews for the owner go through `tailscale serve`. Do not edit inspector panel composition (control choice owns it) or other sessions' files.
-- `just preview` refuses a dirty `src/`; a worker that must serve while another edits uses `SMOKE_PORT=<port> node scripts/serve-smoke-build.cjs`. Workers keep scratch files in `.command-logs/`, never `/tmp`.
+- Propose, show a preview, wait for the owner on design and policy; routine engineering inside an approved direction is the handler's. When a colour or drawing is rejected, show several candidates side by side instead of a second single guess. Do not launch a successor while the work only waits on the owner.
+- Port 4333 only. Previews for the owner go through `tailscale serve` (already configured for 4333). Do not edit inspector panel composition (control choice owns it) or other sessions' files.
+- Workers keep scratch files in `.command-logs/`, never `/tmp`; a worker that must serve while another edits uses `SMOKE_PORT=<port> node scripts/serve-smoke-build.cjs`.
 - This worktree's `node_modules` is a junction to the main checkout's. Delete the junction before removing the worktree.
-- To push documentation while unpublished code sits on the branch: make a branch from `origin/master`, check out only the doc files from this branch, `just publish --recipe docs`, switch back.
+- Rebasing onto `origin/master`: `docs/agent-workflow/evaluation-log.md` and this session's docs already on master conflict mechanically; keep master's side, then rewrite this note. `scripts/commands.cjs` conflicts where both sides add test files to the `tooling-test` list: keep both.
