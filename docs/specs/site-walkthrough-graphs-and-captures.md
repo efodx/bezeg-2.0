@@ -457,7 +457,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b7/` (served as `walkthr
 - `farin`: the Farin points are blue rings (`comparisonCurve` on the board colour) and the slider tick marks are not drawn; they were JSXGraph's default black slider knobs with stray ticks on the polygon legs. No unit assertion covers the knob style (the existing tests mock the slider); it was checked on the recaptured poster. The drag clip's restore rebuilds the ratio texts, so the capture presents the board once more after the restore (`presentAfterRestore`, `farin` only).
 - Not checked: live screenshots of `/rational/farin-points` in both languages and at 390 px, inspector at 310 px (no control code changed), SVG export.
 
-### B8a Functions and analysis, first part (handler 3, 2026-11-14; shown to the owner, not yet published)
+### B8a Functions and analysis, first part (handler 3, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b8a1/` (served as `walkthrough-graphs/b8a1.html` on the preview). Text only; no window, action or clip changed.
 
