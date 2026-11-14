@@ -248,7 +248,9 @@ const extrapolation = {
         const tByStep = [1.2, 1.5, 1.2, 1.5];
         await expect.poll(async () => Number(await rangeSlider(page, '1.5').inputValue()), {message: `extrapolation slider at ${label}`}).toBeCloseTo(tByStep[step - 1], 2);
         const stats = await boardStats(page);
-        expect(stats.curves, `one curve at ${label}`).toBe(1);
+        // The Bézier curve (drawn up to the parameter t) plus the blue extension arc on [1, t], which ExtrapolationGraph always keeps.
+        expect(stats.curves, `curve + extension arc at ${label}`).toBe(2);
+        expect(stats.drawnCurves, `curve + extension arc drawn at ${label}`).toBe(2);
         expect(stats.points, `4 control points + marker at ${label}`).toBe(5);
         // Marker B(1.2) / B(1.5) of the default curve; after "extrapolate" the old marker is the new last control point
         // and the second control point moves to (-2.8, 4) / (-2.5, 5.5).
