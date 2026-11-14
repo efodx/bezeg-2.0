@@ -22,7 +22,10 @@ export function statusLine(rule: SubdivisionRule, round: number, vertices: numbe
         {value0: round, value1: MAX_SUBDIVISION_ROUNDS, value2: vertices});
 }
 
-type DataCurve = GeometryElement & {dataX: number[]; dataY: number[]; updateDataArray: () => void};
+/** One below JSXGraph's point layer (9), above lines and curves. */
+const VERTEX_LAYER = 8;
+
+type DataCurve =GeometryElement & {dataX: number[]; dataY: number[]; updateDataArray: () => void};
 
 /**
  * The owned elements of the subdivision scene: the dashed original polygon (with its draggable points), the solid current
@@ -108,6 +111,8 @@ export class SubdivisionScene {
             const point = this.create<Point>('point', [at(0), at(1)], {
                 fixed: true, highlight: false, withLabel: false, name: '', size: 2, strokeColor: GraphPalette.pointOutline,
                 fillColor: GraphPalette.comparisonCurve, visible: () => i < this.stage().length,
+                // The pool grows after the handles exist; a lower layer keeps a late vertex from covering the handle it sits on.
+                layer: VERTEX_LAYER,
             });
             this.vertexPool.push(point);
         }
