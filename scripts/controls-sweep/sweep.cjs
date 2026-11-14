@@ -42,7 +42,7 @@ function inspect() {
         if (widths.length > 1 && Math.max(...widths) - Math.min(...widths) > 1) hit('ragged-fields', row, widths.map(Math.round).join(', '));
     }
     // Typed number fields that follow each other and are named as coordinates: a point shown as separate fields.
-    const fields = [...root.querySelectorAll('.number-input')].filter(el => visible(el) && !el.closest('.point-list, .slider, .value-list, .count-setter, .point-collection'));
+    const fields = [...root.querySelectorAll('.number-input')].filter(el => visible(el) && !el.closest('.point-list, .slider, .slider-field, .value-list, .count-setter, .point-collection'));
     const label = el => (el.querySelector('label')?.textContent ?? '').trim();
     for (let i = 0; i + 1 < fields.length; i++) {
         const a = label(fields[i]); const b = label(fields[i + 1]);
@@ -55,7 +55,7 @@ function inspect() {
     }
     // Fields that stand alone on their line inside one group but do not share their edges.
     for (const group of root.querySelectorAll('.inspector-group, fieldset, details')) {
-        const own = [...group.querySelectorAll('input[type="text"], select')].filter(el => visible(el) && el.closest('.inspector-group, fieldset, details') === group && !el.closest('.point-list-row, .slider, .count-setter'));
+        const own = [...group.querySelectorAll('input[type="text"], select')].filter(el => visible(el) && el.closest('.inspector-group, fieldset, details') === group && !el.closest('.point-list-row, .slider, .slider-field, .count-setter'));
         const alone = own.map(el => el.getBoundingClientRect()).filter((r, _, all) => all.filter(o => Math.abs((o.top + o.bottom) / 2 - (r.top + r.bottom) / 2) < 4).length === 1);
         if (alone.length > 1) {
             const rights = alone.map(r => Math.round(r.right)); const lefts = alone.map(r => Math.round(r.left));

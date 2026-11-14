@@ -11,6 +11,10 @@ Ranked findings come from the step 3 sweep. Until then this file collects what t
 | M3 | Min and max labels of one slider touch the caption of the next control in the same group | every panel with two sliders in one group (MeanValue, Waves, FunctionTransformation) | shared | Vertical rhythm inside `inspector-group` (already in the queue's list) |
 | M4 | Help under a kept typed field restates range and step over four lines | UnitCircle, the multiple-of-π field | call site | Shorten to the meaning; the field's own refusal states the range |
 | M5 | Help that explains the widget under sliders ("Polarna vnosa izbereta najbližjo točko mreže 0,05 in veljata po Enter…") | ComplexMultiplication | call site | Keep only the rounding rule |
+| M6 | Several count setters stacked, one per group, take a quarter of the panel | CountingTree letter counts | shared | A compact count setter row (label left, stepper right) when the label is short; decide on the contact sheet |
+| M7 | A point list is followed by a readout heading with no gap | LineGeometry ("Premice" under row Q), Isometry rosette and frieze | shared | Same vertical rhythm rule as M3: a list or control and the next heading keep one group gap |
+| M8 | Help under a kept typed field states its range and "a value outside is refused" | Growth capital, Simulation trials | call site | Delete; the field's refusal already says it |
+| M9 | `Slider` and `CountSetter` take no `describedBy`, so a panel's shared help paragraph is no longer announced with them | Simulation | shared | Add `describedBy` to both and pass it through to the range input and the exact field |
 
 ## Behaviour changes accepted during migration
 
