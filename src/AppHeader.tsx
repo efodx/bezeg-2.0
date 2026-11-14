@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link, NavLink, useLocation} from 'react-router-dom';
 import {readDemonstrationReturnContext} from './demonstrationNavigation';
-import Logo from './images/elderflower.svg';
+import Logo from './images/elderflower-mark.svg';
 import {LanguageSelector} from './localization/LanguageSelector';
 import {useT} from './localization';
 import './AppHeader.css';
@@ -12,7 +12,7 @@ export function AppHeader() {
     const returnContext = readDemonstrationReturnContext(location.state);
     return <header className="app-header">
         <Link className="app-brand" to="/bezeg-2.0" aria-label={t('bezeg_home')}>
-            <img src={Logo} width="34" height="34" alt=""/><span>Bezeg</span>
+            <img src={Logo} width="36" height="36" alt=""/><span>Bezeg</span>
         </Link>
         <div className="app-header-actions">
             <NavLink className="app-topic-toggle" to="/bezeg-2.0/learn">{t('learning')}</NavLink>

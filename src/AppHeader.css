@@ -30,7 +30,7 @@
 .app-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: .26em;
     min-height: 44px;
     flex-shrink: 0;
     color: inherit;
@@ -43,7 +43,8 @@
 }
 
 .app-brand:hover { color: var(--bezeg-shell-action-hover); }
-.app-brand img { width: 34px; height: 34px; object-fit: contain; }
+/* H05: the outlined flower has no tile. It is sized from the wordmark and centred on the line, as the old tile was. */
+.app-brand img { width: 1.2em; height: 1.2em; object-fit: contain; }
 .app-header-actions { display: flex; min-width: 0; max-width: 100%; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 
 .app-header .app-topic-toggle {
@@ -102,8 +103,7 @@
 
 @media(max-width:700px) {
     .app-header { min-height: 64px; padding: 10px 16px; gap: 12px; }
-    .app-brand { gap: 6px; font-size: 25px; }
-    .app-brand img { width: 30px; height: 30px; }
+    .app-brand { font-size: 25px; }
     .app-header-actions { gap: 8px; }
     .app-header .app-topic-toggle { padding: 10px 12px; font-size: 12px; }
     .app-header .language-selector small { max-width: 120px; overflow-wrap: anywhere; }
@@ -121,7 +121,6 @@
 }
 @media(min-width:360px) and (max-width:400px) {
     .app-brand { font-size: 21px; }
-    .app-brand img { width: 28px; height: 28px; }
     .app-header-actions { gap: 0; }
     .app-header .app-topic-toggle { padding-inline: 7px; }
     .app-header .language-selector select { min-width: 50px; padding-inline: 2px; }
