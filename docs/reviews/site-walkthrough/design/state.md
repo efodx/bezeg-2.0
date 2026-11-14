@@ -30,7 +30,7 @@ All picks recorded in `docs/specs/site-walkthrough-design.md` under "Owner decis
 | H02, H04 | Label key `demonstration_selection`; second button `all_learning_content` | `1f31fab4` |
 | G07 | Passed to `graphs` and recorded | docs only |
 
-Publish: one background gate for the six commits (`publish-1f31fab4-19de20`), started 2026-11-14. Check `just publish --status`; the previous gate for the first two slices failed on `LearningPage.test.tsx` (contents link names), fixed by `83b0ee2c`.
+Published on `master` as `a6dd7a97` on 2026-11-14 (fourth gate attempt); the CI browser smoke for that revision passed, so the changes are deployed. The commit ids in the table are the pre-rebase ids on this branch.
 
 ## Verification so far
 
@@ -40,12 +40,12 @@ Publish: one background gate for the six commits (`publish-1f31fab4-19de20`), st
 
 ## Open
 
-1. Confirm the publish result and the CI run (`just ci <sha>`); CI runs the whole browser smoke.
+1. The objective's shipped part is complete; what follows are follow-ups, none needing an owner choice.
 2. Not covered: no browser spec drives preset rename, overwrite or delete (unit tests do); the controls sweep `ragged-buttons` detector was not run on the new panel; the "fits the target widths" home smoke test was not rerun locally.
 3. `src/graphs/base/ResetButton.tsx` is unused after the presets change; remove it or reuse it.
 4. Any single-segment `/learn/<unknown>` path also shows the botanicals beside the error page.
 5. `convexity` can join the homepage pool once G06 is fixed; the pool is one list.
-6. Evaluation entries for the four worker dispatches are not yet written.
+6. The import and figure-batch dialogs keep their old style, and the figure batch was not moved beside the image export.
 
 ## Running processes
 
