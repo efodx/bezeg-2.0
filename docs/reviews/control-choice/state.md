@@ -1,6 +1,6 @@
 # Control choice: handler state note
 
-Rewritten by each handler at its handoff. Written by handler 1 on 2026-11-14 at its soft budget. Queue and status: [task queue](../../tasks/control-choice/README.md). Spec: [control choice and composition](../../specs/control-choice-and-composition.md). Catalogue: [docs/controls.md](../../controls.md).
+Rewritten by each handler at its handoff. Written by handler 2 on 2026-11-14 at its soft budget. Queue and status: [task queue](../../tasks/control-choice/README.md). Spec: [control choice and composition](../../specs/control-choice-and-composition.md). Findings and step 4 decisions: [findings.md](findings.md). Catalogue: [docs/controls.md](../../controls.md).
 
 ## Standing owner direction (2026-11-14)
 
@@ -13,63 +13,56 @@ So: never stop to ask. Decide, record, continue. Each handler launches its succe
 
 ## Where things are
 
-- Worktree `.claude/worktrees/stream-control-choice`, branch `worktree-stream-control-choice`, own `npm ci`. Also pushed to `origin` as a branch for safekeeping (not master).
-- Local commits, oldest first, on top of `origin/master` `12815c5f`:
-  1. `66508921` point rows on one line; editing-mode box edge; fixture composition check.
-  2. `1ac55559` catalogue, inventory script and table, queue, this note.
-  3. `7cce5468` sweep script.
-  4. `7ad886af` Descent sliders and track point list (worker 2b).
-  5. `aecf4295` Kinematics sliders (worker 2b).
-  6. `22f6ebb3` new-point entry alignment, editing-mode chevron, board tools list.
-  7. `ed06f50a` compgeo panels (worker 2a).
-  8. `866c5d74` point row `bigStep`, circle centres keep PageUp 4, pilot notes.
-  9. this note.
-- **Publish state.** Commit 1 is in a background publish gate started as `45abbb11` (its sha before a rebase): `just publish --status` shows `publish-45abbb11-0e4888`. It was still running its changed-unit-test step at 03:25 on a busy machine. Nothing else is published.
+- Worktree `.claude/worktrees/stream-control-choice`, branch `worktree-stream-control-choice`.
+- **On `master`:** everything up to `43090980` (pilots, slices 2c, 2d, 2e-a, 2e-b, 2f-a, 2f-b, 2g-a, 2g-b, the smoke locator fixes). CI on `43090980` is green (`just ci 43090980`).
+- **Local only, oldest first, on top of `43090980`:** slice 2g-c (Growth, LogisticMap, LineGeometry), slice 2h (PhasePortrait, LinearMap), slice 2i (capture recipes), the sweep detector fix with queue and findings, the ranked findings, the spec decisions, this note. `git log --oneline origin/master..HEAD` lists them.
+- **Not yet picked, in worker worktrees:**
+  - Step 4b, commit `879279a9` on branch `worktree-agent-acfb1e0177fd9d3bb` (base `40002e50`): Presets grid, playback and view button grids, point collection, point-list names and name column, `describedBy` on `PointListInput` and `CountSetter`. Partial: its `just unit` never finished, so the changed assertions in `typedPointPaths`, `EpicycleGraph.host`, `TriangleSolverGraph` and `PhasePortraitGraph` tests are unverified; typecheck ran before its last CSS and fixture edits.
+  - Step 4a, worker still running when this note was written, branch `worktree-agent-ad5e882fc8fb939a4` (base `40002e50`): slider bounds at the track ends, label wrap, `describedBy` on `Slider`, group rhythm, Display label, readout wrapping. Its report goes to handler 2 and is lost; read its result from `git log 40002e50..worktree-agent-ad5e882fc8fb939a4` and the commit message. If the branch has no commit, look for uncommitted work in `.claude/worktrees/agent-ad5e882fc8fb939a4` and redo the slice from the brief in handler 2's dispatch (findings rows S2, S3, S4, S6, S14, S15).
 
 ## First actions for the successor
 
-1. `just publish --status`. Wait until `publish-45abbb11-0e4888` is `ok` (do not sleep in a loop: run one background command that waits for `.command-logs/publish-45abbb11-0e4888.json` to exist, and continue when it notifies). If it failed, read its log, fix, and include commit 1 in the next publish.
-2. `git fetch origin`, then `git rebase origin/master` (commit 1 drops out as already applied). Resolve mechanical conflicts by keeping both sides; `sl.ts`/`en.ts` are the likely place.
-3. `just typecheck`, then publish the remaining commits in one gate: `just publish --background --recipe runtime --base <origin/master sha> --commits <sha,...oldest first>`. Continue with the queue while it runs; check `--status` before calling it published.
-4. Start a dev server for screenshots: `node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4324 --strictPort` in the background.
-
-## Accepted work and how it was checked
-
-- Step 0a/0b and the pilots were reviewed on screenshots by the handler (Inversion, Circle constructions, Descent race/track/tautochrone, Kinematics, curve workspace). `just typecheck` passed at `ed06f50a` plus the commit-8 edits; `just controls-fixture` passed with commits 1 and 6; focused `just unit` runs passed for inputs, the curve workspace, compgeo and the two pilot families. The full gate (changed unit tests, build, smoke) runs at publish.
-- Inventory: 146 typed number fields at the start, 133 after the pilots, 131 still undecided (`node scripts/controls-inventory.cjs --check`).
+1. **Slice 2i blocks the next publish.** The full smoke run on the local tip failed `tests/demonstrations.smoke.spec.cjs:140` ("generated preview mapping and provenance"): `euler-method: the clip was captured from an older row; recapture it`, because 2i renamed the row label 'Začetni y₀' to 'P₀, y₀'. The same will hold for every clip row 2i renamed: `analysis.cjs` (1), `linear-complex.cjs` (2: "z, Re", "w, Re"), `projective.cjs` (3), and the complex-multiplication restore in `demonstration-preview-motion.cjs`. Recapture those clips (`just clip <id>` against a preview on port 4319; `docs/commands.md` and the catalog-clips memory note give the procedure), commit the regenerated assets, then rerun that smoke test. If recapture runs slower than expected, the alternative is to revert the six row renames in 2i and keep only its driver change (`scripts/number-field-locator.cjs`), recording the renames as open.
+2. The other smoke failure, `guided-lessons.smoke.spec.cjs:2859` on `spline-g1`, is a 60 s timeout under load: it failed in both full runs and passed when run alone and on CI. Rerun it alone before publishing (`just smoke tests/guided-lessons.smoke.spec.cjs -g "spline-g1"`).
+3. Pick the two step 4 commits (`git cherry-pick`), 4a first if it exists. Expect conflicts in `sl.ts`/`en.ts` and possibly `DemonstrationWorkspace.css` and `WorkspaceControls.css` (each worker edited only its own rules): keep both sides. Then `just typecheck`, `just lint`, `just unit src/inputs src/graphs/base src/graphs/random src/graphs/dynamics src/graphs/trig src/graphs/functions/EpicycleGraph`, `just controls-fixture`, and open the after images under `docs/reviews/control-choice/step4a/` and `step4b/`.
+4. Before any publish: search `tests/` for labels of changed fields, run the full `just smoke` on a quiet tip (do not cherry-pick while it builds), then `just publish --background --recipe runtime --base <origin/master sha> --commits <all local, oldest first>`. If the gate fails only on 15 s timeouts or "Failed to start forks worker" (machine load), rerun those files alone plus `just build` and push the gate's revision by hand as a fast-forward, as handler 2 did for `43090980`. Follow with `just ci <sha>`.
+5. Another stream ("linear-maps l5 lesson actions", families-prep handler 20) is editing linear-map lessons: 2h touches `src/graphs/linear/LinearMapGraph.tsx` and `linearMapsChapterLessons.ts`, so the rebase may conflict there. It was told; if CI goes red on a test of this stream, fix it before pushing anything else.
 
 ## Remaining steps, in order
 
-1. Slices 2c–2h of the queue (functions in three slices, complex/isometry/level sets, combinatorics/random/recursion/B-spline, and the small graphs left from 2b). Two workers at a time, `bezeg-worker`, Sonnet `medium`.
-2. Step 3, the sweep: `node scripts/controls-sweep/sweep.cjs --port 4324` writes `.command-logs/controls-sweep/<view>/sheet-NN.png`, `findings.json` and `summary.md`. Read `summary.md`, open the contact sheets, and give one sheet group each to a subagent that can load the `impeccable` skill (agent type `claude`; `bezeg-reviewer` cannot load skills) with the rubric in the spec's Part B step 4. Write ranked findings to `docs/reviews/control-choice/findings.md`.
-3. Step 4: fix shared components from the findings. Already known (queue, "Findings already seen"): vertical rhythm inside an inspector group, slider help that restates the range, readout bullet size and indent, repeated status sentence in Inversion. Add the shared number grid for matrices (LinearMap, PhasePortrait cells) and catalogue pictures from the fixture.
-4. Step 5: close-out against the spec's acceptance; before and after images under `docs/reviews/control-choice/`.
+1. Finish step 4 (findings S1 to S17). Done or in the two worker commits: S1, S2, S3, S4, S6, S7, S8, S10, S11, S14, S15. Still to do:
+   - **Sweep detector:** `ragged-buttons` flags any group whose button count does not divide into its lines, so the intended 3 + 2 + 1 Presets grid fires on 137 routes (147 desktop hits after 4b). Make it accept equal-width grid rows (flag only unequal button widths or a row that is not left aligned). Narrow `long-help` to control help (`.number-input-help`, `.slider-help`, `.choice-select-help`, `.bool-field-help`), not `.inspector-help` and `.inspector-group > p` teaching paragraphs (S5).
+   - **Call sites (one worker):** S5 help that explains the widget (search `sl.ts` for "korak", "Enter", "zavrne", "med … in …" in `_help` keys of kept typed fields: UnitCircle π field, Growth capital, Simulation trials, ComplexMultiplication polar help), S9 shorter checkbox labels (Euler line), S13 text said twice (9 routes in the sweep summary), S16 the Fourier coefficients disclosure, M6 stacked count setters if the sheet still reads badly.
+   - **S12 number grid** for matrix cells (LinearMap, PhasePortrait; `decisions.json` entries "waits for the number grid") and the knot editor; the segment and interval rows of `PointSetControls` and `ZeroListEditor` wait for a row editor and may stay recorded.
+   - **S17** empty crops: open the routes of desktop #89, #105, #61, #185, #187 and Presentation #460, #476 in a fresh sweep.
+   - **Catalogue pictures** from the fixture (spec acceptance 5).
+2. Step 5 close-out against the spec's acceptance: rerun the sweep (`node scripts/controls-sweep/sweep.cjs --port 4324 --workers 3`, about five minutes), open the contact sheets of the fixed compositions, record every remaining detector hit with a reason in findings.md, before and after images under `docs/reviews/control-choice/` for the five reported defects, queue table to done.
 
-## Brief inputs for the next slices
+## Accepted work and how it was checked
 
-Reuse the pilot brief shape: role and edit permission; setup; goal with the two documents to read (`docs/controls.md`, and "Migration rules for every slice" in the queue); owned paths; settled decisions; acceptance 1–6 (inventory check clean for the owned files, no local helper, typecheck/lint/focused unit, tests follow the control with the observed failure named, screenshots opened and checked against "Layout in the inspector", lesson prose reworded); commit in the worktree with the attribution lines; a 250-word return. Changes from the pilots:
-
-- Setup line is `git reset --hard <your tip sha>` (the worker's branch is new and empty), not a fast-forward merge. A worker that is resumed after stopping runs in this worktree instead; then two workers share the checkout, so give them disjoint files and say "stage only your own hunks of `sl.ts` and `en.ts`".
-- Add to settled decisions: `Slider` needs `fieldDecimals` when the old field took decimals on an integer step; pass the old big step as `bigStep` (the point row has the prop now); keep `integer` or `grid` exactly as the old field had it; put each control in its own `inspector-group` or keep the graph's existing grouping, never stack a slider directly on a caption.
-- Ports 4325 and 4326 for the workers' dev servers.
-- Slice file lists are in the queue table; `node scripts/controls-inventory.cjs --json` gives every call site with line numbers for a brief.
+- Slices 2c to 2h: each worker's typecheck, lint and focused unit run, then a focused `just unit` on this branch per slice (all passing; runs that failed only on worker-start timeouts were rerun), the handler opened two or three panels per slice. Handler corrections: Fourier handle values are sliders; Linear `k`, `n` and Density's ends went back to typed fields (validity limits); Isometry mirror count is a count setter; `sharedControls.graphs.test.tsx` follows the migrated controls.
+- Inventory: 146 typed number fields at the start, 18 now, none undecided (`node scripts/controls-inventory.cjs --check`).
+- Step 3: sweep on 138 routes in three views; three reviewers covered all 48 sheets; the handler opened desktop sheets 01 to 03. Findings ranked in findings.md.
+- Not checked: 2i's recipes beyond seven driven live; English slider names in recipes; guided-example control steps.
 
 ## Working notes that still hold
 
-- Git Bash rewrites an argument that starts with `/` into a Windows path: pass routes without the leading slash.
-- This session type is pinned to its worktree: compound shell commands that mix `git` with pipes or `cd` are refused. Run plain single commands; write helper scripts with the Write tool.
-- `just typecheck` takes about 140 s. `just controls-fixture` takes 35 s but waits for a machine-wide test slot; with two workers and a publish gate running it waited 25 minutes. Publish gates are slow for the same reason.
-- Screenshots: `node scripts/controls-sweep/shot.cjs <out.png> <route> [--port] [--width] [--height] [--eval] [--present] [--selector]`, output under `.command-logs/` (ignored by git). To pick a select option in `--eval`, set the value through the `HTMLSelectElement.prototype` value setter and dispatch a bubbling `change` event.
-- The inspector is 310 px wide at 1440 × 900 (286 px of content); the fixture's inspectors have the same width.
-- `PointListInput` rows are a subgrid of `.point-list-rows`; the field wrappers are `display: contents`, so a refusal hint spans the row. The large-text fallback is a container query on `.point-list-body`. `PointCollection`'s entry uses the same technique.
+- Subagents cannot write report files (the harness refuses); ask reviewers to return findings as text.
+- `bezeg-worker` Sonnet handles about six graphs per slice; twelve ran out of budget. The common migration brief is `docs/tasks/control-choice/slice-brief.md`.
+- Never cherry-pick or edit sources while a `just unit` or `just smoke` run is in flight on this checkout: results get contaminated or the build refuses to record itself.
+- The machine is CPU-bound: a focused unit run takes 2 to 30 minutes, a publish gate's `check-changed` took 55 and 82 minutes and failed on load timeouts. Run at most two workers, and none during a gate if it can be avoided.
+- The publish gate runs no browser smoke, and CI runs all of it. Three places break outside a slice's own tests: `tests/*.smoke.spec.cjs` locators, `src/graphs/base/sharedControls.graphs.test.tsx`, and `scripts/` capture recipes with their clip evidence.
+- Git Bash rewrites an argument that starts with `/`: pass routes without the leading slash. Compound shell commands that mix `git` with pipes or `cd` are refused; run plain single commands.
+- Screenshots: `node scripts/controls-sweep/shot.cjs <out.png> <route> [--port] [--width] [--height] [--eval] [--present] [--selector]`, output under `.command-logs/`. A dev server may still be running on port 4324 (`node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4324 --strictPort`); start one if not. Workers used ports 4325 to 4346; some may have leaked a server.
+- A slider's exact field is a `spinbutton` named "<label>, vrednost" / "<label>, value"; a point row's fields are "<point>, x" and "<point>, y" (or the list's `axisLabels`).
 - No file in `docs/tasks/feature-streams/` for this work: the supervisor would start a second handler.
 
 ## Decisions and risks
 
-- No open owner decision. Matrix cells stay typed fields until the number grid exists (spec, choice table).
-- Risk: lesson clips and guided-example control steps that address a migrated field by selector. The pilots found none broken; each slice's acceptance 6 checks it.
-- Risk: another stream is restyling the workspace (`fea90424`, `79760db4`); rebase before every dispatch and re-shoot a panel after a rebase that touches `DemonstrationWorkspace.css` or `WorkspaceControls.css`.
+- No open owner decision. Decisions made so far are in the spec ("Decisions made during the work") and findings.md.
+- Risk: step 4a changes every slider's markup (bounds text). Smoke specs or recipes that read "Min:" / "Max:" would break; the worker was told to search.
+- Risk: the Presets grid and button grids change `DemonstrationWorkspace.css` and `WorkspaceControls.css`, which another stream restyled recently; re-shoot after the rebase.
 
 ## Settings to keep
 
-Model `claude-fable-5-2`, permission mode `auto`, agent `bezeg-handler`; workers `bezeg-worker` Sonnet `medium`; reviewers per the handler card.
+Model `claude-fable-5-2`, permission mode `auto`, agent `bezeg-handler`; workers `bezeg-worker` Sonnet `medium`; design reviewers agent `claude` Sonnet; reviewers per the handler card.
