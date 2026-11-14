@@ -602,6 +602,26 @@ test('a second run of the same heavy command in the same checkout is refused, ot
     } finally { cleanup(dir); }
 });
 
+test('filteredUnitFileCount counts the test files a path filter matches, skipping option values', () => {
+    const root = fixture();
+    try {
+        for (let index = 0; index < 25; index += 1) {
+            fs.mkdirSync(path.join(root, 'src/graphs/a'), {recursive: true});
+            fs.writeFileSync(path.join(root, `src/graphs/a/t${index}.test.ts`), '');
+        }
+        fs.mkdirSync(path.join(root, 'src/learning'), {recursive: true});
+        fs.writeFileSync(path.join(root, 'src/learning/x.test.tsx'), '');
+        fs.writeFileSync(path.join(root, 'src/learning/x.ts'), '');
+        assert.equal(commands.filteredUnitFileCount(root, []), undefined);
+        assert.equal(commands.filteredUnitFileCount(root, ['--maxWorkers=1', '-t', 'a/b']), undefined);
+        assert.equal(commands.filteredUnitFileCount(root, ['src/graphs/a']), 25);
+        assert.equal(commands.filteredUnitFileCount(root, ['src\\learning\\x.test.tsx:12']), 1);
+        assert.equal(commands.filteredUnitFileCount(root, ['./src/learning/', 'src/graphs/a/t1.test.ts']), 2);
+        assert.equal(commands.filteredUnitFileCount(root, [`${root.replace(/\\/g, '/')}/src/graphs`]), 25);
+        assert.equal(commands.FILTERED_SLOT_FILES, 20);
+    } finally { cleanup(root); }
+});
+
 test('heavy commands take a slot and pass its worker cap; filtered unit runs skip the queue with fewer workers', async () => {
     const root = fixture();
     const priorNpmExecPath = process.env.npm_execpath;
@@ -614,7 +634,11 @@ test('heavy commands take a slot and pass its worker cap; filtered unit runs ski
     try {
         assert.equal(await commands.execute('unit', [], {root, env}), 0);
         assert.equal(await commands.execute('unit', ['src/a.test.ts'], {root, env}), 0);
-        assert.deepEqual(fs.readFileSync(received, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [{workers: '3', held: 1}, {workers: '2', held: 0}]);
+        // A directory filter matching more than FILTERED_SLOT_FILES test files takes a slot like an unfiltered run.
+        fs.mkdirSync(path.join(root, 'src/many'), {recursive: true});
+        for (let index = 0; index <= commands.FILTERED_SLOT_FILES; index += 1) fs.writeFileSync(path.join(root, `src/many/t${index}.test.ts`), '');
+        assert.equal(await commands.execute('unit', ['src/many/'], {root, env}), 0);
+        assert.deepEqual(fs.readFileSync(received, 'utf8').trim().split('\n').map(line => JSON.parse(line)), [{workers: '3', held: 1}, {workers: '2', held: 0}, {workers: '3', held: 1}]);
         assert.deepEqual(fs.readdirSync(slotDir), []);
     } finally {
         if (priorNpmExecPath === undefined) delete process.env.npm_execpath;

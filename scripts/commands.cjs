@@ -7,7 +7,7 @@ const path = require('node:path');
 const {spawn} = require('node:child_process');
 const {STYLESHEET_READERS, alwaysRunFiles, stylesheetOnly} = require('./check-changed-always-run.cjs');
 const {warnSelectorRemovals} = require('./selector-removal-check.cjs');
-const {selectUnitTests} = require('./check-changed-selector.cjs');
+const {listTestFiles, selectUnitTests} = require('./check-changed-selector.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const LOG_DIR_NAME = '.command-logs';
@@ -412,10 +412,34 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
     return result.code;
 }
 
+// A path-filtered unit run matching more files than this is as heavy as a slot holder (phase 8 change 5, T02).
+const FILTERED_SLOT_FILES = 20;
+// Options of `vitest` whose value is not a file filter.
+const VALUE_OPTIONS = new Set(['-t', '--testNamePattern', '--project', '--reporter', '--outputFile', '--config', '-c', '--root', '-r', '--dir', '--shard', '--environment']);
+
+/** Test files a path-filtered `just unit` run matches (Vitest matches a filter as a substring of the path), or undefined when the run has no path filter. */
+function filteredUnitFileCount(root, args) {
+    const filters = [];
+    for (let index = 0; index < args.length; index += 1) {
+        const arg = args[index];
+        if (VALUE_OPTIONS.has(arg)) { index += 1; continue; }
+        if (!arg.startsWith('-') && /[\\/]|\.test\./.test(arg)) filters.push(arg.replace(/\\/g, '/').replace(/^\.\//, '').replace(/:\d+$/, ''));
+    }
+    if (!filters.length) return undefined;
+    const rootPath = root.replace(/\\/g, '/');
+    let files;
+    try { files = listTestFiles(root); } catch { return 0; }
+    return files.filter(file => filters.some(filter => file.includes(filter) || `${rootPath}/${file}`.includes(filter))).length;
+}
+
 // Commands that load the whole machine wait for a machine-wide test slot (see scripts/test-slots.cjs). A unit run
-// filtered to paths is short, so it skips the queue with at most FILTERED_UNIT_WORKERS workers.
-function needsSlot(command, args) {
-    if (command === 'unit') return !args.some(arg => /[\\/]|\.test\./.test(arg));
+// filtered to paths is short, so it skips the queue with at most FILTERED_UNIT_WORKERS workers, unless its filters
+// match more than FILTERED_SLOT_FILES test files: then it takes a slot and the slot's workers.
+function needsSlot(command, args, root) {
+    if (command === 'unit') {
+        const count = filteredUnitFileCount(root, args);
+        return count === undefined || count > FILTERED_SLOT_FILES;
+    }
     return ['check', 'check-changed', 'build', 'smoke', 'smoke-built', 'smoke-lesson', 'controls-fixture'].includes(command);
 }
 
@@ -424,6 +448,7 @@ async function execute(command, rawArgs = [], options = {}) {
     const lib = {...require('./test-slots.cjs'), ...options.slots};
     const baseEnv = options.env || process.env;
     if (!['typecheck', 'lint', 'unit', 'check', 'check-changed', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson', 'controls-fixture'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
+    const slotNeeded = needsSlot(command, rawArgs, root);
     const unslotted = () => {
         const budget = lib.machineBudget({env: baseEnv});
         return {...budget, workers: command === 'unit' ? Math.min(budget.workers, lib.FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
@@ -436,7 +461,7 @@ async function execute(command, rawArgs = [], options = {}) {
         },
         // The step that runs tests: holds a slot (a filtered unit run holds none) from here until the step ends.
         async slot() {
-            const slot = needsSlot(command, rawArgs) ? await lib.acquireSlot({command, root, env: baseEnv}) : unslotted();
+            const slot = slotNeeded ? await lib.acquireSlot({command, root, env: baseEnv}) : unslotted();
             try {
                 // A slot holder may still wait here: the slot caps test runners, the memory gate covers everything else.
                 const {freeGB} = await lib.admitByMemory({command, env: baseEnv});
@@ -451,7 +476,7 @@ async function execute(command, rawArgs = [], options = {}) {
         },
     };
     // A heavy command is refused up front when the same command already runs in this checkout, before any step starts.
-    const claim = needsSlot(command, rawArgs) ? lib.claimRun({command, root, env: baseEnv}) : undefined;
+    const claim = slotNeeded ? lib.claimRun({command, root, env: baseEnv}) : undefined;
     try { return await executeCommand(command, rawArgs, {...options, root, gate}); }
     finally { claim?.release(); }
 }
@@ -617,4 +642,4 @@ if (require.main === module) {
     cli(process.argv.slice(2));
 }
 
-module.exports = {CACHE_FILES, LOG_DIR_NAME, TIMINGS_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};
+module.exports = {CACHE_FILES, FILTERED_SLOT_FILES, LOG_DIR_NAME, TIMINGS_NAME, appendTail, assertProvenance, ciSummary, cli, digestBuild, digestInputs, execute, filteredUnitFileCount, hashFiles, inputFiles, lessonGrep, lookupLocalization, main, parsePortArgs, resolveNpmCli, runChild, runPlan};

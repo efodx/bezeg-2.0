@@ -186,4 +186,11 @@ function selectUnitTests({root, changed, isCut = isCutNode, maxFiles = MAX_FILES
     return {kind: 'files', files: [...selected].sort(), sweeps: [...sweeps].sort()};
 }
 
-module.exports = {selectUnitTests, buildReverseGraph, isCutNode, isTestFile, MAX_FILES};
+/** Every unit test file under src/ (the Vitest include), repository-relative with `/` separators. */
+function listTestFiles(root) {
+    const files = [];
+    walk(root, 'src', files);
+    return files.filter(isTestFile);
+}
+
+module.exports = {selectUnitTests, buildReverseGraph, isCutNode, isTestFile, listTestFiles, MAX_FILES};
