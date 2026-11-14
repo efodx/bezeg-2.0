@@ -133,8 +133,8 @@ describe('the legend on a narrow board (390 x 480 px)', () => {
                         expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(legendLines(String(rows[i].plaintext), 390) * 20 - 0.5);
                     }
                 }
-                // The Slovenian contour legend is short enough to take one line per row at 390 px.
-                if (name !== 'contour map' || language === 'en') expect(wrapped, 'some row wraps at 390 px').toBe(true);
+                // The Slovenian contour legend is short enough to take one line per row at 390 px; the linear program's merged board rows are too.
+                if (name === 'contour map' && language === 'en') expect(wrapped, 'some row wraps at 390 px').toBe(true);
             });
         }
     }

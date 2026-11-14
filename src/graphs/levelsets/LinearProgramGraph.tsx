@@ -23,6 +23,7 @@ import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
 import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {Memo} from "./Memo";
+import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "./lpLabelLayout";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import type {LessonAction} from "../../learning/model";
@@ -64,6 +65,12 @@ const boardBox = (box: Box): [number, number, number, number] => {
     const margin = 0.04 * (box.xMax - box.xMin);
     return [box.xMin - margin, box.yMax + margin, box.xMax + margin, box.yMin - margin];
 };
+
+/** The board legend's measured width of a character (14 px font), the estimate of a label's width and height, and the backdrop that lets the text read over a line. */
+const LEGEND_CHAR_PX = 6.2;
+const LABEL_CHAR_PX = 6.6;
+const LABEL_HEIGHT_PX = 18;
+const LEGEND_BACKDROP = "background-color:rgba(255,253,246,0.88);padding:0 4px;margin-left:-4px;";
 
 /** One row of the legend: what an element of the board is, with its drawing style said in words. */
 export interface LegendRow {
@@ -306,9 +313,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
      * stacked, whatever rows the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
      */
     private legendBand(): number {
-        const captions = [t("levelsets_graph_lp_cap_region"), t("levelsets_graph_lp_cap_rows"), t("levelsets_graph_lp_cap_vertex"), t("levelsets_graph_lp_cap_optimum"),
-            t("levelsets_graph_lp_cap_objective"), t("levelsets_graph_lp_cap_sweep"), t("levelsets_graph_lp_cap_direction"), t("levelsets_graph_lp_cap_walk"), t("levelsets_graph_lp_cap_clip")];
-        return legendBandPx(captions, this.board.canvasWidth);
+        return legendBandPx(this.boardLegendTexts(true), this.board.canvasWidth);
     }
 
     /** The view with the feasible region, its vertices and the objective handle framed with margin below the legend band. */
@@ -341,13 +346,142 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         return element;
     }
 
-    private pixelText(x: () => number, y: () => number, dx: number, dy: number, text: () => string, color: string, visible: () => boolean = () => true): void {
-        this.scene.own(this.board.create("text", [
-            () => x() + dx / this.scaleOf().ux, () => y() + dy / this.scaleOf().uy, text,
-        ], {strokeColor: color, fontSize: 14, anchorX: "left", fixed: true, highlight: false, withLabel: false, visible}));
+    /**
+     * The rows of the legend as the board writes them: the line styles that only need a word are merged two to a row, so the stack stays
+     * short (a 420 px card keeps its plot). The panel list keeps every row in full (`legend`); `all` gives the rows of the fullest state.
+     */
+    boardLegend(all = false): LegendRow[] {
+        const full = all ? undefined : this.legend();
+        const has = (id: string): boolean => full === undefined || full.some(row => row.id === id);
+        const part: Record<string, () => string> = {
+            region: () => t("levelsets_graph_lp_capb_region"), rows: () => t("levelsets_graph_lp_capb_rows"),
+            vertex: () => t("levelsets_graph_lp_capb_vertex"), optimum: () => t("levelsets_graph_lp_capb_optimum"),
+            objective: () => t("levelsets_graph_lp_capb_objective"), sweep: () => t("levelsets_graph_lp_capb_sweep"),
+            direction: () => t("levelsets_graph_lp_capb_direction"), walk: () => t("levelsets_graph_lp_capb_walk"),
+        };
+        const color: Record<string, string> = {
+            region: GraphPalette.primaryCurve, rows: GraphPalette.additionalCurves[0], vertex: GraphPalette.label, optimum: GraphPalette.label,
+            objective: GraphPalette.comparisonCurve, sweep: GraphPalette.constructionAccent, direction: GraphPalette.controlPoint, walk: GraphPalette.additionalCurves[3],
+        };
+        const merged = (id: string, parts: string[]): LegendRow[] => {
+            const shown = parts.filter(has);
+            return shown.length === 0 ? [] : [{id, text: shown.map(name => part[name]()).join(" · "), color: color[shown[0]]}];
+        };
+        const rows = [...merged("region", ["region", "rows"]), ...merged("vertex", ["vertex", "optimum"]), ...merged("objective", ["objective", "sweep"]),
+            ...merged("direction", ["direction", "walk"])];
+        if (full === undefined || full.some(row => row.id === "clip")) rows.push({id: "clip", text: t("levelsets_graph_lp_cap_clip"), color: GraphPalette.warningText});
+        return rows;
     }
 
-    /** The legend: one row for every element the readouts name, the drawing style in words. Used by the board and by the panel list. */
+    private boardLegendTexts(all = false): string[] { return this.boardLegend(all).map(row => row.text); }
+
+    /** The legend stack's screen box (px from the board's top left corner, y down). */
+    legendBox(): PxBox | undefined {
+        if (!this.hasBoard) return undefined;
+        const texts = this.boardLegendTexts();
+        const width = this.board.canvasWidth;
+        if (texts.length === 0 || !(width > 0)) return undefined;
+        const wide = Math.min(Math.max(...texts.map(text => text.length * LEGEND_CHAR_PX)), width - 20) + 20;
+        return {x0: 0, y0: 0, x1: wide, y1: legendRowOffset(texts, texts.length, width)};
+    }
+
+    private layoutCache: {key: string; boxes: Record<string, PxBox>} = {key: "", boxes: {}};
+
+    /**
+     * The boxes (px, y down) of the vertex coordinates, the handle's caption and the constraint names, each clear of the markers, the
+     * drawn lines, the axes' numbers, the legend and the other texts where the board has room. A constraint name sits on the visible part of its line.
+     */
+    labelBoxes(): Record<string, PxBox> {
+        if (!this.hasBoard || !(this.board.canvasWidth > 0)) return {};
+        const {ux, uy, left, top} = this.scaleOf();
+        const width = this.board.canvasWidth, height = this.board.canvasHeight;
+        const legend = this.legendBox();
+        const {constraints, objective, sweep} = this.state;
+        const key = [ux, uy, left, top, width, height, JSON.stringify(constraints), objective.p, objective.q, sweep, legend?.x1, legend?.y1, currentLanguage()].join("|");
+        if (key === this.layoutCache.key) return this.layoutCache.boxes;
+        const solution = this.solution();
+        const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * ux, (top - y) * uy];
+        const sized = (text: string): {w: number; h: number} => ({w: text.length * LABEL_CHAR_PX + 6, h: LABEL_HEIGHT_PX});
+        const geometry = this.geometry();
+        const lines: Poly[] = [...geometry.rows, this.sweepLine(), this.optimumLine(), pathPoly(this.walkPoints()), {x: [0, objective.p], y: [0, objective.q]}];
+        const samples = lines.flatMap(line => sampleLine(line.x, line.y, toPx, width, height));
+        const handleAt = toPx(objective.p, objective.q);
+        const markers: Array<readonly [number, number, number]> = [
+            ...solution.result.vertices.map((v): readonly [number, number, number] => [...toPx(v.x.toNumber(), v.y.toNumber()), 5]),
+            ...solution.optimal.map((v): readonly [number, number, number] => [...toPx(v.x.toNumber(), v.y.toNumber()), 9]),
+            [handleAt[0], handleAt[1], 8],
+        ];
+        const [axisX, axisY] = toPx(0, 0);
+        const items: LabelItem[] = [{id: "handle", ax: handleAt[0], ay: handleAt[1], ...sized(this.handleCaption())}];
+        solution.result.vertices.forEach((v, i) => {
+            const [ax, ay] = toPx(v.x.toNumber(), v.y.toNumber());
+            items.push({id: `v${i}`, ax, ay, ...sized(this.pointText(v))});
+        });
+        const floor = (legend?.y1 ?? 0) + 14;
+        constraints.forEach((k, i) => {
+            const row = geometry.rows[i];
+            if (!row) return;
+            const size = sized(this.rowLabel(i, k));
+            const visible = sampleLine(row.x, row.y, toPx, width, height, 4, 400)
+                .filter(([x, y]) => x >= 10 && x <= width - size.w - 20 && y >= floor && y <= height - 40);
+            const anchors = visible.filter((_, index) => index % 8 === 0).reverse().slice(0, 14);
+            const [anchor, ...alts] = anchors.length > 0 ? anchors : visible.slice(-1);
+            if (anchor) items.push({id: `row${i}`, ax: anchor[0], ay: anchor[1], alts, ...size});
+        });
+        const strips: PxBox[] = [{x0: 0, y0: axisY, x1: width, y1: axisY + 22}, {x0: axisX - 40, y0: 0, x1: axisX, y1: height}];
+        const boxes = placeLpLabels(items, {width, height, markers, samples, strips, blocks: legend ? [legend] : [], axisX, axisY});
+        this.layoutCache = {key, boxes};
+        return boxes;
+    }
+
+    private handleCaption(): string {
+        const {p, q} = this.state.objective;
+        return t("levelsets_graph_lp_label_direction", {value0: point(integerText(Math.round(p)), integerText(Math.round(q)))});
+    }
+
+    /** A text at its placed box (see `labelBoxes`): hidden while the board has no box for it. */
+    private boxText(id: string, text: () => string, color: string, visible: () => boolean = () => true): void {
+        const box = () => this.labelBoxes()[id];
+        this.scene.own(this.board.create("text", [
+            () => { const {left, ux} = this.scaleOf(); return left + (box()?.x0 ?? 0) / ux; },
+            () => { const {top, uy} = this.scaleOf(); const b = box(); return top - (b ? (b.y0 + b.y1) / 2 : 0) / uy; },
+            text,
+        ], {strokeColor: color, fontSize: 14, anchorX: "left", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible: () => visible() && box() !== undefined}));
+    }
+
+    /** The axes: a tick number that the legend stack would cover is not written (the stack sits where the numbers are). */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        const boardExists = (): boolean => this.hasBoard;
+        const covered = (x0: number, y0: number, x1: number, y1: number): boolean => {
+            const b = this.legendBox();
+            return b !== undefined && x0 < b.x1 && x1 > b.x0 && y0 < b.y1 && y1 > b.y0;
+        };
+        const hiding = (labelOf: ((this: object, ...label: unknown[]) => string) | undefined, box: (x: number, y: number) => readonly [number, number, number, number]) =>
+            function (this: object, ...label: unknown[]): string {
+                const tick = label[0] as {usrCoords?: number[]} | undefined;
+                if (tick?.usrCoords && boardExists() && covered(...box(tick.usrCoords[1], tick.usrCoords[2]))) return "";
+                return labelOf ? labelOf.apply(this, label) : "";
+            };
+        const onX = (x: number): readonly [number, number, number, number] => {
+            const {ux, uy, left, top} = this.scaleOf();
+            const px = (x - left) * ux, py = top * uy;
+            return [px - 16, py, px + 16, py + 24];
+        };
+        const onY = (_x: number, y: number): readonly [number, number, number, number] => {
+            const {ux, uy, left, top} = this.scaleOf();
+            const px = -left * ux, py = (top - y) * uy;
+            return [px - 46, py - 12, px, py + 12];
+        };
+        const labelOfX = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const labelOfY = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        return {
+            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: hiding(labelOfX, onX)}},
+            y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: hiding(labelOfY, onY)}},
+        };
+    }
+
+    /** The legend: one row for every element the readouts name, the drawing style in words. Used by the panel list. */
     legend(): LegendRow[] {
         const solution = this.solution();
         const rows: LegendRow[] = [];
@@ -373,9 +507,8 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         for (let i = 0; i < ROW_COUNT_RANGE.max; i++) {
             const row = () => this.geometry().rows[i] ?? emptyPoly();
             this.curve(row, {strokeColor: GraphPalette.additionalCurves[i % GraphPalette.additionalCurves.length], strokeWidth: 1.5, visible: () => i < state().constraints.length});
-            this.pixelText(() => row().x[1] ?? 0, () => row().y[1] ?? 0, 6, -16,
-                () => { const k = state().constraints[i]; return k ? this.rowLabel(i, k) : ""; }, GraphPalette.label,
-                () => i < state().constraints.length && row().x.length > 1);
+            this.boxText(`row${i}`, () => { const k = state().constraints[i]; return k ? this.rowLabel(i, k) : ""; }, GraphPalette.label,
+                () => i < state().constraints.length);
         }
         this.curve(() => this.sweepLine(), {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 2, visible: () => !this.flat()});
         this.curve(() => this.optimumLine(), {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 4, visible: () => this.optimumLine().x.length > 0});
@@ -388,7 +521,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
                 name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "o", strokeColor: GraphPalette.label, fillColor: GraphPalette.label,
                 visible: () => i < this.solution().result.vertices.length,
             }));
-            this.pixelText(at("x"), at("y"), 8, 8, () => { const v = this.solution().result.vertices[i]; return v ? this.pointText(v) : ""; },
+            this.boxText(`v${i}`, () => { const v = this.solution().result.vertices[i]; return v ? this.pointText(v) : ""; },
                 GraphPalette.label, () => i < this.solution().result.vertices.length);
         }
         for (let j = 0; j < 2; j++) {
@@ -412,18 +545,17 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         this.scene.own(board.create("segment", [origin, handle], {
             fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.controlPoint, strokeWidth: 3, lastArrow: true, visible: () => !this.flat(),
         }));
-        this.pixelText(() => handle.X(), () => handle.Y(), 10, 10, () => t("levelsets_graph_lp_label_direction", {value0: point(integerText(Math.round(handle.X())), integerText(Math.round(handle.Y())))}),
-            GraphPalette.controlPoint);
+        this.boxText("handle", () => this.handleCaption(), GraphPalette.controlPoint);
 
         // The legend: stacked from the top left. It names every element the readout names.
-        const MAX_ROWS = 9;
+        const MAX_ROWS = 5;
         for (let index = 0; index < MAX_ROWS; index++) {
             this.scene.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.legend().map(row => row.text), index, board.canvasWidth) / uy; },
-                () => this.legend()[index]?.text ?? "",
+                () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.boardLegendTexts(), index, board.canvasWidth) / uy; },
+                () => this.boardLegend()[index]?.text ?? "",
             ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-                withLabel: false, visible: () => index < this.legend().length}));
+                withLabel: false, visible: () => index < this.boardLegend().length, cssStyle: LEGEND_BACKDROP}));
         }
     }
 

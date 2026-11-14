@@ -72,7 +72,7 @@ const recursionWindows = {
 // The window keeps equal units (the card is 840 x 520 pixels: 28 pixels a unit) and puts the region with its handle and labels in the strip below the captions, centred on x = 2.
 // The capture widens a requested window by 28 percent about its centre; this is that window shrunk back.
 const levelSetsWindows = {
-    'level-sets.linear-programming.linear-program': [-9.72, 15.64, 13.72, 1.131],
+    'level-sets.linear-programming.linear-program': [-3.5, 7.77, 10.5, -0.9],
 };
 
 function captureRecipeForEntry(entry, recipe) {

@@ -9,3 +9,11 @@
 - Not fixable in owned paths: legend of eight rows covers the top two thirds of the 420x260 frame, so the figure cannot fill the card at equal units (28 px per unit).
 - F3 status in the task file was not stale (chapter, lesson and registry exist); its claim unchanged.
 - Preview server on 4519 stopped; port closed. Logs: `.command-logs/f5-cards/level-sets/`.
+
+## Label pass (handler 20)
+
+- Board legend: eight rows became four merged rows (`boardLegend`, new keys `levelsets_graph_lp_capb_*`) plus the clip row, a pixel-anchored stack with a faint backdrop; tick numbers under it are not written (`defaultAxesAttributes`); the panel list keeps the eight full rows and every `data-legend` id. Opening frame and legend band follow the shorter stack.
+- Texts: vertex coordinates, the handle caption and the constraint names are placed by a bounded candidate search (`lpLabelLayout.ts`) that avoids markers, drawn lines, the axes' number strips, the legend and each other; a constraint name sits on the visible part of its line (was off the window).
+- Card window `levelSetsWindows` now [-3.5, 7.77, 10.5, -0.9]: the region fills the plot below the legend. Recaptured; viewed. Placement tests in `LinearProgramLabels.test.tsx` (red: `legendBox`/`labelBoxes` missing at HEAD, `red.log`; then green).
+- `levelSetsPresetFile.test.tsx`: the linear program no longer wraps a legend row at 390 px, so its wrap expectation was limited to the contour map.
+- Not verified: the legend backdrop hides, not removes, lines under the text; presets with positive-slope lines through the stack still pass beneath it. Logs `.command-logs/label-pass/level-sets/`.
