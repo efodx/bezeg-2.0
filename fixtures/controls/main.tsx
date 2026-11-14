@@ -25,11 +25,24 @@ import {PointCollection} from '../../src/inputs/PointCollection';
 import {PointListInput, type PointRow, type PointRow3} from '../../src/inputs/PointListInput';
 import Slider from '../../src/inputs/Slider';
 import {UnavailableButton} from '../../src/inputs/UnavailableButton';
+import AngleSlider from '../../src/inputs/AngleSlider';
+import {CheckboxGroup} from '../../src/inputs/CheckboxGroup';
+import {OnOffSwitch} from '../../src/inputs/OnOffSwitch';
+import {RefusalChannel, RefusalNotice} from '../../src/inputs/RefusalChannel';
+import {ResetExampleButton} from '../../src/inputs/ResetExampleButton';
+import {RevealButton} from '../../src/inputs/RevealButton';
+import ToolTippedButton from '../../src/inputs/ToolTippedButton';
+import {ValueListInput} from '../../src/inputs/ValueListInput';
+import {PlaybackButtons} from '../../src/graphs/base/controls/PlaybackButtons';
+import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutScrollTable} from '../../src/graphs/base/controls/ReadoutParts';
+import {StepCounter} from '../../src/graphs/base/controls/StepCounter';
 import {setLanguage, useT, type Language} from '../../src/localization';
 
 const params = new URLSearchParams(window.location.search);
 const lang: Language = params.get('lang') === 'en' ? 'en' : 'sl';
 setLanguage(lang);
+/** `?catalogue=1` adds the group of ordinary instances that the catalogue pictures are taken from (edit inspector only); the layout checks run without it. */
+const catalogue = params.get('catalogue') === '1';
 
 /** Fixture-only strings (no catalog keys exist for them), in both languages. */
 const text = {
@@ -55,6 +68,23 @@ const text = {
         pointName: 'Točka',
         matrix: 'Matrika A',
         knots: 'Vozel',
+        radius: 'Polmer kroga',
+        angle: 'Kot vrtenja',
+        pointA: 'Točka A',
+        weights: 'Uteži',
+        weight: 'Utež',
+        example: 'Primer',
+        showResult: 'Pokaži rezultat',
+        hideResult: 'Skrij rezultat',
+        shown: 'Prikaži',
+        axes: 'Osi',
+        grid: 'Mreža',
+        playGroup: 'Predvajanje iteracije',
+        next: 'Naslednji korak',
+        tooltip: 'Dodaj točko na krivuljo',
+        readout: 'Izračunane vrednosti',
+        readoutHelp: 'Vrednosti se posodobijo ob vsaki spremembi.',
+        refused: 'Polmer mora biti med 1 in 9, zato je ostal nespremenjen.',
     },
     en: {
         longLabel: 'A very long setting label that has to wrap onto several lines in the narrow panel without any clipped text',
@@ -78,6 +108,23 @@ const text = {
         pointName: 'Point',
         matrix: 'Matrix A',
         knots: 'Knot',
+        radius: 'Circle radius',
+        angle: 'Rotation angle',
+        pointA: 'Point A',
+        weights: 'Weights',
+        weight: 'Weight',
+        example: 'Example',
+        showResult: 'Show result',
+        hideResult: 'Hide result',
+        shown: 'Show',
+        axes: 'Axes',
+        grid: 'Grid',
+        playGroup: 'Iteration playback',
+        next: 'Next step',
+        tooltip: 'Add a point to the curve',
+        readout: 'Computed values',
+        readoutHelp: 'The values update after every change.',
+        refused: 'The radius must be between 1 and 9, so it was left unchanged.',
     },
 }[lang];
 
@@ -93,6 +140,84 @@ function enter(input: HTMLInputElement, value: string) {
     input.dispatchEvent(new Event('input', {bubbles: true}));
     input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
     input.blur();
+}
+
+const refusalChannel = new RefusalChannel();
+refusalChannel.refuse(text.refused);
+
+/**
+ * One ordinary instance of every shared control in its normal state. docs/controls.md takes its pictures from the
+ * `data-catalogue` elements (scripts/controls-sweep/catalogue-shots.cjs); a control with no entry here has no catalogue entry.
+ */
+function CatalogueSet() {
+    const [radius, setRadius] = useState(3);
+    const [angle, setAngle] = useState(40);
+    const [count, setCount] = useState(5);
+    const [on, setOn] = useState(true);
+    const [check, setCheck] = useState(true);
+    const [options, setOptions] = useState({axes: true, grid: false});
+    const [choice, setChoice] = useState('a');
+    const [revealed, setRevealed] = useState(false);
+    const [atExample, setAtExample] = useState(false);
+    const [weights, setWeights] = useState([1, 2.5, 1]);
+    const [a, setA] = useState<PointRow>([1.5, -2]);
+    const [points, setPoints] = useState(4);
+    const [playing, setPlaying] = useState(false);
+    return <div className="inspector-group" data-fixture="catalogue">
+        <h3>{text.group}</h3>
+        <div className="inspector-control" data-catalogue="Slider"><Slider min={1} max={9} step={0.5} value={radius} onChange={setRadius} customText={text.radius}/></div>
+        <div className="inspector-control" data-catalogue="AngleSlider"><AngleSlider customText={text.angle} value={angle} onChange={setAngle}/></div>
+        <div className="inspector-control" data-catalogue="CountSetter"><CountSetter label={text.count} n={count} min={2} max={9} onPlus={() => setCount(count + 1)} onMinus={() => setCount(count - 1)} onSet={setCount}/></div>
+        <div className="inspector-control" data-catalogue="NumberInput"><NumberInput label={text.radius} value={radius} onChange={setRadius} min={1} max={9} step={0.5}/></div>
+        <div className="inspector-control" data-catalogue="NumberGrid">
+            <NumberGrid label={text.matrix} columns={2}
+                cells={[1, 0.5, -2, 4].map((value, at) => ({label: `${text.matrix} ${at + 1}`, value, onChange: noop, min: -4, max: 4, step: 0.25}))}/>
+        </div>
+        <div className="inspector-control" data-catalogue="PointListInput">
+            <PointListInput title={text.pointA} points={[a]} pointLabel={() => text.pointA} min={-10} max={10} grid={0.5}
+                onCommit={(_, value) => setA(value)}/>
+        </div>
+        <div className="inspector-control" data-catalogue="PointCollection">
+            <PointCollection label={text.points} count={points} min={2} max={8} onAdd={() => setPoints(points + 1)}
+                removal={{kind: 'last', onRemove: () => setPoints(points - 1)}} addMode={{on: true, onToggle: noop}}/>
+        </div>
+        <div className="inspector-control" data-catalogue="ValueListInput">
+            <ValueListInput title={text.weights} values={weights} valueLabel={i => `${text.weight} ${i + 1}`} min={0} max={10}
+                onCommit={(i, value) => { setWeights(weights.map((w, at) => at === i ? value : w)); }}/>
+        </div>
+        <div className="inspector-control" data-catalogue="ChoiceSelect">
+            <ChoiceSelect label={text.example} value={choice} onChange={setChoice}
+                options={[{value: 'a', text: text.optionA}, {value: 'b', text: text.optionB}, {value: 'c', text: text.optionC}]}/>
+        </div>
+        <div className="inspector-control" data-catalogue="ResetExampleButton"><ResetExampleButton atExample={atExample} onReset={() => setAtExample(true)}/></div>
+        <div className="inspector-control" data-catalogue="OnOffSwitch"><OnOffSwitch checked={on} onChange={setOn} label={text.shown}/></div>
+        <div className="inspector-control" data-catalogue="BooleanField"><BooleanField variant="checkbox" checked={check} onChange={setCheck} label={text.axes}/></div>
+        <div className="inspector-control" data-catalogue="CheckboxGroup">
+            <CheckboxGroup label={text.shown} options={[{key: 'axes', label: text.axes, checked: options.axes}, {key: 'grid', label: text.grid, checked: options.grid}]}
+                onChange={(key, checked) => setOptions({...options, [key]: checked})}/>
+        </div>
+        <div className="inspector-control" data-catalogue="RevealButton">
+            <RevealButton revealed={revealed} showLabel={text.showResult} hideLabel={text.hideResult} onToggle={() => setRevealed(!revealed)} action="catalogue-reveal"/>
+        </div>
+        <div className="inspector-control btn-group" data-catalogue="UnavailableButton"><UnavailableButton className="btn" onPress={noop}>{text.ordinary}</UnavailableButton></div>
+        <div className="inspector-control" data-catalogue="PlaybackButtons">
+            <PlaybackButtons groupLabel={text.playGroup} nextLabel={text.next} playing={playing} onNext={noop} onPlayPause={() => setPlaying(!playing)} onReset={noop}/>
+        </div>
+        <div className="inspector-control" data-catalogue="StepCounter"><StepCounter step={3} length={12}/></div>
+        <div data-catalogue="InspectorDisclosure"><InspectorDisclosure title={text.readout} defaultOpen><p className="inspector-help">{text.readoutHelp}</p></InspectorDisclosure></div>
+        <div className="inspector-control" data-catalogue="ReadoutHeading"><ReadoutHeading>{text.readout}</ReadoutHeading></div>
+        <div className="inspector-control" data-catalogue="ReadoutList">
+            <ReadoutList label={text.readout} rows={[{id: 'r', label: text.radius, value: '3,5'}, {id: 'x', label: text.pointA, value: '(1,5; −2)'}]}/>
+        </div>
+        <div className="inspector-control" data-catalogue="ReadoutHelp"><ReadoutHelp>{text.readoutHelp}</ReadoutHelp></div>
+        <div className="inspector-control" data-catalogue="ReadoutScrollTable">
+            <ReadoutScrollTable label={text.matrix}><table className="readout-table"><tbody>
+                <tr><td>1</td><td>0,5</td></tr><tr><td>−2</td><td>4</td></tr>
+            </tbody></table></ReadoutScrollTable>
+        </div>
+        <div className="inspector-control" data-catalogue="RefusalNotice"><RefusalNotice channel={refusalChannel}/></div>
+        <div className="inspector-control" data-catalogue="ToolTippedButton"><ToolTippedButton className="btn" tooltip={text.tooltip} onClick={noop}>+</ToolTippedButton></div>
+    </div>;
 }
 
 /** One column of controls. The same set is shown in both placements. */
@@ -208,6 +333,7 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
             <p className="inspector-help" role="status" data-fixture="blocked-status">{blocked}</p>
             <InspectorDisclosure title={text.longLabel}><p className="inspector-help">{text.help}</p></InspectorDisclosure>
         </div>
+        {catalogue && placement === 'edit' && <CatalogueSet/>}
     </div>;
 }
 

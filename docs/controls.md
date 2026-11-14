@@ -69,7 +69,60 @@ The inspector is 310 px wide on desktop (about 286 px of content) and the full w
 
 The curve workspace's own panels (`CurveOperation`, `BezierCurveControls`, `CurveDisplayControls` and the rational and PH variants in `src/graphs/base/controls/`) are compositions of these for curve graphs; a new curve graph reuses them through `BaseCurveGraph`.
 
+## Pictures
+
+Each control at inspector width, in an ordinary state, from the controls fixture. `LiveReadout` and `StatusLive` have no visible part.
+
+`Slider`<br>![Slider](controls/slider.png)
+
+`AngleSlider`<br>![AngleSlider](controls/angle-slider.png)
+
+`CountSetter`<br>![CountSetter](controls/count-setter.png)
+
+`NumberInput`<br>![NumberInput](controls/number-input.png)
+
+`PointListInput`<br>![PointListInput](controls/point-list-input.png)
+
+`NumberGrid`<br>![NumberGrid](controls/number-grid.png)
+
+`PointCollection`<br>![PointCollection](controls/point-collection.png)
+
+`ValueListInput`<br>![ValueListInput](controls/value-list-input.png)
+
+`ChoiceSelect`<br>![ChoiceSelect](controls/choice-select.png)
+
+`ResetExampleButton`<br>![ResetExampleButton](controls/reset-example-button.png)
+
+`OnOffSwitch`<br>![OnOffSwitch](controls/on-off-switch.png)
+
+`BooleanField`<br>![BooleanField](controls/boolean-field.png)
+
+`CheckboxGroup`<br>![CheckboxGroup](controls/checkbox-group.png)
+
+`RevealButton`<br>![RevealButton](controls/reveal-button.png)
+
+`UnavailableButton`<br>![UnavailableButton](controls/unavailable-button.png)
+
+`PlaybackButtons`<br>![PlaybackButtons](controls/playback-buttons.png)
+
+`StepCounter`<br>![StepCounter](controls/step-counter.png)
+
+`InspectorDisclosure`<br>![InspectorDisclosure](controls/inspector-disclosure.png)
+
+`ReadoutHeading`<br>![ReadoutHeading](controls/readout-heading.png)
+
+`ReadoutList`<br>![ReadoutList](controls/readout-list.png)
+
+`ReadoutHelp`<br>![ReadoutHelp](controls/readout-help.png)
+
+`ReadoutScrollTable`<br>![ReadoutScrollTable](controls/readout-scroll-table.png)
+
+`RefusalNotice`<br>![RefusalNotice](controls/refusal-notice.png)
+
+`ToolTippedButton`<br>![ToolTippedButton](controls/tool-tipped-button.png)
+
 ## Checking a panel
 
 - `just controls-fixture` renders every shared control at inspector width, on a phone and at 200 % text, and fails on clipping, a missing focus ring, a small touch target or a point row that wraps.
 - `node scripts/controls-inventory.cjs` regenerates the [call-site inventory](tasks/control-choice/inventory.md): every shared control in graph and lesson code, with a first reading of each typed number field against the table above.
+- `node scripts/controls-sweep/catalogue-shots.cjs` regenerates the [pictures](#pictures) from the fixture (it starts its own dev server). A control with no `data-catalogue` entry in `fixtures/controls/main.tsx` has no catalogue entry.
