@@ -26,7 +26,7 @@
 :root {
     font-optical-sizing: auto;
     --bezeg-font-display: "Literata", Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-    --bezeg-type-hero: clamp(2.625rem, 1.6rem + 4.6vw, 5rem);
+    --bezeg-type-hero: clamp(2.25rem, 1.45rem + 3.2vw, 4rem);
     --bezeg-type-page: clamp(2.25rem, 4.6vw, 3.75rem);
     --bezeg-type-section: clamp(1.4rem, 2.2vw, 1.7rem);
     --bezeg-type-item: clamp(1.2rem, 1.8vw, 1.42rem);
@@ -45,6 +45,9 @@
 /* Incumbent header/home palette. Keep state relationships explicit; see DESIGN.md. */
 :root {
     --bezeg-shell-canvas: #f7f5e9;
+    /* Side padding shared by the header and the Demonstration workspace, so their edges line up. 24px up to a
+       1328px viewport, then growing to 54px: wider screens give their width to the graph. */
+    --bezeg-shell-page-inline: max(24px, min(54px, calc((100vw - 1280px) / 2)));
     --bezeg-shell-panel: #fffdf5;
     --bezeg-shell-preview-panel: #fffdf6;
     --bezeg-shell-ink: #19372f;

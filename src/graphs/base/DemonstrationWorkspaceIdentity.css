@@ -10,7 +10,7 @@
     --workspace-pollen: var(--bezeg-shell-lesson-ink);
     grid-template-columns: minmax(0, 1fr) 310px;
     gap: 22px;
-    padding: 30px max(24px, calc((100vw - 1280px) / 2)) 64px;
+    padding: 30px var(--bezeg-shell-page-inline) 64px;
     background: var(--workspace-canvas);
 }
 .workspace-heading { align-items: flex-end; gap: 24px; padding-bottom: 8px; }

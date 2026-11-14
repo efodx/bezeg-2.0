@@ -18,7 +18,7 @@
     align-items: center;
     gap: 16px;
     min-height: 72px;
-    padding: 14px max(24px, calc((100vw - 1280px) / 2));
+    padding: 14px var(--bezeg-shell-page-inline);
     border-bottom: 1px solid var(--bezeg-shell-rule);
     background: var(--bezeg-shell-panel);
     color: var(--bezeg-shell-ink);
@@ -101,12 +101,22 @@
 .app-header .app-topic-toggle:focus-visible { outline: 3px solid var(--bezeg-shell-header-focus); outline-offset: 3px; box-shadow: none; }
 
 @media(max-width:700px) {
-    .app-header { min-height: 64px; padding: 10px 16px; gap: 12px; }
-    .app-brand { gap: 6px; font-size: 25px; }
+    .app-header { min-height: 64px; padding: 10px 16px; gap: 8px; }
+    .app-brand { gap: 6px; font-size: 23px; }
     .app-brand img { width: 30px; height: 30px; }
-    .app-header-actions { gap: 8px; }
-    .app-header .app-topic-toggle { padding: 10px 12px; font-size: 12px; }
+    .app-header-actions { gap: 4px; }
+    .app-header .app-topic-toggle { padding: 10px; font-size: 12px; }
+    .app-header .language-selector select { min-width: 56px; padding-inline: 4px; }
     .app-header .language-selector small { max-width: 120px; overflow-wrap: anywhere; }
+}
+
+/* Phones: brand, both links and the language selector stay on one row down to 360px in both languages. */
+@media(max-width:400px) {
+    .app-brand { font-size: 21px; }
+    .app-brand img { width: 28px; height: 28px; }
+    .app-header-actions { gap: 0; }
+    .app-header .app-topic-toggle { padding-inline: 7px; }
+    .app-header .language-selector select { min-width: 50px; padding-inline: 2px; }
 }
 
 @media(max-width:350px) {
