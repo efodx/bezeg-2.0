@@ -44,7 +44,16 @@ const wavesWindows = {
     'waves.standing-waves.waves': [0.125, 10.37, 1.875, -1.23],
 };
 
+// The descent cards: the screen-anchored caption rows stack down the left of the 840x520 card (six or seven rows, the race rows reaching about 290 px down), so each card gets a window that sets its figure in the
+// free right part, at one common scale in x and y. The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
+const descentWindows = {
+    'mechanical-curves.race-the-tracks.mechanics-descent': [-2.385, 0.345, 2.865, -2.905],
+    'mechanical-curves.drag-the-track.mechanics-descent': [-4.352, 1.664, 3.852, -3.414],
+    'mechanical-curves.tautochrone.mechanics-descent': [-2.370, 0.717, 2.678, -2.409],
+};
+
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(descentWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: descentWindows[entry.id]}};
     if (Object.hasOwn(wavesWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: wavesWindows[entry.id]}};
     if (Object.hasOwn(kinematicsCircleWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: kinematicsCircleWindows[entry.id]}};
     // The expansion card opens the fixed box of the lattice board (bars at y 10.5 to 17.5, labels from y 1.2, captions to y 24.5), which the shared paths window around (2, 2) leaves off the card.
@@ -102,6 +111,7 @@ const chapterFamilies = {
     combinatorics: {label: 'combinatorics', idPrefix: 'combinatorics.', identities: {module: '/src/graphs/combinatorics/registration.ts', rows: 'combinatoricsDemonstrationRows'}},
     'circle-geometry': {label: 'circle-geometry', idPrefix: 'circle-geometry.', identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'}},
     waves: {label: 'waves', idPrefix: 'waves.', identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'}},
+    'mechanical-curves': {label: 'mechanical-curves', idPrefix: 'mechanical-curves.', identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'}},
     kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},
@@ -608,7 +618,9 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     verifyEvidence(entry, initial);
     await page.waitForTimeout(250);
     const settled = await inspectBoard(page);
-    assert.deepEqual(settled, initial, `${entry.id}: board changed after initial-frame settling; refusing a later or animated frame`);
+    // A redraw of the same frame may differ in the last binary digit (the tautochrone board resizes to 105.62499999999999 from 105.625 pixels per unit): compare at nine decimals, which still refuses any real change.
+    const roundedBoard = board => JSON.parse(JSON.stringify(board, (_key, value) => (typeof value === 'number' ? Number(value.toFixed(9)) : value)));
+    assert.deepEqual(roundedBoard(settled), roundedBoard(initial), `${entry.id}: board changed after initial-frame settling; refusing a later or animated frame`);
     assert.equal(page.url(), target, `${entry.id}: route or example identity changed before capture`);
     let highlighted = initial, highlight;
     if (entry.recipe.kind === 'highlight') {

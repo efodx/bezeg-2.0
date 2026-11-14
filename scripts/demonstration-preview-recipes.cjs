@@ -46,6 +46,8 @@ const targets = {
     // The sum view of the graph's own frame (the phasor panel at the left, the 1 s plot and the caption room above): x from -0.66 to 1.06, y from -1.375 to 2.53 for amplitudes up to 1. The three lesson cards
     // take their own windows in the capture script (the caption rows cover the top of a card). A window keeps the unequal x and y scales of the board.
     'waves': ['Default sum of two 3 Hz waves with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [], [-0.66, 2.53, 1.06, -1.375]],
+    // The board frames the three descent experiments by itself (the track box, the caption rows and the handles); the recipe sets no window and the lesson scenes keep their own.
+    'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, framed by the board', []],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-1, 1.37, 1.4, -0.1]],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],

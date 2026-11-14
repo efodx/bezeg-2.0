@@ -371,6 +371,16 @@ const chapterInventories = {
         // The one waves Demonstration: the three examples must cover it and open on its route.
         identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'},
     },
+    'mechanical-curves': {
+        module: '/src/learning/content/mechanicalCurvesChapterRegistry.ts',
+        // Like waves: section rows plus a per-section lesson function.
+        registryExport: 'mechanicalCurvesGuidedExampleDemonstrations',
+        lessonExport: 'mechanicalCurvesGuidedExampleLesson',
+        pathExport: 'mechanicalCurvesGuidedExamplePath',
+        expectedFor: mechanicalCurvesExpectedFor,
+        // The one mechanics-descent Demonstration: the three examples must cover it and open on its route.
+        identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -2228,6 +2238,53 @@ function wavesExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Mechanical curves chapter (mechanical-curves): three lessons on the one mechanics-descent Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default,
+// then `set-mode` (absent for the race), an optional `set-params` and `set-time`; nothing is random.
+
+/** Asserts the opening scene is the prepared default, the optional mode, no parameters and the time in that order; returns the time. */
+function mechanicalCurvesOpening(id, step, mode) {
+    const all = step.scene.actions;
+    // The content scene lists its own prepared scene and the adapter prepends another: one or two leading entries.
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    const operations = [...(mode ? ['set-mode'] : []), 'set-time'];
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `descent:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    if (mode) assert.equal(own[0].mode, mode, `${id}: only the ${mode} mode is authored`);
+    return own.at(-1).t;
+}
+
+// Authored from src/graphs/mechanics/DescentGraph.tsx (buildScene) and the defaults of src/mechanics/trackModel.ts (r = 1 m, B = (3.25; 2) m, P1 = (0.5; 2), P2 = (2; 2.5), beads at theta 0.3, 1 and 2, cycloid and
+// arc guide switches), not from a capture. The board's second axis is the negative depth. Hidden elements (the other modes' tracks, the arc guide, the handles outside their mode) are not counted.
+const mechanicalCurvesFrames = {
+    // The race at time 0: line, circular arc and cycloid (three curves); the square start A at (0, 0), the square end B at (pi, -2) (the end of one cycloid arch of r = 1) and three beads at A: five points.
+    'race-the-tracks': (id, step) => {
+        assert.equal(mechanicalCurvesOpening(id, step, undefined), 0, `${id}: only the race at time 0 is authored`);
+        return {types: {curve: 3, point: 5}, curveCount: 3, points: [[0, 0], [Math.PI, -2]]};
+    },
+    // The track experiment at time 0: line, cycloid, the Bezier track and its dotted control polygon (four curves); A, the three draggable points B (3.25; -2), P1 (0.5; -2) and P2 (2; -2.5), and the two beads (the
+    // track and the cycloid) at A: six points.
+    'drag-the-track': (id, step) => {
+        assert.equal(mechanicalCurvesOpening(id, step, 'track'), 0, `${id}: only the track experiment at time 0 is authored`);
+        return {types: {curve: 4, point: 6}, curveCount: 4, points: [[0, 0], [3.25, -2], [0.5, -2], [2, -2.5]]};
+    },
+    // The tautochrone at time 0: the cycloid only (the arc guide is off, one curve); the three beads rest on their draggable start points at x = theta - sin theta, depth 1 - cos theta for theta = 0.3, 1 and 2,
+    // so six points on three places.
+    'tautochrone': (id, step) => {
+        assert.equal(mechanicalCurvesOpening(id, step, 'tautochrone'), 0, `${id}: only the tautochrone at time 0 is authored`);
+        return {types: {curve: 1, point: 6}, curveCount: 1, points: [0.3, 1, 2].map(theta => [theta - Math.sin(theta), -(1 - Math.cos(theta))])};
+    },
+};
+
+/** First-frame expectation of a mechanical-curves lesson (the three sections of the chapter, keyed by the section in the example id). */
+function mechanicalCurvesExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(mechanicalCurvesFrames, section) ? mechanicalCurvesFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored mechanical-curves first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2284,4 +2341,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, assertExpectation};

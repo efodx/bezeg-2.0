@@ -11,4 +11,4 @@ Handler decision (handler 11, 2026-11-12): the chapter sits in the Learn strand 
 
 Acceptance: the spec's acceptance for MC1–MC2; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; `curve-parametric` behaves as before.
 
-Status: F3 done 2026-11-12 (scene actions, MC1 and MC2 text, chapter wiring, host and content tests; see [the worker notes](../../reviews/feature-streams/families-prep/notes/f3-mech-a.md)); F4-F6 not started.
+Status: F3 done 2026-11-12 (scene actions, MC1 and MC2 text, chapter wiring, host and content tests; see [the worker notes](../../reviews/feature-streams/families-prep/notes/f3-mech-a.md)); F4 done with F3 (chapter sections with guided examples); F5 cards captured (handler 20); catalog clip and F6 next.

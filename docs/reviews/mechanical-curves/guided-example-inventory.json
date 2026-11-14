@@ -1,0 +1,114 @@
+{
+  "examples": [
+    {
+      "id": "mechanical-curves.race-the-tracks.mechanics-descent",
+      "demonstrationId": "mechanics-descent",
+      "path": "/bezeg-2.0/curve-geometry/descent?example=lesson.mechanical-curves.race-the-tracks.mechanics-descent",
+      "sceneFingerprint": "230841bff2e139d1777686ae04a1be09b5d5b4c4d5b8fe217e3e08beea5ded16",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc1-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc1-start-scene\",\"source\":\"demonstration-default\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 5
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            3.141592653589793,
+            -2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "mechanical-curves.drag-the-track.mechanics-descent",
+      "demonstrationId": "mechanics-descent",
+      "path": "/bezeg-2.0/curve-geometry/descent?example=lesson.mechanical-curves.drag-the-track.mechanics-descent",
+      "sceneFingerprint": "7c5a898efa953990e55b043ff84fc18aa39f46cba6247c3bd81468aa8068b13a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc2-track-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc2-track-scene\",\"source\":\"demonstration-default\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-mode\",\"mode\":\"track\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 4,
+          "point": 6
+        },
+        "curveCount": 4,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            3.25,
+            -2
+          ],
+          [
+            0.5,
+            -2
+          ],
+          [
+            2,
+            -2.5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "mechanical-curves.tautochrone.mechanics-descent",
+      "demonstrationId": "mechanics-descent",
+      "path": "/bezeg-2.0/curve-geometry/descent?example=lesson.mechanical-curves.tautochrone.mechanics-descent",
+      "sceneFingerprint": "f7cd147b707d7e5ce12998440f0215817049b2e488ee329c8a6fc2bcb3bd4e67",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc3-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc3-start-scene\",\"source\":\"demonstration-default\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-mode\",\"mode\":\"tautochrone\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 6
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0.004479793338660443,
+            -0.04466351087439402
+          ],
+          [
+            0.1585290151921035,
+            -0.45969769413186023
+          ],
+          [
+            1.0907025731743183,
+            -1.4161468365471424
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

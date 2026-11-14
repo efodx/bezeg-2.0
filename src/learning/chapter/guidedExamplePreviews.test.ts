@@ -27,6 +27,7 @@ import {circleGeometryPreviewCopy} from '../content/circleGeometryPreviewCopy';
 import {combinatoricsPreviewCopy} from '../content/combinatoricsPreviewCopy';
 import {kinematicsPreviewCopy} from '../content/kinematicsPreviewCopy';
 import {wavesPreviewCopy} from '../content/wavesPreviewCopy';
+import {mechanicalCurvesPreviewCopy} from '../content/mechanicalCurvesPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
@@ -309,6 +310,9 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'waves', copy: wavesPreviewCopy,
         ids: ['waves.beats.waves', 'waves.standing-waves.waves', 'waves.superposition-and-phase.waves'],
         counts: [[5, 1], [4, 5], [6, 3]]},
+    {chapterId: 'mechanical-curves', copy: mechanicalCurvesPreviewCopy,
+        ids: ['mechanical-curves.drag-the-track.mechanics-descent', 'mechanical-curves.race-the-tracks.mechanics-descent', 'mechanical-curves.tautochrone.mechanics-descent'],
+        counts: [[4, 6], [3, 5], [1, 6]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

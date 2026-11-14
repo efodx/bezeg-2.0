@@ -1,0 +1,615 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+    "dirty": true,
+    "inputs": "38120f22daa88c525da8a14cf07d9b19771c7f5d0fecf322351270be821acbd2",
+    "output": "028c3eef614c36228d39245cce324ed875c3e0e0a056b312227185f58e8049f7"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+    "stampDirty": true,
+    "localOutputHash": "028c3eef614c36228d39245cce324ed875c3e0e0a056b312227185f58e8049f7",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-CZw-poPP.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-CZw-poPP.js",
+        "sha256": "721154a71957b1fa46cc8e58e421e7f3c43dc70c3b78bd67f97a364200eeab40",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "ce0c42c3bb90712c978155f7afc6926f7f4f2263377ceb3166842a73293f85ae",
+    "entries": {
+      "mechanical-curves.race-the-tracks.mechanics-descent": "f8c883b93c95503fd8e9649b6507a6584e310c09f1dcc016d2cead28e74a2f75",
+      "mechanical-curves.drag-the-track.mechanics-descent": "48a396ba006e1d4ca65082d64906b74d79d849b958ee20ef9e6a41dc051f8587",
+      "mechanical-curves.tautochrone.mechanics-descent": "e2d57f2d6f5ca70450ac8899c86030e5cd3e4d07a8805e82e3ea58924f83ed5d"
+    },
+    "presentation": "1d9fb11b7f8473bd86a3fd547fe0f881da2b97989ff642b6a20331e63f8d2e0b",
+    "buildOutput": "028c3eef614c36228d39245cce324ed875c3e0e0a056b312227185f58e8049f7",
+    "buildInputs": "38120f22daa88c525da8a14cf07d9b19771c7f5d0fecf322351270be821acbd2"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "mechanical-curves.race-the-tracks.mechanics-descent",
+        "demonstrationId": "mechanics-descent",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.385,
+            0.345,
+            2.865,
+            -2.905
+          ]
+        }
+      },
+      {
+        "id": "mechanical-curves.drag-the-track.mechanics-descent",
+        "demonstrationId": "mechanics-descent",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.352,
+            1.664,
+            3.852,
+            -3.414
+          ]
+        }
+      },
+      {
+        "id": "mechanical-curves.tautochrone.mechanics-descent",
+        "demonstrationId": "mechanics-descent",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.37,
+            0.717,
+            2.678,
+            -2.409
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "mechanical-curves.race-the-tracks.mechanics-descent",
+      "demonstrationId": "mechanics-descent",
+      "path": "/bezeg-2.0/curve-geometry/descent?example=lesson.mechanical-curves.race-the-tracks.mechanics-descent",
+      "sceneFingerprint": "230841bff2e139d1777686ae04a1be09b5d5b4c4d5b8fe217e3e08beea5ded16",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc1-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc1-start-scene\",\"source\":\"demonstration-default\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "mechanical-curves.race-the-tracks.mechanics-descent.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "23549df871b6c8fb0302bf89e843f3e6fbb7576cd1c9d56c21dfd3257fe84ff5",
+      "scene": {
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "curve": 3,
+          "text": 12,
+          "point": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000001,
+              -0.000096
+            ],
+            [
+              0.000001,
+              -0.000193
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000087,
+              -0.01385
+            ],
+            [
+              0.000174,
+              -0.027699
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.009817,
+              -0.00625
+            ],
+            [
+              0.019635,
+              -0.0125
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:3.141592653589793,-2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 43,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 3,
+            "text": 12,
+            "point": 5
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000001,
+                -0.000096
+              ],
+              [
+                0.000001,
+                -0.000193
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000087,
+                -0.01385
+              ],
+              [
+                0.000174,
+                -0.027699
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.009817,
+                -0.00625
+              ],
+              [
+                0.019635,
+                -0.0125
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:3.141592653589793,-2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 12,
+        "finalLabelCount": 12,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "text": 12,
+          "point": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "mechanical-curves.drag-the-track.mechanics-descent",
+      "demonstrationId": "mechanics-descent",
+      "path": "/bezeg-2.0/curve-geometry/descent?example=lesson.mechanical-curves.drag-the-track.mechanics-descent",
+      "sceneFingerprint": "7c5a898efa953990e55b043ff84fc18aa39f46cba6247c3bd81468aa8068b13a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc2-track-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc2-track-scene\",\"source\":\"demonstration-default\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-mode\",\"mode\":\"track\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "mechanical-curves.drag-the-track.mechanics-descent.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "8044c58f3127e2cafb945cae2143b8e3815504f6ecbccf49e8e28affa3c9afa2",
+      "scene": {
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "curve": 4,
+          "text": 13,
+          "point": 6
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000001,
+              -0.0001
+            ],
+            [
+              0.000001,
+              -0.000199
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.004746,
+              -0.018662
+            ],
+            [
+              0.009492,
+              -0.037324
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.010156,
+              -0.00625
+            ],
+            [
+              0.020313,
+              -0.0125
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.25,
+              -1
+            ],
+            [
+              0.5,
+              -2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:3.25,-2",
+          "point:0.5,-2",
+          "point:2,-2.5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 44,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 17,
+            "curve": 4,
+            "text": 13,
+            "point": 6
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000001,
+                -0.0001
+              ],
+              [
+                0.000001,
+                -0.000199
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.004746,
+                -0.018662
+              ],
+              [
+                0.009492,
+                -0.037324
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.010156,
+                -0.00625
+              ],
+              [
+                0.020313,
+                -0.0125
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.25,
+                -1
+              ],
+              [
+                0.5,
+                -2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:3.25,-2",
+            "point:0.5,-2",
+            "point:2,-2.5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 13,
+        "finalLabelCount": 13,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 4,
+          "text": 13,
+          "point": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "mechanical-curves.tautochrone.mechanics-descent",
+      "demonstrationId": "mechanics-descent",
+      "path": "/bezeg-2.0/curve-geometry/descent?example=lesson.mechanical-curves.tautochrone.mechanics-descent",
+      "sceneFingerprint": "f7cd147b707d7e5ce12998440f0215817049b2e488ee329c8a6fc2bcb3bd4e67",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc3-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mc3-start-scene\",\"source\":\"demonstration-default\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-mode\",\"mode\":\"tautochrone\"}",
+        "descent: {\"kind\":\"descent\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "mechanical-curves.tautochrone.mechanics-descent.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "5e43f4d23d95bc250c11f9e6f6b1e213abdbf0ab3919c2f62d449108e0ecea7e",
+      "scene": {
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "curve": 1,
+          "text": 13,
+          "point": 6
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000001,
+              -0.000096
+            ],
+            [
+              0.000001,
+              -0.000193
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.004479793338660443,-0.04466351087439402",
+          "point:0.1585290151921035,-0.45969769413186023",
+          "point:1.0907025731743183,-1.4161468365471424"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 43,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 1,
+            "text": 13,
+            "point": 6
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000001,
+                -0.000096
+              ],
+              [
+                0.000001,
+                -0.000193
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.004479793338660443,-0.04466351087439402",
+            "point:0.1585290151921035,-0.45969769413186023",
+            "point:1.0907025731743183,-1.4161468365471424"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 13,
+        "finalLabelCount": 13,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "text": 13,
+          "point": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "pageErrors": []
+      }
+    }
+  ]
+}

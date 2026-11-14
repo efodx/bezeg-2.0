@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -906,4 +906,20 @@ test('waves expectations are authored from the graph: the sum, beats and standin
     assert.throws(() => wavesExpectedFor('w.beats.waves', open([components({f1: 10, f2: 12, showEnvelope: false}), time(0)])), /the opening scene is set-mode/);
     assert.throws(() => wavesExpectedFor('w.unknown.waves', open([])), /no authored waves/);
     assert.ok(chapterInventories.waves);
+});
+
+test('mechanical-curves expectations are authored from the graph: the race, track and tautochrone openings with their curves and points', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const mode = value => ({kind: 'descent', operation: 'set-mode', mode: value});
+    const time = t => ({kind: 'descent', operation: 'set-time', t});
+    const race = mechanicalCurvesExpectedFor('m.race-the-tracks.mechanics-descent', open([time(0)]));
+    assert.deepEqual([race.types, race.points.length], [{curve: 3, point: 5}, 2]);
+    const track = mechanicalCurvesExpectedFor('m.drag-the-track.mechanics-descent', open([mode('track'), time(0)]));
+    assert.deepEqual([track.types, track.points], [{curve: 4, point: 6}, [[0, 0], [3.25, -2], [0.5, -2], [2, -2.5]]]);
+    const taut = mechanicalCurvesExpectedFor('m.tautochrone.mechanics-descent', open([mode('tautochrone'), time(0)]));
+    assert.deepEqual([taut.types, taut.points.length], [{curve: 1, point: 6}, 3]);
+    assert.throws(() => mechanicalCurvesExpectedFor('m.race-the-tracks.mechanics-descent', open([time(0.5)])), /only the race/);
+    assert.throws(() => mechanicalCurvesExpectedFor('m.drag-the-track.mechanics-descent', open([time(0)])), /the opening scene is set-mode, set-time/);
+    assert.throws(() => mechanicalCurvesExpectedFor('m.unknown.mechanics-descent', open([])), /no authored mechanical-curves/);
+    assert.ok(chapterInventories['mechanical-curves']);
 });
