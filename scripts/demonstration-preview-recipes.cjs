@@ -43,6 +43,9 @@ const targets = {
     'curve-offset': ['Default parabola with the sampled offset at d = -1 and its two cusps marked', [field('Razdalja d', '-1'), toggle('Osti vzporednice')]],
     // The board frames each motion by itself (the path box, a margin of one arrow and the caption room), so the recipe sets no window and the four lesson scenes keep their own.
     'curve-kinematics': ['Default cycloid with the moving point, the path, the thick travelled part and both arrows, framed by the board for the motion', []],
+    // The sum view of the graph's own frame (the phasor panel at the left, the 1 s plot and the caption room above): x from -0.66 to 1.06, y from -1.375 to 2.53 for amplitudes up to 1. The three lesson cards
+    // take their own windows in the capture script (the caption rows cover the top of a card). A window keeps the unequal x and y scales of the board.
+    'waves': ['Default sum of two 3 Hz waves with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [], [-0.66, 2.53, 1.06, -1.375]],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-1, 1.37, 1.4, -0.1]],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],

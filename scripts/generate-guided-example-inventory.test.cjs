@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -889,4 +889,21 @@ test('kinematics expectations are authored from the graph: two curves, the movin
     assert.throws(() => kinematicsExpectedFor('k.projectile-motion.curve-kinematics', open([params(off), time(0)])), /the opening scene is/);
     assert.throws(() => kinematicsExpectedFor('k.unknown.curve-kinematics', open([])), /no authored kinematics/);
     assert.ok(chapterInventories.kinematics);
+});
+
+test('waves expectations are authored from the graph: the sum, beats and standing wave openings with their curves and markers', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const mode = value => ({kind: 'waves', operation: 'set-mode', mode: value});
+    const components = value => ({kind: 'waves', operation: 'set-components', ...value});
+    const time = t => ({kind: 'waves', operation: 'set-time', t});
+    const sum = wavesExpectedFor('w.superposition-and-phase.waves', open([components({a2: 0, p2: 0}), time(0)]));
+    assert.deepEqual([sum.types, sum.points], [{curve: 6, point: 3, arrow: 2}, [[0, 1], [0, 0]]]);
+    const beats = wavesExpectedFor('w.beats.waves', open([mode('beats'), components({f1: 10, f2: 12, showEnvelope: false}), time(0)]));
+    assert.deepEqual([beats.types, beats.points], [{curve: 5, point: 1}, [[0, 2]]]);
+    const standing = wavesExpectedFor('w.standing-waves.waves', open([mode('standing'), components({halfWaves: 2, a1: 1}), time(0)]));
+    assert.deepEqual([standing.types, standing.points.length], [{curve: 4, point: 5}, 5]);
+    assert.throws(() => wavesExpectedFor('w.superposition-and-phase.waves', open([components({a2: 0, p2: 0}), time(0.1)])), /only the sum/);
+    assert.throws(() => wavesExpectedFor('w.beats.waves', open([components({f1: 10, f2: 12, showEnvelope: false}), time(0)])), /the opening scene is set-mode/);
+    assert.throws(() => wavesExpectedFor('w.unknown.waves', open([])), /no authored waves/);
+    assert.ok(chapterInventories.waves);
 });

@@ -1,0 +1,808 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+    "dirty": true,
+    "inputs": "da320cae34a6511b7f14e2d9b0a1266ccdaa7b5e6594e082b6442225db4a7eba",
+    "output": "625ec256e777cfc52ccc9e43288586bdcfae30518d7a64cb7f6b2ee70e7b4dc5"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+    "stampDirty": true,
+    "localOutputHash": "625ec256e777cfc52ccc9e43288586bdcfae30518d7a64cb7f6b2ee70e7b4dc5",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-FRBzD_ZY.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-FRBzD_ZY.js",
+        "sha256": "44b069dba7b2b087eabddebf0e0eaf9a2baafd11433c36abe396706bfe6c5b99",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "c7831aa5ab49c3035b12ea384f909d1ea00b3e8af99f94cc9cf1e9021c989c66",
+    "entries": {
+      "waves.superposition-and-phase.waves": "aec857b31615fa28bc75d2dc0fb2c58a3f189c5af2c69b76c97baaf20aea91d5",
+      "waves.beats.waves": "9954844c3dc602ec983a677b1036cc5783c78f6a08bac3bb6822d68649d4b538",
+      "waves.standing-waves.waves": "c806f28651066b67570b49901d30ff19e54e67498ac44eebf82d01b1e90bde44"
+    },
+    "presentation": "1a54db4f49e9a2ff5d3c5cd1ef295db1b27938ffb337858997095a14698a2be5",
+    "buildOutput": "625ec256e777cfc52ccc9e43288586bdcfae30518d7a64cb7f6b2ee70e7b4dc5",
+    "buildInputs": "da320cae34a6511b7f14e2d9b0a1266ccdaa7b5e6594e082b6442225db4a7eba"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "waves.superposition-and-phase.waves",
+        "demonstrationId": "waves",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.449,
+            3.81,
+            0.921,
+            -0.7
+          ]
+        }
+      },
+      {
+        "id": "waves.beats.waves",
+        "demonstrationId": "waves",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.125,
+            5.95,
+            1.875,
+            -1.51
+          ]
+        }
+      },
+      {
+        "id": "waves.standing-waves.waves",
+        "demonstrationId": "waves",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.125,
+            10.37,
+            1.875,
+            -1.23
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "waves.superposition-and-phase.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.superposition-and-phase.waves",
+      "sceneFingerprint": "808284a59aa6e8ffdcfa4e60d8e84b4a1a9efa546991d810d58fd45ec89d6d28",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv1-one-wave-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv1-one-wave-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"a2\":0,\"p2\":0}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "waves.superposition-and-phase.waves.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "75493f583150cbd20136846812f35c5c5105d8f83e86e0f34bf9f2b8c5e7967d",
+      "scene": {
+        "visibleElementCount": 29,
+        "visibleElementTypes": {
+          "curve": 6,
+          "text": 18,
+          "point": 3,
+          "arrow": 2
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.171952,
+              0
+            ],
+            [
+              -0.172154,
+              0.032702
+            ],
+            [
+              -0.172355,
+              0.065403
+            ]
+          ],
+          [
+            [
+              0,
+              -1.1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000244,
+              0
+            ],
+            [
+              0.000488,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.000244,
+              0.999979
+            ],
+            [
+              0.000488,
+              0.999958
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.000244,
+              0.999979
+            ],
+            [
+              0.000488,
+              0.999958
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:arrow",
+          "curve-count",
+          "point:0,1",
+          "point:0,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "curve": 6,
+            "text": 18,
+            "point": 3,
+            "arrow": 2
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.1024,
+                0
+              ],
+              [
+                -0.102676,
+                0.031571
+              ],
+              [
+                -0.102952,
+                0.063142
+              ]
+            ],
+            [
+              [
+                0,
+                -1.1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1.1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000244,
+                0
+              ],
+              [
+                0.000488,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.000244,
+                0.999979
+              ],
+              [
+                0.000488,
+                0.999958
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.000244,
+                0.999979
+              ],
+              [
+                0.000488,
+                0.999958
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:arrow",
+            "curve-count",
+            "point:0,1",
+            "point:0,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 18,
+        "finalLabelCount": 18,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 6,
+          "text": 18,
+          "point": 3,
+          "arrow": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+        "sourceRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "waves.beats.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.beats.waves",
+      "sceneFingerprint": "eac6414e3f2e3ec08b99490f3812d2ba7e13c638c6d2d879f9fa10dc61625ada",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv2-close-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv2-close-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"beats\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"f1\":10,\"f2\":12,\"showEnvelope\":false}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "waves.beats.waves.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6ee8c18286c9b01cdc45821f3c0c1e97aeee282f1d5061c6beb4ee58c7214213",
+      "scene": {
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "curve": 5,
+          "text": 14,
+          "point": 1
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -2.2
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              2.2
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.000244,
+              0.999661
+            ],
+            [
+              0.000488,
+              0.999322
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.000244,
+              0.999765
+            ],
+            [
+              0.000488,
+              0.999529
+            ]
+          ],
+          [
+            [
+              0,
+              2
+            ],
+            [
+              0.000244,
+              1.999426
+            ],
+            [
+              0.000488,
+              1.998852
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 20,
+          "visibleElementTypes": {
+            "curve": 5,
+            "text": 14,
+            "point": 1
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -2.2
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                2.2
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.000244,
+                0.999661
+              ],
+              [
+                0.000488,
+                0.999322
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.000244,
+                0.999765
+              ],
+              [
+                0.000488,
+                0.999529
+              ]
+            ],
+            [
+              [
+                0,
+                2
+              ],
+              [
+                0.000244,
+                1.999426
+              ],
+              [
+                0.000488,
+                1.998852
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 14,
+        "finalLabelCount": 14,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 5,
+          "text": 14,
+          "point": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+        "sourceRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "waves.standing-waves.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.standing-waves.waves",
+      "sceneFingerprint": "e4dbf557351e62d0734793136a88f8f5f964ae1fe4c2ead1f5bff9f0b4cbbcb9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv3-two-waves-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv3-two-waves-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"standing\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"halfWaves\":2,\"a1\":1}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "waves.standing-waves.waves.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e5030bbd475892da430f006b68de607e5a7b584a96e558a7b03e2a7db9db073b",
+      "scene": {
+        "visibleElementCount": 25,
+        "visibleElementTypes": {
+          "curve": 4,
+          "text": 16,
+          "point": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000488,
+              0.001534
+            ],
+            [
+              0.000977,
+              0.003068
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000488,
+              0.001534
+            ],
+            [
+              0.000977,
+              0.003068
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.000488,
+              0.003068
+            ],
+            [
+              0.000977,
+              0.006136
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:2,0",
+          "point:0.5,2",
+          "point:1.5,-2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "curve": 4,
+            "text": 16,
+            "point": 5
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000488,
+                0.001534
+              ],
+              [
+                0.000977,
+                0.003068
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000488,
+                0.001534
+              ],
+              [
+                0.000977,
+                0.003068
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.000488,
+                0.003068
+              ],
+              [
+                0.000977,
+                0.006136
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:2,0",
+            "point:0.5,2",
+            "point:1.5,-2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 16,
+        "finalLabelCount": 16,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 4,
+          "text": 16,
+          "point": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+        "sourceRevision": "3dfbea511a32b0dfdd20d34c49483fda50f871c1",
+        "pageErrors": []
+      }
+    }
+  ]
+}

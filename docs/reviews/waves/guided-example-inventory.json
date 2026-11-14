@@ -1,0 +1,114 @@
+{
+  "examples": [
+    {
+      "id": "waves.superposition-and-phase.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.superposition-and-phase.waves",
+      "sceneFingerprint": "808284a59aa6e8ffdcfa4e60d8e84b4a1a9efa546991d810d58fd45ec89d6d28",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv1-one-wave-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv1-one-wave-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"a2\":0,\"p2\":0}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 6,
+          "point": 3,
+          "arrow": 2
+        },
+        "curveCount": 6,
+        "points": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "waves.beats.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.beats.waves",
+      "sceneFingerprint": "eac6414e3f2e3ec08b99490f3812d2ba7e13c638c6d2d879f9fa10dc61625ada",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv2-close-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv2-close-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"beats\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"f1\":10,\"f2\":12,\"showEnvelope\":false}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5,
+          "point": 1
+        },
+        "curveCount": 5,
+        "points": [
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "waves.standing-waves.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.standing-waves.waves",
+      "sceneFingerprint": "e4dbf557351e62d0734793136a88f8f5f964ae1fe4c2ead1f5bff9f0b4cbbcb9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv3-two-waves-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv3-two-waves-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"standing\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"halfWaves\":2,\"a1\":1}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 4,
+          "point": 5
+        },
+        "curveCount": 4,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            0.5,
+            2
+          ],
+          [
+            1.5,
+            -2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

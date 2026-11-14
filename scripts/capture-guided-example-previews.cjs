@@ -35,7 +35,17 @@ const kinematicsCircleWindows = {
     'kinematics.circular-motion.curve-kinematics': [-3.77, 3.07, 3.77, -1.59],
 };
 
+// The waves cards: the board's screen-anchored caption rows take the top of the 840x520 card (about 250 px for the sum, 205 for the beats, 285 for the standing wave, whose last row is the long resolution note),
+// so each card gets a window that sets its plot (and, for the sum, the phasor circle) below them and fills the width. The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
+const wavesSumCardId = 'waves.superposition-and-phase.waves';
+const wavesWindows = {
+    'waves.superposition-and-phase.waves': [-0.449, 3.81, 0.921, -0.7],
+    'waves.beats.waves': [0.125, 5.95, 1.875, -1.51],
+    'waves.standing-waves.waves': [0.125, 10.37, 1.875, -1.23],
+};
+
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(wavesWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: wavesWindows[entry.id]}};
     if (Object.hasOwn(kinematicsCircleWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: kinematicsCircleWindows[entry.id]}};
     // The expansion card opens the fixed box of the lattice board (bars at y 10.5 to 17.5, labels from y 1.2, captions to y 24.5), which the shared paths window around (2, 2) leaves off the card.
     if (entry.id === binomialExpansionId) return {...recipe, framing: {kind: 'coordinate-window', window: [-1.5, 24.5, 37.6, 0.3]}};
@@ -91,6 +101,7 @@ const chapterFamilies = {
     'analytic-lines': {label: 'analytic-lines', idPrefix: 'analytic-lines.', identities: {module: '/src/graphs/lines/registration.ts', rows: 'lineDemonstrationRows'}},
     combinatorics: {label: 'combinatorics', idPrefix: 'combinatorics.', identities: {module: '/src/graphs/combinatorics/registration.ts', rows: 'combinatoricsDemonstrationRows'}},
     'circle-geometry': {label: 'circle-geometry', idPrefix: 'circle-geometry.', identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'}},
+    waves: {label: 'waves', idPrefix: 'waves.', identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'}},
     kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},
@@ -342,6 +353,19 @@ function isViewportGeneratedInWindow(beforeData, afterData, boundingBox) {
     return afterData.points.length > 0 && afterData.points.every(([x, y]) => x >= left - slack && x <= right + slack && y >= bottom - slack && y <= top + slack);
 }
 
+// The phasor circle of the waves sum card is drawn about a fixed point of the board (the panel centre, x = -0.36 times the 1 s window, y = 0) with a radius in pixels, so the card, which is smaller than the
+// board it was opened on, redraws it smaller about the same centre. Accept it only when every sample keeps its direction from that centre and all offsets shrink by one common factor on both axes.
+const wavesPhasorCentre = [-0.36, 0];
+
+function isCircleScaledAboutCentre(before, after, initialUnitScale, presentedUnitScale, centre) {
+    if (!Array.isArray(before) || !Array.isArray(after) || before.length !== after.length || !before.length || ![...initialUnitScale, ...presentedUnitScale].every(value => Number.isFinite(value) && value > 0)) return false;
+    const offsets = (samples, unit) => samples.map(point => point.map((value, axis) => (value - centre[axis]) * unit[axis]));
+    const from = offsets(before, initialUnitScale), to = offsets(after, presentedUnitScale);
+    const factor = Math.hypot(...to[0]) / Math.hypot(...from[0]);
+    return Number.isFinite(factor) && factor > 0 && factor <= 1
+        && from.every((offset, index) => offset.every((value, axis) => Math.abs(value * factor - to[index][axis]) <= 0.05 + 1e-3 * Math.abs(value)));
+}
+
 function assertPresentationGeometryStable(initial, presented, exampleId = 'capture') {
     assert.deepEqual(presented.points, initial.points, 'capture presentation changed point geometry');
     assert.equal(presented.curves.length, initial.curves.length, 'capture presentation changed curve count');
@@ -353,7 +377,8 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
             && isViewportSpanningHorizontalCurve(after, presented.boundingBox)
             && before.every((point, sample) => Math.abs(point[1] - after[sample][1]) <= 1e-6);
         const openingSweepLine = exampleId === fortuneCardId && isOpeningSweepLine(before, initial.points) && isOpeningSweepLine(after, presented.points);
-        const cameraScaledConstruction = isCameraScaledCurve(before, after, initial.unitScale, presented.unitScale);
+        const cameraScaledConstruction = isCameraScaledCurve(before, after, initial.unitScale, presented.unitScale)
+            || (exampleId === wavesSumCardId && isCircleScaledAboutCentre(before, after, initial.unitScale, presented.unitScale, wavesPhasorCentre));
         const beforeData = initial.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(before));
         // Pair by board id: two curves with identical samples (a graph and its coinciding ghost) may swap places in the sorted order.
         const afterData = presented.curveData?.find(curve => beforeData && curve.id === beforeData.id)

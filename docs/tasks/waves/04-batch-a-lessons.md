@@ -11,4 +11,4 @@ Handler decisions (handler 11, 2026-11-12): the chapter sits in the Learn strand
 
 Acceptance: the spec's acceptance for WV1–WV2; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the trigonometric function and Fourier routes behave as before.
 
-Status: F3 done 2026-11-12 (handler 11; WV1 and WV2, chapter skeleton, host and content tests, the two label fixes; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-waves-a.md)); F4–F6 next.
+Status: F3 done 2026-11-12 (handler 11; WV1 and WV2, chapter skeleton, host and content tests, the two label fixes; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-waves-a.md)); F4 done with F3 (chapter sections with guided examples); F5 cards captured (handler 20); catalog clip and F6 next.

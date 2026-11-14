@@ -361,6 +361,16 @@ const chapterInventories = {
         // The one curve-kinematics Demonstration: the four examples must cover it and open on its route.
         identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'},
     },
+    waves: {
+        module: '/src/learning/content/wavesChapterRegistry.ts',
+        // Like kinematics: section rows plus a per-section lesson function.
+        registryExport: 'wavesGuidedExampleDemonstrations',
+        lessonExport: 'wavesGuidedExampleLesson',
+        pathExport: 'wavesGuidedExamplePath',
+        expectedFor: wavesExpectedFor,
+        // The one waves Demonstration: the three examples must cover it and open on its route.
+        identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -2164,6 +2174,60 @@ function kinematicsExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Waves chapter (waves): three lessons on the one waves Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default, then `set-mode` (absent for the
+// sum), `set-components` and `set-time`; nothing is random.
+
+/** Asserts the opening scene is the prepared default, the optional mode, the components and the time in that order; returns the components and the time. */
+function wavesOpening(id, step, mode) {
+    const all = step.scene.actions;
+    // The content scene lists its own prepared scene and the adapter prepends another: one or two leading entries.
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    const operations = [...(mode ? ['set-mode'] : []), 'set-components', 'set-time'];
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `waves:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    if (mode) assert.equal(own[0].mode, mode, `${id}: only the ${mode} mode is authored`);
+    const {kind: _kind, operation: _operation, ...components} = own.at(-2);
+    return {components, t: own.at(-1).t};
+}
+
+const sameFields = (components, expected) => Object.keys(components).length === Object.keys(expected).length && Object.entries(expected).every(([key, value]) => components[key] === value);
+
+// Authored from src/graphs/functions/WavesGraph.tsx (buildScene) and the defaults of src/waves/wavesModel.ts (a1 = 1, p1 = 0, f1 = f2 = 3 Hz, halfWaves 2, phasors and envelope switches on), not from a capture.
+// Every mode draws the axes as one curve; the sum and beats modes add the time cursor curve and the three wave curves, the standing wave draws its two travelling waves and their sum.
+const wavesFrames = {
+    // Wave 1 (amplitude 1, 3 Hz, phase 0) and wave 2 with amplitude 0 (a flat line): axes, time cursor, wave 1, wave 2, the sum and, with the phasor switch on, the phasor circle: six curves. Two arrows of the
+    // phasor picture (the arrow of wave 2 has length 0, the amplitude of the absent wave, and is not drawn) and three marker dots at the time cursor (t = 0): wave 1 at (0, 1), wave 2 at (0, 0) and the sum at (0, 1).
+    'superposition-and-phase': (id, step) => {
+        const {components, t} = wavesOpening(id, step, undefined);
+        assert.ok(sameFields(components, {a2: 0, p2: 0}) && t === 0, `${id}: only the sum of wave 1 and an absent wave 2 (amplitude 0) at time 0 is authored`);
+        return {types: {curve: 6, point: 3, arrow: 2}, curveCount: 6, points: [[0, 1], [0, 0]]};
+    },
+    // Beats of two waves of amplitude 1 at 10 Hz and 12 Hz with the envelope hidden: axes, time cursor and three waves (five curves, the two envelope curves are hidden). One marker dot at the time cursor:
+    // both waves are at their peaks at t = 0, so the sum is 2.
+    'beats': (id, step) => {
+        const {components, t} = wavesOpening(id, step, 'beats');
+        assert.ok(sameFields(components, {f1: 10, f2: 12, showEnvelope: false}) && t === 0, `${id}: only the beats of 10 Hz and 12 Hz without the envelope at time 0 are authored`);
+        return {types: {curve: 5, point: 1}, curveCount: 5, points: [[0, 2]]};
+    },
+    // The standing wave on the length 2 with two half waves, amplitude 1 each: axes, the two travelling waves and their sum (four curves). Nodes at 0, 1 and 2 (squares on the axis) and antinodes at
+    // 0.5 and 1.5 (diamonds); at t = 0 the waves coincide, so the sum is 2 sin(pi x) and the antinodes are at (0.5, 2) and (1.5, -2).
+    'standing-waves': (id, step) => {
+        const {components, t} = wavesOpening(id, step, 'standing');
+        assert.ok(sameFields(components, {halfWaves: 2, a1: 1}) && t === 0, `${id}: only the standing wave with two half waves and amplitude 1 at time 0 is authored`);
+        return {types: {curve: 4, point: 5}, curveCount: 4, points: [[0, 0], [1, 0], [2, 0], [0.5, 2], [1.5, -2]]};
+    },
+};
+
+/** First-frame expectation of a waves lesson (the three sections of the chapter, keyed by the section in the example id). */
+function wavesExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(wavesFrames, section) ? wavesFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored waves first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2220,4 +2284,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, assertExpectation};
