@@ -7,7 +7,21 @@
 .point-collection .btn[aria-disabled="true"]:not([aria-pressed="true"]) { color: var(--bezeg-control-help-ink, var(--workspace-ink-soft)); }
 .point-collection .btn:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
 .point-collection-mode[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
-.point-collection-entry { display: flex; flex-wrap: wrap; gap: .4rem; align-items: start; }
-.point-collection-axis { flex: 1 1 auto; display: flex; justify-content: space-between; gap: .25rem; align-items: baseline; }
-.point-collection-axis > span { color: var(--workspace-ink-soft); font-style: italic; }
+/* The new point's coordinates on one line: each axis letter beside its field, the fields equally wide, the button below. The
+   field wrappers add no box, so a refusal hint spans the whole entry. */
+.point-collection-entry { display: grid; grid-template-columns: repeat(2, max-content minmax(0, 1fr)); column-gap: .4rem; row-gap: 0; align-items: center; }
+.point-collection-entry:has(> .point-collection-axis:nth-child(3)) { grid-template-columns: repeat(3, max-content minmax(0, 1fr)); }
+.point-collection-axis, .point-collection-axis > .number-input { display: contents; }
+.point-collection-axis > span { grid-row: 1; color: var(--workspace-ink-soft); font-style: italic; }
+.point-collection-axis input[type] { grid-row: 1; }
+.point-collection-axis:nth-child(1) > span { grid-column: 1; }
+.point-collection-axis:nth-child(1) input[type] { grid-column: 2; }
+.point-collection-axis:nth-child(2) > span { grid-column: 3; }
+.point-collection-axis:nth-child(2) input[type] { grid-column: 4; }
+.point-collection-axis:nth-child(3) > span { grid-column: 5; }
+.point-collection-axis:nth-child(3) input[type] { grid-column: 6; }
+.point-collection-entry .number-input input[type] { width: 100%; min-width: 0; }
+.point-collection-entry .number-input-hint-region { grid-column: 1 / -1; }
+.point-collection-entry .number-input-hint { margin-top: .2rem; }
+.point-collection-entry > .btn { grid-column: 1 / -1; justify-self: start; margin-top: .4rem; }
 @media (forced-colors: active) { .point-collection .btn[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: 1; color: GrayText; border-color: GrayText; } }
