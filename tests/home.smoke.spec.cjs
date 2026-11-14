@@ -1,6 +1,5 @@
 const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
-const demonstrationById = new Map(demonstrations.map(demonstration => [demonstration.id, demonstration]));
 const familyById = new Map(demonstrations.families.map(family => [family.id, family]));
 const demonstrationByChoiceName = new Map(demonstrations.map(demonstration =>
     [`${familyById.get(demonstration.family).title}: ${demonstration.title}`, demonstration]));
