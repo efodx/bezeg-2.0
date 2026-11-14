@@ -410,7 +410,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b2/` (served as `walkthr
 - The `interp-runge` row named a button that no longer exists (`Povečaj stopnjo n za 1`, now `Povečaj število`); the label was corrected. The triage found the same kind of stale label on `epicycles` and `voronoi-degenerate`.
 - **Open for the package: guided example images.** The lesson chapters hold their own stored images of these graphs (`scripts/capture-guided-example-previews.cjs`, alt text in `src/learning/content/*PreviewCopy.ts`). A style change makes them differ from the live graph until the chapter is recaptured. B1 and B2 updated the alt text to the new colours; the images themselves are not recaptured yet. Do one recapture per affected chapter after the style batches (probability, interpolation, curve geometry for the envelope, and any chapter whose images show plain board text, which changed face with Literata).
 
-### B3 Bézier (handler 2, 2026-11-14; shown to the owner, not yet published)
+### B3 Bézier (handler 2, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b3/` (served as `walkthrough-graphs/b3.html` on the preview).
 
@@ -420,7 +420,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b3/` (served as `walkthr
 - `affine`: unchanged. Its controls are step buttons, so the clip stays discrete; a pale reference of the original needs new drawing code.
 - `bezier`: unchanged, **blocked**: the legacy drag clip's restore step clicks `.point-coordinate-editor summary` (`scripts/demonstration-preview-motion.cjs:508`), a class the inspector no longer has, so `bezier` cannot be recaptured and a full regeneration fails there. Repair the restore step against the current coordinate controls before B3's `bezier` item or any full run.
 
-### B4 PH and parameterizations (handler 3, 2026-11-14; shown to the owner, not yet published)
+### B4 PH and parameterizations (handler 3, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b4/` (served as `walkthrough-graphs/b4.html` on the preview).
 
@@ -431,7 +431,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b4/` (served as `walkthr
 - The clip check that finds the sample markers by fill (`scripts/demonstration-preview-curve-motion.cjs:161`) reads the new colour.
 - Not checked: inspector at 310 px against a before screenshot (no control code changed); most 390 px and English screenshots in `b4/live/` were taken but not viewed.
 
-### B5 Curve geometry (handler 3, 2026-11-14; shown to the owner, not yet published)
+### B5 Curve geometry (handler 3, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b5/` (served as `walkthrough-graphs/b5.html` on the preview).
 
