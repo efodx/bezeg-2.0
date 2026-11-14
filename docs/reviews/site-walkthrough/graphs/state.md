@@ -15,6 +15,19 @@ None of this is on the public site yet: it has been built and unit-tested but no
 
 **Approved by you on 2026-11-14:** the capture-text rule (with `r` kept on the correlation card), the three pilot directions with leave to refine colours, Literata for graph text, and the convexity clip as a smooth sweep.
 
+## Handler 2 interim (2026-11-14, stopped at a usage limit; nothing published)
+
+**Owner feedback received, not yet acted on:** (1) envelope: the amber current line looks bad with the blue family, pick another accent and show it; (2) epicycles cat: the first (mockup) cat was much cuter, draw an original one just as cute (owner trusts the handler; the emoji trace still cannot ship).
+
+Committed on the branch: `a86933cd` (envelope lesson test reads the eight bands; it failed 9 tests in `just check-changed`), `ad717160` (correlation line label clear of lines, ticks, caption, hidden on a compact board with no room; surface boards take the shared text face). Verified: focused unit runs, typecheck, full `just lint`, screenshots in `.command-logs/h2-fix/`. Smoke record: `typography/smoke-h2.md` (10 of 11 families Literata; epicycles outlines, 310 px inspector, preset round trip, SVG/PNG export passed).
+
+**Uncommitted in the working tree, unreviewed:**
+- C5 convexity row (`scripts/demonstration-clip-rows/analysis.cjs`, path `0.5 → −0.5 → 1.8 → 0.5` so the clip leaves `[a, b]` as the quoted lesson sentence asks), legacy specs removed from the two motion scripts, tests, one pruned entry in `eslint-suppressions.json`. Note: `c5/worker.md`. `just tooling-test` passed before the path edit; rerun it.
+- `tests/smoke-catalog.cjs`: the provenance check compared a recipe's RegExp text patterns as `{}`; it now compares the stored `{source, flags}` form. Needs a tooling test.
+- Recaptured media and manifest for `curve-envelope`, `interp-subdivision`, `prob-correlation`, `convexity` (all passed the capture checks, each under 300 KiB). **Read the diff before committing:** `src/demonstrationPreviewAssets.ts` and the manifest show large diffs that look like reordering or line endings, not understood yet. Convexity poster at 1.8 not checked frame by frame.
+
+Capture facts: `just clip` takes one id, but a run fails validation while any other changed recipe is stale, so recapture changed ids together: `PREVIEW_BASE_URL=http://127.0.0.1:4333/bezeg-2.0 PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1 PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1 PREVIEW_RECAPTURE_IDS=a,b,c node scripts/capture-demonstration-previews.cjs`. The envelope clip must be recaptured again after the accent change. The preview on 4333 serves a build with `ad717160`'s content; `build/walkthrough-graphs/` (pilot comparison page) was removed by the rebuild and must be copied back. `just check-changed` has not passed end to end. Open small item: exported envelope PNG shows "Število premic: 16 ." with a stray space.
+
 ## Where things stand
 
 On `master`: the spec and this note only. On branch `worktree-walkthrough-graphs`, unpublished, oldest first:
