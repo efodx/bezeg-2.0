@@ -10,10 +10,9 @@ const grid = (lo, hi, fn) => Array.from({length: 65}, (_, i) => {
     return {x, y: fn(x)};
 });
 
-test('concept motion factory overrides only accumulation and convexity with exact 96-frame sequences', () => {
+test('concept motion factory overrides only accumulation with exact 96-frame sequences', () => {
     assert.deepEqual(Object.keys(specs).sort(), [...conceptMotionIds].sort());
     assert.deepEqual(specs.accumulation.checkpoints.map(({value}) => value), [2, Math.PI, 4, 2]);
-    assert.deepEqual(specs.convexity.checkpoints.map(({value}) => value), [0.5, -0.5, 1, 0.5, 0.5]);
     for (const [id, spec] of Object.entries(specs)) {
         assert.equal(spec.mode, 'discrete-exact-steps');
         assert.equal(spec.holds.reduce((sum, value) => sum + value, 0), 96, `${id} hold budget`);
@@ -25,8 +24,7 @@ test('concept motion factory overrides only accumulation and convexity with exac
         assert.ok(spec.invariants.length >= 3);
     }
     assert.deepEqual(specs.accumulation.checkpoints[1].actions, [{kind: 'number', label: 'Točka x', value: Math.PI, displayDecimals: 4}]);
-    assert.deepEqual(specs.convexity.checkpoints[3].actions.map(action => action.kind), ['number', 'button']);
-    assert.deepEqual(specs.convexity.checkpoints.at(-1).actions, [{kind: 'number', label: 'Točka dotika tangente t', value: 0.5}]);
+    assert.equal(specs.convexity, undefined, 'convexity is a lesson-guided row, not a held-state spec');
 });
 
 function accumulationSample(x, phase) {
@@ -61,32 +59,4 @@ test('accumulation checkpoints independently enforce the integrand zero, antider
     assert.throws(()=>specs.accumulation.checkStep(wrongPositive,first,specs.accumulation),/Positive contribution/);
     const noFill=accumulationSample(4,'negative-contribution');noFill.observed.regions=[];
     assert.throws(()=>specs.accumulation.checkStep(noFill,first,specs.accumulation),/filled region/);
-});
-
-function convexitySample(t, phase) {
-    const chord = x => 0.5 * x + 1.5, tangent = x => 2 * t * x - t * t;
-    return {checkpoint: t, phase, observed: {
-        inputValues: [{label: 'Točka dotika tangente t', value: String(t)}],
-        curves: [x => x * x, tangent].map(fn => ({samples: grid(-1.4, 1.9, fn)})),
-        segments: [{ends: [{x: -1, y: 1}, {x: 1.5, y: 2.25}]}],
-        points: [{x: t, y: t * t}],
-        readouts: {'second-derivative-sign': phase === 'second-derivative-reveal' ? 'f″ ≥ 0' : 'skrito', verdict: phase === 'second-derivative-reveal' ? 'konveksna na [a, b]: graf leži na tetivi ali pod njo' : 'skrito', 'tangent-verdict':'graf leži na tangenti ali nad njo'},
-        reveals: {'toggle-second-derivative': phase === 'second-derivative-reveal' ? 'true' : 'false'},
-    },presentation:{selectedConclusions:[{withinFrame:true,clipPath:'none'}]}};
-}
-
-test('convexity reveals f″ only after formula-checked chord and tangent inequalities', () => {
-    const first = convexitySample(0.5, 'setup');
-    specs.convexity.checkStep(first, first, specs.convexity);
-    specs.convexity.checkStep(convexitySample(-0.5, 'tangent-comparison'), first, specs.convexity);
-    specs.convexity.checkStep(convexitySample(1, 'tangent-comparison'), first, specs.convexity);
-    specs.convexity.checkStep(convexitySample(0.5, 'second-derivative-reveal'), first, specs.convexity);
-    const wrongChord = convexitySample(0.5, 'setup');
-    wrongChord.observed.segments[0].ends[1].y = 2;
-    assert.throws(() => specs.convexity.checkStep(wrongChord, first, specs.convexity), /endpoint chord/);
-    const premature = convexitySample(-0.5, 'tangent-comparison');
-    premature.observed.reveals['toggle-second-derivative'] = 'true';
-    assert.throws(() => specs.convexity.checkStep(premature, first, specs.convexity), /only after/);
-    const wrongVerdict=convexitySample(.5,'second-derivative-reveal');wrongVerdict.observed.readouts.verdict='konkavna na [a, b]';
-    assert.throws(()=>specs.convexity.checkStep(wrongVerdict,first,specs.convexity),/identify convexity/);
 });

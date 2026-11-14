@@ -113,33 +113,6 @@ function createConceptMotionSpecs(helpers = {}) {
         assert.ok(first.observed && spec.schedule.resetFrame === 84, 'Exact accumulation reset boundary must be frame 84');
     };
 
-    const convexityCheck = (sample, first) => {
-        const t = inputNumber(sample, 'Točka dotika tangente t'), o = sample.observed;
-        assert.ok([-0.5, 0.5, 1].some(value => close(t, value, 1e-8)), `Unexpected convexity checkpoint t=${t}`);
-        const lo = -1, hi = 1.5, chord = x => 0.5 * x + 1.5, tangent = x => 2 * t * x - t * t;
-        functionMatches(o.curves, x => x * x, lo, hi, assert, 'Convex function f(x)=x²');
-        functionMatches(o.curves, tangent, lo, hi, assert, 'Tangent at t');
-        const chordLine = o.segments.find(segment => segment.ends.length === 2 && segment.ends.every(p => p.x !== null && p.y !== null)
-            && segment.ends.every(p => close(p.y, chord(p.x), 2e-7))
-            && segment.ends.some(p => close(p.x, lo, 1e-8)) && segment.ends.some(p => close(p.x, hi, 1e-8)));
-        assert.ok(chordLine, 'The fixed endpoint chord over [−1,1.5] must remain visible');
-        for (let i = 0; i <= 20; i++) {
-            const x = lo + (hi - lo) * i / 20;
-            assert.ok(x * x <= chord(x) + 1e-9, `Curve lies above its chord at x=${x}`);
-            assert.ok(x * x >= tangent(x) - 1e-9, `Curve lies below its tangent at x=${x}`);
-        }
-        assert.ok(o.points.some(p => close(p.x, t, 1e-8) && close(p.y, t * t, 2e-7)), 'Tangent point (t,t²) must remain on the graph');
-        const shown = sample.phase === 'second-derivative-reveal';
-        assert.equal(o.reveals['toggle-second-derivative'], shown ? 'true' : 'false', 'Second-derivative conclusion must arrive only after the geometric comparison');
-        if (shown) {
-            assert.match(o.readouts['second-derivative-sign'], /(?:f″|f'')\s*(?:≥|>=)\s*0/i, 'Reveal must state f″ ≥ 0 on the interval');
-            assert.match(o.readouts.verdict, /^konveksna na \[a, b\]:/, 'Payoff must identify convexity on the fixed interval');
-            assert.equal(o.readouts['tangent-verdict'], 'graf leži na tangenti ali nad njo', 'Convex graph must lie above its tangent');
-            assert.ok(sample.presentation.selectedConclusions.some(c => c.withinFrame && c.clipPath === 'none'), 'Second-derivative conclusion must be visible inside the fixed camera');
-        } else assert.ok(/skrito|hidden/i.test(o.readouts.verdict), 'The derivative conclusion must remain hidden before the reveal');
-        assert.ok(first.observed, 'Convexity poster state must be observed for reset comparison');
-    };
-
     const accumulationCheckpoints = [
         {value: 2, phase: 'setup', actions: [{kind: 'number', label: 'Točka x', value: 2}]},
         {value: Math.PI, phase: 'zero-integrand', actions: [{kind: 'number', label: 'Točka x', value: Math.PI, displayDecimals: 4}]},
@@ -150,21 +123,6 @@ function createConceptMotionSpecs(helpers = {}) {
         {name: 'setup', checkpoint: 2, frames: 18}, {name: 'integrand zero and maximum A', checkpoint: Math.PI, frames: 24},
         {name: 'negative signed area reduces A', checkpoint: 4, frames: 42}, {name: 'reset', kind: 'reset', checkpoint: 2, frames: 12},
     ];
-    const convexityCheckpoints = [
-        {value: 0.5, phase: 'setup', actions: [{kind: 'number', label: 'Točka dotika tangente t', value: 0.5}]},
-        {value: -0.5, phase: 'tangent-comparison', actions: [{kind: 'number', label: 'Točka dotika tangente t', value: -0.5}]},
-        {value: 1, phase: 'tangent-comparison', actions: [{kind: 'number', label: 'Točka dotika tangente t', value: 1}]},
-        {value: 0.5, phase: 'second-derivative-reveal', actions: [
-            {kind: 'number', label: 'Točka dotika tangente t', value: 0.5}, {kind: 'button', label: 'Pokaži drugi odvod'},
-        ]},
-        {value: 0.5, phase: 'reset', actions: [{kind: 'number', label: 'Točka dotika tangente t', value: 0.5}]},
-    ];
-    const convexityPhases = [
-        {name: 'geometric setup', checkpoint: 0.5, frames: 18}, {name: 'tangent moves', checkpoint: -0.5, frames: 14},
-        {name: 'tangent moves', checkpoint: 1, frames: 14}, {name: 'second derivative reveal', checkpoint: 0.5, frames: 38},
-        {name: 'reset', kind: 'reset', checkpoint: 0.5, frames: 12},
-    ];
-
     return {
         accumulation: {
             ...exact(accumulationCheckpoints, [18, 24, 42, 12], accumulationPhases,
@@ -175,16 +133,7 @@ function createConceptMotionSpecs(helpers = {}) {
                 ]),
             controlCount: 0, observe: observeBoard, checkStep: accumulationCheck,
         },
-        convexity: {
-            ...exact(convexityCheckpoints, [18, 14, 14, 38, 12], convexityPhases,
-                'recipe coordinate window [-1.4, 3, 1.9, -1]', [
-                    'For f(x)=x² on fixed [−1,1.5], the endpoint chord y=0.5x+1.5 lies above the graph and every tangent y=2tx−t² lies below it for t in the interval.',
-                    'The geometric chord/curve/tangent comparisons precede the f″=2>0 reveal; the interval and curve stay fixed while t changes.',
-                    'The reveal occurs only at the payoff; final reset returns to hidden second-derivative state and poster t=0.5 at frame 84.',
-                ]),
-            controlCount: 0, observe: observeBoard, checkStep: convexityCheck,
-        },
     };
 }
 
-module.exports = {createConceptMotionSpecs, conceptMotionIds: ['accumulation', 'convexity']};
+module.exports = {createConceptMotionSpecs, conceptMotionIds: ['accumulation']};

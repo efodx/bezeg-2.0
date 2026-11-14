@@ -7,7 +7,7 @@ const {createMotionEvidenceValidator, motionSpecs, motionIds} = require('./demon
 const captureApi = require('./demonstration-preview-capture-api.cjs');
 const {rowIds} = require('./demonstration-clip-rows/index.cjs');
 // The 51 clips that predate clip rows; the exact counts below are these plus the row ids.
-const legacyMotionCount = 51;
+const legacyMotionCount = 50;
 // A row may land before its clip; its Demonstration stays in MOTION_PENDING until capture.
 const pendingIds = new Set(Array.from(fs.readFileSync(path.join(__dirname, '../src/demonstrationMotionPending.ts'), 'utf8').matchAll(/\{id: '([^']+)'/g), match => match[1]));
 

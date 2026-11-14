@@ -46,6 +46,15 @@ module.exports = [
         discreteReason: null,
     },
     {
+        id: 'convexity',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Točka dotika tangente t', step: 0.1},
+        // The poster is f(x) = x^2 on [-1, 1.5] with the endpoint chord and t = 0.5 (the recipe sets nothing). The slider t steps by 0.1 (ConvexityGraph.tsx), the tangent point sweeps left to -0.5, then right past b = 1.5 to 1.8 (the lesson's own value outside [a, b]) and back in. The old f'' reveal is dropped (G06).
+        path: [0.5, -0.5, 1.8, 0.5],
+        lessonQuote: 'Premakni \\(t\\) iz \\([a,b]\\) ven in preberi, kaj se zgodi z vrstico o tangenti v odčitkih; nato \\(t\\) vrni v \\([a,b]\\).',
+        discreteReason: null,
+    },
+    {
         id: 'root-finding',
         motion: 'discrete-exact-steps',
         control: {kind: 'trace-step', label: 'Naslednji korak', step: 1},

@@ -5,7 +5,7 @@ const nodeAssert = require('node:assert/strict');
 
 const ids = [
     'linear-function', 'exponential-function', 'continuity', 'area-between-curves', 'arc-length', 'mean-value',
-    'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'fixed-point',
+    'extrema', 'taylor', 'sequence', 'uniform-convergence', 'fixed-point',
 ];
 
 const close = (actual, expected, tolerance = 1e-7) => Number.isFinite(actual) && Number.isFinite(expected) && Math.abs(actual - expected) <= tolerance;
@@ -294,24 +294,6 @@ function createAnalysisMotionSpecs(helpers = {}) {
             variableStrokes: true,
             crf: 26,
         },
-        convexity: {
-            ...schedule('Točka dotika tangente t', 0.5, [0.5, 1.4, 0.5], 0.1, 3,
-                page => observeBoard(page, samples(-1, 1.5)),
-                (sample, previous, first) => {
-                    const x = input(sample), o = sample.observed;
-                    matchingFunction(o.curves, t => t * t, samples(-1, 1.5), 'Convexity function x²', assert);
-                    assert.ok(x >= -1 && x <= 1.5, `Comparison point left the chord interval at frame ${sample.index}`);
-                    const chord = (1.5 - 1) * x + 1.5;
-                    assert.ok(x * x <= chord + 1e-9, `Convex graph lies above its endpoint chord at frame ${sample.index}`);
-                    assert.ok(o.points.some(p => close(p.x, x, 1e-8) && close(p.y, x * x, 1e-7)), `Comparison point is not (x,x²) at frame ${sample.index}`);
-                    if (sample.index === 95) assert.equal(sample.capture.sha256, first.capture.sha256, 'Convexity loop is not seamless');
-                }, {checkControls: sample => {
-                    const t = input(sample), xs = sample.controls.map(p => p.x).sort((x, y) => x - y);
-                    assert.equal(xs.length, 3, 'Convexity chord and comparison point must remain defined');
-                    [-1, t, 1.5].forEach((expected, i) => assert.ok(close(xs[i], expected, 1e-9), `Convexity axis control ${i} moved`));
-                    assert.ok(sample.controls.every(p => close(p.y, 0, 1e-9)), 'Convexity control left the x-axis');
-                }}),
-        },
         taylor: {
             ...schedule('Stopnja n', 2, [2, 8, 2], 1, 2,
                 page => observeBoard(page, samples(-1.5, 2.2)),
@@ -573,7 +555,6 @@ function createAnalysisMotionSpecs(helpers = {}) {
         'arc-length': 'Polyline vertices lie on sin(x); the polygon readout equals their chord sum and the arc readout equals an independent Simpson integral.',
         'mean-value': 'For f(x) = x² on [0,2], the secant slope is 2, the tangent at c has slope 2c, and their difference is 2c − 2.',
         extrema: 'The interval endpoints are (a,a²) and (2,4), with the interior minimum at (0,0) exactly when 0 belongs to [a,2].',
-        convexity: 'For f(x) = x² on [−1,1.5], each comparison point lies below the endpoint chord.',
         taylor: 'The visible polynomial is Σ(k=0..n) x^k/k! and its readouts at x = 1 match e and the absolute remainder.',
         sequence: 'The terms are a_n = 1/n and N_min = floor(1/ε)+1; the displayed certificate matches the independent 5ε > 1 criterion.',
         'uniform-convergence': 'The visible term is x^n on [0,0.8] and the displayed supremum error equals 0.8^n.',
@@ -587,7 +568,6 @@ function createAnalysisMotionSpecs(helpers = {}) {
         'arc-length': 'CRF 10 (existing default): diagnostic capture 227659 B, below 307200 B. Kept all 2–12 exact segment-count states.',
         'mean-value': 'CRF 10 (existing default): diagnostic capture 201781 B, below 307200 B. Kept the full tangency sweep and secant/tangent readouts.',
         extrema: 'CRF 26 (within the existing encoder): CRF 10 produced 428874 B and CRF 18 produced 340597 B, both over 307200 B; CRF 26 produced 267783 B. The full interval sweep is kept because it shows when the global minimum moves to the left endpoint.',
-        convexity: 'CRF 10 (existing default): diagnostic capture 168176 B, below 307200 B. Kept the full comparison-point sweep and fixed chord.',
         taylor: 'CRF 10 (existing default): diagnostic capture 95013 B, below 307200 B. Kept all degrees 2–8 and the full function/polynomial comparison.',
         sequence: 'CRF 10 (existing default): diagnostic capture 212545 B, below 307200 B. Kept all 16 terms, epsilon band, and actual certificate verdict.',
         'uniform-convergence': 'CRF 10 (existing default): diagnostic capture 187442 B, below 307200 B. Kept all indices 5–25 and the displayed supremum.',

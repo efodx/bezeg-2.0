@@ -274,7 +274,9 @@ function validateGeneratedPreviews(catalogDemonstrations, options = {}) {
         if (!demonstrationsById.has(capture.id)) throw new Error(`Preview manifest contains inactive Demonstration ${capture.id}.`);
         if (capturesById.has(capture.id)) throw new Error(`Preview manifest contains duplicate capture ${capture.id}.`);
         const demonstration = demonstrationsById.get(capture.id);
-        if (JSON.stringify(capture.recipe) !== JSON.stringify(recipes[capture.id]) || !capture.evidence || !capture.posterCheckpoint) throw new Error(`Missing or stale recipe/outcome provenance for ${capture.id}.`);
+        // A recipe's capture-text patterns are RegExps; the manifest stores each as {source, flags} (serializableRecipe in the capture script).
+        const storedForm = (key, value) => value instanceof RegExp ? {source: value.source, flags: value.flags} : value;
+        if (JSON.stringify(capture.recipe) !== JSON.stringify(recipes[capture.id], storedForm) ||!capture.evidence || !capture.posterCheckpoint) throw new Error(`Missing or stale recipe/outcome provenance for ${capture.id}.`);
         assertOutcomeEvidence(capture.id,capture.evidence);
         if (capture.path !== demonstration.path || capture.file !== `${capture.id}.png`) {
             throw new Error(`Preview manifest route or filename does not match active metadata for ${capture.id}.`);
