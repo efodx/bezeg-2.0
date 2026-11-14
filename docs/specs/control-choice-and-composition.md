@@ -95,7 +95,19 @@ Steps 1 and 2 can run in parallel.
 
 ## User impact
 
-Many typed number fields become sliders with an exact field, so values are set by dragging or arrow keys as well as typing. Point coordinates take one line per point. Some help lines under fields disappear. Lesson text that tells the student to type into a field is reworded where the control changes. No route or stored Preset changes.
+Many typed number fields become sliders with an exact field, so values are set by dragging or arrow keys as well as typing. Point coordinates take one line per point. Some help lines under fields disappear. Lesson text that tells the student to type into a field is reworded where the control changes. The unit circle's angle fields wrap a typed value into the turn and step by 1°. No route or stored Preset changes.
+
+## Decisions made during the work (handlers, 2026-11-14)
+
+The owner delegated these; each can be corrected from the before and after images.
+
+- **Interval ends** `a`, `b` are two sliders over one fixed range, so their tracks line up; the existing handler keeps their order. A bound that followed another value became the fixed outer range where the handler already refuses an out-of-order value, and stayed a moving bound where an index runs up to a count set just above it (the chosen harmonic up to `K`, `k` up to `n`).
+- **A lone abscissa** of a marked point is a slider. A pair that places one drawn point is a point row, also for a complex number (columns headed Re and Im).
+- **Counts by size.** Up to about 60 values a count is a `CountSetter`; a larger count is a slider; above about 1000 steps on the track a range is a validity limit and the field stays typed with a reason in [`decisions.json`](../tasks/control-choice/decisions.json) (Linear `k` and `n`, Density's ends, the Growth capital, Simulation trials, the inserted knot). A random seed stays typed.
+- **Angles.** UnitCircle uses `AngleSlider`: a typed value outside the turn wraps instead of being refused, and the arrow step is 1° (was 0,5°). EulerCircle keeps a plain 0 to 360 slider because its playback ends at 360.
+- **One control per value.** BinomialNormal's separate "exact p" field went into the `p` slider's exact field.
+- **Sweep.** Three views, not four: the 1024 × 768 view has the same inspector column as 1440 × 900. Three reviewers covered every contact sheet; the handler opened three sheets and the migration screenshots, not all 48 ([findings](../reviews/control-choice/findings.md)). Long teaching paragraphs under readouts are not widget help and stay.
+- **Slider bounds** sit at the ends of the track without the words "Min" and "Max"; the caption row is gone ([findings](../reviews/control-choice/findings.md), S2).
 
 ## Owner direction, 2026-11-14
 
