@@ -22,6 +22,7 @@ import {
 } from "../../compgeo/circleConstructionModel";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
+import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import {circleConstructionPresetCollection} from "./circleConstruction/circleConstructionPresetCollection";
 
 /** The scene state is the stored circle construction state (ADR 0045 sections 1 and 2); everything else is derived from it. */
@@ -67,6 +68,8 @@ const ratPoint = (p: RationalPoint): string => t("circle_construction_point_form
 const xyPoint = (x: number, y: number): string => t("circle_construction_point_format", {value0: dec(x), value1: dec(y)});
 const plainPoint = (x: number, y: number): string => xyPoint(x, y);
 /** Counts instances so that the input help id of two graphs on one page never collides. */
+/** The room a handle or marker takes beyond its size, in px, for the pixel placement of the board texts. */
+const MARKER_PAD_PX = 3;
 /** Colour and dash of the drawn construction elements the legend states (dash 0 is a solid line). */
 export const THALES_STYLE = {color: GraphPalette.constructionLevels[1], dash: 2} as const;
 export const AXIS_STYLES = [
@@ -142,6 +145,9 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     /** The mode the board was last drawn for; a sync that finds the same mode redraws nothing but the handle positions. */
     private builtMode: CircleMode | undefined;
     private readonly status = new SettledReadout();
+    /** The board texts of the scene (see `labelBoxes`): what each says, the data point it sits beside, and when it is shown. */
+    private captionList: Array<{id: string; text: () => string; anchors: () => ReadonlyArray<readonly [number, number]>; visible: () => boolean}> = [];
+    private layoutCache?: {key: string; state: Readonly<CircleConstructionGraphState>; boxes: Record<string, PxBox>};
 
     override getInitialState(): CircleConstructionGraphState {
         return {initialized: false, ...DEFAULT_CIRCLE_CONSTRUCTION_STATE};
@@ -345,8 +351,122 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         return element;
     }
 
+    /**
+     * The boxes (px from the board's top left corner, y down) of the board texts: each takes the free spot nearest to its anchor that clears the
+     * handles and markers, the drawn lines and circles, the axis numbers and the texts placed before it (the bounded search of `placeLpLabels`).
+     */
+    private labelBoxes(): Record<string, PxBox> {
+        if (!this.hasBoard || !(this.board.canvasWidth > 0) || !(this.board.canvasHeight > 0)) return {};
+        const board = this.board;
+        const [left, top] = board.getBoundingBox();
+        const ux = Number.isFinite(board.unitX) && board.unitX > 0 ? board.unitX : 1;
+        const uy = Number.isFinite(board.unitY) && board.unitY > 0 ? board.unitY : 1;
+        const width = board.canvasWidth, height = board.canvasHeight;
+        const handles = [...this.handleMap.values()].map(h => `${h.X()},${h.Y()}`).join(";");
+        type Drawn = {elType: string; evalVisProp(name: string): unknown};
+        const shown = (this.objects as unknown as Drawn[]).filter(o => Boolean(o.evalVisProp("visible")));
+        // The shown markers, circles and lines (their positions, not just their count) belong to the key: a layout is stale once any moved or appeared.
+        const drawnKey = shown.map(o => {
+            if (o.elType === "point") return `p${(o as unknown as JXG.Point).X()},${(o as unknown as JXG.Point).Y()}`;
+            if (o.elType === "circle") return `c${(o as unknown as JXG.Circle).center.X()},${(o as unknown as JXG.Circle).center.Y()},${(o as unknown as JXG.Circle).Radius()}`;
+            if (o.elType === "line" || o.elType === "segment") {
+                const l = o as unknown as JXG.Line;
+                return `l${l.point1.X()},${l.point1.Y()},${l.point2.X()},${l.point2.Y()}`;
+            }
+            return o.elType;
+        }).join(";");
+        const key = [ux, uy, left, top, width, height, this.builtMode, this.objects.length, handles, drawnKey, currentLanguage()].join("|");
+        if (this.layoutCache?.key === key && this.layoutCache.state === this.state) return this.layoutCache.boxes;
+        const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * ux, (top - y) * uy];
+        const markers: Array<readonly [number, number, number]> = [];
+        const samples: Array<readonly [number, number]> = [];
+        for (const o of shown) {
+            if (o.elType === "point") {
+                const p = o as unknown as JXG.Point;
+                markers.push([...toPx(p.X(), p.Y()), Number(o.evalVisProp("size")) + MARKER_PAD_PX]);
+            } else if (o.elType === "circle") {
+                const c = o as unknown as JXG.Circle;
+                const [cx, cy, r] = [c.center.X(), c.center.Y(), c.Radius()];
+                if (!(r > 0) || ![cx, cy, r].every(Number.isFinite)) continue;
+                const xs = Array.from({length: 121}, (_, i) => cx + r * Math.cos((i * Math.PI) / 60));
+                const ys = Array.from({length: 121}, (_, i) => cy + r * Math.sin((i * Math.PI) / 60));
+                samples.push(...sampleLine(xs, ys, toPx, width, height, 2, 1500));
+            } else if (o.elType === "line" || o.elType === "segment") {
+                const l = o as unknown as JXG.Line;
+                const [x0, y0, x1, y1] = [l.point1.X(), l.point1.Y(), l.point2.X(), l.point2.Y()];
+                const dx = x1 - x0, dy = y1 - y0, length = Math.hypot(dx, dy);
+                if (!(length > 0)) continue;
+                const reach = o.elType === "line" ? 60 / length : 1;
+                const from = o.elType === "line" ? -reach : 0;
+                samples.push(...sampleLine([x0 + dx * from, x0 + dx * reach], [y0 + dy * from, y0 + dy * reach], toPx, width, height, 2, 1500));
+            }
+        }
+        // The axis tick numbers (the texts of the default axes' ticks, each at its screen position) are soft obstacles.
+        type Tick = {evalVisProp(name: string): unknown; plaintext?: string; coords?: {scrCoords: number[]}};
+        const axes = (board as unknown as {defaultAxes?: {x?: {defaultTicks?: {labels?: Tick[]}}; y?: {defaultTicks?: {labels?: Tick[]}}}}).defaultAxes;
+        const strips: PxBox[] = [];
+        for (const [axis, ticks] of [["x", axes?.x?.defaultTicks?.labels], ["y", axes?.y?.defaultTicks?.labels]] as const) {
+            for (const tick of ticks ?? []) {
+                const [, sx, sy] = tick.coords?.scrCoords ?? [];
+                if (!tick.evalVisProp("visible") || !Number.isFinite(sx) || !Number.isFinite(sy) || !tick.plaintext) continue;
+                const w = tick.plaintext.length * 7 + 4, h = 14;
+                strips.push(axis === "x" ? {x0: sx - w / 2, y0: sy, x1: sx + w / 2, y1: sy + h} : {x0: sx - w, y0: sy - h / 2, x1: sx, y1: sy + h / 2});
+            }
+        }
+        const items: LabelItem[] = [];
+        for (const c of this.captionList) {
+            if (!c.visible()) continue;
+            const text = c.text();
+            if (text === "") continue;
+            const [first, ...rest] = c.anchors().filter(a => Number.isFinite(a[0]) && Number.isFinite(a[1])).map(a => toPx(a[0], a[1]));
+            if (first) items.push({id: c.id, ax: first[0], ay: first[1], alts: rest, w: text.length * 15 * 0.55 + 8, h: 15 + 7});
+        }
+        const boxes = placeLpLabels(items, {width, height, markers, samples, strips, blocks: []});
+        // A name must lie nearer to its own point than to any other point marker, and clear of what is drawn. A box that is not moves to the cheapest spot on rings round the
+        // point (up and to the right first) that does, clear of the markers, the other texts and, as far as it can, the drawn lines.
+        const overlap = (p: PxBox, q: PxBox) => p.x0 < q.x1 && p.x1 > q.x0 && p.y0 < q.y1 && p.y1 > q.y0;
+        for (const item of items) {
+            const box = boxes[item.id];
+            if (!box) continue;
+            const others = markers.filter(([mx, my]) => Math.hypot(mx - item.ax, my - item.ay) >= 1);
+            const nearest = (b: PxBox) => {
+                const [cx, cy] = [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2];
+                const own = Math.hypot(cx - item.ax, cy - item.ay);
+                return others.every(([mx, my]) => Math.hypot(cx - mx, cy - my) > own);
+            };
+            const penalty = (c: PxBox) => {
+                let cost = 0;
+                for (const [id, other] of Object.entries(boxes)) if (id !== item.id && overlap(c, other)) cost += 100;
+                for (const [mx, my, mr] of markers) if (mx + mr > c.x0 && mx - mr < c.x1 && my + mr > c.y0 && my - mr < c.y1) cost += 60;
+                for (const [x, y] of samples) if (x >= c.x0 + 3 && x <= c.x1 - 3 && y >= c.y0 + 4 && y <= c.y1 - 4) cost += 8; // the box has padding round the glyph
+                for (const strip of strips) if (overlap(c, strip)) cost += 12;
+                return cost;
+            };
+            const owned = nearest(box);
+            const current = penalty(box);
+            if (owned && current === 0) continue;
+            let best: PxBox | undefined;
+            let bestCost = Infinity;
+            let bestPenalty = Infinity;
+            for (const r of [14, 18, 24, 32, 42, 54, 66]) for (let k = 0; k < 16; k++) {
+                const angle = -Math.PI / 4 + (k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 8); // up right first, then alternately each way round
+                const [cx, cy] = [item.ax + r * Math.cos(angle), item.ay + r * Math.sin(angle)];
+                const c: PxBox = {x0: cx - item.w / 2, y0: cy - item.h / 2, x1: cx + item.w / 2, y1: cy + item.h / 2};
+                if (c.x0 < 4 || c.y0 < 4 || c.x1 > width - 4 || c.y1 > height - 4 || !nearest(c)) continue;
+                const pen = penalty(c);
+                const cost = pen + r * 0.15 + k * 0.2;
+                if (cost < bestCost) { bestCost = cost; best = c; bestPenalty = pen; }
+            }
+            // A box that is already nearest to its point only moves to a spot with fewer collisions.
+            if (best && (!owned || bestPenalty < current)) boxes[item.id] = best;
+        }
+        this.layoutCache = {key, state: this.state, boxes};
+        return boxes;
+    }
+
     private buildScene(): void {
         this.disposeScene();
+        this.captionList = [];
         const board = this.board;
         const mode = this.state.mode;
         this.builtMode = mode;
@@ -382,10 +502,23 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 straightLast: true, visible: () => coefficients() !== null,
             }));
         };
-        const caption = (text: string | (() => string), x: Coordinate, y: Coordinate, color: string, visible: Visible = true) =>
-            this.own(board.create("text", [x, y, text], {
-                strokeColor: color, fontSize: 15, fixed: true, highlight: false, withLabel: false, visible,
+        /** A text sits at the centre of its placed box (see `labelBoxes`) beside its anchor, or on the anchor before the board has a size. */
+        const caption = (text: string | (() => string), x: Coordinate, y: Coordinate, color: string, visible: Visible = true) => {
+            const id = `caption-${this.captionList.length}`;
+            const content = typeof text === "string" ? () => text : text;
+            const at = (v: Coordinate) => (typeof v === "function" ? v() : v);
+            const anchors = () => [[at(x), at(y)] as const];
+            this.captionList.push({id, text: content, anchors, visible: typeof visible === "function" ? visible : () => visible});
+            const place = (axis: 0 | 1) => () => {
+                const box = this.labelBoxes()[id];
+                if (!box) return anchors()[0][axis];
+                const [left, top] = board.getBoundingBox();
+                return axis === 0 ? left + (box.x0 + box.x1) / 2 / board.unitX : top - (box.y0 + box.y1) / 2 / board.unitY;
+            };
+            return this.own(board.create("text", [place(0), place(1), content], {
+                strokeColor: color, fontSize: 15, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
             }));
+        };
         const handleAttributes = (color: string, face: PointFace): JXG.PointAttributes => ({
             name: "", withLabel: false, size: 7, face, fillColor: color, strokeColor: GraphPalette.pointOutline,
             highlightFillColor: GraphPalette.selectedControlPoint, snapToGrid: false, showInfobox: false,
@@ -398,7 +531,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             return point;
         };
         const label = (name: string, id: HandleId, color: string) =>
-            caption(name, () => this.handleTarget(id)[0] + 0.3, () => this.handleTarget(id)[1] + 0.3, color);
+            caption(name, () => this.handleTarget(id)[0], () => this.handleTarget(id)[1], color);
         const circleRadius = (key: CircleKey) => () => this.state[key].r;
         const numberAt = (read: (f: Frame) => number | undefined) => () => {
             const value = read(frame());
@@ -435,8 +568,8 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             segment(p, t2, GraphPalette.primaryCurve, 2, 0, outside);
             segment(t1, t2, CHORD_STYLE.color, 1, CHORD_STYLE.dash, outside);
             segment(centre, p, GraphPalette.label, 1, 2, flag(f => !(tangents(f)?.atCentre ?? true)));
-            caption("T1", () => contact(0, "x")() + 0.3, () => contact(0, "y")() + 0.3, GraphPalette.label, outside);
-            caption("T2", () => contact(1, "x")() + 0.3, () => contact(1, "y")() + 0.3, GraphPalette.label, outside);
+            caption("T1", contact(0, "x"), contact(0, "y"), GraphPalette.label, outside);
+            caption("T2", contact(1, "x"), contact(1, "y"), GraphPalette.label, outside);
             label("1", "c1", GraphPalette.referenceCurve);
             lineAlong(() => {
                 const d = this.view();
@@ -449,11 +582,12 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             circleWithHandles("c1", colors[0], "o");
             circleWithHandles("c2", colors[1], "o");
             circleWithHandles("c3", colors[2], "o");
+            // P is named first: the placer gives the first text the pick of the spots, and P sits among the circles.
+            label("P", "p", GraphPalette.label);
             label("1", "c1", colors[0]);
             label("2", "c2", colors[1]);
             label("3", "c3", colors[2]);
             handle("p", GraphPalette.controlPoint, "o");
-            label("P", "p", GraphPalette.label);
             ([0, 1, 2] as const).forEach(index => {
                 lineAlong(() => {
                     const d = this.view();
@@ -511,9 +645,9 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             const externalShown = flag(f => apollonius(f)?.locus.status === "circle");
             marker(division("internal", "x"), division("internal", "y"), "diamond", GraphPalette.constructionLevels[1], 6, internalShown);
             marker(division("external", "x"), division("external", "y"), "triangleUp", GraphPalette.constructionLevels[2], 6, externalShown);
-            caption(() => t("circle_construction_caption_internal"), () => division("internal", "x")() + 0.3, () => division("internal", "y")() + 0.3,
+            caption(() => t("circle_construction_caption_internal"), division("internal", "x"), division("internal", "y"),
                 GraphPalette.label, internalShown);
-            caption(() => t("circle_construction_caption_external"), () => division("external", "x")() + 0.3, () => division("external", "y")() + 0.3,
+            caption(() => t("circle_construction_caption_external"), division("external", "x"), division("external", "y"),
                 GraphPalette.label, externalShown);
             segment(p, a, GraphPalette.referenceCurve, 1, 2);
             segment(p, b, GraphPalette.comparisonCurve, 1, 2);
@@ -521,7 +655,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             caption(() => {
                 const ratio = apollonius(frame())?.ratio;
                 return ratio == null ? "" : t("circle_construction_ratio_caption", {value0: dec(ratio)});
-            }, () => this.state.p.x + 0.3, () => this.state.p.y - 0.8, GraphPalette.primaryCurve);
+            }, () => this.state.p.x, () => this.state.p.y, GraphPalette.primaryCurve);
         } else {
             const common = (f: Frame) => (f.derived.mode === "common" ? f.derived : undefined);
             const okResult = (f: Frame) => {
