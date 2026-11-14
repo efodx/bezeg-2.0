@@ -1,6 +1,6 @@
 # Site walkthrough queue: graphs (package D)
 
-Run state: pilot in progress; batches wait for the owner's approval
+Run state: stopped: pilot preview is up; waiting for the owner's approval of the pilot and the capture-text policy
 
 Source: [graphs and captures spec](../../specs/site-walkthrough-graphs-and-captures.md) (proposed). State: [state note](../../reviews/site-walkthrough/graphs/state.md). Port 4333. Worktree `walkthrough-graphs`, branch `worktree-walkthrough-graphs`.
 
@@ -9,7 +9,7 @@ Rule from the planning session, 2026-11-14: propose, show a preview, wait. No gr
 | # | Slice | Intake IDs | State |
 | --- | --- | --- | --- |
 | 1 | Spec: capture-text policy, example table with ids, typography research, G06 cause, reference yardstick, acceptance | G01–G07 | Done, proposed |
-| 2 | Pilot on the branch: `prob-correlation`, `curve-envelope`, `interp-subdivision`, with before and after on the preview | G02, G03 | In progress |
+| 2 | Pilot on the branch: `prob-correlation`, `curve-envelope`, `interp-subdivision`, with before and after on the preview | G02, G03 | Done on the branch (`f92d765d`, `58037e7f`); preview on port 4333 |
 | 3 | Owner approval of the pilot and the policy | G01–G06 | Waiting |
 | 4 | Capabilities C1–C5 completed (capture text, caption lines, tooling test, typography, convexity sweep) | G01, G03, G04, G06 | After 3 |
 | 5 | Blocker triage over all 118 captures | G02, G03 | After 4 |

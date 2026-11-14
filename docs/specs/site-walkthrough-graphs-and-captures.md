@@ -334,3 +334,20 @@ Routine choices made by the handler:
 ## Batch records
 
 Filled in as batches are accepted.
+
+### Pilot (branch `worktree-walkthrough-graphs`, not on `master`; awaiting the owner)
+
+Before and after posters and clips: `docs/reviews/site-walkthrough/graphs/pilot/` (`index.html` is the comparison page). The after files are trial captures; the catalog and its manifest are unchanged.
+
+- `prob-correlation`: graph: residuals solid at 0.8 of the line width (were dashed, 0.6); line labels use the board serif on a plate at a size derived from the display setting (were Arial, fixed 15 px); the legend's residual swatch is solid. Capture: axes and grid kept (`coordinateContextIds` in `tests/smoke-catalog.cjs`), title and line label hidden, `r = 0,8468` kept with its words stripped. Against the yardstick: R1 the ochre points and their residuals lead; R2 met; R3 three roles (moss, ochre, red-brown); R5 met; R6 met with the grid; R7 met; R8 unchanged row. Not met: R4, no area exists in this mathematics. The example and its four points are the lesson's and were not changed.
+- `curve-envelope`: capture only. Text hidden; window `[-0.203, 0.93, 1.203, 0.07]`, so the construction covers about half the frame (was a corner). R1–R3, R5–R8 met.
+- `interp-subdivision`: graph: draggable points ochre (were dark), refined vertices blue with a light outline on a lower layer (were moss on the moss polyline), Chaikin limit curve violet (was the blue the vertices now use). Capture: status line hidden. R2 is the point of the change and is met; R3 three roles.
+- Capability C1 as built: `applyCaptureText` in `scripts/capture-demonstration-previews.cjs`, recipes' `captureText` table, `textKept` and `textHidden` in the evidence, `annotations: 'capture-text-policy'`. A recipe without the field behaves as before, so no other capture changed. The function-family caption is judged line by line from its `<div>` lines, so capability C2 needs no source change.
+
+Found on the way, for the triage:
+
+- **No capture can run at `HEAD`.** `validateRecipes` fails because `complex-power`, `complex-euler`, `recursion-cobweb` and `contour-map` are in the catalog without a recipe (left by the clips stream); two tests in `scripts/demonstration-preview-capture.test.cjs` fail for the same reason. The pilot's trials used a preload outside the repository that drops those four. `just clip` needs either the four recipes or a rule that a Demonstration without media needs none. This is the first capability for the batches.
+- `scripts/demonstration-preview-text.test.cjs` and `demonstration-preview-capture.test.cjs` are not in `just tooling-test`'s file list (`scripts/commands.cjs`).
+- `just preview` refuses a dirty `src/`; a worker that must serve while another edits uses `SMOKE_PORT=<port> node scripts/serve-smoke-build.cjs`.
+- Every board carries an unnamed text `0,0`; it appears in `textHidden`, so the C3 check must expect it.
+- The capture pads every coordinate window by 14 percent a side; windows are chosen with that in mind.
