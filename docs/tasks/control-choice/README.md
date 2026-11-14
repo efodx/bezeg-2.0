@@ -25,25 +25,37 @@ These settle what a worker would otherwise ask. The [controls catalogue](../../c
 
 | Step | Task | Status |
 | --- | --- | --- |
-| 0a | Reported defects 3, 4, 5: point row on one line, editing-mode box edge, fixture composition check | done, `45abbb11` |
+| 0a | Reported defects 3, 4, 5: point row on one line, editing-mode box edge, fixture composition check | done |
+| 0b | New-point entry lined up with the list, editing-mode chevron, board tools as a list | done |
 | 1 | Catalogue `docs/controls.md`, links from AGENTS.md and the family template, inventory script and table | done |
-| 2a | Pilot: compgeo. `InversionPanel` (defect 2), `SimsonLinePanel`, `CircleConstructionGraph`, `HullRobustnessControls`, `PointSetControls` | next |
-| 2b | Pilot: `mechanics/DescentGraph` (defect 1), `curves/kinematics/KinematicsGraph`, `dynamics/PhasePortraitGraph`, `dynamics/LogisticMapGraph`, `lines/LineGeometryGraph`, `linear/LinearMapGraph` (start point only; matrix cells stay) | next |
+| 2a | Pilot: compgeo. `InversionPanel` (defect 2), `SimsonLinePanel`, `CircleConstructionGraph`, `HullRobustnessControls`, `PointSetControls` (segment rows, kept) | done, `ed06f50a` and the big-step repair after it |
+| 2b | Pilot: `mechanics/DescentGraph` (defect 1), `curves/kinematics/KinematicsGraph`, `dynamics/PhasePortraitGraph`, `dynamics/LogisticMapGraph`, `lines/LineGeometryGraph`, `linear/LinearMapGraph` (start point only; matrix cells stay) | Descent and Kinematics done (`7ad886af`, `aecf4295`); PhasePortrait, LogisticMap, LineGeometry and LinearMap moved to 2h |
 | 2c | Functions, analysis: Accumulation, ArcLength, AreaBetweenCurves, Convexity, Darboux, DefiniteIntegral, Derivative, Euler, Extrema, MeanValue, Quadrature | after the pilots are reviewed |
 | 2d | Functions, series and iteration: BinomialNormal, Bisection, DensityArea, Epicycle, FixedPoint, FourierCoefficients, FourierSeries, GeometricSeries, RootFinding, Sequence, Taylor, UniformConvergence | after the pilots |
 | 2e | Functions, school graphs and trig: FunctionInverse, FunctionTransformation, LinearFunction, PolynomialZeros, RationalFunction, Waves, ZeroListEditor, TriangleSolver, UnitCircle | after the pilots |
 | 2f | Complex (five graphs), isometry, level sets (two graphs) | after the pilots |
 | 2g | Combinatorics (two), random Simulation, recursion (Growth, Cobweb), B-spline Insertion and Nurbs (`KnotEditor` is a recorded exception) | after the pilots |
+| 2h | `dynamics/PhasePortraitGraph` (seeds are a point list; matrix cells stay), `dynamics/LogisticMapGraph`, `lines/LineGeometryGraph`, `linear/LinearMapGraph` (start point; matrix cells stay) | after the pilots |
 | 3 | Sweep: capture every route, contact sheets by composition, detectors, critique, ranked findings (spec Part B) | after step 2, so it judges the migrated panels |
 | 4 | Shared-component fixes from the findings; shared number grid for matrices; catalogue pictures from the fixture | after step 3 |
 | 5 | Close-out: inventory has no open reading, spec acceptance checked, before and after images recorded | last |
+
+## Notes from the pilots
+
+- A worker resumed after its first stop runs in the handler's worktree, not its own. Two workers then share one checkout: give them disjoint files and tell them to stage only their own hunks of `sl.ts` and `en.ts`.
+- A fresh worker worktree starts from the local `origin/master`. Its brief says `git reset --hard <handler tip>` (the branch is new and empty), not a fast-forward merge, which fails when master has moved.
+- `Slider` treats an integer step as integer-only; a field that accepted decimals needs `fieldDecimals`.
+- `PointListInput` has `bigStep` since the pilots; pass the graph's old big step so PageUp and Shift keep their size.
+- With `integer` a point row refuses 2,4; with `grid={1}` it rounds with a notice. Keep whichever the old field did.
+- The machine is CPU-bound: a 35 s fixture run waited 25 minutes for a test slot while two workers and a publish gate ran. Run two workers at most.
 
 ## Findings already seen
 
 Collected while fixing step 0; step 3 will add to them, step 4 fixes them.
 
-- `PointCollection` typed entry ("x [ ] y [ ]" above "Dodaj na koordinatah") does not line up with the list's `x` and `y` columns below it.
-- The curve workspace's editing-mode box uses the native triangle marker; every other disclosure uses the chevron. Its unavailable mode buttons wrap into a ragged second line.
 - Inversion shows "Slika X' = (6/5, 2/5)" twice: in the status line under the selects and as the first readout bullet.
 - A `ChoiceSelect` followed by another labelled control has no gap above the second label (Inversion: "Primer", then "Prikaz").
 - Descent: the playback buttons carry a three-line reduced-motion explanation directly under them.
+- Controls inside one inspector group have no shared vertical rhythm: in Inversion the slider's min and max labels touch the next caption, and the readout bullets touch the point row. Circle constructions puts each control in its own group and reads better.
+- Slider help that restates the range ("od 0 do 1,19, korak 0,01") under min and max labels that already show it (Descent "Čas").
+- Readout bullets (`pointset-list`) are larger than the controls around them and deeply indented.

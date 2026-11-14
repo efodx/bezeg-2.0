@@ -30,6 +30,7 @@ export interface CircleConstructionGraphState extends BaseGraphState, CircleCons
 /** Keyboard steps: the arrow keys move a coordinate by 1, a radius by 1/4 and the ratio by 1/2; the Page keys take the big steps. */
 export const COORDINATE_STEP = 1;
 export const RADIUS_STEP = 0.25;
+export const COORDINATE_BIG_STEP = 4;
 export const RADIUS_BIG_STEP = 1;
 export const RATIO_STEP = 0.5;
 export const RATIO_BIG_STEP = 2;
@@ -844,7 +845,7 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     private pointRows(title: string, rows: readonly {key: CircleKey | PointKey; name: string}[]): JSX.Element {
         return <PointListInput key={rows.map(row => row.key).join("")} title={title}
                                points={rows.map(row => [this.state[row.key].x, this.state[row.key].y] as const)}
-                               pointLabel={index => rows[index].name} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} grid={1} decimals={0}
+                               pointLabel={index => rows[index].name} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} bigStep={COORDINATE_BIG_STEP} grid={1} decimals={0}
                                onCommit={(index, [x, y]) => { this.editPlace(rows[index].key, x, y); }}/>;
     }
 
