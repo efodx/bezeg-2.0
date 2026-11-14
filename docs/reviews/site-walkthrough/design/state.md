@@ -1,6 +1,6 @@
 # State: site walkthrough, design session (package C)
 
-Rewritten 2026-11-14 by handler 1, after implementing the owner's picks.
+Rewritten 2026-11-14 by handler 2, after the follow-ups to the owner's picks.
 
 ## For the owner
 
@@ -12,8 +12,9 @@ Rewritten 2026-11-14 by handler 1, after implementing the owner's picks.
 | Chapter numbers everywhere and side botanicals (window at least 1600 px wide) | `/bezeg-2.0/learn/convexity-hulls`, `/bezeg-2.0/learn/bezier-curves` |
 | Guided example Back button as an outline | `/bezeg-2.0/analysis/darboux?learn=1`, then Naprej |
 | Presets panel: list of saved states, inline save, row menu, backup section | `/bezeg-2.0/analysis/darboux`, tab Shrani |
+| New in the follow-ups: "Uvozi prednastavitve" and "Generiraj slike za prednastavitve" open dialogs in the site's style; the second button now sits under "Izvoz slike", below SVG and PNG | same tab |
 
-**Choices only you can make:** none. You confirmed on 2026-11-14, after seeing the preview, that the outline Back button stays and that the presets wording is fine as built ("Shranjena stanja" for the list, "prednastavitve" for the tab heading and the file buttons).
+**Choices only you can make:** none; nothing waits on you. You confirmed on 2026-11-14, after seeing the preview, that the outline Back button stays and that the presets wording is fine as built ("Shranjena stanja" for the list, "prednastavitve" for the tab heading and the file buttons).
 
 The mockup gallery is no longer served; its source and images are in `docs/reviews/site-walkthrough/design/` (`index.html`, `img/`).
 
@@ -29,36 +30,28 @@ All picks recorded in `docs/specs/site-walkthrough-design.md` under "Owner decis
 | H02, H03 | Pool module `src/homeDemonstrationPool.ts`, per-visit draw, picture cards, no arrows or counter | `f17f31dd` |
 | H02, H04 | Label key `demonstration_selection`; second button `all_learning_content` | `1f31fab4` |
 | G07 | Passed to `graphs` and recorded | docs only |
+| P02 | Unused `ResetButton` removed; `convexity` in the homepage pool (G06 is fixed); test that unknown `/learn/<segment>` paths get no botanicals (the error page has no marked column, so no code change was needed) | `fa878aff` |
+| P02 | Browser smoke for preset rename, overwrite and delete with inline confirmation | `4f171d54` |
+| P01, P02 | Import and figure-batch dialogs share the `bezeg-dialog` style; figure-batch dialog in `src/graphs/base/PresetFigureBatchDialog.tsx`, its button in the image export group | `a93a664c` |
 
-Published on `master` as `a6dd7a97` on 2026-11-14 (fourth gate attempt); the CI browser smoke for that revision passed, so the changes are deployed. The commit ids in the table are the pre-rebase ids on this branch.
+The first batch is on `master` as `a6dd7a97`; the follow-ups were published as `513a0c22` on 2026-11-14 (first gate attempt, about 17 minutes). The commit ids in the table are the pre-rebase ids on this branch. Check CI for the follow-ups with `just ci 513a0c22`.
 
-## Verification so far
+## Verification
 
-- Unit: focused files per slice pass; `just typecheck` passes on the combined tree.
-- Screenshots in `docs/reviews/site-walkthrough/design/shots/` (`shots.mjs`): home at 1440, 1024, 390; chapters at 2560, 1920, 1600 and 1280 (no decoration); lesson panel; presets panel at 310 px and phone. No horizontal overflow and no page errors.
-- Browser smoke: the edited specs passed per test before the label rename (home, demonstration-motion, workflows, curve-ownership, the Farin guided lesson). A rerun of `home` and `demonstrations` after the rename was started; see `.command-logs/design-smoke-home.log`.
+- First batch: as recorded in the spec's acceptance section; CI browser smoke passed for `a6dd7a97`.
+- Follow-ups: focused unit files, typecheck, full lint, build; `tests/home.smoke.spec.cjs` and `tests/workflows.smoke.spec.cjs` on the committed build (8 passed); controls sweep on 9 routes (`darboux`, `bezier/curve`, patches) with 0 hits, `ragged-buttons` included; screenshots in `shots/` (`dialog-*.png`, `panel-export-*.png`) viewed by the handler at 1440, 390 and 310 px.
+- Not covered: surface-view routes were not opened in a browser after the button move (a unit test on the tensor patch covers its place); rename validation errors and keyboard-only use of the row menu are not driven in the browser; the sweep ran with no saved presets in the list.
 
 ## Open
 
-1. The objective's shipped part is complete; what follows are follow-ups, none needing an owner choice.
-2. Not covered: no browser spec drives preset rename, overwrite or delete (unit tests do); the controls sweep `ragged-buttons` detector was not run on the new panel; the "fits the target widths" home smoke test was not rerun locally.
-3. `src/graphs/base/ResetButton.tsx` is unused after the presets change; remove it or reuse it.
-4. Any single-segment `/learn/<unknown>` path also shows the botanicals beside the error page.
-5. `convexity` can join the homepage pool once G06 is fixed; the pool is one list.
-6. The import and figure-batch dialogs keep their old style, and the figure batch was not moved beside the image export.
+Nothing is queued. The six follow-ups of 2026-11-14 are done and the package's objective is complete. Two observations, neither asked for:
 
-## Next: follow-ups the owner asked to continue (2026-11-14), for handler 2
+1. "Izvozi prednastavitve" and "Uvozi prednastavitve" wrap to two lines at inspector width (310 px); they did before this work.
+2. The file field in the import dialog shows the browser's own "Choose File" text, which follows the browser language, not the app's.
 
-Handler 1 reached its context budget and hands these over. None needs an owner choice. Suggested slices, smallest first:
+## Lessons
 
-1. Remove the unused `src/graphs/base/ResetButton.tsx` (confirm with Grep that nothing imports it, including tests and fixtures).
-2. Botanicals only on real chapters: `showsSideBotanicals` in `src/sideBotanicals/SideBotanicals.tsx` accepts any `/bezeg-2.0/learn/<segment>`. Either the chapter page that renders the error state omits `data-content-column` (the decoration then measures no column and renders nothing, with no chapter list in the main bundle), or the route check gets the chapter ids. Prefer the first; add a test.
-3. Browser smoke for the preset row actions: rename, overwrite and delete with inline confirmation, in `tests/workflows.smoke.spec.cjs` beside the save test. Selectors: `li[data-preset-id]`, `button.preset-row-select`, `button.preset-row-menu`, `.preset-rename-input`, `.preset-confirm-cancel`. Tell the worker to lint `tests/`.
-4. Controls sweep on the new panel: `node scripts/controls-sweep/sweep.cjs --port <dev port> --workers 3` (see `docs/controls.md`); the `ragged-buttons` detector is the one to watch. Fix what it reports.
-5. Import and figure-batch dialogs in the site's style (gallery option P01 A shows the look: `img/p01-a-restyled-dialog.png`), and move the figure-batch button beside the image export in the same tab (`BaseGraph.tsx` renders `SaveImage` under `export_figure`). These are the remaining parts of the owner-approved P02 proposal; record them in the spec's acceptance section when done.
-6. `convexity` joins `src/homeDemonstrationPool.ts` only after the `graphs` session fixes G06; check its state note, do not wait on it.
-
-Lessons from this run: a change to `BaseGraph.tsx` makes the publish gate select most unit tests, and the gate queues for a test slot (hours when other sessions publish), so batch slices into one gate. Workers must lint every file they edit, including `tests/`, and Grep other tests for names and roles they change.
+A change to `BaseGraph.tsx` makes the publish gate select most unit tests; batch slices into one gate. `smoke-built` needs `build/` to match the sources, so a worker that runs it cannot share the tree with a worker editing `src/`: run them in sequence. Workers lint every file they edit, including `tests/`, and Grep other tests for names and roles they change.
 
 ## Running processes
 
