@@ -79,13 +79,13 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     // one place (decision 14): the field's hint carries the reason, the shared refusal channel stays empty
     expect([...document.querySelectorAll('.number-input-hint')].map(hint => hint.textContent)).toEqual([expect.stringMatching(/Najprej premakni točko x/)]);
     expect(document.querySelector('[data-refusal-notice]')?.textContent ?? '').toBe('');
-    act(() => { enterNumber(field(/^Točka x$/), '0.3'); });
+    act(() => { enterNumber(field(/^Točka x, vrednost$/), '0.3'); });
     act(() => { enterNumber(inputR, '0.45'); });
     expect(graph.modelNow()).toMatchObject({r: 0.45, x: 0.3, supremumVisible: true});
     // a real off-grid value is refused, a grid value accepted; the board does not gain objects
-    act(() => { enterNumber(field(/^Točka x$/), '0.305'); });
+    act(() => { enterNumber(field(/^Točka x, vrednost$/), '0.305'); });
     expect(graph.modelNow()).toMatchObject({x: 0.3});
-    act(() => { enterNumber(field(/^Toleranca ε$/), '0.05'); });
+    act(() => { enterNumber(field(/^Toleranca ε, vrednost$/), '0.05'); });
     expect(graph.modelNow()).toMatchObject({epsilon: 0.05});
 
     // choosing the other example loads its model and hides the supremum

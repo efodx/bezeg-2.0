@@ -3,7 +3,6 @@ import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, t} from "../../localization";
@@ -216,10 +215,8 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
                 <Slider customText={t("prob_binomial_n_label")} min={1} max={BINOMIAL_NORMAL_N_MAX} step={1} value={state.n}
                         rejectedHint={t("prob_binomial_n_rejected", {value0: BINOMIAL_NORMAL_N_MAX})}
                         onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
-                <Slider customText={t("prob_binomial_p_label")} min={0.01} max={0.99} step={0.01} value={state.p}
-                        rejectedHint={t("prob_binomial_p_slider_rejected")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/>
-                <NumberInput label={t("prob_binomial_p_exact_label")} value={state.p} min={0} max={1} step={0.01} decimals={4}
-                             rejectedHint={t("prob_binomial_p_help")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/>
+                <Slider customText={t("prob_binomial_p_label")} min={0} max={1} step={0.01} fieldDecimals={4} value={state.p}
+                        rejectedHint={t("prob_binomial_p_help")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/>
                 <Slider customText={t("prob_binomial_k_label")} value={state.k} min={0} max={state.n} step={1}
                         rejectedHint={t("prob_binomial_k_rejected", {value0: state.n})}
                         onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>

@@ -89,7 +89,7 @@ test('a real board shows the cobweb: Next step, Play and Pause, Reset, the field
     expect(statusIds()).toEqual(['hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
 
     // the labelled fields take x0 on the 0.01 grid and the tolerance digits; other values are refused with a hint
-    const inputX0 = screen.getByLabelText('Začetek x₀') as HTMLInputElement;
+    const inputX0 = screen.getByLabelText('Začetek x₀, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputX0, '0.5'); });
     expect(graph.modelNow()).toMatchObject({x0: 0.5, step: 0, boundVisible: true});
     expect(readout('step')).toBe('0');
@@ -100,10 +100,10 @@ test('a real board shows the cobweb: Next step, Play and Pause, Reset, the field
     expect(graph.modelNow().x0).toBe(0.5);
     expect(screen.getByText('Začetek x₀ mora biti večkratnik števila 0,01 med 0 in 2.')).toBeInTheDocument();
     act(() => { enterNumber(inputX0, '0'); });
-    const inputDigits = screen.getByLabelText('Natančnost d (prag 10⁻ᵈ)') as HTMLInputElement;
+    const inputDigits = screen.getByRole('spinbutton', {name: 'Natančnost d (prag 10⁻ᵈ)'}) as HTMLInputElement;
     act(() => { enterNumber(inputDigits, '2.5'); });
     expect(graph.modelNow().digits).toBe(3);
-    expect(screen.getByText('Število d mora biti celo število med 1 in 8.')).toBeInTheDocument();
+    expect(screen.getByText('Vnesi celo število med 1 in 8.')).toBeInTheDocument();
     act(() => { enterNumber(inputDigits, '2'); });
     expect(graph.modelNow().digits).toBe(2);
     expect(readout('tolerance')).toBe('10⁻²');
@@ -231,7 +231,7 @@ test('a live language switch re-evaluates the board texts and the readouts', () 
     expect(boardText()).not.toContain('krogec');
     expect(readout('q')).toBe('0.5');
     expect(screen.getByRole('button', {name: 'Hide error bound'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Start x₀')).toBeInTheDocument();
+    expect(screen.getByLabelText('Start x₀, value')).toBeInTheDocument();
     act(() => { setLanguage('sl'); });
     expect(boardText()).toContain('korak k = 1, xₖ = 0,5');
 });

@@ -122,7 +122,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const button = (action: string) => playbackButton(found, action);
-    const [inputEpsilon, inputLimit, inputThreshold] = found.NumberInput;
+    const [inputEpsilon, inputLimit, inputThreshold] = found.Slider;
     return {
         found, actions: buttonActions(found), inputEpsilon, inputLimit, inputThreshold, select: found.ChoiceSelect[0],
         next: button('next-step'), play: button('play-pause'), reset: button('reset'), toggle: button('toggle-sequence-certificate'),
@@ -582,8 +582,8 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     const first = controls(graph);
     expect(first.select.props.options.map((option: any) => option.value)).toEqual(['reciprocal', 'alternating-reciprocal', 'alternating-sign', 'natural']);
     expect(first.select.props.options.map((option: any) => option.text)).toEqual(['aₙ = 1/n', 'aₙ = (−1)ⁿ/n', 'aₙ = (−1)ⁿ', 'aₙ = n']);
-    expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Širina pasu ε', 'Kandidat za limito L', 'Prag N']);
-    expect(first.found.NumberInput.map((input: any) => input.props.value)).toEqual([0.1, 0, 5]);
+    expect(first.found.Slider.map((input: any) => input.props.customText)).toEqual(['Širina pasu ε', 'Kandidat za limito L', 'Prag N']);
+    expect(first.found.Slider.map((input: any) => input.props.value)).toEqual([0.1, 0, 5]);
     expect(first.actions).toEqual(['next-step', 'play-pause', 'reset', 'toggle-sequence-certificate']);
     expect(first.next.props['aria-disabled']).toBe(false);
     expect(first.play.props['aria-disabled']).toBe(false);
@@ -616,7 +616,7 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     expect(english.reset.props.children).toBe('Reset');
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide certificate');
-    expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Band width ε', 'Candidate limit L', 'Threshold N']);
+    expect(english.found.Slider.map((input: any) => input.props.customText)).toEqual(['Band width ε', 'Candidate limit L', 'Threshold N']);
     expect(collect([graph.renderControls(), graph.renderReveals()]).PlaybackButtons.some((element: any) => element.props.groupLabel === 'Term controls')).toBe(true);
 });
 

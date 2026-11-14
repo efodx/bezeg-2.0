@@ -61,7 +61,7 @@ const readout = (id: string) => document.querySelector(`[data-readout="${id}"] d
 const label = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const tableCell = (k: number, term: 'a' | 'b') => document.querySelector(`[data-testid="fourier-spectrum-table"] tr[data-k="${k}"] td[data-term="${term}"]`)?.textContent;
 const handleFields = () => screen.getAllByLabelText(/^(Vrednost f pri x|Leva limita f pri x|Desna limita f pri x) = /) as HTMLInputElement[];
-const field = (name: RegExp) => screen.getByLabelText(name) as HTMLInputElement;
+const field = (name: RegExp) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 const overlaySwitch = () => screen.getByLabelText(/^Pokaži delno vsoto S_K$/) as HTMLInputElement;
 /** The app's Slovenian number text: decimal comma, minus sign, no trailing zeros. */
 const sl = (value: number, decimals: number) => String(Number(value.toFixed(decimals))).replace('.', ',').replace('-', '−');
@@ -197,7 +197,7 @@ test('both languages: a live language switch keeps the scene, the model and the 
     act(() => { setLanguage('en'); });
     expect(graph.modelNow()).toBe(model);
     expect(graph.ownedObjects()).toBe(objects);
-    expect(screen.getByLabelText(/^Highest harmonic K$/)).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: /^Highest harmonic K$/})).toBeInTheDocument();
     expect(screen.getAllByLabelText(/^Value of f at x = /)).toHaveLength(2);
     expect(graph.handleHeights(2)[1]).toBeCloseTo(0.5, 12);
     expect(readout('square-integral')).toMatch(/^\d+\.\d{1,5}$/);
@@ -237,7 +237,7 @@ const decayRows = (example: string) => document.querySelectorAll(`[data-testid="
 const bars = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-panel"][data-example="${example}"] rect[data-k]`);
 const zeroMarkers = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-panel"][data-example="${example}"] circle[data-zero]`);
 const zeroNote = () => document.querySelector('[data-testid="fourier-decay-zero-note"]');
-const nField = () => screen.getByLabelText(/^Število členov N$/) as HTMLInputElement;
+const nField = () => screen.getByRole('spinbutton', {name: /^Število členov N$/}) as HTMLInputElement;
 const scaleSelect = () => screen.getByLabelText(/^Merilo navpične osi$/) as HTMLSelectElement;
 const selectionSelect = (slot: number) => screen.getByLabelText(new RegExp(`^Funkcija ${slot}$`)) as HTMLSelectElement;
 
@@ -407,7 +407,7 @@ test('the decay view in both languages: a live switch keeps the model, and the n
     expect(document.body.textContent).toContain('Obrata ne trdimo');
     act(() => { setLanguage('en'); });
     expect(graph.modelNow()).toBe(model);
-    expect(screen.getByLabelText(/^Number of terms N$/)).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: /^Number of terms N$/})).toBeInTheDocument();
     expect(screen.getByLabelText(/^Function 1$/)).toBeInTheDocument();
     expect(document.body.textContent).toContain('The converse is not claimed');
     expect(document.body.textContent).toContain('not a law');

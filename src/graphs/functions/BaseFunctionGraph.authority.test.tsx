@@ -377,9 +377,9 @@ describe('linear function: replacement paths keep domain, controls and board tog
 const BIN_DEFAULT = {n: 20, p: 0.5, k: 8, correction: true, poisson: false};
 const mountBinomial = () => mount(new ObservedBinomialGraph());
 const binField = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
-const K_FIELD = /^Meja k \(P\(X ≤ k\)\)$/;
+const K_FIELD = /^Meja k \(P\(X ≤ k\)\), vrednost$/;
 const N_FIELD = /^Število poskusov n, vrednost$/;
-const P_FIELD = /^Natančna vrednost p$/;
+const P_FIELD = /^Verjetnost uspeha p, vrednost$/;
 const exampleSelect = () => screen.getByLabelText(/^Primer$/) as HTMLSelectElement;
 const poissonSwitch = () => screen.getByLabelText(/^Poissonovi stolpci$/) as HTMLInputElement;
 const correctionSwitch = () => screen.getByLabelText(/^Popravek za zveznost/) as HTMLInputElement;

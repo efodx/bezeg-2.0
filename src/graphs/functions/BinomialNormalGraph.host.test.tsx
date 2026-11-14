@@ -49,8 +49,8 @@ const typeIn = (label: RegExp, value: number) => act(() => {
 });
 const N_FIELD = /^Število poskusov n, vrednost$/;
 const typeN = (value: number) => typeIn(N_FIELD, value);
-const typeP = (value: number) => typeIn(/^Natančna vrednost p$/, value);
-const K_FIELD = /^Meja k \(P\(X ≤ k\)\)$/;
+const typeP = (value: number) => typeIn(/^Verjetnost uspeha p, vrednost$/, value);
+const K_FIELD = /^Meja k \(P\(X ≤ k\)\), vrednost$/;
 const typeK = (value: number) => typeIn(K_FIELD, value);
 const kField = () => field(K_FIELD);
 const exampleSelect = () => screen.getByLabelText(/^Primer$/) as HTMLSelectElement;

@@ -5578,8 +5578,6 @@ export const sl = {
     "prob_binomial_example_help": "Primer nastavi n, p, k, popravek za zveznost, Poissonove stolpce in pogled.",
     "prob_binomial_n_label": "Število poskusov n",
     "prob_binomial_p_label": "Verjetnost uspeha p",
-    "prob_binomial_p_exact_label": "Natančna vrednost p",
-    "prob_binomial_p_slider_rejected": "Drsnik in njegovo polje segata od 0,01 do 0,99; drugo vrednost med 0 in 1 vpiši v polje »Natančna vrednost p«.",
     "prob_binomial_p_help": "Vrednost p mora biti med 0 in 1; pri p = 0 ali p = 1 je varianca nič in normalne krivulje ni.",
     "prob_binomial_k_label": "Meja k (P(X ≤ k))",
     "prob_binomial_k_help": "Točko k povleci po osi x. Točka stoji na sredini stolpca k.",

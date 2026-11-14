@@ -88,7 +88,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset and the
     expect(frames.callbacks.size).toBe(0);
 
     // an endpoint edit through the real input restarts the history
-    const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
+    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputA, '0.5'); });
     expect(graph.modelNow()).toEqual({example: 'square-minus-two', a: 0.5, b: 2, step: 0});
     expect(readout('step')).toBe('0');

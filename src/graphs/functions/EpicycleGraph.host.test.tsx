@@ -113,8 +113,8 @@ const status = () => document.querySelector('.epicycle-status')?.textContent;
 const refusal = () => document.querySelector('[data-refusal-notice]')?.textContent ?? '';
 const rows = () => document.querySelectorAll('[data-testid="epicycle-table"] tbody tr');
 const cell = (k: number) => document.querySelector(`[data-testid="epicycle-table"] tr[data-k="${k}"] td`)?.textContent;
-const vertexField = (i: number, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Krajišče ${i + 1}, koordinata ${axis}$`)) as HTMLInputElement;
-const controlField = (i: number, which: 1 | 2, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Kontrolna točka ${i + 1}\\.${which}, koordinata ${axis}$`)) as HTMLInputElement;
+const vertexField = (i: number, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Krajišče ${i + 1}, ${axis}$`)) as HTMLInputElement;
+const controlField = (i: number, which: 1 | 2, axis: 'x' | 'y') => screen.getByLabelText(new RegExp(`^Kontrolna točka ${i + 1}\\.${which}, ${axis}$`)) as HTMLInputElement;
 const PLAY_LABEL = 'Predvajaj';
 const playButton = () => document.querySelector('[data-action="play-pause"]') as HTMLElement;
 /** Drags a handle as the board does: the position changes, then the drag handlers run. */
@@ -392,7 +392,7 @@ test('both languages: a live language switch keeps the scene, the model and the 
     act(() => { setLanguage('en'); });
     expect(graph.modelNow()).toBe(model);
     expect(graph.ownedObjects()).toBe(objects);
-    expect(screen.getByLabelText('End point 1, coordinate x')).toBeInTheDocument();
+    expect(screen.getByLabelText('End point 1, x')).toBeInTheDocument();
     expect(status()).toMatch(/^N = 8; terms: 17; largest rotating term/);
     expect(status()).toMatch(/\d\.\d+\.$/);
     expect(graph.visibleHandles()).toBe(6 + 12);

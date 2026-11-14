@@ -81,7 +81,7 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     expect(boardObjects(graph)).toBe(baseline);
 
     // x through the labelled field keeps the reveal; an out-of-range value is refused with the range
-    const inputX = screen.getByLabelText('Točka x') as HTMLInputElement;
+    const inputX = screen.getByLabelText('Točka x, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputX, '2'); });
     expect(graph.modelNow()).toMatchObject({x: 2, boundVisible: true});
     act(() => { enterNumber(inputX, '9'); });
@@ -92,11 +92,12 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     const select = screen.getByLabelText('Primer funkcije') as HTMLSelectElement;
     act(() => { fireEvent.change(select, {target: {value: 'flat'}}); });
     expect(graph.modelNow()).toEqual({example: 'flat', center: 0, degree: 3, x: 1, boundVisible: false});
-    const center = screen.getByRole('spinbutton', {name: 'Središče c'}) as HTMLInputElement;
+    const center = screen.getByRole('spinbutton', {name: 'Središče c, vrednost'}) as HTMLInputElement;
     expect(center.readOnly).toBe(true);
     expect(center.getAttribute('aria-disabled')).toBe('true');
-    expect(center.getAttribute('aria-describedby')).toContain('taylor-center-help');
-    expect(document.getElementById('taylor-center-help')?.textContent).toMatch(/stalno c = 0/);
+    const reasonId = (center.getAttribute('aria-describedby') ?? '').split(' ').find(id => id.endsWith('-reason'));
+    expect(reasonId).toBeTruthy();
+    expect(document.getElementById(reasonId as string)?.textContent).toMatch(/stalno c = 0/);
     expect(readout('polynomial')).toBe('0');
     expect(readout('function')).toBe('0,3679');
     expect(statusIds()).toEqual(['hidden', 'flat']);
@@ -107,7 +108,7 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     // 1/(1 - x) shows whether x is inside the convergence interval, in words
     act(() => { fireEvent.change(select, {target: {value: 'geometric'}}); });
     expect(statusIds()).toEqual(['hidden', 'inside-convergence']);
-    act(() => { enterNumber(screen.getByLabelText('Točka x'), '-1.5'); });
+    act(() => { enterNumber(screen.getByLabelText('Točka x, vrednost'), '-1.5'); });
     expect(statusIds()).toEqual(['hidden', 'outside-convergence']);
     expect(readout('convergence')).toMatch(/zunaj/);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
@@ -116,7 +117,7 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     // the English labels follow a live language switch
     act(() => { setLanguage('en'); });
     expect(screen.getByRole('button', {name: 'Show error bound'})).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', {name: 'Center c'})).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', {name: 'Center c, value'})).toBeInTheDocument();
     expect(screen.getByRole('spinbutton', {name: 'Degree n'})).toBeInTheDocument();
     expect(readout('convergence')).toMatch(/x is outside/);
 });

@@ -136,8 +136,8 @@ test('Reset, also after choosing the sawtooth, restores every field, the readout
     expect(graph.modelNow().example).toBe('sawtooth');
     nearBox(box(graph), DEFAULT_SAWTOOTH_VIEW);
     act(() => { enterNumber(nInput(), '40'); });
-    act(() => { enterNumber(field(/^Točka x$/), '-2'); });
-    act(() => { enterNumber(field(/^Toleranca ε$/), '0,5'); });
+    act(() => { enterNumber(field(/^Točka x, vrednost$/), '-2'); });
+    act(() => { enterNumber(field(/^Toleranca ε, vrednost$/), '0,5'); });
     expect(graph.modelNow()).toEqual({example: 'sawtooth', n: 40, x: -2, epsilon: 0.5});
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(fourierGibbsPeak('sawtooth', 40).value, 12);
     expect(readout('terms')).toBe('Sₙ(x) = 2 · (sin x − sin 2x/2 + sin 3x/3 − sin 4x/4 + sin 5x/5 − sin 6x/6 + … − sin 40x/40)');
@@ -148,8 +148,8 @@ test('Reset, also after choosing the sawtooth, restores every field, the readout
     expect(graph.modelNow()).toEqual(DEFAULT_FOURIER_SERIES_MODEL);
     expect(select().value).toBe('square');
     expect(nInput().value).toBe('11');
-    expect(field(/^Točka x$/).value).toBe('0,5');
-    expect(field(/^Toleranca ε$/).value).toBe('0,1');
+    expect(field(/^Točka x, vrednost$/).value).toBe('0,5');
+    expect(field(/^Toleranca ε, vrednost$/).value).toBe('0,1');
     expect(readout('n')).toBe('11');
     expect(readout('peak-value')).toBe('1,1813');
     expect(readout('terms')).toBe('Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11)');
@@ -166,8 +166,8 @@ test('a restored Preset shows its model, its view and its drawn curve; a sawtoot
     expect(graph.modelNow()).toEqual(stored);
     expect(select().value).toBe('sawtooth');
     expect(nInput().value).toBe('25');
-    expect(field(/^Točka x$/).value).toBe('3');
-    expect(field(/^Toleranca ε$/).value).toBe('0,3');
+    expect(field(/^Točka x, vrednost$/).value).toBe('3');
+    expect(field(/^Toleranca ε, vrednost$/).value).toBe('0,3');
     nearBox(box(graph), [-4, 4, 4, -4]);
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(fourierGibbsPeak('sawtooth', 25).value, 12);
     act(() => { graph.importPreset({id: 'default', data: DEFAULT_FOURIER_SERIES_MODEL}); });
@@ -179,7 +179,7 @@ test('a restored Preset shows its model, its view and its drawn curve; a sawtoot
 
 test('both languages: labels, readouts and board texts follow a live language switch', () => {
     const graph = mount();
-    act(() => { enterNumber(field(/^Točka x$/), '1,5'); });
+    act(() => { enterNumber(field(/^Točka x, vrednost$/), '1,5'); });
     expect(readout('x')).toBe('1,5');
     const update = vi.spyOn(graph as unknown as { boardUpdate: () => void }, 'boardUpdate');
     act(() => { setLanguage('en'); });

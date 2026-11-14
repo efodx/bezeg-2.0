@@ -2965,7 +2965,7 @@ const fixedPoint: GuidedLesson = {
             formulaIds: ['fixed-point-bounds'],
             frames: [frame('fixed-point-rounding-explanation', 'explanation'), frame('fixed-point-rounding-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato z drsnikom Začetek x₀ nastavi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
+                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato z drsnikom Začetek nastavi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
                 'Predict whether \\(x_{27}\\) is exactly \\(1\\) because the readout shows \\(1\\); press Show error bound and read the bound. Then enter \\(x_0=1\\) and read why the iteration does not move.',
             ),
             expectedObservations: [
@@ -2998,7 +2998,7 @@ const fixedPoint: GuidedLesson = {
             formulaIds: ['fixed-point-reflection', 'fixed-point-reflection-derivative'],
             frames: [frame('fixed-point-reflection-explanation', 'explanation'), frame('fixed-point-reflection-observation', 'observation')],
             observationPrompt: text(
-                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato z drsnikom Začetek x₀ nastavi \\(x_0=0{,}5\\) in primerjaj.',
+                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato z drsnikom Začetek nastavi \\(x_0=0{,}5\\) in primerjaj.',
                 'Predict where the iteration from \\(x_0=0.2\\) is heading; press Show error bound and read why there is no bound. Then enter \\(x_0=0.5\\) and compare.',
             ),
             expectedObservations: [

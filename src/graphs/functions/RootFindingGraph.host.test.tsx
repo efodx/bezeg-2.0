@@ -78,7 +78,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
     expect(readout('iterate')).toBe('1,414213562373');
 
     // a start edit through the real input restarts the history; Reset keeps the model
-    const inputX0 = screen.getByLabelText('Začetni približek x₀') as HTMLInputElement;
+    const inputX0 = screen.getByLabelText('Začetni približek x₀, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputX0, '0.5'); });
     expect(graph.modelNow()).toEqual({method: 'newton', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
     expect(statusId()).toBe('ready');
@@ -90,7 +90,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
     act(() => { fireEvent.click(nextButton()); });
     act(() => { fireEvent.change(screen.getByLabelText('Metoda'), {target: {value: 'secant'}}); });
     expect(graph.modelNow()).toEqual({method: 'secant', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
-    expect(screen.getByLabelText('Drugi začetni približek x₁')).toBeInTheDocument();
+    expect(screen.getByLabelText('Drugi začetni približek x₁, vrednost')).toBeInTheDocument();
     expect(statusId()).toBe('ready');
 });
 

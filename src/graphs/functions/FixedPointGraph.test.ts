@@ -131,7 +131,11 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
     const button = (action: string) => playbackButton(found, action);
-    const [inputX0, inputDigits] = found.NumberInput;
+    const [sliderX0] = found.Slider;
+    const [setter] = found.CountSetter;
+    // x0 is a Slider; the tolerance digits are a shared CountSetter (typed path, minus and plus)
+    const inputX0 = {props: {label: sliderX0.props.customText, min: sliderX0.props.min, max: sliderX0.props.max, value: sliderX0.props.value, step: sliderX0.props.step, onChange: sliderX0.props.onChange}};
+    const inputDigits = {props: {label: setter.props.label, min: setter.props.min, max: setter.props.max, value: setter.props.n, step: 1, onChange: setter.props.onSet}};
     return {
         found, actions: buttonActions(found), inputX0, inputDigits, select: found.ChoiceSelect[0],
         next: button('next-step'), play: button('play-pause'), reset: button('reset'), toggle: button('toggle-fixed-point-bound'),
@@ -588,9 +592,9 @@ test('controls: example select, two number fields, Next step, Play/Pause, Reset 
     const first = controls(graph);
     expect(first.select.props.options.map((option: any) => option.value)).toEqual(['affine', 'cosine', 'reflection']);
     expect(first.select.props.options.map((option: any) => option.text)).toEqual(['T(x) = (x + 1) / 2, x ∈ [0, 2]', 'T(x) = cos x, x ∈ [0, 1]', 'T(x) = 1 - x, x ∈ [0, 1]']);
-    expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Začetek x₀', 'Natančnost d (prag 10⁻ᵈ)']);
-    expect(first.found.NumberInput.map((input: any) => input.props.value)).toEqual([0, 3]);
-    expect(first.found.NumberInput.map((input: any) => input.props.step)).toEqual([0.01, 1]);
+    expect([first.inputX0, first.inputDigits].map((input: any) => input.props.label)).toEqual(['Začetek x₀', 'Natančnost d (prag 10⁻ᵈ)']);
+    expect([first.inputX0, first.inputDigits].map((input: any) => input.props.value)).toEqual([0, 3]);
+    expect([first.inputX0, first.inputDigits].map((input: any) => input.props.step)).toEqual([0.01, 1]);
     expect(first.actions).toEqual(['next-step', 'play-pause', 'reset', 'toggle-fixed-point-bound']);
     expect(first.next.props['aria-disabled']).toBe(false);
     expect(first.play.props['aria-disabled']).toBe(false);
@@ -623,7 +627,7 @@ test('controls: example select, two number fields, Next step, Play/Pause, Reset 
     expect(english.reset.props.children).toBe('Reset to x₀');
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide error bound');
-    expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Start x₀', 'Tolerance digits d (threshold 10⁻ᵈ)']);
+    expect([english.inputX0, english.inputDigits].map((input: any) => input.props.label)).toEqual(['Start x₀', 'Tolerance digits d (threshold 10⁻ᵈ)']);
     expect(collect([graph.renderControls(), graph.renderReveals()]).PlaybackButtons.some((element: any) => element.props.groupLabel === 'Iteration controls')).toBe(true);
     // the interval of the start follows the example
     apply(graph, choice('cosine'));

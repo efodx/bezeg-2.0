@@ -134,7 +134,7 @@ Not written: `bspline-insertion` (only the Vstavi vozel button changes the pictu
     {
         id: 'epicycles',
         motion: 'parameter-sweep',
-        control: {kind: 'number', label: 'Krajišče 1, koordinata x', step: 0.01},
+        control: {kind: 'number', label: 'Krajišče 1, x', step: 0.01},
         // Start vertex 1 = (1, 0): the rhombus example shares the circle's four vertices (route-probe; the recipe adds N = 4 steps only). Drags snap to a grid (EpicycleGraph.tsx:376), so the vertex's number field is swept; the camera is +-3.2, so 1 -> 2.3 stays in view.
         path: [1, 1.65, 2.3, 1.65, 1],
         lessonQuote: 'Povleci točko in poglej, kateri krogi se spremenijo ter kdaj napaka postane vidna.',

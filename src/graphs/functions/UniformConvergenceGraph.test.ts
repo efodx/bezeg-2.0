@@ -85,7 +85,7 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [inputR, inputX, inputEpsilon] = found.NumberInput;
+    const [inputR, inputX, inputEpsilon] = found.Slider;
     const [setter] = found.CountSetter;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     // n is a shared CountSetter: its typed path, its minus and its plus
@@ -371,8 +371,8 @@ test('a change of r below the chosen x is rejected and never clamped; the inspec
     apply(graph, parameter('uniform-r', 0.4));
     expect(() => apply(graph, parameter('uniform-r', 0.35))).toThrow(DomainError);
     expect(graph.model.r).toBe(0.4);
-    // the x field and the drag are limited to [0, r]
-    expect(controls(graph).inputX.props.max).toBe(0.4);
+    // the x slider keeps the fixed outer range [0, 1]; the handler limits x and the drag to [0, r]
+    expect(controls(graph).inputX.props.max).toBe(1);
     expect(() => apply(graph, parameter('uniform-x', 0.41))).toThrow(DomainError);
 });
 

@@ -5579,8 +5579,6 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_binomial_example_help": "An example sets n, p, k, the continuity correction, the Poisson bars and the view.",
     "prob_binomial_n_label": "Number of trials n",
     "prob_binomial_p_label": "Success probability p",
-    "prob_binomial_p_exact_label": "Exact value of p",
-    "prob_binomial_p_slider_rejected": "The slider and its field run from 0.01 to 0.99; type another value between 0 and 1 in the field \"Exact value of p\".",
     "prob_binomial_p_help": "p must lie between 0 and 1; at p = 0 or p = 1 the variance is zero and there is no normal curve.",
     "prob_binomial_k_label": "Threshold k (P(X ≤ k))",
     "prob_binomial_k_help": "Drag the point k along the x-axis. The point sits at the centre of the bar of k.",

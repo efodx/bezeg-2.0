@@ -295,8 +295,8 @@ test('editing an endpoint or the example restarts the history at step 0 and paus
         graph => apply(graph, parameter('bisect-b', 3)),
         graph => apply(graph, choice('cubic')),
         graph => apply(graph, choice('square-minus-two')), // the same example: still an edit that loads its bracket
-        graph => controls(graph).found.NumberInput[0].props.onChange(0.25),
-        graph => controls(graph).found.NumberInput[1].props.onChange(3.5),
+        graph => controls(graph).found.Slider[0].props.onChange(0.25),
+        graph => controls(graph).found.Slider[1].props.onChange(3.5),
         graph => controls(graph).found.ChoiceSelect[0].props.onChange('sign-step'),
     ];
     for (const edit of edits) {
@@ -331,8 +331,8 @@ test('endpoints and examples outside the domain are rejected without changing th
     expect(graph.model).toEqual(before);
     // the inspector swallows exactly the domain errors and reports the rejection to the input
     const {found} = controls(graph);
-    expect(found.NumberInput[0].props.onChange(7)).toBe(false);
-    expect(found.NumberInput[0].props.onChange(1.5)).toBe(true);
+    expect(found.Slider[0].props.onChange(7)).toBe(false);
+    expect(found.Slider[0].props.onChange(1.5)).toBe(true);
     expect(graph.model).toEqual({example: 'square-minus-two', a: 1.5, b: 2, step: 0});
 });
 
@@ -451,9 +451,9 @@ test('controls: example select, endpoint inputs, Next step, Play/Pause and Reset
     const first = controls(graph);
     expect(first.found.ChoiceSelect[0].props.options.map((option: any) => option.value)).toEqual(['square-minus-two', 'sign-step', 'cubic']);
     expect(first.found.ChoiceSelect[0].props.options.map((option: any) => option.text)).toEqual(['f(x) = x² − 2', 'f(x) = −1 za x < 0, sicer 1', 'f(x) = x³ − x']);
-    expect(first.found.NumberInput).toHaveLength(2);
-    expect(first.found.NumberInput.map((input: any) => [input.props.min, input.props.max, input.props.value])).toEqual([[-4, 4, 1], [-4, 4, 2]]);
-    expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Levo krajišče a', 'Desno krajišče b']);
+    expect(first.found.Slider).toHaveLength(2);
+    expect(first.found.Slider.map((input: any) => [input.props.min, input.props.max, input.props.value])).toEqual([[-4, 4, 1], [-4, 4, 2]]);
+    expect(first.found.Slider.map((input: any) => input.props.customText)).toEqual(['Levo krajišče a', 'Desno krajišče b']);
     expect(first.actions).toEqual(['next-step', 'play-pause', 'reset']);
     expect(first.next.props['aria-disabled']).toBe(false);
     expect(first.play.props['aria-disabled']).toBe(false);

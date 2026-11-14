@@ -129,7 +129,7 @@ test('Reset pauses and never starts playback; an edit while playing pauses', () 
     act(() => { graph.editQ(-1); });
     expect(graph.playing()).toBe(false);
     play();
-    act(() => { enterNumber(screen.getByLabelText('Prikazani členi n'), '7'); });
+    act(() => { enterNumber(screen.getByRole('spinbutton', {name: 'Prikazani členi n'}), '7'); });
     expect(graph.playing()).toBe(false);
     expect(graph.modelNow().terms).toBe(7);
 });
@@ -161,13 +161,13 @@ test('the limit marker is drawn only for |q| < 1; q = -1 oscillates; q = 1 gives
     expect(limitReadout(1)).toBe('limite ni');
     expect(visibleLimitLines(graph)).toBe(0);
     expect(statusIds()).toEqual(['constant']);
-    act(() => { enterNumber(screen.getByLabelText('Prikazani členi n'), '10'); });
+    act(() => { enterNumber(screen.getByRole('spinbutton', {name: 'Prikazani členi n'}), '10'); });
     expect(readout('sum')).toBe('10');
     expect(limitReadout(-1)).toBe('limite ni');
     expect(visibleLimitLines(graph)).toBe(0);
     expect(statusIds()).toEqual(['oscillating']);
     expect(readout('sum')).toBe('0');
-    act(() => { enterNumber(screen.getByLabelText('Prikazani členi n'), '9'); });
+    act(() => { enterNumber(screen.getByRole('spinbutton', {name: 'Prikazani členi n'}), '9'); });
     expect(readout('sum')).toBe('1');
     expect(limitReadout(1.5)).toBe('limite ni');
     expect(visibleLimitLines(graph)).toBe(0);

@@ -88,20 +88,20 @@ test('a real board shows the terms: Next step, Play and Pause, Reset, the fields
     expect(statusIds()).toEqual(['threshold-fails']);
 
     // the labelled field takes N; an out-of-range or non-integer value is refused with a hint
-    const inputN = screen.getByLabelText('Prag N') as HTMLInputElement;
+    const inputN = screen.getByLabelText('Prag N, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputN, '11'); });
     expect(graph.modelNow()).toMatchObject({threshold: 11, terms: 12, certificateVisible: true});
     expect(readout('certificate')).toBe('N deluje');
     expect(readout('bound')).toBe('1/11 = 0,0909');
     act(() => { enterNumber(inputN, '1001'); });
     expect(graph.modelNow().threshold).toBe(11);
-    expect(screen.getByText('Vnesi vrednost med 1 in 1000.')).toBeInTheDocument();
+    expect(screen.getByText('Vnesi celo število med 1 in 1000.')).toBeInTheDocument();
     act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow().threshold).toBe(11);
-    expect(screen.getByText('Prag N mora biti celo število med 1 in 1000.')).toBeInTheDocument();
+    expect(screen.getByText('Vnesi celo število med 1 in 1000.')).toBeInTheDocument();
 
     // epsilon takes grid values only
-    const inputEpsilon = screen.getByLabelText('Širina pasu ε') as HTMLInputElement;
+    const inputEpsilon = screen.getByLabelText('Širina pasu ε, vrednost') as HTMLInputElement;
     act(() => { enterNumber(inputEpsilon, '0.05'); });
     expect(graph.modelNow()).toMatchObject({epsilon: 0.05, threshold: 11});
     expect(readout('certificate')).toBe('N ne deluje');
@@ -137,10 +137,10 @@ test('a real board shows the terms: Next step, Play and Pause, Reset, the fields
     act(() => { fireEvent.change(select, {target: {value: 'alternating-sign'}}); });
     expect(graph.modelNow()).toEqual({example: 'alternating-sign', epsilon: 0.5, limit: 0, threshold: 5, terms: 1, certificateVisible: false});
     expect(boardObjects(graph)).toBe(baseline);
-    act(() => { enterNumber(screen.getByLabelText('Širina pasu ε'), '1.5'); });
+    act(() => { enterNumber(screen.getByLabelText('Širina pasu ε, vrednost'), '1.5'); });
     act(() => { fireEvent.click(toggle()); });
     expect(statusIds()).toEqual(['epsilon-satisfied']);
-    act(() => { enterNumber(screen.getByLabelText('Širina pasu ε'), '0.5'); });
+    act(() => { enterNumber(screen.getByLabelText('Širina pasu ε, vrednost'), '0.5'); });
     expect(statusIds()).toEqual(['oscillating']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     expect(boardObjects(graph)).toBe(baseline);
@@ -246,7 +246,7 @@ test('a live language switch re-evaluates the board texts and the readouts', () 
     expect(boardText()).not.toContain('krogec');
     expect(readout('certificate')).toBe('N does not work');
     expect(screen.getByRole('button', {name: 'Hide certificate'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Band width ε')).toBeInTheDocument();
+    expect(screen.getByLabelText('Band width ε, value')).toBeInTheDocument();
     act(() => { setLanguage('sl'); });
     expect(boardText()).toContain('ε = 0,1, L = 0, N = 5');
 });

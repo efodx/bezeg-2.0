@@ -173,7 +173,7 @@ test('editing the method, the example or a start restarts the history at step 0 
         graph => graph.setExample('square-minus-two'), // the same example: still an edit that loads its starts
         graph => graph.setStart('x0', 0.5),
         graph => graph.setStart('x1', 3),
-        graph => controls(graph).found.NumberInput[0].props.onChange(0.25),
+        graph => controls(graph).found.Slider[0].props.onChange(0.25),
         graph => controls(graph).found.ChoiceSelect[0].props.onChange('secant'),
         graph => controls(graph).found.ChoiceSelect[1].props.onChange('cubic-two-cycle'),
         graph => { graph.startPoints.x0.moveTo([0.7, 0]); graph.startPoints.x0.handlers.drag(); },
@@ -230,7 +230,7 @@ test('starts outside the range or equal for the secant method are rejected witho
     expect(() => graph.setMethod('halley')).toThrow(DomainError);
     expect(graph.model).toEqual(before);
     // the UI swallows the refusal
-    expect(() => controls(graph).found.NumberInput[0].props.onChange(9)).not.toThrow();
+    expect(() => controls(graph).found.Slider[0].props.onChange(9)).not.toThrow();
     expect(graph.model).toEqual(before);
     setLanguage('en');
     try { graph.setStart('x0', 9); } catch (error) {
@@ -238,7 +238,7 @@ test('starts outside the range or equal for the secant method are rejected witho
     }
     // x1 is not an input for Newton's method
     graph.setMethod('newton');
-    expect(controls(graph).found.NumberInput.length).toBe(1);
+    expect(controls(graph).found.Slider.length).toBe(1);
 });
 
 test('every termination is stated in words and on the board', () => {
