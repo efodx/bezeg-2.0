@@ -11,4 +11,4 @@ Handler decisions (handler 12, 2026-11-12): the chapter sits in the Learn strand
 
 Acceptance: the spec's acceptance for RG1 and RG3; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the `sequence-*`, `series-*`, `exponential-*`, `inverse-logarithm` and `fixed-point-*` lessons behave as before.
 
-Status: F3 done 2026-11-12 (handler 12; RG1 and RG3, chapter skeleton, host and content tests; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-rec-a.md)); F4–F6 next.
+Status: F3 done 2026-11-12 (handler 12; RG1 and RG3, chapter skeleton, host and content tests; evidence in the [F3 note](../../reviews/feature-streams/families-prep/notes/f3-rec-a.md)); F4 done with F3 (chapter sections with guided examples); F5 cards captured (handler 20); catalog clip and F6 next.

@@ -381,6 +381,16 @@ const chapterInventories = {
         // The one mechanics-descent Demonstration: the three examples must cover it and open on its route.
         identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'},
     },
+    recursion: {
+        module: '/src/learning/content/recursionChapterRegistry.ts',
+        // Like randomness: section rows plus a per-section lesson function.
+        registryExport: 'recursionGuidedExampleDemonstrations',
+        lessonExport: 'recursionGuidedExampleLesson',
+        pathExport: 'recursionGuidedExamplePath',
+        expectedFor: recursionExpectedFor,
+        // The one recursion-growth Demonstration with lessons: the two examples must cover it and open on its route (the cobweb row ships without a lesson).
+        identities: {module: '/src/graphs/recursion/registration.ts', rows: 'recursionDemonstrationRows'},
+    },
     randomness: {
         module: '/src/learning/content/randomnessChapterRegistry.ts',
         // Like waves: section rows plus a per-section lesson function.
@@ -1768,7 +1778,8 @@ function bsplineExpectedFor(id, step) {
 /** Fails unless the examples cover exactly the family's registered Demonstration rows, each opening on its registered path. */
 function assertFamilyIdentities(chapterId, examples, rows) {
     assert.ok(Array.isArray(rows) && rows.length > 0, `${chapterId}: the registered Demonstration rows are missing`);
-    const registered = new Map(rows.map(row => [row.id, row.path]));
+    // A row that ships without a lesson (`lesson: false`) has no example to cover.
+    const registered = new Map(rows.filter(row => row.lesson !== false).map(row => [row.id, row.path]));
     for (const example of examples) {
         assert.ok(registered.has(example.demonstrationId), `${example.id}: ${example.demonstrationId} is not a registered ${chapterId} Demonstration`);
         assert.equal(new URL(example.path, 'https://bezeg.invalid').pathname, registered.get(example.demonstrationId), `${example.id}: the example does not open on the registered route`);
@@ -2339,6 +2350,50 @@ function randomnessExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Recursion chapter (recursion): two lessons on the one recursion-growth Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default plus the `recursion` actions
+// below; nothing is random. The board (GrowthGraph.tsx) keeps its curves in every panel and hides those of the other panels, so only the shown panel counts.
+
+/** Asserts the opening scene is the prepared default then exactly the listed `recursion` operations; returns those actions by operation. */
+function recursionOpening(id, step, operations) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `recursion:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    return Object.fromEntries(own.map(item => [item.operation, item]));
+}
+
+// Authored from GrowthGraph.tsx (buildScene) and growthScene.ts (barsPath, sampleCurve), not from a capture. A data curve is read at the indices 0, 1/2 and 1 of its points (the first segment).
+const recursionFrames = {
+    // RG1 step 1: the arithmetic sequence a1 = 3, d = 2 with 6 terms (the default kind, shown in the sequence panel). One visible curve, the outline of the bars, and the diamond marker of the 6th term; the limit line
+    // is drawn only when the sequence has a limit (an arithmetic one with d != 0 has none).
+    sequences: (id, step) => {
+        const {'set-params': params} = recursionOpening(id, step, ['set-params']);
+        assert.deepEqual({a1: params.a1, d: params.d, n: params.n, q: params.q}, {a1: 3, d: 2, n: 6, q: undefined}, `${id}: only the sequence a1 = 3, d = 2 with 6 terms is authored`);
+        // The outline of the first bar starts at (1 - 0.36, 0) and goes up to (1 - 0.36, a1 = 3); the marker stands at (n, a_n) = (6, 3 + 5 * 2).
+        return {types: {curve: 1, point: 1}, curveCount: 1, points: [[6, 13]], curves: [[[0.64, 0], [0.64, 1.5], [0.64, 3]]]};
+    },
+    // RG3 step 1: 1000 at 5 percent (the default capital and rate; stored rate 10) for 1 year, yearly compounding, in the interest panel. Four model curves and their four legend lines are visible; the panel draws no point.
+    // The simple-interest curve is 1000 (1 + 0.05 x) on 80 points x = i/79 of the one year.
+    'compound-interest': (id, step) => {
+        const {'set-map': map, 'set-interest': interest} = recursionOpening(id, step, ['set-map', 'set-interest']);
+        assert.equal(map.panel, 'interest', `${id}: only the interest panel is authored`);
+        assert.deepEqual({capital: interest.capital, rate: interest.rate, years: interest.years, parts: interest.parts}, {capital: undefined, rate: undefined, years: 1, parts: 1},
+            `${id}: only 1000 at 5 percent for 1 year with yearly compounding is authored`);
+        const simple = x => 1000 * (1 + 0.05 * x);
+        return {types: {curve: 8}, curveCount: 8, points: [], curves: [[[0, simple(0)], [1 / 158, simple(1 / 158)], [1 / 79, simple(1 / 79)]]]};
+    },
+};
+
+/** First-frame expectation of a recursion lesson (the two sections of the chapter, keyed by the section in the example id). */
+function recursionExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(recursionFrames, section) ? recursionFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored recursion first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2395,4 +2450,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, assertExpectation};

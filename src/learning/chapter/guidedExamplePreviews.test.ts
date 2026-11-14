@@ -29,6 +29,7 @@ import {kinematicsPreviewCopy} from '../content/kinematicsPreviewCopy';
 import {wavesPreviewCopy} from '../content/wavesPreviewCopy';
 import {mechanicalCurvesPreviewCopy} from '../content/mechanicalCurvesPreviewCopy';
 import {randomnessPreviewCopy} from '../content/randomnessPreviewCopy';
+import {recursionPreviewCopy} from '../content/recursionPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
@@ -317,6 +318,9 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'randomness', copy: randomnessPreviewCopy,
         ids: ['randomness.galton-board.prob-simulation', 'randomness.law-of-large-numbers.prob-simulation'],
         counts: [[4, 0], [6, 0]]},
+    {chapterId: 'recursion', copy: recursionPreviewCopy,
+        ids: ['recursion.compound-interest.recursion-growth', 'recursion.sequences.recursion-growth'],
+        counts: [[8, 0], [1, 1]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

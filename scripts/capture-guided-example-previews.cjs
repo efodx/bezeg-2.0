@@ -60,7 +60,16 @@ const randomnessWindows = {
     'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.22, 1.008, -1.14],
 };
 
+// The growth cards: the board frames each panel in its own window (the sequence panel: x from -0.7 to 7.2, y from 17.55 to -1.3 for the six terms up to 13; the one-year interest panel: x from -0.12 to 1.05,
+// y from 1682.03 to -84.1), which has unequal x and y scales; the default capture size gives both axes one scale and the figure becomes a thin strip off the centre, under overlapping captions.
+// The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
+const recursionWindows = {
+    'recursion.sequences.recursion-growth': [0.164, 15.488, 6.336, 0.762],
+    'recursion.compound-interest.recursion-growth': [0.008, 1488.863, 0.922, 109.069],
+};
+
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(recursionWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: recursionWindows[entry.id]}};
     if (Object.hasOwn(randomnessWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: randomnessWindows[entry.id]}};
     if (Object.hasOwn(descentWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: descentWindows[entry.id]}};
     if (Object.hasOwn(wavesWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: wavesWindows[entry.id]}};
@@ -122,6 +131,7 @@ const chapterFamilies = {
     waves: {label: 'waves', idPrefix: 'waves.', identities: {module: '/src/graphs/functions/waves/registration.ts', rows: 'wavesDemonstrationRows'}},
     'mechanical-curves': {label: 'mechanical-curves', idPrefix: 'mechanical-curves.', identities: {module: '/src/graphs/mechanics/registration.ts', rows: 'mechanicsDemonstrationRows'}},
     randomness: {label: 'randomness', idPrefix: 'randomness.', identities: {module: '/src/graphs/random/registration.ts', rows: 'randomDemonstrationRows'}},
+    recursion: {label: 'recursion', idPrefix: 'recursion.', identities: {module: '/src/graphs/recursion/registration.ts', rows: 'recursionDemonstrationRows'}},
     kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},

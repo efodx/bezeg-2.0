@@ -1,0 +1,11 @@
+# Recursion F5: example card images (worker)
+
+- Inventory: `node scripts/generate-guided-example-inventory.cjs --chapter recursion`, two entries; `expected` authored from the first scenes of `recursionGuidedLessons.ts` (RG1: `set-params` a1 3, d 2, n 6; RG3: `set-map` interest, `set-interest` parts 1, years 1) and from `GrowthGraph.tsx` / `growthScene.ts`. Passed on the first capture. The identity check now skips a registered row with `lesson: false` (the cobweb row has no example).
+- Task status file: its F3 claim already read "F3 done 2026-11-12"; left unchanged. Status line extended per the brief.
+- Recipe row added for `recursion-growth` (leaves the exhaustive-recipe missing list; `recursion-cobweb` remains, not part of this chapter).
+- First capture without windows: the default framing gives both axes one scale, so the sequence bars sat in a thin strip and the interest curves collapsed on the axis. `recursionWindows` (capture script) gives each card the board's own panel box shrunk by the 28 percent padding.
+- Observed pre-PNG failure: `guidedExamplePreviews.test.ts` "publishes the recursion example cards ..." failed with ENOENT on `src/images/learning/examples/recursion/manifest.json`. After capture the cached glob was stale (src undefined in two tests); a real edit of the comment above `chapterImageUrls` refreshed it.
+- Frames viewed: sequences = six green bars 3..13 on k = 1..6 with the orange diamond on the sixth bar, three caption lines top left; compound-interest = four near-coinciding curves from 1000 over one year, legend of four lines top left.
+- Board labels touching: sequences: axis caption `k (številka člena)` overlaps the tick labels 6 and 7; the title `aₖ (člen zaporedja)` touches the vertical axis line; the diamond sits on the top edge of bar 6 (intended marker). Interest: axis caption `t (leta)` overlaps tick label 1; tick label `-0,1` is cut at the left edge; legend captions start right at the vertical axis. No handles on either board. Not fixable in owned paths (graph code).
+- Readouts already showing step 1's answer: none. Sequences shows `a₆ = 13` (step 1 asks a₁₀); interest shows 1050 each after one year (step 1 asks the 10-year values). Copy names no value.
+- Preview server on 4519 stopped; port closed. Logs: `.command-logs/f5-cards/recursion/`.

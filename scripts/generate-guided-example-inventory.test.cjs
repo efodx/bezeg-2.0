@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -936,4 +936,21 @@ test('randomness expectations are authored from the graph: the Galton board with
     assert.throws(() => randomnessExpectedFor('r.law-of-large-numbers.prob-simulation', open([run({n: 10})])), /the opening scene is set-mode, set-run/);
     assert.throws(() => randomnessExpectedFor('r.unknown.prob-simulation', open([])), /no authored randomness/);
     assert.ok(chapterInventories.randomness);
+});
+
+test('recursion expectations are authored from the graph: the arithmetic bars with 6 terms and the one-year interest panel', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const params = fields => ({kind: 'recursion', operation: 'set-params', ...fields});
+    const map = fields => ({kind: 'recursion', operation: 'set-map', ...fields});
+    const interest = fields => ({kind: 'recursion', operation: 'set-interest', ...fields});
+    assert.deepEqual(recursionExpectedFor('r.sequences.recursion-growth', open([params({a1: 3, d: 2, n: 6})])), {types: {curve: 1, point: 1}, curveCount: 1, points: [[6, 13]], curves: [[[0.64, 0], [0.64, 1.5], [0.64, 3]]]});
+    const frame = recursionExpectedFor('r.compound-interest.recursion-growth', open([map({panel: 'interest'}), interest({parts: 1, years: 1})]));
+    assert.deepEqual({types: frame.types, curveCount: frame.curveCount, points: frame.points}, {types: {curve: 8}, curveCount: 8, points: []});
+    assert.deepEqual(frame.curves[0].map(([x]) => x), [0, 1 / 158, 1 / 79]);
+    assert.equal(frame.curves[0][0][1], 1000);
+    assert.throws(() => recursionExpectedFor('r.sequences.recursion-growth', open([params({a1: 3, d: 2, n: 10})])), /only the sequence/);
+    assert.throws(() => recursionExpectedFor('r.compound-interest.recursion-growth', open([map({panel: 'interest'}), interest({parts: 1, years: 10})])), /only 1000 at 5 percent/);
+    assert.throws(() => recursionExpectedFor('r.compound-interest.recursion-growth', open([interest({parts: 1, years: 1})])), /the opening scene is set-map, set-interest/);
+    assert.throws(() => recursionExpectedFor('r.unknown.recursion-growth', open([])), /no authored recursion/);
+    assert.ok(chapterInventories.recursion);
 });

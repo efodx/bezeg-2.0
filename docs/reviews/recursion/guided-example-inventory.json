@@ -1,0 +1,87 @@
+{
+  "examples": [
+    {
+      "id": "recursion.sequences.recursion-growth",
+      "demonstrationId": "recursion-growth",
+      "path": "/bezeg-2.0/analysis/growth?example=lesson.recursion.sequences.recursion-growth",
+      "sceneFingerprint": "47035b982776cb2de71e401ebe26d978ac405d701e6ef6aca7ac4ef20330f551",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg1-first-terms-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg1-first-terms-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-params\",\"a1\":3,\"d\":2,\"n\":6}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            6,
+            13
+          ]
+        ],
+        "curves": [
+          [
+            [
+              0.64,
+              0
+            ],
+            [
+              0.64,
+              1.5
+            ],
+            [
+              0.64,
+              3
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "recursion.compound-interest.recursion-growth",
+      "demonstrationId": "recursion-growth",
+      "path": "/bezeg-2.0/analysis/growth?example=lesson.recursion.compound-interest.recursion-growth",
+      "sceneFingerprint": "0e2f23ce6bb29a192ba3215025b749ff1019fcfda42e4d44d68dae015df4c7c7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-map\",\"panel\":\"interest\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-interest\",\"parts\":1,\"years\":1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8
+        },
+        "curveCount": 8,
+        "points": [],
+        "curves": [
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.006329113924050633,
+              1000.3164556962025
+            ],
+            [
+              0.012658227848101266,
+              1000.632911392405
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

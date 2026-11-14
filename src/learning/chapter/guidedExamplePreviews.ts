@@ -33,6 +33,7 @@ import {kinematicsPreviewCopy} from '../content/kinematicsPreviewCopy';
 import {wavesPreviewCopy} from '../content/wavesPreviewCopy';
 import {mechanicalCurvesPreviewCopy} from '../content/mechanicalCurvesPreviewCopy';
 import {randomnessPreviewCopy} from '../content/randomnessPreviewCopy';
+import {recursionPreviewCopy} from '../content/recursionPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 import {mathAltText} from './mathAltText';
@@ -49,7 +50,7 @@ const patchImageUrls = import.meta.glob<string>('/src/images/learning/examples/p
     import: 'default',
 });
 
-/** Captured images in one subdirectory per chapter-owned chapter (the chapter id, named in `chapterFamilies` of the capture script, one PNG per example id plus its manifest, written by the capture script, each chapter folder listed here once its images exist); the patches subdirectory has its own lookup below. */
+/** Captured images in one subdirectory per chapter-owned chapter (the chapter id, named in `chapterFamilies` of the capture script, one PNG per example id plus its manifest, written by the capture script, each chapter folder is read here once its images exist); the patches subdirectory has its own lookup below. */
 const chapterImageUrls = import.meta.glob<string>('/src/images/learning/examples/*/*.png', {
     eager: true,
     query: '?url',
@@ -84,6 +85,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     waves: wavesPreviewCopy,
     'mechanical-curves': mechanicalCurvesPreviewCopy,
     randomness: randomnessPreviewCopy,
+    recursion: recursionPreviewCopy,
     isometries: isometriesPreviewCopy,
     trigonometry: trigonometryPreviewCopy,
 };

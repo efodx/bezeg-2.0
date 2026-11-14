@@ -1,0 +1,538 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+    "dirty": true,
+    "inputs": "c06513db6def228aec81c5bb333dc78af4a53e96274f73d1694fcacf2bdc9d81",
+    "output": "17ffe8929514431f12805dc455a13434b66168815a17b4bcd01eaed981744857"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+    "stampDirty": true,
+    "localOutputHash": "17ffe8929514431f12805dc455a13434b66168815a17b4bcd01eaed981744857",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-f_WDYkQk.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-f_WDYkQk.js",
+        "sha256": "26df4b8b3ad4abc746ac73162265ce0e0327bcb5f45cebfd31e75d32d9488cee",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "d9a81e991a7f48d9b4043a4ae92889f5e070d00780872378cfd75a953e9eba99",
+    "entries": {
+      "recursion.sequences.recursion-growth": "679f986f48a0397ce8ef181dbca6bc82ae7223823bcc61d695624c30cb78f9db",
+      "recursion.compound-interest.recursion-growth": "14532be93290ab24beef18e4a196f2c061232b1bcd67cb313efe0f26e3d17dd8"
+    },
+    "presentation": "349e4c7b280bdc475db8bfabf091069450555433d762518d19fc8fb6ca9fb68f",
+    "buildOutput": "17ffe8929514431f12805dc455a13434b66168815a17b4bcd01eaed981744857",
+    "buildInputs": "c06513db6def228aec81c5bb333dc78af4a53e96274f73d1694fcacf2bdc9d81"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "recursion.sequences.recursion-growth",
+        "demonstrationId": "recursion-growth",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.164,
+            15.488,
+            6.336,
+            0.762
+          ]
+        }
+      },
+      {
+        "id": "recursion.compound-interest.recursion-growth",
+        "demonstrationId": "recursion-growth",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.008,
+            1488.863,
+            0.922,
+            109.069
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "recursion.sequences.recursion-growth",
+      "demonstrationId": "recursion-growth",
+      "path": "/bezeg-2.0/analysis/growth?example=lesson.recursion.sequences.recursion-growth",
+      "sceneFingerprint": "47035b982776cb2de71e401ebe26d978ac405d701e6ef6aca7ac4ef20330f551",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg1-first-terms-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg1-first-terms-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-params\",\"a1\":3,\"d\":2,\"n\":6}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "recursion.sequences.recursion-growth.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "11ea321c3aafe5b9017550e0fb60c61cfe189c9c560a5b6bd61762f4bdeb2159",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 1,
+          "point": 1,
+          "text": 4
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              0.64,
+              0
+            ],
+            [
+              0.64,
+              1.5
+            ],
+            [
+              0.64,
+              3
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:6,13",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 23,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 13,
+            "curve": 1,
+            "point": 1,
+            "text": 4
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                0.64,
+                0
+              ],
+              [
+                0.64,
+                1.5
+              ],
+              [
+                0.64,
+                3
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:6,13",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 1,
+          "point": 1,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+        "sourceRevision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "recursion.compound-interest.recursion-growth",
+      "demonstrationId": "recursion-growth",
+      "path": "/bezeg-2.0/analysis/growth?example=lesson.recursion.compound-interest.recursion-growth",
+      "sceneFingerprint": "0e2f23ce6bb29a192ba3215025b749ff1019fcfda42e4d44d68dae015df4c7c7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-map\",\"panel\":\"interest\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-interest\",\"parts\":1,\"years\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "recursion.compound-interest.recursion-growth.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "9a4d1bbc3970fc03eecaf596ac7cdd145e38dba000a99bf472ed6c3290d6ceaf",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 8,
+          "text": 6
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.006329,
+              1000.308894
+            ],
+            [
+              0.012658,
+              1000.617788
+            ]
+          ],
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.006329,
+              1000.308894
+            ],
+            [
+              0.012658,
+              1000.617788
+            ]
+          ],
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.006329,
+              1000.316456
+            ],
+            [
+              0.012658,
+              1000.632911
+            ]
+          ],
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.006329,
+              1000.316556
+            ],
+            [
+              0.012658,
+              1000.633112
+            ]
+          ],
+          [
+            [
+              0.0204,
+              1205.177185
+            ],
+            [
+              0.0555,
+              1205.177185
+            ],
+            [
+              0.0906,
+              1205.177185
+            ]
+          ],
+          [
+            [
+              0.0204,
+              1311.145311
+            ],
+            [
+              0.0555,
+              1311.145311
+            ],
+            [
+              0.0906,
+              1311.145311
+            ]
+          ],
+          [
+            [
+              0.0204,
+              1417.113438
+            ],
+            [
+              0.0555,
+              1417.113438
+            ],
+            [
+              0.0906,
+              1417.113438
+            ]
+          ],
+          [
+            [
+              0.0204,
+              1523.081564
+            ],
+            [
+              0.0555,
+              1523.081564
+            ],
+            [
+              0.0906,
+              1523.081564
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 8,
+            "text": 6
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.006329,
+                1000.308894
+              ],
+              [
+                0.012658,
+                1000.617788
+              ]
+            ],
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.006329,
+                1000.308894
+              ],
+              [
+                0.012658,
+                1000.617788
+              ]
+            ],
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.006329,
+                1000.316456
+              ],
+              [
+                0.012658,
+                1000.632911
+              ]
+            ],
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.006329,
+                1000.316556
+              ],
+              [
+                0.012658,
+                1000.633112
+              ]
+            ],
+            [
+              [
+                0.0204,
+                1205.177185
+              ],
+              [
+                0.0555,
+                1205.177185
+              ],
+              [
+                0.0906,
+                1205.177185
+              ]
+            ],
+            [
+              [
+                0.0204,
+                1311.145311
+              ],
+              [
+                0.0555,
+                1311.145311
+              ],
+              [
+                0.0906,
+                1311.145311
+              ]
+            ],
+            [
+              [
+                0.0204,
+                1417.113438
+              ],
+              [
+                0.0555,
+                1417.113438
+              ],
+              [
+                0.0906,
+                1417.113438
+              ]
+            ],
+            [
+              [
+                0.0204,
+                1523.081564
+              ],
+              [
+                0.0555,
+                1523.081564
+              ],
+              [
+                0.0906,
+                1523.081564
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 8,
+          "text": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+        "sourceRevision": "78e9485c0f932a84ccce280e85f6424987d8da35",
+        "pageErrors": []
+      }
+    }
+  ]
+}
