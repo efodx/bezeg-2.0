@@ -43,4 +43,31 @@ Decision (elder identity handler, with the tests left untouched): restore the ea
 - Rejected: keeping the 900px one-column layout and changing the lesson and Presentation layouts or their tests to fit it. That is a product change to guided lessons on small screens, outside a repair.
 - Follow-up, not fixed: `tests/curve-ownership.smoke.spec.cjs:194` compares exported SVG path strings exactly and fails on floating-point noise at some board widths (888px fails, 898px passes). The 310px column makes it pass; a later change to the desktop board width can break it again. The comparison needs a tolerance, which is a test change for its owner to decide.
 
+## Repair round and workspace character (2026-11-14)
+
+The owner judged the result of `4e844f56` "awful", accepted the handler's review, and asked for three repairs and then for a workspace that is "a bit more fun", taking "inspiration from the homepage", with "the graph and tools" still "main content". Measurements: before is `3ac53060`, master is `70a66386`, viewport in CSS px.
+
+| Measurement | Before | `4e844f56` | Master | Now |
+| --- | --- | --- | --- | --- |
+| Board width on `/complex-multiplication` at 1920×1080 | 1482 | 936 | 946 | 1478 |
+| Home headline size at 1440 | 60px | 84px | 80px | 64px |
+| Top of the Home pager and selector row at 1440×900 | 751 | 852 | 872 | 746 |
+| Phone header rows at 390px | 1 | 2 | 2 | 1 |
+| Top of the Home headline at 390px | 97 | 153 | 153 | 93 |
+
+Repairs:
+
+- **Width.** The 1280px measure made the board 37% narrower on a full-HD projector, against "keep the graph prominent". Header and workspace now share `--bezeg-shell-page-inline`: 24px up to a 1328px viewport, then growing to 54px. Layout up to 1328px is unchanged on purpose: smoke runs at 1280×720 and `tests/curve-ownership.smoke.spec.cjs` passes only at some board widths (see the narrow layout repair above). Rejected: restoring the old `clamp(16px, 4vw, 54px)`, which changes the board width at 1280px; a wider fixed measure, which still wastes the width of a projector.
+- **Phone header.** The 25px wordmark pushed the links onto a second row (56px). Narrower link padding and gaps, a 23px wordmark, and a 21px tier at 400px and below keep one row at 390px and 360px in Slovenian and English with 44px targets; 320px still wraps.
+- **Home hero.** The hero role is `clamp(2.25rem, 1.45rem + 3.2vw, 4rem)`, 64px on desktop: above the 60px page role, two lines on phones in both languages. The media stage is 280px: the artwork is limited by its width, so the 320px stage added 40px of blank surface. Page padding, gap and the top margin of the action lose 4 to 8px each. User impact: at 1440×900 the whole selector rail is visible again (its bottom is at 888px), and at 390×844 the first action of the featured card is on the first screen (its bottom is at 820px).
+
+Workspace character, in the vocabulary the system already owns (no new colour, font or primitive):
+
+- **Paper and sheets.** The 48px graph paper of Learn and Demonstrations returns under the workspace heading and thins to 40% beside the panels; the graph and tools panels take the shadow of the Home featured card. Presentation stays navy and flat.
+- **Elder.** One branch from the Home side-botanical generator (`WorkspaceElder`) reaches in from the right edge above the heading actions, in the corner the title cannot enter, from 1101px up. It is static: side-botanicals decision 2 (no animated decoration beside the graph) stands. Rejected: the earlier watermark behind the heading, which ran under the title and the buttons; the same branch at twice the size, which crossed the action buttons in a browser check.
+- **Lesson colour.** "Spoznaj to demonstracijo" takes the lesson ochre that "Vodeni primer" has on the Home card (`lesson-ink`).
+- Not restored, as the owner flagged them: the ochre heading dash and the coloured panel caps. No width or height is taken from the graph or the inspector.
+
+Open, outside this round: the family label under the Home featured title, and the Home grid and green rail removed by the first pass.
+
 The image study in the chat is an exploratory composition reference, not a source of new copy or shipping pixels. The existing mathematical preview media remains the content authority.
