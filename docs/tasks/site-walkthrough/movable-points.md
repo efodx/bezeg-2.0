@@ -10,6 +10,9 @@ Every draggable JSXGraph point shows the pointer cursor through `bindMovablePoin
 | --- | --- | --- |
 | 1a | Every file under `src/graphs` that writes `style.cursor`, except the binding (14 graphs and `JXGRationalBezierCurve.ts`) | Replace the copy with the binding; keep or record any case that is not a movable point. Add the static check. |
 | 1b | Graphs with draggable points and no cursor: complex (3), Epicycle, FourierCoefficients, LinearFunction, LinearMap, projective handles (4), Hermite / Interpolation / SubdivisionCurve / BSplineBasis scenes (4) | Bind the cursor where the point is created. |
+| 1c | Files the static check flagged that neither batch owned: `base/BaseCurveGraph.tsx`, compgeo `InscribedAngle`, `Inversion`, `PointInPolygon`, `SimsonLine`, `Voronoi` (their extra handles), `linear/compositionBoard.ts`, `eigenBoard.ts`, `iterationBoard.ts`, `patches/parameterInset.ts` | Bind the cursor where the point is created. |
+
+`bindMovablePointCursor` returns a release function. A graph that removes its own point listeners on dispose registers the release with them (the 14 graphs of batch 1a, whose ownership tests count handlers); a graph whose points go with the board may ignore it.
 
 Static check (spec P5): one unit test that reads the sources under `src/graphs` and mounts nothing. It fails on a `style.cursor` write outside the binding, and on a file that registers a drag handler on a point without reaching the binding, unless the file is on an allow-list with a reason.
 
@@ -17,6 +20,17 @@ Acceptance: a real hover in a browser on at least one graph per family gives `po
 
 ## Stage 2: math labels (changes how about 27 graphs look)
 
-Point labels that name a mathematical object take the shared label attributes of `createPointStyles`, as the point-set graphs do. Number readouts and captions stay plain; each batch lists what it left and why. One batch per family, each with before and after screenshots reviewed by the handler. Element names that capture recipes, clip rows, tests or Presets address are not renamed. Batches are listed here once stage 1 is accepted, from what its workers report about each file.
+Point labels that name a mathematical object take the shared label attributes of `createPointStyles`, as the point-set graphs do. Number readouts and captions stay plain; each batch lists what it left and why. One batch per family, each with before and after screenshots reviewed by the handler. Element names that capture recipes, clip rows, tests or Presets address are not renamed. The pattern is `PointSetGraph.createDrawn` with `pointSetLabelMath`: the element keeps its plain `name`, the label takes the shared attributes, and the label text is set to the `$$...$$` form.
+
+Triage (2026-11-14, read-only, over the 36 files with own points or scene texts). No labelled points, nothing to do: LatticePath, ComplexPower, EulerCircle, PhasePortrait, LogisticMap, RecursionCobweb, UnitCircle, ContourMap, LinearProgram, Voronoi's extra handles, and the B-spline, de Boor and parametric scenes (their texts are number readouts). The inventory's "plain labels" for these rows meant captions, which stay plain.
+
+| Batch | Files | Labels | Care |
+| --- | --- | --- | --- |
+| 2a | compgeo `InscribedAngle`, `SimsonLine`, `Inversion`, `PointInPolygon`, `NotablePoints`, `EulerLine` | `O`, `P`, feet, handle names, `q`, centre symbols | `P′`, `S₁`, `O₂`, `θ` need a LaTeX form; host tests read `name` (keep it) and chip text (leave it) |
+| 2b | `lines/LineGeometryGraph`, `trig/TriangleSolverGraph`, `isometry/IsometryGraph` (check handle names), `mechanics/DescentGraph` (point tags) | `P Q R S T O B`, `A B C`, `A′`; texts `ℓ`, `PTₙ`, `a b c`; tags `A`, `B`, `P1`, `P2` | Unicode `ℓ`, `ₙ`, `′`; Descent tags are localized strings |
+| 2c | projective `CrossRatio`, `Pascal`, `PolePolar`, `FivePoint`, `ThreeViews` | handles `A` to `F`, images `A′`, `P₁`, `F₁`, `F₂`, `S`, line names `p`, `p′` | subscripts and primes; `P = ∞` text; host tests |
+| 2d | curve scenes `InterpolationScene`, `HermiteScene`, `SubdivisionScene` | `P{i}` | scenes get `SceneSettings`, not `this.styles` |
+
+Left for a report: `CircleConstructionGraph` captions (`P`, `A`, `B` are texts whose width a layout test measures) and `KinematicsGraph` arrow texts (`v`, `a`).
 
 Stage 2 should land before package D recaptures the affected graphs.
