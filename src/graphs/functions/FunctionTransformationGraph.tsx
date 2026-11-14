@@ -1,7 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -226,11 +226,11 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
             <div className="inspector-group">
                 {TRANSFORM_PARAMETERS.map(field => {
                     const [min, max] = TRANSFORM_BOUNDS[field];
-                    return <NumberInput key={field} label={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
+                    return <Slider key={field} customText={t(LABEL_KEYS[field])} value={state[field]} min={min} max={max} step={FIELD_STEP} decimals={PRECISE}
                                         rejectedHint={field === "b" ? t("function_transformation_b_hint", hint(min, max)) : t("function_transformation_range_hint", hint(min, max))}
                                         onChange={next => this.ignoreOutOfDomain(() => this.setParameter(field, next))}/>;
                 })}
-                <NumberInput label={t("function_transformation_u_label")} value={state.u} min={TRANSFORM_U_MIN} max={TRANSFORM_U_MAX} step={TRANSFORM_U_STEP}
+                <Slider customText={t("function_transformation_u_label")} value={state.u} min={TRANSFORM_U_MIN} max={TRANSFORM_U_MAX} step={TRANSFORM_U_STEP}
                              decimals={PRECISE} rejectedHint={t("function_transformation_range_hint", hint(TRANSFORM_U_MIN, TRANSFORM_U_MAX))}
                              onChange={next => this.ignoreOutOfDomain(() => this.setU(next))}/>
                 <p className="inspector-help">{t("function_transformation_order_help")}</p>

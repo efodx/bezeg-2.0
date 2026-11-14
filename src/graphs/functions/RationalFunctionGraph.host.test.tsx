@@ -47,7 +47,7 @@ class ObservedRationalGraph extends RationalFunctionGraph {
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+const field = (label: string) => screen.getByLabelText((name: string) => [label, label + ', vrednost', label + ', value'].includes(name), {selector: 'input:not([type="range"])'}) as HTMLInputElement;
 const notice = () => document.querySelector('[data-zero-list-notice]')?.textContent ?? '';
 const boardObjects = (graph: ObservedRationalGraph) => graph.liveBoard().objectsList.length;
 const drag = (graph: ObservedRationalGraph, part: 'numerator' | 'denominator', index: number, x: number) => {
@@ -103,7 +103,7 @@ test('typed values make a hole through the fields, an example switch and the pro
 
     act(() => { fireEvent.change(screen.getByLabelText('Primer'), {target: {value: 'horizontal'}}); });
     expect(readout('asymptote')).toMatch(/vodoravna asimptota/);
-    const probe = document.querySelector('input[type="range"]') as HTMLInputElement;
+    const probe = field('Točka x za ostanek');
     act(() => { enterNumber(probe, '5'); });
     expect(graph.modelNow().probe).toBe(5);
 });

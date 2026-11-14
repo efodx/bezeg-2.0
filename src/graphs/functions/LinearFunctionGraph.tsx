@@ -1,7 +1,8 @@
 import React from "react";
 import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {PointListInput} from "../../inputs/PointListInput";
 import {currentLanguage, message, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {COINCIDENCE_TOLERANCE, lineEquation, lineThroughPoints, moveAlongLine, slopeTriangle} from "../../analysis/linear";
@@ -44,13 +45,25 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
 
     /** Sets one point coordinate; throws when the value is outside the model domain. */
     protected setCoordinate(name: CoordinateName, value: number): void {
+        this.assertCoordinate(name, value);
+        this.commitModel({...this.model, [name]: cleanNumber(value)});
+    }
+
+    /** Sets both coordinates of one point in one commit; throws, and changes nothing, when either is outside the model domain. */
+    protected setPoint(index: 0 | 1, x: number, y: number): void {
+        const [xName, yName]: [CoordinateName, CoordinateName] = index === 0 ? ["x1", "y1"] : ["x2", "y2"];
+        this.assertCoordinate(xName, x);
+        this.assertCoordinate(yName, y);
+        this.commitModel({...this.model, [xName]: cleanNumber(x), [yName]: cleanNumber(y)});
+    }
+
+    private assertCoordinate(name: CoordinateName, value: number): void {
         if (!isLinearCoordinate(value)) {
             throw new DomainError(message("linear_coordinate_rejected", {
                 value0: name === "x1" ? "x₁" : name === "y1" ? "y₁" : name === "x2" ? "x₂" : "y₂",
                 value1: formatNumber(-LINEAR_COORDINATE_LIMIT, currentLanguage()), value2: formatNumber(LINEAR_COORDINATE_LIMIT, currentLanguage()),
             }));
         }
-        this.commitModel({...this.model, [name]: cleanNumber(value)});
     }
 
     /** Moves both points along the line with the new slope and/or intercept, keeping their x-coordinates. */
@@ -168,28 +181,28 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     protected renderControls(): React.ReactNode {
         const {x1, y1, x2, y2} = this.model;
         const line = lineThroughPoints({x: x1, y: y1}, {x: x2, y: y2});
-        const coordinate = (name: CoordinateName, label: string, value: number) =>
-            <NumberInput label={label} value={value} min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT} step={LINEAR_SNAP_SIZE}
-                         onChange={next => this.ignoreOutOfDomain(() => this.setCoordinate(name, next))}/>;
         const hasKn = line.kind === "line";
         const knReason = hasKn ? undefined : t(line.kind === "vertical" ? "linear_vertical_note" : "linear_degenerate_note");
         return <>
             <div className="inspector-group">
-                <h3>{t("function_points")}</h3>
-                <div className="function-points-grid">
-                    {coordinate("x1", "x₁", x1)}{coordinate("y1", "y₁", y1)}
-                    {coordinate("x2", "x₂", x2)}{coordinate("y2", "y₂", y2)}
-                </div>
+                <PointListInput title={t("function_points")} points={[[x1, y1], [x2, y2]]} pointLabel={index => `P${index + 1}`}
+                                min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT} step={LINEAR_SNAP_SIZE} decimals={2}
+                                onCommit={(index, [x, y]) => {
+                                    try {
+                                        this.setPoint(index === 0 ? 0 : 1, x, y);
+                                    } catch (error) {
+                                        if (error instanceof DomainError) return error.message;
+                                        throw error;
+                                    }
+                                }}/>
             </div>
             <div className="inspector-group">
-                <div className="function-points-grid">
-                    <NumberInput label={t("slope_k_label")} value={hasKn ? line.k : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
-                                 min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
-                    <NumberInput label={t("intercept_n_label")} value={hasKn ? line.n : undefined} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
-                                 min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
-                </div>
+                <Slider customText={t("slope_k_label")} value={hasKn ? line.k : 0} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
+                        min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({k: next}))}/>
+                <Slider customText={t("intercept_n_label")} value={hasKn ? line.n : 0} unavailableReason={knReason} step={LINEAR_SNAP_SIZE}
+                        min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setLineParameter({n: next}))}/>
                 <p className="inspector-help">{t("linear_kn_help")}</p>
             </div>
         </>;

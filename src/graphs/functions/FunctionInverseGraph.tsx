@@ -1,7 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -272,10 +272,10 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
             </div>
             <div className="inspector-group">
                 {state.restriction === "exp" &&
-                    <NumberInput label={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
+                    <Slider customText={t("function_inverse_base_label")} value={state.base} min={INVERSE_BASE_MIN} max={INVERSE_BASE_MAX} step={BASE_STEP} decimals={PRECISE}
                                  rejectedHint={t("function_inverse_base_hint", {value0: formatNumber(INVERSE_BASE_MIN, language), value1: formatNumber(INVERSE_BASE_MAX, language)})}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setBase(next))}/>}
-                <NumberInput label={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
+                <Slider customText={t("function_inverse_x0_label")} value={state.x0} min={x0Min} max={x0Max} step={INVERSE_X0_STEP} decimals={PRECISE}
                              onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
             </div>
             <div className="convexity-actions" role="group" aria-label={t("function_inverse_actions_label")}>

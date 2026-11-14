@@ -116,7 +116,8 @@ const near = (actual: number[], expected: number[]) => {
 // ---- Linear function ------------------------------------------------------------------------------------------------
 
 /** Y = kx + n through the points; the model is (x1, y1, x2, y2), default (0, 1), (2, 5): k = 2, n = 1. */
-const linearField = (label: 'x₁' | 'y₁' | 'x₂' | 'y₂') => screen.getByLabelText(label) as HTMLInputElement;
+const LINEAR_FIELD_NAMES = {'x₁': 'P1, x', 'y₁': 'P1, y', 'x₂': 'P2, x', 'y₂': 'P2, y'} as const;
+const linearField = (label: 'x₁' | 'y₁' | 'x₂' | 'y₂') => screen.getByLabelText(LINEAR_FIELD_NAMES[label], {selector: 'input'}) as HTMLInputElement;
 const linearFields = () => (['x₁', 'y₁', 'x₂', 'y₂'] as const).map(label => linearField(label).value);
 const typeLinear = (label: 'x₁' | 'y₁' | 'x₂' | 'y₂', value: number) => enter(linearField(label), value);
 const mountLinear = () => mount(new ObservedLinearGraph());

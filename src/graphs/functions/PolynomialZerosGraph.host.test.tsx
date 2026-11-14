@@ -47,7 +47,7 @@ class ObservedPolynomialGraph extends PolynomialZerosGraph {
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+const field = (label: string) => screen.getByLabelText((name: string) => [label, label + ', vrednost', label + ', value'].includes(name), {selector: 'input:not([type="range"])'}) as HTMLInputElement;
 const notice = () => document.querySelector('[data-zero-list-notice]')?.textContent ?? '';
 const boardObjects = (graph: ObservedPolynomialGraph) => graph.liveBoard().objectsList.length;
 const drag = (graph: ObservedPolynomialGraph, index: number, x: number) => {

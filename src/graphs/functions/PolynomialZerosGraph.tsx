@@ -2,7 +2,7 @@ import React from "react";
 import {guard, guardField} from "../base/controls/guard";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
@@ -289,7 +289,7 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
             <div className="inspector-group">
                 <ChoiceSelect label={t("polynomial_zeros_example_label")} value={current ?? "custom"} help={t("polynomial_zeros_example_help")}
                               options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
-                <NumberInput label={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
+                <Slider customText={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
                              rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
             </div>
             <ZeroListEditor zeros={state.zeros} maxDegree={MAX_POLY_DEGREE}
