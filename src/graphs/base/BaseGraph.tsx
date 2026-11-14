@@ -9,6 +9,7 @@ import {Commands} from "./Commands";
 import {firstUnusedPresetName, Preset, PresetService} from "./presets/Presets";
 import type {PresetCollection} from "./presets/PresetCollection";
 import {checkPreset, type CheckedPreset, isBoundingBox} from "./presets/PresetImport";
+import {PresetFigureBatchDialog} from "./PresetFigureBatchDialog";
 import {PresetSelector} from "./PresetSelector";
 import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
@@ -522,10 +523,13 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                 selectedPresetId={this.selectedPresetId} presetListVersion={this.presetListVersion} notice={this.presetNoticeValue}
                 onSelect={id => { void this.selectPreset(id); }} onReset={() => { void this.reset(); }}
                 onSave={name => this.saveCurrentPreset(name)} onDelete={id => { void this.deletePreset(id); }} onRename={(id, name) => this.renamePreset(id, name)}
-                onImported={() => { void this.reloadAfterImport(); }}
-                batchExporter={presets => this.exportPresetFigures(presets)}/>}</div>
+                onImported={() => { void this.reloadAfterImport(); }}/>}</div>
             <div className="inspector-group"><h3>{t("export_figure")}</h3><SaveImage showLabel={false} presetId={this.selectedPresetId} saveAsSVG={name => this.saveAsSVG(name)}
-                saveAsPNG={name => this.saveAsPNG2(name)}/></div></>;
+                saveAsPNG={name => this.saveAsPNG2(name)}/>
+                {this.presetService && <PresetFigureBatchDialog presetService={this.presetService} onConfirm={selectedIds => {
+                    const selected = this.presetService?.loadPresets().data.filter(preset => selectedIds.includes(preset.id)) ?? [];
+                    return this.exportPresetFigures(selected);
+                }}/>}</div></>;
     }
 
     /** Exposes graph-owned behavior without leaking boards, controls, or Preset DTOs. */

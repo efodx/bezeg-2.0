@@ -16,7 +16,7 @@ export function PresetImportDialog({onImported, unavailableReason}: {onImported:
     const close = () => {readVersion.current++; setShow(false); setPlan(undefined); setError(""); setReading(false);};
     return <>
         <UnavailableButton className="preset-file-button" reason={unavailableReason} onPress={() => setShow(true)}>{t("import_presets")}</UnavailableButton>
-        <Modal show={show} onHide={close}>
+        <Modal className="bezeg-dialog" show={show} onHide={close}>
             <Modal.Header closeButton closeLabel={t("close")}><Modal.Title>{t("import_presets")}</Modal.Title></Modal.Header>
             <Modal.Body>
                 <p>{t("choose_a_presetstxt_file_exported_from_bezeg_data_is_stored_only_in_this_browser")}</p>
@@ -43,7 +43,7 @@ export function PresetImportDialog({onImported, unavailableReason}: {onImported:
                         <p>{t("export_your_current_presets_as_a_backup_before_importing")}</p>
                     </Alert>}</div>}
             </Modal.Body>
-            <Modal.Footer><Button variant="secondary" onClick={close}>{t("cancel")}</Button>
+            <Modal.Footer><Button variant="outline-secondary" onClick={close}>{t("cancel")}</Button>
                 <Button disabled={!plan || reading} onClick={() => {
                     try { if (plan) { commitPresetImport(plan, appStorage); close(); onImported(); } }
                     catch (failure) { setError(failure instanceof LocalizedError ? failure : new LocalizedError({key: "cannot_save_presets_free_browser_storage_space_and_try_again", params: {}})); }

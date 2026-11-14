@@ -12,7 +12,7 @@ const sharedControlMessage = 'Use the shared controls in src/inputs/ (NumberInpu
 // Files that may use raw controls, each with its reason. Spec: docs/specs/shared-graph-controls.md
 // (Likely exceptions). "unmigrated" entries go when their family sweep (task 3) lands.
 const controlExemptions = [
-    {files: ['src/graphs/base/PresetImportDialog.tsx', 'src/graphs/base/PresetSelector.tsx'], reason: 'host chrome, not a graph control'},
+    {files: ['src/graphs/base/PresetImportDialog.tsx', 'src/graphs/base/PresetSelector.tsx', 'src/graphs/base/PresetFigureBatchDialog.tsx'], reason: 'host chrome, not a graph control'},
 ];
 
 const rawControlSyntax = [

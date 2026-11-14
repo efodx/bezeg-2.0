@@ -78,16 +78,16 @@ The sweep chapter (`/bezeg-2.0/learn/sweep-algorithms`) embeds the collision pla
 
 ## Presets and file exchange
 
-**Prednastavitve** lists saved configurations for the current demonstration and **Privzeta** for its default. Changing the selected preset replaces the scene in place; open inspector sections and focus are kept. The selection belongs to the current demonstration and does not carry to other routes. While a guided lesson is open, selecting, resetting, deleting and importing presets are disabled; saving and exporting remain available. Selecting or deleting a preset is refused while a figure export runs, and an import made during an export is loaded when the export finishes. Saving requires a name; an empty name uses the first unused `preset-N` and selects it. Saved data can include curve configuration, graph state, and viewport bounds. Storage is local to the browser and site origin, with no account synchronization.
+The **Shrani** tab lists the current demonstration's saved configurations under **Shranjena stanja**, with **Privzeto stanje** first and the selected row marked. Changing the selected preset replaces the scene in place; open inspector sections and focus are kept. The selection belongs to the current demonstration and does not carry to other routes. While a guided lesson is open, selecting, resetting, deleting and importing presets are disabled; saving and exporting remain available. Selecting or deleting a preset is refused while a figure export runs, and an import made during an export is loaded when the export finishes. Saving requires a name; an empty name uses the first unused `preset-N` and selects it. Saved data can include curve configuration, graph state, and viewport bounds. Storage is local to the browser and site origin, with no account synchronization.
 
 | Control / tooltip | Behavior |
 | --- | --- |
-| Ponastavi prednastavitev (⭮) | Reloads the selected saved preset or default in place, discarding unsaved edits; the workspace is not rebuilt. |
-| Shrani prednastavitev | Creates a named preset; saving an existing name updates geometry, graph state, and viewport bounds. |
-| Izbriši prednastavitev (🗑) | Requests confirmation, deletes the selected saved entry, and selects the first remaining entry when available. |
-| Izvozi prednastavitve (📤) | Downloads `presets.txt`, containing all `preset-` collections in this origin's local storage, across demonstrations. |
-| Uvozi prednastavitve | Validates the chosen JSON file and asks for consent before replacing matching collections, then refreshes the current demonstration. Collections are replaced rather than merged. |
-| Generiraj slike za prednastavitve (🖼) | Offers checkboxes for the current demonstration's saved presets, then captures them as PNG files in `slike.zip`. |
+| Ponastavi | Reloads the selected saved preset or default in place, discarding unsaved edits; the workspace is not rebuilt. |
+| Shrani trenutno stanje … | Opens a name field in the panel (no dialog) and creates a named preset; saving an existing name updates geometry, graph state, and viewport bounds. |
+| Row menu: rename, overwrite with the current state, delete | Rename changes the preset's name in place. Overwrite stores the current state into that row. Delete asks for confirmation inside the row. |
+| Izvozi prednastavitve (under **Varnostna kopija**) | Downloads `presets.txt`, containing all `preset-` collections in this origin's local storage, across demonstrations. |
+| Uvozi prednastavitve (under **Varnostna kopija**) | Opens a dialog that validates the chosen JSON file and asks for consent before replacing matching collections, then refreshes the current demonstration. Collections are replaced rather than merged. |
+| Generiraj slike za prednastavitve (under **Izvoz slike**, below SVG and PNG) | Opens a dialog with checkboxes for the current demonstration's saved presets, then captures them as PNG files in `slike.zip`. |
 
 Import checks known preset keys, collection/curve structure, finite numerical data, graph bounds, and demonstration compatibility before writing any collection. Invalid files show an actionable error. Matching collections are listed for explicit replacement consent; cancellation does not write. A storage-write failure attempts to restore the previous collections. Export a backup before replacing collections. Clearing browser/site storage removes saved presets. Saving an existing name now updates its geometry, graph state, and bounds together. See [PresetSelector](../src/graphs/base/PresetSelector.tsx) and [PresetService](../src/graphs/base/presets/Presets.ts).
 

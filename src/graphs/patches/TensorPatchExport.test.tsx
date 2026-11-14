@@ -115,6 +115,15 @@ describe("the Shrani panel", () => {
         expect(button("PNG")).toBeTruthy();
         expect(button(t("generate_preset_figures"))).toBeTruthy();
     });
+
+    it("places the Preset figure batch in the export group, not in the backup section", () => {
+        mount();
+        const batch = button(t("generate_preset_figures"));
+        const exportGroup = batch.closest(".inspector-group");
+        expect(exportGroup?.querySelector("h3")?.textContent).toBe(t("export_figure"));
+        expect(exportGroup).toContainElement(button("SVG"));
+        expect(batch.closest(".preset-backup")).toBeNull();
+    });
 });
 
 describe("SVG export", () => {

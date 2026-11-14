@@ -172,6 +172,8 @@
 .workspace-inspector .tools .btn { min-height: var(--bezeg-control-height); }
 .workspace-inspector .tools .count-setter-button { min-height: 44px; }
 .figure-export-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.figure-batch { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.figure-batch > span > .btn { width: 100%; }
 .workspace-inspector .tools .btn-group { gap: 4px; }
 .workspace-inspector .tools .btn-group > .btn { border-radius: var(--bezeg-control-radius); }
 .workspace-inspector .tools .list-group-item:has(.form-range) { padding-top: 11px; padding-bottom: 12px; }
@@ -379,7 +381,31 @@
 .preset-panel .preset-action-quiet-link { padding: 4px 2px; background: transparent; border: 0; color: var(--bezeg-control-help-ink, #5b675a); font-size: .9rem; text-decoration: underline; text-underline-offset: .18em; }
 .preset-panel .preset-backup { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding-top: 16px; border-top: 1px solid var(--bezeg-shell-rule, #d6dccb); }
 .preset-panel .preset-backup > .inspector-help { margin: 0; }
-.preset-panel .preset-figures { display: flex; flex-direction: column; gap: 8px; }
-.preset-panel .preset-figures > span > .btn { width: 100%; }
 .preset-panel .preset-row-select:focus-visible, .preset-panel .preset-row-menu:focus-visible, .preset-panel .preset-menu-item:focus-visible, .preset-panel .preset-action:focus-visible, .preset-panel .preset-file-button:focus-visible, .preset-panel .preset-action-quiet-link:focus-visible, .preset-panel .preset-rename-input:focus-visible, .preset-panel .preset-name-input:focus-visible { outline: var(--bezeg-control-focus); outline-offset: calc(var(--bezeg-control-focus-offset) * -1); }
 .preset-panel .preset-action-primary[aria-disabled="true"], .preset-panel .preset-row-select[aria-disabled="true"], .preset-panel .preset-row-menu[aria-disabled="true"], .preset-panel .preset-menu-item[aria-disabled="true"], .preset-panel .preset-file-button[aria-disabled="true"], .preset-panel .preset-action-quiet-link[aria-disabled="true"] { opacity: .6; cursor: default; border-style: dashed; }
+
+/* The site's dialog style for the preset dialogs (import, figure batch): cream panel, display-face title, dark green primary
+   action, outlined secondary action. Scoped by the `bezeg-dialog` class passed to the react-bootstrap Modal. */
+.bezeg-dialog .modal-content { border: 1px solid var(--bezeg-shell-rule, #d5dfca); border-radius: 16px; background: #fbfcf5; color: var(--bezeg-shell-ink, #19372f); box-shadow: 0 20px 60px rgb(0 0 0 / 28%); }
+.bezeg-dialog .modal-header { padding: 24px 24px 8px; border-bottom: 0; }
+.bezeg-dialog .modal-title { font-family: var(--bezeg-font-display); font-size: 1.5rem; font-weight: var(--bezeg-type-title-weight, 600); line-height: 1.2; color: var(--bezeg-shell-ink, #19372f); }
+.bezeg-dialog .modal-body { padding: 8px 24px; line-height: 1.5; }
+.bezeg-dialog .modal-footer { padding: 16px 24px 24px; border-top: 0; gap: 10px; }
+.bezeg-dialog .modal-footer > * { margin: 0; }
+.bezeg-dialog .btn-close { opacity: .75; }
+.bezeg-dialog .btn-close:hover { opacity: 1; }
+.bezeg-dialog .form-label { font-weight: 600; }
+.bezeg-dialog .form-control { border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); background: #fff; }
+.bezeg-dialog .btn { min-height: 44px; padding: 8px 18px; border-radius: 8px; font-weight: 600; }
+.bezeg-dialog .btn-primary { border-color: var(--bezeg-shell-action, #244c37); background: var(--bezeg-shell-action, #244c37); color: var(--bezeg-shell-on-action, #fff); }
+.bezeg-dialog .btn-primary:hover:not(:disabled) { border-color: var(--bezeg-shell-action-hover, #1c3d2c); background: var(--bezeg-shell-action-hover, #1c3d2c); }
+.bezeg-dialog .btn-primary:disabled { opacity: .55; }
+.bezeg-dialog .btn-outline-secondary { border-color: var(--bezeg-shell-action, #244c37); background: #fff; color: var(--bezeg-shell-action, #244c37); }
+.bezeg-dialog .btn-outline-secondary:hover { border-color: var(--bezeg-shell-action, #244c37); background: var(--bezeg-shell-canvas, #f7f5e9); color: var(--bezeg-shell-action, #244c37); }
+.bezeg-dialog .btn:focus-visible, .bezeg-dialog .btn-close:focus-visible, .bezeg-dialog .form-control:focus-visible, .bezeg-dialog .form-check-input:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); box-shadow: none; }
+.bezeg-dialog .form-check-input:checked { background-color: var(--bezeg-shell-action, #244c37); border-color: var(--bezeg-shell-action, #244c37); }
+@media (max-width: 700px) {
+    .bezeg-dialog .modal-header { padding: 18px 18px 6px; }
+    .bezeg-dialog .modal-body { padding: 6px 18px; }
+    .bezeg-dialog .modal-footer { padding: 14px 18px 18px; }
+}
