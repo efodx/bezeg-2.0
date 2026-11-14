@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {FunctionStatus} from "./FunctionStatus";
@@ -263,11 +263,11 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         const board = this.board;
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
-        const thin = this.displayThinWidth(0.6);
+        const residualWidth = (): number => this.displayStrokeWidth() * 0.8;
 
         // The residuals: vertical segments from each point to the y-on-x line.
         const residuals = this.own(board.create("curve", [[], []], {
-            strokeColor: GraphPalette.warningText, strokeWidth: thin, dash: 2, fillOpacity: 0, highlight: false, fixed: true,
+            strokeColor: GraphPalette.warningText, strokeWidth: residualWidth, dash: 0, fillOpacity: 0, highlight: false, fixed: true,
             visible: () => model().residuals && view().yOnXLine !== undefined,
         })) as unknown as FillCurve;
         residuals.updateDataArray = () => {
@@ -311,7 +311,8 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             };
             drawn.text = this.own(board.create("text", [() => placement()?.x ?? 0, () => placement()?.y ?? 0, label], {
                 anchorX: () => placement()?.anchorX ?? "right", anchorY: () => placement()?.anchorY ?? "bottom",
-                fixed: true, highlight: false, color, fontSize: 15, visible: () => pick() !== undefined,
+                fixed: true, highlight: false, parse: false, strokeColor: color, fontSize: () => Math.max(10, this.displaySettings.fontSize * 0.9),
+                cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: () => pick() !== undefined,
             })) as unknown as {size?: number[]};
         };
         line(yOnX, xOnY, true, GraphPalette.primaryCurve, 0, () => t("prob_correlation_board_line_y"));
@@ -436,7 +437,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             {id: "points", color: GraphPalette.controlPoint, label: t("prob_correlation_legend_points"), kind: "dot"},
             {id: "line-y", color: GraphPalette.primaryCurve, label: t("prob_correlation_legend_line_y"), kind: "line"},
             {id: "line-x", color: GraphPalette.comparisonCurve, label: t("prob_correlation_legend_line_x"), kind: "dashed-line"},
-            {id: "residual", color: GraphPalette.warningText, label: t("prob_correlation_legend_residual"), kind: "dashed-line"},
+            {id: "residual", color: GraphPalette.warningText, label: t("prob_correlation_legend_residual"), kind: "line"},
         ]}/>;
     }
 }

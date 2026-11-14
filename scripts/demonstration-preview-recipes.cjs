@@ -55,7 +55,7 @@ const targets = {
     'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, framed by the board', []],
     'recursion-growth': ['Default arithmetic sequence as bars with the marked term and the caption rows, framed by the board', []],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 1000 balls: the pegs, the bars of the binomial law and the heap', []],
-    'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-1, 1.37, 1.4, -0.1]],
+    'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
     'interp-least-squares': ['Default four points with the best line and the squares of its residuals', [], [-1.2, 4.6, 5.7, 0.4]],
@@ -208,12 +208,22 @@ const surfaceControlPointCounts = {'patch-subdivision': 0, solids: 0};
 // Projected control points must clear the frame edge by this many CSS pixels, so no control sphere is cropped.
 const SURFACE_FRAME_MARGIN_PX = 6;
 
+// Capture-text policy (docs/specs/site-walkthrough-graphs-and-captures.md, C1): a recipe in this table hides every board text object
+// except lines matching `keep`, and removes `strip` matches from kept plain-text lines. A recipe not listed keeps today's behaviour.
+const captureText = {
+    'curve-envelope': {keep: [], strip: []},
+    'interp-subdivision': {keep: [], strip: []},
+    // Keep only the correlation line, as `r = 0,8468`; the title and the regression-line label go.
+    'prob-correlation': {keep: [/\br = /], strip: [/^Korelacijski koeficient /]},
+};
+
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
     id, intent, actions, checkpoint: actions.length ? 'after-explicit-setup' : 'keep-default',
     framing: surfaceCameras[id] ? {kind: 'surface-view', camera: surfaceCameras[id], controlPointCount: surfaceControlPointCounts[id]}
         : window ? {kind: 'coordinate-window', window} : {kind: 'finite-geometry-fit'},
-    annotations: surfaceCameras[id] ? 'retain-surface-view-native-labels'
+    annotations: captureText[id] ? 'capture-text-policy' : surfaceCameras[id] ? 'retain-surface-view-native-labels'
         : id.startsWith('rational') || id === 'farin' ? 'retain-weight-text-hide-point-names' : 'hide-point-names-retain-concept-text',
+    ...(captureText[id] ? {text: captureText[id]} : {}),
 }]));
 
 function sameCamera(a, b, tolerance = 1e-9) {
@@ -231,6 +241,11 @@ function validateRecipes(demonstrations, registry = recipes) {
     for (const [id, recipe] of Object.entries(registry)) {
         assert.equal(recipe.id, id);
         assert.ok(recipe.intent && recipe.annotations && recipe.checkpoint);
+        if (recipe.text) {
+            assert.ok(Array.isArray(recipe.text.keep) && Array.isArray(recipe.text.strip) &&
+                [...recipe.text.keep, ...recipe.text.strip].every(pattern => pattern instanceof RegExp), `${id}: text needs RegExp keep and strip lists`);
+            assert.equal(recipe.annotations, 'capture-text-policy', `${id}: a recipe with text records the capture-text-policy annotation`);
+        }
         const surface = demonstrations.find(d => d.id === id).view === 'surface';
         assert.ok(surface ? recipe.framing.kind === 'surface-view' : ['coordinate-window', 'finite-geometry-fit'].includes(recipe.framing.kind),
             `${id}: framing kind ${recipe.framing.kind} does not fit a ${surface ? 'surface' : 'board'} demonstration`);

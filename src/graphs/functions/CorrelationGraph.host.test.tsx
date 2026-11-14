@@ -22,7 +22,7 @@ beforeEach(() => { setLanguage('sl'); localStorage.clear(); });
 
 type BoardObject = {
     elType?: string; dataX?: number[]; dataY?: number[]; visPropCalc?: { visible?: boolean };
-    visProp?: { strokecolor?: string; dash?: number }; X(): number; Y(): number; moveTo(to: number[]): void;
+    visProp?: { strokecolor?: string; dash?: number; strokewidth?: number | (() => number) }; X(): number; Y(): number; moveTo(to: number[]): void;
     triggerEventHandlers(names: string[], args: unknown[]): void;
 };
 
@@ -39,8 +39,15 @@ class ObservedCorrelationGraph extends CorrelationGraph {
     private shown(color: string, dash: number | undefined) {
         return this.curves(color).filter(o => o.visPropCalc?.visible === true && (dash === undefined || Number(o.visProp?.dash) === dash));
     }
-    /** The dashed residual curve when it exists and is shown. */
-    residualCurves() { return this.shown(GraphPalette.warningText, 2); }
+    /** The residual curve (solid) when it exists and is shown. */
+    residualCurves() { return this.shown(GraphPalette.warningText, 0); }
+    /** The residual curve whatever its dash, with the drawn dash and widths of it and of the y-on-x line. */
+    residualStyle() {
+        const widthOf = (o?: BoardObject) => Number(typeof o?.visProp?.strokewidth === 'function' ? (o.visProp.strokewidth as () => number)() : o?.visProp?.strokewidth);
+        const residual = this.shown(GraphPalette.warningText, undefined)[0];
+        const line = this.shown(GraphPalette.primaryCurve, undefined)[0];
+        return {dash: Number(residual?.visProp?.dash), width: widthOf(residual), lineWidth: widthOf(line)};
+    }
     /** The solid y-on-x line (two data points). */
     yOnXCurves() { return this.shown(GraphPalette.primaryCurve, 0); }
     /** The dashed x-on-y line in the comparison colour. */
@@ -208,6 +215,14 @@ describe('defaults and examples', () => {
         expect(readout('xony')).toBeUndefined();
         expect(status('too-few')).toBeUndefined();
         expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    });
+
+    test('the residual segments are solid and thinner than the regression line', () => {
+        const {graph} = mount();
+        const {dash, width, lineWidth} = graph.residualStyle();
+        expect(dash).toBe(0);
+        expect(width).toBeGreaterThan(0);
+        expect(width).toBeLessThan(lineWidth);
     });
 
     test('board: four points, residual segments, the y-on-x line across the view, no x-on-y line, the caption names r', () => {

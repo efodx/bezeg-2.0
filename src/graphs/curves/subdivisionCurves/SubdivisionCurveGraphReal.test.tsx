@@ -179,6 +179,23 @@ describe('SubdivisionCurveGraph on a real board', () => {
             view.unmount();
         });
 
+    test('the stage vertices read against the stage polyline, the limit overlay and the draggable points', () => {
+        const {graph, view} = mount();
+        graph.setShowLimit(true);
+        act(() => graph.flushStateChanges());
+        const colours = (element: any) => [element.visProp.strokecolor, element.visProp.fillcolor].map((c: string) => c.toLowerCase());
+        const {limit, stage} = curves(graph);
+        const vertex = graph.sceneOf().vertexElements()[0] as any;
+        const handle = graph.sceneOf().pointElements()[0] as any;
+        const shared = (a: any, b: any) => colours(a).some(c => colours(b).includes(c));
+        expect(shared(vertex, stage as any)).toBe(false);
+        expect(shared(vertex, limit as any)).toBe(false);
+        // Both carry the outline stroke by the control-point convention; the fills tell them apart.
+        expect(colours(vertex)[1]).not.toBe(colours(handle)[1]);
+        expect(vertex.visProp.size).toBeLessThan(handle.visProp.size);
+        view.unmount();
+    });
+
     test('the limit overlay is empty outside Chaikin or while hidden, and the typed pieces match the kernel', () => {
         const {graph, view} = mount();
         const {limit} = curves(graph);

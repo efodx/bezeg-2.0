@@ -203,6 +203,55 @@ async function captureSurface(page, demonstration, recipe, outputDirectory) {
     };
 }
 
+/**
+ * Capture-text policy (C1). Runs inside the page, so it is self-contained and is passed to presentBoard's evaluate as source.
+ * `textObjects` are JSXGraph text objects (rendNode in the DOM); `policy` is {keep, strip}, each a list of {source, flags}.
+ * A line (or a text object without line divs) is hidden unless a keep pattern matches it; kept plain-text lines lose their strip matches.
+ * Hiding is DOM-only (display none) and idempotent: it is re-applied on every frame because JSXGraph rewrites text on update.
+ */
+function applyCaptureText(textObjects, policy) {
+    const build = list => list.map(pattern => new RegExp(pattern.source, pattern.flags));
+    const keep = build(policy.keep);
+    const matches = (patterns, text) => patterns.some(pattern => { pattern.lastIndex = 0; return pattern.test(text); });
+    const conceal = node => { node.style.setProperty('display', 'none', 'important'); node.dataset.captureTextHidden = '1'; };
+    const reveal = node => { if (node.dataset.captureTextHidden) { node.style.removeProperty('display'); delete node.dataset.captureTextHidden; } };
+    const textKept = [], textHidden = [];
+    textObjects.forEach(object => {
+        const node = object.rendNode;
+        if (!node) return;
+        const lines = [...node.children].filter(child => child.tagName === 'DIV');
+        let anyKept = false;
+        (lines.length ? lines : [node]).forEach(unit => {
+            let text = unit.textContent || '';
+            if (matches(keep, text)) {
+                if (!unit.children.length) {
+                    const stripped = build(policy.strip).reduce((rest, pattern) => rest.replace(pattern, ''), text);
+                    if (stripped !== text) { unit.textContent = stripped; text = stripped; }
+                }
+                reveal(unit);
+                textKept.push(text);
+                anyKept = true;
+            } else {
+                conceal(unit);
+                if (text.trim()) textHidden.push(text);
+            }
+        });
+        if (lines.length) { if (anyKept) reveal(node); else conceal(node); }
+    });
+    return {textKept, textHidden};
+}
+
+/** Recipe text patterns cross into the page as plain {source, flags} records (RegExps do not survive evaluate or JSON). */
+function captureTextPolicy(recipe) {
+    if (!recipe.text) return undefined;
+    const records = list => list.map(pattern => ({source: pattern.source, flags: pattern.flags}));
+    return {keep: records(recipe.text.keep), strip: records(recipe.text.strip)};
+}
+
+function serializableRecipe(recipe) {
+    return recipe.text ? {...recipe, text: captureTextPolicy(recipe)} : recipe;
+}
+
 async function presentBoard(boardLocator, demonstration, recipe, configuration = {}) {
     return boardLocator.evaluate(async (container, options) => {
                     const board = Object.values(window.JXG.boards).find(candidate =>
@@ -214,7 +263,8 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     const isLabel = object => ['text', 'smartlabel'].includes(object.elType);
                     // Point names collide at card size. Hide only their route-owned label DOM.
                     Object.values(board.objects || {}).filter(o => o.elType === 'point' && o.label?.rendNode).forEach(o => o.label.rendNode.style.setProperty('display', 'none', 'important'));
-                    if (options.window) Object.values(board.objects || {}).filter(o => o.elType === 'text').forEach(o => {
+                    // A recipe with `text` states its policy explicitly and replaces the length rule.
+                    if (options.window && !options.text) Object.values(board.objects || {}).filter(o => o.elType === 'text').forEach(o => {
                         const text = o.rendNode?.textContent || '';
                         if (text.length > 65) o.rendNode.style.setProperty('display', 'none', 'important');
                     });
@@ -233,6 +283,14 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                         });
                     };
                     [...axisGridObjects].forEach(includeContextDependents);
+                    let applyTextPolicy;
+                    if (options.text) {
+                        const applyText = new Function('return (' + options.applyCaptureTextSource + ')')();
+                        const pointLabels = new Set(Object.values(board.objects || {}).filter(o => o.elType === 'point' && o.label).map(o => o.label));
+                        applyTextPolicy = () => applyText(Object.values(board.objects || {}).filter(o => o.elType === 'text' &&
+                            !axisGridObjects.has(o) && !pointLabels.has(o) && o.visProp?.visible !== false && o.visProp?.visible !== 'false'), options.text);
+                        applyTextPolicy();
+                    }
                     if (!keepCoordinateContext) {
                         axisGridObjects.forEach(object => object.setAttribute({visible: false}));
                         ticks.forEach(tick => tick.setAttribute({visible: false, label: {visible: false}}));
@@ -257,6 +315,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     board.setBoundingBox(board.getBoundingBox(), options.equalUnits, 'update');
                     board.fullUpdate();
                     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                    if (applyTextPolicy) applyTextPolicy();
 
                     const boardRect = container.getBoundingClientRect();
                     const originX = board.origin.scrCoords[1];
@@ -486,6 +545,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                             });
                         }
                     });
+                    const finalText = applyTextPolicy ? applyTextPolicy() : undefined;
                     const visible = Object.values(board.objects || {}).filter(isVisible);
                     const visibleTypes = visible.reduce((counts, object) => {
                         counts[object.elType] = (counts[object.elType] || 0) + 1;
@@ -504,6 +564,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                         framedElementCount: contentObjects.length,
                         finalLabelCount: finalLabels.length,
                         omittedAnnotations,
+                        ...(finalText ? {textKept: finalText.textKept, textHidden: finalText.textHidden} : {}),
                         selectedConclusions: Object.values(board.objects).filter(o=>o.elType==='text'&&o.rendNode&&getComputedStyle(o.rendNode).display!=='none').flatMap(o=>[...o.rendNode.children].filter(e=>/globalni min|konveksna na|konkavna na|brez trditve/.test(e.textContent)&&getComputedStyle(e).display!=='none').map(e=>({text:e.textContent,clipPath:getComputedStyle(o.rendNode).clipPath,withinFrame:e.getBoundingClientRect().bottom<=container.getBoundingClientRect().bottom&&e.getBoundingClientRect().top>=container.getBoundingClientRect().top}))),
                         outOfFrameElements,
                         renderedLabelCount: contentObjects.filter(object => isLabel(object) && isVisible(object)).length,
@@ -523,6 +584,8 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     captureCurveStrokeScale,
                     captureConstructionStrokeScale,
                     keepCoordinateContext: demonstrations.coordinateContextPolicy(demonstration) === 'retain',
+                    text: captureTextPolicy(recipe),
+                    applyCaptureTextSource: applyCaptureText.toString(),
                 });
 
 }
@@ -540,7 +603,7 @@ async function main() {
     validateRecipes(demonstrations);
     const started = Date.now();
     const servedBuild = await servedBuildProvenance();
-    const presentationFingerprint=crypto.createHash('sha256').update(normalizeSource(presentBoard.toString()))
+    const presentationFingerprint=crypto.createHash('sha256').update(normalizeSource(presentBoard.toString())).update(normalizeSource(applyCaptureText.toString()))
         .update(hashSource(path.join(__dirname,'demonstration-preview-motion.cjs')))
         .update(hashSource(path.join(__dirname,'patch-surface-motion.cjs')))
         .update(hashSource(path.join(__dirname,'demonstration-preview-capture-api.cjs')))
@@ -729,8 +792,9 @@ async function main() {
                     file: fileName,
                     sha256: hashFile(filePath),
                     image: dimensions,
-                    recipe,
+                    recipe: serializableRecipe(recipe),
                     evidence,
+                    ...(scene.textKept ? {textKept: scene.textKept, textHidden: scene.textHidden} : {}),
                     posterCheckpoint: recipe.checkpoint,
                     coordinateContextPolicy: demonstrations.coordinateContextPolicy(demonstration),
                     axesAndGrid: scene.axesAndGrid,
@@ -880,7 +944,7 @@ async function main() {
     console.log('Wrote ' + captures.length + ' 360:220 default-scene captures and manifest for ' + graphSourceRevision + '.');
 }
 
-module.exports = {presentBoard, pngDimensions, hashFile, hashSource, mergeRecapturedMotions, alignMotionCameras, serializeManifest,
+module.exports = {presentBoard, applyCaptureText, captureTextPolicy, serializableRecipe, pngDimensions, hashFile, hashSource, mergeRecapturedMotions, alignMotionCameras, serializeManifest,
     selectiveSourceProvenance};
 if (require.main === module) main().catch(error => {
     console.error(error);

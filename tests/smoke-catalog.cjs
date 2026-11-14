@@ -114,8 +114,12 @@ const familyCatalog = familyDefinitions.elements.map(element => {
 const familyIds = familyCatalog.map(family => family.id);
 if (new Set(familyIds).size !== familyIds.length) throw new Error('The demonstration family catalog contains duplicate ids.');
 
+// Demonstrations outside the coordinate families whose picture is data on axes (site walkthrough package D, pilot).
+const coordinateContextIds = new Set(['prob-correlation']);
+
 function coordinateContextPolicy(demonstration) {
-    return demonstration.family === 'basics' || demonstration.family === '/bezeg-2.0/functions' || demonstration.family === 'analysis'
+    return coordinateContextIds.has(demonstration.id)
+        || demonstration.family === 'basics' || demonstration.family === '/bezeg-2.0/functions' || demonstration.family === 'analysis'
         ? 'retain'
         : 'hide';
 }

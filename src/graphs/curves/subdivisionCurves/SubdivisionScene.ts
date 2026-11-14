@@ -106,8 +106,8 @@ export class SubdivisionScene {
             const i = this.vertexPool.length;
             const at = (axis: 0 | 1) => () => this.stage()[i]?.[axis] ?? NaN;
             const point = this.create<Point>('point', [at(0), at(1)], {
-                fixed: true, highlight: false, withLabel: false, name: '', size: 2, strokeColor: GraphPalette.primaryCurve,
-                fillColor: GraphPalette.primaryCurve, visible: () => i < this.stage().length,
+                fixed: true, highlight: false, withLabel: false, name: '', size: 2, strokeColor: GraphPalette.pointOutline,
+                fillColor: GraphPalette.comparisonCurve, visible: () => i < this.stage().length,
             });
             this.vertexPool.push(point);
         }
@@ -120,7 +120,7 @@ export class SubdivisionScene {
         this.lineCurve(() => {
             const now = this.settings.input();
             return now.showLimit && now.rule === 'chaikin' ? chaikinLimitPolyline(now.points, now.closed) : [];
-        }, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, visible: () => this.settings.input().showLimit && this.settings.input().rule === 'chaikin'});
+        }, {strokeColor: GraphPalette.additionalCurves[2], strokeWidth: 2, visible: () => this.settings.input().showLimit && this.settings.input().rule === 'chaikin'});
 
         this.lineCurve(() => this.outline(this.settings.input().points), {strokeColor: GraphPalette.controlPolygon, strokeWidth: 2, dash: 2});
 
@@ -131,7 +131,8 @@ export class SubdivisionScene {
 
         input.points.forEach((p, i) => {
             const point = this.create<Point>('point', [p[0], p[1]], {
-                name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
+                name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.controlPoint, highlight: true,
+                highlightFillColor: GraphPalette.selectedControlPoint, highlightStrokeColor: GraphPalette.selectedControlPointOutline,
             });
             point.on('drag', () => {
                 // A released scene's point may still receive an event: it must not write the state of its successor.
