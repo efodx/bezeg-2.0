@@ -1,6 +1,6 @@
 # Families-prep state note
 
-Handler 21 handed off on 2026-11-14 to handler 22. The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff.
+Handler 21 handed off on 2026-11-14 to handler 22, which resumed the stream on 2026-11-15 at the owner's word. The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff.
 
 ## Setup
 
@@ -37,7 +37,7 @@ Handler 21 handed off on 2026-11-14 to handler 22. The worktree is on branch `wo
 
 ## In flight at handoff
 
-- **Stream paused by the owner while master is busy** (2026-11-14). Unpublished, local: `25e7a6d9` (isometries follow-up, verified: unit, tsc, lint) and this note's commits. Its publish was stopped in the gate before any push (`publish-25e7a6d9-ff27dc` stays "pending" in `just publish --status`: ignore it; its worktree is removed). On resume: `just publish --background --recipe runtime --base 20b5c935 --commits <25e7a6d9 and the note commits>`, then watch the newest master run. No full master run has covered `550810f3` (triangle solver) yet: its run and the next two were cancelled by newer pushes; the last green run is 43591356678 on `6c707c06`.
+- **Stream resumed by the owner on 2026-11-15** (paused 2026-11-14 while master was busy). Master run 43650338162 on `b89dc04d` is green and covers `550810f3` (triangle solver). Unpublished, local: `25e7a6d9` (isometries follow-up, verified: unit, tsc, lint) and this note's commits. Its publish was stopped in the gate before any push (`publish-25e7a6d9-ff27dc` stays "pending" in `just publish --status`: ignore it; its worktree is removed). On resume: `just publish --background --recipe runtime --base 20b5c935 --commits <25e7a6d9 and the note commits>`, then watch the newest master run. No full master run has covered `550810f3` (triangle solver) yet: its run and the next two were cancelled by newer pushes; the last green run is 43591356678 on `6c707c06`.
 - No worker is running; the tree is clean apart from this note's commit.
 
 ## Owed
