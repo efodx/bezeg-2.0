@@ -158,8 +158,8 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
         // |r| * unitY / unitX in x units. Recomputed on every board update, so zoom keeps them square on screen.
         for (let i = 0; i < LSQ_POINTS_MAX; i++) {
             const square = this.own(board.create("curve", [[], []], {
-                fillColor: GraphPalette.warningText, fillOpacity: 0.22, strokeColor: GraphPalette.warningText, strokeOpacity: 0.7,
-                strokeWidth: this.displayThinWidth(0.35), highlight: false, fixed: true,
+                fillColor: GraphPalette.warningText, fillOpacity: 0.4, strokeColor: GraphPalette.warningText, strokeOpacity: 1,
+                strokeWidth: this.displayThinWidth(1.1), highlight: false, fixed: true,
                 visible: () => model().showSquares && i < model().points.length && hasCurve(),
             })) as unknown as FillCurve;
             square.updateDataArray = () => {

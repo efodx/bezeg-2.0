@@ -123,14 +123,14 @@ export class InterpolationScene {
         const marker = (color: string, face: string, which: 'lagrange' | 'bezier', visible: () => boolean) => {
             const at = (axis: 0 | 1) => () => valid()
                 ? readoutAt(this.settings.points(), this.settings.rule(), this.settings.position())[which].point[axis] : NaN;
-            return this.create<Point>('point', [at(0), at(1)], {...quiet, name: '', size: 4, face, strokeColor: color, fillColor: color, visible});
+            return this.create<Point>('point', [at(0), at(1)], {...quiet, name: '', size: 6, face, strokeColor: color, fillColor: color, visible});
         };
         marker(GraphPalette.primaryCurve, 'o', 'lagrange', () => true);
         marker(GraphPalette.comparisonCurve, '[]', 'bezier', () => this.settings.showBezier());
 
         points.forEach((p, i) => {
             const point = this.create<Point>('point', [p[0], p[1]], {
-                name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
+                name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.controlPoint, highlightFillColor: GraphPalette.selectedControlPoint, highlight: true,
             });
             bindMovablePointCursor(point, this.board);
             point.on('drag', () => {

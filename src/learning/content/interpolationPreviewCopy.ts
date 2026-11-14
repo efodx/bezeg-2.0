@@ -8,8 +8,8 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 /** Describes the prepared opening scene of each Interpolation lesson, keyed by example id. The boards draw no axes and no point labels. */
 export const interpolationPreviewCopy = {
     'interpolation.lagrange.interp-lagrange': copy(
-        'Lok krivulje skozi štiri točke \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) in \\((4,0)\\), vse so majhni temni krogci brez oznak, ter večji zeleni krogec na krivulji med drugo in tretjo točko, pri \\((2;\\ 2{,}8125)\\).',
-        'An arc of a curve through four points \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) and \\((4,0)\\), all small dark dots without labels, and a larger green dot on the curve between the second and third point, at \\((2;\\ 2.8125)\\).',
+        'Lok krivulje skozi štiri točke \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) in \\((4,0)\\), vse so majhni oker krogci brez oznak, ter večji zeleni krogec na krivulji med drugo in tretjo točko, pri \\((2;\\ 2{,}8125)\\).',
+        'An arc of a curve through four points \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) and \\((4,0)\\), all small ochre dots without labels, and a larger green dot on the curve between the second and third point, at \\((2;\\ 2.8125)\\).',
         'Lagrangeeva krivulja gre skozi vse štiri točke; večji krogec je njena točka pri \\(s=0{,}5\\), torej \\(t=3/2\\). Ovojnica, Bézierova krivulja in napis z odčitki niso prikazani.',
         'The Lagrange curve passes through all four points; the larger dot is its point at \\(s=0.5\\), that is \\(t=3/2\\). The hull, the Bézier curve and the readout text are not shown.',
     ),
