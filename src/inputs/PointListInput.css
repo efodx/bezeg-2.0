@@ -1,12 +1,38 @@
-.point-list { display: grid; gap: .35rem; margin: 0; padding: 0; border: 0; }
+.point-list { display: grid; gap: .35rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+.point-list-body { container-type: inline-size; min-width: 0; }
 .point-list legend { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; padding: 0; margin-bottom: .2rem; }
-/* Wraps rather than overflows: the compact fields keep a minimum width in em, so large text cannot fit them on one line. */
-.point-list-row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: start; }
-.point-list-index { flex: 0 0 4rem; color: var(--workspace-ink); font-weight: 700; padding-top: .35rem; }
-.point-list-axis { flex: 1 1 auto; display: flex; justify-content: space-between; gap: .25rem; align-items: baseline; }
-.point-list-axis > span { color: var(--workspace-ink-soft); font-style: italic; }
-.point-list-select { background: none; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); color: var(--bezeg-control-ink); text-align: left; cursor: pointer; padding: .25rem .4rem; min-height: 2.75rem; }
+/* One line per point: the name, one equal field per axis, then the remove button. The rows share their columns (subgrid), so every
+   field lines up with the one above it and with its axis letter in the head row. */
+.point-list-rows { --point-list-axes: 2; display: grid; grid-template-columns: minmax(1.5rem, max-content) repeat(var(--point-list-axes), minmax(0, 1fr)); column-gap: .4rem; row-gap: .35rem; }
+.point-list-rows[data-axes="1"] { --point-list-axes: 1; }
+.point-list-rows[data-axes="3"] { --point-list-axes: 3; }
+.point-list-rows[data-remove] { grid-template-columns: minmax(1.5rem, max-content) repeat(var(--point-list-axes), minmax(0, 1fr)) max-content; }
+.point-list-head, .point-list-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; row-gap: 0; align-items: center; }
+.point-list-head { margin-bottom: -.2rem; }
+.point-list-head > span { color: var(--workspace-ink-soft); font-size: .82rem; font-style: italic; line-height: 1.1; text-align: right; padding-right: 8px; }
+/* The field wrappers add no box: the input sits in its axis column and a refusal hint spans the whole row below it. */
+.point-list-axis, .point-list-axis > .number-input { display: contents; }
+.point-list-row > :first-child { grid-row: 1; grid-column: 1; }
+.point-list-row > .point-list-axis:nth-child(2) input[type] { grid-row: 1; grid-column: 2; }
+.point-list-row > .point-list-axis:nth-child(3) input[type] { grid-row: 1; grid-column: 3; }
+.point-list-row > .point-list-axis:nth-child(4) input[type] { grid-row: 1; grid-column: 4; }
+.point-list-row .number-input input[type] { width: 100%; min-width: 0; }
+.point-list-row .number-input-hint-region { grid-column: 1 / -1; }
+.point-list-row .number-input-hint { margin-top: .2rem; }
+.point-list-index { color: var(--workspace-ink); font-weight: 700; padding-right: .15rem; overflow-wrap: anywhere; }
+.point-list-select { background: none; border: var(--bezeg-control-border); border-radius: var(--bezeg-control-radius); color: var(--bezeg-control-ink); text-align: left; cursor: pointer; padding: .25rem .4rem; min-height: var(--bezeg-control-height); }
 .point-list-select[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); border-color: var(--bezeg-control-selected-surface); color: var(--bezeg-control-selected-ink); }
 .point-list-select:focus-visible { outline: var(--bezeg-control-focus); outline-offset: var(--bezeg-control-focus-offset); }
-.point-list-remove { min-width: 2.75rem; min-height: 2.75rem; }
+.point-list-remove { grid-row: 1; grid-column: -2; min-width: var(--bezeg-control-height); min-height: var(--bezeg-control-height); }
 .point-list-reason { margin: 0; font-size: .82rem; color: var(--workspace-ink-soft); }
+/* Large text (about 150 % and up at inspector width): the fields would fall below five characters, so the name and the remove
+   button take the first line and the fields the second. */
+@container (max-width: 15em) {
+    .point-list-rows, .point-list-rows[data-remove] { grid-template-columns: repeat(var(--point-list-axes), minmax(0, 1fr)); }
+    .point-list-head > span:first-child { display: none; }
+    .point-list-row > :first-child { grid-column: 1 / -1; justify-self: start; }
+    .point-list-row > .point-list-axis:nth-child(2) input[type] { grid-row: 2; grid-column: 1; }
+    .point-list-row > .point-list-axis:nth-child(3) input[type] { grid-row: 2; grid-column: 2; }
+    .point-list-row > .point-list-axis:nth-child(4) input[type] { grid-row: 2; grid-column: 3; }
+    .point-list-remove { grid-column: -2; justify-self: end; margin-bottom: .2rem; }
+}
