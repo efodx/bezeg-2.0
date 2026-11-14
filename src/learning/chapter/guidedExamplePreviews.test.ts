@@ -23,6 +23,7 @@ import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
 import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
 import {analyticLinesPreviewCopy} from '../content/analyticLinesPreviewCopy';
+import {circleGeometryPreviewCopy} from '../content/circleGeometryPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
@@ -290,6 +291,10 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'isometries', copy: isometriesPreviewCopy,
         ids: ['isometries.classifying-a-motion.isometries', 'isometries.dilation-similarity.isometries', 'isometries.two-mirrors.isometries'],
         counts: [[2, 2], [2, 2], [3, 5]]},
+    {chapterId: 'circle-geometry', copy: circleGeometryPreviewCopy,
+        ids: ['circle-geometry.apollonius-circle.circle-construction', 'circle-geometry.common-tangents.circle-construction', 'circle-geometry.radical-axis-and-centre.circle-construction',
+            'circle-geometry.tangents-from-a-point.circle-construction'],
+        counts: [[0, 4], [0, 6], [0, 8], [0, 5]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

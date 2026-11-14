@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -829,4 +829,25 @@ test('isometries expectations are authored from the graph: mirrors with a rotati
     assert.throws(() => isometriesExpectedFor('i.dilation-similarity.isometries', open([{kind: 'isometry', operation: 'set-mode', mode: 'similarity'}, {kind: 'isometry', operation: 'set-dilation', centre: {x: 1, y: 1}, k: 2, turn: 'r0'}])), /only the centre/);
     assert.throws(() => isometriesExpectedFor('i.unknown.isometries', mirrors), /no authored isometries/);
     assert.ok(chapterInventories.isometries);
+});
+
+test('circle-geometry expectations are authored from the graph: tangents with contacts, radical axes with the orthogonal circle, the bisector locus and four common tangents', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const mode = value => ({kind: 'circle', operation: 'set-mode', mode: value});
+    const circle = (name, x, y, r) => ({kind: 'circle', operation: 'set-circle', circle: name, x, y, r});
+    const point = (x, y) => ({kind: 'circle', operation: 'set-point', x, y});
+    const tangents = circleGeometryExpectedFor('c.tangents-from-a-point.circle-construction', open([mode('tangents'), circle('c1', 0, 0, 5), point(13, 0)]));
+    assert.deepEqual([tangents.types, tangents.curveCount], [{circle: 2, segment: 4, point: 5, line: 0}, 0]);
+    const radical = circleGeometryExpectedFor('c.radical-axis-and-centre.circle-construction', open([mode('radical'), circle('c1', 0, 0, 5), circle('c2', 6, 0, 3), circle('c3', 3, 6, 2), point(4, 2)]));
+    assert.deepEqual([radical.types, radical.points[4]], [{circle: 4, segment: 0, point: 8, line: 3}, [13 / 3, 10 / 3]]);
+    const bisector = circleGeometryExpectedFor('c.apollonius-circle.circle-construction', open([mode('apollonius'),
+        {kind: 'circle', operation: 'set-apollonius', a: {x: 0, y: 0}, b: {x: 6, y: 0}, p: {x: 8, y: 4}, k: 1}]));
+    assert.deepEqual([bisector.types, bisector.points[3]], [{circle: 0, segment: 3, point: 4, line: 1}, [3, 0]]);
+    const common = circleGeometryExpectedFor('c.common-tangents.circle-construction', open([mode('common'), circle('c1', 0, 0, 5), circle('c2', 13, 0, 3)]));
+    assert.deepEqual(common.types, {circle: 2, segment: 1, point: 6, line: 4});
+    assert.throws(() => circleGeometryExpectedFor('c.tangents-from-a-point.circle-construction', open([mode('radical'), circle('c1', 0, 0, 5), point(13, 0)])), /only the tangents mode/);
+    assert.throws(() => circleGeometryExpectedFor('c.tangents-from-a-point.circle-construction', open([mode('tangents'), circle('c1', 0, 0, 5), point(3, 0)])), /only the circle/);
+    assert.throws(() => circleGeometryExpectedFor('c.common-tangents.circle-construction', open([mode('common')])), /the opening scene is/);
+    assert.throws(() => circleGeometryExpectedFor('c.unknown.circle-construction', open([])), /no authored circle-geometry/);
+    assert.ok(chapterInventories['circle-geometry']);
 });

@@ -79,6 +79,7 @@ const chapterFamilies = {
     'b-splines': {label: 'b-splines', idPrefix: 'b-splines.', route: /^\/bezeg-2\.0\/bspline\/(?:basis|deboor|insertion|extraction|nurbs|blossom)(?:\/|$)/, routeText: '/bezeg-2.0/bspline/basis, /deboor, /insertion, /extraction, /nurbs or /blossom'},
     'phase-portraits': {label: 'phase-portraits', idPrefix: 'phase-portraits.', identities: {module: '/src/graphs/dynamics/registration.ts', rows: 'dynamicsDemonstrationRows'}},
     'analytic-lines': {label: 'analytic-lines', idPrefix: 'analytic-lines.', identities: {module: '/src/graphs/lines/registration.ts', rows: 'lineDemonstrationRows'}},
+    'circle-geometry': {label: 'circle-geometry', idPrefix: 'circle-geometry.', identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},
     'triangle-geometry': {label: 'triangle-geometry', idPrefix: 'triangle-geometry.', route: /^\/bezeg-2\.0\/(?:triangle-centres|inscribed-angle|euler-line|simson-line|inversion)(?:\/|$)/, routeText: '/bezeg-2.0/triangle-centres, /inscribed-angle, /euler-line, /simson-line or /inversion'},

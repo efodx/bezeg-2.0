@@ -1,0 +1,181 @@
+{
+  "examples": [
+    {
+      "id": "circle-geometry.tangents-from-a-point.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.tangents-from-a-point.circle-construction",
+      "sceneFingerprint": "fb5caa891f08d1cb57a58b3888da38494de05ed9cd5860863744e3e03e0e84ef",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"tangents\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c1\",\"x\":0,\"y\":0,\"r\":5}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-point\",\"x\":13,\"y\":0}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 2,
+          "segment": 4,
+          "point": 5,
+          "line": 0
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            1.9230769230769231,
+            4.615384615384615
+          ],
+          [
+            1.9230769230769231,
+            -4.615384615384615
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "circle-geometry.radical-axis-and-centre.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.radical-axis-and-centre.circle-construction",
+      "sceneFingerprint": "0ebad2f1a59ab36c520398fbc58dd27061e5fd8dc473185c5f67e5aefffd4349",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg2-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg2-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"radical\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c1\",\"x\":0,\"y\":0,\"r\":5}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c2\",\"x\":6,\"y\":0,\"r\":3}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c3\",\"x\":3,\"y\":6,\"r\":2}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-point\",\"x\":4,\"y\":2}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 4,
+          "segment": 0,
+          "point": 8,
+          "line": 3
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4.333333333333333,
+            3.3333333333333335
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "circle-geometry.apollonius-circle.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.apollonius-circle.circle-construction",
+      "sceneFingerprint": "89b3754742994bcd141cdcb877fd75a4eec4bb94fa13fb7a958df8fe4e96d218",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"apollonius\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-apollonius\",\"a\":{\"x\":0,\"y\":0},\"b\":{\"x\":6,\"y\":0},\"p\":{\"x\":8,\"y\":4},\"k\":1}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 0,
+          "segment": 3,
+          "point": 4,
+          "line": 1
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            8,
+            4
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "circle-geometry.common-tangents.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.common-tangents.circle-construction",
+      "sceneFingerprint": "5c768c5a0d80c0a83424e5942e97ffb7ba86f5106264b3b0ad945da3f967dc9e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg4-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg4-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"common\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c1\",\"x\":0,\"y\":0,\"r\":5}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c2\",\"x\":13,\"y\":0,\"r\":3}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 2,
+          "segment": 1,
+          "point": 6,
+          "line": 4
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            8.125,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

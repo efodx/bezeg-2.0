@@ -331,6 +331,16 @@ const chapterInventories = {
         // The one isometries Demonstration: the three examples must cover it and open on its route.
         identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'},
     },
+    'circle-geometry': {
+        module: '/src/learning/content/circleGeometryChapterRegistry.ts',
+        // Like isometries: section rows plus a per-section lesson function.
+        registryExport: 'circleGeometryGuidedExampleDemonstrations',
+        lessonExport: 'circleGeometryGuidedExampleLesson',
+        pathExport: 'circleGeometryGuidedExamplePath',
+        expectedFor: circleGeometryExpectedFor,
+        // The one circle-construction Demonstration: the four examples must cover it and open on its route.
+        identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -1968,6 +1978,66 @@ function isometriesExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Circle geometry chapter (circle-geometry): four lessons on the one circle-construction Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default,
+// `circle` set-mode, the named set-circle fields (c1, c2, c3 in that order) and set-point or set-apollonius; nothing is random.
+
+/** Asserts the opening scene is the prepared default followed by exactly the `circle` operations in `operations`, in that order; returns the circle actions. */
+function circleGeometryOpening(id, step, operations) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `circle:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    return own;
+}
+
+const circleOf = action => [action.x, action.y, action.r];
+
+// Authored from src/graphs/compgeo/CircleConstructionGraph.tsx (buildScene), not from a capture. Per circle: the circle and two handles (centre and the radius handle at centre + (r, 0)); hidden anchors are not counted.
+// Tangents mode: the circle, the dashed Thales circle, P, two tangent segments, the chord of contact and the dashed centre-to-P segment, and two contact markers. Radical mode: three circles with six handles, P,
+// three axis lines, the radical centre marker and the orthogonal circle. Apollonius mode: A, B, P, three segments, and for k = 1 the bisector line and the midpoint marker. Common mode: two circles with four
+// handles, the dashed segment of centres, four tangent lines and the two centres of similarity markers. Captions are texts and are left unasserted.
+const circleGeometryFrames = {
+    // Circle (0, 0, 5) and P = (13, 0) outside it: contacts (25/13, +-60/13) (r^2/d, +-r sqrt(d^2 - r^2)/d).
+    'tangents-from-a-point': (id, step) => {
+        const [mode, c1, p] = circleGeometryOpening(id, step, ['set-mode', 'set-circle', 'set-point']);
+        assert.equal(mode.mode, 'tangents', `${id}: only the tangents mode is authored`);
+        assert.deepEqual([c1.circle, circleOf(c1), p.x, p.y], ['c1', [0, 0, 5], 13, 0], `${id}: only the circle (0, 0, 5) and P = (13, 0) are authored`);
+        return {types: {circle: 2, segment: 4, point: 5, line: 0}, curveCount: 0, points: [[0, 0], [13, 0], [25 / 13, 60 / 13], [25 / 13, -60 / 13]]};
+    },
+    // Circles (0, 0, 5), (6, 0, 3), (3, 6, 2): the axes meet at the radical centre (13/3, 10/3), whose power 44/9 is positive, so the orthogonal circle is drawn.
+    'radical-axis-and-centre': (id, step) => {
+        const [mode, c1, c2, c3, p] = circleGeometryOpening(id, step, ['set-mode', 'set-circle', 'set-circle', 'set-circle', 'set-point']);
+        assert.equal(mode.mode, 'radical', `${id}: only the radical mode is authored`);
+        assert.deepEqual([c1.circle, circleOf(c1), c2.circle, circleOf(c2), c3.circle, circleOf(c3), p.x, p.y],
+            ['c1', [0, 0, 5], 'c2', [6, 0, 3], 'c3', [3, 6, 2], 4, 2], `${id}: only the circles (0, 0, 5), (6, 0, 3), (3, 6, 2) and P = (4, 2) are authored`);
+        return {types: {circle: 4, segment: 0, point: 8, line: 3}, curveCount: 0, points: [[0, 0], [6, 0], [3, 6], [4, 2], [13 / 3, 10 / 3]]};
+    },
+    // A = (0, 0), B = (6, 0), P = (8, 4), k = 1: the locus is the perpendicular bisector (a line, no circle), its internal division point is the midpoint (3, 0), and there is no external point.
+    'apollonius-circle': (id, step) => {
+        const [mode, apollonius] = circleGeometryOpening(id, step, ['set-mode', 'set-apollonius']);
+        assert.equal(mode.mode, 'apollonius', `${id}: only the Apollonius mode is authored`);
+        assert.deepEqual([apollonius.a, apollonius.b, apollonius.p, apollonius.k], [{x: 0, y: 0}, {x: 6, y: 0}, {x: 8, y: 4}, 1], `${id}: only A = (0, 0), B = (6, 0), P = (8, 4) and k = 1 are authored`);
+        return {types: {circle: 0, segment: 3, point: 4, line: 1}, curveCount: 0, points: [[0, 0], [6, 0], [8, 4], [3, 0]]};
+    },
+    // Circles (0, 0, 5) and (13, 0, 3) are separated (d = 13 > 8): four tangents and both centres of similarity; the internal one is (5 * 13) / 8 = 8.125 on the axis of centres, the external one (32.5, 0) lies far to the right.
+    'common-tangents': (id, step) => {
+        const [mode, c1, c2] = circleGeometryOpening(id, step, ['set-mode', 'set-circle', 'set-circle']);
+        assert.equal(mode.mode, 'common', `${id}: only the common-tangents mode is authored`);
+        assert.deepEqual([c1.circle, circleOf(c1), c2.circle, circleOf(c2)], ['c1', [0, 0, 5], 'c2', [13, 0, 3]], `${id}: only the circles (0, 0, 5) and (13, 0, 3) are authored`);
+        return {types: {circle: 2, segment: 1, point: 6, line: 4}, curveCount: 0, points: [[0, 0], [13, 0], [8.125, 0]]};
+    },
+};
+
+/** First-frame expectation of a circle-geometry lesson (the four sections of the chapter, keyed by the section in the example id). */
+function circleGeometryExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(circleGeometryFrames, section) ? circleGeometryFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored circle-geometry first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2024,4 +2094,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, assertExpectation};

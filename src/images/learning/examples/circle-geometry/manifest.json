@@ -1,0 +1,530 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+    "dirty": true,
+    "inputs": "9f13769fea14468cc3f265563614cf63a9350b2b60d15db251a40e3f27dbf696",
+    "output": "23a1705c46a32669605448e90a6494c17548bed293284490efdb7d3e03565f03"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+    "stampDirty": true,
+    "localOutputHash": "23a1705c46a32669605448e90a6494c17548bed293284490efdb7d3e03565f03",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-Ckd7FqgX.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-Ckd7FqgX.js",
+        "sha256": "ed321032fb3ac6b0966ba3575b0ad407fab54d1db5dd47c90cacb07914d5d616",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "383211fff742a62d93a05f4fa9edf21976258cd3524d31aa216e537103c2d955",
+    "entries": {
+      "circle-geometry.tangents-from-a-point.circle-construction": "53a64fd587284329bcb04842eb8700b00df01b1d7890e6b620009adecdbfb71b",
+      "circle-geometry.radical-axis-and-centre.circle-construction": "8a1dcb2d2e75afc6f1c13fcc6db6a77c2106ea01c4cfe6cbb37f1449a0b6f90c",
+      "circle-geometry.apollonius-circle.circle-construction": "793464185f3d4f87b49671a75f837851cfb10d83cc4bbf1c245a881734eabd77",
+      "circle-geometry.common-tangents.circle-construction": "6343550bf24cf210729aafb0fde9c48efbbfa7d54f953325dae33f8a89bbc654"
+    },
+    "presentation": "89c6554232a4307587d86dd06d5256f5d9f725ebe68a348269de48b28c3d2a69",
+    "buildOutput": "23a1705c46a32669605448e90a6494c17548bed293284490efdb7d3e03565f03",
+    "buildInputs": "9f13769fea14468cc3f265563614cf63a9350b2b60d15db251a40e3f27dbf696"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "circle-geometry.tangents-from-a-point.circle-construction",
+        "demonstrationId": "circle-construction",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7,
+            9.2,
+            19.5,
+            -7.2
+          ]
+        }
+      },
+      {
+        "id": "circle-geometry.radical-axis-and-centre.circle-construction",
+        "demonstrationId": "circle-construction",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7,
+            9.2,
+            19.5,
+            -7.2
+          ]
+        }
+      },
+      {
+        "id": "circle-geometry.apollonius-circle.circle-construction",
+        "demonstrationId": "circle-construction",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7,
+            9.2,
+            19.5,
+            -7.2
+          ]
+        }
+      },
+      {
+        "id": "circle-geometry.common-tangents.circle-construction",
+        "demonstrationId": "circle-construction",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7,
+            9.2,
+            19.5,
+            -7.2
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "circle-geometry.tangents-from-a-point.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.tangents-from-a-point.circle-construction",
+      "sceneFingerprint": "fb5caa891f08d1cb57a58b3888da38494de05ed9cd5860863744e3e03e0e84ef",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"tangents\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c1\",\"x\":0,\"y\":0,\"r\":5}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-point\",\"x\":13,\"y\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "circle-geometry.tangents-from-a-point.circle-construction.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "cc78f0d5bbf183c8cc925f6a68f2622a0bf2df84c283a296c7e09f27061116e9",
+      "scene": {
+        "visibleElementCount": 15,
+        "visibleElementTypes": {
+          "point": 5,
+          "circle": 2,
+          "segment": 4,
+          "text": 4
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:circle",
+          "type:segment",
+          "type:point",
+          "type:line",
+          "curve-count",
+          "point:0,0",
+          "point:13,0",
+          "point:1.9230769230769231,4.615384615384615",
+          "point:1.9230769230769231,-4.615384615384615"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "point": 5,
+            "circle": 2,
+            "segment": 4,
+            "text": 4
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:circle",
+            "type:segment",
+            "type:point",
+            "type:line",
+            "curve-count",
+            "point:0,0",
+            "point:13,0",
+            "point:1.9230769230769231,4.615384615384615",
+            "point:1.9230769230769231,-4.615384615384615"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "circle": 2,
+          "segment": 4,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "sourceRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "circle-geometry.radical-axis-and-centre.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.radical-axis-and-centre.circle-construction",
+      "sceneFingerprint": "0ebad2f1a59ab36c520398fbc58dd27061e5fd8dc473185c5f67e5aefffd4349",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg2-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg2-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"radical\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c1\",\"x\":0,\"y\":0,\"r\":5}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c2\",\"x\":6,\"y\":0,\"r\":3}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c3\",\"x\":3,\"y\":6,\"r\":2}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-point\",\"x\":4,\"y\":2}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "circle-geometry.radical-axis-and-centre.circle-construction.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "471a5b4da19c71cd8ab82c28239d66ac2e35aff9f469aff0454ebafbd0572b44",
+      "scene": {
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "point": 8,
+          "circle": 4,
+          "text": 4,
+          "line": 3
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:circle",
+          "type:segment",
+          "type:point",
+          "type:line",
+          "curve-count",
+          "point:0,0",
+          "point:6,0",
+          "point:3,6",
+          "point:4,2",
+          "point:4.333333333333333,3.3333333333333335"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 39,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "point": 8,
+            "circle": 4,
+            "text": 4,
+            "line": 3
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:circle",
+            "type:segment",
+            "type:point",
+            "type:line",
+            "curve-count",
+            "point:0,0",
+            "point:6,0",
+            "point:3,6",
+            "point:4,2",
+            "point:4.333333333333333,3.3333333333333335"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 8,
+          "circle": 4,
+          "text": 4,
+          "line": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "sourceRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "circle-geometry.apollonius-circle.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.apollonius-circle.circle-construction",
+      "sceneFingerprint": "89b3754742994bcd141cdcb877fd75a4eec4bb94fa13fb7a958df8fe4e96d218",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"apollonius\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-apollonius\",\"a\":{\"x\":0,\"y\":0},\"b\":{\"x\":6,\"y\":0},\"p\":{\"x\":8,\"y\":4},\"k\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "circle-geometry.apollonius-circle.circle-construction.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0da1e9aa83a31662de9df1c74127773f0f1fbd28880b844ed184044c17547eb7",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 4,
+          "text": 5,
+          "line": 1,
+          "segment": 3
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:circle",
+          "type:segment",
+          "type:point",
+          "type:line",
+          "curve-count",
+          "point:0,0",
+          "point:6,0",
+          "point:8,4",
+          "point:3,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "point": 4,
+            "text": 5,
+            "line": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:circle",
+            "type:segment",
+            "type:point",
+            "type:line",
+            "curve-count",
+            "point:0,0",
+            "point:6,0",
+            "point:8,4",
+            "point:3,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "text": 5,
+          "line": 1,
+          "segment": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "sourceRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "circle-geometry.common-tangents.circle-construction",
+      "demonstrationId": "circle-construction",
+      "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.common-tangents.circle-construction",
+      "sceneFingerprint": "5c768c5a0d80c0a83424e5942e97ffb7ba86f5106264b3b0ad945da3f967dc9e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg4-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg4-predict-scene\",\"source\":\"demonstration-default\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-mode\",\"mode\":\"common\"}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c1\",\"x\":0,\"y\":0,\"r\":5}",
+        "circle: {\"kind\":\"circle\",\"operation\":\"set-circle\",\"circle\":\"c2\",\"x\":13,\"y\":0,\"r\":3}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "circle-geometry.common-tangents.circle-construction.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "62231f696d100ec3c6b366fdedf95669e0e3a10fbdfc861f83bdd9aea37cf1f7",
+      "scene": {
+        "visibleElementCount": 15,
+        "visibleElementTypes": {
+          "point": 6,
+          "circle": 2,
+          "segment": 1,
+          "text": 2,
+          "line": 4
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:circle",
+          "type:segment",
+          "type:point",
+          "type:line",
+          "curve-count",
+          "point:0,0",
+          "point:13,0",
+          "point:8.125,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "point": 6,
+            "circle": 2,
+            "segment": 1,
+            "text": 2,
+            "line": 4
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:circle",
+            "type:segment",
+            "type:point",
+            "type:line",
+            "curve-count",
+            "point:0,0",
+            "point:13,0",
+            "point:8.125,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "circle": 2,
+          "segment": 1,
+          "text": 2,
+          "line": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "sourceRevision": "f4e0e760d6155938fd07b058bba4ccedd708c5c4",
+        "pageErrors": []
+      }
+    }
+  ]
+}

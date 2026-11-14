@@ -27,6 +27,7 @@ import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
 import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
 import {analyticLinesPreviewCopy} from '../content/analyticLinesPreviewCopy';
+import {circleGeometryPreviewCopy} from '../content/circleGeometryPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 import {mathAltText} from './mathAltText';
@@ -72,6 +73,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'b-splines': bsplinePreviewCopy,
     'phase-portraits': phasePortraitsPreviewCopy,
     'analytic-lines': analyticLinesPreviewCopy,
+    'circle-geometry': circleGeometryPreviewCopy,
     isometries: isometriesPreviewCopy,
     trigonometry: trigonometryPreviewCopy,
 };
