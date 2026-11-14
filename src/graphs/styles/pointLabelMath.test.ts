@@ -8,6 +8,7 @@ test('trailing digits and Unicode subscripts become a subscript', () => {
     expect(pointLabelMath('S₁')).toBe('$$S_{1}$$');
     expect(pointLabelMath('F₁₂')).toBe('$$F_{12}$$');
     expect(pointLabelMath('PTₙ')).toBe('$$PT_{n}$$');
+    expect(pointLabelMath('aₜ')).toBe('$$a_{t}$$');
 });
 
 test('primes stay primes, with or without an index', () => {

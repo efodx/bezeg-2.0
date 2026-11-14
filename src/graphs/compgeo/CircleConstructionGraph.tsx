@@ -13,6 +13,7 @@ import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/Read
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {FunctionLegend, LegendItem} from "../functions/FunctionReadout";
 import {GraphPalette} from "../styles/GraphPalette";
+import {pointLabelMath} from "../styles/pointLabelMath";
 import {Line} from "../../compgeo/circle";
 import {InexactLine} from "../../compgeo/circleConstructions";
 import {Rational, RationalPoint} from "../../compgeo/rational";
@@ -503,8 +504,12 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 straightLast: true, visible: () => coefficients() !== null,
             }));
         };
-        /** A text sits at the centre of its placed box (see `labelBoxes`) beside its anchor, or on the anchor before the board has a size. */
-        const caption = (text: string | (() => string), x: Coordinate, y: Coordinate, color: string, visible: Visible = true) => {
+        /**
+         * A text sits at the centre of its placed box (see `labelBoxes`) beside its anchor, or on the anchor before the board has a size.
+         * `math`: the text is only the name of a point, typeset at the compact named-label size (M03). The layout measures the plain name,
+         * which is wider than the typeset one at the 15 px caption size.
+         */
+        const caption = (text: string | (() => string), x: Coordinate, y: Coordinate, color: string, visible: Visible = true, math = false) => {
             const id = `caption-${this.captionList.length}`;
             const content = typeof text === "string" ? () => text : text;
             const at = (v: Coordinate) => (typeof v === "function" ? v() : v);
@@ -516,9 +521,10 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
                 const [left, top] = board.getBoundingBox();
                 return axis === 0 ? left + (box.x0 + box.x1) / 2 / board.unitX : top - (box.y0 + box.y1) / 2 / board.unitY;
             };
-            return this.own(board.create("text", [place(0), place(1), content], {
-                strokeColor: color, fontSize: 15, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
-            }));
+            const mathStyle = math ? {fontSize: this.styles.point.namedLabel.fontSize, useMathJax: true, parse: false} : {};
+            return this.own(board.create("text", [place(0), place(1), math ? () => pointLabelMath(content()) : content], {
+                strokeColor: color, fontSize: 15, ...mathStyle, anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
+            }) as JXG.Text);
         };
         const handleAttributes = (color: string, face: PointFace): JXG.PointAttributes => ({
             name: "", withLabel: false, size: 7, face, fillColor: color, strokeColor: GraphPalette.pointOutline,
@@ -531,8 +537,9 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             this.handleMap.set(id, point);
             return point;
         };
+        /** The name of a handle: a point name is typeset as math, a circle number stays a plain caption. */
         const label = (name: string, id: HandleId, color: string) =>
-            caption(name, () => this.handleTarget(id)[0], () => this.handleTarget(id)[1], color);
+            caption(name, () => this.handleTarget(id)[0], () => this.handleTarget(id)[1], color, true, /^[A-Z]$/.test(name));
         const circleRadius = (key: CircleKey) => () => this.state[key].r;
         const numberAt = (read: (f: Frame) => number | undefined) => () => {
             const value = read(frame());
@@ -569,8 +576,8 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             segment(p, t2, GraphPalette.primaryCurve, 2, 0, outside);
             segment(t1, t2, CHORD_STYLE.color, 1, CHORD_STYLE.dash, outside);
             segment(centre, p, GraphPalette.label, 1, 2, flag(f => !(tangents(f)?.atCentre ?? true)));
-            caption("T1", contact(0, "x"), contact(0, "y"), GraphPalette.label, outside);
-            caption("T2", contact(1, "x"), contact(1, "y"), GraphPalette.label, outside);
+            caption("T1", contact(0, "x"), contact(0, "y"), GraphPalette.label, outside, true);
+            caption("T2", contact(1, "x"), contact(1, "y"), GraphPalette.label, outside, true);
             label("1", "c1", GraphPalette.referenceCurve);
             lineAlong(() => {
                 const d = this.view();
@@ -647,9 +654,9 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
             marker(division("internal", "x"), division("internal", "y"), "diamond", GraphPalette.constructionLevels[1], 6, internalShown);
             marker(division("external", "x"), division("external", "y"), "triangleUp", GraphPalette.constructionLevels[2], 6, externalShown);
             caption(() => t("circle_construction_caption_internal"), division("internal", "x"), division("internal", "y"),
-                GraphPalette.label, internalShown);
+                GraphPalette.label, internalShown, true);
             caption(() => t("circle_construction_caption_external"), division("external", "x"), division("external", "y"),
-                GraphPalette.label, externalShown);
+                GraphPalette.label, externalShown, true);
             segment(p, a, GraphPalette.referenceCurve, 1, 2);
             segment(p, b, GraphPalette.comparisonCurve, 1, 2);
             segment(a, b, GraphPalette.label, 1, 0);

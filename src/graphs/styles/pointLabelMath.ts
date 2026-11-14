@@ -1,6 +1,6 @@
 const SUBSCRIPTS: Record<string, string> = {
     '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9',
-    'ₙ': 'n', 'ᵢ': 'i', 'ⱼ': 'j', 'ₖ': 'k',
+    'ₙ': 'n', 'ₜ': 't', 'ᵢ': 'i', 'ⱼ': 'j', 'ₖ': 'k',
 };
 
 const SYMBOLS: Record<string, string> = {
@@ -16,7 +16,7 @@ const SYMBOLS: Record<string, string> = {
  */
 export function pointLabelMath(name: string): string {
     const body = name
-        .replace(/[₀-₉ₙᵢⱼₖ]+/g, run => `_{${[...run].map(c => SUBSCRIPTS[c]).join('')}}`)
+        .replace(/[₀-₉ₙₜᵢⱼₖ]+/g, run => `_{${[...run].map(c => SUBSCRIPTS[c]).join('')}}`)
         .replace(/″/g, "''")
         .replace(/′/g, "'")
         .replace(/^([A-Za-z]+'*)_?(\d+)$/, '$1_{$2}')

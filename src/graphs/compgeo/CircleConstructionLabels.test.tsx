@@ -38,10 +38,14 @@ function drawn(graph: Probe) {
     const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
     const width = board.canvasWidth, height = board.canvasHeight;
     const shown = (board.objectsList as unknown as Shown[]).filter(o => Boolean(o.evalVisProp('visible')));
-    const labels = shown.filter(o => o.elType === 'text' && o.evalVisProp('fontsize') === 15).map(o => { // the axis tick numbers are 12 px
+    // The scene's texts are the 15 px captions and the point names typeset as math (the axis numbers are 12 px plain text). A name
+    // (`$$T_{1}$$`) is measured as its plain name.
+    const plainName = (text: string) => text.replace(/^\$\$(.*)\$\$$/, '$1').replace(/_\{(\w+)\}/g, '$1');
+    const labels = shown.filter(o => o.elType === 'text' && (o.evalVisProp('fontsize') === 15 || o.evalVisProp('usemathjax') === true)).map(o => {
         const [cx, cy] = toPx(o.X!(), o.Y!());
-        const w = (o.plaintext ?? '').length * 7 + 4;
-        return {text: o.plaintext ?? '', box: {x0: cx - w / 2, y0: cy - 9, x1: cx + w / 2, y1: cy + 9} as PxBox};
+        const text = plainName(o.plaintext ?? '');
+        const w = text.length * 7 + 4;
+        return {text, box: {x0: cx - w / 2, y0: cy - 9, x1: cx + w / 2, y1: cy + 9} as PxBox};
     }).filter(l => l.text !== '');
     const markers = shown.filter(o => o.elType === 'point').map(o => toPx(o.X!(), o.Y!()));
     const samples = shown.flatMap(o => {

@@ -149,6 +149,20 @@ describe('mount and the drawing', () => {
         expect(visible(arrows(graph)[AN])).toBe(true);
         expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_components'));
     });
+
+    test('the arrow names are typeset as math at the compact named-label size, in both languages', () => {
+        for (const language of ['sl', 'en'] as const) {
+            setLanguage(language);
+            const {graph, view} = mountGraph();
+            go(graph, 1);
+            act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+            expect(captionTexts(graph)).toEqual(expect.arrayContaining(['$$v$$', '$$a$$', '$$a_{t}$$', '$$a_{n}$$']));
+            const names = ofType(graph, 'text').filter(o => (o.plaintext ?? '').startsWith('$$'));
+            expect(names).toHaveLength(4);
+            for (const name of names) expect(name.evalVisProp('fontsize')).toBeCloseTo(0.75 * graph.displaySettings.fontSize, 5);
+            view.unmount();
+        }
+    });
 });
 
 describe('the arrow scales are stated on the board and in the readout', () => {

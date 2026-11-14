@@ -433,20 +433,31 @@ describe('review repairs', () => {
         for (const name of ['A', 'B', 'P']) expect(list!.contains(field(pointX(name)))).toBe(true);
     });
 
-    test('the board names the circles, the contact points and the two division points', () => {
+    test('the board names the circles, the contact points and the two division points; point names are typeset as math', () => {
         const {graph} = mountGraph();
-        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['1', 'P', 'T1', 'T2']));
+        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['1', '$$P$$', '$$T_{1}$$', '$$T_{2}$$']));
         chooseMode('radical');
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['1', '2', '3']));
         chooseMode('common');
         expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['1', '2']));
         chooseMode('apollonius');
-        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['N', 'Z']));
+        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['$$A$$', '$$B$$', '$$P$$', '$$N$$', '$$Z$$']));
         expect(readout('internal')).toBeDefined();
         expect(document.querySelector('[data-readout="internal"] dt')!.textContent).toMatch(/ N$/);
         expect(document.querySelector('[data-readout="external"] dt')!.textContent).toMatch(/ Z$/);
         act(() => { setLanguage('en'); });
-        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['I', 'E', 'PA : PB = 2']));
+        expect(shownCaptions(graph)).toEqual(expect.arrayContaining(['$$I$$', '$$E$$', 'PA : PB = 2']));
+    });
+
+    test('point names take the compact named-label size; circle numbers and the ratio keep the 15 px caption size', () => {
+        const {graph} = mountGraph();
+        chooseMode('apollonius');
+        const texts = () => probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible')) as unknown as Array<Probe & {plaintext: string}>;
+        const sizeOf = (text: string) => texts().find(o => o.plaintext === text)!.evalVisProp('fontsize');
+        for (const name of ['$$A$$', '$$B$$', '$$P$$', '$$N$$', '$$Z$$']) expect(sizeOf(name), name).toBeCloseTo(0.75 * graph.displaySettings.fontSize, 5);
+        expect(sizeOf('PA : PB = 2')).toBe(15);
+        chooseMode('tangents');
+        expect(sizeOf('1')).toBe(15);
     });
 
     test('a typed ratio goes through the model snapping: NaN is refused, an out-of-range value clamps', () => {

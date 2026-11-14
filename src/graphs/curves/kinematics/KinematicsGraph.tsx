@@ -12,6 +12,7 @@ import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../../base/controls/reducedMotion";
 import {GraphPalette} from "../../styles/GraphPalette";
+import {pointLabelMath} from "../../styles/pointLabelMath";
 import {PresetCollection} from "../../base/presets/PresetCollection";
 import {Preset} from "../../base/presets/Presets";
 import {kinematicsPresetCollection} from "./kinematicsPresetCollection";
@@ -389,9 +390,11 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                 strokeColor: arrow.color, strokeWidth: arrow.width, dash: arrow.dash, fixed: true, highlight: false, withLabel: false, visible,
             }));
             this.own(board.create("text", [() => endOf(arrow.name)()[0] + 6 / this.scaleOf().ux, () => endOf(arrow.name)()[1] + 6 / this.scaleOf().uy,
-                () => t(`kinematics_graph_${arrow.key}`)], {
-                strokeColor: arrow.color, fontSize: 14, anchorX: "left", fixed: true, highlight: false, withLabel: false, visible,
-            }));
+                // The name of the vector, typeset at the compact size of the named labels (M03).
+                () => pointLabelMath(t(`kinematics_graph_${arrow.key}`))], {
+                strokeColor: arrow.color, fontSize: this.styles.point.namedLabel.fontSize, useMathJax: true, parse: false, anchorX: "left",
+                fixed: true, highlight: false, withLabel: false, visible,
+            }) as JXG.Text);
         }
 
         // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
