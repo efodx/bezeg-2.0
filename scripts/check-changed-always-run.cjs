@@ -31,4 +31,22 @@ function alwaysRunFiles(changedFiles, list = ALWAYS_RUN) {
     return [...new Set(list)];
 }
 
-module.exports = {ALWAYS_RUN, alwaysRunFiles};
+// Unit tests that read stylesheet source from disk (T02, phase 8 change 1 of docs/specs/verification-throughput.md).
+// jsdom applies no stylesheet and Vitest does not process CSS, so no other test can fail on a stylesheet edit. A test
+// that reads a .css or .scss file belongs here; commands.test.cjs checks the list against a search of src/.
+const STYLESHEET_READERS = [
+    'src/graphs/base/controls/OperationApplyReason.test.tsx',
+    'src/inputs/ControlRow.test.ts',
+    'src/learning/playground/LookUnderneath.test.tsx',
+];
+
+const STYLESHEET = /\.(css|scss)$/i;
+const NOT_CODE = /^docs\/|\.md$/i;
+
+// True when the change has at least one stylesheet and nothing else but documentation. Unknown changes are not.
+function stylesheetOnly(changedFiles) {
+    const code = changedFiles?.filter(file => !NOT_CODE.test(file));
+    return Boolean(code?.length) && code.every(file => STYLESHEET.test(file));
+}
+
+module.exports = {ALWAYS_RUN, STYLESHEET_READERS, alwaysRunFiles, stylesheetOnly};

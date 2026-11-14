@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const {spawn} = require('node:child_process');
-const {alwaysRunFiles} = require('./check-changed-always-run.cjs');
+const {STYLESHEET_READERS, alwaysRunFiles, stylesheetOnly} = require('./check-changed-always-run.cjs');
 const {warnSelectorRemovals} = require('./selector-removal-check.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -496,10 +496,16 @@ async function executeCommand(command, rawArgs = [], options = {}) {
         // `--relative` changes nothing at the repository root; it keeps a test fixture nested in the repository from
         // reading the host checkout's changes (a committed vite.config.mts change would drop the step there).
         const changed = await commandOutput('git', root, ['diff', '--name-only', '--relative', ref], 1 << 20).then(text => text.split('\n').filter(Boolean), () => undefined);
-        const always = alwaysRunFiles(changed);
+        // A change of stylesheets (and documentation) only reaches the tests that read stylesheet source, so the import
+        // selection and its slot are skipped and those tests join the always-run step (phase 8 change 1, T02).
+        const cssOnly = stylesheetOnly(changed);
+        const always = cssOnly ? [...new Set([...alwaysRunFiles(changed), ...STYLESHEET_READERS])] : alwaysRunFiles(changed);
         // Warning only: a smoke spec that still waits for a removed selector fails in CI, not here.
         await warnSelectorRemovals({root, base: ref});
-        const code = await run('check-changed', [tsc(), lint([]), unit(['--changed', ref, '--passWithNoTests']), ...(always.length ? [free('unit', alwaysRunStep(always))] : [])]);
+        if (cssOnly) process.stderr.write(`Stylesheet-only change: running the ${always.length} always-run and stylesheet-reading test files instead of the import selection.
+`);
+        const selected = cssOnly ? [] : [unit(['--changed', ref, '--passWithNoTests'])];
+        const code = await run('check-changed', [tsc(), lint([]), ...selected, ...(always.length ? [free('unit', alwaysRunStep(always))] : [])]);
         return code === 0 ? buildWithProvenance('check-changed build') : code;
     }
     if (command === 'check-localization') {

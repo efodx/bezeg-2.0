@@ -8,7 +8,7 @@ const {spawn, spawnSync} = require('node:child_process');
 const test = require('node:test');
 const commands = require('./commands.cjs');
 const slots = require('./test-slots.cjs');
-const {ALWAYS_RUN, alwaysRunFiles} = require('./check-changed-always-run.cjs');
+const {ALWAYS_RUN, STYLESHEET_READERS, alwaysRunFiles, stylesheetOnly} = require('./check-changed-always-run.cjs');
 
 // Keep fixture runs out of the machine-wide slots held by real test runs.
 process.env.BEZEG_TEST_SLOT_DIR = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-test-slots-'));
@@ -647,6 +647,48 @@ test('check-changed holds a slot only around the unit step; typecheck, lint and 
         'admit build spacing=false', 'build',
     ]);
 }));
+
+test('a stylesheet-only change skips the import selection and its slot, and runs the stylesheet readers', () => withGateFixture(async ({root, fakes, read, env}) => {
+    const git = (...args) => assert.equal(spawnSync('git', args, {cwd: root, windowsHide: true}).status, 0, `git ${args.join(' ')}`);
+    fs.writeFileSync(path.join(root, 'src/look.css'), 'a {}\n');
+    fs.mkdirSync(path.join(root, 'docs'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'docs/note.md'), 'note\n');
+    git('init', '-q');
+    git('add', 'src/look.css', 'docs/note.md');
+    git('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'base');
+    fs.writeFileSync(path.join(root, 'src/look.css'), 'a { color: red }\n');
+    fs.writeFileSync(path.join(root, 'docs/note.md'), 'changed\n');
+    assert.equal(await commands.execute('check-changed', ['HEAD'], {root, env, slots: fakes}), 0);
+    assert.deepEqual(read(), [
+        'admit typecheck spacing=false', 'tsc',
+        'admit lint spacing=false', 'lint',
+        'admit unit spacing=false', 'unit',
+        'admit build spacing=false', 'build',
+    ]);
+}));
+
+test('stylesheetOnly needs a stylesheet and nothing but documentation beside it', () => {
+    assert.equal(stylesheetOnly(['src/a.css']), true);
+    assert.equal(stylesheetOnly(['src/a.scss', 'docs/x/shot.png', 'README.md']), true);
+    assert.equal(stylesheetOnly(['src/a.css', 'src/a.tsx']), false);
+    assert.equal(stylesheetOnly(['docs/a.md']), false);
+    assert.equal(stylesheetOnly([]), false);
+    assert.equal(stylesheetOnly(undefined), false);
+});
+
+test('STYLESHEET_READERS lists exactly the unit tests that read stylesheet source', () => {
+    const repo = path.resolve(__dirname, '..');
+    const found = [];
+    const visit = dir => {
+        for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) visit(full);
+            else if (/\.test\.[jt]sx?$/.test(entry.name) && /\.s?css['"`]/.test(fs.readFileSync(full, 'utf8'))) found.push(path.relative(repo, full).replace(/\\/g, '/'));
+        }
+    };
+    visit(path.join(repo, 'src'));
+    assert.deepEqual(found.sort(), [...STYLESHEET_READERS].sort());
+});
 
 test('build, lint and typecheck acquire no slot', () => withGateFixture(async ({root, fakes, read, env}) => {
     assert.equal(await commands.execute('build', [], {root, env, slots: fakes}), 0);
