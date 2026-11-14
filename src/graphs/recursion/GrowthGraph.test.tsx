@@ -603,3 +603,75 @@ describe('the vertical axis title', () => {
         }
     });
 });
+
+/** Board texts as pixel boxes from the board's top left corner (the glyph box from its anchor), and the axes' pixel position. */
+function pixelBoxes(graph: ObservedGraph) {
+    const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; getBoundingBox(): number[]};
+    const [left, top] = board.getBoundingBox();
+    const infobox = (board as unknown as {infobox?: unknown}).infobox;
+    const boxes = visible(texts(graph)).filter(o => (o as unknown) !== infobox).map(o => {
+        const text = o.plaintext ?? '';
+        const probe = o as Probe & {X(): number; Y(): number};
+        const size = Number(o.evalVisProp('fontsize')) || 14;
+        const w = text.length * size * 0.55, h = size * 1.15;
+        const x = (probe.X() - left) * board.unitX, y = (top - probe.Y()) * board.unitY;
+        const ax = o.evalVisProp('anchorx'), ay = o.evalVisProp('anchory');
+        const x0 = ax === 'right' ? x - w : ax === 'middle' ? x - w / 2 : x;
+        const y0 = ay === 'bottom' ? y - h : ay === 'middle' ? y - h / 2 : y;
+        return {text, x0, y0, x1: x0 + w, y1: y0 + h};
+    });
+    return {boxes, axisX: Math.max(0, -left * board.unitX), axisY: top * board.unitY, left, board};
+}
+
+/** Board sizes: a small phone board and a wide one. The jsdom default is 600 x 400. */
+describe.each([[600, 400], [340, 300], [840, 520]])('board texts clear of the axes and of each other (%i x %i px)', (W, H) => {
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    for (const value of ['sequence', 'interest', 'log'] as const) {
+        test(`${value}: the horizontal axis title stands under the tick number row, the vertical one and the legend clear of the axis`, () => {
+            const {graph} = mountGraph();
+            panel(value);
+            const {boxes, axisX, axisY, board} = pixelBoxes(graph);
+            expect([(board as unknown as {canvasWidth: number}).canvasWidth, (board as unknown as {canvasHeight: number}).canvasHeight]).toEqual([W, H]);
+            const title = boxes.find(b => b.text === t(`recursion_graph_growth_cap_x_${value}`))!;
+            expect(title, 'x title').toBeDefined();
+            // The tick numbers take about 22 px under the axis line.
+            expect(title.y0 - axisY, `x title top ${title.y0}, axis ${axisY}`).toBeGreaterThanOrEqual(22);
+            expect(title.y1).toBeLessThanOrEqual(H);
+            expect(title.x1).toBeLessThanOrEqual(W);
+            expect(title.x0).toBeGreaterThanOrEqual(0);
+            for (const box of boxes.filter(b => b !== title && b.x0 < axisX + 400)) {
+                expect(box.x0 - axisX, `"${box.text}" starts ${box.x0 - axisX} px right of the vertical axis`).toBeGreaterThanOrEqual(10);
+            }
+            boxes.forEach((box, i) => boxes.slice(i + 1).forEach(other => {
+                const crossing = box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0;
+                expect(crossing, `"${box.text}" and "${other.text}" overlap`).toBe(false);
+            }));
+        });
+    }
+
+    test('the interest legend samples start clear of the vertical axis', () => {
+        const {graph} = mountGraph();
+        panel('interest');
+        const {axisX, left, board} = pixelBoxes(graph);
+        for (const curve of curves(graph).slice(LEGEND, LEGEND + 4)) {
+            expect((curve.dataX![0] - left) * board.unitX - axisX, 'legend sample start').toBeGreaterThanOrEqual(10);
+        }
+    });
+
+    test('no x tick number is written for a negative x (the quantities start at 0 and 1), so none is cut at the left edge', () => {
+        const {graph} = mountGraph();
+        for (const value of ['sequence', 'interest', 'log'] as const) {
+            panel(value);
+            const ticks = (graph.liveBoard() as unknown as {defaultAxes: {x: {defaultTicks: {generateLabelText(tick: unknown, zero: unknown): string}}}}).defaultAxes.x.defaultTicks;
+            expect(ticks.generateLabelText({usrCoords: [1, -0.1, 0]}, {distance: () => 1}), value).toBe('');
+        }
+    });
+});

@@ -78,12 +78,26 @@ const INTEREST_STYLES: readonly Style[] = [
 const ROW_Y = 0.97;
 const ROW_STEP = 0.06;
 const rowY = (row: number): number => ROW_Y - ROW_STEP * (row + 1);
-const TEXT_X = 0.12;
+/** Pixels: the gap of every text right of the vertical axis; the length of a legend sample; the room under the horizontal axis for the tick numbers (22) and the axis title (18) and their gaps. */
+const AXIS_GAP_PX = 16;
+const SAMPLE_PX = 36;
+const BAND_PX = 48;
+/** Pixels between the axis title and the bottom edge of the board. */
+const TITLE_GAP_PX = 5;
 
 interface Cache {
     readonly state: GrowthGraphState;
     readonly derived: GrowthDerived;
     readonly box: Box;
+    readonly height: number;
+}
+
+/** The box with at least `BAND_PX` pixels of a board `height` px tall under the horizontal axis (y = 0): the tick numbers and the axis title stand there. */
+function withBand(box: Box, height: number): Box {
+    const [left, top, right, bottom] = box;
+    if (!(height > 2 * BAND_PX) || !(top > 0) || bottom * 0 !== 0) return box;
+    if (-bottom * height / (top - bottom) >= BAND_PX) return box;
+    return [left, top, right, -BAND_PX * top / (height - BAND_PX)];
 }
 
 function boxOf(state: GrowthState, derived: GrowthDerived): Box {
@@ -155,7 +169,7 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
 
     override importPresetData(data: GrowthState): void {
         const imported = serializeGrowthState(data);
-        if (this.keepImportedView) this.drawnBox = boxOf(imported, deriveGrowth(imported));
+        if (this.keepImportedView) this.drawnBox = withBand(boxOf(imported, deriveGrowth(imported)), this.boardHeight());
         this.setState(imported);
     }
 
@@ -175,17 +189,23 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [...boxOf(DEFAULT_GROWTH_STATE, deriveGrowth(DEFAULT_GROWTH_STATE))];
+        return [...withBand(boxOf(DEFAULT_GROWTH_STATE, deriveGrowth(DEFAULT_GROWTH_STATE)), this.boardHeight())];
     }
 
     // ---- Derived numbers: a cache keyed by the state object ---------------------------------------------------------------
 
     private current(): Cache {
-        if (!this.cache || this.cache.state !== this.state) {
-            const derived = deriveGrowth(this.state);
-            this.cache = {state: this.state, derived, box: boxOf(this.state, derived)};
+        const height = this.boardHeight();
+        if (!this.cache || this.cache.state !== this.state || this.cache.height !== height) {
+            const derived = this.cache?.state === this.state ? this.cache.derived : deriveGrowth(this.state);
+            this.cache = {state: this.state, derived, box: withBand(boxOf(this.state, derived), height), height};
         }
         return this.cache;
+    }
+
+    /** The height of the board in pixels, or 0 before there is a board. */
+    private boardHeight(): number {
+        return this.hasBoard && this.board.canvasHeight > 0 ? this.board.canvasHeight : 0;
     }
 
     derived(): GrowthDerived { return this.current().derived; }
@@ -279,17 +299,40 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         return curve;
     }
 
-    private caption(text: () => string, place: () => {x: number; y: number}, visible: () => boolean, anchorX: "left" | "right" = "left"): JXG.Text {
+    private caption(text: () => string, place: () => {x: number; y: number}, visible: () => boolean, anchorX: "left" | "right" = "left", anchorY: "middle" | "bottom" = "middle"): JXG.Text {
         return this.scene.own(this.board.create("text", [() => place().x, () => place().y, text], {
-            strokeColor: GraphPalette.label, fontSize: 14, anchorX, anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
+            strokeColor: GraphPalette.label, fontSize: 14, anchorX, anchorY, fixed: true, highlight: false, withLabel: false, visible,
         }));
     }
 
-    /** The vertical axis title starts a few pixels right of the axis, where no tick label stands (they are left of it). */
-    private axisTitleX(): number {
-        const [xmin, , xmax] = this.current().box;
+    /** The x of the texts right of the vertical axis (its title, the legend, the caption rows): `AXIS_GAP_PX` right of the axis, where no tick number stands (they are left of it). */
+    private textLeft(): number {
+        const [xmin, , xmax] = this.view();
+        return (xmin < 0 && xmax > 0 ? 0 : xmin) + this.pixels(AXIS_GAP_PX);
+    }
+
+    /** The window the board shows (the panel's own box until the user pans or zooms, a capture sets its own): the texts are placed in it, in pixels from its edges and the axes. */
+    private view(): Box {
+        const [left, top, right, bottom] = this.hasBoard ? this.board.getBoundingBox() : this.current().box;
+        return [left, top, right, bottom];
+    }
+
+    /** A length in pixels as a width in board units. */
+    private pixels(px: number): number {
         const {unitX} = this.board;
-        return (xmin < 0 && xmax > 0 ? 0 : xmin) + 6 / (unitX > 0 ? unitX : 1);
+        return px / (unitX > 0 ? unitX : 1);
+    }
+
+    /** The x tick numbers of negative x are not written: the quantities start at 0 and 1, and a number there is cut at the left edge. */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        const labelOf = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const nonNegative = function (this: object, ...label: unknown[]): string {
+            const tick = label[0] as {usrCoords?: number[]} | undefined;
+            if (tick?.usrCoords && tick.usrCoords[1] < 0) return "";
+            return labelOf ? labelOf.apply(this, label) : "";
+        };
+        return {x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: nonNegative}}, y: axis.defaultY};
     }
 
     private marker(x: () => number, y: () => number, visible: () => boolean, face: string, color: string): JXG.Point {
@@ -303,9 +346,9 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         this.built = true;
         const state = () => this.state;
         const derived = () => this.derived();
-        const box = () => this.current().box;
+        const box = () => this.view();
         const on = (panel: GrowthPanel) => () => this.state.panel === panel;
-        const place = (fx: number, fy: number) => () => at(box(), fx, fy);
+        const textAt = (fy: number, offsetPx = 0) => () => ({x: this.textLeft() + this.pixels(offsetPx), y: at(box(), 0, fy).y});
 
         // Sequence panel: the bars of the terms, the limit line, the n-th term marked.
         this.curve(() => barsPath(derived().sequence.terms.map(Number)), {color: GraphPalette.primaryCurve, width: 2, dash: 0}, on("sequence"));
@@ -314,10 +357,10 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
             return {x: [box()[0], box()[2]], y: [limit, limit]};
         }, {color: GraphPalette.comparisonCurve, width: 2, dash: 2}, () => state().panel === "sequence" && derived().sequence.limit !== null);
         this.marker(() => state().n, () => Number(derived().sequence.nth), on("sequence"), "diamond", GraphPalette.constructionAccent);
-        this.caption(() => t("recursion_graph_growth_cap_bars", {value0: state().n}), place(TEXT_X, rowY(0)), on("sequence"));
+        this.caption(() => t("recursion_graph_growth_cap_bars", {value0: state().n}), textAt(rowY(0)), on("sequence"));
         this.caption(() => t("recursion_graph_growth_cap_nth", {value0: subscript(state().n), value1: seq(derived().sequence.nth)}),
-            place(TEXT_X, rowY(1)), on("sequence"));
-        this.caption(() => t("recursion_graph_growth_cap_limit", {value0: num(derived().sequence.limit ?? NaN)}), place(TEXT_X, rowY(2)),
+            textAt(rowY(1)), on("sequence"));
+        this.caption(() => t("recursion_graph_growth_cap_limit", {value0: num(derived().sequence.limit ?? NaN)}), textAt(rowY(2)),
             () => state().panel === "sequence" && derived().sequence.limit !== null);
 
         // Interest panel: four curves in the window of the years, each with a legend line of the same style and a caption.
@@ -345,10 +388,10 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         });
         INTEREST_STYLES.forEach((style, index) => {
             this.curve(() => {
-                const from = at(box(), TEXT_X, rowY(index));
-                return {x: [from.x, at(box(), TEXT_X + 0.06, rowY(index)).x], y: [from.y, from.y]};
+                const from = textAt(rowY(index))();
+                return {x: [from.x, from.x + this.pixels(SAMPLE_PX)], y: [from.y, from.y]};
             }, style, on("interest"));
-            this.caption(captions[index], place(TEXT_X + 0.08, rowY(index)), on("interest"));
+            this.caption(captions[index], textAt(rowY(index), SAMPLE_PX + 8), on("interest"));
         });
 
         // Logarithm panel: the points (n, ln y), the chord through the first and the last point, one marker per point.
@@ -359,14 +402,14 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
                 () => state().panel === "log" && index < derived().log.ns.length, "circle", GraphPalette.primaryCurve);
         }
         this.caption(() => t(state().logModel === "exponential" ? "recursion_graph_growth_cap_points_exponential" : "recursion_graph_growth_cap_points_power"),
-            place(TEXT_X, rowY(0)), on("log"));
-        this.caption(() => t("recursion_graph_growth_cap_chord", {value0: num(derived().log.slope)}), place(TEXT_X, rowY(1)), on("log"));
+            textAt(rowY(0)), on("log"));
+        this.caption(() => t("recursion_graph_growth_cap_chord", {value0: num(derived().log.slope)}), textAt(rowY(1)), on("log"));
 
         // Axis captions of every panel: what the horizontal and the vertical axis show, and the unit.
         this.caption(() => t(state().panel === "sequence" ? "recursion_graph_growth_cap_x_sequence" : state().panel === "interest"
-            ? "recursion_graph_growth_cap_x_interest" : "recursion_graph_growth_cap_x_log"), place(0.99, 0.035), () => true, "right");
+            ? "recursion_graph_growth_cap_x_interest" : "recursion_graph_growth_cap_x_log"), () => ({x: box()[2] - this.pixels(6), y: box()[3] + TITLE_GAP_PX / (this.board.unitY > 0 ? this.board.unitY : 1)}), () => true, "right", "bottom");
         this.caption(() => t(state().panel === "sequence" ? "recursion_graph_growth_cap_y_sequence" : state().panel === "interest"
-            ? "recursion_graph_growth_cap_y_interest" : "recursion_graph_growth_cap_y_log"), () => ({x: this.axisTitleX(), y: at(box(), 0, ROW_Y).y}), () => true);
+            ? "recursion_graph_growth_cap_y_interest" : "recursion_graph_growth_cap_y_log"), () => ({x: this.textLeft(), y: at(box(), 0, ROW_Y).y}), () => true);
     }
 
     private disposeScene(): void {

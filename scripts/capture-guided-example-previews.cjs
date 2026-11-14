@@ -61,11 +61,11 @@ const randomnessWindows = {
 };
 
 // The growth cards: the board frames each panel in its own window (the sequence panel: x from -0.7 to 7.2, y from 17.55 to -1.3 for the six terms up to 13; the one-year interest panel: x from -0.12 to 1.05,
-// y from 1682.03 to -84.1), which has unequal x and y scales; the default capture size gives both axes one scale and the figure becomes a thin strip off the centre, under overlapping captions.
+// y from 1682.03 to -84.1; the cards lower the bottom to leave 80 px under the axis (the card text is larger) for the tick numbers and the axis title), which has unequal x and y scales; the default capture size gives both axes one scale and the figure becomes a thin strip off the centre, under overlapping captions.
 // The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
 const recursionWindows = {
-    'recursion.sequences.recursion-growth': [0.164, 15.488, 6.336, 0.762],
-    'recursion.compound-interest.recursion-growth': [0.008, 1488.863, 0.922, 109.069],
+    'recursion.sequences.recursion-growth': [0.164, 15.28, 6.336, -0.92],
+    'recursion.compound-interest.recursion-growth': [0.008, 1464.6, 0.922, -88.6],
 };
 
 // The linear-programming card: the board lays eight caption rows over the top two thirds of the card and its own opening frame (made on a larger board, a view of about 120 units) shrinks the region to a dot, under the captions.
@@ -408,6 +408,15 @@ function isCircleScaledAboutCentre(before, after, initialUnitScale, presentedUni
         && from.every((offset, index) => offset.every((value, axis) => Math.abs(value * factor - to[index][axis]) <= 0.05 + 1e-3 * Math.abs(value)));
 }
 
+// The legend samples of the growth board are horizontal segments of a fixed length in pixels set a fixed pixel distance right of the vertical axis, so the card (a smaller board) redraws them in other board units.
+// Accept a change only when both are horizontal segments of the same pixel length.
+function isScreenAnchoredHorizontalSegment(before, after, initialUnitScale, presentedUnitScale) {
+    const flat = samples => Array.isArray(samples) && samples.length >= 2 && samples.every(point => point[1] === samples[0][1]);
+    if (!flat(before) || !flat(after) || before.length !== after.length) return false;
+    const length = (samples, unit) => (samples[samples.length - 1][0] - samples[0][0]) * unit[0];
+    return Math.abs(length(before, initialUnitScale) - length(after, presentedUnitScale)) <= 0.5;
+}
+
 function assertPresentationGeometryStable(initial, presented, exampleId = 'capture') {
     assert.deepEqual(presented.points, initial.points, 'capture presentation changed point geometry');
     assert.equal(presented.curves.length, initial.curves.length, 'capture presentation changed curve count');
@@ -420,6 +429,7 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
             && before.every((point, sample) => Math.abs(point[1] - after[sample][1]) <= 1e-6);
         const openingSweepLine = exampleId === fortuneCardId && isOpeningSweepLine(before, initial.points) && isOpeningSweepLine(after, presented.points);
         const cameraScaledConstruction = isCameraScaledCurve(before, after, initial.unitScale, presented.unitScale)
+            || (exampleId.startsWith('recursion.') && isScreenAnchoredHorizontalSegment(before, after, initial.unitScale, presented.unitScale))
             || (exampleId === wavesSumCardId && isCircleScaledAboutCentre(before, after, initial.unitScale, presented.unitScale, wavesPhasorCentre));
         const beforeData = initial.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(before));
         // Pair by board id: two curves with identical samples (a graph and its coinciding ghost) may swap places in the sorted order.
