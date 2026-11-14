@@ -1,6 +1,7 @@
 import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT, PARABOLA_CONTROL_POINTS} from './CurvatureBezierCurveGraph';
 import {CurvatureOverlay, curvatureFrame} from './CurvatureOverlay';
 import {curvatureCurvePresetCollection} from '../geometry/collections';
+import {GraphPalette} from '../../styles/GraphPalette';
 import {setLanguage, t} from '../../../localization';
 import {FigureExportScope} from '../../base/export/FigureExportOperation';
 import {SettledReadout} from '../../base/controls/LiveReadout';
@@ -92,6 +93,21 @@ describe('curvatureFrame numbers', () => {
         expect(kappas[0]).toBeCloseTo(2 / 3, 9);
         expect(kappas[1]).toBeCloseTo(0.2357, 4);
         expect(kappas[2]).toBeCloseTo(0.05963, 4);
+    });
+});
+
+describe('osculating circle style (B5: the subject is the one accent)', () => {
+    test('the circle is a solid rust-red ring over a faint disc, its centre the same colour, and it stays inert', () => {
+        const {board} = overlayFor(PARABOLA);
+        const circle = board.objectsList.find((o: any) => o.type === 'circle');
+        expect(circle.attributes).toMatchObject({
+            strokeColor: GraphPalette.emphasis, strokeWidth: 2.5, dash: 0,
+            fillColor: GraphPalette.emphasis, fillOpacity: 0.08, fixed: true, highlight: false,
+        });
+        const centre = circle.parents[0];
+        expect(centre.attributes).toMatchObject({fillColor: GraphPalette.emphasis, strokeColor: GraphPalette.emphasis, size: 3});
+        const line = board.objectsList.find((o: any) => o.type === 'line');
+        expect(line.attributes).toMatchObject({strokeColor: GraphPalette.emphasis, dash: 3, strokeWidth: 2});
     });
 });
 

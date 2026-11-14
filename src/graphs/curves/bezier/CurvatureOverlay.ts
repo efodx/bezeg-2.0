@@ -118,7 +118,7 @@ export class CurvatureOverlay {
         const centre = this.create<Point>('point', [
             () => { const f = this.frame(); return f?.status === 'circle' ? f.centre[0] : NaN; },
             () => { const f = this.frame(); return f?.status === 'circle' ? f.centre[1] : NaN; },
-        ], {...auxiliary, visible: isCircle, size: 2, strokeColor: GraphPalette.constructionAccent, fillColor: GraphPalette.constructionAccent});
+        ], {...auxiliary, visible: isCircle, size: 3, strokeColor: GraphPalette.emphasis, fillColor: GraphPalette.emphasis});
         const lineNear = this.create<Point>('point', [() => this.lineEnd(-1, 0), () => this.lineEnd(-1, 1)], auxiliary);
         const lineFar = this.create<Point>('point', [() => this.lineEnd(1, 0), () => this.lineEnd(1, 1)], auxiliary);
 
@@ -133,13 +133,14 @@ export class CurvatureOverlay {
         tag('T', tangentTip);
         tag('N', normalTip);
 
+        // The osculating circle is the subject: the one accent, solid, over a faint disc (the plane).
         this.create('circle', [centre, () => { const f = this.frame(); return f?.status === 'circle' ? f.radius : 0; }], {
-            fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.constructionAccent, strokeWidth: 2,
-            dash: 3, fillColor: 'none', fillOpacity: 0, visible: isCircle,
+            fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.emphasis, strokeWidth: 2.5,
+            dash: 0, fillColor: GraphPalette.emphasis, fillOpacity: 0.08, visible: isCircle,
         });
         this.create('line', [lineNear, lineFar], {
             fixed: true, highlight: false, withLabel: false, straightFirst: false, straightLast: false,
-            strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, dash: 3, visible: isLine,
+            strokeColor: GraphPalette.emphasis, strokeWidth: 2, dash: 3, visible: isLine,
         });
 
         const box = () => board.getBoundingBox();
