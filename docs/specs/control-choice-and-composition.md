@@ -21,9 +21,9 @@ All five use shared components and pass lint, the fixture and both audits. Three
 
 ## Part A: the right control
 
-### Choice table
+### Control catalogue
 
-One table, in DESIGN.md under *Graph controls*. `NumberInput` is no longer a default: it needs one of the listed reasons at the call site.
+One file, `docs/controls.md`, lists every shared control: what it is for, when not to use it, its import, and a picture at inspector width. An agent reads it before adding a control to a graph and writes a new control only when no entry fits; the new control then gets an entry. AGENTS.md and the F2a row of the [family template](../tasks/feature-streams/README.md#family-template) link to it. It opens with the choice table below. `NumberInput` is no longer a default.
 
 | The value is | Control |
 | --- | --- |
@@ -34,7 +34,8 @@ One table, in DESIGN.md under *Graph controls*. `NumberInput` is no longer a def
 | A list of points or values | `PointListInput`, `ValueListInput` |
 | One of several named options | `ChoiceSelect`; board tools stay a pressed group (decision 9) |
 | On or off | `OnOffSwitch` for display, checkbox within a set |
-| A number with no useful range, an entry of a compact grid (matrix), or a value copied from a source and not explored | `NumberInput`, with that reason |
+| A matrix | The point row's number cells, laid out in the matrix's own rows and columns (decided 2026-11-14). Its columns are not shown as points: that would transpose the notation the lessons use |
+| A number with no useful range | `NumberInput` |
 
 Also redundant, and removed: help text that only explains a field's range or step (the slider shows it); a second control for a value the panel already offers; a typed field for a draggable point outside the point row. The typed point row stays as the keyboard path (decision 11).
 
@@ -60,43 +61,44 @@ Measurements find wrong sizes. They do not find a row that reads badly. The swee
    - *Point as fields:* adjacent number fields whose labels differ only by an axis letter (2; static, from the inventory).
    - *Bounded field:* `NumberInput` with a range and no reason (1; static).
 4. **Judgement pass.** One subagent per contact-sheet group runs the impeccable critique on the images, with DESIGN.md's *Graph controls* and a five-line rubric: one line per value where it fits, aligned edges, label next to its field, no text that explains the widget, nothing cut. Each finding names the sheet and crop, says whether the shared component or the call site is at fault, and proposes the fix. The handler opens the sheets for the top findings itself.
-5. **Owner gallery.** The contact sheets are published as one page. The owner marks what still looks wrong; all five reported defects came from the owner's eye, so this is the ground truth for the rubric. Findings and marks go to `docs/reviews/control-choice/findings.md`, ranked by routes affected.
-6. **Fix shared components first.** The point row is the first: image mockups of two or three layouts at 310 px and 360 px ([prototype](../product-direction.md#visual-design-proposal) rule), owner picks, then one CSS grid in `PointListInput` reaches all 14 files that use it.
+5. **The handler decides.** The owner delegated the design judgement on 2026-11-14: the handler looks at every contact sheet, decides what is wrong and how it should look, and records findings in `docs/reviews/control-choice/findings.md`, ranked by routes affected. The owner corrects later from the before and after images.
+6. **Fix shared components first.** The point row is the first; one CSS grid in `PointListInput` reaches all 14 files that use it. Its look, decided 2026-11-14: one line per point, holding the name, one equal-width field per axis, and the remove button where there is one. The axis letters appear once, as a header above the columns. The row wraps under its name only when the fields would fall below five characters wide (200 % text). Rejected: an axis letter beside every field (the repeated `x` and `y` the owner reported) and a label above every field (twice the height).
 
 ## Part C: new controls
 
-1. **The choice table is where workers read it:** DESIGN.md, linked from the F2a row of the [family template](../tasks/feature-streams/README.md#family-template).
-2. **The choice is enforced per call site.** `NumberInput` in graph and lesson code requires a typed reason from the table's last row; a call without it fails `tsc`. Rejected: a file-level lint exemption list, because one allowed field in a file would admit the others.
-3. **Missing compositions become components.** A single-point row and a labelled parameter slider cover the cases the local helpers wrote by hand. A graph that needs a new group adds it to `src/inputs/` with a gallery entry, as the shared-controls rule already says for capabilities.
-4. **The fixture becomes a gallery of compositions.** `fixtures/controls` shows every composition at 310 px and phone width, light and Presentation, with long Slovenian labels. `just controls-fixture` runs the Part B detectors on it and joins CI; it is not in CI today.
-5. **The detectors run on real routes** in the catalog sweep tier (sampled locally, full daily in CI), so a new graph that wraps a row or clips a box fails without anyone opening it.
-6. **A new or changed panel is looked at.** F2a evidence includes inspector screenshots at 310 px and 360 px, every tab, disclosures open. The handler reads the images against the table and the rubric before accepting; [review routing](../agent-workflow.md#review-routing) for control changes names screenshots, not measurements, as the input.
+Kept small on the owner's direction (2026-11-14): the catalogue does most of the work, because the reported choices were made with no guidance to follow.
+
+1. **The catalogue**, linked from AGENTS.md so every agent session sees the pointer.
+2. **A shared control looks right at inspector width before it ships.** The existing fixture (`just controls-fixture`) gains a 310 px inspector column and the row-wrap and ragged-field checks. The catalogue's pictures come from this fixture, so a control with no fixture entry has no catalogue entry.
+3. **A changed panel is looked at.** The handler opens a screenshot of the inspector at 310 px before accepting a control change; measurements alone do not pass.
+
+Dropped as too heavy for the gain: a typed reason on every `NumberInput`, the fixture in CI, and detectors in the catalog sweep. Reconsider them only if a wrong choice ships again after the catalogue exists.
 
 ## Order
 
 0. Fix the five reported defects, each with the detector that would have caught it.
-1. Choice table in DESIGN.md; inventory script and classification. Read-only apart from the docs and script.
-2. Capture, contact sheets, judgement pass, owner gallery, ranked findings.
-3. Shared-component fixes from the findings, point row first.
+1. The catalogue (`docs/controls.md`) with its links; inventory script and classification. Read-only apart from the docs and script.
+2. Capture, contact sheets, judgement pass, ranked findings.
+3. Shared-component fixes from the findings, point row first; the fixture's 310 px column and checks.
 4. Choice migration by family.
-5. Gates: typed reason, gallery fixture in CI, detectors in the catalog sweep, family template and review routing text.
 
-Steps 1 and 2 can run in parallel. Step 5's typed reason lands with the last family of step 4.
+Steps 1 and 2 can run in parallel.
 
 ## Acceptance
 
-1. Every control call site in graph and lesson code matches the choice table; each remaining `NumberInput` carries a reason; no local field helper remains.
-2. No detector fires on any of the 122 routes or on the gallery fixture, in the four views.
-3. Every distinct composition has a contact sheet, and the owner has marked the gallery; every marked item is fixed or recorded with a reason.
+1. Every control call site in graph and lesson code matches the choice table; no local field helper remains.
+2. No detector fires on any of the 122 routes or on the fixture, in the four views, at the closing sweep.
+3. Every distinct composition has a contact sheet the handler has looked at; every finding is fixed or recorded with a reason.
 4. The five reported defects are fixed, with before and after images in `docs/reviews/control-choice/`.
-5. The gallery fixture and detectors run in CI; the family template and review routing carry the new text.
+5. `docs/controls.md` has an entry and a picture for every shared control, and AGENTS.md and the family template link to it.
 6. Behaviour decided in shared graph controls is unchanged: commit timing, refusals, keyboard, Reset. Presets, routes and mathematical meaning are unchanged. Board size does not shrink below the visual-polish baseline.
 
 ## User impact
 
 Many typed number fields become sliders with an exact field, so values are set by dragging or arrow keys as well as typing. Point coordinates take one line per point. Some help lines under fields disappear. Lesson text that tells the student to type into a field is reworded where the control changes. No route or stored Preset changes.
 
-## Open to the owner
+## Owner direction, 2026-11-14
 
-- The point-row look (step 3 mockups).
-- Whether matrix entries stay typed fields or become sliders; the table keeps them typed until decided.
+- A catalogue file of the shared controls, so an agent sees what exists before writing a new one.
+- Design decisions are the handler's: no owner gallery and no mockup round.
+- Prevention stays light; the catalogue is the main measure.
