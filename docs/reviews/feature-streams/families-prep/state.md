@@ -1,6 +1,6 @@
 # Families-prep state note
 
-Handler 19 checkpoint, 2026-11-13 (rewrite at handoff). The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff.
+Handler 19 handed off on 2026-11-14 to handler 20. The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff. The worktree is on branch `worktree-stream-families-prep-2`. Rewrite this note at your handoff.
 
 ## Setup
 
@@ -30,17 +30,18 @@ Handler 19 checkpoint, 2026-11-13 (rewrite at handoff). The worktree is on branc
 
 - Handler 19:
   - **Linear-maps Batch C F3–F6 (task 09 done locally; push pending).** Lesson actions `choose-element`, `set-translation`, `set-pivot` (null drops), shared `enterMode` so `set-mode composition` adds R, F like the UI; L5 `linear-map-composition-affine` (7 steps; review fixes: step 2 opens on one reflection, the composition note no longer says the order matters); chapter section `composition-affine` between L4 and L6; card framed by the finite-fit exception in `captureRecipeForEntry`; composition labels via the shared greedy placer. F6: `just check` on `181e0a61`, smoke 7/7 (`.command-logs/lm-c/smoke-l5/report.md`), Presentation sl/en (`.command-logs/lm-c/f6-smoke/report.md`), `/bezier/affine` unchanged. Spec "F3 Batch C decisions"; notes `notes/lm-c-f3-s1.md`, `lm-c-f3-s2.md`, `lm-c-labels.md`; briefs `.command-logs/lm-c/brief-f3-*.md`, `brief-f5.md`, `brief-labels.md`.
+  - **390 px passes:** linear-map labels never cover a labelled point before the last resort (bounded search, desktop pinned) `f48e5bc1` (pushed `02f6a099`, CI green 43530509566); phase-portraits board texts at 390 px `209d1283` (legend pitch on narrow boards, caption shifts, tick numbers hidden under captions, logistic window pads the y numbers; five cards recaptured).
   - Setup findings: port 4471 is held by a foreign process (a capture against it fails "Served entry bundle set differs"); 4519 and 4533/4537 worked. Card captures: a change to `captureRecipeForEntry` changes the presentation fingerprint of every family (only partial recaptures check it). A publish can fail on a 15 s timeout of an unrelated test under load: rerun the test alone, then republish.
 
-## In flight
+## In flight at handoff
 
-- Nothing. Handler 19's eight commits (`889dee4a`..`8b96a7aa`) pushed as `b5525015`; master CI 43520832417 green and deployed. Base for the next publish: the local commit of this note.
+- `209d1283` (phase-portraits 390 px) publishes on base `f48e5bc1` (`.command-logs/publish-209d1283-c870d9.json`); this note's commit follows on base `209d1283`. Check `just publish --status` and the newest master run; if a publish failed, read its log, fix and republish on the same base.
 - No worker is running.
 
 ## Owed
 
-- Linear-maps composition mode: labels at 390 px still sit on markers (the placer's relaxed fallback ignores points); edits made in Presentation mode read back as the entry values after exit (seen in L5; likely shared shell, unconfirmed); smoke did not repeat steps 3–5 values in English or 390 px in English. The eigen-directions and power-method cards are byte-identical images (both lessons open in the basis mode).
-- Phase portraits at 390 px: legend rows still cross tick numbers and the seed caption on the pendulum, weak spiral and lesson step 2; the logistic legend clips y numbers (`.command-logs/pp-b/layout-smoke/report.md`). Captions overlap the curves at both sizes (curves stay visible). PP1/PP3 cards hide y numbers under the stacks (by design).
+- Linear-maps composition mode: at 390 px some labels drift a cell from their points (L5 step 1: T(P_0) top-left of its marker; step 4 allows one marker hit by design); the L7 inset does not use the placer (its 390 px overlap stays); edits made in Presentation mode read back as the entry values after exit (seen in L5; likely shared shell, unconfirmed); smoke did not repeat steps 3–5 values in English or 390 px in English. The eigen-directions and power-method cards are byte-identical images (both lessons open in the basis mode).
+- Phase portraits 390 px: verified only by the worker's screenshots and DOM boxes (`.command-logs/pp-b/layout390/`), not by a smoke worker; the compact legend is chosen once per build (resizing across 500 px keeps the first choice); some tick numbers are omitted under captions (by design). Legend text crosses curves at both sizes.
 - Shared shell (not this stream's): Presentation mode does not contain focus (5 of 30 Tab presses reach `body`); after a live sl→en switch the "In this chapter" side list shows raw `\(…\)` titles. Report to the Learn shell owner or fix with agreement.
 - Phase portraits: PP1 step 7 / PP2 step 5 free steps and the self-check text not opened in a browser; PP1 step 6's point at t = 6,28 checked only against the closed form; Slovenian lesson and chapter text reviewed by Sonnet only; the PP3 card shows the lesson's first scene (the linear system), not a pendulum.
 - Linear-maps tasks 08 and 11: Presentation mode and figure export of the eigen, ellipse, iterate and tracedet modes; touch drag; the example option "S_y" shows a literal underscore; L7 inset labels overlap at 390 px; L6 step 7 and L7 steps 5–7 controls not exercised in the browser; the Slovenian eigen help text ("povedana toleranca … nikoli točno") wants rewording; label overlaps at 390 px (N's σ₂, E's a₁/a₂).
@@ -50,7 +51,8 @@ Handler 19 checkpoint, 2026-11-13 (rewrite at handoff). The worktree is on branc
 
 ## Next
 
-1. Phase portraits 390 px layout and linear-maps 390 px labels (Owed) if the owner wants them before other families.
-2. F4 (chapter guided examples) per chapter once its F3 lessons exist; then the families' remaining batches per `docs/tasks/feature-streams/families-prep.md`.
+1. Confirm the two publishes and the master run.
+2. Optional: a Haiku smoke of the phase-portraits 390 px rows (`.command-logs/pp-b/brief-layout390.md` lists them) and the L7 inset labels.
+3. F4 (chapter guided examples) per chapter once its F3 lessons exist; then the families' remaining batches per `docs/tasks/feature-streams/families-prep.md`.
 
 Rules to keep: at most two workers in the stream at once, and only one worker editing the tree at a time (a read-only reviewer and a smoke worker may run beside it); never edit shared host files (`BaseGraph.tsx`, `GraphSession.ts`, `src/inputs/`, the lesson runtime, `src/graphs/base/` apart from test lists). At handoff, launch the successor from this worktree with `claude --bg --agent bezeg-handler --model opus --permission-mode auto --effort medium`, and pass this self-spawn rule on.
