@@ -15,7 +15,7 @@
 .demonstration-collection-layout { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); gap: 22px; align-items: start; }
 /* Bounded to the viewport so every topic stays reachable while the results scroll; the 4px inset keeps focus rings inside the scroll box. */
 .demonstration-topics { position: sticky; top: 18px; display: grid; gap: 5px; box-sizing: border-box; max-height: calc(100dvh - 36px); margin: -4px; padding: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--bezeg-shell-scroll-thumb) transparent; scrollbar-width: thin; }
-.demonstration-topics button { display: flex; min-width: 0; min-height: 44px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--bezeg-shell-choice-ink); text-align: left; font: inherit; cursor: pointer; transition: background-color 140ms ease; }
+.demonstration-topics button { display: flex; min-width: 0; min-height: 44px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--bezeg-shell-choice-ink); text-align: left; font: inherit; font-size: 14px; line-height: 1.35; cursor: pointer; transition: background-color 140ms ease; }
 .demonstration-topics button span:first-child { overflow-wrap: anywhere; }
 .demonstration-topics button span:last-child { flex: 0 0 auto; color: var(--bezeg-shell-label); font-size: 12px; font-variant-numeric: tabular-nums; }
 .demonstration-topics button:not([aria-pressed="true"]):hover { background: var(--bezeg-shell-control-hover); }
@@ -34,12 +34,15 @@
 .demonstration-card-open:focus-visible { outline: 3px solid var(--bezeg-shell-focus); outline-offset: -3px; }
 .demonstrations-catalog-title .demonstration-card-open { overflow-wrap: anywhere; color: inherit; font: inherit; line-height: inherit; }
 .demonstrations-catalog-copy { flex: 1 1 auto; padding: 12px 13px 4px; }
-.demonstrations-catalog-family { color: var(--bezeg-shell-label); font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+/* D02: the same small-caps eyebrow as the family line of the homepage carousel (.demonstrations-opening-family). */
+.demonstrations-catalog-family { display: block; color: var(--bezeg-shell-label); font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-transform: uppercase; }
 .demonstrations-catalog-title { overflow-wrap: anywhere; margin: 4px 0 7px; color: var(--bezeg-shell-ink); font-family: var(--bezeg-font-display); font-size: 19px; font-weight: var(--bezeg-type-title-weight); letter-spacing: var(--bezeg-type-item-tracking); line-height: var(--bezeg-type-item-leading); text-wrap: balance; }
 .demonstrations-catalog-copy p { margin: 0; color: var(--bezeg-shell-ink-secondary); font-size: 13px; line-height: 1.5; }
 /* 4px + 1px border + 8px action padding puts the first label on the copy's 13px edge. */
 .demonstrations-catalog-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 10px 12px 12px 4px; }
-.demonstrations-catalog-action { display: inline-flex; box-sizing: border-box; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; padding: 0 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--bezeg-shell-choice-ink); font: inherit; font-size: 12px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease; }
+.demonstrations-catalog-action { display: inline-flex; box-sizing: border-box; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; padding: 0 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--bezeg-shell-choice-ink); font: inherit; font-size: 13px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease; }
+/* D02: the arrow of the homepage actions marks these as links; it is decoration, so it stays out of the accessible name. */
+.demonstrations-catalog-action::after { margin-left: 6px; content: "→"; content: "→" / ""; }
 .demonstrations-catalog-lesson { color: var(--bezeg-shell-lesson-ink); }
 .demonstrations-catalog-graph:hover, .demonstrations-catalog-graph:focus-visible { border-color: var(--bezeg-shell-control-rule); background: var(--bezeg-shell-nav-active); }
 .demonstrations-catalog-lesson:hover, .demonstrations-catalog-lesson:focus-visible { border-color: #e3d4b6; background: var(--bezeg-shell-lesson-hover); }
