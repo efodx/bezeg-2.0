@@ -35,7 +35,8 @@ const curves = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 
 const finite = (values: number[]) => values.filter(Number.isFinite);
 
 const digits = (text: string | null | undefined) => (text ?? '').replace(/\s/g, '');
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-combinatorics-status]')!.textContent!;
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
@@ -474,20 +475,16 @@ describe('numeric input and keyboard', () => {
 });
 
 describe('controls', () => {
-    test('every numeric field and switch is described by the key help, which states the ranges', () => {
+    test('n, k and the letter counts are counters and t is a slider: the control shows the range, no shared help repeats it', () => {
         mountGraph();
-        const described = (label: string) => expect(field(label).getAttribute('aria-describedby') ?? '').toContain('combinatorics-counting-input-help');
-        for (const label of [nLabel(), kLabel(), t('combinatorics_counting_ordered'), t('combinatorics_counting_repetition')]) described(label);
+        expect(document.getElementById('combinatorics-counting-input-help')).toBeNull();
+        for (const label of [nLabel(), kLabel()]) expect(screen.getByRole('group', {name: label})).toBeTruthy();
         chooseView('multiset');
-        for (const letter of ['M', 'I', 'S', 'P']) described(letterLabel(letter));
+        for (const letter of ['M', 'I', 'S', 'P']) expect(screen.getByRole('group', {name: letterLabel(letter)})).toBeTruthy();
         chooseView('row');
-        for (const label of [rowNLabel(), rowKLabel(), tLabel()]) described(label);
-        const help = document.getElementById('combinatorics-counting-input-help')!.textContent!;
-        expect(help).toContain('od 0 do 20');
-        expect(help).toContain('od 0 do 12');
-        expect(help).toContain('od 0 do 1');
-        expect(help).toContain('po 0,01');
-        expect(help).toContain('Page gor');
+        for (const label of [rowNLabel(), rowKLabel()]) expect(screen.getByRole('group', {name: label})).toBeTruthy();
+        const range = screen.getByRole('slider', {name: tLabel()}) as HTMLInputElement;
+        expect([range.min, range.max, range.step]).toEqual(['0', '1', '0.01']);
     });
 
     test('examples are a select that lists only the examples of the view and shows custom while none matches', () => {

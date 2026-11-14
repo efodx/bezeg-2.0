@@ -3,7 +3,8 @@ import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
@@ -108,7 +109,6 @@ export const EXAMPLES: readonly Example[] = [
     {id: "hockey", view: "row", patch: {n: 7, k: 3}},
 ];
 
-const HELP_ID = "combinatorics-counting-input-help";
 const numberText = (value: number): string => formatNumber(value, currentLanguage(), 2);
 
 interface TreeData {
@@ -777,41 +777,38 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         ];
         if (view === "multiset") {
             LETTERS.forEach((letter, kind) => commands.push(
-                <NumberInput key={`count-${letter}`} label={t("combinatorics_counting_letter_count", {value0: letter})} value={state.counts[kind]} step={STEP}
-                             bigStep={COUNT_BIG_STEP} min={MULTISET_COUNT_RANGE.min} max={MULTISET_COUNT_RANGE.max} grid={1} decimals={0} describedBy={HELP_ID}
-                             onChange={value => this.editCount(kind, value)}/>,
+                <CountSetter key={`count-${letter}`} label={t("combinatorics_counting_letter_count", {value0: letter})} n={state.counts[kind]}
+                             min={MULTISET_COUNT_RANGE.min} max={MULTISET_COUNT_RANGE.max} bigStep={COUNT_BIG_STEP}
+                             onPlus={() => this.editCount(kind, state.counts[kind] + 1)} onMinus={() => this.editCount(kind, state.counts[kind] - 1)}
+                             onSet={value => this.editCount(kind, value)}/>,
             ));
         } else {
-            const kRange = this.kRange();
+            const nRange = view === "row" ? ROW_N_RANGE : COUNT_N_RANGE;
+            const k = view === "row" ? this.rowPlace() : state.k;
             commands.push(
-                <NumberInput key="n" label={t(view === "row" ? "combinatorics_counting_row_n_label" : "combinatorics_counting_n_label")} value={state.n}
-                             step={STEP} bigStep={BIG_STEP} min={(view === "row" ? ROW_N_RANGE : COUNT_N_RANGE).min}
-                             max={(view === "row" ? ROW_N_RANGE : COUNT_N_RANGE).max} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editN(value)}/>,
-                <NumberInput key="k" label={t(view === "row" ? "combinatorics_counting_row_k_label" : "combinatorics_counting_k_label")}
-                             value={view === "row" ? this.rowPlace() : state.k} step={STEP} bigStep={BIG_STEP} min={kRange.min} max={kRange.max} grid={1} decimals={0}
-                             describedBy={HELP_ID} onChange={value => this.editK(value)}/>,
+                <CountSetter key="n" label={t(view === "row" ? "combinatorics_counting_row_n_label" : "combinatorics_counting_n_label")} n={state.n}
+                             min={nRange.min} max={nRange.max} bigStep={BIG_STEP}
+                             onPlus={() => this.editN(state.n + 1)} onMinus={() => this.editN(state.n - 1)} onSet={value => this.editN(value)}/>,
+                <CountSetter key="k" label={t(view === "row" ? "combinatorics_counting_row_k_label" : "combinatorics_counting_k_label")} n={k}
+                             min={() => this.kRange().min} max={() => this.kRange().max} bigStep={BIG_STEP}
+                             onPlus={() => this.editK(k + 1)} onMinus={() => this.editK(k - 1)} onSet={value => this.editK(value)}/>,
             );
         }
         if (view === "choices") {
             commands.push(
-                <BooleanField key="ordered" variant="switch" label={t("combinatorics_counting_ordered")} checked={state.ordered} describedBy={HELP_ID}
+                <BooleanField key="ordered" variant="switch" label={t("combinatorics_counting_ordered")} checked={state.ordered}
                               onChange={checked => this.setFlag({ordered: checked})}/>,
-                <BooleanField key="repetition" variant="switch" label={t("combinatorics_counting_repetition")} checked={state.repetition} describedBy={HELP_ID}
+                <BooleanField key="repetition" variant="switch" label={t("combinatorics_counting_repetition")} checked={state.repetition}
                               onChange={checked => this.setFlag({repetition: checked})}/>,
             );
         }
         if (view === "row") {
             commands.push(
-                <NumberInput key="t" label={t("combinatorics_counting_t_label")} value={state.t / T_DENOMINATOR} step={T_STEP} bigStep={T_BIG_STEP}
-                             min={T_RANGE.min / T_DENOMINATOR} max={T_RANGE.max / T_DENOMINATOR} grid={T_STEP} decimals={2} describedBy={HELP_ID}
-                             onChange={value => this.editT(value)}/>,
+                <Slider key="t" customText={t("combinatorics_counting_t_label")} value={state.t / T_DENOMINATOR} step={T_STEP} bigStep={T_BIG_STEP}
+                        min={T_RANGE.min / T_DENOMINATOR} max={T_RANGE.max / T_DENOMINATOR} grid={T_STEP} decimals={2}
+                        onChange={value => this.editT(value)}/>,
             );
         }
-        commands.push(<p key="help" id={HELP_ID} className="form-text">{t("combinatorics_counting_input_help", {
-            value0: smallText(COUNT_N_RANGE.min), value1: smallText(COUNT_N_RANGE.max), value2: smallText(MULTISET_COUNT_RANGE.min),
-            value3: smallText(MULTISET_COUNT_RANGE.max), value4: numberText(T_RANGE.min / T_DENOMINATOR), value5: numberText(T_RANGE.max / T_DENOMINATOR),
-            value6: numberText(T_STEP), value7: numberText(T_BIG_STEP),
-        })}</p>);
         return commands;
     }
 

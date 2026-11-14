@@ -47,10 +47,12 @@ const curves = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 
 const finite = (values: number[]) => values.filter(Number.isFinite);
 
 const digits = (text: string | null | undefined) => (text ?? '').replace(/\s/g, '');
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-combinatorics-status]')!.textContent!;
-const lattice = (key: 'a' | 'b' | 'route' | 'n' | 'c') => t(`combinatorics_lattice_${key}_label`);
+/** The target's two fields are one point row named T. */
+const lattice = (key: 'a' | 'b' | 'route' | 'n' | 'c') => key === 'a' || key === 'b' ? `T, ${key}` : t(`combinatorics_lattice_${key}_label`);
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
 const chooseView = (view: 'paths' | 'triangle' | 'expansion') => choose(t('combinatorics_view_label'), view);
 const set = (graph: ObservedGraph, patch: Parameters<ObservedGraph['setState']>[0]) => act(() => { graph.setState(patch); });
@@ -376,10 +378,10 @@ describe('target, keyboard and touch', () => {
         expect(graph.state.a).toBe(7);
         enterNumber(field(lattice('b')), 'tri');
         expect(graph.state.b).toBe(3);
-        const targets = graph as unknown as {editTarget(field: 'a' | 'b', value: number): boolean};
+        const targets = graph as unknown as {editTarget(a: number, b: number): boolean};
         expectTypedRefusals((label, text) => enterNumber(field(label), text), [
-            {field: lattice('a'), read: () => graph.state.a, min: 0, max: 20, whole: true, edit: value => targets.editTarget('a', value)},
-            {field: lattice('b'), read: () => graph.state.b, min: 0, max: 20, whole: true, edit: value => targets.editTarget('b', value)},
+            {field: lattice('a'), read: () => graph.state.a, min: 0, max: 20, whole: true, edit: value => targets.editTarget(value, graph.state.b)},
+            {field: lattice('b'), read: () => graph.state.b, min: 0, max: 20, whole: true, edit: value => targets.editTarget(graph.state.a, value)},
         ]);
         enterNumber(field(lattice('route')), '0');
         expect(graph.state.route).toBe(0);
@@ -392,13 +394,13 @@ describe('target, keyboard and touch', () => {
         enterNumber(field(lattice('c')), '-3');
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
         // Refused, not clamped (the generic refusal is sharedControlBehaviour); the ranges are this graph's.
-        const edits = graph as unknown as {editTarget(field: 'a' | 'b', value: number): boolean; editExpansion(field: 'n' | 'c', value: number): boolean};
+        const edits = graph as unknown as {editTarget(a: number, b: number): boolean; editExpansion(field: 'n' | 'c', value: number): boolean};
         expectTypedRefusals((label, text) => enterNumber(field(label), text), [
             {field: lattice('n'), read: () => graph.state.n, min: 0, max: 12, whole: true, edit: value => edits.editExpansion('n', value)},
             {field: lattice('c'), read: () => graph.state.c, min: -9, max: 9, whole: true, edit: value => edits.editExpansion('c', value)},
         ]);
         expect([graph.state.n, graph.state.c]).toEqual([4, -3]);
-        expect(edits.editTarget('a', 8)).toBe(true);
+        expect(edits.editTarget(8, graph.state.b)).toBe(true);
         expect(graph.state.a).toBe(8);
     });
 
@@ -424,19 +426,18 @@ describe('target, keyboard and touch', () => {
 });
 
 describe('controls', () => {
-    test('every numeric field and switch is described by the key help, which states the ranges', () => {
+    test('the target is one point row, the route and c are sliders, n a counter: the control shows the range, no shared help repeats it', () => {
         mountGraph();
-        const described = (label: string) => expect(field(label).getAttribute('aria-describedby') ?? '').toContain('combinatorics-lattice-input-help');
-        for (const label of [lattice('a'), lattice('b'), lattice('route'), t('combinatorics_lattice_show_counts'), t('combinatorics_lattice_split')]) described(label);
+        expect(document.getElementById('combinatorics-lattice-input-help')).toBeNull();
+        expect(screen.getByRole('group', {name: 'T'})).toBeTruthy();
+        for (const label of [lattice('a'), lattice('b')]) expect(field(label)).toBeTruthy();
+        expect(screen.getByRole('slider', {name: lattice('route')})).toBeTruthy();
         chooseView('triangle');
-        for (const label of [lattice('a'), lattice('b')]) described(label);
+        for (const label of [lattice('a'), lattice('b')]) expect(field(label)).toBeTruthy();
         chooseView('expansion');
-        for (const label of [lattice('n'), lattice('c')]) described(label);
-        const help = document.getElementById('combinatorics-lattice-input-help')!.textContent!;
-        expect(help).toContain('od 0 do 20');
-        expect(help).toContain('od 0 do 12');
-        expect(help).toContain('od −9 do 9');
-        expect(help).toContain('Page gor');
+        expect(screen.getByRole('group', {name: lattice('n')})).toBeTruthy();
+        const c = screen.getByRole('slider', {name: lattice('c')}) as HTMLInputElement;
+        expect([c.min, c.max]).toEqual(['-9', '9']);
     });
 
     test('the page setter names the page of the list; examples are chosen by a select with a custom entry', () => {

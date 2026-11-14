@@ -25,7 +25,8 @@ const apply = (graph: LatticePathGraph, action: LessonAction) => act(() => { gra
 const setTarget = (a: number, b: number): LessonAction => ({kind: 'combinatorics', operation: 'set-target', a, b});
 const setDisplay = (view: 'paths' | 'triangle', showCounts: boolean, split?: boolean): LessonAction =>
     ({kind: 'combinatorics', operation: 'set-lattice-display', view, showCounts, ...(split === undefined ? {} : {split})});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
 const click = (label: string) => act(() => { fireEvent.click(field(label)); });
@@ -45,7 +46,7 @@ function after(edit: (graph: LatticePathGraph) => void) {
 test('set-target reaches the state, readouts and status of typing a and b into the fields', () => {
     for (const [a, b] of [[2, 2], [6, 6], [0, 7], [20, 20], [3, 5]] as const) {
         const viaAction = after(graph => apply(graph, setTarget(a, b)));
-        const viaControl = after(() => { type(t('combinatorics_lattice_a_label'), String(a)); type(t('combinatorics_lattice_b_label'), String(b)); });
+        const viaControl = after(() => { type('T, a', String(a)); type('T, b', String(b)); });
         expect({a, b, ...viaAction}).toEqual({a, b, ...viaControl});
         expect(viaAction.state).toEqual(expect.objectContaining({a, b, route: 0}));
     }
@@ -63,7 +64,7 @@ test('set-target restarts the route at the first one, like a moved target', () =
 test('set-lattice-display reaches the state, readouts and status of the Vsebina select and the count-label switch', () => {
     const viaAction = after(graph => { apply(graph, setTarget(5, 3)); apply(graph, setDisplay('paths', true)); apply(graph, setDisplay('triangle', true)); });
     const viaControl = after(() => {
-        type(t('combinatorics_lattice_a_label'), '5'); type(t('combinatorics_lattice_b_label'), '3');
+        type('T, a', '5'); type('T, b', '3');
         click(t('combinatorics_lattice_show_counts'));
         choose(t('combinatorics_view_label'), 'triangle');
     });
@@ -98,7 +99,7 @@ test('set-expansion leaves the target, route and switches alone', () => {
 test('set-lattice-display with split reaches the state, readouts and status of the switch; without split the switch is unchanged', () => {
     const viaAction = after(graph => { apply(graph, setTarget(4, 3)); apply(graph, setDisplay('paths', false, true)); });
     const viaControl = after(() => {
-        type(t('combinatorics_lattice_a_label'), '4'); type(t('combinatorics_lattice_b_label'), '3');
+        type('T, a', '4'); type('T, b', '3');
         click(t('combinatorics_lattice_split'));
     });
     expect(viaAction).toEqual(viaControl);

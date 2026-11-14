@@ -2,7 +2,8 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {onLanguageChange, t} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {PointListInput} from "../../inputs/PointListInput";
 import {CountSetter} from "../../inputs/CountSetter";
 import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow, ReadoutScrollTable} from "../base/controls/ReadoutParts";
@@ -65,7 +66,6 @@ const TARGET_EXAMPLES: readonly (readonly [number, number])[] = [[2, 2], [5, 3],
 const EXPANSION_EXAMPLES: readonly (readonly [number, number])[] = [[4, 1], [5, 2]];
 
 const exampleId = (first: number, second: number): string => `${first},${second}`;
-const HELP_ID = "combinatorics-lattice-input-help";
 
 interface Cell {
     readonly x: number;
@@ -562,11 +562,11 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
 
     // ---- Editing from the panel: typed values are refused when invalid; only the drag snaps (it has no message to give) -------------
 
-    private editTarget(field: "a" | "b", value: number): boolean {
-        const typed = this.typed(value, TARGET_RANGE, field);
-        if (typed === undefined) return false;
-        if (field === "a") this.setTarget(typed, this.state.b);
-        else this.setTarget(this.state.a, typed);
+    private editTarget(a: number, b: number): boolean {
+        const typedA = this.typed(a, TARGET_RANGE, "a");
+        const typedB = this.typed(b, TARGET_RANGE, "b");
+        if (typedA === undefined || typedB === undefined) return false;
+        this.setTarget(typedA, typedB);
         this.requestRender();
         return true;
     }
@@ -717,10 +717,9 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
     private targetInputs(): JSX.Element[] {
         const {a, b} = this.state;
         return [
-            <NumberInput key="a" label={t("combinatorics_lattice_a_label")} value={a} step={STEP} bigStep={TARGET_BIG_STEP} min={TARGET_RANGE.min}
-                         max={TARGET_RANGE.max} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editTarget("a", value)}/>,
-            <NumberInput key="b" label={t("combinatorics_lattice_b_label")} value={b} step={STEP} bigStep={TARGET_BIG_STEP} min={TARGET_RANGE.min}
-                         max={TARGET_RANGE.max} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editTarget("b", value)}/>,
+            <PointListInput key="target" title={t("combinatorics_lattice_target_title")} points={[[a, b]]} pointLabel={() => "T"} axisLabels={["a", "b"]}
+                            min={TARGET_RANGE.min} max={TARGET_RANGE.max} step={STEP} bigStep={TARGET_BIG_STEP} grid={1} decimals={0} integer
+                            onCommit={(_index, [nextA, nextB]) => this.editTarget(nextA, nextB) ? undefined : t("combinatorics_lattice_target_rejected")}/>,
         ];
     }
 
@@ -745,10 +744,11 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         ];
         if (view === "expansion") {
             commands.push(
-                <NumberInput key="n" label={t("combinatorics_lattice_n_label")} value={state.n} step={STEP} bigStep={EXPANSION_BIG_STEP} min={EXPANSION_N_RANGE.min}
-                             max={EXPANSION_N_RANGE.max} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editExpansion("n", value)}/>,
-                <NumberInput key="c" label={t("combinatorics_lattice_c_label")} value={state.c} step={STEP} bigStep={EXPANSION_BIG_STEP} min={EXPANSION_C_RANGE.min}
-                             max={EXPANSION_C_RANGE.max} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editExpansion("c", value)}/>,
+                <CountSetter key="n" label={t("combinatorics_lattice_n_label")} n={state.n} min={EXPANSION_N_RANGE.min} max={EXPANSION_N_RANGE.max}
+                             bigStep={EXPANSION_BIG_STEP} onPlus={() => this.editExpansion("n", state.n + 1)}
+                             onMinus={() => this.editExpansion("n", state.n - 1)} onSet={value => this.editExpansion("n", value)}/>,
+                <Slider key="c" customText={t("combinatorics_lattice_c_label")} value={state.c} step={STEP} bigStep={EXPANSION_BIG_STEP}
+                        min={EXPANSION_C_RANGE.min} max={EXPANSION_C_RANGE.max} grid={1} onChange={value => this.editExpansion("c", value)}/>,
             );
         } else {
             commands.push(...this.targetInputs());
@@ -757,8 +757,8 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             const lattice = this.lattice();
             if (lattice.enumerable) {
                 commands.push(
-                    <NumberInput key="route" label={t("combinatorics_lattice_route_label")} value={state.route + 1} step={STEP} bigStep={ROUTE_BIG_STEP}
-                                 min={1} max={Number(lattice.count)} grid={1} decimals={0} describedBy={HELP_ID} onChange={value => this.editRoute(value)}/>,
+                    <Slider key="route" customText={t("combinatorics_lattice_route_label")} value={state.route + 1} step={STEP} bigStep={ROUTE_BIG_STEP}
+                            min={1} max={Number(lattice.count)} grid={1} onChange={value => this.editRoute(value)}/>,
                     <CountSetter key="page" label={t("combinatorics_lattice_page_label")} n={lattice.page + 1} min={1} max={lattice.pages} bigStep={5}
                                  help={t("combinatorics_lattice_routes_list", {value0: smallText(lattice.page + 1), value1: smallText(lattice.pages)})}
                                  onPlus={() => this.goToPage(lattice.page + 1)} onMinus={() => this.goToPage(lattice.page - 1)}
@@ -767,16 +767,10 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             }
             const reason = lattice.enumerable ? undefined : this.capMessage();
             commands.push(
-                <BooleanField key="counts" variant="switch" label={t("combinatorics_lattice_show_counts")} checked={state.showCounts}
-                              describedBy={HELP_ID} unavailableReason={reason} onChange={checked => this.setState({showCounts: checked})}/>,
-                <BooleanField key="split" variant="switch" label={t("combinatorics_lattice_split")} checked={state.split}
-                              describedBy={HELP_ID} unavailableReason={reason} onChange={checked => this.setState({split: checked})}/>,
+                <BooleanField key="counts" variant="switch" label={t("combinatorics_lattice_show_counts")} checked={state.showCounts} unavailableReason={reason} onChange={checked => this.setState({showCounts: checked})}/>,
+                <BooleanField key="split" variant="switch" label={t("combinatorics_lattice_split")} checked={state.split} unavailableReason={reason} onChange={checked => this.setState({split: checked})}/>,
             );
         }
-        commands.push(<p key="help" id={HELP_ID} className="form-text">{t("combinatorics_lattice_input_help", {
-            value0: smallText(TARGET_RANGE.min), value1: smallText(TARGET_RANGE.max), value2: smallText(EXPANSION_N_RANGE.min),
-            value3: smallText(EXPANSION_N_RANGE.max), value4: smallText(EXPANSION_C_RANGE.min), value5: smallText(EXPANSION_C_RANGE.max),
-        })}</p>);
         return commands;
     }
 

@@ -25,7 +25,8 @@ const apply = (graph: CountingTreeGraph, action: LessonAction) => act(() => { gr
 const choices = (n: number, k: number, ordered: boolean, repetition: boolean): LessonAction =>
     ({kind: 'combinatorics', operation: 'set-counting-mode', view: 'choices', n, k, ordered, repetition});
 const multiset = (counts: readonly [number, number, number, number]): LessonAction => ({kind: 'combinatorics', operation: 'set-counting-mode', view: 'multiset', counts});
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
 const click = (label: string) => act(() => { fireEvent.click(field(label)); });

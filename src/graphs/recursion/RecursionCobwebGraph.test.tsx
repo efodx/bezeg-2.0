@@ -57,14 +57,17 @@ const shown = (graph: ObservedGraph) => texts(graph).filter(o => o.evalVisProp('
 /** What the scene owns: the three curves, six captions, and three points (fixed point, iterate, start handle). */
 const SCENE_OBJECTS = 3 + 6 + 3;
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-recursion-status]')!.textContent!;
 const button = (label: string) => screen.getByRole('button', {name: label});
 const press = (label: string) => act(() => { fireEvent.click(button(label)); });
 const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const chooseMap = (map: string) => act(() => { fireEvent.change(field(t('recursion_graph_map_label')), {target: {value: map}}); });
-const slider = () => screen.getByRole('slider') as HTMLInputElement;
+const slider = () => screen.getByRole('slider', {name: t('recursion_graph_speed_label')}) as HTMLInputElement;
+/** The range input of a slider named `label`. */
+const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as HTMLInputElement;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 /** The text a field is described by (its help), found through aria-describedby. */
 const described = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean)
@@ -236,18 +239,25 @@ describe('the kind of the fixed point is said in words', () => {
 });
 
 describe('fields: ranges, help, refusal, the program-changed start', () => {
-    test('every field is linked to a help that states its range and step; the start range follows the map', () => {
+    test('m, c, r and the start are sliders whose range and step are theirs; only help that explains stays; the start range follows the map', () => {
         mountGraph();
-        expect(described(field(t('recursion_graph_m_label')))).toBe(t('recursion_graph_m_help', {value0: '−3', value1: '3', value2: '0,05'}));
-        expect(described(field(t('recursion_graph_c_label')))).toBe(t('recursion_graph_c_help', {value0: '−10', value1: '10', value2: '0,1'}));
-        expect(described(field(t('recursion_graph_x_label')))).toBe(t('recursion_graph_x_help', {value0: '−10', value1: '10', value2: '0,01'}));
+        const shape = (label: string) => { const input = rangeOf(label); return [input.min, input.max, input.step]; };
+        expect(shape(t('recursion_graph_m_label'))).toEqual(['-3', '3', '0.05']);
+        expect(shape(t('recursion_graph_c_label'))).toEqual(['-10', '10', '0.1']);
+        expect(shape(t('recursion_graph_x_label'))).toEqual(['-10', '10', '0.01']);
+        expect(described(rangeOf(t('recursion_graph_m_label')))).not.toContain('večkratnik');
+        expect(described(rangeOf(t('recursion_graph_c_label')))).not.toContain('večkratnik');
+        expect(described(rangeOf(t('recursion_graph_x_label')))).toContain(t('recursion_graph_x_help'));
         expect(described(field(t('recursion_graph_map_label')))).toBe(t('recursion_graph_map_help'));
         chooseMap('logistic');
-        expect(described(field(t('recursion_graph_r_label')))).toBe(t('recursion_graph_r_help', {value0: '0,5', value1: '2,9', value2: '0,1'}));
-        expect(described(field(t('recursion_graph_x_label')))).toBe(t('recursion_graph_x_help_logistic', {value0: '0,01', value1: '0,99', value2: '0,01'}));
+        expect(shape(t('recursion_graph_r_label'))).toEqual(['0.5', '2.9', '0.1']);
+        expect(described(rangeOf(t('recursion_graph_r_label')))).toContain(t('recursion_graph_r_help'));
+        expect(shape(t('recursion_graph_x_label'))).toEqual(['0.01', '0.99', '0.01']);
+        expect(described(rangeOf(t('recursion_graph_x_label')))).toContain(t('recursion_graph_x_help_logistic'));
         chooseMap('cosine');
-        expect(described(field(t('recursion_graph_x_label')))).toBe(t('recursion_graph_x_help', {value0: '−2', value1: '2', value2: '0,01'}));
-        expect(screen.queryByLabelText(t('recursion_graph_m_label'))).toBeNull();
+        expect(shape(t('recursion_graph_x_label'))).toEqual(['-2', '2', '0.01']);
+        expect(described(rangeOf(t('recursion_graph_x_label')))).toContain(t('recursion_graph_x_help'));
+        expect(screen.queryByRole('slider', {name: t('recursion_graph_m_label')})).toBeNull();
     });
 
     test('the speed slider shows its range in its help', () => {
@@ -653,7 +663,7 @@ describe('language', () => {
         act(() => { graph.setState({step: 2}); });
         act(() => { setLanguage('en'); });
         expect(document.querySelector(`[aria-label="${t('recursion_graph_board_label')}"]`)).not.toBeNull();
-        expect(field(t('recursion_graph_m_label')).labels![0].textContent).toBe(t('recursion_graph_m_label'));
+        expect(rangeOf(t('recursion_graph_m_label'))).toBeTruthy();
         expect(shown(graph)).toContain(t('recursion_graph_cap_start', {value0: '0'}));
         expect(shown(graph)).toContain(t('recursion_graph_cap_map_affine', {value0: 'y = 0.5·x + 1'}));
         expect(status()).toContain(t('recursion_graph_status_attracting', {value0: '2'}));

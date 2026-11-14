@@ -5,7 +5,6 @@ import type {SceneStateUpdate} from "../base/SceneStore";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, formatScientific} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
 import Slider from "../../inputs/Slider";
 import {ReadoutHeading, ReadoutHelp, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
@@ -561,27 +560,27 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         ];
         if (state.map === "affine") {
             commands.push(
-                <NumberInput key="m" label={t("recursion_graph_m_label")} value={state.M / M_SCALE} step={1 / M_SCALE} bigStep={1} min={M_RANGE.min / M_SCALE}
-                             max={M_RANGE.max / M_SCALE} grid={1 / M_SCALE} decimals={2} help={t("recursion_graph_m_help", this.fieldRange(M_RANGE.min, M_RANGE.max, M_SCALE))}
-                             rejectedHint={t("recursion_graph_m_rejected", this.fieldRange(M_RANGE.min, M_RANGE.max, M_SCALE))} onChange={value => this.editSlope(value)}/>,
-                <NumberInput key="c" label={t("recursion_graph_c_label")} value={state.C / C_SCALE} step={1 / C_SCALE} bigStep={1} min={C_RANGE.min / C_SCALE}
-                             max={C_RANGE.max / C_SCALE} grid={1 / C_SCALE} decimals={1} help={t("recursion_graph_c_help", this.fieldRange(C_RANGE.min, C_RANGE.max, C_SCALE))}
-                             rejectedHint={t("recursion_graph_c_rejected", this.fieldRange(C_RANGE.min, C_RANGE.max, C_SCALE))} onChange={value => this.editIntercept(value)}/>,
+                <Slider key="m" customText={t("recursion_graph_m_label")} value={state.M / M_SCALE} step={1 / M_SCALE} bigStep={1} min={M_RANGE.min / M_SCALE}
+                        max={M_RANGE.max / M_SCALE} grid={1 / M_SCALE} decimals={2}
+                        rejectedHint={t("recursion_graph_m_rejected", this.fieldRange(M_RANGE.min, M_RANGE.max, M_SCALE))} onChange={value => this.editSlope(value)}/>,
+                <Slider key="c" customText={t("recursion_graph_c_label")} value={state.C / C_SCALE} step={1 / C_SCALE} bigStep={1} min={C_RANGE.min / C_SCALE}
+                        max={C_RANGE.max / C_SCALE} grid={1 / C_SCALE} decimals={1}
+                        rejectedHint={t("recursion_graph_c_rejected", this.fieldRange(C_RANGE.min, C_RANGE.max, C_SCALE))} onChange={value => this.editIntercept(value)}/>,
             );
         } else if (state.map === "logistic") {
             commands.push(
-                <NumberInput key="r" label={t("recursion_graph_r_label")} value={state.R / R_SCALE} step={1 / R_SCALE} bigStep={0.5} min={R_RANGE.min / R_SCALE}
-                             max={R_RANGE.max / R_SCALE} grid={1 / R_SCALE} decimals={1} help={t("recursion_graph_r_help", this.fieldRange(R_RANGE.min, R_RANGE.max, R_SCALE))}
-                             rejectedHint={t("recursion_graph_r_rejected", this.fieldRange(R_RANGE.min, R_RANGE.max, R_SCALE))} onChange={value => this.editRate(value)}/>,
+                <Slider key="r" customText={t("recursion_graph_r_label")} value={state.R / R_SCALE} step={1 / R_SCALE} bigStep={0.5} min={R_RANGE.min / R_SCALE}
+                        max={R_RANGE.max / R_SCALE} grid={1 / R_SCALE} decimals={1} help={t("recursion_graph_r_help")}
+                        rejectedHint={t("recursion_graph_r_rejected", this.fieldRange(R_RANGE.min, R_RANGE.max, R_SCALE))} onChange={value => this.editRate(value)}/>,
             );
         }
         const range = startRange(state.map);
         const logistic = state.map === "logistic";
         const startArgs = this.fieldRange(range.min, range.max, X_SCALE);
         commands.push(
-            <NumberInput key="x" label={t("recursion_graph_x_label")} value={startOf(state.X)} step={1 / X_SCALE} bigStep={0.1} min={range.min / X_SCALE}
-                         max={range.max / X_SCALE} grid={1 / X_SCALE} decimals={2} help={t(logistic ? "recursion_graph_x_help_logistic" : "recursion_graph_x_help", startArgs)}
-                         rejectedHint={t(logistic ? "recursion_graph_x_rejected_logistic" : "recursion_graph_x_rejected", startArgs)} onChange={value => this.editStart(value)}/>,
+            <Slider key="x" customText={t("recursion_graph_x_label")} value={startOf(state.X)} step={1 / X_SCALE} bigStep={0.1} min={range.min / X_SCALE}
+                    max={range.max / X_SCALE} grid={1 / X_SCALE} decimals={2} help={t(logistic ? "recursion_graph_x_help_logistic" : "recursion_graph_x_help")}
+                    rejectedHint={t(logistic ? "recursion_graph_x_rejected_logistic" : "recursion_graph_x_rejected", startArgs)} onChange={value => this.editStart(value)}/>,
         );
         return commands;
     }
