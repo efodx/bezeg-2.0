@@ -22,7 +22,7 @@ The preview on port 4331 is closed; everything is on the public site.
 | M03 stage 1 (cursor) | Published | master `6f6dd0dd` |
 | M03 stage 2 (labels, compact) | Published, owner approved the compact size | master `be63438c` |
 | Spec close-out | Done | spec status, evidence table, "not converted" |
-| M03 stage 2 follow-up (circle constructions, kinematics) and the missing evidence | Published | this commit's parent `0e55f534` |
+| M03 stage 2 follow-up (circle constructions, kinematics) and the missing evidence | Published | `0e55f534`, docs `0a7cddfc` |
 
 ## Open, not part of this spec
 
@@ -40,8 +40,10 @@ The preview on port 4331 is closed; everything is on the public site.
 - The catalog clip did not start in the scripted hover at 1440 px (it did at 1024 and 390 px).
 - Accessible names of the chapter controls were checked as link text and one `toHaveAccessibleName`, not through a browser's accessibility tree.
 - The header mark in presentation mode (night header) was not looked at.
-- Hover cursor in a browser: `complex-roots` (square handle), `bspline/basis`, `Descent`, and the composition, eigen and iteration views of the linear map.
-- Label stage: only the default view of each graph was looked at; no separate smoke run beyond the publish gate; drag cost with typeset labels not measured; the new label assertions of CrossRatio, ThreeViews, LineGeometry, TriangleSolver and Descent were not seen failing before the change.
+- Label stage: the 18 graphs of stage 2 were looked at in their default view only; no separate smoke run beyond the publish gate.
+- In the linear map's eigen view the probe's drag left the first handle where it started (also on the public site); not investigated.
+
+Closed by handler 3: hover on the six views listed before (all `pointer` then `default`), drag with typeset labels on six graphs (16.7 ms median, no long task), and the five label assertions seen failing on the pre-change sources. Details in the spec's "not converted".
 
 ## Working tree
 
