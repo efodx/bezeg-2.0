@@ -158,7 +158,7 @@ const boardGeometry = (page, withJets = false) => page.locator('#jgbox').evaluat
     const board = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
     const curves = Object.values(board.objects).filter(o => o.elType === 'curve' && o.visProp?.visible !== false && o.rendNode && getComputedStyle(o.rendNode).display !== 'none');
     const markerObjects=Object.values(board.objects).filter(o=>o.elType==='point'&&o.visProp?.visible!==false&&o.rendNode&&getComputedStyle(o.rendNode).display!=='none'
-        &&(o.visProp.fillColor==='#a48752'||getComputedStyle(o.rendNode).fill==='rgb(164, 135, 82)'));
+        &&(o.visProp.fillColor==='#6175ad'||getComputedStyle(o.rendNode).fill==='rgb(97, 117, 173)'));
     const visibleObjects=Object.values(board.objects).filter(o=>o.visProp?.visible!==false&&o.rendNode&&getComputedStyle(o.rendNode).display!=='none');
     const visiblePoints=visibleObjects.filter(o=>o.elType==='point'&&typeof o.X==='function'&&typeof o.Y==='function')
         .map(o=>({x:o.X(),y:o.Y()}));

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B4, offsets and parameterization</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Batch B4: PH offsets and parameterization (G02, G05)</h1>
+<p>Seven catalog captures, before and after. <a href="index.html">Pilot page</a>, <a href="b1.html">B1 probability</a>, <a href="b2.html">B2 interpolation</a>, <a href="b3.html">B3 Bézier</a>.</p>
+<h2>1. PH curve, degree 3</h2>
+<p>The offsets are now one solid blue family, thinner than the green base curve and fading outward. The arc-length readout and the point names are removed from the capture.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/ph-cubic.webm" poster="b4/before/ph-cubic.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/ph-cubic.webm" poster="b4/after/ph-cubic.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. PH curve, degree 5</h2>
+<p>Same blue offset family as the cubic. The arc-length readout is removed.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/ph-quintic.webm" poster="b4/before/ph-quintic.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/ph-quintic.webm" poster="b4/after/ph-quintic.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Uniform parameterization</h2>
+<p>The sample markers are larger, blue, with a light outline, so they read apart from the green curve and the ochre control points. The arc-length readout is removed.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/uniform-parameterization.webm" poster="b4/before/uniform-parameterization.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/uniform-parameterization.webm" poster="b4/after/uniform-parameterization.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>4. Weighted parameterization</h2>
+<p>Blue outlined sample markers. No board text, so no text change.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/weighted-parameterization.webm" poster="b4/before/weighted-parameterization.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/weighted-parameterization.webm" poster="b4/after/weighted-parameterization.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>5. Spline parameterization</h2>
+<p>Blue outlined sample markers. No board text, so no text change.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/spline-parameterization.webm" poster="b4/before/spline-parameterization.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/spline-parameterization.webm" poster="b4/after/spline-parameterization.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>6. Arc-length parameterization</h2>
+<p>The t, s(t) and L readouts are removed; the curve fills more of the frame as a result. The blue and square markers are unchanged.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/arc-length-param.webm" poster="b4/before/arc-length-param.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/arc-length-param.webm" poster="b4/after/arc-length-param.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>7. Initial Bezier curve</h2>
+<p>Recaptured now that the clip is unblocked; the framing window is tighter so the curve and polygon fill more of the card.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="b4/before/bezier.webm" poster="b4/before/bezier.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="b4/after/bezier.webm" poster="b4/after/bezier.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+</main>
+</body>
+</html>

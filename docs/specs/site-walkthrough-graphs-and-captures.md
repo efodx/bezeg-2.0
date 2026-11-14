@@ -419,3 +419,14 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b3/` (served as `walkthr
 - `reduction`: the reduced curve has its own thin blue polygon with diamond markers. On the default scene the two curves nearly coincide, so the polygons carry the distinction (R-yardstick: roles told apart by polygon, not by curve). Text: Remove. Drag amplitude 3.1 (was 3.3) to keep the clip at 270 KiB.
 - `affine`: unchanged. Its controls are step buttons, so the clip stays discrete; a pale reference of the original needs new drawing code.
 - `bezier`: unchanged, **blocked**: the legacy drag clip's restore step clicks `.point-coordinate-editor summary` (`scripts/demonstration-preview-motion.cjs:508`), a class the inspector no longer has, so `bezier` cannot be recaptured and a full regeneration fails there. Repair the restore step against the current coordinate controls before B3's `bezier` item or any full run.
+
+### B4 PH and parameterizations (handler 3, 2026-11-14; shown to the owner, not yet published)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b4/` (served as `walkthrough-graphs/b4.html` on the preview).
+
+- `ph-cubic`, `ph-quintic`: the offsets are one family (`offsetFamily` in `CurveStyles.ts`): blue, solid, 0.6 of the base curve's width, opacity 1, 0.8, 0.64 outward with a floor of 0.4; the moss base curve is the strongest stroke. `styles.curve.comparison` is unchanged for the other graphs that use it. `/curve-geometry/offset` shares the PH offset and its single offset is now 0.6 of the base width (was 0.85). Text: Remove; on `ph-cubic` the names `L1` to `L3` go with the readout. The offset distance is covered by the existing `ph-math.test.ts`.
+- `uniform-parameterization`, `weighted-parameterization`, `spline-parameterization`: sample markers are blue (`GraphPalette.parameterSample`, now the comparison blue; the token is used by these three graphs only, so the three routes are its cross-family look) with the light point outline at 0.7 of the point size (were brown, dark outline, 0.5). Text: Remove on `uniform-parameterization`; the other two hold no board text. `uniform-parameterization` is tall and narrow in the frame (about a third of the width); no window was added because nothing is cut.
+- `arc-length-param`: text only, Remove.
+- `bezier` (B3's open item): the restore step of its drag clip now types into the point list's fields, so the clip and a full regeneration run again. Window `[-5, 3.4, 4, -4.4]` (was `[-5, 4.5, 4.5, -4]`). The curve style is unchanged: a shared style change is not made for this card alone.
+- The clip check that finds the sample markers by fill (`scripts/demonstration-preview-curve-motion.cjs:161`) reads the new colour.
+- Not checked: inspector at 310 px against a before screenshot (no control code changed); most 390 px and English screenshots in `b4/live/` were taken but not viewed.

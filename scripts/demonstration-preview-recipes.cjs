@@ -9,7 +9,7 @@ const polygon = toggle('Kontrolni poligon');
 const targets = {
     bernstein: ['Four cubic Bernstein functions over the unit interval', [button('Povečaj število', 2)], [-0.12, 1.12, 1.12, -0.12]],
     'complex-multiplication': ['The unchanged multiplication by i, product and arguments revealed', [button('Pokaži zmnožek'), button('Pokaži argumente')], [-2, 2.3, 2, -1.6]],
-    bezier: ['Asymmetric original cubic with its control polygon', [polygon], [-5, 4.5, 4.5, -4]],
+    bezier: ['Asymmetric original cubic with its control polygon', [polygon], [-5, 3.4, 4, -4.4]],
     decasteljau: ['Separated interpolation levels at the original interior parameter', [toggle('Celotna krivulja'), polygon]],
     'decasteljau-alternative': ['Component curves and interpolation at t=0.5', []],
     affine: ['Original curve and polygon; supported rotations are shown in motion', [polygon], [-4.2, 3.8, 4.2, -3.8]],
@@ -228,6 +228,12 @@ const captureText = {
     'prob-summary': {keep: [], strip: []},
     // Degree reduction: the cubic, its reduction and the two polygons carry the idea; the status sentences go (the inspector keeps them).
     reduction: {keep: [], strip: []},
+    // PH offsets: the offset family is the subject; the arc-length readout and the MathJax names L1..L3 go.
+    'ph-cubic': {keep: [], strip: []},
+    'ph-quintic': {keep: [], strip: []},
+    // Parameterization: the sample markers carry the idea; the t, s(t) and L readouts go.
+    'uniform-parameterization': {keep: [], strip: []},
+    'arc-length-param': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
