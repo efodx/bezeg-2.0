@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {onLanguageChange, t} from "../../localization";
@@ -655,13 +656,10 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         const onDrag = () => { this.dragging = true; this.dragTo(point); };
         const onUp = () => { if (this.dragging) this.endDrag(); };
         const board = this.board;
-        const onOver = () => { board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
         point.on("up", onUp);
-        point.on("over", onOver);
-        point.on("out", onOut);
-        this.scene.listen(() => { point.off("drag", onDrag); point.off("up", onUp); point.off("over", onOver); point.off("out", onOut); });
+        this.scene.listen(() => { point.off("drag", onDrag); point.off("up", onUp); releaseCursor(); });
     }
 
     /** Drag only: the handle snaps to the nearest whole point inside the range (typed values are refused instead, see `typed`). */

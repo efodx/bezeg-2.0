@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React, {useSyncExternalStore} from "react";
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
@@ -536,12 +537,9 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
                 precision: {touch: HANDLE_TOUCH_RADIUS, mouse: HANDLE_MOUSE_RADIUS, pen: HANDLE_TOUCH_RADIUS},
             }));
             const onDrag = () => spec.drag(point.X(), point.Y());
-            const onOver = () => { board.containerObj.style.cursor = "pointer"; };
-            const onOut = () => { board.containerObj.style.cursor = "default"; };
+            const releaseCursor = bindMovablePointCursor(point, board);
             point.on("drag", onDrag);
-            point.on("over", onOver);
-            point.on("out", onOut);
-            this.offs.push(() => { point.off("drag", onDrag); point.off("over", onOver); point.off("out", onOut); });
+            this.offs.push(() => { point.off("drag", onDrag); releaseCursor(); });
             this.tagText(spec.tag, () => spec.position(), spec.color, spec.visible, 10, 10);
             return {spec, point};
         });

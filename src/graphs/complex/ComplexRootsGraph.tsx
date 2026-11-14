@@ -21,6 +21,7 @@ import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexRootsPresetCollection} from "./complexRootsPresets";
 import {RevealButton} from "../../inputs/RevealButton";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 
 /** w and the test point z lie within 2*sqrt(2) of the origin and the roots within 2^(3/4) of it; a square of half-width 3.4 shows them all. */
@@ -256,6 +257,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
             })) as JXG.Point;
             created.point = point;
+            bindMovablePointCursor(point, this.board);
             point.on("drag", () => {
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;
                 onDrag(point);

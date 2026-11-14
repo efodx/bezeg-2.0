@@ -23,6 +23,7 @@ import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexReciprocalPresetCollection} from "./complexReciprocalPresets";
 import {RevealButton} from "../../inputs/RevealButton";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 
 /** Operands and the whole inversion circle (centre and radius up to 2) lie within 4 of the origin; a square of half-width 4.5 shows them. */
@@ -326,6 +327,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
             })) as JXG.Point;
             created.point = point;
+            bindMovablePointCursor(point, this.board);
             point.on("drag", () => {
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;
                 onDrag(point);

@@ -2,6 +2,7 @@ import type {Board, GeometryElement, Point, Text} from "jsxgraph";
 import {onLanguageChange, t} from "../../../localization";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {chaikinLimitPolyline, MAX_SUBDIVISION_ROUNDS, Row, StageInput, stageOf, SubdivisionRule} from "./subdivisionModel";
+import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 
 export interface SceneInput extends StageInput {
     readonly showLimit: boolean;
@@ -139,6 +140,7 @@ export class SubdivisionScene {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.controlPoint, highlight: true,
                 highlightFillColor: GraphPalette.selectedControlPoint, highlightStrokeColor: GraphPalette.selectedControlPointOutline,
             });
+            bindMovablePointCursor(point, this.board);
             point.on('drag', () => {
                 // A released scene's point may still receive an event: it must not write the state of its successor.
                 if (this.disposed) return;
@@ -181,6 +183,8 @@ export class SubdivisionScene {
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
+        // A removed point never fires "out": do not leave the board showing its hover cursor.
+        if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
         this.stopLanguageUpdates?.();
         this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();

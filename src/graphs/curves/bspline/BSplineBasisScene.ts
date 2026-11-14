@@ -4,6 +4,7 @@ import {formatNumber} from "../../../analysis/format";
 import {multiplicity, validateKnotVector} from "../../../bezeg/impl/curve/bspline";
 import {basisCurveColor, GraphPalette} from "../../styles/GraphPalette";
 import {allValuesAt, BasisSamples, clampToDomain, domainNote, lastIndexOf, parameterView, readoutLines, sampleBasis} from "./bsplineBasisModel";
+import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 
 interface SceneSettings {
     board: Board;
@@ -135,6 +136,7 @@ export class BSplineBasisScene {
                 name: '', withLabel: false, size: 5, face: '<>', strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label,
                 highlight: true, fixed: this.settings.normalized(),
             });
+            bindMovablePointCursor(marker, this.board);
             marker.on('drag', () => {
                 // A released scene's marker may still receive an event: it must not write the state of its successor.
                 if (this.disposed) return;
@@ -200,6 +202,8 @@ export class BSplineBasisScene {
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
+        // A removed point never fires "out": do not leave the board showing its hover cursor.
+        if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
         this.stopLanguageUpdates?.();
         this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();

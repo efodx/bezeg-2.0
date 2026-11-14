@@ -10,6 +10,7 @@ import {DEFAULT_LINEAR_MODEL, isLinearCoordinate, LINEAR_COORDINATE_LIMIT, Linea
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {cleanNumber} from "../../analysis/numbers";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
 export const LINEAR_SNAP_SIZE = 0.1;
@@ -124,6 +125,8 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
             const next = parseLinearModel({x1: cleanNumber(p1.X()), y1: cleanNumber(p1.Y()), x2: cleanNumber(p2.X()), y2: cleanNumber(p2.Y())});
             if (next) this.commitModel(next, {syncScene: false});
         };
+        bindMovablePointCursor(p1, board);
+        bindMovablePointCursor(p2, board);
         p1.on("drag", readPoints);
         p2.on("drag", readPoints);
 

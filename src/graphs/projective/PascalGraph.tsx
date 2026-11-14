@@ -20,6 +20,7 @@ import {PASCAL_POINT_NAMES, SIDE_NAMES} from "./pascalText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {pascalPresetCollection} from "./projectivePresetCollection";
 import {pascalPersistence} from "./projectivePersistence";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /**
  * The Pascal and Pappus graph (K2 of projective-conics-lessons, ADR 0033). One of four fixed conics, six handles that move only
@@ -475,6 +476,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
                 this.requestRender();
                 this.board.containerObj.focus({preventScroll: true});
             });
+            bindMovablePointCursor(point, board);
             point.on("drag", () => this.dragPoint(handle, point));
             return point;
         });

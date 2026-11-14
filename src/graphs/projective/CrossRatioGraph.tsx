@@ -17,6 +17,7 @@ import {describeCrossRatio} from "./crossRatioText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {crossRatioPresetCollection} from "./projectivePresetCollection";
 import {crossRatioPersistence} from "./projectivePersistence";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /**
  * The cross-ratio graph (K1 of projective-conics-lessons, ADR 0033). Two lines, a centre `O`, four points A-D on the first
@@ -330,6 +331,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
                 this.requestRender();
                 this.board.containerObj.focus({preventScroll: true});
             });
+            bindMovablePointCursor(handle, board);
             handle.on("drag", () => this.dragHandle(i, handle));
             return handle;
         });

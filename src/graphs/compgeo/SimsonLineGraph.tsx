@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {finiteNumberField, PointSetExtension} from "./pointSetPersistence";
@@ -370,6 +371,7 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
             strokeColor: GraphPalette.pointOutline, strokeWidth: 2, highlightFillColor: GraphPalette.selectedControlPoint,
             showInfobox: false, layer: 8, label: {offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
+        bindMovablePointCursor(point, this.board);
         point.on("drag", () => this.dragMoving(point));
         this.pointObject = point;
         this.sceneObjects = (board.objectsList as JXG.GeometryElement[]).filter(object => !before.has(object));

@@ -19,6 +19,7 @@ import {TANGENCY_NAMES, TANGENT_NAMES} from "./polePolarText";
 import {idealMarker, orientedUnit} from "./idealMarker";
 import {polePolarPresetCollection} from "./projectivePresetCollection";
 import {polePolarPersistence} from "./projectivePersistence";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /**
  * The pole and polar graph (K3 of projective-conics-lessons, ADR 0033). One of four fixed conics, the point P (a finite point on the
@@ -451,6 +452,7 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
             this.requestRender();
             this.board.containerObj.focus({preventScroll: true});
         });
+        bindMovablePointCursor(p, board);
         p.on("drag", () => this.dragP(p));
 
         // An ideal P has a direction only: an arrow from the origin along it, with its own text.

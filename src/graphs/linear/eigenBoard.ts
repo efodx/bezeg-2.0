@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import type {LabelPlacement} from '../functions/BaseFunctionGraph';
 import type {Vec2} from '../../linear/matrix2';
 import {ITERATION_COLORS} from './iterationBoard';
@@ -80,6 +81,7 @@ export function createEigenPoints(ctx: EigenBoardContext): JXG.Point {
         ...ctx.handleAttributes, name: '$$v$$', label: ctx.pointLabel(ctx.vPlacement, 1.1, ctx.active), size: ctx.markerSize,
         fillColor: EIGEN_COLORS.vector, highlightFillColor: EIGEN_COLORS.vector, visible: ctx.active,
     })) as JXG.Point;
+    bindMovablePointCursor(tip, board);
     tip.on('drag', () => {
         if (!Number.isFinite(tip.X()) || !Number.isFinite(tip.Y())) return;
         const stored = ctx.dragTip(tip.X(), tip.Y());

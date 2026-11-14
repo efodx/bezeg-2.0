@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {finiteNumberField, PointSetExtension} from "./pointSetPersistence";
@@ -287,6 +288,7 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
             strokeWidth: 2, highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8,
             label: {offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
+        bindMovablePointCursor(glider, this.board);
         glider.on("drag", () => this.dragGlider(glider));
         this.glider = glider;
         const created = (board.objectsList as JXG.GeometryElement[]).filter(object => !before.has(object));

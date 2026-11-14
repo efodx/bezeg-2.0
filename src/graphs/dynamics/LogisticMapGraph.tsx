@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -518,12 +519,9 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
     private wireDrag(point: JXG.Point): void {
         const onDrag = () => this.dragTo(point);
         const board = this.board;
-        const onOver = () => { board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
-        point.on("over", onOver);
-        point.on("out", onOut);
-        this.scene.listen(() => { point.off("drag", onDrag); point.off("over", onOver); point.off("out", onOut); });
+        this.scene.listen(() => { point.off("drag", onDrag); releaseCursor(); });
     }
 
     /** Drag only: the start snaps to the nearest grid value strictly inside (0, 1) (typed values are refused instead). */

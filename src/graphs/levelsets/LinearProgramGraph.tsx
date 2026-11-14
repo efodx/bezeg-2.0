@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -568,12 +569,9 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
 
     private wireDrag(handle: JXG.Point, onDrag: () => void): void {
         const board = this.board;
-        const onOver = () => { board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(handle, board);
         handle.on("drag", onDrag);
-        handle.on("over", onOver);
-        handle.on("out", onOut);
-        this.scene.listen(() => { handle.off("drag", onDrag); handle.off("over", onOver); handle.off("out", onOut); });
+        this.scene.listen(() => { handle.off("drag", onDrag); releaseCursor(); });
     }
 
     private dragObjective(handle: JXG.Point): void {

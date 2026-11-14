@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
@@ -591,12 +592,9 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         if (!point) return;
         const onDrag = () => this.dragTo(point, field);
         const board = this.board;
-        const onOver = () => { if (!point.visProp.fixed) board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { if (!point.visProp.fixed) board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
-        point.on("over", onOver);
-        point.on("out", onOut);
-        this.listeners.push(() => { point.off("drag", onDrag); point.off("over", onOver); point.off("out", onOut); });
+        this.listeners.push(() => { point.off("drag", onDrag); releaseCursor(); });
     }
 
     private dragTo(point: JXG.Point, field: PointField): void {

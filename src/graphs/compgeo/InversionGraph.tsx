@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {PointSetExtension, PointSetFieldValue} from "./pointSetPersistence";
@@ -482,6 +483,7 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
             name: handle.name, withLabel: true, size: 5, face: "o", fillColor: handle.colour, strokeColor: GraphPalette.pointOutline, strokeWidth: 2,
             highlightFillColor: GraphPalette.selectedControlPoint, showInfobox: false, layer: 8, label: {offset: [8, 8], strokeColor: GraphPalette.label},
         }) as JXG.Point;
+        bindMovablePointCursor(point, this.board);
         point.on("drag", () => {
             if (this.inSnap || this.graphInteractionLocked) return;
             const entry = this.handleObjects.find(h => h.object === point);

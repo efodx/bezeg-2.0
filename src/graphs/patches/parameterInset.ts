@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import type {Board, Point} from "jsxgraph";
 import type {GraphSession} from "../base/GraphSession";
 
@@ -33,6 +34,7 @@ export function mountParameterInset(session: GraphSession, container: HTMLElemen
     };
     const {board, release} = session.createAuxiliaryBoard(container, options);
     const point = spec.build(board);
+    bindMovablePointCursor(point, board);
     point.on("drag", () => {
         const [u, v] = spec.constrain(point.X(), point.Y());
         // Keep the dot inside the domain while the pointer is outside it.

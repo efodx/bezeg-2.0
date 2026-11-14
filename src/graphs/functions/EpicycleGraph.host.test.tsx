@@ -188,6 +188,15 @@ test('the object count is the same at N = 1 and N = 50, and at N = 50 the table 
     expect(screen.queryByLabelText('Zmanjšaj N za 1')).toBeNull();
 });
 
+test('hovering a draggable vertex shows the pointer cursor and leaving restores the default', () => {
+    const {graph} = mount();
+    const container = graph.boardNow().containerObj as HTMLElement;
+    graph.vertexPoint(0).triggerEventHandlers(['over'], []);
+    expect(container.style.cursor).toBe('pointer');
+    graph.vertexPoint(0).triggerEventHandlers(['out'], []);
+    expect(container.style.cursor).toBe('default');
+});
+
 test('everything the graph made is disposed on unmount, and a pending frame is cancelled', () => {
     const {graph, scheduler, view} = mount();
     act1(graph, example('uneven'));

@@ -49,6 +49,7 @@ import {compositionLabelRequests, eigenLabelRequests, ellipseLabelRequests, plac
 import {createEllipseObjects, ELLIPSE_COLORS, EllipseBoardContext} from "./ellipseBoard";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
 import type {Preset} from "../base/presets/Presets";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /**
  * The default view: the grid covers [-6, 6]^2, and the default example's image of the fixture curve reaches (11, 4). The units of the
@@ -757,6 +758,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
                 visible: basisPlane,
             })) as JXG.Point;
+            bindMovablePointCursor(point, this.board);
             point.on("drag", () => {
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;
                 this.ignoreOutOfDomain(() => this.setColumn(column, point.X(), point.Y(), {syncScene: false}));

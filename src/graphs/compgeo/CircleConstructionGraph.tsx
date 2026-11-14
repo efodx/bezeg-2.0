@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -696,12 +697,9 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
     private wireDrag(id: HandleId, point: JXG.Point): void {
         const onDrag = () => this.dragTo(id, point);
         const board = this.board;
-        const onOver = () => { if (!point.visProp.fixed) board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { if (!point.visProp.fixed) board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
-        point.on("over", onOver);
-        point.on("out", onOut);
-        this.listeners.push(() => { point.off("drag", onDrag); point.off("over", onOver); point.off("out", onOut); });
+        this.listeners.push(() => { point.off("drag", onDrag); releaseCursor(); });
     }
 
     private dragTo(id: HandleId, point: JXG.Point): void {

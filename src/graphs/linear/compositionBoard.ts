@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import type {LabelPlacement} from '../functions/BaseFunctionGraph';
 import type {Vec2} from '../../linear/matrix2';
 import {CompositionView, translationSegment} from './compositionScene';
@@ -82,6 +83,7 @@ export function createCompositionPoints(ctx: CompositionBoardContext): JXG.Point
         ...ctx.handleAttributes, name: '$$c$$', label: ctx.pointLabel(() => ctx.placement('c'), 1.1, shown), size: ctx.markerSize,
         fillColor: COMPOSITION_COLORS.pivot, highlightFillColor: COMPOSITION_COLORS.pivot, visible: shown,
     })) as JXG.Point;
+    bindMovablePointCursor(handle, board);
     handle.on('drag', () => {
         if (!Number.isFinite(handle.X()) || !Number.isFinite(handle.Y())) return;
         const stored = ctx.dragPivot(handle.X(), handle.Y());

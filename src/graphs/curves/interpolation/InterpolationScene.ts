@@ -3,6 +3,7 @@ import {currentLanguage, onLanguageChange} from "../../../localization";
 import {barycentricWeights, bezierCurvePoint, lagrangeBasis, ParameterRule, Point2} from "../../../analysis/interpolation";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {convexHullOf, interpolationRejection, parametersOf, readoutAt, readoutLines} from "./interpolationModel";
+import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 
 interface SceneSettings {
     board: Board;
@@ -131,6 +132,7 @@ export class InterpolationScene {
             const point = this.create<Point>('point', [p[0], p[1]], {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
             });
+            bindMovablePointCursor(point, this.board);
             point.on('drag', () => {
                 // A released scene's point may still receive an event: it must not write the state of its successor.
                 if (this.disposed) return;
@@ -168,6 +170,8 @@ export class InterpolationScene {
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
+        // A removed point never fires "out": do not leave the board showing its hover cursor.
+        if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
         this.stopLanguageUpdates?.();
         this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();

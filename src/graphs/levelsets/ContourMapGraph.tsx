@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {prefersReducedMotion} from "../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
@@ -719,12 +720,9 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     private wireDrag(handle: JXG.Point, onDrag: () => void): void {
         const board = this.board;
-        const onOver = () => { board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(handle, board);
         handle.on("drag", onDrag);
-        handle.on("over", onOver);
-        handle.on("out", onOut);
-        this.scene.listen(() => { handle.off("drag", onDrag); handle.off("over", onOver); handle.off("out", onOut); });
+        this.scene.listen(() => { handle.off("drag", onDrag); releaseCursor(); });
     }
 
     /** The coordinate pair a drag snapped to, clamped to the grid range and to the window of the function (like the LP handle), or undefined for a non-finite drag. */

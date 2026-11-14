@@ -21,6 +21,7 @@ import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexF
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexMultiplicationPresetCollection} from "../basics/collections";
 import {RevealButton} from "../../inputs/RevealButton";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 
 /**
@@ -334,6 +335,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                 ...this.styles.point.default, name: which === "z" ? "$$z$$" : "$$w$$", label: this.complexPointLabel(() => this.labelPlacement(which)), face, size: markerSize,
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
             })) as JXG.Point;
+            bindMovablePointCursor(point, this.board);
             point.on("drag", () => {
                 const clamp = (value: number) => Math.min(COMPLEX_COORDINATE_MAX, Math.max(-COMPLEX_COORDINATE_MAX, value));
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;

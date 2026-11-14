@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import type {LabelPlacement} from '../functions/BaseFunctionGraph';
 import {GraphPalette} from '../styles/GraphPalette';
 import type {Vec2} from '../../linear/matrix2';
@@ -144,6 +145,7 @@ export function createIterationPoints(ctx: IterationBoardContext): IterationHand
         ...ctx.handleAttributes, name: '$$v_0$$', label: ctx.pointLabel('above-left', 1.1, iterating), size: ctx.markerSize,
         fillColor: ITERATION_COLORS.orbit, highlightFillColor: ITERATION_COLORS.orbit, visible: iterating,
     })) as JXG.Point;
+    bindMovablePointCursor(startHandle, board);
     startHandle.on('drag', () => {
         if (!Number.isFinite(startHandle.X()) || !Number.isFinite(startHandle.Y())) return;
         const stored = ctx.dragStart(startHandle.X(), startHandle.Y());
@@ -155,6 +157,7 @@ export function createIterationPoints(ctx: IterationBoardContext): IterationHand
         ...ctx.handleAttributes, name: '$$(\\tau,\\delta)$$', label: ctx.pointLabel('above-right', 1.1, tracing), size: ctx.markerSize,
         fillColor: ITERATION_COLORS.handle, highlightFillColor: ITERATION_COLORS.handle, visible: tracing,
     })) as JXG.Point;
+    bindMovablePointCursor(tdHandle, board);
     tdHandle.on('drag', () => {
         if (!Number.isFinite(tdHandle.X()) || !Number.isFinite(tdHandle.Y())) return;
         const stored = ctx.dragTraceDet(tdHandle.X(), tdHandle.Y());

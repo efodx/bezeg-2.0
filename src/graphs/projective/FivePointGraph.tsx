@@ -19,6 +19,7 @@ import {fivePointPresetCollection} from "./projectivePresetCollection";
 import {fivePointPersistence} from "./projectivePersistence";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /**
  * The five-point graph (K4 of projective-conics-lessons, ADR 0033): five draggable points A to E on the 1/5 grid, the unique conic through
@@ -517,6 +518,7 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
                 this.requestRender();
                 this.board.containerObj.focus({preventScroll: true});
             });
+            bindMovablePointCursor(point, board);
             point.on("drag", () => this.dragPoint(i, point));
             return point;
         });

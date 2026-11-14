@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {PointListInput} from "../../inputs/PointListInput";
 import {StatusLive} from "../base/controls/StatusLive";
@@ -448,6 +449,7 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
                 this.select(undefined);
                 this.board.containerObj.focus({preventScroll: true});
             });
+            bindMovablePointCursor(created, this.board);
             created.on("drag", () => this.dragQuery(created));
             this.queryPoint = created;
             this.nameQueryPoint();

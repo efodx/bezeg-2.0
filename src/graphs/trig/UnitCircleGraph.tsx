@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -386,12 +387,9 @@ export class UnitCircleGraph extends BaseGraph<UnitCircleGraphState, UnitCircleS
     private wireDrag(point: JXG.Point, field: AngleField): void {
         const onDrag = () => this.dragTo(point, field);
         const board = this.board;
-        const onOver = () => { if (!point.visProp.fixed) board.containerObj.style.cursor = "pointer"; };
-        const onOut = () => { if (!point.visProp.fixed) board.containerObj.style.cursor = "default"; };
+        const releaseCursor = bindMovablePointCursor(point, board);
         point.on("drag", onDrag);
-        point.on("over", onOver);
-        point.on("out", onOut);
-        this.listeners.push(() => { point.off("drag", onDrag); point.off("over", onOver); point.off("out", onOut); });
+        this.listeners.push(() => { point.off("drag", onDrag); releaseCursor(); });
     }
 
     private dragTo(point: JXG.Point, field: AngleField): void {

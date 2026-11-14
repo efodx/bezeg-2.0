@@ -130,6 +130,24 @@ describe('HermiteGraph on a real board', () => {
         view.unmount();
     });
 
+    test('hovering a data point shows the pointer cursor, leaving restores the default, and disposing a hovered scene does not leave it', () => {
+        const {graph, board} = mount();
+        const container = board.containerObj as HTMLElement;
+        const hover = (point: unknown, name: string) => (point as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers([name], []);
+        const point = graph.sceneOf().pointElements()[0];
+        hover(point, 'over');
+        expect(container.style.cursor).toBe('pointer');
+        hover(point, 'out');
+        expect(container.style.cursor).toBe('default');
+        // The default scene is Catmull-Rom: its tangent tips are fixed and show no drag cursor.
+        hover(graph.sceneOf().tipElements()[1], 'over');
+        expect(container.style.cursor).toBe('default');
+        hover(point, 'over');
+        expect(container.style.cursor).toBe('pointer');
+        graph.sceneOf().dispose();
+        expect(container.style.cursor).toBe('default');
+    });
+
     test('the default scene: tangent arrows (1.5, 1.5) and (1.5, -1) at the inner points, curve (2, 2.8125) at the middle midpoint', () => {
         const {graph, view} = mount();
         const {curve, tips, arrows} = parts(graph);

@@ -51,6 +51,15 @@ test('the default scene draws the handles at the grid positions and reads 9/8 as
     expect(boardTexts(graph).some(text => text.includes('9/8'))).toBe(true);
 });
 
+test('hovering a handle shows the pointer cursor and leaving restores the default', () => {
+    const graph = new Observed();
+    mount(graph);
+    trigger(handles(graph)[0], 'over', []);
+    expect(container(graph).style.cursor).toBe('pointer');
+    trigger(handles(graph)[0], 'out', []);
+    expect(container(graph).style.cursor).toBe('default');
+});
+
 test('an image at infinity is marked in the text and the readout names the limit formula', () => {
     const graph = new Observed();
     mount(graph);

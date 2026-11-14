@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import {t} from "../../localization";
 import type {GridPoint} from "../../compgeo/grid";
@@ -664,6 +665,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
                 // Capture-only: the pointer-down highlight would change the marker's fill and outline in one frame step; the clip keeps its look.
                 ...(this.clipCapture() ? {highlightFillColor: GraphPalette.derivedPoint, highlightStrokeColor: GraphPalette.selectedControlPointOutline} : {}),
             }) as JXG.Point;
+            bindMovablePointCursor(created, this.board);
             created.on("drag", () => this.dragQuery(created));
             this.queryPoint = created;
             return true;

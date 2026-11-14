@@ -2,6 +2,7 @@
  * Class that wraps a BezierCurve with methods for dealing with JSXGraph
  */
 import {Board} from "jsxgraph";
+import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 import {AbstractJXGBezierCurve, BezierCurveAttributes} from "./AbstractJXGBezierCurve";
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {RationalBezierCurve} from "../../../bezeg/impl/curve/rational-bezier-curve";
@@ -284,19 +285,7 @@ export class JXGRationalBezierCurve extends AbstractJXGBezierCurve<RationalBezie
                         label: {fontSize: 0}
                     });
                 this.sliders.push(slider);
-                let over = (p: JXG.Slider) => {
-                    if (!p.visProp.fixed) {
-                        this.board.containerObj.style.cursor = 'pointer';
-                    }
-                };
-                let out = (p: JXG.Slider) => {
-                    if (!p.visProp.fixed) {
-                        this.board.containerObj.style.cursor = 'default';
-                    }
-                };
-
-                slider.on('over', () => over(slider));
-                slider.on('out', () => out(slider));
+                bindMovablePointCursor(slider, this.board);
                 const ratio = () => slider.Value() / (1 - slider.Value());
                 const weight = () => reactiveWeights[i]() * ratio();
                 reactiveWeights.push(weight);

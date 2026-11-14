@@ -4,6 +4,7 @@ import {formatNumber} from "../../../analysis/format";
 import {Point2} from "../../../analysis/interpolation";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {chainBezier, chainPoint, ChainInput, HermiteChain, hermiteChain} from "./hermiteModel";
+import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 
 interface SceneSettings {
     board: Board;
@@ -143,6 +144,7 @@ export class HermiteScene {
             const point = this.create<Point>('point', [p[0], p[1]], {
                 name: `P${i}`, withLabel: true, size: 4, strokeColor: GraphPalette.pointOutline, fillColor: GraphPalette.label, highlight: true,
             });
+            bindMovablePointCursor(point, this.board);
             point.on('drag', () => {
                 // A released scene's point may still receive an event: it must not write the state of its successor.
                 if (this.disposed) return;
@@ -158,6 +160,7 @@ export class HermiteScene {
                 name: '', withLabel: false, size: 3, face: 'o', strokeColor: GraphPalette.constructionAccent, fillColor: GraphPalette.constructionAccent,
                 highlight: true, fixed: input.mode === 'catmull-rom', visible: () => this.settings.showTangents(),
             });
+            bindMovablePointCursor(tip, this.board);
             tip.on('drag', () => {
                 // A released scene's point may still receive an event: it must not write the state of its successor.
                 if (this.disposed) return;
@@ -210,6 +213,8 @@ export class HermiteScene {
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
+        // A removed point never fires "out": do not leave the board showing its hover cursor.
+        if (this.board.containerObj?.style.cursor === 'pointer') this.board.containerObj.style.cursor = 'default';
         this.stopLanguageUpdates?.();
         this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();

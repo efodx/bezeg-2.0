@@ -25,6 +25,7 @@ import {
 import {epicycleIssueMessage} from "./epicycleMessages";
 import {epicyclePresetCollection} from "./functionPresetCollections";
 import "./EpicycleGraph.css";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 const TWO_PI = 2 * Math.PI;
 const BOARD_VIEW: BoundingBox = [-3.2, 3.2, 3.2, -3.2];
@@ -360,6 +361,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                 ...this.styles.point.default, name: "", withLabel: false, face, size, fillColor: color, strokeColor: color, highlightFillColor: color,
                 visible: exists,
             })) as JXG.Point;
+            bindMovablePointCursor(point, this.board);
             point.on("drag", () => drag(point));
             return point;
         };

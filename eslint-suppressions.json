@@ -210,7 +210,7 @@
   },
   "src/graphs/curves/object/JXGRationalBezierCurve.ts": {
     "prefer-const": {
-      "count": 4
+      "count": 2
     }
   },
   "src/graphs/curves/parametrisations/SplineAlphaParametrizationGraph.tsx": {

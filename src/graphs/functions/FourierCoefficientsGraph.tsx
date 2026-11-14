@@ -22,6 +22,7 @@ import {
 import {fourierCoefficientsIssueMessage} from "./fourierCoefficientsMessages";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {GraphPalette} from "../styles/GraphPalette";
+import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /** The most handle values of any layout (the free layout), and the most linear pieces of f. */
 const MAX_SLOTS = 5;
@@ -329,6 +330,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 ...this.styles.point.default, name: "", withLabel: false, size: markerSize, fillColor: FOURIER_COLORS.function,
                 highlightFillColor: FOURIER_COLORS.function, visible: () => slotNow() !== undefined,
             })) as JXG.Point;
+            bindMovablePointCursor(point, this.board);
             point.on("drag", () => {
                 const slot = slotNow();
                 if (!slot) return;

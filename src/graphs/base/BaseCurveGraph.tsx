@@ -1,3 +1,4 @@
+import {bindMovablePointCursor} from "./bindMovablePointCursor";
 import {message, t} from "../../localization";
 import React from 'react';
 
@@ -406,6 +407,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         } else {
             point = this.board.create('point', [x, y], this.styles.point.default);
         }
+        bindMovablePointCursor(point, this.board);
         point.on('drag', (e) => {
             refreshAfterControlPointDrag(this.board);
         });
