@@ -127,8 +127,8 @@ Planned against `master` at `f1d33fa4`. Code and specs were read; nothing was ru
 | --- | --- | --- | --- |
 | A. Verification throughput | T01–T05 | [Verification throughput, phase 8](verification-throughput.md#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14) | Proposed. Measurement first. |
 | B. Shell and label polish | D01, D02, L02, L03, H01, H05, M01, M02, M03 | [Shell and label polish](site-walkthrough-shell-polish.md) | Proposed. Needs no owner decision. |
-| C. Design decisions | H02, H03, H04, L01, L04, L05, P01, P02 | Spec not written. Image mockups first. | Waiting on mockups. |
-| D. Graphs and captures | G01–G07 and the example table | Spec not written. | After the capture-text policy. |
+| C. Design decisions | H02, H03, H04, L01, L04, L05, P01, P02 | [Design proposal](site-walkthrough-design.md), with the [options gallery](../reviews/site-walkthrough/design/) | Proposed. Waiting for the owner's picks; no app change yet. |
+| D. Graphs and captures | G01–G07 and the example table | [Graphs and captures](site-walkthrough-graphs-and-captures.md) | Proposed. The policy and a three-example pilot go to the owner before any batch. |
 | E. Documentation | DOC01 | Spec not written. Documentation only. | Unscheduled. |
 
 Order: A first, because every other package pays the same wait. B and E can run beside it. C's mockups go to the owner meanwhile. D starts once the capture-text policy (decision 5) is written, so captures are recorded once.
