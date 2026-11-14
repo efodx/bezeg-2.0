@@ -23,6 +23,7 @@ import '../../learning/chapter/ActivityContext.css';
 import {guidedLessonReturnPath, resolveGuidedLessonOwner} from '../../learning/chapter/guidedLessonOwnership';
 import {resolveGuidedExample} from '../../learning/chapter/guidedExamples';
 import {readFamilyInvestigation, removeFamilyInvestigation} from '../../learning/chapter/familyInvestigation';
+import {WorkspaceElder} from './WorkspaceElder';
 
 type Section = "edit" | "display" | "save";
 type LessonMode = "content" | "explore" | "complete" | "closed";
@@ -208,7 +209,7 @@ export function DemonstrationWorkspace(props: {
                         setPickerOpen(true);
                     }}>{t('library_switch')}</button>}
                 {props.pickerUnavailable && <span id="workspace-picker-unavailable" role="status">{t('library_picker_busy')}</span>}
-                {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} onClick={openGuidedLesson} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
+                {lesson && props.lessonCapabilities && !lessonActive && <button ref={learnButton} className="workspace-action-lesson" onClick={openGuidedLesson} aria-expanded={lessonOpen}>{t('learn_this_demonstration')}</button>}
                 {lessonActive && lessonMode === 'explore' && <>
                     {lessonGraphActions?.animationControls}
                 </>}
@@ -216,6 +217,7 @@ export function DemonstrationWorkspace(props: {
                     aria-expanded={presentationControls} aria-controls="workspace-inspector">{presentationControls ? t("hide_tools") : t("open_tools")}</button>}
                 <button onClick={() => presentation.setFullScreen(!fullScreen)} aria-pressed={fullScreen}>
                     {fullScreen ? t("exit_presentation") : t("presentation_mode")}</button>
+                {!fullScreen && <WorkspaceElder/>}
             </div>
         </header>
         {(chapter.invalidNotice || chapter.error || chapter.restarted) && <p className="activity-notice" role="status">

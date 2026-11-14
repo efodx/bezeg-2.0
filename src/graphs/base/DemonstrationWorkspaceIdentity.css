@@ -11,10 +11,25 @@
     grid-template-columns: minmax(0, 1fr) 310px;
     gap: 22px;
     padding: 30px var(--bezeg-shell-page-inline) 64px;
-    background: var(--workspace-canvas);
+    /* Graph paper under the heading, thinning toward the instrument. Its first line sits on the panels' left edge. */
+    background-color: var(--workspace-canvas);
+    background-image:
+        linear-gradient(to bottom, transparent 16rem, color-mix(in srgb, var(--workspace-canvas) 60%, transparent) 44rem),
+        linear-gradient(to right, var(--bezeg-shell-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bezeg-shell-grid) 1px, transparent 1px);
+    background-size: auto, 48px 48px, 48px 48px;
+    background-position: 0 0, var(--bezeg-shell-page-inline) 0, 0 0;
 }
 .workspace-heading { align-items: flex-end; gap: 24px; padding-bottom: 8px; }
 .workspace-heading-copy { flex: 1 1 auto; min-width: 0; }
+/* The Home elder, once and still: a branch reaches in from the right edge, directly above the actions. It is
+   anchored to the actions column and never wider than it, so no title, however long, runs under it. */
+.workspace-actions { position: relative; }
+.workspace-elder {
+    position: absolute; bottom: 100%; right: calc(-1 * var(--bezeg-shell-page-inline));
+    width: 320px; max-width: calc(100% + var(--bezeg-shell-page-inline)); height: auto; aspect-ratio: 640 / 150;
+    transform: scaleX(-1); pointer-events: none;
+}
 .workspace-breadcrumb { margin: 0 0 17px; color: var(--workspace-ink-soft); font-size: .75rem; }
 .workspace-breadcrumb a { text-decoration-color: var(--workspace-rule); text-underline-offset: 4px; }
 .workspace-breadcrumb a:hover { color: var(--workspace-green); text-decoration-color: currentColor; }
@@ -35,7 +50,11 @@
     background: var(--workspace-panel); font-size: .78rem; white-space: normal; overflow-wrap: anywhere;
 }
 .workspace-actions > button:hover, .workspace-actions > a:hover { border-color: var(--bezeg-shell-rule-active); }
-.workspace-graph, .workspace-inspector { border: 1px solid var(--workspace-rule); border-radius: 16px; box-shadow: none; }
+/* The guided lesson keeps the ochre it has on the Home card. */
+.demonstration-workspace:not(.is-presenting) .workspace-actions > .workspace-action-lesson { color: var(--bezeg-shell-lesson-ink); }
+.demonstration-workspace:not(.is-presenting) .workspace-actions > .workspace-action-lesson:hover { background: var(--bezeg-shell-lesson-hover); }
+/* Sheets on the paper: the frame and soft shadow of the Home featured card. */
+.workspace-graph, .workspace-inspector { border: 1px solid var(--workspace-rule); border-radius: 16px; box-shadow: var(--bezeg-shell-shadow-card); }
 .workspace-graph-heading { padding: 14px 18px 6px; }
 .workspace-eyebrow { color: var(--workspace-ink-soft); font-size: .65rem; letter-spacing: .09em; }
 .workspace-graph #jgbox { height: min(66vh, 720px) !important; }
@@ -94,13 +113,14 @@
 .is-presenting .workspace-breadcrumb { color: #b5bfd0; }
 .is-presenting .workspace-breadcrumb a:hover { color: var(--bezeg-night-panel); }
 .is-presenting .workspace-actions > button, .is-presenting .workspace-actions > a { background: transparent; }
-.is-presenting .workspace-graph, .is-presenting .workspace-inspector { border-color: #50617b; }
+.is-presenting .workspace-graph, .is-presenting .workspace-inspector { border-color: #50617b; box-shadow: none; }
 .is-presenting .workspace-graph #jgbox { height: calc(100vh - 280px) !important; }
 .is-presenting .workspace-inspector #inspector-content { border-color: var(--workspace-rule); }
 .is-presenting .workspace-inspector .inspector-tabs { background: #2a3c58; }
 .is-presenting .workspace-inspector .inspector-tabs button:hover { background: #364b68; }
 .is-presenting .workspace-inspector .inspector-tabs button[aria-pressed="true"] { background: var(--bezeg-control-selected-surface); }
 @media (max-width: 1100px) {
+    .workspace-elder { display: none; }
     .workspace-heading { align-items: stretch; flex-direction: column; gap: 16px; }
     .workspace-actions { flex-basis: auto; max-width: 100%; justify-content: flex-start; }
 }
