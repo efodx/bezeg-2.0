@@ -4,7 +4,7 @@ import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, Functi
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import {CountSetter} from "../../inputs/CountSetter";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -316,10 +316,6 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
 
     protected renderControls(): React.ReactNode {
         const state = this.model;
-        const coordinate = (label: string, value: number, apply: (value: number) => void) => (
-            <NumberInput label={label} value={value} min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
-                         rejectedHint={t("complex_coordinate_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => apply(next))}/>
-        );
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("complex_roots_example_label")} value={state.example} help={t("complex_roots_example_help")}
@@ -327,22 +323,26 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="function-points-grid">
-                    {coordinate(t("complex_w_re_label"), state.wRe, value => this.setW(value, this.model.wIm))}
-                    {coordinate(t("complex_w_im_label"), state.wIm, value => this.setW(this.model.wRe, value))}
-                    <CountSetter label={t("complex_roots_degree_label")} n={state.degree} min={COMPLEX_ROOT_DEGREE_MIN} max={COMPLEX_ROOT_DEGREE_MAX}
-                                 rejectedHint={t("complex_roots_degree_rejected_hint")}
-                                 onPlus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree + 1))}
-                                 onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree - 1))}
-                                 onSet={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
-                </div>
+                <PointListInput title={t("complex_roots_w_title")} points={[[state.wRe, state.wIm]]}
+                                pointLabel={() => "w"} axisLabels={["Re", "Im"]}
+                                min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                                onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setW(re, im))
+                                    ? undefined : t("complex_coordinate_rejected_hint")}/>
+            </div>
+            <div className="inspector-group">
+                <CountSetter label={t("complex_roots_degree_label")} n={state.degree} min={COMPLEX_ROOT_DEGREE_MIN} max={COMPLEX_ROOT_DEGREE_MAX}
+                             rejectedHint={t("complex_roots_degree_rejected_hint")}
+                             onPlus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree + 1))}
+                             onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree - 1))}
+                             onSet={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
                 <p className="inspector-help">{t("complex_roots_fields_help")}</p>
             </div>
             <div className="inspector-group" data-complex-test-fields={state.testVisible ? "shown" : "hidden"}>
-                <div className="function-points-grid">
-                    {coordinate(t("complex_z_re_label"), state.zRe, value => this.setTest(value, this.model.zIm))}
-                    {coordinate(t("complex_z_im_label"), state.zIm, value => this.setTest(this.model.zRe, value))}
-                </div>
+                <PointListInput title={t("complex_roots_test_title")} points={[[state.zRe, state.zIm]]}
+                                pointLabel={() => "z"} axisLabels={["Re", "Im"]}
+                                min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                                onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setTest(re, im))
+                                    ? undefined : t("complex_coordinate_rejected_hint")}/>
             </div>
         </>;
     }

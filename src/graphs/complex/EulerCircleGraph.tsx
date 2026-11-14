@@ -8,7 +8,8 @@ import {DomainError} from "../functions/BaseFunctionGraph";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {formatArgument, formatComplex} from "../../analysis/complexFormat";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {BooleanField} from "../../inputs/BooleanField";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
@@ -676,21 +677,22 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         const bArgs = {value0: dec(B_RANGE.min, 0), value1: dec(B_RANGE.max, 0), value2: dec(B_STEP, 0)};
         const degreeArgs = {value0: dec(DEGREE_RANGE.min, 0), value1: dec(DEGREE_RANGE.max, 0)};
         return [
-            <NumberInput key="angle" label={t("euler_circle_graph_angle_label")} value={this.state.degrees} step={1} bigStep={STEP_DEGREES} min={ANGLE_RANGE.min}
-                         max={ANGLE_RANGE.max} decimals={0} integer help={t("euler_circle_graph_angle_help", angleArgs)}
-                         rejectedHint={t("euler_circle_graph_angle_rejected", angleArgs)} onChange={value => this.editAngle(value)}/>,
-            <NumberInput key="omega" label={t("euler_circle_graph_omega_label")} value={this.state.omega} step={1} bigStep={1} min={OMEGA_RANGE.min}
-                         max={OMEGA_RANGE.max} decimals={0} integer help={t("euler_circle_graph_omega_help", omegaArgs)}
-                         rejectedHint={t("euler_circle_graph_omega_rejected", omegaArgs)} onChange={value => this.editOmega(value)}/>,
-            <NumberInput key="degree" label={t("euler_circle_graph_degree_label")} value={this.state.degree} step={1} bigStep={5} min={DEGREE_RANGE.min}
-                         max={DEGREE_RANGE.max} decimals={0} integer help={t("euler_circle_graph_degree_help", degreeArgs)}
-                         rejectedHint={t("euler_circle_graph_degree_rejected", degreeArgs)} onChange={value => this.editDegree(value)}/>,
+            <Slider key="angle" customText={t("euler_circle_graph_angle_label")} value={this.state.degrees} step={1} bigStep={STEP_DEGREES} min={ANGLE_RANGE.min}
+                    max={ANGLE_RANGE.max} help={t("euler_circle_graph_angle_help")}
+                    rejectedHint={t("euler_circle_graph_angle_rejected", angleArgs)} onChange={value => this.editAngle(value)}/>,
+            <Slider key="omega" customText={t("euler_circle_graph_omega_label")} value={this.state.omega} step={1} bigStep={1} min={OMEGA_RANGE.min}
+                    max={OMEGA_RANGE.max} help={t("euler_circle_graph_omega_help")}
+                    rejectedHint={t("euler_circle_graph_omega_rejected", omegaArgs)} onChange={value => this.editOmega(value)}/>,
+            <CountSetter key="degree" label={t("euler_circle_graph_degree_label")} n={this.state.degree} min={DEGREE_RANGE.min} max={DEGREE_RANGE.max}
+                         help={t("euler_circle_graph_degree_help")} rejectedHint={t("euler_circle_graph_degree_rejected", degreeArgs)}
+                         onPlus={() => this.editDegree(this.state.degree + 1)} onMinus={() => this.editDegree(this.state.degree - 1)}
+                         onSet={value => this.editDegree(value)}/>,
             <BooleanField key="mode" variant="checkbox" checked={this.state.mode === "product"} label={t("euler_circle_graph_mode_label")}
                           help={t("euler_circle_graph_mode_help")} onChange={checked => this.setProductMode(checked)}/>,
             ...(this.state.mode === "product" ? [
-                <NumberInput key="b" label={t("euler_circle_graph_b_label")} value={this.state.b} step={B_STEP} bigStep={B_STEP * 6} min={B_RANGE.min}
-                             max={B_RANGE.max} decimals={0} integer help={t("euler_circle_graph_b_help", bArgs)}
-                             rejectedHint={t("euler_circle_graph_b_rejected", bArgs)} onChange={value => this.editSecondAngle(value)}/>,
+                <Slider key="b" customText={t("euler_circle_graph_b_label")} value={this.state.b} step={B_STEP} bigStep={B_STEP * 6} min={B_RANGE.min}
+                        max={B_RANGE.max} help={t("euler_circle_graph_b_help")}
+                        rejectedHint={t("euler_circle_graph_b_rejected", bArgs)} onChange={value => this.editSecondAngle(value)}/>,
             ] : []),
             <BooleanField key="velocity" variant="checkbox" checked={this.state.velocity} label={t("euler_circle_graph_velocity_label")}
                           help={t("euler_circle_graph_velocity_help")} onChange={checked => this.setVectors({velocity: checked})}/>,

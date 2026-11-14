@@ -73,7 +73,8 @@ const points = (graph: ObservedGraph): Record<string, Probe> => Object.fromEntri
     return [name, found[found.length - 1]];
 }));
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
+const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const hasRow = (id: string) => document.querySelector(`[data-readout="${id}"]`) !== null;
@@ -83,6 +84,8 @@ const status = () => document.querySelector('[data-euler-status]')!.textContent!
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_EULER_CIRCLE_STATE>) => act(() => { graph.setState(patch); });
+/** The help under a slider is described from its range input, not from its exact field. */
+const sliderHelp = (label: string) => help(screen.getByRole('slider', {name: label}));
 const help = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
 const toggle = (label: string) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
 const productOn = (graph: ObservedGraph) => set(graph, {mode: 'product'});
@@ -217,7 +220,7 @@ describe('typed values and the drag', () => {
         expect(input.getAttribute('aria-invalid')).toBe('true');
         // The shared NumberInput hint wording belongs to the Controls stream; assert only that it states the range.
         expect(help(input)).toMatch(/\b0\b[^\d]+\b360\b/);
-        expect(help(input)).toContain(t('euler_circle_graph_angle_help', {value0: '0', value1: '360'}));
+        expect(sliderHelp(angleLabel())).toContain(t('euler_circle_graph_angle_help'));
         enter(angleLabel(), '30,5');
         expect(field(angleLabel()).getAttribute('aria-invalid')).toBe('true');
         expect(help(field(angleLabel()))).toMatch(/\b0\b[^\d]+\b360\b/);
@@ -234,8 +237,8 @@ describe('typed values and the drag', () => {
         const before = graph.state;
         for (const bad of ['0', '5', '1,5']) { enter(omegaLabel(), bad); expect(graph.state, bad).toBe(before); }
         for (const bad of ['0', '31', '2,5']) { enter(degreeLabel(), bad); expect(graph.state, bad).toBe(before); }
-        expect(help(field(omegaLabel()))).toContain(t('euler_circle_graph_omega_help', {value0: '1', value1: '4'}));
-        expect(help(field(degreeLabel()))).toContain(t('euler_circle_graph_degree_help', {value0: '1', value1: '30'}));
+        expect(sliderHelp(omegaLabel())).toContain(t('euler_circle_graph_omega_help'));
+        expect(help(screen.getByRole('group', {name: degreeLabel()}))).toContain(t('euler_circle_graph_degree_help'));
         enter(omegaLabel(), '4');
         enter(degreeLabel(), '30');
         expect(graph.state).toMatchObject({omega: 4, degree: 30});
@@ -244,7 +247,7 @@ describe('typed values and the drag', () => {
     test('the angle help says degrees', () => {
         mountGraph();
         expect(angleLabel()).toContain('stopinje');
-        expect(help(field(angleLabel()))).toContain('stopinj');
+        expect(sliderHelp(angleLabel())).toContain('povlečeš');
     });
 
     test('dragging the point snaps to the nearest whole degree whatever its distance; non-finite and the centre change nothing', () => {
@@ -348,7 +351,7 @@ describe('product mode', () => {
         expect(help(input)).toContain(t('euler_circle_graph_b_rejected', {value0: '0', value1: '360', value2: '5'}));
         enter(secondLabel(), '365');
         expect(help(field(secondLabel()))).toMatch(/\b0\b[^\d]+\b360\b/);
-        expect(help(input)).toContain(t('euler_circle_graph_b_help', {value0: '0', value1: '360', value2: '5'}));
+        expect(sliderHelp(secondLabel())).toContain(t('euler_circle_graph_b_help'));
         expect(secondLabel()).toContain('stopinje');
         enter(secondLabel(), '50');
         expect(graph.state.b).toBe(50);

@@ -9,7 +9,8 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {formatComplex} from "../../analysis/complexFormat";
 import {COMPLEX_POWER_MAX} from "../../analysis/complexPower";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
@@ -455,11 +456,12 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         this.requestRender();
     }
 
-    /** A typed Re z or Im z: on the 0.05 grid in [-2, 2], otherwise refused (false), never rounded or clamped. */
-    editCoordinate(part: "A" | "B", value: number): boolean {
-        const checked = typedCoordinate(value, part === "A" ? "re" : "im");
-        if (!checked.ok) return false;
-        if (checked.value !== this.state[part]) this.edit({[part]: checked.value});
+    /** A typed z: both parts on the 0.05 grid in [-2, 2], otherwise refused (false) and nothing changes. */
+    editPoint(re: number, im: number): boolean {
+        const A = typedCoordinate(re, "re");
+        const B = typedCoordinate(im, "im");
+        if (!A.ok || !B.ok) return false;
+        if (A.value !== this.state.A || B.value !== this.state.B) this.edit({A: A.value, B: B.value});
         return true;
     }
 
@@ -569,17 +571,14 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
     override getGraphCommands(): JSX.Element[] {
         const zArgs = {value0: dec(Z_RANGE.min / Z_SCALE, 2), value1: dec(Z_RANGE.max / Z_SCALE, 2), value2: dec(1 / Z_SCALE, 2)};
         const nArgs = {value0: dec(N_RANGE.min, 0), value1: dec(N_RANGE.max, 0)};
-        const coordinate = (part: "A" | "B", label: string, key: string) => (
-            <NumberInput key={key} label={label} value={coordinateOf(this.state[part])} step={1 / Z_SCALE} bigStep={0.5} min={Z_RANGE.min / Z_SCALE}
-                         max={Z_RANGE.max / Z_SCALE} decimals={2} help={t("complex_power_graph_z_help", zArgs)}
-                         rejectedHint={t("complex_power_graph_z_rejected", zArgs)} onChange={value => this.editCoordinate(part, value)}/>
-        );
         return [
-            coordinate("A", t("complex_power_graph_re_label"), "re"),
-            coordinate("B", t("complex_power_graph_im_label"), "im"),
-            <NumberInput key="n" label={t("complex_power_graph_n_label")} value={this.state.n} step={1} bigStep={1} min={N_RANGE.min} max={N_RANGE.max} decimals={0}
-                         help={t("complex_power_graph_n_help", nArgs)} rejectedHint={t("complex_power_graph_n_rejected", nArgs)}
-                         onChange={value => this.editExponent(value)}/>,
+            <PointListInput key="z" title={t("complex_power_graph_z_title")} points={[[coordinateOf(this.state.A), coordinateOf(this.state.B)]]}
+                            pointLabel={() => "z"} axisLabels={["Re", "Im"]} min={Z_RANGE.min / Z_SCALE} max={Z_RANGE.max / Z_SCALE} step={1 / Z_SCALE} bigStep={0.5} decimals={2}
+                            onCommit={(_index, [re, im]) => this.editPoint(re, im) ? undefined : t("complex_power_graph_z_rejected", zArgs)}/>,
+            <CountSetter key="n" label={t("complex_power_graph_n_label")} n={this.state.n} min={N_RANGE.min} max={N_RANGE.max} help={t("complex_power_graph_n_help")}
+                         rejectedHint={t("complex_power_graph_n_rejected", nArgs)}
+                         onPlus={() => this.editExponent(this.state.n + 1)} onMinus={() => this.editExponent(this.state.n - 1)}
+                         onSet={value => this.editExponent(value)}/>,
         ];
     }
 

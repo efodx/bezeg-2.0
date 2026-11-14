@@ -87,7 +87,13 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [wRe, wIm, zRe, zIm] = found.NumberInput;
+    // w and the test point z are one-row point lists; each part reads as the field it was before (onChange reports acceptance)
+    const [wList, zList] = found.PointListInput;
+    const part = (list: any, index: number, axis: number) => ({props: {
+        value: list.props.points[index][axis],
+        onChange: (value: number) => { const row = [...list.props.points[index]]; row[axis] = value; return list.props.onCommit(index, row) === undefined; },
+    }});
+    const [wRe, wIm, zRe, zIm] = [part(wList, 0, 0), part(wList, 0, 1), part(zList, 0, 0), part(zList, 0, 1)];
     const [degree] = found.CountSetter;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {

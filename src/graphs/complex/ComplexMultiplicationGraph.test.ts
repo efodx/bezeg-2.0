@@ -88,10 +88,17 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [zRe, zIm, wRe, wIm, modulus, argument] = found.NumberInput;
+    const [modulus, argument] = found.Slider;
+    // z and w are the two rows of one point list; each part is read as the field it was before: onChange reports whether the edit was accepted
+    const list = found.PointListInput[0].props;
+    const part = (index: number, axis: number) => ({props: {
+        value: list.points[index][axis],
+        onChange: (value: number) => { const row = [...list.points[index]]; row[axis] = value; return list.onCommit(index, row) === undefined; },
+    }});
+    const [zRe, zIm, wRe, wIm] = [part(0, 0), part(0, 1), part(1, 0), part(1, 1)];
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
-        found, select: found.ChoiceSelect[0], zRe, zIm, wRe, wIm, modulus, argument,
+        found, list, select: found.ChoiceSelect[0], zRe, zIm, wRe, wIm, modulus, argument,
         showProduct: button('toggle-complex-product'), showArguments: button('toggle-complex-arguments'),
     };
 };
@@ -306,23 +313,19 @@ test('the polar controls reject, never clamp: a modulus or argument that leaves 
     expect(graph.model).toMatchObject({wRe: -1.4, wIm: 0});
     expect(Object.is(graph.model.wIm, -0)).toBe(false);
 
-    // with w = 0 the argument has no value: the field is disabled with a visible explanation and the lesson action refuses
+    // with w = 0 the argument has no value: the slider is unavailable with its reason shown, and the lesson action refuses
     const zero = makeGraph();
     apply(zero, choice('zero'));
     const argumentField = controls(zero).argument;
-    expect(argumentField.props.disabled).toBe(true);
-    expect(argumentField.props.value).toBeUndefined();
-    expect(argumentField.props.describedBy).toBe('complex-w-argument-help');
-    const help = collect([zero.renderControls(), zero.renderReveals()]).p.find((paragraph: any) => paragraph.props.id === 'complex-w-argument-help');
-    expect(help.props['data-complex-argument-help']).toBe('zero');
-    expect(help.props.children).toBe('Argument števila 0 ni definiran, zato polja ni mogoče urejati. Modul nad 0 postavi w na pozitivno realno os.');
+    expect(argumentField.props.unavailableReason).toBe('Argument števila 0 ni definiran, zato drsnika ni mogoče premakniti. Modul nad 0 postavi w na pozitivno realno os.');
+    expect(collect([zero.renderControls(), zero.renderReveals()]).p ?? []).not.toContainEqual(expect.objectContaining({props: expect.objectContaining({'data-complex-argument-help': expect.anything()})}));
     expect(controls(zero).argument.props.onChange(1)).toBe(false);
     expect(() => apply(zero, parameter('complex-w-argument', 1))).toThrow(/ni določen/);
     expect(zero.model).toMatchObject({wRe: 0, wIm: 0});
     // a modulus above 0 puts w on the positive real axis; a modulus of 0 gives w = 0 again
     expect(controls(zero).modulus.props.onChange(1.5)).toBe(true);
     expect(zero.model).toMatchObject({wRe: 1.5, wIm: 0});
-    expect(controls(zero).argument.props.disabled).toBe(false);
+    expect(controls(zero).argument.props.unavailableReason).toBeUndefined();
     expect(controls(zero).modulus.props.onChange(0)).toBe(true);
     expect(zero.model).toMatchObject({wRe: 0, wIm: 0});
     // the same refusals reach a lesson action as a DomainError, never a clamp
@@ -354,9 +357,9 @@ test('Cartesian number fields snap arithmetic noise to the 0.05 grid and reject 
     controls(graph).wRe.props.onChange(1);
     expect(graph.model.example).toBe('scaling');
     // every field carries its hint and a keyboard step of 0.05
-    for (const field of [controls(graph).zRe, controls(graph).zIm, controls(graph).wRe, controls(graph).wIm]) {
-        expect(field.props).toMatchObject({min: -2, max: 2, step: 0.05, rejectedHint: 'Vrednost mora biti večkratnik števila 0,05 med −2 in 2.'});
-    }
+    const {list} = controls(graph);
+    expect(list).toMatchObject({min: -2, max: 2, step: 0.05});
+    expect(list.onCommit(1, [0.123, 0])).toBe('Vrednost mora biti večkratnik števila 0,05 med −2 in 2.');
 });
 
 test('dragging z and w projects onto the 0.05 grid inside [-2, 2] and writes through the same setter, once per event', () => {

@@ -82,7 +82,15 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const [zRe, zIm, wRe, wIm, centreRe, centreIm, radius] = found.NumberInput;
+    // z and w are two rows of one point list, the centre c is a second list; each part reads as the field it was before (onChange reports acceptance)
+    const [numbers, centre] = found.PointListInput;
+    const part = (list: any, index: number, axis: number) => ({props: {
+        value: list.props.points[index][axis],
+        onChange: (value: number) => { const row = [...list.props.points[index]]; row[axis] = value; return list.props.onCommit(index, row) === undefined; },
+    }});
+    const [zRe, zIm, wRe, wIm] = [part(numbers, 0, 0), part(numbers, 0, 1), part(numbers, 1, 0), part(numbers, 1, 1)];
+    const [centreRe, centreIm] = [part(centre, 0, 0), part(centre, 0, 1)];
+    const [radius] = found.Slider;
     const button = (action: string) => (found.button ?? []).find((element: any) => element.props['data-action'] === action) ?? revealButton(found, action);
     return {
         found, select: found.ChoiceSelect[0], zRe, zIm, wRe, wIm, centreRe, centreIm, radius,
@@ -493,11 +501,11 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     expect(rows(graph).reciprocal).toBe('hidden');
     expect(controls(graph).showReciprocal.props.children).toBe('Show 1/z');
     expect(controls(graph).showCircle.props.children).toBe('Hide inversion circle');
-    expect(controls(graph).radius.props.label).toBe('Radius r');
+    expect(controls(graph).radius.props.customText).toBe('Radius r');
     setLanguage('sl');
     expect(caption(graph)[2]).toBe('1/z: skrit');
     expect(controls(graph).showReciprocal.props.children).toBe('Pokaži 1/z');
-    expect(controls(graph).radius.props.label).toBe('Polmer r');
+    expect(controls(graph).radius.props.customText).toBe('Polmer r');
     // below 520 px the labels stay short: the circle line and the key are left out
     graph.board.canvasWidth = 390;
     expect(caption(graph)).toHaveLength(4);

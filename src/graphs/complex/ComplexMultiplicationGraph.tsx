@@ -3,7 +3,8 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {FunctionStatus} from "../functions/FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -392,10 +393,6 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         const language = this.language();
         const view = this.viewOf(state);
         const wZero = isZero(view.w);
-        const coordinate = (label: string, value: number, apply: (value: number) => void) => (
-            <NumberInput label={label} value={value} min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
-                         rejectedHint={t("complex_coordinate_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => apply(next))}/>
-        );
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("complex_example_label")} value={state.example} help={t("complex_example_help")}
@@ -403,29 +400,24 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="function-points-grid">
-                    {coordinate(t("complex_z_re_label"), state.zRe, value => this.setZRe(value))}
-                    {coordinate(t("complex_z_im_label"), state.zIm, value => this.setZIm(value))}
-                    {coordinate(t("complex_w_re_label"), state.wRe, value => this.setWRe(value))}
-                    {coordinate(t("complex_w_im_label"), state.wIm, value => this.setWIm(value))}
-                </div>
+                <PointListInput title={t("complex_numbers_title")} points={[[state.zRe, state.zIm], [state.wRe, state.wIm]]}
+                                pointLabel={index => index === 0 ? "z" : "w"} axisLabels={["Re", "Im"]}
+                                min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                                onCommit={(index, [re, im]) => this.ignoreOutOfDomain(() => this.setOperand(index === 0 ? "z" : "w", re, im))
+                                    ? undefined : t("complex_coordinate_rejected_hint")}/>
                 <p className="inspector-help">{t("complex_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                <div className="function-points-grid complex-w-grid">
-                    <NumberInput label={t("complex_w_modulus_label")} value={view.wModulus} min={0} max={COMPLEX_MAX_OPERAND_MODULUS} step={0.05} decimals={4}
-                                 rejectedHint={t("complex_modulus_rejected_hint", {value0: formatNumber(COMPLEX_MAX_OPERAND_MODULUS, language, 2)})}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setWModulus(next))}/>
-                    <NumberInput label={t("complex_w_argument_label")} value={view.wArgument} min={-MAX_TYPED_ARGUMENT} max={MAX_TYPED_ARGUMENT} step={0.1} decimals={4}
-                                 disabled={wZero} describedBy="complex-w-argument-help"
-                                 rejectedHint={t("complex_argument_rejected_hint", {
-                                     value0: formatNumber(-MAX_TYPED_ARGUMENT, language, 2), value1: formatNumber(MAX_TYPED_ARGUMENT, language, 2),
-                                 })}
-                                 onChange={next => this.ignoreOutOfDomain(() => this.setWArgument(next))}/>
-                </div>
-                <p id="complex-w-argument-help" className="inspector-help" data-complex-argument-help={wZero ? "zero" : "polar"}>
-                    {wZero ? t("complex_w_argument_zero") : t("complex_polar_help")}
-                </p>
+                <Slider customText={t("complex_w_modulus_label")} value={view.wModulus} min={0} max={COMPLEX_MAX_OPERAND_MODULUS} step={0.05} decimals={2} fieldDecimals={4}
+                        rejectedHint={t("complex_modulus_rejected_hint", {value0: formatNumber(COMPLEX_MAX_OPERAND_MODULUS, language, 2)})}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setWModulus(next))}/>
+                <Slider customText={t("complex_w_argument_label")} value={view.wArgument ?? 0} min={-MAX_TYPED_ARGUMENT} max={MAX_TYPED_ARGUMENT} step={0.1} decimals={2} fieldDecimals={4}
+                        unavailableReason={wZero ? t("complex_w_argument_zero") : undefined}
+                        rejectedHint={t("complex_argument_rejected_hint", {
+                            value0: formatNumber(-MAX_TYPED_ARGUMENT, language, 2), value1: formatNumber(MAX_TYPED_ARGUMENT, language, 2),
+                        })}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setWArgument(next))}/>
+                {!wZero && <p className="inspector-help">{t("complex_polar_help")}</p>}
             </div>
         </>;
     }

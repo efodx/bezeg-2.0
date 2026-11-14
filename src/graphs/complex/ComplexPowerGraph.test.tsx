@@ -63,7 +63,7 @@ const curves = (graph: ObservedGraph) => ofType(graph, 'curve');
 const arrows = (graph: ObservedGraph) => ofType(graph, 'arrow');
 const diamonds = (graph: ObservedGraph) => ofType(graph, 'point').filter(p => String(p.evalVisProp('face')) === 'diamond');
 
-const field = (name: string) => screen.getByLabelText(name) as HTMLInputElement;
+const field = (name: string) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
@@ -72,8 +72,8 @@ const status = () => document.querySelector('[data-complex-power-status]')!.text
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_COMPLEX_POWER_STATE>) => act(() => { graph.setState(patch); });
-const reLabel = () => t('complex_power_graph_re_label');
-const imLabel = () => t('complex_power_graph_im_label');
+const reLabel = () => 'z, Re';
+const imLabel = () => 'z, Im';
 const nLabel = () => t('complex_power_graph_n_label');
 const zAct = (re: number, im: number) => ({kind: 'complex-power', operation: 'set-z', re, im}) as const;
 const nAct = (n: number) => ({kind: 'complex-power', operation: 'set-n', n}) as const;
@@ -176,14 +176,12 @@ describe('typed values, scene actions and the drag', () => {
             enter(nLabel(), bad);
             expect(graph.state, bad).toBe(before);
         }
-        expect(graph.editCoordinate('A', 0.33)).toBe(false);
-        expect(graph.editCoordinate('B', Number.NaN)).toBe(false);
+        expect(graph.editPoint(0.33, 0)).toBe(false);
+        expect(graph.editPoint(0, Number.NaN)).toBe(false);
         expect(graph.editExponent(9)).toBe(false);
         enter(reLabel(), '2,05');
         const input = field(reLabel());
         expect(input.getAttribute('aria-invalid')).toBe('true');
-        const hint = (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-        expect(hint).toContain(t('complex_power_graph_z_help', {value0: '−2', value1: '2', value2: '0,05'}));
         enter(reLabel(), '0,33');
         expect(input.getAttribute('aria-invalid')).toBe('true');
         const offGridHint = (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
@@ -194,7 +192,7 @@ describe('typed values, scene actions and the drag', () => {
         expect(graph.state.B).toBe(-25);
         enter(nLabel(), '8');
         expect(graph.state.n).toBe(8);
-        expect(graph.editCoordinate('A', -2)).toBe(true);
+        expect(graph.editPoint(-2, -1.25)).toBe(true);
         expect(graph.state.A).toBe(-40);
     });
 
@@ -542,7 +540,7 @@ describe('language and the catalog', () => {
     test('every complex_power_graph key exists in both languages with the same placeholder names, and the sources use exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('complex_power_graph_'));
-        expect(keys.length).toBeGreaterThanOrEqual(57);
+        expect(keys.length).toBeGreaterThanOrEqual(56);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];

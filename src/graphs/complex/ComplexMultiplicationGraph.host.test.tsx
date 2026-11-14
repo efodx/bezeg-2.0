@@ -34,7 +34,11 @@ class ObservedComplexGraph extends ComplexMultiplicationGraph {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-complex-status]')].map(element => element.getAttribute('data-complex-status'));
 const boardObjects = (graph: ObservedComplexGraph) => graph.liveBoard().objectsList.length;
-const field = (name: RegExp | string) => screen.getByLabelText(name) as HTMLInputElement;
+/** The typed field of a control; a slider's exact field is named "<label>, vrednost", a point row's "<point>, <axis>". */
+const field = (name: RegExp | string) => screen.getAllByRole('spinbutton', {name: accessible => {
+    const label = accessible.replace(/, vrednost$/, '');
+    return typeof name === 'string' ? label === name : name.test(label);
+}})[0] as HTMLInputElement;
 
 test('the visible statuses are plain text; the graph announces them through its one settled live region (decision 63)', () => {
     const graph = new ObservedComplexGraph();
@@ -72,15 +76,15 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     expect(screen.getByRole('button', {name: 'Skrij argumente'})).toBeInTheDocument();
 
     // Cartesian fields: a grid value is applied, an off-grid value is refused with the reason
-    act(() => { enterNumber(field('Re w'), '1'); });
+    act(() => { enterNumber(field('w, Re'), '1'); });
     expect(graph.modelNow()).toMatchObject({wRe: 1, wIm: 1});
     expect(readout('product')).toBe('2i');
-    act(() => { enterNumber(field('Im w'), '0.123'); });
+    act(() => { enterNumber(field('w, Im'), '0.123'); });
     expect(graph.modelNow()).toMatchObject({wIm: 1});
     expect(screen.getByText('Vrednost mora biti večkratnik števila 0,05 med −2 in 2.')).toBeInTheDocument();
-    act(() => { enterNumber(field('Im w'), '2.5'); });
+    act(() => { enterNumber(field('w, Im'), '2.5'); });
     expect(graph.modelNow()).toMatchObject({wIm: 1});
-    act(() => { enterNumber(field('Im z'), '-1'); });
+    act(() => { enterNumber(field('z, Im'), '-1'); });
     expect(graph.modelNow()).toMatchObject({zIm: -1});
     // (1 - i)(1 + i) = 2: a real product has no imaginary part
     expect(readout('product')).toBe('2');
@@ -102,11 +106,10 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     // with w = 0 the argument field is disabled and described; its product and argument read "ni definiran"
     act(() => { fireEvent.change(screen.getByLabelText('Primer množenja'), {target: {value: 'zero'}}); });
     expect(graph.modelNow()).toEqual({example: 'zero', zRe: 1, zIm: 1, wRe: 0, wIm: 0, productVisible: false, anglesVisible: false});
-    const argumentField = field(/^Argument arg w \(rad\)$/);
-    expect(argumentField).toBeDisabled();
-    const helpId = argumentField.getAttribute('aria-describedby')!;
-    expect(helpId).toContain('complex-w-argument-help');
-    expect(document.getElementById('complex-w-argument-help')?.textContent).toMatch(/ni definiran/);
+    const argumentRange = screen.getByRole('slider', {name: 'Argument arg w (rad)'});
+    expect(argumentRange).toHaveAttribute('aria-disabled', 'true');
+    const reasonOf = () => (argumentRange.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
+    expect(reasonOf()).toMatch(/ni definiran/);
     act(() => { fireEvent.click(toggle()); });
     expect(readout('product')).toBe('0');
     expect(readout('product-argument')).toBe('ni definiran');
@@ -123,7 +126,7 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     expect(screen.getByLabelText('Multiplication example')).toBeInTheDocument();
     expect(readout('product-argument')).toBe('undefined');
     expect(graph.captionPlainLines()).toEqual(['z = 1 + i, w = 0', 'zw = 0', 'circle: z; square: w; diamond: zw']);
-    expect(document.getElementById('complex-w-argument-help')?.textContent).toMatch(/undefined/);
+    expect(reasonOf()).toMatch(/undefined/);
     act(() => { setLanguage('sl'); });
     expect(graph.captionPlainLines()).toEqual(['z = 1 + i, w = 0', 'zw = 0', 'krog: z; kvadrat: w; romb: zw']);
 });

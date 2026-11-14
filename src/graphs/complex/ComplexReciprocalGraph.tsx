@@ -3,7 +3,8 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {FunctionStatus} from "../functions/FunctionStatus";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
@@ -419,10 +420,6 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
 
     protected renderControls(): React.ReactNode {
         const state = this.model;
-        const coordinate = (label: string, value: number, apply: (value: number) => void) => (
-            <NumberInput label={label} value={value} min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
-                         rejectedHint={t("complex_coordinate_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => apply(next))}/>
-        );
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("complex_recip_example_label")} value={state.example} help={t("complex_recip_example_help")}
@@ -430,21 +427,23 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
             <div className="inspector-group">
-                <div className="function-points-grid">
-                    {coordinate(t("complex_z_re_label"), state.zRe, value => this.setZRe(value))}
-                    {coordinate(t("complex_z_im_label"), state.zIm, value => this.setZIm(value))}
-                    {coordinate(t("complex_w_re_label"), state.wRe, value => this.setWRe(value))}
-                    {coordinate(t("complex_w_im_label"), state.wIm, value => this.setWIm(value))}
-                </div>
+                <PointListInput title={t("complex_numbers_title")} points={[[state.zRe, state.zIm], [state.wRe, state.wIm]]}
+                                pointLabel={index => index === 0 ? "z" : "w"} axisLabels={["Re", "Im"]}
+                                min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                                onCommit={(index, [re, im]) => this.ignoreOutOfDomain(() => this.setOperand(index === 0 ? "z" : "w", re, im))
+                                    ? undefined : t("complex_coordinate_rejected_hint")}/>
                 <p className="inspector-help">{t("complex_fields_help")}</p>
             </div>
             <div className="inspector-group" data-complex-circle-fields={state.circleVisible ? "shown" : "hidden"}>
-                <div className="function-points-grid">
-                    {coordinate(t("complex_recip_centre_re_label"), state.centreRe, value => this.setCentre(value, this.model.centreIm))}
-                    {coordinate(t("complex_recip_centre_im_label"), state.centreIm, value => this.setCentre(this.model.centreRe, value))}
-                    <NumberInput label={t("complex_recip_radius_label")} value={state.radius} min={INVERSION_RADIUS_MIN} max={INVERSION_RADIUS_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
-                                 rejectedHint={t("complex_recip_radius_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setRadius(next))}/>
-                </div>
+                <PointListInput title={t("complex_recip_centre_title")} points={[[state.centreRe, state.centreIm]]}
+                                pointLabel={() => "c"} axisLabels={["Re", "Im"]}
+                                min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                                onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setCentre(re, im))
+                                    ? undefined : t("complex_coordinate_rejected_hint")}/>
+            </div>
+            <div className="inspector-group">
+                <Slider customText={t("complex_recip_radius_label")} value={state.radius} min={INVERSION_RADIUS_MIN} max={INVERSION_RADIUS_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
+                        rejectedHint={t("complex_recip_radius_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setRadius(next))}/>
                 <p className="inspector-help">{t("complex_recip_circle_help")}</p>
             </div>
         </>;
