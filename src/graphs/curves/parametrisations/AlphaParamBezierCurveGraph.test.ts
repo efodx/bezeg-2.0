@@ -1,10 +1,11 @@
 import AlphaParamBezierCurveGraph, {alphaParameterization} from './AlphaParamBezierCurveGraph';
+import {GraphPalette} from '../../styles/GraphPalette';
 
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: vi.fn((type: string, args: any[]) => {
-            const object: any = {type, args, board, on: vi.fn(), setAttribute: vi.fn()};
+        create: vi.fn((type: string, args: any[], attrs?: any) => {
+            const object: any = {type, args, attrs, board, on: vi.fn(), setAttribute: vi.fn()};
             board.objectsList.push(object);
             return object;
         }),
@@ -143,6 +144,25 @@ test('sample positions follow phi_alpha at the sample parameters', () => {
     expect(ys[0]).toBeCloseTo(1 / 10, 12);
     expect(ys[1]).toBeCloseTo(1 / 4, 12);
     expect(ys[2]).toBeCloseTo(1 / 2, 12);
+});
+
+test('sample markers are blue with a light outline, sized 0.7 of a control point, and sit on the curve', () => {
+    const graph = makeGraph({alpha: 0.25, numberOfPoints: 3});
+    graph.generateParamPoints();
+    expect(graph.sampleMarkers).toHaveLength(3);
+    graph.sampleMarkers.forEach((marker: any) => {
+        expect(marker.attrs.fillColor).toBe(GraphPalette.comparisonCurve);
+        expect(marker.attrs.size()).toBeCloseTo(graph.displaySettings.pointSize * 0.7, 12);
+        const outline = marker.setAttribute.mock.calls.at(-1)[0];
+        expect(outline.strokeColor).toBe(GraphPalette.pointOutline);
+        expect(outline.strokeWidth()).toBeCloseTo(graph.displaySettings.pointSize / 5, 12);
+    });
+    // The curve stand-in is eval(t) = (t, 2t), so a marker at t_i has x = t_i and y = 2 t_i.
+    graph.sampleMarkers.forEach((marker: any, i: number) => {
+        const t = alphaParameterization(0.25, (i + 1) / 4);
+        expect(marker.args[0]()).toBeCloseTo(t, 12);
+        expect(marker.args[1]()).toBeCloseTo(2 * t, 12);
+    });
 });
 
 describe('phi_alpha(t) = (1-a)t / (a(1-t) + (1-a)t)', () => {

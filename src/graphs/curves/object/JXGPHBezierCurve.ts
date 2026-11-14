@@ -227,7 +227,7 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
                 },
                 0,
                 1
-            ], this.styles.curve.comparison(index)
+            ], this.styles.curve.offsetFamily(index)
         ));
         if (hide) {
             this.jsxOffsetCurves.forEach(curve => curve.hide());

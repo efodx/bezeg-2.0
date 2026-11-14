@@ -5,7 +5,7 @@ export const GraphPalette = {
     additionalCurves: ["#6f9285", "#ad8054", "#887b9a", "#9b7e72", "#66869a"] as const,
     referenceCurve: "#8d9a8d",
     basisCurves: ["#6175ad", "#ad8054", "#6f9285", "#887b9a", "#9b7e72", "#66869a"] as const,
-    parameterSample: "#a48752",
+    parameterSample: "#6175ad",
     splineJoin: "#748975",
     controlPoint: "#bd8040",
     selectedControlPoint: "#d39a4a",

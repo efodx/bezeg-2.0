@@ -1,4 +1,5 @@
 import SplineAlphaParametrizationGraph from './SplineAlphaParametrizationGraph';
+import {GraphPalette} from '../../styles/GraphPalette';
 import BaseCurveGraph from '../../base/BaseCurveGraph';
 import {C2CubicBezierSpline} from '../../../bezeg/impl/curve/C2CubicBezierSpline';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
@@ -99,8 +100,8 @@ describe('spline alpha parametrization math (thesis 4.2.3)', () => {
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: vi.fn((type: string, args: any[]) => {
-            const object: any = {type, args, board, on: vi.fn(), setAttribute: vi.fn()};
+        create: vi.fn((type: string, args: any[], attrs?: any) => {
+            const object: any = {type, args, attrs, board, on: vi.fn(), setAttribute: vi.fn()};
             board.objectsList.push(object);
             return object;
         }),
@@ -206,6 +207,23 @@ describe('lesson actions', () => {
         const t = 1 / 4;
         expect(graph.sampleMarkers[0].args[0]()).toBeCloseTo(replacement.eval(t).X(), 12);
         expect(graph.sampleMarkers[0].args[1]()).toBeCloseTo(replacement.eval(t).Y(), 12);
+    });
+
+    test('markers are blue with a light outline, sized 0.7 of a control point, and sit at the sampled parameters', () => {
+        const graph = makeGraph({alpha: 0.5, numberOfPoints: 3});
+        graph.generateParamPoints();
+        const curve = graph.getFirstCurve();
+        expect(graph.sampleMarkers).toHaveLength(3);
+        graph.sampleMarkers.forEach((marker: any, i: number) => {
+        expect(marker.attrs.fillColor).toBe(GraphPalette.comparisonCurve);
+        expect(marker.attrs.size()).toBeCloseTo(graph.displaySettings.pointSize * 0.7, 12);
+        const outline = marker.setAttribute.mock.calls.at(-1)[0];
+        expect(outline.strokeColor).toBe(GraphPalette.pointOutline);
+        expect(outline.strokeWidth()).toBeCloseTo(graph.displaySettings.pointSize / 5, 12);
+            const t = (i + 1) / 4;
+            expect(marker.args[0]()).toBeCloseTo(curve.eval(t).X(), 12);
+            expect(marker.args[1]()).toBeCloseTo(curve.eval(t).Y(), 12);
+        });
     });
 
     test('control points are never touched by marker regeneration', () => {

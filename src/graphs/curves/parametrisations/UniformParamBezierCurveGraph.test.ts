@@ -1,4 +1,5 @@
 import UniformParamBezierCurveGraph from './UniformParamBezierCurveGraph';
+import {GraphPalette} from '../../styles/GraphPalette';
 import {PhBezierCurve} from '../../../bezeg/impl/curve/ph-bezier-curve';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 
@@ -9,8 +10,8 @@ const defaultCurve = () => new PhBezierCurve(
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
-        create: vi.fn((type: string) => {
-            const object: any = {type, board, on: vi.fn(), setAttribute: vi.fn()};
+        create: vi.fn((type: string, args?: any[], attrs?: any) => {
+            const object: any = {type, args, attrs, board, on: vi.fn(), setAttribute: vi.fn()};
             board.objectsList.push(object);
             return object;
         }),
@@ -162,6 +163,22 @@ describe('sample point ownership', () => {
         // board.create mock call 4 is sample index 4; its coordinate function reads the current ts.
         const xFn = graph.board.create.mock.calls[4][1][0];
         expect(xFn()).toBeCloseTo(graph.getFirstCurve().eval(graph.ts[4]).X(), 12);
+    });
+
+    test('markers are blue with a light outline, sized 0.7 of a control point, and sit at curve.eval(ts[i])', () => {
+        const graph = makeGraph();
+        update(graph);
+        const curve = graph.getFirstCurve();
+        expect(graph.sampleJxgPoints).toHaveLength(10);
+        graph.sampleJxgPoints.forEach((marker: any, i: number) => {
+        expect(marker.attrs.fillColor).toBe(GraphPalette.comparisonCurve);
+        expect(marker.attrs.size()).toBeCloseTo(graph.displaySettings.pointSize * 0.7, 12);
+        const outline = marker.setAttribute.mock.calls.at(-1)[0];
+        expect(outline.strokeColor).toBe(GraphPalette.pointOutline);
+        expect(outline.strokeWidth()).toBeCloseTo(graph.displaySettings.pointSize / 5, 12);
+            expect(marker.args[0]()).toBeCloseTo(curve.eval(graph.ts[i]).X(), 12);
+            expect(marker.args[1]()).toBeCloseTo(curve.eval(graph.ts[i]).Y(), 12);
+        });
     });
 
     test('scene disposal followed by restore ends with N samples on the new curve', () => {

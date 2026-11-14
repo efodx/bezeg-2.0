@@ -156,12 +156,12 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
         for (let i = 1; i <= count; i++) {
             const point = this.createJSXGraphPoint(() => this.getFirstCurve()!.eval(this.alphaParam(i * dt)).X(), () => this.getFirstCurve()!.eval(this.alphaParam(i * dt)).Y(), {
                 ...this.styles.point.fixed,
-                size: () => this.displaySettings.pointSize * 0.5,
+                size: () => this.displaySettings.pointSize * 0.7,
                 fillColor: GraphPalette.parameterSample,
             });
             this.sampleMarkers.push(point.point);
             // Keep the outline as a post-creation override; JSXGraph merges color and strokeColor unreliably.
-            point.point.setAttribute({strokeWidth: () => this.displaySettings.pointSize / 5, strokeColor: GraphPalette.label});
+            point.point.setAttribute({strokeWidth: () => this.displaySettings.pointSize / 5, strokeColor: GraphPalette.pointOutline});
         }
     }
 
