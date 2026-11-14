@@ -2,6 +2,8 @@
 
 Status: planned 2026-11-08 at the owner's request ("the pipeline is so slow; do the tests catch anything; will `just check-changed` be enough; streams wait on publishing"). Research only: no test, build or smoke run was started. Every number below comes from Vitest's cached `results.json` (2026-11-08), 400 hosted `Browser smoke` runs on master (2026-11-02 to 11-08), one Playwright log (run 42473882485), Git history, and the repository's own recorded measurements. Evidence: [docs/reviews/verification-throughput/](../reviews/verification-throughput/) (`unit-audit.md`, `smoke-audit.md`, `ci-history.md`, `workflow-blocking.md`, `controls-impact.md`).
 
+**Reopened 2026-11-14:** the owner still reports about 12 minutes on CI and constant local waiting by agents. [Phase 8](#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14) remeasures before any further change.
+
 Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, browser suite 665 s → 370 s) and the [fail-fast publication gate](fail-fast-publication-gate.md). No phase is task-filed yet; file tasks under `docs/tasks/verification-throughput/` when a phase is picked up.
 
 **Progress, 2026-11-08.**
@@ -244,6 +246,44 @@ Acceptance:
 - Add `just test-cost` to print the slowest files and summed time from `results.json`, plus the delta against a baseline. Done: the baseline is a local snapshot saved with `just test-cost --save` after a full run. No master run's results are recorded anywhere to compare against.
 - A new catalog-wide or real-graph-per-entry test must state its scope tier (sampled locally, rotated in CI with a daily full run) in its header comment.
 - The handler card asks slices that add tests to report the time delta.
+
+### Phase 8: remeasure after phases 0–7, local waiting first (owner report 2026-11-14)
+
+Status: proposed 2026-11-14; nothing measured or changed yet beyond the hosted run list below. Source: [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#8-verification-throughput-and-architecture-investigation), items T01–T05.
+
+The owner reports that CI still takes about 12 minutes for small changes. On 2026-11-14 he added that the wait is local as well: agents wait for tests before they can continue, and this is a constant blocker. Local agent waiting is therefore the first thing this phase measures and the measure its changes are judged by.
+
+Observed on 2026-11-14 from `gh run list` (run creation to last update, so queueing and deployment are included):
+
+- The 24 successful full runs on master from 2026-11-13 and 11-14 took 9.1–14.9 min, median 12.2 min. The record on 2026-11-09 was 8:39 from trigger to deploy. Hosted time has regrown by about a third in five days, after phases 2, 4, 6 and 7.
+- Documentation-only runs took 0.5–0.6 min. At least six pushes whose head commit is titled `docs:` ran full verification (for example `2370f88e`, 12.2 min). The cause is not established; a multi-commit push or the red-latest-run rule from phase 0 would each explain it.
+- More than 80 Git worktrees are registered on this machine. How many run checks at the same time is not measured.
+
+Step 8a, measurement only. Write the result to `docs/reviews/verification-throughput/remeasure-2026-11-14.md`.
+
+- **Local.** From the `.command-logs` of every worktree over the last week, for each `check`, `check-changed`, `unit`, `smoke*` and `publish` run: time queued for a slot, start spacing, typecheck, lint, Vitest, build and smoke time, number of files selected, and reruns. Add what the logs cannot show: how long a handler or worker is idle between starting a check and using its result, taken from a sample of stream state notes and transcripts.
+- **Four representative small changes**, each timed end to end from "edit done" to "verified locally" and to "deployed": a one-file graph fix, one localization string, a CSS-only change and one lesson content edit.
+- **Hosted.** Per-job walls for the full runs above, the critical-path job in each, and what regrew since 2026-11-09 (file count, catalog size, whether rotation applies to these pushes). Explain the `docs:` pushes that ran full.
+- **Cost against value (T04).** For the 30 most expensive files in `just test-cost`, name the distinct behavior each guards and mark the ones that repeat a guarantee another file already gives.
+
+Step 8b, decide from 8a. These are hypotheses to test against the measurement, not selected work:
+
+- Agents wait when they do not need to: a check that could run in a detached worktree in the background, as `just publish --background` does, while the agent continues.
+- Workers run more than their slice needs: worker briefs ask for `check-changed` where focused files would do, with the handler running the wider check once per slice.
+- Selection is wider than the change: a CSS-only or documentation-adjacent change still selects unit files; the 265 files that import localization make any string edit select most of the suite.
+- Typecheck and lint are paid in full on every run without an incremental cache.
+- Slot sizing (2 slots of 5 workers, set on 2026-11-02) no longer fits the current suite and the number of concurrent streams.
+- Module boundaries: broad imports make unrelated tests reachable from small changes (the owner's architecture hypothesis in T04).
+
+Policy to record with the decision (T03): which checks run on every change, which are sampled locally, which rotate in CI, and when everything runs. The daily full run from phase 7 already exists; this step confirms it runs, is green and is read by someone, and documents the whole policy in one place in [the command guide](../commands.md).
+
+Acceptance:
+
+- **V1:** The remeasure note states, for each of the four representative changes, where the time goes locally and on CI, with the logs or run ids it came from.
+- **V2:** Each change selected in 8b names the wait it removes and is measured before and after on the same representative changes. The headline measure is the agent's wall time from "edit done" to "verified locally".
+- **V3:** No check is removed or narrowed without recording what still guards the behavior and where the full check runs.
+- **V4:** The routine / full policy is written in the command guide, and the full run's schedule and owner are named.
+- **V5:** The note explains why hosted time regrew after phases 2–7, so the same cause is covered by the regrowth guard above.
 
 ## Decisions taken
 

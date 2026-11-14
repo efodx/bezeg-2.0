@@ -1,6 +1,6 @@
 # Site walkthrough: planner intake, 2026-11-14
 
-Status: owner feedback captured for planning. This is an intake, not an implementation plan or a verified defect audit. Source: the owner's spoken walkthrough of the current site. No application changes or browser investigation were performed while compiling it.
+Status: planning started 2026-11-14; see the [disposition](#11-disposition-2026-11-14) for the packages, the owner's decisions so far and the specs each item goes to. Sections 1–10 are the intake as captured and are not edited. Originally: owner feedback captured for planning. This is an intake, not an implementation plan or a verified defect audit. Source: the owner's spoken walkthrough of the current site. No application changes or browser investigation were performed while compiling it.
 
 The planner should reconcile this feedback with current code, existing specifications and concurrent work, then produce bounded specifications and tasks with acceptance criteria. Preserve the distinctions below between requested outcomes, suggestions and unresolved decisions. No implementation order is implied, except that the owner explicitly identifies verification throughput as a major ongoing blocker.
 
@@ -118,3 +118,47 @@ The following are starting references by subject, not a claim that their require
 - Verification: [verification throughput](verification-throughput.md), [test consolidation](test-consolidation.md), [CI change scoping](ci-change-scoping.md), [publication gate](fail-fast-publication-gate.md).
 
 The resulting plan should retain these feedback IDs for traceability, identify affected routes / demonstrations, distinguish shared improvements from graph-specific art direction, and define observable acceptance criteria. Include the owner's positive references and open decisions in design briefs. Coordinate capture changes with the ongoing capture stream. Verify interface changes through the project's focused browser workflow and mathematical changes with relevant invariants; documentation-only intake needs neither an app build nor a smoke run.
+
+## 11. Disposition, 2026-11-14
+
+Planned against `master` at `f1d33fa4`. Code and specs were read; nothing was run in a browser. Every feedback ID belongs to exactly one package.
+
+| Package | Intake IDs | Goes to | State |
+| --- | --- | --- | --- |
+| A. Verification throughput | T01–T05 | [Verification throughput, phase 8](verification-throughput.md#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14) | Proposed. Measurement first. |
+| B. Shell and label polish | D01, D02, L02, L03, H01, H05, M01, M02, M03 | [Shell and label polish](site-walkthrough-shell-polish.md) | Proposed. Needs no owner decision. |
+| C. Design decisions | H02, H03, H04, L01, L04, L05, P01, P02 | Spec not written. Image mockups first. | Waiting on mockups. |
+| D. Graphs and captures | G01–G07 and the example table | Spec not written. | After the capture-text policy. |
+| E. Documentation | DOC01 | Spec not written. Documentation only. | Unscheduled. |
+
+Order: A first, because every other package pays the same wait. B and E can run beside it. C's mockups go to the owner meanwhile. D starts once the capture-text policy (decision 5) is written, so captures are recorded once.
+
+### Owner decisions, 2026-11-14
+
+- **H02 (decision 1):** the homepage shows a rotating selection from a curated pool of attractive demonstrations, not a beginner set. Pool membership, the label that replaces "starting demonstrations" and the rotation behavior are still to be specified in package C.
+- **G07 (decision 6):** the planner proposes several recognizable subjects for the epicycles example and the owner picks one. The subject itself is still open.
+- **G05:** the clips stream is treated as complete. It left some captures unfinished; package D works from the current state of the captures and does not wait for that stream. Its remaining queue entry (`projective-pascal`, in [the clips stream file](../tasks/feature-streams/clips.md)) is not a dependency.
+- **T01:** the wait is local as well as on CI. Agents wait for tests before they can continue, and the owner calls this a constant blocker. Phase 8 measures local agent waiting first.
+
+Decisions 2, 3, 4, 5 and 8 remain open. The planner settles 2–5 through mockups or a written policy and records the reason in the package spec; 8 follows the phase 8 measurement.
+
+### Names resolved (decision 7)
+
+| Transcribed | Catalog name | Basis |
+| --- | --- | --- |
+| "Luna triangulation" | Delaunay triangulation | `compgeo_delaunay_title` |
+| "de Joule" | De Casteljau | `de_casteljau_construction`, `de_casteljau_scheme` |
+| "Firing points" | Farin points | `farin_points` |
+| "oscillating circle" | Curvature and the osculating circle | `curvature_circle_title` |
+| "Kobeg" | Cobweb diagram, probable | Only a legend string (`fixed_point_legend_cobweb`) and `RecursionCobwebGraph` were found; the catalog entry is to be confirmed in package D. |
+
+Route ids for the other rows of the example table are assigned in package D's spec, not here.
+
+### Reconciliation with existing work
+
+- The catalog, action-affordance and homepage carousel specs are implemented. D01, D02 and H03 are new polish on finished work, not open acceptance gaps.
+- [Movable-point cursor](movable-point-cursor.md) was verified on 2026-10-25 for Bézier and function graphs only. Interval Sweep does not use the shared binding, which is consistent with M02.
+- [Verification throughput](verification-throughput.md) phases 0–7 are largely implemented. Full hosted runs on 2026-11-13 and 11-14 still took a median of 12.2 min, against 8:39 on 2026-11-09, which is consistent with T01.
+- [Control choice and composition](control-choice-and-composition.md) started on 2026-11-14 and owns the graph inspector panels. Packages B and D do not edit panel controls.
+- [Elder identity](elder-identity.md) artwork is postponed by the owner. L05 concerns the existing [side botanicals](side-botanicals.md) on chapter pages; that spec currently excludes animated branches from chapter pages, so package C records the reversal there.
+- H01 removes the homepage's author and supervisor credit and its contact line. The user impact is recorded in package B.
