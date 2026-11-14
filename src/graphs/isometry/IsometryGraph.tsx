@@ -28,6 +28,7 @@ import {Preset} from "../base/presets/Presets";
 import {isometryPresetCollection} from "./isometryPresetCollection";
 import type {IsometryClass} from "../../isometry/isometry2";
 import type {RosetteImage} from "../../isometry/rosette";
+import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 
 /** The scene state is the stored isometry state (ADR 0047 sections 1 to 3); everything else is derived from it. */
 export interface IsometryGraphState extends BaseGraphState, IsometryState {}
@@ -76,6 +77,8 @@ const pointText = (x: string, y: string): string => t("isometry_graph_point_form
 const ratPoint = (p: RationalPoint): string => pointText(rat(p.x), rat(p.y));
 const xyPoint = (x: number, y: number): string => pointText(dec(x), dec(y));
 const degrees = (radians: number): string => `${dec2((radians * 180) / Math.PI)}°`;
+/** The room a handle or marker takes beyond its size, in px, for the pixel placement of the board texts. */
+const MARKER_PAD_PX = 3;
 
 /** A line as text, for example `13 x = 25` or `6 x + 12 y = 66`. */
 function lineText(line: Line): string {
@@ -169,6 +172,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     /** What the board was last drawn for; a sync that finds the same key redraws nothing but the handle positions. */
     private builtKey: string | undefined;
     private readonly status = new SettledReadout();
+    /** The board texts of the scene (see `labelBoxes`): what each says, the data points it may sit beside, and when it is shown. */
+    private captionList: Array<{id: string; text: () => string; anchors: () => ReadonlyArray<readonly [number, number]>; visible: () => boolean}> = [];
+    private layoutCache?: {key: string; state: Readonly<IsometryGraphState>; boxes: Record<string, PxBox>};
 
     override getInitialState(): IsometryGraphState {
         return {initialized: false, ...DEFAULT_ISOMETRY_STATE};
@@ -328,8 +334,59 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         return d.mode === "mirrors" || d.mode === "classify" ? d.motion : undefined;
     }
 
+    /**
+     * The boxes (px from the board's top left corner, y down) of the board texts: each takes the free spot nearest to its anchor that clears the
+     * handles and markers, the drawn lines and curves and the texts placed before it (the bounded search of `placeLpLabels`).
+     */
+    private labelBoxes(): Record<string, PxBox> {
+        if (!this.hasBoard || !(this.board.canvasWidth > 0) || !(this.board.canvasHeight > 0)) return {};
+        const board = this.board;
+        const [left, top] = board.getBoundingBox();
+        const ux = Number.isFinite(board.unitX) && board.unitX > 0 ? board.unitX : 1;
+        const uy = Number.isFinite(board.unitY) && board.unitY > 0 ? board.unitY : 1;
+        const width = board.canvasWidth, height = board.canvasHeight;
+        const handles = [...this.handleMap.values()].map(h => `${h.X()},${h.Y()}`).join(";");
+        const key = [ux, uy, left, top, width, height, this.builtKey, this.objects.length, handles, currentLanguage()].join("|");
+        if (this.layoutCache?.key === key && this.layoutCache.state === this.state) return this.layoutCache.boxes;
+        const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * ux, (top - y) * uy];
+        type Drawn = {elType: string; evalVisProp(name: string): unknown; dataX?: number[]; dataY?: number[]; updateDataArray?: () => void};
+        const shown = (this.objects as unknown as Drawn[]).filter(o => Boolean(o.evalVisProp("visible")));
+        const markers: Array<readonly [number, number, number]> = [];
+        const samples: Array<readonly [number, number]> = [];
+        for (const o of shown) {
+            if (o.elType === "point") {
+                const p = o as unknown as JXG.Point;
+                markers.push([...toPx(p.X(), p.Y()), Number(o.evalVisProp("size")) + MARKER_PAD_PX]);
+            } else if (o.elType === "curve") {
+                o.updateDataArray?.(); // a curve later in the list than the first text asking has not been updated yet
+                samples.push(...sampleLine(o.dataX ?? [], o.dataY ?? [], toPx, width, height, 2, 1500));
+            } else if (o.elType === "line" || o.elType === "segment" || o.elType === "arrow") {
+                const l = o as unknown as JXG.Line;
+                const [x0, y0, x1, y1] = [l.point1.X(), l.point1.Y(), l.point2.X(), l.point2.Y()];
+                const dx = x1 - x0, dy = y1 - y0, length = Math.hypot(dx, dy);
+                if (!(length > 0)) continue;
+                const reach = o.elType === "line" ? 60 / length : 1;
+                const from = o.elType === "line" ? -reach : 0;
+                samples.push(...sampleLine([x0 + dx * from, x0 + dx * reach], [y0 + dy * from, y0 + dy * reach], toPx, width, height, 2, 1500));
+            }
+        }
+        const items: LabelItem[] = [];
+        const font = board.unitX < 20 ? 12 : 15;
+        for (const c of this.captionList) {
+            if (!c.visible()) continue;
+            const text = c.text();
+            if (text === "") continue;
+            const [first, ...rest] = c.anchors().filter(a => Number.isFinite(a[0]) && Number.isFinite(a[1])).map(a => toPx(a[0], a[1]));
+            if (first) items.push({id: c.id, ax: first[0], ay: first[1], alts: rest, w: text.length * font * 0.55 + 8, h: font + 7});
+        }
+        const boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        this.layoutCache = {key, state: this.state, boxes};
+        return boxes;
+    }
+
     private buildScene(): void {
         this.disposeScene();
+        this.captionList = [];
         const board = this.board;
         const state = this.state;
         const mode = state.mode;
@@ -354,10 +411,25 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             }));
         /** Captions shrink on a narrow board (few pixels per unit, read when the board is built) so they stay apart. */
         const captionFont = () => (board.unitX < 20 ? 12 : 15);
-        const caption = (text: string | (() => string), x: Coordinate, y: Coordinate, color: string, visible: Visible = true) =>
-            this.own(board.create("text", [x, y, text], {
-                strokeColor: color, fontSize: captionFont(), fixed: true, highlight: false, withLabel: false, visible,
+        type Anchors = () => ReadonlyArray<readonly [number, number]>;
+        /** A text sits at the centre of its placed box (see `labelBoxes`) beside the first of its anchors, or on it before the board has a size. */
+        const caption = (text: string | (() => string), anchors: Anchors, color: string, visible: Visible = true) => {
+            const id = `caption-${this.captionList.length}`;
+            const content = typeof text === "string" ? () => text : text;
+            this.captionList.push({id, text: content, anchors, visible: typeof visible === "function" ? visible : () => visible});
+            const place = (axis: 0 | 1) => () => {
+                const box = this.labelBoxes()[id];
+                if (!box) return anchors()[0]?.[axis] ?? 0;
+                const [left, top] = board.getBoundingBox();
+                return axis === 0 ? left + (box.x0 + box.x1) / 2 / board.unitX : top - (box.y0 + box.y1) / 2 / board.unitY;
+            };
+            return this.own(board.create("text", [place(0), place(1), content], {
+                strokeColor: color, fontSize: captionFont(), anchorX: "middle", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible,
             }));
+        };
+        const atPoint = (x: Coordinate, y: Coordinate): Anchors => () => [[typeof x === "function" ? x() : x, typeof y === "function" ? y() : y]];
+        /** The corners of a polygon, each a place a name of it may sit beside. */
+        const cornersOf = (read: () => readonly RationalPoint[] | undefined): Anchors => () => (read() ?? []).map(p => [p.x.toNumber(), p.y.toNumber()] as const);
         /** A curve whose data come from `data()`; NaN entries break it. */
         const curveOf = (data: () => Poly, color: string, width: number, dash: number, visible: Visible = true) => {
             const curve = this.own(board.create("curve", [[], []], {
@@ -381,10 +453,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             this.handleMap.set(id, point);
             return point;
         };
-        const label = (name: () => string, id: HandleId, color: string, visible: Visible = true, lift: () => number = () => 0, shift: () => number = () => 0.4) =>
-            caption(name, () => this.handleTarget(id)[0] + shift(), () => this.handleTarget(id)[1] + 0.4 + lift(), color, visible);
-        /** A vertical gap of at least one caption line, in units: 0.9 on a wide board, more where a unit is few pixels (narrow boards). */
-        const lineGap = (units: number) => Math.max(0.9 * units, (captionFont() * 1.2 * units) / board.unitY);
+        const label = (name: () => string, id: HandleId, color: string, visible: Visible = true) =>
+            caption(name, () => [this.handleTarget(id)], color, visible);
         const numberAt = (read: () => number | undefined) => () => {
             const value = read();
             return value !== undefined && Number.isFinite(value) ? value : 0;
@@ -412,15 +482,11 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const colors = [GraphPalette.referenceCurve, GraphPalette.comparisonCurve, GraphPalette.primaryCurve] as const;
             for (let i = 0; i < count; i++) {
                 curveOf(poly(stepImage(i)), colors[i], i === count - 1 ? 3 : 2, i === count - 1 ? 0 : 2, ok);
-                caption(imageText(i + 1), numberAt(() => stepImage(i)()?.[0].x.toNumber()), numberAt(() => (stepImage(i)()?.[0].y.toNumber() ?? 0) - lineGap(1)),
-                    colors[i], ok);
+                caption(imageText(i + 1), cornersOf(stepImage(i)), colors[i], ok);
             }
-            caption(text("isometry_graph_cap_motif"), numberAt(() => {
+            caption(text("isometry_graph_cap_motif"), cornersOf(() => {
                 const m = this.motion();
-                return m?.status === "ok" ? m.motif[0].x.toNumber() : undefined;
-            }), numberAt(() => {
-                const m = this.motion();
-                return m?.status === "ok" ? m.motif[0].y.toNumber() - lineGap(1.6) : undefined;
+                return m?.status === "ok" ? m.motif : undefined;
             }), GraphPalette.label, ok);
             // The mirrors: lines through the owned handle points, hidden while the two points coincide.
             for (let i = 0; i < count; i++) {
@@ -431,8 +497,14 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                     straightFirst: true, straightLast: true, visible: () => this.state.mirrors[i].p.x !== this.state.mirrors[i].q.x
                         || this.state.mirrors[i].p.y !== this.state.mirrors[i].q.y,
                 }));
-                // Mirrors often share a handle position (the defaults both start at the origin): stack their captions left of the handle so they do not overlap each other, the centre caption or the image captions.
-                label(() => t("isometry_graph_cap_mirror", {value0: String(i + 1)}), MIRROR_HANDLES[i][0], mirrorColors[i], true, () => lineGap(1) * i, () => -Math.max(3.4, (captionFont() * 4.3) / board.unitX));
+                // Mirrors often share a handle position (the defaults both start at the origin): the placer keeps their names apart.
+                // The name sits at the first handle, else at the second one or further along the mirror.
+                caption(() => t("isometry_graph_cap_mirror", {value0: String(i + 1)}), () => {
+                    const {p: a, q: b} = this.state.mirrors[i];
+                    const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+                    const [ux, uy] = [(b.x - a.x) / length, (b.y - a.y) / length];
+                    return [[a.x, a.y], [b.x, b.y], ...[3, -3, 5, -5].map(k => [a.x + ux * k, a.y + uy * k] as const)];
+                }, mirrorColors[i], true);
             }
             // The composite's centre (rotation) or axis (reflection and glide).
             const classOf = (): IsometryClass | undefined => {
@@ -445,7 +517,10 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             });
             const isRotation = () => classOf()?.kind === "rotation";
             marker(centreOf("x"), centreOf("y"), "cross", GraphPalette.constructionAccent, 6, isRotation);
-            caption(text("isometry_graph_cap_centre"), () => centreOf("x")() + 0.4, () => centreOf("y")() + 0.4, GraphPalette.constructionAccent, isRotation);
+            caption(text("isometry_graph_cap_centre"), () => {
+                const [x, y] = [centreOf("x")(), centreOf("y")()];
+                return [[x, y], [x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]];
+            }, GraphPalette.constructionAccent, isRotation);
             const axisLine = () => {
                 const c = classOf();
                 return c?.kind === "reflection" || c?.kind === "glide" ? c.axis : null;
@@ -456,8 +531,13 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 strokeColor: GraphPalette.constructionAccent, strokeWidth: 1, dash: 3, fixed: true, highlight: false, withLabel: false,
                 straightFirst: true, straightLast: true, visible: () => axisLine() !== null,
             }));
-            caption(text("isometry_graph_cap_axis"), () => anchorsOf(axisLine()).first[0] + 0.4, () => anchorsOf(axisLine()).first[1] + 0.4,
-                GraphPalette.constructionAccent, () => axisLine() !== null);
+            // The axis name may sit anywhere along the axis: the foot of the origin first, then further along it both ways.
+            caption(text("isometry_graph_cap_axis"), () => {
+                const {first, second} = anchorsOf(axisLine());
+                const length = Math.hypot(second[0] - first[0], second[1] - first[1]) || 1;
+                const [ux, uy] = [(second[0] - first[0]) / length, (second[1] - first[1]) / length];
+                return [0, 3, -3, 6, -6].map(k => [first[0] + ux * k, first[1] + uy * k] as const);
+            }, GraphPalette.constructionAccent, () => axisLine() !== null);
             // The glide's translation part, an arrow along the axis from the foot of the origin.
             const glideVector = (): readonly [number, number] | undefined => {
                 const c = classOf();
@@ -470,8 +550,12 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             this.own(board.create("arrow", [arrowFrom, arrowTo], {
                 strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, fixed: true, highlight: false, withLabel: false, visible: isGlide,
             }));
-            caption(text("isometry_graph_cap_vector"), () => anchorsOf(axisLine()).first[0] + (glideVector()?.[0] ?? 0) / 2 - 0.4,
-                () => anchorsOf(axisLine()).first[1] + (glideVector()?.[1] ?? 0) / 2 - 0.9, GraphPalette.primaryCurve, isGlide);
+            caption(text("isometry_graph_cap_vector"), () => {
+                const [vx, vy] = glideVector() ?? [0, 0];
+                const [x, y] = [anchorsOf(axisLine()).first[0] + vx / 2, anchorsOf(axisLine()).first[1] + vy / 2];
+                const length = Math.hypot(vx, vy) || 1;
+                return [[x, y], ...[1.5, -1.5, 3, -3].map(k => [x + (vx / length) * k, y + (vy / length) * k] as const)];
+            }, GraphPalette.primaryCurve, isGlide);
         };
 
         if (mode === "mirrors") {
@@ -497,14 +581,14 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             handle("k", GraphPalette.comparisonCurve, "diamond");
             label(text("isometry_graph_cap_centre"), "centre", GraphPalette.controlPoint);
             label(text("isometry_graph_cap_k"), "k", GraphPalette.comparisonCurve);
-            caption(text("isometry_graph_cap_motif"), corner(0, "x", "motif"), () => corner(0, "y", "motif")() - 0.9, GraphPalette.label);
-            caption(imageText(1), corner(0, "x", "image"), () => corner(0, "y", "image")() - 0.9, GraphPalette.primaryCurve);
+            caption(text("isometry_graph_cap_motif"), cornersOf(() => sim()?.motif), GraphPalette.label);
+            caption(imageText(1), cornersOf(() => sim()?.image), GraphPalette.primaryCurve);
         } else if (mode === "rosette") {
             const rosetteOf = () => this.rosetteImages().all;
             curveOf(() => (this.state.rosetteMirrors ? rosetteMirrorPoly(this.state.rosetteN) : EMPTY_POLY), GraphPalette.constructionLevels[1], 1, 3,
                 () => this.state.rosetteMirrors);
             marker(0, 0, "cross", GraphPalette.constructionAccent, 6);
-            caption(text("isometry_graph_cap_centre"), 0.4, 0.4, GraphPalette.constructionAccent);
+            caption(text("isometry_graph_cap_centre"), atPoint(0, 0), GraphPalette.constructionAccent);
             // Two pools of markers: circles for direct images, diamonds for reflected ones; an image beyond the pool end is hidden.
             for (const reflected of [false, true] as const) {
                 for (let j = 0; j < ROSETTE_N_MAX; j++) {
@@ -514,7 +598,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 }
             }
             for (let i = 0; i < 2 * ROSETTE_N_MAX; i++) {
-                caption(imageText(i + 1), numberAt(() => rosetteOf()[i]?.x), () => numberAt(() => rosetteOf()[i]?.y)() + 0.5,
+                caption(imageText(i + 1), atPoint(numberAt(() => rosetteOf()[i]?.x), numberAt(() => rosetteOf()[i]?.y)),
                     GraphPalette.label, () => rosetteOf()[i] !== undefined);
             }
             handle("point", GraphPalette.controlPoint, "o");
@@ -532,15 +616,15 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const bracketA = hidden(0, -0.8);
             const bracketB = hidden(() => period(), -0.8);
             segment(bracketA, bracketB, GraphPalette.constructionAccent, 2, 0);
-            caption(() => t("isometry_graph_cap_period", {value0: String(period())}), () => period() / 2 - 1, -1.8, GraphPalette.constructionAccent);
+            caption(() => t("isometry_graph_cap_period", {value0: String(period())}), atPoint(() => period() / 2 - 1, -1.8), GraphPalette.constructionAccent);
             curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period !== 0)), GraphPalette.referenceCurve, 2, 0);
             curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element !== 0)), GraphPalette.comparisonCurve, 2, 0);
             curveOf(() => mergedPoly((frieze()?.polygons ?? []).filter(p => p.element === 0 && p.period === 0)), GraphPalette.primaryCurve, 3, 0);
-            caption(text("isometry_graph_cap_motif"), FRIEZE_MOTIF_TENTHS[0][0] / 10, FRIEZE_MOTIF_TENTHS[0][1] / 10 - 1.2, GraphPalette.primaryCurve);
+            caption(text("isometry_graph_cap_motif"), atPoint(FRIEZE_MOTIF_TENTHS[0][0] / 10, FRIEZE_MOTIF_TENTHS[0][1] / 10), GraphPalette.primaryCurve);
             caption(() => {
                 const d = frieze();
                 return d && d.status !== "reducesPeriod" ? t("isometry_graph_cap_frieze_type", {value0: d.type}) : "";
-            }, () => period() / 2 - 1, 3.4, GraphPalette.label);
+            }, atPoint(() => period() / 2 - 1, 3.4), GraphPalette.label);
         }
 
         for (const [id, point] of this.handleMap) this.wireDrag(id, point);
