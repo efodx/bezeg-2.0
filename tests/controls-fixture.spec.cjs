@@ -150,6 +150,28 @@ for (const lang of LANGUAGES) {
                 }
             });
 
+            // Composition, not clipping: a row may fit its box and still read badly (docs/specs/control-choice-and-composition.md, Part B).
+            // At normal text a point is one line (name, one equal field per axis, remove button); only large text may wrap it.
+            if (!view.text200) test('a point row keeps its fields on one line, equally wide', async ({page}) => {
+                await openFixture(page, lang, view);
+                const result = await page.evaluate(() => {
+                    const problems = [];
+                    const rows = [...document.querySelectorAll('.point-list-row')].filter(row => row.getBoundingClientRect().width > 1);
+                    for (const row of rows) {
+                        const name = row.getAttribute('aria-label');
+                        const parts = [...row.querySelectorAll('input, button, .point-list-index')].map(el => el.getBoundingClientRect()).filter(r => r.width > 1);
+                        const fields = [...row.querySelectorAll('input')].map(el => el.getBoundingClientRect());
+                        const middle = parts.map(r => (r.top + r.bottom) / 2);
+                        if (Math.max(...middle) - Math.min(...middle) > 2) problems.push(name + ': parts sit on more than one line');
+                        const widths = fields.map(r => r.width);
+                        if (Math.max(...widths) - Math.min(...widths) > 1) problems.push(name + ': fields differ in width (' + widths.map(Math.round).join(', ') + ')');
+                    }
+                    return {rows: rows.length, problems};
+                });
+                expect(result.rows, 'measured point rows').toBeGreaterThan(4);
+                expect(result.problems).toEqual([]);
+            });
+
             test('no label, value or hint is clipped', async ({page}) => {
                 await openFixture(page, lang, view);
                 const result = await page.evaluate(findClipping);

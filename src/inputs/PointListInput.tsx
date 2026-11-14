@@ -114,12 +114,18 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
     const removeReason = atMinimum ? t("count_at_minimum", {value0: formatNumber(props.minCount ?? 0, currentLanguage(), 0)}) : undefined;
     return <fieldset className="point-list" ref={root}>
         <legend>{props.title}</legend>
+        {/* The body measures the room for the rows (a container query); a fieldset cannot. */}
+        <div className="point-list-body"><div className="point-list-rows" data-axes={axes.length} data-remove={props.onRemove ? "" : undefined}>
+        {/* The axis letters once, above their columns; every field still carries its own name ("<point>, <axis>"). */}
+        {points.length > 0 && <div className="point-list-head" aria-hidden="true">
+            <span/>
+            {axes.map(axisName => <span key={axisName}>{axisName}</span>)}
+        </div>}
         {points.map((point, index) => {
             const name = pointLabel(index);
             const axisField = (axis: number, axisName: string) => {
                 const refused = refusal && refusal.list === points && refusal.index === index && refusal.axis === axis ? refusal.message : undefined;
                 return <div className="point-list-axis" key={axis}>
-                    <span aria-hidden="true">{axisName}</span>
                     <NumberInput key={epoch} label={`${name}, ${axisName}`} hideLabel compact value={point[axis]} min={min} max={max}
                                  decimals={decimals} step={props.step ?? 1} rejectedHint={refused} grid={props.grid} integer={props.integer}
                                  onChange={value => edit(index, axis, value)}/>
@@ -136,6 +142,7 @@ export function PointListInput<R extends readonly number[] = PointRow>(props: Po
                                                       onBlockedPress={() => setBlocked(current => ({count: (current?.count ?? 0) + 1, list: points}))}>×</UnavailableButton>}
             </div>;
         })}
+        </div></div>
         {props.onRemove && <div role="status" aria-live="polite">
             {blocked && removeReason && <p key={blocked.count} className="point-list-reason" data-point-reason>{removeReason}</p>}
         </div>}
