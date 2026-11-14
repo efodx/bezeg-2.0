@@ -41,6 +41,8 @@ const targets = {
     'curve-comb': ['Default quadratic C1 spline with the curvature comb switched on, showing the jump of the comb at the joins', [field('Krivulja', 'c1', 'select'), toggle('Glavnik ukrivljenosti')], [-8, 4.9, 8, -4.9]],
     'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at t = 0.8, where the labels E, N and T are apart', [field('Parameter t', 0.8)], [-5.2, 5, 5.2, -1.2]],
     'curve-offset': ['Default parabola with the sampled offset at d = -1 and its two cusps marked', [field('Razdalja d', '-1'), toggle('Osti vzporednice')]],
+    // The board frames each motion by itself (the path box, a margin of one arrow and the caption room), so the recipe sets no window and the four lesson scenes keep their own.
+    'curve-kinematics': ['Default cycloid with the moving point, the path, the thick travelled part and both arrows, framed by the board for the motion', []],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-1, 1.37, 1.4, -0.1]],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],

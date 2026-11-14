@@ -11,4 +11,4 @@ Handler decisions (handler 11, 2026-11-12): the chapter sits in the Learn strand
 
 Acceptance: the spec's acceptance for KN1–KN2; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; `curve-parametric` and `curve-curvature` behave as before.
 
-Status: F3 done 2026-11-12 (evidence: [the F3 note](../../reviews/feature-streams/families-prep/notes/f3-kin-a.md)); F4–F6 open.
+Status: F3 done 2026-11-12 (evidence: [the F3 note](../../reviews/feature-streams/families-prep/notes/f3-kin-a.md)); reviews next. F4 done with F3 (chapter sections with guided examples); F5 cards captured (handler 20); catalog clip and F6 next.

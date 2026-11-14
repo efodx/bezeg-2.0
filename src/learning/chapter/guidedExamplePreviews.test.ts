@@ -25,6 +25,7 @@ import {phasePortraitsPreviewCopy} from '../content/phasePortraitsPreviewCopy';
 import {analyticLinesPreviewCopy} from '../content/analyticLinesPreviewCopy';
 import {circleGeometryPreviewCopy} from '../content/circleGeometryPreviewCopy';
 import {combinatoricsPreviewCopy} from '../content/combinatoricsPreviewCopy';
+import {kinematicsPreviewCopy} from '../content/kinematicsPreviewCopy';
 import {isometriesPreviewCopy} from '../content/isometriesPreviewCopy';
 import {trigonometryPreviewCopy} from '../content/trigonometryPreviewCopy';
 
@@ -300,6 +301,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['combinatorics.binomial-theorem.lattice-paths', 'combinatorics.counting-and-choices.counting-tree', 'combinatorics.lattice-paths-and-pascal.lattice-paths',
             'combinatorics.pascal-identity.lattice-paths'],
         counts: [[2, 0], [1, 1], [3, 2], [3, 2]]},
+    {chapterId: 'kinematics', copy: kinematicsPreviewCopy,
+        ids: ['kinematics.circular-motion.curve-kinematics', 'kinematics.position-velocity-acceleration.curve-kinematics', 'kinematics.projectile-motion.curve-kinematics',
+            'kinematics.speed-and-parametrization.curve-kinematics'],
+        counts: [[2, 1], [2, 1], [2, 1], [2, 2]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

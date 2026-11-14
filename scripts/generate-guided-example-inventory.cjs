@@ -351,6 +351,16 @@ const chapterInventories = {
         // The two combinatorics Demonstrations (lattice-paths, counting-tree): the four examples must cover exactly these and open on their routes.
         identities: {module: '/src/graphs/combinatorics/registration.ts', rows: 'combinatoricsDemonstrationRows'},
     },
+    kinematics: {
+        module: '/src/learning/content/kinematicsChapterRegistry.ts',
+        // Like combinatorics: section rows plus a per-section lesson function.
+        registryExport: 'kinematicsGuidedExampleDemonstrations',
+        lessonExport: 'kinematicsGuidedExampleLesson',
+        pathExport: 'kinematicsGuidedExamplePath',
+        expectedFor: kinematicsExpectedFor,
+        // The one curve-kinematics Demonstration: the four examples must cover it and open on its route.
+        identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -2097,6 +2107,63 @@ function combinatoricsExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Kinematics chapter (kinematics): four lessons on the one curve-kinematics Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default,
+// then `set-motion` (absent for the default cycloid), one `set-params` and `set-time`; nothing is random.
+
+/** Asserts the opening scene is the prepared default, the optional motion, the parameters and the time in that order; returns the motion, parameters and time. */
+function kinematicsOpening(id, step, motion) {
+    const all = step.scene.actions;
+    // The content scene lists its own prepared scene and the adapter prepends another: one or two leading entries.
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    const operations = [...(motion ? ['set-motion'] : []), 'set-params', 'set-time'];
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `kinematics:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    if (motion) assert.equal(own[0].motion, motion, `${id}: only the ${motion} motion is authored`);
+    return {params: own.at(-2), t: own.at(-1).t};
+}
+
+const kinematicsNoArrows = params => params.showVelocity === false && params.showAcceleration === false && params.split === undefined && params.trace === undefined;
+
+// Authored from src/graphs/curves/kinematics/KinematicsGraph.tsx (buildScene) and src/kinematics/kinematicsModel.ts, not from a capture. The board draws the faint whole path and, while the trace switch (on by default) is on,
+// the thick travelled part: two curves. The moving point is one visible point; the four arrow ends are hidden anchors and the arrows are hidden while both switches are off. The square reference point is visible only
+// for the circular motion with b > 0 and lies on the same spot at t = 0. The position at t = 0: the cycloid (0, 0), the projectile (0, 0) and the uniform circle (R, 0).
+const kinematicsFrames = {
+    // The cycloid of the rolling wheel of radius 1 m at time 0: the point is on the ground at (0, 0).
+    'position-velocity-acceleration': (id, step) => {
+        const {params, t} = kinematicsOpening(id, step, undefined);
+        assert.ok(kinematicsNoArrows(params) && Object.keys(params).length === 4 && t === 0, `${id}: only the cycloid at time 0 without arrows is authored`);
+        return {types: {curve: 2, point: 1}, curveCount: 2, points: [[0, 0]]};
+    },
+    // The circle of radius 1 m, omega 1 rad/s, b = 0.5 at time 0: the solid point and the square reference point both at (1, 0).
+    'speed-and-parametrization': (id, step) => {
+        const {params, t} = kinematicsOpening(id, step, 'circular');
+        assert.ok(kinematicsNoArrows(params) && params.radius === 1 && params.omega === 1 && params.b === 0.5 && t === 0, `${id}: only the circle (1 m, 1 rad/s, b = 0.5) at time 0 without arrows is authored`);
+        return {types: {curve: 2, point: 2}, curveCount: 2, points: [[1, 0]]};
+    },
+    // The throw at 20 m/s and 45 degrees (the defaults of the fields) at time 0: the ball is at the origin.
+    'projectile-motion': (id, step) => {
+        const {params, t} = kinematicsOpening(id, step, 'projectile');
+        assert.ok(kinematicsNoArrows(params) && Object.keys(params).length === 4 && t === 0, `${id}: only the default throw (20 m/s, 45 degrees) at time 0 without arrows is authored`);
+        return {types: {curve: 2, point: 1}, curveCount: 2, points: [[0, 0]]};
+    },
+    // The uniform circle of radius 2 m and omega 1.5 rad/s (b = 0, so no reference point) at time 0: the point is at (2, 0).
+    'circular-motion': (id, step) => {
+        const {params, t} = kinematicsOpening(id, step, 'circular');
+        assert.ok(kinematicsNoArrows(params) && params.radius === 2 && params.omega === 1.5 && params.b === undefined && t === 0, `${id}: only the circle (2 m, 1.5 rad/s) at time 0 without arrows is authored`);
+        return {types: {curve: 2, point: 1}, curveCount: 2, points: [[2, 0]]};
+    },
+};
+
+/** First-frame expectation of a kinematics lesson (the four sections of the chapter, keyed by the section in the example id). */
+function kinematicsExpectedFor(id, step) {
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(kinematicsFrames, section) ? kinematicsFrames[section] : undefined;
+    assert.ok(author, `${id}: no authored kinematics first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2153,4 +2220,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, assertExpectation};

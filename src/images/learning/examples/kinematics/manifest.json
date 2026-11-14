@@ -1,0 +1,693 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+    "dirty": true,
+    "inputs": "695c69e4629ce7c951e0d25ec7464d47074e07542bf8fc1654dc5d3ca949c1d0",
+    "output": "dc1b2239928ded0a2e1e0cd747664ab3bbffdb34c8e812b103d7bbb0a5e619f4"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+    "stampDirty": true,
+    "localOutputHash": "dc1b2239928ded0a2e1e0cd747664ab3bbffdb34c8e812b103d7bbb0a5e619f4",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-CZixTFCb.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-CZixTFCb.js",
+        "sha256": "18ff83ae445681a9bbd54e303b391f933f5830db345929af1956a55103bb96dd",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "cbe720163f5f367624c64db3923b8d01726788631fcd5615b8c96d5526974e90",
+    "entries": {
+      "kinematics.position-velocity-acceleration.curve-kinematics": "889b76047074dfcaa643ef2a926d54f223935f998cb5998a58a858e6acb0ae05",
+      "kinematics.speed-and-parametrization.curve-kinematics": "8f02dbb13ee5256971469cddf557be5997e1aeee9400835b40ac913e6889a6ef",
+      "kinematics.projectile-motion.curve-kinematics": "92491c11c58e8f22ce98ce31e2c8bbdc9fdf5ed332373d96908f1e8c2e04b281",
+      "kinematics.circular-motion.curve-kinematics": "612405b41166c396df877e04a43c58ecc2c00b31e1484f0f0f8a4866ca57e4f1"
+    },
+    "presentation": "c0ef501706084cd2f912ba830801913ceb53aad56ce77f3dec36cd5012b83005",
+    "buildOutput": "dc1b2239928ded0a2e1e0cd747664ab3bbffdb34c8e812b103d7bbb0a5e619f4",
+    "buildInputs": "695c69e4629ce7c951e0d25ec7464d47074e07542bf8fc1654dc5d3ca949c1d0"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "kinematics.position-velocity-acceleration.curve-kinematics",
+        "demonstrationId": "curve-kinematics",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "kinematics.speed-and-parametrization.curve-kinematics",
+        "demonstrationId": "curve-kinematics",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.75,
+            2.7,
+            2.75,
+            -0.7
+          ]
+        }
+      },
+      {
+        "id": "kinematics.projectile-motion.curve-kinematics",
+        "demonstrationId": "curve-kinematics",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "kinematics.circular-motion.curve-kinematics",
+        "demonstrationId": "curve-kinematics",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -3.77,
+            3.07,
+            3.77,
+            -1.59
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "kinematics.position-velocity-acceleration.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.position-velocity-acceleration.curve-kinematics",
+      "sceneFingerprint": "c44e208cbb050650c60fea80c2b2accb945cf638bc9f606acc0236c3f9f611e9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn1-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn1-start-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "kinematics.position-velocity-acceleration.curve-kinematics.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0bfaff4c1e740640b1fa5cea5c6727aad51a5477ae10c1141b79b66e3872ad79",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 1,
+          "text": 3
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.000019
+            ],
+            [
+              0,
+              0.000038
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 21,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 11,
+            "curve": 2,
+            "point": 1,
+            "text": 3
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.000019
+              ],
+              [
+                0,
+                0.000038
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 1,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "sourceRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "kinematics.speed-and-parametrization.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.speed-and-parametrization.curve-kinematics",
+      "sceneFingerprint": "97dbee4e657962411691d78d32a955876ca91277dc4363aaa8a1ea0fae900504",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn2-race-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn2-race-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-motion\",\"motion\":\"circular\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"radius\":1,\"omega\":1,\"b\":0.5,\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "kinematics.speed-and-parametrization.curve-kinematics.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6290bb8ae82681b022317f3bff243332b92dae7e1d8f1d91ea05cde3134bb7f2",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 2,
+          "text": 4
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.999957,
+              0.006545
+            ],
+            [
+              0.999914,
+              0.01309
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "point": 2,
+            "text": 4
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.999957,
+                0.006545
+              ],
+              [
+                0.999914,
+                0.01309
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 2,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "sourceRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "kinematics.projectile-motion.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.projectile-motion.curve-kinematics",
+      "sceneFingerprint": "68eaca7d2103ba68b186ce35227db06db4693eb2885889c1df5d354dfc676475",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn3-throw-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn3-throw-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-motion\",\"motion\":\"projectile\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "kinematics.projectile-motion.curve-kinematics.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "fce698f7c6697a3c504e520ce6dde96796cb70d303300c7a2f1d115ab6eba433",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 1,
+          "text": 4
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.028316,
+              0.028276
+            ],
+            [
+              0.056632,
+              0.056553
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 14,
+            "curve": 2,
+            "point": 1,
+            "text": 4
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.028316,
+                0.028276
+              ],
+              [
+                0.056632,
+                0.056553
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 1,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "sourceRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "kinematics.circular-motion.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.circular-motion.curve-kinematics",
+      "sceneFingerprint": "510517ecfd4788f3ea60d961c718ec7016dd2e1f2d0ed852b97ff44818d829c7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn4-circle-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn4-circle-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-motion\",\"motion\":\"circular\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"radius\":2,\"omega\":1.5,\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "kinematics.circular-motion.curve-kinematics.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "19c0eb7cbb6c993608ade65ee3f2cb6e952e69a282bf887fe9d871c8d457e46c",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 1,
+          "text": 3
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              2,
+              0
+            ],
+            [
+              1.999962,
+              0.008727
+            ],
+            [
+              1.999924,
+              0.017453
+            ]
+          ],
+          [
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:2,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "point": 1,
+            "text": 3
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                2,
+                0
+              ],
+              [
+                1.999962,
+                0.008727
+              ],
+              [
+                1.999924,
+                0.017453
+              ]
+            ],
+            [
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:2,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 1,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "sourceRevision": "bdbc3a39b911fe6b5ca82708eb1ef07b49162c73",
+        "pageErrors": []
+      }
+    }
+  ]
+}

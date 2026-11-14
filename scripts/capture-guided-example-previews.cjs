@@ -29,8 +29,14 @@ const fortuneCardId = 'sweep-algorithms.fortune.fortune';
 const linearCompositionCardId = 'linear-maps.composition-affine.linear-map';
 
 const binomialExpansionId = 'combinatorics.binomial-theorem.lattice-paths';
+// The kinematics circles: the board's own frame puts the circle under the screen-anchored caption rows, so these two cards take a window that sets the circle below them (the capture widens a requested window by about a quarter about its centre).
+const kinematicsCircleWindows = {
+    'kinematics.speed-and-parametrization.curve-kinematics': [-2.75, 2.7, 2.75, -0.7],
+    'kinematics.circular-motion.curve-kinematics': [-3.77, 3.07, 3.77, -1.59],
+};
 
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(kinematicsCircleWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: kinematicsCircleWindows[entry.id]}};
     // The expansion card opens the fixed box of the lattice board (bars at y 10.5 to 17.5, labels from y 1.2, captions to y 24.5), which the shared paths window around (2, 2) leaves off the card.
     if (entry.id === binomialExpansionId) return {...recipe, framing: {kind: 'coordinate-window', window: [-1.5, 24.5, 37.6, 0.3]}};
     if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && entry.id !== inversionPowerId && entry.id !== linearCompositionCardId && !entry.id.startsWith('curve-geometry.')) return recipe;
@@ -85,6 +91,7 @@ const chapterFamilies = {
     'analytic-lines': {label: 'analytic-lines', idPrefix: 'analytic-lines.', identities: {module: '/src/graphs/lines/registration.ts', rows: 'lineDemonstrationRows'}},
     combinatorics: {label: 'combinatorics', idPrefix: 'combinatorics.', identities: {module: '/src/graphs/combinatorics/registration.ts', rows: 'combinatoricsDemonstrationRows'}},
     'circle-geometry': {label: 'circle-geometry', idPrefix: 'circle-geometry.', identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'}},
+    kinematics: {label: 'kinematics', idPrefix: 'kinematics.', identities: {module: '/src/graphs/curves/kinematics/registration.ts', rows: 'kinematicsDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},
     'triangle-geometry': {label: 'triangle-geometry', idPrefix: 'triangle-geometry.', route: /^\/bezeg-2\.0\/(?:triangle-centres|inscribed-angle|euler-line|simson-line|inversion)(?:\/|$)/, routeText: '/bezeg-2.0/triangle-centres, /inscribed-angle, /euler-line, /simson-line or /inversion'},

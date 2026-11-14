@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -868,4 +868,25 @@ test('combinatorics expectations are authored from the graphs: the lattice targe
     assert.throws(() => combinatoricsExpectedFor('c.counting-and-choices.counting-tree', open([target(2, 2)])), /the opening scene is/);
     assert.throws(() => combinatoricsExpectedFor('c.unknown.lattice-paths', open([])), /no authored combinatorics/);
     assert.ok(chapterInventories.combinatorics);
+});
+
+test('kinematics expectations are authored from the graph: two curves, the moving point and, for the varied circle, its reference point', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const motion = value => ({kind: 'kinematics', operation: 'set-motion', motion: value});
+    const params = value => ({kind: 'kinematics', operation: 'set-params', ...value});
+    const time = t => ({kind: 'kinematics', operation: 'set-time', t});
+    const off = {showVelocity: false, showAcceleration: false};
+    const cycloid = kinematicsExpectedFor('k.position-velocity-acceleration.curve-kinematics', open([params(off), time(0)]));
+    assert.deepEqual([cycloid.types, cycloid.points], [{curve: 2, point: 1}, [[0, 0]]]);
+    const warped = kinematicsExpectedFor('k.speed-and-parametrization.curve-kinematics', open([motion('circular'), params({...off, radius: 1, omega: 1, b: 0.5}), time(0)]));
+    assert.deepEqual([warped.types, warped.points], [{curve: 2, point: 2}, [[1, 0]]]);
+    const throwing = kinematicsExpectedFor('k.projectile-motion.curve-kinematics', open([motion('projectile'), params(off), time(0)]));
+    assert.deepEqual([throwing.types, throwing.points], [{curve: 2, point: 1}, [[0, 0]]]);
+    const circle = kinematicsExpectedFor('k.circular-motion.curve-kinematics', open([motion('circular'), params({...off, radius: 2, omega: 1.5}), time(0)]));
+    assert.deepEqual([circle.types, circle.points], [{curve: 2, point: 1}, [[2, 0]]]);
+    assert.throws(() => kinematicsExpectedFor('k.position-velocity-acceleration.curve-kinematics', open([params(off), time(1)])), /only the cycloid/);
+    assert.throws(() => kinematicsExpectedFor('k.circular-motion.curve-kinematics', open([motion('circular'), params({...off, radius: 2, omega: 1.5, b: 0.5}), time(0)])), /only the circle/);
+    assert.throws(() => kinematicsExpectedFor('k.projectile-motion.curve-kinematics', open([params(off), time(0)])), /the opening scene is/);
+    assert.throws(() => kinematicsExpectedFor('k.unknown.curve-kinematics', open([])), /no authored kinematics/);
+    assert.ok(chapterInventories.kinematics);
 });

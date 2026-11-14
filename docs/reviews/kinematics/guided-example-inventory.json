@@ -1,0 +1,123 @@
+{
+  "examples": [
+    {
+      "id": "kinematics.position-velocity-acceleration.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.position-velocity-acceleration.curve-kinematics",
+      "sceneFingerprint": "c44e208cbb050650c60fea80c2b2accb945cf638bc9f606acc0236c3f9f611e9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn1-start-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn1-start-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "kinematics.speed-and-parametrization.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.speed-and-parametrization.curve-kinematics",
+      "sceneFingerprint": "97dbee4e657962411691d78d32a955876ca91277dc4363aaa8a1ea0fae900504",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn2-race-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn2-race-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-motion\",\"motion\":\"circular\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"radius\":1,\"omega\":1,\"b\":0.5,\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "kinematics.projectile-motion.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.projectile-motion.curve-kinematics",
+      "sceneFingerprint": "68eaca7d2103ba68b186ce35227db06db4693eb2885889c1df5d354dfc676475",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn3-throw-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn3-throw-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-motion\",\"motion\":\"projectile\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "kinematics.circular-motion.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.circular-motion.curve-kinematics",
+      "sceneFingerprint": "510517ecfd4788f3ea60d961c718ec7016dd2e1f2d0ed852b97ff44818d829c7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn4-circle-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn4-circle-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-motion\",\"motion\":\"circular\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-params\",\"radius\":2,\"omega\":1.5,\"showVelocity\":false,\"showAcceleration\":false}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            2,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
