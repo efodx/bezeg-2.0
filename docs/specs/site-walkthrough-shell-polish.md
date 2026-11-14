@@ -1,6 +1,6 @@
 # Site walkthrough: shell and label polish
 
-Status: in progress, 2026-11-14, run by the `polish` session ([queue](../tasks/site-walkthrough/polish.md), [state note](../reviews/site-walkthrough/polish/state.md)). Package B of the [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#11-disposition-2026-11-14). H01, D01, M01 and M02 are implemented and verified. H05, D02, L02 and L03 are implemented as proposals on a local branch and wait for the owner's approval; the M03 consolidation waits for his answer to the [recommendation](#recommendation-for-the-shared-movable-point-path-m03-waiting-for-the-owner). See [completion evidence](#completion-evidence).
+Status: complete, 2026-11-14, run by the `polish` session ([queue](../tasks/site-walkthrough/polish.md), [state note](../reviews/site-walkthrough/polish/state.md)). Package B of the [site walkthrough intake](site-walkthrough-intake-2026-11-14.md#11-disposition-2026-11-14). Every item is implemented and published with the owner's approval where it depended on his taste: D02 as proposed, H05 as the outlined flower, L02 and L03 as option 2, M03 in both stages with compact labels. See [completion evidence](#completion-evidence); what was left out and why is under [not converted](#not-converted).
 
 Approval rule (owner, 2026-11-14): items with one correct result are pushed when verified. Items that depend on his taste (H05, D02, L02, L03) are shown in a preview and pushed only after he approves. M03 gets an inventory and a recommendation; graphs beyond the two reported ones are migrated only after his answer.
 
@@ -78,7 +78,7 @@ Acceptance:
 - **P4:** Dragging, snapping, mathematical state, lesson scene actions and Presets keep their behavior. Listeners are owned by their points and disposed with them.
 - **P5:** Consistency is enforced by construction or by a static check. No new test mounts every graph; see [verification throughput](verification-throughput.md#keeping-it-from-regrowing).
 
-### Recommendation for the shared movable-point path (M03, waiting for the owner)
+### Recommendation for the shared movable-point path (M03, approved by the owner, both stages)
 
 From the [point inventory](../reviews/site-walkthrough/point-inventory.md) of all 138 registered graphs, before the M01 / M02 fix:
 
@@ -100,7 +100,7 @@ Recommendation: one creator owns both the cursor binding and the label attribute
 
 Alternatives: stage 1 only (every draggable point advertises dragging, labels stay as they are), or leave the remaining graphs and fix them as they are reported. Stage 1 alone is about 29 small file edits plus the check; stage 2 needs a screenshot review per family.
 
-No graph beyond Interval Sweep's base and blossoming is migrated until the owner answers.
+The owner approved both stages on 2026-11-14. They were carried out as the [movable-point task](../tasks/site-walkthrough/movable-points.md) records: stage 1 binds the cursor with `bindMovablePointCursor` where each point is created (the unused `createMovablePoint` stays as it is), and stage 2 uses a compact named-label style, which the owner chose over the full display size after seeing both.
 
 ## Completion evidence
 
@@ -109,28 +109,38 @@ Recorded 2026-11-14. Before and after screenshots, with one page that pairs them
 | Criterion | State | Evidence |
 | --- | --- | --- |
 | C1 | Met | First catalog card at 1440, 1024 and 390 px in `sl` and `en`, at rest, on hover and with the clip playing (playing observed at 1024 and 390 px; at 1440 px the clip did not start in the scripted hover, and the image and video share one rule): card radius 10 px, capture inset 5 px with radius 5 px, image and video alike. |
-| C2 | Proposal, waiting for approval | D02: topic list 14 px; card family line reuses the homepage carousel eyebrow (11 px, 700, .08em, uppercase); actions 13 px with the homepage arrow. Sizes are ones the shell already uses; `shellTokens.css` has tokens only for display type, so the card title keeps 19 px, the floor of `--bezeg-type-item`. |
-| C3 | Met for D01; holds for the D02 proposal | Card box identical before and after D01 (330 × 401.69 at 1440 px, 358 × 399.3 at 390 px). Actions keep `min-height: 44px`; the topic list keeps its sticky rule and 44 px rows. |
-| N1 | Proposal, waiting for approval | One `ChapterArrow` SVG in all three controls, 1.05em wide, centred on the x-height (offset 0.00 px on the return link, 0.07 px on the cards at 1440 px). |
-| N2 | Proposal, waiting for approval | `.learning-neighbors`, each card and each title keep their size and x at 1440 and 390 px in both languages on the first, second and last chapter. The return control grows from 40 to 44 px, which moves the page below it by 4 px. |
-| N3 | Proposal, waiting for approval | Link text of all three controls identical before and after in both languages; DOM order unchanged; focus states captured. Not checked through the accessibility tree. |
+| C2 | Met, owner approved | D02: topic list 14 px; card family line reuses the homepage carousel eyebrow (11 px, 700, .08em, uppercase); actions 13 px with the homepage arrow. Sizes are ones the shell already uses; `shellTokens.css` has tokens only for display type, so the card title keeps 19 px, the floor of `--bezeg-type-item`. Published in `8b928549`. |
+| C3 | Met | Card box identical before and after D01 (330 × 401.69 at 1440 px, 358 × 399.3 at 390 px). Actions keep `min-height: 44px`; the topic list keeps its sticky rule and 44 px rows. |
+| N1 | Met, owner picked option 2 | Previous and next show the chapter title and one chevron; the return link is small caps with the same chevron. Screenshots at 1440, 820, 390 and 360 px in [round 2 evidence](../reviews/site-walkthrough/polish/evidence-round2/). Published in `12dceb86`. |
+| N2 | Met | Neighbour cards keep their position at all four widths; their height goes from 72 to 73 px. |
+| N3 | Met | `ChapterPage.test.tsx` asserts the link text and one accessible name; `tests/unified-learning.smoke.spec.cjs` passes. Not checked through a browser's accessibility tree. |
 | F1 | Met | No `footer` on the homepage; the page ends with the carousel and its own bottom padding (40 px at 1440 px, 32 px at 390 px), in both languages. Typecheck, the homepage unit test, the production build and the homepage smoke spec pass. |
-| F2 | Proposal, waiting for approval | H05: header 73 px (desktop) and 65 px (phone) before and after; one row at 390 and 360 px in both languages. Mark 34 → 28.2 px beside the 30 px wordmark, 28 → 19.7 px beside 21 px. |
+| F2 | Met, owner picked the outlined flower | H05: the header mark is the outlined elderflower without its tile, centred on the wordmark's line. Header 73 px (desktop) and 65 px (phone) unchanged; one row at 390 and 360 px. The owner judged the green tile the problem, so the header uses a new mark file while `elderflower.svg` and the tab and phone icons stay. `tests/home.smoke.spec.cjs` passes. Published in `aa16744f` (rebased into master before `8ed2f453`). |
 | P1 | Met | Production preview, 1440 px: all ten Interval Sweep points give `pointer` on hover and `default` on exit, as the control points of `/bezier/curve` do. The fixed Voronoi vertices give no cursor. |
 | P2 | Met | `mjx-container` elements inside the board texts of Interval Sweep went from 0 to 15 and on blossoming from 4 to 5; before and after screenshots of both. Host tests assert `useMathJax`, `parse: false` and the math text. |
-| P3 | Inventory done; rows that still differ wait for the owner | [Point inventory](../reviews/site-walkthrough/point-inventory.md), with the recommendation above. |
-| P4 | Met for the two fixes | Elements keep their JSXGraph names; existing host tests for point sets, intervals, segments and blossoming pass, with three label assertions updated to the math text. Real drag on Interval Sweep, Delaunay, Voronoi, convex hull, segment intersections and Fortune: 16.7 ms median frame interval, 16.8 ms maximum. Listeners are bound on the point and go with it. |
-| P5 | Not yet | The static check is part of the recommendation. No test that mounts every graph was added. |
+| P3 | Met | [Point inventory](../reviews/site-walkthrough/point-inventory.md). Every row that differed is migrated by the [movable-point task](../tasks/site-walkthrough/movable-points.md) (cursor: 29 graphs and ten further files; labels: 18 graphs) or listed under [not converted](#not-converted). |
+| P4 | Met | Elements keep their JSXGraph names; existing host tests for point sets, intervals, segments and blossoming pass, with three label assertions updated to the math text. Real drag on Interval Sweep, Delaunay, Voronoi, convex hull, segment intersections and Fortune: 16.7 ms median frame interval, 16.8 ms maximum. Listeners are bound on the point and go with it. Stage 1 and 2: unit tests of every touched graph pass; element names are unchanged; the 14 graphs that removed their own hover handlers on dispose register the binding's release, and their ownership tests pass. Drag cost with the typeset labels of stage 2 was not measured. |
+| P5 | Met | `src/graphs/base/movablePointCursor.static.test.ts` reads the sources under `src/graphs`, mounts nothing, and fails on a `style.cursor` write outside the binding and on a point drag handler in a file that does not reach the binding, unless allow-listed with a reason. Seen failing on 17 files before stage 1 and on ten more before batch 1c. |
 
 User impact:
 
 - **H01.** The homepage no longer shows the project description, the author and supervisor credit or the contact line. The owner confirmed all three go; contact details return when he shares the site. The three localization keys are removed from `sl.ts` and `en.ts`.
 - **D01.** Catalog posters and clips fill their inset frame, which trims about 1.5 px from the top and bottom of the picture.
+- **M03, stage 1.** Every draggable point shows the pointer cursor on hover. Six graphs that showed it on fixed points too no longer do.
+- **M03, stage 2.** On 18 graphs the names of points, lines and sides are typeset as math at 75 % of the display font size: Obodni kot, Simsonova premica, Inverzija, Točka v mnogokotniku, Znamenite točke, Eulerjeva premica, Geometrija premic, Reševanje trikotnika, Izometrije (`k`), Spust (`A`, `B`), the five projective graphs and the three interpolation graphs. They follow the display font size and keep their previous placement and visibility. Posters and clips of these graphs show the old labels until package D recaptures them.
 - **M01.** Labels of the 22 point-set graphs follow the display font size instead of a fixed 14 px. Catalog posters and clips of these graphs and of blossoming show the old labels until package D recaptures them.
 
 No route or stored-preset change.
 
 Not verified: a real touch device; the catalog clip playing at 1440 px; high-contrast mode; the catalog smoke spec (`tests/demonstrations.smoke.spec.cjs`) against the D02 proposal. Smoke that did run on the production build with every item: the guided-lesson rows `interval-sweep`, `bspline-blossom`, `convex-hull` and `voronoi`, `tests/unified-learning.smoke.spec.cjs` and `tests/home.smoke.spec.cjs`, all passing. The other point-set lessons were not run.
+
+### Not converted
+
+- **Captions and readouts.** Texts in words and number readouts stay plain by decision; the worker notes list them per file.
+- **`CircleConstructionGraph` (`P`, `T1`, `T2`) and `KinematicsGraph` (`v`, `a`).** These names are caption texts placed by layout code that measures plain text, not point labels. They were left for a separate change with its own layout check.
+- **Line names `p`, `p′` on Dvorazmerje** start left of the board edge; this was so before and is unchanged.
+- **No hover evidence in a browser:** `complex-roots` (square handle), `bspline/basis`, `Descent`, and the composition, eigen and iteration views of the linear map. The static check covers their files.
+- **Stage 2 was reviewed on each graph's default view only**, from before and after pictures at 1440 px. The new label assertions of CrossRatio, ThreeViews, LineGeometry, TriangleSolver and Descent were not seen failing before the change.
 
 ## Verification
 

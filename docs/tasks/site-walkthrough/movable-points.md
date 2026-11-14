@@ -18,7 +18,7 @@ Static check (spec P5): one unit test that reads the sources under `src/graphs` 
 
 Acceptance: a real hover in a browser on at least one graph per family gives `pointer` on a draggable point and `default` after leaving it, and nothing on a fixed point; dragging, snapping, state, lesson actions and Presets are unchanged; existing tests of the touched graphs pass.
 
-## Stage 2: math labels (changes how about 27 graphs look)
+## Stage 2: math labels (18 graphs)
 
 Point labels that name a mathematical object take the shared label attributes of `createPointStyles`, as the point-set graphs do. Number readouts and captions stay plain; each batch lists what it left and why. One batch per family, each with before and after screenshots reviewed by the handler. Element names that capture recipes, clip rows, tests or Presets address are not renamed. The pattern is `PointSetGraph.createDrawn` with `pointSetLabelMath`: the element keeps its plain `name`, the label takes the shared attributes, and the label text is set to the `$$...$$` form.
 
@@ -34,3 +34,5 @@ Triage (2026-11-14, read-only, over the 36 files with own points or scene texts)
 Left for a report: `CircleConstructionGraph` captions (`P`, `A`, `B` are texts whose width a layout test measures) and `KinematicsGraph` arrow texts (`v`, `a`).
 
 Stage 2 should land before package D recaptures the affected graphs.
+
+Outcome (2026-11-14): batches 2a to 2d are done. The owner saw the labels at the display font size and at 75 % of it and chose the compact size. The converted sites use one style, `namedLabel` in `createPointStyles` (`src/graphs/styles/PointStyles.ts`): the shared math label at 75 % of the display font size, with JSXGraph's default anchors and offset so the graphs' existing offsets hold, shown and hidden with its element. `pointLabelMath` (`src/graphs/styles/pointLabelMath.ts`) gives the math form of a plain name. `CircleConstructionGraph` captions and `KinematicsGraph` arrow texts were left; the reason is in the spec under "not converted".
