@@ -1,22 +1,44 @@
 # Throughput session state (site walkthrough, package A)
 
-Rewritten by handler 2 on 2026-11-14 at its handoff, with changes 7, 1, 3, 8, 10 and 2 committed and change 4 with a worker. Queue: [throughput queue](../../../tasks/site-walkthrough/throughput.md). Spec: [verification throughput, phase 8](../../../specs/verification-throughput.md#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14). Evidence: [remeasure note](../../verification-throughput/remeasure-2026-11-14.md).
+Rewritten by handler 3 on 2026-11-14 with nine changes landed or publishing and change 6 being timed. Queue: [throughput queue](../../../tasks/site-walkthrough/throughput.md). Spec: [verification throughput, phase 8](../../../specs/verification-throughput.md#phase-8-remeasure-after-phases-07-local-waiting-first-owner-report-2026-11-14). Evidence: [remeasure note](../../verification-throughput/remeasure-2026-11-14.md).
 
 ## For the owner
 
-**Handler 3 update (2026-11-14, stopped at a usage limit):** changes 7, 1 and 3 are on master (`791bb648`). Change 4 was reviewed and committed (`4c3518d9`); the policy table is in `docs/commands.md` under "Routine and full verification", and change 4's guard is in the spec. Neither is pushed yet. Change 4 after-timings, `just check-changed HEAD`, once each: lesson text 359 s (20 files), `labelLayout.ts` 350 s (29 files), with no slot wait. In both, the test step takes 326 s, mostly the always-run catalog sweep files, so the sweeps are now the floor. The graph and string runs took 1,083 s and 1,070 s, including 368 s and 515 s of slot wait; their logs name another revision, so rerun them before quoting them. Hosted CI: the unit shards set the wall (772 s against about 500 s for build plus smoke in run 43591356678). Change 9 should therefore balance the unit shards.
+**Where things stand (handler 3, 2026-11-14):**
 
-**Next handler:** rebase onto `origin/master` (from `791bb648`), publish 8, 10, 2 and 4 plus these docs with `--recipe runtime`, rerun the graph and string timings, then change 6 timing, 5 (a filtered `just unit` with more than 20 matching files takes a slot: `needsSlot` in `scripts/commands.cjs`, counting with the selector's test-file walk) and 9. Also delete `tp-backup` and the scratch worktrees. The FILL cells: `css-before` and `graph-after2` never finished, because handler 2's orphaned runs were killed, so replace them with change 4's numbers.
+- Nine of the ten changes are implemented. Seven are on master and deployed: 7, 1, 3, 8, 10, 2 and 4 (last push `063bdec3`, hosted CI green). Changes 5 and 9 are in a background publish (`publish-c4eb8c2a-1558fe`).
+- Change 6 is timing only, as agreed, and its numbers are not in yet. The first attempt was killed from outside after 35 s, and another session took the second slot within 15 s, so it would not have counted as a lone run. One retry is running.
+- The routine / full policy table is in [the command guide](../../../commands.md) under "Routine and full verification" (V4).
+
+**The largest change, 4, cut a one-file slice check from about 15 minutes to about 6.** Each figure is one `just check-changed` run against the change alone:
+
+| Edit | Files before (Vitest `--changed`) | Files after | Time after |
+| --- | --- | --- | --- |
+| Lesson text (`linearMapsChapterLessons.ts`) | 432 | 20 | 359 s, no slot wait |
+| Shared graph helper (`labelLayout.ts`) | 303 (114 after change 2) | 29 | 350 s, no slot wait |
+| One graph (`LogisticMapGraph.tsx`) | 299 (109 after change 2) | 24 | 1,083 s, of which 368 s waiting for a slot |
+| One string (`sl.ts`) | 583 | 31 | 1,070 s, of which 515 s waiting for a slot |
+
+- **Before:** the gate's median was 885 s and a one-graph fix took 1,016 s.
+- **What is left is fixed cost.** In every run, about 326 s is the test step: mostly the catalog sweep files that always run, plus worker start-up. Typecheck, lint and build together are under 30 s with the caches.
+- **The other floor is the slot queue.** It came from other sessions' publish gates, which still ran the old wide selection until change 4 reached master. That should shrink as their gates pick up change 4.
+
+**What it costs:** a test the local check left out can now fail first on CI. Hosted CI still runs every test on every push, and a stream whose push goes red fixes that before it pushes anything else. One gap I found in review: `interpolationFamilyControls.test.tsx` mounts its graph only by id, so an edit to `InterpolationGraph.tsx` no longer selects it locally.
+
+**What other sessions must do differently:**
+
+- Expect a push to go red on CI on a test their local check skipped. They fix it first, as the gate's rule already says.
+- A `just unit <directory>` that matches more than 20 test files now queues for a slot like a full run, and then gets 5 workers instead of 2 (change 5).
+- CI runs six unit shards instead of four (change 9). Nothing to do; job names gain shards 5 and 6.
+- Tests needing `createGraph` import it from `src/graphs/base/createTestGraph.ts` (change 2).
+
+**Waits on you:** only change 6, once its numbers are in: whether a slot holder may use 10 workers when it runs alone.
+
+**Session note:** handler 1's and handler 2's processes were still alive this afternoon. Handler 2 committed two state-note edits on this branch while handler 3 was working, and had left a `check-changed` holding a shared slot for 40 minutes; I stopped that run. If they are still running, you may want to close them.
 
 **Ready to read:** the [remeasure note](../../verification-throughput/remeasure-2026-11-14.md). It is a document, so there is no preview and no Tailscale address; port 4334 is unused.
 
 **Approved by you on 2026-11-14:** "I agree with all of your recommendations." I read that as the ten changes below in the order I recommended, the policy table, and leaving unaffected graph and lesson tests to CI (change 4). Change 6 is only timed first, and its numbers come back to you before any slot setting changes, as I recommended. Tell the handler if you meant less: changes 5, 8, 9 and 10 were in the table but not in my "start with" sentence.
-
-**What exists now:** six of the ten changes are committed on the throughput branch (7, 1, 3, 8, 10, 2; see the table below). Changes 7, 1 and 3 were in a background publish when handler 2 handed off; 8, 10 and 2 follow. Change 4 (the registry-bounded selection, the largest saving) was with a worker. Changes 6 (timing only), 5 and 9 are not started.
-
-**What other sessions must do differently:** nothing. Their first `just typecheck` or `just lint` after these land builds a cache in their own `.command-logs/` (one ordinary-length run). Tests that need `createGraph` now import it from `src/graphs/base/createTestGraph.ts`; a stream with a new test that imports it from `realGraphTestHarness` gets a type error and moves the import.
-
-**Nothing waits on you** until change 6 has been timed.
 
 **Observed while timing (2026-11-14, 12:44–13:00 local):** my CSS before-run waited 863 s for a test slot, because two other sessions' publish gates held both slots in their `check-changed` unit steps for over 25 minutes each. The week's median slot wait was 1 s; under today's load the queue, not the tests, was the largest wait. Changes 1 and 4 matter here as well: a run that selects no tests no longer takes a slot.
 
@@ -65,6 +87,9 @@ Times are an agent's wall time through `just`, on this shared machine, once each
 | 8 | `f49067c2` | A cancelled daily run | Scheduled unit job limit | 15 min (run 43413497282 cancelled) | 25 min for the scheduled run, 15 for pushes. First scheduled run with it: not yet observed |
 | 10 | `9884d291` | Hand-parsing logs to remeasure | — | Logs only | `.command-logs/timings.jsonl`, one line per run; daily per-file durations as artifacts `unit-durations-*`, read by `just test-cost --results <dir>` |
 | 2 | `82f0febe` | Unrelated graph tests selected for a one-graph edit | `LogisticMapGraph.tsx` / `labelLayout.ts`, Vitest `--changed` listing | 299 / 303 files; the gate step for a one-graph fix took 1,016 s (remeasure note) | 109 / 114 files. Timed `check-changed` of the graph edit after 1, 3 and 2: 2,926 s wall, passed, but it ran beside two publish gates and my own before-run on the same CPU, so it is no valid after time; retime it once the machine is quiet (`timings.jsonl` now splits wait from run) |
+| 4 | `06d42948` | Tests reached only through a registry, selected for every one-file edit | The four representative edits, `just check-changed HEAD` (`.command-logs/t4/`) | 299 / 583 / 432 / 303 files; gate median 885 s | 24 / 31 / 20 / 29 files; 1,083 s (368 s slot wait) / 1,070 s (515 s wait) / 359 s / 350 s |
+| 5 | `e08bea1c` (publishing) | Directory-wide filtered runs on 2 workers beside the slots (107 runs of 10 min or more in the week) | `just unit <directory>` matching more than 20 files | No slot, 2 workers | A slot and its 5 workers. Not timed: the saving depends on how many such runs a week brings |
+| 9 | `c4eb8c2a` (publishing) | The slowest unit shard, which sets the hosted wall | Hosted full runs | 4 shards: 516–772 s (run 43591356678), 396–488 s (43588216160); wall median 12.2 min | 6 shards, pins re-spread; first hosted run after the push: not yet observed |
 
 ### Proposed routine / full policy (T03), your choice
 
@@ -84,27 +109,16 @@ You asked how often those tests caught bugs locally. **In the week measured, nev
 
 ## State
 
-- Daily run at handler 2's start: 43585378440, green.
-- Branch `worktree-walkthrough-throughput`, commits on top of `6c707c06`: `0c634559` (7), `28be340b` (1), `ad9034cf` (3), `f49067c2` (8), `9884d291` (10), `82f0febe` (2). The first three were in background publish `publish-ad9034cf-5352a9` (tooling recipe); check `just publish --status`. Then publish 8, 10, 2 with the `runtime` recipe (the workflow and `src/` need it): `just publish --background --recipe runtime --base <origin/master after the first publish> --commits f49067c2,9884d291,82f0febe` (rebase first if the hashes moved). Branch `tp-backup` is a leftover of a reorder; delete it.
-- This note, the queue and the spec's "Changes landed" list are committed after `82f0febe` but not pushed: the first background publish was still pending at the handoff, and a second one refuses while it is pending. Publish them with 8, 10 and 2.
-- Uncommitted in this worktree: the change 4 worker's files (`scripts/check-changed-selector*.cjs`, `scripts/commands.cjs`, `scripts/commands.test.cjs`) and the probe edit in `src/graphs/base/WorkspaceControls.css` (revert it: `git checkout -- src/graphs/base/WorkspaceControls.css`).
-- Scratch worktree `.claude/worktrees/throughput-timing` (detached, `node_modules` junction): remove its junction with `cmd /c rmdir node_modules` first, then `git worktree remove --force`. The worker worktree `.claude/worktrees/agent-ab0ea9f6833ade72d` (change 2, already applied) can be removed the same way.
-- Change 4 was dispatched to a `bezeg-worker` (Sonnet) in this worktree: `scripts/check-changed-selector.cjs` with tests and its integration in `check-changed`. Its report, if it arrived before the handoff, is summarized under "For the next handler"; its files are uncommitted in this worktree and its evidence in `.command-logs/selector/`.
-- Timing logs: `.command-logs/t/` (`css-before.log`, `css-after.log`, `cache-timing.txt`, `graph-after2.log`).
+- Daily run at handler 3's start: 43585378440, green.
+- On master: changes 7, 1, 3 (`791bb648`), then 8, 10, 2, 4 and the docs (`063bdec3`, hosted CI green). Changes 5 (`e08bea1c`) and 9 (`c4eb8c2a`) are in background publish `publish-c4eb8c2a-1558fe` (`runtime` recipe); check `just publish --status`.
+- Removed: branch `tp-backup`, the scratch worktree `throughput-timing` and the change 2 worker worktree with its branch.
+- Change 6 timing: `.command-logs/t6/run.sh` waits until no slot is held, then runs one whole-suite `just unit` at 5 and one at 10 workers; `summary.txt` gets wall time, exit code and the most slots held at once (1 means the run was alone). The first attempt was killed after 35 s (`summary-killed.txt`).
+- Change 4 timings: `.command-logs/t4/` (`summary.txt` and one log per edit).
 - Successor rule: every successor in this chain is Opus at medium effort. Launch from this directory with `claude --bg -n "walkthrough throughput handler <n+1>" --agent bezeg-handler --model opus --effort medium --permission-mode auto "<prompt>"`; thresholds 175k soft, 215k handoff. Implement only what the owner approved (the ten changes and the policy table); the slot change of 6 goes to him first. Do not launch a successor while only waiting on him.
 
 ## For the next handler
 
-1. Fill the two FILL cells above from `.command-logs/t/css-before.log` and `.command-logs/t/graph-after2.log` (the `wall=` line and the last `timings.jsonl` line).
-2. **Change 4 worker report (arrived, not yet reviewed; files uncommitted here):** new `scripts/check-changed-selector.cjs` and its test (9 tests), integration in `check-changed` (`commands.cjs`, which now also adds untracked files to the changed list) and 3 new plus 3 adjusted tests in `commands.test.cjs` (43 pass); lint passes. Selection with the cut, no test run: `LogisticMapGraph.tsx` 24, `sl.ts` 31, `linearMapsChapterLessons.ts` 20, `labelLayout.ts` 29 files, 17 of each being sweep files (lists in `.command-logs/selector/selection.json`); 0.29 s per selection. With the cut list emptied it matches Vitest exactly (432 = 432; 349 = 349 once the probe CSS edit is accounted for). Deviations from the brief to judge: changed test files are exempt from the shared-path fallback; `scripts/transient-state-scope.cjs` is not a fallback trigger; sweep files are added only when a `src/` path changed or something was selected; fixtures got a `.gitignore` of `*`. Risks it names: imports found by regex, so a runtime-built specifier is missed; no full run or build was made. Review the diff (engineering review per review routing; it is a gate change for every session), then:
-   Review the change 4 worker's result against the spec's phase 8 and the brief inputs below; accept, commit with `just tooling-test`, then time the four representative changes once each with `just check-changed` (selection counts suffice where a slot is not free; `timings.jsonl` now records wait and files). Record its guard in the spec's "Decisions taken" (CI runs everything per push; a red push is fixed by the stream that pushed it before anything else) and write the routine / full policy table from "For the owner" into `docs/commands.md` (V4), replacing the paragraph there that says a one-graph change selects a quarter to half of the files.
-3. Change 6: time one whole-suite `just unit` at 5 and at 10 workers (`BEZEG_TEST_WORKERS`) while no other slot is held; report both under "For the owner" and wait for his answer.
-4. Changes 5 and 9 as in the brief inputs below.
-5. Close V2–V4 in the spec and the queue.
-
-Brief inputs per change (unchanged from handler 1 for the ones not yet done):
-
-4. **Registry-bounded selection.** A selector module in `scripts/` with its own tests, used by `check-changed` instead of Vitest's `--changed`: follow a changed file to the tests that reach it, without passing `src/graphs/allGraphFactories.ts`, `src/graphs/graphLoaders.ts`, the family `runtime.ts` loaders, the lesson registries (`src/learning/content/*Registry.ts`, `chapterOwnedLessons.ts`, `src/learning/runtime/lessonCatalog.ts`), `src/localization/index.ts`, `src/demonstrations.ts` and `src/Routes.tsx`. A shared-path change (the list in `scripts/transient-state-scope.cjs`), a configuration or setup file, or anything the selector cannot resolve selects everything, as today. The catalog sweeps and the always-run tier always run; the sweeps already choose their sample and reached entries themselves. `caught.cjs` has a working version of the cut and shared rules. Check the selector against `vitest list --changed` with no cut first; the static graph gave 345 against Vitest's 326 for the stylesheet, which is unexplained. Time all four representative changes before and after. Record the guard in the spec's "Decisions taken": CI runs everything per push; a red push is fixed by the stream that pushed it before it pushes anything else. Then write the policy table into `docs/commands.md` (V4).
-5. **Directory-wide filtered runs take a slot.** `needsSlot` in `scripts/commands.cjs` and `scripts/test-slots.cjs`. It needs the number of matching files before the run starts.
-6. **Lone-run workers: time only.** One whole-suite `just unit` at 5 workers and one at 10 (`BEZEG_TEST_WORKERS`), each while no other slot is held, with the number of other sessions running noted. Report both under "For the owner" and wait for his answer before touching slot sizing.
-9. **CI wall.** The `PartSequencer` in `vite.config.mts` spreads part files over four shards; shard durations in one run ranged from 285 s to 489 s. Balance by cost or go to six shards, and compare hosted walls before and after.
+1. Confirm the publish of 5 and 9 (`just publish --status`), then `just ci <sha>`: record the six unit shard durations of the first hosted full run in change 9's row ("After").
+2. Read `.command-logs/t6/summary.txt`. Report both walls under "For the owner" with the number of slots held during each run, and wait for his answer on slot sizing. Change nothing in `scripts/test-slots.cjs` before that.
+3. When the first scheduled run with change 8 has run (03:17 UTC), note under change 8 whether it finished within 25 minutes. Then download its `unit-durations-*` artifacts and, if one shard is still clearly the longest, refine `PINNED_SHARDS` by cost.
+4. Close V2 and V3 in the spec and the queue once change 6 is reported (V4 is done; V1 and V5 were met by the remeasure note).
