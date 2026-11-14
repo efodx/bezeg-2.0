@@ -32,6 +32,31 @@ type DataCurve = GeometryElement & { dataX: number[]; dataY: number[]; updateDat
 
 const NONE: EnvelopeFamily = {x: [], y: []};
 
+/** The family is drawn in this many bands of consecutive lines, one curve each; the colour runs along the bands. */
+export const FAMILY_BANDS = 8;
+const FAMILY_LINE_WIDTH = 1;
+const CURRENT_LINE_WIDTH = 4;
+
+function rgb(hex: string): number[] {
+    return [1, 3, 5].map(start => parseInt(hex.slice(start, start + 2), 16));
+}
+
+/** Linear interpolation in RGB between two "#rrggbb" colours, `amount` from 0 (from) to 1 (to). */
+export function mixColors(from: string, to: string, amount: number): string {
+    const a = rgb(from), b = rgb(to);
+    return '#' + a.map((value, k) => Math.round(value + (b[k] - value) * amount).toString(16).padStart(2, '0')).join('');
+}
+
+/** The colour of family band `band` of {@link FAMILY_BANDS}: the comparison blue at the first, teal at the last. */
+export function familyBandColor(band: number): string {
+    return mixColors(GraphPalette.comparisonCurve, GraphPalette.additionalCurves[0], band / (FAMILY_BANDS - 1));
+}
+
+/** The lines `first` to `end` (exclusive) of a family, as one NaN-separated curve. */
+function familySlice(family: EnvelopeFamily, first: number, end: number): EnvelopeFamily {
+    return end > first ? {x: family.x.slice(3 * first, 3 * end - 1), y: family.y.slice(3 * first, 3 * end - 1)} : NONE;
+}
+
 /**
  * One owned envelope overlay: the family of de Casteljau lines as one NaN-separated curve, the highlighted line at t, the
  * touching point and a board caption. Elements read the curve lazily, so no drag listener exists; the language
@@ -118,10 +143,17 @@ export class EnvelopeOverlay {
     private build() {
         const board = this.board;
         // Under the Bezier curve (layer 5), so at 200 lines the curve stays drawn on top of the family; above the control polygon's layer 3.
-        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, layer: 4, visible: () => this.settings.linesShown()},
-            () => this.settings.linesShown() ? this.family() : NONE);
+        // Eight bands of consecutive lines, cool and thin, blue to teal along the family, so the fan reads as an ordered family.
+        for (let band = 0; band < FAMILY_BANDS; band++) {
+            this.dataCurve({strokeColor: familyBandColor(band), strokeWidth: FAMILY_LINE_WIDTH, layer: 4, visible: () => this.settings.linesShown()}, () => {
+                if (!this.settings.linesShown()) return NONE;
+                const count = this.settings.count();
+                return familySlice(this.family(), Math.floor(band * count / FAMILY_BANDS), Math.floor((band + 1) * count / FAMILY_BANDS));
+            });
+        }
 
-        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 3, visible: () => this.settings.touchShown()}, () => {
+        // The line at t and its touching point: the construction accent, above the family, the line clearly wider than a family line.
+        this.dataCurve({strokeColor: GraphPalette.constructionAccent, strokeWidth: CURRENT_LINE_WIDTH, visible: () => this.settings.touchShown()}, () => {
             const segment = this.settings.touchShown() ? this.current() : undefined;
             return segment ? {x: [segment.q0[0], segment.q1[0]], y: [segment.q0[1], segment.q1[1]]} : NONE;
         });
@@ -130,8 +162,8 @@ export class EnvelopeOverlay {
             () => this.current()?.touch[0] ?? NaN,
             () => this.current()?.touch[1] ?? NaN,
         ], {
-            fixed: true, withLabel: false, highlight: false, name: '', size: 4, strokeColor: GraphPalette.comparisonCurve,
-            fillColor: GraphPalette.comparisonCurve, visible: () => this.settings.touchShown() && this.current() !== undefined,
+            fixed: true, withLabel: false, highlight: false, name: '', size: 4, strokeColor: GraphPalette.pointOutline,
+            fillColor: GraphPalette.constructionAccent, visible: () => this.settings.touchShown() && this.current() !== undefined,
         });
 
         const box = () => board.getBoundingBox();

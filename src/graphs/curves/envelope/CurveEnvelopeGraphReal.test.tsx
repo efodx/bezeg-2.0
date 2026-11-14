@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import type {GeometryElement} from 'jsxgraph';
 import CurveEnvelopeGraph, {ENVELOPE_DEFAULT_POINTS, ENVELOPE_LINES_DEFAULT, ENVELOPE_T_DEFAULT} from './CurveEnvelopeGraph';
 import {envelopeFamily, tangentSegment} from './curveEnvelope';
+import {FAMILY_BANDS} from './EnvelopeOverlay';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
 import {LessonAction} from '../../../learning/model';
@@ -35,15 +36,26 @@ beforeEach(() => localStorage.clear());
 afterEach(() => setLanguage('sl'));
 
 type BoardObject = GeometryElement & {
-    plaintext?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number; visProp: { visible: boolean | (() => boolean); layer: number };
+    plaintext?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number; visProp: { visible: boolean | (() => boolean); layer: number; strokecolor: string; fillcolor: string; strokewidth: number };
 };
 
 class Probe extends CurveEnvelopeGraph {
     liveBoard() { return this.board; }
     act(action: LessonAction) { this.applyLessonAction(action); }
     private owned() { return this.envelope()!.ownedElements() as unknown as BoardObject[]; }
-    family() { return this.owned().filter(element => element.elType === 'curve')[0]; }
-    highlight() { return this.owned().filter(element => element.elType === 'curve')[1]; }
+    /** The family is drawn in bands of consecutive lines; the bands are the first curves, the highlighted line the next. */
+    familyBands() { return this.owned().filter(element => element.elType === 'curve').slice(0, FAMILY_BANDS); }
+    /** The whole family as one NaN-separated curve, joined from the bands in order. */
+    family() {
+        const x: number[] = [], y: number[] = [];
+        for (const band of this.familyBands()) {
+            if (!band.dataX!.length) continue;
+            if (x.length) { x.push(NaN); y.push(NaN); }
+            x.push(...band.dataX!); y.push(...band.dataY!);
+        }
+        return {dataX: x, dataY: y, visProp: this.familyBands()[0].visProp};
+    }
+    highlight() { return this.owned().filter(element => element.elType === 'curve')[FAMILY_BANDS]; }
     touch() { return this.owned().find(element => element.elType === 'point')!; }
     captions() { return this.owned().filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean); }
     published(): string { return this['liveReadout'].getSnapshot(); }
@@ -132,6 +144,23 @@ describe('drawing order', () => {
         try {
             expect(graph.family().visProp.layer).toBeLessThan(graph.curveLayer());
             expect(graph.highlight().visProp.layer).toBeGreaterThanOrEqual(graph.curveLayer());
+        } finally { view.unmount(); }
+    });
+});
+
+describe('colours and widths', () => {
+    test('the current line and its point stand out from the family, and the family runs from one colour to another', () => {
+        const {graph, view} = mount();
+        try {
+            const bands = graph.familyBands(), current = graph.highlight();
+            for (const band of bands) {
+                expect(current.visProp.strokecolor).not.toBe(band.visProp.strokecolor);
+                expect(current.visProp.strokewidth).toBeGreaterThan(band.visProp.strokewidth);
+            }
+            expect(bands[0].visProp.strokecolor).not.toBe(bands[bands.length - 1].visProp.strokecolor);
+            expect(new Set(bands.map(band => band.visProp.strokecolor)).size).toBe(bands.length);
+            expect(graph.touch().visProp.strokecolor).not.toBe(graph.touch().visProp.fillcolor);
+            expect(graph.touch().visProp.fillcolor).toBe(current.visProp.strokecolor);
         } finally { view.unmount(); }
     });
 });
