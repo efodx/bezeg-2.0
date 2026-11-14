@@ -13,10 +13,7 @@ Rewritten 2026-11-14 by handler 1, after implementing the owner's picks.
 | Guided example Back button as an outline | `/bezeg-2.0/analysis/darboux?learn=1`, then Naprej |
 | Presets panel: list of saved states, inline save, row menu, backup section | `/bezeg-2.0/analysis/darboux`, tab Shrani |
 
-**Choices only you can make:** none blocking. Two things to say if you disagree:
-
-1. Presets wording: the list is headed "Shranjena stanja" while the tab heading and the file buttons keep "prednastavitve". Say if you want one word throughout.
-2. The Back button outline looks almost the same as before, because the lesson panel is nearly white. The sage tint (option B in the gallery) is the visible alternative.
+**Choices only you can make:** none. You confirmed on 2026-11-14, after seeing the preview, that the outline Back button stays and that the presets wording is fine as built ("Shranjena stanja" for the list, "prednastavitve" for the tab heading and the file buttons).
 
 The mockup gallery is no longer served; its source and images are in `docs/reviews/site-walkthrough/design/` (`index.html`, `img/`).
 

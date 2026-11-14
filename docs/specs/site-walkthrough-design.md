@@ -19,6 +19,8 @@ The owner reviewed the gallery and picked:
 | P01 and P02 | P01 option B (save inside the panel) together with the P02 list panel. He did not comment on the wording; the handler uses the mockup's "shranjena stanja" for the list and keeps "prednastavitve" for the tab's heading and the file actions, so the change is small and easy to reverse. |
 | G07 | Slovenia and the cat; all four subjects if adding examples is easy. Passed to the `graphs` session. |
 
+After seeing the preview the same day, the owner confirmed the outline Back button ("I like the button") and the presets wording as built ("for presets, that's ok").
+
 ### H02 pool (handler, 2026-11-14)
 
 Chosen from the catalogue captures (contact sheets `pool-sheet-1.png` and `pool-sheet-2.png` in the gallery's `img/` folder), leaving out everything in the intake's "needs visual refinement" table: `epicycles`, `fixed-point`, `accumulation`, `definite-integral`, `function-inverse`, `complex-multiplication`, `decasteljau`, `subdivision`, `patch-tensor`, `patch-coons`, `voronoi`, `fortune`, `inscribed-angle`, `linear-map`, `curve-comb`, `prob-binomial-normal`, `interp-runge`, `euler-method`.
