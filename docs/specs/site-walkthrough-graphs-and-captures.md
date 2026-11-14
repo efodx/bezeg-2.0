@@ -366,6 +366,8 @@ Routine choices made by the handler:
 
 Filled in as batches are accepted.
 
+**Owner grant, 2026-11-14, confirmed to handler 4 on 2026-11-15:** handler 3 relayed the owner's words "you're doing fine, you don't have to ask for my confirmation for the next ones", and the owner answered handler 4 "i agree". Batches inside the approved direction are published once the handler's checks and review pass, still shown on their `bN` comparison page so he can object afterwards. A new design direction (new drawing code, an unseen colour) still waits for him.
+
 ### Pilot (branch `worktree-walkthrough-graphs`, not on `master`; awaiting the owner)
 
 Before and after posters and clips: `docs/reviews/site-walkthrough/graphs/pilot/` (`index.html` is the comparison page). The after files are trial captures; the catalog and its manifest are unchanged.
@@ -466,7 +468,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8a1/` (served as `walkt
 - `quadrature`, `darboux`, `taylor`, `uniform-convergence`, `fourier-series`, `fourier-coefficients`: Remove.
 - **Not done, capture tool stale against the current controls** (none is a text problem; each fails before the text policy applies): `sequence` (the recipe's ε field reads 0.1 where 0.3 is expected, `demonstration-preview-recipes.cjs:378`), `euler-method` (the row names a control "Začetni y₀" that no longer exists), `accumulation` (the held-state check compares the "Točka x" input with the board and fails since that control became a Slider, `demonstration-preview-concept-motion.cjs:73`). Their verdicts stand (`sequence` keep `^N = \d+$`, `euler-method` Remove, `accumulation` keep `^\+$`) and wait for the repair.
 
-### B8a Functions, second part (handler 3, 2026-11-14; shown to the owner, not yet published)
+### B8a Functions, second part (handler 3, 2026-11-14; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b8a2/` (served as `walkthrough-graphs/b8a2.html`). Text only.
 
@@ -474,7 +476,7 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8a2/` (served as `walkt
 - Remove: `geometric-series`, `continuity`; `rational-function` and `extrema` too, although the triage proposed keeping asymptote names and extremum values: kept, they lay on the tick numbers and the dashed guides. `extrema`'s per-id override in `capture-demonstration-previews.cjs` (forced conclusion row, its visibility assertion) is dropped; the override now serves `convexity` only.
 - **Not done:** `area-between-curves` (recipe expects "Meja b" to read 3.2, the slider gives 3.22, `demonstration-preview-recipes.cjs:386`); `derivative` (with the formula line kept, the sweep's last frame differs from the recipe frame, `demonstration-preview-motion.cjs:673` via `assertSweepFrame`; not investigated). Both handled in B8e.
 
-### B8e Capture-tool repair (handler 4, 2026-11-15; shown to the owner, waiting for his look)
+### B8e Capture-tool repair (handler 4, 2026-11-15; approved by the owner)
 
 Before and after: `docs/reviews/site-walkthrough/graphs/b8e/` (served as `walkthrough-graphs/b8e.html`). The capture tool, not the app, was out of date.
 
