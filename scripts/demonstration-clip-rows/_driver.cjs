@@ -173,7 +173,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             await openRecipeScene(page, d, recipes[d.id], baseUrl, {});
             await presentFixed(page, d, presentBoard, fixedBox, row);
             const field = row.control.kind === 'number-field';
-            const button = field ? page.getByLabel(row.control.label, {exact: true}).and(page.locator('input[type="number"]'))
+            const button = field ? await numberFieldLocator(page, row.control.label, page.getByLabel(row.control.label, {exact: true}).and(page.locator('input[type="number"]')))
                 : page.getByRole('button', {name: row.control.label, exact: true});
             assert.equal(await button.count(), 1, `${row.id}: ${field ? 'number field' : 'button'} "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
             for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }

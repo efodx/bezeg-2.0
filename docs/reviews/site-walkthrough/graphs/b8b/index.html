@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bezeg graphs: batch B8e, repaired capture tooling</title>
+<style>
+body{margin:0;padding:24px;background:#f5f7ef;color:#2f3a31;font:16px/1.5 Georgia,serif}main{max-width:1500px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:500;margin:0 0 8px}h2{font-size:1.3rem;font-weight:600;margin:40px 0 4px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:12px}
+figure{margin:0;background:#fffdf5;border:1px solid #d5dccf;border-radius:6px;padding:10px}
+figcaption{font:600 .85rem/1.3 system-ui,sans-serif;text-transform:uppercase;color:#5b6a5c;margin-bottom:6px}
+video{width:100%;height:auto;display:block}
+</style></head><body><main>
+<h1>Batch B8b: maps and plane geometry (G03, G04)</h1><p>linear-map is not included: its capture fails the encoder background check (see worker.md).</p>
+<h2>1. complex-multiplication</h2><p>The axis names Re and Im stay; the number lines and formulas are hidden (hide only).</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/complex-multiplication.webm" poster="before/complex-multiplication.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/complex-multiplication.webm" poster="after/complex-multiplication.png" autoplay loop muted playsinline></video></figure></div>
+<h2>2. complex-reciprocal</h2><p>No text: this card draws no axes, so the names Re and Im had nothing to name; the formulas are gone too.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/complex-reciprocal.webm" poster="before/complex-reciprocal.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/complex-reciprocal.webm" poster="after/complex-reciprocal.png" autoplay loop muted playsinline></video></figure></div>
+<h2>3. complex-roots</h2><p>No text: no axes are drawn, so Re and Im are gone with the root formulas.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/complex-roots.webm" poster="before/complex-roots.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/complex-roots.webm" poster="after/complex-roots.png" autoplay loop muted playsinline></video></figure></div>
+<h2>4. triangle-centres</h2><p>No board text; the triangle type phrase is gone.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/triangle-centres.webm" poster="before/triangle-centres.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/triangle-centres.webm" poster="after/triangle-centres.png" autoplay loop muted playsinline></video></figure></div>
+<h2>5. inversion</h2><p>No board text; the circle-type phrase is gone.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/inversion.webm" poster="before/inversion.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/inversion.webm" poster="after/inversion.png" autoplay loop muted playsinline></video></figure></div>
+<h2>6. orientation</h2><p>Only the signed value +8 stays; the words after it are stripped.</p><div class="pair"><figure><figcaption>Before</figcaption><video src="before/orientation.webm" poster="before/orientation.png" autoplay loop muted playsinline></video></figure><figure><figcaption>After</figcaption><video src="after/orientation.webm" poster="after/orientation.png" autoplay loop muted playsinline></video></figure></div>
+</main></body></html>

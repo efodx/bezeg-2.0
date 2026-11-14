@@ -486,3 +486,14 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8e/` (served as `walkth
 - `derivative`: JSXGraph rewrites the moving readout each frame and undid the hiding; a sweep now re-presents every frame for a recipe with a `text` entry. Keeps `^f\(x\) = `, clear of the tick numbers.
 - `sequence`: keeps the tag, which reads "N" on the board, so the pattern is `^N( = \d+)?$` (the triage's `^N = \d+$` matched nothing).
 - `area-between-curves`: keeps `^[fg]$`; the area readout and the formulas go. Its clip failed "Decoded background changed at frame 0" (blue 244 for 245): the sampled pixel (40, 40) sits beside the curve f, whose chroma bleeds into it in the encoded clip. The spec now samples (235, 40), clear background between grid lines; the exact colour check is unchanged.
+
+### B8b Maps and plane geometry (handler 4, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8b/` (served as `walkthrough-graphs/b8b.html`). Text only.
+
+- `complex-multiplication`: keeps the axis names `^(?:Re|Im)$`; hide only, because its clip row reads the board text.
+- `complex-reciprocal`, `complex-roots`: Remove. The triage kept Re and Im, but these cards draw no axes, so the names floated with nothing to name.
+- `triangle-centres`, `inversion`: Remove.
+- `orientation`: keeps the signed value (`^[+−]\d+`, words ": levi zavoj" stripped); "+8" sits inside the shaded triangle.
+- Capture-tool repairs: the complex clip rows name the current controls "z, Re" and "w, Re"; the discrete driver finds a number field that became a Slider (`inversion` radius) through `numberFieldLocator`.
+- **Not done:** `linear-map` (Keep in part) fails the encoder background check ("Decoded background changed at frame 0", 108 for 107 at CRF 46): its moving grid leaves almost no still background to sample (`scripts/demonstration-clip-rows/_jump.cjs:159`). Needs a sampler choice, not a text change. `triangle-solver` has no triage row and is unchanged.

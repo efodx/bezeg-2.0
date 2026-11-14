@@ -283,6 +283,16 @@ const captureText = {
     derivative: {keep: [/^f\(x\) = /], strip: []},
     // The curve names stay; the area readout and the formulas go.
     'area-between-curves': {keep: [/^[fg]$/], strip: []},
+    // Maps and plane geometry (B8b): the axis names Re and Im stay; the number lines and the formulas go. complex-multiplication is hidden
+    // only (strip is empty): its clip row reads the board textContent, which display:none keeps.
+    'complex-multiplication': {keep: [/^(?:Re|Im)$/], strip: []},
+    // complex-reciprocal and complex-roots draw no axes, so the axis names Re and Im would float with nothing to name: Remove.
+    'complex-reciprocal': {keep: [], strip: []},
+    'complex-roots': {keep: [], strip: []},
+    'triangle-centres': {keep: [], strip: []},
+    inversion: {keep: [], strip: []},
+    // Orientation: the signed value stays without its words.
+    orientation: {keep: [/^[+−]\d+/], strip: [/: levi zavoj$/]},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
