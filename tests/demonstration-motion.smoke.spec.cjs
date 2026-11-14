@@ -221,28 +221,50 @@ test('delayed media retains the poster and cannot revive a filtered card', async
     } finally {release();}
 });
 
+const catalogByChoiceName = new Map(demonstrations.map(demonstration =>
+    [`${demonstrations.families.find(family => family.id === demonstration.family).title}: ${demonstration.title}`, demonstration]));
+// The homepage carousel draws its six entries at random per page load: read them from the page and resolve each in the catalogue.
+async function drawnCarousel(opening) {
+    const choices = opening.locator('.demonstrations-opening-choice');
+    await expect(choices).toHaveCount(6);
+    const names = await choices.evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label')));
+    return names.map(name => {
+        const demonstration = catalogByChoiceName.get(name);
+        expect(demonstration, `carousel choice "${name}" is a catalogue demonstration`).toBeTruthy();
+        return demonstration;
+    });
+}
+
 test('carousel shares the catalog clip and disposes it when its slide changes', async ({page}) => {
-    await openEnglish(page);
-    const source = await (await playing(card(page, 'bezier'))).getAttribute('src');
-    await page.goto('/bezeg-2.0', {waitUntil:'domcontentloaded'});
+    await openEnglish(page, '/bezeg-2.0');
     const opening = page.locator('.demonstrations-opening');
+    const drawn = await drawnCarousel(opening);
+    const clipIndexes = drawn.map((demonstration, index) => demonstration.hasMotion ? index : -1).filter(index => index >= 0);
+    expect(clipIndexes.length, 'at least two drawn demonstrations carry a clip').toBeGreaterThanOrEqual(2);
+    const first = clipIndexes[0];
+    const other = clipIndexes[1];
+    const choices = opening.locator('.demonstrations-opening-choice');
     await opening.hover();
     const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
-    const initial = await playing(selected);
-    expect(await initial.getAttribute('src')).toBe(source);
+    if (first > 0) await choices.nth(first).click();
+    const initial = await playing(selected, first === 0, {loop: first === 0});
+    const source = await initial.getAttribute('src');
     const initialElement = await initial.elementHandle();
     await expect(opening.locator('.demonstration-preview-control')).toHaveCount(0);
-    const choices = opening.locator('.demonstrations-opening-choice');
-    await choices.nth(1).click();
+    await choices.nth(other).click();
     await expect.poll(() => initialElement.evaluate(v => v.paused && !v.hasAttribute('src'))).toBe(true);
     const next = await playing(selected, false, {loop: false});
     expect(await next.getAttribute('src')).not.toBe(source);
     await expect(opening.locator('video[src]')).toHaveCount(1);
 
-    await choices.first().click();
+    await choices.nth(first).click();
     const returned = await playing(selected, true, {loop: false});
     expect(await returned.getAttribute('src')).toBe(source);
     await expect.poll(() => returned.evaluate(v => v.loop && !v.paused), {timeout: 8000}).toBe(true);
+
+    // The carousel clip is the catalogue card's clip (client-side navigation keeps the draw).
+    await page.getByRole('link', {name: /All demonstrations/}).click();
+    expect(await (await playing(card(page, drawn[first].id))).getAttribute('src')).toBe(source);
 });
 
 test.describe('touch viewport playback', () => {
@@ -285,9 +307,14 @@ test.describe('touch viewport playback', () => {
     test('touch homepage and picker autoplay without hover and dispose on navigation or close', async ({page}) => {
         await openEnglish(page, '/bezeg-2.0');
         const opening = page.locator('.demonstrations-opening');
+        const drawn = await drawnCarousel(opening);
+        // The initial card loops; a tapped card plays one selection pass. Prefer the initial card when it has a clip.
+        const clipIndex = drawn.findIndex(demonstration => demonstration.hasMotion);
+        expect(clipIndex, 'a drawn demonstration carries a clip').toBeGreaterThanOrEqual(0);
+        if (clipIndex > 0) await opening.locator('.demonstrations-opening-choice').nth(clipIndex).tap();
         const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
         await selected.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
-        await playing(selected, false);
+        await playing(selected, false, {loop: clipIndex === 0});
         await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
         await expect(page.locator('video[src]')).toHaveCount(0);
         await page.getByRole('button', {name: 'Switch demonstration', exact: true}).tap();

@@ -5,6 +5,7 @@ import {DemonstrationCollection} from './DemonstrationCollection';
 import {demonstrationMotionAssets} from './demonstrationMotionAssets';
 import {HomeDemonstrationsCarousel} from './HomeDemonstrationsCarousel';
 import {MemoryRouter} from 'react-router-dom';
+import {resetVisitDemonstrationIds} from './homeDemonstrationPool';
 
 let reduced = false;
 let hoverNone = false;
@@ -33,6 +34,7 @@ function updateMedia(query: string, matches: boolean) {
 }
 
 beforeEach(() => {
+    resetVisitDemonstrationIds(['bezier', 'bernstein', 'rational', 'spline-c1', 'ph-cubic', 'derivative']);
     reduced = false;
     hoverNone = false;
     observerList = [];
@@ -49,7 +51,7 @@ beforeEach(() => {
     vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(load);
 });
 
-afterEach(() => { restoreDocumentHidden?.(); restoreDocumentHidden = undefined; cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { resetVisitDemonstrationIds(); restoreDocumentHidden?.(); restoreDocumentHidden = undefined; cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 test('visibility alone does not request a clip; hovering starts playback and leaving restores the poster', () => {
     const motion = {src: '/curve.webm', type: 'video/webm', duration: 3};
@@ -261,7 +263,7 @@ test('homepage selection plays one pass, releases the old clip on switch, and ke
     const selectedFrame = () => document.querySelector('.demonstrations-opening-image[data-selected="true"] .demonstration-preview-media')!;
     const selectedImage = () => document.querySelector('.demonstrations-opening-image[data-selected="true"]')!;
     const first = selectedImage();
-    const next = document.querySelector<HTMLButtonElement>('.demonstrations-opening-controls button:last-child')!;
+    const next = document.querySelector<HTMLButtonElement>('.demonstrations-opening-choice:nth-child(2)')!;
     fireEvent.click(next);
     const firstFrame = selectedFrame();
     act(() => observerList.find(observer => observer.target === firstFrame)?.enter());
@@ -269,7 +271,7 @@ test('homepage selection plays one pass, releases the old clip on switch, and ke
     expect(play).toHaveBeenCalledTimes(1);
     expect(firstVideo).not.toHaveAttribute('loop');
 
-    fireEvent.click(next);
+    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-choice:nth-child(3)')!);
     expect(firstVideo).not.toHaveAttribute('src');
     expect(selectedImage().querySelector('video')).toBeNull();
     const secondFrame = selectedFrame();
@@ -296,7 +298,7 @@ test('homepage selection plays one pass, releases the old clip on switch, and ke
 
 test('an active hover may keep looping after the selected pass, then restores the poster immediately on leave', () => {
     render(<MemoryRouter><HomeDemonstrationsCarousel/></MemoryRouter>);
-    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-controls button:last-child')!);
+    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-choice:nth-child(2)')!);
     const selected = document.querySelector('.demonstrations-opening-image[data-selected="true"]')!;
     const frame = selected.querySelector('.demonstration-preview-media')!;
     act(() => observerList.find(item => item.target === frame)?.enter());
@@ -316,7 +318,7 @@ test('an active hover may keep looping after the selected pass, then restores th
 
 test.each(['offscreen', 'hidden', 'reduced motion'] as const)('a selected pass stays retired after %s interruption', interruption => {
     const view = render(<MemoryRouter><HomeDemonstrationsCarousel/></MemoryRouter>);
-    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-controls button:last-child')!);
+    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-choice:nth-child(2)')!);
     const frame = document.querySelector('.demonstrations-opening-image[data-selected="true"] .demonstration-preview-media')!;
     const observer = observerList.find(item => item.target === frame)!;
     act(() => observer.enter());

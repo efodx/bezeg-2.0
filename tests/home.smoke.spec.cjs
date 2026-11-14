@@ -2,7 +2,21 @@ const {test, expect} = require('@playwright/test');
 const demonstrations = require('./smoke-catalog.cjs');
 const demonstrationById = new Map(demonstrations.map(demonstration => [demonstration.id, demonstration]));
 const familyById = new Map(demonstrations.families.map(family => [family.id, family]));
-const startingIds = ['bezier', 'bernstein', 'rational', 'spline-c1', 'ph-cubic', 'derivative'];
+const demonstrationByChoiceName = new Map(demonstrations.map(demonstration =>
+    [`${familyById.get(demonstration.family).title}: ${demonstration.title}`, demonstration]));
+const STARTING_COUNT = 6;
+
+// The carousel draws its six entries at random on each full page load, so the specs read the drawn entries from the page
+// and look each one up in the smoke catalogue instead of assuming fixed ids.
+async function drawnEntries(choices) {
+    await expect(choices).toHaveCount(STARTING_COUNT);
+    const names = await choices.evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label')));
+    return names.map(name => {
+        const demonstration = demonstrationByChoiceName.get(name);
+        expect(demonstration, `carousel choice "${name}" is a catalogue demonstration`).toBeTruthy();
+        return {name, demonstration};
+    });
+}
 
 async function openEnglish(page, pathname) {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
@@ -32,26 +46,25 @@ test('the homepage owns the starting carousel and its actions lead to the select
     expect(pageOrder.shortcutBeforeCarousel).toBe(true);
     expect(pageOrder.carouselIsLast).toBe(true);
 
-    await expect(opening.locator('.demonstrations-opening-image')).toHaveCount(startingIds.length);
+    await expect(opening.locator('.demonstrations-opening-image')).toHaveCount(STARTING_COUNT);
+    const choices = opening.getByRole('group', {name: 'Starting demonstrations'}).getByRole('button');
+    const drawn = await drawnEntries(choices);
+    expect(new Set(drawn.map(entry => entry.demonstration.family)).size, 'the six families are distinct').toBe(STARTING_COUNT);
+    expect(new Set(drawn.map(entry => entry.demonstration.id)).size).toBe(STARTING_COUNT);
+    await expect(opening.getByRole('button', {name: /previous|next/i})).toHaveCount(0);
+    await expect(opening.getByText(/^\d+ \/ \d+$/)).toHaveCount(0);
+
     const openingImage = opening.locator('.demonstrations-opening-image[data-selected="true"] img');
     await expect(openingImage).toHaveCount(1);
-    await expect(openingImage).toHaveAttribute('src', /bezier/);
+    await expect(openingImage).toHaveAttribute('src', new RegExp(drawn[0].demonstration.id));
     await expect(openingImage).toHaveCSS('opacity', '1');
     await expect(openingImage).toHaveAttribute('alt', '');
     await expect.poll(() => openingImage.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
-    const first = demonstrationById.get(startingIds[0]);
-    await expect(opening.getByRole('heading', {level: 3, name: first.title})).toBeVisible();
+    await expect(opening.getByRole('heading', {level: 3, name: drawn[0].demonstration.title})).toBeVisible();
     await expect(opening.locator('[aria-pressed="true"]')).toHaveCount(1);
+    await expect(choices.nth(0)).toHaveAttribute('aria-pressed', 'true');
 
-    const choices = opening.getByRole('group', {name: 'Starting demonstrations'}).getByRole('button');
-    await expect(choices).toHaveCount(startingIds.length);
-    const expectedChoiceNames = startingIds.map(id => {
-        const demonstration = demonstrationById.get(id);
-        return `${familyById.get(demonstration.family).title}: ${demonstration.title}`;
-    });
-    expect(await choices.evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label')))).toEqual(expectedChoiceNames);
-
-    const selected = demonstrationById.get('bernstein');
+    const selected = drawn[1].demonstration;
     await choices.nth(1).click();
     await expect(choices.nth(1)).toHaveAttribute('aria-pressed', 'true');
     await expect(openingImage).toHaveAttribute('src', new RegExp(selected.id));
@@ -61,8 +74,15 @@ test('the homepage owns the starting carousel and its actions lead to the select
     const graph = opening.getByRole('link', {name: `Open demonstration: ${selected.title}`});
     await expect(graph).toHaveAttribute('href', selected.path);
     const lesson = opening.getByRole('link', {name: `Guided example: ${selected.title}`});
-    await expect(lesson).toHaveAttribute('href', `${selected.path}?learn=1`);
+    if (selected.hasLesson) await expect(lesson).toHaveAttribute('href', `${selected.path}?learn=1`);
+    else await expect(lesson).toHaveCount(0);
 
+    await shortcut.click();
+    await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
+    await page.goBack();
+    await expect(page.getByRole('region', {name: 'Starting demonstrations'})).toBeVisible();
+    const afterBack = await drawnEntries(choices);
+    expect(afterBack.map(entry => entry.name), 'client-side return keeps the same six in the same order').toEqual(drawn.map(entry => entry.name));
     await shortcut.click();
     await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
     await expect(page.getByRole('region', {name: 'All demonstrations'})).toBeVisible();
@@ -125,7 +145,14 @@ test('a newly selected homepage preview plays one silent pass and returns to its
         }, {capture: true, once: true});
     });
 
-    await choices.nth(1).click();
+    const drawn = await drawnEntries(choices);
+    // Only entries with a manifest clip play. The first click must change the selection, so it takes a clip entry after the first card.
+    const clipIndexes = drawn.map((entry, index) => entry.demonstration.hasMotion ? index : -1).filter(index => index >= 0);
+    const firstClip = clipIndexes.find(index => index > 0);
+    const secondClip = clipIndexes.find(index => index !== firstClip);
+    expect(firstClip, 'a drawn demonstration after the first carries a clip').toBeGreaterThan(0);
+    expect(secondClip, 'a second drawn demonstration carries a clip').toBeDefined();
+    await choices.nth(firstClip).click();
     const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
     const video = selected.locator('video[src]');
     await expect(video).toHaveCount(1);
@@ -138,7 +165,7 @@ test('a newly selected homepage preview plays one silent pass and returns to its
     await expect(selected.locator('.demonstration-preview-poster')).toBeVisible();
     expect(new Set(requests)).toEqual(new Set([source]));
 
-    await choices.nth(0).click();
+    await choices.nth(secondClip).click();
     const returned = opening.locator('.demonstrations-opening-image[data-selected="true"] video[src]');
     await expect(returned).toHaveCount(1);
     await expect.poll(() => returned.evaluate(element => !element.paused && element.readyState >= 2)).toBe(true);
@@ -153,7 +180,10 @@ test('touch selection starts the selected homepage clip at 390px', async ({page}
         await openEnglish(touchPage, '/bezeg-2.0/');
         const opening = touchPage.getByRole('region', {name:'Starting demonstrations'});
         const choices = opening.getByRole('group', {name:'Starting demonstrations'}).getByRole('button');
-        await choices.nth(2).tap();
+        const drawn = await drawnEntries(choices);
+        const clipIndex = drawn.findIndex((entry, index) => index > 0 && entry.demonstration.hasMotion);
+        expect(clipIndex, 'a drawn demonstration after the first carries a clip').toBeGreaterThan(0);
+        await choices.nth(clipIndex).tap();
         const video = opening.locator('.demonstrations-opening-image[data-selected="true"] video[src]');
         await expect(video).toHaveCount(1);
         await expect.poll(() => video.evaluate(element => !element.paused && element.readyState >= 2)).toBe(true);

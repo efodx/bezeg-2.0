@@ -6,17 +6,15 @@ import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {demonstrationMotionAssets} from './demonstrationMotionAssets';
 import {DemonstrationPreview} from './DemonstrationPreview';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
+import {getVisitDemonstrationIds} from './homeDemonstrationPool';
 import {useT} from './localization';
 import './HomeDemonstrationsCarousel.css';
 
 type Catalog = ReturnType<typeof getDemonstrationCatalog>;
 type OpeningEntry = {demonstration: Catalog['demonstrations'][number]; family: Catalog['families'][number]};
-const openingDemonstrationIds: readonly DemonstrationId[] = [
-    'bezier', 'bernstein', 'rational', 'spline-c1', 'ph-cubic', 'derivative',
-];
 
-function getOpeningEntries(demonstrations: Catalog['demonstrations'], families: Catalog['families']): OpeningEntry[] {
-    return openingDemonstrationIds.flatMap(id => {
+function getOpeningEntries(ids: readonly DemonstrationId[], demonstrations: Catalog['demonstrations'], families: Catalog['families']): OpeningEntry[] {
+    return ids.flatMap(id => {
         const demonstration = demonstrations.find(entry => entry.id === id);
         const family = demonstration && families.find(entry => entry.id === demonstration.family);
         return demonstration && family ? [{demonstration, family}] : [];
@@ -25,7 +23,7 @@ function getOpeningEntries(demonstrations: Catalog['demonstrations'], families: 
 
 export function HomeDemonstrationsCarousel() {
     const {demonstrations, families} = getDemonstrationCatalog();
-    const entries = getOpeningEntries(demonstrations, families);
+    const entries = getOpeningEntries(getVisitDemonstrationIds(), demonstrations, families);
     return <DemonstrationsOpeningCarousel entries={entries}/>;
 }
 
@@ -132,10 +130,6 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         setSelectedIndex(index);
         if (focusChoice) choiceButtons.current[index]?.focus({preventScroll: true});
     };
-    const selectRelative = (amount: number, focusChoice = false) => {
-        const nextIndex = (selectedIndex + amount + entries.length) % entries.length;
-        selectManually(nextIndex, focusChoice);
-    };
 
     return <div className="home-demonstrations-carousel demonstrations-opening" ref={carouselRef}
         onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
@@ -193,17 +187,6 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                 </span>
             </div>
         </article>
-        <div className="demonstrations-opening-controls">
-            <button type="button" onClick={() => selectRelative(-1)}
-                aria-label={`${t('back')}: ${entries[(selectedIndex - 1 + entries.length) % entries.length].demonstration.catalogTitle}`}>
-                <span aria-hidden="true">←</span>
-            </button>
-            <span aria-hidden="true">{selectedIndex + 1} / {entries.length}</span>
-            <button type="button" onClick={() => selectRelative(1)}
-                aria-label={`${t('next')}: ${entries[(selectedIndex + 1) % entries.length].demonstration.catalogTitle}`}>
-                <span aria-hidden="true">→</span>
-            </button>
-        </div>
         <div className="demonstrations-opening-rail" ref={choiceRailRef}
             role="group" aria-label={t('starting_demonstrations')}
             onWheel={event => {

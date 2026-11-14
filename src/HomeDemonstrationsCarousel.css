@@ -84,19 +84,15 @@
 }
 .demonstrations-opening-actions a:hover { filter: brightness(1.08); text-decoration: none; }
 .home-demonstrations-carousel .demonstrations-opening-actions a + a:hover { background: var(--bezeg-shell-lesson-hover); text-decoration: none; }
-.demonstrations-opening-controls { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 1100px; margin: 12px 0 8px; color: var(--bezeg-shell-label); font-size: 12px; font-variant-numeric: tabular-nums; }
-.demonstrations-opening-controls button { display: grid; box-sizing: border-box; width: max(44px, 1.25em); height: max(44px, 1.25em); min-width: 44px; min-height: 44px; place-items: center; padding: 0; line-height: 1; border: 1px solid var(--bezeg-shell-control-rule); border-radius: 50%; background: var(--bezeg-shell-preview-panel); color: var(--bezeg-shell-choice-ink); font-size: 21px; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease; }
-.demonstrations-opening-controls button:hover { border-color: var(--bezeg-shell-control-rule-hover); background: var(--bezeg-shell-control-hover); }
-.demonstrations-opening-rail { display: flex; max-width: 1112px; min-width: 0; flex-wrap: nowrap; gap: 12px; overflow-x: auto; overflow-y: hidden; margin-inline: -6px; padding: 6px 6px 12px; scroll-padding-inline: 6px; overscroll-behavior-x: contain; scrollbar-color: var(--bezeg-shell-scroll-thumb) var(--bezeg-shell-scroll-track); scrollbar-width: thin; scroll-snap-type: x proximity; }
-.demonstrations-opening-choice { display: flex; box-sizing: border-box; min-height: 72px; flex: 0 0 clamp(154px, 19vw, 185px); align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--bezeg-shell-rule); border-radius: 10px; background: var(--bezeg-shell-preview-panel); color: var(--bezeg-shell-choice-ink); text-align: left; font: inherit; cursor: pointer; scroll-snap-align: start; transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease; }
+.demonstrations-opening-rail { display: grid; max-width: 1112px; min-width: 0; grid-auto-flow: column; grid-auto-columns: minmax(160px, 1fr); gap: 12px; overflow-x: auto; overflow-y: hidden; margin: 12px -6px 0; padding: 6px 6px 12px; scroll-padding-inline: 6px; overscroll-behavior-x: contain; scrollbar-color: var(--bezeg-shell-scroll-thumb) var(--bezeg-shell-scroll-track); scrollbar-width: thin; scroll-snap-type: x proximity; }
+.demonstrations-opening-choice { display: flex; box-sizing: border-box; min-width: 0; flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden; border: 1px solid var(--bezeg-shell-rule); border-radius: 10px; background: var(--bezeg-shell-preview-panel); color: var(--bezeg-shell-choice-ink); text-align: left; font: inherit; cursor: pointer; scroll-snap-align: start; transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease; }
 .demonstrations-opening-choice:hover { border-color: var(--bezeg-shell-choice-rule-hover); background: var(--bezeg-shell-choice-hover); }
-.demonstrations-opening-choice[aria-pressed="true"] { border-color: var(--bezeg-shell-choice-rule-selected); background: var(--bezeg-shell-choice-selected); box-shadow: inset 0 0 0 1px var(--bezeg-shell-choice-rule-selected); }
-.demonstrations-opening-choice-thumb { display: block; box-sizing: border-box; width: 52px; height: 40px; flex: 0 0 52px; border: 1px solid var(--bezeg-shell-media-rule); border-radius: 6px; background: var(--bezeg-shell-panel); object-fit: cover; object-position: center; transition: border-color 140ms ease; }
-.demonstrations-opening-choice[aria-pressed="true"] .demonstrations-opening-choice-thumb { border-color: var(--bezeg-shell-choice-rule-selected); }
-.demonstrations-opening-choice-copy { display: block; min-width: 0; flex: 1 1 auto; overflow: hidden; white-space: nowrap; }
+.demonstrations-opening-choice[aria-pressed="true"] { border-color: var(--bezeg-shell-action); background: var(--bezeg-shell-choice-selected); box-shadow: 0 0 0 1px var(--bezeg-shell-action); }
+.demonstrations-opening-choice-thumb { display: block; box-sizing: border-box; width: 100%; height: auto; aspect-ratio: 720 / 440; border: 0; border-bottom: 1px solid var(--bezeg-shell-media-rule); border-radius: 0; background: var(--bezeg-shell-panel); object-fit: cover; object-position: center; }
+.demonstrations-opening-choice-copy { display: flex; min-width: 0; flex: 1 1 auto; flex-direction: column; gap: 4px; padding: 10px 12px 12px; }
 .demonstrations-opening-choice .demonstrations-opening-family { font-size: 10px; }
 .demonstrations-opening-choice[aria-pressed="true"] .demonstrations-opening-family { color: var(--bezeg-shell-label-selected); }
-.demonstrations-opening-choice-title { display: block; max-width: 100%; overflow: hidden; font-size: 14px; font-weight: 750; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.demonstrations-opening-choice-title { display: -webkit-box; max-width: 100%; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; font-family: var(--bezeg-font-display); font-size: 15.5px; font-weight: var(--bezeg-type-title-weight); line-height: 1.2; text-wrap: balance; overflow-wrap: anywhere; }
 
 @media (max-width: 700px) {
     .home-demonstrations-carousel .demonstrations-opening-preview { grid-template-columns: minmax(0, 1fr); }
@@ -105,8 +101,6 @@
     .home-demonstrations-carousel .demonstrations-opening-copy h3 { font-size: 25px; }
     /* Reserve the longest prompt's lines so the rail below does not move when the slide changes. */
     .home-demonstrations-carousel .demonstrations-opening-copy p { min-height: 3em; }
-    .home-demonstrations-carousel .demonstrations-opening-controls { margin-top: 12px; }
-    .home-demonstrations-carousel .demonstrations-opening-choice { flex-basis: 154px; }
 }
 @media (max-width: 560px) {
     .home-demonstrations-carousel .demonstrations-opening-copy p { min-height: 4.5em; }
@@ -122,7 +116,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .home-demonstrations-carousel .demonstrations-opening-image { transition: none; }
-    .home-demonstrations-carousel .demonstrations-opening-controls button,
     .home-demonstrations-carousel .demonstrations-opening-choice { transition: none; }
     .home-demonstrations-carousel .demonstrations-opening-rail { scroll-behavior: auto; scroll-snap-type: none; }
 }

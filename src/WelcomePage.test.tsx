@@ -7,12 +7,14 @@ import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 import {isGuidedLessonAvailable} from './learning/runtime/lessonAvailability';
 import * as lessonCatalog from './learning/runtime/lessonAvailability';
 import {setLanguage, t} from './localization';
+import {resetVisitDemonstrationIds} from './homeDemonstrationPool';
 
 // Routes only hand a controller factory to GraphHost; mounting a real board is not what this suite checks.
 vi.mock('./graphs/base/GraphHost', () => ({__esModule: true, GraphHost: () => <p>Opened Bézier graph</p>}));
 
 beforeEach(() => {
     setLanguage('sl');
+    resetVisitDemonstrationIds(openingIds);
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
     vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => undefined);
@@ -22,6 +24,7 @@ let restoreDocumentHidden: (() => void) | undefined;
 let restoreIntersectionObserver: (() => void) | undefined;
 let restoreLessonAvailability: (() => void) | undefined;
 afterEach(() => {
+    resetVisitDemonstrationIds();
     restoreMatchMedia?.();
     restoreMatchMedia = undefined;
     restoreDocumentHidden?.();
@@ -194,7 +197,7 @@ test('manual carousel actions and row scrolling take control for the page visit'
     act(() => {vi.advanceTimersByTime(18000);});
     expect(choices[2]).toHaveAttribute('aria-pressed', 'true');
 
-    fireEvent.click(within(opening).getByRole('button', {name: `Naprej: ${openingDemonstrations()[3].catalogTitle}`}));
+    fireEvent.click(choices[3]);
     expect(choices[3]).toHaveAttribute('aria-pressed', 'true');
     act(() => {choices[3].focus();});
     const previousChoiceFocus = vi.spyOn(choices[2], 'focus');
@@ -243,8 +246,8 @@ test('arrow keys on a focused action keep focus there when the choice row is bel
     };
     const belowViewport = vi.spyOn(choiceGroup, 'getBoundingClientRect')
         .mockReturnValue(railBounds);
-    const nextControl = within(opening).getByRole('button', {
-        name: `Naprej: ${openingDemonstrations()[1].catalogTitle}`,
+    const nextControl = within(opening).getByRole('link', {
+        name: `Odpri demonstracijo: ${openingDemonstrations()[0].catalogTitle}`,
     });
     const selectedChoiceFocus = vi.spyOn(choices[1], 'focus');
 
