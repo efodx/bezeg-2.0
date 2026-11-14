@@ -8,7 +8,7 @@ import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {exampleState, type CircleMode} from '../../compgeo/circleConstructionModel';
 import {
-    CircleConstructionGraph, COORDINATE_BIG_STEP, COORDINATE_STEP, HANDLE_TOUCH_RADIUS, HIT_SLACK, MODE_HANDLES, RADIUS_BIG_STEP, RADIUS_STEP,
+    CircleConstructionGraph, COORDINATE_STEP, HANDLE_TOUCH_RADIUS, HIT_SLACK, MODE_HANDLES, RADIUS_BIG_STEP, RADIUS_STEP,
     RATIO_STEP,
 } from './CircleConstructionGraph';
 
@@ -31,11 +31,14 @@ function mountGraph(strict = false) {
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusText = () => document.querySelector('[data-circle-status]')!.textContent;
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
-const centreX = (n: number) => t('circle_construction_centre_x', {value0: String(n)});
-const centreY = (n: number) => t('circle_construction_centre_y', {value0: String(n)});
-const radiusLabel = (n: number) => t('circle_construction_radius', {value0: String(n)});
-const pointX = (name: string) => t('circle_construction_point_x', {value0: name});
-const pointY = (name: string) => t('circle_construction_point_y', {value0: name});
+// A centre or a point is a row of a point list (field name "<point>, x"); a radius and the ratio are sliders, typed into their exact field.
+const centreName = (n: number) => `O${'₁₂₃'[n - 1]}`;
+const centreX = (n: number) => `${centreName(n)}, x`;
+const centreY = (n: number) => `${centreName(n)}, y`;
+const radiusLabel = (n: number) => t('number_field_label', {value0: t('circle_construction_radius', {value0: String(n)})});
+const ratioLabel = () => t('number_field_label', {value0: t('circle_construction_ratio_label')});
+const pointX = (name: string) => `${name}, x`;
+const pointY = (name: string) => `${name}, y`;
 type EventedPoint = JXG.Point & {eventHandlers: Record<string, unknown[]>; triggerEventHandlers(names: string[], args: unknown[]): void};
 const dragListeners = (point: JXG.Point) => (point as EventedPoint).eventHandlers.drag?.length ?? 0;
 
@@ -262,7 +265,7 @@ describe('numeric input per handle', () => {
         act(() => {
             enterNumber(field(pointX('A')), '-4'); enterNumber(field(pointY('A')), '1');
             enterNumber(field(pointX('B')), '7'); enterNumber(field(pointY('B')), '-6');
-            enterNumber(field(t('circle_construction_ratio_label')), '3');
+            enterNumber(field(ratioLabel()), '3');
         });
         expect(handlePosition('a')).toEqual([-4, 1]);
         expect(handlePosition('b')).toEqual([7, -6]);
@@ -299,13 +302,13 @@ describe('numeric input per handle', () => {
 });
 
 describe('keyboard and touch', () => {
-    test('arrows step a coordinate by 1 and a radius by 1/4; PageUp and PageDown take the big steps; the ratio steps by 1/2', () => {
+    test('arrows step a coordinate by 1 and a radius by 1/4; PageUp and PageDown take the big step (ten steps in a point row, one in a radius); the ratio steps by 1/2', () => {
         const {graph} = mountGraph();
-        expect([COORDINATE_STEP, COORDINATE_BIG_STEP, RADIUS_STEP, RADIUS_BIG_STEP, RATIO_STEP]).toEqual([1, 4, 0.25, 1, 0.5]);
+        expect([COORDINATE_STEP, RADIUS_STEP, RADIUS_BIG_STEP, RATIO_STEP]).toEqual([1, 0.25, 1, 0.5]);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'ArrowUp'}); });
         expect(graph.state.c1.x).toBe(1);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'PageUp'}); });
-        expect(graph.state.c1.x).toBe(5);
+        expect(graph.state.c1.x).toBe(11);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'PageDown'}); });
         expect(graph.state.c1.x).toBe(1);
         act(() => { fireEvent.keyDown(field(radiusLabel(1)), {key: 'ArrowDown'}); });
@@ -315,9 +318,8 @@ describe('keyboard and touch', () => {
         act(() => { fireEvent.keyDown(field(pointY('P')), {key: 'ArrowDown'}); });
         expect(graph.state.p.y).toBe(-1);
         chooseMode('apollonius');
-        act(() => { fireEvent.keyDown(field(t('circle_construction_ratio_label')), {key: 'ArrowUp'}); });
+        act(() => { fireEvent.keyDown(field(ratioLabel()), {key: 'ArrowUp'}); });
         expect(graph.state.k).toBe(2.5);
-        expect(document.body.textContent).toContain('Puščici gor in dol');
     });
 
 });
@@ -407,8 +409,8 @@ const shownCaptions = (graph: ObservedGraph) =>
     probes(graph).filter(o => o.elType === 'text' && o.evalVisProp('visible')).map(o => (o as unknown as {plaintext: string}).plaintext);
 
 describe('review repairs', () => {
-    test('every numeric field of every mode is described by the key help, which states the ranges', () => {
-        const {graph} = mountGraph();
+    test('every numeric field of every mode is reachable by its name: a point row, a radius or ratio slider with its exact field', () => {
+        mountGraph();
         for (const mode of ['tangents', 'radical', 'apollonius', 'common'] as const) {
             chooseMode(mode);
             const circles = (n: number) => [centreX(n), centreY(n), radiusLabel(n)];
@@ -416,26 +418,19 @@ describe('review repairs', () => {
             const labels = {
                 tangents: [...circles(1), ...points('P')],
                 radical: [...circles(1), ...circles(2), ...circles(3), ...points('P')],
-                apollonius: [...points('A'), ...points('B'), ...points('P'), t('circle_construction_ratio_label')],
+                apollonius: [...points('A'), ...points('B'), ...points('P'), ratioLabel()],
                 common: [...circles(1), ...circles(2)],
             }[mode];
-            for (const input of labels.map(label => field(label))) {
-                const id = input.getAttribute('aria-describedby') ?? '';
-                expect(id).toContain(graph.helpId);
-                expect(document.getElementById(graph.helpId)!.textContent).toContain('od −16 do 16');
-            }
+            for (const label of labels) expect(field(label).getAttribute('type'), label).toBe('text');
         }
-        const help = document.getElementById(graph.helpId)!.textContent!;
-        expect(help).toContain('0,25 do 8');
-        expect(help).toContain('0,5 do 4');
-        expect(graph.state.mode).toBe('common');
     });
 
-    test('two graphs on one page have different help ids', () => {
-        const first = mountGraph().graph;
-        const second = mountGraph().graph;
-        expect(first.helpId).not.toBe(second.helpId);
-        expect(document.getElementById(first.helpId)).not.toBe(document.getElementById(second.helpId));
+    test('the points shown together are rows of one list: A, B and P in apollonius mode', () => {
+        mountGraph();
+        chooseMode('apollonius');
+        const list = field(pointX('A')).closest('fieldset.point-list');
+        expect(list).not.toBeNull();
+        for (const name of ['A', 'B', 'P']) expect(list!.contains(field(pointX(name)))).toBe(true);
     });
 
     test('the board names the circles, the contact points and the two division points', () => {

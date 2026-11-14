@@ -29,15 +29,15 @@ const setCircle = (circle: CircleName, x: number, y: number, r: number): LessonA
 const setPoint = (x: number, y: number): LessonAction => ({kind: 'circle', operation: 'set-point', x, y});
 type Apollonius = Omit<Extract<LessonAction, {kind: 'circle'; operation: 'set-apollonius'}>, 'kind' | 'operation'>;
 const setApollonius = (fields: Apollonius): LessonAction => ({kind: 'circle', operation: 'set-apollonius', ...fields});
-const pointField = (axis: 'x' | 'y', name: string) => t(axis === 'x' ? 'circle_construction_point_x' : 'circle_construction_point_y', {value0: name});
-const ratioField = t('circle_construction_ratio_label');
+const pointField = (axis: 'x' | 'y', name: string) => `${name}, ${axis}`;
+const ratioField = t('number_field_label', {value0: t('circle_construction_ratio_label')});
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
 const choose = (mode: Mode) => act(() => { fireEvent.change(screen.getByLabelText(t('circle_construction_mode_label')), {target: {value: mode}}); });
-const centreX = (n: number) => t('circle_construction_centre_x', {value0: String(n)});
-const centreY = (n: number) => t('circle_construction_centre_y', {value0: String(n)});
-const radius = (n: number) => t('circle_construction_radius', {value0: String(n)});
-const pointX = t('circle_construction_point_x', {value0: 'P'});
-const pointY = t('circle_construction_point_y', {value0: 'P'});
+const centreX = (n: number) => `O${'₁₂₃'[n - 1]}, x`;
+const centreY = (n: number) => `O${'₁₂₃'[n - 1]}, y`;
+const radius = (n: number) => t('number_field_label', {value0: t('circle_construction_radius', {value0: String(n)})});
+const pointX = 'P, x';
+const pointY = 'P, y';
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const stateOf = (graph: CircleConstructionGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 

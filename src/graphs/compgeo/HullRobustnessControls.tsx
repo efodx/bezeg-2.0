@@ -2,7 +2,7 @@ import React from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import type {GridPoint} from "../../compgeo/grid";
 import {
     ChainOutputEntry, chainOutputReadout, DUPLICATE_RULES, DuplicateRule, KETTNER_PANELS, KETTNER_SIZE, KettnerCellReadout, KettnerPanel,
@@ -132,10 +132,10 @@ export function KettnerControls(props: KettnerControlsProps) {
             <p className="inspector-help">{t("hullrobust_legend")}</p>
         </div>
         <div className="inspector-group" data-hull-robustness="cell-fields">
-            <NumberInput label={t("hullrobust_cell_i")} value={cell.i} integer min={0} max={last} step={1}
-                         onChange={value => { actions.setCell(value, cell.j); }}/>
-            <NumberInput label={t("hullrobust_cell_j")} value={cell.j} integer min={0} max={last} step={1}
-                         onChange={value => { actions.setCell(cell.i, value); }}/>
+            <Slider customText={t("hullrobust_cell_i")} value={cell.i} min={0} max={last} step={1}
+                    onChange={value => { actions.setCell(value, cell.j); }}/>
+            <Slider customText={t("hullrobust_cell_j")} value={cell.j} min={0} max={last} step={1}
+                    onChange={value => { actions.setCell(cell.i, value); }}/>
             <p className="inspector-help">{t("hullrobust_keyboard_note")}</p>
         </div>
         <div className="inspector-group" data-hull-robustness="cell">
