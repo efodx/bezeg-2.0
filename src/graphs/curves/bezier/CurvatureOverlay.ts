@@ -51,6 +51,8 @@ interface OverlaySettings {
     showFrame?: () => boolean;
     /** Whether the osculating circle, or the tangent line where it degenerates, is drawn (default: yes). */
     showCircle?: () => boolean;
+    /** `subject` (default): the circle is the one accent, a strong ring over a faint disc. `context`: a thin ring with no disc, for a graph whose subject is something else (the evolute). */
+    circleRole?: 'subject' | 'context';
     /** Further readout text (one or more lines) appended to the readout; empty text adds nothing. */
     extraReadout?: () => string;
     /** Called with the readout text on every board update that draws it (for a live region). */
@@ -133,10 +135,11 @@ export class CurvatureOverlay {
         tag('T', tangentTip);
         tag('N', normalTip);
 
-        // The osculating circle is the subject: the one accent, solid, over a faint disc (the plane).
+        // The osculating circle as the subject: the one accent, solid, over a faint disc (the plane). As context it is a thin ring only.
+        const quiet = this.settings.circleRole === 'context';
         this.create('circle', [centre, () => { const f = this.frame(); return f?.status === 'circle' ? f.radius : 0; }], {
-            fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.emphasis, strokeWidth: 2.5,
-            dash: 0, fillColor: GraphPalette.emphasis, fillOpacity: 0.08, visible: isCircle,
+            fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.emphasis, strokeWidth: quiet ? 1.5 : 2.5,
+            dash: 0, fillColor: GraphPalette.emphasis, fillOpacity: quiet ? 0 : 0.08, visible: isCircle,
         });
         this.create('line', [lineNear, lineFar], {
             fixed: true, highlight: false, withLabel: false, straightFirst: false, straightLast: false,

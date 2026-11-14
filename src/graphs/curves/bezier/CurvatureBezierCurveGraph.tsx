@@ -40,6 +40,8 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
 
     /** Text appended to the overlay's readout (a subclass adds its own quantity); undefined adds nothing. */
     protected overlayExtraReadout(): (() => string) | undefined { return undefined; }
+    /** Whether the osculating circle is this graph's subject or only context (see `OverlaySettings.circleRole`). */
+    protected overlayCircleRole(): 'subject' | 'context' { return 'subject'; }
 
     /** Extra Edit controls, placed between the parameter slider and the structured editing. */
     protected workspaceCurvatureExtras(): React.ReactNode { return null; }
@@ -101,6 +103,7 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
             showCircle: () => this.state.curvatureCircleShown,
             fontSize: () => this.displaySettings.fontSize,
             extraReadout: this.overlayExtraReadout(),
+            circleRole: this.overlayCircleRole(),
             onReadout: text => this.liveReadout.report(text),
         });
         this.createExtraOverlays();

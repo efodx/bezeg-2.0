@@ -63,6 +63,9 @@ class CurveEvoluteGraph extends CurvatureOverlayGraph<EvoluteGraphStates> {
         return this.evolute?.ownedElements() ?? [];
     }
 
+    /** The evolute and the point E are the subject here; the circle only shows where E comes from. */
+    protected override overlayCircleRole(): 'subject' | 'context' { return 'context'; }
+
     protected override overlayExtraReadout() {
         return () => this.evolute?.readoutText() ?? "";
     }

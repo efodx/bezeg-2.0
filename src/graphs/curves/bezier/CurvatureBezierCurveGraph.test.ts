@@ -111,6 +111,15 @@ describe('osculating circle style (B5: the subject is the one accent)', () => {
     });
 });
 
+describe('osculating circle as context (the evolute graph)', () => {
+    test('the circle is a thin rust-red ring with no disc', () => {
+        const board = fakeBoard();
+        new CurvatureOverlay({board, controlPoints: () => PARABOLA, parameter: () => 0.5, fontSize: () => 14, circleRole: 'context'});
+        const circle = board.objectsList.find((o: any) => o.type === 'circle');
+        expect(circle.attributes).toMatchObject({strokeColor: GraphPalette.emphasis, strokeWidth: 1.5, dash: 0, fillOpacity: 0, fixed: true, highlight: false});
+    });
+});
+
 describe('tangency of the osculating circle', () => {
     // Residual of |r(t+d) - c| - R is O(d^3): halving d divides it by 8.
     const residual = (points: Pt[], t: number, delta: number) => {
