@@ -11,4 +11,4 @@ Handler decision (handler 11, 2026-11-12): the chapter sits in the Learn strand 
 
 Acceptance: the spec's acceptance for CB1–CB2; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the Bernstein and binomial lessons behave as before.
 
-Status: F3 done 2026-11-12 (handler 11; CB1 and CB2, chapter skeleton, host and content tests; evidence in the [slice notes](../../reviews/feature-streams/families-prep/notes/f3-comb-a.md)); reviews and F4–F6 next.
+Status: F3 done 2026-11-12 (handler 11; CB1 and CB2, chapter skeleton, host and content tests; evidence in the [slice notes](../../reviews/feature-streams/families-prep/notes/f3-comb-a.md)); reviews next. F4 done with F3 (chapter sections with guided examples); F5 cards captured (handler 20); catalog clip and F6 next.

@@ -89,6 +89,12 @@ const targets = {
     isometries: ['Default mirrors mode with the motif, its two images, the mirrors and the composite, framed around the lesson figures', [], [-4.4, 5.6, 10.9, -3.9]],
     // The lessons' figures lie in x from -5 to 16 and y from -6.5 to 8 (the Thales circle, the circles of the radical mode up to the point (3, 8), the Apollonius locus circle and the far circle of the common-tangents mode); the window keeps the 840:520 aspect.
     'circle-construction': ['Default tangents mode with the circle, the point P, the tangent segments and the Thales circle, framed around the lesson figures of the four modes', [], [-7, 9.2, 19.5, -7.2]],
+    // Lattice paths: the lessons open the paths view on the target (2, 2) (x from -1.5 to 9, y from -2.2 to 6.2, the captions above it and the start label below included); the window keeps the 840:520 aspect.
+    // The expansion view of the same Demonstration needs the whole fixed box instead; the capture script gives that card its own window.
+    'lattice-paths': ['Default paths view with the grid, the routes to the target, the selected route and the captions, framed around the target (2, 2) of the lessons', [], [-1.5, 6.2, 12.1, -2.2]],
+    // Counting tree: the lesson opens on the tree of 3 choose 2 (x from 0.6 to 23.8, y from 6.4 to 24.5, the title lines and the leaf labels included); the window keeps the 840:520 aspect.
+    // The default 6 choose 3 shows the table of the six counts instead, which reaches below this window.
+    'counting-tree': ['Tree of the ordered choices of 2 out of 3 with its leaves and the title lines, framed around the lesson opening', [], [-0.5, 24.5, 30.2, 5.5]],
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
     // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,

@@ -1,0 +1,726 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": false,
+  "buildStamp": {
+    "version": 1,
+    "revision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+    "dirty": true,
+    "inputs": "f2c48f8384214991ed9d47419a4bc93705c840a6e077e5f2be4f3500bc1f3497",
+    "output": "4788f01adfc43095063f3cc3f6f92be2c7a94f11bb51c023d71551647a7d1b1b"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+    "stampDirty": true,
+    "localOutputHash": "4788f01adfc43095063f3cc3f6f92be2c7a94f11bb51c023d71551647a7d1b1b",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-Cd6oXSz4.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-Cd6oXSz4.js",
+        "sha256": "9eacc8d5ebf3660831d5dcee3a13caa0a34384268cc0260fa51c2d70436211ad",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DlWCCaee.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
+        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-PxoDYpss.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
+        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-DPDGB1vx.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
+        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "20c4a54cba6e7df2374cb11803d198b92b11cd36578b5643e5754d740000ec88",
+    "entries": {
+      "combinatorics.lattice-paths-and-pascal.lattice-paths": "3fc4443d87b78554dec115d78b3b07884e09e4a47a6d54ef76ab03fa123415aa",
+      "combinatorics.counting-and-choices.counting-tree": "e499ffed2d719b9d90907da812afd9758f8f38393af16791a91d2e7a32300f3f",
+      "combinatorics.pascal-identity.lattice-paths": "8afea7530571a77ccda7324e9c1d315462f4959352f29e56f57dd4eed8d9278c",
+      "combinatorics.binomial-theorem.lattice-paths": "90d5a7f8b8c2cf4a95eb3de6c4ce63987f3c5a190bed7b43bca33d906cd5574e"
+    },
+    "presentation": "334d6ee68c6db1b182db3f331e211cd73f915654dcce385fd4347417cb10934f",
+    "buildOutput": "4788f01adfc43095063f3cc3f6f92be2c7a94f11bb51c023d71551647a7d1b1b",
+    "buildInputs": "f2c48f8384214991ed9d47419a4bc93705c840a6e077e5f2be4f3500bc1f3497"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "combinatorics.lattice-paths-and-pascal.lattice-paths",
+        "demonstrationId": "lattice-paths",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            6.2,
+            12.1,
+            -2.2
+          ]
+        }
+      },
+      {
+        "id": "combinatorics.counting-and-choices.counting-tree",
+        "demonstrationId": "counting-tree",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.5,
+            24.5,
+            30.2,
+            5.5
+          ]
+        }
+      },
+      {
+        "id": "combinatorics.pascal-identity.lattice-paths",
+        "demonstrationId": "lattice-paths",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            6.2,
+            12.1,
+            -2.2
+          ]
+        }
+      },
+      {
+        "id": "combinatorics.binomial-theorem.lattice-paths",
+        "demonstrationId": "lattice-paths",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            24.5,
+            37.6,
+            0.3
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "combinatorics.lattice-paths-and-pascal.lattice-paths",
+      "demonstrationId": "lattice-paths",
+      "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.lattice-paths-and-pascal.lattice-paths",
+      "sceneFingerprint": "5496752960522e638f2227d0ee2155af48afdeea4871df248cb4617c7ddeb573",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-target\",\"a\":2,\"b\":2}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "combinatorics.lattice-paths-and-pascal.lattice-paths.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "00f206ed4cfca9dd8bdfc4ba5cb93a7ddb52a7c01fdfa258366e6d1eef9b1a52",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "curve": 3,
+          "point": 2,
+          "text": 3
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.5
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.5
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:2,2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 3,
+            "point": 2,
+            "text": 3
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.5
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.5
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:2,2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "point": 2,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "sourceRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "combinatorics.counting-and-choices.counting-tree",
+      "demonstrationId": "counting-tree",
+      "path": "/bezeg-2.0/combinatorics/counting?example=lesson.combinatorics.counting-and-choices.counting-tree",
+      "sceneFingerprint": "40ed5bf836fd709d511bf02d2b548802068c8ea7b341653af2b3128bddb78825",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb2-tree-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb2-tree-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-counting-mode\",\"view\":\"choices\",\"n\":3,\"k\":2,\"ordered\":true,\"repetition\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "combinatorics.counting-and-choices.counting-tree.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b6a7799fb301aac091d36a46e83aa50b535175aceade6304fc9544d931cd5713",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "curve": 1,
+          "point": 1,
+          "text": 8
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              12.2,
+              21
+            ],
+            [
+              8.333333,
+              17.75
+            ],
+            [
+              4.466667,
+              14.5
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:12.2,21",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 10,
+          "visibleElementTypes": {
+            "curve": 1,
+            "point": 1,
+            "text": 8
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                12.2,
+                21
+              ],
+              [
+                8.333333,
+                17.75
+              ],
+              [
+                4.466667,
+                14.5
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:12.2,21",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 8,
+        "finalLabelCount": 8,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "point": 1,
+          "text": 8
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "sourceRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "combinatorics.pascal-identity.lattice-paths",
+      "demonstrationId": "lattice-paths",
+      "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.pascal-identity.lattice-paths",
+      "sceneFingerprint": "69c8e85bffe70a2b6edbabc76adb4f54947e8848fdb69ecc81a7dd80318b4810",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-target\",\"a\":2,\"b\":2}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "combinatorics.pascal-identity.lattice-paths.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "00f206ed4cfca9dd8bdfc4ba5cb93a7ddb52a7c01fdfa258366e6d1eef9b1a52",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "curve": 3,
+          "point": 2,
+          "text": 3
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.5
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.5
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:2,2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 3,
+            "point": 2,
+            "text": 3
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.5
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.5
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:2,2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "point": 2,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "sourceRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "combinatorics.binomial-theorem.lattice-paths",
+      "demonstrationId": "lattice-paths",
+      "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.binomial-theorem.lattice-paths",
+      "sceneFingerprint": "47dfbac4c894fc786849f740214811ccefcfbafe3a846e86a9f5fcbf908b57ad",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb4-square-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb4-square-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-expansion\",\"n\":1,\"c\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "combinatorics.binomial-theorem.lattice-paths.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "997ceb9a473bee88e531a830c5b3e8f5e0cdd4149a204e9f4b2eedf07d44ebe9",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "curve": 2,
+          "text": 5
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0.4,
+              10.5
+            ],
+            [
+              10.6,
+              10.5
+            ],
+            [
+              20.8,
+              10.5
+            ]
+          ],
+          [
+            [
+              1.6,
+              10.5
+            ],
+            [
+              1.6,
+              14
+            ],
+            [
+              1.6,
+              17.5
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "text": 6
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0.4,
+                10.5
+              ],
+              [
+                10.6,
+                10.5
+              ],
+              [
+                20.8,
+                10.5
+              ]
+            ],
+            [
+              [
+                1.6,
+                10.5
+              ],
+              [
+                1.6,
+                14
+              ],
+              [
+                1.6,
+                17.5
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "text": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "sourceRevision": "e208d750347de4b5585ee1c3c0ff52dbc431c1ca",
+        "pageErrors": []
+      }
+    }
+  ]
+}

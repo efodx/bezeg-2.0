@@ -28,7 +28,11 @@ const inversionPowerId = 'triangle-geometry.inversion.inversion';
 const fortuneCardId = 'sweep-algorithms.fortune.fortune';
 const linearCompositionCardId = 'linear-maps.composition-affine.linear-map';
 
+const binomialExpansionId = 'combinatorics.binomial-theorem.lattice-paths';
+
 function captureRecipeForEntry(entry, recipe) {
+    // The expansion card opens the fixed box of the lattice board (bars at y 10.5 to 17.5, labels from y 1.2, captions to y 24.5), which the shared paths window around (2, 2) leaves off the card.
+    if (entry.id === binomialExpansionId) return {...recipe, framing: {kind: 'coordinate-window', window: [-1.5, 24.5, 37.6, 0.3]}};
     if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && entry.id !== inversionPowerId && entry.id !== linearCompositionCardId && !entry.id.startsWith('curve-geometry.')) return recipe;
     // The shared spline-c1 catalog window is useful for its broad construction view,
     // but this authored worked parabola has a much smaller exact fixture view.
@@ -79,6 +83,7 @@ const chapterFamilies = {
     'b-splines': {label: 'b-splines', idPrefix: 'b-splines.', route: /^\/bezeg-2\.0\/bspline\/(?:basis|deboor|insertion|extraction|nurbs|blossom)(?:\/|$)/, routeText: '/bezeg-2.0/bspline/basis, /deboor, /insertion, /extraction, /nurbs or /blossom'},
     'phase-portraits': {label: 'phase-portraits', idPrefix: 'phase-portraits.', identities: {module: '/src/graphs/dynamics/registration.ts', rows: 'dynamicsDemonstrationRows'}},
     'analytic-lines': {label: 'analytic-lines', idPrefix: 'analytic-lines.', identities: {module: '/src/graphs/lines/registration.ts', rows: 'lineDemonstrationRows'}},
+    combinatorics: {label: 'combinatorics', idPrefix: 'combinatorics.', identities: {module: '/src/graphs/combinatorics/registration.ts', rows: 'combinatoricsDemonstrationRows'}},
     'circle-geometry': {label: 'circle-geometry', idPrefix: 'circle-geometry.', identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'}},
     isometries: {label: 'isometries', idPrefix: 'isometries.', identities: {module: '/src/graphs/isometry/registration.ts', rows: 'isometryDemonstrationRows'}},
     trigonometry: {label: 'trigonometry', idPrefix: 'trigonometry.', identities: {module: '/src/graphs/trig/registration.ts', rows: 'trigDemonstrationRows'}},

@@ -341,6 +341,16 @@ const chapterInventories = {
         // The one circle-construction Demonstration: the four examples must cover it and open on its route.
         identities: {module: '/src/graphs/compgeo/circleConstruction/registration.ts', rows: 'circleConstructionDemonstrationRows'},
     },
+    combinatorics: {
+        module: '/src/learning/content/combinatoricsChapterRegistry.ts',
+        // Like circle geometry: section rows plus a per-section lesson function.
+        registryExport: 'combinatoricsGuidedExampleDemonstrations',
+        lessonExport: 'combinatoricsGuidedExampleLesson',
+        pathExport: 'combinatoricsGuidedExamplePath',
+        expectedFor: combinatoricsExpectedFor,
+        // The two combinatorics Demonstrations (lattice-paths, counting-tree): the four examples must cover exactly these and open on their routes.
+        identities: {module: '/src/graphs/combinatorics/registration.ts', rows: 'combinatoricsDemonstrationRows'},
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleLessons',
@@ -2038,6 +2048,55 @@ function circleGeometryExpectedFor(id, step) {
     return author(id, step);
 }
 
+// ---- Combinatorics chapter (combinatorics): four lessons on two Demonstrations (lattice-paths and counting-tree), keyed by the section in the example id. The first scene of each is the
+// Demonstration default plus the `combinatorics` actions below; nothing is random.
+
+/** Asserts the opening scene is the prepared Demonstration default followed by exactly the `combinatorics` operations in `operations`, in that order; returns them. */
+function combinatoricsOpening(id, step, operations) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `combinatorics:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    return own;
+}
+
+// Authored from src/graphs/combinatorics/LatticePathGraph.tsx (buildPaths), not from a capture. The paths view on the target (2, 2) with the default display (no counts, no split, route 1 selected):
+// three visible curves (the grid, the routes at low opacity, the selected route; the two split curves are hidden), the fixed origin marker (0, 0) and the target handle (2, 2). Count labels and
+// captions are texts and are left unasserted. CB1 and CB3 open on the same scene, so their cards show the same frame.
+function combinatoricsLatticeExpectedFor(id, step) {
+    const [target] = combinatoricsOpening(id, step, ['set-target']);
+    assert.deepEqual([target.a, target.b], [2, 2], `${id}: only the target (2, 2) with the default display is authored`);
+    return {types: {curve: 3, point: 2}, curveCount: 3, points: [[0, 0], [2, 2]]};
+}
+
+// Authored from src/graphs/combinatorics/CountingTreeGraph.tsx (buildTree and treeEdges), not from a capture. Variations of 2 out of 3 without repetition: 6 leaves, so the tree is shown. One curve (all the
+// edges) and the root marker at (TREE_LEFT + TREE_WIDTH / 2, TREE_TOP) = (12.2, 21). The leaf x are 0.6 + (i + 1/2) 23.2 / 6; the first edge joins the root to the centre of leaves 0 and 1, (0.6 + 23.2 / 6, 21 - 13 / 2).
+function combinatoricsCountingExpectedFor(id, step) {
+    const [mode] = combinatoricsOpening(id, step, ['set-counting-mode']);
+    assert.deepEqual([mode.view, mode.n, mode.k, mode.ordered, mode.repetition], ['choices', 3, 2, true, false], `${id}: only the ordered choice of 2 out of 3 without repetition is authored`);
+    const child = [0.6 + 23.2 / 6, 14.5];
+    return {types: {curve: 1, point: 1}, curveCount: 1, points: [[12.2, 21]], curves: [[[12.2, 21], [(12.2 + child[0]) / 2, (21 + child[1]) / 2], child]]};
+}
+
+// Authored from src/graphs/combinatorics/LatticePathGraph.tsx (buildExpansion), not from a capture. The expansion view of (x + 1)^1: two curves and no point, the baseline from (0.4, 10.5) to (20.8, 10.5) and the bars,
+// bar j at x = 1.6 + 1.5 j from BAR_BASE = 10.5 up to 10.5 + 7 (coefficient over the largest coefficient, here 1 and 1); the first bar rises from (1.6, 10.5) to (1.6, 17.5).
+function combinatoricsExpansionExpectedFor(id, step) {
+    const [expansion] = combinatoricsOpening(id, step, ['set-expansion']);
+    assert.deepEqual([expansion.n, expansion.c], [1, 1], `${id}: only the expansion of (x + 1)^1 is authored`);
+    return {types: {curve: 2}, curveCount: 2, points: [], curves: [[[0.4, 10.5], [10.6, 10.5], [20.8, 10.5]], [[1.6, 10.5], [1.6, 14], [1.6, 17.5]]]};
+}
+
+/** First-frame expectation of a combinatorics lesson (the four sections of the chapter, keyed by the section in the example id). */
+function combinatoricsExpectedFor(id, step) {
+    const bySection = {'lattice-paths-and-pascal': combinatoricsLatticeExpectedFor, 'pascal-identity': combinatoricsLatticeExpectedFor, 'counting-and-choices': combinatoricsCountingExpectedFor, 'binomial-theorem': combinatoricsExpansionExpectedFor};
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
+    assert.ok(author, `${id}: no authored combinatorics first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -2094,4 +2153,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, assertExpectation};
+module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, assertExpectation};

@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -850,4 +850,22 @@ test('circle-geometry expectations are authored from the graph: tangents with co
     assert.throws(() => circleGeometryExpectedFor('c.common-tangents.circle-construction', open([mode('common')])), /the opening scene is/);
     assert.throws(() => circleGeometryExpectedFor('c.unknown.circle-construction', open([])), /no authored circle-geometry/);
     assert.ok(chapterInventories['circle-geometry']);
+});
+
+test('combinatorics expectations are authored from the graphs: the lattice target, the counting tree and the expansion bars', () => {
+    const open = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    const target = (a, b) => ({kind: 'combinatorics', operation: 'set-target', a, b});
+    const lattice = combinatoricsExpectedFor('c.lattice-paths-and-pascal.lattice-paths', open([target(2, 2)]));
+    assert.deepEqual([lattice.types, lattice.points], [{curve: 3, point: 2}, [[0, 0], [2, 2]]]);
+    assert.deepEqual(combinatoricsExpectedFor('c.pascal-identity.lattice-paths', open([target(2, 2)])), lattice);
+    const counting = open([{kind: 'combinatorics', operation: 'set-counting-mode', view: 'choices', n: 3, k: 2, ordered: true, repetition: false}]);
+    const tree = combinatoricsExpectedFor('c.counting-and-choices.counting-tree', counting);
+    assert.deepEqual([tree.types, tree.points], [{curve: 1, point: 1}, [[12.2, 21]]]);
+    assert.ok(Math.abs(tree.curves[0][2][0] - (0.6 + 23.2 / 6)) < 1e-12);
+    const bars = combinatoricsExpectedFor('c.binomial-theorem.lattice-paths', open([{kind: 'combinatorics', operation: 'set-expansion', n: 1, c: 1}]));
+    assert.deepEqual([bars.types, bars.points, bars.curves[1][2]], [{curve: 2}, [], [1.6, 17.5]]);
+    assert.throws(() => combinatoricsExpectedFor('c.lattice-paths-and-pascal.lattice-paths', open([target(5, 3)])), /only the target/);
+    assert.throws(() => combinatoricsExpectedFor('c.counting-and-choices.counting-tree', open([target(2, 2)])), /the opening scene is/);
+    assert.throws(() => combinatoricsExpectedFor('c.unknown.lattice-paths', open([])), /no authored combinatorics/);
+    assert.ok(chapterInventories.combinatorics);
 });

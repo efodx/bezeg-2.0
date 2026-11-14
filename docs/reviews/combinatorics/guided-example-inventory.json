@@ -1,0 +1,164 @@
+{
+  "examples": [
+    {
+      "id": "combinatorics.lattice-paths-and-pascal.lattice-paths",
+      "demonstrationId": "lattice-paths",
+      "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.lattice-paths-and-pascal.lattice-paths",
+      "sceneFingerprint": "5496752960522e638f2227d0ee2155af48afdeea4871df248cb4617c7ddeb573",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb1-predict-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-target\",\"a\":2,\"b\":2}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 2
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "combinatorics.counting-and-choices.counting-tree",
+      "demonstrationId": "counting-tree",
+      "path": "/bezeg-2.0/combinatorics/counting?example=lesson.combinatorics.counting-and-choices.counting-tree",
+      "sceneFingerprint": "40ed5bf836fd709d511bf02d2b548802068c8ea7b341653af2b3128bddb78825",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb2-tree-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb2-tree-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-counting-mode\",\"view\":\"choices\",\"n\":3,\"k\":2,\"ordered\":true,\"repetition\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            12.2,
+            21
+          ]
+        ],
+        "curves": [
+          [
+            [
+              12.2,
+              21
+            ],
+            [
+              8.333333333333332,
+              17.75
+            ],
+            [
+              4.466666666666667,
+              14.5
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "combinatorics.pascal-identity.lattice-paths",
+      "demonstrationId": "lattice-paths",
+      "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.pascal-identity.lattice-paths",
+      "sceneFingerprint": "69c8e85bffe70a2b6edbabc76adb4f54947e8848fdb69ecc81a7dd80318b4810",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-target\",\"a\":2,\"b\":2}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 2
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "combinatorics.binomial-theorem.lattice-paths",
+      "demonstrationId": "lattice-paths",
+      "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.binomial-theorem.lattice-paths",
+      "sceneFingerprint": "47dfbac4c894fc786849f740214811ccefcfbafe3a846e86a9f5fcbf908b57ad",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb4-square-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb4-square-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-expansion\",\"n\":1,\"c\":1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2
+        },
+        "curveCount": 2,
+        "points": [],
+        "curves": [
+          [
+            [
+              0.4,
+              10.5
+            ],
+            [
+              10.6,
+              10.5
+            ],
+            [
+              20.8,
+              10.5
+            ]
+          ],
+          [
+            [
+              1.6,
+              10.5
+            ],
+            [
+              1.6,
+              14
+            ],
+            [
+              1.6,
+              17.5
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
