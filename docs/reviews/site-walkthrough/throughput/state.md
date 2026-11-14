@@ -60,7 +60,7 @@ Times are an agent's wall time through `just`, on this shared machine, once each
 | 3 | `ad9034cf` | Typecheck and lint from scratch on every run | `just typecheck` / `just lint` | 119 s / 77 s | 12 s / 15 s with nothing changed; 43 s / 9 s after a one-graph edit. A background publish worktree is seeded with the typecheck cache |
 | 8 | `f49067c2` | A cancelled daily run | Scheduled unit job limit | 15 min (run 43413497282 cancelled) | 25 min for the scheduled run, 15 for pushes. First scheduled run with it: not yet observed |
 | 10 | `9884d291` | Hand-parsing logs to remeasure | — | Logs only | `.command-logs/timings.jsonl`, one line per run; daily per-file durations as artifacts `unit-durations-*`, read by `just test-cost --results <dir>` |
-| 2 | `82f0febe` | Unrelated graph tests selected for a one-graph edit | `LogisticMapGraph.tsx` / `labelLayout.ts`, Vitest `--changed` listing | 299 / 303 files; the gate step for a one-graph fix took 1,016 s (remeasure note) | 109 / 114 files. Timed `check-changed` of the graph edit after 1, 3 and 2: in `.command-logs/t/graph-after2.log` (FILL) |
+| 2 | `82f0febe` | Unrelated graph tests selected for a one-graph edit | `LogisticMapGraph.tsx` / `labelLayout.ts`, Vitest `--changed` listing | 299 / 303 files; the gate step for a one-graph fix took 1,016 s (remeasure note) | 109 / 114 files. Timed `check-changed` of the graph edit after 1, 3 and 2: 2,926 s wall, passed, but it ran beside two publish gates and my own before-run on the same CPU, so it is no valid after time; retime it once the machine is quiet (`timings.jsonl` now splits wait from run) |
 
 ### Proposed routine / full policy (T03), your choice
 
