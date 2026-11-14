@@ -26,6 +26,7 @@ Three commits on this branch, by subject; the spec section [Repair round and wor
 ## Open items
 
 - Owner review of the workspace character. The `feat:` commit can be reverted alone; the spec and DESIGN.md paragraphs about paper, shadow, branch and lesson colour then need the same revert.
+- The lesson panel toolbar moves 13px between frames at 320px with 200% Verdana text in English when the header is one row shorter (see the spec's phone header repair). This round leaves the header below 360px as it was; the lesson runtime's owner decides the fix.
 - Outside this round: the family label under the Home featured title; the Home grid and green rail removed by `4e844f56`.
 - `tests/curve-ownership.smoke.spec.cjs:194` still depends on the board width at 1280px (898px). This round leaves every viewport up to 1328px unchanged for that reason.
 
