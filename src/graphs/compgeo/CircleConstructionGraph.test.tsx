@@ -302,13 +302,13 @@ describe('numeric input per handle', () => {
 });
 
 describe('keyboard and touch', () => {
-    test('arrows step a coordinate by 1 and a radius by 1/4; PageUp and PageDown take the big step (ten steps in a point row, one in a radius); the ratio steps by 1/2', () => {
+    test('arrows step a coordinate by 1 and a radius by 1/4; PageUp and PageDown take the big step (four in a point row, one in a radius); the ratio steps by 1/2', () => {
         const {graph} = mountGraph();
         expect([COORDINATE_STEP, RADIUS_STEP, RADIUS_BIG_STEP, RATIO_STEP]).toEqual([1, 0.25, 1, 0.5]);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'ArrowUp'}); });
         expect(graph.state.c1.x).toBe(1);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'PageUp'}); });
-        expect(graph.state.c1.x).toBe(11);
+        expect(graph.state.c1.x).toBe(5);
         act(() => { fireEvent.keyDown(field(centreX(1)), {key: 'PageDown'}); });
         expect(graph.state.c1.x).toBe(1);
         act(() => { fireEvent.keyDown(field(radiusLabel(1)), {key: 'ArrowDown'}); });
