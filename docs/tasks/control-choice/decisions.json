@@ -1,0 +1,3 @@
+{
+  "src/graphs/compgeo/PointSetControls.tsx#field#label": "keep: segment and interval rows hold four (or two) typed numbers with a select and a remove button in one row; PointListInput holds one point per row, so these rows wait for a shared row editor in step 4"
+}

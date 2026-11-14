@@ -4,7 +4,7 @@ import {formatNumber} from "../../analysis/format";
 import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
 import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import {PointListInput} from "../../inputs/PointListInput";
 import Slider from "../../inputs/Slider";
 import AngleSlider from "../../inputs/AngleSlider";
 import {
@@ -142,10 +142,8 @@ function GliderControls(props: GliderControlsProps) {
 function PPrimeFields(props: {point: GridPoint; onPPrime(point: GridPoint): void}) {
     const t = useT();
     return <div className="simson-pprime">
-        <ReadoutHeading>{t("simson_pprime_heading")}</ReadoutHeading>
-        <NumberInput label={t("simson_pprime_x")} value={props.point.x} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} step={1} integer
-                     onChange={x => { props.onPPrime({x, y: props.point.y}); }}/>
-        <NumberInput label={t("simson_pprime_y")} value={props.point.y} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} step={1} integer
-                     onChange={y => { props.onPPrime({x: props.point.x, y}); }}/>
+        <PointListInput title={t("simson_pprime_heading")} points={[[props.point.x, props.point.y] as const]} pointLabel={() => "P′"}
+                        min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} integer
+                        onCommit={(_, [x, y]) => { props.onPPrime({x, y}); }}/>
     </div>;
 }

@@ -272,7 +272,7 @@ test('the mode control switches in both directions, with P named P or P-prime an
     expect(text('[data-simson-state]')).toContain('P′ = (2, −2)');
     expect(field('[data-simson-t]')).toBeNull();
     expect(field('[data-simson-epsilon]')).toBeNull();
-    expect(screen.getByLabelText('P′: x')).toBeInTheDocument();
+    expect(screen.getByLabelText('P′, x')).toBeInTheDocument();
     expect(text('[data-simson-readout="power"]')).toBe('Potenca točke P′ na očrtano krožnico = 0');
     expect(statusOf()).toBe('collinear-exact');
     expect(text('[data-simson-chip]')).toBe('Nožišča D, E, F: kolinearna (natančno)');
@@ -369,16 +369,16 @@ test('a P-prime edit updates the exact readouts: power, feet as rationals, area 
     const graph = new Observed();
     mount(graph);
     fireEvent.change(select('[data-simson-mode]'), {target: {value: 'exact'}});
-    enterNumber(screen.getByLabelText('P′: x'), '0');
-    enterNumber(screen.getByLabelText('P′: y'), '3');
+    enterNumber(screen.getByLabelText('P′, x'), '0');
+    enterNumber(screen.getByLabelText('P′, y'), '3');
     expect(graph.settings.pPrime).toEqual({x: 0, y: 3});
     expect(text('[data-simson-point="d"]')).toBe('D = (2, 5)');
     expect(text('[data-simson-point="e"]')).toBe('E = (30/29, 75/29)');
     expect(text('[data-simson-point="f"]')).toBe('F = (0, 0)');
     expect(text('[data-simson-readout="power"]')).toContain('= 0');
     expect(text('[data-simson-on-circle]')).toContain('natančno na očrtani krožnici');
-    enterNumber(screen.getByLabelText('P′: x'), '6');
-    enterNumber(screen.getByLabelText('P′: y'), '4');
+    enterNumber(screen.getByLabelText('P′, x'), '6');
+    enterNumber(screen.getByLabelText('P′, y'), '4');
     expect(text('[data-simson-readout="power"]')).toBe('Potenca točke P′ na očrtano krožnico = −2');
     expect(text('[data-simson-readout="area"]')).toBe('Ploščina nožiščnega trikotnika / S = 1/29 (natančno)');
     expect(text('[data-simson-on-circle]')).toContain('ni na očrtani krožnici');
@@ -386,9 +386,9 @@ test('a P-prime edit updates the exact readouts: power, feet as rationals, area 
     // The stored example id (the default one) names a glider scene, so a typed point leaves it.
     expect(graph.exampleId).toBeUndefined();
     // A value outside the grid range or a non-integer is refused and not written.
-    enterNumber(screen.getByLabelText('P′: x'), '1.5');
+    enterNumber(screen.getByLabelText('P′, x'), '1.5');
     expect(graph.settings.pPrime).toEqual({x: 6, y: 4});
-    enterNumber(screen.getByLabelText('P′: x'), '99999999999');
+    enterNumber(screen.getByLabelText('P′, x'), '99999999999');
     expect(graph.settings.pPrime).toEqual({x: 6, y: 4});
     expect(graph.setPPrime({x: 0.5, y: 0})).toBe(false);
     noNaN(graph);

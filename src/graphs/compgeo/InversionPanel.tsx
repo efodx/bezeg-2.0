@@ -1,7 +1,8 @@
 import React from "react";
 import {useLanguage, useT} from "../../localization";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {PointListInput} from "../../inputs/PointListInput";
 import AngleSlider from "../../inputs/AngleSlider";
 import {GridPoint} from "../../compgeo/grid";
 import {
@@ -61,8 +62,7 @@ export function InversionPanel(props: InversionPanelProps) {
         <ExampleAndFocus {...props}/>
         <p className="inspector-help pointset-status" data-inversion-chip>{texts.chip}</p>
         {fields.hasCentre && <>
-            {fields.focus !== "power" && <IntField label={t("inversion_radius_label")} field="radius" value={fields.radius} min={1} max={INVERSION_RADIUS_MAX}
-                                                   onValue={props.onRadius}/>}
+            {fields.focus !== "power" && <RadiusSlider label={t("inversion_radius_label")} field="radius" value={fields.radius} onValue={props.onRadius}/>}
             <FocusFields {...props}/>
             <ul className="pointset-list inversion-readouts">
                 {texts.rows.map(row => <li key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
@@ -104,7 +104,7 @@ function ExampleAndFocus(props: InversionPanelProps) {
 function FocusFields(props: InversionPanelProps) {
     const t = useT();
     const {fields} = props;
-    if (fields.focus === "point") return <PointFields name="X" point={fields.x} field="x" onPoint={props.onX}/>;
+    if (fields.focus === "point") return <PointFields title={t("inversion_group_point")} points={[{name: "X", point: fields.x}]} onPoint={(_, point) => props.onX(point)}/>;
     if (fields.focus === "source") {
         const source = fields.source;
         return <>
@@ -115,10 +115,8 @@ function FocusFields(props: InversionPanelProps) {
             </div>
             {source.kind === "circle"
                 ? <CircleFields name="S" radiusName="r₀" field="source" circle={source} onCircle={circle => props.onSource({kind: "circle", ...circle})}/>
-                : <>
-                    <PointFields name="S₁" point={source.p} field="source-p" onPoint={p => props.onSource({kind: "line", p, q: source.q})}/>
-                    <PointFields name="S₂" point={source.q} field="source-q" onPoint={q => props.onSource({kind: "line", p: source.p, q})}/>
-                </>}
+                : <PointFields title={t("inversion_group_line")} points={[{name: "S₁", point: source.p}, {name: "S₂", point: source.q}]}
+                             onPoint={(index, point) => props.onSource(index === 0 ? {kind: "line", p: point, q: source.q} : {kind: "line", p: source.p, q: point})}/>}
         </>;
     }
     if (fields.focus === "power") {
@@ -138,30 +136,31 @@ function FocusFields(props: InversionPanelProps) {
     </>;
 }
 
-function PointFields(props: {name: string; field: string; point: GridPoint; onPoint(point: GridPoint): void}) {
-    const t = useT();
+/** The points of one construction as rows of one list: integer coordinates within the inversion's coordinate limit. */
+function PointFields(props: {title: string; points: readonly {name: string; point: GridPoint}[]; onPoint(index: number, point: GridPoint): void}) {
     const limit = INVERSION_COORDINATE_MAX;
-    return <>
-        <IntField label={t("inversion_field", {value0: props.name, value1: "x"})} field={`${props.field}-x`} value={props.point.x} min={-limit} max={limit}
-                  onValue={x => props.onPoint({x, y: props.point.y})}/>
-        <IntField label={t("inversion_field", {value0: props.name, value1: "y"})} field={`${props.field}-y`} value={props.point.y} min={-limit} max={limit}
-                  onValue={y => props.onPoint({x: props.point.x, y})}/>
-    </>;
+    return <div data-inversion-points>
+        <PointListInput title={props.title} points={props.points.map(({point}) => [point.x, point.y] as const)}
+                        pointLabel={index => props.points[index].name} min={-limit} max={limit} integer
+                        onCommit={(index, [x, y]) => { props.onPoint(index, {x, y}); }}/>
+    </div>;
 }
 
+/** A circle: its centre as a point row, its radius as a slider directly below. */
 function CircleFields(props: {name: string; radiusName: string; field: string; circle: CircleSpec; onCircle(circle: CircleSpec): void}) {
     const t = useT();
     return <>
-        <PointFields name={props.name} field={props.field} point={props.circle.centre} onPoint={centre => props.onCircle({centre, radius: props.circle.radius})}/>
-        <IntField label={t("inversion_field_radius", {value0: props.radiusName})} field={`${props.field}-r`} value={props.circle.radius} min={1}
-                  max={INVERSION_RADIUS_MAX} onValue={radius => props.onCircle({centre: props.circle.centre, radius})}/>
+        <PointFields title={t("inversion_group_centre")} points={[{name: props.name, point: props.circle.centre}]}
+                     onPoint={(_, centre) => props.onCircle({centre, radius: props.circle.radius})}/>
+        <RadiusSlider label={t("inversion_field_radius", {value0: props.radiusName})} field={`${props.field}-r`} value={props.circle.radius}
+                      onValue={radius => props.onCircle({centre: props.circle.centre, radius})}/>
     </>;
 }
 
-/** An integer field within [min, max]; a typed value outside the range is refused with the stated range, never written. */
-function IntField(props: {label: string; field: string; value: number; min: number; max: number; onValue(value: number): void}) {
+/** A whole-number radius from 1 to the radius limit; a typed value outside the range is refused with the stated range, never written. */
+function RadiusSlider(props: {label: string; field: string; value: number; onValue(value: number): void}) {
     return <div data-inversion-field={props.field}>
-        <NumberInput label={props.label} value={props.value} min={props.min} max={props.max} step={1} integer onChange={props.onValue}/>
+        <Slider customText={props.label} value={props.value} min={1} max={INVERSION_RADIUS_MAX} step={1} onChange={props.onValue}/>
     </div>;
 }
 

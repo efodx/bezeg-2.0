@@ -6,7 +6,8 @@ import {formatNumber} from "../../analysis/format";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
+import {PointListInput} from "../../inputs/PointListInput";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../base/controls/ReadoutParts";
 import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {FunctionLegend, LegendItem} from "../functions/FunctionReadout";
@@ -28,7 +29,6 @@ export interface CircleConstructionGraphState extends BaseGraphState, CircleCons
 
 /** Keyboard steps: the arrow keys move a coordinate by 1, a radius by 1/4 and the ratio by 1/2; the Page keys take the big steps. */
 export const COORDINATE_STEP = 1;
-export const COORDINATE_BIG_STEP = 4;
 export const RADIUS_STEP = 0.25;
 export const RADIUS_BIG_STEP = 1;
 export const RATIO_STEP = 0.5;
@@ -66,7 +66,6 @@ const ratPoint = (p: RationalPoint): string => t("circle_construction_point_form
 const xyPoint = (x: number, y: number): string => t("circle_construction_point_format", {value0: dec(x), value1: dec(y)});
 const plainPoint = (x: number, y: number): string => xyPoint(x, y);
 /** Counts instances so that the input help id of two graphs on one page never collides. */
-let helpInstances = 0;
 /** Colour and dash of the drawn construction elements the legend states (dash 0 is a solid line). */
 export const THALES_STYLE = {color: GraphPalette.constructionLevels[1], dash: 2} as const;
 export const AXIS_STYLES = [
@@ -135,7 +134,6 @@ interface Frame {
  * examples). A Preset keeps the stored fields once, as `data` (checked by `parseCircleConstructionState`).
  */
 export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphState, CircleConstructionState> {
-    readonly helpId = `circle-construction-input-help-${++helpInstances}`;
     private objects: JXG.GeometryElement[] = [];
     private listeners: Array<() => void> = [];
     private readonly handleMap = new Map<HandleId, JXG.Point>();
@@ -818,19 +816,20 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
 
     // ---- Numeric input -------------------------------------------------------------------------------------------------
 
-    private editCircle(key: CircleKey, field: "x" | "y" | "r", value: number): boolean {
-        const snapped = field === "r" ? snapRadiusInput(value, "radius") : snapCoordinateInput(value, field);
+    private editRadius(key: CircleKey, value: number): boolean {
+        const snapped = snapRadiusInput(value, "radius");
         if (!snapped.ok) return false;
-        this.setCircle(key, {...this.state[key], [field]: snapped.value.value});
+        this.setCircle(key, {...this.state[key], r: snapped.value.value});
         return true;
     }
 
-    private editPoint(key: PointKey, field: "x" | "y", value: number): boolean {
-        const snapped = snapCoordinateInput(value, field);
-        if (!snapped.ok) return false;
-        const current = this.state[key];
-        this.setPoint(key, field === "x" ? snapped.value.value : current.x, field === "y" ? snapped.value.value : current.y);
-        return true;
+    /** Writes a typed place (a circle's centre or a point) through the grid snapping; the list has already range-checked the integers. */
+    private editPlace(key: CircleKey | PointKey, x: number, y: number): void {
+        const sx = snapCoordinateInput(x, "x");
+        const sy = snapCoordinateInput(y, "y");
+        if (!sx.ok || !sy.ok) return;
+        if (key === "p" || key === "a" || key === "b") this.setPoint(key, sx.value.value, sy.value.value);
+        else this.setCircle(key, {...this.state[key], x: sx.value.value, y: sy.value.value});
     }
 
     /** Writes a typed ratio through the model's single snapping path; a non-finite value is refused. */
@@ -841,30 +840,20 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         return true;
     }
 
-    private circleInputs(key: CircleKey, name: string): JSX.Element[] {
-        const s = this.state[key];
-        return [
-            <NumberInput key={`${key}x`} label={t("circle_construction_centre_x", {value0: name})} value={s.x} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
-                         onChange={value => this.editCircle(key, "x", value)}/>,
-            <NumberInput key={`${key}y`} label={t("circle_construction_centre_y", {value0: name})} value={s.y} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
-                         onChange={value => this.editCircle(key, "y", value)}/>,
-            <NumberInput key={`${key}r`} label={t("circle_construction_radius", {value0: name})} value={s.r} step={RADIUS_STEP}
-                         bigStep={RADIUS_BIG_STEP} min={RADIUS_MIN} max={RADIUS_MAX} grid={RADIUS_STEP} decimals={2} describedBy={this.helpId}
-                         onChange={value => this.editCircle(key, "r", value)}/>,
-        ];
+    /** The points shown together as the rows of one list; the grid and the limit are those of the board. */
+    private pointRows(title: string, rows: readonly {key: CircleKey | PointKey; name: string}[]): JSX.Element {
+        return <PointListInput key={rows.map(row => row.key).join("")} title={title}
+                               points={rows.map(row => [this.state[row.key].x, this.state[row.key].y] as const)}
+                               pointLabel={index => rows[index].name} min={-COORD_LIMIT} max={COORD_LIMIT} step={COORDINATE_STEP} grid={1} decimals={0}
+                               onCommit={(index, [x, y]) => { this.editPlace(rows[index].key, x, y); }}/>;
     }
 
-    private pointInputs(key: PointKey, name: string): JSX.Element[] {
-        const s = this.state[key];
+    /** A circle: its centre as a point row, its radius as a slider directly below. */
+    private circleInputs(key: CircleKey, number: string): JSX.Element[] {
         return [
-            <NumberInput key={`${key}x`} label={t("circle_construction_point_x", {value0: name})} value={s.x} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
-                         onChange={value => this.editPoint(key, "x", value)}/>,
-            <NumberInput key={`${key}y`} label={t("circle_construction_point_y", {value0: name})} value={s.y} step={COORDINATE_STEP}
-                         bigStep={COORDINATE_BIG_STEP} min={-COORD_LIMIT} max={COORD_LIMIT} grid={1} decimals={0} describedBy={this.helpId}
-                         onChange={value => this.editPoint(key, "y", value)}/>,
+            this.pointRows(t("circle_construction_centre_group"), [{key, name: `O${"₁₂₃"[Number(number) - 1]}`}]),
+            <Slider key={`${key}r`} customText={t("circle_construction_radius", {value0: number})} value={this.state[key].r} min={RADIUS_MIN} max={RADIUS_MAX}
+                    step={RADIUS_STEP} bigStep={RADIUS_BIG_STEP} grid={RADIUS_STEP} decimals={2} onChange={value => this.editRadius(key, value)}/>,
         ];
     }
 
@@ -890,26 +879,22 @@ export class CircleConstructionGraph extends BaseGraph<CircleConstructionGraphSt
         ];
         switch (state.mode) {
             case "tangents":
-                commands.push(...this.circleInputs("c1", "1"), ...this.pointInputs("p", "P"));
+                commands.push(...this.circleInputs("c1", "1"), this.pointRows(t("circle_construction_point_group"), [{key: "p", name: "P"}]));
                 break;
             case "radical":
-                commands.push(...this.circleInputs("c1", "1"), ...this.circleInputs("c2", "2"), ...this.circleInputs("c3", "3"), ...this.pointInputs("p", "P"));
+                commands.push(...this.circleInputs("c1", "1"), ...this.circleInputs("c2", "2"), ...this.circleInputs("c3", "3"), this.pointRows(t("circle_construction_point_group"), [{key: "p", name: "P"}]));
                 break;
             case "apollonius":
                 commands.push(
-                    ...this.pointInputs("a", "A"), ...this.pointInputs("b", "B"), ...this.pointInputs("p", "P"),
-                    <NumberInput key="ratio" label={t("circle_construction_ratio_label")} value={state.k} step={RATIO_STEP} bigStep={RATIO_BIG_STEP}
-                                 min={RATIO_MIN} max={RATIO_MAX} grid={RATIO_STEP} decimals={1} describedBy={this.helpId}
-                                 onChange={value => this.editRatio(value)}/>,
+                    this.pointRows(t("circle_construction_points_group"), [{key: "a", name: "A"}, {key: "b", name: "B"}, {key: "p", name: "P"}]),
+                    <Slider key="ratio" customText={t("circle_construction_ratio_label")} value={state.k} min={RATIO_MIN} max={RATIO_MAX} step={RATIO_STEP}
+                            bigStep={RATIO_BIG_STEP} grid={RATIO_STEP} decimals={1} onChange={value => this.editRatio(value)}/>,
                 );
                 break;
             case "common":
                 commands.push(...this.circleInputs("c1", "1"), ...this.circleInputs("c2", "2"));
                 break;
         }
-        commands.push(<p key="help" id={this.helpId} className="form-text">{t("circle_construction_input_help", {
-            value0: dec(-COORD_LIMIT), value1: dec(COORD_LIMIT), value2: dec(RADIUS_MIN), value3: dec(RADIUS_MAX), value4: dec(RATIO_MIN), value5: dec(RATIO_MAX),
-        })}</p>);
         return commands;
     }
 
