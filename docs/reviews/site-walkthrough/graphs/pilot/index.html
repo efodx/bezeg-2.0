@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graphs and captures: pilot, before and after</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f5f7ef; color: #2f3a31; font: 16px/1.5 Georgia, "Times New Roman", serif; }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; font-weight: 500; margin: 0 0 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; margin: 40px 0 4px; }
+  p, li { max-width: 78ch; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 12px; }
+  figure { margin: 0; background: #fffdf5; border: 1px solid #d5dccf; border-radius: 6px; padding: 10px; }
+  figcaption { font: 600 0.85rem/1.3 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #5b6a5c; margin-bottom: 6px; }
+  img, video { width: 100%; height: auto; display: block; border-radius: 3px; }
+  a { color: #3f6a2f; }
+  .note { background: #fffdf5; border-left: 4px solid #bf8542; padding: 10px 14px; margin: 16px 0; }
+  code { font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Graphs and captures: pilot</h1>
+<p>Package D of the site walkthrough (G01 to G07). Three examples, one of each kind. Left is what the catalog shows today, right is the proposal. The clips play in a loop, as on the catalog cards. Nothing here is on the public site.</p>
+<div class="note">
+<p><strong>What needs your answer.</strong></p>
+<ol>
+<li><strong>Capture text.</strong> Proposed rule: a catalog capture carries no words, because the same pixels are shown in both languages. It may keep axis numbers, symbols that name a drawn object, one formula line, the number the motion produces (such as <code>r</code>) and, in a few cases, weights. The spec lists a verdict for each of the 118 captures. Is the rule right, and is "keep <code>r</code>" the kind of exception you want?</li>
+<li><strong>The three directions below.</strong> Approve, or say what to change.</li>
+<li><strong>Graph typography (G01).</strong> Proposed: Literata, the site's title face, for plain text on every graph, set in one place; mathematics stays MathJax. Not applied here yet. Today graphs mix three faces, one of them Arial.</li>
+<li><strong>Convexity clip (G06).</strong> It skips because it was built from four held states. Proposed: a smooth sweep of the tangent point, dropping the staged reveal of the second derivative.</li>
+</ol>
+<p>Full proposal: <code>docs/specs/site-walkthrough-graphs-and-captures.md</code> on <code>master</code>.</p>
+</div>
+
+<h2>1. Correlation and regression line: a weak graph</h2>
+<p>Changed in the graph: residuals are solid and heavier, the line label uses the board serif on a plate instead of Arial. Changed in the capture: axes and grid are kept, the title and the line label are removed, <code>r</code> stays. The points, the line and the numbers are the same. <a href="../probability/correlation">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="before/prob-correlation.webm" poster="before/prob-correlation.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="after/prob-correlation.webm" poster="after/prob-correlation.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>2. Envelope: capture text</h2>
+<p>The two status lines are removed from the capture and the frame is fitted to the construction, which had been pushed into a corner to leave room for the text. The live graph is unchanged. <a href="../curve-geometry/envelope">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="before/curve-envelope.webm" poster="before/curve-envelope.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="after/curve-envelope.webm" poster="after/curve-envelope.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>3. Subdivision curves: green points on a green curve</h2>
+<p>Changed in the graph: the points you drag are ochre, as control points are everywhere else; the refined vertices are blue with a light outline; the Chaikin limit curve, when shown, is violet so that it does not share the vertices' blue. The status line is removed from the capture. <a href="../interpolation/subdivision">Open the live graph</a>.</p>
+<div class="pair">
+<figure><figcaption>Before</figcaption><video src="before/interp-subdivision.webm" poster="before/interp-subdivision.png" autoplay loop muted playsinline></video></figure>
+<figure><figcaption>After</figcaption><video src="after/interp-subdivision.webm" poster="after/interp-subdivision.png" autoplay loop muted playsinline></video></figure>
+</div>
+
+<h2>Not shown yet</h2>
+<ul>
+<li>The catalog page of this preview still shows the old cards for these three; the new captures are trial files and are published only after approval.</li>
+<li>The typography change and the convexity sweep are proposals without a preview.</li>
+</ul>
+</main>
+</body>
+</html>
