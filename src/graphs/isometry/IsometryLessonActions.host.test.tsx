@@ -27,11 +27,12 @@ const setMirrors = (mirrors: Mirrors): LessonAction => ({kind: 'isometry', opera
 const setMode = (mode: string): LessonAction => ({kind: 'isometry', operation: 'set-mode', mode: mode as 'mirrors'});
 const setCount = (count: number): LessonAction => ({kind: 'isometry', operation: 'set-mirror-count', count: count as 1});
 const mirror = (px: number, py: number, qx: number, qy: number) => ({p: {x: px, y: py}, q: {x: qx, y: qy}});
-const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label) as HTMLInputElement, value); });
+/** A control by name: a slider's exact field is "<label>, vrednost", a point row's field "<point>, <axis>". */
+const type = (label: string, value: string) => act(() => { enterNumber(screen.getByRole('spinbutton', {name: name => name.replace(/, vrednost$/, '') === label}) as HTMLInputElement, value); });
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByRole('combobox', {name: label}), {target: {value}}); });
 const typeMirror = (n: number, [px, py, qx, qy]: [number, number, number, number]) => {
-    type(`Zrcalo ${n}, točka P: x`, String(px)); type(`Zrcalo ${n}, točka P: y`, String(py));
-    type(`Zrcalo ${n}, točka Q: x`, String(qx)); type(`Zrcalo ${n}, točka Q: y`, String(qy));
+    type(`P${n}, x`, String(px)); type(`P${n}, y`, String(py));
+    type(`Q${n}, x`, String(qx)); type(`Q${n}, y`, String(qy));
 };
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const stateOf = (graph: IsometryGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
@@ -139,7 +140,7 @@ test('set-dilation reaches the state and readouts of the centre, ratio and turn 
     });
     const viaControl = after(() => {
         choose('Način', 'similarity');
-        type('Središče raztega: x', '2'); type('Središče raztega: y', '-1');
+        type('C, x', '2'); type('C, y', '-1');
         type('Razmerje k', '-0.5');
         choose('Vrtež okoli središča', 'pythagorean');
     });
