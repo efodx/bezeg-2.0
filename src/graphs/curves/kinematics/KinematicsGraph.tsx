@@ -5,7 +5,6 @@ import {GraphSession} from "../../base/GraphSession";
 import {currentLanguage, onLanguageChange, t, useT} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
-import {NumberInput} from "../../../inputs/NumberInput";
 import {BooleanField} from "../../../inputs/BooleanField";
 import Slider from "../../../inputs/Slider";
 import {ReadoutHeading, ReadoutList, ReadoutListRow} from "../../base/controls/ReadoutParts";
@@ -707,15 +706,13 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
-    private numberField(field: NumericField, labelKey: "kinematics_graph_v0_label" | "kinematics_graph_alpha_label" | "kinematics_graph_radius_label"
-        | "kinematics_graph_omega_label" | "kinematics_graph_b_label", helpKey: "kinematics_graph_v0_help" | "kinematics_graph_alpha_help"
-        | "kinematics_graph_radius_help" | "kinematics_graph_omega_help" | "kinematics_graph_b_help", decimals: number, bigStep: number): JSX.Element {
+    private slider(field: NumericField, labelKey: "kinematics_graph_v0_label" | "kinematics_graph_alpha_label" | "kinematics_graph_radius_label"
+        | "kinematics_graph_omega_label" | "kinematics_graph_b_label", decimals: number, bigStep: number, help?: string): JSX.Element {
         const range = FIELD_RANGES[field];
-        const params = {value0: dec(range.min, decimals), value1: dec(range.max, decimals), value2: dec(range.step, decimals)};
-        return <NumberInput key={field} label={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
-                            grid={range.step} decimals={decimals} help={t(helpKey, params)}
-                            rejectedHint={t("kinematics_graph_field_rejected", {value0: params.value0, value1: params.value1})}
-                            onChange={value => this.editNumber(field, value)}/>;
+        return <Slider key={field} customText={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
+                       grid={range.step} decimals={decimals} fieldDecimals={decimals} help={help}
+                       rejectedHint={t("kinematics_graph_field_rejected", {value0: dec(range.min, decimals), value1: dec(range.max, decimals)})}
+                       onChange={value => this.editNumber(field, value)}/>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -726,12 +723,12 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                           onChange={value => { const motion = MOTION_IDS.find(candidate => candidate === value); if (motion) this.editMotion(motion); }}/>,
         ];
         if (state.motion === "projectile") {
-            commands.push(this.numberField("v0", "kinematics_graph_v0_label", "kinematics_graph_v0_help", 0, 5),
-                this.numberField("alpha", "kinematics_graph_alpha_label", "kinematics_graph_alpha_help", 0, 15));
+            commands.push(this.slider("v0", "kinematics_graph_v0_label", 0, 5),
+                this.slider("alpha", "kinematics_graph_alpha_label", 0, 15));
         } else if (state.motion === "circular") {
-            commands.push(this.numberField("radius", "kinematics_graph_radius_label", "kinematics_graph_radius_help", 1, 1),
-                this.numberField("omega", "kinematics_graph_omega_label", "kinematics_graph_omega_help", 2, 1),
-                this.numberField("b", "kinematics_graph_b_label", "kinematics_graph_b_help", 2, 0.25));
+            commands.push(this.slider("radius", "kinematics_graph_radius_label", 1, 1),
+                this.slider("omega", "kinematics_graph_omega_label", 2, 1),
+                this.slider("b", "kinematics_graph_b_label", 2, 0.25, t("kinematics_graph_b_help")));
         }
         commands.push(
             <BooleanField key="showVelocity" variant="switch" label={t("kinematics_graph_show_velocity")} help={t("kinematics_graph_show_velocity_help")}

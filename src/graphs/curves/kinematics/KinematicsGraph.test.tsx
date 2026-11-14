@@ -47,9 +47,11 @@ const field = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+const enter = (label: string, value: string) => act(() => { enterNumber(field(t('number_field_label', {value0: label})), value); });
 const choose = (motion: MotionChoice) => act(() => { fireEvent.change(field(t('kinematics_graph_motion_label')), {target: {value: motion}}); });
-const slider = () => screen.getByRole('slider') as HTMLInputElement;
+const slider = () => screen.getByRole('slider', {name: t('kinematics_graph_time_label')}) as HTMLInputElement;
+const rangeSlider = (key: 'kinematics_graph_v0_label' | 'kinematics_graph_alpha_label' | 'kinematics_graph_radius_label' | 'kinematics_graph_omega_label' | 'kinematics_graph_b_label') =>
+    screen.getByRole('slider', {name: t(key)}) as HTMLInputElement;
 const status = () => document.querySelector('[data-kinematics-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
@@ -340,7 +342,7 @@ describe('typed input and the time', () => {
         choose('projectile');
         enter(t('kinematics_graph_v0_label'), '40');
         expect(graph.state.v0).toBe(20);
-        expect(document.body.textContent).toContain('od 5 do 30');
+        expect(document.body.textContent).toContain('med 5 in 30');
         enter(t('kinematics_graph_v0_label'), '12,4');
         expect(graph.state.v0).toBe(12);
         enter(t('kinematics_graph_alpha_label'), '50');
@@ -357,12 +359,16 @@ describe('typed input and the time', () => {
             .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
         choose('projectile');
         const ranges = FIELD_RANGES;
-        expect(describedText(field(t('kinematics_graph_v0_label')))).toContain(`${ranges.v0.min} do ${ranges.v0.max}`);
-        expect(describedText(field(t('kinematics_graph_alpha_label')))).toContain(`${ranges.alpha.min}° do ${ranges.alpha.max}°`);
+        // The range is the slider's own bounds; only the meaning of b is help text.
+        const bounds = (key: Parameters<typeof rangeSlider>[0]) => describedText(rangeSlider(key));
+        expect(bounds('kinematics_graph_v0_label')).toContain(`${ranges.v0.min}`);
+        expect(bounds('kinematics_graph_v0_label')).toContain(`${ranges.v0.max}`);
+        expect(bounds('kinematics_graph_alpha_label')).toContain(`${ranges.alpha.max}`);
         choose('circular');
-        expect(describedText(field(t('kinematics_graph_radius_label')))).toContain('od 0,5 do 4');
-        expect(describedText(field(t('kinematics_graph_omega_label')))).toContain('od 0,5 do 4');
-        expect(describedText(field(t('kinematics_graph_b_label')))).toContain('Od 0 do 0,9');
+        expect(bounds('kinematics_graph_radius_label')).toContain('0,5');
+        expect(bounds('kinematics_graph_omega_label')).toContain('0,5');
+        expect(bounds('kinematics_graph_b_label')).toContain('0,9');
+        expect(bounds('kinematics_graph_b_label')).toContain(t('kinematics_graph_b_help'));
         for (const key of ['kinematics_graph_show_velocity', 'kinematics_graph_show_acceleration', 'kinematics_graph_split', 'kinematics_graph_trace'] as const) {
             expect(describedText(field(t(key))).length, key).toBeGreaterThan(10);
         }

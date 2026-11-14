@@ -616,8 +616,8 @@ const kn4Steps: readonly GuidedLessonStep[] = [
         title: text('Podvojimo kotno hitrost', 'Doubling the angular velocity'),
         purpose: text('Napovedati, kako se hitrost in pospešek spremenita ob dvakrat večji kotni hitrosti.', 'Predicting how the speed and the acceleration change when the angular velocity doubles.'),
         explanation: text(
-            'Polmer pustimo pri \\(R=2\\ \\mathrm{m}\\), kotno hitrost podvojimo z \\(1{,}5\\) na \\(3\\ \\mathrm{rad/s}\\) (polje Kotna hitrost). Napovej: kolikšni sta potem velikost hitrosti in velikost pospeška? Pri \\(\\omega=1{,}5\\) sta bili \\(3\\ \\mathrm{m/s}\\) in \\(4{,}5\\ \\mathrm{m/s^2}\\).',
-            'Keep the radius at \\(R=2\\ \\mathrm{m}\\) and double the angular velocity from \\(1.5\\) to \\(3\\ \\mathrm{rad/s}\\) (the field Angular velocity). Predict: what are the speed and the size of the acceleration then? At \\(\\omega=1.5\\) they were \\(3\\ \\mathrm{m/s}\\) and \\(4.5\\ \\mathrm{m/s^2}\\).',
+            'Polmer pustimo pri \\(R=2\\ \\mathrm{m}\\), kotno hitrost podvojimo z \\(1{,}5\\) na \\(3\\ \\mathrm{rad/s}\\) (drsnik Kotna hitrost). Napovej: kolikšni sta potem velikost hitrosti in velikost pospeška? Pri \\(\\omega=1{,}5\\) sta bili \\(3\\ \\mathrm{m/s}\\) in \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'Keep the radius at \\(R=2\\ \\mathrm{m}\\) and double the angular velocity from \\(1.5\\) to \\(3\\ \\mathrm{rad/s}\\) (the Angular velocity slider). Predict: what are the speed and the size of the acceleration then? At \\(\\omega=1.5\\) they were \\(3\\ \\mathrm{m/s}\\) and \\(4.5\\ \\mathrm{m/s^2}\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato nastavi \\(\\omega=3\\) in preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(\\omega=3\\) and read the speed, the acceleration and the period.'),
@@ -634,8 +634,8 @@ const kn4Steps: readonly GuidedLessonStep[] = [
         title: text('Podvojimo polmer pri enaki kotni hitrosti', 'Doubling the radius at the same angular velocity'),
         purpose: text('Napovedati učinek dvakrat večjega polmera pri stalni kotni hitrosti.', 'Predicting the effect of a doubled radius at a constant angular velocity.'),
         explanation: text(
-            'Kotno hitrost vrnemo na \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\) in podvojimo polmer z \\(2\\) na \\(4\\ \\mathrm{m}\\) (polje Polmer). Napovej: kolikšni sta velikost hitrosti in velikost pospeška, in ali se obhodni čas spremeni?',
-            'Return the angular velocity to \\(\\omega=1.5\\ \\mathrm{rad/s}\\) and double the radius from \\(2\\) to \\(4\\ \\mathrm{m}\\) (the field Radius). Predict: what are the speed and the size of the acceleration, and does the period change?',
+            'Kotno hitrost vrnemo na \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\) in podvojimo polmer z \\(2\\) na \\(4\\ \\mathrm{m}\\) (drsnik Polmer). Napovej: kolikšni sta velikost hitrosti in velikost pospeška, in ali se obhodni čas spremeni?',
+            'Return the angular velocity to \\(\\omega=1.5\\ \\mathrm{rad/s}\\) and double the radius from \\(2\\) to \\(4\\ \\mathrm{m}\\) (the Radius slider). Predict: what are the speed and the size of the acceleration, and does the period change?',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato nastavi \\(R=4\\) in preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(R=4\\) and read the speed, the acceleration and the period.'),

@@ -27,10 +27,10 @@ const setMotion = (motion: MotionChoice): LessonAction => ({kind: 'kinematics', 
 const setTime = (value: number): LessonAction => ({kind: 'kinematics', operation: 'set-time', t: value});
 const setParams = (params: Omit<Extract<LessonAction, {kind: 'kinematics'; operation: 'set-params'}>, 'kind' | 'operation'>): LessonAction => ({kind: 'kinematics', operation: 'set-params', ...params});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
+const type = (label: string, value: string) => act(() => { enterNumber(field(t('number_field_label', {value0: label})), value); });
 const choose = (motion: MotionChoice) => act(() => { fireEvent.change(field(t('kinematics_graph_motion_label')), {target: {value: motion}}); });
 const toggle = (label: string) => act(() => { fireEvent.click(field(label)); });
-const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider'), {target: {value: String(value)}}); });
+const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider', {name: t('kinematics_graph_time_label')}), {target: {value: String(value)}}); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-kinematics-status]')?.textContent;
 const stateOf = (graph: KinematicsGraph) => JSON.parse(JSON.stringify({...graph.state, time: graph.time})) as Record<string, unknown>;
