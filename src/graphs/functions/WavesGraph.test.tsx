@@ -9,7 +9,7 @@ import {enterNumber} from '../../inputs/testEntry';
 import type {TransientState} from '../base/BaseGraph';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {POINTS_PER_SECOND, WAVES_FIELD_RANGES, WAVES_MODES, type WavesMode, type WavesState} from '../../waves/wavesModel';
-import {MAX_FRAME_MS, TIME_STEP, WavesGraph} from './WavesGraph';
+import {MAX_FRAME_MS, TIME_STEP, WavesGraph, captionLines} from './WavesGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -743,6 +743,120 @@ describe('language and the derived data', () => {
         expect(graph.derivationCount()).toBe(count + 1);
         expect(JSON.stringify(graph.derived().facts)).not.toMatch(/Hz|waves_graph/);
     });
+});
+
+/** The board texts that are not the screen-anchored caption rows, each as a pixel box from the board's top left corner (the glyph box from its anchor), with what it must clear. */
+type PxBoxed = {text: string; x0: number; y0: number; x1: number; y1: number};
+function textBoxes(graph: ObservedGraph): PxBoxed[] {
+    const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; getBoundingBox(): number[]};
+    const [left, top] = board.getBoundingBox();
+    // The board's own coordinate infobox (hidden until a hover in a browser) is not a scene text.
+    const infobox = (board as unknown as {infobox?: unknown}).infobox;
+    return ofType(graph, 'text').filter(o => (o as unknown) !== infobox && visible(o) && Math.abs(o.X() - (left + 10 / board.unitX)) > 1e-6).map(o => {
+        const text = o.plaintext ?? '';
+        const size = Number(o.evalVisProp('fontsize')) || 14;
+        const w = text.length * size * 0.55, h = size * 1.15;
+        const x = (o.X() - left) * board.unitX, y = (top - o.Y()) * board.unitY;
+        const ax = o.evalVisProp('anchorx'), ay = o.evalVisProp('anchory');
+        const x0 = ax === 'right' ? x - w : ax === 'middle' ? x - w / 2 : x;
+        const y0 = ay === 'bottom' ? y - h : ay === 'middle' ? y - h / 2 : y;
+        return {text, x0, y0, x1: x0 + w, y1: y0 + h};
+    });
+}
+/** The pixel points of everything drawn that a text must not lie over: the curves, the arrows, the dots of the scene. */
+function drawnPixels(graph: ObservedGraph): {lines: Array<[number, number]>; dots: Array<[number, number, number]>} {
+    const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; getBoundingBox(): number[]};
+    const [left, top] = board.getBoundingBox();
+    const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+    const lines: Array<[number, number]> = [];
+    const segment = (x0: number, y0: number, x1: number, y1: number) => {
+        if (![x0, y0, x1, y1].every(Number.isFinite)) return;
+        const [a, b] = px(x0, y0), [c, d] = px(x1, y1);
+        const count = Math.max(1, Math.ceil(Math.hypot(c - a, d - b)));
+        for (let k = 0; k <= count; k++) lines.push([a + ((c - a) * k) / count, b + ((d - b) * k) / count]);
+    };
+    for (const curve of curves(graph)) {
+        if (!visible(curve)) continue;
+        for (let i = 0; i + 1 < curve.dataX!.length; i++) segment(curve.dataX![i], curve.dataY![i], curve.dataX![i + 1], curve.dataY![i + 1]);
+    }
+    for (const arrow of ofType(graph, 'arrow')) {
+        if (!visible(arrow)) continue;
+        const {point1, point2} = arrow as unknown as {point1: Probe; point2: Probe};
+        segment(point1.X(), point1.Y(), point2.X(), point2.Y());
+    }
+    const dots = ofType(graph, 'point').filter(visible).map(p => [...px(p.X(), p.Y()), Number(p.evalVisProp('size')) + 1] as [number, number, number]);
+    return {lines, dots};
+}
+function expectTextsClear(graph: ObservedGraph, label: string) {
+    const {lines, dots} = drawnPixels(graph);
+    const boxes = textBoxes(graph);
+    expect(boxes.length, label).toBeGreaterThan(3);
+    for (const box of boxes) {
+        const hitLine = lines.find(([x, y]) => x > box.x0 + 1 && x < box.x1 - 1 && y > box.y0 + 1 && y < box.y1 - 1);
+        expect(hitLine, `${label}: "${box.text}" lies over a curve or an arrow at ${hitLine}`).toBeUndefined();
+        const hitDot = dots.find(([x, y, r]) => x + r > box.x0 && x - r < box.x1 && y + r > box.y0 && y - r < box.y1);
+        expect(hitDot, `${label}: "${box.text}" touches a marker at ${hitDot}`).toBeUndefined();
+    }
+    boxes.forEach((box, i) => boxes.slice(i + 1).forEach(other => {
+        const crossing = box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0;
+        expect(crossing, `${label}: "${box.text}" and "${other.text}" overlap`).toBe(false);
+    }));
+}
+
+describe('board texts clear of the drawing (tick numbers, axis titles, phasor names)', () => {
+    for (const mode of ['sum', 'beats', 'standing'] as const) {
+        test(`every board text of the ${mode} scene lies clear of curves, arrows and markers (t = 0 and a later time)`, () => {
+            setLanguage('sl');
+            const {graph} = mountGraph();
+            choose(mode);
+            expectTextsClear(graph, `${mode} t=0`);
+            expect(go(graph, 0.31)).toBe(true);
+            expectTextsClear(graph, `${mode} t=0,31`);
+        });
+    }
+
+    test('the phasor names are laid out by the shared placer and read from a cache: unchanged tips ask the placer once', () => {
+        setLanguage('sl');
+        const {graph} = mountGraph();
+        const names = () => ofType(graph, 'text').filter(o => visible(o) && ['1', '2', '1+2'].includes(o.plaintext ?? ''));
+        expect(names().length).toBeGreaterThanOrEqual(3);
+        const before = names().map(o => [o.X(), o.Y()]);
+        act(() => { graph.liveBoard().update(); });
+        expect(names().map(o => [o.X(), o.Y()])).toEqual(before);
+    });
+});
+
+describe('a short board (420 x 320 px): the caption stack, the "y" title and the tick numbers', () => {
+    const W = 420, H = 320;
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    for (const mode of ['sum', 'beats', 'standing'] as const) {
+        test(`the "y" title has 8 px or more under the last caption row and every tick number lies inside the board (${mode})`, () => {
+            setLanguage('sl');
+            const {graph} = mountGraph();
+            choose(mode);
+            const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
+            expect([board.canvasWidth, board.canvasHeight]).toEqual([W, H]);
+            const [left, top] = board.getBoundingBox();
+            const captions = ofType(graph, 'text').filter(o => visible(o) && Math.abs(o.X() - (left + 10 / board.unitX)) < 1e-6);
+            const stackBottom = Math.max(...captions.map(o => (top - o.Y()) * board.unitY + captionLines(o.plaintext ?? '', W) * 20));
+            const boxes = textBoxes(graph);
+            const title = boxes.find(b => b.text === t('waves_graph_axis_y'))!;
+            expect(title.y0 - stackBottom, `stack bottom ${stackBottom}, title top ${title.y0}`).toBeGreaterThanOrEqual(8);
+            for (const box of boxes) {
+                expect(box.x0, `"${box.text}" left`).toBeGreaterThanOrEqual(0);
+                expect(box.x1, `"${box.text}" right`).toBeLessThanOrEqual(W);
+                expect(box.y1, `"${box.text}" bottom`).toBeLessThanOrEqual(H);
+            }
+        });
+    }
 });
 
 describe('redraw timing (JSDOM PLACEHOLDER, not a browser measurement)', () => {

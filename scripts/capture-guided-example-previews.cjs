@@ -39,9 +39,9 @@ const kinematicsCircleWindows = {
 // so each card gets a window that sets its plot (and, for the sum, the phasor circle) below them and fills the width. The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
 const wavesSumCardId = 'waves.superposition-and-phase.waves';
 const wavesWindows = {
-    'waves.superposition-and-phase.waves': [-0.449, 3.81, 0.921, -0.7],
-    'waves.beats.waves': [0.125, 5.95, 1.875, -1.51],
-    'waves.standing-waves.waves': [0.125, 10.37, 1.875, -1.23],
+    'waves.superposition-and-phase.waves': [-0.449, 5.89, 0.921, -1.0],
+    'waves.beats.waves': [0.073, 7.03, 1.847, -2.09],
+    'waves.standing-waves.waves': [0.073, 12.5, 1.847, -1.76],
 };
 
 // The descent cards: the screen-anchored caption rows stack down the left of the 840x520 card (six or seven rows, the race rows reaching about 290 px down), so each card gets a window that sets its figure in the

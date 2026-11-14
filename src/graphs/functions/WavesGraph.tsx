@@ -12,6 +12,7 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
+import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {wavesPresetCollection} from "./waves/wavesPresetCollection";
@@ -73,12 +74,17 @@ export function frameFor(derived: WavesDerived, captions?: {readonly roomPx: num
     const span = derived.xs[derived.xs.length - 1];
     const peak = 1.1 * derived.yPeak;
     const hasPanel = derived.mode === "sum" || derived.mode === "sampling";
-    const bottom = derived.mode === "sampling" ? -2 * peak : -1.25 * peak;
+    let bottom = derived.mode === "sampling" ? -2 * peak : -1.25 * peak;
     let top = 2.3 * peak;
     // On a narrow board the captions wrap and take more rows than the fixed room holds: keep `roomPx` clear above the plot
     // (with the "y" title above its top end) and give the rest of the board's height to the plot.
     if (captions && Number.isFinite(captions.heightPx)) {
         const need = Math.min(captions.roomPx + Y_TITLE_PX, captions.heightPx - MIN_PLOT_PX);
+        // The tick numbers and the axis title stand in a row under the plot (not in sampling mode): keep that row inside the board.
+        if (derived.mode !== "sampling") {
+            const plotPx = captions.heightPx - Math.max(need, 0);
+            bottom = Math.min(bottom, peak - (2 * peak) / (1 - TICK_ROW_PX / plotPx));
+        }
         if (need > 0) top = Math.max(top, peak + (need * (peak - bottom)) / (captions.heightPx - need));
     }
     return [hasPanel ? -0.66 * span : -0.1 * span, top, 1.06 * span, bottom];
@@ -93,13 +99,16 @@ export function captionLines(text: string, width: number): number {
     return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / room));
 }
 /** The height of the "y" axis title and the gap above it, in pixels. */
-const Y_TITLE_PX = 32;
+const Y_TITLE_PX = 44;
+/** The row of x tick numbers and the axis title under the plot (modes without the strip): gap under the plot edge and the height it needs, in pixels. */
+const TICK_GAP_PX = 5;
+const TICK_ROW_PX = 26;
 /** The "y" title stands at least this many pixels above the top tick number (a 12 px number centred on its tick) before its own gap. */
 const Y_TITLE_CLEARANCE_PX = 14;
 /** The names of the wheel arrows: the gap under the circle (the arrowhead overshoots the circle by about 10 px) and the pitch of their two rows. */
 const NAME_GAP_PX = 24;
 const NAME_ROW_PX = 20;
-const MIN_PLOT_PX = 140;
+const MIN_PLOT_PX = 90;
 
 /** Where a strip of instants lies under the plot (sampling mode), in units of the vertical half extent. */
 const stripLevel = (derived: WavesDerived): number => -1.55 * 1.1 * derived.yPeak;
@@ -475,11 +484,20 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             for (const level of [-derived.yPeak, derived.yPeak]) piece(-0.012 * length, level, 0.012 * length, level);
             return [xs, ys];
         }, {strokeColor: GraphPalette.axis, strokeWidth: 1});
-        const xAxisLabel = (k: number) => text(() => (span() * k) / 4, () => -4 / this.scaleOf().uy, () => dec((span() * k) / 4, 2), {anchorX: "middle", anchorY: "top", fontSize: 12});
+        // Tick numbers and the axis title stand in one row under the plot (the curves never reach it) except in sampling mode, where the strip lies there.
+        const ticksBelow = mode !== "sampling";
+        const rowY = () => (ticksBelow ? -peak() - TICK_GAP_PX / this.scaleOf().uy : -4 / this.scaleOf().uy);
+        const tickText = (k: number) => dec((span() * k) / 4, 2);
+        const titleText = () => t(mode === "standing" ? "waves_graph_axis_x" : "waves_graph_axis_t");
+        // The title takes the middle between the last two numbers; the number before it is left out when the board is too narrow to hold both.
+        const tickFits = (k: number) => !ticksBelow || k !== 3 || (span() * this.scaleOf().ux) / 8 >= (titleText().length * 7 + 4) / 2 + (tickText(3).length * 6.6) / 2 + 4;
+        const xAxisLabel = (k: number) => text(() => (span() * k) / 4, rowY, () => tickText(k), {anchorX: "middle", anchorY: "top", fontSize: 12, visible: () => tickFits(k)});
         [0, 1, 2, 3, 4].forEach(xAxisLabel);
-        text(() => -6 / this.scaleOf().ux, () => d().yPeak, () => dec(d().yPeak, 2), {anchorX: "right", anchorY: "middle", fontSize: 12});
-        text(() => -6 / this.scaleOf().ux, () => -d().yPeak, () => `${dec(-d().yPeak, 2)}`, {anchorX: "right", anchorY: "middle", fontSize: 12});
-        text(() => span() - 4 / this.scaleOf().ux, () => 6 / this.scaleOf().uy, () => t(mode === "standing" ? "waves_graph_axis_x" : "waves_graph_axis_t"), {anchorX: "right", anchorY: "bottom"});
+        const yLabelGapPx = ticksBelow ? 12 : 6;
+        text(() => -yLabelGapPx / this.scaleOf().ux, () => d().yPeak, () => dec(d().yPeak, 2), {anchorX: "right", anchorY: "middle", fontSize: 12});
+        text(() => -yLabelGapPx / this.scaleOf().ux, () => -d().yPeak, () => `${dec(-d().yPeak, 2)}`, {anchorX: "right", anchorY: "middle", fontSize: 12});
+        if (ticksBelow) text(() => span() * 0.875, rowY, titleText, {anchorX: "middle", anchorY: "top"});
+        else text(() => span() - 4 / this.scaleOf().ux, () => 6 / this.scaleOf().uy, titleText, {anchorX: "right", anchorY: "bottom"});
         text(() => 6 / this.scaleOf().ux, () => Math.max(peak(), d().yPeak + Y_TITLE_CLEARANCE_PX / this.scaleOf().uy) + 2 / this.scaleOf().uy, () => t("waves_graph_axis_y"), {anchorX: "left", anchorY: "bottom"});
 
         const playhead = (): number => this.clock();
@@ -528,11 +546,17 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                     strokeColor: arrow.color, strokeWidth: arrow.width, dash: arrow.dash, fixed: true, highlight: false, withLabel: false, visible: shown,
                 }));
             });
-            // Labels: "1" left of the first tip, "2" at the middle of arrow 2, "1+2" past the sum tip.
-            text(() => tip1()[0] - 6 / this.scaleOf().ux, () => tip1()[1], () => t("waves_graph_tip_1"), {strokeColor: GraphPalette.comparisonCurve, anchorX: "right", visible: shown});
-            text(() => (tip1()[0] + tip2()[0]) / 2 + 6 / this.scaleOf().ux, () => (tip1()[1] + tip2()[1]) / 2 - 8 / this.scaleOf().uy, () => t("waves_graph_tip_2"),
-                {strokeColor: GraphPalette.constructionAccent, anchorX: "left", visible: shown});
-            text(() => tip2()[0] + 6 / this.scaleOf().ux, () => tip2()[1] + 8 / this.scaleOf().uy, () => t("waves_graph_tip_sum"), {strokeColor: GraphPalette.primaryCurve, anchorX: "left", visible: shown});
+            // Names: placed by the shared label placer (clear of the tips, the circle, the shafts and the captions), read from a cache.
+            const nameAt = (id: string, axis: 0 | 1, fallback: () => number) => () => {
+                const box = this.phasorNameBoxes(tip1(), tip2())[id];
+                if (!box) return fallback();
+                const {left, top, ux, uy} = this.scaleOf();
+                return axis === 0 ? left + (box.x0 + box.x1) / 2 / ux : top - (box.y0 + box.y1) / 2 / uy;
+            };
+            const nameAttributes = (color: string): Partial<JXG.TextAttributes> => ({strokeColor: color, anchorX: "middle", anchorY: "middle", visible: shown});
+            text(nameAt("1", 0, () => tip1()[0] - 12 / this.scaleOf().ux), nameAt("1", 1, () => tip1()[1]), () => t("waves_graph_tip_1"), nameAttributes(GraphPalette.comparisonCurve));
+            text(nameAt("2", 0, () => (tip1()[0] + tip2()[0]) / 2), nameAt("2", 1, () => (tip1()[1] + tip2()[1]) / 2), () => t("waves_graph_tip_2"), nameAttributes(GraphPalette.constructionAccent));
+            text(nameAt("sum", 0, () => tip2()[0] + 12 / this.scaleOf().ux), nameAt("sum", 1, () => tip2()[1]), () => t("waves_graph_tip_sum"), nameAttributes(GraphPalette.primaryCurve));
             caption(() => t("waves_graph_cap_axes_time"));
             caption(() => t("waves_graph_cap_wave1"), GraphPalette.comparisonCurve);
             caption(() => t("waves_graph_cap_wave2"), GraphPalette.constructionAccent);
@@ -642,6 +666,50 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                 () => entry.text(),
             ], {strokeColor: entry.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: entry.visible}));
         });
+    }
+
+    private nameCache?: {key: string; boxes: Record<string, PxBox>};
+
+    /**
+     * The pixel boxes of the three phasor names, from the shared placer. Cache key: the board's scale and size, the panel (centre, radius), the two tips quantised to
+     * 6 px (so a name follows a turning arrow in steps, one placer run per 6 px of tip travel, a lookup in between), the caption rows and the names themselves (language).
+     */
+    private phasorNameBoxes(tip1: readonly [number, number], tip2: readonly [number, number]): Record<string, PxBox> {
+        const board = this.board;
+        if (!this.hasBoard || !this.state.showPhasors || !(board.canvasWidth > 0) || !(board.canvasHeight > 0)) return {};
+        const {ux, uy, left, top} = this.scaleOf();
+        const width = board.canvasWidth, height = board.canvasHeight;
+        const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * ux, (top - y) * uy];
+        const origin = this.panelOrigin();
+        const [ox, oy] = toPx(origin[0], origin[1]), [ax, ay] = toPx(tip1[0], tip1[1]), [bx, by] = toPx(tip2[0], tip2[1]);
+        const names = [t("waves_graph_tip_1"), t("waves_graph_tip_2"), t("waves_graph_tip_sum")];
+        const captionTexts = this.captionSources.map(source => source());
+        const rows = captionTexts.reduce((sum, text) => sum + captionLines(text, width), 0);
+        const Q = 6;
+        const key = [ux, uy, left, top, width, height, this.panel().k, Math.round(ox / Q), Math.round(oy / Q), Math.round(ax / Q), Math.round(ay / Q), Math.round(bx / Q), Math.round(by / Q), rows, names.join("|"), captionTexts.length].join(",");
+        if (this.nameCache?.key === key) return this.nameCache.boxes;
+        const size = (text: string) => ({w: text.length * 14 * 0.55 + 8, h: 14 + 6});
+        // The sum name goes first (it has the pick of the spots above the head); the others take the sides.
+        const items: LabelItem[] = [
+            {id: "sum", ax: bx, ay: by, ...size(names[2])},
+            {id: "1", ax, ay, ...size(names[0])},
+            {id: "2", ax: (ax + bx) / 2, ay: (ay + by) / 2, ...size(names[1])},
+        ];
+        // The ring and the shafts are chains of small markers (a name over one costs as much as one over a point), the heads are larger markers.
+        const chain = (xs: readonly number[], ys: readonly number[]) => sampleLine(xs, ys, toPx, width, height, 7, 120).map(([x, y]) => [x, y, 4] as const);
+        const [circleX, circleY] = this.circlePoints();
+        const markers: Array<readonly [number, number, number]> = [
+            [ox, oy, 6], [ax, ay, 3], [bx, by, 3],
+            ...chain(circleX, circleY),
+            ...chain([origin[0], tip1[0]], [origin[1], tip1[1]]),
+            ...chain([tip1[0], tip2[0]], [tip1[1], tip2[1]]),
+            ...chain([origin[0], tip2[0]], [origin[1], tip2[1]]),
+        ];
+        const widest = captionTexts.reduce((most, text) => Math.max(most, Math.min(text.length * CAPTION_CHAR_PX, width - 20)), 0);
+        const blocks: PxBox[] = [{x0: 0, y0: 0, x1: 10 + widest + 6, y1: 10 + rows * CAPTION_ROW_PX}];
+        const boxes = placeLpLabels(items, {width, height, markers, samples: [], strips: [], blocks});
+        this.nameCache = {key, boxes};
+        return boxes;
     }
 
     /** The circle of the panel (the largest arrow) as an ellipse in board units, so that it is round on the screen. */
