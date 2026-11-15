@@ -1,69 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+  "sourceRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+    "revision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
     "dirty": true,
-    "inputs": "be3b33becaa2d018b52db9937b4c6512588e4b7023a6cd27d6052013c02f47c9",
-    "output": "f0a4fb0d9776d6ddb6d39a7ad11ce18979386914e25d4251c598beb2b8688494"
+    "inputs": "62e99cc5ac2ead5584e34626a2e1504c1a6d8deab501db23e7de41462785f40e",
+    "output": "765dda9689e6c065df251d7e3c91e30d828d1a6a3f78620871718958d4fcdeed"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4471/bezeg-2.0/",
-    "stampRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
     "stampDirty": true,
-    "localOutputHash": "f0a4fb0d9776d6ddb6d39a7ad11ce18979386914e25d4251c598beb2b8688494",
+    "localOutputHash": "765dda9689e6c065df251d7e3c91e30d828d1a6a3f78620871718958d4fcdeed",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BnRECopp.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-BnRECopp.js",
-        "sha256": "74f518bff245a59babd710de2f445c557e6c40cfef80930741099617f596d4ce",
+        "name": "index-_N4_QcUN.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-_N4_QcUN.js",
+        "sha256": "155cee890eda495adfa3d2eeea16647c8e02f7cc3a49539efeab393941754ce2",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-Cbk889vY.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-Cbk889vY.js",
+        "sha256": "cd060c7bd17340f332e79c978db063d79af9f729f0a6ff9b89795cf432fe7dd7",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-CEWL_2WD.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-CEWL_2WD.js",
+        "sha256": "99db1ecfe22906cd8e83655f3599daed542e8458129d8ac14a75cd85e6522a5a",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4471/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "e3c5f82bba58a18f244d93199f1d8233482a2cdc7e8e67733aa53fad3ad4375c",
+    "inventory": "b4dbe7d258144f7ced19b89279dbc6bb3e548eb8217085aed7df92e21d97df3e",
     "entries": {
       "level-sets.surface.contour-map": "ee254456e96755a6cde245d202ddb32f7e1bebab6079af3a6aeccfbcf44a0f27",
       "level-sets.gradient.contour-map": "3ae9e863644bf6de3e0bf75ad4f114b83e50b7683eb3c0aecba3ffba08068c85",
+      "level-sets.descent.contour-map": "f108d9d796c2a68935d982449ff5cac1a6ce985afd51670ace2ca94f4fd95a5b",
+      "level-sets.lagrange.contour-map": "959f8585163e153dd013a92a587d319ca097c229a6e8d524f916bbb752b7011a",
       "level-sets.linear-programming.linear-program": "d9382fc030b6ca37c88b2d0067873df7bd8a0c749a8948107c6dc190466180f1"
     },
-    "presentation": "2f96336eea5c0eb1a4c004177446b50c32297e58e0edd5bd01278bbc904b51a0",
-    "buildOutput": "f0a4fb0d9776d6ddb6d39a7ad11ce18979386914e25d4251c598beb2b8688494",
-    "buildInputs": "be3b33becaa2d018b52db9937b4c6512588e4b7023a6cd27d6052013c02f47c9"
+    "presentation": "88503f8cbbbb114a83d95ab303ef5e11829c47f14bd6b551552b59b32711cfb6",
+    "buildOutput": "765dda9689e6c065df251d7e3c91e30d828d1a6a3f78620871718958d4fcdeed",
+    "buildInputs": "62e99cc5ac2ead5584e34626a2e1504c1a6d8deab501db23e7de41462785f40e"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -86,14 +88,52 @@
         "id": "level-sets.surface.contour-map",
         "demonstrationId": "contour-map",
         "framing": {
-          "kind": "finite-geometry-fit"
+          "kind": "coordinate-window",
+          "window": [
+            -4.58,
+            2.8,
+            4.58,
+            -2.8
+          ]
         }
       },
       {
         "id": "level-sets.gradient.contour-map",
         "demonstrationId": "contour-map",
         "framing": {
-          "kind": "finite-geometry-fit"
+          "kind": "coordinate-window",
+          "window": [
+            -4.58,
+            2.8,
+            4.58,
+            -2.8
+          ]
+        }
+      },
+      {
+        "id": "level-sets.descent.contour-map",
+        "demonstrationId": "contour-map",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.58,
+            2.8,
+            4.58,
+            -2.8
+          ]
+        }
+      },
+      {
+        "id": "level-sets.lagrange.contour-map",
+        "demonstrationId": "contour-map",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.58,
+            2.8,
+            4.58,
+            -2.8
+          ]
         }
       },
       {
@@ -128,16 +168,15 @@
       "file": "level-sets.surface.contour-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "372262838ea16b21b235fe31373cc959aa7000447eb5167f4443c95209567dd2",
+      "sha256": "0aa4773456861440c1d5d524faf49541129317437ab925d85170f0ea8ec4b8db",
       "scene": {
-        "visibleElementCount": 24,
+        "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 2,
-          "point": 1,
-          "text": 4
+          "point": 1
         },
         "visiblePointCount": 1,
         "sampledVisibleCurves": [
@@ -235,24 +274,23 @@
         "width": 420,
         "height": 260,
         "scale": 2,
-        "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 2,
-          "point": 1,
-          "text": 4
+          "point": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
-        "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "buildRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "sourceRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
         "pageErrors": []
       }
     },
@@ -272,16 +310,15 @@
       "file": "level-sets.gradient.contour-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "372262838ea16b21b235fe31373cc959aa7000447eb5167f4443c95209567dd2",
+      "sha256": "0aa4773456861440c1d5d524faf49541129317437ab925d85170f0ea8ec4b8db",
       "scene": {
-        "visibleElementCount": 24,
+        "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 2,
-          "point": 1,
-          "text": 4
+          "point": 1
         },
         "visiblePointCount": 1,
         "sampledVisibleCurves": [
@@ -379,24 +416,315 @@
         "width": 420,
         "height": 260,
         "scale": 2,
-        "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 12,
+          "curve": 2,
+          "point": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "sourceRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "level-sets.descent.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.descent.contour-map",
+      "sceneFingerprint": "da03c1879caf717695b1c138825e6864f65297f9974f7598afac98b2d489bfc2",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls3-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls3-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-start\",\"X\":8,\"Y\":4}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-step\",\"step\":3}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-mode\",\"mode\":\"descent\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "level-sets.descent.contour-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b0cb878b08fb3366f04102ef9dddfa268ffc8c4e07a6c5af51277313b9761f0c",
+      "scene": {
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 1,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:2,1",
+          "point:2,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 1,
+            "point": 2,
+            "text": 5
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:2,1",
+            "point:2,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 13,
           "curve": 2,
-          "point": 1,
-          "text": 4
+          "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
-        "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "buildRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "sourceRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "level-sets.lagrange.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.lagrange.contour-map",
+      "sceneFingerprint": "fabf0ec004f90b6d2fcc5f80081c4ca5407c0e532acfa2267b71b7f2f51c1934",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls4-line-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls4-line-scene\",\"source\":\"demonstration-default\"}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-level\",\"levelCount\":3}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-constraint\",\"constraint\":\"line\",\"lineParam\":0}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-mode\",\"mode\":\"level-sets\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "level-sets.lagrange.contour-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "ad825d1c5131c9fec3cb070e96ea85f3ffaa1e2bc7adc70f1ccfbb65a25837e4",
+      "scene": {
+        "visibleElementCount": 20,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 12,
+          "curve": 3,
+          "point": 1
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ],
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ],
+          [
+            [
+              -1.4,
+              -0.2
+            ],
+            [
+              -1.4,
+              -0.2
+            ],
+            [
+              -1.4,
+              -0.2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.6,0.8"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 3,
+            "point": 1,
+            "text": 5
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ],
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ],
+            [
+              [
+                -1.4,
+                -0.2
+              ],
+              [
+                -1.4,
+                -0.2
+              ],
+              [
+                -1.4,
+                -0.2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.6,0.8"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 12,
+          "curve": 3,
+          "point": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "sourceRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
         "pageErrors": []
       }
     },
@@ -672,8 +1000,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
-        "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "buildRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
+        "sourceRevision": "dd3352bf6faaa9f85ec4cac2dbade3a23363b102",
         "pageErrors": []
       }
     }

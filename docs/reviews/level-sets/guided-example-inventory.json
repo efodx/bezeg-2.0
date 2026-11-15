@@ -55,6 +55,70 @@
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
+      "id": "level-sets.descent.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.descent.contour-map",
+      "sceneFingerprint": "da03c1879caf717695b1c138825e6864f65297f9974f7598afac98b2d489bfc2",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls3-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls3-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-start\",\"X\":8,\"Y\":4}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-step\",\"step\":3}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-mode\",\"mode\":\"descent\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 2
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "level-sets.lagrange.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.lagrange.contour-map",
+      "sceneFingerprint": "fabf0ec004f90b6d2fcc5f80081c4ca5407c0e532acfa2267b71b7f2f51c1934",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls4-line-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls4-line-scene\",\"source\":\"demonstration-default\"}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-level\",\"levelCount\":3}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-constraint\",\"constraint\":\"line\",\"lineParam\":0}",
+        "levelsets: {\"kind\":\"levelsets\",\"operation\":\"set-mode\",\"mode\":\"level-sets\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 1
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0.6,
+            0.8
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
       "id": "level-sets.linear-programming.linear-program",
       "demonstrationId": "linear-program",
       "path": "/bezeg-2.0/analysis/linear-program?example=lesson.level-sets.linear-programming.linear-program",

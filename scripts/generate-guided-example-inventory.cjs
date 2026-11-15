@@ -2524,12 +2524,14 @@ function recursionExpectedFor(id, step) {
 // without a lesson). The board (LinearProgramGraph.tsx buildScene) keeps the curves of the hidden rows (visible: false), so only the shown ones count.
 
 /** Asserts the opening scene is the prepared default alone: no constraint, objective or sweep action. */
-function levelSetsOpening(id, step) {
+function levelSetsOpening(id, step, operations = []) {
     const all = step.scene.actions;
     const prepared = all.filter(item => item.kind === 'prepared-scene');
     assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
         `${id}: the opening scene must start with the Demonstration default`);
-    assert.equal(all.length, prepared.length, `${id}: the opening scene is the Demonstration default alone`);
+    // The actions after the Demonstration default are exactly the listed levelsets operations, in this order.
+    assert.deepEqual(all.slice(prepared.length).map(item => item.kind === 'levelsets' ? item.operation : item.kind), operations,
+        `${id}: the opening scene is the Demonstration default${operations.length ? ` and ${operations.join(', ')}` : ' alone'}`);
 }
 
 // Authored from LinearProgramGraph.tsx (buildScene), lpScene.ts (viewBox, clipBox, linePoly) and the default x + 2y <= 8, 3x + y <= 9, maximize 3x + 2y, line at k = 9 of lpModel.ts, not from a capture. The vertices are
@@ -2568,6 +2570,19 @@ const levelSetsFrames = {
     gradient: (id, step) => {
         levelSetsOpening(id, step);
         return {types: {curve: 2, point: 1}, curveCount: 2, points: [[0.6, 0.8]]};
+    },
+    // LS3 step 1 (LS3_BOWL: the Demonstration default, then set-start (8, 4), set-step 3 and set-mode descent): the bowl at level 8 = c 1 with the start (8, 4) / 4 = (2, 1), H = 3 and the step counter 0. In descent mode
+    // (ContourMapGraph.tsx buildScene) the dashed contour is hidden, the probe handle is hidden and the start handle is shown. Visible curves: the chosen level curve (the unit circle) only: the descent path at step 0 is the start point alone, a one-point curve draws nothing, and the extra-levels curve is empty at one level. Points: the start handle and the hollow square of the shown step, both at (2, 1).
+    descent: (id, step) => {
+        levelSetsOpening(id, step, ['set-start', 'set-step', 'set-mode']);
+        return {types: {curve: 1, point: 2}, curveCount: 1, points: [[2, 1], [2, 1]]};
+    },
+    // LS4 step 1 (LS4_BOWL_LINE: the Demonstration default, then set-level with three level sets, set-constraint line at T = 0 and set-mode level-sets): the mode shows the probe, not the line. Visible curves: the chosen
+    // level curve (c = 1, the unit circle), the extra-levels curve (c = 2 and 3, joined into one curve) and the dashed contour through the probe (f = 1 there, the same circle as the chosen one); the stored constraint
+    // line is hidden outside the Lagrange mode. One point: the probe handle at (0.6, 0.8), the Demonstration default probe (the same opening as LS1 and LS2 but for the two more level sets).
+    lagrange: (id, step) => {
+        levelSetsOpening(id, step, ['set-level', 'set-constraint', 'set-mode']);
+        return {types: {curve: 3, point: 1}, curveCount: 3, points: [[0.6, 0.8]]};
     },
 };
 
