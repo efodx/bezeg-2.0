@@ -92,4 +92,24 @@ module.exports = [
         lessonQuote: 'Povleci točki \\(P\\) in \\(Q\\) ali vpiši njuni koordinati',
         discreteReason: 'The model holds exact integer grid coordinates (lineGeometryModel.ts:133 builds rationals from whole numbers), so a sub-integer drag state does not exist; each checkpoint types the next whole abscissa of Q.',
     },
+    {
+        id: 'mechanics-descent',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Čas', step: 0.01},
+        // The poster scene is the race with the beads at A. The time goes to the end of the run (1.19 s) and back, so the three beads slide down their tracks and return.
+        path: [0, 0.6, 1.19, 0.6, 0],
+        lessonQuote: 'nato premakni čas in preveri napoved',
+        // Repeated MathJax typesetting of this page crashes the renderer after about 32 frames, so the per-frame wait skips it.
+        lightSettle: true,
+        discreteReason: null,
+    },
+    {
+        id: 'prob-simulation',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'Število kroglic', step: -9},
+        // The poster scene is the board of 10 rows with 100 balls dropped (the lesson's last count). The count goes down to 55 and to 10 balls, then back to 100 (each press removes 9 balls). It stops at 10: with 1 ball the one full-height bar leaves the frame and crosses the title text.
+        path: [0, 5, 10, 5, 0],
+        lessonQuote: 'Pri desetih vrstah klinov spusti eno kroglico, nato deset in sto',
+        discreteReason: 'The number of balls is a whole count typed into a field with no slider, so each checkpoint types the next count (100, 55, 10).',
+    },
 ];

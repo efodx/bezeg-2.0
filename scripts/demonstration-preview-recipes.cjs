@@ -54,7 +54,7 @@ const targets = {
     // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets a window that puts the vertices under the reserved legend band of the 360 x 220 poster board (the capture pads it by a sixth on each side, so the board shows x -4.5 to 13.5 and y -1 to 10 at 20 px per unit, y = 4 at 120 px). The lesson card opens on the default region.
     'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, with the vertices below the reserved legend band', [], [-2.25, 8.625, 11.25, 0.375]],
     'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [button('Zmanjšaj število', 4)], [-0.7, 36, 7.2, -4]],
-    'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 1000 balls: the pegs, the bars of the binomial law and the heap', []],
+    'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 100 balls dropped: the pegs, the bars of the binomial law and the heap', [field('Število kroglic', 100, 'number')], [-1.6, 0.42, 11.6, -0.4]],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
     'interp-lagrange': ['Default interpolation points (ochre) with the Lagrange polynomial through them (moss, solid), without board text', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
@@ -268,6 +268,8 @@ const captureText = {
     // Families-prep F5: the long legend, caption and readout lines go; the linear program keeps its vertex coordinates, the logistic map its r marks.
     'logistic-map': {keep: [/^r = /], strip: []},
     'linear-program': {keep: [/^\(-?\d+; -?\d+\)$/], strip: []},
+    // The race lines Najhitrejša and Konec B lie across the tracks at card size; the clock, the three times and the track labels stay.
+    'mechanics-descent': {keep: [/^g = /, /^Kroglica: /, /^Premica: /, /^Krožni lok: /, /^Cikloida: /, /^Premica$/, /^Krožni lok$/, /^Cikloida$/], strip: []},
     // The wave labels "1+2", "1-2" and "2" follow their waves as the phase moves, so the loop would not close with them.
     waves: {keep: [], strip: []},
     'fixed-point': {keep: [/^x1$/], strip: []},

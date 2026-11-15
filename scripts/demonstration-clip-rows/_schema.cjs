@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 
 const rowFields = ['id', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
 // Optional: fineGrid (pointer-drag on a board only), offCamera and restyle (board rows); see README.md.
-const optionalRowFields = ['fineGrid', 'offCamera', 'restyle', 'backgroundSample'];
+const optionalRowFields = ['fineGrid', 'offCamera', 'restyle', 'backgroundSample', 'lightSettle'];
 const motions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps', 'surface-orbit'];
 // Motions the driver can capture today. The other two are accepted by the schema so a row can name them, but the driver refuses them.
 const drivenMotions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps'];
@@ -20,6 +20,10 @@ function validateRow(row, where = 'row') {
     assert.ok(motions.includes(row.motion), `${name}: motion must be one of ${motions.join(', ')}`);
     assert.ok(row.control && typeof row.control === 'object', `${name}: control must be an object`);
     assert.ok(Array.isArray(row.path) && row.path.length >= 2, `${name}: path needs at least two waypoints`);
+    if (row.lightSettle !== undefined) {
+        assert.equal(row.lightSettle, true, `${name}: lightSettle is true or absent`);
+        assert.equal(row.motion, 'parameter-sweep', `${name}: lightSettle only applies to a parameter-sweep row`);
+    }
     if (row.fineGrid !== undefined) {
         assert.ok(Number.isInteger(row.fineGrid) && row.fineGrid >= -8 && row.fineGrid <= -1, `${name}: fineGrid must be an integer from -8 to -1 (the grid step becomes 2^fineGrid board units)`);
         assert.equal(row.motion, 'pointer-drag', `${name}: fineGrid only applies to a pointer-drag row`);

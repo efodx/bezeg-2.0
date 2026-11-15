@@ -126,6 +126,8 @@ import motion_counting_tree from './images/demonstrations/catalog/counting-tree.
 import motion_linear_program from './images/demonstrations/catalog/linear-program.webm?no-inline';
 import motion_triangle_solver from './images/demonstrations/catalog/triangle-solver.webm?no-inline';
 import motion_line_geometry from './images/demonstrations/catalog/line-geometry.webm?no-inline';
+import motion_prob_simulation from './images/demonstrations/catalog/prob-simulation.webm?no-inline';
+import motion_mechanics_descent from './images/demonstrations/catalog/mechanics-descent.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -255,4 +257,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'linear-program': {src: motion_linear_program, type: 'video/webm', duration: 4},
     'triangle-solver': {src: motion_triangle_solver, type: 'video/webm', duration: 4},
     'line-geometry': {src: motion_line_geometry, type: 'video/webm', duration: 4},
+    'prob-simulation': {src: motion_prob_simulation, type: 'video/webm', duration: 4},
+    'mechanics-descent': {src: motion_mechanics_descent, type: 'video/webm', duration: 4},
 };

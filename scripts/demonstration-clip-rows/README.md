@@ -13,6 +13,7 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | `lessonQuote` | The lesson sentence the motion comes from |
 | `discreteReason` | `null`, except for `discrete-exact-steps`, where it says why smooth motion is impossible |
 | `fineGrid` | Optional integer -8 to -1, only for a `pointer-drag` row on a board point. See "Fine grid" |
+| `lightSettle` | Optional `true`, only for a `parameter-sweep` row. The per-frame wait skips the MathJax typeset (fonts and two animation frames only). Needed where repeated `MathJax.typesetPromise` calls exhaust the renderer ("Target crashed" at frame ~32, mechanics-descent); the first settle of the scene still typesets |
 | `restyle` | Optional `{reason}` for a row where the app itself moves a stroke between widths the poster frame shows (a highlight passing to another cell). Excuses at most 4 frame steps of the pixel check where stored stroke widths change; the state check still holds the value to the schedule |
 | `offCamera` | Optional `{points, reason}` for a board row: JSXGraph names of derived points the lesson's motion takes out of view (for example `$$F_2$$` as a conic crosses ε = 1), and why. Every other point stays checked against the camera. Failure messages print each point's name |
 

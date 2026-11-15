@@ -71,6 +71,7 @@ import preview_line_geometry from './images/demonstrations/catalog/line-geometry
 import preview_circle_construction from './images/demonstrations/catalog/circle-construction.png';
 import preview_lattice_paths from './images/demonstrations/catalog/lattice-paths.png';
 import preview_counting_tree from './images/demonstrations/catalog/counting-tree.png';
+import preview_prob_simulation from './images/demonstrations/catalog/prob-simulation.png';
 import preview_curve_parametric from './images/demonstrations/catalog/curve-parametric.png';
 import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
 import preview_curve_comb from './images/demonstrations/catalog/curve-comb.png';
@@ -89,6 +90,7 @@ import preview_patch_subdivision from './images/demonstrations/catalog/patch-sub
 import preview_patch_joins from './images/demonstrations/catalog/patch-joins.png';
 import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
 import preview_patch_coons from './images/demonstrations/catalog/patch-coons.png';
+import preview_mechanics_descent from './images/demonstrations/catalog/mechanics-descent.png';
 import preview_recursion_growth from './images/demonstrations/catalog/recursion-growth.png';
 import preview_logistic_map from './images/demonstrations/catalog/logistic-map.png';
 import preview_linear_program from './images/demonstrations/catalog/linear-program.png';
@@ -201,6 +203,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'circle-construction': preview_circle_construction,
     'lattice-paths': preview_lattice_paths,
     'counting-tree': preview_counting_tree,
+    'prob-simulation': preview_prob_simulation,
     'curve-parametric': preview_curve_parametric,
     'curve-curvature': preview_curve_curvature,
     'curve-comb': preview_curve_comb,
@@ -219,6 +222,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'patch-joins': preview_patch_joins,
     'patch-triangular': preview_patch_triangular,
     'patch-coons': preview_patch_coons,
+    'mechanics-descent': preview_mechanics_descent,
     'recursion-growth': preview_recursion_growth,
     'logistic-map': preview_logistic_map,
     'linear-program': preview_linear_program,

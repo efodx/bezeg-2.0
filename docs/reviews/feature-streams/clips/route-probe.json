@@ -31459,7 +31459,17 @@
     "probeStatus": "ok",
     "surface": false,
     "controls": [
-      {"tab": "edit", "idx": 0, "kind": "text", "name": "C, x", "min": null, "max": null, "step": null, "value": "2", "disabled": false}
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "C, x",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      }
     ],
     "error": [],
     "probedExampleId": null
@@ -31471,7 +31481,59 @@
     "probeStatus": "ok",
     "surface": false,
     "controls": [
-      {"tab": "edit", "idx": 0, "kind": "text", "name": "Q, x", "min": null, "max": null, "step": null, "value": "4", "disabled": false}
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Q, x",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "4",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
+  },
+  {
+    "id": "mechanics-descent",
+    "route": "/bezeg-2.0/curve-geometry/descent",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "slider",
+        "name": "Čas",
+        "min": "0",
+        "max": "1.19",
+        "step": "0.01",
+        "value": "0",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
+  },
+  {
+    "id": "prob-simulation",
+    "route": "/bezeg-2.0/probability/simulation",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Število kroglic",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "100",
+        "disabled": false
+      }
     ],
     "error": [],
     "probedExampleId": null

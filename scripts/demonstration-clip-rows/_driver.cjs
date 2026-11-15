@@ -282,6 +282,14 @@ async function presentFixed(page, d, boardPresent, camera, row) {
     return boardPresent(page.locator('#jgbox'), d, recipe, camera ? {...presentation, camera} : presentation);
 }
 
+/** The per-frame wait of a `lightSettle` row: fonts and two animation frames, no MathJax typeset (see README, `lightSettle`). */
+async function settleLight(page) {
+    await page.evaluate(async () => {
+        await document.fonts.ready;
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+}
+
 /** Parameter sweep of a range or number control, as captureSweep does for the legacy clips. */
 async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     const poster = await presentFixed(page, d, presentBoard, undefined, row);
@@ -307,7 +315,7 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
         const steps = Math.round((target - previousValue) / row.control.step);
         if (row.control.kind === 'number' && Math.abs(target - previousValue) > 1e-12) { await typed.fill(String(target)); await typed.press('Tab'); }
         else if (steps) { await range.focus(); for (let k = 0; k < Math.abs(steps); k++) await range.press(steps > 0 ? 'ArrowRight' : 'ArrowLeft'); }
-        await settle(page);
+        await (row.lightSettle ? settleLight(page) : settle(page));
         await presentFixed(page, d, presentBoard, fixedBox, row);
         const value = parse(await range.inputValue());
         assert.ok(Math.abs(value - target) < 1e-9, `${row.id}: input ${value} differs from the scheduled ${target} at frame ${i}; if the control is coarse or integer-valued and cannot follow a smooth schedule, make the row motion "discrete-exact-steps" with a discreteReason`);
