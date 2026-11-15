@@ -50,3 +50,7 @@
 ### Doubts
 - Titles with symbols are avoided; labels with symbols are wrapped in math in `LAB`.
 - The notation heuristics (assignment, tuple, subscript) were designed against but not run.
+
+### Slice 2d
+- `src/learning/content/levelSetsOptimizationGuidedLessons.test.ts` (new, tests only). Part A: scene sweep of all 12 LS3/LS4 steps in sl and en (out of order, twice in one act, counter 0, restore, LS4 steps 1 and 4 hide the constraint, no opening equals the asked state, prompt labels exist in graph strings, learner actions give the quoted readouts). Part B: quoted numbers recomputed from the descent iteration and closed forms (hedging, no English decimals in sl), integer readouts 125/123/40/31/75/200, threshold, H = 10 and 11 cases, line and circle Lagrange facts.
+- Checks: `just unit` (this file + src/graphs/levelsets) 245 passed; tsc and lint clean; red: sl quote 3,903745 changed to 3,903746 failed ls3-bowl (`s2d-red.log`), restored. No false claim found. Not verified: browser, real 3D view; the text says to set the circle angle in degrees while the field takes K (K * 7,5 degrees); tested with K only.
