@@ -121,6 +121,17 @@ describe('mount and the numbers', () => {
         noBadText();
     });
 
+    test('the angle and the time name their exact multiple of pi before the rounded value: 15 degrees at omega 2 is t = pi/24, 7 degrees at omega 3 is 7pi/540', () => {
+        const {graph} = mountGraph();
+        set(graph, {degrees: 15, omega: 2});
+        expect(readout('time')).toBe('π/24 ≈ 0,131');
+        expect(readout('angle')).toContain('π/12');
+        set(graph, {degrees: 7, omega: 3});
+        expect(readout('time')).toBe('7π/540 ≈ 0,041');
+        expect(readout('angle')).toBe('7°, 7π/180 ≈ 0,122 rad');
+        for (const id of ['angle', 'time', 'period']) expect(readout(id)).not.toMatch(/^≈/);
+    });
+
     test('60 degrees is (1/2; sqrt3/2) in the point row and the status; 10 degrees is computed; the axes are exact integers', () => {
         const {graph} = mountGraph();
         set(graph, {degrees: 60});

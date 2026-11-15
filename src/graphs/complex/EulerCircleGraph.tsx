@@ -58,6 +58,20 @@ const CIRCLE_POINTS: number = 128;
 
 const dec = (value: number, digits = 6): string => formatNumber(value, currentLanguage(), digits);
 
+const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+
+/**
+ * The angle and the time are the exact multiples numerator·π/denominator (θ in whole degrees: θ = degrees·π/180, t = θ/ω). `formatArgument` names only
+ * small denominators and otherwise returns a bare "≈ 0,1309", which a readout row would print as "= ≈ 0,1309"; here the exact fraction goes in front.
+ */
+function withPiFraction(text: string, numerator: number, denominator: number): string {
+    if (!text.startsWith("≈ ") || numerator === 0) return text;
+    const divisor = gcd(numerator, denominator);
+    const top = numerator / divisor === 1 ? "π" : `${numerator / divisor}π`;
+    const bottom = denominator / divisor;
+    return `${bottom === 1 ? top : `${top}/${bottom}`} ${text}`;
+}
+
 const sameContent = (a: EulerCircleState, b: EulerCircleState): boolean =>
     a.degrees === b.degrees && a.omega === b.omega && a.degree === b.degree && a.velocity === b.velocity && a.acceleration === b.acceleration
     && a.mode === b.mode && a.b === b.b;
@@ -680,9 +694,9 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         const {degree} = this.state;
         const none = "";
         const rows: ReadoutListRow[] = [
-            {id: "angle", label: t("euler_circle_graph_r_angle"), value: t("euler_circle_graph_value_angle", {value0: dec(this.state.degrees, 0), value1: formatArgument(d.radians, lang, none)})},
+            {id: "angle", label: t("euler_circle_graph_r_angle"), value: t("euler_circle_graph_value_angle", {value0: dec(this.state.degrees, 0), value1: withPiFraction(formatArgument(d.radians, lang, none), this.state.degrees, 180)})},
             {id: "omega", label: t("euler_circle_graph_r_omega"), value: dec(this.state.omega, 0)},
-            {id: "time", label: t("euler_circle_graph_r_time"), value: formatArgument(d.time, lang, none)},
+            {id: "time", label: t("euler_circle_graph_r_time"), value: withPiFraction(formatArgument(d.time, lang, none), this.state.degrees, 180 * this.state.omega)},
             {id: "period", label: t("euler_circle_graph_r_period"), value: formatArgument(d.period, lang, none)},
             {id: "cos", label: t("euler_circle_graph_r_cos", {value0: this.word(d.exact !== undefined)}), value: this.coordinateText(d.exact?.cos, d.position.re)},
             {id: "sin", label: t("euler_circle_graph_r_sin", {value0: this.word(d.exact !== undefined)}), value: this.coordinateText(d.exact?.sin, d.position.im)},
