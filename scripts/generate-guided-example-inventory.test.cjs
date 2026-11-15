@@ -151,6 +151,20 @@ test('complex maps expectations are authored from the example and what the openi
     assert.throws(() => complexMapsExpectedFor('cm', cmStep([cmChoice('complex-reciprocal-example', 'zero')])), /no authored reciprocal example/);
     assert.throws(() => complexMapsExpectedFor('cm', cmStep([cmChoice('complex-roots-example', 'two-i'), {kind: 'function-visibility', target: 'complex-roots', visible: true}])),
         /only picks the example/);
+    // Powers (M6): z = 1 + i, n = 2 draws the circle and the path (two curves), the handle z and the diamond z^2 = 2i.
+    const power = actions => cmStep(actions.map(action => ({kind: 'complex-power', ...action})));
+    assert.deepEqual(complexMapsExpectedFor('cm', power([{operation: 'set-z', A: 20, B: 20}, {operation: 'set-n', n: 2}])), {
+        types: {curve: 2, point: 2}, curveCount: 2, points: [[1, 1], [0, 2]]});
+    assert.throws(() => complexMapsExpectedFor('cm', power([{operation: 'set-z', A: 20, B: 20}, {operation: 'set-n', n: 1}])), /only exponents 2\.\.8/);
+    assert.throws(() => complexMapsExpectedFor('cm', power([{operation: 'set-z', A: 20, B: 20}])), /beyond the view/);
+    assert.throws(() => complexMapsExpectedFor('cm', power([{operation: 'set-n', n: 2}, {operation: 'show-z'}])), /only sets z and n/);
+    // Euler (M7): theta 0, velocity off, N 1 draws the circle and two projections (three curves), the handle (1, 0) and the diamond 1 + 0i.
+    const euler = actions => cmStep(actions.map(action => ({kind: 'complex-euler', ...action})));
+    assert.deepEqual(complexMapsExpectedFor('cm', euler([{operation: 'set-motion', omega: 1, velocity: false}, {operation: 'set-angle', degrees: 0}, {operation: 'set-series', degree: 1}])), {
+        types: {curve: 3, point: 2}, curveCount: 3, points: [[1, 0], [1, 0]]});
+    assert.deepEqual(complexMapsExpectedFor('cm', euler([{operation: 'set-motion', velocity: true, acceleration: true}, {operation: 'set-angle', degrees: 90}, {operation: 'set-series', degree: 1}])).points,
+        [[0, 1], [1, 1.5707963]]);
+    assert.throws(() => complexMapsExpectedFor('cm', euler([{operation: 'set-mode', mode: 'product'}])), /only sets the motion/);
     assert.ok(chapterInventories['complex-maps']);
 });
 

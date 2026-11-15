@@ -191,12 +191,10 @@ it('publishes the Complex maps example cards with their own checked images and p
     const allHomes = owned.rows().map(([sectionId, demonstrationId]) => ({
         id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
         path: owned.path(sectionId) ?? ''}));
-    // M6 and M7 joined the chapter in F3 (handler 26); their cards come in F4.
-    const pending = ['complex-maps.powers.complex-power', 'complex-maps.euler.complex-euler'];
-    expect(allHomes.filter(home => pending.includes(home.id)).map(home => home.id).sort()).toEqual([...pending].sort());
-    const homes = allHomes.filter(home => !pending.includes(home.id));
+    const homes = allHomes;
     const ids = homes.map(home => home.id).sort();
-    expect(ids).toEqual(['complex-maps.reciprocal-inversion.complex-reciprocal', 'complex-maps.roots.complex-roots']);
+    expect(ids).toEqual(['complex-maps.euler.complex-euler', 'complex-maps.powers.complex-power',
+        'complex-maps.reciprocal-inversion.complex-reciprocal', 'complex-maps.roots.complex-roots']);
     expect(Object.keys(complexMapsPreviewCopy).sort()).toEqual(ids);
     const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
         readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
@@ -228,9 +226,10 @@ it('publishes the Complex maps example cards with their own checked images and p
             expect(preview?.caption.trim()).toBeTruthy();
         }
     }
-    // The first frame of the reciprocal card shows z and w (3 points with the conjugate); the roots card only w.
+    // The first frame of the reciprocal card shows z and w (3 points with the conjugate); the roots card only w; the powers card z and z squared
+    // on the circle and the path; the Euler card the point and its partial sum, the circle and the two projections.
     expect(inventory.examples.map(entry => [entry.id, entry.expected.curveCount, entry.expected.points.length]).sort())
-        .toEqual([[ids[0], 3, 3], [ids[1], 1, 1]]);
+        .toEqual([[ids[0], 3, 2], [ids[1], 2, 2], [ids[2], 3, 3], [ids[3], 1, 1]]);
 });
 
 type FunctionsCard = {

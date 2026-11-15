@@ -489,6 +489,8 @@ const complexRootsExamples = {'two-i': {w: [0, 2]}, 'one-plus-i': {w: [1, 1]}};
  */
 function complexMapsExpectedFor(id, step) {
     const actions = step.scene.actions;
+    if (actions.some(item => item.kind === 'complex-power')) return complexPowerExpectedFor(id, actions);
+    if (actions.some(item => item.kind === 'complex-euler')) return complexEulerExpectedFor(id, actions);
     assert.ok(actions.every(item => item.kind === 'prepared-scene' || (item.kind === 'function-choice' && /^complex-(reciprocal|roots)-example$/.test(item.name))),
         `${id}: the authored first-frame expectation assumes an opening scene that only picks the example; extend complexMapsExpectedFor`);
     const choices = actions.filter(item => item.kind === 'function-choice');
@@ -502,6 +504,65 @@ function complexMapsExpectedFor(id, step) {
     const example = complexRootsExamples[value];
     assert.ok(example, `${id}: no authored roots example ${JSON.stringify(value)}`);
     return {types: {curve: 1, point: 1}, curveCount: 1, points: [example.w]};
+}
+
+/**
+ * First-frame expectation of the powers lesson (M6), authored from ComplexPowerGraph.buildScene: z = (A + Bi)/20 and the exponent n
+ * (defaults A = B = 20, n = 5). The graph draws the dashed unit circle and the path through z, z^2, ..., z^n (two curves, when every power
+ * lies in the view |Re|, |Im| <= 2.5; a power beyond it is an arrow, not authored here), the handle at z and one diamond per power z^k, k = 2..n.
+ * Captions and axes are texts and are left unasserted.
+ */
+function complexPowerExpectedFor(id, actions) {
+    assert.ok(actions.every(item => item.kind === 'prepared-scene' || (item.kind === 'complex-power' && ['set-z', 'set-n'].includes(item.operation))),
+        `${id}: the authored first-frame expectation assumes an opening scene that only sets z and n; extend complexPowerExpectedFor`);
+    const zActions = actions.filter(item => item.operation === 'set-z');
+    const nActions = actions.filter(item => item.operation === 'set-n');
+    assert.ok(zActions.length <= 1 && nActions.length <= 1, `${id}: opening scene must set z and n at most once`);
+    const A = zActions.length ? zActions[0].A : 20;
+    const B = zActions.length ? zActions[0].B : 20;
+    const n = nActions.length ? nActions[0].n : 5;
+    assert.ok(Number.isInteger(A) && Number.isInteger(B) && Math.abs(A) <= 40 && Math.abs(B) <= 40, `${id}: z must be on the 0.05 grid in [-2, 2]`);
+    assert.ok(Number.isInteger(n) && n >= 2 && n <= 8, `${id}: only exponents 2..8 are authored (n = 1 draws no path)`);
+    const modulus = Math.hypot(A / 20, B / 20);
+    const argument = Math.atan2(B / 20, A / 20);
+    const powers = Array.from({length: n}, (_unused, i) => [modulus ** (i + 1) * Math.cos((i + 1) * argument), modulus ** (i + 1) * Math.sin((i + 1) * argument)]);
+    assert.ok(powers.every(([re, im]) => Math.abs(re) <= 2.5 && Math.abs(im) <= 2.5), `${id}: a power beyond the view is drawn as an arrow; extend complexPowerExpectedFor`);
+    const points = powers.map(point => point.map(value => Number(value.toFixed(7)) + 0));
+    return {types: {curve: 2, point: n}, curveCount: 2, points};
+}
+
+/**
+ * First-frame expectation of the Euler lesson (M7), authored from EulerCircleGraph.buildScene in the motion mode: the theta in whole
+ * degrees (default 30), omega, the velocity arrow (default on), the acceleration arrow (default off) and the series degree N (default 5).
+ * The graph draws the unit circle, the two dotted projections of the point onto the axes (also when one has length zero), the velocity and
+ * acceleration arrows when shown, the handle at (cos t; sin t) and the partial sum of degree N as a diamond when it lies in [-2.4, 2.4]^2.
+ * The product mode (second point, radii, product) is hidden and not authored here. Captions and axes are texts and are left unasserted.
+ */
+function complexEulerExpectedFor(id, actions) {
+    assert.ok(actions.every(item => item.kind === 'prepared-scene' || (item.kind === 'complex-euler' && ['set-motion', 'set-angle', 'set-series'].includes(item.operation))),
+        `${id}: the authored first-frame expectation assumes an opening scene that only sets the motion, the angle and the series degree; extend complexEulerExpectedFor`);
+    const motion = actions.filter(item => item.operation === 'set-motion');
+    const angles = actions.filter(item => item.operation === 'set-angle');
+    const series = actions.filter(item => item.operation === 'set-series');
+    assert.ok(motion.length <= 1 && angles.length <= 1 && series.length <= 1, `${id}: opening scene must set the motion, the angle and the series at most once`);
+    const velocity = motion.length && motion[0].velocity !== undefined ? motion[0].velocity : true;
+    const acceleration = motion.length && motion[0].acceleration !== undefined ? motion[0].acceleration : false;
+    const degrees = angles.length ? angles[0].degrees : 30;
+    const degree = series.length ? series[0].degree : 5;
+    assert.ok(Number.isFinite(degrees) && Number.isInteger(degree) && degree >= 1 && degree <= 30, `${id}: angle and series degree must be valid`);
+    const radians = degrees * Math.PI / 180;
+    let sum = [0, 0];
+    let term = [1, 0];
+    for (let k = 0; k <= degree; k++) {
+        sum = [sum[0] + term[0], sum[1] + term[1]];
+        // The next term is (i theta)^(k+1)/(k+1)!: multiply by i theta / (k + 1).
+        term = [-term[1] * radians / (k + 1), term[0] * radians / (k + 1)];
+    }
+    const round = point => point.map(value => Number(value.toFixed(7)) + 0);
+    const points = [round([Math.cos(radians), Math.sin(radians)])];
+    if (Math.abs(sum[0]) <= 2.4 && Math.abs(sum[1]) <= 2.4) points.push(round(sum));
+    const curveCount = 3 + (velocity ? 1 : 0) + (acceleration ? 1 : 0);
+    return {types: {curve: curveCount, point: points.length}, curveCount, points};
 }
 
 /** The one value of a `function-choice` or `function-parameter` action named `name` in an opening scene; a missing or repeated one is an error. */

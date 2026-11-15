@@ -1,68 +1,70 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+    "dirty": true,
+    "inputs": "2c33288b2ec2e18f70b16be726924e0e6b8e50769615d092428260513e0a0bdb",
+    "output": "dbceb86c8dd4796b540c22a836cbbf27c77042b2b8701fd43b70e880059e703a"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+    "stampDirty": true,
+    "localOutputHash": "dbceb86c8dd4796b540c22a836cbbf27c77042b2b8701fd43b70e880059e703a",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-C_mFGbBx.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-C_mFGbBx.js",
+        "sha256": "c728a03e867ca541f05037c4e7498d6e19fb4692a7c3f8e766a431321fecec9d",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
         "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
         "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "aeeda6b79a6c443389d6da7de2f461a324209dfcd2e46b350ca6a3ab0b6a7770",
+    "inventory": "d9f818d0b1b798f6e3bbc6e0cae6f56c8964c0797f8612c879eae3940d106e8d",
     "entries": {
       "complex-maps.reciprocal-inversion.complex-reciprocal": "d3640d6555795e9d17a33dab038858a873ff2107500728e12183145566310f9f",
-      "complex-maps.roots.complex-roots": "3be8f448f911be34c1a3f06e0b3901152ca27cb61c26074cd11ad2395ec5c4ba"
+      "complex-maps.roots.complex-roots": "3be8f448f911be34c1a3f06e0b3901152ca27cb61c26074cd11ad2395ec5c4ba",
+      "complex-maps.powers.complex-power": "b369d409e480ce4a9bb438c661326e92b84edeed9a6b49d6dcf6fb736c049973",
+      "complex-maps.euler.complex-euler": "cf59c620988eddc39b3ce374f463d87fa29bd5accf0d6921218c0cc0595572da"
     },
-    "presentation": "bf7b47c1a4c77edf4dd4ecdacbbfb34781f16821a618a6127ade49c53c9cc063",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "cad82f5f778d96146f78e42d8d602d7ec50bcd7743ffe7eb7e373885cc91f326",
+    "buildOutput": "dbceb86c8dd4796b540c22a836cbbf27c77042b2b8701fd43b70e880059e703a",
+    "buildInputs": "2c33288b2ec2e18f70b16be726924e0e6b8e50769615d092428260513e0a0bdb"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -105,6 +107,20 @@
             3.19,
             -1.55
           ]
+        }
+      },
+      {
+        "id": "complex-maps.powers.complex-power",
+        "demonstrationId": "complex-power",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "complex-maps.euler.complex-euler",
+        "demonstrationId": "complex-euler",
+        "framing": {
+          "kind": "finite-geometry-fit"
         }
       }
     ]
@@ -273,8 +289,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+        "sourceRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
         "pageErrors": []
       }
     },
@@ -381,8 +397,321 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+        "sourceRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "complex-maps.powers.complex-power",
+      "demonstrationId": "complex-power",
+      "path": "/bezeg-2.0/complex-power?example=lesson.complex-maps.powers.complex-power",
+      "sceneFingerprint": "070abc8ca564fb542c6b0110c9771e4467ddea5c0d4142fd9365bc3f5c65f266",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m6-third-power-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m6-third-power-scene\",\"source\":\"demonstration-default\"}",
+        "complex-power: {\"kind\":\"complex-power\",\"operation\":\"set-z\",\"A\":20,\"B\":20}",
+        "complex-power: {\"kind\":\"complex-power\",\"operation\":\"set-n\",\"n\":2}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "complex-maps.powers.complex-power.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0ac6a3ae7894937bc7f5ee73a48f10eb89ee9ea897986a3007de22360702a4ff",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 2,
+          "text": 6
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.999398,
+              0.024534
+            ],
+            [
+              0.998795,
+              0.049068
+            ]
+          ],
+          [
+            [
+              1,
+              1
+            ],
+            [
+              0.5,
+              1.5
+            ],
+            [
+              0,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,1",
+          "point:0,2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 13,
+            "curve": 2,
+            "point": 2,
+            "text": 6
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.999398,
+                0.024534
+              ],
+              [
+                0.998795,
+                0.049068
+              ]
+            ],
+            [
+              [
+                1,
+                1
+              ],
+              [
+                0.5,
+                1.5
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,1",
+            "point:0,2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 2,
+          "text": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+        "sourceRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "complex-maps.euler.complex-euler",
+      "demonstrationId": "complex-euler",
+      "path": "/bezeg-2.0/complex-euler?example=lesson.complex-maps.euler.complex-euler",
+      "sceneFingerprint": "3126f48b5797f7bfa2ec2724f962839198aadc3c57bc968c65b42c5af5ba332b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m7-circle-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m7-circle-scene\",\"source\":\"demonstration-default\"}",
+        "complex-euler: {\"kind\":\"complex-euler\",\"operation\":\"set-motion\",\"omega\":1,\"velocity\":false}",
+        "complex-euler: {\"kind\":\"complex-euler\",\"operation\":\"set-angle\",\"degrees\":0}",
+        "complex-euler: {\"kind\":\"complex-euler\",\"operation\":\"set-series\",\"degree\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "complex-maps.euler.complex-euler.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "892493d7dec33eb9f414fb2a16ee99afdc74477a23607bff94f01e70f0611508",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "curve": 3,
+          "point": 2,
+          "text": 6
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              -1,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0",
+          "point:1,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 13,
+            "curve": 3,
+            "point": 2,
+            "text": 6
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0",
+            "point:1,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "point": 2,
+          "text": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
+        "sourceRevision": "8fc7fe1151106adf068a6055365e0e7e98b01025",
         "pageErrors": []
       }
     }

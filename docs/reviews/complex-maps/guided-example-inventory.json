@@ -61,6 +61,73 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "complex-maps.powers.complex-power",
+      "demonstrationId": "complex-power",
+      "path": "/bezeg-2.0/complex-power?example=lesson.complex-maps.powers.complex-power",
+      "sceneFingerprint": "070abc8ca564fb542c6b0110c9771e4467ddea5c0d4142fd9365bc3f5c65f266",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m6-third-power-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m6-third-power-scene\",\"source\":\"demonstration-default\"}",
+        "complex-power: {\"kind\":\"complex-power\",\"operation\":\"set-z\",\"A\":20,\"B\":20}",
+        "complex-power: {\"kind\":\"complex-power\",\"operation\":\"set-n\",\"n\":2}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "complex-maps.euler.complex-euler",
+      "demonstrationId": "complex-euler",
+      "path": "/bezeg-2.0/complex-euler?example=lesson.complex-maps.euler.complex-euler",
+      "sceneFingerprint": "3126f48b5797f7bfa2ec2724f962839198aadc3c57bc968c65b42c5af5ba332b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m7-circle-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"m7-circle-scene\",\"source\":\"demonstration-default\"}",
+        "complex-euler: {\"kind\":\"complex-euler\",\"operation\":\"set-motion\",\"omega\":1,\"velocity\":false}",
+        "complex-euler: {\"kind\":\"complex-euler\",\"operation\":\"set-angle\",\"degrees\":0}",
+        "complex-euler: {\"kind\":\"complex-euler\",\"operation\":\"set-series\",\"degree\":1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 2
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

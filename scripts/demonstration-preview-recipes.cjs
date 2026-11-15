@@ -130,6 +130,9 @@ const targets = {
     'complex-reciprocal': ['Example z = 0.5 + 0.5i inside the unit circle with its conjugate, w = 2 + i and the revealed reciprocal 1/z = 1 - i outside the circle', [field('Primer obratne vrednosti', 'inside', 'select'), button('Pokaži 1/z')], [-1.5, 1.2835, 2.7, -1.2835]],
     // w = 2i, n = 3: the roots lie on a circle of radius 2^(1/3) = 1.26 at 30, 150 and 270 degrees; w is the highest object.
     'complex-roots': ['Example w = 2i with n = 3: the three roots on their circle joined into the equilateral triangle', [field('Primer korenov', 'two-i', 'select'), button('Pokaži korene'), button('Pokaži n-kotnik')], [-3.19, 2.35, 3.19, -1.55]],
+    // M6 and M7 example cards (the graph's own view; the chapter card opens the lesson's first scene and ignores the controls here).
+    'complex-power': ['Default z = 1 + i with the powers up to n = 5 on the dashed unit circle, joined by the path through them', []],
+    'complex-euler': ['Default angle 30 degrees on the unit circle with the velocity arrow and the partial sum of degree 5', []],
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
     'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],

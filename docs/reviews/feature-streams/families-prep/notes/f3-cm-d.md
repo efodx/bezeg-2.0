@@ -189,3 +189,14 @@ Outcome: tsc clean (s3-tsc.log); red recorded (s3-red.log, 10 failed); lint pass
 Not verified: s3-unit3.log (rerun of preview copy, notation, previews, chapter and familyChapters tests after the backslash fix) had no summary when the budget stopped; guidedExamplePreviewCopy rows were fixed after the full unit run began. Full unified-learning smoke not run.
 
 Update: s3-unit3.log (preview copy, notation, previews, complexMapsChapter, familyChapters) passed after the fix ("unit: passed").
+
+## F4 cards (Batch D, M6 and M7)
+
+Logs: `.command-logs/cm-d/f4/`. Added `complexPowerExpectedFor` and `complexEulerExpectedFor` to `complexMapsExpectedFor` (scripts/generate-guided-example-inventory.cjs), authored from `ComplexPowerGraph.buildScene` and `EulerCircleGraph.buildScene`; route regex of `chapterFamilies['complex-maps']` admits `complex-power` and `complex-euler`; capture-only recipes (no window, caption and empty controls) for both ids in `scripts/demonstration-preview-recipes.cjs` (the capture asserts a recipe per Demonstration); copy for both ids; the `pending` list removed from `guidedExamplePreviews.test.ts`.
+
+- Red before capture: red.log, the Complex maps test failed (2 ids vs 4 expected). First run after capture saw no new PNGs (stale glob); editing a comment in `guidedExamplePreviews.ts` invalidated it, then green (unit4.log).
+- Inventory: power card 2 curves, 2 points (1,1), (0,2); Euler card 3 curves (circle, two projections, one of zero length), 2 points (1,0), (1,0). The capture's expectation check passed. The two earlier PNGs are byte-identical (before.sha).
+- Power card: dashed circle, solid line from z = 1 + i (orange dot) to a small z^2 diamond with its caption; legend of four rows bottom left (the legend text reads "Pot z, z^2, ..., z^2" at n = 2, a graph wording quirk). Figure small and above-centre; nothing clipped or overlapping.
+- Euler card: dashed circle, dotted segment from the origin to the point (1; 0) with the label e^(i theta) = (1; 0) and "S, N = 1" (the diamond hides under the point); legend four rows bottom left. Figure small, upper right; nothing clipped. Board text (including legend) is not hidden for these two cards (no text policy row).
+- Checks: scripts tests 64 pass (scripts.log); tsc clean; lint clean; rawcheck 0; unit4.log passed; `demonstration-preview-capture.test.cjs` still fails only "registry exhaustively matches" (scope.log), not re-diffed.
+- Not run: smoke, posters for complex-power and complex-euler.
