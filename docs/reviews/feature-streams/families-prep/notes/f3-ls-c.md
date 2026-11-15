@@ -23,3 +23,30 @@
 - The brief lists K = 12 among the tangency points; the kernel has tangency at K = 6, 18, 30 (and 42), so K = 12 and K = 0 are non-tangent product points (f = 0). Slice 2 should use 6, 18, 30, 42.
 - The descent claim row for the bowl says "no claim", and "Prvi korak" is a numeric settle step on hills; a lesson text must not lean on either.
 - Not verified: the real 3D surface, the live drag handles, and browser smoke.
+
+## Slice 2
+
+### Written
+- `src/learning/content/levelSetsOptimizationGuidedLessons.ts` (new; both lessons complete): header, `OptimizationSceneSpec`, `optimizationSceneActions` helper, all `LS3_*` and `LS4_*` scene constants, `LAB` label table (sl/en, symbols in math), `ls3Formulas` (descent-step, valley-factors, threshold) and all 7 `ls3Steps` (sl + en). The marker `// LS4_PART` at the end is where LS4 goes.
+- `.command-logs/ls-c/probe2.txt` (sl + en learner-change probe; the temporary host test is deleted).
+
+### Still to do
+- Nothing in the lesson file. Slice 3 registers the lessons (ids `level-sets-descent`, `level-sets-lagrange`), the chapter, preview copy and tests, and runs the notation test (`lessonMathNotation.test.ts`) and the host tests over both lessons. Checks run (slice 2b): tsc clean, `bscheck`/`rawcheck` 0 singles, lint clean, `just unit src/graphs/levelsets` green (logs `.command-logs/ls-c/s2b-*.log`, `s2b-backslash.txt`). My own notation scan of non-math prose found nothing bare; the real notation test was not run.
+- LS4 (written in 2b): opens 1 `LS4_BOWL_LINE` (level-sets, line stored; prediction of the minimum point; learner switches mode, reads f at x = 0, 1, 2); 2 `LS4_BOWL_LINE_LAGRANGE` (predict common points of the contour f = 6,25 with the line and the value with one; types x = 1); 3 same opening (predict both gradients at (1; 2) and lambda; types x = 1 then 2); 4 `LS4_PRODUCT_CIRCLE` (level-sets; predict extrema of xy on the circle; switches mode, sets angle 0, 45, ..., 315 degrees); 5 `LS4_EXPLORE`. LS4 numbers: f = 5 + 1,25 (x - 1)^2 and det = 5x - 5 (arithmetic); x = 0, 1, 2 rows from probe.txt T=0/4 and probe2 E1-E3; circle rows from probe2 F3-F6 and probe.txt K=6/18/30; angle 90 and 270 degrees (K = 12, 36): f = 0 by arithmetic (K = 12 probed in probe.txt, K = 36 by symmetry only).
+- Rewordings done: descent-step "izpiše na šest decimalk"; step 2 gradient components; step 7 y0 = 0 "at every H the graph offers". Also: the threshold formula block no longer states 2/L = 0,1 or L = 20 (it gave away step 6's prediction).
+- Test design additions for LS4: steps 2 and 3 share the opening `LS4_BOWL_LINE_LAGRANGE` (x = 0: point (0; 2,5), f 6,25, grad (0; 5), (1; 2), det -5); post-change `LS4_BOWL_TOUCH` (x = 1: (1; 2), f 5, grad (2; 4), (1; 2), "lambda = 2 (točno)"); step 3 then x = 2: (2; 1,5), grad (4; 3), det 5. Step 4 post-change `LS4_PRODUCT_K6/_K18/_K30/_K42` ("4 od 48 kotov"); K = 0 point (1,4142; 0) f 0 |sin| 1. The angle slider takes K (K * 7,5 degrees shown). Labels added to `LAB`: `constraint`, `pointC` ("Točka na veznem pogoju" / "Point on the constraint", the row label of the point in both lessons' readout list).
+
+### Numbers per step (source = probe.txt sl unless stated)
+- LS3 s1 bowl H=3 start (2;1): p1 (1,88; 0,94) f 4,418; p2 (1,7672; 0,8836) f 3,903745; p3 (1,661168; 0,830584) f 3,449349; factor 0,94, f factor 0,94^2 = 0,8836 (arithmetic).
+- s2 valley H=3 (chooser keeps start and H: probe2 A1): p1 (1,88; 0,4) f 5,1344; p2 (1,7672; 0,16) 3,378996; p3 (1,661168; 0,064) 2,800439; f0 = 14; "Prvi korak" 123 (bowl 125).
+- s3 H=9: (1,64; -0,8) 9,0896; (1,3448; 0,64) 5,904487; (1,102736; -0,512) 3,837467; factors 0,82 and -0,8; Prvi korak 40. s4 H=10: (1,6; -1) 12,56; (1,28; 1) 11,6384; (1,024; -1) 11,048576; p200 (0; 1) f 10; "ni dosežen v 200 korakih". s5 H=11: (1,56; -1,2) 16,8336; (1,2168; 1,44) 22,216602; (0,949104; -1,728) 30,760638; last step 75, p75 (0; -868147,369314); 1,2^75 about 8,68e5 (arithmetic).
+- s6 start (2;0) H=11 (probe2 C0, probe.txt): (1,56;0) 2,4336; (1,2168;0) 1,480602; (0,949104;0) 0,900798; Prvi korak 31; status says converges; factor 1-2h = 0,78. s7 hills (2;1) H=3: p3 (2,031922; 0,954997) f 0,73105; p200 (1,601125; -1,532) f -0,998788.
+
+### Test design (for the tests worker)
+- Scene helper: `optimizationSceneActions(id, spec)` = prepared-scene, set-function, set-level, set-start, set-step, set-constraint, set-mode. Readout ids: `status` via `[data-contour-status]`; rows `[data-readout]`: function, level, window, start, step, steps, iterate, iterate-f, settled, claim, stop, drawn; lagrange: point, point-f, grad-f, grad-g, tangency, tangent-points (check ids in the graph).
+- Openings: LS3_BOWL (bowl, descent, H=3, step 0); LS3_VALLEY; LS3_VALLEY_9/10/11; LS3_VALLEY_AXIS; LS3_EXPLORE = default. Learner actions: function chooser "Funkcija" (valley), field "Korak h (H = 100h)", button/`[data-action="next-step"]`, field "Korak spusta", field "P0, y". Post-change states equal the next constant (test with the helper and chooser as in `ContourLessonActions.host.test.tsx`).
+- LS4 (constants defined, steps not written): LS4_BOWL_LINE opens in level-sets mode (probe2 E0: no constraint in legend or status, window -2..2); after the mode switch the point is (0; 2,5) f 6,25, det -5, "Dotikališče (točno)" = (1; 2) (probe.txt T=0; probe2 E1). x=2: (2; 1,5) 6,25 det 5; x=1: (1; 2) f 5 grad (2;4),(1;2) lambda 2. Product circle (probe2 F0-F6): K=6 (1;1) f 1, K=18 (-1;1) -1, K=30 (-1;-1) 1, K=42 (1;-1) -1 all |sin|=0; K=0 (1,414;0) f 0 and K=24 (-1,414;0) not tangent (|sin| 1); tangent count row "4 od 48 kotov". Level-sets product, level 0 count 3 gives levels from 0 to 2 step 1. Angle slider shows degrees (K*7,5: 45, 135, 225, 315) but takes K.
+
+### Doubts
+- Titles with symbols are avoided; labels with symbols are wrapped in math in `LAB`.
+- The notation heuristics (assignment, tuple, subscript) were designed against but not run.
