@@ -293,6 +293,10 @@ const captureText = {
     inversion: {keep: [], strip: []},
     // Orientation: the signed value stays without its words.
     orientation: {keep: [/^[+−]\d+/], strip: [/: levi zavoj$/]},
+    // Computational geometry (B8c): the edge-test words go (Delaunay: nothing kept). The sweep polygons' vertex names v1, v2, ... were kept
+    // in part, but the poster shows them under the point glyph, the square and the ring of the marked vertices (overlap rule): Remove.
+    delaunay: {keep: [], strip: []},
+    'monotone-partition': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

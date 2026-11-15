@@ -497,3 +497,11 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8b/` (served as `walkth
 - `orientation`: keeps the signed value (`^[+−]\d+`, words ": levi zavoj" stripped); "+8" sits inside the shaded triangle.
 - Capture-tool repairs: the complex clip rows name the current controls "z, Re" and "w, Re"; the discrete driver finds a number field that became a Slider (`inversion` radius) through `numberFieldLocator`.
 - **Not done:** `linear-map` (Keep in part) fails the encoder background check ("Decoded background changed at frame 0", 108 for 107 at CRF 46): its moving grid leaves almost no still background to sample (`scripts/demonstration-clip-rows/_jump.cjs:159`). Needs a sampler choice, not a text change. `triangle-solver` has no triage row and is unchanged.
+
+### B8c Computational geometry (handler 4, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8c/` (served as `walkthrough-graphs/b8c.html`). Text only.
+
+- `delaunay`: Remove.
+- `monotone-partition`: Remove. The triage kept the vertex names `v1`, `v2`, ...; on the recaptured poster they sat under the point glyphs, the square and the ring of the marked vertices (overlap rule).
+- **Not done:** `monotone-triangulation` (same verdict intended, Remove). Every capture run crashes the page (`page.evaluate: Target crashed`) in `settle` (`scripts/demonstration-preview-recipes.cjs:361`) during its 33-step recipe, also with the recipe file from before the batch; a probe crashed at the 32nd "Naslednji korak" press when MathJax typeset after each press. A capture-tool or page-memory problem, not a text one; its entry is left out until it captures.
