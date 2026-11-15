@@ -131,7 +131,8 @@ const targets = {
     // w = 2i, n = 3: the roots lie on a circle of radius 2^(1/3) = 1.26 at 30, 150 and 270 degrees; w is the highest object.
     'complex-roots': ['Example w = 2i with n = 3: the three roots on their circle joined into the equilateral triangle', [field('Primer korenov', 'two-i', 'select'), button('Pokaži korene'), button('Pokaži n-kotnik')], [-3.19, 2.35, 3.19, -1.55]],
     // M6 and M7 example cards (the graph's own view; the chapter card opens the lesson's first scene and ignores the controls here).
-    'complex-power': ['Default z = 1 + i with the powers up to n = 5 on the dashed unit circle, joined by the path through them', []],
+    // z = 0,9 + 0,4i has modulus 0,985, so z, z², …, z⁸ all stay near the unit circle in view; the clip steps the exponent 8 → 1 → 8.
+    'complex-power': ['z = 0.9 + 0.4i with the powers up to n = 8 spiralling round the dashed unit circle, joined by the path through them', [field('z, Re', 0.9, 'number'), field('z, Im', 0.4, 'number'), field('Eksponent n', 8, 'number')], [-2.1273, 1.3, 2.1273, -1.3]],
     'complex-euler': ['Default angle 30 degrees on the unit circle with the velocity arrow and the partial sum of degree 5', []],
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
@@ -311,6 +312,9 @@ const captureText = {
     // complex-reciprocal and complex-roots draw no axes, so the axis names Re and Im would float with nothing to name: Remove.
     'complex-reciprocal': {keep: [], strip: []},
     'complex-roots': {keep: [], strip: []},
+    // Complex power and Euler circle: the readout and legend lines are Slovenian words; the powers and the circle carry the picture (revisit once the poster is seen).
+    'complex-power': {keep: [], strip: []},
+    'complex-euler': {keep: [], strip: []},
     'triangle-centres': {keep: [], strip: []},
     inversion: {keep: [], strip: []},
     // Orientation: the signed value stays without its words.

@@ -171,4 +171,22 @@ module.exports = [
         discreteReason: null,
         lightSettle: true,
     },
+    {
+        id: 'complex-power',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'Eksponent n', step: -1},
+        // The poster scene is z = 0,9 + 0,4i (modulus 0,985, so every power stays near the unit circle and in view) with n = 8. The exponent goes 8, 6, 4, 1, then back up, so the powers vanish and reappear one after another. Quote: complexMapsChapter.ts:66 (the powers section's investigation prompt).
+        path: [0, 2, 4, 7, 4, 2, 0],
+        lessonQuote: 'spreminjaj eksponent \\(n\\)',
+        discreteReason: 'The exponent is a whole count in a stepper field with no slider, so each checkpoint types the next exponent (8, 6, 4, 1).',
+    },
+    {
+        id: 'complex-euler',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Kot θ (stopinje)', step: 1},
+        // The poster scene is the default theta = 30 degrees with the velocity arrow. The angle runs to 360 (the point goes once round the unit circle, 330 degrees past the poster) and back.
+        path: [30, 360, 30],
+        lessonQuote: 'Spreminjaj kot \\(\\theta\\) in kotno hitrost \\(\\omega\\)',
+        discreteReason: null,
+    },
 ];

@@ -31642,5 +31642,47 @@
     ],
     "error": [],
     "probedExampleId": null
+  },
+  {
+    "id": "complex-power",
+    "route": "/bezeg-2.0/complex-power",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Eksponent n",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "5",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
+  },
+  {
+    "id": "complex-euler",
+    "route": "/bezeg-2.0/complex-euler",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "slider",
+        "name": "Kot θ (stopinje)",
+        "min": "0",
+        "max": "360",
+        "step": "1",
+        "value": "30",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
   }
 ]

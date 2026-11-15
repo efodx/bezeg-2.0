@@ -25,6 +25,8 @@ import preview_segment_intersections from './images/demonstrations/catalog/segme
 import preview_monotone_partition from './images/demonstrations/catalog/monotone-partition.png';
 import preview_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.png';
 import preview_fortune from './images/demonstrations/catalog/fortune.png';
+import preview_complex_power from './images/demonstrations/catalog/complex-power.png';
+import preview_complex_euler from './images/demonstrations/catalog/complex-euler.png';
 import preview_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.png';
 import preview_projective_pascal from './images/demonstrations/catalog/projective-pascal.png';
 import preview_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.png';
@@ -163,6 +165,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'monotone-partition': preview_monotone_partition,
     'monotone-triangulation': preview_monotone_triangulation,
     'fortune': preview_fortune,
+    'complex-power': preview_complex_power,
+    'complex-euler': preview_complex_euler,
     'projective-cross-ratio': preview_projective_cross_ratio,
     'projective-pascal': preview_projective_pascal,
     'projective-pole-polar': preview_projective_pole_polar,

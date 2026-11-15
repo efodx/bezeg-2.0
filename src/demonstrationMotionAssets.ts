@@ -134,6 +134,8 @@ import motion_phase_portrait from './images/demonstrations/catalog/phase-portrai
 import motion_solids from './images/demonstrations/catalog/solids.webm?no-inline';
 import motion_recursion_cobweb from './images/demonstrations/catalog/recursion-cobweb.webm?no-inline';
 import motion_contour_map from './images/demonstrations/catalog/contour-map.webm?no-inline';
+import motion_complex_power from './images/demonstrations/catalog/complex-power.webm?no-inline';
+import motion_complex_euler from './images/demonstrations/catalog/complex-euler.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -271,4 +273,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'solids': {src: motion_solids, type: 'video/webm', duration: 4},
     'recursion-cobweb': {src: motion_recursion_cobweb, type: 'video/webm', duration: 4},
     'contour-map': {src: motion_contour_map, type: 'video/webm', duration: 4},
+    'complex-power': {src: motion_complex_power, type: 'video/webm', duration: 4},
+    'complex-euler': {src: motion_complex_euler, type: 'video/webm', duration: 4},
 };
