@@ -2089,9 +2089,28 @@ const analyticLinesFrames = {
         const points = analyticLinesPoints(id, step, 'distance', ['P', 'Q', 'T'], {P: [-2, 1], Q: [4, 4], T: [3, -2]});
         return {types: {line: 1, point: 4, segment: 4}, curveCount: 0, points: [points.P, points.Q, points.T, [0.8, 2.4]]};
     },
+    'intersections': analyticLinesIntersectExpected,
 };
 
-/** First-frame expectation of an analytic-lines lesson (the four sections of the chapter, keyed by the section in the example id). */
+// L5 step 1 (intersect mode, target lines): the prepared default, set-mode intersect, set-target lines and one set-points naming all six handles; only P, Q, R, S are shown. Authored from LineGeometryGraph.tsx
+// (buildScene, linesTarget): two lines (l through P, Q and m through R, S) and four handles plus the crossing marker X (five points), no segments, no curve. l is x - 2y = -4 and m is x - y = 0, so they meet at (4, 4).
+function analyticLinesIntersectExpected(id, step) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene') && all.length === prepared.length + 3,
+        `${id}: the opening scene must be the Demonstration default, a set-mode, a set-target and a set-points`);
+    const actions = all.slice(prepared.length);
+    assert.deepEqual(actions[0], {kind: 'lines', operation: 'set-mode', mode: 'intersect'}, `${id}: only the mode intersect is authored`);
+    assert.deepEqual(actions[1], {kind: 'lines', operation: 'set-target', target: 'lines'}, `${id}: only the target lines is authored`);
+    assert.ok(actions[2].kind === 'lines' && actions[2].operation === 'set-points', `${id}: the last opening action must be set-points`);
+    const given = actions[2].points;
+    assert.deepEqual(Object.keys(given).sort(), ['B', 'O', 'P', 'Q', 'R', 'S'], `${id}: the set-points must name all six handles`);
+    const points = Object.fromEntries(Object.entries(given).map(([name, point]) => [name, [point.x, point.y]]));
+    assert.deepEqual(points, {P: [-4, 0], Q: [0, 2], R: [0, 0], S: [2, 2], O: [1, 0], B: [3, 2]}, `${id}: only these handles are authored`);
+    return {types: {line: 2, point: 5, segment: 0}, curveCount: 0, points: [points.P, points.Q, points.R, points.S, [4, 4]]};
+}
+
+/** First-frame expectation of an analytic-lines lesson (the five sections of the chapter, keyed by the section in the example id). */
 function analyticLinesExpectedFor(id, step) {
     const section = id.split('.')[1];
     const author = Object.hasOwn(analyticLinesFrames, section) ? analyticLinesFrames[section] : undefined;

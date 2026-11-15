@@ -13,3 +13,12 @@
 - Defects before/after: u and v no longer sit on the names (angle card); d value, PT and PTn clear of the arrow and the dashed segment, l clear of the right-angle mark (distance card); l beside the line between the handles (forms card); n1 sits at its own arrow (normal card).
 - Test `src/graphs/lines/LineGeometryLabels.test.tsx`: seven scenes (the four card openings and three more); red before the fix (6 of 7 failed: l on a line or marker, v on a line, PT on a marker), green after.
 - Not changed: the handle name labels (P, Q, T, F) and axis tick numbers are not obstacles; at 390 px a name can touch a tick number. The inventory `expected` checks pass unchanged. Logs: `.command-logs/label-pass/analytic-lines/`.
+
+## F4 cards (Batch C)
+
+- New section `analytic-lines.intersections.line-geometry` (L5 step 1: intersect mode, target lines, P(-4,0), Q(0,2), R(0,0), S(2,2)). Inventory entry authored in `analyticLinesIntersectExpected` (two lines, five points incl. the crossing marker X, no segments), asserting the set-mode, set-target and set-points actions; inventory regenerated (five entries), script tests 41 green.
+- The four earlier PNGs are byte-identical after recapture (cmp). Capture on 4523, server stopped, port closed.
+- Frame viewed: cream board, green line l through P, Q and blue steeper line m through R, S, both lines and the orange X marker inside the card (X upper right of centre, the window frames the whole figure); labels l and m readable; four orange dots, no clipping.
+- Copy names the two lines through their points only; alt mentions the orange cross as drawn but gives no coordinates, no parallel or same-line case, no circle. No coordinates of the meeting point are stated.
+- Observed red before capture: `guidedExamplePreviews.test.ts` analytic-lines row failed (4 ids vs 5), `.command-logs/lines-c/f4/red.log`. After capture the preview test did not see the new PNG until the `guidedExamplePreviews.ts` doc comment changed (stale vitest glob; cache not deleted).
+- Logs: `.command-logs/lines-c/f4/`.

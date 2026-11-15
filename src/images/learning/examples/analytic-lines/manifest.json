@@ -1,70 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "c0098ee119602a6716395dcf352a757bac352a0c",
+    "dirty": true,
+    "inputs": "003cff697862c7761257fb8cf72588195b83f476a096faef0111a52cc41b487b",
+    "output": "fa96bd5551c4de77e12f736be704d67067adfaf9dcb517bb1cca265770feca36"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4523/bezeg-2.0/",
+    "stampRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+    "stampDirty": true,
+    "localOutputHash": "fa96bd5551c4de77e12f736be704d67067adfaf9dcb517bb1cca265770feca36",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-mOAhUsLi.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/index-mOAhUsLi.js",
+        "sha256": "98e219e461533f73ba04172adc8f0c063edc580f4a804773cc55dd500662ee47",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-B0HppHV0.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/jsx-runtime-B0HppHV0.js",
+        "sha256": "ab3513c4ca55503c79bca59373fcb49c27acaf1566caab00d685ae7bb7ca855c",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-DLxmrzcK.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/react-dom-DLxmrzcK.js",
+        "sha256": "28d55fe2e7b7906184b468cb22a4c1b613e2ba4864ff695f6e3951a8fdb4eb53",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4523/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "793b3b74a19a9f03232e14174947d592732723695452b8382f522db447d6aaf5",
+    "inventory": "1bac9660154d4d6e22b8c2f9e75d4c728d28ae4e3447d75df27a4413d8349a2a",
     "entries": {
       "analytic-lines.forms-of-a-line.line-geometry": "dc541433eb48b7438b166f3bb701009a63229d70a446add0e7302e5a52e727e3",
       "analytic-lines.normal-parallel-perpendicular.line-geometry": "e7129ffb6fc0dcc1943691bb26559dae23e805a47baba054752aa1b3784816db",
       "analytic-lines.angle-between-lines.line-geometry": "9b4ee5140b5299f4bdb17054c8805706d51de742f31cc4c278bd832539c05e52",
-      "analytic-lines.distance-point-line.line-geometry": "22fc720b58dc5af971ae83787504a68ad2d7c67e1ebba3c144d2ac4427aa2f0c"
+      "analytic-lines.distance-point-line.line-geometry": "22fc720b58dc5af971ae83787504a68ad2d7c67e1ebba3c144d2ac4427aa2f0c",
+      "analytic-lines.intersections.line-geometry": "2213bfda89f5f49e58cc43abc49740b24d2105824b677b111459d38b4e44c79a"
     },
-    "presentation": "b4163dd0781fcf6a99439c91ef7bf84bf3e49e5663a9adf8436f139e6c7f4f7f",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "198fabd2d5605747b0013b9770a605b611d7f39f0641397798e677a466729718",
+    "buildOutput": "fa96bd5551c4de77e12f736be704d67067adfaf9dcb517bb1cca265770feca36",
+    "buildInputs": "003cff697862c7761257fb8cf72588195b83f476a096faef0111a52cc41b487b"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -124,6 +125,19 @@
       },
       {
         "id": "analytic-lines.distance-point-line.line-geometry",
+        "demonstrationId": "line-geometry",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7,
+            6.5,
+            8.5,
+            -3.1
+          ]
+        }
+      },
+      {
+        "id": "analytic-lines.intersections.line-geometry",
         "demonstrationId": "line-geometry",
         "framing": {
           "kind": "coordinate-window",
@@ -219,8 +233,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+        "sourceRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
         "pageErrors": []
       }
     },
@@ -312,8 +326,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+        "sourceRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
         "pageErrors": []
       }
     },
@@ -440,8 +454,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+        "sourceRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
         "pageErrors": []
       }
     },
@@ -533,8 +547,101 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+        "sourceRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "analytic-lines.intersections.line-geometry",
+      "demonstrationId": "line-geometry",
+      "path": "/bezeg-2.0/line-geometry?example=lesson.analytic-lines.intersections.line-geometry",
+      "sceneFingerprint": "7ab01084531feab6c9358a6e536ed77f1017fbd8ffc9885c6bf889c69a005d13",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l5-meeting-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l5-meeting-scene\",\"source\":\"demonstration-default\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-mode\",\"mode\":\"intersect\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-target\",\"target\":\"lines\"}",
+        "lines: {\"kind\":\"lines\",\"operation\":\"set-points\",\"points\":{\"P\":{\"x\":-4,\"y\":0},\"Q\":{\"x\":0,\"y\":2},\"R\":{\"x\":0,\"y\":0},\"S\":{\"x\":2,\"y\":2},\"O\":{\"x\":1,\"y\":0},\"B\":{\"x\":3,\"y\":2}}}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "analytic-lines.intersections.line-geometry.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e41ee59ff897744f320747b10dfc9c77aef3dd6fb6b114965f283c9bf63894e7",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 5,
+          "line": 2,
+          "text": 2
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:line",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:-4,0",
+          "point:0,2",
+          "point:0,0",
+          "point:2,2",
+          "point:4,4"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "point": 5,
+            "line": 2,
+            "text": 2
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:line",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:-4,0",
+            "point:0,2",
+            "point:0,0",
+            "point:2,2",
+            "point:4,4"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "line": 2,
+          "text": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
+        "sourceRevision": "c0098ee119602a6716395dcf352a757bac352a0c",
         "pageErrors": []
       }
     }

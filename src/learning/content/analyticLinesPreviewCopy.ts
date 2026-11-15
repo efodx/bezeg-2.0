@@ -30,6 +30,12 @@ export const analyticLinesPreviewCopy = {
         'Premica \\(\\ell\\) skozi točki \\(P=(-2,1)\\) in \\(Q=(4,4)\\).',
         'The line \\(\\ell\\) through the points \\(P=(-2,1)\\) and \\(Q=(4,4)\\).',
     ),
+    'analytic-lines.intersections.line-geometry': copy(
+        'Krem ozadje brez koordinatnih osi. Poševna zelena premica ℓ z dvema oranžnima pikama in strmejša modra premica m z dvema oranžnima pikama rasteta poševno navzgor; zgoraj desno je na njiju majhen oranžen križec; ob premicah sta oznaki ℓ in m.',
+        'Cream background without coordinate axes. An oblique green line ℓ with two orange dots and a steeper blue line m with two orange dots both rise obliquely; a small orange cross sits on them at the upper right; the labels ℓ and m stand beside the lines.',
+        'Premica \\(\\ell\\) skozi točki \\(P=(-4,0)\\) in \\(Q=(0,2)\\) ter premica \\(m\\) skozi točki \\(R=(0,0)\\) in \\(S=(2,2)\\).',
+        'The line \\(\\ell\\) through the points \\(P=(-4,0)\\) and \\(Q=(0,2)\\) and the line \\(m\\) through the points \\(R=(0,0)\\) and \\(S=(2,2)\\).',
+    ),
     'analytic-lines.normal-parallel-perpendicular.line-geometry': copy(
         'Krem ozadje brez koordinatnih osi. Poševna zelena premica ℓ z dvema oranžnima pikama in vodoravna modra premica m z dvema oranžnima pikama pod njo. Od zelene premice navzdol gre oranžna puščica z oznako n₁, od modre navzgor druga puščica z oznako n₂.',
         'Cream background without coordinate axes. An oblique green line ℓ with two orange dots and, below it, a horizontal blue line m with two orange dots. An orange arrow labelled n₁ points down from the green line and a second arrow labelled n₂ points up from the blue line.',

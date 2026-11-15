@@ -297,10 +297,8 @@ const functionsCards: readonly FunctionsCard[] = [
         counts: [[2, 5], [0, 3], [1, 2], [0, 3], [0, 3]]},
     {chapterId: 'analytic-lines', copy: analyticLinesPreviewCopy,
         ids: ['analytic-lines.angle-between-lines.line-geometry', 'analytic-lines.distance-point-line.line-geometry', 'analytic-lines.forms-of-a-line.line-geometry',
-            'analytic-lines.normal-parallel-perpendicular.line-geometry'],
-        counts: [[1, 5], [0, 4], [0, 2], [0, 4]],
-        // L5 joined the chapter in F3 (handler 31); its card comes in F4.
-        pending: ['analytic-lines.intersections.line-geometry']},
+            'analytic-lines.intersections.line-geometry', 'analytic-lines.normal-parallel-perpendicular.line-geometry'],
+        counts: [[1, 5], [0, 4], [0, 2], [0, 5], [0, 4]]},
     {chapterId: 'isometries', copy: isometriesPreviewCopy,
         ids: ['isometries.classifying-a-motion.isometries', 'isometries.dilation-similarity.isometries', 'isometries.two-mirrors.isometries'],
         counts: [[2, 2], [2, 2], [3, 5]]},
