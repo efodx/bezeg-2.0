@@ -311,6 +311,10 @@ const captureText = {
     // monotone-triangulation: the vertex names v1, v2, ... sit under the point glyphs, the square and the ring of the marked vertices (as monotone-partition): Remove.
     'monotone-triangulation': {keep: [], strip: []},
     'linear-map': {keep: [/^a₁ = /, /^[τδ]$/, /^Δ = 0$/], strip: []},
+    // Plane geometry (B8g): the collinearity sentences go; the inscribed-angle readout keeps its values without symbols or words.
+    'euler-line': {keep: [], strip: []},
+    'simson-line': {keep: [], strip: []},
+    'inscribed-angle': {keep: [/°/], strip: [/∠[A-Z]{3} = /g, /središčni kot = /]},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

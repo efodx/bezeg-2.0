@@ -4,6 +4,8 @@
 
 **Goal.** The lesson chapters' stored example images (`src/images/learning/examples/`, the retained top-level set plus one folder per chapter) were captured before batches B1–B10 changed graph colours and typography. Recapture them on the current build so the cards match the live graphs. Procedure and the script's rules: `docs/commands.md` lines 78 and 80 (read both paragraphs in full before starting).
 
+**Build state.** The guided capture checks the local `build/` bytes against the build stamp (`scripts/capture-guided-example-previews.cjs:556`). The handler builds and removes the review pages from `build/walkthrough-graphs/` before dispatch (a first attempt failed on them). If you still see "Local build bytes differ from the build provenance stamp", stop and report; do not build.
+
 **Order (stop and report on the first refusal you cannot resolve by following `docs/commands.md`):**
 
 1. Retained set (top-level `manifest.json`, 56 PNGs: Bézier, PH, parameterizations, Farin points, analysis, functions, foundations, …): generate the inventory with `node scripts/generate-guided-example-inventory.cjs .command-logs/b11-retained-inventory.json`, then a full capture `PREVIEW_BASE_URL=http://127.0.0.1:4333/bezeg-2.0 node scripts/capture-guided-example-previews.cjs .command-logs/b11-retained-inventory.json > .command-logs/b11-retained.log 2>&1`.

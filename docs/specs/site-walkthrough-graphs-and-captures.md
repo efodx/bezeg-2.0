@@ -540,3 +540,11 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b10/` (served as `walkth
 - `patch-subdivision`: `S_R` was hidden (its anchor on the true surface fell behind a facet at the grazing view) and `S_L` sat by `S(u,v)`. Surface labels gain an optional screen offset (`SceneLabel.screenOffset`); the piece symbols sit 34 px below their piece centres, and their anchors are lifted by twice the mesh chord tolerance. Both symbols now show on their own pieces, clear of `S(u,v)`.
 - `patch-joins`: at the default `C^1` join both arrow tips coincide, so `S_{A,u}` and `S_{B,u}` were drawn on one spot; they are now 26 px apart. The three symbols are readable and do not overlap each other; they still touch control-point markers of the second net, left as is (surface text is otherwise unchanged by the policy). Its clip encodes at CRF 41 (CRF 40 gave 309281 B against the 300 KiB ceiling).
 - The other five patch workspaces set no offset; their tests are unchanged. Check: `src/graphs/patches/surfaceLabelSeparation.test.tsx` (failed 4 of 5 before the change), `just unit src/graphs/patches`.
+
+### B8g Plane geometry missed by the B8 sweep (handler 5, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8g/` (served as `walkthrough-graphs/b8g.html`). A check of every Remove or Keep-in-part id in the triage against these batch records found three without one.
+
+- `euler-line`, `simson-line`: Remove; the collinearity sentences go, the line through the points shows it.
+- `inscribed-angle`: Keep in part; the readout keeps only `66,8°; 66,8°; 133,6°` (the `∠APB = ` and `središčni kot = ` prefixes are stripped), clear of the circle.
+- The clip rows of `inscribed-angle` and `simson-line` scheduled 0.01° steps, but the `P` position field now snaps to whole degrees; both rows step by 1°, still a continuous sweep.
