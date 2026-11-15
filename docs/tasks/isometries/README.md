@@ -11,10 +11,10 @@ F1 and F2a are ungated. F2b–F6 wait for Controls step 7 ([boundary](../feature
 | [01 Isometry and similarity kernel](01-isometry-kernel.md) | 0 | F1 | none | — | done 2026-11-10 (mathematical review, Sonnet; tests strengthened) |
 | [02 Rosette and frieze kernel](02-rosette-frieze-kernel.md) | 0 | F1 | none | 01 | done 2026-11-10 (mathematical review, Sonnet; low findings fixed) |
 | [03 State model and isometry graph](03-isometry-graph.md) | A–C | F2a | none | 01, 02 | done |
-| [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 (accepted) | 03 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md)); F3–F6 next; split into 05–07 on 2026-11-12 |
-| [05 Batch A lessons](05-batch-a-lessons.md) | A | F3–F6 | 04 | 03 | F3 done 2026-11-12 (L1, L2; chapter skeleton); F4–F6 next |
-| [06 Batch B lessons](06-batch-b-lessons.md) | B | F3–F6 | 05 | 03 | F3 done 2026-11-12 (L3); F4–F6 next |
-| [07 Batch C lessons](07-batch-c-lessons.md) | C | F3–F6 | 06 | 03 | F3 L4, L5 written and joined (handler 31); F4 cards captured (handler 31); F5 and F6 next |
+| [04 Release batches A–C](04-release-batches.md) | A–C | F2b–F6 | Controls step 7 (accepted) | 03 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md)); split into 05–07 on 2026-11-12, all three done (F6 gates passed) |
+| [05 Batch A lessons](05-batch-a-lessons.md) | A | F3–F6 | 04 | 03 | done; F3 2026-11-12 (L1, L2); F4 cards and F5 clip (handlers 20, 24); F6 gate passed (handler 29) |
+| [06 Batch B lessons](06-batch-b-lessons.md) | B | F3–F6 | 05 | 03 | done; F3 2026-11-12 (L3); F4 cards (handler 20); F6 gate passed (handler 29) |
+| [07 Batch C lessons](07-batch-c-lessons.md) | C | F3–F6 | 06 | 03 | done 2026-11-15; F3 L4, L5 and F4 cards (handler 31); F5 no new clip; F6 gate passed (handler 32) |
 
 ## Slovenian terms (F0 decision)
 
