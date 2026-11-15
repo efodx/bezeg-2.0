@@ -152,4 +152,13 @@ module.exports = [
         // A MathJax typeset after each of the 96 frames crashes the page at about frame 34 ("Target crashed"), as for the other lightSettle rows.
         lightSettle: true,
     },
+    {
+        id: 'recursion-cobweb',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Naklon m', step: 0.05},
+        // The poster scene is m = 0,5, c = 1, x0 = 0 with eight steps of the web drawn (staircase into x* = 2). The slope goes to -0,8 (the web turns into a spiral) and back.
+        path: [0.5, -0.8, 0.5],
+        lessonQuote: 'Spreminjaj naklon \\(m\\) in opazuj, kdaj se iterati približujejo negibni točki in kdaj se oddaljujejo',
+        discreteReason: null,
+    },
 ];

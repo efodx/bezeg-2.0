@@ -54,7 +54,7 @@ const targets = {
     // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets a window that puts the vertices under the reserved legend band of the 360 x 220 poster board (the capture pads it by a sixth on each side, so the board shows x -4.5 to 13.5 and y -1 to 10 at 20 px per unit, y = 4 at 120 px). The lesson card opens on the default region.
     'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, with the vertices below the reserved legend band', [], [-2.25, 8.625, 11.25, 0.375]],
     'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [button('Zmanjšaj število', 4)], [-0.7, 36, 7.2, -4]],
-    'recursion-cobweb': ['Cobweb board at its default: the line y = 0.5 x + 1, the diagonal, the start handle and the fixed point, no step drawn; the window is the affine view of the board', [], [-10, 10, 10, -10]],
+    'recursion-cobweb': ['Cobweb board at its default: the line y = 0.5 x + 1, the diagonal, the start handle and the fixed point with eight steps of the web drawn; the window is close on the web around x* = 2 (the web is a few units wide)', [button('Naslednji korak', 8)], [-2.5, 3.2, 4.5, -1.5]],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 100 balls dropped: the pegs, the bars of the binomial law and the heap', [field('Število kroglic', 100, 'number')], [-1.6, 0.42, 11.6, -0.4]],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
     'interp-lagrange': ['Default interpolation points (ochre) with the Lagrange polynomial through them (moss, solid), without board text', []],
@@ -274,6 +274,8 @@ const captureText = {
     // Curve kinematics: the legend lines (the point, the path, the arrows and their scales) and the arrow tags cross the path at card size; the moving point, the path and the arrows carry the picture.
     'curve-kinematics': {keep: [], strip: []},
     'linear-program': {keep: [/^\(-?\d+; -?\d+\)$/], strip: []},
+    // Cobweb: the map equation and the fixed point stay without their Slovenian words (`y = 0,5·x + 1`, `x* = 2`); the diagonal, start and iterate captions go.
+    'recursion-cobweb': {keep: [/^preslikava y = /, /^negibna točka x\* = \S+$/], strip: [/^preslikava /, /^negibna točka /]},
     // The race lines, track names, per-track times and the clock are Slovenian words or numbers that cannot stand without their names (C3: poster text is language-neutral); only g stays. The clock stripped of its word would be a floating "0 s" with no anchor, so it goes too.
     'mechanics-descent': {keep: [/^g = /], strip: []},
     // The wave labels "1+2", "1-2" and "2" follow their waves as the phase moves, so the loop would not close with them.
