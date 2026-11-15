@@ -110,3 +110,58 @@ test('the graph supports the lines actions; invalid scene data is a lesson-conte
     for (const action of bad) expect(() => apply(graph, action)).toThrow();
     expect(stateOf(graph)).toEqual(before);
 });
+
+const setTarget = (target: string): LessonAction => ({kind: 'lines', operation: 'set-target', target: target as 'lines'});
+
+test('set-target reaches the state and readouts of the target select, for both values', () => {
+    for (const target of ['circle', 'lines'] as const) {
+        const viaAction = after(graph => { apply(graph, setMode('intersect')); apply(graph, setTarget(target)); });
+        const viaControl = after(() => { choose('Prikaz', 'intersect'); choose('Presečišče premice z', target); });
+        expect(viaAction).toEqual(viaControl);
+        expect(viaAction.state.target).toBe(target);
+    }
+});
+
+test('a scene sets the intersect mode, the circle target and the circle handles in one synchronous sequence', () => {
+    const graph = mount();
+    const free = stateOf(graph);
+    act(() => {
+        const capabilities = graph.getLessonCapabilities();
+        capabilities.apply(setMode('intersect'));
+        capabilities.apply(setTarget('circle'));
+        capabilities.apply(setPoints({O: {x: 1, y: 0}, B: {x: 3, y: 1}}));
+        expect(graph.state.target).toBe('circle');
+        expect(graph.state.B).toEqual({x: 3, y: 1});
+        capabilities.apply(setTarget('lines'));
+    });
+    expect(graph.state.mode).toBe('intersect');
+    expect(graph.state.target).toBe('lines');
+    expect(graph.state.O).toEqual({x: 1, y: 0});
+    expect(graph.state.B).toEqual({x: 3, y: 1});
+    expect(stateOf(graph)).not.toEqual(free);
+});
+
+test('restoring the checkpoint after set-target returns the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const freeReadouts = readouts();
+    const checkpoint = capabilities.captureState();
+    apply(graph, setMode('intersect'));
+    apply(graph, setTarget('circle'));
+    expect(stateOf(graph)).not.toEqual(free);
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+    expect(readouts()).toEqual(freeReadouts);
+});
+
+test('set-target with an invalid value changes nothing and says so', () => {
+    const graph = mount();
+    expect(graph.supportsLessonAction(setTarget('circle'))).toBe(true);
+    const before = stateOf(graph);
+    for (const action of [setTarget('ellipse'), setTarget(JSON.parse('7')), {kind: 'lines', operation: 'set-target'} as unknown as LessonAction]) {
+        expect(() => apply(graph, action)).toThrow(/^lines set-target: target must be one of lines, circle\.$/);
+    }
+    expect(() => apply(graph, {kind: 'lines', operation: 'set-target', target: 'circle', extra: 1} as unknown as LessonAction)).not.toThrow();
+    expect(stateOf(graph)).toEqual({...before, target: 'circle'});
+});

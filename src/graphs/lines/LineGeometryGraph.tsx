@@ -307,6 +307,13 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             this.requestRender();
             return;
         }
+        if (action.operation === "set-target") {
+            const target = INTERSECT_TARGETS.find(candidate => candidate === action.target);
+            if (!target) throw new Error(`lines set-target: target must be one of ${INTERSECT_TARGETS.join(", ")}.`);
+            this.setState({target});
+            this.requestRender();
+            return;
+        }
         if (action.operation !== "set-points") {
             const unsupported: never = action;
             throw new Error(`lines: the line graph has no operation in ${JSON.stringify(unsupported)}.`);

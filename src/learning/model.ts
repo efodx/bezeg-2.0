@@ -426,9 +426,11 @@ export type LessonAction =
     /**
      * LineGeometryGraph's scene actions (analytic-lines L1, L2; later lessons extend the union). `set-mode` is the mode select (`forms`, `normal`,
      * `angle`, `distance`, `intersect`); `set-points` is the coordinate fields of the named handles `P`, `Q`, `R`, `S`, `T`, `O`, `B`, each an integer in
-     * [-8, 8]. Anything else is a lesson-content error and is never snapped; the whole action is validated before the first write.
+     * [-8, 8]; `set-target` is the intersect mode's target select (`lines` or `circle`; it does not change the mode). Anything else is a
+     * lesson-content error and is never snapped; the whole action is validated before the first write.
      */
     | {readonly kind: 'lines'; readonly operation: 'set-mode'; readonly mode: 'forms' | 'normal' | 'angle' | 'distance' | 'intersect'}
+    | {readonly kind: 'lines'; readonly operation: 'set-target'; readonly target: 'lines' | 'circle'}
     | {readonly kind: 'lines'; readonly operation: 'set-points'; readonly points: Readonly<Partial<Record<'P' | 'Q' | 'R' | 'S' | 'T' | 'O' | 'B', {readonly x: number; readonly y: number}>>>}
     /**
      * IsometryGraph's scene actions (isometries L1 to L3; later lessons add `set-frieze`). `set-mode` is the mode select, `set-mirror-count` the
