@@ -54,7 +54,7 @@ describe("label attachment", () => {
     it("a piece symbol stays within a few label heights of its piece centre", () => {
         const scene = sceneOf(view => new TensorSubdivisionGraph({viewFactory: () => view}));
         const layout = computeLabelLayout(scene, SIZES[0]);
-        const bare = computeLabelLayout({...scene, labels: scene.labels.map(({screenOffset, ...rest}) => rest)}, SIZES[0]);
+        const bare = computeLabelLayout({...scene, labels: scene.labels.map(label => ({...label, screenOffset: undefined}))}, SIZES[0]);
         for (const id of ["piece-l-label", "piece-r-label"]) {
             const placed = layout.find(l => l.id === id)!, centre = bare.find(l => l.id === id)!;
             expect(Math.hypot(placed.x - centre.x, placed.y - centre.y)).toBeLessThanOrEqual(2 * SURFACE_LABEL_FONT_PX + 4);
