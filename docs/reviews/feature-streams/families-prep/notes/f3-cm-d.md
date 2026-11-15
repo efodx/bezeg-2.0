@@ -167,3 +167,9 @@ Test file, chapter, registry, preview copy, smoke; en review of row names agains
 - Period at omega 3 and the time/period rows at omega 3 quoted from arithmetic, not probed.
 - The "= ≈" doubled sign noted in 1b was not seen in the rows probed here (π/2 ≈ 1,571 formats).
 - Not run: browser, 310 px check, `lessonMathNotation.test.ts` (file not registered yet).
+
+### Slice 2b-d
+- `src/learning/content/complexEulerGuidedLessons.test.ts` (46 tests, both languages). Part A (to line ~361): scene sweep out of order and twice in one act, restore, openings not the asked state, learner actions through real controls, prompt labels. Part B (after it): quoted numbers per step (Q/hedge/English decimals), points, time/period, velocity/acceleration by finite differences, product by complex multiplication, partial sums by the term recurrence.
+- Green: `s2bd-unit.log`, tsc clean (`s2bd-tsc.log`), lint clean (`s2bd-lint.log`). Red: S_5 real part 0,1239 changed to 0,1329 in the sl text fails the m7-series quote test (`s2bd-red.log`), restored.
+- No false claim found. Observation: the step 2 opening (omega 1) reads time "pi/2 = 1,571", the same number as the omega 4 period answer; the test compares per row (time with time, period with period), so it does not count this as a leak.
+- Not verified: browser, 310 px, `lessonMathNotation.test.ts`.
