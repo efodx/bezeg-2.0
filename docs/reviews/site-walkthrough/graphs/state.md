@@ -1,6 +1,6 @@
 # State: site walkthrough, graphs (package D)
 
-Handler 6 handing off to handler 7, 2026-11-15 (context budget). Left to do: publish B11 part 2 after recapturing two chapters on `master`'s code (below). After that the package waits only on the owner (the affine clip). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
+Handler 7, 2026-11-15. B11 part 2 is rebased, recaptured where master's code differed, and publishing (below). After that the package waits only on the owner (the affine clip). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
 
 ## For the owner
 
@@ -15,10 +15,10 @@ Handler 6 handing off to handler 7, 2026-11-15 (context budget). Left to do: pub
 
 ## Where things stand
 
-- `master` has B11 part 1 (`42d5e56c`, CI green). B11 part 2 (`2da033f9` checks, `c880b108` images, alt text and page) is **not published**: job `publish-f597d4f0-c597a6` failed at reconcile. `master` had gained `6859b795` (isometry markers: no infobox, names near markers) and `292c46ca` (triangle-solver circle mode), which re-stored `isometries` and `trigonometry` example images. Those two chapters in `c880b108` were captured on a build without these fixes.
-- **Next, in order:** (1) `git fetch`, then `git rebase --onto origin/master f145fd04` on this branch (the branch holds old copies of commits already on master; only `2da033f9`, `c880b108` and the note commits are new). On the conflicts in `src/images/learning/examples/{isometries,trigonometry}/`, take either side; they are recaptured next. (2) `just build` on the clean tree, restart the preview on 4333, keep the pages out of `build/`. (3) `sh .command-logs/b11-chapters.sh isometries trigonometry`, then copy both inventories to `docs/reviews/<chapter>/guided-example-inventory.json`. Read the changed images, and check the isometries and trigonometry alt text against them (`isometriesPreviewCopy.ts`, `trigonometryPreviewCopy.ts`). (4) `just unit src/learning/chapter/guidedExamplePreviews.test.ts src/learning/content/guidedExamplePreviewCopy.test.ts src/learning/content/lessonMathNotation.test.ts`. Commit the recapture as its own commit. Then run `sh .command-logs/restore-pages.sh`, then `just publish --background --recipe runtime --base origin/master --commits <new commits, oldest first>`. Confirm CI and update this note.
+- `master` has B11 part 1 (`42d5e56c`, CI green). Handler 7 rebased B11 part 2 onto `42d5e56c` (`2bc05f0a` checks, `6abc69c3` images, alt text and page), rebuilt, and recaptured `isometries` and `trigonometry` on master's code (`b41dfb8d`: one isometries image changed, `dilation-similarity`; its alt text still matches; both inventories unchanged). Focused unit checks pass. The earlier jobs `publish-f597d4f0-c597a6` and `publish-315eac95-f505b4` failed at reconcile (conflicts, not test timeouts); nothing from them reached `master`.
+- **Next:** confirm the background publish of part 2 with `just publish --status` and CI, then record the pushed hash here and in queue row 12.
 - Done criteria: every row of the spec's example table is done or has a recorded reason (`affine` waits on the owner). Every Remove or Keep-in-part capture in the triage has a batch record (checked at B8g). B11 is done (spec batch record "B11 Guided example images").
-- Preview on 4333 serves the build of `52b7ecbd` with all pages restored (`b11` included).
+- Preview on 4333 serves the build of `0c233a22` (rebased part 2) with all pages restored (`b11` included).
 - Failed publish worktrees from earlier runs are still on disk: `publish-ef3165c3-161384`, `publish-3e43eec4-5fe050`, `publish-2670e1fb-983cf6`, `publish-c7378c8a-643e5e`. Unlink their `node_modules` junction with PowerShell before you remove them. Branch `backup/walkthrough-graphs-pre-h5` can be deleted.
 
 ## Open items found in this run
