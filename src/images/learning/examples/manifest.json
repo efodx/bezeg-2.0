@@ -1,61 +1,61 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+  "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "revision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
     "dirty": false,
-    "inputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac",
-    "output": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b"
+    "inputs": "5b6483e3a1faa4b3121e652539a09b16b2e13dae2a24f3df11de26ea14f1d1d0",
+    "output": "56505118de998a4edcd65b9573e0ac6182437c7281d4ed94ccbae9e38bf1bb9a"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
     "stampDirty": false,
-    "localOutputHash": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
+    "localOutputHash": "56505118de998a4edcd65b9573e0ac6182437c7281d4ed94ccbae9e38bf1bb9a",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-f4U2AncR.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-f4U2AncR.js",
-        "sha256": "96e74ce8f759b5c17a6ef53ade0a08847896e6a0205f8cafdcf5bbbb909bffc7",
+        "name": "index-awn1f_3n.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-awn1f_3n.js",
+        "sha256": "0b6b0a756da539e684270cc9abd37c1452830cfe451db12f45b7793130b635f2",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BQFi9_r6.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-BQFi9_r6.js",
-        "sha256": "6f83720af4df0a2f1235bd2d5c47887a8fdec1aba948e257cc14296731338928",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-DmajdlBW.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-DmajdlBW.js",
-        "sha256": "68c10443b205a8b010280741ce99c56b6ed547afdc45e9284f2ea53b88306795",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-COlNNAaK.css",
-        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "de05b0058ec038f188cbbe8e7f25904175fd8b345ea5076f49c3ef23767c0e56",
+    "inventory": "5ce5fd5b7fa8dcd6d2bed9c2187fa7460803c8cd3a609b893cd29d49438c6168",
     "entries": {
       "analysis.convergence.fixed-point": "7faba2c2882c18dd394f6ba4f6d77face3db79ba9bf678a06fa3f9324407f467",
       "analysis.convergence.sequence": "7ea456025d65b71b531ff7331c8e4e43e6e0c6a0f86b622253df35bd19695431",
@@ -74,7 +74,7 @@
       "bezier-curves.interpolation.decasteljau": "3f5433c1ba0cef4f333de001df1753525c3a0295d448e1cd04e9d0fb793a943b",
       "bezier-curves.interpolation.quartic-interpolation": "4ac206471937c13977c157c72e70adbc691de6b46dfb5ef22343981480a901bc",
       "bezier-curves.next-ideas.elevation": "118d6e097ea6f89274ba65cd6b14a4d96d66dde2345706a518cf1e45af81f052",
-      "bezier-curves.next-ideas.extrapolation": "1be0782a568842fee33f318af93cbc93426039dce124ef658339a03113c5529c",
+      "bezier-curves.next-ideas.extrapolation": "4f11fee478f78a8dd82e61ef91e777fa9821003979ed722c86474405b3f5e96b",
       "bezier-curves.next-ideas.repeated-subdivision": "78bc3b10ece6c0f20e88ba0fa1c9cf43c41a5c07ec70c6cf59c1c5faf9128bdf",
       "bezier-curves.next-ideas.subdivision": "697a63f5288d1b6c8fa77df03c862fd8113fea95f66b7d22e4fab68738f5f8fd",
       "bezier-curves.parameter.decasteljau-parameter": "66eca930b335d57d088ee0b0866b2cf9d08e4ab5939aee30ea21422630927317",
@@ -114,9 +114,9 @@
       "splines.piecewise.spline-cn": "0641c6a84cdab1c9271025f92290f6aded30ce4dba0c79f0c692f7c018d11dd0",
       "splines.worked-join.spline-c1.parabola-derivatives": "c23b4ed4a16b4741f2cfc427e2243f72a465cd39b2258c265130a630b0628813"
     },
-    "presentation": "599b07d3e4d024f8f9de4d533cf5f8138ffa2e99cec78765493a30d47aa4905f",
-    "buildOutput": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
-    "buildInputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac"
+    "presentation": "2f3ec6a248f3993cefae21eb3ce9098987c0581153a5a3fc922895e043020b28",
+    "buildOutput": "56505118de998a4edcd65b9573e0ac6182437c7281d4ed94ccbae9e38bf1bb9a",
+    "buildInputs": "5b6483e3a1faa4b3121e652539a09b16b2e13dae2a24f3df11de26ea14f1d1d0"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -285,9 +285,9 @@
           "kind": "coordinate-window",
           "window": [
             -5,
-            4.5,
-            4.5,
-            -4
+            3.4,
+            4,
+            -4.4
           ]
         }
       },
@@ -298,9 +298,9 @@
           "kind": "coordinate-window",
           "window": [
             -5,
-            4.5,
-            4.5,
-            -4
+            3.4,
+            4,
+            -4.4
           ]
         }
       },
@@ -347,7 +347,7 @@
             -5,
             4.5,
             4.5,
-            -6
+            -6.4
           ]
         }
       },
@@ -628,7 +628,13 @@
         "id": "rational-curves.operations.farin",
         "demonstrationId": "farin",
         "framing": {
-          "kind": "finite-geometry-fit"
+          "kind": "coordinate-window",
+          "window": [
+            -7.1,
+            3.3,
+            7.1,
+            -5.2
+          ]
         }
       },
       {
@@ -648,14 +654,26 @@
         "id": "rational-curves.operations.rational-subdivision",
         "demonstrationId": "rational-subdivision",
         "framing": {
-          "kind": "finite-geometry-fit"
+          "kind": "coordinate-window",
+          "window": [
+            -6.6,
+            2.8,
+            6.6,
+            -5.2
+          ]
         }
       },
       {
         "id": "rational-curves.why-rational.rational-weight",
         "demonstrationId": "rational",
         "framing": {
-          "kind": "finite-geometry-fit"
+          "kind": "coordinate-window",
+          "window": [
+            -6.6,
+            2.8,
+            6.6,
+            -5.2
+          ]
         }
       },
       {
@@ -832,17 +850,16 @@
       "file": "analysis.convergence.fixed-point.png",
       "width": 840,
       "height": 520,
-      "sha256": "f1d9aad1157f5bc4725a72acb0ef45a743c52bcac3494fd9a12ac6570c51e7ae",
+      "sha256": "d47b084e8168c27b761da4befff35f7d8d6e86f6bf67fb8aace008460e4491d2",
       "scene": {
-        "visibleElementCount": 22,
+        "visibleElementCount": 21,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
           "curve": 3,
           "segment": 3,
-          "point": 6,
-          "text": 1
+          "point": 6
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -967,8 +984,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -976,15 +993,14 @@
           "label": 5,
           "curve": 3,
           "segment": 3,
-          "point": 6,
-          "text": 1
+          "point": 6
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -1095,13 +1111,13 @@
       "file": "analysis.convergence.sequence.png",
       "width": 840,
       "height": 520,
-      "sha256": "e4b1e901868c4ec3373279f6b69c8a64430547728c42836a91c79ce17c82a089",
+      "sha256": "30bb612b2bbc3f7dce8ac14b91a4ffd0d8c029cb8bf8433bb9d6e1a6471f2a4a",
       "scene": {
-        "visibleElementCount": 33,
+        "visibleElementCount": 30,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 11,
+          "label": 8,
           "curve": 1,
           "segment": 4,
           "point": 12,
@@ -1179,7 +1195,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 11,
+          "label": 8,
           "curve": 1,
           "segment": 4,
           "point": 12,
@@ -1189,8 +1205,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -1312,7 +1328,7 @@
       "file": "analysis.convergence.uniform-convergence.png",
       "width": 840,
       "height": 520,
-      "sha256": "4fbaa92dc42e24b626293b456d844b1e0a24f77d32777142c9d464287868ccfd",
+      "sha256": "b89a89e692fe1be9e7eacf4170113457110bb9b7a5a24a6453980b111822ef69",
       "scene": {
         "visibleElementCount": 16,
         "visibleElementTypes": {
@@ -1429,8 +1445,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -1534,7 +1550,7 @@
       "file": "analysis.derivative-results.convexity.png",
       "width": 840,
       "height": 520,
-      "sha256": "39a31e021e8c643ae7d54540706329248d05ff3a09d78eaf4056decb3c264bd7",
+      "sha256": "86e0082533cf0e158cbf6d7e339878c1a83630371c8333b45be870f2dd94f992",
       "scene": {
         "visibleElementCount": 30,
         "visibleElementTypes": {
@@ -1655,8 +1671,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -1768,16 +1784,15 @@
       "file": "analysis.derivative-results.extrema.png",
       "width": 840,
       "height": 520,
-      "sha256": "a885b3e2c1da395ec1b9b4cac97dd0a5b4402b51c6fefb4280ce70e6480b4ad3",
+      "sha256": "27ef2605f947bf7a855a072b23cdca88bcaafbf8759212b5eebd7b0d58b02fee",
       "scene": {
-        "visibleElementCount": 34,
+        "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 13,
           "line": 5,
           "curve": 1,
-          "text": 6,
           "point": 5
         },
         "visiblePointCount": 5,
@@ -1846,8 +1861,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 5,
-        "finalLabelCount": 5,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -1855,15 +1870,14 @@
           "label": 13,
           "line": 5,
           "curve": 1,
-          "text": 6,
           "point": 5
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -2010,7 +2024,7 @@
       "file": "analysis.derivative-results.mean-value.png",
       "width": 840,
       "height": 520,
-      "sha256": "55a681df10f52b2d974916e4432eff4175a8c6733eb1e05de199c480e525a5e4",
+      "sha256": "dad8dd71878c18c2df587ebcffaeb865e6ed53c6a549e8944da369022d38f495",
       "scene": {
         "visibleElementCount": 28,
         "visibleElementTypes": {
@@ -2174,8 +2188,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -2278,7 +2292,7 @@
       "file": "analysis.existence.bisection.png",
       "width": 840,
       "height": 520,
-      "sha256": "ab1623ff4d98ffd1640b7dbb3690b018d40261aa07e50a578dce0179340d5239",
+      "sha256": "277ab59415476153e2469d8fdaacd1512162e10af7938ea8c85c63619d5f29a9",
       "scene": {
         "visibleElementCount": 25,
         "visibleElementTypes": {
@@ -2371,8 +2385,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -2458,7 +2472,7 @@
       "file": "analysis.integrability.darboux.png",
       "width": 840,
       "height": 520,
-      "sha256": "037aedb952223668db72cf143a50cf11a8dc889bca13893759a9464f2ed1dd33",
+      "sha256": "33a7282d0b0d4f1dddbc84b1bd6d066161919046e537732dd50170e44a07e9ec",
       "scene": {
         "visibleElementCount": 21,
         "visibleElementTypes": {
@@ -2600,8 +2614,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -2731,7 +2745,7 @@
       "file": "analysis.taylor.taylor.png",
       "width": 840,
       "height": 520,
-      "sha256": "4b18ee4cd9ad53b3df8f50ed14a2b87b9ab291ddbec2671bb4f06b023656fbc0",
+      "sha256": "fc4643a89b097fb528efe5b4740a7cf48b397c06d7675e93b2456eb1b6b2352f",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -2852,8 +2866,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -2981,7 +2995,7 @@
       "file": "bezier-curves.affine-transformations.affine.png",
       "width": 840,
       "height": 520,
-      "sha256": "92470f56e900f262255b95cd4fa81af5fb9a509f6ff626703f90df128ca1c0be",
+      "sha256": "4f45e332418bc39f51a37ca5f177f594a8732c2279b70898f22038a6db090f94",
       "scene": {
         "visibleElementCount": 9,
         "visibleElementTypes": {
@@ -3068,8 +3082,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -3205,7 +3219,7 @@
       "file": "bezier-curves.bernstein-form.bernstein.png",
       "width": 840,
       "height": 520,
-      "sha256": "e0602dd5a3a4b4a8c28270f516a56b757f188889376200c4f01fc9e0d7e3160e",
+      "sha256": "f171f5d7e7f726e1fbfcd0c698ecfe9960adcdba99f1707b99effbb065818935",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -3344,8 +3358,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -3472,7 +3486,7 @@
       "file": "bezier-curves.control-points.bezier.png",
       "width": 840,
       "height": 520,
-      "sha256": "10e391554dcd67d9fd27e39e78b07919b6859170eac344f6a3ec65b5125cec8c",
+      "sha256": "f9f54273f803b0ba41d3fe82f05ebe951584b608a3d83f838c058eabe4bf086b",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
@@ -3560,8 +3574,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -3583,7 +3597,7 @@
       "file": "bezier-curves.geometric-properties.convex-hull.png",
       "width": 840,
       "height": 520,
-      "sha256": "0e07f50545f35ac600e3a801b978292e5e1e8995f32f6c1b04060d1d601f4ada",
+      "sha256": "7c6b72cf34428e7727401b9b7661aa4514a14d64f47e90b19a96528394090e85",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -3665,8 +3679,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -3812,7 +3826,7 @@
       "file": "bezier-curves.interpolation.alternative-recursion.png",
       "width": 840,
       "height": 520,
-      "sha256": "bf1afc7a1783fa46707dcdf7ee318a6d7bf3bfdb7b2da57045b686d3d1ce6e71",
+      "sha256": "2138da0d5d5bd834edef0d283f996ecbeb1afb709c1e895b9ac78a0957ddb9fa",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -3957,8 +3971,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -4126,7 +4140,7 @@
       "file": "bezier-curves.interpolation.decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "e15976c11e33b1d2e4dc5eff1338f5c94cc54e5eec45847620b00a48f089ae9e",
+      "sha256": "ba399d75a316cecbf3e8a1ba7557047d720544b9074d0b4e02030828e0895745",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -4218,8 +4232,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -4242,7 +4256,7 @@
       "file": "bezier-curves.interpolation.quartic-interpolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "7e4f02b8dd66ac4ab7d3685951fc2e6ed4ff1c9b8d1be435c669219131036be6",
+      "sha256": "197bae6727dfe23e8cd5a2675467f9b6dcf77844650b9dffbcbbf3bc54f803b3",
       "scene": {
         "visibleElementCount": 27,
         "visibleElementTypes": {
@@ -4349,8 +4363,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -4480,7 +4494,7 @@
       "file": "bezier-curves.next-ideas.elevation.png",
       "width": 840,
       "height": 520,
-      "sha256": "5570f73ffac366c03c8d8aebaba179561f3c7207fd9208a2fe34bbf0ad1fc9a3",
+      "sha256": "374875d75bc074d5ad28ea7619f441cc7464f5844c7d46425844435a02b15498",
       "scene": {
         "visibleElementCount": 22,
         "visibleElementTypes": {
@@ -4567,8 +4581,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -4590,7 +4604,7 @@
         "steps": [],
         "expectChange": true,
         "checks": {
-          "curveCount": 1,
+          "curveCount": 2,
           "points": [
             [
               -4,
@@ -4627,7 +4641,7 @@
           ]
         }
       },
-      "recipeFingerprint": "5c9d787c55c6d4abfb963fc77c8c851c89a668b0f0759447df4093fd15acd054",
+      "recipeFingerprint": "b5bfa001183e3a05bf1f64905f7c3f070f62a41cd642383dfd59797ceb6c243f",
       "highlight": {
         "frame": "ex-extend-observation",
         "position": {
@@ -4636,8 +4650,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "560bb4fc6d5fd4a5d8a6d68caa1d7f3d5c583e6873915e33a3003cf7966ebe5e",
-        "resultFingerprint": "a4eb9289d69e7b6fb5458ce3b66af4776a78051b5e4990dda502aa8dde3ba21f",
+        "startFingerprint": "55a0af637ad1caa3bdc4d23e4fde1933f2c51122b09fccaaa3043a8014e53474",
+        "resultFingerprint": "706e909d44a292d8325b8a28e9bf65a3dbd2e85ec055f3828a41c7c79f9a9c2b",
         "changedFromStart": true,
         "checks": [
           {
@@ -4666,13 +4680,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 30,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
             "label": 19,
             "point": 5,
-            "curve": 1
+            "curve": 2
           },
           "visiblePointCount": 5
         }
@@ -4685,15 +4699,29 @@
       "file": "bezier-curves.next-ideas.extrapolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "193bee65b29b76da40006385f53dd68d0aaca9748fe2e5c16feaf5f036691cbd",
+      "sha256": "21b2ed92c150bb202778766575f608aa1d6ec51e685e8f9105fe85e42f9fb1af",
       "scene": {
-        "visibleElementCount": 6,
+        "visibleElementCount": 7,
         "visibleElementTypes": {
           "point": 5,
-          "curve": 1
+          "curve": 2
         },
         "visiblePointCount": 5,
         "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              -2
+            ],
+            [
+              0.392,
+              1.816
+            ],
+            [
+              3.056,
+              -3.872
+            ]
+          ],
           [
             [
               -4,
@@ -4723,16 +4751,30 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 31,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
             "label": 21,
             "point": 5,
-            "curve": 1
+            "curve": 2
           },
           "visiblePointCount": 5,
           "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                -0.5,
+                1.875
+              ],
+              [
+                3,
+                -1
+              ]
+            ],
             [
               [
                 -4,
@@ -4762,14 +4804,14 @@
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 5,
-          "curve": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -5053,7 +5095,7 @@
       "file": "bezier-curves.next-ideas.repeated-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "118f8c8e4aa5ae31680d4babb2b190c219e60648e6a48f7aeeb53612b9a67127",
+      "sha256": "35cdef44c03bd951fc3939285d1a814d1703f570659440ae1bfd992139909f26",
       "scene": {
         "visibleElementCount": 64,
         "visibleElementTypes": {
@@ -5249,8 +5291,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -5417,7 +5459,7 @@
       "file": "bezier-curves.next-ideas.subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "1872e7b007fed0697f35da8acf088dd0d700be3fdbbb630aaffc2efe0d0c1a94",
+      "sha256": "7a7f5f9e76c4032402167fa90d2cecfed982179fdb4a221fbcce2584e83fe822",
       "scene": {
         "visibleElementCount": 11,
         "visibleElementTypes": {
@@ -5548,8 +5590,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -5572,7 +5614,7 @@
       "file": "bezier-curves.parameter.decasteljau-parameter.png",
       "width": 840,
       "height": 520,
-      "sha256": "7e4f02b8dd66ac4ab7d3685951fc2e6ed4ff1c9b8d1be435c669219131036be6",
+      "sha256": "197bae6727dfe23e8cd5a2675467f9b6dcf77844650b9dffbcbbf3bc54f803b3",
       "scene": {
         "visibleElementCount": 27,
         "visibleElementTypes": {
@@ -5679,8 +5721,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -5702,16 +5744,16 @@
       "file": "foundations.complex-plane.complex-multiplication.png",
       "width": 840,
       "height": 520,
-      "sha256": "185ed73260c8fff32ba2c06fe64c14f19c4a3a8b92d8378f447fbd2ca3956b4b",
+      "sha256": "f2741b91b361bbf44ffc235bda2ddfbf5ae07984d9da07e0337a1c926dd3d030",
       "scene": {
-        "visibleElementCount": 26,
+        "visibleElementCount": 24,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 4,
           "point": 2,
-          "text": 3
+          "text": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -5856,23 +5898,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 3,
-        "finalLabelCount": 3,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 4,
           "point": 2,
-          "text": 3
+          "text": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -6008,7 +6050,7 @@
       "file": "foundations.reading-bernstein.bernstein.png",
       "width": 840,
       "height": 520,
-      "sha256": "5fda795fc71733f58242d0d5ab4b29d9fa967e173c64a376427327bca165c002",
+      "sha256": "82c8033af2aa7e0ae4cb71332c7b412666fc750fb4ff7aa4326c2ba6f4b64e44",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -6147,8 +6189,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -6168,7 +6210,7 @@
       "file": "foundations.worked-weight.bernstein.degree-comparison.png",
       "width": 840,
       "height": 520,
-      "sha256": "6dda6fb12afac65e30197018113b6c74df90caf261b94118b3207ccd644e1b8f",
+      "sha256": "58d7155db6ab4385110485c845d83c8b1d21404b878a456232951c20f5a7c759",
       "scene": {
         "visibleElementCount": 7,
         "visibleElementTypes": {
@@ -6313,8 +6355,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -6417,7 +6459,7 @@
       "file": "functions-and-calculus.applications.arc-length.png",
       "width": 840,
       "height": 520,
-      "sha256": "b207466088eab293dbe5c128a33fe6bf5b16b45048f64f1e6483d05dc7d9b44f",
+      "sha256": "984d34905c82a2e785ef5cf538e31e461ceeb0cf844cf740b16427a4b62a6f42",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -6563,8 +6605,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -6688,7 +6730,7 @@
       "file": "functions-and-calculus.applications.area-between-curves.png",
       "width": 840,
       "height": 520,
-      "sha256": "cbf0181a7abe1837ad1499599ac45daadc7498abf49003360f7b3c922955949c",
+      "sha256": "cf08407a14e5786da27578c1bec0b391d678b0d31864e91a5b9b77e6192bd6fe",
       "scene": {
         "visibleElementCount": 15,
         "visibleElementTypes": {
@@ -6836,8 +6878,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -6881,8 +6923,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "1a3246f61896155aae2247e8e74b5b181ed157381c5551bde6da4b522c264dc5",
-        "resultFingerprint": "1a3246f61896155aae2247e8e74b5b181ed157381c5551bde6da4b522c264dc5",
+        "startFingerprint": "3b9335e0cd9d93e1cb0aae4bd7df1d11985ef494629348d779a1b82b13c4670a",
+        "resultFingerprint": "3b9335e0cd9d93e1cb0aae4bd7df1d11985ef494629348d779a1b82b13c4670a",
         "changedFromStart": false,
         "checks": [
           {
@@ -6919,16 +6961,15 @@
       "file": "functions-and-calculus.continuity.continuity.png",
       "width": 840,
       "height": 520,
-      "sha256": "ef4af802550c5421c4d12f2ecf99cd0ff577eec59de0f8ed40cd80fdb589b69d",
+      "sha256": "e4edf042977e488bdfed5822a7e52f4ed9a001c81286f78c5588474213f4013a",
       "scene": {
-        "visibleElementCount": 14,
+        "visibleElementCount": 13,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
           "curve": 2,
-          "point": 2,
-          "text": 1
+          "point": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -6985,16 +7026,16 @@
           "sampledVisibleCurves": [
             [
               [
-                -3.952224,
-                15.620075
+                -3.932455,
+                15.4642
               ],
               [
-                -3.941907,
-                15.538737
+                -3.922179,
+                15.383592
               ],
               [
-                -3.93159,
-                15.457398
+                -3.911903,
+                15.302984
               ]
             ],
             [
@@ -7003,12 +7044,12 @@
                 2
               ],
               [
-                1.010317,
-                1.989683
+                1.010276,
+                1.989724
               ],
               [
-                1.020634,
-                1.979366
+                1.020552,
+                1.979448
               ]
             ]
           ],
@@ -7021,23 +7062,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
           "curve": 2,
-          "point": 2,
-          "text": 1
+          "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -7186,7 +7226,7 @@
       "file": "functions-and-calculus.derivatives.derivative.png",
       "width": 840,
       "height": 520,
-      "sha256": "fa998a04211ff7b96087f1412788f0e23b5f8bd00079024dd6a1476ca9fea002",
+      "sha256": "019a3253f6b933734bec4a98de970832de5ee57d8f19f302a25fbf91db1c7c79",
       "scene": {
         "visibleElementCount": 15,
         "visibleElementTypes": {
@@ -7294,8 +7334,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -7397,7 +7437,7 @@
       "file": "functions-and-calculus.function-rules.exponential-function.png",
       "width": 840,
       "height": 520,
-      "sha256": "99fb3a88e3b9777b25257a83d42e286fbe13a129c064f931b3b21ebcabe31d6f",
+      "sha256": "763ad6c5bdb2abe9088d9c2e7ed31e6baff3abb04b1914beeacb49a219f33c35",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
@@ -7487,8 +7527,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -7583,7 +7623,7 @@
       "file": "functions-and-calculus.function-rules.linear-function.png",
       "width": 840,
       "height": 520,
-      "sha256": "ee856823e42decbf12acec2aa19e7fed5e136bbe13b1e1f41cff585e9cccaa62",
+      "sha256": "aca9380774fb9756fd8dfea554d32ac62d90dc21669d0c2f3ffe8df3b52f0594",
       "scene": {
         "visibleElementCount": 29,
         "visibleElementTypes": {
@@ -7647,8 +7687,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -7749,7 +7789,7 @@
       "file": "functions-and-calculus.function-rules.trigonometric-functions.png",
       "width": 840,
       "height": 520,
-      "sha256": "c127601d70142ee8ca7bd717a940e10836135c4bfeb7ec82c4782a0d9bb14bc2",
+      "sha256": "c9682a1cec51bdda1981601d1fee7c2e9cad93a9ada076900fa20722b3138648",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -7863,8 +7903,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -8019,13 +8059,13 @@
       "file": "functions-and-calculus.integrals.accumulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "57707c26265691b2b33518d4c89db7e1d7af4432692687d0bb9e12c42691fa6b",
+      "sha256": "f8a81b61fc2d5ea1da8c3576b93b6ab0b6fb852f6223a0d3edc3b0e93ffe6a66",
       "scene": {
-        "visibleElementCount": 23,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 9,
+          "label": 8,
           "curve": 4,
           "segment": 1,
           "text": 1,
@@ -8162,7 +8202,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 9,
+          "label": 8,
           "curve": 4,
           "segment": 1,
           "text": 1,
@@ -8172,8 +8212,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -8275,7 +8315,7 @@
       "file": "functions-and-calculus.integrals.definite-integral.png",
       "width": 840,
       "height": 520,
-      "sha256": "c2f1d1ea0acf4882b73b5e3d1b4959969249e01a8d6dc4beb9f257a4dbccc989",
+      "sha256": "6590fef555c500a3d4efc727b77758996314ed9237de54b62dec640b02485328",
       "scene": {
         "visibleElementCount": 9,
         "visibleElementTypes": {
@@ -8391,8 +8431,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -8609,13 +8649,12 @@
       "file": "parametrization.uniform-timing.uniform-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "572be940bc9bdd2aaff4476eeece82a1df0c50050b98e4ae5f6f2b00fa74d487",
+      "sha256": "14ba78c0e049ce5fc5d1e0b9dcec7ae9652fd8b29deaebbe6e4e5d64782afb56",
       "scene": {
-        "visibleElementCount": 18,
+        "visibleElementCount": 17,
         "visibleElementTypes": {
           "point": 16,
-          "curve": 1,
-          "text": 1
+          "curve": 1
         },
         "visiblePointCount": 16,
         "sampledVisibleCurves": [
@@ -8695,20 +8734,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 16,
-          "curve": 1,
-          "text": 1
+          "curve": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -8972,7 +9010,7 @@
       "file": "parametrization.weighted-knot.spline-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "9ba91a2d25c4ce236f94d98cffaa1df3b60af20ac6569532438a1a2940ee88e3",
+      "sha256": "f82aec1bd888faad2d0ee6770bd9551dc0c8b9955ad71e0138874d81e42d41f1",
       "scene": {
         "visibleElementCount": 31,
         "visibleElementTypes": {
@@ -9073,8 +9111,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -9229,7 +9267,7 @@
       "file": "parametrization.weighted-knot.weighted-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "1561b5ad3609d6032adb1d8bdb5642aaf621ad4bf89f5f4c75cc1a51b72e0383",
+      "sha256": "b5c1075c5863cbb4c212289f683cc6fb5948e9fc67ce9118d6c7a980e508c4b2",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -9317,8 +9355,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -9454,13 +9492,12 @@
       "file": "ph-curves.arc-length-problem.ph-cubic-speed.png",
       "width": 840,
       "height": 520,
-      "sha256": "5306c75ac534d5e087e0a9dc9fb86668fbf022ed00bea5c2a31351bfeec643e8",
+      "sha256": "75af2682c84a28648677a11b0fe1ce8a82edd534c2b02d47717b55e7d3ea46ad",
       "scene": {
-        "visibleElementCount": 7,
+        "visibleElementCount": 6,
         "visibleElementTypes": {
           "point": 4,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -9543,20 +9580,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -9736,13 +9772,12 @@
       "file": "ph-curves.arc-length-problem.ph-quintic-comparison.png",
       "width": 840,
       "height": 520,
-      "sha256": "a120a73f7841fb75fff910e087648f0a89aa7082b51a0e728a63bae6d9cc98e5",
+      "sha256": "faf2d9e6a09ccd158d57af5110d1d102bda5709fa3d36d3870e860005e36993f",
       "scene": {
-        "visibleElementCount": 9,
+        "visibleElementCount": 8,
         "visibleElementTypes": {
           "point": 6,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -9827,20 +9862,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 6,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -9958,13 +9992,12 @@
       "file": "ph-curves.complex-hodograph.ph-cubic-generator.png",
       "width": 840,
       "height": 520,
-      "sha256": "2d2f5a9edbb448ecb34eaec0b5f8f3b0223845f3aea3a6ec4d6f18f7b04605ec",
+      "sha256": "ea5ba3286d1d0fe8f42ed080f151160fffcdf972de0f91aa4b7c43ae03d88cc1",
       "scene": {
-        "visibleElementCount": 6,
+        "visibleElementCount": 5,
         "visibleElementTypes": {
           "point": 4,
-          "curve": 1,
-          "text": 1
+          "curve": 1
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -10032,20 +10065,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
-          "curve": 1,
-          "text": 1
+          "curve": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -10209,13 +10241,12 @@
       "file": "ph-curves.investigate-ph.ph-cubic-singularity.png",
       "width": 840,
       "height": 520,
-      "sha256": "ef9cb6ebe310782978cdb1758f2f737781875ef1ceccc84e21dfbfc843b92d88",
+      "sha256": "64a2a7cd74b5bdcc36cd63569ca83b06c9d100bbea7b0d83688c237de95c99bf",
       "scene": {
-        "visibleElementCount": 7,
+        "visibleElementCount": 6,
         "visibleElementTypes": {
           "point": 4,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -10298,20 +10329,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -10511,13 +10541,12 @@
       "file": "ph-curves.investigate-ph.ph-quintic-singularity.png",
       "width": 840,
       "height": 520,
-      "sha256": "d411c69672811af56693e1e20a681c4f4446de51f1365ca7465f76d6585ac904",
+      "sha256": "f68a6c3db3bf41dadf566aec36a83e74d3980162197383fa67878cd212052191",
       "scene": {
-        "visibleElementCount": 9,
+        "visibleElementCount": 8,
         "visibleElementTypes": {
           "point": 6,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -10602,20 +10631,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 6,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -10779,13 +10807,12 @@
       "file": "ph-curves.offsets.ph-quintic-offsets.png",
       "width": 840,
       "height": 520,
-      "sha256": "a88869b3bee2f7f1eb1ba670bc18c5f81e12f5d39598ca1f1abf15534bd4c88b",
+      "sha256": "e577137e2fe6fb7235a2ae0d1c578c4a9b2205abd715edfdf0dc1c85efa7c921",
       "scene": {
-        "visibleElementCount": 9,
+        "visibleElementCount": 8,
         "visibleElementTypes": {
           "point": 6,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -10872,20 +10899,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 6,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -11069,13 +11095,12 @@
       "file": "ph-curves.worked-length.ph-cubic-offset-length.png",
       "width": 840,
       "height": 520,
-      "sha256": "2d421ca9ac266f94ba6caef8a23a178de72c3a5113d1e5e615263266c5a3ef50",
+      "sha256": "75af2682c84a28648677a11b0fe1ce8a82edd534c2b02d47717b55e7d3ea46ad",
       "scene": {
-        "visibleElementCount": 7,
+        "visibleElementCount": 6,
         "visibleElementTypes": {
           "point": 4,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -11158,20 +11183,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
-          "curve": 2,
-          "text": 1
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -11309,7 +11333,7 @@
       "file": "rational-curves.homogeneous.rational-decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "8f15f0fe2e0c4e6dafd358b652704aa7644eec536b1a00c1d929d4131bb095cc",
+      "sha256": "84dfc9d118225c81a6661ac5e96353801f5a99de9ea0278a803c6a8fb3a6217f",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -11387,8 +11411,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 0,
-        "finalLabelCount": 0,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 6,
@@ -11400,8 +11424,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -11520,13 +11544,12 @@
       "file": "rational-curves.investigate-rational.rational-extrapolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "3c78cc03de7d8a014e73ec048405f90f56fbbe02fd634b3b4332ee4943600509",
+      "sha256": "0b74cf709f6effe6ec1548461151205fadb9b54aa725aef448c08b1c2c5c6c0f",
       "scene": {
-        "visibleElementCount": 10,
+        "visibleElementCount": 6,
         "visibleElementTypes": {
           "point": 5,
-          "curve": 1,
-          "smartlabel": 4
+          "curve": 1
         },
         "visiblePointCount": 5,
         "sampledVisibleCurves": [
@@ -11599,15 +11622,14 @@
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 5,
-          "curve": 1,
-          "smartlabel": 4
+          "curve": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -11680,7 +11702,7 @@
         "steps": [],
         "expectChange": true,
         "startFingerprint": "e9d0f10b798e9df46271df1e619ca351df34938ecd62d486a00f6454e38d4081",
-        "resultFingerprint": "03975ff7610ac365aaa96b5838f91a6a51d0661f2586beeb8149ddc662f48e93",
+        "resultFingerprint": "61d11b56ad1fd6ac6ae1e226bf8bfbe6957d1f220141ea3516853a4cbd3e5eef",
         "changedFromStart": true,
         "checks": [
           {
@@ -11713,10 +11735,10 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 48,
+          "visibleElementCount": 45,
           "visibleElementTypes": {
             "axis": 2,
-            "ticks": 5,
+            "ticks": 2,
             "label": 20,
             "point": 4,
             "curve": 1,
@@ -11736,17 +11758,14 @@
       "file": "rational-curves.operations.farin.png",
       "width": 840,
       "height": 520,
-      "sha256": "337c50f857c993114bb4782d3ebfb060e22a7130577f8d54ee40875f6aac21d7",
+      "sha256": "7742c9d8025870cb80c0c363195f0a75752bc64ee26cfeb2f73fc900acd68451",
       "scene": {
-        "visibleElementCount": 24,
+        "visibleElementCount": 14,
         "visibleElementTypes": {
           "point": 4,
           "curve": 1,
-          "smartlabel": 4,
           "segment": 6,
-          "slider": 3,
-          "text": 3,
-          "ticks": 3
+          "slider": 3
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -11814,25 +11833,22 @@
         "width": 420,
         "height": 260,
         "scale": 2,
-        "equalUserUnits": true,
-        "renderedLabelCount": 3,
-        "finalLabelCount": 3,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
           "curve": 1,
-          "smartlabel": 4,
           "segment": 6,
-          "slider": 3,
-          "text": 3,
-          "ticks": 3
+          "slider": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -11961,13 +11977,13 @@
       "file": "rational-curves.operations.rational-elevation.png",
       "width": 840,
       "height": 520,
-      "sha256": "0e1fed9dfe06da925383667a0224a36dce6e528080a19e7826760f49b165f74a",
+      "sha256": "048592dc1ffbd61b7fcbff3c74c1c0c7302aa20a1aadee8953cb0dc15873a87c",
       "scene": {
-        "visibleElementCount": 15,
+        "visibleElementCount": 14,
         "visibleElementTypes": {
           "curve": 1,
           "point": 5,
-          "smartlabel": 5,
+          "smartlabel": 4,
           "segment": 4
         },
         "visiblePointCount": 5,
@@ -12038,21 +12054,21 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 0,
-        "finalLabelCount": 0,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "curve": 1,
           "point": 5,
-          "smartlabel": 5,
+          "smartlabel": 4,
           "segment": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -12221,13 +12237,12 @@
       "file": "rational-curves.operations.rational-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "375e262eb0e2d6778564ba67cb85d3ad24880d46ff7837e94422fc5ababb6f1f",
+      "sha256": "becffd3561b7ac6765736f747ade424f1c8c371acb61fcd8fa6054d9f5a6ba1c",
       "scene": {
-        "visibleElementCount": 19,
+        "visibleElementCount": 11,
         "visibleElementTypes": {
           "point": 8,
-          "curve": 3,
-          "smartlabel": 8
+          "curve": 3
         },
         "visiblePointCount": 8,
         "sampledVisibleCurves": [
@@ -12342,21 +12357,20 @@
         "width": 420,
         "height": 260,
         "scale": 2,
-        "equalUserUnits": true,
+        "equalUserUnits": false,
         "renderedLabelCount": 0,
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 8,
-          "curve": 3,
-          "smartlabel": 8
+          "curve": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -12498,7 +12512,7 @@
       "file": "rational-curves.why-rational.rational-weight.png",
       "width": 840,
       "height": 520,
-      "sha256": "3c2b13f28f899b820526f9337cdf13d165d7ad96ed5297ca296fdeee9b1b9ffc",
+      "sha256": "87f95e4cb6b8f783a38e2bd667a56e814ffd92173ecde476661ab0a5a1f142b3",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -12576,9 +12590,9 @@
         "width": 420,
         "height": 260,
         "scale": 2,
-        "equalUserUnits": true,
-        "renderedLabelCount": 0,
-        "finalLabelCount": 0,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 5,
@@ -12590,8 +12604,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -12610,7 +12624,7 @@
       "file": "rational-curves.worked-conic.circle.png",
       "width": 840,
       "height": 520,
-      "sha256": "ee6732a35c2918f4bb9e62ad44522f169fda9161f3f15d363e618f3bf5e3f195",
+      "sha256": "db6269f46366f392583324295f24ed0211c40072c20813dec3221e82715ac515",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -12742,8 +12756,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -12870,7 +12884,7 @@
       "file": "splines.continuity-levels.spline-c1.png",
       "width": 840,
       "height": 520,
-      "sha256": "b6fe9d65c1887828294b71acea833f4dc3a4e5590a72780c54a09850b2e702b3",
+      "sha256": "d4851b38d57d982016296761cde505a07040e13bf71e3486250992d6c6376e20",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -12956,8 +12970,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -13140,7 +13154,7 @@
       "file": "splines.continuity-levels.spline-c2.png",
       "width": 840,
       "height": 520,
-      "sha256": "07546b5a08afde62350c67ee3d328ab1618ad854e3b48057b09d5d5a79860e37",
+      "sha256": "80f6a5a7ff5b557a3f20853ec577896b024ed387179169e5b4cb4ca0a84242e2",
       "scene": {
         "visibleElementCount": 18,
         "visibleElementTypes": {
@@ -13233,8 +13247,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -13361,7 +13375,7 @@
       "file": "splines.geometric-vs-parametric.spline-g1.png",
       "width": 840,
       "height": 520,
-      "sha256": "bf05591eb5489221782c948f95a20da4aa28c29b72d21e552e2f15d6178cb754",
+      "sha256": "b256588cad5a91e410e98277dcbe134e2fc9036f71864aa8f0f1861090f77183",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -13447,8 +13461,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -13576,7 +13590,7 @@
       "file": "splines.geometric-vs-parametric.spline-g1-symmetric.png",
       "width": 840,
       "height": 520,
-      "sha256": "2d63478a2ab2fd822ed745e8238d3d13c39da9fdc3960b7f0c092e2d5ee71bd1",
+      "sha256": "c71e6bc92e7eba88c5c69e5942bd7fb895ec7963659c8a01fad5183fe6311f7d",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -13663,8 +13677,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -13791,7 +13805,7 @@
       "file": "splines.piecewise.spline-cn.png",
       "width": 840,
       "height": 520,
-      "sha256": "e259d5dd011e47e51662125e822aaec80549087add4259e2b4744612cda257ca",
+      "sha256": "61a5ccd42968f06e102599d21d89f0849f8e755d1cf9a8f4bf5d150c0553c072",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -13877,8 +13891,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     },
@@ -13897,7 +13911,7 @@
       "file": "splines.worked-join.spline-c1.parabola-derivatives.png",
       "width": 840,
       "height": 520,
-      "sha256": "2d37b57106fd80cb7a8b5f1a4b6a82048fab3f204761137cd0cb5db8864bc05b",
+      "sha256": "382210c198597e526cf6e5507b3bce4f93ebac09f2ea71b800d59d562bc9aaa9",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -13993,8 +14007,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
+        "sourceRevision": "cd899161eb51ddf6f6bcaa4c5a4a9aca90010f10",
         "pageErrors": []
       }
     }
