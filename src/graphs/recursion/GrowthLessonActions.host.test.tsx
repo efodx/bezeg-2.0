@@ -170,3 +170,59 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
         expect(status(), label).toEqual(beforeStatus);
     }
 });
+
+type LogAction = Extract<LessonAction, {kind: 'recursion'; operation: 'set-log'}>;
+const setLog = (fields: Omit<LogAction, 'kind' | 'operation'>): LessonAction => ({kind: 'recursion', operation: 'set-log', ...fields});
+
+test('set-log reaches the state, readouts and status of typing y0, the factor q and choosing the model', () => {
+    const viaAction = after(graph => { apply(graph, setMap({panel: 'log'})); apply(graph, setLog({y0: 500, logQ: 120, logModel: 'power'})); });
+    const viaControl = after(() => {
+        panel('log');
+        type(t('recursion_graph_growth_y0_label'), '500');
+        type(t('recursion_graph_growth_logq_label'), '1,2');
+        choose(t('recursion_graph_growth_model_label'), 'power');
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state).toEqual(expect.objectContaining({panel: 'log', y0: 500, logQ: 120, logModel: 'power'}));
+    // it does not change the panel
+    expect(after(graph => apply(graph, setLog({logQ: 105}))).state).toEqual(expect.objectContaining({panel: 'sequence', logQ: 105}));
+});
+
+test('set-log in one synchronous sequence with set-map, and the checkpoint restores the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const freeReadouts = readouts();
+    const checkpoint = capabilities.captureState();
+    act(() => {
+        capabilities.apply(setMap({panel: 'log'}));
+        capabilities.apply(setLog({y0: 1000, logQ: 105}));
+        capabilities.apply(setLog({logQ: 200}));
+    });
+    expect(graph.state).toEqual(expect.objectContaining({panel: 'log', y0: 1000, logQ: 200, logModel: 'exponential'}));
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+    expect(readouts()).toEqual(freeReadouts);
+});
+
+test('invalid set-log data is a lesson-content error and changes nothing', () => {
+    const graph = mount();
+    apply(graph, setMap({panel: 'log'}));
+    expect(graph.supportsLessonAction(setLog({y0: 1}))).toBe(true);
+    const before = stateOf(graph);
+    const beforeReadouts = readouts();
+    const beforeStatus = status();
+    const bad: [LessonAction, string][] = [
+        [setLog({logQ: 49}), 'recursion set-log:'], [setLog({logQ: 301}), 'recursion set-log:'], [setLog({logQ: 1.5}), 'recursion set-log:'],
+        [setLog({y0: 0}), 'recursion set-log:'], [setLog({y0: 100001}), 'recursion set-log:'], [setLog({y0: 7, logQ: 301}), 'recursion set-log:'],
+        [setLog({logModel: JSON.parse('"cubic"')}), 'recursion set-log:'],
+        [{kind: 'recursion', operation: 'set-log', M: 10} as unknown as LessonAction, 'recursion set-log: no such field M'],
+    ];
+    for (const [action, message] of bad) {
+        const label = JSON.stringify(action);
+        expect(() => apply(graph, action), label).toThrow(message);
+        expect(stateOf(graph), label).toEqual(before);
+        expect(readouts(), label).toEqual(beforeReadouts);
+        expect(status(), label).toEqual(beforeStatus);
+    }
+});

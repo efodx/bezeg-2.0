@@ -479,6 +479,11 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
                 this.editStored("set-interest", patch, ["capital", "rate", "years", "parts"]);
                 return;
             }
+            case "set-log": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-log", patch, ["y0", "logQ", "logModel"]);
+                return;
+            }
             default: {
                 const unsupported: never = action;
                 throw new Error(`recursion: no operation in ${JSON.stringify(unsupported)}.`);

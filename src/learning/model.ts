@@ -609,6 +609,11 @@ export type LessonAction =
         readonly capital?: number; readonly rate?: number; readonly years?: number; readonly parts?: number;
     }
     /**
+     * The logarithm panel (RG5): `set-log` sets the stored integers `y0` (the start value) and `logQ` (the ratio times 100, 50 to 300) and the model
+     * (`'exponential'` or `'power'`). It does not change the panel (`set-map` with `panel: 'log'` does); the cobweb graph refuses it.
+     */
+    | {readonly kind: 'recursion'; readonly operation: 'set-log'; readonly y0?: number; readonly logQ?: number; readonly logModel?: 'exponential' | 'power'}
+    /**
      * ComplexPowerGraph's scene actions (M6, de Moivre). `set-z` sets z = (A + B i) / 20 as the stored integers `A` and `B` (each from -40 to 40; the same as dragging or
      * typing z), `set-n` the exponent `n` (an integer from 1 to 8; the same as the n field and its steppers). The merged state must pass `parseComplexPowerState` before
      * the write, otherwise the action throws (`complex-power <operation>: ...`) and nothing is written; unknown fields are refused. A valid action pauses the playback.

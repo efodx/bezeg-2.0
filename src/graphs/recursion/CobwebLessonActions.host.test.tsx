@@ -191,6 +191,7 @@ test('the graphs support their actions; invalid scene data is a lesson-content e
         [setMap({panel: 'interest'}), /^recursion set-map: panel belongs to the growth graph\.$/], [setMap({sequence: 'geometric'}), /^recursion set-map: sequence belongs to the growth graph\.$/],
         [setParams({a1: 1}), /^recursion set-params: a1 belongs to the growth graph\.$/], [setParams({d: 1, q: 5, n: 3}), /^recursion set-params: d, q, n belongs to the growth graph\.$/],
         [{kind: 'recursion', operation: 'set-interest', capital: 5}, /^recursion set-interest: this operation belongs to the growth graph\.$/],
+        [{kind: 'recursion', operation: 'set-log', logQ: 120}, /^recursion set-log: this operation belongs to the growth graph\.$/],
         // unknown fields
         [{kind: 'recursion', operation: 'set-start', x: 1} as unknown as LessonAction, /^recursion set-start: no such field x\.$/],
         [{kind: 'recursion', operation: 'set-start', X: 5, step: 2} as unknown as LessonAction, /^recursion set-start: no such field step\.$/],

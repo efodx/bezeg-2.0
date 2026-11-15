@@ -505,6 +505,8 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
             }
             case "set-interest":
                 throw new Error("recursion set-interest: this operation belongs to the growth graph.");
+            case "set-log":
+                throw new Error("recursion set-log: this operation belongs to the growth graph.");
             default: {
                 const unsupported: never = action;
                 throw new Error(`recursion: no operation in ${JSON.stringify(unsupported)}.`);
