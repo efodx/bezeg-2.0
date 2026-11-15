@@ -36,3 +36,11 @@
 ### Handler 21 review
 
 - Accepted with one open item: at 390 px and n = 12 the power labels stand side by side and touch ("x⁹x⁸x⁷…"). The thinning estimate (`POWER_X_PX` 7 + `POWER_DIGIT_PX` 5 per label) is below the drawn width (about 15–16 px against a bar pitch of about 15.6 px). A wider estimate would drop "x¹" on the n = 1 card, where the text renders smaller; the fix is to thin from measured text widths (the drawn text's bounding box) rather than an estimate.
+
+## F4 cards (Batch C)
+
+- Added `combinatorics.row-sums.counting-tree` (CB5 first scene: row view, n = 4, k = 2, t = 0,5). Inventory: `combinatoricsRowExpectedFor` (section `row-sums`, asserts exactly one `set-row`), authored from `buildRow`/`barData` (three curves, no point; bar heights 1.5, 6, 9, 6, 1.5). Passed the capture checks on the first attempt. The four earlier PNGs are byte-identical (same sha256 in the capture log); the manifest gained the fifth entry.
+- Pre-PNG failure (`.command-logs/comb-c/f4/red.log`): "publishes the combinatorics example cards ..." deep-equal of 4 against 5 ids. After the capture the unit run saw a stale glob until the comment in `guidedExamplePreviews.ts` was edited again (cache not deleted).
+- Frame viewed (840x520): board text is left of centre. Title "Vrstica 4 Pascalovega trikotnika", orange "izbran k = 2: (4 nad 2) = 6", five thick bars (green, orange tallest third), baseline running right, numbers 1 4 6 4 1 under the bars (staggered rows), place numbers 0 1 2 3 4 below. All five bars and the row numbers are inside the card and readable. The long weight caption is hidden at card size (catalog text policy).
+- Crowding (graph-owned, not fixed): the "k = 2" label above the orange bar overlaps the "izbran k = 2" line and touches the bar top; the bars are crowded in the left third, wide strokes touch each other.
+- Checks: unit `src/learning/chapter` + familyChapters, scripts tests, tsc, lint, rawcheck passed (logs in `.command-logs/comb-c/f4/`). Preview 4523 stopped.

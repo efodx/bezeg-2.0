@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for CB5; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the Bernstein and binomial lessons behave as before.
 
-Status: F3 CB5 written and joined (handler 32); F4 card, F5 and F6 gate next.
+Status: F3 CB5 written and joined (handler 32); F4 card captured (handler 32); F5 and F6 next.

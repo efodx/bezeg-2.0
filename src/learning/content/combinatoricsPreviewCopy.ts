@@ -27,6 +27,12 @@ export const combinatoricsPreviewCopy = {
         'Drevo izbir dveh od treh predmetov \\(1,2,3\\), po vrstnem redu in brez ponavljanja.',
         'The tree of choices of two out of three items \\(1,2,3\\), in order and without repetition.',
     ),
+    'combinatorics.row-sums.counting-tree': copy(
+        'Krem ozadje brez koordinatnih osi. Na levi stoji pet zelenih debelih stolpcev tik drug ob drugem, ki od zunaj navznoter rastejo; srednji, tretji stolpec je oranžen in najvišji. Desno od njih teče vodoravna siva črta. Pod stolpci so števila 1, 4, 6, 4, 1 in pod njimi številke mest 0, 1, 2, 3, 4. Zgoraj levo je sivo besedilo »Vrstica 4 Pascalovega trikotnika« in pod njim oranžno besedilo o izbranem mestu k = 2; oznaka »k = 2« se dotika vrha oranžnega stolpca.',
+        'Cream background without coordinate axes. At the left stand five thick green bars side by side, growing from the outside inwards; the middle, third bar is orange and the tallest. A horizontal grey line runs to the right of them. Under the bars are the numbers 1, 4, 6, 4, 1 and below them the place numbers 0, 1, 2, 3, 4. At the upper left is grey text reading row 4 of Pascal triangle and, below it, orange text about the chosen place k = 2; the label k = 2 touches the top of the orange bar.',
+        'Vrstica 4 Pascalovega trikotnika z utežmi v stolpcih.',
+        'Row 4 of the Pascal triangle with its weights as bars.',
+    ),
     'combinatorics.lattice-paths-and-pascal.lattice-paths': copy(
         latticeAltSl,
         latticeAltEn,

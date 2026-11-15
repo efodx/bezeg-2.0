@@ -1,70 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+    "dirty": true,
+    "inputs": "a13b32e439d066f306244cc78bd907b79c200534e7050c3412c54aefe6448f2f",
+    "output": "73ea3f4bc9fcd478773b30c508455e7507e52db36f96e01f697eb67358e1febd"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4523/bezeg-2.0/",
+    "stampRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+    "stampDirty": true,
+    "localOutputHash": "73ea3f4bc9fcd478773b30c508455e7507e52db36f96e01f697eb67358e1febd",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-BEs4HRov.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/index-BEs4HRov.js",
+        "sha256": "d7011158f751080d996439d0a8bb0681583c3b65eb73b5e36653be9522165f02",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-BP8YOfqk.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/jsx-runtime-BP8YOfqk.js",
+        "sha256": "20da40124b04d30b818825dd4fcdb0e1d38de09e99289423f141195eb3bce2a3",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-BXDP_wDq.js",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/react-dom-BXDP_wDq.js",
+        "sha256": "b30c9c8e723878403a035b920c220c87a48c90c08ab43b1790f3c24545f6cf83",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4523/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "ffa8d7913b405e9501bfdb3693bebcaae678a270849fe0b448628e6a08133c8d",
+    "inventory": "48a3b60aa0cde9e093631ca2e5b1644831fbdeeeb017987e24a492b8daf02d3d",
     "entries": {
       "combinatorics.lattice-paths-and-pascal.lattice-paths": "3fc4443d87b78554dec115d78b3b07884e09e4a47a6d54ef76ab03fa123415aa",
       "combinatorics.counting-and-choices.counting-tree": "e499ffed2d719b9d90907da812afd9758f8f38393af16791a91d2e7a32300f3f",
       "combinatorics.pascal-identity.lattice-paths": "4d7358494077b855503dc707c9235d8a6c33d7eff9e57d3878da39ee77f9dbd8",
-      "combinatorics.binomial-theorem.lattice-paths": "90d5a7f8b8c2cf4a95eb3de6c4ce63987f3c5a190bed7b43bca33d906cd5574e"
+      "combinatorics.binomial-theorem.lattice-paths": "90d5a7f8b8c2cf4a95eb3de6c4ce63987f3c5a190bed7b43bca33d906cd5574e",
+      "combinatorics.row-sums.counting-tree": "fccc3d04aa4634ce21764ac373c089a4ca2dde379475ea5807bc11abc11d12e6"
     },
-    "presentation": "465a37ef27f92e3a661893500fe2a92182d797a84b7bd8208f5f8c69b0c83012",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "9f32e3db62db8ed36b15469fa256976665d20d66f96ae65029982bbde1e23c27",
+    "buildOutput": "73ea3f4bc9fcd478773b30c508455e7507e52db36f96e01f697eb67358e1febd",
+    "buildInputs": "a13b32e439d066f306244cc78bd907b79c200534e7050c3412c54aefe6448f2f"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -132,6 +133,19 @@
             24.5,
             37.6,
             0.3
+          ]
+        }
+      },
+      {
+        "id": "combinatorics.row-sums.counting-tree",
+        "demonstrationId": "counting-tree",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.5,
+            24.5,
+            30.2,
+            5.5
           ]
         }
       }
@@ -302,8 +316,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
         "pageErrors": []
       }
     },
@@ -412,8 +426,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
         "pageErrors": []
       }
     },
@@ -581,8 +595,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
         "pageErrors": []
       }
     },
@@ -717,8 +731,171 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "combinatorics.row-sums.counting-tree",
+      "demonstrationId": "counting-tree",
+      "path": "/bezeg-2.0/combinatorics/counting?example=lesson.combinatorics.row-sums.counting-tree",
+      "sceneFingerprint": "6b40d4f4238d8c3f321653d57750f1830067cc67c17654979169da97c7a01af6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb5-sum-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb5-sum-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-row\",\"n\":4,\"k\":2,\"t\":0.5}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "combinatorics.row-sums.counting-tree.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e88a537932b1b584fdb2fef6fb72a945cf76f61892cc48b451dff614e8e36251",
+      "scene": {
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "curve": 3,
+          "text": 13
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0.2,
+              9.5
+            ],
+            [
+              12.1,
+              9.5
+            ],
+            [
+              24,
+              9.5
+            ]
+          ],
+          [
+            [
+              0.9,
+              9.5
+            ],
+            [
+              0.9,
+              10.25
+            ],
+            [
+              0.9,
+              11
+            ]
+          ],
+          [
+            [
+              3.2,
+              9.5
+            ],
+            [
+              3.2,
+              14
+            ],
+            [
+              3.2,
+              18.5
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 17,
+          "visibleElementTypes": {
+            "curve": 3,
+            "text": 14
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0.2,
+                9.5
+              ],
+              [
+                12.1,
+                9.5
+              ],
+              [
+                24,
+                9.5
+              ]
+            ],
+            [
+              [
+                0.9,
+                9.5
+              ],
+              [
+                0.9,
+                10.25
+              ],
+              [
+                0.9,
+                11
+              ]
+            ],
+            [
+              [
+                3.2,
+                9.5
+              ],
+              [
+                3.2,
+                14
+              ],
+              [
+                3.2,
+                18.5
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 13,
+        "finalLabelCount": 13,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "text": 13
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
         "pageErrors": []
       }
     }

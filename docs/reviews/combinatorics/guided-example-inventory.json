@@ -159,6 +159,72 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "combinatorics.row-sums.counting-tree",
+      "demonstrationId": "counting-tree",
+      "path": "/bezeg-2.0/combinatorics/counting?example=lesson.combinatorics.row-sums.counting-tree",
+      "sceneFingerprint": "6b40d4f4238d8c3f321653d57750f1830067cc67c17654979169da97c7a01af6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb5-sum-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb5-sum-scene\",\"source\":\"demonstration-default\"}",
+        "combinatorics: {\"kind\":\"combinatorics\",\"operation\":\"set-row\",\"n\":4,\"k\":2,\"t\":0.5}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3
+        },
+        "curveCount": 3,
+        "points": [],
+        "curves": [
+          [
+            [
+              0.2,
+              9.5
+            ],
+            [
+              12.1,
+              9.5
+            ],
+            [
+              24,
+              9.5
+            ]
+          ],
+          [
+            [
+              0.9,
+              9.5
+            ],
+            [
+              0.9,
+              10.25
+            ],
+            [
+              0.9,
+              11
+            ]
+          ],
+          [
+            [
+              3.2,
+              9.5
+            ],
+            [
+              3.2,
+              14
+            ],
+            [
+              3.2,
+              18.5
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
