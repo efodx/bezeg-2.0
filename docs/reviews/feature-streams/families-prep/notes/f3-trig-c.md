@@ -62,3 +62,9 @@ Slice 3: register, chapter, preview, tests, notation test list, smoke.
 - Step 6 a=4 "krožnica se poltraka le dotakne" and "druga točka na drugi strani A" are geometric arguments, not probe quotes.
 - Step 7 observation prompt (smallest/largest a) is a grid fact checked by two probes and the exact rule; 4,25 to 7,75 gives 15 values.
 - Free exploration ends on SSS 5,6,7 (scene), as the brief asks; no smoke test run.
+
+### Slice 2d
+- `src/learning/content/trigSolveGuidedLessons.test.ts` (tests only; 18 tests, sl and en). Part A: opening sweep on the real graph out of order and twice, restore (`:100-`), controls/labels named by prompts, learner actions through the real controls (typing c, b, a; chooser to SKS/KSK/SSK; B = 150; a = 5, 4, 3,5, 9, 4,25, 7,75, 4, 8, 8,25), no opening equals the state its prompt asks for, no answer before the change (steps 3, 4 and the rest). Part B: independent law of cosines, Heron, law of sines and SSA quadratic; per-step quotes; closed set of decimals; separator per language; whole grid a = 1/4..12: exactly 4,25..7,75 (15 values) have two solutions.
+- Checks: `just unit` (file plus `src/graphs/trig`) passed; `just typecheck` 0; `just lint` on the file 0; LF. Red: sl step 4 quote 7,03508 -> 7,03509 fails 3 tests, restored (`s2d-red.log`).
+- Finding, not a false claim: step 3 (sl and en) writes `C=180-60-43,8979=76,1021` without an approx marker on the rounded 43,8979; the approx rule exempts exactly that chain.
+- Not verified: no browser/smoke run; the `a` typed with a decimal comma in sl relied on the field accepting it (it did in this test).
