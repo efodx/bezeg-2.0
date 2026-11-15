@@ -51,3 +51,7 @@ Slice 3 (registration, chapter, tests, notation test run).
 ### Doubts
 - Row names in prompts quoted by label without symbols (e.g. "Naklon prvega koraka"); no browser check.
 - Step 1 mixes years t and steps n, as noted in slice 1.
+
+### Slice 2d
+- `src/learning/content/recursionLogScaleGuidedLessons.test.ts` (9 tests): openings sweep in sl and en on a real GrowthGraph (out of order, twice, restore), named labels exist in graph strings, no opening equals its prompt target, typed/chosen learner actions give quoted readouts, no step 2/4/5 prompt answer shown; part B recomputes every quoted number, exact difference quotient, decimal separators, approximation markers.
+- Red: sl `3{,}211894` in the worked example failed 2 tests (`s2d-red.log`), restored. Unit, typecheck, lint green. No false claim found.
