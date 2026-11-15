@@ -193,6 +193,7 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
     private drawnKey = "";
     /** The view the board was last framed for: "fixed" for sides and circle, the state key in solve mode (so a user zoom is kept). */
     private framedKey = "";
+    private nameCache?: {key: string; centres: Record<"a" | "b" | "c" | "A'", Xy>};
     private readonly status = new SettledReadout();
 
     override getInitialState(): TriangleSolverGraphState {
@@ -337,6 +338,91 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         if (box) this.board.setBoundingBox(box, true);
     }
 
+    /**
+     * The centres, in user coordinates, of the names a, b, c and A′ of the geometry modes. A side name starts beside the midpoint of its side
+     * (`sideNamePlace`) and slides along the side and outward to the first spot that lies on no drawn line (sides, circumcircle, diameter B A′,
+     * auxiliary triangle), no marker and no earlier name. A′ takes the free spot nearest to its point on rings round it that is nearer to it than to
+     * any other marker.
+     */
+    private nameCentres(): Record<"a" | "b" | "c" | "A'", Xy> {
+        const board = this.board;
+        const s = this.state;
+        const proper = this.proper();
+        const [left, top] = board.getBoundingBox();
+        const ux = board.unitX, uy = board.unitY;
+        const key = [s.mode, s.A.x, s.A.y, s.B.x, s.B.y, s.C.x, s.C.y, ux, uy, left, top, board.canvasWidth, board.canvasHeight, proper ? "p" : "-"].join("|");
+        if (this.nameCache?.key === key) return this.nameCache.centres;
+        const toPx = (p: Xy): Xy => ({x: (p.x - left) * ux, y: (top - p.y) * uy});
+        const fromPx = (p: Xy): Xy => ({x: left + p.x / ux, y: top - p.y / uy});
+        const num = (value: {toNumber(): number} | undefined): number => value?.toNumber() ?? 0;
+        const circle = s.mode === "circle" && proper ? {c: {x: num(proper.sine.circumcentre.x), y: num(proper.sine.circumcentre.y)}, r: Math.sqrt(num(proper.sine.r2))} : undefined;
+        const prime: Xy | undefined = circle && proper ? {x: num(proper.sine.antipode.x), y: num(proper.sine.antipode.y)} : undefined;
+        // Pixel samples of every drawn line and the markers (centre, radius) that a name must not lie on.
+        const lines: Array<readonly [number, number]> = [];
+        const along = (p: Xy, q: Xy): void => {
+            const a = toPx(p), b = toPx(q);
+            const n = Math.max(1, Math.min(600, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 2)));
+            for (let i = 0; i <= n; i++) lines.push([a.x + ((b.x - a.x) * i) / n, a.y + ((b.y - a.y) * i) / n]);
+        };
+        along(s.A, s.B); along(s.B, s.C); along(s.C, s.A);
+        if (circle && prime) {
+            for (let i = 0; i < 360; i++) {
+                const p = toPx({x: circle.c.x + circle.r * Math.cos((i * Math.PI) / 180), y: circle.c.y + circle.r * Math.sin((i * Math.PI) / 180)});
+                lines.push([p.x, p.y]);
+            }
+            along(s.B, prime);
+            if (!proper?.sine.rightAtA) along(prime, s.C);
+        }
+        const markers = [s.A, s.B, s.C, ...(prime ? [prime] : [])].map(toPx);
+        type Box = {x0: number; y0: number; x1: number; y1: number};
+        const boxAt = (c: Xy, w: number, h: number): Box => ({x0: c.x - w / 2, y0: c.y - h / 2, x1: c.x + w / 2, y1: c.y + h / 2});
+        const placed: Box[] = [];
+        const cost = (b: Box): number => {
+            let total = 0;
+            if (b.x0 < 4 || b.y0 < 4 || b.x1 > board.canvasWidth - 4 || b.y1 > board.canvasHeight - 4) total += 200;
+            for (const o of placed) if (b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0) total += 100;
+            for (const m of markers) if (m.x + 9 > b.x0 && m.x - 9 < b.x1 && m.y + 9 > b.y0 && m.y - 9 < b.y1) total += 60;
+            for (const [x, y] of lines) if (x >= b.x0 + 1 && x <= b.x1 - 1 && y >= b.y0 + 1 && y <= b.y1 - 1) total += 8;
+            return total;
+        };
+        const centres = {} as Record<"a" | "b" | "c" | "A'", Xy>;
+        const sides: ReadonlyArray<readonly ["a" | "b" | "c", Xy, Xy, Xy]> = [["a", s.B, s.C, s.A], ["b", s.C, s.A, s.B], ["c", s.A, s.B, s.C]];
+        for (const [name, p, q, r] of sides) {
+            let best: Xy | undefined;
+            let bestCost = Infinity;
+            // The default offset from the midpoint, in px: outward by the gap plus the half extent of the letter.
+            const mid = toPx({x: (p.x + q.x) / 2, y: (p.y + q.y) / 2});
+            const out = toPx(sideNamePlace(p, q, r, ux, uy));
+            const [ox, oy] = [out.x - mid.x, out.y - mid.y];
+            const norm = Math.hypot(ox, oy) || 1;
+            for (const [slide, lift] of [[0, 0], [0, 6], [0.12, 0], [-0.12, 0], [0.12, 6], [-0.12, 6], [0.22, 0], [-0.22, 0], [0, 12], [0.22, 8], [-0.22, 8], [0.32, 8], [-0.32, 8], [0, 20]] as const) {
+                const sp = toPx({x: p.x + (q.x - p.x) * (0.5 + slide), y: p.y + (q.y - p.y) * (0.5 + slide)});
+                const candidate = {x: sp.x + ox + (ox / norm) * lift, y: sp.y + oy + (oy / norm) * lift};
+                const total = cost(boxAt(candidate, 12, 18)) + Math.abs(slide) * 10 + lift * 0.3;
+                if (total < bestCost) { bestCost = total; best = fromPx(candidate); }
+            }
+            centres[name] = best ?? sideNamePlace(p, q, r, ux, uy);
+            placed.push(boxAt(toPx(centres[name]), 12, 18));
+        }
+        if (prime) {
+            const own = toPx(prime);
+            const others = markers.filter(m => Math.hypot(m.x - own.x, m.y - own.y) >= 1);
+            let best: Xy = {x: own.x + 14, y: own.y - 12};
+            let bestCost = Infinity;
+            for (const r of [12, 15, 18, 22, 26, 30, 36]) for (let k = 0; k < 32; k++) {
+                const angle = -Math.PI / 4 + (k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 16);
+                const c = {x: own.x + r * Math.cos(angle), y: own.y + r * Math.sin(angle)};
+                const near = Math.hypot(c.x - own.x, c.y - own.y);
+                if (!others.every(m => Math.hypot(c.x - m.x, c.y - m.y) > near)) continue;
+                const total = cost(boxAt(c, 18, 18)) + r * 0.15 + k * 0.1;
+                if (total < bestCost) { bestCost = total; best = c; }
+            }
+            centres["A'"] = fromPx(best);
+        } else centres["A'"] = {x: 0, y: 0};
+        this.nameCache = {key, centres};
+        return centres;
+    }
+
     private placeHandle(handle: JXG.Point | undefined, target: {readonly x: number; readonly y: number}): void {
         if (handle && (handle.X() !== target.x || handle.Y() !== target.y)) handle.setPosition(JXG.COORDS_BY_USER, [target.x, target.y]);
     }
@@ -400,11 +486,10 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         segment(hB, hC, GraphPalette.primaryCurve, 3, 0, inGeometry);
         segment(hC, hA, GraphPalette.primaryCurve, 3, 0, inGeometry);
         segment(hA, hB, GraphPalette.primaryCurve, 3, 0, inGeometry);
-        const sideName = (p: Vertex, q: Vertex, r: Vertex, axis: "x" | "y"): Place => () =>
-            sideNamePlace(this.state[p], this.state[q], this.state[r], this.board.unitX, this.board.unitY)[axis];
-        label(sideName("B", "C", "A", "x"), sideName("B", "C", "A", "y"), () => "a", GraphPalette.label, inGeometry, true);
-        label(sideName("C", "A", "B", "x"), sideName("C", "A", "B", "y"), () => "b", GraphPalette.label, inGeometry, true);
-        label(sideName("A", "B", "C", "x"), sideName("A", "B", "C", "y"), () => "c", GraphPalette.label, inGeometry, true);
+        const nameAt = (name: "a" | "b" | "c" | "A'", axis: "x" | "y"): Place => () => this.nameCentres()[name][axis];
+        label(nameAt("a", "x"), nameAt("a", "y"), () => "a", GraphPalette.label, inGeometry, true);
+        label(nameAt("b", "x"), nameAt("b", "y"), () => "b", GraphPalette.label, inGeometry, true);
+        label(nameAt("c", "x"), nameAt("c", "y"), () => "c", GraphPalette.label, inGeometry, true);
 
         // The circumcircle, the diameter B A' and the auxiliary triangle B A' C (circle mode, exact centre and antipode).
         const centre = hidden(() => this.proper()?.sine.circumcentre.x.toNumber() ?? 0, () => this.proper()?.sine.circumcentre.y.toNumber() ?? 0);
@@ -414,10 +499,10 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
         }));
         const antipodeAt = (axis: "x" | "y"): Place => () => this.proper()?.sine.antipode[axis].toNumber() ?? 0;
         const antipode = this.own(board.create("point", [antipodeAt("x"), antipodeAt("y")], {
-            fixed: true, highlight: false, withLabel: true, name: "A′", face: "diamond", size: 5, fillColor: GraphPalette.constructionAccent,
-            strokeColor: GraphPalette.pointOutline, visible: circleDrawn, label: {...(this.styles.point.namedLabel as object)} as JXG.PointAttributes["label"],
+            fixed: true, highlight: false, withLabel: false, name: "A′", face: "diamond", size: 5, fillColor: GraphPalette.constructionAccent,
+            strokeColor: GraphPalette.pointOutline, visible: circleDrawn,
         }));
-        antipode.label?.setText(pointLabelMath("A′"));
+        label(nameAt("A'", "x"), nameAt("A'", "y"), () => "A′", GraphPalette.label, circleDrawn, true);
         segment(hB, antipode, GraphPalette.constructionAccent, 3, 0, circleDrawn);
         segment(antipode, hC, GraphPalette.comparisonCurve, 2, 2, auxDrawn);
 

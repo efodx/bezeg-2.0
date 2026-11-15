@@ -620,3 +620,79 @@ describe('the bar texts keep clear of the bars and of each other', () => {
         expect(rowAB - textY(graph, p => p === '$$b^2$$')).toBeGreaterThanOrEqual(13);
     });
 });
+
+describe('in the circle mode the side names and A′ stay clear of the construction at the 1366 x 768 board', () => {
+    /** The board of the page at 1366 x 768 (smoke 4): 942 x 520 px, about 20.4 px per unit, the origin 326 px from the left and 294 px from the top. */
+    const WIDTH = 942, HEIGHT = 520, UNIT = 20.4, ORIGIN_X = 326, ORIGIN_Y = 294;
+    type Px = readonly [number, number];
+    type Box = {x0: number; y0: number; x1: number; y1: number};
+    function withBoard<T>(run: () => T): T {
+        const sizes = [['clientWidth', WIDTH, 600], ['offsetWidth', WIDTH, 600], ['clientHeight', HEIGHT, 400], ['offsetHeight', HEIGHT, 400]] as const;
+        for (const [name, size] of sizes) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT, width: WIDTH, height: HEIGHT, toJSON: () => ({})}) as DOMRect;
+        try { return run(); } finally {
+            for (const [name, , size] of sizes) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+            HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+        }
+    }
+    function scene() {
+        const {graph} = mountGraph();
+        const board = graph.liveBoard();
+        board.resizeContainer(WIDTH, HEIGHT, false, true);
+        act(() => { board.setBoundingBox([-ORIGIN_X / UNIT, ORIGIN_Y / UNIT, (WIDTH - ORIGIN_X) / UNIT, -(HEIGHT - ORIGIN_Y) / UNIT], true); });
+        act(() => { graph.setState({mode: 'circle', A: {x: 0, y: 0}, B: {x: 7, y: 0}, C: {x: 2, y: 4}}); });
+        act(() => { board.update(); });
+        act(() => { board.update(); });
+        const toPx = (x: number, y: number): Px => [(x - board.getBoundingBox()[0]) * board.unitX, (board.getBoundingBox()[1] - y) * board.unitY];
+        const along = (a: Px, b: Px): Px[] => {
+            const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 2));
+            return Array.from({length: n + 1}, (_, i) => [a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n] as Px);
+        };
+        const shown = objects(graph).filter(visible);
+        const segments = shown.filter(o => o.elType === 'segment').flatMap(o => {
+            const s = o as unknown as JXG.Line;
+            return along(toPx(s.point1.X(), s.point1.Y()), toPx(s.point2.X(), s.point2.Y()));
+        });
+        const arcs = shown.filter(o => o.elType === 'circle').flatMap(o => {
+            const c = o as unknown as JXG.Circle;
+            return Array.from({length: 360}, (_, i) => toPx(c.center.X() + c.Radius() * Math.cos(i * Math.PI / 180), c.center.Y() + c.Radius() * Math.sin(i * Math.PI / 180)));
+        });
+        const points = shown.filter(o => o.elType === 'point').map(o => toPx((o as unknown as JXG.Point).X(), (o as unknown as JXG.Point).Y()));
+        const antipode = shown.find(o => o.elType === 'point' && (o as unknown as JXG.Point).name === 'A′') as unknown as JXG.Point;
+        const boxOf = (plain: string): Box | undefined => {
+            const t = shown.find(o => o.elType === 'text' && (o as unknown as {plaintext: string}).plaintext === plain) as unknown as JXG.Text | undefined;
+            if (!t) return undefined;
+            const [x, y] = toPx(t.X(), t.Y());
+            return {x0: x - 6, y0: y - 9, x1: x + 6, y1: y + 9};
+        };
+        return {segments, arcs, points, boxOf, antipode: toPx(antipode.X(), antipode.Y())};
+    }
+    const onto = (box: Box, [x, y]: Px) => x >= box.x0 + 2 && x <= box.x1 - 2 && y >= box.y0 + 2 && y <= box.y1 - 2;
+    const overlap = (a: Box, b: Box) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+
+    test('the side names a, b and c overlap no construction segment or circle line', () => {
+        withBoard(() => {
+            const {segments, arcs, boxOf} = scene();
+            for (const name of ['a', 'b', 'c']) {
+                const box = boxOf(`$$${name}$$`)!;
+                expect(box, `the name ${name} is drawn`).toBeDefined();
+                const hit = [...segments, ...arcs].find(p => onto(box, p));
+                expect(hit, `"${name}" lies on a line at ${hit} (box ${JSON.stringify(box)})`).toBeUndefined();
+            }
+        });
+    });
+
+    test('A′ is a text on no line, marker or side name, nearer to the point A′ than to any other point', () => {
+        withBoard(() => {
+            const {segments, arcs, points, boxOf, antipode} = scene();
+            const box = boxOf("$$A'$$")!;
+            expect(box, 'the name A′ is drawn as a text').toBeDefined();
+            expect([...segments, ...arcs].find(p => onto(box, p)), 'A′ lies on a line').toBeUndefined();
+            for (const name of ['a', 'b', 'c']) expect(overlap(box, boxOf(`$$${name}$$`)!), `A′ overlaps "${name}"`).toBe(false);
+            for (const [x, y] of points) expect(overlap(box, {x0: x - 5, y0: y - 5, x1: x + 5, y1: y + 5}), `A′ lies on the point at ${x}, ${y}`).toBe(false);
+            const [cx, cy] = [(box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2];
+            const own = Math.hypot(cx - antipode[0], cy - antipode[1]);
+            for (const [x, y] of points.filter(p => Math.hypot(p[0] - antipode[0], p[1] - antipode[1]) > 1)) expect(Math.hypot(cx - x, cy - y), `A′ is nearer to the point at ${x}, ${y}`).toBeGreaterThan(own);
+        });
+    });
+});
