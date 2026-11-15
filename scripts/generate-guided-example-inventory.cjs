@@ -6,6 +6,18 @@ const path = require('node:path');
 const {validateControlStep} = require('./guided-example-control-steps.cjs');
 const {validateInventory, validateRecipe, recipeFingerprint} = require('./guided-example-preview-api.cjs');
 const {expectedSamples, generatePatchGuidedExampleInventory} = require('./patch-guided-example-expectations.cjs');
+const {recipes: demonstrationRecipes} = require('./demonstration-preview-recipes.cjs');
+
+/**
+ * A chapter card is captured with its Demonstration's capture-text policy (spec C1, site walkthrough batch B8, G03), which hides
+ * board text on the card but not on the live lesson board, and the runner checks the expectation on both. For a Demonstration under
+ * that policy the visible text count is therefore not asserted; every other check stays (batch B11, G02).
+ */
+function withoutPolicyText(demonstrationId, expected) {
+    if (!demonstrationRecipes[demonstrationId]?.text || expected?.types?.text === undefined) return expected;
+    const {text, ...types} = expected.types;
+    return {...expected, types};
+}
 
 const root = path.resolve(__dirname, '..');
 const defaultOutput = 'docs/reviews/illustrated-chapter-examples/capture-inventory.json';
@@ -863,7 +875,9 @@ function curveOffsetExpectedFor(id, actions) {
 
 /**
  * L6 (envelope, the controls (1,0), (0,0), (0,1), four lines, the curve and the touching point hidden): the control polygon's three points
- * and the family, which is one curve element holding all four lines. The Bezier curve and the highlighted line are hidden, so they add nothing.
+ * and the family. Since the site walkthrough (G02) the family is drawn in FAMILY_BANDS = 8 colour bands of consecutive lines, one curve each
+ * (EnvelopeOverlay.ts); band b holds lines floor(4b/8) to floor(4(b+1)/8) - 1, so with four lines four bands hold one line each and the other
+ * four are empty, which the runner does not count. The Bezier curve and the highlighted line are hidden, so they add nothing.
  */
 function curveEnvelopeExpectedFor(id, actions) {
     assertOnlyActions(id, actions, [['envelope-t', /^$/], ['envelope-lines', /^$/], ['curve-visibility', /^envelope-(lines|curve|touch)$/]], 'curveEnvelopeExpectedFor');
@@ -873,7 +887,7 @@ function curveEnvelopeExpectedFor(id, actions) {
     assert.deepEqual([shown('envelope-lines'), shown('envelope-curve'), shown('envelope-touch')], [[true], [false], [false]], `${id}: the lines shown, the curve and the touching point hidden`);
     const prepared = actions.filter(item => item.kind === 'prepared-scene');
     assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[1, 0], [0, 0], [0, 1]], `${id}: only the controls (1,0), (0,0), (0,1) are authored`);
-    return {types: {curve: 1, point: 3}, curveCount: 1, points: [[1, 0], [0, 0], [0, 1]]};
+    return {types: {curve: 4, point: 3}, curveCount: 4, points: [[1, 0], [0, 0], [0, 1]]};
 }
 
 /**
@@ -1052,8 +1066,9 @@ function reductionExpectedFor(id, actions) {
         const shown = actions.filter(item => item.kind === 'curve-visibility' && item.target === target);
         assert.ok(shown.length === 1 && shown[0].visible === true, `${id}: the ${target} must be shown`);
     }
-    // The cubic, the reduced quadratic and the elevated polygon; 4 + 3 + 4 points. The elevated net lies on the cubic's points, and the quadratic adds only (2,4).
-    return {types: {curve: 3, point: 11}, curveCount: 3, points: [...cubic, [2, 4]]};
+    // The cubic, the reduced quadratic, the elevated polygon and (since the site walkthrough, batch B3, G02) the reduced quadratic's own control
+    // polygon (ReductionOverlay.ts); 4 + 3 + 4 points. The elevated net lies on the cubic's points, and the quadratic adds only (2,4).
+    return {types: {curve: 4, point: 11}, curveCount: 4, points: [...cubic, [2, 4]]};
 }
 
 /** D3 first frame: Q with control points (0,0), (1,3), (3,3), (4,0), its N + 1 = 9 equal-t points and the mover at t = 1/4; equal-arc points and the speed plot hidden. */
@@ -1675,7 +1690,8 @@ function cltExpectedFor(id, actions) {
 // Authored from src/graphs/functions/SummaryStatisticsGraph.tsx (createScene: the sigma band, the box plot and the fences are curves that are visible only while shown;
 // the outlier diamonds only with the box plot; the mean triangle and the median square each with a text, and the caption block is a third text; one draggable dot per value, tied values stacking up by
 // SUMMARY_STACK_STEP = 0.35) and DEFAULT_SUMMARY_MODEL of summaryStatisticsModel.ts (the school data 4, 5, 5, 6, 6, 7, 8), not from a capture. The mean 41/7 sits at height
-// MEAN_Y = -0.5 and the median 6 at MEDIAN_Y = -0.95.
+// MEAN_Y = -0.5 and the median 6 at MEDIAN_Y = -0.95. The capture-text policy of `prob-summary` (demonstration-preview-recipes.cjs, spec C1; batch B8, G03)
+// hides all three texts on the card but not on the live lesson board, and the expectation is checked on both, so the text count is not asserted.
 function summaryExpectedFor(id, actions) {
     assertOnlyActions(id, actions, [['function-visibility', /^summary-(box-plot|sigma-band)$/]], 'probabilityExpectedFor');
     for (const target of ['summary-box-plot', 'summary-sigma-band']) {
@@ -1684,17 +1700,19 @@ function summaryExpectedFor(id, actions) {
     const values = [4, 5, 5, 6, 6, 7, 8];
     const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
     const stack = values.map((value, index) => [value, Number((0.35 * values.slice(0, index).filter(other => other === value).length).toFixed(7))]);
-    return {types: {point: 2 + values.length, text: 3}, curveCount: 0, points: [[Number(mean.toFixed(7)), -0.5], [6, -0.95], ...stack]};
+    return {types: {point: 2 + values.length}, curveCount: 0, points: [[Number(mean.toFixed(7)), -0.5], [6, -0.95], ...stack]};
 }
 
 // Authored from src/graphs/functions/CorrelationGraph.tsx (createScene: the residual curve only while residuals are shown, the line of y on x as one curve with a text label,
 // the line of x on y only while shown; one draggable point per data point; the caption is one block, a second text) and CORRELATION_EXAMPLES.default of correlationModel.ts, not from a capture.
+// The capture-text policy of `prob-correlation` (spec C1; batch B8, G03) keeps only the caption's `r = ` line and hides the line label, so the live lesson board
+// shows two texts and the card one; the expectation is checked on both, so the text count is not asserted.
 function correlationExpectedFor(id, actions) {
     assertOnlyActions(id, actions, [['function-visibility', /^correlation-(residuals|x-on-y)$/]], 'probabilityExpectedFor');
     for (const target of ['correlation-residuals', 'correlation-x-on-y']) {
         assert.equal(probabilityVisibility(id, actions, target), false, `${id}: only the plain scatter with the line of y on x is authored (${target} must be hidden)`);
     }
-    return {types: {point: 4, curve: 1, text: 2}, curveCount: 1, points: [[0, 1], [1, 2], [2, 2], [3, 4]]};
+    return {types: {point: 4, curve: 1}, curveCount: 1, points: [[0, 1], [1, 2], [2, 2], [3, 4]]};
 }
 
 /** First-frame expectation of a Probability lesson (the five sections of the chapter, keyed by the section in the example id). */
@@ -2555,7 +2573,7 @@ async function generateChapterInventory(chapterId) {
             const step = lesson.steps[0];
             const record = {id, demonstrationId: lesson.demonstrationId, path: pathFor(sectionId),
                 sceneFingerprint: fingerprintFor(lesson.demonstrationId, step), actions: readableActions(step.scene.actions)};
-            record.expected = config.expectedFor(id, step);
+            record.expected = withoutPolicyText(lesson.demonstrationId, config.expectedFor(id, step));
             assertExpectation(id, record.expected);
             return withRecipe(record, {kind: 'start'});
         });
@@ -2591,4 +2609,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, solidsExpectedFor, solidsFittedCamera, assertExpectation};
+module.exports = {withoutPolicyText, assertFamilyIdentities, resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, solidsExpectedFor, solidsFittedCamera, assertExpectation};

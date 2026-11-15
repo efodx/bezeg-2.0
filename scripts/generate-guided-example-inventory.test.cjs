@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, solidsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {withoutPolicyText, fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, phasePortraitsExpectedFor, trigonometryExpectedFor, analyticLinesExpectedFor, isometriesExpectedFor, circleGeometryExpectedFor, combinatoricsExpectedFor, kinematicsExpectedFor, wavesExpectedFor, mechanicalCurvesExpectedFor, randomnessExpectedFor, recursionExpectedFor, levelSetsExpectedFor, solidsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -13,7 +13,7 @@ test('advanced Bezier first frames are authored independently, and the Coons net
     const reduction = [prepared, {kind: 'reduction-points', points: [[0, 0], [4 / 3, 8 / 3], [8 / 3, 8 / 3], [4, 0]]}, {kind: 'reduction-mode', mode: 'fixed'},
         {kind: 'curve-visibility', target: 'reduction-quadratic', visible: true}, {kind: 'curve-visibility', target: 'reduction-elevation', visible: true}];
     const d1 = advancedBezierExpectedFor(reductionId, sceneOf(reduction));
-    assert.deepEqual(d1.types, {curve: 3, point: 11});
+    assert.deepEqual(d1.types, {curve: 4, point: 11});
     assert.deepEqual(d1.points.at(-1), [2, 4]);
     assert.throws(() => advancedBezierExpectedFor(reductionId, sceneOf(reduction.map(item => item.mode ? {...item, mode: 'free'} : item))), /only fixed end points/);
     assert.throws(() => advancedBezierExpectedFor(reductionId, sceneOf(reduction.map(item => item.points ? {...item, points: [[0, 0], [1, 3], [3, 3], [4, 0]]} : item))), /only the elevated quadratic/);
@@ -463,7 +463,7 @@ test('curve geometry expectations are authored from the cycloid and the cubic', 
     const l5 = curveGeometryExpectedFor(offId, sceneOf(offScene));
     assert.deepEqual(l5, {types: {curve: 2, point: 3}, curveCount: 2, points: [[-1, 0], [0, 0], [1, 0]]});
     const l6 = curveGeometryExpectedFor(envId, sceneOf(envScene));
-    assert.deepEqual(l6, {types: {curve: 1, point: 3}, curveCount: 1, points: [[1, 0], [0, 0], [0, 1]]});
+    assert.deepEqual(l6, {types: {curve: 4, point: 3}, curveCount: 4, points: [[1, 0], [0, 0], [0, 1]]});
     assert.doesNotThrow(() => { assertExpectation(offId, l5); assertExpectation(envId, l6); });
     assert.throws(() => curveGeometryExpectedFor(offId, sceneOf(offScene.map(item => item.kind === 'offset-distance' ? {...item, value: -1} : item))), /only d = -1\/2 is authored/);
     assert.throws(() => curveGeometryExpectedFor(offId, sceneOf(offScene.map(item => item.target === 'offset-cusps' ? {...item, visible: true} : item))), /cusps and speed plot hidden/);
@@ -671,6 +671,14 @@ test('interpolation expectations are authored from the graphs: the Lagrange mark
     assert.ok(chapterInventories.interpolation);
 });
 
+test('a chapter card under the capture-text policy does not assert its text count; other cards and checks keep it', () => {
+    const expected = {types: {curve: 1, point: 2, text: 1}, curveCount: 1, points: [[0, 0], [1, 0]]};
+    assert.deepEqual(withoutPolicyText('interp-hermite', expected), {types: {curve: 1, point: 2}, curveCount: 1, points: [[0, 0], [1, 0]]});
+    assert.equal(withoutPolicyText('prob-binomial-normal', expected).types.text, undefined);
+    assert.deepEqual(expected.types, {curve: 1, point: 2, text: 1});
+    assert.equal(withoutPolicyText('fortune', expected), expected);
+});
+
 test('probability expectations are authored from the graphs: density ends, the binomial threshold, the CLT curves, the stacked dots and the scatter', () => {
     const choice = (name, value) => ({kind: 'function-choice', name, value});
     const param = (name, value) => ({kind: 'function-parameter', name, value});
@@ -689,14 +697,14 @@ test('probability expectations are authored from the graphs: density ends, the b
     assert.throws(() => probabilityExpectedFor('p.clt.prob-clt', psStep([choice('clt-example', 'skewed')])), /only the uniform/);
     assert.throws(() => probabilityExpectedFor('p.clt.prob-clt', psStep([choice('clt-example', 'uniform'), {kind: 'animation', animationId: 'clt-sum', command: 'next-step'}])), /only sets/);
     const summary = (box = false, band = false) => psStep([shown('summary-box-plot', box), shown('summary-sigma-band', band)]);
-    assert.deepEqual(probabilityExpectedFor('p.summary.prob-summary', summary()), {types: {point: 9, text: 3}, curveCount: 0,
+    assert.deepEqual(probabilityExpectedFor('p.summary.prob-summary', summary()), {types: {point: 9}, curveCount: 0,
         points: [[5.8571429, -0.5], [6, -0.95], [4, 0], [5, 0], [5, 0.35], [6, 0], [6, 0.35], [7, 0], [8, 0]]});
     assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', summary(true)), /summary-box-plot must be hidden/);
     assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', summary(false, true)), /summary-sigma-band must be hidden/);
     assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', psStep([shown('summary-box-plot', false)])), /sigma-band visibility exactly once/);
     assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', psStep([...summary().scene.actions.slice(1), {kind: 'summary', operation: 'set-value', index: 6, value: 30}])), /only sets/);
     const correlation = (residuals = false, xOnY = false) => psStep([shown('correlation-residuals', residuals), shown('correlation-x-on-y', xOnY)]);
-    assert.deepEqual(probabilityExpectedFor('p.correlation.prob-correlation', correlation()), {types: {point: 4, curve: 1, text: 2}, curveCount: 1, points: [[0, 1], [1, 2], [2, 2], [3, 4]]});
+    assert.deepEqual(probabilityExpectedFor('p.correlation.prob-correlation', correlation()), {types: {point: 4, curve: 1}, curveCount: 1, points: [[0, 1], [1, 2], [2, 2], [3, 4]]});
     assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', correlation(true)), /correlation-residuals must be hidden/);
     assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', correlation(false, true)), /correlation-x-on-y must be hidden/);
     assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', psStep([...correlation().scene.actions.slice(1), choice('correlation-example', 'outlier')])), /only sets/);
