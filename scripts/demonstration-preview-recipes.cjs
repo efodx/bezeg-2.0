@@ -297,6 +297,16 @@ const captureText = {
     // in part, but the poster shows them under the point glyph, the square and the ring of the marked vertices (overlap rule): Remove.
     delaunay: {keep: [], strip: []},
     'monotone-partition': {keep: [], strip: []},
+    // B-splines and projective (B8d): the basis keeps its knot numbers; the readouts, the de Boor levels and the piece and error readouts are
+    // values the motion shows; the blossom label f(0; b) sits on the dashed polygon, away from the point it names: Remove; the cross-ratio names are not on the poster: Remove.
+    'bspline-basis': {keep: [/^\d(?: \(×3\))?$/], strip: []},
+    'bspline-deboor': {keep: [], strip: []},
+    'bspline-insertion': {keep: [], strip: []},
+    'bspline-extraction': {keep: [], strip: []},
+    'bspline-nurbs': {keep: [], strip: []},
+    'bspline-blossom': {keep: [], strip: []},
+    'projective-cross-ratio': {keep: [], strip: []},
+    'projective-pascal': {keep: [], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {

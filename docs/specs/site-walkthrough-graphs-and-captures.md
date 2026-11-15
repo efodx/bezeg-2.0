@@ -505,3 +505,14 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8c/` (served as `walkth
 - `delaunay`: Remove.
 - `monotone-partition`: Remove. The triage kept the vertex names `v1`, `v2`, ...; on the recaptured poster they sat under the point glyphs, the square and the ring of the marked vertices (overlap rule).
 - **Not done:** `monotone-triangulation` (same verdict intended, Remove). Every capture run crashes the page (`page.evaluate: Target crashed`) in `settle` (`scripts/demonstration-preview-recipes.cjs:361`) during its 33-step recipe, also with the recipe file from before the batch; a probe crashed at the 32nd "Naslednji korak" press when MathJax typeset after each press. A capture-tool or page-memory problem, not a text one; its entry is left out until it captures.
+
+### B8d B-splines and projective (handler 4, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8d/` (served as `walkthrough-graphs/b8d.html`). Text only.
+
+- `bspline-basis`: keeps the knot labels `0 (×3)`, `1`, `2 (×3)` under the knot diamonds.
+- `bspline-deboor`, `bspline-insertion`, `bspline-extraction`, `bspline-nurbs`: Remove.
+- `bspline-blossom`: Remove. The triage kept `f(0; 0,5)`, but it rendered on the dashed polygon, away from the point it names.
+- `projective-cross-ratio`: Remove. The triage kept the cross-ratio lines in part, but they are not on the poster, so a kept name would name nothing drawn.
+- Capture-tool repair: the cross-ratio clip row names the current field "Točka O, x" (`PointListInput`).
+- **Not done in effect:** `projective-pascal` has its Remove entry and was recaptured, but the side names `s1` to `s6` and the line name `p` are still on the poster (now in the board serif). The policy does not hide these line labels; the selection in `presentBoard` (`capture-demonstration-previews.cjs`, the `applyTextPolicy` filter) needs a look at how JSXGraph line labels are registered.
