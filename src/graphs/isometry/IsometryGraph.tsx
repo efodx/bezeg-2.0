@@ -564,7 +564,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             caption(text("isometry_graph_cap_centre"), () => {
                 const [x, y] = [centreOf("x")(), centreOf("y")()];
                 return [[x, y], [x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]];
-            }, GraphPalette.constructionAccent, isRotation, true);
+            }, GraphPalette.constructionAccent, isRotation, false, true);
             const axisLine = () => {
                 const c = classOf();
                 return c?.kind === "reflection" || c?.kind === "glide" ? c.axis : null;
