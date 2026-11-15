@@ -116,6 +116,12 @@ import motion_bezier_clipping from './images/demonstrations/catalog/bezier-clipp
 import motion_root_finding from './images/demonstrations/catalog/root-finding.webm?no-inline';
 import motion_hull_robustness from './images/demonstrations/catalog/hull-robustness.webm?no-inline';
 import motion_linear_map from './images/demonstrations/catalog/linear-map.webm?no-inline';
+import motion_unit_circle from './images/demonstrations/catalog/unit-circle.webm?no-inline';
+import motion_recursion_growth from './images/demonstrations/catalog/recursion-growth.webm?no-inline';
+import motion_logistic_map from './images/demonstrations/catalog/logistic-map.webm?no-inline';
+import motion_lattice_paths from './images/demonstrations/catalog/lattice-paths.webm?no-inline';
+import motion_circle_construction from './images/demonstrations/catalog/circle-construction.webm?no-inline';
+import motion_waves from './images/demonstrations/catalog/waves.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -235,4 +241,10 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'root-finding': {src: motion_root_finding, type: 'video/webm', duration: 4},
     'hull-robustness': {src: motion_hull_robustness, type: 'video/webm', duration: 4},
     'linear-map': {src: motion_linear_map, type: 'video/webm', duration: 4},
+    'unit-circle': {src: motion_unit_circle, type: 'video/webm', duration: 4},
+    'recursion-growth': {src: motion_recursion_growth, type: 'video/webm', duration: 4},
+    'logistic-map': {src: motion_logistic_map, type: 'video/webm', duration: 4},
+    'lattice-paths': {src: motion_lattice_paths, type: 'video/webm', duration: 4},
+    'circle-construction': {src: motion_circle_construction, type: 'video/webm', duration: 4},
+    'waves': {src: motion_waves, type: 'video/webm', duration: 4},
 };

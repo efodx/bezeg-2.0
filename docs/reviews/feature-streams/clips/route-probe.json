@@ -28868,5 +28868,2567 @@
     },
     "error": [],
     "probedExampleId": "projective-conics.projective-three-views.projective-three-views"
+  },
+  {
+    "id": "unit-circle",
+    "route": "/bezeg-2.0/functions/unit-circle",
+    "exampleCandidates": [
+      {
+        "exampleId": "trigonometry.radian-sine-cosine.unit-circle",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/functions/unit-circle?example=lesson.trigonometry.radian-sine-cosine.unit-circle",
+        "inventory": "docs/reviews/trigonometry/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "trigonometry.addition-formulas.unit-circle",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/functions/unit-circle?example=lesson.trigonometry.addition-formulas.unit-circle",
+        "inventory": "docs/reviews/trigonometry/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Kot θ (°), vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "slider",
+        "name": "Kot θ (°)",
+        "min": "0",
+        "max": "360",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "text",
+        "name": "Kot θ (večkratnik števila π)",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "checkbox",
+        "name": "Prikaži tudi kosinus",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "checkbox",
+        "name": "Prikaži simetrične točke",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "checkbox",
+        "name": "Drugi kot β in zasukani sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [
+      {
+        "name": "jxgBoard1P36",
+        "type": 12,
+        "x": 1,
+        "y": 0
+      }
+    ],
+    "board": {
+      "boundingBox": [
+        -2.150288714208216,
+        3.2687149623968117,
+        8.833474021387802,
+        -3.2687149623968117
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": true,
+      "controlDetail": {
+        "name": "Kot θ (°)",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "0",
+        "to": "270",
+        "baselineStable": true,
+        "valueAfter": "270",
+        "changed": true
+      },
+      "pointDetail": {
+        "name": "jxgBoard1P36",
+        "fromXY": [
+          1,
+          0
+        ],
+        "toXY": [
+          0.9659258262890683,
+          -0.2588190451025207
+        ],
+        "baselineStable": true,
+        "skippedBefore": []
+      }
+    },
+    "error": [],
+    "probedExampleId": "trigonometry.radian-sine-cosine.unit-circle"
+  },
+  {
+    "id": "circle-construction",
+    "route": "/bezeg-2.0/circle-constructions",
+    "exampleCandidates": [
+      {
+        "exampleId": "circle-geometry.tangents-from-a-point.circle-construction",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.tangents-from-a-point.circle-construction",
+        "inventory": "docs/reviews/circle-geometry/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "circle-geometry.radical-axis-and-centre.circle-construction",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.radical-axis-and-centre.circle-construction",
+        "inventory": "docs/reviews/circle-geometry/guided-example-inventory.json",
+        "chapterFirst": false
+      },
+      {
+        "exampleId": "circle-geometry.apollonius-circle.circle-construction",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.apollonius-circle.circle-construction",
+        "inventory": "docs/reviews/circle-geometry/guided-example-inventory.json",
+        "chapterFirst": false
+      },
+      {
+        "exampleId": "circle-geometry.common-tangents.circle-construction",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.common-tangents.circle-construction",
+        "inventory": "docs/reviews/circle-geometry/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "select",
+        "name": "Konstrukcija",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "tangents",
+        "disabled": false,
+        "options": [
+          "Tangente iz točke",
+          "Potenčna premica in potenčno središče",
+          "Apolonijeva krožnica",
+          "Skupne tangente dveh krožnic"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "text",
+        "name": "O₁, x",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "text",
+        "name": "O₁, y",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "text",
+        "name": "Krožnica 1: polmer, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "5",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "slider",
+        "name": "Krožnica 1: polmer",
+        "min": "0.25",
+        "max": "8",
+        "step": "0.25",
+        "value": "5",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "text",
+        "name": "P, x",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "13",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "text",
+        "name": "P, y",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [
+      {
+        "name": "jxgBoard1P27",
+        "type": 12,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "name": "jxgBoard1P28",
+        "type": 12,
+        "x": 5,
+        "y": 0
+      },
+      {
+        "name": "jxgBoard1P32",
+        "type": 12,
+        "x": 13,
+        "y": 0
+      }
+    ],
+    "board": {
+      "boundingBox": [
+        -14.182186234817813,
+        10.82186234817814,
+        22.18218623481782,
+        -10.82186234817814
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": true,
+      "controlDetail": {
+        "name": "Krožnica 1: polmer",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "5",
+        "to": "1.5",
+        "baselineStable": true,
+        "valueAfter": "1.5",
+        "changed": true
+      },
+      "pointDetail": {
+        "name": "jxgBoard1P27",
+        "fromXY": [
+          0,
+          0
+        ],
+        "toXY": [
+          2,
+          -1
+        ],
+        "baselineStable": true,
+        "skippedBefore": []
+      }
+    },
+    "error": [],
+    "probedExampleId": "circle-geometry.tangents-from-a-point.circle-construction"
+  },
+  {
+    "id": "curve-kinematics",
+    "route": "/bezeg-2.0/curve-geometry/kinematics",
+    "exampleCandidates": [
+      {
+        "exampleId": "kinematics.position-velocity-acceleration.curve-kinematics",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.position-velocity-acceleration.curve-kinematics",
+        "inventory": "docs/reviews/kinematics/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "kinematics.speed-and-parametrization.curve-kinematics",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.speed-and-parametrization.curve-kinematics",
+        "inventory": "docs/reviews/kinematics/guided-example-inventory.json",
+        "chapterFirst": false
+      },
+      {
+        "exampleId": "kinematics.projectile-motion.curve-kinematics",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.projectile-motion.curve-kinematics",
+        "inventory": "docs/reviews/kinematics/guided-example-inventory.json",
+        "chapterFirst": false
+      },
+      {
+        "exampleId": "kinematics.circular-motion.curve-kinematics",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.circular-motion.curve-kinematics",
+        "inventory": "docs/reviews/kinematics/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "select",
+        "name": "Gibanje",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "cycloid",
+        "disabled": false,
+        "options": [
+          "Cikloida (kolo se kotali)",
+          "Kardioida",
+          "Roža s tremi listi",
+          "Arhimedova spirala",
+          "Poševni met",
+          "Kroženje"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "checkbox",
+        "name": "Prikaži hitrost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "checkbox",
+        "name": "Prikaži pospešek",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "checkbox",
+        "name": "Razstavi pospešek na tangentni in normalni del",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "checkbox",
+        "name": "Pokaži prepotovani del poti",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": true,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "button",
+        "name": "Predvajaj",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "button",
+        "name": "Nazaj na t = 0",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 7,
+        "kind": "text",
+        "name": "Čas t (s), vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 8,
+        "kind": "slider",
+        "name": "Čas t (s)",
+        "min": "0",
+        "max": "6.283185307179586",
+        "step": "0.01",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [],
+    "board": {
+      "boundingBox": [
+        -3.1202662814282522,
+        5.512396367205783,
+        9.403451588607838,
+        -1.9416000404108886
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": "not-applicable",
+      "controlDetail": {
+        "name": "Čas t (s)",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "0",
+        "to": "4.71",
+        "baselineStable": true,
+        "valueAfter": "4.71",
+        "changed": true
+      }
+    },
+    "error": [],
+    "probedExampleId": "kinematics.position-velocity-acceleration.curve-kinematics"
+  },
+  {
+    "id": "recursion-growth",
+    "route": "/bezeg-2.0/analysis/growth",
+    "exampleCandidates": [
+      {
+        "exampleId": "recursion.sequences.recursion-growth",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/analysis/growth?example=lesson.recursion.sequences.recursion-growth",
+        "inventory": "docs/reviews/recursion/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "recursion.compound-interest.recursion-growth",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/analysis/growth?example=lesson.recursion.compound-interest.recursion-growth",
+        "inventory": "docs/reviews/recursion/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "select",
+        "name": "Prikaz",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "sequence",
+        "disabled": false,
+        "options": [
+          "Zaporedje",
+          "Obrestovanje",
+          "Logaritem y"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "select",
+        "name": "Vrsta zaporedja",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "arithmetic",
+        "disabled": false,
+        "options": [
+          "Aritmetično: aₖ₊₁ = aₖ + d",
+          "Geometrijsko: aₖ₊₁ = q·aₖ"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "text",
+        "name": "Prvi člen a₁, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "slider",
+        "name": "Prvi člen a₁",
+        "min": "-100",
+        "max": "100",
+        "step": "1",
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "text",
+        "name": "Razlika d, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "slider",
+        "name": "Razlika d",
+        "min": "-20",
+        "max": "20",
+        "step": "1",
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "button",
+        "name": "Zmanjšaj število",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 7,
+        "kind": "text",
+        "name": "Število členov n",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "6",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 8,
+        "kind": "button",
+        "name": "Povečaj število",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [],
+    "board": {
+      "boundingBox": [
+        -0.7000000000000001,
+        17.55,
+        7.2,
+        -1.5428571428571431
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": "not-applicable",
+      "controlDetail": {
+        "name": "Prvi člen a₁",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "3",
+        "to": "-74",
+        "baselineStable": true,
+        "valueAfter": "-74",
+        "changed": true
+      }
+    },
+    "error": [],
+    "probedExampleId": "recursion.sequences.recursion-growth"
+  },
+  {
+    "id": "logistic-map",
+    "route": "/bezeg-2.0/analysis/logistic-map",
+    "exampleCandidates": [
+      {
+        "exampleId": "phase-portraits.logistic-map.logistic-map",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.logistic-map.logistic-map",
+        "inventory": "docs/reviews/phase-portraits/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "phase-portraits.bifurcation.logistic-map",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/analysis/logistic-map?example=lesson.phase-portraits.bifurcation.logistic-map",
+        "inventory": "docs/reviews/phase-portraits/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Parameter r, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2,9",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "slider",
+        "name": "Parameter r",
+        "min": "2.5",
+        "max": "4",
+        "step": "0.01",
+        "value": "2.9",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "text",
+        "name": "Začetek x₀, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0,2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "slider",
+        "name": "Začetek x₀",
+        "min": "0.01",
+        "max": "0.99",
+        "step": "0.01",
+        "value": "0.2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "button",
+        "name": "Naslednji korak",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "button",
+        "name": "Predvajaj",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "button",
+        "name": "Ponastavi",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [
+      {
+        "name": "jxgBoard1P43",
+        "type": 12,
+        "x": 0.2,
+        "y": 0.2
+      }
+    ],
+    "board": {
+      "boundingBox": [
+        -0.10228215767634856,
+        1.2,
+        2.9000000000000004,
+        -0.5499999999999999
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": true,
+      "controlDetail": {
+        "name": "Parameter r",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "2.9",
+        "to": "3.73",
+        "baselineStable": true,
+        "valueAfter": "3.73",
+        "changed": true
+      },
+      "pointDetail": {
+        "name": "jxgBoard1P43",
+        "fromXY": [
+          0.2,
+          0.2
+        ],
+        "toXY": [
+          0.38,
+          0.38
+        ],
+        "baselineStable": true,
+        "skippedBefore": []
+      }
+    },
+    "error": [],
+    "probedExampleId": "phase-portraits.logistic-map.logistic-map"
+  },
+  {
+    "id": "linear-program",
+    "route": "/bezeg-2.0/analysis/linear-program",
+    "exampleCandidates": [
+      {
+        "exampleId": "level-sets.linear-programming.linear-program",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/analysis/linear-program?example=lesson.level-sets.linear-programming.linear-program",
+        "inventory": "docs/reviews/level-sets/guided-example-inventory.json",
+        "chapterFirst": true
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "button",
+        "name": "Odstrani zadnji omejitveni pogoj",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "text",
+        "name": "Število omejitvenih pogojev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "button",
+        "name": "Dodaj omejitveni pogoj",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "text",
+        "name": "Omejitveni pogoj 1: koeficient a pri x, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "slider",
+        "name": "Omejitveni pogoj 1: koeficient a pri x",
+        "min": "-9",
+        "max": "9",
+        "step": "1",
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "text",
+        "name": "Omejitveni pogoj 1: koeficient b pri y, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "slider",
+        "name": "Omejitveni pogoj 1: koeficient b pri y",
+        "min": "-9",
+        "max": "9",
+        "step": "1",
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 7,
+        "kind": "text",
+        "name": "Omejitveni pogoj 1: desna stran c, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "8",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 8,
+        "kind": "slider",
+        "name": "Omejitveni pogoj 1: desna stran c",
+        "min": "-30",
+        "max": "30",
+        "step": "1",
+        "value": "8",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 9,
+        "kind": "text",
+        "name": "Omejitveni pogoj 2: koeficient a pri x, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 10,
+        "kind": "slider",
+        "name": "Omejitveni pogoj 2: koeficient a pri x",
+        "min": "-9",
+        "max": "9",
+        "step": "1",
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 11,
+        "kind": "text",
+        "name": "Omejitveni pogoj 2: koeficient b pri y, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 12,
+        "kind": "slider",
+        "name": "Omejitveni pogoj 2: koeficient b pri y",
+        "min": "-9",
+        "max": "9",
+        "step": "1",
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 13,
+        "kind": "text",
+        "name": "Omejitveni pogoj 2: desna stran c, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "9",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 14,
+        "kind": "slider",
+        "name": "Omejitveni pogoj 2: desna stran c",
+        "min": "-30",
+        "max": "30",
+        "step": "1",
+        "value": "9",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 15,
+        "kind": "text",
+        "name": "Kriterijska funkcija: koeficient p pri x, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 16,
+        "kind": "slider",
+        "name": "Kriterijska funkcija: koeficient p pri x",
+        "min": "-9",
+        "max": "9",
+        "step": "1",
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 17,
+        "kind": "text",
+        "name": "Kriterijska funkcija: koeficient q pri y, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 18,
+        "kind": "slider",
+        "name": "Kriterijska funkcija: koeficient q pri y",
+        "min": "-9",
+        "max": "9",
+        "step": "1",
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 19,
+        "kind": "text",
+        "name": "Vrednost k premice cilja, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "9",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 20,
+        "kind": "slider",
+        "name": "Vrednost k premice cilja",
+        "min": "-100",
+        "max": "100",
+        "step": "1",
+        "value": "9",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [
+      {
+        "name": "jxgBoard1P62",
+        "type": 12,
+        "x": 3,
+        "y": 2
+      }
+    ],
+    "board": {
+      "boundingBox": [
+        -3.7196652719665266,
+        5.7133891213389125,
+        6.7196652719665275,
+        -0.4999999999999995
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": true,
+      "controlDetail": {
+        "name": "Omejitveni pogoj 1: koeficient a pri x",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "1",
+        "to": "-6",
+        "baselineStable": true,
+        "valueAfter": "-6",
+        "changed": true
+      },
+      "pointDetail": {
+        "name": "jxgBoard1P62",
+        "fromXY": [
+          3,
+          2
+        ],
+        "toXY": [
+          4,
+          2
+        ],
+        "baselineStable": true,
+        "skippedBefore": []
+      }
+    },
+    "error": [],
+    "probedExampleId": "level-sets.linear-programming.linear-program"
+  },
+  {
+    "id": "lattice-paths",
+    "route": "/bezeg-2.0/combinatorics/lattice-paths",
+    "exampleCandidates": [
+      {
+        "exampleId": "combinatorics.lattice-paths-and-pascal.lattice-paths",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.lattice-paths-and-pascal.lattice-paths",
+        "inventory": "docs/reviews/combinatorics/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "combinatorics.pascal-identity.lattice-paths",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.pascal-identity.lattice-paths",
+        "inventory": "docs/reviews/combinatorics/guided-example-inventory.json",
+        "chapterFirst": false
+      },
+      {
+        "exampleId": "combinatorics.binomial-theorem.lattice-paths",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.binomial-theorem.lattice-paths",
+        "inventory": "docs/reviews/combinatorics/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "select",
+        "name": "Vsebina",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "paths",
+        "disabled": false,
+        "options": [
+          "Poti po mreži",
+          "Pascalov trikotnik",
+          "Binomski izrek"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "select",
+        "name": "Primer",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2,2",
+        "disabled": false,
+        "options": [
+          "(2; 2)",
+          "(5; 3)",
+          "(4; 3)",
+          "(6; 6)",
+          "(10; 10)",
+          "(20; 20)"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "text",
+        "name": "T, a",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "text",
+        "name": "T, b",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "2",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "text",
+        "name": "Izbrana pot (številka), vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "slider",
+        "name": "Izbrana pot (številka)",
+        "min": "1",
+        "max": "6",
+        "step": "1",
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "button",
+        "name": "Zmanjšaj število",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 7,
+        "kind": "text",
+        "name": "Stran seznama poti",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 8,
+        "kind": "button",
+        "name": "Povečaj število",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 9,
+        "kind": "checkbox",
+        "name": "Števila poti v točkah mreže",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 10,
+        "kind": "checkbox",
+        "name": "Poti ločeno po zadnjem koraku",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": false,
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [
+      {
+        "name": "jxgBoard1P85",
+        "type": 12,
+        "x": 2,
+        "y": 2
+      }
+    ],
+    "board": {
+      "boundingBox": [
+        -4.735020242914981,
+        7.050202429149797,
+        12.235020242914977,
+        -3.0502024291497967
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": true,
+      "controlDetail": {
+        "name": "Izbrana pot (številka)",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "1",
+        "to": "5",
+        "baselineStable": true,
+        "valueAfter": "5",
+        "changed": true
+      },
+      "pointDetail": {
+        "name": "jxgBoard1P85",
+        "fromXY": [
+          2,
+          2
+        ],
+        "toXY": [
+          3,
+          1
+        ],
+        "baselineStable": true,
+        "skippedBefore": []
+      }
+    },
+    "error": [],
+    "probedExampleId": "combinatorics.lattice-paths-and-pascal.lattice-paths"
+  },
+  {
+    "id": "waves",
+    "route": "/bezeg-2.0/functions/waves",
+    "exampleCandidates": [
+      {
+        "exampleId": "waves.superposition-and-phase.waves",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/functions/waves?example=lesson.waves.superposition-and-phase.waves",
+        "inventory": "docs/reviews/waves/guided-example-inventory.json",
+        "chapterFirst": true
+      },
+      {
+        "exampleId": "waves.beats.waves",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/functions/waves?example=lesson.waves.beats.waves",
+        "inventory": "docs/reviews/waves/guided-example-inventory.json",
+        "chapterFirst": false
+      },
+      {
+        "exampleId": "waves.standing-waves.waves",
+        "url": "http://127.0.0.1:4319/bezeg-2.0/functions/waves?example=lesson.waves.standing-waves.waves",
+        "inventory": "docs/reviews/waves/guided-example-inventory.json",
+        "chapterFirst": false
+      }
+    ],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "select",
+        "name": "Vrsta valovanja",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "sum",
+        "disabled": false,
+        "options": [
+          "Seštevanje valov",
+          "Utripanje",
+          "Stoječe valovanje",
+          "Vzorčenje"
+        ]
+      },
+      {
+        "tab": "edit",
+        "idx": 1,
+        "kind": "text",
+        "name": "Amplituda 1. vala, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Amplituda 1. vala",
+        "min": "0",
+        "max": "4",
+        "step": "0.25",
+        "value": "1",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 3,
+        "kind": "text",
+        "name": "Faza 1. vala v stopinjah, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 4,
+        "kind": "slider",
+        "name": "Faza 1. vala v stopinjah",
+        "min": "-180",
+        "max": "180",
+        "step": "5",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 5,
+        "kind": "text",
+        "name": "Amplituda 2. vala, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 6,
+        "kind": "slider",
+        "name": "Amplituda 2. vala",
+        "min": "0",
+        "max": "4",
+        "step": "0.25",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 7,
+        "kind": "text",
+        "name": "Faza 2. vala v stopinjah, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 8,
+        "kind": "slider",
+        "name": "Faza 2. vala v stopinjah",
+        "min": "-180",
+        "max": "180",
+        "step": "5",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 9,
+        "kind": "text",
+        "name": "Frekvenca obeh valov v Hz, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 10,
+        "kind": "slider",
+        "name": "Frekvenca obeh valov v Hz",
+        "min": "1",
+        "max": "40",
+        "step": "1",
+        "value": "3",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 11,
+        "kind": "checkbox",
+        "name": "Kazalci",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": true,
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 12,
+        "kind": "button",
+        "name": "Predvajaj",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 13,
+        "kind": "button",
+        "name": "Ponastavi",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 14,
+        "kind": "text",
+        "name": "Čas t, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "edit",
+        "idx": 15,
+        "kind": "slider",
+        "name": "Čas t",
+        "min": "0",
+        "max": "1",
+        "step": "0.01",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 0,
+        "kind": "select",
+        "name": "Koordinatni sistem",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "all",
+        "disabled": false,
+        "options": [
+          "Brez",
+          "Samo osi",
+          "Osi in mreža",
+          "Osi in mreža in črtice",
+          "Vse"
+        ]
+      },
+      {
+        "tab": "display",
+        "idx": 1,
+        "kind": "text",
+        "name": "Velikost elementov grafa, vrednost",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "display",
+        "idx": 2,
+        "kind": "slider",
+        "name": "Velikost elementov grafa",
+        "min": "0",
+        "max": "25",
+        "step": "1",
+        "value": "0",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 0,
+        "kind": "button",
+        "name": "Privzeto stanjeizbrano",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 1,
+        "kind": "button",
+        "name": "Ponastavi prednastavitev",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 2,
+        "kind": "button",
+        "name": "Shrani trenutno stanje …",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 3,
+        "kind": "button",
+        "name": "Izvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 4,
+        "kind": "button",
+        "name": "Uvozi prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 5,
+        "kind": "button",
+        "name": "SVG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 6,
+        "kind": "button",
+        "name": "PNG",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      },
+      {
+        "tab": "save",
+        "idx": 7,
+        "kind": "button",
+        "name": "Generiraj slike za prednastavitve",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "",
+        "disabled": false
+      }
+    ],
+    "draggablePoints": [],
+    "board": {
+      "boundingBox": [
+        -0.66,
+        2.53,
+        1.06,
+        -1.3749999999999998
+      ],
+      "pixel": [
+        998,
+        594
+      ]
+    },
+    "liveCheck": {
+      "control": true,
+      "point": "not-applicable",
+      "controlDetail": {
+        "name": "Amplituda 1. vala",
+        "tab": "edit",
+        "kind": "slider",
+        "from": "1",
+        "to": "3.25",
+        "baselineStable": true,
+        "valueAfter": "3.25",
+        "changed": true
+      }
+    },
+    "error": [],
+    "probedExampleId": "waves.superposition-and-phase.waves"
   }
 ]

@@ -49,7 +49,8 @@ function checkRow(row, entry, lessons) {
         if (!entry.controls.some(c => c.kind === 'button' && c.name === control.label && !c.disabled)) problems.push(`no enabled button is labelled "${control.label}"`);
         if (!entry.controls.some(c => c.name.startsWith(control.countLabel) && /^\d+$/.test(c.name.slice(control.countLabel.length)))) problems.push(`no field labelled "${control.countLabel}" followed by a number`);
     } else if (control.kind === 'number-field') {
-        if (!entry.controls.some(c => c.kind === 'number' && c.name === control.label && !c.disabled)) {
+        // A Slider's exact field is named "<label>, vrednost" (number-field-locator.cjs); the probe lists it as a text field.
+        if (!entry.controls.some(c => !c.disabled && ((['number', 'text'].includes(c.kind) && c.name === control.label) || (['number', 'text'].includes(c.kind) && c.name === control.label + ', vrednost')))) {
             problems.push(`no enabled number field is labelled "${control.label}"`);
         }
     }

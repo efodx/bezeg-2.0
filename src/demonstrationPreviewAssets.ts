@@ -65,6 +65,9 @@ import preview_derivative from './images/demonstrations/catalog/derivative.png';
 import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
 import preview_area_between_curves from './images/demonstrations/catalog/area-between-curves.png';
 import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
+import preview_unit_circle from './images/demonstrations/catalog/unit-circle.png';
+import preview_circle_construction from './images/demonstrations/catalog/circle-construction.png';
+import preview_lattice_paths from './images/demonstrations/catalog/lattice-paths.png';
 import preview_curve_parametric from './images/demonstrations/catalog/curve-parametric.png';
 import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
 import preview_curve_comb from './images/demonstrations/catalog/curve-comb.png';
@@ -83,6 +86,9 @@ import preview_patch_subdivision from './images/demonstrations/catalog/patch-sub
 import preview_patch_joins from './images/demonstrations/catalog/patch-joins.png';
 import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
 import preview_patch_coons from './images/demonstrations/catalog/patch-coons.png';
+import preview_recursion_growth from './images/demonstrations/catalog/recursion-growth.png';
+import preview_logistic_map from './images/demonstrations/catalog/logistic-map.png';
+import preview_waves from './images/demonstrations/catalog/waves.png';
 import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
 import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
 import preview_bspline_insertion from './images/demonstrations/catalog/bspline-insertion.png';
@@ -185,6 +191,9 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'definite-integral': preview_definite_integral,
     'area-between-curves': preview_area_between_curves,
     'arc-length': preview_arc_length,
+    'unit-circle': preview_unit_circle,
+    'circle-construction': preview_circle_construction,
+    'lattice-paths': preview_lattice_paths,
     'curve-parametric': preview_curve_parametric,
     'curve-curvature': preview_curve_curvature,
     'curve-comb': preview_curve_comb,
@@ -203,6 +212,9 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'patch-joins': preview_patch_joins,
     'patch-triangular': preview_patch_triangular,
     'patch-coons': preview_patch_coons,
+    'recursion-growth': preview_recursion_growth,
+    'logistic-map': preview_logistic_map,
+    'waves': preview_waves,
     'bspline-basis': preview_bspline_basis,
     'bspline-deboor': preview_bspline_deboor,
     'bspline-insertion': preview_bspline_insertion,

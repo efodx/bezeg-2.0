@@ -46,14 +46,14 @@ const targets = {
     'curve-kinematics': ['Default cycloid with the moving point, the path, the thick travelled part and both arrows, framed by the board for the motion', []],
     // The sum view of the graph's own frame (the phasor panel at the left, the 1 s plot and the caption room above): x from -0.66 to 1.06, y from -1.375 to 2.53 for amplitudes up to 1. The three lesson cards
     // take their own windows in the capture script (the caption rows cover the top of a card). A window keeps the unequal x and y scales of the board.
-    'waves': ['Default sum of two 3 Hz waves with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [], [-0.66, 2.53, 1.06, -1.375]],
+    'waves': ['Sum of two equal 3 Hz waves (amplitude 1 each) with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [field('Amplituda 2. vala', 1)], [-0.66, 2.53, 1.06, -1.375]],
     // The board frames the three descent experiments by itself (the track box, the caption rows and the handles); the recipe sets no window and the lesson scenes keep their own.
     'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, framed by the board', []],
     // The simulation graph frames its own scene (the frame of the mode, the caption rows above the plot); the recipe sets no window. The lesson cards open on the Galton board with one ball and the coin frequency with ten tosses.
     // The growth graph frames its own panel (the bars with their captions, or the years with the legend lines); the recipe sets no window and the lesson scenes keep their own. The lesson cards open on the arithmetic bars and the one-year interest.
     // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets no window. The lesson card opens on the default region.
     'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, framed by the board', []],
-    'recursion-growth': ['Default arithmetic sequence as bars with the marked term and the caption rows, framed by the board', []],
+    'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [button('Zmanjšaj število', 4)], [-0.7, 36, 7.2, -4]],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 1000 balls: the pegs, the bars of the binomial law and the heap', []],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
     'interp-lagrange': ['Default interpolation points (ochre) with the Lagrange polynomial through them (moss, solid), without board text', []],
@@ -95,7 +95,7 @@ const targets = {
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'phase-portrait': ['Default linear system with the stable node of the matrix -E, one seed trajectory and the two eigen-direction lines', [], [-5.8, 4.4, 5.8, -4.4]],
     'logistic-map': ['Default map at r = 2.9 with the diagonal, the cobweb, the fixed point and the bifurcation diagram with its cursor, with room under the axis for the caption column', [], [-0.1, 1.15, 2.9, -1.3]],
-    'unit-circle': ['Default unit circle at the angle 0 with the sine trace unrolled to its right, framed to show the whole circle and a full turn of the trace', [], [-1.6, 3, 8.3, -3.1]],
+    'unit-circle': ['Unit circle at the angle 0 (the opening of the radian lesson) with the sine trace unrolled to its right, framed to show the whole circle and a full turn of the trace', [field('Kot θ (°)', 0)], [-1.6, 3, 8.3, -3.1]],
     'triangle-solver': ['Default sides-mode triangle A = (0, 0), B = (7, 0), C = (2, 4) with the cosine-rule length bars to its right and the correction readout under them', [], [-1.5, 7.2, 16.5, -3.9]],
     // The lessons' handles lie in x from -3 to 5 and y from -2 to 5 (the foot and the arc caption included); the window keeps the 840:520 aspect.
     'line-geometry': ['Default line mode with the line through P and Q, the handles and the construction of the active mode, framed around the lesson points', [], [-7, 6.5, 8.5, -3.1]],
@@ -105,7 +105,7 @@ const targets = {
     'circle-construction': ['Default tangents mode with the circle, the point P, the tangent segments and the Thales circle, framed around the lesson figures of the four modes', [], [-7, 9.2, 19.5, -7.2]],
     // Lattice paths: the lessons open the paths view on the target (2, 2) (x from -1.5 to 9, y from -2.2 to 6.2, the captions above it and the start label below included); the window keeps the 840:520 aspect.
     // The expansion view of the same Demonstration needs the whole fixed box instead; the capture script gives that card its own window.
-    'lattice-paths': ['Default paths view with the grid, the routes to the target, the selected route and the captions, framed around the target (2, 2) of the lessons', [], [-1.5, 6.2, 12.1, -2.2]],
+    'lattice-paths': ['Paths view on the target (2, 2) of the lessons: the grid, the six routes, the selected route and the captions', [field('T, a', 2, 'number'), field('T, b', 2, 'number')], [-1.5, 6.2, 12.1, -2.2]],
     // Counting tree: the lesson opens on the tree of 3 choose 2 (x from 0.6 to 23.8, y from 6.4 to 24.5, the title lines and the leaf labels included); the window keeps the 840:520 aspect.
     // The default 6 choose 3 shows the table of the six counts instead, which reaches below this window.
     'counting-tree': ['Tree of the ordered choices of 2 out of 3 with its leaves and the title lines, framed around the lesson opening', [], [-0.5, 24.5, 30.2, 5.5]],
@@ -265,6 +265,10 @@ const captureText = {
     'fourier-series': {keep: [], strip: []},
     'fourier-coefficients': {keep: [], strip: []},
     // Function concepts (B8a second half): each graph is named by its formula or tag; readouts and captions go.
+    // Families-prep F5: the long legend, caption and readout lines go; the linear program keeps its vertex coordinates, the logistic map its r marks.
+    'logistic-map': {keep: [/^r = /], strip: []},
+    // The wave labels "1+2", "1-2" and "2" follow their waves as the phase moves, so the loop would not close with them.
+    waves: {keep: [], strip: []},
     'fixed-point': {keep: [/^x1$/], strip: []},
     'function-inverse': {keep: [/^f\(x\) = /], strip: []},
     'polynomial-zeros': {keep: [/^×[2-9]$/, /^p\(x\) = /], strip: []},
@@ -503,7 +507,7 @@ async function outcome(page, id) {
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
 const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'point-in-polygon', 'hull-robustness', 'bezier-hulls', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation', 'geometric-series']);
 // Demonstrations whose defining objects are JSXGraph circles.
-const CIRCLE_DEFINED_IDS = new Set(['inversion']);
+const CIRCLE_DEFINED_IDS = new Set(['inversion', 'circle-construction']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
