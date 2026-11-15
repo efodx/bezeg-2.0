@@ -53,3 +53,36 @@
 
 ### Doubts
 - Circles direct, diamonds reflected comes from the slice 1 note and the graph code, not from a rendered check.
+
+## Slice 2 (LESSON): L5 friezes
+
+### Written
+- `src/learning/content/isometriesFriezeGuidedLessons.ts` (new, LF): `friezeLesson` (6 steps), `friezeSceneActions`, constants `L5_*` (`L5_SCENES`, `L5_COPIES`, periods, 11/5 counts). Scene = demonstration default, `set-mode frieze`, `set-frieze {features (all four), period}`. Two formula blocks (`frieze-translation-half-turn`, `frieze-glide`). Statuses are the reworded ones; no new probe was needed (every opening and post-change state is in `probe2-l5.txt`).
+- Checks: tsc 0, lint 0, `just unit src/graphs/isometry` 0, backslash checks 0 singles (a `\'` reworded away); notation test passed on a temporary copy (lesson and one more `'isometries'` id added; deleted). Logs `s2-*-l5.*`.
+
+### Numbers per step with source
+| Step | Opening | Learner change | Quoted | Source |
+| --- | --- | --- | --- | --- |
+| 1 | none, L 4 | tick half-turn | opening p1, 1 image; after p2, 2 images; centres spaced L/2 (2 at L=4) | probe2 none, R; arithmetic (rho then tau_L = (-x+L,-y)) |
+| 2 | G, L 4 | tick vertical | opening p11g, 2; after p2mg, 4; half-turn row da; centre L/4 from mirror | probe2 G, V+G; spec L/4 |
+| 3 | V | tick horizontal | opening p1m1, 2; after p2mm, 4; half-turn row da, glide row ne | probe2 V, V+H |
+| 4 | H | tick glide | opening p11m, 2; after: reduces-period status, type none, period 4; H then G = translation L/2 | probe2 H, H+G; arithmetic |
+| 5 | V+H+R (p2mm) | untick H (still p2mm, 4, H row da), untick R (p1m1, 2), tick G (p2mg, 4) | seven types, signatures, 1,2,2,2,2,4,4; 11 valid / 5 shortening | probe2 V+H+R, V+R, V, V+G; probe rows |
+| 6 | G, L 6 | free | 11 combinations give a type, 5 shorten (H+G, V+H+G, V+R+G, H+R+G, all four); periods 4 and 6 same | probe2 all 16 subsets, G p6 |
+
+### Deviations
+- The spec Terms/Correctness line gives p2mm "all four" features; the probe rows show p2mm has glide = ne (V, H, half-turn only). The lesson follows the probe (p2mm: vertical, horizontal, half-turn).
+- The seven types with their signatures are in the step 5 expected observation (after the answer), not the explanation, so the explanation does not give the answers it asks for.
+- Step 5 asks for ticks, then untick-and-tick sequence; there is no state in which one tick change yields p1m1 from the p2mm opening.
+
+### Test design
+- Scene: `friezeSceneActions(id, spec)` in one synchronous tick; specs in `L5_SCENES`. Readout rows by `data-readout` keys `type`, `copies`, `period`, `has-vertical|horizontal|halfTurn|glide`; status `[data-isometry-status]`; caption "tip friza X".
+- Openings (type, copies): none p1/1; G p11g/2; V p1m1/2; H p11m/2; V+H+R p2mm/4; G period 6 p11g/2. Post-change: R p2/2; V+G p2mg/4 rows V da H ne R da G da; V+H p2mm/4 glide ne; H+G reduces status, type none, period 4; V+R p2mm/4 with H row da; V p1m1/2; V+G p2mg/4.
+- Learner actions: checkboxes "Navpično zrcalo", "Vodoravno zrcalo", "Vrtež za 180°", "Zrcalni zdrs" in group "Simetrije vzorca"; slider "Perioda". Quote list: type names and image counts above, 11 and 5 combinations, L/2 and L/4 positions.
+
+### Still to do
+- Chapter, registry, test lists and docs (slice 3). Marker/caption positions on the board were not checked in a browser.
+
+### Doubts
+- "Centre a quarter period from the mirror" (step 2) and "centres spaced L/2" (step 1) are derived from the spec and arithmetic, not from a rendered check of the board.
+- `src/learning/content/isometriesRosetteGuidedLessons.ts` shows modified in the working tree; not by this slice (another actor).
