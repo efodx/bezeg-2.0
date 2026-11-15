@@ -23,6 +23,7 @@ import {circleTangentsLesson, circleRadicalLesson, circleApolloniusLesson, circl
 import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson} from './mechanicalCurvesGuidedLessons';
 import {kinematicsVectorsLesson, kinematicsSpeedLesson, kinematicsProjectileLesson, kinematicsCircularLesson} from './kinematicsGuidedLessons';
 import {latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson} from './combinatoricsGuidedLessons';
+import {rowSumsLesson} from './combinatoricsRowGuidedLessons';
 import {friezeLesson} from './isometriesFriezeGuidedLessons';
 import {isometryClassifyLesson, isometryDilationLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
 import {rosetteLesson} from './isometriesRosetteGuidedLessons';
@@ -105,6 +106,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson, kinematicsProjectileLesson, kinematicsCircularLesson]],
     ['mechanicalCurvesGuidedLessons', [mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson]],
     ['combinatoricsGuidedLessons', [latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson]],
+    ['combinatoricsRowGuidedLessons', [rowSumsLesson]],
     ['isometriesGuidedLessons', [isometryTwoMirrorsLesson, isometryClassifyLesson, isometryDilationLesson]],
     ['isometriesRosetteGuidedLessons', [rosetteLesson]],
     ['isometriesFriezeGuidedLessons', [friezeLesson]],
@@ -280,6 +282,7 @@ test('scans every lesson module', () => {
             'contour-map', 'contour-map', // levelSetsOptimizationGuidedLessons.ts: LS3 and LS4
             'complex-power', 'complex-euler', // complexPowerGuidedLessons.ts: M6; complexEulerGuidedLessons.ts: M7
             'lattice-paths', 'counting-tree', 'lattice-paths', 'lattice-paths', // combinatoricsGuidedLessons.ts: CB1 to CB4
+            'counting-tree', // combinatoricsRowGuidedLessons.ts: CB5
             'isometries', 'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 to L3
             'isometries', 'isometries', // isometriesRosetteGuidedLessons.ts: L4; isometriesFriezeGuidedLessons.ts: L5
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',

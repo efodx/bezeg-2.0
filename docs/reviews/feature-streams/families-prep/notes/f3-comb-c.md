@@ -80,3 +80,16 @@ Chapter section, registry entry, registration, preview copy, test lists (the Dem
 - New `src/learning/content/combinatoricsRowGuidedLessons.test.ts` (tests only). Part A: structure, scene sweep on a real `CountingTreeGraph` in sl and en (out of order, twice, state, status, readouts vs independent arithmetic), restore on exit, quoted control/readout names exist in graph strings, openings never the target state and prompts name target values, learner actions (n 7 then 10; n 0; hockey k-then-n and n-then-k with intermediates; t slider to 0,5 and 0,9; n 20 k 10) give the quoted readouts, prediction answers absent from explanation/formulas/worked example. Part B: BigInt row sums (n <= 60), alternating sums, hockey stick (n <= 30), every quoted number recomputed, weights vs C(n,k) t^k (1-t)^(n-k) (1e-12; row sums 1 within 1e-15 at t = 0,5), no English decimals in sl, "približno"/"about" before rounded numbers.
 - Red: sl `0{,}148803` changed to `0{,}148804` in the lesson (line 262), two tests failed (`s2d-red.log`), restored (lesson file diff empty). Green: `s2d-unit.log`. No false claim found.
 - Not verified: browser rendering; the prediction-answer check lists the answers by hand (`ANSWERS`).
+
+## Slice 3: chapter join
+
+### Written
+- `combinatoricsChapterRegistry.ts`: section `row-sums` (counting-tree, `ROW_SUMS_LESSON_ID`). `combinatoricsChapter.ts`: section `row-sums` (4 paragraphs, formula, example, sl and en); comment updated. Examples avoid the lesson predictions: row 5 (32, alternating 0), hockey stick n=6, k=2 (1+3+6+10+15=35=C(7,3)), weight n=3, k=1, t=1/3 (4/9, about 0.444444). The n=0 alternating value is not stated, only that the argument does not apply there.
+- Tests: `authoredChapterCoverage.test.ts` (count 194 to 195, row-sums maps to counting-tree), `familyChapters.test.ts` (combinatorics minimum 5), `lessonMathNotation.test.ts` (import, set entry, id list), `tests/unified-learning.smoke.spec.cjs` (combinatorics 5), `guidedExamplePreviews.test.ts` (`pending` row-sums, no copy row). No change needed in lookup/catalog/ownership files. `registration.ts` comment CB1 to CB5; `localization.md` row (izmenična vsota, hokejska palica, utež; handler-unreviewed); task 06 and README status. No change in `combinatoricsRowGuidedLessons.ts`.
+
+### Outcome
+- Red before source edit (`s3-red.log`): coverage and familyChapters failed (2). tsc clean (`s3-tsc.log`); `just unit src/learning src/graphs/combinatorics` passed (`s3-unit.log`); lint clean (`s3-lint.log`); build and `just smoke-lesson counting-tree` passed.
+- Backslash checks: bscheck flags only String.raw lines; rawcheck's 12 are `\'` apostrophes.
+
+### Not verified
+- No browser look at the new section; Slovenian prose unreviewed; full unified-learning smoke not run. Pre-existing: `localization.md` Pascalova identiteta row shows "inom" (lost backslash), untouched.
