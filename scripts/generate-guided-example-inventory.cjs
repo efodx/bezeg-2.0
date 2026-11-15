@@ -15,7 +15,7 @@ const {recipes: demonstrationRecipes} = require('./demonstration-preview-recipes
  */
 function withoutPolicyText(demonstrationId, expected) {
     if (!demonstrationRecipes[demonstrationId]?.text || expected?.types?.text === undefined) return expected;
-    const {text, ...types} = expected.types;
+    const {text: _text, ...types} = expected.types;
     return {...expected, types};
 }
 
