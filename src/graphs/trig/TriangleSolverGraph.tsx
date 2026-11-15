@@ -859,6 +859,22 @@ export class TriangleSolverGraph extends BaseGraph<TriangleSolverGraphState, Tri
                 this.requestRender();
                 return;
             }
+            case "set-data": {
+                const {type: rawType, ...given} = fields as Readonly<Record<string, unknown>>;
+                const type = SOLVE_DATA_TYPES.find(candidate => candidate === rawType);
+                if (!type) throw new Error("triangle set-data: type must be sss, sas, asa or ssa.");
+                const allowed: readonly string[] = DATA_FIELDS[type].map(field => field.name);
+                this.refuseUnknown("set-data", given, allowed);
+                const data: Record<string, unknown> = {...DEFAULT_SOLVE_DATA[type]};
+                for (const field of DATA_FIELDS[type]) {
+                    if (given[field.name] !== undefined) data[field.name] = given[field.name];
+                }
+                const parsed = parseTriangleState({...this.state, data});
+                if (!parsed.ok) throw new Error(`triangle set-data: ${parsed.error.field} ${parsed.error.reason}.`);
+                this.setState({data: parsed.value.data});
+                this.requestRender();
+                return;
+            }
             default: {
                 const unsupported: never = action;
                 throw new Error(`triangle: no operation in ${JSON.stringify(unsupported)}.`);

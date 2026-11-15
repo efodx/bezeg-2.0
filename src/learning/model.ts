@@ -412,9 +412,16 @@ export type LessonAction =
     /**
      * TriangleSolverGraph's scene actions (TR3, TR4; TR5 adds `set-data`), a kind of their own so that each graph's switch over its operations stays
      * exhaustive. `set-mode` is the mode select (`sides`, `circle`, `solve`); `set-vertex` is the two coordinate fields of one vertex, each an integer of
-     * the field's range (x from -2 to 8, y from -7 to 11); anything else is a lesson-content error and is never snapped or clamped.
+     * the field's range (x from -2 to 8, y from -7 to 11); anything else is a lesson-content error and is never snapped or clamped. `set-data` is the
+     * solve mode's data-type chooser followed by the typed fields: the chooser loads the type's default inputs, the given fields then replace theirs.
+     * Only the fields of the type are allowed (SSS a, b, c; SAS b, c, angleA; ASA angleA, angleB, c; SSA a, b, angleA); sides are multiples of 1/4 in
+     * [1/4, 12], angles integer degrees 1 to 179. It does not change the mode.
      */
     | {readonly kind: 'triangle'; readonly operation: 'set-mode'; readonly mode: 'sides' | 'circle' | 'solve'}
+    | {
+        readonly kind: 'triangle'; readonly operation: 'set-data'; readonly type: 'sss' | 'sas' | 'asa' | 'ssa';
+        readonly a?: number; readonly b?: number; readonly c?: number; readonly angleA?: number; readonly angleB?: number;
+    }
     | {readonly kind: 'triangle'; readonly operation: 'set-vertex'; readonly vertex: 'A' | 'B' | 'C'; readonly x: number; readonly y: number}
     /**
      * LineGeometryGraph's scene actions (analytic-lines L1, L2; later lessons extend the union). `set-mode` is the mode select (`forms`, `normal`,

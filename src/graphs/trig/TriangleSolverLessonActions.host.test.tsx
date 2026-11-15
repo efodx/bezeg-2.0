@@ -102,3 +102,73 @@ test('the graph supports both operations; invalid scene data is a lesson-content
     for (const action of bad) expect(() => apply(graph, action)).toThrow();
     expect(stateOf(graph)).toEqual(before);
 });
+
+type DataAction = Extract<LessonAction, {operation: 'set-data'}>;
+const setData = (type: DataAction['type'], fields: Omit<DataAction, 'kind' | 'operation' | 'type'> = {}): LessonAction => ({kind: 'triangle', operation: 'set-data', type, ...fields});
+const chooseData = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Podani podatki'), {target: {value}}); });
+const FIELD_LABEL = {a: 'Stranica a', b: 'Stranica b', c: 'Stranica c', angleA: 'Kot A (°)', angleB: 'Kot B (°)'} as const;
+
+test.each([
+    ['sss', {a: 4, b: 5.25, c: 8}],
+    ['sas', {b: 3.5, c: 9, angleA: 120}],
+    ['asa', {angleA: 70, angleB: 45, c: 6.75}],
+    ['ssa', {a: 3.5, b: 8, angleA: 30}],
+] as const)('set-data %s reaches the state of the data-type chooser and its typed fields', (dataType, fields) => {
+    const viaAction = after(graph => { apply(graph, setMode('solve')); apply(graph, setData(dataType, fields)); });
+    const viaControl = after(() => {
+        pick('solve');
+        chooseData(dataType === 'sss' ? 'ssa' : 'sss');
+        chooseData(dataType);
+        for (const [name, value] of Object.entries(fields)) type(FIELD_LABEL[name as keyof typeof FIELD_LABEL], String(value));
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state.data).toEqual({type: dataType, ...fields});
+});
+
+test('set-data without fields is the chooser alone: the type\'s default inputs, and the mode stays', () => {
+    const graph = mount();
+    apply(graph, setData('asa'));
+    expect(graph.state.data).toEqual({type: 'asa', angleA: 40, angleB: 60, c: 8});
+    expect(graph.state.mode).toBe('sides');
+});
+
+test('set-data runs in one synchronous sequence with set-mode; a later action reads the earlier one', () => {
+    const graph = mount();
+    act(() => {
+        const capabilities = graph.getLessonCapabilities();
+        capabilities.apply(setMode('solve'));
+        capabilities.apply(setData('ssa'));
+        capabilities.apply(setData('ssa', {a: 4}));
+    });
+    expect(graph.state.mode).toBe('solve');
+    expect(graph.state.data).toEqual({type: 'ssa', a: 4, b: 8, angleA: 30});
+});
+
+test('a checkpoint restore returns the free state after set-data', () => {
+    const graph = mount();
+    const free = stateOf(graph);
+    const checkpoint = graph.getLessonCapabilities().captureState();
+    apply(graph, setMode('solve'));
+    apply(graph, setData('ssa', {a: 3.5}));
+    expect(stateOf(graph)).not.toEqual(free);
+    act(() => { graph.getLessonCapabilities().restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+});
+
+test('set-data with invalid data is a lesson-content error with a "triangle set-data" message and changes nothing', () => {
+    const graph = mount();
+    expect(graph.supportsLessonAction(setData('sss'))).toBe(true);
+    const before = stateOf(graph);
+    const bad: LessonAction[] = [
+        setData('ssa', {a: 0}), setData('ssa', {a: 12.25}), setData('ssa', {a: 5.1}), setData('ssa', {a: 0.1}),
+        setData('ssa', {angleA: 0}), setData('ssa', {angleA: 180}), setData('ssa', {angleA: 30.5}), setData('asa', {angleB: 180}),
+        setData('ssa', {a: Number.NaN}), setData('ssa', {a: JSON.parse('"5"')}),
+        {kind: 'triangle', operation: 'set-data', type: 'ssa', angleB: 40} as unknown as LessonAction,
+        {kind: 'triangle', operation: 'set-data', type: 'sss', angleA: 40} as unknown as LessonAction,
+        {kind: 'triangle', operation: 'set-data', type: 'ssa', radius: 2} as unknown as LessonAction,
+        setData(JSON.parse('"sax"')),
+        {kind: 'triangle', operation: 'set-data'} as unknown as LessonAction,
+    ];
+    for (const action of bad) expect(() => apply(graph, action)).toThrow(/^triangle set-data: /);
+    expect(stateOf(graph)).toEqual(before);
+});
