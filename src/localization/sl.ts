@@ -4738,6 +4738,8 @@ export const sl = {
     "combinatorics_counting_cap_row": "Vrstica {value0} Pascalovega trikotnika",
     "combinatorics_counting_cap_weights": "Višina stolpca: utež (n nad k) · tᵏ · (1 − t)ⁿ⁻ᵏ pri t = {value0} (merilo: največja utež)",
     "combinatorics_counting_cap_selected": "izbran k = {value0}: {value1}",
+    "combinatorics_counting_cap_weights_short": "Višina stolpca: utež pri t = {value0}",
+    "combinatorics_counting_cap_numbers_omitted": "Nekatera števila so izpuščena; vsa so v izpisu.",
     "combinatorics_counting_cap_multiset": "Črke, ki se ponavljajo, so enake med seboj.",
     "combinatorics_lattice_title": "Poti po mreži in Pascalov trikotnik",
     "combinatorics_lattice_prompt": "Premakni cilj in preštej poti, ki gredo samo desno in gor. Kako se števila poti ujemajo s števili v Pascalovem trikotniku?",

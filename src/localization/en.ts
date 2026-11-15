@@ -4739,6 +4739,8 @@ export const en: Record<keyof typeof sl, string> = {
     "combinatorics_counting_cap_row": "Row {value0} of Pascal's triangle",
     "combinatorics_counting_cap_weights": "Bar height: weight C(n, k) · tᵏ · (1 − t)ⁿ⁻ᵏ at t = {value0} (scale: largest weight)",
     "combinatorics_counting_cap_selected": "chosen k = {value0}: {value1}",
+    "combinatorics_counting_cap_weights_short": "Bar height: weight at t = {value0}",
+    "combinatorics_counting_cap_numbers_omitted": "Only some numbers are shown; all are in the readout.",
     "combinatorics_counting_cap_multiset": "Repeated letters are equal to each other.",
     "combinatorics_lattice_title": "Lattice paths and Pascal's triangle",
     "combinatorics_lattice_prompt": "Move the target and count the routes that go only right and up. How do the route counts match the numbers in Pascal's triangle?",

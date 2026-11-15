@@ -54,3 +54,11 @@ The row view of the counting tree spaced its bars at a fixed 1.15 (made for n = 
 - The card's window is wider than the view box, so the n = 4 row occupies the left 60 % of the new card (bars at 0.9 to 23.5 in a window of about -4.8 to 34.5); the "k = 2" text now stands clear above the cap and the row numbers are on one level.
 - The other four cards are byte-identical (sha256 checked). The catalog `counting-tree` recipe sets n and k on the choices view, so it is unaffected.
 - Evidence: `.command-logs/comb-c/rowlayout/` (red.log: 4 failures on the old code; unit.log, tc.log, lint.log, capture.log).
+
+## Row view labels (handler 32)
+
+- Row numbers (`CountingTreeGraph.tsx` `rowLayout`): greedy placement from measured widths (0.55 of the font size per character, 2 px gap) at the board's own pixels per unit. Largest font 13 down to 10 px, on as many staggered levels as fit between the baseline and the place indices; at 10 px the numbers that still do not fit are left out (the chosen k's number is placed first, so always shown) and a caption under the indices says so. Place indices that would touch are thinned the same way.
+- Top captions: wrapped to the board width and stacked by line count; to keep the tallest bar plus the "k = ..." text clear, they give way in steps (full weights line, new short key `combinatorics_counting_cap_weights_short`, 11 px, then no weights line). The bars keep their height: the guided-example capture reframes the board and rejects curves that move with it (an earlier bar-shrinking attempt failed there).
+- "k = ..." is raised above any bar its half width reaches (`barLabelY`).
+- Item 8 (spread over the visible range of a wide board) was not done: bar positions would depend on the board's bounding box, and `capture-guided-example-previews.cjs` requires curve geometry unchanged by the capture reframing (`assertPresentationGeometryStable`); it would also make the inventory's exact curve samples frame dependent. Captions still start at the VIEW_BOX left.
+- Card: row-sums PNG recaptured (shows title, chosen k and bars; the weights line is dropped at the card frame); other four cards byte-identical; inventory unchanged.

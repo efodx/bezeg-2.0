@@ -60,8 +60,8 @@ export const BAR_HEIGHT = 8;
 export const ROW_LEFT = 0.9;
 export const ROW_RIGHT = 23.5;
 export const ROW_STEP_MAX = 6;
-export const rowStep = (n: number): number => Math.min(ROW_STEP_MAX, (ROW_RIGHT - ROW_LEFT) / Math.max(n, 1));
-export const barX = (index: number, n: number): number => ROW_LEFT + rowStep(n) * index;
+export const rowStep = (n: number, left = ROW_LEFT, right = ROW_RIGHT): number => Math.min(ROW_STEP_MAX, (right - left) / Math.max(n, 1));
+export const barX = (index: number, n: number, left = ROW_LEFT, right = ROW_RIGHT): number => left + rowStep(n, left, right) * index;
 /** Pixels from the top of the chosen bar to the top of its round cap (half the 14 px stroke), and the margin between that cap and the bottom of its "k = ..." text. */
 export const BAR_CAP_PX = 7;
 export const BAR_LABEL_MARGIN_PX = 4;
@@ -94,6 +94,12 @@ function wrapWords(text: string, maxChars: number): string[] {
         else lines.push(word);
     }
     return lines;
+}
+
+const ROW_CAPTION_POOL = 5;
+interface RowLayout {
+    numberFont: number; level: number[]; levelStep: number; indexShown: boolean[]; omitted: boolean;
+    captionFont: number; lines: string[][]; ys: number[][];
 }
 
 const KINDS: readonly CountingKind[] = ["variations", "variationsRepetition", "combinations", "combinationsRepetition"];
@@ -339,6 +345,8 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         this.status.report(this.statusText());
     }
 
+    private rowLayoutCache: {key: string; layout: RowLayout} | undefined;
+
     private buildScene(): void {
         this.disposeScene();
         this.builtKey = this.sceneKey();
@@ -356,7 +364,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     }
 
     private caption(text: string | (() => string), x: number | (() => number), y: number | (() => number), color: string,
-                    visible: boolean | (() => boolean) = true, options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"; fontSize?: number} = {}): JXG.Text {
+                    visible: boolean | (() => boolean) = true, options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"; fontSize?: number | (() => number)} = {}): JXG.Text {
         return this.scene.own(this.board.create("text", [x, y, text], {
             strokeColor: color, fontSize: options.fontSize ?? 15, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "middle", fixed: true,
             highlight: false, withLabel: false, visible,
@@ -490,37 +498,124 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     }
 
     private buildRow(): void {
-        const showing = (j: number) => () => j <= this.state.n;
-        const x = (j: number) => () => barX(j, this.state.n);
+        const x = (j: number) => () => this.barAt(j);
         this.curve(() => {
             const poly = emptyPoly();
-            addPolyline(poly, [[0.2, BAR_BASE], [Math.min(24, barX(this.state.n, this.state.n) + 0.7), BAR_BASE]]);
+            addPolyline(poly, [[0.2, BAR_BASE], [Math.min(this.rowSpan().right + 0.5, this.barAt(this.state.n) + 0.7), BAR_BASE]]);
             return poly;
         }, GraphPalette.axis, 1, 0);
         this.curve(() => this.barData(false), GraphPalette.primaryCurve, 14, 0);
         this.curve(() => this.barData(true), GraphPalette.constructionAccent, 14, 0);
         for (let j = 0; j < ROW_POOL; j++) {
-            this.caption(() => (j <= this.state.n ? countText(this.row().row[j]) : ""), x(j), () => BAR_BASE - 1 - (this.rowStaggered() ? 1.2 * (j % 2) : 0), GraphPalette.label, showing(j),
-                {anchorX: "middle", anchorY: "top", fontSize: 13});
-            this.caption(() => (j <= this.state.n ? smallText(j) : ""), x(j), 4.6, GraphPalette.axis, showing(j), {anchorX: "middle", fontSize: 12});
+            this.caption(() => (this.rowShown(j) ? countText(this.row().row[j]) : ""), x(j), () => BAR_BASE - 1 - Math.max(0, this.rowLayout().level[j]) * this.rowLayout().levelStep, GraphPalette.label,
+                () => this.rowShown(j), {anchorX: "middle", anchorY: "top", fontSize: () => this.rowLayout().numberFont});
+            this.caption(() => (j <= this.state.n && this.rowLayout().indexShown[j] ? smallText(j) : ""), x(j), 4.6, GraphPalette.axis, () => j <= this.state.n && this.rowLayout().indexShown[j],
+                {anchorX: "middle", fontSize: 12});
         }
         // The chosen bar is also named in text above its top: the accent colour alone does not carry the choice.
-        this.caption(() => t("combinatorics_counting_cap_bar_k", {value0: smallText(this.rowPlace())}), () => barX(this.rowPlace(), this.state.n),
-            () => BAR_BASE + this.barHeight(this.rowPlace()) + (BAR_CAP_PX + BAR_LABEL_MARGIN_PX) / this.unitY(), GraphPalette.constructionAccent, true, {anchorX: "middle", anchorY: "bottom", fontSize: 13});
-        this.caption(() => t("combinatorics_counting_cap_row", {value0: smallText(this.state.n)}), -0.3, 23.4, GraphPalette.label);
-        this.caption(() => t("combinatorics_counting_cap_weights", {value0: numberText(this.state.t / T_DENOMINATOR)}), -0.3, 22.2, GraphPalette.label);
-        this.caption(() => t("combinatorics_counting_cap_selected", {value0: smallText(this.rowPlace()), value1: this.selectedText()}), -0.3, 21, GraphPalette.constructionAccent);
+        this.caption(() => t("combinatorics_counting_cap_bar_k", {value0: smallText(this.rowPlace())}), () => this.barAt(this.rowPlace()),
+            () => this.barLabelY(), GraphPalette.constructionAccent, true, {anchorX: "middle", anchorY: "bottom", fontSize: 13});
+        const colors = [GraphPalette.label, GraphPalette.label, GraphPalette.constructionAccent, GraphPalette.axis];
+        // Rows 0 to 2 of `lines` are the captions at the top; row 3 is the note under the place indices, when numbers are left out.
+        for (let c = 0; c < colors.length; c++) for (let line = 0; line < ROW_CAPTION_POOL; line++) {
+            this.caption(() => this.rowLayout().lines[c]?.[line] ?? "", () => this.rowSpan().edge + 0.2, () => this.rowLayout().ys[c]?.[line] ?? 0, colors[c],
+                () => this.rowLayout().lines[c]?.[line] !== undefined, {fontSize: () => this.rowLayout().captionFont});
+        }
     }
 
     private unitY(): number {
         return this.board.unitY > 0 ? this.board.unitY : 1;
     }
 
-    /** The row numbers stand on two levels when the widest one (estimated, 0.55 of the font size per character) is wider than the pixels between two bars. */
-    private rowStaggered(): boolean {
+    /** Where the bars and captions go. Fixed at the VIEW_BOX layout: the guided-example capture reframes the board and requires the curves not to move with it (see the note "Row view labels"). */
+    private rowSpan(): {edge: number; left: number; right: number} {
+        return {edge: VIEW_BOX[0], left: ROW_LEFT, right: ROW_RIGHT};
+    }
+
+    private barAt(j: number): number {
+        return barX(j, this.state.n);
+    }
+
+    private rowShown(j: number): boolean {
+        return j <= this.state.n && this.rowLayout().level[j] >= 0;
+    }
+
+    /** The "k = ..." text sits above the chosen cap and above every bar its (estimated) width and the cap width reach. */
+    private barLabelY(): number {
         const unitX = this.board.unitX > 0 ? this.board.unitX : 24;
-        const widest = Math.max(...this.row().row.map(value => countText(value).length));
-        return widest * 13 * 0.55 + 6 > rowStep(this.state.n) * unitX;
+        const k = this.rowPlace();
+        const half = (smallText(k).length + 4) * 13 * 0.55 / 2 + BAR_CAP_PX;
+        let top = 0;
+        for (let j = 0; j <= this.state.n; j++) if (Math.abs(this.barAt(j) - this.barAt(k)) * unitX < half + (j === k ? 0 : BAR_CAP_PX)) top = Math.max(top, this.barHeight(j));
+        return BAR_BASE + top + (BAR_CAP_PX + BAR_LABEL_MARGIN_PX) / this.unitY();
+    }
+
+    /**
+     * The measured row layout (text width estimated at 0.55 of the font size per character), cached per state and board size:
+     * the row numbers take the largest font from 13 down to 10 px at which they fit on the staggered levels there is room for;
+     * at 10 px the ones that still do not fit are left out (the chosen k's number is placed first and always shown) and a caption says so.
+     * The captions at the top wrap to the board width and stack by their line count; the bars keep their height (the guided-example capture reframes the board and needs the curves fixed), so the captions give way: a shorter weights line, a smaller font, at last no weights line.
+     */
+    private rowLayout(): RowLayout {
+        const unitX = this.board.unitX > 0 ? this.board.unitX : 24;
+        const unitY = this.unitY();
+        const [, top, right] = this.board.getBoundingBox();
+        const {n} = this.state, k = this.rowPlace(), tNow = numberText(this.state.t / T_DENOMINATOR);
+        const span = this.rowSpan();
+        const key = `${span.edge}|${span.right}|${n}|${k}|${tNow}|${unitX}|${unitY}|${top}|${right}|${t("combinatorics_counting_cap_row", {value0: "0"})}`;
+        if (this.rowLayoutCache?.key === key) return this.rowLayoutCache.layout;
+        const widths = this.row().row.slice(0, n + 1).map(value => countText(value).length * 0.55);
+        const order = [k, ...Array.from({length: n + 1}, (_, j) => j).filter(j => j !== k)];
+        const stepPx = rowStep(n, this.rowSpan().left, this.rowSpan().right) * unitX;
+        const room = (BAR_BASE - 1 - 4.6) * unitY - 9.5;
+        let numberFont = 10, level: number[] = [], levelStep = 0, omitted = false;
+        for (const font of [13, 12, 11, 10]) {
+            const lineH = Math.ceil(font * 1.25) + 1;
+            const levels = Math.max(1, Math.floor(room / lineH));
+            const taken: Array<Array<[number, number]>> = Array.from({length: levels}, () => []);
+            const placed = new Array<number>(n + 1).fill(-1);
+            for (const j of order) {
+                const lo = j * stepPx - widths[j] * font / 2 - 2, hi = j * stepPx + widths[j] * font / 2 + 2;
+                const at = taken.findIndex(row => row.every(([a, b]) => hi <= a || lo >= b));
+                if (at >= 0) { taken[at].push([lo, hi]); placed[j] = at; }
+            }
+            numberFont = font; level = placed; levelStep = lineH / unitY; omitted = placed.some(l => l < 0);
+            if (!omitted) break;
+        }
+        const indexTaken: Array<[number, number]> = [];
+        const indexShown = new Array<boolean>(n + 1).fill(false);
+        for (const j of order) {
+            const half = smallText(j).length * 12 * 0.55 / 2 + 2;
+            const lo = j * stepPx - half, hi = j * stepPx + half;
+            if (indexTaken.every(([a, b]) => hi <= a || lo >= b)) { indexTaken.push([lo, hi]); indexShown[j] = true; }
+        }
+        const labelPx = BAR_CAP_PX + BAR_LABEL_MARGIN_PX + 13 * 1.25;
+        const variants = [{font: 13, weights: "full"}, {font: 13, weights: "short"}, {font: 11, weights: "short"}, {font: 11, weights: "none"}];
+        let result: RowLayout | undefined;
+        for (let v = 0; v < variants.length; v++) {
+            const {font, weights} = variants[v];
+            const maxChars = Math.max(10, Math.floor(((Math.max(right, span.right + 1) - span.edge - 0.2) * unitX - 8) / (font * 0.55)));
+            const texts = [
+                t("combinatorics_counting_cap_row", {value0: smallText(n)}),
+                weights === "none" ? "" : weights === "short" ? t("combinatorics_counting_cap_weights_short", {value0: tNow}) : t("combinatorics_counting_cap_weights", {value0: tNow}),
+                t("combinatorics_counting_cap_selected", {value0: smallText(k), value1: this.selectedText()}),
+            ];
+            const lines = texts.map(text => (text === "" ? [] : wrapWords(text, maxChars).slice(0, ROW_CAPTION_POOL)));
+            const lineH = Math.ceil(font * 1.25) + 3;
+            const count = lines.reduce((sum, l) => sum + l.length, 0);
+            const note = omitted ? wrapWords(t("combinatorics_counting_cap_numbers_omitted"), maxChars).slice(0, ROW_CAPTION_POOL) : [];
+            const free = top * unitY - 4 - count * lineH - labelPx - (BAR_BASE + BAR_HEIGHT) * unitY;
+            if (free >= 0 || v === variants.length - 1) {
+                let s = 0;
+                const ys = lines.map(l => l.map(() => top - (4 + (s++ + 0.5) * lineH) / unitY));
+                lines.push(note);
+                ys.push(note.map((_, i) => 4.6 - (7.5 + 3 + lineH / 2 + i * lineH) / unitY)); // under the place indices (12 px font, centred on 4.6)
+                result = {numberFont, level, levelStep, indexShown, omitted, captionFont: font, lines, ys};
+                break;
+            }
+        }
+        this.rowLayoutCache = {key, layout: result!};
+        return result!;
     }
 
     private selectedText(): string {
@@ -534,7 +629,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         this.row().weights.forEach((_, j) => {
             if (selectedOnly && j !== this.rowPlace()) return;
             if (!selectedOnly && j === this.rowPlace()) return;
-            addPolyline(poly, [[barX(j, this.state.n), BAR_BASE], [barX(j, this.state.n), BAR_BASE + this.barHeight(j)]]);
+            addPolyline(poly, [[this.barAt(j), BAR_BASE], [this.barAt(j), BAR_BASE + this.barHeight(j)]]);
         });
         return poly;
     }
