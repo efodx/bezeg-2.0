@@ -123,4 +123,22 @@ module.exports = [
         lessonQuote: 'Pri desetih vrstah klinov spusti eno kroglico, nato deset in sto',
         discreteReason: 'The number of balls is a whole count typed into a field with no slider, so each checkpoint types the next count (100, 55, 10).',
     },
+    {
+        id: 'isometries',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'Q2, y', step: 1},
+        // The poster scene is the default mirrors mode: the second mirror goes through the origin and Q2 = (2, 1). The ordinate of Q2 goes 1, 2, 3, then back to 1, so the second mirror turns and the composite motion changes.
+        path: [0, 1, 2, 1, 0],
+        lessonQuote: 'V načinu zrcal premikaj točke obeh zrcal in opazuj sestavljeno gibanje',
+        discreteReason: 'A handle of a mirror snaps to the integer grid (IsometryGraph.tsx:692, snapCoordinateInput), so a sub-integer drag state does not exist; each checkpoint types the next whole ordinate of Q2.',
+    },
+    {
+        id: 'phase-portrait',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Čas t', step: 0.02},
+        // Fallback control of the triage (the seed handle drag snaps to integers and the matrix handles are unnamed): the playback time runs along the seed trajectory and back.
+        path: [0, 3, 6, 3, 0],
+        lessonQuote: 'Premakni začetno točko in poglej, katere trajektorije ostanejo na premici',
+        discreteReason: null,
+    },
 ];

@@ -267,6 +267,8 @@ const captureText = {
     // Function concepts (B8a second half): each graph is named by its formula or tag; readouts and captions go.
     // Families-prep F5: the long legend, caption and readout lines go; the linear program keeps its vertex coordinates, the logistic map its r marks.
     'logistic-map': {keep: [/^r = /], strip: []},
+    // Phase portrait: the captions of the seed, the equilibrium, the matrix columns and the eigen-lines crowd the board; the trajectory and the eigen-lines carry the picture, so no board text.
+    'phase-portrait': {keep: [], strip: []},
     // Curve kinematics: the legend lines (the point, the path, the arrows and their scales) and the arrow tags cross the path at card size; the moving point, the path and the arrows carry the picture.
     'curve-kinematics': {keep: [], strip: []},
     'linear-program': {keep: [/^\(-?\d+; -?\d+\)$/], strip: []},

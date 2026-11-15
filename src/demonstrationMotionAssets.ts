@@ -129,6 +129,8 @@ import motion_line_geometry from './images/demonstrations/catalog/line-geometry.
 import motion_prob_simulation from './images/demonstrations/catalog/prob-simulation.webm?no-inline';
 import motion_mechanics_descent from './images/demonstrations/catalog/mechanics-descent.webm?no-inline';
 import motion_curve_kinematics from './images/demonstrations/catalog/curve-kinematics.webm?no-inline';
+import motion_isometries from './images/demonstrations/catalog/isometries.webm?no-inline';
+import motion_phase_portrait from './images/demonstrations/catalog/phase-portrait.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -261,4 +263,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'prob-simulation': {src: motion_prob_simulation, type: 'video/webm', duration: 4},
     'mechanics-descent': {src: motion_mechanics_descent, type: 'video/webm', duration: 4},
     'curve-kinematics': {src: motion_curve_kinematics, type: 'video/webm', duration: 4},
+    'isometries': {src: motion_isometries, type: 'video/webm', duration: 4},
+    'phase-portrait': {src: motion_phase_portrait, type: 'video/webm', duration: 4},
 };

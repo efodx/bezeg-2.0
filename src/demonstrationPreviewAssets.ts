@@ -68,6 +68,7 @@ import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_unit_circle from './images/demonstrations/catalog/unit-circle.png';
 import preview_triangle_solver from './images/demonstrations/catalog/triangle-solver.png';
 import preview_line_geometry from './images/demonstrations/catalog/line-geometry.png';
+import preview_isometries from './images/demonstrations/catalog/isometries.png';
 import preview_circle_construction from './images/demonstrations/catalog/circle-construction.png';
 import preview_lattice_paths from './images/demonstrations/catalog/lattice-paths.png';
 import preview_counting_tree from './images/demonstrations/catalog/counting-tree.png';
@@ -93,6 +94,7 @@ import preview_patch_coons from './images/demonstrations/catalog/patch-coons.png
 import preview_curve_kinematics from './images/demonstrations/catalog/curve-kinematics.png';
 import preview_mechanics_descent from './images/demonstrations/catalog/mechanics-descent.png';
 import preview_recursion_growth from './images/demonstrations/catalog/recursion-growth.png';
+import preview_phase_portrait from './images/demonstrations/catalog/phase-portrait.png';
 import preview_logistic_map from './images/demonstrations/catalog/logistic-map.png';
 import preview_linear_program from './images/demonstrations/catalog/linear-program.png';
 import preview_waves from './images/demonstrations/catalog/waves.png';
@@ -201,6 +203,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'unit-circle': preview_unit_circle,
     'triangle-solver': preview_triangle_solver,
     'line-geometry': preview_line_geometry,
+    'isometries': preview_isometries,
     'circle-construction': preview_circle_construction,
     'lattice-paths': preview_lattice_paths,
     'counting-tree': preview_counting_tree,
@@ -226,6 +229,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'curve-kinematics': preview_curve_kinematics,
     'mechanics-descent': preview_mechanics_descent,
     'recursion-growth': preview_recursion_growth,
+    'phase-portrait': preview_phase_portrait,
     'logistic-map': preview_logistic_map,
     'linear-program': preview_linear_program,
     'waves': preview_waves,

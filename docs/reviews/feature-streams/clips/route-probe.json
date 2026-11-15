@@ -31537,5 +31537,47 @@
     ],
     "error": [],
     "probedExampleId": null
+  },
+  {
+    "id": "isometries",
+    "route": "/bezeg-2.0/isometries",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Q2, y",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "1",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
+  },
+  {
+    "id": "phase-portrait",
+    "route": "/bezeg-2.0/analysis/phase-portrait",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "slider",
+        "name": "Čas t",
+        "min": "0",
+        "max": "10",
+        "step": "0.02",
+        "value": "0",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
   }
 ]
