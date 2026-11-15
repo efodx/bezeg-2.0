@@ -4219,7 +4219,7 @@ export const en: Record<keyof typeof sl, string> = {
     "levelsets_graph_settled_never": "not reached in {value0} steps",
     "levelsets_graph_r_claim": "Behaviour",
     "levelsets_graph_claim_none": "Only the path is drawn; for this function we make no claim about convergence.",
-    "levelsets_graph_behaviour_converges": "Valley: converges for 1 ≤ H ≤ 9 or for y₀ = 0.",
+    "levelsets_graph_behaviour_converges": "Valley: with this step and this start the path converges to (0, 0).",
     "levelsets_graph_behaviour_oscillates": "Valley: at H = 10 y oscillates between two values.",
     "levelsets_graph_behaviour_diverges": "Valley: at H > 10 the path diverges.",
     "levelsets_graph_r_stop": "End of the computation",

@@ -4218,7 +4218,7 @@ export const sl = {
     "levelsets_graph_settled_never": "ni dosežen v {value0} korakih",
     "levelsets_graph_r_claim": "Obnašanje",
     "levelsets_graph_claim_none": "Narisana je le pot; za to funkcijo ne trdimo, ali konvergira.",
-    "levelsets_graph_behaviour_converges": "Dolina: konvergira za 1 ≤ H ≤ 9 ali za y₀ = 0.",
+    "levelsets_graph_behaviour_converges": "Dolina: pri tem koraku in tem začetku pot konvergira k (0; 0).",
     "levelsets_graph_behaviour_oscillates": "Dolina: pri H = 10 y niha med dvema vrednostma.",
     "levelsets_graph_behaviour_diverges": "Dolina: pri H > 10 pot divergira.",
     "levelsets_graph_r_stop": "Konec izračuna",
