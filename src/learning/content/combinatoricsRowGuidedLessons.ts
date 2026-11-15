@@ -142,8 +142,8 @@ const examples: readonly WorkedExample[] = [
         calculationLatex: '\\binom52\\cdot0{,}3^2\\cdot0{,}7^3=10\\cdot0{,}09\\cdot0{,}343',
         resultLatex: '\\binom52\\cdot0{,}3^2\\cdot0{,}7^3=0{,}3087',
         check: text(
-            'Številu \\(\\binom52=10\\) izbir mesta pripada utež \\(t^2(1-t)^3\\) s \\(t=0{,}3\\): \\(0{,}3^2=0{,}09\\), \\(0{,}7^3=0{,}343\\), zmnožek \\(10\\cdot0{,}09\\cdot0{,}343=0{,}3087\\). To je število, ki ga ob začetnem stanju kaže odčitek »Utež pri izbranem k«.',
-            'The number \\(\\binom52=10\\) of choices of the place carries the weight \\(t^2(1-t)^3\\) with \\(t=0.3\\): \\(0.3^2=0.09\\), \\(0.7^3=0.343\\), and the product \\(10\\cdot0.09\\cdot0.343=0.3087\\). This is the number that the readout "Weight at the chosen k" shows in the starting state.',
+            'Številu \\(\\binom52=10\\) izbir mesta pripada utež \\(t^2(1-t)^3\\) s \\(t=0{,}3\\): \\(0{,}3^2=0{,}09\\), \\(0{,}7^3=0{,}343\\), zmnožek \\(10\\cdot0{,}09\\cdot0{,}343=0{,}3087\\). To je število, ki ga ob začetnem stanju kaže odčitek »Utež pri izbranem k (na 6 decimalk)«.',
+            'The number \\(\\binom52=10\\) of choices of the place carries the weight \\(t^2(1-t)^3\\) with \\(t=0.3\\): \\(0.3^2=0.09\\), \\(0.7^3=0.343\\), and the product \\(10\\cdot0.09\\cdot0.343=0.3087\\). This is the number that the readout "Weight at the chosen k (rounded to 6 decimals)" shows in the starting state.',
         ),
     },
 ];
@@ -199,7 +199,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'cb5-hockey', order: 3,
-        title: text('Palica za hokej', 'The hockey stick'),
+        title: text('Vsota po diagonali (hokejska palica)', 'The sum along a diagonal (hockey stick)'),
         purpose: text('Napovedati vsoto po diagonali za \\(n=7\\), \\(k=3\\) po vzorcu in z vsoto členov ter jo utemeljiti s Pascalovo identiteto.', 'Predicting the diagonal sum for \\(n=7\\), \\(k=3\\) by the pattern and by adding the terms, and arguing it with the Pascal identity.'),
         explanation: text(
             'Odčitek »Vsota po diagonali« sešteje števila \\(\\binom kk,\\binom{k+1}k,\\ldots,\\binom nk\\) po eni diagonali trikotnika, to je za izbrano mesto \\(k\\) in vrstice do \\(n\\), in vsoto zapiše tudi kot en binomski simbol. Preberi ga v odprtem primeru in poišči vzorec med seštevanci in tem simbolom. Napovej vsoto po diagonali za \\(n=7\\), \\(k=3\\): enkrat tako, da seštevaš člene, in enkrat po vzorcu. Nato v polje »Mesto k v vrstici« vpiši \\(3\\) in v polje »Vrstica n« vpiši \\(7\\), v poljubnem vrstnem redu. Po prvem vnosu odčitek kaže vsoto druge diagonale; napoved velja šele za končno stanje.',
@@ -225,19 +225,19 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Uteži mest v vrstici', 'The weights of the places in a row'),
         purpose: text('Izračunati utež \\(\\binom nk t^k(1-t)^{n-k}\\) pri \\(t=\\tfrac12\\) kot ulomek in jo primerjati z izračunanim odčitkom.', 'Computing the weight \\(\\binom nk t^k(1-t)^{n-k}\\) at \\(t=\\tfrac12\\) as a fraction and comparing it with the computed readout.'),
         explanation: text(
-            'Vsako število \\(\\binom nk\\) v vrstici pomnožimo s \\(t^k(1-t)^{n-k}\\) in dobimo utež mesta \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). Višina stolpca nad mestom \\(k\\) je ta utež. Odčitek »Utež pri izbranem k« je izračunan z decimalnimi števili in zaokrožen na \\(6\\) decimalk, binomski simbol pa je natančen. Račun za odprti primer je spodaj. Napovej utež istega mesta pri \\(t=\\tfrac12\\), najprej kot ulomek in nato kot decimalko. Nato drsnik »Utež t« premakni na \\(0{,}5\\) (puščični tipki ali vlečenje, korak je \\(0{,}01\\)) in primerjaj.',
-            'We multiply each number \\(\\binom nk\\) in the row by \\(t^k(1-t)^{n-k}\\) to get the weight of place \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). The height of the bar above place \\(k\\) is this weight. The readout "Weight at the chosen k" is computed in doubles and rounded to \\(6\\) decimals, while the binomial coefficient is exact. The calculation for the open case is below. Predict the weight of the same place at \\(t=\\tfrac12\\), first as a fraction and then as a decimal. Then move the slider "Weight t" to \\(0.5\\) (arrow keys or dragging, the step is \\(0.01\\)) and compare.',
+            'Vsako število \\(\\binom nk\\) v vrstici pomnožimo s \\(t^k(1-t)^{n-k}\\) in dobimo utež mesta \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). Višina stolpca nad mestom \\(k\\) je ta utež. Odčitek »Utež pri izbranem k (na 6 decimalk)« je izračunan z decimalnimi števili in zaokrožen na \\(6\\) decimalk, binomski simbol pa je natančen. Račun za odprti primer je spodaj. Napovej utež istega mesta pri \\(t=\\tfrac12\\), najprej kot ulomek in nato kot decimalko. Nato drsnik »Utež t« premakni na \\(0{,}5\\) (puščični tipki ali vlečenje, korak je \\(0{,}01\\)) in primerjaj.',
+            'We multiply each number \\(\\binom nk\\) in the row by \\(t^k(1-t)^{n-k}\\) to get the weight of place \\(k\\): \\(w_k(t)=\\binom nk t^k(1-t)^{n-k}\\). The height of the bar above place \\(k\\) is this weight. The readout "Weight at the chosen k (rounded to 6 decimals)" is computed in doubles and rounded to \\(6\\) decimals, while the binomial coefficient is exact. The calculation for the open case is below. Predict the weight of the same place at \\(t=\\tfrac12\\), first as a fraction and then as a decimal. Then move the slider "Weight t" to \\(0.5\\) (arrow keys or dragging, the step is \\(0.01\\)) and compare.',
         ),
         formulaIds: [],
         workedExampleId: 'cb5-weight',
         observationPrompt: text(
-            'Premakni drsnik »Utež t« na \\(0{,}5\\) in preberi utež pri izbranem \\(k\\) ter vsoto uteži v vrstici.',
-            'Move the slider "Weight t" to \\(0.5\\) and read the weight at the chosen \\(k\\) and the sum of the weights in the row.',
+            'Premakni drsnik »Utež t« na \\(0{,}5\\) in preberi utež pri izbranem \\(k\\).',
+            'Move the slider "Weight t" to \\(0.5\\) and read the weight at the chosen \\(k\\).',
         ),
         expectedObservations: [
             text(
-                'Pri \\(t=\\tfrac12\\) je \\(w_2=\\binom52\\cdot\\tfrac{1}{2^5}=\\tfrac{10}{32}=0{,}3125\\); odčitek pokaže \\(0{,}3125\\) (izračunano). Ulomek je natančen, odčitek je izračunan z decimalnimi števili in zaokrožen na \\(6\\) decimalk. Vsota uteži v vrstici ostane \\(1\\) (izračunano).',
-                'At \\(t=\\tfrac12\\) we get \\(w_2=\\binom52\\cdot\\tfrac{1}{2^5}=\\tfrac{10}{32}=0.3125\\); the readout shows \\(0.3125\\) (computed). The fraction is exact, the readout is computed in doubles and rounded to \\(6\\) decimals. The sum of the weights in the row stays \\(1\\) (computed).',
+                'Pri \\(t=\\tfrac12\\) je \\(w_2=\\binom52\\cdot\\tfrac{1}{2^5}=\\tfrac{10}{32}=0{,}3125\\); odčitek pokaže \\(0{,}3125\\) (izračunano). Ulomek je natančen, odčitek je izračunan z decimalnimi števili in zaokrožen na \\(6\\) decimalk.',
+                'At \\(t=\\tfrac12\\) we get \\(w_2=\\binom52\\cdot\\tfrac{1}{2^5}=\\tfrac{10}{32}=0.3125\\); the readout shows \\(0.3125\\) (computed). The fraction is exact, the readout is computed in doubles and rounded to \\(6\\) decimals.',
             ),
         ],
         scene: rowScene(CB5_SCENES.weights.id, CB5_SCENES.weights.spec,
@@ -247,10 +247,10 @@ const steps: readonly GuidedLessonStep[] = [
     step({
         id: 'cb5-bridge', order: 5,
         title: text('Most do Bernsteina in binomske porazdelitve', 'The bridge to Bernstein and the binomial distribution'),
-        purpose: text('Utemeljiti, da je vsota uteži \\(1\\) pri vsakem \\(t\\), in povezati uteži z Bernsteinovimi bazami in binomsko porazdelitvijo.', 'Arguing that the sum of the weights is \\(1\\) at every \\(t\\) and connecting the weights with the Bernstein basis and the binomial distribution.'),
+        purpose: text('Povezati uteži z Bernsteinovimi baznimi funkcijami in binomsko porazdelitvijo ter vsoto uteži utemeljiti z binomskim izrekom.', 'Connecting the weights with the Bernstein basis functions and the binomial distribution, and arguing the sum of the weights with the binomial theorem.'),
         explanation: text(
-            'Uteži \\(w_0(t),\\ldots,w_n(t)\\) vrstice \\(n\\) so iste številke, ki jih srečaš na dveh drugih mestih: v lekciji »Bernsteinove bazne funkcije« so to bazne funkcije stopnje \\(n\\), v lekciji »Od binomske k normalni porazdelitvi« pa so to verjetnosti, da je od \\(n\\) neodvisnih poskusov z verjetnostjo uspeha \\(p=t\\) natanko \\(k\\) uspešnih. Tu ne dodajamo nove vsebine, to sta obstoječi lekciji. Odčitek »Vsota uteži v vrstici« je v odprtem stanju že izpisan, napoved pa zadeva stanje po tvoji spremembi. Napovej z binomskim izrekom, kjer je \\(a=t\\) in \\(b=1-t\\), kakšna je vsota uteži pri \\(t=0{,}9\\), in ali se utež izbranega mesta \\(k\\) pri tem \\(t\\) poveča ali zmanjša; pri presoji pomisli, da je povprečno število uspehov v \\(n\\) poskusih \\(nt\\). Nato drsnik »Utež t« premakni na \\(0{,}9\\).',
-            'The weights \\(w_0(t),\\ldots,w_n(t)\\) of row \\(n\\) are the same numbers that you meet in two other places: in the lesson "Bernstein basis functions" they are the basis functions of degree \\(n\\), and in the lesson "From binomial to normal" they are the probabilities that exactly \\(k\\) of \\(n\\) independent trials with success probability \\(p=t\\) succeed. We add no new content here, these are existing lessons. The readout "Sum of the weights in the row" is already printed in the open state, and the prediction concerns the state after your change. Using the binomial theorem with \\(a=t\\) and \\(b=1-t\\), predict the sum of the weights at \\(t=0.9\\), and whether the weight of the chosen place \\(k\\) grows or shrinks at this \\(t\\); for the judgement recall that the mean number of successes in \\(n\\) trials is \\(nt\\). Then move the slider "Weight t" to \\(0.9\\).',
+            'Uteži \\(w_0(t),\\ldots,w_n(t)\\) vrstice \\(n\\) so iste številke, ki jih srečaš na dveh drugih mestih: v lekciji »Bernsteinove bazne funkcije« so to bazne funkcije stopnje \\(n\\), v lekciji »Od binomske k normalni porazdelitvi« pa so to verjetnosti, da je od \\(n\\) neodvisnih poskusov z verjetnostjo uspeha \\(p=t\\) natanko \\(k\\) uspešnih. Tu ne dodajamo nove vsebine, to sta obstoječi lekciji. Odčitek »Vsota uteži v vrstici (na 6 decimalk)« je v odprtem stanju že izpisan, napoved pa zadeva stanje po tvoji spremembi. Napovej z binomskim izrekom, kjer je \\(a=t\\) in \\(b=1-t\\), kakšna je vsota uteži pri \\(t=0{,}9\\), in ali se utež izbranega mesta \\(k\\) pri tem \\(t\\) poveča ali zmanjša; pri presoji pomisli, da je povprečno število uspehov v \\(n\\) poskusih \\(nt\\). Nato drsnik »Utež t« premakni na \\(0{,}9\\).',
+            'The weights \\(w_0(t),\\ldots,w_n(t)\\) of row \\(n\\) are the same numbers that you meet in two other places: in the lesson "Bernstein basis functions" they are the basis functions of degree \\(n\\), and in the lesson "From binomial to normal" they are the probabilities that exactly \\(k\\) of \\(n\\) independent trials with success probability \\(p=t\\) succeed. We add no new content here, these are existing lessons. The readout "Sum of the weights in the row (rounded to 6 decimals)" is already printed in the open state, and the prediction concerns the state after your change. Using the binomial theorem with \\(a=t\\) and \\(b=1-t\\), predict the sum of the weights at \\(t=0.9\\), and whether the weight of the chosen place \\(k\\) grows or shrinks at this \\(t\\); for the judgement recall that the mean number of successes in \\(n\\) trials is \\(nt\\). Then move the slider "Weight t" to \\(0.9\\).',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -277,8 +277,8 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['row-sum', 'alternating-sum', 'hockey-stick', 'weights-sum'],
         observationPrompt: text(
-            'Nastavi \\(n=20\\), \\(k=10\\), \\(t=0{,}5\\) in preberi utež pri izbranem \\(k\\).',
-            'Set \\(n=20\\), \\(k=10\\), \\(t=0.5\\) and read the weight at the chosen \\(k\\).',
+            'Najprej nastavi \\(n=20\\), nato \\(k=10\\) in \\(t=0{,}5\\), in preberi utež pri izbranem \\(k\\).',
+            'First set \\(n=20\\), then \\(k=10\\) and \\(t=0.5\\), and read the weight at the chosen \\(k\\).',
         ),
         expectedObservations: [
             text(

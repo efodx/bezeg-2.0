@@ -75,3 +75,8 @@ Chapter section, registry entry, registration, preview copy, test lists (the Dem
 - Step 3 and 5 prompts are long; check at inspector width. "Pri lihem n" cancel-in-pairs is stated in the formula explanation and the step 2 observation, not in an example.
 - Slider step claim (0,01, arrow keys, drag) from slice 1 probe; not tried in a browser. Bars and captions not seen. The t slider typed field was only exercised via `enterNumber`.
 - The word "zniža se" for k at n=0 relies on the graph status "k je znižan na 0".
+
+### Slice 2d
+- New `src/learning/content/combinatoricsRowGuidedLessons.test.ts` (tests only). Part A: structure, scene sweep on a real `CountingTreeGraph` in sl and en (out of order, twice, state, status, readouts vs independent arithmetic), restore on exit, quoted control/readout names exist in graph strings, openings never the target state and prompts name target values, learner actions (n 7 then 10; n 0; hockey k-then-n and n-then-k with intermediates; t slider to 0,5 and 0,9; n 20 k 10) give the quoted readouts, prediction answers absent from explanation/formulas/worked example. Part B: BigInt row sums (n <= 60), alternating sums, hockey stick (n <= 30), every quoted number recomputed, weights vs C(n,k) t^k (1-t)^(n-k) (1e-12; row sums 1 within 1e-15 at t = 0,5), no English decimals in sl, "približno"/"about" before rounded numbers.
+- Red: sl `0{,}148803` changed to `0{,}148804` in the lesson (line 262), two tests failed (`s2d-red.log`), restored (lesson file diff empty). Green: `s2d-unit.log`. No false claim found.
+- Not verified: browser rendering; the prediction-answer check lists the answers by hand (`ANSWERS`).
