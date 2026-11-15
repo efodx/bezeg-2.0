@@ -24,3 +24,32 @@
 - Empty `set-rosette` / `set-frieze` throw (my choice, consistent with `set-dilation`); the brief said nothing.
 - The drawn-captions list in the probe may include hidden-by-callback captions (e.g. 10 image captions at a mirror point); not trusted as a visibility check.
 - Pluralisation "1 gibanj", "1 slik lika", "1 motions" at n=1 is an existing wording defect (outside this slice).
+
+## Slice 2 (LESSON): L4 rosettes
+
+### Written
+- `src/learning/content/isometriesRosetteGuidedLessons.ts` (new, LF): `rosetteLesson` (4 steps), `rosetteSceneActions`, constants `L4_*`. Scene = demonstration default, `set-mode rosette`, `set-rosette {n, mirrors, point}`. Two formula blocks (`rosette-rotation`, `rosette-mirrored`), no worked examples. Statuses are the reworded ones (`sl.ts`/`en.ts`), checked in `.command-logs/iso-c/probe2-l4.txt`.
+- Checks: tsc, lint, `just unit src/graphs/isometry` green; backslash checks 0 singles (a `\'` was reworded away); notation test passed on a temporary copy with the lesson added (deleted); logs `s2-*-l4.*`.
+
+### Numbers per step with source
+| Step | Opening | Learner change | Quoted | Source |
+| --- | --- | --- | --- | --- |
+| 1 | n 4, no mirrors, (4,1) | n to 5 | C4 opening; 5 motions, 5 distinct, C5; angles 0,72,...,288; image 2 about (0.285, 4.1132) | probe2 rows (n4, n5); arithmetic 360/5 |
+| 2 | n 5, no mirrors, (4,1) | mirrors on | D5, 10 motions, 10 distinct; 5 direct, 5 reflected | probe2 (n5 mirrors (4,1)); 5 rotations + 5 reflections arithmetic |
+| 3 | n 5, mirrors, (4,1) | point (4,0), then (0,0) | (4,0): 5 of 10, Image 2 = Image 1; centre: 1 image, order 10 | probe2 rows; status keys |
+| 4 | n 6, no mirrors, (3,2) | free | n 12 mirrors (3,2): 24 of 24; n 4 mirrors (4,0),(4,4): 4 of 8; centre 1 | probe2 (n12, n4 rows) |
+
+### Deviations
+- Step 2 asks for the numbers of direct and reflected images (5 and 5), not for "alternation in order": the order of the images 1..10 was not probed.
+- Step 3 says one mirror of D5 is the x axis; the probe-1 scan covered only |x|,|y| <= 8.
+
+### Test design
+- Scene: `rosetteSceneActions(id, spec)` in one synchronous tick; states per `L4_*`. Rows read by `data-readout` keys `group`, `order`, `distinct`, `point`, `image-1`, `image-2`; status in `[data-isometry-status]`.
+- Openings: n4 C4 4/4; n5 C5 5/5; n5 D5 10/10 at (4,1); n6 C6 6/6 at (3,2). Post-change: n5 C5 5/5 (image-2 about (0.285, 4.1132)); n5 D5 10/10; (4,0) 5 of 10 (image-2 = (4;0)), status "Točka leži na zrcalu: število različnih slik je 5, število gibanj pa 10." ; (0,0) 1, order 10, centre status.
+- Learner actions: field "Število vrtežev n" to 5; switch "Zrcala (diedrska grupa)"; point fields "P, x"/"P, y" (group "Točka lika"). Free quotes: n12 mirrors (3,2) 24/24; n4 mirrors (4,0) and (4,4) 4 of 8 (both probed).
+
+### Still to do
+- Circle/diamond marker counts (5 and 5) are not covered by any readout; a board-level check or a visual look is needed. Chapter, registry, tests lists and docs are slice 3.
+
+### Doubts
+- Circles direct, diamonds reflected comes from the slice 1 note and the graph code, not from a rendered check.
