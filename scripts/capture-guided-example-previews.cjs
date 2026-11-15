@@ -80,7 +80,13 @@ const levelSetsWindows = {
     'level-sets.linear-programming.linear-program': [-3.5, 7.77, 10.5, -0.9],
 };
 
+// The TR5 card draws one triangle (A = (0, 0), B = (7, 0), C about (4.29, 4.2)) and no bars: the window centres it on the card (10.5 x 6.5 units after the capture widens a requested window by 28 percent).
+const trigonometryWindows = {
+    'trigonometry.solve-triangle.triangle-solver': [-0.6, 4.64, 7.6, -0.44],
+};
+
 function captureRecipeForEntry(entry, recipe) {
+    if (Object.hasOwn(trigonometryWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: trigonometryWindows[entry.id]}};
     if (Object.hasOwn(levelSetsWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: levelSetsWindows[entry.id]}};
     if (Object.hasOwn(recursionWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: recursionWindows[entry.id]}};
     if (Object.hasOwn(randomnessWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: randomnessWindows[entry.id]}};

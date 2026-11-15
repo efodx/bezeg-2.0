@@ -293,10 +293,8 @@ const functionsCards: readonly FunctionsCard[] = [
         counts: [[7, 2], [3, 5], [3, 5], [7, 3], [3, 5]]},
     {chapterId: 'trigonometry', copy: trigonometryPreviewCopy,
         ids: ['trigonometry.addition-formulas.unit-circle', 'trigonometry.cosine-rule.triangle-solver', 'trigonometry.radian-sine-cosine.unit-circle',
-            'trigonometry.sine-rule.triangle-solver'],
-        counts: [[2, 5], [0, 3], [1, 2], [0, 3]],
-        // TR5 joined the chapter in F3 (handler 30); its card and copy row come in F4.
-        pending: ['trigonometry.solve-triangle.triangle-solver']},
+            'trigonometry.sine-rule.triangle-solver', 'trigonometry.solve-triangle.triangle-solver'],
+        counts: [[2, 5], [0, 3], [1, 2], [0, 3], [0, 3]]},
     {chapterId: 'analytic-lines', copy: analyticLinesPreviewCopy,
         ids: ['analytic-lines.angle-between-lines.line-geometry', 'analytic-lines.distance-point-line.line-geometry', 'analytic-lines.forms-of-a-line.line-geometry',
             'analytic-lines.normal-parallel-perpendicular.line-geometry'],

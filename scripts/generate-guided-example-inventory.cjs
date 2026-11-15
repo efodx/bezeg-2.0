@@ -2028,9 +2028,19 @@ function trigTriangleExpectedFor(id, step) {
     return {types: {point: 3, segment: 7, circle: 0}, curveCount: 0, points: [[0, 0], [2, 4], [7, 0]]};
 }
 
-/** First-frame expectation of a trigonometry lesson (the four sections of the chapter, keyed by the section in the example id). */
+// TR5 step 1 (solve mode, SSS 5, 6, 7), authored from TriangleSolverGraph.tsx (buildScene, the solve-mode block) and triangleFromSolution (A = (0, 0), B = (c, 0), C = ((b^2 + c^2 - a^2) / (2 c), 2S / c)),
+// not from a capture. One solution, so one triangle is drawn: three corner markers and three sides; the vertex handles of the other modes, the SSA objects and the circle are not shown. With the sides 5, 6, 7 the
+// cosine of A is (36 + 49 - 25) / (2 * 6 * 7) = 5 / 7, so C = (6 * 5 / 7, 6 * sqrt(1 - 25 / 49)) = (30 / 7, sqrt(864) / 7).
+function trigSolveExpectedFor(id, step) {
+    const own = trigonometryActions(id, step, 'triangle', ['set-mode', 'set-data']);
+    assert.deepEqual(own, [{kind: 'triangle', operation: 'set-mode', mode: 'solve'}, {kind: 'triangle', operation: 'set-data', type: 'sss', a: 5, b: 6, c: 7}],
+        `${id}: only the mode solve with the data SSS 5, 6, 7 is authored`);
+    return {types: {point: 3, segment: 3, circle: 0}, curveCount: 0, points: [[0, 0], [30 / 7, Math.sqrt(864) / 7], [7, 0]]};
+}
+
+/** First-frame expectation of a trigonometry lesson (the five sections of the chapter, keyed by the section in the example id). */
 function trigonometryExpectedFor(id, step) {
-    const bySection = {'radian-sine-cosine': trigRadianExpectedFor, 'addition-formulas': trigAdditionExpectedFor, 'sine-rule': trigTriangleExpectedFor, 'cosine-rule': trigTriangleExpectedFor};
+    const bySection = {'radian-sine-cosine': trigRadianExpectedFor, 'addition-formulas': trigAdditionExpectedFor, 'sine-rule': trigTriangleExpectedFor, 'cosine-rule': trigTriangleExpectedFor, 'solve-triangle': trigSolveExpectedFor};
     const section = id.split('.')[1];
     const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
     assert.ok(author, `${id}: no authored trigonometry first frame`);

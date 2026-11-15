@@ -1,70 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+  "sourceRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-    "dirty": false,
-    "inputs": "c6a252b1fa889b783b428adab56dff852e82380e50103c6c64c5b7ee2c207970",
-    "output": "fbb7a3e9c9a3b85ca14525268057eea6435c5bceed3df3b1139ee7e930996bd6"
+    "revision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+    "dirty": true,
+    "inputs": "3ca6da205fb3fcd2e157eb13efa90d6cba99552361db3673c8bde488d3382c92",
+    "output": "7e1b6c186bf64a93668bcc93f2d4c6f738f5c459079f140b6e87255249122e17"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-    "stampDirty": false,
-    "localOutputHash": "fbb7a3e9c9a3b85ca14525268057eea6435c5bceed3df3b1139ee7e930996bd6",
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+    "stampDirty": true,
+    "localOutputHash": "7e1b6c186bf64a93668bcc93f2d4c6f738f5c459079f140b6e87255249122e17",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Dg5o3H4V.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Dg5o3H4V.js",
-        "sha256": "fd94de55c3c4da3ad72d679d0c30860894e920149a116cd2e793376a463c2729",
+        "name": "index-C0v--kXm.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-C0v--kXm.js",
+        "sha256": "29e7f6362a6618dc80fdd3c0d47d850f871e92884cc51de70137f4964797afc9",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-B0HppHV0.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-B0HppHV0.js",
+        "sha256": "ab3513c4ca55503c79bca59373fcb49c27acaf1566caab00d685ae7bb7ca855c",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-DLxmrzcK.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-DLxmrzcK.js",
+        "sha256": "28d55fe2e7b7906184b468cb22a4c1b613e2ba4864ff695f6e3951a8fdb4eb53",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "ee043aea128bae7140c35ef4a8807dc4b8464d8800035df53f725631df3b0a85",
+    "inventory": "65ec34f2e9e90c831ad5140bcde7d350d5925e2331033bc848ddf07b8322eeef",
     "entries": {
       "trigonometry.radian-sine-cosine.unit-circle": "474f8b8e252f3c36fabbfc2548b28f4f45512ae1b0c9c16e0d23aa67ed404558",
       "trigonometry.addition-formulas.unit-circle": "88a9d96ac334b12f9ac7d0f23acee7346dc1441cf8885f01ba516eb3930fd428",
       "trigonometry.sine-rule.triangle-solver": "bcabb3ae4d6914750bf03ccbfe0f98610cf74f8a219091465c36caecbb582a77",
-      "trigonometry.cosine-rule.triangle-solver": "aad9aff9d42316cf5864a19cfa95d1107d9a8631f0060ba8a03fcd1fab1f2b7c"
+      "trigonometry.cosine-rule.triangle-solver": "aad9aff9d42316cf5864a19cfa95d1107d9a8631f0060ba8a03fcd1fab1f2b7c",
+      "trigonometry.solve-triangle.triangle-solver": "fec59cba3933c208cf891368879fa316d7a605186ca73862af1f431525ef2a4f"
     },
-    "presentation": "db384b4f44134b6abb81210af553289f9950fdeea5afd1116881a4dda1bf9335",
-    "buildOutput": "fbb7a3e9c9a3b85ca14525268057eea6435c5bceed3df3b1139ee7e930996bd6",
-    "buildInputs": "c6a252b1fa889b783b428adab56dff852e82380e50103c6c64c5b7ee2c207970"
+    "presentation": "cca5c915629345d7b08600ec1dab48366b61a0b850e5a6ef283157a73f468c45",
+    "buildOutput": "7e1b6c186bf64a93668bcc93f2d4c6f738f5c459079f140b6e87255249122e17",
+    "buildInputs": "3ca6da205fb3fcd2e157eb13efa90d6cba99552361db3673c8bde488d3382c92"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -132,6 +133,19 @@
             7.2,
             16.5,
             -3.9
+          ]
+        }
+      },
+      {
+        "id": "trigonometry.solve-triangle.triangle-solver",
+        "demonstrationId": "triangle-solver",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.6,
+            4.64,
+            7.6,
+            -0.44
           ]
         }
       }
@@ -262,8 +276,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+        "sourceRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
         "pageErrors": []
       }
     },
@@ -426,8 +440,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+        "sourceRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
         "pageErrors": []
       }
     },
@@ -516,8 +530,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+        "sourceRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
         "pageErrors": []
       }
     },
@@ -606,8 +620,96 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+        "sourceRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "trigonometry.solve-triangle.triangle-solver",
+      "demonstrationId": "triangle-solver",
+      "path": "/bezeg-2.0/triangle-solver?example=lesson.trigonometry.solve-triangle.triangle-solver",
+      "sceneFingerprint": "a56993da32befcfb522b7148126fa5c228c0e0826beae420a3d83a857477dca5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr5-exists-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tr5-exists-scene\",\"source\":\"demonstration-default\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-mode\",\"mode\":\"solve\"}",
+        "triangle: {\"kind\":\"triangle\",\"operation\":\"set-data\",\"type\":\"sss\",\"a\":5,\"b\":6,\"c\":7}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "trigonometry.solve-triangle.triangle-solver.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "a3e01114117f235bff91aaa786e45b22c3822bb5139f3e6c88f08f251ea676c9",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 3,
+          "segment": 3,
+          "text": 3
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:circle",
+          "curve-count",
+          "point:0,0",
+          "point:4.285714285714286,4.199125273342591",
+          "point:7,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 24,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 11,
+            "point": 3,
+            "segment": 3,
+            "text": 3
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:circle",
+            "curve-count",
+            "point:0,0",
+            "point:4.285714285714286,4.199125273342591",
+            "point:7,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 3,
+          "segment": 3,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
+        "sourceRevision": "f0703d1f272fc5aedc67deae928b87633f20fcce",
         "pageErrors": []
       }
     }

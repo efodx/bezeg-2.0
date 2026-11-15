@@ -15,3 +15,13 @@
 - Vertex names A, B, C, "h" and the SSA labels were viewed at 1366 and 390 (sides mode) and showed no touching; solve/circle mode labels were not re-screenshotted, and no mouse drag was run (placement is state driven and unit-tested).
 - Recapture: the two triangle-solver cards changed as intended; the two unit-circle PNGs differ in bytes only (manifest hashes), visually identical on viewing (capture noise, source untouched).
 - Logs: `.command-logs/label-pass/trigonometry/`; preview on 4519 stopped.
+
+## F4 cards (Batch C)
+
+- New section `trigonometry.solve-triangle.triangle-solver` (TR5, first scene of step 1: solve mode, SSS 5, 6, 7). Inventory regenerated with `--chapter trigonometry` (five entries); `trigSolveExpectedFor` authored from `TriangleSolverGraph.tsx` solve-mode build and `triangleFromSolution` (three corner markers, three sides, no circle, no curve; C = (30/7, sqrt(864)/7)), asserting the actions `set-mode` solve and `set-data` sss 5, 6, 7.
+- Capture window `trigonometryWindows` in `capture-guided-example-previews.cjs` (the default sides-mode window left the triangle small and left of centre; first capture viewed, then reframed).
+- Observed red before capture: `guidedExamplePreviews.test.ts` trigonometry test failed (id list of 4 against the 5 expected), `.command-logs/trig-c/f4/red.log`.
+- The existing four PNGs are byte-identical (md5 compared before and after).
+- Frame viewed: cream background, one green triangle with three vertex dots and the names A (bottom left), B (bottom right), C (top), fully inside the card with clear margins; no status line, side names or readouts on the board. Alt text says exactly that.
+- Copy names the data 5, 6, 7 only in the caption; states no first-step answer.
+- Preview on 4519 stopped.

@@ -7,8 +7,8 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 
 /**
  * Describes the prepared opening scene of each Trigonometry lesson, keyed by example id: TR1 (the angle 0, no overlay), TR2 (30 degrees with the three
- * mirror images), TR3 and TR4 (the triangle A = (0, 0), B = (7, 0), C = (2, 4) in the sides mode). The two triangle lessons open on the same scene, so their
- * two cards show the same frame. The copy names the frame only and answers none of the first-step questions (the height of the point, which reflection keeps
+ * mirror images), TR3 and TR4 (the triangle A = (0, 0), B = (7, 0), C = (2, 4) in the sides mode; the two open on the same scene, so their two cards show the same frame) and
+ * TR5 (the mode Solve a triangle with the sides 5, 6, 7: one triangle drawn). The copy names the frame only and answers none of the first-step questions (the height of the point, which reflection keeps
  * which coordinate, whether the quotients are related, the sign of the correction). Every scene is deterministic: no source draws random numbers.
  */
 export const trigonometryPreviewCopy = {
@@ -35,5 +35,11 @@ export const trigonometryPreviewCopy = {
         'A cream background without axes. On the left a triangle with green sides labelled \\(a\\), \\(b\\) and \\(c\\) and three orange vertices. To its right two horizontal bars: the upper one grey with an orange dashed part at its right end, the lower one green and blue, labelled a² and b². Under them an orange text with the correction.',
         'Trikotnik z oglišči \\(A=(0,0)\\), \\(B=(7,0)\\), \\(C=(2,4)\\) in vrstici kvadratov stranic.',
         'The triangle with the vertices \\(A=(0,0)\\), \\(B=(7,0)\\), \\(C=(2,4)\\) and the two rows of squares of the sides.',
+    ),
+    'trigonometry.solve-triangle.triangle-solver': copy(
+        'Krem ozadje brez osi in brez besedila razen oznak oglišč. Sredi je en trikotnik z zelenimi stranicami in tremi zelenimi pikami v ogliščih: \\(A\\) levo spodaj, \\(B\\) desno spodaj, stranica \\(AB\\) je vodoravna, in \\(C\\) zgoraj, nekoliko bližje \\(B\\).',
+        'A cream background without axes and without text except the vertex names. In the middle is one triangle with green sides and three green dots at the vertices: \\(A\\) at the bottom left, \\(B\\) at the bottom right, the side \\(AB\\) horizontal, and \\(C\\) at the top, somewhat nearer \\(B\\).',
+        'Reševanje trikotnika: podatki SSS, \\(a=5\\), \\(b=6\\), \\(c=7\\).',
+        'Solving a triangle: the data SSS, \\(a=5\\), \\(b=6\\), \\(c=7\\).',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;
