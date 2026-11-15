@@ -324,10 +324,8 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['recursion.cobweb.recursion-cobweb', 'recursion.compound-interest.recursion-growth', 'recursion.logistic.recursion-cobweb', 'recursion.sequences.recursion-growth'],
         counts: [[2, 2], [8, 0], [2, 2], [1, 1]]},
     {chapterId: 'level-sets', copy: levelSetsPreviewCopy,
-        ids: ['level-sets.linear-programming.linear-program'],
-        counts: [[6, 6]],
-        // LS1 and LS2 joined the chapter in F3 (handler 26); their cards come in F4.
-        pending: ['level-sets.gradient.contour-map', 'level-sets.surface.contour-map']},
+        ids: ['level-sets.gradient.contour-map', 'level-sets.linear-programming.linear-program', 'level-sets.surface.contour-map'],
+        counts: [[2, 1], [6, 6], [2, 1]]},
     // Both solids cards are surface cards: the count row is the one rendered solid owner and no board points.
     {chapterId: 'solids', copy: solidsPreviewCopy,
         ids: ['solids.cube-sections.solids', 'solids.pyramid-sections.solids'],

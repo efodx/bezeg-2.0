@@ -1,6 +1,60 @@
 {
   "examples": [
     {
+      "id": "level-sets.surface.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.surface.contour-map",
+      "sceneFingerprint": "53207e12743f38cef9a89f48c23cd799ad9d0c56f4f60d137604cf579dc2234e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls1-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls1-bowl-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0.6,
+            0.8
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "level-sets.gradient.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.gradient.contour-map",
+      "sceneFingerprint": "c4a247af989cd69e8b624894da4b282f7af468bad9b4c21a5ca1ae5bf4bc9c88",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls2-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls2-bowl-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0.6,
+            0.8
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
       "id": "level-sets.linear-programming.linear-program",
       "demonstrationId": "linear-program",
       "path": "/bezeg-2.0/analysis/linear-program?example=lesson.level-sets.linear-programming.linear-program",

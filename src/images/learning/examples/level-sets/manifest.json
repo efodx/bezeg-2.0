@@ -1,67 +1,69 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+    "dirty": true,
+    "inputs": "be3b33becaa2d018b52db9937b4c6512588e4b7023a6cd27d6052013c02f47c9",
+    "output": "f0a4fb0d9776d6ddb6d39a7ad11ce18979386914e25d4251c598beb2b8688494"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4471/bezeg-2.0/",
+    "stampRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+    "stampDirty": true,
+    "localOutputHash": "f0a4fb0d9776d6ddb6d39a7ad11ce18979386914e25d4251c598beb2b8688494",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-BnRECopp.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-BnRECopp.js",
+        "sha256": "74f518bff245a59babd710de2f445c557e6c40cfef80930741099617f596d4ce",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
         "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
         "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4471/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4471/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "de90fe214b997c2b7d65f867f18c10392051e002f59683560b4c0c4a18be02ab",
+    "inventory": "e3c5f82bba58a18f244d93199f1d8233482a2cdc7e8e67733aa53fad3ad4375c",
     "entries": {
+      "level-sets.surface.contour-map": "ee254456e96755a6cde245d202ddb32f7e1bebab6079af3a6aeccfbcf44a0f27",
+      "level-sets.gradient.contour-map": "3ae9e863644bf6de3e0bf75ad4f114b83e50b7683eb3c0aecba3ffba08068c85",
       "level-sets.linear-programming.linear-program": "d9382fc030b6ca37c88b2d0067873df7bd8a0c749a8948107c6dc190466180f1"
     },
-    "presentation": "479d154bb4b43a6a556e1b6c4a5768c84715a724f7315b854590344885b11524",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "2f96336eea5c0eb1a4c004177446b50c32297e58e0edd5bd01278bbc904b51a0",
+    "buildOutput": "f0a4fb0d9776d6ddb6d39a7ad11ce18979386914e25d4251c598beb2b8688494",
+    "buildInputs": "be3b33becaa2d018b52db9937b4c6512588e4b7023a6cd27d6052013c02f47c9"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -81,6 +83,20 @@
     "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
     "entryFraming": [
       {
+        "id": "level-sets.surface.contour-map",
+        "demonstrationId": "contour-map",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "level-sets.gradient.contour-map",
+        "demonstrationId": "contour-map",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
         "id": "level-sets.linear-programming.linear-program",
         "demonstrationId": "linear-program",
         "framing": {
@@ -97,6 +113,294 @@
   },
   "captures": [
     {
+      "id": "level-sets.surface.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.surface.contour-map",
+      "sceneFingerprint": "53207e12743f38cef9a89f48c23cd799ad9d0c56f4f60d137604cf579dc2234e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls1-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls1-bowl-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "level-sets.surface.contour-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "372262838ea16b21b235fe31373cc959aa7000447eb5167f4443c95209567dd2",
+      "scene": {
+        "visibleElementCount": 24,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 2,
+          "point": 1,
+          "text": 4
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ],
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.6,0.8"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "point": 1,
+            "text": 4
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ],
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.6,0.8"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 2,
+          "point": 1,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "level-sets.gradient.contour-map",
+      "demonstrationId": "contour-map",
+      "path": "/bezeg-2.0/analysis/contours?example=lesson.level-sets.gradient.contour-map",
+      "sceneFingerprint": "c4a247af989cd69e8b624894da4b282f7af468bad9b4c21a5ca1ae5bf4bc9c88",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls2-bowl-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ls2-bowl-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "level-sets.gradient.contour-map.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "372262838ea16b21b235fe31373cc959aa7000447eb5167f4443c95209567dd2",
+      "scene": {
+        "visibleElementCount": 24,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 2,
+          "point": 1,
+          "text": 4
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ],
+          [
+            [
+              -0.933333,
+              -0.357576
+            ],
+            [
+              -0.937931,
+              -0.345455
+            ],
+            [
+              -0.942529,
+              -0.333333
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.6,0.8"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "point": 1,
+            "text": 4
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ],
+            [
+              [
+                -0.933333,
+                -0.357576
+              ],
+              [
+                -0.937931,
+                -0.345455
+              ],
+              [
+                -0.942529,
+                -0.333333
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.6,0.8"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 2,
+          "point": 1,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "pageErrors": []
+      }
+    },
+    {
       "id": "level-sets.linear-programming.linear-program",
       "demonstrationId": "linear-program",
       "path": "/bezeg-2.0/analysis/linear-program?example=lesson.level-sets.linear-programming.linear-program",
@@ -112,16 +416,16 @@
       "file": "level-sets.linear-programming.linear-program.png",
       "width": 840,
       "height": 520,
-      "sha256": "90c0f60187a15c6033284b30b55362f77ef8b5e11ea4da8a39aff19474262514",
+      "sha256": "01c586c757912217fc4e3ab3a31340546035126771bab198f8b2992c3a08b60c",
       "scene": {
-        "visibleElementCount": 32,
+        "visibleElementCount": 25,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 4,
           "curve": 6,
-          "text": 11,
           "point": 6,
+          "text": 4,
           "segment": 1
         },
         "visiblePointCount": 6,
@@ -352,24 +656,24 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 10,
-        "finalLabelCount": 10,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 4,
           "curve": 6,
-          "text": 11,
           "point": 6,
+          "text": 4,
           "segment": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
+        "sourceRevision": "4a7732b230fbe8603ea7ea2bdf0d5e1b7268b9f5",
         "pageErrors": []
       }
     }

@@ -2496,6 +2496,18 @@ const levelSetsFrames = {
             ],
         };
     },
+    // LS1 step 1 (LS1_BOWL, no action but the Demonstration default) and LS2 step 1 (LS2_BOWL, the same opening, level-sets mode): the bowl x^2 + y^2 at level 8 = c 1, one level set, the probe at (12, 16) / 20 = (0.6, 0.8).
+    // Visible (ContourMapGraph.tsx buildScene): the chosen level curve (the unit circle) and the dashed contour through the probe (f = 1 there, the same circle); the extra-levels curve is empty at one level and the
+    // gradient, tangent and Lagrange items are hidden in level-sets mode. One point: the probe handle (the start and constrained-point handles are hidden). The curve samples start where the marching squares
+    // traversal starts, which is not authored here: the curves are checked by count and by the probe.
+    surface: (id, step) => {
+        levelSetsOpening(id, step);
+        return {types: {curve: 2, point: 1}, curveCount: 2, points: [[0.6, 0.8]]};
+    },
+    gradient: (id, step) => {
+        levelSetsOpening(id, step);
+        return {types: {curve: 2, point: 1}, curveCount: 2, points: [[0.6, 0.8]]};
+    },
 };
 
 /** First-frame expectation of a level-sets lesson (the one section of the chapter, keyed by the section in the example id). */
