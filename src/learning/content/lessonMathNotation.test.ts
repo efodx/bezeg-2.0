@@ -41,6 +41,7 @@ import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLesso
 import {wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson} from './wavesGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
 import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebGuidedLessons';
+import {recursionLogScaleLesson} from './recursionLogScaleGuidedLessons';
 import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson} from './phasePortraitsGuidedLessons';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
@@ -115,6 +116,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson]],
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
     ['recursionCobwebGuidedLessons', [recursionCobwebLesson, recursionLogisticLesson]],
+    ['recursionLogScaleGuidedLessons', [recursionLogScaleLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
     ['levelSetsContourGuidedLessons', [levelSetsSurfaceLesson, levelSetsGradientLesson]],
     ['levelSetsOptimizationGuidedLessons', [levelSetsDescentLesson, levelSetsLagrangeLesson]],
@@ -259,6 +261,7 @@ test('scans every lesson module', () => {
             'waves', 'waves', 'waves', // wavesGuidedLessons.ts: WV1 to WV3
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
             'recursion-cobweb', 'recursion-cobweb', // recursionCobwebGuidedLessons.ts: RG2 and RG4
+            'recursion-growth', // recursionLogScaleGuidedLessons.ts: RG5
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
             'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2

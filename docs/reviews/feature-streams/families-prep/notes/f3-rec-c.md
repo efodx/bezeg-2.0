@@ -55,3 +55,17 @@ Slice 3 (registration, chapter, tests, notation test run).
 ### Slice 2d
 - `src/learning/content/recursionLogScaleGuidedLessons.test.ts` (9 tests): openings sweep in sl and en on a real GrowthGraph (out of order, twice, restore), named labels exist in graph strings, no opening equals its prompt target, typed/chosen learner actions give quoted readouts, no step 2/4/5 prompt answer shown; part B recomputes every quoted number, exact difference quotient, decimal separators, approximation markers.
 - Red: sl `3{,}211894` in the worked example failed 2 tests (`s2d-red.log`), restored. Unit, typecheck, lint green. No false claim found.
+
+## Slice 3: chapter join (worker, handoff-v13)
+
+### Written
+- `recursionChapterRegistry.ts`: section `log-scale` (RG5, `recursion-log-scale`, `recursion-growth`), last after `logistic`. `recursionChapter.ts`: section with intro, argument ln(y0 q^n) = ln y0 + n ln q, the power model as illustration, example y_n = 3*1.2^n (slope ln 1.2 = 0.182322, ln 3 = 1.098612, y_5 = 7.46496, ln y_5 = 2.010220, recomputed); chapter comment updated. Panel called "the ln y panel", never a logarithmic axis.
+- Tests: `familyChapters.test.ts` minimum 5, `authoredChapterCoverage.test.ts` 189 -> 190, `lessonLookup.characterization.test.ts` one row, `lessonMathNotation.test.ts` (import, lessonSets, scan list), `guidedExamplePreviews.test.ts` recursion row `pending` (no copy row). Smoke `unified-learning` `'recursion': 5`; no new guided-lessons row. `docs/localization.md` one row; task 06 status.
+- No change needed in `recursionLogScaleGuidedLessons.ts`, ownership, `chapterOwnedLessons.ts`, `lessonCatalog.test.ts`, LearningPage test.
+
+### Outcome
+- Red check not shown: registry source was edited before the tests, so `s3-red.log` is a pass on the finished state.
+- tsc, lint, build, `just smoke-lesson recursion-growth` passed (`s3-*.log`). Unit run: see `s3-unit.log`.
+
+### Not verified
+- No browser look at the new section; the new section id itself is not smoke-tested.

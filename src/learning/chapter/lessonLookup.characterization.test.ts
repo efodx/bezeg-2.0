@@ -187,6 +187,7 @@ describe('launch paths and example resolution', () => {
         ['canonical example, recursion RG3', '?example=lesson.recursion.compound-interest.recursion-growth', 'recursion-growth', 'recursion-interest', {chapterId: 'recursion', sectionId: 'compound-interest'}],
         ['canonical example, recursion RG2', '?example=lesson.recursion.cobweb.recursion-cobweb', 'recursion-cobweb', 'recursion-cobweb', {chapterId: 'recursion', sectionId: 'cobweb'}],
         ['canonical example, recursion RG4', '?example=lesson.recursion.logistic.recursion-cobweb', 'recursion-cobweb', 'recursion-logistic', {chapterId: 'recursion', sectionId: 'logistic'}],
+        ['canonical example, recursion RG5', '?example=lesson.recursion.log-scale.recursion-growth', 'recursion-growth', 'recursion-log-scale', {chapterId: 'recursion', sectionId: 'log-scale'}],
         ['canonical example, solids SV1', '?example=lesson.solids.cube-sections.solids', 'solids', 'solids-cube-sections', {chapterId: 'solids', sectionId: 'cube-sections'}],
         ['canonical example, solids SV2', '?example=lesson.solids.pyramid-sections.solids', 'solids', 'solids-pyramid-sections', {chapterId: 'solids', sectionId: 'pyramid-sections'}],
         ['canonical example, phase portraits PP1', '?example=lesson.phase-portraits.linear-system.phase-portrait', 'phase-portrait', 'phase-portraits-linear-system', {chapterId: 'phase-portraits', sectionId: 'linear-system'}],

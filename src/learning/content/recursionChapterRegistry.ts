@@ -4,15 +4,17 @@ import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
 import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebGuidedLessons';
+import {recursionLogScaleLesson} from './recursionLogScaleGuidedLessons';
 
 export const RECURSION_CHAPTER_ID = 'recursion';
 
-/** Section id to the Demonstration of its activity, in the spec's teaching order (RG1 and RG3 share `recursion-growth`; RG2 and RG4 share `recursion-cobweb`). Section ids are those of recursionChapter.ts. */
+/** Section id to the Demonstration of its activity, in the spec's teaching order (RG1, RG3 and RG5 share `recursion-growth`; RG2 and RG4 share `recursion-cobweb`). Section ids are those of recursionChapter.ts. */
 export const recursionGuidedExampleDemonstrations = {
     'sequences': 'recursion-growth',
     'cobweb': 'recursion-cobweb',
     'compound-interest': 'recursion-growth',
     'logistic': 'recursion-cobweb',
+    'log-scale': 'recursion-growth',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type RecursionSectionId = keyof typeof recursionGuidedExampleDemonstrations;
@@ -23,6 +25,7 @@ const sectionContent = {
     'cobweb': {id: 'recursion-cobweb', content: () => recursionCobwebLesson},
     'compound-interest': {id: 'recursion-interest', content: () => recursionInterestLesson},
     'logistic': {id: 'recursion-logistic', content: () => recursionLogisticLesson},
+    'log-scale': {id: 'recursion-log-scale', content: () => recursionLogScaleLesson},
 } as const;
 
 const adapted = new Map<RecursionSectionId, LessonDefinition>();

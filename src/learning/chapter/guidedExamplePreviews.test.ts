@@ -325,7 +325,8 @@ const functionsCards: readonly FunctionsCard[] = [
         counts: [[4, 0], [6, 0]]},
     {chapterId: 'recursion', copy: recursionPreviewCopy,
         ids: ['recursion.cobweb.recursion-cobweb', 'recursion.compound-interest.recursion-growth', 'recursion.logistic.recursion-cobweb', 'recursion.sequences.recursion-growth'],
-        counts: [[2, 2], [8, 0], [2, 2], [1, 1]]},
+        counts: [[2, 2], [8, 0], [2, 2], [1, 1]],
+        pending: ['recursion.log-scale.recursion-growth']}, // RG5: its card and copy come with F4
     {chapterId: 'level-sets', copy: levelSetsPreviewCopy,
         ids: ['level-sets.descent.contour-map', 'level-sets.gradient.contour-map', 'level-sets.lagrange.contour-map', 'level-sets.linear-programming.linear-program', 'level-sets.surface.contour-map'],
         counts: [[1, 2], [2, 1], [3, 1], [6, 6], [2, 1]]},
