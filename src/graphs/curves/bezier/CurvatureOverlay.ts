@@ -59,6 +59,12 @@ interface OverlaySettings {
     onReadout?: (text: string) => void;
 }
 
+/** The SVG renderer's arrowhead nodes on an arrowed element (untyped in JSXGraph's declarations). */
+interface ArrowNodes {
+    rendNodeTriangleStart?: Element | null;
+    rendNodeTriangleEnd?: Element | null;
+}
+
 /**
  * One owned overlay: Frenet frame arrows, the osculating circle (or tangent line), and readouts. Every element is
  * created here and removed by {@link dispose}; the elements read the curve lazily, so no drag listener exists. The one
@@ -185,7 +191,11 @@ export class CurvatureOverlay {
         return `${t("curvature_kappa_value", {value0: num(f.kappa)})}\n${t("curvature_radius_value", {value0: num(f.radius)})}\n${angle}`;
     }
 
-    /** Removes every owned element (later ones first) and releases the language subscription. Idempotent. */
+    /**
+     * Removes every owned element (later ones first), their arrowhead markers, and the language subscription. Idempotent.
+     * JSXGraph's SVG renderer keeps an arrow's `<marker>` in `<defs>` after `removeObject`, and the overlay is rebuilt on
+     * every scene import (each lesson step), so the markers are removed here.
+     */
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
@@ -193,6 +203,11 @@ export class CurvatureOverlay {
         this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
+        const markers = present.flatMap(element => {
+            const nodes = element as unknown as ArrowNodes;
+            return [nodes.rendNodeTriangleStart, nodes.rendNodeTriangleEnd];
+        }).filter((node): node is Element => !!node);
         if (present.length) this.board.removeObject(present);
+        for (const marker of markers) marker.remove();
     }
 }

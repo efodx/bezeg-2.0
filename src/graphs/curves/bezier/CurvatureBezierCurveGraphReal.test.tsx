@@ -47,6 +47,21 @@ test('on a real board the overlay exists after initialize, is recreated once by 
     expect(owned.some(element => board.objectsList.includes(element))).toBe(false);
 });
 
+test('recreating the overlay leaves no arrowhead markers behind (JSXGraph keeps them in <defs> after removeObject)', () => {
+    const graph = new ObservedCurvatureGraph();
+    const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const markers = () => graph.liveBoard().containerObj.querySelectorAll('marker').length;
+    const scene: Parameters<typeof graph.importPresetData>[0] = [['JSXBezierCurve', {points: [[-4, -3], [-3, 2], [2, 2], [3, -2]]}]];
+    graph.importPresetData(scene);
+    const once = markers();
+    // The T and N arrows each own one end marker.
+    expect(once).toBeGreaterThanOrEqual(2);
+    graph.importPresetData(scene);
+    graph.importPresetData(scene);
+    expect(markers()).toBe(once);
+    view.unmount();
+});
+
 test('the Edit tab offers the parameter slider, and moving it changes the board readout', () => {
     const graph = new ObservedCurvatureGraph();
     const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
