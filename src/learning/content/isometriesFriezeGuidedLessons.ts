@@ -76,7 +76,7 @@ const formulas: readonly FormulaBlock[] = [
         id: 'frieze-translation-half-turn',
         latex: '\\tau_L(x,y)=(x+L,\\;y),\\qquad \\rho(x,y)=(-x,\\;-y)',
         notation: text(
-            '\\(L\\) je perioda, \\(\\tau_L\\) vzporni premik za periodo vzdolž črte vzorca, \\(\\rho\\) vrtež za \\(180^\\circ\\) okoli izhodišča in \\((x,y)\\) točka ravnine.',
+            '\\(L\\) je perioda, \\(\\tau_L\\) vzporedni premik za periodo vzdolž črte vzorca, \\(\\rho\\) vrtež za \\(180^\\circ\\) okoli izhodišča in \\((x,y)\\) točka ravnine.',
             '\\(L\\) is the period, \\(\\tau_L\\) the translation by the period along the line of the pattern, \\(\\rho\\) the half-turn about the origin and \\((x,y)\\) a point of the plane.',
         ),
         explanation: text(
@@ -114,7 +114,7 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         expectedObservations: [
             text(
-                'Vzorec je tipa \\(\\mathrm{p2}\\) in ima 2 sliki lika v periodi: osnovni lik in njegova slika pri vrtežu. Vrtež, ki mu sledi premik za \\(L\\), da \\((x,y)\\mapsto(-x+L,\\,-y)\\), kar je vrtež za \\(180^\\circ\\) okoli točke na črti vzorca pri \\(\\tfrac{L}{2}\\); središča vrtežev so zato na črti vzorca na razdalji \\(\\tfrac{L}{2}\\), pri \\(L=4\\) torej na razdalji 2.',
+                'Vzorec je tipa \\(\\mathrm{p2}\\) in ima 2 sliki lika v periodi: osnovni lik in njegova slika pri vrtežu. Vrtež, ki mu sledi premik za \\(L\\), da \\((x,y)\\mapsto(-x+L,\\,-y)\\), kar je vrtež za \\(180^\\circ\\) okoli točke na črti vzorca pri \\(\\tfrac{L}{2}\\); sosednji središči vrtežev sta zato na črti vzorca oddaljeni za \\(\\tfrac{L}{2}\\), pri \\(L=4\\) torej za 2.',
                 'The pattern is of type \\(\\mathrm{p2}\\) and has 2 images of the figure per period: the figure itself and its image under the half-turn. The half-turn followed by the translation by \\(L\\) gives \\((x,y)\\mapsto(-x+L,\\,-y)\\), which is the half-turn about the point of the line of the pattern at \\(\\tfrac{L}{2}\\); so the half-turn centres lie on the line of the pattern at distance \\(\\tfrac{L}{2}\\) from each other, for \\(L=4\\) at distance 2.',
             ),
         ],
@@ -127,8 +127,8 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Zrcalni zdrs in navpično zrcalo', 'Glide reflection and vertical mirror'),
         purpose: text('Napovedati, kaj nastane, če zrcalnemu zdrsu dodamo navpično zrcalo.', 'Predicting what appears when a vertical mirror is added to a glide reflection.'),
         explanation: text(
-            'Vzorec ima zdaj izbran le Zrcalni zdrs: lik se ob njem zrcali v črti vzorca in premakne za pol periode. Zdrs ima tip \\(\\mathrm{p11g}\\) in 2 sliki lika v periodi. Preden označiš še Navpično zrcalo, napovej: kateri tip bo vzorec imel, koliko slik lika bo v periodi in katera simetrija, ki je nisi označil, se bo pojavila poleg obeh označenih. Pomagaj si s tem, kaj naredita zrcalo in zdrs drug za drugim.',
-            'The pattern now has only Glide reflection ticked: with it the figure is reflected in the line of the pattern and moved by half a period. The glide has type \\(\\mathrm{p11g}\\) and 2 images of the figure per period. Before you tick Vertical mirror as well, predict: which type the pattern will have, how many images of the figure there will be per period, and which symmetry that you did not tick will appear next to the two that you ticked. Think of what the mirror and the glide do one after the other.',
+            'Vzorec ima zdaj izbran le Zrcalni zdrs: lik se ob njem zrcali v črti vzorca in premakne za pol periode. Zdrs ima tip \\(\\mathrm{p11g}\\) in 2 sliki lika v periodi. Preden označiš še Navpično zrcalo, napovej: kateri tip bo vzorec imel, koliko slik lika bo v periodi in ali se v vrsticah pojavi še kakšna simetrija, ki ni označena. Pomagaj si s tem, kaj naredita zrcalo in zdrs drug za drugim.',
+            'The pattern now has only Glide reflection ticked: with it the figure is reflected in the line of the pattern and moved by half a period. The glide has type \\(\\mathrm{p11g}\\) and 2 images of the figure per period. Before you tick Vertical mirror as well, predict: which type the pattern will have, how many images of the figure there will be per period, and whether any symmetry that is not ticked appears in the rows. Think of what the mirror and the glide do one after the other.',
         ),
         formulaIds: ['frieze-glide'],
         observationPrompt: text(
@@ -137,7 +137,7 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         expectedObservations: [
             text(
-                'Vzorec je tipa \\(\\mathrm{p2mg}\\) in ima 4 slike lika v periodi. Vrstica Vrtež za 180° pokaže da, čeprav ga nisi označil: zrcalo, ki mu sledi zdrs, je vrtež za \\(180^\\circ\\), s središčem na četrtini periode \\(\\tfrac{L}{4}\\) od zrcala, torej na sredi med sosednjima zrcaloma. Odčitek kaže vse simetrije zaprte množice, ne le označenih.',
+                'Vzorec je tipa \\(\\mathrm{p2mg}\\) in ima 4 slike lika v periodi. Vrstica Vrtež za 180° pokaže da, čeprav kljukica ni označena: zrcalo, ki mu sledi zdrs, je vrtež za \\(180^\\circ\\), s središčem na četrtini periode \\(\\tfrac{L}{4}\\) od zrcala, torej na sredi med sosednjima zrcaloma. Odčitek kaže vse simetrije zaprte množice, ne le označenih.',
                 'The pattern is of type \\(\\mathrm{p2mg}\\) and has 4 images of the figure per period. The row Half-turn (180°) shows yes although you did not tick it: the mirror followed by the glide is a half-turn, with its centre a quarter of the period \\(\\tfrac{L}{4}\\) from the mirror, midway between neighbouring mirrors. The readout shows all the symmetries of the closed set, not only the ticked ones.',
             ),
         ],
@@ -150,8 +150,8 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Navpično in vodoravno zrcalo', 'Vertical and horizontal mirror'),
         purpose: text('Napovedati, kaj nastane iz dveh zrcal, ki sta pravokotni drugo na drugo.', 'Predicting what two mutually perpendicular mirrors produce.'),
         explanation: text(
-            'Vzorec ima zdaj izbrano le Navpično zrcalo; tip je \\(\\mathrm{p1m1}\\) in sliki lika sta v periodi 2. Vodoravno zrcalo je črta vzorca sama. Preden ga označiš, napovej: kateri tip bo vzorec imel, koliko slik lika bo v periodi in katera tretja simetrija, ki je ne označiš, se bo pojavila. Utemelji z zaporednim zrcaljenjem v obeh zrcalih.',
-            'The pattern now has only Vertical mirror ticked; the type is \\(\\mathrm{p1m1}\\) and there are 2 images of the figure per period. The horizontal mirror is the line of the pattern itself. Before you tick it, predict: which type the pattern will have, how many images of the figure there will be per period, and which third symmetry that you do not tick will appear. Give a reason by reflecting in the two mirrors one after the other.',
+            'Vzorec ima zdaj izbrano le Navpično zrcalo; tip je \\(\\mathrm{p1m1}\\) in sliki lika sta v periodi 2. Vodoravno zrcalo je črta vzorca sama. Preden ga označiš, napovej: kateri tip bo vzorec imel, koliko slik lika bo v periodi in ali se pojavi še kakšna simetrija, ki je ne označiš. Utemelji z zaporednim zrcaljenjem v obeh zrcalih.',
+            'The pattern now has only Vertical mirror ticked; the type is \\(\\mathrm{p1m1}\\) and there are 2 images of the figure per period. The horizontal mirror is the line of the pattern itself. Before you tick it, predict: which type the pattern will have, how many images of the figure there will be per period, and whether any symmetry that you do not tick appears. Give a reason by reflecting in the two mirrors one after the other.',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -160,7 +160,7 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         expectedObservations: [
             text(
-                'Vzorec je tipa \\(\\mathrm{p2mm}\\) in ima 4 slike lika v periodi. Vrstica Vrtež za 180° pokaže da, čeprav ga nisi označil: zrcaljenji v dveh pravokotnih zrcalih skupaj dasta vrtež za \\(180^\\circ\\) okoli njunega presečišča. Zdrsa ta vzorec nima (vrstica Zrcalni zdrs pokaže ne).',
+                'Vzorec je tipa \\(\\mathrm{p2mm}\\) in ima 4 slike lika v periodi. Vrstica Vrtež za 180° pokaže da, čeprav kljukica ni označena: zrcaljenji v dveh pravokotnih zrcalih skupaj dasta vrtež za \\(180^\\circ\\) okoli njunega presečišča. Zdrsa ta vzorec nima (vrstica Zrcalni zdrs pokaže ne).',
                 'The pattern is of type \\(\\mathrm{p2mm}\\) and has 4 images of the figure per period. The row Half-turn (180°) shows yes although you did not tick it: the reflections in two perpendicular mirrors together give a half-turn about their intersection. This pattern has no glide (the row Glide reflection shows no).',
             ),
         ],
@@ -170,11 +170,11 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-shorter-period', order: 4,
-        title: text('Izbira, ki skrajša periodo', 'A choice that shortens the period'),
+        title: text('Zrcalni zdrs in vodoravno zrcalo', 'Glide reflection and horizontal mirror'),
         purpose: text('Napovedati, kaj se zgodi, ko zrcalu v črti vzorca dodamo zrcalni zdrs.', 'Predicting what happens when a glide reflection is added to a mirror in the line of the pattern.'),
         explanation: text(
-            'Vzorec ima zdaj izbrano le Vodoravno zrcalo (tip \\(\\mathrm{p11m}\\), 2 sliki lika v periodi). Zrcalni zdrs je zrcaljenje v isti črti in premik za polovico periode. Preden ga označiš, napovej, kaj nastane, če najprej uporabiš zrcaljenje v črti, nato zdrs, in zakaj ima to posledico za periodo vzorca.',
-            'The pattern now has only Horizontal mirror ticked (type \\(\\mathrm{p11m}\\), 2 images of the figure per period). The glide reflection is the reflection in the same line and a translation by half a period. Before you tick it, predict what you get if you first use the reflection in the line and then the glide, and why that has a consequence for the period of the pattern.',
+            'Vzorec ima zdaj izbrano le Vodoravno zrcalo (tip \\(\\mathrm{p11m}\\), 2 sliki lika v periodi). Zrcalni zdrs je zrcaljenje v isti črti in premik za polovico periode. Preden ga označiš, napovej, kaj nastane, če najprej uporabiš zrcaljenje v črti, nato zdrs, in kaj to pomeni za vzorec.',
+            'The pattern now has only Horizontal mirror ticked (type \\(\\mathrm{p11m}\\), 2 images of the figure per period). The glide reflection is the reflection in the same line and a translation by half a period. Before you tick it, predict what you get if you first use the reflection in the line and then the glide, and what that means for the pattern.',
         ),
         formulaIds: ['frieze-glide'],
         observationPrompt: text(
@@ -216,10 +216,10 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l5-free', order: 6,
-        title: text('Poskusi sam', 'Try for yourself'),
+        title: text('Prosto raziskovanje', 'Try for yourself'),
         purpose: text('Sami preizkusiti kombinacije kljukic in periodo ter prebrati tip friza.', 'Trying the combinations of ticks and the period yourself and reading the frieze type.'),
         explanation: text(
-            'Zdaj sam izbiraj kljukice in periodo (drsnik Perioda). Na grafu je Zrcalni zdrs s periodo 6. Poskusi vse kombinacije kljukic: pri vsaki napovej tip friza ali skrajšanje periode, nato preberi odčitek. Poskusi tudi, ali perioda vpliva na tip.',
+            'Zdaj po svoje izbiraj kljukice in periodo (drsnik Perioda). Na grafu je Zrcalni zdrs s periodo 6. Poskusi vse kombinacije kljukic: pri vsaki napovej tip friza ali skrajšanje periode, nato preberi odčitek. Poskusi tudi, ali perioda vpliva na tip.',
             'Now choose the ticks and the period (the slider Period) yourself. The graph shows Glide reflection with the period 6. Try all combinations of ticks: for each, predict the frieze type or the shortening of the period, then read the readout. Also try whether the period affects the type.',
         ),
         formulaIds: ['frieze-translation-half-turn', 'frieze-glide'],
