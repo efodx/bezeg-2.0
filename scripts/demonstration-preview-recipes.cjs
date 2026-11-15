@@ -47,8 +47,8 @@ const targets = {
     // The sum view of the graph's own frame (the phasor panel at the left, the 1 s plot and the caption room above): x from -0.66 to 1.06, y from -1.375 to 2.53 for amplitudes up to 1. The three lesson cards
     // take their own windows in the capture script (the caption rows cover the top of a card). A window keeps the unequal x and y scales of the board.
     'waves': ['Sum of two equal 3 Hz waves (amplitude 1 each) with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [field('Amplituda 2. vala', 1)], [-0.66, 2.53, 1.06, -1.375]],
-    // The board frames the three descent experiments by itself (the track box, the caption rows and the handles); the recipe sets no window and the lesson scenes keep their own.
-    'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, framed by the board', []],
+    // The default race spans x 0 to 3.25 and y 0 to -2.3 (the arc's lowest point, its caption under it). The readout column fills the left 35% and top half of the poster, so the window (padded by a sixth on each side) puts the tracks right of and below it, about 82 px per unit with A at about (285, 182).
+    'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, shifted right and down of the readout column', [], [-2.38, 1.6, 4.2, -2.43]],
     // The simulation graph frames its own scene (the frame of the mode, the caption rows above the plot); the recipe sets no window. The lesson cards open on the Galton board with one ball and the coin frequency with ten tosses.
     // The growth graph frames its own panel (the bars with their captions, or the years with the legend lines); the recipe sets no window and the lesson scenes keep their own. The lesson cards open on the arithmetic bars and the one-year interest.
     // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets a window that puts the vertices under the reserved legend band of the 360 x 220 poster board (the capture pads it by a sixth on each side, so the board shows x -4.5 to 13.5 and y -1 to 10 at 20 px per unit, y = 4 at 120 px). The lesson card opens on the default region.
@@ -267,6 +267,8 @@ const captureText = {
     // Function concepts (B8a second half): each graph is named by its formula or tag; readouts and captions go.
     // Families-prep F5: the long legend, caption and readout lines go; the linear program keeps its vertex coordinates, the logistic map its r marks.
     'logistic-map': {keep: [/^r = /], strip: []},
+    // Curve kinematics: the legend lines (the point, the path, the arrows and their scales) and the arrow tags cross the path at card size; the moving point, the path and the arrows carry the picture.
+    'curve-kinematics': {keep: [], strip: []},
     'linear-program': {keep: [/^\(-?\d+; -?\d+\)$/], strip: []},
     // The race lines Najhitrejša and Konec B lie across the tracks at card size; the clock, the three times and the track labels stay.
     'mechanics-descent': {keep: [/^g = /, /^Kroglica: /, /^Premica: /, /^Krožni lok: /, /^Cikloida: /, /^Premica$/, /^Krožni lok$/, /^Cikloida$/], strip: []},

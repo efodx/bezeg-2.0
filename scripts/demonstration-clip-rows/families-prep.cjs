@@ -104,6 +104,17 @@ module.exports = [
         discreteReason: null,
     },
     {
+        id: 'curve-kinematics',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Čas t (s)', step: 0.01},
+        // The poster scene is the cycloid with the moving point at its start. The time goes to the end of the run (6.28 s) and back, so the point travels the whole arch and returns.
+        path: [0, 3.14, 6.28, 3.14, 0],
+        lessonQuote: 'Premikaj čas po cikloidi in pri vsakem času napovej smer hitrosti',
+        // Repeated MathJax typesetting crashed the renderer ("Target crashed") near frame 30, so the per-frame wait skips it.
+        lightSettle: true,
+        discreteReason: null,
+    },
+    {
         id: 'prob-simulation',
         motion: 'discrete-exact-steps',
         control: {kind: 'number-field', label: 'Število kroglic', step: -9},

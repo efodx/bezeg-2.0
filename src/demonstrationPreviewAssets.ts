@@ -90,6 +90,7 @@ import preview_patch_subdivision from './images/demonstrations/catalog/patch-sub
 import preview_patch_joins from './images/demonstrations/catalog/patch-joins.png';
 import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
 import preview_patch_coons from './images/demonstrations/catalog/patch-coons.png';
+import preview_curve_kinematics from './images/demonstrations/catalog/curve-kinematics.png';
 import preview_mechanics_descent from './images/demonstrations/catalog/mechanics-descent.png';
 import preview_recursion_growth from './images/demonstrations/catalog/recursion-growth.png';
 import preview_logistic_map from './images/demonstrations/catalog/logistic-map.png';
@@ -222,6 +223,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'patch-joins': preview_patch_joins,
     'patch-triangular': preview_patch_triangular,
     'patch-coons': preview_patch_coons,
+    'curve-kinematics': preview_curve_kinematics,
     'mechanics-descent': preview_mechanics_descent,
     'recursion-growth': preview_recursion_growth,
     'logistic-map': preview_logistic_map,
