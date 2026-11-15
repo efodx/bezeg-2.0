@@ -2,7 +2,7 @@
 // Opens a Demonstration's poster scene for a row clip: the route without a query, in a fresh context, with the full recipe applied.
 // The poster (capture-demonstration-previews.cjs) and the clip both start here, so their first frames come from the same state.
 const assert = require('node:assert/strict');
-const {applyRecipe} = require('../demonstration-preview-recipes.cjs');
+const {applyRecipe, waitForBoardDrawn} = require('../demonstration-preview-recipes.cjs');
 
 /** The browser context every row capture and poster uses (same as openRoute in demonstration-preview-motion.cjs). */
 async function newSceneContext(browser) {
@@ -25,18 +25,7 @@ async function openRecipeScene(page, demonstration, recipe, baseUrl, {surface = 
         await page.waitForFunction(require('../patch-surface-motion.cjs').surfaceRouteReadyInPage);
         return null;
     }
-    await page.waitForFunction(() => {
-        const container = document.querySelector('#jgbox');
-        const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container?.id || candidate.containerObj === container);
-        if (!container || !board || container.clientWidth < 300 || container.clientHeight < 300) return false;
-        return Object.values(board.objects || {}).some(object => {
-            if (!['curve', 'line', 'segment', 'point'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
-            const node = object.rendNode;
-            if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1') || node.getAttribute?.('cx'))) return false;
-            const style = getComputedStyle(node);
-            return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
-        });
-    });
+    await waitForBoardDrawn(page, demonstration.id);
     const evidence = await applyRecipe(page, recipe);
     await page.evaluate(async () => {
         if (window.MathJax?.startup?.promise) await window.MathJax.startup.promise;

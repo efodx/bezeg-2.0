@@ -108,7 +108,7 @@ const targets = {
     'lattice-paths': ['Paths view on the target (2, 2) of the lessons: the grid, the six routes, the selected route and the captions', [field('T, a', 2, 'number'), field('T, b', 2, 'number')], [-1.5, 6.2, 12.1, -2.2]],
     // Counting tree: the lesson opens on the tree of 3 choose 2 (x from 0.6 to 23.8, y from 6.4 to 24.5, the title lines and the leaf labels included); the window keeps the 840:520 aspect.
     // The default 6 choose 3 shows the table of the six counts instead, which reaches below this window.
-    'counting-tree': ['Tree of the ordered choices of 2 out of 3 with its leaves and the title lines, framed around the lesson opening', [], [-0.5, 24.5, 30.2, 5.5]],
+    'counting-tree': ['Tree of the ordered choices of 2 out of 3 with its leaves and the title lines, framed around the lesson opening', [field('Število predmetov n', 3, 'number'), field('Izbrani predmeti k', 2, 'number')], [-0.5, 24.5, 30.2, 5.5]],
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
     // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,
@@ -609,5 +609,25 @@ async function applyRecipe(page, recipe) {
     return recipe.framing.kind === 'surface-view' ? surfaceOutcome(page, recipe.id) : outcome(page, recipe.id);
 }
 
-module.exports = {recipes, validateRecipes, storedCaptureIds, foreignLetterRuns, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence,
+// Boards whose opening scene draws no curve, line, segment or point (counting-tree opens on a table of counts): their readiness is a visible text object.
+const TEXT_READY_IDS = ['counting-tree'];
+
+/** Waits until the board has a drawn object; a text-first board (TEXT_READY_IDS) counts its visible text. */
+async function waitForBoardDrawn(page, id) {
+    await page.waitForFunction(textFirst => {
+        const container = document.querySelector('#jgbox');
+        const board = Object.values(window.JXG?.boards || {}).find(candidate => candidate.container === container?.id || candidate.containerObj === container);
+        if (!container || !board || container.clientWidth < 300 || container.clientHeight < 300) return false;
+        return Object.values(board.objects || {}).some(object => {
+            if (!['curve', 'line', 'segment', 'point', ...(textFirst ? ['text'] : [])].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
+            const node = object.rendNode;
+            if (!node?.isConnected) return false;
+            if (!(textFirst && object.elType === 'text') && !(node.getAttribute?.('d') || node.getAttribute?.('x1') || node.getAttribute?.('cx'))) return false;
+            const style = getComputedStyle(node);
+            return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+        });
+    }, TEXT_READY_IDS.includes(id));
+}
+
+module.exports = {waitForBoardDrawn, recipes, validateRecipes, storedCaptureIds, foreignLetterRuns, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence,
     readSurfaceFraming, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX};

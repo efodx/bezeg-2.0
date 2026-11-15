@@ -56,4 +56,13 @@ module.exports = [
         lessonQuote: 'Nastavi dva vala z enakima amplitudama in frekvencama ter spreminjaj fazo drugega vala',
         discreteReason: null,
     },
+    {
+        id: 'counting-tree',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'Število predmetov n', step: 1},
+        // The poster scene is the tree of the ordered choices of k = 2 out of n = 3. The number of objects n goes up to 5 and back, so the tree grows from 6 to 20 leaves.
+        path: [0, 1, 2, 1, 0],
+        lessonQuote: 'Spreminjaj \\(n\\) in \\(k\\) ter stikali za vrstni red in ponavljanje',
+        discreteReason: 'The number of objects n is a whole count in a count setter with plus and minus buttons, so a sweep has only the values 3, 4 and 5; each checkpoint types the next whole n.',
+    },
 ];

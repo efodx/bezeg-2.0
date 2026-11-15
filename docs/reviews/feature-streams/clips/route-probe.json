@@ -31430,5 +31430,26 @@
     },
     "error": [],
     "probedExampleId": "waves.superposition-and-phase.waves"
+  },
+  {
+    "id": "counting-tree",
+    "route": "/bezeg-2.0/combinatorics/counting",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "text",
+        "name": "Število predmetov n",
+        "min": null,
+        "max": null,
+        "step": null,
+        "value": "3",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": "combinatorics.counting-and-choices.counting-tree"
   }
 ]

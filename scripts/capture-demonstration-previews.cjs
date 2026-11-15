@@ -9,7 +9,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {chromium} = require('playwright');
 const demonstrations = require('../tests/smoke-catalog.cjs');
-const {recipes, validateRecipes, applyRecipe, applyAction, settle, readSurfaceFraming, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX} = require('./demonstration-preview-recipes.cjs');
+const {waitForBoardDrawn, recipes, validateRecipes, applyRecipe, applyAction, settle, readSurfaceFraming, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX} = require('./demonstration-preview-recipes.cjs');
 const {assertNonUniformPixels} = require('./demonstration-preview-png.cjs');
 
 const previewCapture = require('./demonstration-preview-capture-api.cjs');
@@ -720,20 +720,7 @@ async function main() {
                 }
                 const boardLocator = page.locator('#jgbox');
                 await boardLocator.waitFor({state: 'visible'});
-                await page.waitForFunction(() => {
-                    const container = document.querySelector('#jgbox');
-                    const board = Object.values(window.JXG?.boards || {}).find(candidate =>
-                        candidate.container === container?.id || candidate.containerObj === container);
-                    if (!container || !board || container.clientWidth < 300 || container.clientHeight < 300) return false;
-                    return Object.values(board.objects || {}).some(object => {
-                        // Point-set boards draw segments, and a point set before its first trace step draws only points.
-                        if (!['curve', 'line', 'segment', 'point'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
-                        const node = object.rendNode;
-                        if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1') || node.getAttribute?.('cx'))) return false;
-                        const style = getComputedStyle(node);
-                        return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
-                    });
-                });
+                await waitForBoardDrawn(page, demonstration.id);
 
                 const recipe = recipes[demonstration.id];
                 const evidence = await applyRecipe(page, recipe);

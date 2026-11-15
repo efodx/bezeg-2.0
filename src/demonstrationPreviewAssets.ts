@@ -68,6 +68,7 @@ import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_unit_circle from './images/demonstrations/catalog/unit-circle.png';
 import preview_circle_construction from './images/demonstrations/catalog/circle-construction.png';
 import preview_lattice_paths from './images/demonstrations/catalog/lattice-paths.png';
+import preview_counting_tree from './images/demonstrations/catalog/counting-tree.png';
 import preview_curve_parametric from './images/demonstrations/catalog/curve-parametric.png';
 import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
 import preview_curve_comb from './images/demonstrations/catalog/curve-comb.png';
@@ -194,6 +195,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'unit-circle': preview_unit_circle,
     'circle-construction': preview_circle_construction,
     'lattice-paths': preview_lattice_paths,
+    'counting-tree': preview_counting_tree,
     'curve-parametric': preview_curve_parametric,
     'curve-curvature': preview_curve_curvature,
     'curve-comb': preview_curve_comb,

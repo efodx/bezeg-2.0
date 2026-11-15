@@ -11,7 +11,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'triangle-solver', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-trig.md).'},
     {id: 'line-geometry', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md).'},
     {id: 'isometries', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-lines-isometries.md).'},
-    {id: 'counting-tree', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md).'},
     {id: 'prob-simulation', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-random-kinematics.md).'},
     {id: 'curve-kinematics', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-random-kinematics.md).'},
     {id: 'recursion-cobweb', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-recursion-waves.md).'},
@@ -20,6 +19,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'solids', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'contour-map', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'complex-power', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md).'},
-    {id: 'linear-program', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'complex-euler', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md).'},
+    {id: 'linear-program', reason: 'Its poster vertex labels stand ~90 px from their vertices at catalog size (families-prep F5 batch 2, handler 23); the clip waits for that placement.'},
 ];
