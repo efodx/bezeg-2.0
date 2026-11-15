@@ -603,6 +603,13 @@ export type LessonAction =
         readonly capital?: number; readonly rate?: number; readonly years?: number; readonly parts?: number;
     }
     /**
+     * ComplexPowerGraph's scene actions (M6, de Moivre). `set-z` sets z = (A + B i) / 20 as the stored integers `A` and `B` (each from -40 to 40; the same as dragging or
+     * typing z), `set-n` the exponent `n` (an integer from 1 to 8; the same as the n field and its steppers). The merged state must pass `parseComplexPowerState` before
+     * the write, otherwise the action throws (`complex-power <operation>: ...`) and nothing is written; unknown fields are refused. A valid action pauses the playback.
+     */
+    | {readonly kind: 'complex-power'; readonly operation: 'set-z'; readonly A: number; readonly B: number}
+    | {readonly kind: 'complex-power'; readonly operation: 'set-n'; readonly n: number}
+    /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
      * Scene data is strict: another offset or example id is a lesson-content error, never snapped.

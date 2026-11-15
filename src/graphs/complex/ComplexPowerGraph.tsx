@@ -2,6 +2,8 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {SceneStateUpdate} from "../base/SceneStore";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
@@ -24,7 +26,7 @@ import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController} from "../../learning/runtime/iterationController";
 import {
     applyComplexPowerAction, arrowToward, ComplexPowerAction, ComplexPowerDerived, ComplexPowerState, coordinateOf, DEFAULT_COMPLEX_POWER_STATE,
-    deriveComplexPower, ExactFraction, ExactRadical, insideView, N_RANGE, snapDragCoordinate, superscript, typedCoordinate, typedExponent,
+    deriveComplexPower, ExactFraction, ExactRadical, insideView, N_RANGE, parseComplexPowerState, snapDragCoordinate, superscript, typedCoordinate, typedExponent,
     Z_RANGE, Z_SCALE, zOf,
 } from "../../complex/complexPowerModel";
 import {complexPowerPresetCollection, complexPowerPresetData, ComplexPowerPresetData} from "./complexPowerPresetCollection";
@@ -479,6 +481,52 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         const result = applyComplexPowerAction(this.state, action);
         if (!result.ok) throw new DomainError(`${result.error.field}: ${result.error.reason}`);
         this.edit({A: result.value.A, B: result.value.B, n: result.value.n});
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`complex-power`): `set-z` sets the stored integers `A` and `B` (z = (A + B i) / 20), `set-n` the exponent. The merged state goes through
+     * `parseComplexPowerState` (strict: nothing is snapped or clamped) before the write, so an off-grid or out-of-range value is a lesson-content error and nothing is
+     * written. Only the changed fields are written, in one edit; a valid action pauses the playback and never starts it.
+     */
+    applyComplexPowerLessonAction(action: Extract<LessonAction, {kind: "complex-power"}>): void {
+        switch (action.operation) {
+            case "set-z": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-z", patch, ["A", "B"]);
+                return;
+            }
+            case "set-n": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-n", patch, ["n"]);
+                return;
+            }
+            default: {
+                const unsupported: never = action;
+                throw new Error(`complex-power: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    /** Validates the merged state first, then writes only the fields that change; unknown fields are refused. */
+    private editStored(operation: string, patch: Readonly<Record<string, unknown>>, allowed: readonly (keyof ComplexPowerState)[]): void {
+        const unknown = Object.keys(patch).filter(key => !allowed.some(field => field === key));
+        if (unknown.length) throw new Error(`complex-power ${operation}: no such field ${unknown.join(", ")}.`);
+        const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+        const merged = {...this.state, ...defined} as ComplexPowerState;
+        const whole = (["A", "B", "n"] as const).find(key => !Number.isInteger(merged[key]));
+        if (whole) throw new Error(`complex-power ${operation}: ${whole} must be a whole number.`);
+        const parsed = parseComplexPowerState({re: coordinateOf(merged.A), im: coordinateOf(merged.B), n: merged.n});
+        if (!parsed.ok) throw new Error(`complex-power ${operation}: ${parsed.error.field} is ${parsed.error.reason}.`);
+        this.pausePlayback();
+        const changed = allowed.filter(key => parsed.value[key] !== this.state[key]);
+        if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("complex-power", action => this.applyComplexPowerLessonAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
