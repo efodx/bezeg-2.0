@@ -79,6 +79,9 @@ function arrowPolylines(id: string, role: ScenePolyline["role"], from: Xyz, delt
 
 const renamedRole = (role: ScenePolyline["role"]): ScenePolyline["role"] => role === "net" ? "net-2" : role;
 
+/** Half the screen-space gap (px) between the two arrow-tip symbols: where the join is `C^1` both tips coincide, so `S_{A,u}` sits above and `S_{B,u}` below. */
+export const JOIN_LABEL_SPLIT_PX = 13;
+
 /**
  * Both patches in one scene. `A` is the tensor scene unchanged (ids `p-i-j`, `iso-…`, `net-…`); `B`'s objects are the same
  * with a `b-` id prefix, its net in role `net-2`, its points `b-i-j`. One mesh holds both surfaces (`B`'s faces offset by
@@ -123,7 +126,7 @@ export function buildJoinScene(input: JoinSceneInput, revision: number): Surface
             const delta = scale(derivative, arrows.drawScale);
             if (length(delta) === 0) continue;
             arrowLines.push(...arrowPolylines(id, role, from, delta));
-            arrowLabels.push({id: `${id}-label`, text, anchor: add(from, delta)});
+            arrowLabels.push({id: `${id}-label`, text, anchor: add(from, delta), screenOffset: [0, id === "join-su-a" ? -JOIN_LABEL_SPLIT_PX : JOIN_LABEL_SPLIT_PX]});
         }
     }
 

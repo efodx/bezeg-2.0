@@ -61,7 +61,8 @@ export function computeLabelLayout(scene: Pick<SurfaceScene, 'labels' | 'mesh' |
         // overlap by its chord error; a control point label is off the surface and keeps the strict test.
         const slack = label.pointId === undefined ? scene.mesh?.chordTolerance ?? 0 : 0;
         const visible = inFrustum && !isAnchorOccluded(scene.mesh, eye, label.anchor, slack);
-        return {id: label.id, text: label.text, x: p.x, y: p.y, visible};
+        const [dx, dy] = label.screenOffset ?? [0, 0];
+        return {id: label.id, text: label.text, x: p.x + dx, y: p.y + dy, visible};
     });
 }
 

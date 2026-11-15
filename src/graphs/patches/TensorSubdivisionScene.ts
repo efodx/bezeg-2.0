@@ -27,6 +27,9 @@ function netLines(patch: TensorProductBezierPatch, prefix: string, role: ScenePo
     ];
 }
 
+/** Screen-space gap (px) below its centre where a piece symbol is drawn, clear of the `S(u,v)` label the marker may share it with. */
+export const PIECE_LABEL_DROP_PX = 34;
+
 /**
  * The two pieces of `patch` split at `value` in `direction`: piece nets `piece-l-…` (role `net`) and `piece-r-…`
  * (role `net-2`), the split curve `S(value, ·)` or `S(·, value)` (`split-curve`, role `highlight`) and a label at the
@@ -41,8 +44,8 @@ export function buildSubdivisionScene(patch: TensorProductBezierPatch, direction
     return {
         polylines: [...netLines(left, "piece-l", "net"), ...netLines(right, "piece-r", "net-2"), {id: "split-curve", role: "highlight", points: split}],
         labels: [
-            {id: "piece-l-label", text: "S_L", anchor: xyz(left.eval(0.5, 0.5))},
-            {id: "piece-r-label", text: "S_R", anchor: xyz(right.eval(0.5, 0.5))},
+            {id: "piece-l-label", text: "S_L", anchor: xyz(left.eval(0.5, 0.5)), screenOffset: [0, PIECE_LABEL_DROP_PX]},
+            {id: "piece-r-label", text: "S_R", anchor: xyz(right.eval(0.5, 0.5)), screenOffset: [0, PIECE_LABEL_DROP_PX]},
         ],
         pieces: [left, right],
     };
@@ -57,6 +60,9 @@ export function pieceCorrespondence(patch: TensorProductBezierPatch, direction: 
 
 const isOriginalNet = (id: string) => id.startsWith("net-row-") || id.startsWith("net-col-") || id === "highlight-row" || id === "highlight-col";
 
+/** `anchor` raised by twice the mesh chord tolerance, so a facet of the faceted mesh cannot hide a symbol that sits on the true surface at a grazing view. */
+const liftedAbove = (anchor: Xyz, chordTolerance: number): Xyz => [anchor[0], anchor[1], anchor[2] + 2 * chordTolerance];
+
 /**
  * The tensor scene with the pieces shown: the original net polylines, the control points, the selected-point label and
  * the row/column highlight give way to the piece nets, the split curve and the piece labels (the points are not
@@ -69,7 +75,7 @@ export function withSubdivisionPieces(scene: SurfaceScene, patch: TensorProductB
         ...scene,
         points: [],
         polylines: [...scene.polylines.filter(line => !isOriginalNet(line.id)), ...(showNet ? polylines : split)],
-        labels: [...scene.labels.filter(label => label.id !== "selected-point"), ...(showNet ? labels : [])],
+        labels: [...scene.labels.filter(label => label.id !== "selected-point"), ...(showNet ? labels.map(label => ({...label, anchor: liftedAbove(label.anchor, scene.mesh?.chordTolerance ?? 0)})) : [])],
         interaction: {...scene.interaction, editable: false},
     };
 }

@@ -70,6 +70,8 @@ export interface SceneLabel {
     text: string;
     anchor: Xyz;
     pointId?: string;
+    /** Screen-space nudge in CSS pixels (x right, y down) added to the projected anchor; absent = none. Keeps labels that share a place apart. */
+    screenOffset?: readonly [number, number];
 }
 
 export interface SurfaceCamera {
