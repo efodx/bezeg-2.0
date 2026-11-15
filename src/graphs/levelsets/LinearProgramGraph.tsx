@@ -685,6 +685,12 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
                 this.refuseUnknown("set-sweep", fields, ["sweep"]);
                 this.commitLp("set-sweep", {...state, sweep: action.sweep});
                 return;
+            case "set-mode":
+            case "set-function":
+            case "set-level":
+            case "set-probe":
+            case "set-numeric":
+                throw new Error(`levelsets ${action.operation}: this operation belongs to the contour-map graph.`);
             default: {
                 const unsupported: never = action;
                 throw new Error(`levelsets: no operation in ${JSON.stringify(unsupported)}.`);

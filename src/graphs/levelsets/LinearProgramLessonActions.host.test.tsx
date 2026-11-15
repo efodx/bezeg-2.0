@@ -145,6 +145,9 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
         setConstraints([{a: 10, b: 1, c: 1}]), setConstraints([{a: 1, b: 1, c: 31}]), setConstraints([{a: 1, b: 1.5, c: 1}]), setConstraints(JSON.parse('"rows"')),
         setConstraints(JSON.parse('[{"a": 1, "b": 1}]')), setSweep(101), setSweep(-101), setSweep(0.5), setSweep(Number.POSITIVE_INFINITY), setSweep(JSON.parse('null')),
         {kind: 'levelsets', operation: 'set-function', id: 'bowl'} as unknown as LessonAction,
+        {kind: 'levelsets', operation: 'set-mode', mode: 'gradient'}, {kind: 'levelsets', operation: 'set-function', fn: 'bowl'},
+        {kind: 'levelsets', operation: 'set-level', level: 8}, {kind: 'levelsets', operation: 'set-probe', X: 1, Y: 1},
+        {kind: 'levelsets', operation: 'set-numeric', numeric: true},
         {kind: 'levelsets', operation: 'set-objective', p: 1, q: 1, sweep: 2} as unknown as LessonAction,
         {kind: 'levelsets', operation: 'set-sweep', sweep: 2, p: 1} as unknown as LessonAction,
         {kind: 'levelsets', operation: 'set-constraints', constraints: [{a: 1, b: 1, c: 1}], objective: {p: 1, q: 1}} as unknown as LessonAction,
@@ -156,6 +159,7 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
         expect(readouts(), label).toEqual(beforeReadouts);
         expect(status(), label).toEqual(beforeStatus);
     }
+    expect(() => apply(graph, {kind: 'levelsets', operation: 'set-probe', X: 1, Y: 1})).toThrow(/levelsets set-probe: this operation belongs to the contour-map graph/);
     expect(() => apply(graph, setObjective(10, 1))).toThrow(/levelsets set-objective: objective[.]p out-of-range/);
     expect(() => apply(graph, setConstraints([{a: 0, b: 0, c: 1}]))).toThrow(/levelsets set-constraints: constraints\[0\] zero-row/);
 });

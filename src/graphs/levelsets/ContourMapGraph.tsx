@@ -19,6 +19,8 @@ import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animat
 import {CATALOGUE, CATALOGUE_IDS, type CatalogueId} from "../../levelsets/functions2";
 import {DESCENT_MAX_STEPS} from "../../levelsets/descent";
 import type {Rational} from "../../compgeo/rational";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {
     CIRCLE_PARAM_RANGE, CIRCLE_STEPS, CONSTRAINT_IDS, CONTOUR_MODES, DEFAULT_CONTOUR_STATE, LEVEL_COUNT_RANGE, LEVEL_RANGE, LEVEL_SCALE, LINE_PARAM_RANGE,
     LINE_PARAM_SCALE, PROBE_RANGE, PROBE_SCALE, START_RANGE, START_SCALE, STEP_RANGE, STEP_SCALE, circleAngleOf, constraintAccepts, contourWindow,
@@ -946,6 +948,76 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         if (checked === undefined) return false;
         if (checked !== this.state.circleParam) this.edit({circleParam: checked});
         return true;
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`levelsets`, contour operations): the merged state goes through `parseContourState` (strict, nothing snapped or clamped) before any write, so a bad value
+     * is a lesson-content error and nothing is written; unknown fields are refused and only the fields that change are written, in one edit. `set-function` does what the
+     * function chooser does (`withFunction`). A valid action pauses the playback. A scene reads the state its earlier actions wrote.
+     */
+    applyLevelSetsAction(action: Extract<LessonAction, {kind: "levelsets"}>): void {
+        const {kind: _kind, operation: _operation, ...fields} = action;
+        const state = serializeContourState(this.state);
+        switch (action.operation) {
+            case "set-mode":
+                this.refuseUnknown("set-mode", fields, ["mode"]);
+                this.commitContour("set-mode", {...state, mode: action.mode});
+                return;
+            case "set-function": {
+                this.refuseUnknown("set-function", fields, ["fn"]);
+                const fn: unknown = action.fn;
+                if (!CATALOGUE_IDS.some(id => id === fn)) throw new Error(`levelsets set-function: fn unknown-value (${CATALOGUE_IDS.join(", ")}).`);
+                this.commitContour("set-function", serializeContourState(withFunction(this.state, action.fn)));
+                return;
+            }
+            case "set-level": {
+                this.refuseUnknown("set-level", fields, ["level", "levelCount"]);
+                if (action.level === undefined && action.levelCount === undefined) throw new Error("levelsets set-level: needs level or levelCount.");
+                this.commitContour("set-level", {
+                    ...state, ...(action.level === undefined ? {} : {level: action.level}), ...(action.levelCount === undefined ? {} : {levelCount: action.levelCount}),
+                });
+                return;
+            }
+            case "set-probe":
+                this.refuseUnknown("set-probe", fields, ["X", "Y"]);
+                this.commitContour("set-probe", {...state, probe: [action.X, action.Y]});
+                return;
+            case "set-numeric":
+                this.refuseUnknown("set-numeric", fields, ["numeric"]);
+                this.commitContour("set-numeric", {...state, numeric: action.numeric});
+                return;
+            case "set-objective":
+            case "set-constraints":
+            case "set-sweep":
+                throw new Error(`levelsets ${action.operation}: this operation belongs to the linear-programming graph.`);
+            default: {
+                const unsupported: never = action;
+                throw new Error(`levelsets: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    private refuseUnknown(operation: string, fields: Readonly<Record<string, unknown>>, allowed: readonly string[]): void {
+        const unknown = Object.keys(fields).filter(key => !allowed.includes(key));
+        if (unknown.length) throw new Error(`levelsets ${operation}: no such field ${unknown.join(", ")}.`);
+    }
+
+    /** Validates the merged state first, then writes only the fields that change, in one edit; a valid action that changes nothing still pauses the playback. */
+    private commitContour(operation: string, merged: unknown): void {
+        const parsed = parseContourState(merged);
+        if (!parsed.ok) throw new Error(`levelsets ${operation}: ${parsed.error.field} ${parsed.error.reason}.`);
+        const next = serializeContourState(parsed.value);
+        const patch: Record<string, unknown> = {};
+        for (const key of STORED_FIELDS) if (!sameField(key, next, this.state)) patch[key] = next[key];
+        if (Object.keys(patch).length) this.edit(patch as Partial<ContourState>);
+        else this.halt();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("levelsets", action => this.applyLevelSetsAction(action));
     }
 
     // ---- The camera of the surface (stored) -------------------------------------------------------------------------------
