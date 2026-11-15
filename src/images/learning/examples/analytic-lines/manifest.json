@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
-    "dirty": true,
-    "inputs": "cc37fa581b1e60e1b9f4d33f9918b0a266c6b4be2d8f22ffd780f38ff7d68ff9",
-    "output": "013c9700f4486c37f56c3869db9e1e78708874535c22a040be3379192de0a343"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
-    "stampDirty": true,
-    "localOutputHash": "013c9700f4486c37f56c3869db9e1e78708874535c22a040be3379192de0a343",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-CjOQfgda.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-CjOQfgda.js",
-        "sha256": "c3d3a454ee03a94acd25660c48159b093d5dfc459194000b397b0eca3a3c4b93",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-D4vs8R1-.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-D4vs8R1-.js",
-        "sha256": "b7b9d223bfbd905d608fa5e36981200ad1d9f7c3acea0020b60a567086cad643",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-nJs96TWU.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-nJs96TWU.js",
-        "sha256": "09caaa76ce0459db7062d6a6e1644d68432f2e4196ed9e0cb4f1525c0bb12df7",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -62,9 +62,9 @@
       "analytic-lines.angle-between-lines.line-geometry": "9b4ee5140b5299f4bdb17054c8805706d51de742f31cc4c278bd832539c05e52",
       "analytic-lines.distance-point-line.line-geometry": "22fc720b58dc5af971ae83787504a68ad2d7c67e1ebba3c144d2ac4427aa2f0c"
     },
-    "presentation": "b499b835350a3d25b78310a6c34e584406c7931430be7ef6f6b18173f8dd5560",
-    "buildOutput": "013c9700f4486c37f56c3869db9e1e78708874535c22a040be3379192de0a343",
-    "buildInputs": "cc37fa581b1e60e1b9f4d33f9918b0a266c6b4be2d8f22ffd780f38ff7d68ff9"
+    "presentation": "b4163dd0781fcf6a99439c91ef7bf84bf3e49e5663a9adf8436f139e6c7f4f7f",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -156,7 +156,7 @@
       "file": "analytic-lines.forms-of-a-line.line-geometry.png",
       "width": 840,
       "height": 520,
-      "sha256": "fd35be325185be46cf32ed7e48682af4f261176bc27cb572907418d503536f8d",
+      "sha256": "7694d921d8c530f3084843232d4206591c94544cb75a4f6c1ba7ffa3139503fa",
       "scene": {
         "visibleElementCount": 4,
         "visibleElementTypes": {
@@ -219,8 +219,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
-        "sourceRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -242,7 +242,7 @@
       "file": "analytic-lines.normal-parallel-perpendicular.line-geometry.png",
       "width": 840,
       "height": 520,
-      "sha256": "33ccac4f4ed4113f671f4bb0bac7c6f70032c01eba53dd89022f7817a34ac116",
+      "sha256": "8cd430b7ed3b05fc7adc45f2096f4bf136828aec0a686042012cf922b2a771be",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -312,8 +312,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
-        "sourceRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -335,7 +335,7 @@
       "file": "analytic-lines.angle-between-lines.line-geometry.png",
       "width": 840,
       "height": 520,
-      "sha256": "8ebe3e6c4aeec2abe3ac9394da7e5565405dda4d737616c231f8fe54358b020f",
+      "sha256": "df6208f4541d1b1ae488dfafc45e7e085b3f452759667d45904b287e46229e21",
       "scene": {
         "visibleElementCount": 15,
         "visibleElementTypes": {
@@ -440,8 +440,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
-        "sourceRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -463,7 +463,7 @@
       "file": "analytic-lines.distance-point-line.line-geometry.png",
       "width": 840,
       "height": 520,
-      "sha256": "8001ad96c7d4044552df1c0c53244cef705c529997d34c173408a5f327b0462f",
+      "sha256": "44bf6cf8967238b3fa5aaadf76e74c9db46bc2dd34ecc32471300fd47a73b293",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -533,8 +533,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
-        "sourceRevision": "36c1f67be146b14571de8a554648d3bdfa5230a2",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

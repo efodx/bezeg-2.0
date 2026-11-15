@@ -38,8 +38,8 @@ export const schoolFunctionGraphsPreviewCopy = {
         'The partial sum \\(S_3=1.75\\) is still below the limit \\(2\\); every next term is half of the previous one.',
     ),
     'school-function-graphs.conic-focal.conic-focal': copy(
-        'Elipsa z goriščema \\((\\pm4,0)\\), točko \\(P=(0,3)\\), njenima razdaljama do gorišč \\(5\\) in \\(5\\) ter vodnico; numerična ekscentričnost je \\(0{,}8\\).',
-        'An ellipse with the foci \\((\\pm4,0)\\), the point \\(P=(0,3)\\), its distances \\(5\\) and \\(5\\) to the foci and a directrix; the numerical eccentricity is \\(0.8\\).',
+        'Elipsa z goriščema \\((\\pm4,0)\\), točko \\(P=(0,3)\\), modro daljico do desnega gorišča, rdečo vodoravno daljico do črtkane vodnice in črtkano daljico do levega gorišča; numerična ekscentričnost je \\(0{,}8\\), razdalji do gorišč sta \\(5\\) in \\(5\\).',
+        'An ellipse with the foci \\((\\pm4,0)\\), the point \\(P=(0,3)\\), a blue segment to the right focus, a red horizontal segment to the dashed directrix and a dashed segment to the left focus; the numerical eccentricity is \\(0.8\\) and the distances to the foci are \\(5\\) and \\(5\\).',
         'Vsota razdalj od \\(P\\) do obeh gorišč je \\(10\\), razdalja do vodnice pa \\(6{,}25\\).',
         'The sum of the distances from \\(P\\) to the two foci is \\(10\\), and the distance to the directrix is \\(6.25\\).',
     ),

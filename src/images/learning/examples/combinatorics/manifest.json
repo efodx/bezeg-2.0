@@ -1,70 +1,70 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
-    "dirty": true,
-    "inputs": "7f1904738ce3e5b783a6e953de9c8a0d690831adf7ce7b47ba588637fe5888ad",
-    "output": "5ad0983dc275a137c4bedd393b9882e0c65d616eb756ac07f10915f09e9c56a5"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
-    "stampDirty": true,
-    "localOutputHash": "5ad0983dc275a137c4bedd393b9882e0c65d616eb756ac07f10915f09e9c56a5",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-8_Rl65Um.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-8_Rl65Um.js",
-        "sha256": "ba93ac0e94008636ea3eab748c78ef90a8c08d13b95476cd3d92d0b4ad985b6a",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DrW2-exP.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DrW2-exP.js",
-        "sha256": "645f781abd5f313bdb4914f4f05563d7fb97a2838f2bb62390b2c09e4009d471",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-YQXKa0tR.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-YQXKa0tR.js",
-        "sha256": "ba565ad359f3bc9bf80eadef20947a6611831881adc1b6c687e767afff2ae70d",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-2Xv9sif5.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-2Xv9sif5.css",
-        "sha256": "c85049f22e9ef276a8a370b44241303e3986034425202138593a5fd49dbab023",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "20c4a54cba6e7df2374cb11803d198b92b11cd36578b5643e5754d740000ec88",
+    "inventory": "ffa8d7913b405e9501bfdb3693bebcaae678a270849fe0b448628e6a08133c8d",
     "entries": {
       "combinatorics.lattice-paths-and-pascal.lattice-paths": "3fc4443d87b78554dec115d78b3b07884e09e4a47a6d54ef76ab03fa123415aa",
       "combinatorics.counting-and-choices.counting-tree": "e499ffed2d719b9d90907da812afd9758f8f38393af16791a91d2e7a32300f3f",
-      "combinatorics.pascal-identity.lattice-paths": "8afea7530571a77ccda7324e9c1d315462f4959352f29e56f57dd4eed8d9278c",
+      "combinatorics.pascal-identity.lattice-paths": "4d7358494077b855503dc707c9235d8a6c33d7eff9e57d3878da39ee77f9dbd8",
       "combinatorics.binomial-theorem.lattice-paths": "90d5a7f8b8c2cf4a95eb3de6c4ce63987f3c5a190bed7b43bca33d906cd5574e"
     },
-    "presentation": "f75f48859d3680e4eb6b4d67e74428ca6d3a07ab06d8a5eebf20b53fc2db58f6",
-    "buildOutput": "5ad0983dc275a137c4bedd393b9882e0c65d616eb756ac07f10915f09e9c56a5",
-    "buildInputs": "7f1904738ce3e5b783a6e953de9c8a0d690831adf7ce7b47ba588637fe5888ad"
+    "presentation": "465a37ef27f92e3a661893500fe2a92182d797a84b7bd8208f5f8c69b0c83012",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -155,7 +155,7 @@
       "file": "combinatorics.lattice-paths-and-pascal.lattice-paths.png",
       "width": 840,
       "height": 520,
-      "sha256": "1ab368b8550e8771efb585c18a59b0474e0ac3821a9eb5963a4bc99b25c2a3ce",
+      "sha256": "4da8671a8306867ecf78ae0d20924090bb3d699e153fd5fdc54a720f6757a5ae",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -302,8 +302,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
-        "sourceRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -324,7 +324,7 @@
       "file": "combinatorics.counting-and-choices.counting-tree.png",
       "width": 840,
       "height": 520,
-      "sha256": "2109703fe8a26110b29bf6c4fcc8bb703f98f5f5538fa4fd8d85da6e75cc159e",
+      "sha256": "550e0575bf48e7afc3da70cf22e9a87f646bea127b4a24ac82fc2fb6ebaceee7",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -412,8 +412,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
-        "sourceRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -421,7 +421,7 @@
       "id": "combinatorics.pascal-identity.lattice-paths",
       "demonstrationId": "lattice-paths",
       "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.pascal-identity.lattice-paths",
-      "sceneFingerprint": "69c8e85bffe70a2b6edbabc76adb4f54947e8848fdb69ecc81a7dd80318b4810",
+      "sceneFingerprint": "b6041b9cfa7f15ffb6f10eaa4735b187944032702e8404985249317d2e74205f",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
@@ -434,7 +434,7 @@
       "file": "combinatorics.pascal-identity.lattice-paths.png",
       "width": 840,
       "height": 520,
-      "sha256": "1ab368b8550e8771efb585c18a59b0474e0ac3821a9eb5963a4bc99b25c2a3ce",
+      "sha256": "4da8671a8306867ecf78ae0d20924090bb3d699e153fd5fdc54a720f6757a5ae",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -581,8 +581,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
-        "sourceRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -603,7 +603,7 @@
       "file": "combinatorics.binomial-theorem.lattice-paths.png",
       "width": 840,
       "height": 520,
-      "sha256": "72ccbc736d9e7e609ce395836c10159287bfdfece3a051779327613943fa701b",
+      "sha256": "274f213417f2469e5013d898a121c043b438a58d3a24b11c60f4e7242f09e738",
       "scene": {
         "visibleElementCount": 11,
         "visibleElementTypes": {
@@ -717,8 +717,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
-        "sourceRevision": "dd3c63626ac6cdca2c9b9cd0caf66873db2a66aa",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

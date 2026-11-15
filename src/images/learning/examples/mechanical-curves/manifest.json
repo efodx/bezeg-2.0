@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
-    "dirty": true,
-    "inputs": "38120f22daa88c525da8a14cf07d9b19771c7f5d0fecf322351270be821acbd2",
-    "output": "028c3eef614c36228d39245cce324ed875c3e0e0a056b312227185f58e8049f7"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
-    "stampDirty": true,
-    "localOutputHash": "028c3eef614c36228d39245cce324ed875c3e0e0a056b312227185f58e8049f7",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-CZw-poPP.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-CZw-poPP.js",
-        "sha256": "721154a71957b1fa46cc8e58e421e7f3c43dc70c3b78bd67f97a364200eeab40",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DlWCCaee.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
-        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-PxoDYpss.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
-        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -61,9 +61,9 @@
       "mechanical-curves.drag-the-track.mechanics-descent": "48a396ba006e1d4ca65082d64906b74d79d849b958ee20ef9e6a41dc051f8587",
       "mechanical-curves.tautochrone.mechanics-descent": "e2d57f2d6f5ca70450ac8899c86030e5cd3e4d07a8805e82e3ea58924f83ed5d"
     },
-    "presentation": "1d9fb11b7f8473bd86a3fd547fe0f881da2b97989ff642b6a20331e63f8d2e0b",
-    "buildOutput": "028c3eef614c36228d39245cce324ed875c3e0e0a056b312227185f58e8049f7",
-    "buildInputs": "38120f22daa88c525da8a14cf07d9b19771c7f5d0fecf322351270be821acbd2"
+    "presentation": "f691a07e4c6f7c09eb3f9b9d21e4269c1e2d8ea7a89aa271c727b47e2160665f",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -141,7 +141,7 @@
       "file": "mechanical-curves.race-the-tracks.mechanics-descent.png",
       "width": 840,
       "height": 520,
-      "sha256": "23549df871b6c8fb0302bf89e843f3e6fbb7576cd1c9d56c21dfd3257fe84ff5",
+      "sha256": "3d4011ed729bc4f0eb8081bcbba47a50941f0a0477f2ebb59bfb2acc621520a0",
       "scene": {
         "visibleElementCount": 20,
         "visibleElementTypes": {
@@ -288,8 +288,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
-        "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -311,7 +311,7 @@
       "file": "mechanical-curves.drag-the-track.mechanics-descent.png",
       "width": 840,
       "height": 520,
-      "sha256": "8044c58f3127e2cafb945cae2143b8e3815504f6ecbccf49e8e28affa3c9afa2",
+      "sha256": "64f3d204aa14c11c1c5ef2c00d8f212994c95681f229a6204044203d3834bff6",
       "scene": {
         "visibleElementCount": 23,
         "visibleElementTypes": {
@@ -490,8 +490,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
-        "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -513,7 +513,7 @@
       "file": "mechanical-curves.tautochrone.mechanics-descent.png",
       "width": 840,
       "height": 520,
-      "sha256": "5e43f4d23d95bc250c11f9e6f6b1e213abdbf0ab3919c2f62d449108e0ecea7e",
+      "sha256": "20270f0f6b140d05831f9886297cbeefc29ec987a87b7ab374f5810ef5a370fc",
       "scene": {
         "visibleElementCount": 20,
         "visibleElementTypes": {
@@ -606,8 +606,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
-        "sourceRevision": "d6ded3f939d44efc092d81bfe07347f4d3be38e1",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

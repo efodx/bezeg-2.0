@@ -1,70 +1,70 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
-    "dirty": true,
-    "inputs": "4e96717e7ed4f741561ec4fde467c166dbff8e26ef17bc55d9dbb96d999eb5f4",
-    "output": "08960db0e79406d3c5caea28dcadb2fbb869159ce3e4a231ca4525925e8b085e"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4314/bezeg-2.0/",
-    "stampRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
-    "stampDirty": true,
-    "localOutputHash": "08960db0e79406d3c5caea28dcadb2fbb869159ce3e4a231ca4525925e8b085e",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-C_5T80BB.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-C_5T80BB.js",
-        "sha256": "ec3e847f7874d4f47ed34e22d186b849f22b086d3d97302415d44ed15ea1a38e",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-D4TpdOpM.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/jsx-runtime-D4TpdOpM.js",
-        "sha256": "a050d57f3d4882be1a73f584f1ee9efffbdd33062e9ff568fc12a27f2f25c2b9",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bi6b9n_6.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/react-dom-Bi6b9n_6.js",
-        "sha256": "71d9b9ff338b30ae346b0e57381cb6c9b387773dc039e64aa79d618e93405a00",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-COlNNAaK.css",
-        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4314/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "b6922a3ddbcbb714417d2e3cc54e3892292eb6ea49f13245214eae311b6029a4",
+    "inventory": "bb6c96eb0dfeb6c5f20074955bb7151785cc5de71f9861d98f614b20d4b4ce42",
     "entries": {
-      "advanced-bezier.reduction.reduction": "cff21cbf1b29f5a89b393d1a0c28c2b14847d5a53e2ade391ffe757069e587c1",
+      "advanced-bezier.reduction.reduction": "94f7cb2ddf5f768b66b4a6203de19ad46679bebeae32e0e65d19b7e9e10e3368",
       "advanced-bezier.bezier-clipping.bezier-clipping": "4ae1d40957ac78d75d8920b53ca258c55a3fc2f4296c687db1bf8fef7ed293cf",
       "advanced-bezier.arc-length-param.arc-length-param": "bdf04bb8bb7449da76ce97fab97838a605695a187cfea8d722711aa6eda9334a",
       "advanced-bezier.patch-coons.patch-coons": "ef89ac6201b4321a79921e4e5e72635be46995a6f38f65203372ceee7a364406"
     },
-    "presentation": "da97f0d98ce4323fbc5baff8c17e04d35c43ab0b8a79c545b11b9d125bd4d0c7",
-    "buildOutput": "08960db0e79406d3c5caea28dcadb2fbb869159ce3e4a231ca4525925e8b085e",
-    "buildInputs": "4e96717e7ed4f741561ec4fde467c166dbff8e26ef17bc55d9dbb96d999eb5f4"
+    "presentation": "e9f32d46d391b3a6229db755ff828c468f3a4d420a37195959ba9fbb4c7e9bda",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -149,14 +149,13 @@
       "file": "advanced-bezier.reduction.reduction.png",
       "width": 840,
       "height": 520,
-      "sha256": "379ae104eb999cfbaa26d198197a8908567a3858ef4ee4b0c7e87b471648dff5",
+      "sha256": "f50a63784771de31de28893f005788ee376da81f0699fd8498fecb76985fc259",
       "scene": {
-        "visibleElementCount": 19,
+        "visibleElementCount": 18,
         "visibleElementTypes": {
           "point": 11,
-          "curve": 3,
-          "segment": 3,
-          "text": 2
+          "curve": 4,
+          "segment": 3
         },
         "visiblePointCount": 11,
         "sampledVisibleCurves": [
@@ -194,6 +193,20 @@
               0
             ],
             [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
               2,
               2
             ],
@@ -219,13 +232,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 43,
+          "visibleElementCount": 44,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
             "label": 20,
             "point": 11,
-            "curve": 3,
+            "curve": 4,
             "segment": 3,
             "text": 2
           },
@@ -265,6 +278,20 @@
                 0
               ],
               [
+                1,
+                2
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
                 2,
                 2
               ],
@@ -292,21 +319,20 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 2,
-        "finalLabelCount": 2,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 11,
-          "curve": 3,
-          "segment": 3,
-          "text": 2
+          "curve": 4,
+          "segment": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
-        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -333,7 +359,7 @@
       "file": "advanced-bezier.bezier-clipping.bezier-clipping.png",
       "width": 840,
       "height": 520,
-      "sha256": "0c174b556e8fd24168725280142b64cdfa452b9c057a91747593ee052ddd43f4",
+      "sha256": "e40a2d9df3afee7e3942a062ca4337896e4977aeebe9f28d6f6518b0c20c8920",
       "scene": {
         "visibleElementCount": 18,
         "visibleElementTypes": {
@@ -523,8 +549,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
-        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -551,13 +577,12 @@
       "file": "advanced-bezier.arc-length-param.arc-length-param.png",
       "width": 840,
       "height": 520,
-      "sha256": "e58e9a55a403bbc7b779890e3fce077488e1820562f893f556a6af321ce60786",
+      "sha256": "67274a4733ba57e074420c15ff41f1f97b95bd4d832bb7f28512362994217b0f",
       "scene": {
-        "visibleElementCount": 19,
+        "visibleElementCount": 15,
         "visibleElementTypes": {
           "point": 14,
-          "curve": 1,
-          "text": 4
+          "curve": 1
         },
         "visiblePointCount": 14,
         "sampledVisibleCurves": [
@@ -648,20 +673,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 14,
-          "curve": 1,
-          "text": 4
+          "curve": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
-        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -683,7 +707,7 @@
       "file": "advanced-bezier.patch-coons.patch-coons.png",
       "width": 840,
       "height": 520,
-      "sha256": "1d16a2156740d6cb5195b495b290137eb2602a9f339953cc2d2b94c9a7e86a53",
+      "sha256": "d745c5295f30b47d3ae6ac1b13e302f9bc5934b0a86e390c1a1cf659696103a5",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -818,7 +842,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -832,9 +856,9 @@
             ]
           },
           "meshBounds": {
-            "left": 395.654,
+            "left": 393.654,
             "top": 219.007,
-            "right": 603.863,
+            "right": 601.863,
             "bottom": 412.284,
             "inFrustum": true
           },
@@ -867,73 +891,73 @@
           "projectedControlPoints": [
             {
               "id": "c0-0",
-              "x": 513.791,
+              "x": 511.791,
               "y": 379.916,
               "inFrustum": true
             },
             {
               "id": "c0-1",
-              "x": 547.322,
+              "x": 545.322,
               "y": 266.966,
               "inFrustum": true
             },
             {
               "id": "c0-2",
-              "x": 577.446,
+              "x": 575.446,
               "y": 249.109,
               "inFrustum": true
             },
             {
               "id": "c0-3",
-              "x": 599.923,
+              "x": 597.923,
               "y": 318.638,
               "inFrustum": true
             },
             {
               "id": "c1-0",
-              "x": 399.782,
+              "x": 397.782,
               "y": 330.161,
               "inFrustum": true
             },
             {
               "id": "c1-1",
-              "x": 433.904,
+              "x": 431.904,
               "y": 351.238,
               "inFrustum": true
             },
             {
               "id": "c1-2",
-              "x": 463.303,
+              "x": 461.303,
               "y": 333.232,
               "inFrustum": true
             },
             {
               "id": "c1-3",
-              "x": 490.526,
+              "x": 488.526,
               "y": 278.822,
               "inFrustum": true
             },
             {
               "id": "d0-1",
-              "x": 473.386,
+              "x": 471.386,
               "y": 362.282,
               "inFrustum": true
             },
             {
               "id": "d0-2",
-              "x": 435.457,
+              "x": 433.457,
               "y": 345.729,
               "inFrustum": true
             },
             {
               "id": "d1-1",
-              "x": 562.935,
+              "x": 560.935,
               "y": 263.595,
               "inFrustum": true
             },
             {
               "id": "d1-2",
-              "x": 525.582,
+              "x": 523.582,
               "y": 251.17,
               "inFrustum": true
             }
@@ -955,8 +979,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
-        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

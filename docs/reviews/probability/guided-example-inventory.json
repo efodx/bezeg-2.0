@@ -14,11 +14,10 @@
       ],
       "expected": {
         "types": {
-          "curve": 2,
-          "point": 2,
-          "text": 1
+          "curve": 4,
+          "point": 2
         },
-        "curveCount": 2,
+        "curveCount": 4,
         "points": [
           [
             -4,
@@ -49,8 +48,7 @@
       "expected": {
         "types": {
           "curve": 4,
-          "point": 1,
-          "text": 1
+          "point": 1
         },
         "curveCount": 4,
         "points": [
@@ -116,8 +114,7 @@
       ],
       "expected": {
         "types": {
-          "point": 9,
-          "text": 3
+          "point": 9
         },
         "curveCount": 0,
         "points": [
@@ -178,8 +175,7 @@
       "expected": {
         "types": {
           "point": 4,
-          "curve": 1,
-          "text": 2
+          "curve": 1
         },
         "curveCount": 1,
         "points": [

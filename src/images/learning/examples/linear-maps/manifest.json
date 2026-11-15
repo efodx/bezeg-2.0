@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-    "dirty": true,
-    "inputs": "7461433e24540c2a1cee7428d47c8a9cf4b18c0a35527e44d753f7f63b0d9eb3",
-    "output": "3ccdd0b5f6c12c5235c44eaa941f367a74389a077c1e3f623831040b54cc13bf"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-    "stampDirty": true,
-    "localOutputHash": "3ccdd0b5f6c12c5235c44eaa941f367a74389a077c1e3f623831040b54cc13bf",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DitEsYzn.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DitEsYzn.js",
-        "sha256": "1fad73ab6be9a5dbda60f11c3c543d0d2f2b9ec6f709b0c3caca93d7e221a6c3",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DlWCCaee.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
-        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-PxoDYpss.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
-        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -65,9 +65,9 @@
       "linear-maps.power-method.linear-map": "0cebc1d5eb20e223408e7ef7c4fe781eaef78c843acf3ccd816553d592f3f88e",
       "linear-maps.trace-determinant.linear-map": "220f60b98378a04b491320179a3f7ac1db378af4e5c428b548cbe305eebc9cd5"
     },
-    "presentation": "6b035e15bd79329d51c88f90d749a44f2cebc32f2aa6d190052db879ffc24725",
-    "buildOutput": "3ccdd0b5f6c12c5235c44eaa941f367a74389a077c1e3f623831040b54cc13bf",
-    "buildInputs": "7461433e24540c2a1cee7428d47c8a9cf4b18c0a35527e44d753f7f63b0d9eb3"
+    "presentation": "1e0b25381696c94f9c03d2703ec7498078f76cb2b6827d1a5adca38cca037f8c",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -191,7 +191,7 @@
       "file": "linear-maps.matrix-and-image.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "e8f93fe0fd5e23a0bfb932c456d58be26bd75c8222088b27a226dde0a517d1a0",
+      "sha256": "db6d3ac17c164df05ed52455df3e4e731407f702c02b25ba373415e8c6877857",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -490,8 +490,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -512,7 +512,7 @@
       "file": "linear-maps.determinant-area.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "594c3c255c61cdf13e5a4fc0a67421e1c5e19040e12d2c8cbeb43646820ee367",
+      "sha256": "b3eff61f55b2aec45a217ae3e5644c9aa68f2d248e5b99a2538738ea68e599f9",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -811,8 +811,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -833,7 +833,7 @@
       "file": "linear-maps.eigen-directions.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "c6aa739fd37e0f28c50313fc7e576b9d791d423a9d72568bc06d8e6cffd8bdb1",
+      "sha256": "8a24043d3dc6c95991c0d7b39773ec8a860f86cd105e2a11ba357b724e854636",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -1132,8 +1132,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -1154,7 +1154,7 @@
       "file": "linear-maps.singular-ellipse.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "49a864b4a5750a6d1a2d39739245a7c1d3374218973fe378b82b39d6194eb789",
+      "sha256": "ec051d80f95a24f2a6975675722b31d792185845a4fc0e11566f5d41194bed43",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -1453,8 +1453,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -1474,13 +1474,12 @@
       "file": "linear-maps.composition-affine.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "5d47a94439cfa70453a818a9a16df50307549de2fc04f6ff501218f1f555ba10",
+      "sha256": "8db7632cc6b62168354760a2f563db98ba3ff28f3eb5222089aca07cf1d6a4d6",
       "scene": {
-        "visibleElementCount": 14,
+        "visibleElementCount": 13,
         "visibleElementTypes": {
           "curve": 5,
-          "point": 8,
-          "text": 1
+          "point": 8
         },
         "visiblePointCount": 8,
         "sampledVisibleCurves": [
@@ -1677,20 +1676,19 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "curve": 5,
-          "point": 8,
-          "text": 1
+          "point": 8
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -1712,7 +1710,7 @@
       "file": "linear-maps.power-method.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "c6aa739fd37e0f28c50313fc7e576b9d791d423a9d72568bc06d8e6cffd8bdb1",
+      "sha256": "8a24043d3dc6c95991c0d7b39773ec8a860f86cd105e2a11ba357b724e854636",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -2011,8 +2009,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -2033,7 +2031,7 @@
       "file": "linear-maps.trace-determinant.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "e0a2fab39b7447a163a7dbf5618703343088bfeff5d23a1880bff742e3f02aa3",
+      "sha256": "5c54714be55d3caaf9846a38557c4863762439caddc2af58bb6c349bcb7c5767",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -2332,8 +2330,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
-        "sourceRevision": "16ae8392b3ab7f69e74b0ed75cb8ca69254374eb",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

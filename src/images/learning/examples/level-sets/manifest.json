@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "36db305012f1a41dbfd1c5536a4dbffa5b1cc242",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "36db305012f1a41dbfd1c5536a4dbffa5b1cc242",
-    "dirty": true,
-    "inputs": "0ea05d2e6dc1a8b63d83f404ed7e6caa733903a6667609632c72a8f253269782",
-    "output": "d87413354ca206b31929c446465d7f89bc235f1da096c64ed606385a59875545"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "36db305012f1a41dbfd1c5536a4dbffa5b1cc242",
-    "stampDirty": true,
-    "localOutputHash": "d87413354ca206b31929c446465d7f89bc235f1da096c64ed606385a59875545",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-eOFOfa_J.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-eOFOfa_J.js",
-        "sha256": "bb58257e424ed96d8207a0f375b375b1163af901e68c216fc334053aeb4a38b3",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-D4vs8R1-.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-D4vs8R1-.js",
-        "sha256": "b7b9d223bfbd905d608fa5e36981200ad1d9f7c3acea0020b60a567086cad643",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-nJs96TWU.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-nJs96TWU.js",
-        "sha256": "09caaa76ce0459db7062d6a6e1644d68432f2e4196ed9e0cb4f1525c0bb12df7",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -59,9 +59,9 @@
     "entries": {
       "level-sets.linear-programming.linear-program": "d9382fc030b6ca37c88b2d0067873df7bd8a0c749a8948107c6dc190466180f1"
     },
-    "presentation": "3ba5c04c688da60308ade4bd5805ebe0c03d33ea415540987ec2489f39d094ac",
-    "buildOutput": "d87413354ca206b31929c446465d7f89bc235f1da096c64ed606385a59875545",
-    "buildInputs": "0ea05d2e6dc1a8b63d83f404ed7e6caa733903a6667609632c72a8f253269782"
+    "presentation": "479d154bb4b43a6a556e1b6c4a5768c84715a724f7315b854590344885b11524",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -112,7 +112,7 @@
       "file": "level-sets.linear-programming.linear-program.png",
       "width": 840,
       "height": 520,
-      "sha256": "19b63e6200680256562cd2015d56ec000395a0effd21dcaa4060b58ae823572e",
+      "sha256": "90c0f60187a15c6033284b30b55362f77ef8b5e11ea4da8a39aff19474262514",
       "scene": {
         "visibleElementCount": 32,
         "visibleElementTypes": {
@@ -368,8 +368,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "36db305012f1a41dbfd1c5536a4dbffa5b1cc242",
-        "sourceRevision": "36db305012f1a41dbfd1c5536a4dbffa5b1cc242",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

@@ -14,10 +14,10 @@
       ],
       "expected": {
         "types": {
-          "curve": 3,
+          "curve": 4,
           "point": 11
         },
-        "curveCount": 3,
+        "curveCount": 4,
         "points": [
           [
             0,

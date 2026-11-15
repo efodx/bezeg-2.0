@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-    "dirty": true,
-    "inputs": "1d39c4524fd9b2f0692d1170e8eaefbcc49872fb96326e6346dac63201c9d279",
-    "output": "4a44786edeb505b6f67843846939545bfc90964681ebad17d81b1cb7fba074d5"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4541/bezeg-2.0/",
-    "stampRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-    "stampDirty": true,
-    "localOutputHash": "4a44786edeb505b6f67843846939545bfc90964681ebad17d81b1cb7fba074d5",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DQf5oV-A.js",
-        "url": "http://127.0.0.1:4541/bezeg-2.0/assets/index-DQf5oV-A.js",
-        "sha256": "bf36a7c338baaef45bbc51ae58afa4bc2ba061b3b8746d11d2e3ef4bf1118e43",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4541/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DlWCCaee.js",
-        "url": "http://127.0.0.1:4541/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
-        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-PxoDYpss.js",
-        "url": "http://127.0.0.1:4541/bezeg-2.0/assets/react-dom-PxoDYpss.js",
-        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4541/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4541/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -63,9 +63,9 @@
       "phase-portraits.logistic-map.logistic-map": "02c46bb0e5fac05f936955fbed5e4844d327d6ac0198206b88e2cd1cf7925f30",
       "phase-portraits.bifurcation.logistic-map": "065e213b4c6df97b8bf14bae613571df899f64a8f0eb20b4a7d3b6d6b1fe5d07"
     },
-    "presentation": "5fb7a5d0e3e3c55c36eb44e5600d0e415dcce578f84a269df3dd8fee146ec4ad",
-    "buildOutput": "4a44786edeb505b6f67843846939545bfc90964681ebad17d81b1cb7fba074d5",
-    "buildInputs": "1d39c4524fd9b2f0692d1170e8eaefbcc49872fb96326e6346dac63201c9d279"
+    "presentation": "ff364dba100bba4d8dc0cec4fc93a3bdc01ebe1092a3c1ebc345f0f72b24bf05",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -171,7 +171,7 @@
       "file": "phase-portraits.linear-system.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "a0e68bb0f593111f70008c1f1d418e3bb54421f65d7899b5bef2a78fbe6e1dfd",
+      "sha256": "7e75515ac20b4eee3d2e63a5be2e377a3acf317034be64fe73740e5ae2fdf456",
       "scene": {
         "visibleElementCount": 34,
         "visibleElementTypes": {
@@ -338,8 +338,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-        "sourceRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -362,7 +362,7 @@
       "file": "phase-portraits.pendulum.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "d9f0f0cf4974f6274ef757ec9c4ce83c5406b8babf1b8dd9e3aeeb5b51bcaf4e",
+      "sha256": "9acaa158424b20522f712bc07bc2f982ded52a0eb9268a1112c80cc275811d7a",
       "scene": {
         "visibleElementCount": 30,
         "visibleElementTypes": {
@@ -526,8 +526,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-        "sourceRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -547,7 +547,7 @@
       "file": "phase-portraits.linearization.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "308b9df13064dc11bf6ffb0ef7143ec9a647586ef90842f606339f1171d6b9db",
+      "sha256": "5af462c1351686d5ed4374a39f34553f41adf2316916f2cf4cf77785c09a4742",
       "scene": {
         "visibleElementCount": 34,
         "visibleElementTypes": {
@@ -714,8 +714,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-        "sourceRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -737,7 +737,7 @@
       "file": "phase-portraits.logistic-map.logistic-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "51401ca7405b49d634e9ee42aa04adaca14ee9266326768254c64d80ada975b6",
+      "sha256": "5162676c3fa061fa3681f39ab1b7a8f0c5867b3fd1e0fb2e90ee7f3c01d976e2",
       "scene": {
         "visibleElementCount": 31,
         "visibleElementTypes": {
@@ -1004,8 +1004,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-        "sourceRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -1026,7 +1026,7 @@
       "file": "phase-portraits.bifurcation.logistic-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "014f47097c63f08b41f4513cdd3e18452c82497da2c36938631167205837d785",
+      "sha256": "d91cc74a17f1f39fbda81d87a1969180518ebb9d102284a1b0e470921156f5d7",
       "scene": {
         "visibleElementCount": 29,
         "visibleElementTypes": {
@@ -1291,8 +1291,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
-        "sourceRevision": "f48e5bc1ab0c4be985b23a2016bb14910e4cc5c9",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
-    "dirty": true,
-    "inputs": "1655a815ecaaf1d6693f95eb1b45cc3ac40600e471abc52a05bc0788d8b2f75f",
-    "output": "11a2991b5d543b7302b10d1a436a012823c5716b7b282e9e8626e84de2418cdc"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
-    "stampDirty": true,
-    "localOutputHash": "11a2991b5d543b7302b10d1a436a012823c5716b7b282e9e8626e84de2418cdc",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-C9ifWzHT.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-C9ifWzHT.js",
-        "sha256": "0e5918690af9ef4803527e324b0952e57c82eeed7d3f7c72de8c59213bc1077f",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DlWCCaee.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DlWCCaee.js",
-        "sha256": "b36ed7723e1a22b58b7b1ddb3de5853f0d61192559459d23603c06f5c9d6537c",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-PxoDYpss.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-PxoDYpss.js",
-        "sha256": "faf94ed2dca3271c2a70b101d84f9ac042458b813f71721ee35dab80061b688a",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-DPDGB1vx.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DPDGB1vx.css",
-        "sha256": "928cd10810ccf1b942b08c3ece2af6f5fef7cc65c6e5fa244d087f1bdaac2e94",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -60,9 +60,9 @@
       "solids.cube-sections.solids": "831f1545bbefa77a9c5925f1f56f62daeda2b6c5a9b317a6979cbeb2354baef8",
       "solids.pyramid-sections.solids": "47c4313b955df9821a7acf6757aae8ef1b252146a8377e631a217efa2214c7da"
     },
-    "presentation": "62351f3d82fb7ac6ddfab170a14b92aba5ce63551d90355b4a38c9ae6d9dec41",
-    "buildOutput": "11a2991b5d543b7302b10d1a436a012823c5716b7b282e9e8626e84de2418cdc",
-    "buildInputs": "1655a815ecaaf1d6693f95eb1b45cc3ac40600e471abc52a05bc0788d8b2f75f"
+    "presentation": "d87c49fbc95c061fd5c97bb3d9ef10702687d08de70561e245ab726cdcc22e9c",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -139,7 +139,7 @@
       "file": "solids.cube-sections.solids.png",
       "width": 840,
       "height": 520,
-      "sha256": "d94358db332ee4b9bad1ab43f503e6f74e82afd035c4366bd80999bd3f58f9f4",
+      "sha256": "12a9966319d2603f23abd9c94e1004d3a7792d8ae608b49b432e005d8b615e96",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -251,7 +251,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -265,9 +265,9 @@
             ]
           },
           "meshBounds": {
-            "left": 431.655,
+            "left": 429.655,
             "top": 272.631,
-            "right": 569.26,
+            "right": 567.26,
             "bottom": 382.776,
             "inFrustum": true
           },
@@ -365,8 +365,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
-        "sourceRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -389,7 +389,7 @@
       "file": "solids.pyramid-sections.solids.png",
       "width": 840,
       "height": 520,
-      "sha256": "e6f61d7c0c82ebefa6ed2434521a38840979b725df7ce0c93302e2ae4f0fe448",
+      "sha256": "5fb2d13ee1ca68548de4f99ddda96dfdfdd1dc6e857ba3be467ac5e7865deae9",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -501,7 +501,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -515,9 +515,9 @@
             ]
           },
           "meshBounds": {
-            "left": 401.817,
+            "left": 399.817,
             "top": 260.665,
-            "right": 597.979,
+            "right": 595.979,
             "bottom": 448.295,
             "inFrustum": true
           },
@@ -615,8 +615,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
-        "sourceRevision": "7c6922e844b2f8c9fa8b4ff33bf086947297bb60",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

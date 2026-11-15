@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-    "dirty": true,
-    "inputs": "ef16f76cea358049962900ac3d459ab3365a5dc097c86f058e0a8c230a036b96",
-    "output": "10d87225650d140cb58b0434857dfddb0130a33a6bff6498d714be8d780edc55"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-    "stampDirty": true,
-    "localOutputHash": "10d87225650d140cb58b0434857dfddb0130a33a6bff6498d714be8d780edc55",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-B2qh2IJc.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-B2qh2IJc.js",
-        "sha256": "1bdbfdf3c4061fd92bba8f5664315d119a00d6c871e9801b4f39fc7bc476b0af",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DXaK8H67.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-DXaK8H67.js",
-        "sha256": "9ef284978f778040432c7ac85cc8382a8dc12f90b791d92baa63c00043b4b297",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-4YqOUQ2l.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-4YqOUQ2l.js",
-        "sha256": "4119113974150c9515c995d169c99c7560c2368d70d4c69d57fad1c81d5aaea1",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-COlNNAaK.css",
-        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4315/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -64,9 +64,9 @@
       "school-function-graphs.geometric-series.geometric-series": "2f874ef35040fa2b04961ca6fc78f383aabb83f9126d166b97dfc595284ce9bc",
       "school-function-graphs.conic-focal.conic-focal": "a98102e2541b4131e4abe7c2c02a51d9989d7b7963ddb7346b1abd74645af345"
     },
-    "presentation": "6f9505855e22a0d0047e436ca3f202010980751f0b62bcb95d3855ad7af4291e",
-    "buildOutput": "10d87225650d140cb58b0434857dfddb0130a33a6bff6498d714be8d780edc55",
-    "buildInputs": "ef16f76cea358049962900ac3d459ab3365a5dc097c86f058e0a8c230a036b96"
+    "presentation": "6c25013da93f9b3db1cd70267cc1666a53d24b357db504eadd806db5ff81028d",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -156,10 +156,10 @@
         "framing": {
           "kind": "coordinate-window",
           "window": [
-            -8,
-            8,
-            8,
-            -8
+            -5.3,
+            3.6,
+            6.5,
+            -3.6
           ]
         }
       }
@@ -189,7 +189,7 @@
       "file": "school-function-graphs.function-transformation.function-transformation.png",
       "width": 840,
       "height": 520,
-      "sha256": "78cdd4627a041b169859d6b5a34cfa829fb5ceed4bb2551bd673ac5e925b8ffa",
+      "sha256": "6f2aa2a0a45c85bf2fa7920756710626d1b4c0fca6e4df8d609195c5c22d26b6",
       "scene": {
         "visibleElementCount": 26,
         "visibleElementTypes": {
@@ -244,11 +244,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 27,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 18,
             "curve": 2,
             "point": 2,
             "text": 1
@@ -257,29 +257,29 @@
           "sampledVisibleCurves": [
             [
               [
-                -10.205931,
+                -10.153213,
                 23
               ],
               [
-                -10.183884,
+                -10.131254,
                 23
               ],
               [
-                -10.161838,
+                -10.109295,
                 23
               ]
             ],
             [
               [
-                -10.205931,
+                -10.153213,
                 23
               ],
               [
-                -10.183884,
+                -10.131254,
                 23
               ],
               [
-                -10.161838,
+                -10.109295,
                 23
               ]
             ]
@@ -314,8 +314,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -340,16 +340,17 @@
       "file": "school-function-graphs.function-inverse.function-inverse.png",
       "width": 840,
       "height": 520,
-      "sha256": "9e542fc7c759b49fff0eafa36791d11d982c5d381493def381af1911afc45919",
+      "sha256": "ce25ae6acda70f28f73d3ce0a62e7420b9208fe88f69ea69a4f82d157b621cb4",
       "scene": {
-        "visibleElementCount": 21,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 12,
           "line": 1,
           "curve": 2,
-          "point": 2
+          "point": 2,
+          "text": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -453,8 +454,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 0,
-        "finalLabelCount": 0,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -462,14 +463,15 @@
           "label": 12,
           "line": 1,
           "curve": 2,
-          "point": 2
+          "point": 2,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -491,7 +493,7 @@
       "file": "school-function-graphs.polynomial-zeros.polynomial-zeros.png",
       "width": 840,
       "height": 520,
-      "sha256": "2391bec21c44dc7d05edd9d059f0b145eb938486cc493c9c6b8d8f7e8dd351cd",
+      "sha256": "f8cbc0e65eb468c4ad768d968bd8a86e0ce59918b2cd8b25610eada6b435eb5b",
       "scene": {
         "visibleElementCount": 21,
         "visibleElementTypes": {
@@ -545,15 +547,15 @@
           "sampledVisibleCurves": [
             [
               [
-                -9.904448,
+                -9.864909,
                 -18
               ],
               [
-                -9.887913,
+                -9.84844,
                 -18
               ],
               [
-                -9.871378,
+                -9.831971,
                 -18
               ]
             ]
@@ -588,8 +590,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -611,15 +613,14 @@
       "file": "school-function-graphs.rational-function.rational-function.png",
       "width": 840,
       "height": 520,
-      "sha256": "01b2473cd6c72a9ca42167347f068cd9613d45eb51183c74b51e087fb8f09b1d",
+      "sha256": "219ea9ae0f3b339e3f38defab4430d612294dc2286d796d82a76fb383e849130",
       "scene": {
-        "visibleElementCount": 28,
+        "visibleElementCount": 24,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 12,
           "line": 2,
-          "text": 4,
           "curve": 1,
           "segment": 1,
           "point": 4
@@ -673,16 +674,16 @@
           "sampledVisibleCurves": [
             [
               [
-                -17.763314,
-                -15.91511
+                -17.684418,
+                -15.836823
               ],
               [
-                -17.73032,
-                -15.88237
+                -17.651556,
+                -15.804216
               ],
               [
-                -17.697326,
-                -15.849631
+                -17.618694,
+                -15.771609
               ]
             ]
           ],
@@ -705,15 +706,14 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 12,
           "line": 2,
-          "text": 4,
           "curve": 1,
           "segment": 1,
           "point": 4
@@ -722,8 +722,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -746,7 +746,7 @@
       "file": "school-function-graphs.geometric-series.geometric-series.png",
       "width": 840,
       "height": 520,
-      "sha256": "c4714ed8b1defab41086fe38aefc4dd44e96aca2f85c110b9a8094bf49bf4799",
+      "sha256": "4723f44bbc2f3ac1106568d3b7162d0f9af0b134068b882370d821b4e5d9e6e8",
       "scene": {
         "visibleElementCount": 11,
         "visibleElementTypes": {
@@ -800,8 +800,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -822,13 +822,13 @@
       "file": "school-function-graphs.conic-focal.conic-focal.png",
       "width": 840,
       "height": 520,
-      "sha256": "9c4c0ae46cb3376463d9e8d5cf3cb5b1f790ee2502e3a12c8703f6208de9ce1d",
+      "sha256": "08b813e65a28e4928bc03baf7ca1fb7b9a8c2adb58fcfae77c10ef287aa5c3f9",
       "scene": {
-        "visibleElementCount": 25,
+        "visibleElementCount": 23,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 11,
           "line": 1,
           "curve": 1,
           "segment": 3,
@@ -919,7 +919,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 11,
           "line": 1,
           "curve": 1,
           "segment": 3,
@@ -929,8 +929,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
-        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

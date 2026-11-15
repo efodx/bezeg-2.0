@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
-    "dirty": true,
-    "inputs": "4191aa3f90530b7e80216136fdfd4bf0f3df4d0127dff221c63c7693c658c336",
-    "output": "95532693c86ac4c9dccabe0f86b4bd4f7a84a8ebce8be5678db27fb1bba9b414"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
-    "stampDirty": true,
-    "localOutputHash": "95532693c86ac4c9dccabe0f86b4bd4f7a84a8ebce8be5678db27fb1bba9b414",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-gVu5Rgkt.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-gVu5Rgkt.js",
-        "sha256": "b29c627f2e41e1f8dddba52f6836cd21eaa585ba9ac35cf43eb0d2303a730849",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
         "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
         "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -63,8 +63,8 @@
       "trigonometry.cosine-rule.triangle-solver": "aad9aff9d42316cf5864a19cfa95d1107d9a8631f0060ba8a03fcd1fab1f2b7c"
     },
     "presentation": "db384b4f44134b6abb81210af553289f9950fdeea5afd1116881a4dda1bf9335",
-    "buildOutput": "95532693c86ac4c9dccabe0f86b4bd4f7a84a8ebce8be5678db27fb1bba9b414",
-    "buildInputs": "4191aa3f90530b7e80216136fdfd4bf0f3df4d0127dff221c63c7693c658c336"
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -262,8 +262,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
-        "sourceRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -426,8 +426,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
-        "sourceRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -516,8 +516,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
-        "sourceRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -606,8 +606,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
-        "sourceRevision": "1f2ccc1cc54faf1fe42f90c90884c23c1b71d48a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

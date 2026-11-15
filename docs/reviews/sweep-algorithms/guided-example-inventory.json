@@ -125,7 +125,7 @@
       "id": "sweep-algorithms.monotone-partition.monotone-partition",
       "demonstrationId": "monotone-partition",
       "path": "/bezeg-2.0/compgeo/monotone-partition?example=lesson.sweep-algorithms.monotone-partition.monotone-partition",
-      "sceneFingerprint": "e76955bb3c0d628c1e44503a604b66c8423ff5ba2efa0d8b85b3c0f03f5b4248",
+      "sceneFingerprint": "d3f372fe65c661d1ade951e779e794026ab86b30811d5e84044089853c227d39",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"monpart-polygon\",\"source\":\"demonstration-default\",\"view\":[-1,9,13,-1]}",
         "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[4,3],[8,0],[12,8],[8,5],[4,8]]}"
@@ -173,7 +173,7 @@
       "id": "sweep-algorithms.monotone-triangulation.monotone-triangulation",
       "demonstrationId": "monotone-triangulation",
       "path": "/bezeg-2.0/compgeo/monotone-triangulation?example=lesson.sweep-algorithms.monotone-triangulation.monotone-triangulation",
-      "sceneFingerprint": "28254c13b1e7b30424d08f1f097d64201b83fa6f7f7d1cf9df30d3d2f5cca765",
+      "sceneFingerprint": "fcbc6429b1b2aeb3a05493e59751c089c7380332c773af4d97e37323b4fac4ae",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"montri-piece\",\"source\":\"demonstration-default\",\"view\":[-1,9,13,-1]}",
         "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[4,3],[8,0],[12,8],[8,5],[4,8]]}",
@@ -184,7 +184,6 @@
           "point": 11,
           "segment": 10,
           "curve": 5,
-          "text": 4,
           "polygon": 1
         },
         "curveCount": 5,

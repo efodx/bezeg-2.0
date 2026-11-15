@@ -222,10 +222,10 @@
       ],
       "expected": {
         "types": {
-          "curve": 1,
+          "curve": 4,
           "point": 3
         },
-        "curveCount": 1,
+        "curveCount": 4,
         "points": [
           [
             1,

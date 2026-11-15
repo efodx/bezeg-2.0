@@ -20,8 +20,8 @@ export const interpolationPreviewCopy = {
         'The Runge function \\(f(x)=\\frac1{1+25x^2}\\) (the faint curve) and its interpolation polynomial \\(p\\) of degree \\(6\\) through \\(7\\) equally spaced nodes (the green curve); the polynomial wobbles around the function. The error curve is hidden.',
     ),
     'interpolation.hermite.interp-hermite': copy(
-        'Zelena krivulja skozi točke \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) in \\((4,0)\\), pri čemer so \\((0,0)\\), \\((3,3)\\) in \\((4,0)\\) temni krogci, točka \\((1,2)\\) pa je oranžna, ker jo prekriva konec tangente. Štiri oranžne puščice izhajajo iz teh točk in se končajo v oranžnih krogcih, ki jih lahko vlečeš: \\((1,2)\\), \\((2{,}5;\\ 3{,}5)\\), \\((4{,}5;\\ 2)\\) in \\((5;\\ -3)\\). Na plošči je napis »Hermiteova krivulja z izbranimi tangentami«.',
-        'A green curve through the points \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) and \\((4,0)\\); \\((0,0)\\), \\((3,3)\\) and \\((4,0)\\) are dark dots, and the point \\((1,2)\\) looks orange because the end of a tangent covers it. Four orange arrows start at these points and end in orange dots that can be dragged: \\((1,2)\\), \\((2.5;\\ 3.5)\\), \\((4.5;\\ 2)\\) and \\((5;\\ -3)\\). The board carries the text "Hermite curve with chosen tangents".',
+        'Zelena krivulja skozi točke \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) in \\((4,0)\\), pri čemer so \\((0,0)\\), \\((3,3)\\) in \\((4,0)\\) temni krogci, točka \\((1,2)\\) pa je oranžna, ker jo prekriva konec tangente. Štiri oranžne puščice izhajajo iz teh točk in se končajo v oranžnih krogcih, ki jih lahko vlečeš: \\((1,2)\\), \\((2{,}5;\\ 3{,}5)\\), \\((4{,}5;\\ 2)\\) in \\((5;\\ -3)\\). Na plošči ni napisa.',
+        'A green curve through the points \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) and \\((4,0)\\); \\((0,0)\\), \\((3,3)\\) and \\((4,0)\\) are dark dots, and the point \\((1,2)\\) looks orange because the end of a tangent covers it. Four orange arrows start at these points and end in orange dots that can be dragged: \\((1,2)\\), \\((2.5;\\ 3.5)\\), \\((4.5;\\ 2)\\) and \\((5;\\ -3)\\). The board shows no text.',
         'Hermiteova krivulja ima v vsaki točki tangento: puščica vodi iz točke \\(P_i\\) v \\(P_i+m_i\\) in kaže smer krivulje. Tangenta v \\(P_0\\) se konča v \\(P_1\\), zato je ta točka videti oranžna. Bézierove kontrolne točke odsekov niso prikazane.',
         'The Hermite curve has a tangent at every point: the arrow leads from \\(P_i\\) to \\(P_i+m_i\\) and shows the direction of the curve. The tangent at \\(P_0\\) ends at \\(P_1\\), so that point looks orange. The Bézier control points of the pieces are not shown.',
     ),
@@ -32,8 +32,8 @@ export const interpolationPreviewCopy = {
         'The data and the horizontal manual line \\(y=2\\); the dashed segments are the residuals \\(-1\\) and \\(2\\), and the points on the line have residual \\(0\\). The best line and the squares of the residuals are not shown yet.',
     ),
     'interpolation.subdivision.interp-subdivision': copy(
-        'Odprt poligon z oglišči \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) in \\((4,0)\\): štirje temni krogci, povezani s tremi zelenimi stranicami, brez oznak. Na plošči je napis »Chaikinovo pravilo, korak 0 od 6, 4 oglišč«.',
-        'An open polygon with the vertices \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) and \\((4,0)\\): four dark dots joined by three green edges, without labels. The board carries the text "Chaikin rule, step 0 of 6, 4 vertices".',
+        'Odprt poligon z oglišči \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) in \\((4,0)\\): štirje oranžni krogci, povezani s tremi zelenimi stranicami, brez oznak. Na plošči ni napisa.',
+        'An open polygon with the vertices \\((0,0)\\), \\((1,2)\\), \\((3,3)\\) and \\((4,0)\\): four ochre dots joined by three green edges, without labels. The board shows no text.',
         'Začetni poligon pred prvim rezanjem vogalov, korak \\(0\\) od \\(6\\). Limitna krivulja ni prikazana.',
         'The starting polygon before the first corner cutting, step \\(0\\) of \\(6\\). The limit curve is not shown.',
     ),

@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
     "dirty": false,
-    "inputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac",
-    "output": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b"
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
     "stampDirty": false,
-    "localOutputHash": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-f4U2AncR.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-f4U2AncR.js",
-        "sha256": "96e74ce8f759b5c17a6ef53ade0a08847896e6a0205f8cafdcf5bbbb909bffc7",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BQFi9_r6.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-BQFi9_r6.js",
-        "sha256": "6f83720af4df0a2f1235bd2d5c47887a8fdec1aba948e257cc14296731338928",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-DmajdlBW.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-DmajdlBW.js",
-        "sha256": "68c10443b205a8b010280741ce99c56b6ed547afdc45e9284f2ea53b88306795",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-COlNNAaK.css",
-        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -61,9 +61,9 @@
       "numerical-methods.quadrature.quadrature": "ef0d31e9ed4dcd6d2063239e9d189beddf955a4c6ad3722e27c479d0fa39b569",
       "numerical-methods.euler-method.euler-method": "9fe3d8bf605fb5fbce0685ba42b2bb06543401ec563e9f30fe683ebb5e4482cc"
     },
-    "presentation": "a9ea66e320bb16baacd42220441e882136b57d58d999985d980d59166e467fc2",
-    "buildOutput": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
-    "buildInputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac"
+    "presentation": "56a4a240052c21e5bc04acf31ec66b9fcdfe124b2a3d2d0422e162cb140813ca",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -143,13 +143,13 @@
       "file": "numerical-methods.root-finding.root-finding.png",
       "width": 840,
       "height": 520,
-      "sha256": "c495c7a85beca1a5767bbef2f922dc75a360efc6ed4da8a36c87cd28cfd5601d",
+      "sha256": "d29b3fc5f9005875c5af6a9db06a006b92b50ef410eb053efb4241d5fac11245",
       "scene": {
-        "visibleElementCount": 23,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 1,
           "segment": 1,
           "point": 3,
@@ -233,7 +233,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 12,
           "curve": 1,
           "segment": 1,
           "point": 3,
@@ -243,8 +243,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -269,13 +269,13 @@
       "file": "numerical-methods.quadrature.quadrature.png",
       "width": 840,
       "height": 520,
-      "sha256": "4c556550635e3c3e9618d16d2f71838d143e7ee0dcb5be463ca77d9603ff53de",
+      "sha256": "ffa907a6076ebb38d645256fd93a6f96099c562b5b181d850e29143c93d069eb",
       "scene": {
-        "visibleElementCount": 16,
+        "visibleElementCount": 14,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 6,
           "curve": 2,
           "point": 2
         },
@@ -382,7 +382,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 6,
           "curve": 2,
           "point": 2
         }
@@ -390,8 +390,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -417,16 +417,15 @@
       "file": "numerical-methods.euler-method.euler-method.png",
       "width": 840,
       "height": 520,
-      "sha256": "880ba03088c3413f3d0164579fd892c0842761ac8b464ed56338ca9c53ab2aa6",
+      "sha256": "2cce5e1461fd01f65a55484d5a13485bef21f0d2b71b2370277f575282d501d6",
       "scene": {
-        "visibleElementCount": 12,
+        "visibleElementCount": 11,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 4,
           "curve": 2,
-          "point": 1,
-          "text": 1
+          "point": 1
         },
         "visiblePointCount": 1,
         "sampledVisibleCurves": [
@@ -498,15 +497,15 @@
             ],
             [
               [
-                -3.702137,
+                -3.68464,
                 -0.788651
               ],
               [
-                -3.633003,
+                -3.615506,
                 -0.847222
               ],
               [
-                -3.563869,
+                -3.546372,
                 -0.905794
               ]
             ]
@@ -525,23 +524,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 4,
           "curve": 2,
-          "point": 1,
-          "text": 1
+          "point": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

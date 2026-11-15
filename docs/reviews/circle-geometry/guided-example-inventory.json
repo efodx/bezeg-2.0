@@ -98,7 +98,7 @@
       "id": "circle-geometry.apollonius-circle.circle-construction",
       "demonstrationId": "circle-construction",
       "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.apollonius-circle.circle-construction",
-      "sceneFingerprint": "89b3754742994bcd141cdcb877fd75a4eec4bb94fa13fb7a958df8fe4e96d218",
+      "sceneFingerprint": "c8c44c232517d9e8c317531ddd52c426d88bf6a4238428cb7e3b9388c21550f0",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",

@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
     "dirty": false,
-    "inputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac",
-    "output": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b"
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
     "stampDirty": false,
-    "localOutputHash": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-f4U2AncR.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-f4U2AncR.js",
-        "sha256": "96e74ce8f759b5c17a6ef53ade0a08847896e6a0205f8cafdcf5bbbb909bffc7",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BQFi9_r6.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-BQFi9_r6.js",
-        "sha256": "6f83720af4df0a2f1235bd2d5c47887a8fdec1aba948e257cc14296731338928",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-DmajdlBW.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-DmajdlBW.js",
-        "sha256": "68c10443b205a8b010280741ce99c56b6ed547afdc45e9284f2ea53b88306795",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-COlNNAaK.css",
-        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -61,9 +61,9 @@
       "fourier-series.fourier-coefficients.fourier-coefficients": "a01b7bdadf703c1ef93063da050820489b7a2b0cb12f68c17a2f5377fdac89ab",
       "fourier-series.epicycles.epicycles": "115aa39a4fda0ce2451da7b65bb8524800805bc70850f75e47f10910fa732bff"
     },
-    "presentation": "1f24908a285186c87c78fe6e2095d211d1d14130c487db9c7f12c3fb4f1ccdbc",
-    "buildOutput": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
-    "buildInputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac"
+    "presentation": "092a4f2b466f21b40d1852dc2c071f3e1d4c367b3426c9996a778ba4bb71f316",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -138,7 +138,7 @@
       "file": "fourier-series.fourier-series.fourier-series.png",
       "width": 840,
       "height": 520,
-      "sha256": "af4ffadd63a5426d632a7f1d9d1a683b44bfb5c984422b370c66f4e3c6157751",
+      "sha256": "bccbfad04e50204ed90a924e44b4846a86f6ce462ff3a3428f42a7f729c207e5",
       "scene": {
         "visibleElementCount": 37,
         "visibleElementTypes": {
@@ -388,8 +388,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -424,7 +424,7 @@
       "file": "fourier-series.fourier-coefficients.fourier-coefficients.png",
       "width": 840,
       "height": 520,
-      "sha256": "a4e44411a85cd0f19c93304ec02876170a4505a9c6b92e6ea1db35c257a727c6",
+      "sha256": "2dc87abcf1ce43d5b6ef3f455a2c6695f5cae6c4bf2b0f8ac73c913c8e7cd242",
       "scene": {
         "visibleElementCount": 32,
         "visibleElementTypes": {
@@ -646,8 +646,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -671,7 +671,7 @@
       "file": "fourier-series.epicycles.epicycles.png",
       "width": 840,
       "height": 520,
-      "sha256": "b733e7a6eb9933d3d88dade6b57c49476c251fbf38f4c61c167fc13f7cc7c3f3",
+      "sha256": "042c96be836df0366b5bfe24b1eb0546b7784c0c7017e1a1004ebbc38574987f",
       "scene": {
         "visibleElementCount": 33,
         "visibleElementTypes": {
@@ -897,8 +897,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
-        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

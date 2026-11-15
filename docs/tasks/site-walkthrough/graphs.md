@@ -26,4 +26,4 @@ Rule (planning session, 2026-11-14): propose, show a preview, wait for the owner
 | 9g | B8b to B8d text sweep, B10 patches | G02–G04 | B8b, B8c, B8d, B8f published under the grant (`b8b`..`b8f` pages); `projective-cross-ratio` recaptured in B9; B10 and B8g (`inscribed-angle`, `euler-line`, `simson-line`, missed by the sweep) published under the grant (`b10`, `b8g` pages) |
 | 10 | Epicycles catalog card with a subject (B9), with `voronoi-degenerate` | G07, G03 | Done (Slovenia at N = 10), published under the grant (`b9` page) |
 | 11 | Repair the `bezier` restore step | G02 | Done, on `master` |
-| 12 | Recapture guided example images per chapter (B11, brief `docs/reviews/site-walkthrough/graphs/b11/brief.md`) | G02 | Next |
+| 12 | Recapture guided example images per chapter (B11, brief `docs/reviews/site-walkthrough/graphs/b11/brief.md`) | G02 | Part 1 (56 retained images) on `master` (`42d5e56c`); part 2: all 30 chapter folders recaptured, checks updated (`2da033f9`), review and alt text in progress (`b11/brief-part2.md`) |

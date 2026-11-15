@@ -118,8 +118,7 @@
         "types": {
           "point": 4,
           "curve": 6,
-          "polygon": 2,
-          "text": 1
+          "polygon": 2
         },
         "curveCount": 6,
         "points": [

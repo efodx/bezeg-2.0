@@ -1,70 +1,70 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
-    "dirty": true,
-    "inputs": "fae059db414a63708f59a7daa7e4f5a8929eba2ac3443fd966992c72cd645e1c",
-    "output": "93765b39619f224113ad5e7d740626a1340b03655cb2269aef0ab84abee15d55"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
-    "stampDirty": true,
-    "localOutputHash": "93765b39619f224113ad5e7d740626a1340b03655cb2269aef0ab84abee15d55",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BAASM9bn.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-BAASM9bn.js",
-        "sha256": "92a5b3af7bcf319a99efa70b05c630f9872cea7cc5598280b48f4bf68dcbd7aa",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DrW2-exP.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DrW2-exP.js",
-        "sha256": "645f781abd5f313bdb4914f4f05563d7fb97a2838f2bb62390b2c09e4009d471",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-YQXKa0tR.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-YQXKa0tR.js",
-        "sha256": "ba565ad359f3bc9bf80eadef20947a6611831881adc1b6c687e767afff2ae70d",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-2Xv9sif5.css",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-2Xv9sif5.css",
-        "sha256": "c85049f22e9ef276a8a370b44241303e3986034425202138593a5fd49dbab023",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "383211fff742a62d93a05f4fa9edf21976258cd3524d31aa216e537103c2d955",
+    "inventory": "c0855350fdf2c31e34b6c2781489cec2fa2c3782924c57dbadbfda977775a428",
     "entries": {
       "circle-geometry.tangents-from-a-point.circle-construction": "53a64fd587284329bcb04842eb8700b00df01b1d7890e6b620009adecdbfb71b",
       "circle-geometry.radical-axis-and-centre.circle-construction": "8a1dcb2d2e75afc6f1c13fcc6db6a77c2106ea01c4cfe6cbb37f1449a0b6f90c",
-      "circle-geometry.apollonius-circle.circle-construction": "793464185f3d4f87b49671a75f837851cfb10d83cc4bbf1c245a881734eabd77",
+      "circle-geometry.apollonius-circle.circle-construction": "fcfc75f12715e828213f3ef3a2687a36bd892325f7ee10968d0af28f7bedafb4",
       "circle-geometry.common-tangents.circle-construction": "6343550bf24cf210729aafb0fde9c48efbbfa7d54f953325dae33f8a89bbc654"
     },
-    "presentation": "af128838b8fbecc754d0daa9c150705999b82026831d210d10b779a7e34b80ec",
-    "buildOutput": "93765b39619f224113ad5e7d740626a1340b03655cb2269aef0ab84abee15d55",
-    "buildInputs": "fae059db414a63708f59a7daa7e4f5a8929eba2ac3443fd966992c72cd645e1c"
+    "presentation": "9e35964aec2570dcdab750730a6839833f646625c7cdd1e1448d2b97b8150775",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -157,7 +157,7 @@
       "file": "circle-geometry.tangents-from-a-point.circle-construction.png",
       "width": 840,
       "height": 520,
-      "sha256": "2203f1fff1483e015080471f30530d8641d1f543b1d8a695a4c60a783da00c84",
+      "sha256": "3ae30fa7dec502dce48d9f94c179aaca951865114cb4951ddd054badef3977f5",
       "scene": {
         "visibleElementCount": 15,
         "visibleElementTypes": {
@@ -229,8 +229,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
-        "sourceRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -255,7 +255,7 @@
       "file": "circle-geometry.radical-axis-and-centre.circle-construction.png",
       "width": 840,
       "height": 520,
-      "sha256": "55fcd80b7af9e1b23b17a50ede525a3cae5d090d3aea4064a0f6766798df6562",
+      "sha256": "61537c2521b425dcbcddfed408293d4b07ccc9d92b33193deebe8a7883894705",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -329,8 +329,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
-        "sourceRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -338,7 +338,7 @@
       "id": "circle-geometry.apollonius-circle.circle-construction",
       "demonstrationId": "circle-construction",
       "path": "/bezeg-2.0/circle-constructions?example=lesson.circle-geometry.apollonius-circle.circle-construction",
-      "sceneFingerprint": "89b3754742994bcd141cdcb877fd75a4eec4bb94fa13fb7a958df8fe4e96d218",
+      "sceneFingerprint": "c8c44c232517d9e8c317531ddd52c426d88bf6a4238428cb7e3b9388c21550f0",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cg3-predict-scene\",\"source\":\"demonstration-default\"}",
@@ -352,7 +352,7 @@
       "file": "circle-geometry.apollonius-circle.circle-construction.png",
       "width": 840,
       "height": 520,
-      "sha256": "3d697e042d6d96b1b5985dee652f1f4aef5816d873353dcd9aec8012c1df1fa3",
+      "sha256": "9945d7d9e0e78b0f82f0640b5eec9a58f202bda3e1fffc84d3b6e111c32305e0",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -424,8 +424,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
-        "sourceRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -448,7 +448,7 @@
       "file": "circle-geometry.common-tangents.circle-construction.png",
       "width": 840,
       "height": 520,
-      "sha256": "581c22bd54d4c2c47e280e30de4749bdfc125d54d4342470d2c8c409c39b6aa6",
+      "sha256": "939289f2a44a55a856554e0bb562fcd72de8837dad2aea338e2b7c4011e2c89b",
       "scene": {
         "visibleElementCount": 15,
         "visibleElementTypes": {
@@ -521,8 +521,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
-        "sourceRevision": "6219dda0ce5eedba8fab86d3aafd4332dec58b90",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

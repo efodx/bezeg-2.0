@@ -80,7 +80,7 @@
       "id": "combinatorics.pascal-identity.lattice-paths",
       "demonstrationId": "lattice-paths",
       "path": "/bezeg-2.0/combinatorics/lattice-paths?example=lesson.combinatorics.pascal-identity.lattice-paths",
-      "sceneFingerprint": "69c8e85bffe70a2b6edbabc76adb4f54947e8848fdb69ecc81a7dd80318b4810",
+      "sceneFingerprint": "b6041b9cfa7f15ffb6f10eaa4735b187944032702e8404985249317d2e74205f",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cb3-predict-scene\",\"source\":\"demonstration-default\"}",

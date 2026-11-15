@@ -20,8 +20,8 @@ export const triangulationPreviewCopy = {
         'A set of seven points to be cut into triangles; the edges of the triangulation are hidden.',
     ),
     'triangulations-voronoi.delaunay.delaunay': copy(
-        'Štiri točke \\((0,0)\\), \\((4,0)\\), \\((5,3)\\), \\((0,2)\\) s triangulacijo iz petih robov; diagonala od \\((0,0)\\) do \\((5,3)\\) je črtkana z oznako neustrezen rob.',
-        'Four points \\((0,0)\\), \\((4,0)\\), \\((5,3)\\), \\((0,2)\\) with a triangulation of five edges; the diagonal from \\((0,0)\\) to \\((5,3)\\) is dashed and labelled as an illegal edge.',
+        'Štiri točke \\((0,0)\\), \\((4,0)\\), \\((5,3)\\), \\((0,2)\\) s triangulacijo iz petih robov; diagonala od \\((0,0)\\) do \\((5,3)\\) je rdeče črtkana (neustrezen rob), brez napisa.',
+        'Four points \\((0,0)\\), \\((4,0)\\), \\((5,3)\\), \\((0,2)\\) with a triangulation of five edges; the diagonal from \\((0,0)\\) to \\((5,3)\\) is dashed in red (an illegal edge), without a label.',
         'Štirikotnik je razrezan na dva trikotnika z diagonalo od točke \\((0,0)\\) do točke \\((5,3)\\), ki je označena kot neustrezen rob; zamenjave roba še ni.',
         'The quadrilateral is cut into two triangles by the diagonal from the point \\((0,0)\\) to the point \\((5,3)\\), which is marked as an illegal edge; the edge has not been flipped yet.',
     ),

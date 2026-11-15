@@ -14,8 +14,8 @@ export const linearMapsPreviewCopy = {
         'Under the identity the handles \\(a_1\\) and \\(a_2\\) sit on \\(e_1\\) and \\(e_2\\), and the images of the grid, the square and the curve coincide with the originals.',
     ),
     'linear-maps.determinant-area.linear-map': copy(
-        'Enotski kvadrat in njegova slika, paralelogram s stolpcema \\((2,1)\\) in \\((-1,1)\\), z odčitkom determinante.',
-        'The unit square and its image, the parallelogram with columns \\((2,1)\\) and \\((-1,1)\\), with the determinant readout.',
+        'Enotski kvadrat in njegova slika, paralelogram s stolpcema \\((2,1)\\) in \\((-1,1)\\), z odčitkom stolpcev.',
+        'The unit square and its image, the parallelogram with columns \\((2,1)\\) and \\((-1,1)\\), with the column readout.',
         'Slika kvadrata je paralelogram s ploščino \\(|\\det A|=3\\); ker je \\(\\det A>0\\), je orientacija ohranjena.',
         'The image of the square is a parallelogram of area \\(|\\det A|=3\\); since \\(\\det A>0\\), orientation is kept.',
     ),
@@ -32,8 +32,8 @@ export const linearMapsPreviewCopy = {
         'The image of the grid is the parallelogram grid spanned by the columns \\((2,1)\\) and \\((1,2)\\); the image of the unit circle is not drawn in this view yet.',
     ),
     'linear-maps.composition-affine.linear-map': copy(
-        'Enotska mreža in Bézierjeva krivulja ter njuni sliki pri sestavljeni preslikavi: najprej vrtež \\(R\\) za četrtino kroga, nato zrcaljenje \\(F\\) čez os \\(x\\), z odčitkom produkta in slik kontrolnih točk.',
-        'The unit grid and a Bézier curve with their images under a composed map: first the quarter-turn rotation \\(R\\), then the reflection \\(F\\) in the \\(x\\)-axis, with the product readout and the images of the control points.',
+        'Enotska mreža in Bézierjeva krivulja ter njuni sliki pri sestavljeni preslikavi: najprej vrtež \\(R\\) za četrtino kroga, nato zrcaljenje \\(F\\) čez os \\(x\\), s slikami kontrolnih točk.',
+        'The unit grid and a Bézier curve with their images under a composed map: first the quarter-turn rotation \\(R\\), then the reflection \\(F\\) in the \\(x\\)-axis, with the images of the control points.',
         'Najprej deluje \\(R\\), nato \\(F\\); odčitek kaže produkt \\(BA\\) in slike \\(T(P_i)\\) kontrolnih točk, obrnjenega vrstnega reda pa v tem prizoru še ni.',
         'First \\(R\\) acts, then \\(F\\); the readout shows the product \\(BA\\) and the images \\(T(P_i)\\) of the control points, but the reverse order is not in this scene yet.',
     ),

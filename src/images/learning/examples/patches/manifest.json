@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-    "dirty": true,
-    "inputs": "0ae2ccd1fbbbd2ecefff5af028a84401caa48a231eb5620a6f92e86a8e3f244e",
-    "output": "013f5875a4e043cc8d930033bcd4953f9be590410451c9d798fa12ad9e3f85f5"
+    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "dirty": false,
+    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
+    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-    "stampDirty": true,
-    "localOutputHash": "013f5875a4e043cc8d930033bcd4953f9be590410451c9d798fa12ad9e3f85f5",
+    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
+    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "stampDirty": false,
+    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DDcNb-Tp.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DDcNb-Tp.js",
-        "sha256": "de9cb0a2ccd4c126730bd80c467349318bec720efbbfbdb2b500d832b1bfad37",
+        "name": "index-Sav4vAtz.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
+        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
         "matchesLocalBuild": true
       },
       {
-        "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
-        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "name": "rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DeI_2rhE.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-DeI_2rhE.js",
-        "sha256": "f172c865d3678086d6af61a4627198203e27541702b000bc3ff4a46b66f6bb56",
+        "name": "jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-p4AlnUVy.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-p4AlnUVy.js",
-        "sha256": "38303c72cac94e4f430e6e0d963f7ed5ad25bc88f9d6bd23dde4a02154aceb71",
+        "name": "react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-BaMZB5Fy.css",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-BaMZB5Fy.css",
-        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
+        "name": "index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -69,9 +69,9 @@
       "bezier-patches.triangular-patches.patch-triangular": "6af46d830495ecb84d832060567758284b465990ffcaa19638b1ca94db130f0f",
       "bezier-patches.square-vs-triangular.patch-triangular": "f3029dd6988f077b11b67373c0108a74d3200a7f9860d5409a5171da520a7834"
     },
-    "presentation": "6279bd2c9eabd25acd1173b1219833f69b6beca328fb4ddc907cb263215b8664",
-    "buildOutput": "013f5875a4e043cc8d930033bcd4953f9be590410451c9d798fa12ad9e3f85f5",
-    "buildInputs": "0ae2ccd1fbbbd2ecefff5af028a84401caa48a231eb5620a6f92e86a8e3f244e"
+    "presentation": "022e7f00a7d050ebe5f58ca4bf21a66e8b8f38ac379747e5bc21e8fb411cebd0",
+    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -378,7 +378,7 @@
       "file": "bezier-patches.curve-to-patch.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "63a45a33f7f8927afb2491af0f15bd7a9dba1348e5ba690deeed6b18c6bde6e8",
+      "sha256": "cc327ca7666f83570f96cb090d6e7f4161fb95b1e160b0c62a6019674d6e36de",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -485,7 +485,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -499,9 +499,9 @@
             ]
           },
           "meshBounds": {
-            "left": 268.949,
+            "left": 266.949,
             "top": 203.093,
-            "right": 726.164,
+            "right": 724.164,
             "bottom": 459.589,
             "inFrustum": true
           },
@@ -534,37 +534,37 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 271.421,
+              "x": 269.421,
               "y": 310.443,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 488.935,
+              "x": 486.935,
               "y": 218.427,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 383.553,
+              "x": 381.553,
               "y": 404.834,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 597.044,
+              "x": 595.044,
               "y": 220.633,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 520.175,
+              "x": 518.175,
               "y": 438.705,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 723.836,
+              "x": 721.836,
               "y": 296.761,
               "inFrustum": true
             }
@@ -594,8 +594,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -696,7 +696,7 @@
       "file": "bezier-patches.bilinear-patch.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "5d3869435a195adff23e8513594403c58673a275118e1ca7a0c814d81bfa18aa",
+      "sha256": "e1d3ff48dcccb8277cda3f52ac1d5bdc2cb7cd2212be8eb2306a62b9652fa8ee",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -791,7 +791,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -805,9 +805,9 @@
             ]
           },
           "meshBounds": {
-            "left": 501,
+            "left": 499,
             "top": 112.822,
-            "right": 743.933,
+            "right": 741.933,
             "bottom": 358.105,
             "inFrustum": true
           },
@@ -840,25 +840,25 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 501,
+              "x": 499,
               "y": 303.5,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 595.246,
+              "x": 593.246,
               "y": 253.879,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 635.821,
+              "x": 633.821,
               "y": 358.104,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 743.933,
+              "x": 741.933,
               "y": 143.459,
               "inFrustum": true
             }
@@ -888,8 +888,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -990,7 +990,7 @@
       "file": "bezier-patches.control-net.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "939c3e6af1b2ba21c29d592c1d9156dce55dda9327e010dc041699437946b11a",
+      "sha256": "ef6673b2d84d6cbf5bc942d5e017fb392255e15d09a271fb3c67f04c492317aa",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -1115,7 +1115,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -1129,9 +1129,9 @@
             ]
           },
           "meshBounds": {
-            "left": 265.397,
+            "left": 263.397,
             "top": 181.178,
-            "right": 729.507,
+            "right": 727.507,
             "bottom": 438.706,
             "inFrustum": true
           },
@@ -1164,55 +1164,55 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 271.421,
+              "x": 269.421,
               "y": 310.443,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 392.097,
+              "x": 390.097,
               "y": 259.393,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 488.935,
+              "x": 486.935,
               "y": 218.427,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 380.747,
+              "x": 378.747,
               "y": 366.814,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 501,
+              "x": 499,
               "y": 113.809,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 595.246,
+              "x": 593.246,
               "y": 253.879,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 520.175,
+              "x": 518.175,
               "y": 438.705,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 635.821,
+              "x": 633.821,
               "y": 358.104,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 723.836,
+              "x": 721.836,
               "y": 296.761,
               "inFrustum": true
             }
@@ -1242,8 +1242,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -1344,7 +1344,7 @@
       "file": "bezier-patches.boundary-iso-curves.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "43bcf930c92fdb141fe2d5cc988c6c6f4f486f4c0aa1e397ece0bfabd4fb7b08",
+      "sha256": "34b0d5d2f1c36bbc4fb9ef5303309bc9bde81dc791415d3026b31b93b227cbe0",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -1469,7 +1469,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -1483,9 +1483,9 @@
             ]
           },
           "meshBounds": {
-            "left": 265.397,
+            "left": 263.397,
             "top": 181.178,
-            "right": 729.507,
+            "right": 727.507,
             "bottom": 438.706,
             "inFrustum": true
           },
@@ -1518,55 +1518,55 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 271.421,
+              "x": 269.421,
               "y": 310.443,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 392.097,
+              "x": 390.097,
               "y": 259.393,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 488.935,
+              "x": 486.935,
               "y": 218.427,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 380.747,
+              "x": 378.747,
               "y": 366.814,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 501,
+              "x": 499,
               "y": 113.809,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 595.246,
+              "x": 593.246,
               "y": 253.879,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 520.175,
+              "x": 518.175,
               "y": 438.705,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 635.821,
+              "x": 633.821,
               "y": 358.104,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 723.836,
+              "x": 721.836,
               "y": 296.761,
               "inFrustum": true
             }
@@ -1596,8 +1596,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -1696,7 +1696,7 @@
       "file": "bezier-patches.tensor-decasteljau.patch-decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "497718f20ad07ac5f6d5276edfda9220ebc1843bdb07f82068892b3b2685dd39",
+      "sha256": "ca0861591637a23dea5b447131b52e3cd8549d60e4629b7ec2c1fa82ab41cb1a",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -1813,7 +1813,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -1827,9 +1827,9 @@
             ]
           },
           "meshBounds": {
-            "left": 460.669,
+            "left": 458.669,
             "top": 334.245,
-            "right": 541.118,
+            "right": 539.118,
             "bottom": 424.489,
             "inFrustum": true
           },
@@ -1862,55 +1862,55 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 461.842,
+              "x": 459.842,
               "y": 403.135,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 480.568,
+              "x": 478.568,
               "y": 391.651,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 498.539,
+              "x": 496.539,
               "y": 380.63,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 482.36,
+              "x": 480.36,
               "y": 413.611,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 501,
+              "x": 499,
               "y": 192.418,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 518.875,
+              "x": 516.875,
               "y": 390.271,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 503.663,
+              "x": 501.663,
               "y": 424.488,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 522.197,
+              "x": 520.197,
               "y": 412.119,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 539.957,
+              "x": 537.957,
               "y": 400.267,
               "inFrustum": true
             }
@@ -1932,8 +1932,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -2033,7 +2033,7 @@
       "file": "bezier-patches.properties.patch-tensor.png",
       "width": 840,
       "height": 520,
-      "sha256": "871e617cf914a262a4dde78a186fabb8bf3a856094e0c4d0ebc90e5db75801c6",
+      "sha256": "403dc2dd331b7574144d80d3a501848b42776f81add0a73b875eda0c6537a51b",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -2158,7 +2158,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -2172,9 +2172,9 @@
             ]
           },
           "meshBounds": {
-            "left": 460.669,
+            "left": 458.669,
             "top": 334.245,
-            "right": 541.118,
+            "right": 539.118,
             "bottom": 424.489,
             "inFrustum": true
           },
@@ -2207,55 +2207,55 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 461.842,
+              "x": 459.842,
               "y": 403.135,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 480.568,
+              "x": 478.568,
               "y": 391.651,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 498.539,
+              "x": 496.539,
               "y": 380.63,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 482.36,
+              "x": 480.36,
               "y": 413.611,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 501,
+              "x": 499,
               "y": 192.418,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 518.875,
+              "x": 516.875,
               "y": 390.271,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 503.663,
+              "x": 501.663,
               "y": 424.488,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 522.197,
+              "x": 520.197,
               "y": 412.119,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 539.957,
+              "x": 537.957,
               "y": 400.267,
               "inFrustum": true
             }
@@ -2285,8 +2285,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -2387,7 +2387,7 @@
       "file": "bezier-patches.tensor-derivatives.patch-derivatives.png",
       "width": 840,
       "height": 520,
-      "sha256": "f5b24536a30e17fb8503fa2918f8e059ece57b9cd11e049d535432dc6f938fda",
+      "sha256": "e50a2248b0f1756e691af37a0db63688a97a1f5905805e7e493fcb8a6eca1e47",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -2510,7 +2510,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -2524,9 +2524,9 @@
             ]
           },
           "meshBounds": {
-            "left": 382.041,
+            "left": 380.041,
             "top": 188.468,
-            "right": 618.123,
+            "right": 616.123,
             "bottom": 436.331,
             "inFrustum": true
           },
@@ -2559,25 +2559,25 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 391.696,
+              "x": 389.696,
               "y": 375.508,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 494.592,
+              "x": 492.592,
               "y": 319.816,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 508.979,
+              "x": 506.979,
               "y": 436.331,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 618.122,
+              "x": 616.122,
               "y": 226.341,
               "inFrustum": true
             }
@@ -2635,8 +2635,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -2736,7 +2736,7 @@
       "file": "bezier-patches.tensor-subdivision.patch-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "34ba7b6b5e5c9ed238a79441d0fb168eec367ca634bcb176f076e1f0b5b75fd4",
+      "sha256": "cb11f9e2f97ee60ebfa9d38d45479651a416a1f1cf9dd1447a75aebe17b2acbb",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -2799,16 +2799,16 @@
           {
             "id": "piece-l-label",
             "left": 203.5,
-            "top": 138.1484375,
+            "top": 171.9453125,
             "right": 223.296875,
-            "bottom": 155.8515625
+            "bottom": 189.6484375
           },
           {
             "id": "piece-r-label",
             "left": 228.390625,
-            "top": 134.40625,
+            "top": 168.203125,
             "right": 249.1875,
-            "bottom": 152.375
+            "bottom": 186.171875
           }
         ]
       },
@@ -2820,7 +2820,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -2834,9 +2834,9 @@
             ]
           },
           "meshBounds": {
-            "left": 382.041,
+            "left": 380.041,
             "top": 188.468,
-            "right": 618.123,
+            "right": 616.123,
             "bottom": 436.331,
             "inFrustum": true
           },
@@ -2890,24 +2890,24 @@
           {
             "id": "piece-l-label",
             "left": 203.5,
-            "top": 138.1484375,
+            "top": 171.9453125,
             "right": 223.296875,
-            "bottom": 155.8515625
+            "bottom": 189.6484375
           },
           {
             "id": "piece-r-label",
             "left": 228.390625,
-            "top": 134.40625,
+            "top": 168.203125,
             "right": 249.1875,
-            "bottom": 152.375
+            "bottom": 186.171875
           }
         ]
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -3030,7 +3030,7 @@
       "file": "bezier-patches.tensor-joins.patch-joins.png",
       "width": 840,
       "height": 520,
-      "sha256": "702326318c4abe9d52b2ea880290512fad49afbcb7e390af511b241d90d97a63",
+      "sha256": "78c6541705f15e291fe6dd3c5f284ea8bdd41263c71d6d4678e3b5240fffb620",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -3308,9 +3308,9 @@
           {
             "id": "join-su-a-label",
             "left": 220.296875,
-            "top": 153.5703125,
+            "top": 140.5703125,
             "right": 251.84375,
-            "bottom": 173.8046875
+            "bottom": 160.8046875
           }
         ]
       },
@@ -3322,7 +3322,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -3336,9 +3336,9 @@
             ]
           },
           "meshBounds": {
-            "left": 369.034,
+            "left": 367.034,
             "top": 64.132,
-            "right": 630.942,
+            "right": 628.942,
             "bottom": 538.929,
             "inFrustum": true
           },
@@ -3393,193 +3393,193 @@
           "projectedControlPoints": [
             {
               "id": "p-0-0",
-              "x": 600.239,
+              "x": 598.239,
               "y": 64.132,
               "inFrustum": true
             },
             {
               "id": "p-0-1",
-              "x": 523.141,
+              "x": 521.141,
               "y": 69.642,
               "inFrustum": true
             },
             {
               "id": "p-0-2",
-              "x": 446.073,
+              "x": 444.073,
               "y": 75.149,
               "inFrustum": true
             },
             {
               "id": "p-0-3",
-              "x": 369.034,
+              "x": 367.034,
               "y": 80.654,
               "inFrustum": true
             },
             {
               "id": "p-1-0",
-              "x": 605.425,
+              "x": 603.425,
               "y": 141.625,
               "inFrustum": true
             },
             {
               "id": "p-1-1",
-              "x": 523.596,
+              "x": 521.596,
               "y": 170.278,
               "inFrustum": true
             },
             {
               "id": "p-1-2",
-              "x": 460.514,
+              "x": 458.514,
               "y": 174.77,
               "inFrustum": true
             },
             {
               "id": "p-1-3",
-              "x": 374.838,
+              "x": 372.838,
               "y": 158.058,
               "inFrustum": true
             },
             {
               "id": "p-2-0",
-              "x": 610.583,
+              "x": 608.583,
               "y": 218.703,
               "inFrustum": true
             },
             {
               "id": "p-2-1",
-              "x": 528.011,
+              "x": 526.011,
               "y": 233.491,
               "inFrustum": true
             },
             {
               "id": "p-2-2",
-              "x": 465.067,
+              "x": 463.067,
               "y": 237.963,
               "inFrustum": true
             },
             {
               "id": "p-2-3",
-              "x": 380.61,
+              "x": 378.61,
               "y": 235.048,
               "inFrustum": true
             },
             {
               "id": "p-3-0",
-              "x": 615.713,
+              "x": 613.713,
               "y": 295.369,
               "inFrustum": true
             },
             {
               "id": "p-3-1",
-              "x": 539.231,
+              "x": 537.231,
               "y": 300.79,
               "inFrustum": true
             },
             {
               "id": "p-3-2",
-              "x": 462.777,
+              "x": 460.777,
               "y": 306.209,
               "inFrustum": true
             },
             {
               "id": "p-3-3",
-              "x": 386.352,
+              "x": 384.352,
               "y": 311.626,
               "inFrustum": true
             },
             {
               "id": "b-0-0",
-              "x": 615.713,
+              "x": 613.713,
               "y": 295.369,
               "inFrustum": true
             },
             {
               "id": "b-0-1",
-              "x": 539.231,
+              "x": 537.231,
               "y": 300.79,
               "inFrustum": true
             },
             {
               "id": "b-0-2",
-              "x": 462.777,
+              "x": 460.777,
               "y": 306.209,
               "inFrustum": true
             },
             {
               "id": "b-0-3",
-              "x": 386.352,
+              "x": 384.352,
               "y": 311.626,
               "inFrustum": true
             },
             {
               "id": "b-1-0",
-              "x": 620.817,
+              "x": 618.817,
               "y": 371.626,
               "inFrustum": true
             },
             {
               "id": "b-1-1",
-              "x": 536.782,
+              "x": 534.782,
               "y": 359.087,
               "inFrustum": true
             },
             {
               "id": "b-1-2",
-              "x": 474.112,
+              "x": 472.112,
               "y": 363.52,
               "inFrustum": true
             },
             {
               "id": "b-1-3",
-              "x": 392.063,
+              "x": 390.063,
               "y": 387.797,
               "inFrustum": true
             },
             {
               "id": "b-2-0",
-              "x": 625.893,
+              "x": 623.893,
               "y": 447.478,
               "inFrustum": true
             },
             {
               "id": "b-2-1",
-              "x": 541.138,
+              "x": 539.138,
               "y": 421.473,
               "inFrustum": true
             },
             {
               "id": "b-2-2",
-              "x": 478.605,
+              "x": 476.605,
               "y": 425.886,
               "inFrustum": true
             },
             {
               "id": "b-2-3",
-              "x": 397.743,
+              "x": 395.743,
               "y": 463.564,
               "inFrustum": true
             },
             {
               "id": "b-3-0",
-              "x": 630.942,
+              "x": 628.942,
               "y": 522.928,
               "inFrustum": true
             },
             {
               "id": "b-3-1",
-              "x": 555.064,
+              "x": 553.064,
               "y": 528.264,
               "inFrustum": true
             },
             {
               "id": "b-3-2",
-              "x": 479.215,
+              "x": 477.215,
               "y": 533.597,
               "inFrustum": true
             },
             {
               "id": "b-3-3",
-              "x": 403.394,
+              "x": 401.394,
               "y": 538.928,
               "inFrustum": true
             }
@@ -3608,17 +3608,17 @@
           {
             "id": "join-su-a-label",
             "left": 220.296875,
-            "top": 153.5703125,
+            "top": 140.5703125,
             "right": 251.84375,
-            "bottom": 173.8046875
+            "bottom": 160.8046875
           }
         ]
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -3719,7 +3719,7 @@
       "file": "bezier-patches.triangular-patches.patch-triangular.png",
       "width": 840,
       "height": 520,
-      "sha256": "c381f4e2898877c07dbc6cd28c6408f4c453377c8206fd94880c36cf4ac45794",
+      "sha256": "6c3d36b1666ef1cb917599066c86f15cddeb115d1f52e5031ae539ea883b442f",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -3850,7 +3850,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -3864,9 +3864,9 @@
             ]
           },
           "meshBounds": {
-            "left": 364.157,
+            "left": 362.157,
             "top": 107.538,
-            "right": 770.453,
+            "right": 768.453,
             "bottom": 507.878,
             "inFrustum": true
           },
@@ -3899,61 +3899,61 @@
           "projectedControlPoints": [
             {
               "id": "t-3-0-0",
-              "x": 611.684,
+              "x": 609.684,
               "y": 107.539,
               "inFrustum": true
             },
             {
               "id": "t-2-1-0",
-              "x": 582.753,
+              "x": 580.753,
               "y": 248.482,
               "inFrustum": true
             },
             {
               "id": "t-2-0-1",
-              "x": 527.261,
+              "x": 525.261,
               "y": 165.764,
               "inFrustum": true
             },
             {
               "id": "t-1-2-0",
-              "x": 555.402,
+              "x": 553.402,
               "y": 381.723,
               "inFrustum": true
             },
             {
               "id": "t-1-1-1",
-              "x": 501,
+              "x": 499,
               "y": 207.466,
               "inFrustum": true
             },
             {
               "id": "t-1-0-2",
-              "x": 444.774,
+              "x": 442.774,
               "y": 222.654,
               "inFrustum": true
             },
             {
               "id": "t-0-3-0",
-              "x": 529.506,
+              "x": 527.506,
               "y": 507.878,
               "inFrustum": true
             },
             {
               "id": "t-0-2-1",
-              "x": 476.159,
+              "x": 474.159,
               "y": 433.792,
               "inFrustum": true
             },
             {
               "id": "t-0-1-2",
-              "x": 421.071,
+              "x": 419.071,
               "y": 357.291,
               "inFrustum": true
             },
             {
               "id": "t-0-0-3",
-              "x": 364.158,
+              "x": 362.158,
               "y": 278.253,
               "inFrustum": true
             }
@@ -3983,8 +3983,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     },
@@ -4085,7 +4085,7 @@
       "file": "bezier-patches.square-vs-triangular.patch-triangular.png",
       "width": 840,
       "height": 520,
-      "sha256": "2272119004fd54a0ec54e35c033e210d7e592bdb641d8b10b00cab41ee120ec5",
+      "sha256": "a93b2d216769d77192a68cadf3254ec25d85fc61541f68cc784af281c0dff7bf",
       "scene": {
         "view": "surface",
         "surfaceRenderer": "jsx-svg",
@@ -4216,7 +4216,7 @@
           "view": "surface",
           "surfaceRenderer": "jsx-svg",
           "frame": {
-            "width": 1002,
+            "width": 998,
             "height": 607
           },
           "camera": {
@@ -4230,9 +4230,9 @@
             ]
           },
           "meshBounds": {
-            "left": 364.157,
+            "left": 362.157,
             "top": 107.538,
-            "right": 770.453,
+            "right": 768.453,
             "bottom": 507.878,
             "inFrustum": true
           },
@@ -4265,61 +4265,61 @@
           "projectedControlPoints": [
             {
               "id": "t-3-0-0",
-              "x": 611.684,
+              "x": 609.684,
               "y": 107.539,
               "inFrustum": true
             },
             {
               "id": "t-2-1-0",
-              "x": 582.753,
+              "x": 580.753,
               "y": 248.482,
               "inFrustum": true
             },
             {
               "id": "t-2-0-1",
-              "x": 527.261,
+              "x": 525.261,
               "y": 165.764,
               "inFrustum": true
             },
             {
               "id": "t-1-2-0",
-              "x": 555.402,
+              "x": 553.402,
               "y": 381.723,
               "inFrustum": true
             },
             {
               "id": "t-1-1-1",
-              "x": 501,
+              "x": 499,
               "y": 207.466,
               "inFrustum": true
             },
             {
               "id": "t-1-0-2",
-              "x": 444.774,
+              "x": 442.774,
               "y": 222.654,
               "inFrustum": true
             },
             {
               "id": "t-0-3-0",
-              "x": 529.506,
+              "x": 527.506,
               "y": 507.878,
               "inFrustum": true
             },
             {
               "id": "t-0-2-1",
-              "x": 476.159,
+              "x": 474.159,
               "y": 433.792,
               "inFrustum": true
             },
             {
               "id": "t-0-1-2",
-              "x": 421.071,
+              "x": 419.071,
               "y": 357.291,
               "inFrustum": true
             },
             {
               "id": "t-0-0-3",
-              "x": 364.158,
+              "x": 362.158,
               "y": 278.253,
               "inFrustum": true
             }
@@ -4349,8 +4349,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
-        "sourceRevision": "12d5aadb1b64f772e72d6bf6113c2b28d5389301",
+        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
         "pageErrors": []
       }
     }

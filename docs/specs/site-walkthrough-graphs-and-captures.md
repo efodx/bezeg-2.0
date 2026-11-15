@@ -548,3 +548,13 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8g/` (served as `walkth
 - `euler-line`, `simson-line`: Remove; the collinearity sentences go, the line through the points shows it.
 - `inscribed-angle`: Keep in part; the readout keeps only `66,8°; 66,8°; 133,6°` (the `∠APB = ` and `središčni kot = ` prefixes are stripped), clear of the circle.
 - The clip rows of `inscribed-angle` and `simson-line` scheduled 0.01° steps, but the `P` position field now snaps to whole degrees; both rows step by 1°, still a continuous sweep.
+
+### B11 Guided example images (handlers 5 and 6, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b11/` (served as `walkthrough-graphs/b11.html`). Closes the open item "guided example images" above.
+
+- Part 1: the 56 retained images (`src/images/learning/examples/`), on `master` as `42d5e56c`; the committed retained inventory now matches the capture (`f145fd04`).
+- Part 2: every chapter folder recaptured on the build of `52b7ecbd` (29 chapters plus `patches`, about 130 images). The chapter cards use their Demonstration's capture recipe, so they follow the capture-text rule (C1) as the catalog cards do.
+- Stale checks found by the recapture and corrected from the graphs, not from the board: the density area draws its edges at `a` and `b` (B1, four curves); the envelope family is drawn in eight colour bands (four bands for four lines); degree reduction draws the reduced quadratic's own polygon (B3). A chapter card under the capture-text rule no longer asserts a text count, because the runner checks the expectation on the live lesson board and on the card, and the rule hides text only on the card (`2da033f9`).
+- Alt text (`src/learning/content/*PreviewCopy.ts`) no longer names readouts or labels the cards stopped showing, and names the new colours where they carry meaning.
+- Seen, unchanged by this batch: `projective-cross-ratio` and `projective-three-views` cards are small in the frame; `patch-coons` is small; the combinatorics lattice-path cards have a small grid under large text; on `mechanical-curves` drag-the-track and tautochrone labels overlap the curve; on `segment-intersections` the `s1`/`s2` labels overlap; the `tensor-decasteljau` patch card is small and `tensor-derivatives` has overlapping `S_u`, `S_v` labels; on the `tensor-joins` lesson card only `S_{A,u}` shows (the lesson scene differs from the catalog scene B10 fixed), and the `tensor-subdivision` card's caption still speaks of degree elevation.

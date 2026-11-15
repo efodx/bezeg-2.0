@@ -16,8 +16,8 @@ const latticeAltEn = 'Cream background without coordinate axes. A small square g
  */
 export const combinatoricsPreviewCopy = {
     'combinatorics.binomial-theorem.lattice-paths': copy(
-        'Krem ozadje brez koordinatnih osi. Vodoravna siva črta, na njej stojita dva zelena debela stolpca tik drug ob drugem, pod njima oznaki »x¹« in »x⁰«, nad njima števili 1 in 1. Zgoraj levo je zeleno besedilo »(x + 1)¹«.',
-        'Cream background without coordinate axes. A horizontal grey line with two thick green bars standing side by side on it, the labels x¹ and x⁰ beneath them and the numbers 1 and 1 above them. At the upper left is green text reading (x + 1)¹.',
+        'Krem ozadje brez koordinatnih osi. Vodoravna siva črta, na njej stojita dva zelena debela stolpca tik drug ob drugem, pod njima oznaki »x¹« in »x⁰«, nad njima števili 1 in 1. Zgoraj levo sta dve vrstici sivega besedila o pomenu stolpcev in pod njima zeleno besedilo »(x + 1)¹«.',
+        'Cream background without coordinate axes. A horizontal grey line with two thick green bars standing side by side on it, the labels x¹ and x⁰ beneath them and the numbers 1 and 1 above them. At the upper left are two lines of grey text explaining the bars and, below them, green text reading (x + 1)¹.',
         'Razvoj dvočlenika \\((x+1)^1\\) s stolpcema koeficientov.',
         'The expansion of the binomial \\((x+1)^1\\) with its bars of coefficients.',
     ),
