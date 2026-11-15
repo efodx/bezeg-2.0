@@ -40,6 +40,7 @@ import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
 import {wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson} from './wavesGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
+import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebGuidedLessons';
 import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson} from './phasePortraitsGuidedLessons';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
@@ -109,6 +110,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['fourierCoefficientsGuidedLessons', fourierCoefficientsGuidedLessons],
     ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson]],
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
+    ['recursionCobwebGuidedLessons', [recursionCobwebLesson, recursionLogisticLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
     ['phasePortraitsGuidedLessons', [linearSystemLesson, pendulumLesson, logisticMapLesson, bifurcationLesson]],
     ['solidsGuidedLessons', [cubeSectionsLesson, prismPyramidSectionsLesson]],
@@ -248,6 +250,7 @@ test('scans every lesson module', () => {
             'mechanics-descent', 'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 to MC3
             'waves', 'waves', 'waves', // wavesGuidedLessons.ts: WV1 to WV3
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
+            'recursion-cobweb', 'recursion-cobweb', // recursionCobwebGuidedLessons.ts: RG2 and RG4
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
             'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2

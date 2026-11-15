@@ -52,7 +52,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'kinematics' ? [`kinematics.${section.id}.curve-kinematics`] : []),
                     ...(chapter.id === 'mechanical-curves' ? [`mechanical-curves.${section.id}.mechanics-descent`] : []),
                     ...(chapter.id === 'waves' ? [`waves.${section.id}.waves`] : []),
-                    ...(chapter.id === 'recursion' ? [`recursion.${section.id}.recursion-growth`] : []),
+                    ...(chapter.id === 'recursion' ? [`recursion.${section.id}.${section.id === 'cobweb' || section.id === 'logistic' ? 'recursion-cobweb' : 'recursion-growth'}`] : []),
                     ...(chapter.id === 'solids' ? [`solids.${section.id}.solids`] : []),
                     ...(chapter.id === 'phase-portraits' ? [`phase-portraits.${section.id}.${section.id === 'linear-system' || section.id === 'pendulum' || section.id === 'linearization' ? 'phase-portrait' : 'logistic-map'}`] : []),
                     ...(chapter.id === 'level-sets' ? [`level-sets.${section.id}.linear-program`] : []),
@@ -68,7 +68,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(181);
-        expect(new Set(allReferences).size).toBe(181);
+        expect(allReferences).toHaveLength(183);
+        expect(new Set(allReferences).size).toBe(183);
     }
 });

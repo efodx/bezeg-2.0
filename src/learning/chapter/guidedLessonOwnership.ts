@@ -69,6 +69,8 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'waves': {chapterId: 'waves', sectionId: 'superposition-and-phase'},
     // Recursion batch A: the sequence lesson (RG1) in the recursion chapter; the interest lesson (RG3) is the second owner, derived from the chapter.
     'recursion-growth': {chapterId: 'recursion', sectionId: 'sequences'},
+    // Recursion batch B: the cobweb lesson (RG2) in the recursion chapter; the logistic lesson (RG4) is the second owner, derived from the chapter.
+    'recursion-cobweb': {chapterId: 'recursion', sectionId: 'cobweb'},
     // Solids batch A: the cube-sections lesson (SV1) in the solids chapter; the prism-and-pyramid lesson (SV2) is the second owner, derived from the chapter.
     'solids': {chapterId: 'solids', sectionId: 'cube-sections'},
     // Phase portraits: the linear-system lesson (PP1) in the phase-portraits chapter, the pendulum lesson (PP2) and the linearization lesson (PP3) its further owners, derived from the chapter; the logistic-map demonstration is owned by the same chapter below (PP4, PP5).

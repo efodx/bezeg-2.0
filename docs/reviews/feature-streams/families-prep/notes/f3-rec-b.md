@@ -68,3 +68,17 @@ Scene = prepared-scene default, then set-map/set-params/set-start/set-step as `c
 - Observed: `just unit` of the file and `src/graphs/recursion` green (231 tests); tsc clean; lint clean. Red: sl `x_4=3{,}3616` changed to `3{,}3617` failed one test; restored byte-identical (`s2d-red.log`).
 - Finding (false claim vs the brief rule "rounded numbers carry približno"): rounded iterates are quoted without a hedge word or "(izračunano)" in rg2-negative-slope (5,343597; 4,999169), rg2-cosine (0,744237), rg2-explore (0,694778), rg4-staircase (4 values), rg4-spiral (4), rg4-slow-spiral (3), rg4-extinction (4). The test pins this list as `KNOWN_UNHEDGED`; shrinking it is a text fix.
 - Not verified: the Play button (set-step used instead), browser rendering.
+
+## Slice 3: chapter join (worker, handoff-v13)
+
+### Written
+- `recursionChapterRegistry.ts`: sections `cobweb` (RG2, `recursion-cobweb`) and `logistic` (RG4, `recursion-logistic`), order sequences, cobweb, compound-interest, logistic. `recursionChapter.ts`: two sections (cobweb: affine error argument, the curve slope criterion an illustration, example m = 0,25, c = 3; logistic: fixed point and slope 2 - r derived, criterion an illustration, example r = 2, no claim for r >= 3 beyond the phase-portraits chapter); purpose and comment updated.
+- `registration.ts`: `lesson: false` removed. Wiring and tests: `guidedLessonOwnership.ts`, `guidedExamplePreviewCopy.ts` (`recursion-cobweb` row), `familyChapters.test.ts` (pending list, recursion minimum 4), `lessonLookup.characterization.test.ts`, `lessonCatalog.test.ts`, `lessonMathNotation.test.ts`, `registrationComposition.test.ts`, `authoredChapterCoverage.test.ts` (reference form, 181 -> 183), `guidedExamplePreviews.test.ts` (two ids marked `pending`: cards in F4). Smoke: `guided-lessons` row `recursionCobweb` (7 steps, minFrames 14), `unified-learning` `'recursion': 4`. `docs/localization.md` one row; task 05 status line.
+
+### Outcome
+- Red before source edit: `s3-red.log` (5 failures). tsc clean (`s3-tsc.log`, `s3-tsc2.log`). Lint clean (`s3-lint.log`, `s3-lint2.log`). `just build` passed. `just smoke-lesson recursion-cobweb` passed (`s3-smoke.log`).
+- `just unit src/learning src/graphs/recursion` (`s3-unit.log`): 2 failed of 2887, both fixed (coverage reference form and count, previews `pending`); reruns passed (`s3-unit2.log` showed only the count, `s3-unit3.log` passed).
+- No single-backslash delimiters (remaining `\'` hits are apostrophe escapes); LF.
+
+### Not verified
+- No browser look at the chapter page; no PNG cards for the new ids (`recursionPreviewCopy.ts` has no rows for them, F4); the first-scene claim of the new copy row (x0 = 0, no steps) was not re-probed; no full rerun after the last two test edits beyond those two files.

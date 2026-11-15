@@ -38,7 +38,7 @@ function withoutMath(source: string) {
 // patch-coons, reduction and arc-length-param joined the advanced-bezier chapter with AB-A-4.
 // bezier-clipping joined it with AB-B-4.
 // The trigonometry, line-geometry, isometry, circle-construction, simulation, recursion, solids, contour-map, linear-program, waves, complex-power and complex-euler rows ship without a chapter link or lesson until families-prep F3.
-const CHAPTER_LINK_PENDING: readonly string[] = ['recursion-cobweb', 'contour-map', 'complex-power', 'complex-euler'];
+const CHAPTER_LINK_PENDING: readonly string[] = ['contour-map', 'complex-power', 'complex-euler'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -101,7 +101,7 @@ describe('family reading chapters', () => {
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the seven sections of its seven activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['complex-maps', 'recursion', 'solids', 'randomness'].includes(chapter.id) ? 2 : chapter.id === 'phase-portraits' ? 5 : chapter.id === 'level-sets' ? 1 : chapter.id === 'linear-maps' ? 7 : chapter.id === 'kinematics' || chapter.id === 'combinatorics' ? 4 : chapter.id === 'isometries' || chapter.id === 'waves' || chapter.id === 'mechanical-curves' ? 3 : chapter.id === 'trigonometry' || chapter.id === 'analytic-lines' || chapter.id === 'circle-geometry' ? 4 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'advanced-bezier' ? 4 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['complex-maps', 'solids', 'randomness'].includes(chapter.id) ? 2 : chapter.id === 'recursion' ? 4 : chapter.id === 'phase-portraits' ? 5 : chapter.id === 'level-sets' ? 1 : chapter.id === 'linear-maps' ? 7 : chapter.id === 'kinematics' || chapter.id === 'combinatorics' ? 4 : chapter.id === 'isometries' || chapter.id === 'waves' || chapter.id === 'mechanical-curves' ? 3 : chapter.id === 'trigonometry' || chapter.id === 'analytic-lines' || chapter.id === 'circle-geometry' ? 4 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'advanced-bezier' ? 4 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

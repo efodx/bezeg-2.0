@@ -322,7 +322,9 @@ const functionsCards: readonly FunctionsCard[] = [
         counts: [[4, 0], [6, 0]]},
     {chapterId: 'recursion', copy: recursionPreviewCopy,
         ids: ['recursion.compound-interest.recursion-growth', 'recursion.sequences.recursion-growth'],
-        counts: [[8, 0], [1, 1]]},
+        counts: [[8, 0], [1, 1]],
+        // RG2 and RG4 joined the chapter in F3 (handler 25); their cards come in F4.
+        pending: ['recursion.cobweb.recursion-cobweb', 'recursion.logistic.recursion-cobweb']},
     {chapterId: 'level-sets', copy: levelSetsPreviewCopy,
         ids: ['level-sets.linear-programming.linear-program'],
         counts: [[6, 6]]},

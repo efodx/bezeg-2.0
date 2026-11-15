@@ -29,9 +29,9 @@ describe('R5 composition: every root references the recursion rows export', () =
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, only the cobweb row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(recursionDemonstrationRows.length).toBe(2);
-        expect(recursionDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false).map(row => row.id)).toEqual(['recursion-cobweb']);
+        expect(recursionDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false).map(row => row.id)).toEqual([]);
         expect(new Set(Object.values(recursionCollectionKeys)).size).toBe(recursionDemonstrationRows.length);
     });
 });
