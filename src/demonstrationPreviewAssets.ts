@@ -98,6 +98,7 @@ import preview_recursion_growth from './images/demonstrations/catalog/recursion-
 import preview_phase_portrait from './images/demonstrations/catalog/phase-portrait.png';
 import preview_logistic_map from './images/demonstrations/catalog/logistic-map.png';
 import preview_solids from './images/demonstrations/catalog/solids.png';
+import preview_contour_map from './images/demonstrations/catalog/contour-map.png';
 import preview_linear_program from './images/demonstrations/catalog/linear-program.png';
 import preview_waves from './images/demonstrations/catalog/waves.png';
 import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
@@ -235,6 +236,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'phase-portrait': preview_phase_portrait,
     'logistic-map': preview_logistic_map,
     'solids': preview_solids,
+    'contour-map': preview_contour_map,
     'linear-program': preview_linear_program,
     'waves': preview_waves,
     'bspline-basis': preview_bspline_basis,

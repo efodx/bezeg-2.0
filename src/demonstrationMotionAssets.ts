@@ -133,6 +133,7 @@ import motion_isometries from './images/demonstrations/catalog/isometries.webm?n
 import motion_phase_portrait from './images/demonstrations/catalog/phase-portrait.webm?no-inline';
 import motion_solids from './images/demonstrations/catalog/solids.webm?no-inline';
 import motion_recursion_cobweb from './images/demonstrations/catalog/recursion-cobweb.webm?no-inline';
+import motion_contour_map from './images/demonstrations/catalog/contour-map.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -269,4 +270,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'phase-portrait': {src: motion_phase_portrait, type: 'video/webm', duration: 4},
     'solids': {src: motion_solids, type: 'video/webm', duration: 4},
     'recursion-cobweb': {src: motion_recursion_cobweb, type: 'video/webm', duration: 4},
+    'contour-map': {src: motion_contour_map, type: 'video/webm', duration: 4},
 };

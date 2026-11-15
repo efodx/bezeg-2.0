@@ -161,4 +161,14 @@ module.exports = [
         lessonQuote: 'Spreminjaj naklon \\(m\\) in opazuj, kdaj se iterati približujejo negibni točki in kdaj se oddaljujejo',
         discreteReason: null,
     },
+    {
+        id: 'contour-map',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Vrednost nivojnice c', step: 0.125},
+        // The poster scene is the bowl x^2 + y^2 with three level sets from c = 0,375 (a start off the tick numbers, so the poster keeps them clear). The level goes to 2,375 (the family of circles grows) and back. Quote: levelSetsChapter.ts:46 (the surface section's investigation prompt).
+        path: [0.375, 2.375, 0.375],
+        lessonQuote: 'Spreminjaj vrednost \\(c\\) in opazuj, kako se nivojnica premakne',
+        discreteReason: null,
+        lightSettle: true,
+    },
 ];

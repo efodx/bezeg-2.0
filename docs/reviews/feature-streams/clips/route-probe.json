@@ -31621,5 +31621,26 @@
     ],
     "error": [],
     "probedExampleId": null
+  },
+  {
+    "id": "contour-map",
+    "route": "/bezeg-2.0/analysis/contours",
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "slider",
+        "name": "Vrednost nivojnice c",
+        "min": "-45",
+        "max": "45",
+        "step": "0.125",
+        "value": "1",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
   }
 ]
