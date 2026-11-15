@@ -115,11 +115,11 @@ const rg5Examples: readonly WorkedExample[] = [
     {
         id: 'rg5-line',
         title: text('\\(1000\\cdot1{,}05^{10}\\) in njegov logaritem', '\\(1000\\cdot1.05^{10}\\) and its logarithm'),
-        calculationLatex: '\\ln y_{10}=\\ln1000+10\\,\\ln1{,}05,\\qquad \\ln1000=3\\ln10',
+        calculationLatex: '\\ln y_{10}=\\ln1000+10\\,\\ln1{,}05',
         resultLatex: '\\ln y_{10}\\approx6{,}907755+0{,}487902=7{,}395657',
         check: text(
-            'Graf piše \\(7{,}395657\\) (izračunano) in naklon \\(0{,}04879\\); desetkratnik naklona je približno \\(0{,}487902\\). Pri desetiških logaritmih je \\(\\log_{10}1{,}05\\approx0{,}0211893\\) in \\(\\log_{10}y_{10}=3+10\\cdot0{,}0211893=3{,}211893\\) (izračun, ne odčitek).',
-            'The graph writes \\(7.395657\\) (computed) and the slope \\(0.04879\\); ten times the slope is approximately \\(0.487902\\). With decimal logarithms \\(\\log_{10}1.05\\approx0.0211893\\) and \\(\\log_{10}y_{10}=3+10\\cdot0.0211893=3.211893\\) (a calculation, not a readout).',
+            'Graf piše \\(7{,}395657\\) (izračunano) in naklon \\(0{,}04879\\); drugi sumand je \\(10\\ln1{,}05\\approx0{,}487902\\), desetkratnik natančnega naklona. Pri desetiških logaritmih je \\(\\log_{10}1{,}05\\approx0{,}0211893\\) in \\(\\log_{10}y_{10}=3+10\\cdot0{,}0211893=3{,}211893\\) (izračun, ne odčitek).',
+            'The graph writes \\(7.395657\\) (computed) and the slope \\(0.04879\\); the second term is \\(10\\ln1.05\\approx0.487902\\), ten times the exact slope. With decimal logarithms \\(\\log_{10}1.05\\approx0.0211893\\) and \\(\\log_{10}y_{10}=3+10\\cdot0.0211893=3.211893\\) (a calculation, not a readout).',
         ),
     },
     {
@@ -170,7 +170,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
         title: text('Zakaj takšna slika', 'Why this picture'),
         purpose: text('Utemeljiti sliko iz obrazca in napovedati učinek začetne vrednosti.', 'Justifying the picture from the formula and predicting the effect of the starting value.'),
         explanation: text(
-            'Logaritemski prikaz kaže \\(y_0=1000\\) in \\(q=1{,}05\\). Argument: \\(\\ln(y_0q^n)=\\ln y_0+n\\ln q\\), ker je logaritem produkta vsota logaritmov. Naklon med točkama je natančna razlika \\(\\ln y_{n+1}-\\ln y_n\\), ne prilagoditev. Graf piše \\(\\ln y_{10}=7{,}395657\\), pri čemer je \\(\\ln1000\\approx6{,}907755\\). Napoved: kaj se zgodi s točkami, če se začetna vrednost zmanjša na \\(100\\)? Za koliko se premakne premica in ali se naklon spremeni? Izračunaj nov \\(\\ln y_{10}\\) iz obrazca. Nato na drsniku Začetna vrednost vpiši \\(100\\).',
+            'Prikaz Logaritem y kaže \\(y_0=1000\\) in \\(q=1{,}05\\). Argument: \\(\\ln(y_0q^n)=\\ln y_0+n\\ln q\\), ker je logaritem produkta vsota logaritmov. Naklon med točkama je natančna razlika \\(\\ln y_{n+1}-\\ln y_n\\), ne prilagoditev. Graf piše \\(\\ln y_{10}=7{,}395657\\), pri čemer je \\(\\ln1000\\approx6{,}907755\\). Napoved: kaj se zgodi s točkami, če se začetna vrednost zmanjša na \\(100\\)? Za koliko se premakne premica in ali se naklon spremeni? Izračunaj nov \\(\\ln y_{10}\\) iz obrazca. Nato na drsniku Začetna vrednost vpiši \\(100\\).',
             'The logarithm panel shows \\(y_0=1000\\) and \\(q=1.05\\). Argument: \\(\\ln(y_0q^n)=\\ln y_0+n\\ln q\\), because the logarithm of a product is the sum of the logarithms. The slope between two points is the exact difference \\(\\ln y_{n+1}-\\ln y_n\\), not a fit. The graph writes \\(\\ln y_{10}=7.395657\\), where \\(\\ln1000\\approx6.907755\\). Prediction: what happens to the points if the starting value decreases to \\(100\\)? By how much does the line move and does its slope change? Compute the new \\(\\ln y_{10}\\) from the formula. Then type \\(100\\) into the slider Starting value.',
         ),
         formulaIds: ['log-line'],
@@ -178,7 +178,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
         observationPrompt: text('Zapiši napoved, nato na drsniku Začetna vrednost vpiši \\(100\\) in preberi naklon ter vrednost \\(\\ln y_{10}\\) v odčitkih.', 'Write down your prediction, then type \\(100\\) into the slider Starting value and read the slope and the value of \\(\\ln y_{10}\\).'),
         expectedObservations: [text('Premica se spusti za \\(\\ln10\\approx2{,}302585\\): \\(\\ln y_{10}\\) je \\(5{,}093072\\) namesto \\(7{,}395657\\); naklon ostane \\(0{,}04879\\).', 'The line drops by \\(\\ln10\\approx2.302585\\): \\(\\ln y_{10}\\) is \\(5.093072\\) instead of \\(7.395657\\); the slope stays \\(0.04879\\).')],
         scene: logScene('rg5-line-scene', RG5_LOG,
-            'Logaritemski prikaz, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\), \\(\\ln y_{10}=7{,}395657\\).',
+            'Prikaz Logaritem y, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\), \\(\\ln y_{10}=7{,}395657\\).',
             'Logarithm panel, \\(y_0=1000\\), \\(q=1.05\\), exponential model: slope \\(0.04879\\), \\(\\ln y_{10}=7.395657\\).'),
     }),
     step({
@@ -193,7 +193,7 @@ const rg5Steps: readonly GuidedLessonStep[] = [
         observationPrompt: text('Zapiši napovedana naklona, nato na drsniku Faktor rasti q nastavi \\(2\\) in \\(0{,}5\\) ter preberi naklon in vrstico q iz naklona.', 'Write down both predicted slopes, then set \\(2\\) and \\(0.5\\) on the slider Growth factor q and read the slope and the row q from the slope.'),
         expectedObservations: [text('Pri \\(q=2\\) je naklon \\(0{,}693147\\) (\\(\\ln2\\)) in q iz naklona \\(2\\); pri \\(q=0{,}5\\) je naklon \\(-0{,}693147\\), torej negativen, in q iz naklona \\(0{,}5\\).', 'At \\(q=2\\) the slope is \\(0.693147\\) (\\(\\ln2\\)) and q from the slope \\(2\\); at \\(q=0.5\\) the slope is \\(-0.693147\\), negative, and q from the slope \\(0.5\\).')],
         scene: logScene('rg5-slope-scene', RG5_LOG,
-            'Logaritemski prikaz, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\), q iz naklona \\(1{,}05\\).',
+            'Prikaz Logaritem y, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\), q iz naklona \\(1{,}05\\).',
             'Logarithm panel, \\(y_0=1000\\), \\(q=1.05\\), exponential model: slope \\(0.04879\\), q from the slope \\(1.05\\).'),
     }),
     step({
@@ -204,12 +204,12 @@ const rg5Steps: readonly GuidedLessonStep[] = [
             'Za primerjavo vzamemo podatke \\(y_n=1000\\,n^2\\), ki tudi rastejo, a po potenci in ne po faktorju. To je ponazoritev razlike, ne drugi izrek. Napoved: ali točke \\((n,\\ln y_n)\\) ležijo na premici? Če ne, kateri korak ima večji naklon, prvi ali zadnji? V izbirniku Model izberi Potenčni in primerjaj naklon prvega in zadnjega koraka.',
             'For comparison take the data \\(y_n=1000\\,n^2\\), which also grow, but by a power rather than by a factor. This is an illustration of a contrast, not a second theorem. Prediction: do the points \\((n,\\ln y_n)\\) lie on a line? If not, which step has the larger slope, the first or the last? In the chooser Model pick Power and compare the slopes of the first and the last step.',
         ),
-        formulaIds: ['power-contrast'],
-        workedExampleId: 'rg5-power',
+        // The contrast formula and the two-slope example answer this step's prediction, so they are shown in the next step, after the reveal.
+        formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato v izbirniku Model izberi Potenčni in preberi stanje ter Naklon prvega koraka in Naklon zadnjega koraka.', 'Write down your prediction, then pick Power in the chooser Model and read the status and the Slope of the first step and the Slope of the last step.'),
         expectedObservations: [text('Točke niso na premici: naklon prvega koraka je \\(1{,}386294\\), zadnjega \\(0{,}19062\\); vrstica Točke na premici? piše ne.', 'The points are not on a line: the slope of the first step is \\(1.386294\\), of the last step \\(0.19062\\); the row Points on a line? writes no.')],
         scene: logScene('rg5-power-scene', RG5_LOG,
-            'Logaritemski prikaz, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: točke ležijo na premici z naklonom \\(0{,}04879\\).',
+            'Prikaz Logaritem y, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: točke ležijo na premici z naklonom \\(0{,}04879\\).',
             'Logarithm panel, \\(y_0=1000\\), \\(q=1.05\\), exponential model: the points lie on a line with slope \\(0.04879\\).'),
     }),
     step({
@@ -220,11 +220,12 @@ const rg5Steps: readonly GuidedLessonStep[] = [
             'Spreminjaj začetno vrednost, faktor rasti in model ter napovej naklon, preden ga prebereš. Zdaj je prikazano \\(y_0=1000\\) in \\(q=1{,}05\\). Pri \\(q=1\\) je \\(\\ln q=0\\), torej točke ležijo na vodoravni premici; pri \\(q>1\\) je naklon pozitiven, pri \\(q<1\\) je negativen. Premik \\(y_0\\) premakne premico, naklona ne spremeni. Vse to velja za eksponentni model; pri potenčnem premice ni.',
             'Change the starting value, the growth factor and the model and predict the slope before you read it. Now \\(y_0=1000\\) and \\(q=1.05\\) are shown. At \\(q=1\\) we have \\(\\ln q=0\\), so the points lie on a horizontal line; for \\(q>1\\) the slope is positive, for \\(q<1\\) it is negative. Changing \\(y_0\\) moves the line without changing the slope. All this holds for the exponential model; the power model gives no line.',
         ),
-        formulaIds: [],
+        formulaIds: ['power-contrast'],
+        workedExampleId: 'rg5-power',
         observationPrompt: text('Poišči faktor rasti, pri katerem se vrednost vsak korak podvoji, in tistega, pri katerem se razpolovi; napovej naklona in ju preveri.', 'Find the growth factor at which the value doubles every step and the one at which it halves; predict the slopes and check them.'),
         expectedObservations: [text('Podvojitev: \\(q=2\\), naklon \\(0{,}693147\\); razpolovitev: \\(q=0{,}5\\), naklon \\(-0{,}693147\\). Pri \\(q=1\\) je naklon \\(0\\).', 'Doubling: \\(q=2\\), slope \\(0.693147\\); halving: \\(q=0.5\\), slope \\(-0.693147\\). At \\(q=1\\) the slope is \\(0\\).')],
         scene: logScene('rg5-explore-scene', RG5_EXPLORE,
-            'Logaritemski prikaz, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\).',
+            'Prikaz Logaritem y, \\(y_0=1000\\), \\(q=1{,}05\\), eksponentni model: naklon \\(0{,}04879\\).',
             'Logarithm panel, \\(y_0=1000\\), \\(q=1.05\\), exponential model: slope \\(0.04879\\).'),
     }),
 ];
@@ -250,7 +251,7 @@ export const recursionLogScaleLesson: GuidedLesson = {
     learningGoals: [
         text('Znaš utemeljiti, da \\(y_n=y_0q^n\\) da \\(\\ln y_n=\\ln y_0+n\\ln q\\), torej točke na premici.', 'Can justify that \\(y_n=y_0q^n\\) gives \\(\\ln y_n=\\ln y_0+n\\ln q\\), that is points on a line.'),
         text('Iz naklona znaš prebrati \\(\\ln q\\) in faktor rasti \\(q=e^{\\text{naklon}}\\).', 'Can read \\(\\ln q\\) from the slope and the growth factor \\(q=e^{\\text{slope}}\\).'),
-        text('Veš, da potenčna rast ne da premice in da je navpična os \\(\\ln y\\) na navadnem merilu.', 'Know that power growth gives no line and that the vertical axis is \\(\\ln y\\) on an ordinary scale.'),
+        text('Znaš primerjati eksponentno in potenčno rast na prikazu \\(\\ln y\\) in veš, da je navpična os \\(\\ln y\\) na navadnem merilu.', 'Can compare exponential and power growth on the \\(\\ln y\\) panel and know that the vertical axis is \\(\\ln y\\) on an ordinary scale.'),
     ],
     formulaBlocks: rg5Formulas,
     workedExamples: rg5Examples,
