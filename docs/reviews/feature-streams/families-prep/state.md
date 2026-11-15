@@ -65,7 +65,7 @@ ode_modules")`, `Test-Path` it is gone, check the main checkout's `node_modules`
 
 ## In flight at handoff
 
-- Background publish (`runtime`) of `4259a9d1` (the LS3/LS4 join) on base `e86ea053`: check `just publish --status` (result `.command-logs/publish-4259a9d1-*.json`); on success watch Browser smoke for its push (the `e86ea053` run 43716744973 may be cancelled by it); on failure follow Setup. The next publish base is `4259a9d1` once it is pushed. No worker is running.
+- `4259a9d1` (the LS3/LS4 join) is pushed (Browser smoke for `e86ea053` green, 43716744973); its own Browser smoke run was not yet watched at handoff: find it with `gh run list --branch master --workflow browser-smoke.yml --limit 2` and confirm green. The two note commits after it are local: the next publish base is `4259a9d1` and the commit list `4259a9d1..HEAD` includes them. No worker is running.
 
 ## Owed
 
