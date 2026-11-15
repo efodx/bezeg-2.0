@@ -973,7 +973,7 @@
         "steps": [],
         "expectChange": true,
         "checks": {
-          "curveCount": 1,
+          "curveCount": 2,
           "points": [
             [
               -4,
@@ -1010,7 +1010,7 @@
           ]
         }
       },
-      "recipeFingerprint": "5c9d787c55c6d4abfb963fc77c8c851c89a668b0f0759447df4093fd15acd054"
+      "recipeFingerprint": "b5bfa001183e3a05bf1f64905f7c3f070f62a41cd642383dfd59797ceb6c243f"
     },
     {
       "id": "bezier-curves.next-ideas.repeated-subdivision",
