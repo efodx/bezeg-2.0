@@ -235,7 +235,8 @@ const PLANS: readonly Plan[] = [
         expect(plain(graphOf())).toEqual(state({...LINE, mode: 'lagrange'}));
         for (const x of [0, 1, 2]) { typeLineX(String(x), language); expectLine(`line x = ${x}`, x, language); }
     }},
-    {lesson: levelSetsLagrangeLesson, id: 'ls4-touch', opening: state({...LINE, mode: 'lagrange'}), learn: language => {
+    {lesson: levelSetsLagrangeLesson, id: 'ls4-touch', opening: state({...LINE, mode: 'level-sets'}), learn: language => {
+        chooseMode('lagrange');
         expectLine('line x = 0', 0, language);
         typeLineX('1', language);
         expect(plain(graphOf())).toEqual(state({...LINE, lineParam: 4, mode: 'lagrange'}));
@@ -355,10 +356,10 @@ const NAMED: Record<string, readonly (() => string)[]> = {
     'ls3-step-9': [L.step, L.next, L.point, L.valueF, L.behaviour, L.first],
     'ls3-step-10': [L.step, L.next, L.point, L.valueF, L.playStep, L.first, L.behaviour],
     'ls3-step-11': [L.step, L.next, L.point, L.valueF, L.playStep, L.end, L.behaviour],
-    'ls3-threshold': [L.next, L.point, L.valueF, L.first, L.behaviour],
+    'ls3-threshold': [L.next, L.first, L.behaviour],
     'ls3-explore': [L.descent, L.levelSets, L.first],
     'ls4-line': [L.mode, L.lagrange, L.lineX, L.valueF, L.tangent, L.levelSets],
-    'ls4-touch': [L.lineX, L.pointC, L.valueF, L.tangent, L.lagrange],
+    'ls4-touch': [L.mode, L.lagrange, L.lineX, L.pointC, L.valueF, L.tangent],
     'ls4-gradients': [L.lineX, L.gradF, L.gradG, L.touch],
     'ls4-circle': [L.mode, L.lagrange, L.circleAngle, L.pointC, L.valueF, L.touch, L.angles, L.levelSets],
     'ls4-explore': [L.lagrange, L.fn, L.constraint, L.touch, L.levelSets],
@@ -389,7 +390,7 @@ describe.each(LANGUAGES)('LS3 and LS4 prompt labels in %s', language => {
         expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.step()})})).not.toBeNull();
         expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.playStep()})})).not.toBeNull();
         expect(screen.queryByRole('spinbutton', {name: 'P0, y'})).not.toBeNull();
-        m.scene(levelSetsLagrangeLesson, 'ls4-touch');
+        m.scene(levelSetsLagrangeLesson, 'ls4-gradients');
         const lagrangeRows = [...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '');
         for (const label of [L.pointC, L.valueF, L.gradF, L.gradG, L.touch, L.tangent]) expect({label: label(), shown: lagrangeRows.includes(label())}).toEqual({label: label(), shown: true});
         expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.lineX()})})).not.toBeNull();

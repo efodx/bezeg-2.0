@@ -54,3 +54,8 @@
 ### Slice 2d
 - `src/learning/content/levelSetsOptimizationGuidedLessons.test.ts` (new, tests only). Part A: scene sweep of all 12 LS3/LS4 steps in sl and en (out of order, twice in one act, counter 0, restore, LS4 steps 1 and 4 hide the constraint, no opening equals the asked state, prompt labels exist in graph strings, learner actions give the quoted readouts). Part B: quoted numbers recomputed from the descent iteration and closed forms (hedging, no English decimals in sl), integer readouts 125/123/40/31/75/200, threshold, H = 10 and 11 cases, line and circle Lagrange facts.
 - Checks: `just unit` (this file + src/graphs/levelsets) 245 passed; tsc and lint clean; red: sl quote 3,903745 changed to 3,903746 failed ls3-bowl (`s2d-red.log`), restored. No false claim found. Not verified: browser, real 3D view; the text says to set the circle angle in degrees while the field takes K (K * 7,5 degrees); tested with K only.
+
+### Slice 2f
+- Lesson file: LS4 step 2 now opens in level-sets mode (LS4_BOWL_LINE, line not drawn), asks the touching-value prediction by substitution, then the learner switches to Lagrange; LS3 learning goal and edge case reworded without the threshold; valley-factors sign/shrink sentences moved to the threshold block; LS3 step 6 asks for the condition on 1 - 20h and reads two readouts; "samostojno" x2; "ni narisana"; LS4 step 4 reads 45/135/225/315 and 0 degrees; LS3 step 2 hint on the y component dropped.
+- Tests: ls4-touch opening is level-sets and chooses the mode; NAMED labels for ls3-threshold and ls4-touch; mounted-label test uses ls4-gradients.
+- Checks: just unit 245 passed; tsc, lint clean; bscheck/rawcheck 0 singles.

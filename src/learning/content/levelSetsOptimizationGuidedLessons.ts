@@ -93,7 +93,7 @@ export const LS3_EXPLORE = {} as const;
 
 /**
  * LS4. LS4_BOWL_LINE (level-sets mode, the bowl, three level sets, the line x + 2y = 5 stored with the point at T = 0, x = 0) opens step 1; the learner switches the mode, which gives
- * LS4_BOWL_LINE_LAGRANGE (the opening of steps 2 and 3, the point at (0; 2,5)); typing x = 1 (T = 4) gives LS4_BOWL_TOUCH. LS4_PRODUCT_CIRCLE (level-sets mode, the product with the
+ * LS4_BOWL_LINE_LAGRANGE (the opening of step 3, the point at (0; 2,5)); typing x = 1 (T = 4) gives LS4_BOWL_TOUCH. LS4_PRODUCT_CIRCLE (level-sets mode, the product with the
  * level sets c = 0, 1, 2, the circle x² + y² = 2 stored with the point at K = 0) opens step 4; the switch gives LS4_PRODUCT_LAGRANGE and the angle steps K = 6, 18, 30, 42 the four
  * tangency points (LS4_PRODUCT_K6, _K18, _K30, _K42). Step 5 opens on the Demonstration default.
  */
@@ -159,8 +159,8 @@ const ls3Formulas: readonly FormulaBlock[] = [
             'For the valley \\(f(x,y)=x^2+10y^2\\) we have \\(\\nabla f=(2x,\\ 20y)\\); \\(x_k\\) and \\(y_k\\) are the coordinates of the point \\(p_k\\).',
         ),
         explanation: text(
-            'Vsaka koordinata se v enem koraku pomnoži s svojim faktorjem, zato je \\(x_k=(1-2h)^k x_0\\) in \\(y_k=(1-20h)^k y_0\\). Koordinata se približuje \\(0\\), če je absolutna vrednost njenega faktorja manjša od \\(1\\); če je faktor negativen, koordinata v vsakem koraku zamenja predznak.',
-            'Each coordinate is multiplied by its own factor in one step, so \\(x_k=(1-2h)^k x_0\\) and \\(y_k=(1-20h)^k y_0\\). A coordinate approaches \\(0\\) if the absolute value of its factor is smaller than \\(1\\); if the factor is negative, the coordinate changes its sign in every step.',
+            'Vsaka koordinata se v enem koraku pomnoži s svojim faktorjem, zato je \\(x_k=(1-2h)^k x_0\\) in \\(y_k=(1-20h)^k y_0\\).',
+            'Each coordinate is multiplied by its own factor in one step, so \\(x_k=(1-2h)^k x_0\\) and \\(y_k=(1-20h)^k y_0\\).',
         ),
     },
     {
@@ -171,8 +171,8 @@ const ls3Formulas: readonly FormulaBlock[] = [
             '\\(h\\) is the step and \\(L\\) is the largest of the numbers by which \\(h\\) is multiplied in the factors \\(1-ah\\) (for the valley these are the numbers \\(a\\) in the factors above).',
         ),
         explanation: text(
-            'Izrek za kvadratne funkcije: spust konvergira k minimumu iz vsakega začetka natanko tedaj, ko je \\(0<h<2/L\\), kjer je \\(L\\) največja lastna vrednost matrike drugih odvodov. Dokaz je v faktorjih \\(1-2h\\) in \\(1-20h\\); cik-cak v grafu je le ponazoritev. Za funkcije, ki niso kvadratne, izrek ne velja kot tak.',
-            'A theorem for quadratic functions: the descent converges to the minimum from every start exactly when \\(0<h<2/L\\), where \\(L\\) is the largest eigenvalue of the matrix of second derivatives. The proof is in the factors \\(1-2h\\) and \\(1-20h\\); the zig-zag in the graph is only an illustration. For functions that are not quadratic the theorem does not hold as stated.',
+            'Koordinata se približuje \\(0\\), če je absolutna vrednost njenega faktorja manjša od \\(1\\); če je faktor negativen, koordinata v vsakem koraku zamenja predznak. Izrek za kvadratne funkcije: spust konvergira k minimumu iz vsakega začetka natanko tedaj, ko je \\(0<h<2/L\\), kjer je \\(L\\) največja lastna vrednost matrike drugih odvodov. Dokaz je v faktorjih \\(1-2h\\) in \\(1-20h\\); cik-cak v grafu je le ponazoritev. Za funkcije, ki niso kvadratne, izrek ne velja kot tak.',
+            'A coordinate approaches \\(0\\) if the absolute value of its factor is smaller than \\(1\\); if the factor is negative, the coordinate changes its sign in every step. A theorem for quadratic functions: the descent converges to the minimum from every start exactly when \\(0<h<2/L\\), where \\(L\\) is the largest eigenvalue of the matrix of second derivatives. The proof is in the factors \\(1-2h\\) and \\(1-20h\\); the zig-zag in the graph is only an illustration. For functions that are not quadratic the theorem does not hold as stated.',
         ),
     },
 ];
@@ -204,8 +204,8 @@ const ls3Steps: readonly GuidedLessonStep[] = [
         title: text('Dolina', 'The valley'),
         purpose: text('Napovedati, kako strma funkcija v eni smeri spremeni pot spusta pri istem začetku in koraku.', 'Predicting how a function that is steep in one direction changes the path of the descent at the same start and step.'),
         explanation: text(
-            'Začetek \\((2;\\ 1)\\) in korak \\(H=3\\) ostaneta, funkcija pa se zamenja z dolino \\(f(x,y)=x^2+10y^2\\), ki ima gradient \\(\\nabla f=(2x,\\ 20y)\\): komponenta gradienta v smeri \\(y\\) je \\(20y\\), v smeri \\(x\\) le \\(2x\\). Zapiši napoved: ali bo prvi korak spet kazal proti \\((0;\\ 0)\\), katera koordinata se bo po treh korakih bolj približala \\(0\\) in ali bo pot še vedno ravna?',
-            'The start \\((2,\\ 1)\\) and the step \\(H=3\\) stay, and the function is replaced with the valley \\(f(x,y)=x^2+10y^2\\), whose gradient is \\(\\nabla f=(2x,\\ 20y)\\): the component of the gradient in the direction of \\(y\\) is \\(20y\\), in the direction of \\(x\\) only \\(2x\\). Write down a prediction: will the first step again point towards \\((0,\\ 0)\\), which coordinate will be closer to \\(0\\) after three steps and will the path still be straight?',
+            'Začetek \\((2;\\ 1)\\) in korak \\(H=3\\) ostaneta, funkcija pa se zamenja z dolino \\(f(x,y)=x^2+10y^2\\), ki ima gradient \\(\\nabla f=(2x,\\ 20y)\\). Zapiši napoved: ali bo prvi korak spet kazal proti \\((0;\\ 0)\\), katera koordinata se bo po treh korakih bolj približala \\(0\\) in ali bo pot še vedno ravna?',
+            'The start \\((2,\\ 1)\\) and the step \\(H=3\\) stay, and the function is replaced with the valley \\(f(x,y)=x^2+10y^2\\), whose gradient is \\(\\nabla f=(2x,\\ 20y)\\). Write down a prediction: will the first step again point towards \\((0,\\ 0)\\), which coordinate will be closer to \\(0\\) after three steps and will the path still be straight?',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -288,13 +288,13 @@ const ls3Steps: readonly GuidedLessonStep[] = [
         title: text('Prag koraka', 'The step threshold'),
         purpose: text('Napovedati prag koraka iz faktorja in preizkusiti, da začetek na osi \\(x\\) prag zaobide.', 'Predicting the threshold of the step from the factor and testing that a start on the \\(x\\) axis avoids it.'),
         explanation: text(
-            'Iz faktorjev sledi: koordinata \\(x\\) se skrči, če je \\(\\lvert1-2h\\rvert<1\\), koordinata \\(y\\) pa, če je \\(\\lvert1-20h\\rvert<1\\). Zapiši dve napovedi. Prva: za katere \\(h\\), torej za katere cele \\(H\\), se \\(y\\) skrči, in kje je meja. Druga: kaj se zgodi pri \\(H=11\\), če je začetek na osi \\(x\\), torej \\(y_0=0\\), kar je začetek \\((2;\\ 0)\\). Prag in njegov izrek sta v formuli spodaj.',
-            'It follows from the factors that the coordinate \\(x\\) shrinks if \\(\\lvert1-2h\\rvert<1\\) and the coordinate \\(y\\) shrinks if \\(\\lvert1-20h\\rvert<1\\). Write down two predictions. The first: for which \\(h\\), so for which whole numbers \\(H\\), \\(y\\) shrinks, and where the boundary is. The second: what happens at \\(H=11\\) if the start is on the \\(x\\) axis, so \\(y_0=0\\), which is the start \\((2,\\ 0)\\). The threshold and its theorem are in the formula below.',
+            'Pri korakih \\(H=9\\), \\(10\\) in \\(11\\) si videl tri različna vedenja koordinate \\(y\\). Zapiši dve napovedi. Prva: kakšen pogoj za faktor \\(1-20h\\) zagotovi, da se \\(y\\) skrči, in za katere cele \\(H\\) je izpolnjen. Druga: kaj se zgodi pri \\(H=11\\), če je začetek na osi \\(x\\), torej \\(y_0=0\\), kar je začetek \\((2;\\ 0)\\). Pogoj in izrek o pragu sta v formuli spodaj.',
+            'At the steps \\(H=9\\), \\(10\\) and \\(11\\) you saw three different behaviours of the coordinate \\(y\\). Write down two predictions. The first: what condition on the factor \\(1-20h\\) makes \\(y\\) shrink, and for which whole numbers \\(H\\) it holds. The second: what happens at \\(H=11\\) if the start is on the \\(x\\) axis, so \\(y_0=0\\), which is the start \\((2,\\ 0)\\). The condition and the theorem about the threshold are in the formula below.',
         ),
         formulaIds: ['threshold'],
         observationPrompt: text(
-            `Zapiši obe napovedi in primerjaj prvo z odčitki iz korakov 3 do 5. Nato v polje ${LAB.p0y.sl} vpiši \\(0\\) (\\(H\\) ostane \\(11\\)), trikrat pritisni ${LAB.next.sl} in preberi ${LAB.point.sl}, ${LAB.valueF.sl}, ${LAB.first.sl} in ${LAB.behaviour.sl}.`,
-            `Write down both predictions and compare the first with the readouts of steps 3 to 5. Then in the field ${LAB.p0y.en} enter \\(0\\) (\\(H\\) stays \\(11\\)), press ${LAB.next.en} three times and read ${LAB.point.en}, ${LAB.valueF.en}, ${LAB.first.en} and ${LAB.behaviour.en}.`,
+            `Zapiši obe napovedi in primerjaj prvo z odčitki iz korakov 3 do 5. Nato v polje ${LAB.p0y.sl} vpiši \\(0\\) (\\(H\\) ostane \\(11\\)), trikrat pritisni ${LAB.next.sl} in preberi ${LAB.first.sl} in ${LAB.behaviour.sl}.`,
+            `Write down both predictions and compare the first with the readouts of steps 3 to 5. Then in the field ${LAB.p0y.en} enter \\(0\\) (\\(H\\) stays \\(11\\)), press ${LAB.next.en} three times and read ${LAB.first.en} and ${LAB.behaviour.en}.`,
         ),
         expectedObservations: [text(
             'Velja \\(\\lvert1-20h\\rvert<1\\) natanko za \\(0<h<0{,}1\\), torej za \\(H=1,\\ldots,9\\); pri \\(H=10\\) je faktor \\(-1\\), pri \\(H>10\\) pa je njegova absolutna vrednost večja od \\(1\\), kar se ujema z odčitki \\(H=9\\), \\(10\\) in \\(11\\). Meja \\(h=2/L=0{,}1\\) je izrek za kvadratne funkcije z \\(L=20\\); cik-cak v grafu je ponazoritev, dokaz je faktor. Za začetek \\((2;\\ 0)\\) je \\(y_k=0\\) pri vsakem koraku, zato ostane le \\(x\\) s faktorjem \\(1-2h=0{,}78\\): točke so \\((1{,}56;\\ 0)\\), \\((1{,}2168;\\ 0)\\) in \\((0{,}949104;\\ 0)\\), vrednosti \\(f\\) pa \\(2{,}4336\\), \\(1{,}480602\\) in \\(0{,}900798\\). Odčitek ' + LAB.first.sl + ' je \\(31\\) in odčitek ' + LAB.behaviour.sl + ' pravi, da pot konvergira k \\((0;\\ 0)\\), čeprav je \\(H=11\\).',
@@ -314,7 +314,7 @@ const ls3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Preizkusi napoved za dolino, nato raziskuj sam; nič ni treba vpisati.',
+            'Preizkusi napoved za dolino, nato raziskuj samostojno; nič ni treba vpisati.',
             'Test your prediction for the valley, then explore on your own; nothing has to be entered.',
         ),
         expectedObservations: [text(
@@ -371,21 +371,21 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         title: text('Nivojnica in premica', 'The level set and the line'),
         purpose: text('Napovedati, koliko skupnih točk ima nivojnica skozi točko premice s premico, in najti vrednost, pri kateri je ena.', 'Predicting how many points the level set through a point of the line shares with the line, and finding the value at which it is one.'),
         explanation: text(
-            `Graf je v načinu ${LAB.lagrange.sl}, točka je na premici pri \\(x=0\\), \\((0;\\ 2{,}5)\\), in \\(f=6{,}25\\). Črtkana črta je nivojnica \\(f=6{,}25\\) skozi to točko. Zapiši dve napovedi: koliko skupnih točk ima ta nivojnica s premico (vrednost \\(f\\) pri \\(x=2\\) iz prejšnjega koraka ti pomaga) in pri kateri vrednosti \\(f\\) ima nivojnica s premico natanko eno skupno točko.`,
-            `The graph is in the mode ${LAB.lagrange.en}, the point is on the line at \\(x=0\\), \\((0,\\ 2.5)\\), and \\(f=6.25\\). The dashed curve is the level set \\(f=6.25\\) through this point. Write down two predictions: how many points this level set shares with the line (the value of \\(f\\) at \\(x=2\\) from the previous step helps) and at which value of \\(f\\) the level set shares exactly one point with the line.`,
+            `Graf je spet v načinu ${LAB.levelSets.sl} z nivojnicami pri \\(c=1,\\ 2,\\ 3\\); premica \\(x+2y=5\\) ni narisana. Točka premice pri \\(x=0\\), \\((0;\\ 2{,}5)\\), ima \\(f=6{,}25\\); nivojnica \\(f=6{,}25\\) skozi njo ni narisana. Zapiši dve napovedi: koliko skupnih točk ima ta nivojnica s premico (vrednost \\(f\\) pri \\(x=2\\) iz prejšnjega koraka ti pomaga) in pri kateri vrednosti \\(f\\) ima nivojnica s premico natanko eno skupno točko (vstavi \\(y=(5-x)/2\\) v \\(f\\) in poišči, kdaj ima enačba eno rešitev).`,
+            `The graph is back in the mode ${LAB.levelSets.en} with the level sets at \\(c=1,\\ 2,\\ 3\\); the line \\(x+2y=5\\) is not drawn. The point of the line at \\(x=0\\), \\((0,\\ 2.5)\\), has \\(f=6.25\\); the level set \\(f=6.25\\) through it is not drawn. Write down two predictions: how many points this level set shares with the line (the value of \\(f\\) at \\(x=2\\) from the previous step helps) and at which value of \\(f\\) the level set shares exactly one point with the line (substitute \\(y=(5-x)/2\\) into \\(f\\) and find when the equation has one solution).`,
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napovedi. Nato v polje ${LAB.lineX.sl} vpiši \\(1\\) in preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.tangent.sl}; primerjaj črtkano nivojnico s premico.`,
-            `Write down your predictions. Then in the field ${LAB.lineX.en} enter \\(1\\) and read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.tangent.en}; compare the dashed level set with the line.`,
+            `Zapiši napovedi. Nato v izbirniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl}, primerjaj črtkano nivojnico skozi točko s premico, v polje ${LAB.lineX.sl} vpiši \\(1\\) in preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.tangent.sl}.`,
+            `Write down your predictions. Then in the chooser ${LAB.mode.en} choose ${LAB.lagrange.en}, compare the dashed level set through the point with the line, enter \\(1\\) in the field ${LAB.lineX.en} and read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.tangent.en}.`,
         ),
         expectedObservations: [text(
             'Nivojnica \\(f=6{,}25\\) je krožnica s polmerom \\(2{,}5\\), ki seka premico v dveh točkah, \\((0;\\ 2{,}5)\\) in \\((2;\\ 1{,}5)\\). Pri \\(x=1\\) je točka \\((1;\\ 2)\\) in \\(f=5\\): nivojnica \\(f=5\\) se premice le dotakne (premica leži sicer zunaj nje), vsaka nivojnica z manjšim \\(f\\) pa premice sploh ne doseže. Vrstica ' + LAB.tangent.sl + ' ima pri vsakem \\(x\\) vrednost \\((1;\\ 2)\\); to je točen izračun, ne ocena.',
             'The level set \\(f=6.25\\) is a circle of radius \\(2.5\\) that cuts the line in two points, \\((0,\\ 2.5)\\) and \\((2,\\ 1.5)\\). At \\(x=1\\) the point is \\((1,\\ 2)\\) and \\(f=5\\): the level set \\(f=5\\) only touches the line (the line otherwise lies outside it), and every level set with a smaller \\(f\\) does not reach the line at all. The row ' + LAB.tangent.en + ' has the value \\((1,\\ 2)\\) at every \\(x\\); this is an exact computation, not an estimate.',
         )],
-        scene: optimizationScene('ls4-touch-scene', LS4_BOWL_LINE_LAGRANGE,
-            'Skleda \\(x^2+y^2\\), način Vezani ekstrem, premica \\(x+2y=5\\), točka pri \\(x=0\\), \\((0;\\ 2{,}5)\\), \\(f=6{,}25\\); učenec vpiše \\(x=1\\).',
-            'The bowl \\(x^2+y^2\\), the mode Constrained extremum, the line \\(x+2y=5\\), the point at \\(x=0\\), \\((0,\\ 2.5)\\), \\(f=6.25\\); the learner enters \\(x=1\\).'),
+        scene: optimizationScene('ls4-touch-scene', LS4_BOWL_LINE,
+            'Skleda \\(x^2+y^2\\), način Nivojnice, nivojnice pri \\(c=1,\\ 2,\\ 3\\); premica \\(x+2y=5\\) je shranjena s točko pri \\(x=0\\), \\((0;\\ 2{,}5)\\), a ni narisana; učenec preklopi v Vezani ekstrem in vpiše \\(x=1\\).',
+            'The bowl \\(x^2+y^2\\), the mode Level sets, the level sets at \\(c=1,\\ 2,\\ 3\\); the line \\(x+2y=5\\) is stored with the point at \\(x=0\\), \\((0,\\ 2.5)\\), but not drawn; the learner switches to Constrained extremum and enters \\(x=1\\).'),
     }),
     step({
         id: 'ls4-gradients', order: 3,
@@ -413,13 +413,13 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         title: text('Produkt na krožnici', 'A product on a circle'),
         purpose: text('Napovedati, kje na krožnici je produkt \\(xy\\) največji in najmanjši in v koliko točkah se nivojnica dotika krožnice.', 'Predicting where on a circle the product \\(xy\\) is largest and smallest and at how many points a level set touches the circle.'),
         explanation: text(
-            `Graf je v načinu ${LAB.levelSets.sl}: funkcija \\(f(x,y)=xy\\) z nivojnicami pri \\(c=0,\\ 1,\\ 2\\) v oknu od \\(-2\\) do \\(2\\). Vezni pogoj, krožnica \\(x^2+y^2=2\\) s polmerom približno \\(1{,}41\\), v tem načinu ni narisan. Zapiši napoved: v katerih točkah krožnice je \\(xy\\) največji in v katerih najmanjši, kolikšni sta ti vrednosti in v koliko točkah se nivojnica funkcije \\(f\\) dotika krožnice.`,
+            `Graf je v načinu ${LAB.levelSets.sl}: funkcija \\(f(x,y)=xy\\) z nivojnicami pri \\(c=0,\\ 1,\\ 2\\) v oknu od \\(-2\\) do \\(2\\). Vezni pogoj, krožnica \\(x^2+y^2=2\\) s polmerom približno \\(1{,}41\\), v tem načinu ni narisana. Zapiši napoved: v katerih točkah krožnice je \\(xy\\) največji in v katerih najmanjši, kolikšni sta ti vrednosti in v koliko točkah se nivojnica funkcije \\(f\\) dotika krožnice.`,
             `The graph is in the mode ${LAB.levelSets.en}: the function \\(f(x,y)=xy\\) with the level sets at \\(c=0,\\ 1,\\ 2\\) in the window from \\(-2\\) to \\(2\\). The constraint, the circle \\(x^2+y^2=2\\) of radius about \\(1.41\\), is not drawn in this mode. Write down a prediction: at which points of the circle is \\(xy\\) largest and at which smallest, what are these values and at how many points does a level set of \\(f\\) touch the circle.`,
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napoved. Nato v izbirniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl} in pri drsniku ${LAB.circleAngle.sl} (kot je izpisan v stopinjah) nastavi kote \\(0^\\circ\\), \\(45^\\circ\\), \\(90^\\circ\\), \\(135^\\circ\\), \\(180^\\circ\\), \\(225^\\circ\\), \\(270^\\circ\\) in \\(315^\\circ\\); pri vsakem preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.touch.sl}. Preberi še ${LAB.angles.sl}.`,
-            `Write down your prediction. Then in the chooser ${LAB.mode.en} choose ${LAB.lagrange.en} and at the slider ${LAB.circleAngle.en} (the angle is shown in degrees) set the angles \\(0^\\circ\\), \\(45^\\circ\\), \\(90^\\circ\\), \\(135^\\circ\\), \\(180^\\circ\\), \\(225^\\circ\\), \\(270^\\circ\\) and \\(315^\\circ\\); at each read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.touch.en}. Also read ${LAB.angles.en}.`,
+            `Zapiši napoved. Nato v izbirniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl} in pri drsniku ${LAB.circleAngle.sl} (kot je izpisan v stopinjah) nastavi kote \\(45^\\circ\\), \\(135^\\circ\\), \\(225^\\circ\\) in \\(315^\\circ\\) ter še \\(0^\\circ\\); pri vsakem preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.touch.sl} (ali sta gradienta vzporedna). Preberi še ${LAB.angles.sl}.`,
+            `Write down your prediction. Then in the chooser ${LAB.mode.en} choose ${LAB.lagrange.en} and at the slider ${LAB.circleAngle.en} (the angle is shown in degrees) set the angles \\(45^\\circ\\), \\(135^\\circ\\), \\(225^\\circ\\) and \\(315^\\circ\\) and also \\(0^\\circ\\); at each read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.touch.en} (whether the gradients are parallel). Also read ${LAB.angles.en}.`,
         ),
         expectedObservations: [text(
             'Pri \\(45^\\circ\\) je točka \\((1;\\ 1)\\) in \\(f=1\\), pri \\(135^\\circ\\) \\((-1;\\ 1)\\) in \\(f=-1\\), pri \\(225^\\circ\\) \\((-1;\\ -1)\\) in \\(f=1\\), pri \\(315^\\circ\\) \\((1;\\ -1)\\) in \\(f=-1\\); povsod graf pravi, da sta gradienta približno vzporedna, \\(\\lvert\\sin\\rvert=0\\) (izračunano, toleranca \\(\\lvert\\sin\\rvert<0{,}01\\)), in ' + LAB.angles.sl + ' je \\(4\\) od \\(48\\) kotov. Največja vrednost \\(1\\) je torej v \\((1;\\ 1)\\) in \\((-1;\\ -1)\\), najmanjša \\(-1\\) pa v \\((1;\\ -1)\\) in \\((-1;\\ 1)\\). Pri \\(0^\\circ\\), \\(90^\\circ\\), \\(180^\\circ\\) in \\(270^\\circ\\) je \\(f=0\\) in gradienta nista vzporedna (\\(\\lvert\\sin\\rvert=1\\)). Dotik je na vseh štirih točkah enak pogoj, zato po njem ne ločimo največjega od najmanjšega; dotik, ki ni ne eno ne drugo, imenujemo le: \\(f=x^3\\) na premici \\(y=0\\) ima v \\((0;\\ 0)\\) enačbo \\(\\nabla f=\\lambda\\nabla g\\) z \\(\\lambda=0\\), a tam ni ekstrema (graf tega ne nariše).',
@@ -439,7 +439,7 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Raziskuj sam; nič ni treba vpisati.',
+            'Raziskuj samostojno; nič ni treba vpisati.',
             'Explore on your own; nothing has to be entered.',
         ),
         expectedObservations: [text(
@@ -475,7 +475,7 @@ const ls3: GuidedLesson = {
     ],
     learningGoals: [
         text('Znaš iz formule napovedati prvi korak in obliko poti gradientnega spusta ter jo primerjati z narisano.', 'Can predict the first step and the shape of the path of gradient descent from the formula and compare it with the drawn one.'),
-        text('Znaš za kvadratno dolino iz faktorjev \\(1-2h\\) in \\(1-20h\\) izračunati, kdaj pot konvergira, niha ali divergira, in veš, da je meja \\(h=2/L\\) izrek, cik-cak v grafu pa ponazoritev.', 'Can compute from the factors \\(1-2h\\) and \\(1-20h\\) for the quadratic valley when the path converges, oscillates or diverges, and know that the boundary \\(h=2/L\\) is a theorem and the zig-zag in the graph an illustration.'),
+        text('Znaš za kvadratno dolino iz faktorjev \\(1-2h\\) in \\(1-20h\\) izračunati, kdaj pot konvergira, niha ali divergira, in veš, da o koraku odloča izrek, cik-cak v grafu pa je le ponazoritev.', 'Can compute from the factors \\(1-2h\\) and \\(1-20h\\) for the quadratic valley when the path converges, oscillates or diverges, and know that a theorem decides about the step and the zig-zag in the graph is only an illustration.'),
         text('Veš, da izrek velja za kvadratne funkcije in da za druge funkcije graf ne trdi ničesar o konvergenci.', 'Know that the theorem holds for quadratic functions and that for other functions the graph claims nothing about convergence.'),
     ],
     formulaBlocks: ls3Formulas,
@@ -483,7 +483,7 @@ const ls3: GuidedLesson = {
     steps: ls3Steps,
     sources,
     edgeCases: [
-        text('Če je začetek na osi \\(x\\) doline (\\(y_0=0\\)), se \\(y\\) ne spremeni in pot konvergira tudi pri \\(H>10\\); prag \\(H<10\\) velja za začetke z \\(y_0\\ne0\\).', 'If the start is on the \\(x\\) axis of the valley (\\(y_0=0\\)), \\(y\\) does not change and the path converges also for \\(H>10\\); the threshold \\(H<10\\) holds for starts with \\(y_0\\ne0\\).'),
+        text('Če je začetek na osi \\(x\\) doline (\\(y_0=0\\)), se \\(y\\) ne spremeni in pot konvergira tudi pri velikih korakih; prag, nad katerim pot divergira, velja za začetke z \\(y_0\\ne0\\).', 'If the start is on the \\(x\\) axis of the valley (\\(y_0=0\\)), \\(y\\) does not change and the path converges also for large steps; the threshold beyond which the path diverges holds for starts with \\(y_0\\ne0\\).'),
         text('Pri gričih in skledi graf nariše le pot in ne trdi, ali konvergira; odčitek Prvi korak z \\(f<0{,}000001\\) ni merilo konvergence, ker lahko \\(f\\) pade tudi pod \\(0\\).', 'For the hills and the bowl the graph draws only the path and makes no claim about convergence; the readout First step with \\(f<0.000001\\) is not a measure of convergence, because \\(f\\) can also fall below \\(0\\).'),
         text('Izračun se konča po \\(200\\) korakih ali prej, ko pot uide predaleč; pot je izračunana, ne dokazana.', 'The computation ends after \\(200\\) steps or earlier when the path goes too far; the path is computed, not proved.'),
     ],
