@@ -96,3 +96,18 @@
 - New `src/learning/content/isometriesFriezeGuidedLessons.test.ts` (LF, 13 tests). Part A (to the `Part B` marker): both-language scene sweep on a real IsometryGraph (out of order, twice in one act, restore returns the free state), prompt labels, openings not the asked state, the tick sequences of steps 1-5 vs statuses/rows, no p2/p2mg/p2mm leak before the change in steps 1-3. Part B: brute-force closure of the generators mod the period (not `src/isometry`): all 16 combinations at L = 4, 6, 8 (11 types, 5 shorten), copies per type, graph vs closure for all 16 at periods 4 and 6, centre spacing L/2, centre L/4, H+G = translation L/2, quoted numbers and the seven-type list in sl and en, no English decimals.
 - Red: sl step 2 "4 slike" -> "3 slike" failed the sl quoted-number test; restored with `git checkout` (`s2d-red-l5.log`). Green: unit, `just typecheck`, `just lint` all 0 (`s2d-*-l5.log`).
 - No false claim found. Not verified: board marker positions and the caption on the board.
+
+## Slice 3: chapter join
+
+### Written
+- `isometriesChapterRegistry.ts`: sections `rosettes` (`isometries-rosettes`) and `frieze-patterns` (`isometries-friezes`). `isometriesChapter.ts`: two sections (4 paragraphs sl/en, formula without `\text`, example) and the `dilation-similarity` formula now uses symbols (`|P'Q'|=|k||PQ|`, `S'=k^2S`; paragraph 2 defines them).
+- Examples: rosette n=3 with mirrors, D_3, 6 motions, generic point 6 images, point on a mirror 6/2=3. Frieze L=4: half-turn about the origin with glide (x+2,-y); their composite is (-x-2,y), the mirror x=-1; 4 motions per period, p2mg; glide twice is the translation by L.
+- Tests: `familyChapters.test.ts` isometries minimum 3 to 5, `authoredChapterCoverage.test.ts` 192 to 194, `lessonMathNotation.test.ts` (imports, two lesson-set rows, two ids), smoke spec `'isometries': 5`, `guidedExamplePreviews.test.ts` `pending` for the two homes. `registration.ts` comment. `localization.md` four rows; task 07 and README status.
+- No change needed to the rosette/frieze lesson files (notation test passed unflagged).
+
+### Outcome
+- Red: `s3-red.log` (3 vs 5 sections, 192 vs 194). tsc, lint, `just unit src/learning src/graphs/isometry` (`s3-unit.log`), build, `smoke-lesson isometries` passed.
+- rawcheck reports 3 lines (72-74), the same three as at HEAD (`\'` in older text); none new.
+
+### Not verified
+- Build took 4.9 s and smoke reported "reusing build"; whether the build reflected the new sections is unchecked. Chapter page with 5 sections not viewed in a browser. Slovenian prose unreviewed by a native speaker.

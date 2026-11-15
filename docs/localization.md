@@ -118,6 +118,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | podobnost | similarity, a dilation composed with an isometry (keeps angles and ratios of lengths); L3, handler-unreviewed |
 | razmerje dolžin; razmerje ploščin | ratio of lengths (|k|); ratio of areas (k squared) of image and motif; L3, handler-unreviewed |
 | polobrat | half-turn, a rotation by 180 degrees (dilation with k = -1); L3, handler-unreviewed |
+| rozeta | rosette, a figure fixed by a finite set of motions about a centre (the chapter calls it by its group); L4, handler-unreviewed |
+| ciklična grupa C_n; diedrska grupa D_n | cyclic group of the n rotations; dihedral group of 2n motions with mirrors; L4, handler-unreviewed |
+| friz; frizna grupa | frieze pattern; frieze group (the closed set of symmetries of a frieze); L5, handler-unreviewed |
+| perioda | period L of a frieze, the shortest translation along the line of the pattern; L5. The word already means the cycle length in the recursion lessons; handler-unreviewed here |
 | potenčna premica; potenčno središče | radical axis; radical centre (CG1, CG2). Built on the existing *potenca*; glossed on first use, unreviewed |
 | Talesova krožnica | Thales circle, the circle over a diameter (CG1). From the existing *Talesov izrek* |
 | tetiva dotikališč | chord of contact, the segment joining the two points of contact (CG1). Built on *tetiva* and *točka dotika* |

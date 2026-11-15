@@ -23,7 +23,9 @@ import {circleTangentsLesson, circleRadicalLesson, circleApolloniusLesson, circl
 import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson} from './mechanicalCurvesGuidedLessons';
 import {kinematicsVectorsLesson, kinematicsSpeedLesson, kinematicsProjectileLesson, kinematicsCircularLesson} from './kinematicsGuidedLessons';
 import {latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson} from './combinatoricsGuidedLessons';
+import {friezeLesson} from './isometriesFriezeGuidedLessons';
 import {isometryClassifyLesson, isometryDilationLesson, isometryTwoMirrorsLesson} from './isometriesGuidedLessons';
+import {rosetteLesson} from './isometriesRosetteGuidedLessons';
 import {linearMapEigenLesson, linearMapEllipseLesson, linearMapPowerMethodLesson, linearMapStabilityLesson, linearMapCompositionLesson} from './linearMapsChapterLessons';
 import {schoolFunctionGraphsGuidedLessons} from './schoolFunctionGraphsGuidedLessons';
 import {schoolFunctionGraphsBatchBGuidedLessons} from './schoolFunctionGraphsBatchBGuidedLessons';
@@ -104,6 +106,8 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['mechanicalCurvesGuidedLessons', [mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson]],
     ['combinatoricsGuidedLessons', [latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson]],
     ['isometriesGuidedLessons', [isometryTwoMirrorsLesson, isometryClassifyLesson, isometryDilationLesson]],
+    ['isometriesRosetteGuidedLessons', [rosetteLesson]],
+    ['isometriesFriezeGuidedLessons', [friezeLesson]],
     ['linearMapsChapterLessons', [linearMapEigenLesson, linearMapEllipseLesson, linearMapCompositionLesson, linearMapPowerMethodLesson, linearMapStabilityLesson]],
     ['coonsGuidedLessons', coonsGuidedLessons],
     ['degreeReductionGuidedLessons', degreeReductionGuidedLessons],
@@ -277,6 +281,7 @@ test('scans every lesson module', () => {
             'complex-power', 'complex-euler', // complexPowerGuidedLessons.ts: M6; complexEulerGuidedLessons.ts: M7
             'lattice-paths', 'counting-tree', 'lattice-paths', 'lattice-paths', // combinatoricsGuidedLessons.ts: CB1 to CB4
             'isometries', 'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 to L3
+            'isometries', 'isometries', // isometriesRosetteGuidedLessons.ts: L4; isometriesFriezeGuidedLessons.ts: L5
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
             'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'linear-map', 'linear-map', 'linear-map', 'linear-map', 'linear-map', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal', 'bspline-blossom', 'patch-coons', 'reduction', 'arc-length-param', 'bezier-clipping', 'fourier-series', 'fourier-coefficients', 'epicycles', 'projective-cross-ratio', 'bspline-basis', 'projective-pascal', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'bspline-nurbs', 'projective-pole-polar', 'projective-five-point', 'projective-three-views', 'interp-runge', 'interp-least-squares', 'quadrature', 'euler-method', 'prob-density', 'monotone-partition', 'monotone-triangulation', 'fortune', 'prob-binomial-normal', 'prob-clt', 'prob-summary', 'prob-correlation', 'point-in-polygon', 'hull-robustness', 'bezier-hulls', 'curve-comb', 'curve-evolute', 'curve-offset', 'curve-envelope'].sort(),
     );

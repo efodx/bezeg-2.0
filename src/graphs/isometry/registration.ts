@@ -4,7 +4,7 @@ import type {Definition} from '../../demonstrations';
  * Cheap metadata of the isometry family (spec lesson-authoring-architecture R1). Imports no graph, React, lesson
  * provider or localization value, so the home page and catalog can read it without loading the family. Executable surfaces
  * live in `runtime.ts`, which this file never imports; preset collections live in `collections.ts`.
- * The row has its guided lessons (L1, L2, chapter-owned by the isometries chapter).
+ * The row has its guided lessons (L1 to L5, chapter-owned by the isometries chapter).
  */
 export const isometryFamilyId = 'isometries';
 
