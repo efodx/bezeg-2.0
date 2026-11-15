@@ -1,68 +1,70 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+    "dirty": true,
+    "inputs": "07377f7fe7e95b8bd05d6aba58aadfba8a1e58dca14e5fc638519baa44d3cfa1",
+    "output": "0258779116225ace89d7449b0059c444c5d985c2578002c752e757b4f28e62b5"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
+    "stampRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+    "stampDirty": true,
+    "localOutputHash": "0258779116225ace89d7449b0059c444c5d985c2578002c752e757b4f28e62b5",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-D0m137WQ.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-D0m137WQ.js",
+        "sha256": "6adcfa838b993fa26ad24d0085a24699c301fd38a742f7591c59d54001daff92",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
         "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
         "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4519/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "d9a81e991a7f48d9b4043a4ae92889f5e070d00780872378cfd75a953e9eba99",
+    "inventory": "ec3fd10ca41c14d9fe06aa7202e7a8fa713ec3bbf2cfe947370e473e9a015429",
     "entries": {
       "recursion.sequences.recursion-growth": "679f986f48a0397ce8ef181dbca6bc82ae7223823bcc61d695624c30cb78f9db",
-      "recursion.compound-interest.recursion-growth": "14532be93290ab24beef18e4a196f2c061232b1bcd67cb313efe0f26e3d17dd8"
+      "recursion.cobweb.recursion-cobweb": "916d2b612c3be344a04da0ee0d8077ccf5626c18182404c5228316c961178db3",
+      "recursion.compound-interest.recursion-growth": "14532be93290ab24beef18e4a196f2c061232b1bcd67cb313efe0f26e3d17dd8",
+      "recursion.logistic.recursion-cobweb": "2915fb1b555d63417580b218fc92f9788bde2c70d3501d207f7fe53b851599ce"
     },
-    "presentation": "35baf48e689e10ddf4a03ba9aa8bd703e2cf1c03a292a695da588c957e418b27",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "56899e8d5e64e4e2b749d1690e96b4e1d526a36604750716d659ab053856430a",
+    "buildOutput": "0258779116225ace89d7449b0059c444c5d985c2578002c752e757b4f28e62b5",
+    "buildInputs": "07377f7fe7e95b8bd05d6aba58aadfba8a1e58dca14e5fc638519baa44d3cfa1"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -95,6 +97,19 @@
         }
       },
       {
+        "id": "recursion.cobweb.recursion-cobweb",
+        "demonstrationId": "recursion-cobweb",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7.8125,
+            7.8125,
+            7.8125,
+            -7.8125
+          ]
+        }
+      },
+      {
         "id": "recursion.compound-interest.recursion-growth",
         "demonstrationId": "recursion-growth",
         "framing": {
@@ -104,6 +119,19 @@
             1464.6,
             0.922,
             -88.6
+          ]
+        }
+      },
+      {
+        "id": "recursion.logistic.recursion-cobweb",
+        "demonstrationId": "recursion-cobweb",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.03125,
+            1.0023,
+            0.96875,
+            -0.0523
           ]
         }
       }
@@ -224,8 +252,158 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "recursion.cobweb.recursion-cobweb",
+      "demonstrationId": "recursion-cobweb",
+      "path": "/bezeg-2.0/analysis/recursion?example=lesson.recursion.cobweb.recursion-cobweb",
+      "sceneFingerprint": "6a7aa64da2fc4a9158aed4c46da1b6288d5681ef322682dfc66c8fa50cc2c8fb",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg2-line-diagonal-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg2-line-diagonal-scene\",\"source\":\"demonstration-default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "recursion.cobweb.recursion-cobweb.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "8c1bf58800077f5549928c950a6900424429a3b9a9c78e842ffd39eed3afa28e",
+      "scene": {
+        "visibleElementCount": 29,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 16,
+          "curve": 2,
+          "point": 2,
+          "text": 5
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              -10,
+              -10
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              10,
+              10
+            ]
+          ],
+          [
+            [
+              -10,
+              -4
+            ],
+            [
+              -9.95,
+              -3.975
+            ],
+            [
+              -9.9,
+              -3.95
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:2,2",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 2,
+            "point": 2,
+            "text": 5
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                -10,
+                -10
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                10
+              ]
+            ],
+            [
+              [
+                -10,
+                -4
+              ],
+              [
+                -9.95,
+                -3.975
+              ],
+              [
+                -9.9,
+                -3.95
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:2,2",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 16,
+          "curve": 3,
+          "point": 2,
+          "text": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
         "pageErrors": []
       }
     },
@@ -533,8 +711,158 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "recursion.logistic.recursion-cobweb",
+      "demonstrationId": "recursion-cobweb",
+      "path": "/bezeg-2.0/analysis/recursion?example=lesson.recursion.logistic.recursion-cobweb",
+      "sceneFingerprint": "ef8c401b863f71664976643861ae372421c3aad8230170d7797585ed94d81e97",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg4-rule-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg4-rule-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-map\",\"map\":\"logistic\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-params\",\"R\":12}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "recursion.logistic.recursion-cobweb.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "66621572a3652a5e41e18c2f455f8fb33eba525745de84f2cf6f60307244eb3a",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 2,
+          "point": 2,
+          "text": 5
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.1,
+              -0.1
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1.1,
+              1.1
+            ]
+          ],
+          [
+            [
+              -0.1,
+              -0.132
+            ],
+            [
+              -0.097,
+              -0.127702
+            ],
+            [
+              -0.094,
+              -0.123403
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0.1,0.1",
+          "point:0.16666666666666666,0.16666666666666666",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 23,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 10,
+            "curve": 2,
+            "point": 2,
+            "text": 5
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.1,
+                -0.1
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1.1,
+                1.1
+              ]
+            ],
+            [
+              [
+                -0.1,
+                -0.132
+              ],
+              [
+                -0.097,
+                -0.127702
+              ],
+              [
+                -0.094,
+                -0.123403
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0.1,0.1",
+            "point:0.16666666666666666,0.16666666666666666",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 3,
+          "point": 2,
+          "text": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
         "pageErrors": []
       }
     }

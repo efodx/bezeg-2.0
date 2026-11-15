@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for RG2 and RG4; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the `fixed-point-*` lessons behave as before.
 
-Status: F3 RG2 and RG4 written and joined (handler 25); F4 cards, F5 clip and F6 gate next.
+Status: F3 RG2 and RG4 written and joined (handler 25); F4 cards, F5 clip and F6 gate next. F4 cards captured (handler 25); catalog clip and F6 next.

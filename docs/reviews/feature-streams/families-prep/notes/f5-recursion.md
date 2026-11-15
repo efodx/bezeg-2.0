@@ -16,3 +16,12 @@
 - Test (`GrowthGraph.test.tsx`, "board texts clear of the axes", at 600x400, 340x300 and 840x520): red before the fix (x title 5.5 px under the axis, -3 px on interest, legend samples and texts at 0 to 6 px from the axis; `red.log`), green after. The tick-number test was red for a throw inside the default label function (it cannot take a fake tick), and was shown to fail by disabling the new rule (`red2.log`).
 - Capture script: the two recursion windows lower the bottom (80 px under the axis on the card, whose text is larger); the geometry-stability check accepts a legend sample (horizontal segment of equal pixel length) redrawn in the card's units (`isScreenAnchoredHorizontalSegment`). Cards recaptured and viewed; `expected` checks unchanged.
 - Screenshots at 1366 and 390 of the default and both openings viewed. Remaining: the lesson panel ("Vodeni primer") floats over the vertical axis title on the 1366 openings (host overlay, not the graph). Logs: `.command-logs/label-pass/recursion/`.
+
+## F4 cards (Batch B)
+
+- Two cards added: `recursion.cobweb.recursion-cobweb` (RG2: y = 0,5 x + 1, diagonal, start handle at 0, fixed point square, no step drawn) and `recursion.logistic.recursion-cobweb` (RG4: r = 1,2, start 0,1, no step). Inventory `expected` (`recursionFrames.cobweb`/`logistic`, helper `recursionCobwebOpening`) authored from `GrowthGraph`-style reading of `RecursionCobwebGraph.tsx`, `cobwebScene.ts`: two visible curves, two points. Own mistake caught by the capture: a data curve's middle sample is the mean of the segment ends, not the map at the midpoint.
+- Capture script: a data curve of one point (the cobweb path before the first step) is no visible curve (it has no three finite samples); `recursionWindows` gained both cards (the maps' own boxes shrunk by 28 percent); recipe row `recursion-cobweb` added.
+- Pre-capture failure: `guidedExamplePreviews.test.ts` recursion row, "expected [ …(2) ] to deeply equal [ …(4) ]" (after the pending list was removed). After capture the glob cache was stale again; a comment edit above `chapterImageUrls` refreshed it.
+- Existing two PNGs were recaptured with the family: same geometry, board caption font now serif (was sans in the committed PNGs), so bytes differ; viewed. Manifest hashes follow the new bytes.
+- Crowding (graph code, not fixable here): cobweb card the legend row crosses the vertical axis, "negibna točka" sits on the map line; logistic card the map curve runs through "negibna točka" and the start caption touches tick 0,2.
+- Logs: `.command-logs/rec-b/f4/`.

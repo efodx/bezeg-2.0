@@ -60,12 +60,15 @@ const randomnessWindows = {
     'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.398, 1.008, -1.648],
 };
 
+// The cobweb cards take the window of the map (affine [-10, 10]^2; logistic [-0.1, 1.1] x [-0.2, 1.15]) shrunk the same way.
 // The growth cards: the board frames each panel in its own window (the sequence panel: x from -0.7 to 7.2, y from 17.55 to -1.3 for the six terms up to 13; the one-year interest panel: x from -0.12 to 1.05,
 // y from 1682.03 to -84.1; the cards lower the bottom to leave 80 px under the axis (the card text is larger) for the tick numbers and the axis title), which has unequal x and y scales; the default capture size gives both axes one scale and the figure becomes a thin strip off the centre, under overlapping captions.
 // The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
 const recursionWindows = {
     'recursion.sequences.recursion-growth': [0.164, 15.28, 6.336, -0.92],
     'recursion.compound-interest.recursion-growth': [0.008, 1464.6, 0.922, -88.6],
+    'recursion.cobweb.recursion-cobweb': [-7.8125, 7.8125, 7.8125, -7.8125],
+    'recursion.logistic.recursion-cobweb': [0.03125, 1.0023, 0.96875, -0.0523],
 };
 
 // The linear-programming card: the board lays eight caption rows over the top two thirds of the card and its own opening frame (made on a larger board, a view of about 120 units) shrinks the region to a dot, under the captions.
@@ -263,7 +266,8 @@ function inspectBoard(page) {
         const visible = Object.values(board.objects || {}).filter(object => {
             if (!object?.rendNode?.isConnected || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
             // A data curve with no points draws nothing (the simulation graph keeps one curve per layer, also the empty ones); it is no visible curve and has no samples.
-            if (object.elType === 'curve' && Array.isArray(object.dataX) && object.dataX.length === 0) return false;
+            // A single point (the cobweb path of the start before the first step) draws no line either and has no three finite samples.
+            if (object.elType === 'curve' && Array.isArray(object.dataX) && object.dataX.length <= 1) return false;
             const style = getComputedStyle(object.rendNode);
             return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
         });

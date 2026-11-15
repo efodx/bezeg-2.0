@@ -2403,6 +2403,19 @@ function recursionOpening(id, step, operations) {
     return Object.fromEntries(own.map(item => [item.operation, item]));
 }
 
+/** The opening scene of a cobweb lesson: the prepared default, then exactly the listed `recursion` operations (RG4 sets the logistic map and r = 1.2 the Demonstration default does not have; its R is written once). */
+function recursionCobwebOpening(id, step, operations) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `recursion:${operation}`), `${id}: the opening scene is ${operations.join(', ') || 'the Demonstration default alone'}`);
+    if (operations.length > 0) {
+        assert.deepEqual(own.map(item => [item.map, item.R, item.M, item.C, item.X]), [['logistic', undefined, undefined, undefined, undefined], [undefined, 12, undefined, undefined, undefined]], `${id}: only the logistic map with R = 12 is authored`);
+    }
+}
+
 // Authored from GrowthGraph.tsx (buildScene) and growthScene.ts (barsPath, sampleCurve), not from a capture. A data curve is read at the indices 0, 1/2 and 1 of its points (the first segment).
 const recursionFrames = {
     // RG1 step 1: the arithmetic sequence a1 = 3, d = 2 with 6 terms (the default kind, shown in the sequence panel). One visible curve, the outline of the bars, and the diamond marker of the 6th term; the limit line
@@ -2422,6 +2435,19 @@ const recursionFrames = {
             `${id}: only 1000 at 5 percent for 1 year with yearly compounding is authored`);
         const simple = x => 1000 * (1 + 0.05 * x);
         return {types: {curve: 8}, curveCount: 8, points: [], curves: [[[0, simple(0)], [1 / 158, simple(1 / 158)], [1 / 79, simple(1 / 79)]]]};
+    },
+    // RG2 step 1: the Demonstration default of the cobweb board (affine map y = 0.5 x + 1, start 0, no step drawn) on the window [-10, 10]^2. Two curves (the map on 201 samples from x = -10, the diagonal as the two ends
+    // of the window; the cobweb path holds only the start, a single point that draws no line) and two points (the start handle on the diagonal at (0, 0) and the fixed point x* = 1 / (1 - 0.5) = 2); the iterate marker is hidden at step 0.
+    cobweb: (id, step) => {
+        recursionCobwebOpening(id, step, []);
+        return {types: {curve: 2, point: 2}, curveCount: 2, points: [[0, 0], [2, 2]], curves: [[[-10, -4], [-9.95, -3.975], [-9.9, -3.95]], [[-10, -10], [0, 0], [10, 10]]]};
+    },
+    // RG4 step 1: the logistic map with r = 1.2 and the start 0.1, no step drawn, on the window [-0.1, 1.1] x [-0.2, 1.15]. The same two curves and two points: the handle at (0.1, 0.1) and the fixed point
+    // x* = 1 - 1 / 1.2 = 1/6. The map is 1.2 x (1 - x) on 201 samples from x = -0.1 (step 1.2 / 200); the middle sample lies halfway along the first segment, so its height is the mean of the two ends.
+    logistic: (id, step) => {
+        recursionCobwebOpening(id, step, ['set-map', 'set-params']);
+        const map = x => Math.round(1.2 * x * (1 - x) * 1e6) / 1e6;
+        return {types: {curve: 2, point: 2}, curveCount: 2, points: [[0.1, 0.1], [1 / 6, 1 / 6]], curves: [[[-0.1, map(-0.1)], [-0.097, (map(-0.1) + map(-0.094)) / 2], [-0.094, map(-0.094)]], [[-0.1, -0.1], [0.5, 0.5], [1.1, 1.1]]]};
     },
 };
 
