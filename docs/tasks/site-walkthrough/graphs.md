@@ -23,7 +23,7 @@ Rule (planning session, 2026-11-14): propose, show a preview, wait for the owner
 | 9e | B6 conics and three views | G02–G04 | Done, on `master` (`c181252c`) |
 | 9f | B7 rational (policy reaches smartlabels) | G02–G04 | Done, on `master` (`c181252c`) |
 | 9h | B8a functions and analysis, B8e capture-tool repair | G03, G04 | Done, on `master` (`f44ddd3e`, CI green) |
-| 9g | B8b to B8d text sweep, B10 patches | G02–G04 | B8b published under the grant (`b8b.html`; `linear-map` open: encoder background check); B8c published under the grant (`b8c.html`; `monotone-triangulation` open: page crash during capture); B8d published (`b8d.html`; `projective-pascal` line labels survive the policy); B10 next |
+| 9g | B8b to B8d text sweep, B10 patches | G02–G04 | B8b, B8c, B8d, B8f published under the grant (`b8b`..`b8f` pages); next: `projective-cross-ratio` recapture, B10 |
 | 10 | Epicycles catalog card with a subject (B9) | G07 | After 9c; its recipe label is stale |
 | 11 | Repair the `bezier` restore step | G02 | Done, on `master` |
 | 12 | Recapture guided example images per chapter | G02 | Open |

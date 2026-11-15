@@ -1,32 +1,30 @@
 # State: site walkthrough, graphs (package D)
 
-Handler 4, 2026-11-15 (running). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
+Handler 4 handing off to handler 5, 2026-11-15 (context budget). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
 
 ## For the owner
 
-**To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/
+**To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/ (pages `b8b.html`, `b8c.html`, `b8d.html`, `b8f.html`)
 
-- **Approved by you 2026-11-15, on `master` (`f44ddd3e`, CI green):** B8a second part (`b8a2.html`: eleven function cards, text only) and B8e (`b8e.html`: five repaired captures: sequence keeps the N tag, Euler method no text, accumulation keeps the plus sign, derivative keeps `f(x) = x²`, area between curves keeps f and g).
-- **Published under your grant, open to your objection: B8b maps and plane geometry** (`b8b.html`). Complex multiplication keeps Re and Im; complex reciprocal and complex roots lose them too, because those cards draw no axes for the names to label; triangle centres and inversion have no text; orientation keeps its signed value "+8". The linear map is not done: its moving grid trips a video check (a capture-tool question, not a design one).
-- **Published under your grant, open to your objection: B8c computational geometry** (`b8c.html`). Delaunay and the monotone partition lose all text (the partition's vertex names sat under the marked points). The monotone triangulation is not done: its capture crashes the browser page.
-- **Published under your grant, open to your objection: B8d B-splines and projective** (`b8d.html`). The basis card keeps its knot labels; the other B-spline cards, the blossom and the cross ratio have no text. Pascal still shows its line names: the capture tool does not reach line labels yet.
-- **Your grant is in force** (you confirmed it to handler 4, 2026-11-15): from here on, batches inside the approved direction are published after the handler's checks and review, shown on their `bN` page and listed here so you can object afterwards.
-- **On `master`, CI green:** B3 to B7 and B8a first part (`b89dc04d`); the extrapolation lesson test counts the curve and its extension arc (`e676f01b`).
-
-**One thing not changed, with its reason:** the affine clip stays in steps because its controls are step buttons.
+- **Published under your grant, open to your objection** (comparison page for each):
+  - **B8b, maps and plane geometry:** complex multiplication keeps Re and Im. Complex reciprocal and complex roots draw no axes, so they lose Re and Im too. Triangle centres and inversion have no text. Orientation keeps its signed value "+8".
+  - **B8c, computational geometry:** Delaunay and the monotone partition have no text. The partition's vertex names sat under the marked points.
+  - **B8d, B-splines and projective:** the basis card keeps its knot labels. The other B-spline cards, the blossom and the cross ratio have no text.
+  - **B8f, capture-tool repairs:** Pascal now has no text. The linear map keeps its basis line `a₁ = (2, 1), a₂ = (−1, 1)`. The monotone triangulation has no text.
+- **Approved by you, on `master`:** B3 to B7, B8a both parts, B8e. CI green after the extrapolation test fix.
+- **Your choice, still open:** the affine clip stays in steps because its controls are step buttons; smooth motion needs new drawing code.
 
 ## Where things stand
 
-- `master` has B8a both parts and B8e (`f44ddd3e`, CI run 43652989999 green); B8b publishing from `graphs-pub` (check `just publish --status`).
-- This branch still carries pre-publish copies of everything up to B8e. Rebase onto `origin/master` once that publish lands; an earlier attempt stopped on a Windows file lock mid-pick (untracked `b8a2/` files left behind; removed and aborted), so stop the preview server first. On a conflict in this note or the queue take this branch's version; in the spec take `master`'s headings.
-- B8e: recaptured with VERIFIED after reading the diff; manifest changed for exactly the five ids; `just tooling-test` passed. Left in the open items: `epicycles` and `voronoi-degenerate` (triage).
-- Docs-only publish: `graphs-pub` reset to `origin/master`, check out only the doc files from this branch, commit, `just publish --recipe docs --base <master sha> --commits <sha>`.
-- When `graphs-pub` is no longer needed: remove its `node_modules` junction first (`cmd //c "rmdir node_modules"` inside it), then `git worktree remove ../graphs-pub` and delete the branch.
+- `master` has everything through B8d (`a93c58f0`); B8f (`397a8946`) and this note publish from `graphs-pub` at handoff (check `cd ../graphs-pub && just publish --status`; on failure rerun the gate, a node_modules outage hit the shared junction twice on 2026-11-15).
+- This branch still carries pre-publish copies of all batches. Rebase onto `origin/master` after the B8f publish lands, with the preview server stopped (an earlier rebase stopped on a Windows file lock). On a conflict in this note or the queue take this branch's version; in the spec take `master`'s headings.
+- Publishing pattern used for every batch: in `graphs-pub`, `git checkout --detach origin/master`, cherry-pick the batch commit and its docs commit (on note/queue conflicts take `--theirs`), check the spec diff against master adds only the new records, `just publish --background --recipe runtime --base <master> --commits <oldest,...>`.
 - Preview on 4333 serves this worktree's build at `45556c02`; restore the comparison pages only **after** `just preview` is listening (the preview refuses a build whose output changed). `just smoke-lesson` may leave a `serve-smoke-build.cjs` on 4333; kill it before starting the preview.
+- When `graphs-pub` is no longer needed: unlink its `node_modules` junction with PowerShell first (see the memory note on junctions), then `git worktree remove ../graphs-pub`.
 
 ## Open items found in this run
 
-- Capture tool stale against current controls: repaired in B8e for `sequence`, `euler-method`, `accumulation`, `area-between-curves`, `derivative`. Still open: `epicycles` and `voronoi-degenerate` (triage).
+- Capture tool stale against current controls: repaired in B8e (five ids) and B8f (`linear-map`, `monotone-triangulation`, line labels). Still open: `epicycles` and `voronoi-degenerate` (triage).
 - **Guided example images** (lesson chapters' stored images, `scripts/capture-guided-example-previews.cjs`) still show the old colours: probability, interpolation, curve geometry (envelope, curvature, evolute), Bézier (B3), PH and parameterizations (B4), conics, three views, Farin points, and chapters with plain board text (Literata). Recapture once per chapter.
 - `affine`: smooth motion needs a continuous control or new drawing code; a design question for the owner.
 - Seen, not changed: `/curve-geometry/offset`'s single PH offset is 0.6 of the base width (was 0.85); at 390 px the curvature readout overlaps the graph and the three-views label of `L` overlaps the line (both before this run); `taylor` and `uniform-convergence` cards keep an unlabelled rust marker on the axis (the owner saw it and asked for nothing); `interp-hermite` data points are dark; 68 fixed `fontSize` literals.
@@ -41,15 +39,11 @@ Handler 4, 2026-11-15 (running). Queue: [graphs.md](../../../tasks/site-walkthro
 
 ## Next slice inputs, in order
 
-1. Done by handler 4: extrapolation smoke fixed (`e676f01b`), CI green; B6/B7 published.
-2. Done: B8a both parts and B8e approved by the owner and published by handler 4.
-3. Done in B8e for five ids; `epicycles` and `voronoi-degenerate` stay with B9 and the triage.
-4a. B8b done (`linear-map` open: encoder background check at `scripts/demonstration-preview-motion.cjs:1589`, moving grid, `_jump.cjs:159`).
-4b. B8c done except `monotone-triangulation`: page crash in `settle` (`scripts/demonstration-preview-recipes.cjs:361`) at about the 32nd step press; probe suggests MathJax typesetting per press; verdict Remove waits for a capture.
-4c. B8d done except `projective-pascal`: line labels `s1`..`s6`, `p` survive the text policy (check the `applyTextPolicy` filter in `scripts/capture-demonstration-previews.cjs` against JSXGraph line labels), then recapture. Other open capture-tool items: `linear-map` (background sample on a moving grid), `monotone-triangulation` (page crash).
-4. **B8b** maps and plane geometry (`complex-*`, `linear-map` Keep in part, triangle ids, `inversion`, `orientation`), **B8c** compgeo (`delaunay`, `monotone-*`), **B8d** B-splines and `projective-cross-ratio`: text only, patterns in the triage table; `complex-multiplication` hide only; `projective-pascal` is No text.
-5. **B9 epicycles card** (show a subject), **B10 patches** (overlap fix), guided example recapture per chapter.
-6. The package is done when every example-table row and every Remove or Keep-in-part capture is done or has a recorded reason, and this note says so.
+1. Recapture `projective-cross-ratio` (Remove): since B8f the policy also hides line labels, and its lines `p`, `p′` are labelled. Text-only, read the poster, publish as B8g.
+2. **B9 epicycles card** (show a subject; the owner approved the subjects with the second kitten drawing; its recipe label is stale), `voronoi-degenerate` (triage).
+3. **B10 patches** (overlap fix).
+4. Guided example recapture per chapter (open items list).
+5. The package is done when every example-table row and every Remove or Keep-in-part capture is done or has a recorded reason, and this note says so.
 
 ## Rules that carry over
 
