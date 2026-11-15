@@ -90,8 +90,8 @@ const formulas: readonly FormulaBlock[] = [
             '\\(\\sigma_m\\) is the reflection in one of the mirrors \\(m\\) through the centre and \\(\\rho_{j\\varphi}\\) the rotation of the previous formula; the rotation acts first.',
         ),
         explanation: text(
-            'Definicija: če ima rozeta tudi zrcala skozi središče, so njena gibanja vrteži \\(\\rho_{j\\varphi}\\) in zrcaljenja \\(\\sigma_m\\circ\\rho_{j\\varphi}\\); skupaj tvorijo diedrsko grupo \\(D_n\\). Vrtež ohrani orientacijo, zrcaljenje jo obrne.',
-            'Definition: if the rosette also has mirrors through the centre, its motions are the rotations \\(\\rho_{j\\varphi}\\) and the reflections \\(\\sigma_m\\circ\\rho_{j\\varphi}\\); together they form the dihedral group \\(D_n\\). A rotation keeps the orientation and a reflection reverses it.',
+            'Definicija: če ima rozeta tudi zrcala skozi središče, so njena gibanja vrteži \\(\\rho_{j\\varphi}\\) in zrcaljenja \\(\\sigma_m\\circ\\rho_{j\\varphi}\\); skupaj tvorijo diedrsko grupo \\(D_n\\).',
+            'Definition: if the rosette also has mirrors through the centre, its motions are the rotations \\(\\rho_{j\\varphi}\\) and the reflections \\(\\sigma_m\\circ\\rho_{j\\varphi}\\); together they form the dihedral group \\(D_n\\).',
         ),
     },
 ];
@@ -102,8 +102,8 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Vrtenje okoli središča', 'Rotating about the centre'),
         purpose: text('Napovedati število gibanj in slik pri rozeti brez zrcal, preden ga odčitamo.', 'Predicting the numbers of motions and images of a rosette without mirrors before reading them.'),
         explanation: text(
-            'Rozeta je lik s središčem, ki se ob vrtenjih okoli središča za večkratnike kota \\(\\varphi=\\tfrac{360^\\circ}{n}\\) ujame sam s seboj. Središče je izhodišče \\((0,0)\\). Na grafu je rozeta z \\(n=4\\) in točko lika \\((4,1)\\), brez zrcal; slike točke so njene podobe pri gibanjih rozete. Preden spremeniš \\(n\\), napovej za \\(n=5\\) (vrtenje za \\(72^\\circ\\)): koliko gibanj ima rozeta, koliko različnih slik ima točka in zakaj se nobeni dve sliki ne ujemata. Tudi identiteta je gibanje.',
-            'A rosette is a figure with a centre that maps onto itself under the rotations about the centre by multiples of the angle \\(\\varphi=\\tfrac{360^\\circ}{n}\\). The centre is the origin \\((0,0)\\). The graph shows a rosette with \\(n=4\\) and the point of the figure \\((4,1)\\), without mirrors; the images of the point are its copies under the motions of the rosette. Before you change \\(n\\), predict for \\(n=5\\) (a rotation by \\(72^\\circ\\)): how many motions the rosette has, how many distinct images the point has, and why no two images coincide. The identity is also a motion.',
+            'Rozeta je lik s središčem, ki se ob vrtenjih okoli središča za večkratnike kota \\(\\varphi=\\tfrac{360^\\circ}{n}\\) ujame sam s seboj. Središče je izhodišče \\((0,0)\\). Na grafu je rozeta z \\(n=4\\) in točko lika \\((4,1)\\), brez zrcal; slike točke so njene podobe pri gibanjih rozete. Preden spremeniš \\(n\\), napovej za \\(n=5\\) (vrtenje za \\(72^\\circ\\)): koliko gibanj ima rozeta (vrtež za \\(0^\\circ\\) je tudi gibanje) in koliko različnih slik ima točka, vsakič z razlogom.',
+            'A rosette is a figure with a centre that maps onto itself under the rotations about the centre by multiples of the angle \\(\\varphi=\\tfrac{360^\\circ}{n}\\). The centre is the origin \\((0,0)\\). The graph shows a rosette with \\(n=4\\) and the point of the figure \\((4,1)\\), without mirrors; the images of the point are its copies under the motions of the rosette. Before you change \\(n\\), predict for \\(n=5\\) (a rotation by \\(72^\\circ\\)): how many motions the rosette has (the rotation by \\(0^\\circ\\) is also a motion) and how many distinct images the point has, each with a reason.',
         ),
         formulaIds: ['rosette-rotation'],
         observationPrompt: text(
@@ -117,7 +117,7 @@ const steps: readonly GuidedLessonStep[] = [
             ),
         ],
         scene: scene('l4-rotations-scene', {n: L4_OPEN_N, mirrors: false, point: L4_POINT},
-            'Rozeta z \\(n=4\\) brez zrcal, točka \\((4,1)\\); grupa ciklična grupa \\(C_4\\), 4 gibanja, 4 različne slike.',
+            'Rozeta z \\(n=4\\) brez zrcal, točka \\((4,1)\\); ciklična grupa \\(C_4\\), 4 gibanja, 4 različne slike.',
             'A rosette with \\(n=4\\) without mirrors, point \\((4,1)\\); the cyclic group \\(C_4\\), 4 motions, 4 distinct images.'),
     }),
     step({
@@ -135,8 +135,8 @@ const steps: readonly GuidedLessonStep[] = [
         ),
         expectedObservations: [
             text(
-                'Z zrcali ima rozeta 10 gibanj: 5 vrtežev in 5 zrcaljenj; grupa je diedrska grupa \\(D_5\\), točka ima 10 različnih slik. Vrtež ohrani orientacijo, zrcaljenje jo obrne, zato je 5 slik navadnih (krožci) in 5 zrcaljenih (rombi).',
-                'With mirrors the rosette has 10 motions: 5 rotations and 5 reflections; the group is the dihedral group \\(D_5\\) and the point has 10 distinct images. A rotation keeps the orientation and a reflection reverses it, so 5 images are direct (circles) and 5 reflected (diamonds).',
+                'Z zrcali ima rozeta 10 gibanj: 5 vrtežev in 5 zrcaljenj; grupa je diedrska grupa \\(D_5\\), točka ima 10 različnih slik. Vrtež ohrani orientacijo, zrcaljenje jo obrne, zato je 5 slik navadnih (krožci) in 5 zrcaljenih (rombi). Okoli središča se krožci in rombi izmenjujejo.',
+                'With mirrors the rosette has 10 motions: 5 rotations and 5 reflections; the group is the dihedral group \\(D_5\\) and the point has 10 distinct images. A rotation keeps the orientation and a reflection reverses it, so 5 images are direct (circles) and 5 reflected (diamonds). Around the centre the circles and diamonds alternate.',
             ),
         ],
         scene: scene('l4-mirrors-scene', {n: L4_TARGET_N, mirrors: false, point: L4_POINT},
@@ -146,10 +146,10 @@ const steps: readonly GuidedLessonStep[] = [
     step({
         id: 'l4-on-mirror', order: 3,
         title: text('Točka na zrcalu in središče', 'A point on a mirror and the centre'),
-        purpose: text('Napovedati, koliko različnih slik ima točka na zrcalu in točka v središču, ko red grupe ostane enak.', 'Predicting how many distinct images a point on a mirror and the point at the centre have, while the order of the group stays the same.'),
+        purpose: text('Napovedati, koliko različnih slik ima točka na zrcalu in točka v središču, in v središču.', 'Predicting how many distinct images a point on a mirror and the point at the centre have.'),
         explanation: text(
-            'Rozeta ima \\(n=5\\) in zrcala; točka \\((4,1)\\) ne leži na nobenem zrcalu. Zrcala so narisana na grafu; eno od njih je os \\(x\\). Premakni točko lika na os \\(x\\) v \\((4,0)\\) in nato v središče \\((0,0)\\); red grupe ostane 10. Preden premakneš točko, napovej za vsako od obeh točk, koliko različnih slik ima, in zakaj.',
-            'The rosette has \\(n=5\\) and mirrors; the point \\((4,1)\\) lies on no mirror. The mirrors are drawn on the graph; one of them is the \\(x\\) axis. Move the point of the figure onto the \\(x\\) axis to \\((4,0)\\) and then to the centre \\((0,0)\\); the order of the group stays 10. Before you move the point, predict for each of the two points how many distinct images it has, and why.',
+            'Rozeta ima \\(n=5\\) in zrcala; točka \\((4,1)\\) ne leži na nobenem zrcalu. Zrcala so narisana na grafu; eno od njih je os \\(x\\). Premakni točko lika na os \\(x\\) v \\((4,0)\\) in nato v središče \\((0,0)\\). Preden premakneš točko, napovej za vsako od obeh točk, koliko različnih slik ima, in zakaj.',
+            'The rosette has \\(n=5\\) and mirrors; the point \\((4,1)\\) lies on no mirror. The mirrors are drawn on the graph; one of them is the \\(x\\) axis. Move the point of the figure onto the \\(x\\) axis to \\((4,0)\\) and then to the centre \\((0,0)\\). Before you move the point, predict for each of the two points how many distinct images it has, and why.',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -168,10 +168,10 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'l4-free', order: 4,
-        title: text('Poskusi sam', 'Try for yourself'),
+        title: text('Prosto raziskovanje', 'Try for yourself'),
         purpose: text('Sami primerjati red grupe s številom različnih slik pri različnih \\(n\\) in legah točke.', 'Comparing the order of the group with the number of distinct images for different values of \\(n\\) and positions of the point.'),
         explanation: text(
-            'Zdaj sam izbiraj število vrtežev, zrcala in točko lika. Poskusi na primer \\(n=12\\) z zrcali ali \\(n=1\\), pa točko na zrcalu pri \\(n=4\\) (na primer \\((4,0)\\) ali \\((4,4)\\)).',
+            'Zdaj po svoje izbiraj število vrtežev, zrcala in točko lika. Poskusi na primer \\(n=12\\) z zrcali ali \\(n=1\\), pa točko na zrcalu pri \\(n=4\\) (na primer \\((4,0)\\) ali \\((4,4)\\)).',
             'Now choose the number of rotations, the mirrors and the point of the figure yourself. Try for example \\(n=12\\) with mirrors or \\(n=1\\), and a point on a mirror for \\(n=4\\) (for example \\((4,0)\\) or \\((4,4)\\)).',
         ),
         formulaIds: ['rosette-rotation', 'rosette-mirrored'],
