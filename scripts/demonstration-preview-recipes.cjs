@@ -506,7 +506,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'point-in-polygon', 'hull-robustness', 'bezier-hulls', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation', 'geometric-series']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'point-in-polygon', 'hull-robustness', 'bezier-hulls', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation', 'geometric-series', 'triangle-solver', 'line-geometry']);
 // Demonstrations whose defining objects are JSXGraph circles.
 const CIRCLE_DEFINED_IDS = new Set(['inversion', 'circle-construction']);
 

@@ -31451,5 +31451,29 @@
     ],
     "error": [],
     "probedExampleId": "combinatorics.counting-and-choices.counting-tree"
+  },
+  {
+    "id": "triangle-solver",
+    "route": "/bezeg-2.0/triangle-solver",
+    "exampleCandidates": [],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {"tab": "edit", "idx": 0, "kind": "text", "name": "C, x", "min": null, "max": null, "step": null, "value": "2", "disabled": false}
+    ],
+    "error": [],
+    "probedExampleId": null
+  },
+  {
+    "id": "line-geometry",
+    "route": "/bezeg-2.0/line-geometry",
+    "exampleCandidates": [],
+    "probeStatus": "ok",
+    "surface": false,
+    "controls": [
+      {"tab": "edit", "idx": 0, "kind": "text", "name": "Q, x", "min": null, "max": null, "step": null, "value": "4", "disabled": false}
+    ],
+    "error": [],
+    "probedExampleId": null
   }
 ]

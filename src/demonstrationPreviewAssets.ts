@@ -66,6 +66,8 @@ import preview_definite_integral from './images/demonstrations/catalog/definite-
 import preview_area_between_curves from './images/demonstrations/catalog/area-between-curves.png';
 import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_unit_circle from './images/demonstrations/catalog/unit-circle.png';
+import preview_triangle_solver from './images/demonstrations/catalog/triangle-solver.png';
+import preview_line_geometry from './images/demonstrations/catalog/line-geometry.png';
 import preview_circle_construction from './images/demonstrations/catalog/circle-construction.png';
 import preview_lattice_paths from './images/demonstrations/catalog/lattice-paths.png';
 import preview_counting_tree from './images/demonstrations/catalog/counting-tree.png';
@@ -194,6 +196,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'area-between-curves': preview_area_between_curves,
     'arc-length': preview_arc_length,
     'unit-circle': preview_unit_circle,
+    'triangle-solver': preview_triangle_solver,
+    'line-geometry': preview_line_geometry,
     'circle-construction': preview_circle_construction,
     'lattice-paths': preview_lattice_paths,
     'counting-tree': preview_counting_tree,

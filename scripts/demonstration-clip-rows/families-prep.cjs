@@ -74,4 +74,22 @@ module.exports = [
         lessonQuote: 'Premakni premico cilja, dokler je ne ujameš v enem samem oglišču',
         discreteReason: null,
     },
+    {
+        id: 'triangle-solver',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'C, x', step: 1},
+        // The poster scene is the default triangle A = (0, 0), B = (7, 0), C = (2, 4). The abscissa of C goes 2, 3, 4, 5 and 6, then back to 2; the triangle stays non-degenerate.
+        path: [0, 1, 2, 3, 4, 0],
+        lessonQuote: 'Premikaj oglišča trikotnika in opazuj tri razmerja stranice in sinusa nasprotnega kota',
+        discreteReason: 'The model holds exact integer grid coordinates (trigModel.ts:85 rejects any other vertex), so a sub-integer drag state does not exist; each checkpoint types the next whole abscissa of C.',
+    },
+    {
+        id: 'line-geometry',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'number-field', label: 'Q, x', step: 1},
+        // The poster scene is the default line through P = (-2, 1) and Q = (4, 4). The abscissa of Q goes 4, 5, 6, 7 and 8, then back to 4, so the line visibly turns about P.
+        path: [0, 1, 2, 3, 4, 0],
+        lessonQuote: 'Povleci točki \\(P\\) in \\(Q\\) ali vpiši njuni koordinati',
+        discreteReason: 'The model holds exact integer grid coordinates (lineGeometryModel.ts:133 builds rationals from whole numbers), so a sub-integer drag state does not exist; each checkpoint types the next whole abscissa of Q.',
+    },
 ];
