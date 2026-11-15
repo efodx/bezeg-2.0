@@ -36,7 +36,9 @@ const quotedPatterns = [...analysisDemonstrationRows.map(row => row.path), ...Ob
 
 describe('R5 deletion test: no central analysis rows', () => {
     test.each(centralFiles)('%s names no analysis Demonstration id, path or collection key', file => {
-        const source = read(file).split('\n').filter(line => !/caption:/.test(line)).join('\n');
+        // A chapter section id (complex maps' `sectionId: 'euler'`) names a section, not a Demonstration, path or key.
+        const source = read(file).split('\n').filter(line => !/caption:/.test(line))
+            .map(line => line.replace(/sectionId: '[^']*'/g, '')).join('\n');
         const derived = [...idPatterns, ...quotedPatterns].filter(({pattern}) => pattern.test(source)).map(({identity}) => identity);
         expect({file, derived}).toEqual({file, derived: []});
     });
