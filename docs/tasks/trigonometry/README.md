@@ -16,7 +16,7 @@ Gates come from the stream's [boundary with Controls](../feature-streams/familie
 | [06 Release batches A–C](06-release-batches.md) | A–C | F2b–F6 | Controls step 7 (accepted) | 04, 05 | F2b done 2026-11-11 for both graphs (engineering review, smoke; [evidence](../../reviews/feature-streams/families-prep/notes/f2b-trig.md)); browser drag baseline done 2026-11-11, no budget miss ([results](../../bezier-performance-results.md#f2b-geometry-routes-drag-baseline--2026-11-11)); split into 07–09 on 2026-11-12 |
 | [07 Batch A lessons](07-batch-a-lessons.md) | A | F3–F6 | 06 | 04 | F3 done 2026-11-12 (chapter skeleton, TR1–TR2); F4–F6 next |
 | [08 Batch B lessons](08-batch-b-lessons.md) | B | F3–F6 | 07 | 05 | F3 done 2026-11-12 (TR3, TR4); F4–F6 next |
-| [09 Batch C lessons](09-batch-c-lessons.md) | C | F3–F6 | 08 | 05 | F3 TR5 written and joined (handler 30); F4 card captured (handler 30); F5 and F6 next |
+| [09 Batch C lessons](09-batch-c-lessons.md) | C | F3–F6 | 08 | 05 | done (handler 30): F3 TR5 written and joined; F4 card; F5 no new clip (the triangle-solver poster and clip exist); F6 gate passed (`just check` green at 5e3ac9fd, live smokes `.command-logs/trig-c/smoke/`, `trig-c/f6/`) |
 
 ## Slovenian terms (F0 decision)
 
