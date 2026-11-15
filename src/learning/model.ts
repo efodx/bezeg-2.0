@@ -41,6 +41,7 @@ import {UNIFORM_EXAMPLE_IDS} from '../analysis/uniformConvergence';
 import {COMPLEX_EXAMPLE_IDS} from '../analysis/complex';
 import {COMPLEX_RECIPROCAL_EXAMPLE_IDS} from '../analysis/complexReciprocalModel';
 import {COMPLEX_ROOTS_EXAMPLE_IDS} from '../analysis/complexRootsModel';
+import type {EulerCircleMode} from '../complex/eulerCircleModel';
 import type {LinearMapExampleId, Mat2} from '../linear/matrix2';
 import type {LinearMapMode, MatrixSlot} from '../linear/linearMapModel';
 import type {MapElement} from '../linear/composition2';
@@ -609,6 +610,17 @@ export type LessonAction =
      */
     | {readonly kind: 'complex-power'; readonly operation: 'set-z'; readonly A: number; readonly B: number}
     | {readonly kind: 'complex-power'; readonly operation: 'set-n'; readonly n: number}
+    /**
+     * EulerCircleGraph's scene actions (M7, e^(i theta)). `set-angle` sets theta in whole degrees, 0..360 (the angle field and the drag), `set-motion` the angular speed
+     * `omega` (an integer from 1 to 4) and the `velocity` and `acceleration` arrow toggles, `set-mode` the mode chooser (`motion` or `product`) and optionally the second
+     * angle `b` (0..360 in steps of 5), `set-series` the degree N of the partial sum (an integer from 1 to 30; the series stepper). The merged state must pass
+     * `parseEulerCircleState` before the write, otherwise the action throws (`complex-euler <operation>: ...`) and nothing is written; unknown fields are refused. A valid
+     * action pauses the playback.
+     */
+    | {readonly kind: 'complex-euler'; readonly operation: 'set-angle'; readonly degrees: number}
+    | {readonly kind: 'complex-euler'; readonly operation: 'set-motion'; readonly omega?: number; readonly velocity?: boolean; readonly acceleration?: boolean}
+    | {readonly kind: 'complex-euler'; readonly operation: 'set-mode'; readonly mode: EulerCircleMode; readonly b?: number}
+    | {readonly kind: 'complex-euler'; readonly operation: 'set-series'; readonly degree: number}
     /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.

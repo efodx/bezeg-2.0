@@ -25,3 +25,37 @@
 ### Doubts
 - `ComplexPowerGraph.act` (re/im/step, old `ComplexPowerAction`, used by ComplexPowerGraph.test.tsx) remains beside the new lesson action with a different payload shape (A/B vs re/im); there is no lesson `step` action (the test uses `stepOnce()` in the sequence). Left alone; the handler may want to remove or align.
 - The probe covers rows as text only; no screenshot of the board arrows.
+
+## Slice 1b: complex-euler
+
+### Written
+- `src/learning/model.ts`: `complex-euler` members `set-angle {degrees}`, `set-motion {omega?, velocity?, acceleration?}`, `set-mode {mode, b?}`, `set-series {degree}` after `complex-power`, plus `import type {EulerCircleMode}`.
+- `src/graphs/complex/EulerCircleGraph.tsx`: `applyComplexEulerLessonAction`, `editStored`, `registerLessonActions` (same structure as ComplexPowerGraph). Merge, strict `parseEulerCircleState` before any write, unknown fields refused, a missing required field (`degrees`, `mode`, `degree`) refused as `<field> is missing`, one edit with the changed fields, pause playback. Errors read `complex-euler <op>: degrees is out-of-range.` / `off-grid` / `not-finite` / `not-boolean` / `not-mode`.
+- `src/graphs/complex/EulerCircleLessonActions.host.test.tsx` (8 tests): each action equals the control input (angle field, drag, omega field, arrow toggles, mode checkbox + b field, N field and steppers), one synchronous sequence, checkpoint restore, pause-not-start, supportsLessonAction (a `complex-power` action is unsupported and throws without a change), invalid actions leave state, readouts and status unchanged.
+- Red: with the `registry.on` line commented out 8 of 8 failed (`e-host-red.log`); restored, 8 of 8 pass (`e-host.log`). `just unit src/graphs/complex src/complex` green, tsc 0, lint 0 (`e-unit.log`, `e-tsc.log`, `e-lint.log`).
+- Mode chooser (`setProductMode`) only sets `mode`; `b` is kept, so `set-mode` does the same (`b` stays 330 after product then motion).
+
+### Observed
+Full dump of every readout, status, caption and panel label in sl and en: `.command-logs/cm-d/e-probe.txt` (probe test deleted).
+- Default state: theta 30, omega 2, N 5, velocity ON, acceleration off, motion mode, b 45 (so the default already shows the velocity row and arrow).
+- Panel (sl): Kot θ (stopinje), Kotna hitrost ω, Stopnja vrste N, Zmnoži dve točki (mode checkbox), Prikaži hitrost, Prikaži pospešek, Naslednji korak / Predvajaj / Ponastavi; b slider "Drugi kot φ" appears only in product mode. en: Angle θ (degrees), Angular speed ω, Series degree N, Multiply two points, Show the velocity, Show the acceleration, Next step / Play / Reset.
+- Always-visible rows: Kot θ (deg and rad), ω, Čas t = θ/ω, Obhodni čas 2π/ω, cos θ, sin θ, Delna vsota stopnje N, Točka (cos θ; sin θ), Razdalja delne vsote od točke; sl "Čas t = θ/ω, izračunano = π/12 ≈ 0,262". Caption on the board: "e^(iθ) = (√3/2; 1/2)" on the point itself, always.
+- Exact vs computed: label word "natančno"/"izračunano" (exact/computed) in every row label. Exact where the model has exact trig (observed: 0, 30, 45, 90, 180, 270, 360, all "natančno": (1; 0), (√3/2; 1/2), (√2/2; √2/2), (0; 1), (−1; 0), (0; −1)); theta 15 is "izračunano" with 0,9659 + 0,2588i (status "≈ ..., izračunano"). cos row at 30: "√3/2 ≈ 0,8660254", sin "1/2". Brief's "(0,8660254; 0,5)" is therefore shown as exact (√3/2; 1/2) with the decimal beside it only in the cos/sin rows.
+- omega 2 velocity: "Vektor hitrosti iω·e^(iθ), izračunano = −1 + 1,7320508i", "Velikost hitrosti = 2", "Kot med krajevnim vektorjem in vektorjem hitrosti = 90°" at every theta and omega (0..360); omega 1 gives speed 1 and period 2π, omega 3, 4 scale speed. Acceleration on: "Vektor pospeška −ω²·e^(iθ), izračunano = −3,4641016 − 2i"; board caption "a = −ω²·e^(iθ), narisano v merilu 0,225" (0,9/ω²). There is no speed/period row tied to acceleration; the period row is always present (2π/ω).
+- Product, theta 30 b 45: status "θ + φ = 75°: e^(iθ)·e^(iφ) ≈ (0,258819; 0,9659258), izračunano"; row "Zmnožek e^(iθ)·e^(iφ) = e^(i(θ+φ)), izračunano = (0,258819; 0,9659258)" (the spec's 0,2588190 prints without the trailing zero); captions e^(iφ) = (√2/2; √2/2), e^(i(θ+φ)). theta 180 b 45: "θ + φ = 225°: ... = (−√2/2; −√2/2)" natančno. b 330 with theta 30: sum reduced to 0°, product "(1; 0)" natančno. Product rows (b, sum-angle, second, product) and the b slider exist only in product mode. In the dump the "e^(iπ) = −1" at theta 180 motion mode reads "Točka (cos θ; sin θ), natančno = (−1; 0)", status "e^(iθ) = (−1; 0)" (written as a pair, not as −1).
+- Series at theta 180 (row "Delna vsota stopnje N, izračunano = ..."; the status says "Delna vsota stopnje N: ..., njena razdalja od točke je ..."; no sentence "equals"): N1 1 + 3,1416i (dist 3,72), N3 −3,9348 − 2,0261i (3,57), N5 0,1239 + 0,524i (1,24), N9 −0,976 + 0,0069i (0,025), N13 −0,9999 (0,000103), N21 −1 (7,64·10⁻¹¹), N30 −1 (0). N1, N3 and theta 270, 360 at N5: partial sum outside the view: row "Ali je delna vsota stopnje N v pogledu? = ne", caption "Delna vsota stopnje N je zunaj pogleda", status adds "Delna vsota je zunaj pogleda in ni narisana".
+- Time and play: theta = omega t shown as the row "Čas t = θ/ω"; play steps theta by 5 deg per tick (STEP_INTERVAL_MS), from 0 three ticks gives 15 deg and the status switches to "izračunano" at 15 deg; paused keeps 15. Time at 15 deg reads "izračunano = ≈ 0,131" (a doubled "= ≈"; the same at 45 deg and with `≈` rows generally). The live line (data-readout-live) lags: it kept the previous theta right after an action (settled readout), the readout list and status are current.
+- Reset: theta back to 0, playback stopped, omega, N, arrows, mode and b kept.
+
+### Probe summary (reveals)
+- A "predict where the point is" step is answered at once by the board caption, status line and the Točka row; the point itself is drawn. Ask it from a state where the learner has not yet seen the target angle, or hide nothing: there is no way to hide the point or the caption.
+- Velocity direction: hidden only with velocity off (set-motion velocity false hides the arrow, the three velocity rows and the caption); default is ON, so a "predict the direction of motion" opening must send `velocity: false` first; with it on, speed 2 and angle 90° are readable. Acceleration likewise off by default.
+- Product: hidden in motion mode (second point, product point, rows, status sentence); set-mode product reveals everything at once with default b 45, so a "predict where the product lands" step stays in motion mode and the action that follows is `set-mode product, b`.
+- Series limit: the N5 default already shows a near partial sum, and the distance row shows convergence; for a "predict" step use N 1 (out of view) and step N up; the row always names the degree, never "equals". The limit −1 is visible from N 13 (dist 0,000103), 21, 30.
+
+### Doubts
+- "izračunano = ≈ 0,131" doubled sign belongs to the existing time formatter (formatArgument), not changed here (kernels and drawing out of scope).
+- The live readout line (LiveReadout) shows the previous state until settled; a lesson that quotes it should quote the status or the rows.
+- The brief's product decimals (0,2588190) print as 0,258819 (six decimals shown).
+- The existing `EulerCircleGraph.act` (old `euler-circle` payload) stays beside the new lesson actions, as with ComplexPowerGraph.
+- Not verified: browser/visual screenshot, 310 px panel check (no control or layout changed).

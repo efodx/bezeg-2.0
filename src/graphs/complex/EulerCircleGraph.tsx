@@ -3,6 +3,8 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {SceneStateUpdate} from "../base/SceneStore";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset, StoredGraphState} from "../base/presets/Presets";
 import {DomainError} from "../functions/BaseFunctionGraph";
@@ -547,6 +549,54 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         const result = applyEulerCircleAction(this.state, action);
         if (!result.ok) throw new DomainError(`${result.error.field}: ${result.error.reason}`);
         this.edit({...result.value});
+    }
+
+    // ---- Lesson actions -------------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`complex-euler`): `set-angle` the angle theta, `set-motion` omega and the two arrow toggles, `set-mode` the mode chooser (and the second angle `b`),
+     * `set-series` the series degree N. The merged state goes through `parseEulerCircleState` (strict: nothing is snapped or clamped) before the write, so an off-grid or
+     * out-of-range value is a lesson-content error and nothing is written. Only the changed fields are written, in one edit; a valid action pauses the playback and never starts it.
+     */
+    applyComplexEulerLessonAction(action: Extract<LessonAction, {kind: "complex-euler"}>): void {
+        const {kind: _kind, operation: _operation, ...patch} = action;
+        switch (action.operation) {
+            case "set-angle":
+                this.editStored("set-angle", patch, ["degrees"], ["degrees"]);
+                return;
+            case "set-motion":
+                this.editStored("set-motion", patch, ["omega", "velocity", "acceleration"], []);
+                return;
+            case "set-mode":
+                this.editStored("set-mode", patch, ["mode", "b"], ["mode"]);
+                return;
+            case "set-series":
+                this.editStored("set-series", patch, ["degree"], ["degree"]);
+                return;
+            default: {
+                const unsupported: never = action;
+                throw new Error(`complex-euler: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    /** Validates the merged state first, then writes only the fields that change; unknown fields are refused. */
+    private editStored(operation: string, patch: Readonly<Record<string, unknown>>, allowed: readonly (keyof EulerCircleState)[], required: readonly (keyof EulerCircleState)[]): void {
+        const unknown = Object.keys(patch).filter(key => !allowed.some(field => field === key));
+        if (unknown.length) throw new Error(`complex-euler ${operation}: no such field ${unknown.join(", ")}.`);
+        const missing = required.find(key => patch[key] === undefined);
+        if (missing) throw new Error(`complex-euler ${operation}: ${missing} is missing.`);
+        const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+        const parsed = parseEulerCircleState({...this.state, ...defined});
+        if (!parsed.ok) throw new Error(`complex-euler ${operation}: ${parsed.error.field} is ${parsed.error.reason}.`);
+        this.pausePlayback();
+        const changed = allowed.filter(key => parsed.value[key] !== this.state[key]);
+        if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("complex-euler", action => this.applyComplexEulerLessonAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------
