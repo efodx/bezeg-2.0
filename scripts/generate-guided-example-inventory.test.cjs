@@ -676,7 +676,8 @@ test('probability expectations are authored from the graphs: density ends, the b
     const param = (name, value) => ({kind: 'function-parameter', name, value});
     const shown = (target, visible) => ({kind: 'function-visibility', target, visible});
     const density = (example = 'standard', a = -1.5, b = 0.5) => psStep([choice('density-example', example), param('density-a', a), param('density-b', b)]);
-    assert.deepEqual(probabilityExpectedFor('p.density.prob-density', density()), {types: {curve: 2, point: 2, text: 1}, curveCount: 2, points: [[-1.5, 0], [0.5, 0]]});
+    assert.deepEqual(probabilityExpectedFor('p.density.prob-density', density()), {types: {curve: 4, point: 2, text: 1}, curveCount: 4, points: [[-1.5, 0], [0.5, 0]]});
+    assert.throws(() => probabilityExpectedFor('p.density.prob-density', density('standard', 1, 0)), /a <= b/);
     assert.throws(() => probabilityExpectedFor('p.density.prob-density', density('iq')), /only the standard normal/);
     assert.throws(() => probabilityExpectedFor('p.density.prob-density', psStep([choice('density-example', 'standard'), param('density-a', 0), param('density-b', 1), param('density-mu', 1)])), /only sets/);
     const binomial = (example = 'fair20', k = 10) => psStep([choice('binomial-normal-example', example), param('binomial-k', k)]);

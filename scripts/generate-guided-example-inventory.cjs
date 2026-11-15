@@ -1637,7 +1637,8 @@ function probabilityVisibility(id, actions, target) {
     return found[0].visible;
 }
 
-// Authored from src/graphs/functions/DensityAreaGraph.tsx (createScene: the shaded area as one curve, the density as one functiongraph, which JSXGraph types as a curve,
+// Authored from src/graphs/functions/DensityAreaGraph.tsx (createScene: the shaded area as one curve, the two boundary edges at a and b as one curve each (drawn
+// while a <= b, as in the opening scene; since B1 of the site walkthrough, G02), the density as one functiongraph, which JSXGraph types as a curve,
 // and the two ends a and b as points on the x-axis; the three caption lines are one caption block, which BaseFunctionGraph.caption creates as one JSXGraph text) and DEFAULT_DENSITY_AREA_MODEL of
 // densityAreaModel.ts (mu 0, sigma 1), not from a capture. The ends are the a and b the opening scene sets.
 function densityExpectedFor(id, actions) {
@@ -1645,7 +1646,8 @@ function densityExpectedFor(id, actions) {
     assert.equal(sceneValue(id, actions, 'function-choice', 'density-example'), 'standard', `${id}: only the standard normal example is authored`);
     const [a, b] = ['a', 'b'].map(name => sceneValue(id, actions, 'function-parameter', `density-${name}`));
     assert.ok(Number.isFinite(a) && Number.isFinite(b), `${id}: the bounds must be finite`);
-    return {types: {curve: 2, point: 2, text: 1}, curveCount: 2, points: [[a, 0], [b, 0]]};
+    assert.ok(a <= b, `${id}: the boundary edges are authored for a <= b`);
+    return {types: {curve: 4, point: 2, text: 1}, curveCount: 4, points: [[a, 0], [b, 0]]};
 }
 
 // Authored from src/graphs/functions/BinomialNormalGraph.tsx (createScene: the shaded bars of P(X <= k), the normal area, the bar outline and the normal density are four
