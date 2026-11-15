@@ -1364,7 +1364,7 @@ function assertRowEvidence(motion) {
     assert.deepEqual(motion.row, row, `${motion.id}: the clip was captured from an older row; recapture it`);
     assert.equal(motion.mode, row.motion);
     assert.equal(motion.samples.length, frameCount);
-    const surface = row.control.kind === 'surface-point';
+    const surface = recipes[motion.id]?.framing.kind === 'surface-view';
     assert.equal(motion.cameraHeld, surface, `${motion.id}: a surface clip holds its camera and a board clip is held by cameraBox`);
     const {sameCamera} = require('./demonstration-preview-recipes.cjs');
     motion.samples.forEach((sample, i) => {

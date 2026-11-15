@@ -141,4 +141,15 @@ module.exports = [
         lessonQuote: 'Premakni začetno točko in poglej, katere trajektorije ostanejo na premici',
         discreteReason: null,
     },
+    {
+        id: 'solids',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Odmik ravnine', step: 0.25},
+        // A surface scene: the clip holds the poster camera (sweepSurface). The poster cuts the cube by z = 1/2 written as 4z = d with d = 2 (recipe): the slider step is 1/4, so d moves the plane in z steps of 1/16, where normal (0, 0, 1) would give four distinct frames. The plane rises to the top face (d = 4), falls to d = 1/4 and returns. At d <= 0 the lower part is empty and the graph publishes no surface framing, so the path stays above 0.
+        path: [2, 4, 0.25, 2],
+        lessonQuote: 'Nastavi normalo \\((0,0,1)\\) in premikaj odmik',
+        discreteReason: null,
+        // A MathJax typeset after each of the 96 frames crashes the page at about frame 34 ("Target crashed"), as for the other lightSettle rows.
+        lightSettle: true,
+    },
 ];

@@ -63,7 +63,7 @@ function alignMotionCameras(captures, motions) {
                 Number.isFinite(value.az) && Number.isFinite(value.el) && Number.isFinite(value.distance) && value.distance > 0 &&
                 Array.isArray(value.target) && value.target.length === 3 && value.target.every(Number.isFinite);
             // A row's corner drag may hold the camera instead of orbiting it, but then it must hold exactly the poster camera.
-            const surfaceMode = motion.mode === 'surface-orbit' || (motion.mode === 'pointer-drag' && Boolean(motion.row) && motion.cameraHeld === true);
+            const surfaceMode = motion.mode === 'surface-orbit' || ((motion.mode === 'pointer-drag' || motion.mode === 'parameter-sweep') && Boolean(motion.row) && motion.cameraHeld === true);
             assert.ok(validSurfaceCamera(camera) && surfaceMode && validSurfaceCamera(motion.camera) &&
                 sameCamera(motion.camera, camera, 1e-10), `Poster and clip cameras differ: ${motion.id}`);
             // Keep retained records byte-for-byte equivalent when they already match.

@@ -55,6 +55,11 @@ test('surface camera provenance validates orbit cameras while retaining board ca
         {id:'patch-tensor',mode:'surface-orbit',camera:{...camera,extra:true}},
     ]) assert.throws(()=>alignMotionCameras([poster],[invalid]),/cameras differ/);
 
+    // A held-camera parameter sweep of a surface scene (solids): the clip holds exactly the poster camera, like a held-camera drag.
+    const held={id:'patch-tensor',mode:'parameter-sweep',row:{id:'patch-tensor'},cameraHeld:true,camera:structuredClone(camera)};
+    alignMotionCameras([poster],[held]);
+    assert.deepEqual(held.camera,camera);
+    for (const invalid of [{...held,cameraHeld:false},{...held,row:undefined},{...held,camera:{...camera,az:camera.az+0.1}}]) assert.throws(()=>alignMotionCameras([poster],[invalid]),/cameras differ/);
     const board=[-1,2,3,-4],boardPoster={id:'test',framing:{boardBoundingBox:board}};
     const retained={id:'test',camera:[...board]};
     alignMotionCameras([boardPoster],[retained]);

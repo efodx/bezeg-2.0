@@ -3,6 +3,7 @@
 // Beside captureSweep and captureDrag in demonstration-preview-motion.cjs, which pass their shared helpers in as `kit`
 // (this module must not require that file: it requires this one).
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const {recipes, applyRecipe, readSurfaceFraming, sameCamera, pointsOutsideFrame, settle} = require('../demonstration-preview-recipes.cjs');
@@ -113,7 +114,7 @@ const unresponsiveReason = frame => `the app did not respond to the control at f
  */
 function boardUnresponsiveFrame(row, samples) {
     if (row.motion !== 'parameter-sweep' && row.motion !== 'discrete-exact-steps') return -1;
-    const board = s => JSON.stringify([s.curvePathHash, s.lineHash, s.points]);
+    const board = s => JSON.stringify([s.curvePathHash, s.lineHash, s.points, s.surfaceHash]);
     return samples.findIndex((s, i) => i > 0 && s.actual.input !== samples[i - 1].actual.input && board(s) === board(samples[i - 1]));
 }
 
@@ -130,7 +131,7 @@ async function captureRow(browser, d, row, directory, baseUrl, presentBoard, kit
         if (row.fineGrid !== undefined) await context.addInitScript(exponent => { window.__bezegClipGridStepExponent = exponent; }, row.fineGrid);
         if (!discrete) await openRecipeScene(page, d, recipes[d.id], baseUrl, {surface});
         const result = discrete ? await captureDiscrete(browser, d, row, directory, baseUrl, presentBoard, kit)
-            : surface ? await dragSurface(page, d, row, directory, kit)
+            : surface ? await (row.motion === 'parameter-sweep' ? sweepSurface : dragSurface)(page, d, row, directory, kit)
                 : row.motion === 'parameter-sweep' ? await sweepBoard(page, d, row, directory, presentBoard, kit)
                     : await dragBoard(page, d, row, directory, presentBoard, kit);
         // Frame-to-frame change of the decoded PNGs, kept in the record so the offline validation re-runs the same check.
@@ -368,8 +369,8 @@ async function dragBoard(page, d, row, directory, presentBoard, kit) {
     return {camera: fixedBox, samples};
 }
 
-/** Pointer drag of one control point of the surface view; the camera must stay equal to the poster's. */
-async function dragSurface(page, d, row, directory, kit) {
+/** Resizes the host to the 360 x 220 surface frame and applies the full recipe, as the poster does; returns the frame and the poster's framing. */
+async function prepareSurface(page, d, row) {
     const frame = {width: 360, height: 220};
     const host = page.locator('#jgbox');
     await host.evaluate((container, size) => {
@@ -383,6 +384,12 @@ async function dragSurface(page, d, row, directory, kit) {
     await settle(page);
     const initial = await readSurfaceFraming(page);
     assert.ok(sameCamera(initial.camera, recipes[d.id].framing.camera), `${row.id}: the scene camera ${JSON.stringify(initial.camera)} differs from the recipe camera; update surfaceCameras in demonstration-preview-recipes.cjs`);
+    return {frame, initial};
+}
+
+/** Pointer drag of one control point of the surface view; the camera must stay equal to the poster's. */
+async function dragSurface(page, d, row, directory, kit) {
+    const {frame, initial} = await prepareSurface(page, d, row);
     const start = initial.points.find(p => p.id === row.control.name);
     assert.ok(start, `${row.id}: no surface point "${row.control.name}"; published ids are ${JSON.stringify(initial.points.map(p => p.id))}`);
     const view = await page.locator('#jgbox [data-jsx-surface-view]').boundingBox();
@@ -405,6 +412,43 @@ async function dragSurface(page, d, row, directory, kit) {
             actual: {id: start.id, x: now.x, y: now.y}, start: {x: start.x, y: start.y}, capture, cameraSurface: framing.camera, points: framing.points});
     }
     await page.mouse.up();
+    return {camera: initial.camera, samples};
+}
+
+/**
+ * Parameter sweep of a slider on a surface scene (solids): the camera is held as the poster has it. The scene has no JSXGraph curves
+ * or points, so the response signature is the hash of the drawn surface view (its SVG markup), which changes when the section moves.
+ */
+async function sweepSurface(page, d, row, directory, kit) {
+    const {frame, initial} = await prepareSurface(page, d, row);
+    const control = page.getByLabel(row.control.label, {exact: true}).and(page.locator('input'));
+    assert.equal(await control.count(), 1, `${row.id}: control "${row.control.label}" is missing or ambiguous (copy the accessible label from route-probe.json)`);
+    for (const tab of ['Prikaz', 'Uredi']) { if (await control.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
+    assert.ok(await control.isVisible(), `${row.id}: control "${row.control.label}" stays hidden in every inspector tab`);
+    const rangeId = await control.getAttribute('id');
+    const range = rangeId ? page.locator(`[id=${JSON.stringify(rangeId)}]`) : control;
+    const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
+    let previousValue = parse(await range.inputValue());
+    assert.ok(Math.abs(previousValue - row.path[0]) < 1e-9, `${row.id}: the scene starts at ${previousValue}, but the row path starts at ${row.path[0]}`);
+    const samples = [];
+    for (let i = 0; i < kit.frameCount; i++) {
+        const target = kit.sweepValue(i, {sweep: {waypoints: row.path, step: row.control.step}});
+        const steps = Math.round((target - previousValue) / row.control.step);
+        if (steps) { await range.focus(); for (let k = 0; k < Math.abs(steps); k++) await range.press(steps > 0 ? 'ArrowRight' : 'ArrowLeft'); }
+        await (row.lightSettle ? settleLight(page) : settle(page));
+        const value = parse(await range.inputValue());
+        assert.ok(Math.abs(value - target) < 1e-9, `${row.id}: input ${value} differs from the scheduled ${target} at frame ${i}`);
+        // The graph may rebuild its surface view for a moment after an input; the framing attribute is back once the view is drawn.
+        await page.waitForFunction(() => document.querySelector('#jgbox')?.getAttribute('data-surface-framing') && document.querySelector('#jgbox [data-jsx-surface-view]'));
+        const framing = await readSurfaceFraming(page);
+        assert.ok(sameCamera(framing.camera, initial.camera, 0), `${row.id}: the camera changed at frame ${i}: ${JSON.stringify(framing.camera)}`);
+        assert.deepEqual(pointsOutsideFrame(framing.points, frame.width, frame.height), [], `${row.id}: a control point left the frame at frame ${i}`);
+        const markup = await page.locator('#jgbox [data-jsx-surface-view]').evaluate(node => node.outerHTML);
+        const capture = await shoot(kit, page, path.join(directory, frameName(i)));
+        samples.push({index: i, time: i / 24, target, actual: {input: value, steps}, capture, cameraSurface: framing.camera, points: framing.points,
+            surfaceHash: crypto.createHash('sha256').update(markup).digest('hex')});
+        previousValue = value;
+    }
     return {camera: initial.camera, samples};
 }
 

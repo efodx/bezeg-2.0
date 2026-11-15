@@ -31579,5 +31579,26 @@
     ],
     "error": [],
     "probedExampleId": null
+  },
+  {
+    "id": "solids",
+    "route": "/bezeg-2.0/analysis/solids",
+    "probeStatus": "ok",
+    "surface": true,
+    "controls": [
+      {
+        "tab": "edit",
+        "idx": 0,
+        "kind": "slider",
+        "name": "Odmik ravnine",
+        "min": "-36",
+        "max": "36",
+        "step": "0.25",
+        "value": "0.5",
+        "disabled": false
+      }
+    ],
+    "error": [],
+    "probedExampleId": null
   }
 ]

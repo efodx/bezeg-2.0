@@ -89,7 +89,9 @@ function validateRowAgainstRecipes(row, recipes) {
     const recipe = Object.prototype.hasOwnProperty.call(recipes, row.id) ? recipes[row.id] : null;
     assert.ok(recipe && recipe.framing, `row ${row.id}: the id is not a Demonstration with a capture recipe; row ids are Demonstration ids (see demonstration-preview-recipes.cjs)`);
     const surfaceView = recipe.framing.kind === 'surface-view';
-    assert.equal(row.control.kind === 'surface-point', surfaceView, `row ${row.id}: control.kind "${row.control.kind}" does not suit the ${surfaceView ? 'surface' : 'board'} view of this Demonstration (${surfaceView ? 'use surface-point' : 'use slider, number, stepper or point'})`);
+    // A surface view takes a corner drag (surface-point) or a held-camera parameter sweep of a slider or number (solids); a board view never takes a surface-point.
+    const suits = surfaceView ? row.control.kind === 'surface-point' || row.motion === 'parameter-sweep' : row.control.kind !== 'surface-point';
+    assert.ok(suits, `row ${row.id}: control.kind "${row.control.kind}" does not suit the ${surfaceView ? 'surface' : 'board'} view of this Demonstration (${surfaceView ? 'use surface-point, or a parameter-sweep of a slider' : 'use slider, number, stepper or point'})`);
     return row;
 }
 

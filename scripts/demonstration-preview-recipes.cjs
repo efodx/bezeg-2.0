@@ -168,8 +168,9 @@ const targets = {
     voronoi: ['Default seven sites with their Voronoi cells and vertices, the cell of the site nearest the query point highlighted', [], [-5.16, 9.2, 13.16, -2]],
     // The Trapez example (Primeri select, value trapezoid): sites (0,0), (8,0), (9,5), (-1,5) are cocircular, so the Voronoi vertex (4, 3.4) has degree 4; the query point is (4,2). x -1..9, y 0..5.
     'voronoi-degenerate': ['Cocircular trapezoid example in the degenerate-sites workspace: four sites on one circle meet in a single degree-4 Voronoi vertex', [field('Primeri', 'trapezoid', 'select')], [-2.5, 6.45, 10.5, -1.5]],
-    // The solids graph frames itself (the camera fitted to the cube and its cutting plane); the recipe sets nothing. The lesson cards open on the cube cut at half height and on the square prism cut at z = 0.
-    solids: ['Default cube cut by the horizontal plane z = 1/2: the lower part of the cube, the highlighted section and the translucent plane, framed by the view', []],
+    // The solids graph frames itself (the camera fitted to the cube and its cutting plane). The lesson cards open on the cube cut at half height and on the square prism cut at z = 0.
+    // The recipe writes the horizontal plane z = 1/2 as 4z = 2 (normal (0, 0, 4), offset 2): the same plane, but the offset slider (step 1/4) then moves it in steps of 1/16, enough distinct frames for the clip.
+    solids: ['Cube cut by the horizontal plane z = 1/2 (normal (0, 0, 4), offset 2): the lower part of the cube, the highlighted section and the translucent plane, framed by the view', [field('Normala, komponenta z', 4, 'number'), field('Odmik ravnine', 2, 'number')]],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
     'projective-cross-ratio': ['Default central projection of four points A, B, C, D from the centre O onto the second line, with both cross-ratios 9/8', [], [-14, 9, 14, -7]],
     'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
@@ -188,8 +189,8 @@ const targets = {
 // route's default Preset ships (patchPresetCollections.ts; bicubic dome target [0, 0, 1.25], cubic triangular net target [0, 0, 1], az -0.9, el 0.5) with the
 // distance "Ponastavi pogled" fits to the 360:220 preview host; the capture asserts the live view has exactly this camera.
 const surfaceCameras = {
-    // The default cube cut by z = 1/2 in the authored default camera of the solids graph (DEFAULT_SOLIDS_STATE; the graph does not refit it on open).
-    solids: {az: -0.9, el: 0.5, distance: 9, target: [0.5, 0.5, 0.5]},
+    // The default cube cut by z = 1/2 in the camera the solids graph fits to the 360 x 220 preview host (az and el of DEFAULT_SOLIDS_STATE; the distance is the fit measured by the row preflight).
+    solids: {az: -0.9, el: 0.5, distance: 5.149799955071211, target: [0.5, 0.5, 0.5]},
     'patch-coons': {az: -0.9, el: 0.5, distance: 8.61854044951079, target: [1.5, 1.5, 0.5]},
     'patch-tensor': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
     // Both tensor-patch workspaces start from the same default bicubic dome Preset as `patch-tensor`.

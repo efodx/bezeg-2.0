@@ -12,8 +12,8 @@ function assertMotionPosterCamera(demonstration, capture, motion) {
             Object.keys(camera).sort().join(',') === 'az,distance,el,target' &&
             Number.isFinite(camera.az) && Number.isFinite(camera.el) && Number.isFinite(camera.distance) && camera.distance > 0 &&
             Array.isArray(camera.target) && camera.target.length === 3 && camera.target.every(Number.isFinite);
-        // A row's corner drag holds the camera instead of orbiting it; it must hold exactly the poster camera (compared at tolerance 0 below).
-        const heldRowDrag = motion.mode === 'pointer-drag' && Boolean(motion.row) && motion.cameraHeld === true;
+        // A row's corner drag or surface slider sweep holds the camera instead of orbiting it; it must hold exactly the poster camera (compared at tolerance 0 below).
+        const heldRowDrag = (motion.mode === 'pointer-drag' || motion.mode === 'parameter-sweep') && Boolean(motion.row) && motion.cameraHeld === true;
         if ((motion.mode !== 'surface-orbit' && !heldRowDrag) || capture.framing?.kind !== 'surface-view' ||
             !validCamera(capture.framing.camera) || !validCamera(motion.camera) ||
             !sameCamera(motion.camera, capture.framing.camera, 0)) {

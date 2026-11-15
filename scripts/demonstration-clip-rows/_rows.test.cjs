@@ -153,6 +153,20 @@ test('R1: an input change with an unchanged board fails at capture rule and offl
     assert.match(assessRowState({...discrete, path: [0, 1]}, frames, false).reason, /did not respond to the control at frame 1/);
 });
 
+test('a surface sweep responds when the drawn surface changes, and fails when it does not', () => {
+    // A surface scene has no curves or points; the signature is the hash of the drawn surface view (surfaceHash).
+    const frames = [0, 1, 2].map(k => ({target: k, actual: {input: k}, curvePathHash: 'h', points: [], surfaceHash: `s${k}`}));
+    assert.equal(assessRowState({...sweep, path: [0, 1, 2]}, frames, true).ok, true);
+    frames[2].surfaceHash = frames[1].surfaceHash;
+    assert.match(assessRowState({...sweep, path: [0, 1, 2]}, frames, true).reason, /did not respond to the control at frame 2/);
+});
+
+test('a slider sweep may drive a surface Demonstration, a board point drag may not', () => {
+    const {recipes} = require('../demonstration-preview-recipes.cjs');
+    assert.doesNotThrow(() => validateRowAgainstRecipes({...clone(sweep), id: 'solids'}, recipes));
+    assert.throws(() => validateRowAgainstRecipes({...clone(sweep), id: 'solids', motion: 'discrete-exact-steps'}, recipes), /does not suit the surface view/);
+});
+
 test('a board that redraws only segments or lines responds to the control', () => {
     // Bars and limit lines (geometric-series) are segments: same curves and points, different segment endpoints.
     const frames = [0, 1].map(k => ({checkpoint: k, target: k, actual: {input: k}, curvePathHash: 'h', points: [], lineHash: `l${k}`}));

@@ -131,6 +131,7 @@ import motion_mechanics_descent from './images/demonstrations/catalog/mechanics-
 import motion_curve_kinematics from './images/demonstrations/catalog/curve-kinematics.webm?no-inline';
 import motion_isometries from './images/demonstrations/catalog/isometries.webm?no-inline';
 import motion_phase_portrait from './images/demonstrations/catalog/phase-portrait.webm?no-inline';
+import motion_solids from './images/demonstrations/catalog/solids.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -265,4 +266,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'curve-kinematics': {src: motion_curve_kinematics, type: 'video/webm', duration: 4},
     'isometries': {src: motion_isometries, type: 'video/webm', duration: 4},
     'phase-portrait': {src: motion_phase_portrait, type: 'video/webm', duration: 4},
+    'solids': {src: motion_solids, type: 'video/webm', duration: 4},
 };
