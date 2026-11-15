@@ -117,8 +117,8 @@ const targets = {
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with the blue mean triangle, the moss median square, the box plot and the mean +- sigma band (school rule)', [toggle('Pas okoli sredine (± standardni odklon)')], [2.4, 2.85, 11.2, -2.53]],
     'prob-correlation': ['Outlier example points (0,1), (1,2), (2,2), (3,8) with the regression line and the long residuals', [field('Primer', 'outlier', 'select')], [-1, 9, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
-    // The default circle is a single epicycle, so the poster takes the Romb example and three Povečaj N za 1 steps (N = 3): the chain circles with the tip and the approximating curve.
-    epicycles: ['Romb example with three Povečaj N za 1 steps: the chain of two circles, the tip and the rounded-rhombus curve through the four vertices', [field('Primer', 'diamond', 'select'), button('Povečaj N za 1', 3)]],
+    // The default circle is a single epicycle, so the poster takes an outline subject (Primer select) and a Število členov N slider value: the chain of circles with the tip and a trace that shows the subject but is not yet exact.
+    epicycles: ['Outline subject at N = 10: the chain of circles with the tip and the approximating trace, recognisably the subject but not yet exact', [field('Primer', 'slovenia', 'select'), field('Število členov N', 10)]],
     'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-6.2, 3.8, 6.2, -3.8]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
@@ -166,8 +166,8 @@ const targets = {
     fortune: ["Default sites A to D at step 5 of Fortune's algorithm: the sweep line at D, the beach line, the scheduled circle and the dashed cancelled circle (false alarm)", [button('Naslednji korak', 4)], [-11.05, 7.75, 11.05, -5.75]],
     // Default seven sites (x -1..9, y 0..8); the seven Voronoi vertices span x 0.33..9.1, y -1..5.93 and the query point is (4,2). The window keeps 360:220 around them.
     voronoi: ['Default seven sites with their Voronoi cells and vertices, the cell of the site nearest the query point highlighted', [], [-5.16, 9.2, 13.16, -2]],
-    // The "Trapez" example: sites (0,0), (8,0), (9,5), (-1,5) are cocircular, so the Voronoi vertex (4, 3.4) has degree 4; the query point is (4,2). x -1..9, y 0..5.
-    'voronoi-degenerate': ['Cocircular trapezoid example in the degenerate-sites workspace: four sites on one circle meet in a single degree-4 Voronoi vertex', [button('Trapez')], [-2.5, 6.45, 10.5, -1.5]],
+    // The Trapez example (Primeri select, value trapezoid): sites (0,0), (8,0), (9,5), (-1,5) are cocircular, so the Voronoi vertex (4, 3.4) has degree 4; the query point is (4,2). x -1..9, y 0..5.
+    'voronoi-degenerate': ['Cocircular trapezoid example in the degenerate-sites workspace: four sites on one circle meet in a single degree-4 Voronoi vertex', [field('Primeri', 'trapezoid', 'select')], [-2.5, 6.45, 10.5, -1.5]],
     // The solids graph frames itself (the camera fitted to the cube and its cutting plane); the recipe sets nothing. The lesson cards open on the cube cut at half height and on the square prism cut at z = 0.
     solids: ['Default cube cut by the horizontal plane z = 1/2: the lower part of the cube, the highlighted section and the translucent plane, framed by the view', []],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],

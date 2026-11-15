@@ -200,7 +200,7 @@ Ids and routes come from `src/graphs/**/registration.ts` and the manifest; the n
 | Envelope | `curve-envelope` | `/curve-geometry/envelope` | text (+ scene framing) | Two status lines top left; the line family is small in the lower corner. **Pilot.** |
 | Delaunay triangulation (G01 example) | `delaunay` | `/compgeo/delaunay` | typography + text | Red sans-serif "neustrezen rob" across the diagonal. |
 | Convexity and concavity (G06) | `convexity` | `/analysis/convexity` | scene | See G06. |
-| Epicycles (G07) | `epicycles` | `/analysis/epicycles` | scene, after the owner's pick | Waiting. |
+| Epicycles (G07) | `epicycles` | `/analysis/epicycles` | scene, after the owner's pick | Done in B9: Slovenia at `N = 10`. |
 
 ## G01: graph typography
 
@@ -524,3 +524,11 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8f/` (served as `walkth
 - `projective-pascal`: now without text. A line's or circle's label has elType `label` and is not in `board.objects`, so the policy never judged it; it now judges the labels of non-point objects too (point labels stay excluded). Only `projective-cross-ratio` (lines `p`, `p′`) also has such labels among recipes with a text entry; its poster is not recaptured yet (Remove, so it would lose them).
 - `linear-map`: keeps `a₁ = …` (with `a₂`), `τ`, `δ` and `Δ = 0`. Its clip's background sample now sits at (611, 11), exact background in every frame (new optional row field `backgroundSample`); colour check and CRF unchanged.
 - `monotone-triangulation`: Remove, as `monotone-partition`. A repeated button press now settles fully (MathJax typeset) only after the last press, with a two-frame wait between presses; 33 full typesets crashed the page.
+
+### B9 Epicycles card, voronoi-degenerate, cross-ratio (handler 5, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b9/` (served as `walkthrough-graphs/b9.html`).
+
+- `epicycles` (G07-f): the card shows the Slovenia outline at `N = 10`, with the circle chain, the tip and a trace that is recognisably the outline but visibly not exact, which is what the lesson asks the learner to find. Candidates read at 720×440: blossom at `N = 10` is already nearly exact; the cat at `N = 10` fails the clip's pixel-jump check (3.07× against 3×) and at `N = 8` loses its legs. The recipe chooses the subject in the `Primer` select and sets `Število členov N`; the old `Povečaj N za 1` button no longer exists. All three candidate posters are on the `b9` page.
+- `voronoi-degenerate`: the trapezoid is now chosen in the `Primeri` select (value `trapezoid`) instead of a `Trapez` button; same sites, window and clip path. Direction arrows kept.
+- `projective-cross-ratio`: recaptured under the B8f line-label rule; the poster is byte-identical (no labels were visible at the poster's scene), the clip re-encoded. Seen, not changed: the default scene sits small in the middle of the frame.

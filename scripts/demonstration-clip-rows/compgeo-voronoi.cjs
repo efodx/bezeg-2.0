@@ -16,7 +16,7 @@ module.exports = [
         fineGrid: -8,
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P4'},
-        // Board coordinates. The "Trapez" sites (0,0), (8,0), (9,5), (-1,5) are cocircular, so the vertex (4, 3.4) has degree 4. P4 (-1, 5) moves up 1 and down 1 and back, off the circle, so the vertex splits into two of degree 3 joined by a short edge whose direction flips as P4 passes through the circle.
+        // Board coordinates. The Trapez example sites (0,0), (8,0), (9,5), (-1,5) are cocircular, so the vertex (4, 3.4) has degree 4. P4 (-1, 5) moves up 1 and down 1 and back, off the circle, so the vertex splits into two of degree 3 joined by a short edge whose direction flips as P4 passes through the circle.
         path: [[-1, 5], [-1, 6], [-1, 5], [-1, 4], [-1, 5]],
         lessonQuote: 'Premakni eno točko trapeza za korak mreže in preberi, kaj izpis pove o določilki in diagonalah.',
         discreteReason: null,
