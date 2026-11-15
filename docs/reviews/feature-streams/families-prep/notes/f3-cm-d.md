@@ -59,3 +59,66 @@ Full dump of every readout, status, caption and panel label in sl and en: `.comm
 - The brief's product decimals (0,2588190) print as 0,258819 (six decimals shown).
 - The existing `EulerCircleGraph.act` (old `euler-circle` payload) stays beside the new lesson actions, as with ComplexPowerGraph.
 - Not verified: browser/visual screenshot, 310 px panel check (no control or layout changed).
+
+## Slice 2a: M6 lesson
+
+### Written
+- `src/learning/content/complexPowerGuidedLessons.ts`: `complexPowerLesson` (7 steps, sl + en, `demonstrationId: 'complex-power'`), `powerSceneActions(id, {A?, B?, n?})` (prepared-scene, then `set-z` if A and B, then `set-n`), scene constants `M6_SECOND`, `M6_THIRD`, `M6_CIRCLE`, `M6_INSIDE`, `M6_WRAP`, `M6_TRIPLE`, `M6_DEFAULT`, `M6_EXPLORE`. Formula blocks `de-moivre` (theorem with induction proof) and `triple-angle`.
+- Probe 2 (z = 1+i n=4; z = 0,8+0,6i n=2; sl and en) appended to `.command-logs/cm-d/p-probe2.txt`; probe test deleted.
+- Chapter, registry, registration, notation test untouched (slice 3).
+
+### Steps (opening, prediction, learner change)
+1. Third power: z=1+i, n=2 (M6_SECOND). Predict modulus/argument/point of z^3 from z, z^2. Learner: n=3 (field Eksponent n / Exponent n, or stepper Povečaj število / Increase count).
+2. Rule for powers: theorem with induction proof in the explanation; z=1+i, n=3 (M6_THIRD). Predict z^4. Learner: n=4.
+3. z=0,8+0,6i, n=1 (M6_CIRCLE). Predict |z^k| and arg z^3. Learner: n=3, then n=8.
+4. z=0,5+0,5i, n=1 (M6_INSIDE). (a) predict z^8; learner n=8. (b) predict z^8 for 1,5+0,5i; learner types Re 1,5 (Im stays 0,5), n stays 8.
+5. z=1+i, n=4 (M6_WRAP). Predict 5·arg z and principal arg of z^5. Learner: n=5.
+6. z=0,8+0,6i, n=2 (M6_TRIPLE). Predict cos3φ, sin3φ from the formulas. Learner: n=3.
+7. Default z=1+i, n=5 (M6_EXPLORE = M6_DEFAULT = {}), free exploration.
+
+### Numbers per step with source
+| Step | Quoted | Source |
+| --- | --- | --- |
+| 1 | |z|=√2, 45° | p-probe n=1 (√2 ≈ 1,414214, 45°) |
+| 1 | n=2: 2i, modulus 2, 90° | p-probe n=2 |
+| 1 | n=3: −2+2i, 2√2 ≈ 2,828427, 135° | p-probe n=3 |
+| 1 | ×√2 per step, +45° | arithmetic (√2·√2=2, 2·√2=2√2) |
+| 2 | n=4: −4, modulus 4, 180°, z^4 arrow modulus 4, status sentence | p-probe2 (status "Zunaj pogleda, narisano kot puščice: z⁴ z modulom 4") |
+| 3 | 0,8²+0,6²; n=3: −44/125 ≈ −0,352, 117/125 ≈ 0,936, modulus 1, 110,6097° | p-probe n=3 |
+| 3 | n=8: modulus 1, 294,9592° | p-probe n=8 |
+| 4 | |z|=√0,5≈0,7071 | arithmetic |
+| 4 | n=8 z=0,5+0,5i: 1/16 = 0,0625, 360°, principal 0°; z^4 = −0,25 | p-probe n=8 and n=4 |
+| 4 | z=1,5+0,5i: |z|²=2,5, 2,5^4=625/16=39,0625, ≈ −32,94+21i, 147,4796°; arrows from z³ | arithmetic, p-probe (n=8 status and caption) |
+| 5 | n=4: 180°, principal 180°; n=5: 225°, −135°, −4−4i, 4√2 ≈ 5,656854 | p-probe2, p-probe n=5 |
+| 6 | cosφ=0,8, sinφ=0,6; 4·0,512−2,4=−0,352; 1,8−0,864=0,936 | arithmetic (0,8³=0,512, 0,6³=0,216); z^3 rows from p-probe n=3 |
+| 6 | n=2: z² ≈ 0,28+0,96i | p-probe2 |
+| 7 | 0,6+0,8i modulus 1; (1+i)²=2i, ^4=−4, ^8=16; i powers | arithmetic; A=0,B=20 is i |
+
+### Deviations from the brief
+- Step 2 raises n only to 4 (not 5): the principal argument of z^5 (−135°) is shown by the rows at n=5, so z^5 is reserved for step 5 where it is the prediction. z^5 = −4−4i and 4√2 appear in step 5.
+- The theorem and its proof are stated in step 2, after step 1's prediction (step 1 asks the learner to find the pattern from z and z^2); the formula block `de-moivre` carries the same proof.
+- Step 3 opens at z=0,8+0,6i, n=1, which already shows |z|=1 (row |z¹|); the prediction therefore targets the argument and the "on the circle" verdict for z^3, z^8 using |z|^n.
+- Step 7 exploration prompt includes z=i (A=0,B=20) from arithmetic only; its rows were not probed.
+
+### Test design (for the tests worker)
+- Scene mechanics: every scene is `prepared-scene` then optional `set-z` then `set-n`; set-z equal to the default is accepted (the probe applied z=1+i). Readouts: `data-readout` ids `z, n, re, im, modulus, angle, principal, real, unit, one`; status in `[data-complex-power-status]`; counter `[data-step-counter]`.
+- Openings and post-change states (sl labels in p-probe/p-probe2):
+  - M6_SECOND n=2: re 0, im 2, modulus 2, angle 90°, status "z² = 2i"; after n=3: −2 / 2, 2√2 ≈ 2,828427, 135°.
+  - M6_THIRD n=3 → n=4: re −4, im 0, modulus 4, angle 180°, principal 180°, status lists z⁴ with modulus 4.
+  - M6_CIRCLE n=1 (re 4/5, im 3/5, modulus 1, unit "da") → n=3 (−44/125, 117/125, 110,6097°) → n=8 (164833/390625, −354144/390625, 294,9592°, principal −65,0408°, unit "da").
+  - M6_INSIDE n=1 → n=8: re 1/16, im 0, modulus 1/16, angle 360°, principal 0°, real "da"; then Re 1,5: re −527/16, im 21, modulus 625/16 ≈ 39,0625, angle 147,4796°, status lists z³..z⁸.
+  - M6_WRAP n=4 → n=5: angle 180°→225°, principal 180°→−135°, re/im −4/−4, modulus 4√2 ≈ 5,656854.
+  - M6_TRIPLE n=2 (re 7/25, im 24/25, modulus 1, 73,7398°) → n=3 (−44/125, 117/125).
+  - Default: n=5, z=1+i, counter "Korak 5 od 8".
+- Learner actions: field `Eksponent n` typed value or Povečaj število button (step 1, 2); Re field typed 1,5 in step 4 (names "z, Re", "z, Im" as in ComplexPowerLessonActions.host.test.tsx).
+- Quote list: all rows of the table above; the ones not read from a probe are arithmetic only.
+
+### Checks
+tsc clean (`s2a-tsc.log`), backslash checks 0 singles/0 flagged (`s2a-backslash.txt`), unit green (`s2a-unit.log`), lint see `s2a-lint.log`.
+
+### Still to do (slice 3)
+Chapter/registry/registration, preview copy, the notation test list, a lesson test over the scenes, smoke specs.
+
+### Doubts
+- sl "Povečaj število" and the field name "Eksponent n" come from the probe's button list and panel labels; the sl text uses "polje Re" for the real-part field whose accessible name is "z, Re".
+- Not verified: the lesson text through `lessonMathNotation.test.ts` (not yet registered), a browser view of the board.
