@@ -386,7 +386,7 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         return {x0: 0, y0: 0, x1: wide, y1: legendRowOffset(texts, texts.length, width)};
     }
 
-    private layoutCache: {key: string; boxes: Record<string, PxBox>} = {key: "", boxes: {}};
+    private layoutCache: {key: string; boxes: Record<string, PxBox>; anchors: Record<string, number>} = {key: "", boxes: {}, anchors: {}};
 
     /**
      * The boxes (px, y down) of the vertex coordinates, the handle's caption and the constraint names, each clear of the markers, the
@@ -431,7 +431,9 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
         });
         const strips: PxBox[] = [{x0: 0, y0: axisY, x1: width, y1: axisY + 22}, {x0: axisX - 40, y0: 0, x1: axisX, y1: height}];
         const boxes = placeLpLabels(items, {width, height, markers, samples, strips, blocks: legend ? [legend] : [], axisX, axisY});
-        this.layoutCache = {key, boxes};
+        const anchors: Record<string, number> = {};
+        for (const item of items) if (!item.alts) anchors[item.id] = item.ax;
+        this.layoutCache = {key, boxes, anchors};
         return boxes;
     }
 
@@ -443,11 +445,29 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
     /** A text at its placed box (see `labelBoxes`): hidden while the board has no box for it. */
     private boxText(id: string, text: () => string, color: string, visible: () => boolean = () => true): void {
         const box = () => this.labelBoxes()[id];
-        this.scene.own(this.board.create("text", [
-            () => { const {left, ux} = this.scaleOf(); return left + (box()?.x0 ?? 0) / ux; },
-            () => { const {top, uy} = this.scaleOf(); const b = box(); return top - (b ? (b.y0 + b.y1) / 2 : 0) / uy; },
-            text,
-        ], {strokeColor: color, fontSize: 14, anchorX: "left", anchorY: "middle", fixed: true, highlight: false, withLabel: false, visible: () => visible() && box() !== undefined}));
+        // One text per anchor side; only the one for the placed side shows (an attribute cannot follow a function in JSXGraph's typing).
+        for (const anchorX of ["left", "right", "middle"] as const) {
+            this.scene.own(this.board.create("text", [
+                () => { const {left, ux} = this.scaleOf(); return left + this.textEdge(id).x / ux; },
+                () => { const {top, uy} = this.scaleOf(); const b = box(); return top - (b ? (b.y0 + b.y1) / 2 : 0) / uy; },
+                text,
+            ], {strokeColor: color, fontSize: 14, anchorX, anchorY: "middle", fixed: true, highlight: false, withLabel: false,
+                visible: () => visible() && box() !== undefined && this.textEdge(id).anchorX === anchorX}));
+        }
+    }
+
+    /**
+     * Where a placed text is drawn from: the box edge nearest its anchor point, so a text drawn narrower than the estimated box (another
+     * font size) closes up toward its marker. A text with no single anchor (a constraint name) is drawn from the left edge.
+     */
+    textEdge(id: string): {x: number; anchorX: "left" | "right" | "middle"} {
+        const box = this.labelBoxes()[id];
+        if (!box) return {x: 0, anchorX: "left"};
+        const ax = this.layoutCache.anchors[id];
+        if (ax === undefined) return {x: box.x0, anchorX: "left"};
+        if (box.x1 <= ax) return {x: box.x1, anchorX: "right"};
+        if (box.x0 >= ax) return {x: box.x0, anchorX: "left"};
+        return {x: (box.x0 + box.x1) / 2, anchorX: "middle"};
     }
 
     /** The axes: a tick number that the legend stack would cover is not written (the stack sits where the numbers are). */

@@ -51,8 +51,8 @@ const targets = {
     'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, framed by the board', []],
     // The simulation graph frames its own scene (the frame of the mode, the caption rows above the plot); the recipe sets no window. The lesson cards open on the Galton board with one ball and the coin frequency with ten tosses.
     // The growth graph frames its own panel (the bars with their captions, or the years with the legend lines); the recipe sets no window and the lesson scenes keep their own. The lesson cards open on the arithmetic bars and the one-year interest.
-    // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets no window. The lesson card opens on the default region.
-    'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, framed by the board', []],
+    // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets a window that puts the vertices under the reserved legend band of the 360 x 220 poster board (the capture pads it by a sixth on each side, so the board shows x -4.5 to 13.5 and y -1 to 10 at 20 px per unit, y = 4 at 120 px). The lesson card opens on the default region.
+    'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, with the vertices below the reserved legend band', [], [-2.25, 8.625, 11.25, 0.375]],
     'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [button('Zmanjšaj število', 4)], [-0.7, 36, 7.2, -4]],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 1000 balls: the pegs, the bars of the binomial law and the heap', []],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
@@ -267,6 +267,7 @@ const captureText = {
     // Function concepts (B8a second half): each graph is named by its formula or tag; readouts and captions go.
     // Families-prep F5: the long legend, caption and readout lines go; the linear program keeps its vertex coordinates, the logistic map its r marks.
     'logistic-map': {keep: [/^r = /], strip: []},
+    'linear-program': {keep: [/^\(-?\d+; -?\d+\)$/], strip: []},
     // The wave labels "1+2", "1-2" and "2" follow their waves as the phase moves, so the loop would not close with them.
     waves: {keep: [], strip: []},
     'fixed-point': {keep: [/^x1$/], strip: []},

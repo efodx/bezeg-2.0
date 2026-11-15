@@ -65,4 +65,13 @@ module.exports = [
         lessonQuote: 'Spreminjaj \\(n\\) in \\(k\\) ter stikali za vrstni red in ponavljanje',
         discreteReason: 'The number of objects n is a whole count in a count setter with plus and minus buttons, so a sweep has only the values 3, 4 and 5; each checkpoint types the next whole n.',
     },
+    {
+        id: 'linear-program',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Vrednost k premice cilja', step: 1},
+        // The poster scene is the default region. The line of the objective slides to the largest value of k (the optimum vertex) and back.
+        path: [9, 15, 9, -1, 9],
+        lessonQuote: 'Premakni premico cilja, dokler je ne ujameš v enem samem oglišču',
+        discreteReason: null,
+    },
 ];

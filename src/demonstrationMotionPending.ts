@@ -20,5 +20,4 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'contour-map', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-solids-levelsets.md).'},
     {id: 'complex-power', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md).'},
     {id: 'complex-euler', reason: 'Newly registered; its clip waits for the lesson family media pass (docs/reviews/feature-streams/families-prep/notes/f2b-complex-linear.md).'},
-    {id: 'linear-program', reason: 'Its poster vertex labels stand ~90 px from their vertices at catalog size (families-prep F5 batch 2, handler 23); the clip waits for that placement.'},
 ];

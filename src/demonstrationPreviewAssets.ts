@@ -89,6 +89,7 @@ import preview_patch_triangular from './images/demonstrations/catalog/patch-tria
 import preview_patch_coons from './images/demonstrations/catalog/patch-coons.png';
 import preview_recursion_growth from './images/demonstrations/catalog/recursion-growth.png';
 import preview_logistic_map from './images/demonstrations/catalog/logistic-map.png';
+import preview_linear_program from './images/demonstrations/catalog/linear-program.png';
 import preview_waves from './images/demonstrations/catalog/waves.png';
 import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
 import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
@@ -216,6 +217,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'patch-coons': preview_patch_coons,
     'recursion-growth': preview_recursion_growth,
     'logistic-map': preview_logistic_map,
+    'linear-program': preview_linear_program,
     'waves': preview_waves,
     'bspline-basis': preview_bspline_basis,
     'bspline-deboor': preview_bspline_deboor,

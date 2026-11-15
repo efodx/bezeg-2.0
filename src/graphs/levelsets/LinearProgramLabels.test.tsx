@@ -68,6 +68,40 @@ describe('LinearProgramGraph board text placement', () => {
         for (const a of ids) for (const b of ids) if (a < b) expect(overlaps(boxes[a], boxes[b]), `${a} and ${b} overlap`).toBe(false);
     });
 
+    it('at the catalog board size a vertex text is drawn from the box edge nearest its vertex, so a narrower font closes up to the vertex', () => {
+        const graph = mountProbe();
+        const board = graph.liveBoard();
+        act(() => {
+            board.resizeContainer(360, 220, true, true);
+            board.setBoundingBox([-5.4, 9.5, 12.4, -2.3], false);
+            board.fullUpdate();
+        });
+        const boxes = graph.labelBoxes();
+        const [left, top] = board.getBoundingBox();
+        const texts = (Object.values(board.objects) as Array<{elType: string}>).filter(o => o.elType === 'text') as unknown as Array<{plaintext: string; visPropCalc: {visible: boolean}; X(): number; visProp: Record<string, unknown>; evalVisProp(name: string): unknown}>;
+        let left_of = 0, right_of = 0;
+        graph.solution().result.vertices.forEach((v, i) => {
+            const box = boxes[`v${i}`];
+            expect(box, `v${i} has a box`).toBeDefined();
+            const ax = (v.x.toNumber() - left) * board.unitX;
+            const text = texts.find(o => o.visPropCalc.visible && o.plaintext === `(${v.x.toNumber()}; ${v.y.toNumber()})`);
+            expect(text, `text of v${i}`).toBeDefined();
+            const drawnX = (text!.X() - left) * board.unitX;
+            if (box.x1 <= ax) {
+                left_of++;
+                expect(text!.evalVisProp('anchorx')).toBe('right');
+                expect(drawnX).toBeCloseTo(box.x1, 3);
+            } else if (box.x0 >= ax) {
+                right_of++;
+                expect(text!.evalVisProp('anchorx')).toBe('left');
+                expect(drawnX).toBeCloseTo(box.x0, 3);
+            }
+        });
+        expect(left_of, 'a vertex label lies left of its vertex').toBeGreaterThan(0);
+        expect(right_of, 'a vertex label lies right of its vertex').toBeGreaterThan(0);
+        void top;
+    });
+
     it('a constraint name sits inside the board on its line, not past the window', () => {
         const graph = mountProbe();
         act(() => { graph.importPresetData([['LinearProgram', DEFAULT_LP_STATE]]); });

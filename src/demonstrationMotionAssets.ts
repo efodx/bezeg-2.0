@@ -123,6 +123,7 @@ import motion_lattice_paths from './images/demonstrations/catalog/lattice-paths.
 import motion_circle_construction from './images/demonstrations/catalog/circle-construction.webm?no-inline';
 import motion_waves from './images/demonstrations/catalog/waves.webm?no-inline';
 import motion_counting_tree from './images/demonstrations/catalog/counting-tree.webm?no-inline';
+import motion_linear_program from './images/demonstrations/catalog/linear-program.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -249,4 +250,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'circle-construction': {src: motion_circle_construction, type: 'video/webm', duration: 4},
     'waves': {src: motion_waves, type: 'video/webm', duration: 4},
     'counting-tree': {src: motion_counting_tree, type: 'video/webm', duration: 4},
+    'linear-program': {src: motion_linear_program, type: 'video/webm', duration: 4},
 };
