@@ -572,9 +572,20 @@ export type LessonAction =
      * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
      * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per
      * year. The merged state must pass `parseGrowthState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused.
+     * The kind also serves the cobweb graph (RG2, RG4): `set-map` takes `map` (the chooser; the start falls back as the chooser does), `set-params` the stored integers
+     * `M` (slope times 20), `C` (intercept times 10) and `R` (rate times 10), `set-start` the stored `X` (start times 100) and `set-step` the drawn step count (0 to 60).
+     * Each graph refuses, with a thrown message, the fields and operations of the other.
      */
-    | {readonly kind: 'recursion'; readonly operation: 'set-map'; readonly panel?: 'sequence' | 'interest' | 'log'; readonly sequence?: 'arithmetic' | 'geometric'}
-    | {readonly kind: 'recursion'; readonly operation: 'set-params'; readonly a1?: number; readonly d?: number; readonly q?: number; readonly n?: number}
+    | {
+        readonly kind: 'recursion'; readonly operation: 'set-map';
+        readonly panel?: 'sequence' | 'interest' | 'log'; readonly sequence?: 'arithmetic' | 'geometric'; readonly map?: 'affine' | 'cosine' | 'logistic';
+    }
+    | {
+        readonly kind: 'recursion'; readonly operation: 'set-params';
+        readonly a1?: number; readonly d?: number; readonly q?: number; readonly n?: number; readonly M?: number; readonly C?: number; readonly R?: number;
+    }
+    | {readonly kind: 'recursion'; readonly operation: 'set-start'; readonly X: number}
+    | {readonly kind: 'recursion'; readonly operation: 'set-step'; readonly step: number}
     | {
         readonly kind: 'recursion'; readonly operation: 'set-interest';
         readonly capital?: number; readonly rate?: number; readonly years?: number; readonly parts?: number;

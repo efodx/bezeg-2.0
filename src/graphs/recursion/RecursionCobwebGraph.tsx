@@ -24,6 +24,8 @@ import {
 } from "../../recursion/recursionModel";
 import {affineEquation, captionPlace, CaptionScale, cobwebPath, inView, mapSamples, Polyline, subscript, VIEW_BOXES} from "./cobwebScene";
 import {SceneObjects} from "./SceneObjects";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** The scene state: the stored cobweb fields (`CobwebState`), nothing derived and no playback. */
 export interface RecursionCobwebGraphState extends BaseGraphState, CobwebState {}
@@ -469,6 +471,73 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         if (wasPlaying) this.play();
         this.requestRender();
         return true;
+    }
+
+    // ---- Lesson actions -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions (`recursion`, the cobweb's share): `set-map` picks the map (the start falls back as the chooser does), `set-params` sets the stored `M`, `C`, `R`,
+     * `set-start` the stored `X`, `set-step` the drawn step. The merged state goes through `parseCobwebState` (strict: nothing is snapped or clamped) before the first
+     * write, so an off-grid or off-range value is a lesson-content error and nothing is written. Only the changed fields are written, in one edit; a valid action pauses
+     * the playback and never starts it. The growth graph's fields and operations are refused by name.
+     */
+    applyRecursionAction(action: Extract<LessonAction, {kind: "recursion"}>): void {
+        switch (action.operation) {
+            case "set-map": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-map", patch, ["map"]);
+                return;
+            }
+            case "set-params": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-params", patch, ["M", "C", "R"]);
+                return;
+            }
+            case "set-start": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-start", patch, ["X"]);
+                return;
+            }
+            case "set-step": {
+                const {kind: _kind, operation: _operation, ...patch} = action;
+                this.editStored("set-step", patch, ["step"]);
+                return;
+            }
+            case "set-interest":
+                throw new Error("recursion set-interest: this operation belongs to the growth graph.");
+            default: {
+                const unsupported: never = action;
+                throw new Error(`recursion: no operation in ${JSON.stringify(unsupported)}.`);
+            }
+        }
+    }
+
+    /** Validates the merged state first, then writes only the fields that change; unknown and growth-graph fields are refused. */
+    private editStored(operation: string, patch: Readonly<Record<string, unknown>>, allowed: readonly (keyof CobwebState)[]): void {
+        const growth = ["panel", "sequence", "a1", "d", "q", "n"].filter(key => patch[key] !== undefined);
+        if (growth.length) throw new Error(`recursion ${operation}: ${growth.join(", ")} belongs to the growth graph.`);
+        const unknown = Object.keys(patch).filter(key => !allowed.some(field => field === key));
+        if (unknown.length) throw new Error(`recursion ${operation}: no such field ${unknown.join(", ")}.`);
+        const defined = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+        const current = serializeCobwebState(this.state);
+        // A new map moves the start as the chooser does; the merged state must then still be valid as a whole.
+        const picked = COBWEB_MAPS.find(candidate => candidate === defined.map);
+        if ("map" in defined && picked === undefined) throw new Error(`recursion ${operation}: map must be one of: ${COBWEB_MAPS.join(", ")}.`);
+        const base = picked ? withMap(current, picked) : current;
+        const parsed = parseCobwebState({...base, ...defined, ...(picked ? {map: picked} : {})});
+        if (!parsed.ok) throw new Error(`recursion ${operation}: ${parsed.error.message}`);
+        this.pausePlayback();
+        if ("map" in defined && parsed.value.map !== this.state.map) {
+            this.editMap(parsed.value.map);
+            return;
+        }
+        const changed = allowed.filter(key => parsed.value[key] !== this.state[key]);
+        if (changed.length) this.edit(Object.fromEntries(changed.map(key => [key, parsed.value[key]])));
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("recursion", action => this.applyRecursionAction(action));
     }
 
     // ---- Text -----------------------------------------------------------------------------------------------------------------

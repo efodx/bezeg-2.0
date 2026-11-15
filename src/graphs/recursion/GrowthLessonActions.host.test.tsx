@@ -154,6 +154,8 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
         setParams({a1: 7, n: 31}), // one bad field refuses the whole action: a1 stays 4
         setInterest({capital: 0}), setInterest({capital: 100001}), setInterest({rate: 0}), setInterest({rate: 81}), setInterest({rate: 2.5}),
         setInterest({years: 41}), setInterest({years: 0}), setInterest({parts: 3}), setInterest({parts: 366}), setInterest({parts: JSON.parse('"12"')}),
+        {kind: 'recursion', operation: 'set-map', map: 'cosine'}, {kind: 'recursion', operation: 'set-params', M: 10}, // the cobweb graph's fields and operations
+        {kind: 'recursion', operation: 'set-params', a1: 5, C: 10, R: 15}, {kind: 'recursion', operation: 'set-start', X: 0}, {kind: 'recursion', operation: 'set-step', step: 1},
         {kind: 'recursion', operation: 'set-start', x: 1} as unknown as LessonAction,
         {kind: 'recursion', operation: 'set-params', capital: 5} as unknown as LessonAction,
         {kind: 'recursion', operation: 'set-params', panel: 'interest'} as unknown as LessonAction,

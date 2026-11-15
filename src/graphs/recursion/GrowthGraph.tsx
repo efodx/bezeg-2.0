@@ -461,14 +461,19 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         switch (action.operation) {
             case "set-map": {
                 const {kind: _kind, operation: _operation, sequence, ...rest} = action;
+                this.refuseCobwebFields("set-map", rest);
                 this.editStored("set-map", {...rest, ...(sequence !== undefined ? {kind: sequence} : {})}, ["panel", "kind"]);
                 return;
             }
             case "set-params": {
                 const {kind: _kind, operation: _operation, ...patch} = action;
+                this.refuseCobwebFields("set-params", patch);
                 this.editStored("set-params", patch, ["a1", "d", "q", "n"]);
                 return;
             }
+            case "set-start":
+            case "set-step":
+                throw new Error(`recursion ${action.operation}: this operation belongs to the cobweb graph.`);
             case "set-interest": {
                 const {kind: _kind, operation: _operation, ...patch} = action;
                 this.editStored("set-interest", patch, ["capital", "rate", "years", "parts"]);
@@ -479,6 +484,12 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
                 throw new Error(`recursion: no operation in ${JSON.stringify(unsupported)}.`);
             }
         }
+    }
+
+    /** The fields of the cobweb graph (`map`, `M`, `C`, `R`) are the other graph's: refused by name before anything is merged. */
+    private refuseCobwebFields(operation: string, patch: Readonly<Record<string, unknown>>): void {
+        const foreign = ["map", "M", "C", "R"].filter(key => patch[key] !== undefined);
+        if (foreign.length) throw new Error(`recursion ${operation}: ${foreign.join(", ")} belongs to the cobweb graph.`);
     }
 
     /** Validates the merged state first, then writes only the fields that change; unknown fields are refused. */
