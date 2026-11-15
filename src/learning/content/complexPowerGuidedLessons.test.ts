@@ -137,8 +137,8 @@ const PLANS: readonly Plan[] = [
     {id: 'm6-wrapped-argument', opening: state(20, 20, 4), asks: [
         {label: 'n = 5', acts: [typeN(5)], after: state(20, 20, 5), predicted: [225, -135]},
     ]},
-    {id: 'm6-triple-angle', opening: state(16, 12, 2), asks: [
-        {label: 'n = 3', acts: [typeN(3)], after: state(16, 12, 3), predicted: [-0.352, 0.936]},
+    {id: 'm6-triple-angle', opening: state(12, 16, 2), asks: [
+        {label: 'n = 3', acts: [typeN(3)], after: state(12, 16, 3), predicted: [-0.936, 0.352]},
     ]},
     {id: 'm6-explore', opening: DEFAULT_STATE, asks: []},
 ];
@@ -354,8 +354,8 @@ const stepTexts = (id: string, language: Language): string[] => {
 
 const at = (A: number, B: number, n: number) => expected(state(A, B, n));
 const SQRT_HALF = Math.hypot(0.5, 0.5);
-const c = 0.8;
-const s = 0.6;
+const c = 0.6;
+const s = 0.8;
 const cos3 = 4 * c ** 3 - 3 * c;
 const sin3 = 3 * s - 4 * s ** 3;
 
@@ -370,7 +370,7 @@ const SPECS: readonly Spec[] = [
         Q((30 ** 2 + 10 ** 2) / 400, 1), Q(at(30, 10, 8).modulus, 4), Q(at(30, 10, 8).re, 2), Q(at(30, 10, 8).im, 0), R(at(30, 10, 8).angle),
     ]},
     {id: 'm6-wrapped-argument', extra: [], quotes: [Q(at(20, 20, 4).angle, 0), Q(at(20, 20, 4).principal, 0), Q(at(20, 20, 5).angle, 0), Q(at(20, 20, 5).principal, 0), Q(at(20, 20, 5).re, 0), Q(at(20, 20, 5).im, 0), Q(at(20, 20, 5).modulus)]},
-    {id: 'm6-triple-angle', extra: ['0.8', '0.6'], quotes: [Q(c ** 3, 3), Q(4 * c ** 3, 3), Q(3 * c, 1), Q(cos3, 3), Q(s ** 3, 3), Q(3 * s, 1), Q(4 * s ** 3, 3), Q(sin3, 3), Q(at(16, 12, 3).re, 3), Q(at(16, 12, 3).im, 3), Q(at(16, 12, 2).re, 2), Q(at(16, 12, 2).im, 2)]},
+    {id: 'm6-triple-angle', extra: ['0.6', '0.8'], quotes: [Q(c ** 3, 3), Q(4 * c ** 3, 3), Q(3 * c, 1), Q(cos3, 3), Q(s ** 3, 3), Q(3 * s, 1), Q(4 * s ** 3, 3), Q(sin3, 3), Q(at(12, 16, 3).re, 3), Q(at(12, 16, 3).im, 3), Q(at(12, 16, 2).re, 2), Q(at(12, 16, 2).im, 2)]},
     {id: 'm6-explore', extra: ['0.6', '0.8'], quotes: [Q(at(20, 20, 2).modulus, 0), Q(at(20, 20, 4).re, 0), Q(at(20, 20, 8).re, 0), Q(at(0, 20, 2).re, 0), Q(90, 0)]},
 ];
 /** Rounded quotes the text does not hedge with a "približno"/"approximately" word, \approx or a "(izračunano)" mark: findings, pinned so the list shrinks when the text is fixed. */
@@ -454,18 +454,18 @@ test('the moduli and arguments by Math.hypot and Math.atan2 at the points the te
     expect(at(10, 10, 8).unit).toBe(false);
 });
 
-test('the triple angle formulas at z = 0,8 + 0,6i: cos 3phi = -0,352, sin 3phi = 0,936, equal to Re z^3 and Im z^3', () => {
-    expect(cos3).toBeCloseTo(-0.352, 14);
-    expect(sin3).toBeCloseTo(0.936, 14);
-    expect(c ** 3).toBeCloseTo(0.512, 14);
-    expect(s ** 3).toBeCloseTo(0.216, 14);
-    expect(4 * 0.512 - 3 * 0.8).toBeCloseTo(2.048 - 2.4, 14);
-    expect(3 * 0.6 - 4 * 0.216).toBeCloseTo(1.8 - 0.864, 14);
-    const phi = Math.atan2(12, 16);
+test('the triple angle formulas at z = 0,6 + 0,8i: cos 3phi = -0,936, sin 3phi = 0,352, equal to Re z^3 and Im z^3', () => {
+    expect(cos3).toBeCloseTo(-0.936, 14);
+    expect(sin3).toBeCloseTo(0.352, 14);
+    expect(c ** 3).toBeCloseTo(0.216, 14);
+    expect(s ** 3).toBeCloseTo(0.512, 14);
+    expect(4 * 0.216 - 3 * 0.6).toBeCloseTo(0.864 - 1.8, 14);
+    expect(3 * 0.8 - 4 * 0.512).toBeCloseTo(2.4 - 2.048, 14);
+    const phi = Math.atan2(16, 12);
     expect(Math.cos(3 * phi)).toBeCloseTo(cos3, 12);
     expect(Math.sin(3 * phi)).toBeCloseTo(sin3, 12);
-    expect(at(16, 12, 3).re).toBeCloseTo(cos3, 12);
-    expect(at(16, 12, 3).im).toBeCloseTo(sin3, 12);
+    expect(at(12, 16, 3).re).toBeCloseTo(cos3, 12);
+    expect(at(12, 16, 3).im).toBeCloseTo(sin3, 12);
     for (let k = -12; k <= 12; k++) {
         const angle = k * 0.37;
         const cc = Math.cos(angle);
@@ -476,7 +476,7 @@ test('the triple angle formulas at z = 0,8 + 0,6i: cos 3phi = -0,352, sin 3phi =
         expect(Math.cos(3 * angle)).toBeCloseTo(cc ** 3 - 3 * cc * ss ** 2, 12);
         expect(Math.sin(3 * angle)).toBeCloseTo(3 * cc ** 2 * ss - ss ** 3, 12);
     }
-    // z^2 = 0,28 + 0,96i
-    expect(at(16, 12, 2).re).toBeCloseTo(0.28, 14);
-    expect(at(16, 12, 2).im).toBeCloseTo(0.96, 14);
+    // z^2 = -0,28 + 0,96i
+    expect(at(12, 16, 2).re).toBeCloseTo(-0.28, 14);
+    expect(at(12, 16, 2).im).toBeCloseTo(0.96, 14);
 });

@@ -127,3 +127,7 @@ Chapter/registry/registration, preview copy, the notation test list, a lesson te
 - New `src/learning/content/complexPowerGuidedLessons.test.ts` (part A scenes, sl and en, out of order and twice; restore; prompt labels; learner actions by field and stepper; step 7 claims; part B quotes by repeated BigInt multiplication, hedging, decimals, triple angle).
 - Green: `s2d-unit.log` (255 tests with src/graphs/complex), tsc clean, lint clean. Red: one sl number changed (2,828427 to 2,828428), fails "missing 2,828427", restored (`s2d-red.log`).
 - No false claim found. Not checked: lessonMathNotation (unregistered), a browser view.
+
+### Slice 2a-f
+
+M6 review findings applied in `complexPowerGuidedLessons.ts` and its test. B1: step 6 now uses z = 0,6 + 0,8i (M6_TRIPLE A = 12, B = 16, n = 2); host probe (`p-probe2.txt`) showed z^2 = -7/25 + 24/25 i at n = 2 and z^3 = -117/125 + 44/125 i at n = 3; no earlier step shows that z^3. N2 real z is a ray; N3 rounded angles use `\approx`; N4 step 3 prompt asks for positions and arguments, predict before the unit-circle row; N5 wrapping remark moved to the expected observation; N6 step 7 natural n, graph shows up to 8; N7 fields named "Re in the row z under the heading Number z". Purposes are not rendered in the lesson runtime (only chapter purposes), so left unchanged. Checks: tsc clean, backslash 0 in the lesson file, unit green, lint clean.
