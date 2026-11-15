@@ -17,3 +17,37 @@ Full text: `.command-logs/rec-c/probe.txt` (sl + en, 11 openings + Reset).
 ## Doubts
 - Interest curves are in t (years), not discrete n, and carry extra curves; slice 2 phrases around it.
 - Board texts read via JSXGraph objects in jsdom; not seen in a browser.
+
+## Slice 2 (RG5 lesson content)
+
+### Written
+- `src/learning/content/recursionLogScaleGuidedLessons.ts`: `recursionLogScaleLesson` (id via demonstration `recursion-growth`, 6 steps `rg5-ordinary`, `rg5-predict-log`, `rg5-line`, `rg5-slope`, `rg5-power`, `rg5-explore`), helper `recursionLogSceneActions`, constants `RG5_INTEREST`, `RG5_LOG`, `RG5_EXPLORE`. Reuses `RecursionSceneInterest` from `recursionGuidedLessons.ts`. Not registered (slice 3).
+- Probe 2: `.command-logs/rec-c/probe2.txt` (test deleted). Checks: `s2-tsc.log`, `s2-backslash.txt` (0 singles), `s2-lint.log`, `s2-unit.log` all passed.
+
+### Numbers per step with source
+| Step | Number | Source |
+|---|---|---|
+| 1 | ratio 1,05; growth 50 and 52,50; 1628,89 | rule arithmetic (1000*0,05; 1050*0,05); probe interest row |
+| 2 | slope 0,04879, ln q, q 1,05; chooser keeps y0=1000, logQ=105 | probe2 "after chooser to log" |
+| 3 | ln y10 7,395657; ln 1000 about 6,907755 (3 ln 10); y0=100 gives 5,093072; drop ln 10 about 2,302585; slope 0,04879 | probe (y0=1000), probe2 (y0=100), arithmetic |
+| 3 example | log10 1,05 about 0,0211893; log10 y10 3,211893 | spec default, stated as arithmetic |
+| 4 | q=2: 0,693147, q from slope 2; q=0,5: -0,693147, 0,5 | probe and probe2 |
+| 5 | first step 1,386294 (2 ln 2), last 0,19062 (2 ln 1,1); "Točke na premici?" no | probe power y0=1000 |
+| 6 | q=1 slope 0 (ln 1); q=2, q=0,5 as above | arithmetic, probe |
+
+### Deviations
+- Steps 1 and 2 share one interest scene; steps 3-5 share one log scene (y0=1000, q=1,05); step 6 equals it (neutral).
+- q slider "Faktor rasti q" and y0 slider "Začetna vrednost" are named without the subscript (notation test flags unicode subscripts outside math).
+
+### Test design
+- Scenes: `recursionLogSceneActions(id, spec)` = prepared-scene, `set-map {panel}`, `set-interest`, `set-log`. Readouts via `[data-readout]`, status `[data-recursion-status]`.
+- Openings: RG5_INTEREST status "Po 10 letih: ... obrestno obrestovanje 1628,89 ..."; RG5_LOG slope 0,04879, ln y10 7,395657.
+- Learner actions: choose panel `log` (label Prikaz); type y0=100 gives ln y10 5,093072 (slope unchanged); type q 2 gives slope 0,693147; q 0,5 gives -0,693147; choose model `power` gives first/last step 1,386294/0,19062. All in probe2/probe.
+- Quote list: every number above with its source in the table.
+
+### Still to do
+Slice 3 (registration, chapter, tests, notation test run).
+
+### Doubts
+- Row names in prompts quoted by label without symbols (e.g. "Naklon prvega koraka"); no browser check.
+- Step 1 mixes years t and steps n, as noted in slice 1.
