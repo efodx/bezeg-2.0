@@ -1,5 +1,5 @@
 import {boards} from 'jsxgraph';
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {JsxSurfaceView} from './jsxSurfaceView';
 import {makeCameraModel, projectToScreen} from './jsxProjection';
 import {CAMERA_PRESETS} from './surfaceMath';
@@ -273,6 +273,37 @@ describe('JsxSurfaceView', () => {
         view.reconcile(makeScene());
         view.flush();
         expect(boardCount()).toBe(baseline);
+    });
+
+    it('leaves no deferred JSXGraph resize behind when a rebuild frees the board (solids F6 console TypeError)', async () => {
+        // JSDOM has no ResizeObserver; a stub lets JSXGraph take its browser path (a ResizeObserver whose callback
+        // defers updateContainerDims by a timeout that freeBoard does not cancel).
+        const callbacks: ResizeObserverCallback[] = [];
+        class ResizeObserverStub {
+            constructor(callback: ResizeObserverCallback) { callbacks.push(callback); }
+            observe(): void {}
+            unobserve(): void {}
+            disconnect(): void {}
+        }
+        vi.stubGlobal('ResizeObserver', ResizeObserverStub);
+        const {view} = await mount();
+        const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        vi.useFakeTimers();
+        try {
+            const entry = {contentRect: {width: 700, height: 500}} as ResizeObserverEntry;
+            for (const callback of callbacks) callback([entry], {} as ResizeObserver);
+            const scene = makeScene();
+            view.reconcile({...scene, revision: 2, points: scene.points.slice(1)});
+            view.flush();
+            expect(view.stats.rebuilds).toBe(2);
+            vi.advanceTimersByTime(1000);
+            expect(errors).not.toHaveBeenCalled();
+        } finally {
+            vi.useRealTimers();
+            errors.mockRestore();
+            view.dispose();
+            vi.unstubAllGlobals();
+        }
     });
 
     it('survives three remounts with the board count back at baseline', async () => {

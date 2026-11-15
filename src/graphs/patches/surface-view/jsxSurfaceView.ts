@@ -534,6 +534,10 @@ export class JsxSurfaceView implements SurfaceView {
             axis: false, showCopyright: false, showNavigation: false, showInfobox: false,
             pan: {enabled: false}, zoom: {enabled: false, wheel: false, pinch: false},
             keepAspectRatio: false, renderer: 'svg' as const,
+            // The view sizes the board itself (its own ResizeObserver, measure, resizeBoard). JSXGraph's resize handling
+            // defers updateContainerDims by a timeout that freeBoard does not cancel, so a rebuild during a drag hit a
+            // freed renderer ("reading 'resize'", solids F6 smoke).
+            resize: {enabled: false},
         };
         const created = JSXGraph.initBoard(container, boardOptions);
         // This board is not made by GraphSession: its hidden view3d angle readouts (az, el, bank) would otherwise fall back to Arial.
