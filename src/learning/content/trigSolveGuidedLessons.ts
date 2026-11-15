@@ -114,7 +114,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'tr5-inequality', order: 2,
-        title: text('Mejni primer in pravilni primer', 'The borderline case and a proper case'),
+        title: text('Druge tri stranice', 'Three other sides'),
         purpose: text('Napovedati, kaj stori status, ko je vsota dveh stranic enaka tretji in ko je večja od nje.', 'Predicting what the status does when the sum of two sides equals the third and when it exceeds it.'),
         explanation: text(
             'Stranice so zdaj \\(a=2\\), \\(b=3\\), \\(c=6\\) in status pravi, da trikotnika ni. Napovej, kaj pokaže graf, če v polje Stranica a vpišeš \\(3\\) (stranice \\(3\\), \\(3\\), \\(6\\)), in kaj, če nato vpišeš \\(4\\) (stranice \\(4\\), \\(3\\), \\(6\\)). Pri vsakem zapiši razlog.',
@@ -141,8 +141,8 @@ const steps: readonly GuidedLessonStep[] = [
         formulaIds: ['cosine-rule-a'],
         observationPrompt: text('Preberi stranico \\(a\\) in kota \\(B\\), \\(C\\) v odčitkih ter ju primerjaj s svojim računom.', 'Read the side \\(a\\) and the angles \\(B\\), \\(C\\) in the readouts and compare them with your calculation.'),
         expectedObservations: [text(
-            'Račun: \\(a^2=5^2+7^2-2\\cdot5\\cdot7\\cdot\\tfrac12=74-35=39\\), torej \\(a=\\sqrt{39}\\approx6{,}245\\); odčitek je \\(a\\approx6{,}245\\). Kot \\(B\\) iz kosinusnega izreka: \\(\\cos B=\\dfrac{a^2+c^2-b^2}{2ac}=\\dfrac{39+49-25}{14\\sqrt{39}}=\\dfrac{9}{2\\sqrt{39}}\\approx0{,}7206\\), kar da \\(B\\approx43{,}8979^\\circ\\) kot v odčitku, in \\(C=180^\\circ-60^\\circ-43{,}8979^\\circ=76{,}1021^\\circ\\). Pri SKS najprej dobiš tretjo stranico s kosinusnim izrekom, nato kota.',
-            'The calculation: \\(a^2=5^2+7^2-2\\cdot5\\cdot7\\cdot\\tfrac12=74-35=39\\), so \\(a=\\sqrt{39}\\approx6.245\\); the readout is \\(a\\approx6.245\\). The angle \\(B\\) from the cosine rule: \\(\\cos B=\\dfrac{a^2+c^2-b^2}{2ac}=\\dfrac{39+49-25}{14\\sqrt{39}}=\\dfrac{9}{2\\sqrt{39}}\\approx0.7206\\), which gives \\(B\\approx43.8979^\\circ\\) as in the readout, and \\(C=180^\\circ-60^\\circ-43.8979^\\circ=76.1021^\\circ\\). With SAS you first get the third side from the cosine rule, then the angles.',
+            'Račun: \\(a^2=5^2+7^2-2\\cdot5\\cdot7\\cdot\\tfrac12=74-35=39\\), torej \\(a=\\sqrt{39}\\approx6{,}245\\); odčitek je \\(a\\approx6{,}245\\). Kot \\(B\\) iz kosinusnega izreka: \\(\\cos B=\\dfrac{a^2+c^2-b^2}{2ac}=\\dfrac{39+49-25}{14\\sqrt{39}}=\\dfrac{9}{2\\sqrt{39}}\\approx0{,}7206\\), kar da \\(B\\approx43{,}8979^\\circ\\) kot v odčitku, in \\(C\\approx180^\\circ-60^\\circ-43{,}8979^\\circ=76{,}1021^\\circ\\). Pri SKS najprej dobiš tretjo stranico s kosinusnim izrekom, nato kota.',
+            'The calculation: \\(a^2=5^2+7^2-2\\cdot5\\cdot7\\cdot\\tfrac12=74-35=39\\), so \\(a=\\sqrt{39}\\approx6.245\\); the readout is \\(a\\approx6.245\\). The angle \\(B\\) from the cosine rule: \\(\\cos B=\\dfrac{a^2+c^2-b^2}{2ac}=\\dfrac{39+49-25}{14\\sqrt{39}}=\\dfrac{9}{2\\sqrt{39}}\\approx0.7206\\), which gives \\(B\\approx43.8979^\\circ\\) as in the readout, and \\(C\\approx180^\\circ-60^\\circ-43.8979^\\circ=76.1021^\\circ\\). With SAS you first get the third side from the cosine rule, then the angles.',
         )],
         scene: scene('tr5-sas-scene', TR5_SSS_5_6_7,
             'Način Reševanje trikotnika, podatki SSS \\(a=5\\), \\(b=6\\), \\(c=7\\); izbira SKS naloži \\(b=5\\), \\(c=7\\), \\(A=60^\\circ\\).',
@@ -186,7 +186,7 @@ const steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'tr5-cases', order: 6,
-        title: text('Dotik, premajhna stranica in dolga stranica', 'Tangent, a side too short and a long side'),
+        title: text('Več vrednosti stranice \\(a\\)', 'Several values of the side \\(a\\)'),
         purpose: text('Napovedati število rešitev pri \\(a=h\\), \\(a<h\\) in \\(a\\ge b\\) ter izreči celotno pravilo.', 'Predicting the number of solutions for \\(a=h\\), \\(a<h\\) and \\(a\\ge b\\) and stating the whole rule.'),
         explanation: text(
             'Pri \\(A=30^\\circ\\), \\(b=8\\), \\(a=5\\) graf kaže dva trikotnika; višina je \\(h=4\\). Za vsako od vrednosti \\(a=4\\), \\(a=3{,}5\\) in \\(a=9\\) napovej število rešitev in zapiši razlog. Nato jih po vrsti vpiši v polje Stranica a.',
@@ -228,8 +228,8 @@ const triangleSolve: GuidedLesson = {
     demonstrationId: 'triangle-solver',
     title: text('Reševanje trikotnika: SSS, SKS, KSK in SSK', 'Solving a triangle: SSS, SAS, ASA and SSA'),
     summary: text(
-        'Iz treh podatkov o trikotniku izračunaš ostale stranice in kote s kosinusnim in sinusnim izrekom. Lekcija preizkuša, kdaj podatki trikotnik določijo, kdaj ga ne in kdaj ga ne določijo enolično; pri SSK to pove konstrukcija s krožnico in poltrakom.',
-        'From three data of a triangle you calculate the other sides and angles with the cosine and sine rules. The lesson tests when the data fix a triangle, when they do not, and when they do not fix it uniquely; for SSA the construction with a circle and a ray decides.',
+        'Iz treh podatkov o trikotniku izračunaš ostale stranice in kote s kosinusnim in sinusnim izrekom. Lekcija preizkuša, kdaj podatki trikotnik določijo; pri SSK to pove konstrukcija s krožnico in poltrakom.',
+        'From three data of a triangle you calculate the other sides and angles with the cosine and sine rules. The lesson tests when the data fix a triangle; for SSA the construction with a circle and a ray decides.',
     ),
     prerequisites: [
         text('Lekcija o kosinusnem izreku in lekcija o sinusnem izreku in očrtani krožnici.', 'The lessons on the cosine rule and on the sine rule and the circumcircle.'),
