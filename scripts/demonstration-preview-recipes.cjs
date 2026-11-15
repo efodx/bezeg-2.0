@@ -307,6 +307,10 @@ const captureText = {
     'bspline-blossom': {keep: [], strip: []},
     'projective-cross-ratio': {keep: [], strip: []},
     'projective-pascal': {keep: [], strip: []},
+    // Linear map (B8f): the basis vector, the eigen and discriminant tags stay; the other readouts are values the motion shows.
+    // monotone-triangulation: the vertex names v1, v2, ... sit under the point glyphs, the square and the ring of the marked vertices (as monotone-partition): Remove.
+    'monotone-triangulation': {keep: [], strip: []},
+    'linear-map': {keep: [/^a₁ = /, /^[τδ]$/, /^Δ = 0$/], strip: []},
 };
 
 const recipes = Object.fromEntries(Object.entries(targets).map(([id, [intent, actions, window]]) => [id, {
@@ -400,7 +404,10 @@ async function applyAction(page, action) {
             assert.ok(await control.isEnabled(), `${action.label} unavailable at action ${i + 1}`);
             assert.notEqual(await control.getAttribute('aria-disabled'), 'true', `${action.label} unavailable`);
             await control.click();
-            await settle(page);
+            // A repeated press settles fully only after the last one: a MathJax typeset of the whole page after each of 33 presses
+            // (monotone-triangulation) crashes the page ("Target crashed"); the frames in between only need the board to repaint.
+            if (i === (action.count || 1) - 1) await settle(page);
+            else await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         }
     } else if (action.kind === 'toggle') {
         await control.setChecked(action.value);

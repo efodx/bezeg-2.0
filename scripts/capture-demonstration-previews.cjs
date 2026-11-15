@@ -288,7 +288,9 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     if (options.text) {
                         const applyText = new Function('return (' + options.applyCaptureTextSource + ')')();
                         const pointLabels = new Set(Object.values(board.objects || {}).filter(o => o.elType === 'point' && o.label).map(o => o.label));
-                        applyTextPolicy = () => applyText(Object.values(board.objects || {}).filter(o => ['text', 'smartlabel'].includes(o.elType) &&
+                        // A line's or circle's label is elType 'label' and absent from board.objects; judge it like any text (point labels stay out).
+                        const objectTexts = () => Object.values(board.objects || {}).flatMap(o => [o, ...(o.elType !== 'point' && !axisGridObjects.has(o) && o.label?.rendNode ? [o.label] : [])]);
+                        applyTextPolicy = () => applyText(objectTexts().filter(o => ['text', 'smartlabel', 'label'].includes(o.elType) &&
                             !axisGridObjects.has(o) && !pointLabels.has(o) && o.visProp?.visible !== false && o.visProp?.visible !== 'false'), options.text);
                         applyTextPolicy();
                     }

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 
 const rowFields = ['id', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
 // Optional: fineGrid (pointer-drag on a board only), offCamera and restyle (board rows); see README.md.
-const optionalRowFields = ['fineGrid', 'offCamera', 'restyle'];
+const optionalRowFields = ['fineGrid', 'offCamera', 'restyle', 'backgroundSample'];
 const motions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps', 'surface-orbit'];
 // Motions the driver can capture today. The other two are accepted by the schema so a row can name them, but the driver refuses them.
 const drivenMotions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps'];

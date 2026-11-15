@@ -516,3 +516,11 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b8d/` (served as `walkth
 - `projective-cross-ratio`: Remove. The triage kept the cross-ratio lines in part, but they are not on the poster, so a kept name would name nothing drawn.
 - Capture-tool repair: the cross-ratio clip row names the current field "Točka O, x" (`PointListInput`).
 - **Not done in effect:** `projective-pascal` has its Remove entry and was recaptured, but the side names `s1` to `s6` and the line name `p` are still on the poster (now in the board serif). The policy does not hide these line labels; the selection in `presentBoard` (`capture-demonstration-previews.cjs`, the `applyTextPolicy` filter) needs a look at how JSXGraph line labels are registered.
+
+### B8f Capture-tool repairs (handler 4, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b8f/` (served as `walkthrough-graphs/b8f.html`).
+
+- `projective-pascal`: now without text. A line's or circle's label has elType `label` and is not in `board.objects`, so the policy never judged it; it now judges the labels of non-point objects too (point labels stay excluded). Only `projective-cross-ratio` (lines `p`, `p′`) also has such labels among recipes with a text entry; its poster is not recaptured yet (Remove, so it would lose them).
+- `linear-map`: keeps `a₁ = …` (with `a₂`), `τ`, `δ` and `Δ = 0`. Its clip's background sample now sits at (611, 11), exact background in every frame (new optional row field `backgroundSample`); colour check and CRF unchanged.
+- `monotone-triangulation`: Remove, as `monotone-partition`. A repeated button press now settles fully (MathJax typeset) only after the last press, with a two-frame wait between presses; 33 full typesets crashed the page.
