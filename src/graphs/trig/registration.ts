@@ -4,7 +4,7 @@ import type {Definition} from '../../demonstrations';
  * Cheap metadata of the trigonometry family (spec lesson-authoring-architecture R1). Imports no graph, React, lesson
  * provider or localization value, so the home page and catalog can read it without loading the family. Executable surfaces
  * live in `runtime.ts`, which this file never imports; preset collections live in `collections.ts`.
- * `unit-circle` has its guided lessons (TR1, TR2, chapter-owned by the trigonometry chapter); `triangle-solver` has its guided lessons (TR3, TR4, chapter-owned by the same chapter).
+ * `unit-circle` has its guided lessons (TR1, TR2, chapter-owned by the trigonometry chapter); `triangle-solver` has its guided lessons (TR3 to TR5, chapter-owned by the same chapter).
  */
 export const trigFamilyId = 'trigonometry';
 

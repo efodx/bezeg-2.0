@@ -59,7 +59,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'level-sets' ? [`level-sets.${section.id}.${section.id === 'linear-programming' ? 'linear-program' : 'contour-map'}`] : []),
                     ...(chapter.id === 'randomness' ? [`randomness.${section.id}.prob-simulation`] : []),
                     ...(chapter.id === 'combinatorics' ? [`combinatorics.${section.id}.${section.id === 'counting-and-choices' ? 'counting-tree' : 'lattice-paths'}`] : []),
-                    ...(chapter.id === 'trigonometry' ? [`trigonometry.${section.id}.${section.id === 'sine-rule' || section.id === 'cosine-rule' ? 'triangle-solver' : 'unit-circle'}`] : []),
+                    ...(chapter.id === 'trigonometry' ? [`trigonometry.${section.id}.${section.id === 'sine-rule' || section.id === 'cosine-rule' || section.id === 'solve-triangle' ? 'triangle-solver' : 'unit-circle'}`] : []),
                     ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${(section.id === 'notable-points' ? 'triangle-centres' : section.id)}`] : []),
                 ].sort();
                 const references = exampleReferences<unknown>(content ?? []);
@@ -69,7 +69,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(190);
-        expect(new Set(allReferences).size).toBe(190);
+        expect(allReferences).toHaveLength(191);
+        expect(new Set(allReferences).size).toBe(191);
     }
 });

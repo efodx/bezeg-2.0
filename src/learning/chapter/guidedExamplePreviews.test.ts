@@ -294,7 +294,9 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'trigonometry', copy: trigonometryPreviewCopy,
         ids: ['trigonometry.addition-formulas.unit-circle', 'trigonometry.cosine-rule.triangle-solver', 'trigonometry.radian-sine-cosine.unit-circle',
             'trigonometry.sine-rule.triangle-solver'],
-        counts: [[2, 5], [0, 3], [1, 2], [0, 3]]},
+        counts: [[2, 5], [0, 3], [1, 2], [0, 3]],
+        // TR5 joined the chapter in F3 (handler 30); its card and copy row come in F4.
+        pending: ['trigonometry.solve-triangle.triangle-solver']},
     {chapterId: 'analytic-lines', copy: analyticLinesPreviewCopy,
         ids: ['analytic-lines.angle-between-lines.line-geometry', 'analytic-lines.distance-point-line.line-geometry', 'analytic-lines.forms-of-a-line.line-geometry',
             'analytic-lines.normal-parallel-perpendicular.line-geometry'],

@@ -6,4 +6,4 @@ Slices F3–F6 as in [07](07-batch-a-lessons.md), applied to TR5 (both SSA solut
 
 Acceptance: TR5 acceptance of the spec; scene actions tested in one synchronous sequence; notation test, `tsc`, sweeps and build pass.
 
-Status: not started.
+Status: F3 TR5 written and joined (handler 30); F4 card, F5 and F6 gate next.

@@ -202,6 +202,7 @@ describe('launch paths and example resolution', () => {
         ['canonical example, level sets LS2', '?example=lesson.level-sets.gradient.contour-map', 'contour-map', 'level-sets-gradient', {chapterId: 'level-sets', sectionId: 'gradient'}],
         ['canonical example, level sets LS3', '?example=lesson.level-sets.descent.contour-map', 'contour-map', 'level-sets-descent', {chapterId: 'level-sets', sectionId: 'descent'}],
         ['canonical example, level sets LS4', '?example=lesson.level-sets.lagrange.contour-map', 'contour-map', 'level-sets-lagrange', {chapterId: 'level-sets', sectionId: 'lagrange'}],
+        ['canonical example, trigonometry TR5', '?example=lesson.trigonometry.solve-triangle.triangle-solver', 'triangle-solver', 'triangle-solve', {chapterId: 'trigonometry', sectionId: 'solve-triangle'}],
         ['canonical example, randomness RS1', '?example=lesson.randomness.galton-board.prob-simulation', 'prob-simulation', 'randomness-galton', {chapterId: 'randomness', sectionId: 'galton-board'}],
         ['canonical example, randomness RS2', '?example=lesson.randomness.law-of-large-numbers.prob-simulation', 'prob-simulation', 'randomness-large-numbers', {chapterId: 'randomness', sectionId: 'law-of-large-numbers'}],
         ['canonical family example', '?example=family.splines.worked-join.spline-c1', 'spline-c1', 'explore-splines-worked-join-spline-c1', {chapterId: 'splines', sectionId: 'worked-join'}],

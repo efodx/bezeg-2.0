@@ -68,3 +68,18 @@ Slice 3: register, chapter, preview, tests, notation test list, smoke.
 - Checks: `just unit` (file plus `src/graphs/trig`) passed; `just typecheck` 0; `just lint` on the file 0; LF. Red: sl step 4 quote 7,03508 -> 7,03509 fails 3 tests, restored (`s2d-red.log`).
 - Finding, not a false claim: step 3 (sl and en) writes `C=180-60-43,8979=76,1021` without an approx marker on the rounded 43,8979; the approx rule exempts exactly that chain.
 - Not verified: no browser/smoke run; the `a` typed with a decimal comma in sl relied on the field accepting it (it did in this test).
+
+## Slice 3: chapter join
+
+Written
+- TR5 joined as last section `solve-triangle` (lesson `triangle-solve`, Demonstration `triangle-solver`): `trigonometryChapterRegistry.ts`, `trigonometryChapter.ts` (four paragraphs, formula, example; purpose and header comment extended). Chapter example SSA A = 45 deg, b = 10, a = 8: h ~ 7,0711, two triangles, B ~ 62,1144 / 117,8856, C ~ 72,8856 / 17,1144, c ~ 10,81273 / 3,32941 (recomputed by node); none of the lesson's predicted values quoted.
+- Counts: `familyChapters.test.ts` trigonometry minimum 5, `authoredChapterCoverage.test.ts` 190 -> 191 and section mapping, `lessonLookup.characterization.test.ts` row, `lessonMathNotation.test.ts` (import, set, scan list), `guidedExamplePreviews.test.ts` pending, smoke `unified-learning` trigonometry 5; comments in `registration.ts`, `guidedLessonOwnership.ts`. `lessonOwnerIntegrity`, `lessonCatalog`, `LearningPage` tests and `chapterOwnedLessons.ts` needed no change. No new guided-lessons smoke row (one row per Demonstration). `docs/localization.md` one row of TR5 terms (handler-unreviewed); task 09 and README status.
+- Outside the owned list: `trigTriangleGuidedLessons.test.ts:478` expected the triangle-solver rows `['sine-rule','cosine-rule']`; now includes `solve-triangle`. No change to `trigSolveGuidedLessons.ts` (notation test passed).
+
+Outcome (logs in `.command-logs/trig-c/`)
+- Red `s3-red.log`: familyChapters (4 >= 5) and authoredChapterCoverage (190 vs 191) failed before the section existed.
+- `s3-tsc.log` clean; `s3-lint.log` clean; `s3-build.log` passed; `s3-smoke.log` smoke-lesson triangle-solver passed.
+- `s3-unit.log` (src/learning src/graphs/trig): 1 failed / 2865 passed (the line-478 expectation); rerun of that file `s3-unit-rerun.log` passed.
+- Backslash check: 0 outside String.raw; chapter file LF (registry was CRLF in the working tree, now LF).
+
+Not verified: the chapter section in the browser; unified-learning smoke; Slovenian prose has no second reader; the full unit set was not rerun after the line-478 fix.

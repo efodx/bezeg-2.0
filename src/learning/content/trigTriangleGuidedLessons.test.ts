@@ -475,7 +475,7 @@ describe('the numbers each step quotes are those of its scene and prompts, in sl
         expect(cosineRuleLesson.steps.map(step => step.id)).toEqual(Object.keys(TR4_SCENES));
         expect(new Set(allSteps().map(step => step.scene!.id)).size).toBe(13);
         expect(allSteps().every(step => step.scene)).toBe(true);
-        expect(owned.rows().filter(([, demonstration]) => demonstration === 'triangle-solver').map(([section]) => section)).toEqual(['sine-rule', 'cosine-rule']);
+        expect(owned.rows().filter(([, demonstration]) => demonstration === 'triangle-solver').map(([section]) => section)).toEqual(['sine-rule', 'cosine-rule', 'solve-triangle']);
         // the link in the sine-rule section: its href names a section that exists in the triangle-geometry chapter, and its label occurs in the paragraph
         const section = trigonometryChapter.sections.find(candidate => candidate.id === 'sine-rule')!;
         const linked = (section.orderedContent ?? []).flatMap(block => block.kind === 'paragraph' ? (block.links ?? []).map(link => ({link, text: block.text})) : []);
