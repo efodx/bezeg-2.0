@@ -60,3 +60,8 @@
 - The step 3 select is changed by the learner; the select's option text is the control label of both languages from `sl.ts`/`en.ts`.
 - Slovenian wording not reviewed by a native reader; a free step suggestion asks the learner for a horizontal line, which is the only task not seen in the spec.
 - Explanation of `line-circle-quadratic` says the readout is a quarter of D "for this line": true for x−2y=−4 (a=1), checked 15 = 60/4; the general claim is not made.
+
+### Slice 2d
+- New `src/learning/content/analyticLinesIntersectGuidedLessons.test.ts` (tests only). Part A: both-language scene sweep, learner actions of steps 1 to 5, openings not the made states, no leaked answers, labels quoted as the catalogue writes them. Part B: exact elimination, quadratic/discriminant/points, tangent and y = 3 numbers, handle pairs on their lines, decimals marked approximate, multi-digit whitelist.
+- Observed: `just unit` (this file + src/graphs/lines) passed; typecheck and lint clean. Red: sl `5y^2-20y+17` changed to `+18` in the lesson, 2 tests failed (`s2d-red.log`), lesson restored (git diff empty).
+- No false claim found. Not verified: the prediction guard excludes the scene `expectedState` of step 3 ("two common points after choosing the circle"), which may be shown to the learner; the test does not check whether it is rendered.
