@@ -131,7 +131,8 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
         // Complex power and Euler circle: the data is a tagged entry holding the state, so change the base point or the angle and the other fields.
         case 'complex-power': {
             const [tag, state] = (exported as [string, object][])[0];
-            g.importPresetData([[tag, {...state, A: (variant === 'a' ? 10 : -8), B: (variant === 'a' ? 6 : 12), n: (variant === 'a' ? 3 : 5)}]]);
+            // The stored fields are z's coordinates re and im (A/20 and B/20), not the model's A and B.
+            g.importPresetData([[tag, {...state, re: (variant === 'a' ? 0.5 : -0.4), im: (variant === 'a' ? 0.3 : 0.6), n: (variant === 'a' ? 3 : 5)}]]);
             return;
         }
         case 'complex-euler': {
