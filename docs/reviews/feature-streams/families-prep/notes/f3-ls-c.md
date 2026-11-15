@@ -59,3 +59,19 @@
 - Lesson file: LS4 step 2 now opens in level-sets mode (LS4_BOWL_LINE, line not drawn), asks the touching-value prediction by substitution, then the learner switches to Lagrange; LS3 learning goal and edge case reworded without the threshold; valley-factors sign/shrink sentences moved to the threshold block; LS3 step 6 asks for the condition on 1 - 20h and reads two readouts; "samostojno" x2; "ni narisana"; LS4 step 4 reads 45/135/225/315 and 0 degrees; LS3 step 2 hint on the y component dropped.
 - Tests: ls4-touch opening is level-sets and chooses the mode; NAMED labels for ls3-threshold and ls4-touch; mounted-label test uses ls4-gradients.
 - Checks: just unit 245 passed; tsc, lint clean; bscheck/rawcheck 0 singles.
+
+## Slice 3: chapter join
+
+### Written
+- Sections `descent` (LS3, `level-sets-descent`) and `lagrange` (LS4, `level-sets-lagrange`) on `contour-map` between `gradient` and `linear-programming`: `levelSetsChapterRegistry.ts`, `levelSetsChapter.ts` (intro, comment, two sections), comments in `guidedLessonOwnership.ts`, `registration.ts`, `registrationComposition.test.ts` (ownership of `contour-map` stays `surface`; the other lessons derive from the chapter).
+- Tests: `authoredChapterCoverage` 189, `familyChapters` level-sets minimum 5, `lessonLookup.characterization` LS3/LS4 rows, `lessonMathNotation` import, `lessonSets` entry and scan list, `guidedExamplePreviews.test.ts` pending ids, smoke minimum `'level-sets': 5`. No `lessonCatalog`/`lessonOwnerIntegrity`/`LearningPage` change was needed; no smoke row per lesson (Batch B added one for LS1 only).
+- Examples: descent on f = 2x^2 (factor 1 - 4h, L = 4, threshold h < 1/2; h = 0,1 gives 0,6, 0,36, 0,216, f 2, 0,72, 0,2592); Lagrange x + y on x^2 + y^2 = 8 ((2; 2) f = 4, lambda = 1/4; (-2; -2) f = -4, lambda = -1/4) and x^3 on y = 0 as non-sufficiency.
+- `docs/localization.md` one row (handler-unreviewed); task 08 status line.
+- Deviation: no preview copy rows in `levelSetsPreviewCopy.ts`. The test requires copy keys = non-pending ids, and `mathAltText.test.ts` fails for a copy row without an image (`resolveGuidedExamplePreview` is undefined). The F4 card adds image and copy together.
+
+### Outcome
+- Red before source edits: `s3-red.log` (5 failed). tsc clean (`just typecheck`, `s3-tsc.log`; bare `npx` is not on this shell's path). Lint clean (`s3-lint.log`). bscheck singles only in String.raw formulas (15 before, 20 now), rawcheck 0 outside String.raw.
+- `just unit src/learning src/graphs/levelsets src/graphs/analysis` passed (`s3-unit.log`); `just build` passed (`s3-build.log`); `just smoke-lesson contour-map` passed (`s3-smoke.log`; it runs the existing LS1 row only).
+
+### Not verified
+- The two chapter sections' rendering in a browser; the lesson file was not edited.

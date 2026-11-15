@@ -45,6 +45,7 @@ import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
 import {levelSetsGradientLesson, levelSetsSurfaceLesson} from './levelSetsContourGuidedLessons';
+import {levelSetsDescentLesson, levelSetsLagrangeLesson} from './levelSetsOptimizationGuidedLessons';
 import {complexPowerLesson} from './complexPowerGuidedLessons';
 import {complexEulerLesson} from './complexEulerGuidedLessons';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
@@ -116,6 +117,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['recursionCobwebGuidedLessons', [recursionCobwebLesson, recursionLogisticLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
     ['levelSetsContourGuidedLessons', [levelSetsSurfaceLesson, levelSetsGradientLesson]],
+    ['levelSetsOptimizationGuidedLessons', [levelSetsDescentLesson, levelSetsLagrangeLesson]],
     ['complexPowerGuidedLessons', [complexPowerLesson]],
     ['complexEulerGuidedLessons', [complexEulerLesson]],
     ['phasePortraitsGuidedLessons', [linearSystemLesson, pendulumLesson, logisticMapLesson, bifurcationLesson]],
@@ -262,6 +264,7 @@ test('scans every lesson module', () => {
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5
             'contour-map', 'contour-map', // levelSetsContourGuidedLessons.ts: LS1 and LS2
+            'contour-map', 'contour-map', // levelSetsOptimizationGuidedLessons.ts: LS3 and LS4
             'complex-power', 'complex-euler', // complexPowerGuidedLessons.ts: M6; complexEulerGuidedLessons.ts: M7
             'lattice-paths', 'counting-tree', 'lattice-paths', 'lattice-paths', // combinatoricsGuidedLessons.ts: CB1 to CB4
             'isometries', 'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 to L3

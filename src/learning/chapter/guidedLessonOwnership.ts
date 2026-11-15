@@ -49,7 +49,7 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     'prob-simulation': {chapterId: 'randomness', sectionId: 'galton-board'},
     // Level sets batch A: the linear-programming lesson (LS5) in the level-sets chapter.
     'linear-program': {chapterId: 'level-sets', sectionId: 'linear-programming'},
-    // Level sets batch B: the surface lesson (LS1) in the level-sets chapter; the gradient lesson (LS2) is the second owner, derived from the chapter.
+    // Level sets batch B: the surface lesson (LS1) in the level-sets chapter; the gradient (LS2), descent (LS3) and Lagrange (LS4) lessons are further owners, derived from the chapter.
     'contour-map': {chapterId: 'level-sets', sectionId: 'surface'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     // The unit circle's first activity (TR1) in the trigonometry chapter; the addition-formula activity (TR2) is the second owner, derived from the chapter.

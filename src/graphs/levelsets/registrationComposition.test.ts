@@ -1,6 +1,6 @@
 // R5 composition of docs/specs/lesson-authoring-architecture.md for the level-set rows: every root references the
 // family export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). Both rows have lessons
-// owned by the level-sets chapter: contour-map LS1 and LS2 (families-prep F3, batch B), linear-program LS5 (batch A).
+// owned by the level-sets chapter: contour-map LS1 to LS4 (families-prep F3, batches B and C), linear-program LS5 (batch A).
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';

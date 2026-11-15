@@ -3,7 +3,7 @@ import type {Definition} from '../../demonstrations';
 /**
  * Cheap metadata of the level-set rows of the analysis family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. Both rows have guided lessons owned by the level-sets chapter: the contour-map row LS1 and LS2 (families-prep F3, batch B), the linear-program row LS5 (batch A).
+ * live in `collections.ts`. Both rows have guided lessons owned by the level-sets chapter: the contour-map row LS1 to LS4 (families-prep F3, batches B and C), the linear-program row LS5 (batch A).
  * The contour map has a 3D panel, but its main view is the pannable contour board.
  */
 export const levelSetsFamilyId = 'levelsets';

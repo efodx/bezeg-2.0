@@ -4,13 +4,16 @@ import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
 import {levelSetsGradientLesson, levelSetsSurfaceLesson} from './levelSetsContourGuidedLessons';
+import {levelSetsDescentLesson, levelSetsLagrangeLesson} from './levelSetsOptimizationGuidedLessons';
 
 export const LEVEL_SETS_CHAPTER_ID = 'level-sets';
 
-/** Section id to the Demonstration of its activity, in the spec's teaching order (LS1 and LS2 share `contour-map`; LS5 has `linear-program`). Section ids are those of levelSetsChapter.ts. */
+/** Section id to the Demonstration of its activity, in the spec's teaching order (LS1 to LS4 share `contour-map`; LS5 has `linear-program`). Section ids are those of levelSetsChapter.ts. */
 export const levelSetsGuidedExampleDemonstrations = {
     'surface': 'contour-map',
     'gradient': 'contour-map',
+    'descent': 'contour-map',
+    'lagrange': 'contour-map',
     'linear-programming': 'linear-program',
 } as const satisfies Record<string, DemonstrationId>;
 
@@ -20,6 +23,8 @@ export type LevelSetsSectionId = keyof typeof levelSetsGuidedExampleDemonstratio
 const sectionContent = {
     'surface': {id: 'level-sets-surface', content: () => levelSetsSurfaceLesson},
     'gradient': {id: 'level-sets-gradient', content: () => levelSetsGradientLesson},
+    'descent': {id: 'level-sets-descent', content: () => levelSetsDescentLesson},
+    'lagrange': {id: 'level-sets-lagrange', content: () => levelSetsLagrangeLesson},
     'linear-programming': {id: 'level-sets-linear-programming', content: () => linearProgrammingLesson},
 } as const;
 
