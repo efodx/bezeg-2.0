@@ -539,9 +539,11 @@ export type LessonAction =
     | {readonly kind: 'levelsets'; readonly operation: 'set-constraints'; readonly constraints: readonly {readonly a: number; readonly b: number; readonly c: number}[]}
     | {readonly kind: 'levelsets'; readonly operation: 'set-sweep'; readonly sweep: number}
     /**
-     * ContourMapGraph's scene actions (LS1, LS2; the descent and Lagrange actions are added by Batch C). `set-mode` is the mode chooser, `set-function` the function chooser
+     * ContourMapGraph's scene actions (LS1 to LS4). `set-mode` is the mode chooser, `set-function` the function chooser
      * (a probe outside the new window returns to its default, as the chooser does), `set-level` sets the stored integer `level` (in 1/8) and/or `levelCount` (1 to 9),
-     * `set-probe` the stored integers `X` and `Y` (in 1/20, inside the window of the function) and `set-numeric` the numeric-gradient checkbox. The merged state must pass
+     * `set-probe` the stored integers `X` and `Y` (in 1/20, inside the window of the function) and `set-numeric` the numeric-gradient checkbox; `set-start` the stored integers `X` and `Y` of the descent start (in 1/4), `set-step` the stored step `H` (1 to 30, h = H/100),
+     * `set-constraint` the stored `constraint` ('line' or 'circle'; a line on hills is refused), `lineParam` (T, x = T/4) and/or `circleParam` (K, angle 2πK/48). No action sets the
+     * transient descent step counter. The merged state must pass
      * `parseContourState` (strict, nothing snapped or clamped) before the write, otherwise the action throws and nothing is written; unknown fields are refused.
      * Each graph refuses the other graph's operations with a thrown message; a valid action pauses the playback.
      */
@@ -550,6 +552,9 @@ export type LessonAction =
     | {readonly kind: 'levelsets'; readonly operation: 'set-level'; readonly level?: number; readonly levelCount?: number}
     | {readonly kind: 'levelsets'; readonly operation: 'set-probe'; readonly X: number; readonly Y: number}
     | {readonly kind: 'levelsets'; readonly operation: 'set-numeric'; readonly numeric: boolean}
+    | {readonly kind: 'levelsets'; readonly operation: 'set-start'; readonly X: number; readonly Y: number}
+    | {readonly kind: 'levelsets'; readonly operation: 'set-step'; readonly step: number}
+    | {readonly kind: 'levelsets'; readonly operation: 'set-constraint'; readonly constraint?: 'line' | 'circle'; readonly lineParam?: number; readonly circleParam?: number}
     /**
      * LogisticMapGraph's scene actions (PP4, PP5). The operations are named after the stored
      * fields: `set-r` sets `R` (the integer r times 100, from 250 to 400), `set-seed` the start `X` (the integer x0 times 100, from 1 to 99) and `set-step` the number of drawn cobweb

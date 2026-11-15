@@ -690,6 +690,9 @@ export class LinearProgramGraph extends BaseGraph<LinearProgramGraphState, LpPre
             case "set-level":
             case "set-probe":
             case "set-numeric":
+            case "set-start":
+            case "set-step":
+            case "set-constraint":
                 throw new Error(`levelsets ${action.operation}: this operation belongs to the contour-map graph.`);
             default: {
                 const unsupported: never = action;

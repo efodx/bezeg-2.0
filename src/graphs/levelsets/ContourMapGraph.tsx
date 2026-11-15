@@ -988,6 +988,26 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                 this.refuseUnknown("set-numeric", fields, ["numeric"]);
                 this.commitContour("set-numeric", {...state, numeric: action.numeric});
                 return;
+            case "set-start":
+                this.refuseUnknown("set-start", fields, ["X", "Y"]);
+                this.commitContour("set-start", {...state, start: [action.X, action.Y]});
+                return;
+            case "set-step":
+                this.refuseUnknown("set-step", fields, ["step"]);
+                this.commitContour("set-step", {...state, step: action.step});
+                return;
+            case "set-constraint": {
+                this.refuseUnknown("set-constraint", fields, ["constraint", "lineParam", "circleParam"]);
+                if (action.constraint === undefined && action.lineParam === undefined && action.circleParam === undefined) {
+                    throw new Error("levelsets set-constraint: needs constraint, lineParam or circleParam.");
+                }
+                this.commitContour("set-constraint", {
+                    ...state, ...(action.constraint === undefined ? {} : {constraint: action.constraint}),
+                    ...(action.lineParam === undefined ? {} : {lineParam: action.lineParam}),
+                    ...(action.circleParam === undefined ? {} : {circleParam: action.circleParam}),
+                });
+                return;
+            }
             case "set-objective":
             case "set-constraints":
             case "set-sweep":

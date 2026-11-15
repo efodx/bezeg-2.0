@@ -181,3 +181,122 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
     expect(() => apply(graph, setProbe(80, 0))).toThrow(/levelsets set-probe: probe/);
     expect(stateOf(graph)).toEqual(saddle);
 });
+
+// ---- Batch C: descent and Lagrange actions ------------------------------------------------------------------------------
+
+const setStart = (X: number, Y: number): LessonAction => ({kind: 'levelsets', operation: 'set-start', X, Y});
+const setStep = (step: number): LessonAction => ({kind: 'levelsets', operation: 'set-step', step});
+const setConstraint = (constraint?: 'line' | 'circle', lineParam?: number, circleParam?: number): LessonAction => ({kind: 'levelsets', operation: 'set-constraint', constraint, lineParam, circleParam});
+const typeStart = (axis: 'x' | 'y', value: string) => type(`P0, ${axis}`, value);
+const typeSlider = (label: string, value: string) => type(t('number_field_label', {value0: label}), value);
+const nextStep = () => act(() => { fireEvent.click(document.querySelector('[data-action="next-step"]') as Element); });
+
+test('set-start reaches the state of the start fields; set-step the step slider', () => {
+    const viaStart = after(graph => { apply(graph, setMode('descent')); apply(graph, setStart(-8, 4)); });
+    expect(viaStart).toEqual(after(() => { modeChooser('descent'); typeStart('x', '-2'); }));
+    expect(viaStart.state).toEqual(expect.objectContaining({start: [-8, 4]}));
+    const viaBoth = after(graph => { apply(graph, setMode('descent')); apply(graph, setStart(6, -2)); });
+    expect(viaBoth).toEqual(after(() => { modeChooser('descent'); typeStart('x', '1,5'); typeStart('y', '-0,5'); }));
+    expect(viaBoth.state).toEqual(expect.objectContaining({start: [6, -2]}));
+    const viaStep = after(graph => { apply(graph, setMode('descent')); apply(graph, setStep(10)); });
+    expect(viaStep).toEqual(after(() => { modeChooser('descent'); typeSlider(t('levelsets_graph_step'), '10'); }));
+    expect(viaStep.state).toEqual(expect.objectContaining({step: 10}));
+});
+
+test('set-constraint reaches the state of the chooser and of the point controls', () => {
+    const viaCircle = after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint('circle', undefined, 12)); });
+    expect(viaCircle).toEqual(after(() => { modeChooser('lagrange'); choose(t('levelsets_graph_constraint'), 'circle'); typeSlider(t('levelsets_graph_circle_angle'), '12'); }));
+    expect(viaCircle.state).toEqual(expect.objectContaining({constraint: 'circle', circleParam: 12}));
+    const viaLine = after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint(undefined, 8)); });
+    expect(viaLine).toEqual(after(() => { modeChooser('lagrange'); typeSlider(t('levelsets_graph_line_x'), '2'); }));
+    expect(viaLine.state).toEqual(expect.objectContaining({constraint: 'line', lineParam: 8}));
+});
+
+test('a descent and Lagrange scene runs in one synchronous sequence with the Batch B actions; no action sets the step counter', () => {
+    const graph = mount();
+    act(() => {
+        const capabilities = graph.getLessonCapabilities();
+        capabilities.apply(setFunction('valley'));
+        capabilities.apply(setMode('descent'));
+        capabilities.apply(setStart(8, 4));
+        capabilities.apply(setStep(9));
+        capabilities.apply(setMode('lagrange'));
+        capabilities.apply(setConstraint('circle', undefined, 18));
+    });
+    expect(graph.state).toEqual(expect.objectContaining({fn: 'valley', mode: 'lagrange', start: [8, 4], step: 9, constraint: 'circle', circleParam: 18}));
+    const here = {state: stateOf(graph), readouts: readouts(), status: status()};
+    cleanup();
+    const viaControl = after(() => {
+        functionChooser('valley');
+        modeChooser('descent');
+        typeSlider(t('levelsets_graph_step'), '9');
+        modeChooser('lagrange');
+        choose(t('levelsets_graph_constraint'), 'circle');
+        typeSlider(t('levelsets_graph_circle_angle'), '18');
+    });
+    expect(viaControl).toEqual(here);
+    // The step counter is not an action's business: pressing step moves it, and a changing action returns it to 0 as the matching control does.
+    cleanup();
+    const second = mount();
+    apply(second, setMode('descent'));
+    nextStep();
+    expect(second.step).toBe(1);
+    apply(second, setStep(10));
+    expect(second.step).toBe(0);
+});
+
+test('a valid descent action pauses a running playback; the checkpoint restores the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const checkpoint = capabilities.captureState();
+    apply(graph, setMode('descent'));
+    act(() => { graph.play(); });
+    expect(graph.playing).toBe(true);
+    apply(graph, setStep(5));
+    expect(graph.playing).toBe(false);
+    act(() => { graph.play(); });
+    expect(graph.playing).toBe(true);
+    apply(graph, setStep(5));
+    expect(graph.playing).toBe(false);
+    apply(graph, setStart(0, 0));
+    apply(graph, setMode('lagrange'));
+    apply(graph, setConstraint('circle', 4, 30));
+    expect(stateOf(graph)).not.toEqual(free);
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+});
+
+test('the new actions are supported; invalid ones are refused with the parse message and change nothing', () => {
+    const graph = mount();
+    for (const action of [setStart(8, 4), setStep(3), setConstraint('line', 4)]) expect(graph.supportsLessonAction(action)).toBe(true);
+    apply(graph, setFunction('hills'));
+    apply(graph, setMode('descent'));
+    apply(graph, setStart(4, 4));
+    const before = stateOf(graph);
+    const beforeReadouts = readouts();
+    const beforeStatus = status();
+    const bad: LessonAction[] = [
+        setStart(1.5, 0), setStart(0, 1.5), setStart(1000, 0), setStart(0, -1000), setStart(Number.NaN, 0), setStart(JSON.parse('"2"'), 0),
+        setStep(0), setStep(31), setStep(2.5), setStep(Number.NaN), setStep(JSON.parse('null')),
+        setConstraint(), setConstraint('line'), setConstraint(JSON.parse('"cone"')), setConstraint(undefined, 0.5), setConstraint(undefined, 1000), setConstraint(undefined, undefined, 49),
+        setConstraint(undefined, undefined, 2.5),
+        {kind: 'levelsets', operation: 'set-start', X: 1, Y: 1, step: 3} as unknown as LessonAction,
+        {kind: 'levelsets', operation: 'set-step', step: 3, X: 1} as unknown as LessonAction,
+        {kind: 'levelsets', operation: 'set-constraint', constraint: 'circle', step: 3} as unknown as LessonAction,
+        {kind: 'levelsets', operation: 'set-constraint', constraint: 'circle', param: 3} as unknown as LessonAction,
+    ];
+    for (const action of bad) {
+        const label = JSON.stringify(action);
+        expect(() => apply(graph, action), label).toThrow(/^levelsets[ :]/);
+        expect(stateOf(graph), label).toEqual(before);
+        expect(readouts(), label).toEqual(beforeReadouts);
+        expect(status(), label).toEqual(beforeStatus);
+    }
+    expect(() => apply(graph, setStart(1.5, 0))).toThrow(/levelsets set-start: start\[0\] off-grid/);
+    expect(() => apply(graph, setStep(31))).toThrow(/levelsets set-step: step out-of-range/);
+    expect(() => apply(graph, setConstraint())).toThrow(/levelsets set-constraint: needs constraint/);
+    // A line on the hills is refused, as the chooser omits it.
+    expect(() => apply(graph, setConstraint('line'))).toThrow(/levelsets set-constraint: constraint inconsistent/);
+    expect(stateOf(graph)).toEqual(before);
+});
