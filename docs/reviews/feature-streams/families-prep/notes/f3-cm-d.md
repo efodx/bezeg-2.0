@@ -122,3 +122,8 @@ Chapter/registry/registration, preview copy, the notation test list, a lesson te
 ### Doubts
 - sl "Povečaj število" and the field name "Eksponent n" come from the probe's button list and panel labels; the sl text uses "polje Re" for the real-part field whose accessible name is "z, Re".
 - Not verified: the lesson text through `lessonMathNotation.test.ts` (not yet registered), a browser view of the board.
+
+### Slice 2a-d
+- New `src/learning/content/complexPowerGuidedLessons.test.ts` (part A scenes, sl and en, out of order and twice; restore; prompt labels; learner actions by field and stepper; step 7 claims; part B quotes by repeated BigInt multiplication, hedging, decimals, triple angle).
+- Green: `s2d-unit.log` (255 tests with src/graphs/complex), tsc clean, lint clean. Red: one sl number changed (2,828427 to 2,828428), fails "missing 2,828427", restored (`s2d-red.log`).
+- No false claim found. Not checked: lessonMathNotation (unregistered), a browser view.
