@@ -485,12 +485,13 @@ export type LessonAction =
     | {readonly kind: 'circle'; readonly operation: 'set-point'; readonly x: number; readonly y: number}
     | {readonly kind: 'circle'; readonly operation: 'set-apollonius'; readonly a?: {readonly x: number; readonly y: number}; readonly b?: {readonly x: number; readonly y: number}; readonly p?: {readonly x: number; readonly y: number}; readonly k?: number}
     /**
-     * The scene actions of the two combinatorics graphs (CB1 to CB4; `set-row` joins in batch C). LatticePathGraph registers
+     * The scene actions of the two combinatorics graphs (CB1 to CB5). LatticePathGraph registers
      * `set-target` (the target (a, b), integers in [0, 20]; the highlighted route restarts at the first one, as when the target is moved),
      * `set-lattice-display` (the view, `paths` or `triangle`, and the switch of the count labels, drawn only while a + b <= 12; the optional `split` is the
      * switch that colours the routes by their last step, absent = unchanged) and `set-expansion` (the view `expansion` with n in [0, 12] and c in [-9, 9]). CountingTreeGraph
      * registers `set-counting-mode`: the view `choices` with n, k (0 to 20, k <= n without repetition) and the two switches of the kind of choice, or the view
-     * `multiset` with the numbers of the four kinds of letters (0 to 12). Anything off the model's ranges is a lesson-content error: it is never snapped and
+     * `multiset` with the numbers of the four kinds of letters (0 to 12), and `set-row`: the view `row` with n in [0, 20], optionally k in [0, n] (absent =
+     * the current k lowered to n) and the weight `t` (the slider value, an exact multiple of 0,01 in [0, 1]; absent = unchanged). Anything off the model's ranges is a lesson-content error: it is never snapped and
      * the whole action is validated before the first write.
      */
     | {readonly kind: 'combinatorics'; readonly operation: 'set-target'; readonly a: number; readonly b: number}
@@ -498,6 +499,7 @@ export type LessonAction =
     | {readonly kind: 'combinatorics'; readonly operation: 'set-expansion'; readonly n: number; readonly c: number}
     | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'choices'; readonly n: number; readonly k: number; readonly ordered: boolean; readonly repetition: boolean}
     | {readonly kind: 'combinatorics'; readonly operation: 'set-counting-mode'; readonly view: 'multiset'; readonly counts: readonly [number, number, number, number]}
+    | {readonly kind: 'combinatorics'; readonly operation: 'set-row'; readonly n: number; readonly k?: number; readonly t?: number}
     /**
      * KinematicsGraph's scene actions (KN1 to KN5). `set-motion` picks the motion (the catalogue curves, the projectile or the uniform circular
      * motion): the time restarts at 0 and the speed variation b returns to 0 unless the motion is circular. `set-time` is the time slider: seconds in

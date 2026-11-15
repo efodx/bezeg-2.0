@@ -600,7 +600,8 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
     /**
      * Lesson actions (`combinatorics`, counting part): `set-counting-mode` sets the view `choices` with n, k and the two switches (order, repetition), or the
      * view `multiset` with the four letter counts. The whole new state goes through the model's parser before the first write (so k above n without
-     * repetition, a count out of range or a non-integer throws); nothing is snapped or lowered. `setState` writes the store synchronously.
+     * repetition, a count out of range or a non-integer throws); nothing is snapped or lowered. `set-row` sets the view `row` with n, optionally k (else the
+     * current k lowered to n, as the controls do) and the weight `t` (the slider value, an exact multiple of T_STEP; else unchanged). `setState` writes the store synchronously.
      */
     applyCombinatoricsAction(action: Extract<LessonAction, {kind: "combinatorics"}>): void {
         switch (action.operation) {
@@ -611,6 +612,25 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
                     : {...base, view: action.view, counts: [...action.counts]};
                 const parsed = parseCountingState(next);
                 if (!parsed.ok) throw new Error(`combinatorics set-counting-mode: ${parsed.error.message}`);
+                this.setState(serializeCountingState(parsed.value));
+                return;
+            }
+            case "set-row": {
+                const fail = (message: string): never => { throw new Error(`combinatorics set-row: ${message}`); };
+                if (!Number.isInteger(action.n) || action.n < ROW_N_RANGE.min || action.n > ROW_N_RANGE.max) fail(`n must be a whole number from ${ROW_N_RANGE.min} to ${ROW_N_RANGE.max}.`);
+                // Without k the row keeps the place the view select would keep (k, lowered to n), as the n field does.
+                const k = action.k === undefined ? Math.min(this.state.k, action.n) : action.k;
+                if (!Number.isInteger(k) || k < 0 || k > action.n) fail(`k must be a whole number from 0 to n (${action.n}).`);
+                let t = this.state.t;
+                if (action.t !== undefined) {
+                    const steps = action.t * T_DENOMINATOR;
+                    t = Math.round(steps);
+                    if (!Number.isFinite(steps) || Math.abs(steps - t) > 1e-9 || t < T_RANGE.min || t > T_RANGE.max) {
+                        fail(`t must be a multiple of ${T_STEP} from ${T_RANGE.min / T_DENOMINATOR} to ${T_RANGE.max / T_DENOMINATOR}.`);
+                    }
+                }
+                const parsed = parseCountingState({...serializeCountingState(this.state), view: "row", n: action.n, k, t});
+                if (!parsed.ok) throw new Error(`combinatorics set-row: ${parsed.error.message}`);
                 this.setState(serializeCountingState(parsed.value));
                 return;
             }

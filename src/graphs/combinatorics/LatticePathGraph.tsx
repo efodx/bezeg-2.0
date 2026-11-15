@@ -713,7 +713,8 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
                 return;
             }
             case "set-counting-mode":
-                throw new Error("combinatorics: the lattice graph has no set-counting-mode; it belongs to the counting graph.");
+            case "set-row":
+                throw new Error(`combinatorics: the lattice graph has no ${action.operation}; it belongs to the counting graph.`);
             default: {
                 const unsupported: never = action;
                 throw new Error(`combinatorics: the lattice graph has no operation in ${JSON.stringify(unsupported)}.`);

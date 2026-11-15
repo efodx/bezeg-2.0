@@ -129,3 +129,70 @@ test('the graph supports the action; invalid scene data and the lattice graph\'s
     expect(stateOf(graph)).toEqual(before);
     expect(readouts()).toEqual(beforeReadouts);
 });
+
+const setRow = (n: number, k?: number, t?: number): LessonAction => ({kind: 'combinatorics', operation: 'set-row', n, ...(k === undefined ? {} : {k}), ...(t === undefined ? {} : {t})});
+const rowK = () => t('combinatorics_counting_row_k_label');
+const rowN = () => t('combinatorics_counting_row_n_label');
+const weight = () => t('combinatorics_counting_t_label');
+
+test('set-row reaches the state, readouts and figure of the view select, the n and k fields and the t slider', () => {
+    // The controls run in an order that never makes k exceed n on the way (a smaller n lowers k, as the n field does).
+    const rowView = () => choose(t('combinatorics_view_label'), 'row');
+    const cases: [LessonAction, () => void][] = [
+        [setRow(6), () => { rowView(); }], // the free state: k = 3 stays, t = 0,5 stays
+        [setRow(10, 5), () => { rowView(); type(rowN(), '10'); type(rowK(), '5'); }],
+        [setRow(7, 3), () => { rowView(); type(rowN(), '7'); type(rowK(), '3'); }],
+        [setRow(5, 2, 0.5), () => { rowView(); type(rowN(), '5'); type(rowK(), '2'); }],
+        [setRow(20, 10, 0.5), () => { rowView(); type(rowN(), '20'); type(rowK(), '10'); }],
+        [setRow(5, 2, 0.25), () => { rowView(); type(rowN(), '5'); type(rowK(), '2'); type(weight(), '0.25'); }],
+        [setRow(0), () => { rowView(); type(rowN(), '0'); }], // n lowers k to 0
+        [setRow(2), () => { rowView(); type(rowN(), '2'); }], // k = 3 lowered to 2
+        [setRow(1, undefined, 1), () => { rowView(); type(rowN(), '1'); type(weight(), '1'); }],
+    ];
+    for (const [action, control] of cases) {
+        const viaAction = after(graph => apply(graph, action));
+        const control_ = after(control);
+        // The controls announce a lowered k in the status line; the action sets the row silently, so only that notice is dropped from the comparison.
+        const viaControl = {...control_, status: control_.status?.replace(/ k je znižan na \d+\.$/, '')};
+        expect({action, ...viaAction}).toEqual({action, ...viaControl});
+        expect(viaAction.state).toEqual(expect.objectContaining({view: 'row', n: (action as {n: number}).n}));
+    }
+    expect(after(graph => apply(graph, setRow(5, 2, 0.07))).state).toEqual(expect.objectContaining({t: 7}));
+});
+
+test('a scene with set-counting-mode then set-row runs synchronously; the checkpoint restore returns the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const freeReadouts = readouts();
+    const checkpoint = capabilities.captureState();
+    act(() => {
+        capabilities.apply(choices(4, 3, true, true));
+        capabilities.apply(multiset([2, 2, 2, 2]));
+        capabilities.apply(choices(5, 5, false, false));
+        capabilities.apply(setRow(10));
+        expect(graph.state).toEqual(expect.objectContaining({view: 'row', n: 10, k: 5, t: 50}));
+        capabilities.apply(setRow(7, 3, 0.5));
+        expect(graph.state).toEqual(expect.objectContaining({view: 'row', n: 7, k: 3, t: 50}));
+    });
+    expect(graph.state).toEqual(expect.objectContaining({view: 'row', n: 7, k: 3, t: 50}));
+    expect(readouts().join('|')).toContain('hockey=');
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+    expect(readouts()).toEqual(freeReadouts);
+});
+
+test('set-row refuses n, k and t off their ranges or grid and changes nothing', () => {
+    const graph = mount();
+    expect(graph.supportsLessonAction(setRow(10))).toBe(true);
+    apply(graph, setRow(8, 2, 0.25));
+    const before = stateOf(graph);
+    const beforeReadouts = readouts();
+    const bad: LessonAction[] = [
+        setRow(21), setRow(-1), setRow(2.5), setRow(Number.NaN), setRow(5, 6), setRow(5, -1), setRow(5, 1.5), setRow(5, Number.NaN),
+        setRow(5, 2, 1.01), setRow(5, 2, -0.01), setRow(5, 2, 0.005), setRow(5, 2, 0.333), setRow(5, 2, Number.NaN), setRow(5, 2, Number.POSITIVE_INFINITY),
+    ];
+    for (const action of bad) expect(() => apply(graph, action), JSON.stringify(action)).toThrow(/^combinatorics set-row: /);
+    expect(stateOf(graph)).toEqual(before);
+    expect(readouts()).toEqual(beforeReadouts);
+});
