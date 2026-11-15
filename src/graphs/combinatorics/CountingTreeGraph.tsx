@@ -54,10 +54,17 @@ export const TREE_WIDTH = 23.2;
 export const treeLeafX = (index: number, leaves: number): number => TREE_LEFT + ((index + 0.5) * TREE_WIDTH) / Math.max(1, leaves);
 /** Row layout: bar j is C(n, j) with its weight. */
 export const BAR_BASE = 9.5;
-export const BAR_HEIGHT = 9;
-export const barX = (index: number): number => 0.9 + 1.15 * index;
-/** The text "k = 3" sits this far above the top of the chosen bar, so the choice is not carried by colour alone. */
-export const MARKER_GAP = 0.3;
+/** 8 units: the tallest bar, its cap and its "k = ..." text (about 27 px) stay under the caption row "selected" on a 295 px high board (the phone board). */
+export const BAR_HEIGHT = 8;
+/** The bars of row n share the width from ROW_LEFT to ROW_RIGHT; a short row is not stretched past ROW_STEP_MAX (a row of 1 or 2 bars would look absurd), n = 20 keeps about the old 1.15. */
+export const ROW_LEFT = 0.9;
+export const ROW_RIGHT = 23.5;
+export const ROW_STEP_MAX = 6;
+export const rowStep = (n: number): number => Math.min(ROW_STEP_MAX, (ROW_RIGHT - ROW_LEFT) / Math.max(n, 1));
+export const barX = (index: number, n: number): number => ROW_LEFT + rowStep(n) * index;
+/** Pixels from the top of the chosen bar to the top of its round cap (half the 14 px stroke), and the margin between that cap and the bottom of its "k = ..." text. */
+export const BAR_CAP_PX = 7;
+export const BAR_LABEL_MARGIN_PX = 4;
 /** Grouping panel of the table (unordered choices without repetition, k from 2 to 4): up to GROUP_LIMIT combinations in three columns. */
 export const GROUP_LIMIT = 3;
 export const GROUP_X = [0.2, 8.4, 16.6] as const;
@@ -484,24 +491,36 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
 
     private buildRow(): void {
         const showing = (j: number) => () => j <= this.state.n;
+        const x = (j: number) => () => barX(j, this.state.n);
         this.curve(() => {
             const poly = emptyPoly();
-            addPolyline(poly, [[0.2, BAR_BASE], [24, BAR_BASE]]);
+            addPolyline(poly, [[0.2, BAR_BASE], [Math.min(24, barX(this.state.n, this.state.n) + 0.7), BAR_BASE]]);
             return poly;
         }, GraphPalette.axis, 1, 0);
         this.curve(() => this.barData(false), GraphPalette.primaryCurve, 14, 0);
         this.curve(() => this.barData(true), GraphPalette.constructionAccent, 14, 0);
         for (let j = 0; j < ROW_POOL; j++) {
-            this.caption(() => (j <= this.state.n ? countText(this.row().row[j]) : ""), barX(j), BAR_BASE - 1 - 1.2 * (j % 2), GraphPalette.label, showing(j),
+            this.caption(() => (j <= this.state.n ? countText(this.row().row[j]) : ""), x(j), () => BAR_BASE - 1 - (this.rowStaggered() ? 1.2 * (j % 2) : 0), GraphPalette.label, showing(j),
                 {anchorX: "middle", anchorY: "top", fontSize: 13});
-            this.caption(() => (j <= this.state.n ? smallText(j) : ""), barX(j), 4.6, GraphPalette.axis, showing(j), {anchorX: "middle", fontSize: 12});
+            this.caption(() => (j <= this.state.n ? smallText(j) : ""), x(j), 4.6, GraphPalette.axis, showing(j), {anchorX: "middle", fontSize: 12});
         }
         // The chosen bar is also named in text above its top: the accent colour alone does not carry the choice.
-        this.caption(() => t("combinatorics_counting_cap_bar_k", {value0: smallText(this.rowPlace())}), () => barX(this.rowPlace()),
-            () => BAR_BASE + this.barHeight(this.rowPlace()) + MARKER_GAP, GraphPalette.constructionAccent, true, {anchorX: "middle", anchorY: "bottom", fontSize: 13});
+        this.caption(() => t("combinatorics_counting_cap_bar_k", {value0: smallText(this.rowPlace())}), () => barX(this.rowPlace(), this.state.n),
+            () => BAR_BASE + this.barHeight(this.rowPlace()) + (BAR_CAP_PX + BAR_LABEL_MARGIN_PX) / this.unitY(), GraphPalette.constructionAccent, true, {anchorX: "middle", anchorY: "bottom", fontSize: 13});
         this.caption(() => t("combinatorics_counting_cap_row", {value0: smallText(this.state.n)}), -0.3, 23.4, GraphPalette.label);
         this.caption(() => t("combinatorics_counting_cap_weights", {value0: numberText(this.state.t / T_DENOMINATOR)}), -0.3, 22.2, GraphPalette.label);
         this.caption(() => t("combinatorics_counting_cap_selected", {value0: smallText(this.rowPlace()), value1: this.selectedText()}), -0.3, 21, GraphPalette.constructionAccent);
+    }
+
+    private unitY(): number {
+        return this.board.unitY > 0 ? this.board.unitY : 1;
+    }
+
+    /** The row numbers stand on two levels when the widest one (estimated, 0.55 of the font size per character) is wider than the pixels between two bars. */
+    private rowStaggered(): boolean {
+        const unitX = this.board.unitX > 0 ? this.board.unitX : 24;
+        const widest = Math.max(...this.row().row.map(value => countText(value).length));
+        return widest * 13 * 0.55 + 6 > rowStep(this.state.n) * unitX;
     }
 
     private selectedText(): string {
@@ -515,7 +534,7 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         this.row().weights.forEach((_, j) => {
             if (selectedOnly && j !== this.rowPlace()) return;
             if (!selectedOnly && j === this.rowPlace()) return;
-            addPolyline(poly, [[barX(j), BAR_BASE], [barX(j), BAR_BASE + this.barHeight(j)]]);
+            addPolyline(poly, [[barX(j, this.state.n), BAR_BASE], [barX(j, this.state.n), BAR_BASE + this.barHeight(j)]]);
         });
         return poly;
     }

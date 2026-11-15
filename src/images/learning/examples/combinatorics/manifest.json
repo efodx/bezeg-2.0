@@ -1,71 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+  "sourceRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+    "revision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
     "dirty": true,
-    "inputs": "a13b32e439d066f306244cc78bd907b79c200534e7050c3412c54aefe6448f2f",
-    "output": "73ea3f4bc9fcd478773b30c508455e7507e52db36f96e01f697eb67358e1febd"
+    "inputs": "1df6162a43d5c750ef9a9701b5cdbc7b2849c401e584516b06514cee02bb49dc",
+    "output": "92dcd10f4ca8ebc14b7a14e872edb852018a730f8a93ca080bb587b0111f569a"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4523/bezeg-2.0/",
-    "stampRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+    "shellUrl": "http://127.0.0.1:4547/bezeg-2.0/",
+    "stampRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
     "stampDirty": true,
-    "localOutputHash": "73ea3f4bc9fcd478773b30c508455e7507e52db36f96e01f697eb67358e1febd",
+    "localOutputHash": "92dcd10f4ca8ebc14b7a14e872edb852018a730f8a93ca080bb587b0111f569a",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BEs4HRov.js",
-        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/index-BEs4HRov.js",
-        "sha256": "d7011158f751080d996439d0a8bb0681583c3b65eb73b5e36653be9522165f02",
+        "name": "index-C1k12ydK.js",
+        "url": "http://127.0.0.1:4547/bezeg-2.0/assets/index-C1k12ydK.js",
+        "sha256": "5c9bc7cc3e97740fac6dff65b13ab15f890058e06428477d3c8afacc4f508adc",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4547/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-BP8YOfqk.js",
-        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/jsx-runtime-BP8YOfqk.js",
+        "url": "http://127.0.0.1:4547/bezeg-2.0/assets/jsx-runtime-BP8YOfqk.js",
         "sha256": "20da40124b04d30b818825dd4fcdb0e1d38de09e99289423f141195eb3bce2a3",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-BXDP_wDq.js",
-        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/react-dom-BXDP_wDq.js",
+        "url": "http://127.0.0.1:4547/bezeg-2.0/assets/react-dom-BXDP_wDq.js",
         "sha256": "b30c9c8e723878403a035b920c220c87a48c90c08ab43b1790f3c24545f6cf83",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4523/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4547/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4523/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4547/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "48a3b60aa0cde9e093631ca2e5b1644831fbdeeeb017987e24a492b8daf02d3d",
+    "inventory": "df3fdcd57318be6e464684b4f487ec0c64e72324d8750bd0afc7d469bea65825",
     "entries": {
       "combinatorics.lattice-paths-and-pascal.lattice-paths": "3fc4443d87b78554dec115d78b3b07884e09e4a47a6d54ef76ab03fa123415aa",
       "combinatorics.counting-and-choices.counting-tree": "e499ffed2d719b9d90907da812afd9758f8f38393af16791a91d2e7a32300f3f",
       "combinatorics.pascal-identity.lattice-paths": "4d7358494077b855503dc707c9235d8a6c33d7eff9e57d3878da39ee77f9dbd8",
       "combinatorics.binomial-theorem.lattice-paths": "90d5a7f8b8c2cf4a95eb3de6c4ce63987f3c5a190bed7b43bca33d906cd5574e",
-      "combinatorics.row-sums.counting-tree": "fccc3d04aa4634ce21764ac373c089a4ca2dde379475ea5807bc11abc11d12e6"
+      "combinatorics.row-sums.counting-tree": "148bd2ee6618aed6f93b6d2ad872a00cb30398f875d8d0add7d6c2aa21ddb0c7"
     },
     "presentation": "9f32e3db62db8ed36b15469fa256976665d20d66f96ae65029982bbde1e23c27",
-    "buildOutput": "73ea3f4bc9fcd478773b30c508455e7507e52db36f96e01f697eb67358e1febd",
-    "buildInputs": "a13b32e439d066f306244cc78bd907b79c200534e7050c3412c54aefe6448f2f"
+    "buildOutput": "92dcd10f4ca8ebc14b7a14e872edb852018a730f8a93ca080bb587b0111f569a",
+    "buildInputs": "1df6162a43d5c750ef9a9701b5cdbc7b2849c401e584516b06514cee02bb49dc"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -316,8 +316,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
-        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "buildRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
+        "sourceRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
         "pageErrors": []
       }
     },
@@ -426,8 +426,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
-        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "buildRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
+        "sourceRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
         "pageErrors": []
       }
     },
@@ -595,8 +595,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
-        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "buildRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
+        "sourceRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
         "pageErrors": []
       }
     },
@@ -731,8 +731,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
-        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "buildRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
+        "sourceRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
         "pageErrors": []
       }
     },
@@ -753,7 +753,7 @@
       "file": "combinatorics.row-sums.counting-tree.png",
       "width": 840,
       "height": 520,
-      "sha256": "e88a537932b1b584fdb2fef6fb72a945cf76f61892cc48b451dff614e8e36251",
+      "sha256": "c2a12613db8e49cdd0cfd9e394154c45043dfb29ca90d08d4aac67179ec1f6a4",
       "scene": {
         "visibleElementCount": 16,
         "visibleElementTypes": {
@@ -783,25 +783,25 @@
             ],
             [
               0.9,
-              10.25
+              10.166667
             ],
             [
               0.9,
-              11
+              10.833333
             ]
           ],
           [
             [
-              3.2,
+              12.2,
               9.5
             ],
             [
-              3.2,
-              14
+              12.2,
+              13.5
             ],
             [
-              3.2,
-              18.5
+              12.2,
+              17.5
             ]
           ]
         ],
@@ -846,25 +846,25 @@
               ],
               [
                 0.9,
-                10.25
+                10.166667
               ],
               [
                 0.9,
-                11
+                10.833333
               ]
             ],
             [
               [
-                3.2,
+                12.2,
                 9.5
               ],
               [
-                3.2,
-                14
+                12.2,
+                13.5
               ],
               [
-                3.2,
-                18.5
+                12.2,
+                17.5
               ]
             ]
           ],
@@ -894,8 +894,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
-        "sourceRevision": "aa1e3033ca2d7d0cba47be61c3b480e3d9b3f72f",
+        "buildRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
+        "sourceRevision": "e66c4a0968abe541b3cebe4fb33b85895985c8e1",
         "pageErrors": []
       }
     }

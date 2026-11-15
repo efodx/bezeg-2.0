@@ -2285,12 +2285,12 @@ function combinatoricsExpansionExpectedFor(id, step) {
 }
 
 // Authored from src/graphs/combinatorics/CountingTreeGraph.tsx (buildRow and barData), not from a capture. The row view of n = 4, k = 2, t = 0,5 (one set-row): three curves and no point, the baseline from
-// (0.2, 9.5) to (24, 9.5), the bars of the row (C(4, j) t^j (1 - t)^(4 - j) over the largest weight, times BAR_HEIGHT 9, at x = 0.9 + 1.15 j from BAR_BASE 9.5: heights 1.5, 6, 9, 6, 1.5) and the chosen bar
-// k = 2 on its own curve, from (3.2, 9.5) to (3.2, 18.5). The first bar (j = 0) rises from (0.9, 9.5) to (0.9, 11).
+// (0.2, 9.5) to (24, 9.5), the bars of the row (C(4, j) t^j (1 - t)^(4 - j) over the largest weight, times BAR_HEIGHT 8, at x = 0.9 + 5.65 j (the 22.6 of the row split over n = 4 steps) from BAR_BASE 9.5: heights 4/3, 16/3, 8, 16/3, 4/3) and the chosen bar
+// k = 2 on its own curve, from (12.2, 9.5) to (12.2, 17.5). The first bar (j = 0) rises from (0.9, 9.5) to (0.9, 10.8333).
 function combinatoricsRowExpectedFor(id, step) {
     const [row] = combinatoricsOpening(id, step, ['set-row']);
     assert.deepEqual([row.n, row.k, row.t], [4, 2, 0.5], `${id}: only the row n = 4, k = 2, t = 0.5 is authored`);
-    return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0.2, 9.5], [12.1, 9.5], [24, 9.5]], [[0.9, 9.5], [0.9, 10.25], [0.9, 11]], [[3.2, 9.5], [3.2, 14], [3.2, 18.5]]]};
+    return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0.2, 9.5], [12.1, 9.5], [24, 9.5]], [[0.9, 9.5], [0.9, 10.166666666666666], [0.9, 10.833333333333334]], [[12.2, 9.5], [12.2, 13.5], [12.2, 17.5]]]};
 }
 
 /** First-frame expectation of a combinatorics lesson (the five sections of the chapter, keyed by the section in the example id). */

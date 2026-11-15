@@ -6,7 +6,8 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {expectTypedRefusals} from '../base/typedRefusalBehaviour';
-import {BAR_BASE, BAR_HEIGHT, CountingTreeGraph, LETTER_POOL, TABLE_FIRST_ROW_Y, TREE_BOTTOM, TREE_LEFT, TREE_TOP, TREE_WIDTH, VIEW_BOX} from './CountingTreeGraph';
+import {CB5_SCENES} from '../../learning/content/combinatoricsRowGuidedLessons';
+import {BAR_BASE, BAR_CAP_PX, BAR_HEIGHT, BAR_LABEL_MARGIN_PX, CountingTreeGraph, LETTER_POOL, TABLE_FIRST_ROW_Y, TREE_BOTTOM, TREE_LEFT, TREE_TOP, TREE_WIDTH, VIEW_BOX} from './CountingTreeGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -685,7 +686,7 @@ describe('review repairs', () => {
         choose(exampleLabel(), 'row10');
         const marks = shown(graph).filter(o => textOf(o) === 'k = 5');
         expect(marks.length).toBe(1);
-        expect(marks[0].X!()).toBeCloseTo(0.9 + 1.15 * 5, 9);
+        expect(marks[0].X!()).toBeCloseTo(0.9 + (22.6 / 10) * 5, 9);
         const top = BAR_BASE + BAR_HEIGHT;
         const gap = marks[0].Y!() - top;
         expect(gap).toBeGreaterThan(0);
@@ -811,6 +812,69 @@ describe('tree caption placement', () => {
                 const a = c.box, b = other.box;
                 expect([c.text, other.text, a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0]).toEqual([c.text, other.text, false]);
             }
+        }
+    }));
+});
+
+describe('row view layout', () => {
+    // 600 x 400 is the shim board, 360 x 295 the phone board of the 390 px screenshots.
+    const sizes: Array<[number, number]> = [[600, 400], [360, 295]];
+    const lessonKs = [...new Set(Object.values(CB5_SCENES).map(scene => scene.spec.k))];
+
+    const rowBoxes = (graph: ObservedGraph) => {
+        const board = graph.liveBoard();
+        const [left, top] = board.getBoundingBox();
+        const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+        const boxes = shown(graph).filter(o => (o as unknown as {plaintext: string}).plaintext !== '').map(o => {
+            const text = (o as unknown as {plaintext: string}).plaintext;
+            const fontSize = Number(o.evalVisProp('fontSize'));
+            const [x, y] = px(o.X!(), o.Y!());
+            const w = text.length * fontSize * 0.55, h = fontSize * 1.25;
+            const x0 = o.evalVisProp('anchorX') === 'middle' ? x - w / 2 : x;
+            const y0 = o.evalVisProp('anchorY') === 'top' ? y : o.evalVisProp('anchorY') === 'bottom' ? y - h : y - h / 2;
+            return {text, box: {x0, x1: x0 + w, y0, y1: y0 + h}};
+        });
+        return {px, boxes};
+    };
+    const mountRow = (n: number, k: number) => {
+        const {graph} = mountGraph();
+        set(graph, {view: 'row', n, k, t: 0.5});
+        act(() => { graph.liveBoard().setBoundingBox([...VIEW_BOX], false); });
+        return graph;
+    };
+
+    test('the bars of a short row spread over the board; every bar and label of row 20 is inside it', () => withElementSize(600, 400, () => {
+        const graph = mountRow(4, 2);
+        const [, plain, selected] = curves(graph);
+        const xs = finite([...plain.x, ...selected.x]);
+        expect((Math.max(...xs) - Math.min(...xs)) / (VIEW_BOX[2] - VIEW_BOX[0])).toBeGreaterThanOrEqual(0.7);
+        const full = mountRow(20, 10);
+        const [baseline, plain20, selected20] = curves(full);
+        for (const x of finite([...baseline.x, ...plain20.x, ...selected20.x])) expect(x >= VIEW_BOX[0] && x <= VIEW_BOX[2]).toBe(true);
+        const {boxes} = rowBoxes(full);
+        for (const c of boxes) if (/^(\d+|k = \d+)$/.test(c.text)) expect([c.text, c.box.x0 >= 0 && c.box.x1 <= 600]).toEqual([c.text, true]);
+        const numbers = boxes.filter(c => /^\d+$/.test(c.text) && c.box.y0 > 0);
+        for (const a of numbers) for (const b of numbers) if (a !== b) expect([a.text, b.text, a.box.x0 < b.box.x1 && a.box.x1 > b.box.x0 && a.box.y0 < b.box.y1 && a.box.y1 > b.box.y0]).toEqual([a.text, b.text, false]);
+    }));
+
+    test.each(sizes)('on a %d x %d px board the "k = ..." text is clear of the bar cap and of the captions at the top, for rows 0 to 20', (width, height) => withElementSize(width, height, () => {
+        for (const n of [0, 1, 4, 10, 20]) for (const k of lessonKs) {
+            const place = Math.min(k, n);
+            const graph = mountRow(n, k);
+            const {px, boxes} = rowBoxes(graph);
+            const label = boxes.find(c => c.text === t('combinatorics_counting_cap_bar_k', {value0: String(place)}))!;
+            expect(label).toBeDefined();
+            const [, plain, selected] = curves(graph);
+            const [, topY] = [selected.x[1], selected.y[1]];
+            const capTop = px(selected.x[1], topY)[1] - BAR_CAP_PX;
+            expect([n, k, label.box.y1 <= capTop - BAR_LABEL_MARGIN_PX + 1e-6]).toEqual([n, k, true]);
+            for (const caption of [t('combinatorics_counting_cap_row', {value0: String(n)}), t('combinatorics_counting_cap_weights', {value0: '0,5'}), t('combinatorics_counting_cap_selected', {value0: String(place), value1: ''})]) {
+                for (const other of boxes.filter(c => c.text.startsWith(caption.slice(0, 8)) && c !== label)) {
+                    const a = label.box, b = other.box;
+                    expect([n, k, other.text, a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0]).toEqual([n, k, other.text, false]);
+                }
+            }
+            expect(plain).toBeDefined();
         }
     }));
 });

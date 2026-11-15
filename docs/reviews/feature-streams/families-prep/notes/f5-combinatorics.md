@@ -44,3 +44,13 @@
 - Frame viewed (840x520): board text is left of centre. Title "Vrstica 4 Pascalovega trikotnika", orange "izbran k = 2: (4 nad 2) = 6", five thick bars (green, orange tallest third), baseline running right, numbers 1 4 6 4 1 under the bars (staggered rows), place numbers 0 1 2 3 4 below. All five bars and the row numbers are inside the card and readable. The long weight caption is hidden at card size (catalog text policy).
 - Crowding (graph-owned, not fixed): the "k = 2" label above the orange bar overlaps the "izbran k = 2" line and touches the bar top; the bars are crowded in the left third, wide strokes touch each other.
 - Checks: unit `src/learning/chapter` + familyChapters, scripts tests, tsc, lint, rawcheck passed (logs in `.command-logs/comb-c/f4/`). Preview 4523 stopped.
+
+## Row view layout (handler 32)
+
+The row view of the counting tree spaced its bars at a fixed 1.15 (made for n = 20), so rows 4 to 8 filled the left fifth of the board, and the chosen bar's "k = ..." text sat 0.3 units above the bar top, inside the round cap (7 px) and, on a phone board, against the "izbran k = ..." caption.
+
+- Spacing: `rowStep(n) = min(6, 22.6 / max(n, 1))`, bars from x = 0.9 to 23.5 (`barX(index, n)`). n = 20 gives 1.13 (was 1.15); the cap 6 keeps a row of 1 or 2 bars from stretching. The baseline ends 0.7 past the last bar (at most 24). Row numbers go on one level when the widest one (0.55 em per character estimate, 13 px) fits the pixel step, otherwise on two levels as before.
+- Label: at the bar top plus (7 px cap + 4 px margin) in pixels. `BAR_HEIGHT` is 9 -> 8 so the tallest bar, cap and label (about 27 px) stay under the "selected" caption on a 295 px high board. A first attempt that shrank the bars with the board's unit failed the capture's presentation-geometry check, so heights stay unit-free.
+- The card's window is wider than the view box, so the n = 4 row occupies the left 60 % of the new card (bars at 0.9 to 23.5 in a window of about -4.8 to 34.5); the "k = 2" text now stands clear above the cap and the row numbers are on one level.
+- The other four cards are byte-identical (sha256 checked). The catalog `counting-tree` recipe sets n and k on the choices view, so it is unaffected.
+- Evidence: `.command-logs/comb-c/rowlayout/` (red.log: 4 failures on the old code; unit.log, tc.log, lint.log, capture.log).
