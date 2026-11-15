@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lesson joins the chapter o
 
 Acceptance: the spec's acceptance for RG5; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the `exponential-*` and `inverse-logarithm` lessons behave as before.
 
-Status: F3 RG5 written and joined (handler 28); F4 card captured (handler 28); F5 and F6 next.
+Status: F3 RG5 written and joined (handler 28); F4 card captured (handler 28); F5: no new clip (`recursion-growth` has one); live lesson smoke passed (`.command-logs/rec-c/smoke/report.md`); F6 gate next.

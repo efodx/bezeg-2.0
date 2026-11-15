@@ -6,4 +6,4 @@ Slices F3–F6 as in [06](06-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for LS3–LS4; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: F3 LS3 and LS4 written and joined (handler 27); F4 cards captured (handler 28); catalog clip and F6 next.
+Status: F3 LS3 and LS4 written and joined (handler 27); F4 cards captured (handler 28); F5: no new clip (the `contour-map` clip covers the Demonstration); live lesson smoke passed (`.command-logs/ls-c/smoke/report.md`; its LS4 angle defect fixed in `5657eb04`); F6 gate passed (handler 28: `just check` green at `29294b57`; live smoke `.command-logs/ls-c/f6/report.md`).
