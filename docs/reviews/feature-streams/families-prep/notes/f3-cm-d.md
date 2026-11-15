@@ -131,3 +131,39 @@ Chapter/registry/registration, preview copy, the notation test list, a lesson te
 ### Slice 2a-f
 
 M6 review findings applied in `complexPowerGuidedLessons.ts` and its test. B1: step 6 now uses z = 0,6 + 0,8i (M6_TRIPLE A = 12, B = 16, n = 2); host probe (`p-probe2.txt`) showed z^2 = -7/25 + 24/25 i at n = 2 and z^3 = -117/125 + 44/125 i at n = 3; no earlier step shows that z^3. N2 real z is a ray; N3 rounded angles use `\approx`; N4 step 3 prompt asks for positions and arguments, predict before the unit-circle row; N5 wrapping remark moved to the expected observation; N6 step 7 natural n, graph shows up to 8; N7 fields named "Re in the row z under the heading Number z". Purposes are not rendered in the lesson runtime (only chapter purposes), so left unchanged. Checks: tsc clean, backslash 0 in the lesson file, unit green, lint clean.
+
+## Slice 2b: M7 lesson
+
+### Written
+- `src/learning/content/complexEulerGuidedLessons.ts`: `complexEulerLesson` (`complex-euler`, 7 steps, sl + en), `eulerSceneActions(id, spec)` (prepared-scene, then one `set-motion` with the named fields, `set-angle`, `set-series`, `set-mode`; each only when named), `EulerSceneSpec`, constants `M7_PATH`, `M7_PERIOD`, `M7_VELOCITY`, `M7_ACCELERATION`, `M7_PRODUCT`, `M7_SERIES`, `M7_DEFAULT`, `M7_EXPLORE`. Formula blocks: `euler-definition` (step 1), `euler-velocity` (step 4), `euler-series` (step 6). Status stated in the text: definition (1), arguments (velocity, acceleration; 3-4), proof (product rule, 5), cited theorem (series, 6), partial sums an illustration; real theta only.
+- Probe `.command-logs/cm-d/e-probe2.txt` (sl + en, probe test deleted). Steps 1-5 open at N = 1 (not in the brief): at N = 5 the step 1 state at 180 degrees shows S_5 = 0,1239 + 0,524i, a step 6 answer.
+
+### Numbers per step (source)
+- Scenes (open -> learner): 1 theta 0, v off, N 1 -> 90, 180, 270; 2 theta 90, omega 1, v off, N 1 -> omega 2, 4; 3 theta 30, omega 2, v off, N 1 -> velocity on; 4 theta 90, omega 2, v on, N 1 -> acceleration on; 5 theta 30, v off, N 1, motion -> product (b 45), then theta 90 + b 90; 6 theta 180, v off, N 1 -> N 3, 5, 9, 13, 21; 7 default.
+- 1: (0;1), (-1;0), (0;-1) "natančno" (probe2 s1; probe 1b).
+- 2: omega 1 theta 90: t = π/2 ≈ 1,571, period 2π ≈ 6,283; omega 2: π/4 ≈ 0,785, π ≈ 3,142; omega 4: π/8 ≈ 0,393, π/2 ≈ 1,571 (probe2 s2, sl and en).
+- 3: iω·e^(iθ) = −1 + 1,7320508i, speed 2, angle 90° (probe2 s3 vel on); exact form −1 + √3 i by arithmetic.
+- 4: acceleration row −4i (probe2 s4); length ω² = 4 and scale caption "narisano v merilu 0,225" (probe 1b, at omega 2); velocity −2 (probe2 s4 open).
+- 5: θ + φ = 75°, product (0,258819; 0,9659258) computed (probe2 s5; cos 75°, sin 75° by arithmetic); θ 90 b 90: 180°, (−1; 0) "natančno" (probe2 s5).
+- 6: S1 1 + 3,1416i dist 3,72; S3 −3,9348 − 2,0261i 3,57 (both out of view); S5 0,1239 + 0,524i 1,24; S9 −0,976 + 0,0069i 0,025; S13 −0,9999, 0,000103; S21 −1, 7,64·10⁻¹¹ (probe2 s6; probe 1b). S1 = 1 + iπ by arithmetic.
+- 7: θ = 45 point (√2/2; √2/2) exact (probe 1b); θ 30 + b 330 product (1; 0) (probe 1b); period at omega 3 = 2π/3 ≈ 2,094 (arithmetic, not probed); Play 5° per step and Reset to 0° (probe 1b).
+
+### Deviations
+- N = 1 in steps 1-5 (above). Step 5's i·i = −1 repeats what step 1 showed at 180° ((−1; 0)); it is a new reading (the product rule), not a new value.
+- Step 3 and 4 explanations avoid the answer, so the argument (z′ = iωz) sits in step 3's expected observations and the block `euler-velocity` is attached to step 4; the product-rule proof sits in step 5's expected observations (no block).
+- Labels in prompts carry `\(...\)` around symbols ("Kot \(\theta\) (stopinje)"); the English row names follow the probe ("Time t = θ/ω", "Period of revolution", "Angles add").
+
+### Test design
+- Mechanics: the scene helper builds prepared-scene then set-motion, set-angle, set-series, set-mode; apply on a real graph, then compare state and readouts to the numbers above. Readouts: `[data-readout]` (dt/dd text), `[data-euler-status]`. Controls: angle field "Kot θ (stopinje)", "Kotna hitrost ω", "Stopnja vrste N", mode checkbox "Zmnoži dve točki", slider "Drugi kot φ (stopinje)", toggles "Prikaži hitrost"/"Prikaži pospešek".
+- Openings (state, readout): step 1 θ 0, status "θ = 0°: e^(iθ) = (1; 0)"; velocity rows absent; step 2 time "π/2 ≈ 1,571", period "2π ≈ 6,283"; step 3 velocity rows absent; step 4 velocity "−2", no acceleration row; step 5 no product rows; step 6 S1 "1 + 3,1416i", row "Ali je delna vsota stopnje 1 v pogledu? = ne".
+- Learner actions and post states: see the numbers above; also step 5 b 90 with θ 90 (b on the 5° grid), step 7 period at omega 3.
+- Quote list: every number in "Numbers per step"; exact values stay exact, rounded ones carry \approx.
+
+### Still to do
+Test file, chapter, registry, preview copy, smoke; en review of row names against the final graph.
+
+### Doubts
+- S diamond on the board in steps 1-5 (N = 1) is unexplained until step 6 (one sentence in step 1 tells to ignore it).
+- Period at omega 3 and the time/period rows at omega 3 quoted from arithmetic, not probed.
+- The "= ≈" doubled sign noted in 1b was not seen in the rows probed here (π/2 ≈ 1,571 formats).
+- Not run: browser, 310 px check, `lessonMathNotation.test.ts` (file not registered yet).
