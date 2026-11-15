@@ -325,7 +325,9 @@ const functionsCards: readonly FunctionsCard[] = [
         counts: [[2, 2], [8, 0], [2, 2], [1, 1]]},
     {chapterId: 'level-sets', copy: levelSetsPreviewCopy,
         ids: ['level-sets.linear-programming.linear-program'],
-        counts: [[6, 6]]},
+        counts: [[6, 6]],
+        // LS1 and LS2 joined the chapter in F3 (handler 26); their cards come in F4.
+        pending: ['level-sets.gradient.contour-map', 'level-sets.surface.contour-map']},
     // Both solids cards are surface cards: the count row is the one rendered solid owner and no board points.
     {chapterId: 'solids', copy: solidsPreviewCopy,
         ids: ['solids.cube-sections.solids', 'solids.pyramid-sections.solids'],

@@ -137,9 +137,9 @@ describe('fallback and unavailable lessons', () => {
     });
 
     it('returns undefined for every Demonstration that opts out of lessons', () => {
-        // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, solids, contour-map, linear-program, complex-power and complex-euler rows opt out (families-prep F3 gives them lessons); the unknown id covers the missing case.
+        // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, solids, contour-map, linear-program, complex-power and complex-euler rows opted out; now only complex-power and complex-euler do (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['complex-power', 'complex-euler', 'contour-map']);
+        expect(lessonless).toEqual(['complex-power', 'complex-euler']);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();
@@ -192,6 +192,8 @@ describe('launch paths and example resolution', () => {
         ['canonical example, phase portraits PP4', '?example=lesson.phase-portraits.logistic-map.logistic-map', 'logistic-map', 'phase-portraits-logistic-map', {chapterId: 'phase-portraits', sectionId: 'logistic-map'}],
         ['canonical example, phase portraits PP5', '?example=lesson.phase-portraits.bifurcation.logistic-map', 'logistic-map', 'phase-portraits-bifurcation', {chapterId: 'phase-portraits', sectionId: 'bifurcation'}],
         ['canonical example, level sets LS5', '?example=lesson.level-sets.linear-programming.linear-program', 'linear-program', 'level-sets-linear-programming', {chapterId: 'level-sets', sectionId: 'linear-programming'}],
+        ['canonical example, level sets LS1', '?example=lesson.level-sets.surface.contour-map', 'contour-map', 'level-sets-surface', {chapterId: 'level-sets', sectionId: 'surface'}],
+        ['canonical example, level sets LS2', '?example=lesson.level-sets.gradient.contour-map', 'contour-map', 'level-sets-gradient', {chapterId: 'level-sets', sectionId: 'gradient'}],
         ['canonical example, randomness RS1', '?example=lesson.randomness.galton-board.prob-simulation', 'prob-simulation', 'randomness-galton', {chapterId: 'randomness', sectionId: 'galton-board'}],
         ['canonical example, randomness RS2', '?example=lesson.randomness.law-of-large-numbers.prob-simulation', 'prob-simulation', 'randomness-large-numbers', {chapterId: 'randomness', sectionId: 'law-of-large-numbers'}],
         ['canonical family example', '?example=family.splines.worked-join.spline-c1', 'spline-c1', 'explore-splines-worked-join-spline-c1', {chapterId: 'splines', sectionId: 'worked-join'}],

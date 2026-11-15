@@ -65,3 +65,17 @@ Run after writing: tsc clean (s2-tsc.log empty), backslash checks 0 singles (s2-
 - Applied review findings in `levelSetsContourGuidedLessons.ts` (sl and en): B1 ls2-hills no longer names the peak or f = 0,999568 in the question (moved to the expected observation); N1 ls2-tangent asks for the dot product and says the step checks the theorem against the dashed contour already drawn; N2 ls1-hills prompt and observation now include c = 2 (Value c shows 2, Length 0, nothing drawn; derived from the readout code, not browser-checked); N3, N4, N5, N7 wording; N6 `približno`/`about` on 0,0208, 0,0294, 1,4142; the ls2-numeric prompt uses the exact readout label.
 - Test: `KNOWN_UNHEDGED` emptied; dropped the pi/2 = 1,571 quote from ls2-hills, since the text no longer states it.
 - Green: backslash/raw checks 0, `just unit` passed, tsc 0, lint 0. Not verified: browser smoke.
+
+## Slice 3: chapter join (worker, handoff-v13)
+
+### Written
+- `levelSetsChapterRegistry.ts`: sections `surface` (LS1, `level-sets-surface`), `gradient` (LS2, `level-sets-gradient`), `linear-programming`, all on their Demonstrations (`contour-map` twice). `levelSetsChapter.ts`: two sections (surface: definition, gap ~ dc/|grad f| as an argument, drawn contours an illustration; gradient: directional-derivative argument, chain-rule theorem, no claim at grad f = 0), intro and comment rewritten. Examples: x^2+4y^2 = 4 (ellipse, semi-axes 2 and 1; c = 16 for the gap) and the gradient (4; 8) of x^2+4y^2 at (2; 1).
+- `registration.ts` (no opt-out left), `guidedLessonOwnership.ts` (`contour-map` -> level-sets/surface), `guidedExamplePreviewCopy.ts` (`contour-map` row), tests (`familyChapters`, `authoredChapterCoverage` 183 -> 185, `lessonLookup.characterization`, `lessonCatalog`, `lessonMathNotation`, `registrationComposition`, `guidedExamplePreviews` two ids `pending`, `levelSetsGuidedLessons.test.ts` line 434 finds the LP section by id), smoke rows, `docs/localization.md` row, task 07 status.
+
+### Outcome
+- Red before source edits: `s3-red.log` (10 failures). tsc clean (`s3-tsc.log`), lint passed (`s3-lint.log`), `just build` passed, `just smoke-lesson contour-map` 2 passed (`s3-smoke.log`).
+- `just unit src/learning src/graphs/levelsets` (`s3-unit.log`): 2 failed of 2936; one fixed (LP chapter test used `sections[0]`); rerun `s3-unit2.log`.
+- OPEN: `lessonMathNotation.test.ts` still fails on `levelSetsContourGuidedLessons.ts:380-381` (ls2-numeric observationPrompt quotes the readout label "(centralna razlika, h = 0,01, izračunano)" as bare math). Not mine to edit (brief); fix in the lessons file.
+
+### Not verified
+No browser look at the chapter page; no cards for the two new ids (F4); the preview-copy row text was not checked against a screenshot.

@@ -431,7 +431,7 @@ describe('the numbers each step quotes are those of its scene, in sl and en', ()
     test('the chapter prose quotes the default vertices, their values, the value 8 of x + 2y and the optimum', () => {
         const standard = modelOf(LS5_REGION);
         const parallel = modelOf(LS5_PARALLEL);
-        const paragraphs = levelSetsChapter.sections[0].paragraphs;
+        const paragraphs = levelSetsChapter.sections.find(section => section.id === 'linear-programming')!.paragraphs;
         for (const language of ['sl', 'en'] as const) {
             const text = paragraphs.map(paragraph => paragraph[language]).join(' ');
             for (const v of standard.vertices) expect(hasText(text, pointText(v, language))).toBe(true);

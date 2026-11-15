@@ -377,8 +377,8 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['central-difference'],
         observationPrompt: text(
-            'Obkljukaj Pokaži numerično oceno gradienta in primerjaj odčitka Ocena gradienta (centralna razlika, h = 0,01, izračunano) in Napaka ocene z napovedjo.',
-            'Tick Show the numeric gradient estimate and compare the readouts Gradient estimate (central difference, h = 0.01, computed) and Error of the estimate with your prediction.',
+            'Obkljukaj Pokaži numerično oceno gradienta in primerjaj odčitka Ocena gradienta (centralna razlika, \\(h=0{,}01\\), izračunano) in Napaka ocene z napovedjo.',
+            'Tick Show the numeric gradient estimate and compare the readouts Gradient estimate (central difference, \\(h=0.01\\), computed) and Error of the estimate with your prediction.',
         ),
         expectedObservations: [text(
             'Ocena je \\((0{,}4546411;\\ 0{,}4546411)\\), točni gradient \\((0{,}4546487;\\ 0{,}4546487)\\): ujemata se v \\(5\\) decimalkah (\\(0{,}45464\\)), vsaka komponenta se razlikuje za \\(0{,}0000076\\), odčitek Napaka ocene je \\(0{,}0000076\\). Napaka centralne razlike je pri gladki funkciji reda \\(h^2\\): \\(\\tfrac{h^2}{6}\\,|f_{xxx}|=\\tfrac{0{,}01^2}{6}\\cdot0{,}4546\\approx7{,}6\\cdot10^{-6}\\), kar se ujema. Ocena je izračunan približek, točni gradient je izračunan po formuli.',

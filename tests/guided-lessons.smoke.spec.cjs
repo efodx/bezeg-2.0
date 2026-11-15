@@ -1572,6 +1572,16 @@ const linearProgram = {
     minFrames: 16, // 7 x 2 + 2 calculation frames
 };
 
+// Level sets LS1 (chapter-owned, src/learning/content/levelSetsContourGuidedLessons.ts): six steps, explanation + observation frames, no worked examples.
+// LS2 (`?example=lesson.level-sets.gradient.contour-map`) shares the demonstration and has no default row; the host and content tests cover its scenes.
+const levelSetsSurface = {
+    id: 'contour-map',
+    path: `${BASE}/analysis/contours`,
+    titles: {sl: 'Ploskev in nivojnice', en: 'Surface and level sets'},
+    steps: 6,
+    minFrames: 12, // 6 x 2
+};
+
 // Phase portraits PP1 (chapter-owned, src/learning/content/phasePortraitsGuidedLessons.ts): seven steps, explanation + observation frames, plus a calculation frame for its worked example.
 const linearSystem = {
     id: 'phase-portrait',
@@ -2665,7 +2675,7 @@ const bezierClipping = {
 };
 
 const LESSONS = [bezierClipping, degreeReduction, arcLengthParam, bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, linearMapComposition, complexReciprocal, complexRoots, unitCircle, triangleSolver, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, recursionCobweb, randomnessGalton, linearProgram, linearSystem, pendulumPhase, linearizationPhase, logisticMap, solids];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, linearMapComposition, complexReciprocal, complexRoots, unitCircle, triangleSolver, lineGeometry, isometries, circleConstruction, latticePaths, countingTree, curveKinematics, mechanicsDescent, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope, waves, recursionGrowth, recursionCobweb, randomnessGalton, linearProgram, levelSetsSurface, linearSystem, pendulumPhase, linearizationPhase, logisticMap, solids];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

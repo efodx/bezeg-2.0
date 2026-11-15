@@ -44,6 +44,7 @@ import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebG
 import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson} from './phasePortraitsGuidedLessons';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
+import {levelSetsGradientLesson, levelSetsSurfaceLesson} from './levelSetsContourGuidedLessons';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
 import {epicyclesGuidedLessons} from './epicyclesGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
@@ -112,6 +113,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
     ['recursionCobwebGuidedLessons', [recursionCobwebLesson, recursionLogisticLesson]],
     ['levelSetsGuidedLessons', [linearProgrammingLesson]],
+    ['levelSetsContourGuidedLessons', [levelSetsSurfaceLesson, levelSetsGradientLesson]],
     ['phasePortraitsGuidedLessons', [linearSystemLesson, pendulumLesson, logisticMapLesson, bifurcationLesson]],
     ['solidsGuidedLessons', [cubeSectionsLesson, prismPyramidSectionsLesson]],
     ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
@@ -255,6 +257,7 @@ test('scans every lesson module', () => {
             'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5
+            'contour-map', 'contour-map', // levelSetsContourGuidedLessons.ts: LS1 and LS2
             'lattice-paths', 'counting-tree', 'lattice-paths', 'lattice-paths', // combinatoricsGuidedLessons.ts: CB1 to CB4
             'isometries', 'isometries', 'isometries', // isometriesGuidedLessons.ts: L1 to L3
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',

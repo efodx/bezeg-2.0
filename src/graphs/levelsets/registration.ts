@@ -3,14 +3,14 @@ import type {Definition} from '../../demonstrations';
 /**
  * Cheap metadata of the level-set rows of the analysis family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The contour-map row ships without a guided lesson (`lesson: false`) until the contour lessons land (families-prep F3, tasks 07 and 08); the linear-program row has its lesson (LS5, chapter-owned by the level-sets chapter).
+ * live in `collections.ts`. Both rows have guided lessons owned by the level-sets chapter: the contour-map row LS1 and LS2 (families-prep F3, batch B), the linear-program row LS5 (batch A).
  * The contour map has a 3D panel, but its main view is the pannable contour board.
  */
 export const levelSetsFamilyId = 'levelsets';
 
 /** The Demonstration rows, in catalog order; `demonstrations.ts` places them right after the solids row in the analysis family. */
 export const levelSetsDemonstrationRows = [
-    {id: 'contour-map', path: '/bezeg-2.0/analysis/contours', family: 'analysis', title: 'contour_map_title', prompts: ['contour_map_prompt', 'prompt_compare'], lesson: false},
+    {id: 'contour-map', path: '/bezeg-2.0/analysis/contours', family: 'analysis', title: 'contour_map_title', prompts: ['contour_map_prompt', 'prompt_compare']},
     {id: 'linear-program', path: '/bezeg-2.0/analysis/linear-program', family: 'analysis', title: 'linear_program_title', prompts: ['linear_program_prompt', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 
