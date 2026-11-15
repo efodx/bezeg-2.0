@@ -300,9 +300,9 @@ const functionsCards: readonly FunctionsCard[] = [
             'analytic-lines.intersections.line-geometry', 'analytic-lines.normal-parallel-perpendicular.line-geometry'],
         counts: [[1, 5], [0, 4], [0, 2], [0, 5], [0, 4]]},
     {chapterId: 'isometries', copy: isometriesPreviewCopy,
-        ids: ['isometries.classifying-a-motion.isometries', 'isometries.dilation-similarity.isometries', 'isometries.two-mirrors.isometries'],
-        pending: ['isometries.rosettes.isometries', 'isometries.frieze-patterns.isometries'], // F4 writes their cards
-        counts: [[2, 2], [2, 2], [3, 5]]},
+        ids: ['isometries.classifying-a-motion.isometries', 'isometries.dilation-similarity.isometries', 'isometries.frieze-patterns.isometries', 'isometries.rosettes.isometries',
+            'isometries.two-mirrors.isometries'],
+        counts: [[2, 2], [2, 2], [2, 0], [0, 6], [3, 5]]},
     {chapterId: 'circle-geometry', copy: circleGeometryPreviewCopy,
         ids: ['circle-geometry.apollonius-circle.circle-construction', 'circle-geometry.common-tangents.circle-construction', 'circle-geometry.radical-axis-and-centre.circle-construction',
             'circle-geometry.tangents-from-a-point.circle-construction'],

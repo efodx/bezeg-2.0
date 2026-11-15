@@ -6,7 +6,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 });
 
 /**
- * Describes the prepared opening scene of each Isometries lesson, keyed by example id: L1 (the triangle with the vertices (3, 1), (5, 1), (3, 4) and two mirrors through the origin,
+ * Describes the prepared opening scene of each Isometries lesson, keyed by example id: L4 (rosette mode, n = 4 without mirrors, the point (4, 1)), L5 (frieze mode with no feature ticked and the period 4), L1 (the triangle with the vertices (3, 1), (5, 1), (3, 4) and two mirrors through the origin,
  * the x-axis and the line through (2, 1)), L2 (the same triangle and one mirror through (1, 0) and (2, 1) in the classifying mode) and L3 (the triangle (0, 0), (4, 0), (0, 3) and its
  * image under the dilation with the centre (1, 1) and the ratio 3/2). The copy names the frame only and states none of the answers the first steps ask for (the image of a vertex,
  * whether the orientation is kept, the image of the first vertex). Every scene is deterministic: no source draws random numbers.
@@ -23,6 +23,18 @@ export const isometriesPreviewCopy = {
         'Cream background without coordinate axes. A smaller dark green right triangle labelled lik lies inside a larger green triangle of the same shape labelled slika 1. Thin dashed orange lines run from an orange circle, labelled središče, towards the vertices, and a blue diamond sits beside the circle.',
         'Lik in njegova slika pri središčnem raztegu s središčem \\(C=(1,1)\\) in razmerjem \\(k=\\tfrac32\\).',
         'The motif and its image under the central dilation with the centre \\(C=(1,1)\\) and the ratio \\(k=\\tfrac32\\).',
+    ),
+    'isometries.frieze-patterns.isometries': copy(
+        'Krem ozadje brez koordinatnih osi. Črtkana oranžna vodoravna črta, nad njo v vrsti pet enakih črk F, ena od njih temnozelena in odebeljena z oznako lik, ostale svetlosive in ločene med seboj. Nad vrsto je oznaka s tipom friza, pod črto pa oranžna daljica z oznako perioda 4.',
+        'Cream background without coordinate axes. A dashed orange horizontal line with a row of five identical letters F above it, one of them dark green and thicker labelled lik, the others light grey and separate from each other. A label with the frieze type stands above the row, and an orange segment labelled perioda 4 lies below the line.',
+        'Vzorec, ki se ponavlja vzdolž traku, s periodo \\(4\\).',
+        'A pattern repeated along a strip with the period \\(4\\).',
+    ),
+    'isometries.rosettes.isometries': copy(
+        'Krem ozadje brez koordinatnih osi. Oranžen križec z oznako središče, desno od njega oranžen krog z oznako točka lika in štiri zelene pike z oznakami slika 1 do slika 4, razporejene okoli križca; slika 1 je ob oranžnem krogu.',
+        'Cream background without coordinate axes. An orange cross labelled središče, an orange circle labelled točka lika to the right of it, and four green dots labelled slika 1 to slika 4 arranged around the cross; slika 1 is beside the orange circle.',
+        'Točka \\((4,1)\\) in njene slike pri vrtenjih okoli izhodišča.',
+        'The point \\((4,1)\\) and its images under rotations about the origin.',
     ),
     'isometries.two-mirrors.isometries': copy(
         'Krem ozadje brez koordinatnih osi. Vodoravna siva premica zrcalo 1 in poševna modra črtkana premica zrcalo 2 se sekata v oranžnem križcu z oznako središče. Temnozelen pravokotni trikotnik lik leži nad prvo premico desno od preseka; pod njo je siv črtkan trikotnik slika 1, nad njo pa moder trikotnik slika 2 levo zgoraj.',

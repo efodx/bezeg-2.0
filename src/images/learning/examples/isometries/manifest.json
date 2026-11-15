@@ -1,69 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+  "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-    "dirty": false,
-    "inputs": "c6a252b1fa889b783b428adab56dff852e82380e50103c6c64c5b7ee2c207970",
-    "output": "fbb7a3e9c9a3b85ca14525268057eea6435c5bceed3df3b1139ee7e930996bd6"
+    "revision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+    "dirty": true,
+    "inputs": "80c0f44b50eead8fbb3e82a11b911b4dff6eabbf3947a5b5418f3cef3792a139",
+    "output": "8b89b8bdb2224af8bab9cc5a3c0f16880e31a84e3635ca89eedd40d6a253137c"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-    "stampDirty": false,
-    "localOutputHash": "fbb7a3e9c9a3b85ca14525268057eea6435c5bceed3df3b1139ee7e930996bd6",
+    "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
+    "stampRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+    "stampDirty": true,
+    "localOutputHash": "8b89b8bdb2224af8bab9cc5a3c0f16880e31a84e3635ca89eedd40d6a253137c",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Dg5o3H4V.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Dg5o3H4V.js",
-        "sha256": "fd94de55c3c4da3ad72d679d0c30860894e920149a116cd2e793376a463c2729",
+        "name": "index-BNEMWeUY.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-BNEMWeUY.js",
+        "sha256": "32281ba6c225134f6a39312ea48eeeef91963ddac354221530d2eae5a6a03ce4",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-BP8YOfqk.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-BP8YOfqk.js",
+        "sha256": "20da40124b04d30b818825dd4fcdb0e1d38de09e99289423f141195eb3bce2a3",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-BXDP_wDq.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-BXDP_wDq.js",
+        "sha256": "b30c9c8e723878403a035b920c220c87a48c90c08ab43b1790f3c24545f6cf83",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4527/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "7f6739a290cc0e24f967c5555c47145b825015ece371e878a8c39141ee2330c8",
+    "inventory": "b60e0653230ebc82da9a906de45ccc9ccff07aafd40fe49dd2ff6a7a3f934f4d",
     "entries": {
       "isometries.two-mirrors.isometries": "288a63a5759209870acaea7c10940791ad9a163e43b81a8a8aa28a5218621f0e",
       "isometries.classifying-a-motion.isometries": "94a28a70d950980976b7c695c9a8abfd12522f96e51c794fab16d77def1fe22f",
-      "isometries.dilation-similarity.isometries": "f287be90c4b215806e2df56edf79cfe377d108044255f4967936c020ad953114"
+      "isometries.dilation-similarity.isometries": "f287be90c4b215806e2df56edf79cfe377d108044255f4967936c020ad953114",
+      "isometries.rosettes.isometries": "3915a7f848e71123063ceca8a06c272af5fdc0cabcad56c6d8518ddfa6cf0f98",
+      "isometries.frieze-patterns.isometries": "c6200d8ee7a97b830e0084864d43f2537f664494fe85ffcc19db13733a1a980e"
     },
-    "presentation": "9beb8685d84ce866ebefb5735258616fed0d54ed4b7977df98d0f800ddccedce",
-    "buildOutput": "fbb7a3e9c9a3b85ca14525268057eea6435c5bceed3df3b1139ee7e930996bd6",
-    "buildInputs": "c6a252b1fa889b783b428adab56dff852e82380e50103c6c64c5b7ee2c207970"
+    "presentation": "b4fe05cb191aeb36a24896c11bf46c144e8957252db4a135d0e563884a7df353",
+    "buildOutput": "8b89b8bdb2224af8bab9cc5a3c0f16880e31a84e3635ca89eedd40d6a253137c",
+    "buildInputs": "80c0f44b50eead8fbb3e82a11b911b4dff6eabbf3947a5b5418f3cef3792a139"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -110,6 +112,32 @@
       },
       {
         "id": "isometries.dilation-similarity.isometries",
+        "demonstrationId": "isometries",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.4,
+            5.6,
+            10.9,
+            -3.9
+          ]
+        }
+      },
+      {
+        "id": "isometries.rosettes.isometries",
+        "demonstrationId": "isometries",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.4,
+            5.6,
+            10.9,
+            -3.9
+          ]
+        }
+      },
+      {
+        "id": "isometries.frieze-patterns.isometries",
         "demonstrationId": "isometries",
         "framing": {
           "kind": "coordinate-window",
@@ -298,8 +326,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
         "pageErrors": []
       }
     },
@@ -448,8 +476,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
         "pageErrors": []
       }
     },
@@ -597,8 +625,243 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
-        "sourceRevision": "0c233a2235c253c96e3b403eaa1bac9a7090259a",
+        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "isometries.rosettes.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.rosettes.isometries",
+      "sceneFingerprint": "48c6a4e225d931bcdac73b7ca3878f76ee44fc2fa9c85d27d559f73084ee6751",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l4-rotations-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l4-rotations-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"rosette\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-rosette\",\"n\":4,\"mirrors\":false,\"point\":{\"x\":4,\"y\":1}}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "isometries.rosettes.isometries.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "41a4b5aa1aff50f7b2e9f929892f312859eb8630660eb88494b8e060c31bb828",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "point": 6,
+          "text": 6
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:line",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:4,1",
+          "point:-1,4",
+          "point:-4,-1",
+          "point:1,-4"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 32,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "point": 6,
+            "text": 6
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:line",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:4,1",
+            "point:-1,4",
+            "point:-4,-1",
+            "point:1,-4"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "text": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "isometries.frieze-patterns.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.frieze-patterns.isometries",
+      "sceneFingerprint": "e048fcbe09b5fd71346924df03c3c3b6ee49d174acd5fd9ab4ffac77b67b1c56",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l5-half-turn-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l5-half-turn-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"frieze\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-frieze\",\"period\":4,\"features\":{\"vertical\":false,\"horizontal\":false,\"halfTurn\":false,\"glide\":false}}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "isometries.frieze-patterns.isometries.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6c5185743ac6df919cb215de6a67cf862a5647da1f1543728e63951d788ddea9",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "segment": 2,
+          "text": 3,
+          "curve": 2
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              -15.9,
+              0.4
+            ],
+            [
+              -15.8,
+              0.4
+            ],
+            [
+              -15.7,
+              0.4
+            ]
+          ],
+          [
+            [
+              0.1,
+              0.4
+            ],
+            [
+              0.2,
+              0.4
+            ],
+            [
+              0.3,
+              0.4
+            ]
+          ]
+        ],
+        "checks": [
+          "type:line",
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "segment": 2,
+            "text": 3,
+            "curve": 2
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                -15.9,
+                0.4
+              ],
+              [
+                -15.8,
+                0.4
+              ],
+              [
+                -15.7,
+                0.4
+              ]
+            ],
+            [
+              [
+                0.1,
+                0.4
+              ],
+              [
+                0.2,
+                0.4
+              ],
+              [
+                0.3,
+                0.4
+              ]
+            ]
+          ],
+          "checks": [
+            "type:line",
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "segment": 2,
+          "text": 3,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
         "pageErrors": []
       }
     }

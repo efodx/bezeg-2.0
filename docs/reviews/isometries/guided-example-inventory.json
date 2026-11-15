@@ -109,6 +109,95 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "isometries.rosettes.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.rosettes.isometries",
+      "sceneFingerprint": "48c6a4e225d931bcdac73b7ca3878f76ee44fc2fa9c85d27d559f73084ee6751",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l4-rotations-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l4-rotations-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"rosette\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-rosette\",\"n\":4,\"mirrors\":false,\"point\":{\"x\":4,\"y\":1}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 0,
+          "curve": 0,
+          "point": 6,
+          "segment": 0
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            -1,
+            4
+          ],
+          [
+            -4,
+            -1
+          ],
+          [
+            1,
+            -4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "isometries.frieze-patterns.isometries",
+      "demonstrationId": "isometries",
+      "path": "/bezeg-2.0/isometries?example=lesson.isometries.frieze-patterns.isometries",
+      "sceneFingerprint": "e048fcbe09b5fd71346924df03c3c3b6ee49d174acd5fd9ab4ffac77b67b1c56",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l5-half-turn-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"l5-half-turn-scene\",\"source\":\"demonstration-default\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-mode\",\"mode\":\"frieze\"}",
+        "isometry: {\"kind\":\"isometry\",\"operation\":\"set-frieze\",\"period\":4,\"features\":{\"vertical\":false,\"horizontal\":false,\"halfTurn\":false,\"glide\":false}}"
+      ],
+      "expected": {
+        "types": {
+          "line": 0,
+          "curve": 2,
+          "point": 0,
+          "segment": 2
+        },
+        "curveCount": 2,
+        "points": [],
+        "curves": [
+          [
+            [
+              0.1,
+              0.4
+            ],
+            [
+              0.2,
+              0.4
+            ],
+            [
+              0.3,
+              0.4
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

@@ -22,3 +22,12 @@
 ### Handler 21 review
 
 - Accepted. Open: the name-ownership tests were not observed red before the change (they guard the result only); "središče" stays about 45 px from its marker on the dilation and two-mirrors cards (no clear spot inside the figure); rosette "slika 4" touches the "-2" tick number (tick numbers are not obstacles here).
+
+## F4 cards (Batch C)
+
+- Inventory `--chapter isometries` now has five entries; `isometriesFrames` gained `rosettes` (no curve or line, six points: centre cross, four direct images, handle; points (0,0), (4,1), (-1,4), (-4,-1), (1,-4)) and `frieze-patterns` (two segments, two curves; curve samples at 0, 1/2, 1 of the first motif edge (0.1,0.4)-(0.3,0.4), authored from `FRIEZE_MOTIF_TENTHS`). One first run failed on my guess of the curve samples (all three equal); the board samples the edge at its midpoint, so I corrected the authoring from the motif geometry.
+- Red before capture: `guidedExamplePreviews.test.ts` isometries row failed (3 PNGs vs 5 ids), `.command-logs/iso-c/f4/red.log`.
+- The three earlier PNGs are byte-identical (git shows only the manifest changed). Port 4527 stopped, closed.
+- Rosette card viewed: orange cross "središče" left of centre, orange circle "točka lika" with "slika 1" above it on the right, three green dots "slika 2/3/4" around the cross; whole rosette inside the card, labels readable, no mirrors.
+- Frieze card viewed: dashed orange base line, five whole separate F copies (one dark green "lik", four grey), no stray segment joining two copies (the NaN break between rings works), "tip friza p1" above, orange period bracket "perioda 4" below. The rightmost F ends 4 px inside the card edge.
+- Alt text names the labels and avoids the type name and the step answers. Logs `.command-logs/iso-c/f4/`.

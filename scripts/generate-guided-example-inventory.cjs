@@ -2118,8 +2118,8 @@ function analyticLinesExpectedFor(id, step) {
     return author(id, step);
 }
 
-// ---- Isometries chapter (isometries): three lessons on the one isometries Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default, then
-// `isometry` set-mode, set-mirror-count (classify only) and set-mirrors, or set-mode and set-dilation; nothing is random.
+// ---- Isometries chapter (isometries): five lessons on the one isometries Demonstration, keyed by the section in the example id. The first scene of each is the Demonstration default, then
+// `isometry` set-mode, set-mirror-count (classify only) and set-mirrors, or set-mode and set-dilation, set-rosette or set-frieze; nothing is random.
 
 /** Asserts the opening scene is the prepared default followed by exactly the `isometry` operations in `operations`, in that order; returns the isometry actions. */
 function isometriesOpening(id, step, operations) {
@@ -2158,9 +2158,25 @@ const isometriesFrames = {
         assert.deepEqual([dilation.centre, dilation.k, dilation.turn], [{x: 1, y: 1}, 1.5, 'r0'], `${id}: only the centre (1, 1), k = 3/2 and no turn are authored`);
         return {types: {line: 0, curve: 2, point: 2, segment: 4}, curveCount: 2, points: [[1, 1], [2.5, 1]]};
     },
+    // Rosette n = 4 without mirrors, point (4, 1) (IsometryGraph.tsx, rosette branch): the mirror curve is hidden (no mirrors) and nothing else is a curve or line; the centre cross marker, four direct image
+    // markers (the point rotated by 0, 90, 180 and 270 degrees: (4, 1), (-1, 4), (-4, -1), (1, -4)) and the point handle, which lies on the first image: six points, no segment.
+    'rosettes': (id, step) => {
+        const [mode, rosette] = isometriesOpening(id, step, ['set-mode', 'set-rosette']);
+        assert.equal(mode.mode, 'rosette', `${id}: only the rosette mode is authored`);
+        assert.deepEqual([rosette.n, rosette.mirrors, rosette.point], [4, false, {x: 4, y: 1}], `${id}: only n = 4 without mirrors at (4, 1) is authored`);
+        return {types: {line: 0, curve: 0, point: 6, segment: 0}, curveCount: 0, points: [[0, 0], [4, 1], [-1, 4], [-4, -1], [1, -4]]};
+    },
+    // Frieze with no feature ticked (p1) and period 4 (IsometryGraph.tsx, frieze branch): no handle; two segments (the base line and the period bracket) and two curves, the base copy of the motif and the
+    // translates (the symmetry-image curve is empty, so not drawn). The base copy starts with the first motif edge (0.1, 0.4) to (0.3, 0.4) (FRIEZE_MOTIF_TENTHS); the curve samples at 0, 1/2 and 1 of that edge.
+    'frieze-patterns': (id, step) => {
+        const [mode, frieze] = isometriesOpening(id, step, ['set-mode', 'set-frieze']);
+        assert.equal(mode.mode, 'frieze', `${id}: only the frieze mode is authored`);
+        assert.deepEqual([frieze.period, frieze.features], [4, {vertical: false, horizontal: false, halfTurn: false, glide: false}], `${id}: only period 4 with no feature is authored`);
+        return {types: {line: 0, curve: 2, point: 0, segment: 2}, curveCount: 2, points: [], curves: [[[0.1, 0.4], [0.2, 0.4], [0.3, 0.4]]]};
+    },
 };
 
-/** First-frame expectation of an isometries lesson (the three sections of the chapter, keyed by the section in the example id). */
+/** First-frame expectation of an isometries lesson (the five sections of the chapter, keyed by the section in the example id). */
 function isometriesExpectedFor(id, step) {
     const section = id.split('.')[1];
     const author = Object.hasOwn(isometriesFrames, section) ? isometriesFrames[section] : undefined;
@@ -2380,7 +2396,7 @@ const wavesFrames = {
     },
 };
 
-/** First-frame expectation of a waves lesson (the three sections of the chapter, keyed by the section in the example id). */
+/** First-frame expectation of a waves lesson (the five sections of the chapter, keyed by the section in the example id). */
 function wavesExpectedFor(id, step) {
     const section = id.split('.')[1];
     const author = Object.hasOwn(wavesFrames, section) ? wavesFrames[section] : undefined;
@@ -2427,7 +2443,7 @@ const mechanicalCurvesFrames = {
     },
 };
 
-/** First-frame expectation of a mechanical-curves lesson (the three sections of the chapter, keyed by the section in the example id). */
+/** First-frame expectation of a mechanical-curves lesson (the five sections of the chapter, keyed by the section in the example id). */
 function mechanicalCurvesExpectedFor(id, step) {
     const section = id.split('.')[1];
     const author = Object.hasOwn(mechanicalCurvesFrames, section) ? mechanicalCurvesFrames[section] : undefined;
