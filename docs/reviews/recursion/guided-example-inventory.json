@@ -206,6 +206,45 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "recursion.log-scale.recursion-growth",
+      "demonstrationId": "recursion-growth",
+      "path": "/bezeg-2.0/analysis/growth?example=lesson.recursion.log-scale.recursion-growth",
+      "sceneFingerprint": "40f3ec976a3c5716fd8edf7478f8d04a283ed1d625285225877e3671245ca43f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg5-ordinary-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg5-ordinary-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-map\",\"panel\":\"interest\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-interest\",\"capital\":1000,\"rate\":10,\"years\":10,\"parts\":1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8
+        },
+        "curveCount": 8,
+        "points": [],
+        "curves": [
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.06329113924050633,
+              1003.1645569620254
+            ],
+            [
+              0.12658227848101267,
+              1006.3291139240507
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

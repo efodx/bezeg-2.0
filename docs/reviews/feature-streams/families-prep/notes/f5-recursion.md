@@ -25,3 +25,11 @@
 - Existing two PNGs were recaptured with the family: same geometry, board caption font now serif (was sans in the committed PNGs), so bytes differ; viewed. Manifest hashes follow the new bytes.
 - Crowding (graph code, not fixable here): cobweb card the legend row crosses the vertical axis, "negibna točka" sits on the map line; logistic card the map curve runs through "negibna točka" and the start caption touches tick 0,2.
 - Logs: `.command-logs/rec-b/f4/`.
+
+## F4 cards (Batch C)
+
+- One card added: `recursion.log-scale.recursion-growth` (RG5 step 1: interest panel, 1000 at 5 percent, 10 years, yearly). It differs from the `compound-interest` card only by the years (10, not 1; the window is that card's with x scaled by 10 and y by 1,5683); the inventory `expected` (`recursionFrames['log-scale']`) is authored like it: 8 curves, no points, simple-interest curve 1000 (1 + 0,05 x) on 80 samples over 10 years.
+- Pre-capture failure: `guidedExamplePreviews.test.ts` recursion row, "expected [ …(4) ] to deeply equal [ …(5) ]" (`.command-logs/rec-c/f4/red.log`).
+- Viewed: new card shows the legend (four lines, values 1500, 1628,89, 1628,89, 1648,72), axis 1 to 10 with "t (leta)", y 500 to 2500; the green, orange and blue curves nearly coincide, the grey dashed one falls below on the right. Sequences and compound-interest PNGs stayed byte-identical.
+- The cobweb and logistic PNGs were recaptured and changed: the current text policy removed their board captions (map and diagonal rows, "negibna točka", "začetek", the cobweb line); geometry is the same (line, diagonal, handle, square; parabola, diagonal, handle, square). Their alt texts were rewritten to the text-free frames (captions stay).
+- Logs: `.command-logs/rec-c/f4/`.

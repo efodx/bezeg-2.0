@@ -6,7 +6,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 });
 
 /**
- * Describes the prepared opening scene of each Recursion lesson, keyed by example id: RG2 (the cobweb board at its default, no step drawn), RG4 (the logistic map at r = 1,2, no step drawn), RG1 (the arithmetic sequence with first term 3 and difference 2, six terms as bars) and RG3 (1000 at 5 percent for one year, the four interest models).
+ * Describes the prepared opening scene of each Recursion lesson, keyed by example id: RG5 (1000 at 5 percent for ten years, the interest panel), RG2 (the cobweb board at its default, no step drawn), RG4 (the logistic map at r = 1,2, no step drawn), RG1 (the arithmetic sequence with first term 3 and difference 2, six terms as bars) and RG3 (1000 at 5 percent for one year, the four interest models).
  * The copy names the frame only and states none of the answers the first steps ask for (the tenth term, the values after ten years). Nothing on the board is read beyond the values the lessons state in their own first scene.
  */
 export const recursionPreviewCopy = {
@@ -22,15 +22,21 @@ export const recursionPreviewCopy = {
         'Glavnica \\(1000\\) pri \\(5\\,\\%\\) za eno leto: štiri vrste obrestovanja.',
         'A capital of \\(1000\\) at \\(5\\,\\%\\) for one year: the four kinds of interest.',
     ),
+    'recursion.log-scale.recursion-growth': copy(
+        'Krem ozadje. Zgoraj ob navpični osi naslov vrednost in štiri vrstice legende, vsaka z vzorcem črte in vrednostjo: sivo črtkana navadno obrestovanje, debela zelena obrestno obrestovanje, tanka oranžna relativno in modro črtkana zvezno. Vodoravna os je označena od 1 do 10 z napisom t (leta), navpična od 500 do 2500. Štiri krivulje se začnejo pri 1000 in se razhajajo proti desnemu robu; zelena, oranžna in modra ležijo tesno skupaj.',
+        'Cream background. At the top beside the vertical axis the title value and four legend lines, each with a line sample and a value: grey dashed simple interest, thick green compound interest, thin orange relative and blue dashed continuous. The horizontal axis is marked from 1 to 10 with the caption t (years), the vertical one from 500 to 2500. Four curves start at 1000 and part towards the right edge; the green, orange and blue ones lie close together.',
+        'Glavnica \\(1000\\) pri \\(5\\,\\%\\) za \\(10\\) let: štiri vrste obrestovanja.',
+        'A capital of \\(1000\\) at \\(5\\,\\%\\) for \\(10\\) years: the four kinds of interest.',
+    ),
     'recursion.cobweb.recursion-cobweb': copy(
-        'Krem ozadje. Koordinatna ravnina z osema od −10 do 10. Zgoraj levo dve vrstici besedila: preslikava y = 0,5·x + 1 in diagonala y = x. Debela zelena premica z majhnim naklonom seka debelo črtkano sivo diagonalo; presečišče, označeno z modrim kvadratkom, ima ob sebi napis negibna točka. Oranžen krog stoji v izhodišču, ob njem je napis začetek x₀ = 0. Spodaj levo je vrstica z navodilom za pajkovo mrežo. Nobenega koraka še ni narisanega.',
-        'Cream background. A coordinate plane with axes from −10 to 10. At the top left two lines of text: the map y = 0.5·x + 1 and the diagonal y = x. A thick green line with a small slope crosses the thick dashed grey diagonal; the crossing, marked by a blue square, has the caption fixed point beside it. An orange circle stands at the origin with the caption start x₀ = 0 beside it. At the bottom left is a line explaining the cobweb. No step is drawn yet.',
+        'Krem ozadje. Koordinatna ravnina z osema od −10 do 10, brez besedila razen številk ob oseh. Debela zelena premica z majhnim naklonom seka debelo črtkano sivo diagonalo; presečišče označuje moder kvadratek. Oranžen krog stoji v izhodišču. Nobenega koraka še ni narisanega.',
+        'Cream background. A coordinate plane with axes from −10 to 10, with no text except the numbers beside the axes. A thick green line with a small slope crosses the thick dashed grey diagonal; the crossing is marked by a blue square. An orange circle stands at the origin. No step is drawn yet.',
         'Premica \\(y=0{,}5\\,x+1\\) in diagonala \\(y=x\\), začetek \\(x_0=0\\); mreža še ni narisana.',
         'The line \\(y=0.5\\,x+1\\) and the diagonal \\(y=x\\), start \\(x_0=0\\); the cobweb is not drawn yet.',
     ),
     'recursion.logistic.recursion-cobweb': copy(
-        'Krem ozadje. Koordinatna ravnina z osema od približno 0 do 1. Zgoraj levo dve vrstici besedila: preslikava y = 1,2·x·(1 − x) in diagonala y = x. Debela zelena parabola, obrnjena navzdol, se na levi dotakne črtkane sive diagonale in jo seka; ob presečišču je moder kvadratek z napisom negibna točka. Oranžen krog stoji na diagonali blizu izhodišča z napisom začetek x₀ = 0,1. Spodaj je vrstica z navodilom za pajkovo mrežo. Nobenega koraka še ni narisanega.',
-        'Cream background. A coordinate plane with axes from about 0 to 1. At the top left two lines of text: the map y = 1.2·x·(1 − x) and the diagonal y = x. A thick green parabola opening downwards meets the dashed grey diagonal on the left and crosses it; beside the crossing is a blue square with the caption fixed point. An orange circle stands on the diagonal near the origin with the caption start x₀ = 0.1. At the bottom is a line explaining the cobweb. No step is drawn yet.',
+        'Krem ozadje. Koordinatna ravnina z osema od približno 0 do 1, brez besedila razen številk ob oseh. Debela zelena parabola, obrnjena navzdol, se na levi dotakne črtkane sive diagonale in jo seka; presečišče označuje moder kvadratek. Oranžen krog stoji na diagonali blizu izhodišča. Nobenega koraka še ni narisanega.',
+        'Cream background. A coordinate plane with axes from about 0 to 1, with no text except the numbers beside the axes. A thick green parabola opening downwards meets the dashed grey diagonal on the left and crosses it; the crossing is marked by a blue square. An orange circle stands on the diagonal near the origin. No step is drawn yet.',
         'Logistična preslikava \\(y=r\\,x(1-x)\\) pri \\(r=1{,}2\\) in začetku \\(x_0=0{,}1\\); mreža še ni narisana.',
         'The logistic map \\(y=r\\,x(1-x)\\) at \\(r=1.2\\) and the start \\(x_0=0.1\\); the cobweb is not drawn yet.',
     ),

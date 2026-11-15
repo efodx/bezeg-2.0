@@ -67,6 +67,8 @@ const randomnessWindows = {
 const recursionWindows = {
     'recursion.sequences.recursion-growth': [0.164, 15.28, 6.336, -0.92],
     'recursion.compound-interest.recursion-growth': [0.008, 1464.6, 0.922, -88.6],
+    // The RG5 card opens on the interest panel at 10 years: the compound-interest window with x scaled by 10 (the years) and y by 1.5683 (the continuous value e^0.5 over e^0.05).
+    'recursion.log-scale.recursion-growth': [0.08, 2296.9, 9.22, -139],
     'recursion.cobweb.recursion-cobweb': [-7.8125, 7.8125, 7.8125, -7.8125],
     'recursion.logistic.recursion-cobweb': [0.03125, 1.0023, 0.96875, -0.0523],
 };

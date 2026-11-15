@@ -2497,6 +2497,16 @@ const recursionFrames = {
         const simple = x => 1000 * (1 + 0.05 * x);
         return {types: {curve: 8}, curveCount: 8, points: [], curves: [[[0, simple(0)], [1 / 158, simple(1 / 158)], [1 / 79, simple(1 / 79)]]]};
     },
+    // RG5 step 1: 1000 at 5 percent (stored rate 10) for 10 years, yearly compounding, in the interest panel, the opening state of RG3 with the years raised from 1 to 10. The same four model curves with their four legend lines and no point.
+    // The simple-interest curve is 1000 (1 + 0.05 x) on 80 points x = 10 i / 79 of the ten years; only the log fields (not set in this step) are absent from the scene.
+    'log-scale': (id, step) => {
+        const {'set-map': map, 'set-interest': interest} = recursionOpening(id, step, ['set-map', 'set-interest']);
+        assert.equal(map.panel, 'interest', `${id}: only the interest panel is authored`);
+        assert.deepEqual({capital: interest.capital, rate: interest.rate, years: interest.years, parts: interest.parts}, {capital: 1000, rate: 10, years: 10, parts: 1},
+            `${id}: only 1000 at 5 percent for 10 years with yearly compounding is authored`);
+        const simple = x => 1000 * (1 + 0.05 * x);
+        return {types: {curve: 8}, curveCount: 8, points: [], curves: [[[0, simple(0)], [10 / 158, simple(10 / 158)], [10 / 79, simple(10 / 79)]]]};
+    },
     // RG2 step 1: the Demonstration default of the cobweb board (affine map y = 0.5 x + 1, start 0, no step drawn) on the window [-10, 10]^2. Two curves (the map on 201 samples from x = -10, the diagonal as the two ends
     // of the window; the cobweb path holds only the start, a single point that draws no line) and two points (the start handle on the diagonal at (0, 0) and the fixed point x* = 1 / (1 - 0.5) = 2); the iterate marker is hidden at step 0.
     cobweb: (id, step) => {

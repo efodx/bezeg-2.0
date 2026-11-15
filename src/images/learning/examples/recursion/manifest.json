@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+  "sourceRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+    "revision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
     "dirty": true,
-    "inputs": "07377f7fe7e95b8bd05d6aba58aadfba8a1e58dca14e5fc638519baa44d3cfa1",
-    "output": "0258779116225ace89d7449b0059c444c5d985c2578002c752e757b4f28e62b5"
+    "inputs": "8569d3442a72acd0835294cac4417e93594bcb0d4e658827c076c1b885ee8bb2",
+    "output": "96594e4f5e6416ca3844a3909fb81972bd37b1fcee1bc0f5630be7e6faf7408f"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4519/bezeg-2.0/",
-    "stampRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+    "stampRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
     "stampDirty": true,
-    "localOutputHash": "0258779116225ace89d7449b0059c444c5d985c2578002c752e757b4f28e62b5",
+    "localOutputHash": "96594e4f5e6416ca3844a3909fb81972bd37b1fcee1bc0f5630be7e6faf7408f",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-D0m137WQ.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-D0m137WQ.js",
-        "sha256": "6adcfa838b993fa26ad24d0085a24699c301fd38a742f7591c59d54001daff92",
+        "name": "index-DaeksQSX.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/index-DaeksQSX.js",
+        "sha256": "dd624e7041723fc9f228259ac68116232cfc85e8ea46e4da83a36ba8a8301e46",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-B0HppHV0.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/jsx-runtime-B0HppHV0.js",
+        "sha256": "ab3513c4ca55503c79bca59373fcb49c27acaf1566caab00d685ae7bb7ca855c",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-DLxmrzcK.js",
+        "url": "http://127.0.0.1:4519/bezeg-2.0/assets/react-dom-DLxmrzcK.js",
+        "sha256": "28d55fe2e7b7906184b468cb22a4c1b613e2ba4864ff695f6e3951a8fdb4eb53",
         "matchesLocalBuild": true
       },
       {
@@ -55,16 +55,17 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "ec3fd10ca41c14d9fe06aa7202e7a8fa713ec3bbf2cfe947370e473e9a015429",
+    "inventory": "b9c5051e8a7804247476f988381cfacfc19b9a939cb0df555acde4a2c3832704",
     "entries": {
       "recursion.sequences.recursion-growth": "679f986f48a0397ce8ef181dbca6bc82ae7223823bcc61d695624c30cb78f9db",
       "recursion.cobweb.recursion-cobweb": "916d2b612c3be344a04da0ee0d8077ccf5626c18182404c5228316c961178db3",
       "recursion.compound-interest.recursion-growth": "14532be93290ab24beef18e4a196f2c061232b1bcd67cb313efe0f26e3d17dd8",
-      "recursion.logistic.recursion-cobweb": "2915fb1b555d63417580b218fc92f9788bde2c70d3501d207f7fe53b851599ce"
+      "recursion.logistic.recursion-cobweb": "2915fb1b555d63417580b218fc92f9788bde2c70d3501d207f7fe53b851599ce",
+      "recursion.log-scale.recursion-growth": "d26866f420906ec6f528e8fe1a9a10b0fdd682da6d296f7248f5308a13435f64"
     },
-    "presentation": "56899e8d5e64e4e2b749d1690e96b4e1d526a36604750716d659ab053856430a",
-    "buildOutput": "0258779116225ace89d7449b0059c444c5d985c2578002c752e757b4f28e62b5",
-    "buildInputs": "07377f7fe7e95b8bd05d6aba58aadfba8a1e58dca14e5fc638519baa44d3cfa1"
+    "presentation": "d3463761e75e907b091623ad7b9e4f7c453ef1d5fc7ecf83c4a1a00abf35a3f0",
+    "buildOutput": "96594e4f5e6416ca3844a3909fb81972bd37b1fcee1bc0f5630be7e6faf7408f",
+    "buildInputs": "8569d3442a72acd0835294cac4417e93594bcb0d4e658827c076c1b885ee8bb2"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -132,6 +133,19 @@
             1.0023,
             0.96875,
             -0.0523
+          ]
+        }
+      },
+      {
+        "id": "recursion.log-scale.recursion-growth",
+        "demonstrationId": "recursion-growth",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.08,
+            2296.9,
+            9.22,
+            -139
           ]
         }
       }
@@ -252,8 +266,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
-        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "buildRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
+        "sourceRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
         "pageErrors": []
       }
     },
@@ -273,16 +287,15 @@
       "file": "recursion.cobweb.recursion-cobweb.png",
       "width": 840,
       "height": 520,
-      "sha256": "8c1bf58800077f5549928c950a6900424429a3b9a9c78e842ffd39eed3afa28e",
+      "sha256": "31fbbe85719a220110b3857a9f5bb947fa6c92df0f7c7263009fed39ba77ba92",
       "scene": {
-        "visibleElementCount": 29,
+        "visibleElementCount": 24,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 16,
           "curve": 2,
-          "point": 2,
-          "text": 5
+          "point": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -387,23 +400,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 5,
-        "finalLabelCount": 5,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 16,
           "curve": 3,
-          "point": 2,
-          "text": 5
+          "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
-        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "buildRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
+        "sourceRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
         "pageErrors": []
       }
     },
@@ -711,8 +723,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
-        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "buildRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
+        "sourceRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
         "pageErrors": []
       }
     },
@@ -734,15 +746,14 @@
       "file": "recursion.logistic.recursion-cobweb.png",
       "width": 840,
       "height": 520,
-      "sha256": "66621572a3652a5e41e18c2f455f8fb33eba525745de84f2cf6f60307244eb3a",
+      "sha256": "54eb545695fe998ecff93f1e487e78190236fc51aeed642db6e174ef369289ec",
       "scene": {
-        "visibleElementCount": 13,
+        "visibleElementCount": 8,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "curve": 2,
-          "point": 2,
-          "text": 5
+          "point": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -847,22 +858,328 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 5,
-        "finalLabelCount": 5,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "curve": 3,
-          "point": 2,
-          "text": 5
+          "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
-        "sourceRevision": "03b8ecf6e9d743f085d59d3d9035050a5a0102ff",
+        "buildRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
+        "sourceRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "recursion.log-scale.recursion-growth",
+      "demonstrationId": "recursion-growth",
+      "path": "/bezeg-2.0/analysis/growth?example=lesson.recursion.log-scale.recursion-growth",
+      "sceneFingerprint": "40f3ec976a3c5716fd8edf7478f8d04a283ed1d625285225877e3671245ca43f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg5-ordinary-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rg5-ordinary-scene\",\"source\":\"demonstration-default\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-map\",\"panel\":\"interest\"}",
+        "recursion: {\"kind\":\"recursion\",\"operation\":\"set-interest\",\"capital\":1000,\"rate\":10,\"years\":10,\"parts\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "recursion.log-scale.recursion-growth.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1d2970e52c04c27761cbc57c06c831dabb5f8a1d4062cc1b4eee1927c9f3cd0f",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 8,
+          "text": 6
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.063291,
+              1003.09754
+            ],
+            [
+              0.126582,
+              1006.195081
+            ]
+          ],
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.063291,
+              1003.09754
+            ],
+            [
+              0.126582,
+              1006.195081
+            ]
+          ],
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.063291,
+              1003.164557
+            ],
+            [
+              0.126582,
+              1006.329114
+            ]
+          ],
+          [
+            [
+              0,
+              1000
+            ],
+            [
+              0.063291,
+              1003.174593
+            ],
+            [
+              0.126582,
+              1006.349185
+            ]
+          ],
+          [
+            [
+              0.445684,
+              1796.07896
+            ],
+            [
+              0.947078,
+              1796.07896
+            ],
+            [
+              1.448472,
+              1796.07896
+            ]
+          ],
+          [
+            [
+              0.445684,
+              1983.15608
+            ],
+            [
+              0.947078,
+              1983.15608
+            ],
+            [
+              1.448472,
+              1983.15608
+            ]
+          ],
+          [
+            [
+              0.445684,
+              2170.2332
+            ],
+            [
+              0.947078,
+              2170.2332
+            ],
+            [
+              1.448472,
+              2170.2332
+            ]
+          ],
+          [
+            [
+              0.445684,
+              2357.31032
+            ],
+            [
+              0.947078,
+              2357.31032
+            ],
+            [
+              1.448472,
+              2357.31032
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 39,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "curve": 8,
+            "text": 6
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.063291,
+                1003.09754
+              ],
+              [
+                0.126582,
+                1006.195081
+              ]
+            ],
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.063291,
+                1003.09754
+              ],
+              [
+                0.126582,
+                1006.195081
+              ]
+            ],
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.063291,
+                1003.164557
+              ],
+              [
+                0.126582,
+                1006.329114
+              ]
+            ],
+            [
+              [
+                0,
+                1000
+              ],
+              [
+                0.063291,
+                1003.174593
+              ],
+              [
+                0.126582,
+                1006.349185
+              ]
+            ],
+            [
+              [
+                0.187575,
+                1864.547438
+              ],
+              [
+                0.398597,
+                1864.547438
+              ],
+              [
+                0.609619,
+                1864.547438
+              ]
+            ],
+            [
+              [
+                0.187575,
+                2036.415571
+              ],
+              [
+                0.398597,
+                2036.415571
+              ],
+              [
+                0.609619,
+                2036.415571
+              ]
+            ],
+            [
+              [
+                0.187575,
+                2208.283703
+              ],
+              [
+                0.398597,
+                2208.283703
+              ],
+              [
+                0.609619,
+                2208.283703
+              ]
+            ],
+            [
+              [
+                0.187575,
+                2380.151835
+              ],
+              [
+                0.398597,
+                2380.151835
+              ],
+              [
+                0.609619,
+                2380.151835
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 6,
+        "finalLabelCount": 6,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "curve": 8,
+          "text": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
+        "sourceRevision": "9e05889600a44b5b6d37a8ac6b3d5434d1b05c4b",
         "pageErrors": []
       }
     }
