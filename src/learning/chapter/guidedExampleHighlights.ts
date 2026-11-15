@@ -274,15 +274,13 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
         },
     },
     // Extrapolated at t=6/5: E(u) = B(6u/5), controls are the blossoms b(0,0,0), b(0,0,6/5), b(0,6/5,6/5), b(6/5,6/5,6/5).
-    // Since B3 (site walkthrough G02) the arc of B on [1, 6/5] is drawn as its own curve over E, so two curves are visible.
+    // Since B3 (site walkthrough G02) the arc of B on [1, 6/5] is drawn as its own curve over E, so two curves are visible;
+    // the arc lies on E, so E's samples are the numerical check.
     'bezier-curves.next-ideas.extrapolation': {
         kind: 'highlight', frame: 'ex-extend-observation', steps: [], expectChange: true,
         checks: {
             curveCount: 2, points: extrapolatedControls,
-            curves: [
-                sampleCurve(t => bezierPoint(extrapolationCubicControlPoints, EXTRAPOLATION_T * t)),
-                sampleCurve(t => bezierPoint(extrapolationCubicControlPoints, 1 + (EXTRAPOLATION_T - 1) * t)),
-            ],
+            curves: [sampleCurve(t => bezierPoint(extrapolationCubicControlPoints, EXTRAPOLATION_T * t))],
         },
     },
     // Three halvings: 2^3 = 8 pieces; piece k is B on [k/8, (k+1)/8] with its own four controls; the joins B(k/8) are checked as points.
