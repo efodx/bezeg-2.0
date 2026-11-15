@@ -179,3 +179,13 @@ Test file, chapter, registry, preview copy, smoke; en review of row names agains
 - Readouts not probed with a temporary test: the plan tests compare them exactly (time after θ 90/180/270 at omega 1: π/2, π, 3π/2 ≈ 4,712; period 2π ≈ 6,283) and pass.
 - Residual: step 1 at omega 1 shows times π/2 ≈ 1,571 and π ≈ 3,142 at θ 90/180, equal to step 2's omega 4 and omega 2 periods (different row, different step).
 - Green: `s2bf-unit.log`, tsc clean, lint clean, backslash checks 0.
+
+## Slice 3: chapter join (worker, handoff-v13)
+
+Written: M6 and M7 joined to `complex-maps` as sections `powers` and `euler` (registry adapts the two GuidedLessons eagerly as `complex-power-de-moivre` and `complex-euler-circle`; chapter sections, ownership, preview copy by Demonstration, registration rows without `lesson: false`, count/id tests, smoke rows, localization row, task 09 status). Section examples: (1 - i)^4 = -4 and (2i)^3 = -8i; e^{i pi/3} e^{i pi/6} = i, omega = 3 with period 2 pi/3.
+
+Outcome: tsc clean (s3-tsc.log); red recorded (s3-red.log, 10 failed); lint passed; build passed; smoke-lesson complex-power and complex-euler 4 passed (s3-smoke.log); `just unit src/learning src/graphs/complex`: 1 failed of 3096 (s3-unit.log): `lessonRestoration.part1.test.tsx > complex-power` fails at `lessonRestorationContract.tsx:243` (state after walking equals the edited scene 'a'), reproducible alone (s3-unit2.log). First run of that contract on this lesson; cause not diagnosed (shared runtime test, not edited). The `complex-euler` case passes.
+
+Not verified: s3-unit3.log (rerun of preview copy, notation, previews, chapter and familyChapters tests after the backslash fix) had no summary when the budget stopped; guidedExamplePreviewCopy rows were fixed after the full unit run began. Full unified-learning smoke not run.
+
+Update: s3-unit3.log (preview copy, notation, previews, complexMapsChapter, familyChapters) passed after the fix ("unit: passed").

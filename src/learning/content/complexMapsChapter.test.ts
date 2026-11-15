@@ -26,8 +26,8 @@ describe('complex maps reading chapter', () => {
         expect(ids.indexOf(COMPLEX_MAPS_CHAPTER_ID)).toBe(ids.indexOf('linear-maps') + 1);
         expect(complexMapsChapter.family).toBe('maps');
         expect(complexMapsChapter.title).toEqual({sl: 'Kompleksne preslikave', en: 'Complex maps'});
-        expect(complexMapsChapter.sections.map(section => section.id)).toEqual(['reciprocal-inversion', 'roots']);
-        expect(complexMapsChapter.sections.map(section => section.demonstrationIds)).toEqual([['complex-reciprocal'], ['complex-roots']]);
+        expect(complexMapsChapter.sections.map(section => section.id)).toEqual(['reciprocal-inversion', 'roots', 'powers', 'euler']);
+        expect(complexMapsChapter.sections.map(section => section.demonstrationIds)).toEqual([['complex-reciprocal'], ['complex-roots'], ['complex-power'], ['complex-euler']]);
         expect(learningChapters.some(chapter => chapter.id === COMPLEX_MAPS_CHAPTER_ID)).toBe(true);
     });
 

@@ -6,7 +6,7 @@ Gates:
 - F2b–F6 wait for Controls step 7.
 - The release waits for Batch A (task 04).
 
-Status (F2a): `ComplexPowerGraph` done (model, graph, Preset collection and tests; not registered, unsmoked); `EulerCircleGraph` done at F2a (model, graph, Preset collection and tests; not registered, unsmoked); F2b done 2026-11-12 (routes `/complex-power` and `/complex-euler`, `lesson: false`; [evidence](../../reviews/feature-streams/families-prep/notes/f2b-complex-linear.md)); F3–F6 open.
+Status (F2a): `ComplexPowerGraph` done (model, graph, Preset collection and tests; not registered, unsmoked); `EulerCircleGraph` done at F2a (model, graph, Preset collection and tests; not registered, unsmoked); F2b done 2026-11-12 (routes `/complex-power` and `/complex-euler`, `lesson: false`; [evidence](../../reviews/feature-streams/families-prep/notes/f2b-complex-linear.md)); F3 M6 and M7 written and joined (handler 26); F4 cards, F5 clips and F6 gate next.
 
 Spec: M6, M7 and the [Batch D amendment](../../specs/complex-maps-lessons.md#batch-d-gating-kernel-gaps-f1-terms-and-tests-families-prep-amendment-2026-11-10). Decisions: [ADR 0058](../../adr/0058-complex-maps-batch-d-power-and-euler-graphs.md).
 

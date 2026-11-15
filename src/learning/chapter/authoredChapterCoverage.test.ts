@@ -10,6 +10,7 @@ const interpolationDemonstrations: Record<string, string> = {
 };
 
 const probabilityDemonstrations: Record<string, string> = {density: 'prob-density', 'binomial-normal': 'prob-binomial-normal', clt: 'prob-clt', summary: 'prob-summary', correlation: 'prob-correlation'};
+const complexMapsDemonstrations: Record<string, string> = {'reciprocal-inversion': 'complex-reciprocal', roots: 'complex-roots', powers: 'complex-power', euler: 'complex-euler'};
 
 test('both published languages place every audited home exactly once in its owning section', () => {
     expect(baseline.retainedHomes).toHaveLength(56);
@@ -45,7 +46,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'projective-conics' && section.id !== 'projective-idea' ? [`projective-conics.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'fourier-series' && section.id !== 'fourier-idea' ? [`fourier-series.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'school-function-graphs' ? [`school-function-graphs.${section.id}.${section.id}`] : []),
-                    ...(chapter.id === 'complex-maps' ? [`complex-maps.${section.id}.${section.id === 'roots' ? 'complex-roots' : 'complex-reciprocal'}`] : []),
+                    ...(chapter.id === 'complex-maps' ? [`complex-maps.${section.id}.${complexMapsDemonstrations[section.id]}`] : []),
                     ...(chapter.id === 'analytic-lines' ? [`analytic-lines.${section.id}.line-geometry`] : []),
                     ...(chapter.id === 'isometries' ? [`isometries.${section.id}.isometries`] : []),
                     ...(chapter.id === 'circle-geometry' ? [`circle-geometry.${section.id}.circle-construction`] : []),
@@ -68,7 +69,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(185);
-        expect(new Set(allReferences).size).toBe(185);
+        expect(allReferences).toHaveLength(187);
+        expect(new Set(allReferences).size).toBe(187);
     }
 });

@@ -82,6 +82,9 @@ export const guidedLessonOwners: Readonly<Record<Exclude<GuidedLessonDemonstrati
     // The isometries' first activity (L1) in the isometries chapter; the classification activity (L2) is the second owner, derived from the chapter.
     isometries: {chapterId: 'isometries', sectionId: 'two-mirrors'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
+    // Complex maps Batch D: the de Moivre lesson (M6) and the Euler formula lesson (M7) in the complex-maps chapter.
+    'complex-power': {chapterId: 'complex-maps', sectionId: 'powers'},
+    'complex-euler': {chapterId: 'complex-maps', sectionId: 'euler'},
     // Registered without lessons (triangle geometry F2b); the Triangle geometry chapter and its sections are authored in F4.
     // The Geometry of curves chapter owns the parametric and polar curves, curvature, curvature comb, evolute and offset and envelope lessons (CG-B1-4, CG-B2-3, CG-B2-4, CG-B3-3, CG-B3-4).
 };

@@ -1,12 +1,20 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
+import {adaptGuidedLessonContent} from './catalogLessonAdapter';
 import {complexReciprocalLesson, complexRootsLesson} from './complexMapsChapterLessons';
+import {complexPowerLesson} from './complexPowerGuidedLessons';
+import {complexEulerLesson} from './complexEulerGuidedLessons';
 
 export const COMPLEX_MAPS_CHAPTER_ID = 'complex-maps';
 
-/** Section-owned complex map activities (spec M1 and M2); the section ids are those of complexMapsChapter.ts. */
+/**
+ * Section-owned complex map activities in teaching order: M1 and M2 are authored lesson definitions, M6 (powers) and M7 (euler) are
+ * catalog-format content adapted here under the lesson ids `complex-power-de-moivre` and `complex-euler-circle`. The section ids are those of complexMapsChapter.ts.
+ */
 export const complexMapsGuidedExampleRegistry = {
     'reciprocal-inversion': complexReciprocalLesson,
     'roots': complexRootsLesson,
+    'powers': adaptGuidedLessonContent(complexPowerLesson, 'complex-power-de-moivre'),
+    'euler': adaptGuidedLessonContent(complexEulerLesson, 'complex-euler-circle'),
 } as const;
 
 export type ComplexMapsSectionId = keyof typeof complexMapsGuidedExampleRegistry;

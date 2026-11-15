@@ -188,9 +188,13 @@ it('publishes the Complex maps example cards with their own checked images and p
     const destination = resolve('src/images/learning/examples', chapterId);
     const owned = getChapterOwnedLessons(chapterId);
     if (!owned) throw new Error('complex-maps is not chapter-owned');
-    const homes = owned.rows().map(([sectionId, demonstrationId]) => ({
+    const allHomes = owned.rows().map(([sectionId, demonstrationId]) => ({
         id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
         path: owned.path(sectionId) ?? ''}));
+    // M6 and M7 joined the chapter in F3 (handler 26); their cards come in F4.
+    const pending = ['complex-maps.powers.complex-power', 'complex-maps.euler.complex-euler'];
+    expect(allHomes.filter(home => pending.includes(home.id)).map(home => home.id).sort()).toEqual([...pending].sort());
+    const homes = allHomes.filter(home => !pending.includes(home.id));
     const ids = homes.map(home => home.id).sort();
     expect(ids).toEqual(['complex-maps.reciprocal-inversion.complex-reciprocal', 'complex-maps.roots.complex-roots']);
     expect(Object.keys(complexMapsPreviewCopy).sort()).toEqual(ids);

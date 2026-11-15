@@ -1,6 +1,6 @@
 // R5 composition of docs/specs/lesson-authoring-architecture.md for the Batch D rows of the maps family: every root references the
 // family export, so deleting registration.ts, collections.ts and runtime.ts removes the rows (ADR 0059). The rows are
-// `lesson: false` until families-prep F3, so no lesson ownership or chapter script names them.
+// owned by the complex-maps chapter (M6 and M7, families-prep F3 Batch D), so no row opts out of lessons.
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -31,9 +31,9 @@ describe('R5 composition: every root references the Batch D rows export', () => 
         expect(read('src/graphs/allGraphFactories.ts')).toMatch(/Object\.entries\(registeredGraphLoaders\)/);
     });
 
-    test('the family has rows, each row opts out of lessons and each has its own collection key', () => {
+    test('the family has rows, no row opts out of lessons and each has its own collection key', () => {
         expect(complexBatchDDemonstrationRows.length).toBe(2);
-        expect(complexBatchDDemonstrationRows.every(row => row.lesson === false)).toBe(true);
+        expect(complexBatchDDemonstrationRows.filter(row => 'lesson' in row && row.lesson === false).map(row => row.id)).toEqual([]);
         expect(complexBatchDCollections.map(collection => collection.key).sort()).toEqual(complexBatchDDemonstrationRows.map(row => row.id).sort());
         expect(new Set(Object.values(complexBatchDCollectionKeys)).size).toBe(complexBatchDDemonstrationRows.length);
     });

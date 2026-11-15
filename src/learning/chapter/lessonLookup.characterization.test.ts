@@ -139,7 +139,8 @@ describe('fallback and unavailable lessons', () => {
     it('returns undefined for every Demonstration that opts out of lessons', () => {
         // Only the trigonometry, line-geometry, isometry (now chapter-owned), circle-construction (now chapter-owned), combinatorics (now chapter-owned), simulation, recursion, solids, contour-map, linear-program, complex-power and complex-euler rows opted out; now only complex-power and complex-euler do (families-prep F3 gives them lessons); the unknown id covers the missing case.
         const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !LESSON_DEMONSTRATION_IDS.includes(id));
-        expect(lessonless).toEqual(['complex-power', 'complex-euler']);
+        // complex-power and complex-euler ended their opt-out with the M6 and M7 chapter join (complex maps Batch D slice 3); no Demonstration opts out now.
+        expect(lessonless).toEqual([]);
         for (const id of lessonless) {
             expect(getLessonForDemonstration(id), id).toBeUndefined();
             expect(getCatalogLessonForDemonstration(id), id).toBeUndefined();
@@ -157,6 +158,8 @@ describe('launch paths and example resolution', () => {
         expect(guidedLessonLaunchPath('bernstein')).toBe('/bezeg-2.0/bernstein?learn=1&learnChapter=foundations&learnSection=reading-bernstein');
         expect(guidedLessonLaunchPath('patch-tensor')).toBe('/bezeg-2.0/patches/tensor?learn=1&learnChapter=bezier-patches&learnSection=curve-to-patch');
         expect(guidedLessonLaunchPath('fixed-point')).toBe('/bezeg-2.0/analysis/fixed-point?learn=1&learnChapter=analysis&learnSection=convergence');
+        expect(guidedLessonLaunchPath('complex-power')).toBe('/bezeg-2.0/complex-power?learn=1&learnChapter=complex-maps&learnSection=powers');
+        expect(guidedLessonLaunchPath('complex-euler')).toBe('/bezeg-2.0/complex-euler?learn=1&learnChapter=complex-maps&learnSection=euler');
         expect(guidedLessonLaunchPath('complex-roots')).toBe('/bezeg-2.0/complex-roots?learn=1&learnChapter=complex-maps&learnSection=roots');
         expect(guidedLessonLaunchPath('triangle-centres')).toBe('/bezeg-2.0/triangle-centres?learn=1&learnChapter=triangle-geometry&learnSection=notable-points');
     });
@@ -192,6 +195,8 @@ describe('launch paths and example resolution', () => {
         ['canonical example, phase portraits PP4', '?example=lesson.phase-portraits.logistic-map.logistic-map', 'logistic-map', 'phase-portraits-logistic-map', {chapterId: 'phase-portraits', sectionId: 'logistic-map'}],
         ['canonical example, phase portraits PP5', '?example=lesson.phase-portraits.bifurcation.logistic-map', 'logistic-map', 'phase-portraits-bifurcation', {chapterId: 'phase-portraits', sectionId: 'bifurcation'}],
         ['canonical example, level sets LS5', '?example=lesson.level-sets.linear-programming.linear-program', 'linear-program', 'level-sets-linear-programming', {chapterId: 'level-sets', sectionId: 'linear-programming'}],
+        ['canonical example, complex maps M6', '?example=lesson.complex-maps.powers.complex-power', 'complex-power', 'complex-power-de-moivre', {chapterId: 'complex-maps', sectionId: 'powers'}],
+        ['canonical example, complex maps M7', '?example=lesson.complex-maps.euler.complex-euler', 'complex-euler', 'complex-euler-circle', {chapterId: 'complex-maps', sectionId: 'euler'}],
         ['canonical example, level sets LS1', '?example=lesson.level-sets.surface.contour-map', 'contour-map', 'level-sets-surface', {chapterId: 'level-sets', sectionId: 'surface'}],
         ['canonical example, level sets LS2', '?example=lesson.level-sets.gradient.contour-map', 'contour-map', 'level-sets-gradient', {chapterId: 'level-sets', sectionId: 'gradient'}],
         ['canonical example, randomness RS1', '?example=lesson.randomness.galton-board.prob-simulation', 'prob-simulation', 'randomness-galton', {chapterId: 'randomness', sectionId: 'galton-board'}],

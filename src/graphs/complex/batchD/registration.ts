@@ -3,7 +3,7 @@ import type {Definition} from '../../../demonstrations';
 /**
  * Cheap metadata of the Batch D rows of the maps family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The rows ship without a guided lesson (`lesson: false`) until the Batch D lessons land (families-prep F3).
+ * live in `collections.ts`. Both rows have guided lessons owned by the complex-maps chapter (M6 powers, M7 euler; families-prep F3 Batch D).
  * They sit in their own directory because `src/graphs/complex` is a legacy-registered directory; the graph files stay where they are.
  */
 export const complexBatchDFamilyId = 'complex-batch-d';
@@ -13,8 +13,8 @@ export const complexBatchDFamilyId = 'complex-batch-d';
  * they follow `complex-roots` in the maps family, ahead of the isometry rows registered later.
  */
 export const complexBatchDDemonstrationRows = [
-    {id: 'complex-power', path: '/bezeg-2.0/complex-power', family: 'maps', title: 'complex_power_title', prompts: ['complex_power_prompt', 'prompt_compare'], lesson: false},
-    {id: 'complex-euler', path: '/bezeg-2.0/complex-euler', family: 'maps', title: 'complex_euler_title', prompts: ['complex_euler_prompt', 'prompt_compare'], lesson: false},
+    {id: 'complex-power', path: '/bezeg-2.0/complex-power', family: 'maps', title: 'complex_power_title', prompts: ['complex_power_prompt', 'prompt_compare']},
+    {id: 'complex-euler', path: '/bezeg-2.0/complex-euler', family: 'maps', title: 'complex_euler_title', prompts: ['complex_euler_prompt', 'prompt_compare']},
 ] as const satisfies readonly Definition[];
 
 export type ComplexBatchDDemonstrationId = typeof complexBatchDDemonstrationRows[number]['id'];
