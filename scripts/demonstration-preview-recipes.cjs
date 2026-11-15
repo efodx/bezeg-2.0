@@ -273,8 +273,8 @@ const captureText = {
     // Curve kinematics: the legend lines (the point, the path, the arrows and their scales) and the arrow tags cross the path at card size; the moving point, the path and the arrows carry the picture.
     'curve-kinematics': {keep: [], strip: []},
     'linear-program': {keep: [/^\(-?\d+; -?\d+\)$/], strip: []},
-    // The race lines Najhitrejša and Konec B lie across the tracks at card size; the clock, the three times and the track labels stay.
-    'mechanics-descent': {keep: [/^g = /, /^Kroglica: /, /^Premica: /, /^Krožni lok: /, /^Cikloida: /, /^Premica$/, /^Krožni lok$/, /^Cikloida$/], strip: []},
+    // The race lines, track names, per-track times and the clock are Slovenian words or numbers that cannot stand without their names (C3: poster text is language-neutral); only g stays. The clock stripped of its word would be a floating "0 s" with no anchor, so it goes too.
+    'mechanics-descent': {keep: [/^g = /], strip: []},
     // The wave labels "1+2", "1-2" and "2" follow their waves as the phase moves, so the loop would not close with them.
     waves: {keep: [], strip: []},
     'fixed-point': {keep: [/^x1$/], strip: []},
