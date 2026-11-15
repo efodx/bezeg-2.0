@@ -159,14 +159,14 @@ const without = (...keep: string[]) => MOTION_ROWS.filter(id => !keep.includes(i
 const S1 = {degrees: 30, degree: 1, omega: 2};
 
 const PLANS: readonly Plan[] = [
-    {id: 'm7-circle', opening: state({degrees: 0, velocity: false, degree: 1}), expect: {rows: {angle: '0°, 0 rad', time: '0', period: 'π ≈ 3,142', point: '(1; 0)', sum: '1', error: '0'}, absent: [...without(), 'out'], status: 'θ = 0°: e^(iθ) = (1; 0).'}, asks: [
-        {label: 'theta 90', act: () => typeAngle(90), after: state({degrees: 90, velocity: false, degree: 1}), expect: {rows: {point: '(0; 1)', cos: '0', sin: '1', sum: '1 + 1,5708i'}, absent: ['out']}},
-        {label: 'theta 180', act: () => typeAngle(180), after: state({degrees: 180, velocity: false, degree: 1}), expect: {rows: {point: '(−1; 0)', cos: '−1', sin: '0', sum: '1 + 3,1416i', out: OUT}}},
-        {label: 'theta 270', act: () => typeAngle(270), after: state({degrees: 270, velocity: false, degree: 1}), expect: {rows: {point: '(0; −1)', cos: '0', sin: '−1', out: OUT}}},
+    {id: 'm7-circle', opening: state({degrees: 0, omega: 1, velocity: false, degree: 1}), expect: {rows: {angle: '0°, 0 rad', omega: '1', time: '0', period: '2π ≈ 6,283', point: '(1; 0)', sum: '1', error: '0'}, absent: [...without(), 'out'], status: 'θ = 0°: e^(iθ) = (1; 0).'}, asks: [
+        {label: 'theta 90', act: () => typeAngle(90), after: state({degrees: 90, omega: 1, velocity: false, degree: 1}), expect: {rows: {time: 'π/2 ≈ 1,571', point: '(0; 1)', cos: '0', sin: '1', sum: '1 + 1,5708i'}, absent: ['out']}},
+        {label: 'theta 180', act: () => typeAngle(180), after: state({degrees: 180, omega: 1, velocity: false, degree: 1}), expect: {rows: {time: 'π ≈ 3,142', point: '(−1; 0)', cos: '−1', sin: '0', sum: '1 + 3,1416i', out: OUT}}},
+        {label: 'theta 270', act: () => typeAngle(270), after: state({degrees: 270, omega: 1, velocity: false, degree: 1}), expect: {rows: {time: '3π/2 ≈ 4,712', point: '(0; −1)', cos: '0', sin: '−1', out: OUT}}},
     ]},
-    {id: 'm7-uniform-motion', opening: state({degrees: 90, omega: 1, velocity: false, degree: 1}), expect: {rows: {omega: '1', time: 'π/2 ≈ 1,571', period: '2π ≈ 6,283'}, absent: without()}, asks: [
-        {label: 'omega 2', act: () => typeOmega(2), after: state({degrees: 90, omega: 2, velocity: false, degree: 1}), expect: {rows: {time: 'π/4 ≈ 0,785', period: 'π ≈ 3,142'}}},
-        {label: 'omega 4', act: () => typeOmega(4), after: state({degrees: 90, omega: 4, velocity: false, degree: 1}), expect: {rows: {time: 'π/8 ≈ 0,393', period: 'π/2 ≈ 1,571'}}},
+    {id: 'm7-uniform-motion', opening: state({degrees: 60, omega: 1, velocity: false, degree: 1}), expect: {rows: {omega: '1', time: 'π/3 ≈ 1,047', period: '2π ≈ 6,283'}, absent: without()}, asks: [
+        {label: 'omega 2', act: () => typeOmega(2), after: state({degrees: 60, omega: 2, velocity: false, degree: 1}), expect: {rows: {time: 'π/6 ≈ 0,524', period: 'π ≈ 3,142'}}},
+        {label: 'omega 4', act: () => typeOmega(4), after: state({degrees: 60, omega: 4, velocity: false, degree: 1}), expect: {rows: {time: 'π/12 ≈ 0,262', period: 'π/2 ≈ 1,571'}}},
     ]},
     {id: 'm7-velocity', opening: state({...S1, velocity: false}), expect: {rows: {time: 'π/12 ≈ 0,262', point: '(√3/2; 1/2)'}, absent: without()}, asks: [
         {label: 'velocity on', act: () => toggleVelocity(), after: state({...S1, velocity: true}), expect: {rows: {velocity: '−1 + 1,7320508i', speed: '2', between: '90°'}, absent: ['acceleration']}},
@@ -242,7 +242,7 @@ describe.each(LANGUAGES)('M7 scenes in %s', language => {
         setLanguage(language);
         const m = mountEuler();
         const sixAnswers = ['−3,9348 − 2,0261i', '0,1239 + 0,524i', '−0,976 + 0,0069i', '−0,9999', '−1'].map(value => loc(value, language));
-        const timeAnswers = ['π/4 ≈ 0,785', 'π/8 ≈ 0,393'].map(value => loc(value, language));
+        const timeAnswers = ['π/6 ≈ 0,524', 'π/12 ≈ 0,262'].map(value => loc(value, language));
         const periodAnswers = ['π ≈ 3,142', 'π/2 ≈ 1,571'].map(value => loc(value, language));
         for (const plan of PLANS) {
             m.scene(plan.id);
@@ -408,11 +408,11 @@ interface Spec { readonly id: string; readonly quotes: readonly Quote[]; readonl
 /** The decimals a step may show besides its quotes (written in the English form). */
 const SPECS: readonly Spec[] = [
     {id: 'm7-circle', quotes: []},
-    {id: 'm7-uniform-motion', quotes: [Q(Math.PI / 2), Q(2 * Math.PI), Q(Math.PI / 4), Q(Math.PI), Q(Math.PI / 8)]},
+    {id: 'm7-uniform-motion', quotes: [Q(Math.PI / 3), Q(2 * Math.PI), Q(Math.PI / 6), Q(Math.PI), Q(Math.PI / 12), Q(Math.PI / 2)]},
     {id: 'm7-velocity', quotes: [Q(SQRT3, 7)]},
     {id: 'm7-acceleration', quotes: []},
     {id: 'm7-product', quotes: [Q(product75[0], 6), Q(product75[1], 7)]},
-    {id: 'm7-series', quotes: [Q(Math.PI, 4), Q(Math.hypot(2, Math.PI), 2), Q(S3[0], 4), Q(S3[1], 4), Q(away(S3), 2), Q(S5[0], 4), Q(S5[1], 4), Q(away(S5), 2), Q(S9[0], 4), Q(S9[1], 4), Q(away(S9), 3), Q(S13[0], 4), Q(away(S13), 6), Q(mantissa, 2)]},
+    {id: 'm7-series', quotes: [Q(Math.PI, 4), Q(Math.hypot(2, Math.PI), 2), Q(S3[0], 4), Q(S3[1], 4), Q(away(S3), 2), Q(S5[0], 4), Q(S5[1], 4), Q(away(S5), 2), Q(S9[0], 4), Q(S9[1], 4), Q(away(S9), 3), Q(S13[0], 4), Q(away(S13), 6), Q(mantissa, 2)], extra: ['0.01']},
     {id: 'm7-explore', quotes: [Q((2 * Math.PI) / 3)]},
 ];
 
@@ -463,7 +463,7 @@ test('time, period and speed: t = theta / omega, T = 2 pi / omega, the arc lengt
         const back = [Math.cos(omega * period), Math.sin(omega * period)];
         expect([Math.abs(back[0] - 1) < 1e-14, Math.abs(back[1]) < 1e-14]).toEqual([true, true]);
     }
-    expect([Math.PI / 2, 2 * Math.PI, Math.PI / 4, Math.PI, Math.PI / 8, (2 * Math.PI) / 3].map(value => Number(value.toFixed(3)))).toEqual([1.571, 6.283, 0.785, 3.142, 0.393, 2.094]);
+    expect([Math.PI / 3, 2 * Math.PI, Math.PI / 6, Math.PI, Math.PI / 12, Math.PI / 2, (2 * Math.PI) / 3].map(value => Number(value.toFixed(3)))).toEqual([1.047, 6.283, 0.524, 3.142, 0.262, 1.571, 2.094]);
 });
 
 test('velocity i omega z and acceleration -omega^2 z against the derivatives of z(t) = e^(i omega t)', () => {

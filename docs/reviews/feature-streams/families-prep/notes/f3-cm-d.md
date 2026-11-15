@@ -173,3 +173,9 @@ Test file, chapter, registry, preview copy, smoke; en review of row names agains
 - Green: `s2bd-unit.log`, tsc clean (`s2bd-tsc.log`), lint clean (`s2bd-lint.log`). Red: S_5 real part 0,1239 changed to 0,1329 in the sl text fails the m7-series quote test (`s2bd-red.log`), restored.
 - No false claim found. Observation: the step 2 opening (omega 1) reads time "pi/2 = 1,571", the same number as the omega 4 period answer; the test compares per row (time with time, period with period), so it does not count this as a leak.
 - Not verified: browser, 310 px, `lessonMathNotation.test.ts`.
+
+### Slice 2b-f
+- Applied: B1 step 1 opens at omega 1 (M7_PATH); N1 step 3 purpose neutral; N2 arc/speed sentence moved from step 2 to step 3 observation; N3 S_1 = 1 + πi ≈ 1 + 3,1416i; N4 already present in step 1 explanation (diamond S ignored until step 6, kept); N5 step 6 prediction asks closeness to −1 and order of magnitude of the distance at N = 5, theorem statement now in the expected observation; N7 "vrednostno polje drsnika Kot θ (stopinje)" in steps 1 and 5; N8 step 2 opens at θ 60, omega 1 (time π/3 ≈ 1,047; omega 2: π/6 ≈ 0,524; omega 4: π/12 ≈ 0,262). N6 left.
+- Readouts not probed with a temporary test: the plan tests compare them exactly (time after θ 90/180/270 at omega 1: π/2, π, 3π/2 ≈ 4,712; period 2π ≈ 6,283) and pass.
+- Residual: step 1 at omega 1 shows times π/2 ≈ 1,571 and π ≈ 3,142 at θ 90/180, equal to step 2's omega 4 and omega 2 periods (different row, different step).
+- Green: `s2bf-unit.log`, tsc clean, lint clean, backslash checks 0.
