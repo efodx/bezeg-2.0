@@ -73,9 +73,10 @@ test('registry exhaustively matches the live catalog and rejects missing/unknown
     const missing={...recipes};delete missing.bernstein;
     assert.throws(()=>validateRecipes(catalog,missing),/exhaustively/);
     // A Demonstration with neither recipe nor stored capture is skipped; one with a stored capture needs its recipe.
-    assert.ok(catalog.some(d=>!recipes[d.id]),'the live catalog has uncaptured Demonstrations without a recipe');
-    assert.doesNotThrow(()=>validateRecipes(catalog,recipes,[]));
-    assert.throws(()=>validateRecipes(catalog,recipes,['complex-power']),/stored capture without recipe/);
+    // Every live Demonstration has a recipe since complex-power and complex-euler got theirs, so the case uses a synthetic one.
+    const uncaptured=[...catalog,{...catalog[0],id:'uncaptured-demonstration'}];
+    assert.doesNotThrow(()=>validateRecipes(uncaptured,recipes,[]));
+    assert.throws(()=>validateRecipes(uncaptured,recipes,['uncaptured-demonstration']),/stored capture without recipe/);
     assert.throws(()=>validateRecipes(catalog,{...recipes,unknown:{}}),/exhaustively/);
     assert.throws(()=>validateRecipes(catalog,{...recipes,bezier:{...recipes.bezier,actions:[{kind:'bridge'}]}}),/Unsupported/);
 });
