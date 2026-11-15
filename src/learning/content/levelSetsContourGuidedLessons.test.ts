@@ -405,7 +405,7 @@ const SPECS: readonly Spec[] = [
     {lesson: levelSetsSurfaceLesson, id: 'ls1-probe', quotes: [Q(at('bowl', 1, 0.5), 2), Q(Math.sqrt(1.25), 3), Q(at('bowl', 0.6, 0.8), 0)], extra: ['0.6', '0.8', '0.5']},
     {lesson: levelSetsSurfaceLesson, id: 'ls1-valley', quotes: [Q(1 / SQRT10, 3), Q(SQRT10, 3), Q(at('bowl', 1, 0.5), 2)], extra: ['0.5']},
     {lesson: levelSetsSurfaceLesson, id: 'ls1-saddle', quotes: [Q(at('valley', 1, 0.5), 1)], extra: ['0.5']},
-    {lesson: levelSetsSurfaceLesson, id: 'ls1-hills', quotes: [Q(0.625, 3), Q(0.875, 3), Q(0.125, 3), Q(at('saddle', 1, 0.5), 2)], extra: ['0.5']},
+    {lesson: levelSetsSurfaceLesson, id: 'ls1-hills', quotes: [Q(0.625, 3), Q(0.875, 3), Q(0.125, 3), Q(2 + 2 * 0.125, 2), Q(at('saddle', 1, 0.5), 2)], extra: ['0.5']},
     {lesson: levelSetsSurfaceLesson, id: 'ls1-explore', quotes: [], extra: ['0.6', '0.8']},
     {lesson: levelSetsGradientLesson, id: 'ls2-bowl', quotes: [Q(g('bowl', 0.6, 0.8)[0], 1), Q(g('bowl', 0.6, 0.8)[1], 1), Q(0.8, 1), Q(0.6, 1)], extra: []},
     {lesson: levelSetsGradientLesson, id: 'ls2-tangent', quotes: [Q(Math.hypot(...g('saddle', 1, 1)), 4), R(SQRT2 / 2)], extra: []},
