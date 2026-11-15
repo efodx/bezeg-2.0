@@ -1,25 +1,26 @@
 # State: site walkthrough, graphs (package D)
 
-Handler 7, 2026-11-15. B11 part 2 is rebased, recaptured where master's code differed, and publishing (below). After that the package waits only on the owner (the affine clip). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
+Handler 7, 2026-11-15. B11 part 2 is on `master` (CI green). The package is done apart from the affine clip, which waits on the owner; no successor is launched. After that the package waits only on the owner (the affine clip). Queue: [graphs.md](../../../tasks/site-walkthrough/graphs.md). Spec (approved): [graphs and captures](../../../specs/site-walkthrough-graphs-and-captures.md). Triage: [blocker-triage.md](blocker-triage.md).
 
 ## For the owner
 
 **To look at** (Tailscale): http://desktop-a0j72sv.tail2032db.ts.net:4333/bezeg-2.0/walkthrough-graphs/ (pages `b8b.html` to `b8g.html`, `b9.html`, `b10.html`, and the new `b11.html`)
 
 - **Published under your grant, open to your objection:**
-  - **B11, lesson example images (part 1 published; part 2 ready on the page, publishing next):** every lesson chapter's stored example image (56 retained images and about 130 images in 30 chapter folders) is recaptured in the current colours and Literata. The images now follow the capture-text rule, as the catalog cards already did: for example, the density card keeps only `X ∼ N(0; 1²)`, and the summary and correlation cards lose their titles. The alt text of those cards was rewritten to match. `b11.html` shows two before/after pairs per chapter.
+  - **B11, lesson example images (both parts published, `42d5e56c` and `e1d1af8d`, CI green):** every lesson chapter's stored example image (56 retained images and about 130 images in 30 chapter folders) is recaptured in the current colours and Literata. The images now follow the capture-text rule, as the catalog cards already did: for example, the density card keeps only `X ∼ N(0; 1²)`, and the summary and correlation cards lose their titles. The alt text of those cards was rewritten to match. `b11.html` shows two before/after pairs per chapter.
   - Earlier batches B8b to B8g, B9 and B10 are as listed on their pages.
-- **Approved by you, on `master`:** B3 to B7, B8a both parts, B8e. CI green (last checked run: `42d5e56c`).
+- **Approved by you, on `master`:** B3 to B7, B8a both parts, B8e. CI green (last checked run: `e1d1af8d`; last scheduled full run, 2026-11-14, green).
 - **Your choice, still open:** the affine clip stays in steps because its controls are step buttons. Smooth motion needs new drawing code, so it is a design choice for you.
 - **Seen, not changed (tell me if any should become a batch):** some cards are small in the frame (projective cross-ratio and three views, Coons patch, tensor de Casteljau). Some labels overlap: mechanical-curves drag-the-track and tautochrone, the segment-intersections `s1`/`s2`, and the tensor derivatives `S_u`/`S_v`. On the tensor-joins lesson card only `S_{A,u}` shows. The tensor-subdivision caption still speaks of degree elevation. The full list is under "Open items".
 
 ## Where things stand
 
-- `master` has B11 part 1 (`42d5e56c`, CI green). Handler 7 rebased B11 part 2 onto `42d5e56c` (`2bc05f0a` checks, `6abc69c3` images, alt text and page), rebuilt, and recaptured `isometries` and `trigonometry` on master's code (`b41dfb8d`: one isometries image changed, `dilation-similarity`; its alt text still matches; both inventories unchanged). Focused unit checks pass. The earlier jobs `publish-f597d4f0-c597a6` and `publish-315eac95-f505b4` failed at reconcile (conflicts, not test timeouts); nothing from them reached `master`.
-- **Next:** confirm the background publish of part 2 with `just publish --status` and CI, then record the pushed hash here and in queue row 12.
+- `master` has B11 part 1 (`42d5e56c`) and part 2 (`4d1e31ea` checks, `329ad699` images, alt text and page, `8adfb092` recapture of `isometries` and `trigonometry` on master's code, `e1d1af8d` generator lint fix); CI run 43673854050 green. The recapture changed one image (`isometries.dilation-similarity`; its alt text still matches); both inventories were unchanged. Master's interleaved commits (`c197ba27`, `4fce2111`) touch no guided example image. The jobs `publish-f597d4f0-c597a6` and `publish-315eac95-f505b4` had failed at reconcile (conflicts, not test timeouts), `publish-d425729a-c3c893` at lint.
+- **Next:** nothing for this package until the owner decides the affine clip.
 - Done criteria: every row of the spec's example table is done or has a recorded reason (`affine` waits on the owner). Every Remove or Keep-in-part capture in the triage has a batch record (checked at B8g). B11 is done (spec batch record "B11 Guided example images").
-- Preview on 4333 serves the build of `0c233a22` (rebased part 2) with all pages restored (`b11` included).
-- Failed publish worktrees from earlier runs are still on disk: `publish-ef3165c3-161384`, `publish-3e43eec4-5fe050`, `publish-2670e1fb-983cf6`, `publish-c7378c8a-643e5e`. Unlink their `node_modules` junction with PowerShell before you remove them. Branch `backup/walkthrough-graphs-pre-h5` can be deleted.
+- Preview on 4333 serves the build of the rebased part 2 (same app code as `e1d1af8d`) with all pages restored (`b11` included).
+- Done criteria met: every spec example row is done or has a recorded reason (`affine` waits on the owner), every Remove or Keep-in-part capture has a batch record, and B11 is done.
+- Failed publish worktrees are still on disk (handler 7's removal was refused by the auto-mode permission check): `publish-ef3165c3-161384`, `publish-3e43eec4-5fe050`, `publish-2670e1fb-983cf6`, `publish-c7378c8a-643e5e`, `publish-f597d4f0-c597a6`, `publish-315eac95-f505b4`, `publish-d425729a-c3c893`. Unlink their `node_modules` junction with PowerShell before you remove them. Branch `backup/walkthrough-graphs-pre-h5` can be deleted.
 
 ## Open items found in this run
 
