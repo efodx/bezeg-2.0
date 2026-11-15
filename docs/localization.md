@@ -103,6 +103,9 @@ The static document initially declares Slovenian, and runtime selection updates 
 | razdalja točke od premice | distance from a point to a line (length of the segment to the foot of the perpendicular); L4, handler-unreviewed |
 | nožišče pravokotnice | foot of the perpendicular from a point to a line (L4; the same notion as *nožišče* in triangle geometry), handler-unreviewed |
 | pravokotna projekcija | orthogonal projection (of a vector on the normal), L4, handler-unreviewed |
+| presečišče (dveh premic; premice in krožnice) | intersection (point common to two figures); L5 and the analytic-lines chapter, handler-unreviewed |
+| sekanta; tangenta (krožnice); diskriminanta \(\Delta\) | secant (a line meeting a circle in two points); tangent (one point); discriminant \(\Delta=(a^2+b^2)r^2-(ac_x+bc_y-c)^2\) of the line and circle system (L5), handler-unreviewed |
+| Cramerjevo pravilo | Cramer's rule for the intersection of two lines (analytic-lines chapter), handler-unreviewed |
 | izometrija | isometry, a map of the plane that keeps distances (isometries L1, L2) |
 | togi premik | rigid motion, an orientation-keeping isometry, also the general word for any of the four kinds; L2 |
 | vzporedni premik | translation; L1, L2 |
