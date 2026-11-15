@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for L5; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: F3 L5 written and joined (handler 31); F4 card captured (handler 31); F5 and F6 next.
+Status: done 2026-11-15 (handler 31): F3 L5 written and joined; F4 card; F5 no new clip; F6 gate passed (`just check` green at e01b6f97; live smokes `.command-logs/lines-c/smoke/`, `lines-c/f6/`).
