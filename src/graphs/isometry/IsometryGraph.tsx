@@ -806,7 +806,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
 
     /**
      * The `isometry` lesson actions `set-mode` (the mode select), `set-mirror-count` (the number-of-mirrors field), `set-mirrors` (the mirror coordinate
-     * fields) and `set-dilation` (the centre, ratio and turn fields; only the fields that change are written). Lesson data is checked strictly and completely before the write (a content error throws; nothing is snapped, clamped or repaired, ADR 0047),
+     * fields), `set-dilation` (the centre, ratio and turn fields), `set-rosette` (the count, mirrors switch and point fields) and `set-frieze` (the feature
+     * checkboxes and period field); only the fields that change are written, and none of them changes the mode. Lesson data is checked strictly and completely before the write (a content error throws; nothing is snapped, clamped or repaired, ADR 0047),
      * then one synchronous `setState` writes the store, so a later action of the same scene reads this one's result; the board follows in `onStateChange`.
      */
     applyIsometryAction(action: Extract<LessonAction, {kind: "isometry"}>): void {
@@ -866,6 +867,53 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                     const known = DILATION_TURNS.find(candidate => candidate === turn);
                     if (!known) throw new Error(`isometry set-dilation: turn must be one of ${DILATION_TURNS.join(", ")}.`);
                     if (known !== this.state.dilationTurn) patch.dilationTurn = known;
+                }
+                if (Object.keys(patch).length > 0) this.setState(patch);
+                return;
+            }
+            case "set-rosette": {
+                const {n, mirrors, point} = action;
+                if (n === undefined && mirrors === undefined && point === undefined) throw new Error("isometry set-rosette: name at least one of n, mirrors, point.");
+                const patch: {rosetteN?: number; rosetteMirrors?: boolean; rosettePoint?: GridPoint} = {};
+                if (n !== undefined) {
+                    if (typeof n !== "number" || !Number.isInteger(n) || n < ROSETTE_N_MIN || n > ROSETTE_N_MAX) throw new Error(`isometry set-rosette: n must be an integer from ${ROSETTE_N_MIN} to ${ROSETTE_N_MAX}.`);
+                    if (n !== this.state.rosetteN) patch.rosetteN = n;
+                }
+                if (mirrors !== undefined) {
+                    if (typeof mirrors !== "boolean") throw new Error("isometry set-rosette: mirrors must be true or false.");
+                    if (mirrors !== this.state.rosetteMirrors) patch.rosetteMirrors = mirrors;
+                }
+                if (point !== undefined) {
+                    const candidate = typeof point === "object" && point !== null ? point as unknown as Record<string, unknown> : {};
+                    const {x, y} = candidate;
+                    const valid = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= COORD_LIMIT;
+                    if (!valid(x) || !valid(y)) throw new Error(`isometry set-rosette: the point needs integer coordinates in [-${COORD_LIMIT}, ${COORD_LIMIT}].`);
+                    const p = this.state.rosettePoint;
+                    if (p.x !== x || p.y !== y) patch.rosettePoint = {x: x === 0 ? 0 : x, y: y === 0 ? 0 : y};
+                }
+                if (Object.keys(patch).length > 0) this.setState(patch);
+                return;
+            }
+            case "set-frieze": {
+                const {features, period} = action;
+                if (features === undefined && period === undefined) throw new Error("isometry set-frieze: name at least one of features, period.");
+                const patch: {friezeFeatures?: FriezeFeatures; friezePeriod?: number} = {};
+                if (features !== undefined) {
+                    if (typeof features !== "object" || features === null || Array.isArray(features)) throw new Error(`isometry set-frieze: features must be an object of ${FEATURE_NAMES.join(", ")}.`);
+                    const entries = Object.entries(features);
+                    if (entries.length === 0) throw new Error("isometry set-frieze: name at least one feature.");
+                    const next: Record<keyof FriezeFeatures, boolean> = {...this.state.friezeFeatures};
+                    for (const [name, value] of entries) {
+                        const known = FEATURE_NAMES.find(candidate => candidate === name);
+                        if (!known) throw new Error(`isometry set-frieze: ${name} is not a feature (${FEATURE_NAMES.join(", ")}).`);
+                        if (typeof value !== "boolean") throw new Error(`isometry set-frieze: feature ${name} must be true or false.`);
+                        next[known] = value;
+                    }
+                    if (FEATURE_NAMES.some(name => next[name] !== this.state.friezeFeatures[name])) patch.friezeFeatures = next;
+                }
+                if (period !== undefined) {
+                    if (typeof period !== "number" || !Number.isInteger(period) || period < PERIOD_MIN || period > PERIOD_MAX) throw new Error(`isometry set-frieze: period must be an integer from ${PERIOD_MIN} to ${PERIOD_MAX}.`);
+                    if (period !== this.state.friezePeriod) patch.friezePeriod = period;
                 }
                 if (Object.keys(patch).length > 0) this.setState(patch);
                 return;

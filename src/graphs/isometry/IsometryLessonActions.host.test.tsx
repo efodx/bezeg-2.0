@@ -200,3 +200,114 @@ test('the graph supports set-dilation; invalid data is a lesson-content error an
     for (const action of bad) expect(() => apply(graph, action)).toThrow();
     expect(stateOf(graph)).toEqual(before);
 });
+
+type Rosette = Extract<LessonAction, {kind: 'isometry'; operation: 'set-rosette'}>;
+type Frieze = Extract<LessonAction, {kind: 'isometry'; operation: 'set-frieze'}>;
+const setRosette = (fields: Omit<Rosette, 'kind' | 'operation'>): LessonAction => ({kind: 'isometry', operation: 'set-rosette', ...fields});
+const setFrieze = (fields: Omit<Frieze, 'kind' | 'operation'>): LessonAction => ({kind: 'isometry', operation: 'set-frieze', ...fields});
+/** Clicks a switch or checkbox by its label. */
+const toggle = (label: string) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
+
+test('set-rosette reaches the state and readouts of the count, mirrors and point fields (L4 scenes)', () => {
+    const viaAction = after(graph => {
+        apply(graph, setMode('rosette'));
+        apply(graph, setRosette({n: 5, mirrors: true, point: {x: 3, y: -1}}));
+    });
+    const viaControl = after(() => {
+        choose('Način', 'rosette');
+        type('Število vrtežev n', '5');
+        toggle('Zrcala (diedrska grupa)');
+        type('P, x', '3'); type('P, y', '-1');
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state.rosetteN).toBe(5);
+    expect(viaAction.state.rosetteMirrors).toBe(true);
+    expect(viaAction.state.rosettePoint).toEqual({x: 3, y: -1});
+    expect(viaAction.readouts.length).toBeGreaterThan(0);
+});
+
+test('set-frieze reaches the state and readouts of the feature checkboxes and the period field (L5 scenes)', () => {
+    const viaAction = after(graph => {
+        apply(graph, setMode('frieze'));
+        apply(graph, setFrieze({features: {vertical: true, glide: true}, period: 6}));
+    });
+    const viaControl = after(() => {
+        choose('Način', 'frieze');
+        toggle('Navpično zrcalo'); toggle('Zrcalni zdrs');
+        type('Perioda', '6');
+    });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state.friezeFeatures).toEqual({vertical: true, horizontal: false, halfTurn: true, glide: true});
+    expect(viaAction.state.friezePeriod).toBe(6);
+    expect(viaAction.readouts.length).toBeGreaterThan(0);
+});
+
+test('set-rosette and set-frieze write only the fields they name, keep the mode and write nothing when unchanged', () => {
+    const graph = mount();
+    apply(graph, setMode('rosette'));
+    const start = graph.state;
+    apply(graph, setRosette({n: start.rosetteN, mirrors: start.rosetteMirrors, point: start.rosettePoint}));
+    expect(graph.state).toBe(start);
+    apply(graph, setRosette({n: 7}));
+    expect(graph.state.mode).toBe('rosette');
+    expect(graph.state.rosetteN).toBe(7);
+    expect(graph.state.rosetteMirrors).toBe(start.rosetteMirrors);
+    expect(graph.state.rosettePoint).toEqual(start.rosettePoint);
+    const frieze = graph.state;
+    apply(graph, setFrieze({features: {horizontal: true}}));
+    expect(graph.state.mode).toBe('rosette');
+    expect(graph.state.friezeFeatures).toEqual({...frieze.friezeFeatures, horizontal: true});
+    expect(graph.state.friezePeriod).toBe(frieze.friezePeriod);
+    const written = graph.state;
+    apply(graph, setFrieze({features: {horizontal: true, halfTurn: true}, period: frieze.friezePeriod}));
+    expect(graph.state).toBe(written);
+});
+
+test('a rosette and frieze scene in one synchronous sequence reads each earlier write; the checkpoint restores the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const freeReadouts = readouts();
+    const checkpoint = capabilities.captureState();
+    act(() => {
+        capabilities.apply(setMode('rosette'));
+        capabilities.apply(setRosette({n: 5, mirrors: true, point: {x: 2, y: 1}}));
+        capabilities.apply(setRosette({n: 6}));
+        capabilities.apply(setMode('frieze'));
+        capabilities.apply(setFrieze({features: {vertical: true}}));
+        capabilities.apply(setFrieze({features: {glide: true}, period: 4}));
+    });
+    expect(graph.state.mode).toBe('frieze');
+    expect(graph.state.rosetteN).toBe(6);
+    expect(graph.state.rosetteMirrors).toBe(true);
+    expect(graph.state.rosettePoint).toEqual({x: 2, y: 1});
+    expect(graph.state.friezeFeatures).toEqual({vertical: true, horizontal: false, halfTurn: true, glide: true});
+    expect(graph.state.friezePeriod).toBe(4);
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+    expect(readouts()).toEqual(freeReadouts);
+});
+
+test('the graph supports set-rosette and set-frieze; invalid data is a lesson-content error with the action named, and changes nothing', () => {
+    const graph = mount();
+    expect(graph.supportsLessonAction(setRosette({n: 3}))).toBe(true);
+    expect(graph.supportsLessonAction(setFrieze({period: 5}))).toBe(true);
+    const before = stateOf(graph);
+    const badRosette: LessonAction[] = [
+        setRosette({}), setRosette({n: 0}), setRosette({n: 13}), setRosette({n: 2.5}), setRosette({n: JSON.parse('"3"')}), setRosette({n: Number.NaN}),
+        setRosette({mirrors: JSON.parse('1')}), setRosette({mirrors: JSON.parse('"true"')}),
+        setRosette({point: {x: 2.5, y: 0}}), setRosette({point: {x: 17, y: 0}}), setRosette({point: JSON.parse('{"x":1}')}), setRosette({point: JSON.parse('{"x":"1","y":1}')}),
+        // A valid field before an invalid one must not be written.
+        setRosette({n: 4, mirrors: true, point: {x: 0.5, y: 0}}),
+    ];
+    const badFrieze: LessonAction[] = [
+        setFrieze({}), setFrieze({features: {}}), setFrieze({period: 3}), setFrieze({period: 9}), setFrieze({period: 5.5}), setFrieze({period: JSON.parse('"5"')}),
+        setFrieze({features: JSON.parse('{"diagonal":true}')}), setFrieze({features: JSON.parse('{"vertical":1}')}), setFrieze({features: JSON.parse('[true]')}),
+        setFrieze({features: JSON.parse('7')}),
+        setFrieze({features: {vertical: true, glide: true}, period: 3}),
+        setFrieze({features: JSON.parse('{"vertical":true,"diagonal":true}')}),
+    ];
+    for (const action of badRosette) expect(() => apply(graph, action)).toThrow(/^isometry set-rosette: /);
+    for (const action of badFrieze) expect(() => apply(graph, action)).toThrow(/^isometry set-frieze: /);
+    expect(stateOf(graph)).toEqual(before);
+});

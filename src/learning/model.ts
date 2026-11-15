@@ -455,6 +455,23 @@ export type LessonAction =
         readonly turn?: 'r0' | 'r90' | 'r180' | 'r270' | 'pythagorean' | 'pythagoreanInverse';
     }
     /**
+     * `set-rosette` writes any of the rosette mode's fields: `n` (an integer 1 to 12, the count field), `mirrors` (the dihedral switch) and `point` (an
+     * integer grid point in [-16, 16]). `set-frieze` writes any of the frieze mode's fields: `features` (booleans for any of `vertical`, `horizontal`,
+     * `halfTurn`, `glide`; the others keep their value) and `period` (an integer 4 to 8). At least one field is named; neither changes the mode
+     * (scenes use `set-mode`); anything else is a lesson-content error, never snapped, and validated before the write.
+     */
+    | {
+        readonly kind: 'isometry'; readonly operation: 'set-rosette';
+        readonly n?: number;
+        readonly mirrors?: boolean;
+        readonly point?: {readonly x: number; readonly y: number};
+    }
+    | {
+        readonly kind: 'isometry'; readonly operation: 'set-frieze';
+        readonly features?: Readonly<Partial<Record<'vertical' | 'horizontal' | 'halfTurn' | 'glide', boolean>>>;
+        readonly period?: number;
+    }
+    /**
      * CircleConstructionGraph's scene actions (circle-geometry CG1, CG2; CG3 and CG4 extend the union). `set-mode` is the construction select and loads
      * that construction's example, as the select does; `set-circle` writes the centre and radius of `c1`, `c2` or `c3` (the radical mode always draws
      * three); `set-point` writes the point P of the tangent mode and the probe of the radical mode. Centres and P are integers in [-16, 16], a radius is
