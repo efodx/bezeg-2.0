@@ -86,3 +86,8 @@
 ### Doubts
 - "Centre a quarter period from the mirror" (step 2) and "centres spaced L/2" (step 1) are derived from the spec and arithmetic, not from a rendered check of the board.
 - `src/learning/content/isometriesRosetteGuidedLessons.ts` shows modified in the working tree; not by this slice (another actor).
+
+### Slice 2d (L4)
+- New `src/learning/content/isometriesRosetteGuidedLessons.test.ts` (LF, 16 tests). Part A (lines 122-248): scene sweep sl/en on a real IsometryGraph (out of order, twice in one act, restore returns the free state), prompt labels, openings not the asked state, learner actions (n 5, mirrors, (4,0) then (0,0)) vs statuses/rows, no answer leaks before the change. Part B (250-): plain-trigonometry recomputation (n/2n images, 5 of 10, 24 of 24, 4 of 8, centre 1, direct/reflected 5+5, angular alternation), quoted numbers in sl and en, no English decimals in sl, rounded numbers marked approximate.
+- Red: sl step 1 image 0,285 -> 0,295 failed the sl quoted-number test; restored (`s2d-red-l4.log`). Green: unit, `just typecheck`, `just lint` all 0 (`s2d-*-l4.log`).
+- No false claim found. Not verified: circle/diamond marker counts on the board; image order beyond Image 1/2 in the graph rows (alternation is checked on the reference model only).
