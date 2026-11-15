@@ -256,7 +256,7 @@ const PLANS: readonly Plan[] = [
         chooseMode('lagrange');
         expect(plain(graphOf())).toEqual(state({...CIRCLE, mode: 'lagrange'}));
         expectCircle('K = 0', 0, language);
-        for (const K of [6, 12, 18, 24, 30, 36, 42]) { typeAngle(String(K), language); expectCircle(`K = ${K}`, K, language); }
+        for (const K of [6, 12, 18, 24, 30, 36, 42]) { typeAngle(String(K * 7.5), language); expectCircle(`K = ${K}`, K, language); }
     }},
     {lesson: levelSetsLagrangeLesson, id: 'ls4-explore', opening: state({}), learn: language => {
         chooseMode('lagrange');

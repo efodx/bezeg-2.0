@@ -205,11 +205,28 @@ test('set-start reaches the state of the start fields; set-step the step slider'
 
 test('set-constraint reaches the state of the chooser and of the point controls', () => {
     const viaCircle = after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint('circle', undefined, 12)); });
-    expect(viaCircle).toEqual(after(() => { modeChooser('lagrange'); choose(t('levelsets_graph_constraint'), 'circle'); typeSlider(t('levelsets_graph_circle_angle'), '12'); }));
+    expect(viaCircle).toEqual(after(() => { modeChooser('lagrange'); choose(t('levelsets_graph_constraint'), 'circle'); typeSlider(t('levelsets_graph_circle_angle'), '90'); }));
     expect(viaCircle.state).toEqual(expect.objectContaining({constraint: 'circle', circleParam: 12}));
     const viaLine = after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint(undefined, 8)); });
     expect(viaLine).toEqual(after(() => { modeChooser('lagrange'); typeSlider(t('levelsets_graph_line_x'), '2'); }));
     expect(viaLine.state).toEqual(expect.objectContaining({constraint: 'line', lineParam: 8}));
+});
+
+test('the circle angle slider takes degrees on the 7,5 degree grid and refuses anything else', () => {
+    const graph = mount();
+    modeChooser('lagrange');
+    choose(t('levelsets_graph_constraint'), 'circle');
+    const angle = (value: string) => typeSlider(t('levelsets_graph_circle_angle'), value);
+    angle('90');
+    expect(graph.state).toEqual(expect.objectContaining({constraint: 'circle', circleParam: 12}));
+    angle('45');
+    expect(graph.state).toEqual(expect.objectContaining({circleParam: 6}));
+    for (const refused of ['44', '360', '-7,5']) {
+        angle(refused);
+        expect(graph.state).toEqual(expect.objectContaining({circleParam: 6}));
+    }
+    angle('352,5');
+    expect(graph.state).toEqual(expect.objectContaining({circleParam: 47}));
 });
 
 test('a descent and Lagrange scene runs in one synchronous sequence with the Batch B actions; no action sets the step counter', () => {
@@ -232,7 +249,7 @@ test('a descent and Lagrange scene runs in one synchronous sequence with the Bat
         typeSlider(t('levelsets_graph_step'), '9');
         modeChooser('lagrange');
         choose(t('levelsets_graph_constraint'), 'circle');
-        typeSlider(t('levelsets_graph_circle_angle'), '18');
+        typeSlider(t('levelsets_graph_circle_angle'), '135');
     });
     expect(viaControl).toEqual(here);
     // The step counter is not an action's business: pressing step moves it, and a changing action returns it to 0 as the matching control does.

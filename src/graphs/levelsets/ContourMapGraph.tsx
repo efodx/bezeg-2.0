@@ -943,9 +943,12 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         return true;
     }
 
-    setCircleStep(K: number): boolean {
-        const checked = typedGrid(K, 1, CIRCLE_PARAM_RANGE);
-        if (checked === undefined) return false;
+    /** A typed angle in degrees: on the 360/CIRCLE_STEPS grid inside the range, otherwise refused (never rounded). */
+    setCircleAngle(degrees: number): boolean {
+        if (typeof degrees !== "number" || !Number.isFinite(degrees)) return false;
+        const scaled = (degrees * CIRCLE_STEPS) / 360;
+        const checked = Math.round(scaled);
+        if (Math.abs(scaled - checked) > 1e-9 || checked < CIRCLE_PARAM_RANGE.min || checked > CIRCLE_PARAM_RANGE.max) return false;
         if (checked !== this.state.circleParam) this.edit({circleParam: checked});
         return true;
     }
@@ -1261,12 +1264,14 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                       min={lineParamOf(LINE_PARAM_RANGE.min)} max={lineParamOf(LINE_PARAM_RANGE.max)} decimals={2}
                                       onChange={value => this.setLineX(value)}/>);
             } else {
-                commands.push(<Slider key="circle" customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min} max={CIRCLE_PARAM_RANGE.max} step={1} grid={1} bigStep={6}
-                                      decimals={0} value={state.circleParam}
-                                      help={t("levelsets_graph_circle_help", {value0: String(CIRCLE_PARAM_RANGE.min), value1: String(CIRCLE_PARAM_RANGE.max), value2: dec(360 / CIRCLE_STEPS, 1)})}
-                                      rejectedHint={t("levelsets_graph_circle_rejected", {value0: String(CIRCLE_PARAM_RANGE.min), value1: String(CIRCLE_PARAM_RANGE.max)})}
-                                      valueText={value => t("levelsets_graph_circle_value", {value0: dec((value * 360) / CIRCLE_STEPS, 1)})}
-                                      onChange={value => this.setCircleStep(value)}/>);
+                const stepDegrees = 360 / CIRCLE_STEPS;
+                const degreesText = {value0: dec(CIRCLE_PARAM_RANGE.min * stepDegrees, 1), value1: dec(CIRCLE_PARAM_RANGE.max * stepDegrees, 1), value2: dec(stepDegrees, 1)};
+                commands.push(<Slider key="circle" customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min * stepDegrees} max={CIRCLE_PARAM_RANGE.max * stepDegrees}
+                                      step={stepDegrees} bigStep={45} decimals={1} value={state.circleParam * stepDegrees}
+                                      help={t("levelsets_graph_circle_help", degreesText)}
+                                      rejectedHint={t("levelsets_graph_circle_rejected", degreesText)}
+                                      valueText={value => t("levelsets_graph_circle_value", {value0: dec(value, 1)})}
+                                      onChange={value => this.setCircleAngle(value)}/>);
             }
         }
         return commands;
