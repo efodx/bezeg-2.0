@@ -532,3 +532,11 @@ Before and after: `docs/reviews/site-walkthrough/graphs/b9/` (served as `walkthr
 - `epicycles` (G07-f): the card shows the Slovenia outline at `N = 10`, with the circle chain, the tip and a trace that is recognisably the outline but visibly not exact, which is what the lesson asks the learner to find. Candidates read at 720×440: blossom at `N = 10` is already nearly exact; the cat at `N = 10` fails the clip's pixel-jump check (3.07× against 3×) and at `N = 8` loses its legs. The recipe chooses the subject in the `Primer` select and sets `Število členov N`; the old `Povečaj N za 1` button no longer exists. All three candidate posters are on the `b9` page.
 - `voronoi-degenerate`: the trapezoid is now chosen in the `Primeri` select (value `trapezoid`) instead of a `Trapez` button; same sites, window and clip path. Direction arrows kept.
 - `projective-cross-ratio`: recaptured under the B8f line-label rule; the poster is byte-identical (no labels were visible at the poster's scene), the clip re-encoded. Seen, not changed: the default scene sits small in the middle of the frame.
+
+### B10 Patch piece symbols (handler 5, 2026-11-15; published under the owner's grant)
+
+Before and after: `docs/reviews/site-walkthrough/graphs/b10/` (served as `walkthrough-graphs/b10.html`).
+
+- `patch-subdivision`: `S_R` was hidden (its anchor on the true surface fell behind a facet at the grazing view) and `S_L` sat by `S(u,v)`. Surface labels gain an optional screen offset (`SceneLabel.screenOffset`); the piece symbols sit 34 px below their piece centres, and their anchors are lifted by twice the mesh chord tolerance. Both symbols now show on their own pieces, clear of `S(u,v)`.
+- `patch-joins`: at the default `C^1` join both arrow tips coincide, so `S_{A,u}` and `S_{B,u}` were drawn on one spot; they are now 26 px apart. The three symbols are readable and do not overlap each other; they still touch control-point markers of the second net, left as is (surface text is otherwise unchanged by the policy). Its clip encodes at CRF 41 (CRF 40 gave 309281 B against the 300 KiB ceiling).
+- The other five patch workspaces set no offset; their tests are unchanged. Check: `src/graphs/patches/surfaceLabelSeparation.test.tsx` (failed 4 of 5 before the change), `just unit src/graphs/patches`.

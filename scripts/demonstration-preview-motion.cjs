@@ -1156,7 +1156,8 @@ const motionSpecs = {
 for (const id of patchSurfaceMotion.surfaceMotionIds) {
     // The de Casteljau construction adds colored lines/markers: measured CRF 41 is
     // 311693 B and CRF 42 is 286811 B on the same 96 real frames (300 KiB ceiling).
-    const crf = id === 'patch-decasteljau' ? 42 : 40;
+    // patch-joins (B10, the two arrow-tip symbols drawn apart): CRF 40 is 309281 B.
+    const crf = id === 'patch-decasteljau' ? 42 : id === 'patch-joins' ? 41 : 40;
     motionSpecs[id] = {mode:'surface-orbit', recipeAligned:true,
         crf, backgroundSample:{x:40,y:40},
         encoderBudget:{maxBytes:300*1024,crf},
