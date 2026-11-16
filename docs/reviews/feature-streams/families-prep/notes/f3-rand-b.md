@@ -69,3 +69,7 @@ Registration in the chapter/registry/preview/test lists (slice 3); a content rev
 - Step 1 opening shows the pi/4 line from the first frame (always drawn), so the share is visible before the prediction; the prompt asks for the computation and the count, the line cannot be hidden.
 - "Metoda Monte Carlo, ocenjevanje z naključnimi poskusi" is my gloss, not from the spec Terms table.
 - The worked-example latex shows rounded intermediate values with `\approx`.
+
+### Handler 33: RS3 review applied (`.command-logs/rand-b/review-rs3.md`)
+- Summary states the topic only. Step 1 names the drawn "Prava vrednost π/4" line and asks to justify its value from areas, then predict the count of 100; readouts at position 0 are "0".
+- **Test design change:** step 2 (opening n = 100) now shows formula `mc-se` and worked example `rs3-se` and asks for the typical deviation at 10 000 (learner types 10000: 7833, 3,1332, −0,0084, ±0,0164). Step 3 opens at n = 10 000 (`RS3_ERROR_SCALE` = n 10000) and asks for 1000 (learner types 1000: 779, 3,116, ±0,0519, √10 ≈ 3,16). Step 4 asks replay and seed 7; seed 43 optional ("redek primer"). Step 5 explanation says the disc mirrors the same quarter sample.
