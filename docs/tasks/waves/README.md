@@ -13,7 +13,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11; split into 04–06 |
 | [04 Batch A: WV1–WV2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 done; F4 to F6 not started |
 | [05 Batch B: WV3 lesson](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | F3 done 2026-11-13 (WV3); F4–F6 next |
-| [06 Batch C: WV4–WV5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | F3 WV4 and WV5 written and joined (handler 36); F4 cards captured (handler 36); F5 and F6 gate next |
+| [06 Batch C: WV4–WV5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | F3 WV4 and WV5 written and joined, F4 cards captured, sampling layout fixed (`9e4fb39f`), F5 no new clip, F6 gate passed (handler 36: `just check` green at `9941c536`, live smoke `.command-logs/waves-c/smoke/report.md`, gate smoke `.command-logs/waves-c/f6/report.md` 8/8 with Batch C extras, layout recheck `.command-logs/waves-c/recheck/report.md`); waves family complete (A-C) |
 
 ## Slovenian terms (F0 decision)
 
