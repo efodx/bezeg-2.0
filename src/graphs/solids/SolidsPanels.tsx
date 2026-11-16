@@ -155,7 +155,10 @@ export function SolidsReadoutPanel({mode, solid, readouts}: {mode: SolidsMode; s
             {id: 'slice-0', label: t('solids_graph_row_slice_area', {value0: names[0]}), value: fmt(readouts.sliceArea, 5)},
             {id: 'slice-1', label: t('solids_graph_row_slice_area', {value0: names[1]}), value: fmt(readouts.otherSliceArea, 5)},
         );
-        notes.push(readouts.pair === 'failing' ? t('solids_graph_failing_note') : t('solids_graph_sheared_note'), t('solids_graph_cavalieri_note'));
+        // The shear conclusion appears only once the stack is sheared, so a lesson can ask for it at shear 0 (SV3).
+        if (readouts.pair === 'failing') notes.push(t('solids_graph_failing_note'));
+        else if (readouts.shear !== 0) notes.push(t('solids_graph_sheared_note'));
+        notes.push(t('solids_graph_cavalieri_note'));
         if (approximate(readouts.meshVolume, readouts.exact)) notes.push(t(meshNoteKey(solid, readouts.meshVolume, readouts.exact)));
         summary = t('solids_graph_summary_slices', {value0: fmt(readouts.sliceArea, 4), value1: fmt(readouts.otherSliceArea, 4)});
     } else if (readouts.mode === 'volume') {

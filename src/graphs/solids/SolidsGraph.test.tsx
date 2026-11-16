@@ -445,6 +445,18 @@ describe('review repairs', () => {
         expect(notes()).not.toContain(t('solids_graph_axis_sphere_only_x'));
     });
 
+    it('states the shear conclusion only once the stack is sheared (SV3 predicts it at shear 0)', () => {
+        const {graph} = mount();
+        act(() => graph.setState({mode: 'stack', solid: 'square-prism', shear: 0}));
+        expect(notes()).not.toContain(t('solids_graph_sheared_note'));
+        act(() => graph.setState({shear: 6}));
+        expect(notes()).toContain(t('solids_graph_sheared_note'));
+        act(() => graph.setState({shear: -6}));
+        expect(notes()).toContain(t('solids_graph_sheared_note'));
+        act(() => graph.setState({solid: 'cone'}));
+        expect(notes()).toContain(t('solids_graph_failing_note'));
+    });
+
     it('gives the cursor slider a value text with a percent sign and a decimal comma', () => {
         const {graph} = mount();
         setMode(graph, 'stack');

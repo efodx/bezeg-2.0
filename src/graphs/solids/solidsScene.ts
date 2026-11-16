@@ -38,6 +38,8 @@ export type SolidsReadouts =
         readonly mode: 'stack';
         /** `sheared`: the straight solid and its shear; `failing`: a cone and a cylinder of equal height, whose slice areas differ. */
         readonly pair: StackPair;
+        /** The stored shear (units of 1/4); 0 means the second prism is still straight. */
+        readonly shear: number;
         /** The first solid (the straight one, or the cone), the second (the sheared copy, or the cylinder), by signed tetrahedra. */
         readonly meshVolume: number;
         readonly otherVolume: number;
@@ -272,7 +274,7 @@ function drawStack(s: SolidsGeometry): SolidsDrawing {
         solids,
         scene: {points: [], polylines, ...meshOf(solids), markers: [], labels: []},
         readouts: {
-            mode: 'stack', pair: failing ? 'failing' : 'sheared', meshVolume: meshVolume(first), otherVolume: meshVolume(second), exact,
+            mode: 'stack', pair: failing ? 'failing' : 'sheared', shear: s.shear, meshVolume: meshVolume(first), otherVolume: meshVolume(second), exact,
             otherExact: failing ? CYLINDER_EXACT_VOLUME : exact,
             sliceHeight: cursorZ, sliceArea: sliceAreaAt(first, cursorZ), otherSliceArea: sliceAreaAt(second, cursorZ),
         },
