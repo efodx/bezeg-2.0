@@ -3867,7 +3867,7 @@ export const sl = {
     "solids_graph_mode_volume": "Prostornina telesa",
     "solids_graph_mode_revolve": "Vrtenina",
     "solids_graph_mode_help_section": "Ravnina odreže telo; spodnji del ostane, presek je izrisan.",
-    "solids_graph_mode_help_stack": "Tanke plošče istega telesa: poševno telo ima enako prostornino kot ravno, če so ploščine rezin enake.",
+    "solids_graph_mode_help_stack": "Telo, razrezano na tanke plošče, ob drugem telesu za primerjavo ploščin rezin in prostornin.",
     "solids_graph_mode_help_volume": "Prostornina telesa, izračunana iz mreže, ob natančni vrednosti.",
     "solids_graph_mode_help_revolve": "Graf funkcije, zavrten okoli osi, razrezan na diske.",
     "solids_graph_solid": "Telo",

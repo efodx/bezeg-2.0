@@ -3868,7 +3868,7 @@ export const en: Record<keyof typeof sl, string> = {
     "solids_graph_mode_volume": "Volume of a solid",
     "solids_graph_mode_revolve": "Solid of revolution",
     "solids_graph_mode_help_section": "A plane cuts the solid; the lower part stays and the section is outlined.",
-    "solids_graph_mode_help_stack": "Thin slabs of the same solid: an oblique solid has the same volume as the straight one if the slice areas are equal.",
+    "solids_graph_mode_help_stack": "The solid cut into thin slabs, beside a second solid to compare slice areas and volumes.",
     "solids_graph_mode_help_volume": "The volume of the solid computed from its mesh, beside the exact value.",
     "solids_graph_mode_help_revolve": "The graph of a function turned about an axis and cut into discs.",
     "solids_graph_solid": "Solid",
