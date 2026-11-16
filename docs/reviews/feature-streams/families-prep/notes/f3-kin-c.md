@@ -92,3 +92,16 @@ tsc empty (`s2-tsc.log`); backslash/raw checks: 0 singles (`s2-backslash.txt`); 
 - `src/learning/content/kinematicsDecompositionGuidedLessons.test.ts` (new). Part A: scenes on the real graph in sl and en, out of order and twice, restore, label strings, openings differ from the learner's change, learner actions give the quoted readouts, step 5 centre/radius against the closed form at t = 0,5 with the whole circle inside the board, no step shows its own answer. Part B: cycloid closed forms and a central finite difference of the speed (1e-5, 1e-8), cardioid, projectile apex (g/v_x^2), circular a_N = R omega^2, cusp "ni določen"/"not defined", every decimal of the lesson text in a reference set, no English decimals in sl (and no commas in en), "približno"/\approx before rounded numbers.
 - Green: `s2d-unit.log`; tsc empty; lint passed. Red: one sl number changed (a = (0,919; ...) in step 3), 2 tests failed (`s2d-red.log`), lesson restored byte for byte.
 - Not verified: the circle-inside-board check uses the jsdom frame only. No false claim found in the lesson text.
+
+## Slice 3: chapter join
+
+### Written
+- Section `tangential-normal` (lesson id `curve-kinematics-tangential-normal`) after `circular-motion`: `kinematicsChapterRegistry.ts`, `kinematicsChapter.ts` (section, comment, purpose sentence). Chapter example is the parabola r(t) = (t, t^2) at t = 1 (a_T = 4/sqrt5 ~ 1,789, a_N = 2/sqrt5 ~ 0,894, kappa ~ 0,179, radius ~ 5,590, centre (-4; 3,5)), none of the lesson's cycloid or circle values.
+- Count tests: `authoredChapterCoverage.test.ts` 199 to 200, `familyChapters.test.ts` kinematics minimum 5, smoke spec minimum 5, `lessonMathNotation.test.ts` import, lesson set and the extra `curve-kinematics` id, `guidedExamplePreviews.test.ts` pending `kinematics.tangential-normal.curve-kinematics` (card in F4). `docs/localization.md`: KN5 terms already present, no change. No change to the lesson file.
+- Red first: both count tests failed before the section existed (`s3-red.log`).
+
+### Outcome
+See the handler return for check results (`s3-*.log`).
+
+### Not verified
+- Section text in a browser; Slovenian and English written without review.

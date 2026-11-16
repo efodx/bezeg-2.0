@@ -22,6 +22,7 @@ import {lineIntersectionsLesson} from './analyticLinesIntersectGuidedLessons';
 import {circleTangentsLesson, circleRadicalLesson, circleApolloniusLesson, circleCommonTangentsLesson} from './circleGeometryGuidedLessons';
 import {mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson} from './mechanicalCurvesGuidedLessons';
 import {kinematicsVectorsLesson, kinematicsSpeedLesson, kinematicsProjectileLesson, kinematicsCircularLesson} from './kinematicsGuidedLessons';
+import {kinematicsDecompositionLesson} from './kinematicsDecompositionGuidedLessons';
 import {latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson} from './combinatoricsGuidedLessons';
 import {rowSumsLesson} from './combinatoricsRowGuidedLessons';
 import {friezeLesson} from './isometriesFriezeGuidedLessons';
@@ -108,6 +109,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['analyticLinesIntersectGuidedLessons', [lineIntersectionsLesson]],
     ['circleGeometryGuidedLessons', [circleTangentsLesson, circleRadicalLesson, circleApolloniusLesson, circleCommonTangentsLesson]],
     ['kinematicsGuidedLessons', [kinematicsVectorsLesson, kinematicsSpeedLesson, kinematicsProjectileLesson, kinematicsCircularLesson]],
+    ['kinematicsDecompositionGuidedLessons', [kinematicsDecompositionLesson]],
     ['mechanicalCurvesGuidedLessons', [mechanicalCurvesRaceLesson, mechanicalCurvesTrackLesson, mechanicalTautochroneLesson]],
     ['combinatoricsGuidedLessons', [latticePathsLesson, countingTreeLesson, pascalIdentityLesson, binomialTheoremLesson]],
     ['combinatoricsRowGuidedLessons', [rowSumsLesson]],
@@ -277,6 +279,7 @@ test('scans every lesson module', () => {
             'line-geometry', // analyticLinesIntersectGuidedLessons.ts: L5
             'circle-construction', 'circle-construction', 'circle-construction', 'circle-construction', // circleGeometryGuidedLessons.ts: CG1 to CG4
             'curve-kinematics', 'curve-kinematics', 'curve-kinematics', 'curve-kinematics', // kinematicsGuidedLessons.ts: KN1 to KN4
+            'curve-kinematics', // kinematicsDecompositionGuidedLessons.ts: KN5
             'mechanics-descent', 'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 to MC3
             'waves', 'waves', 'waves', // wavesGuidedLessons.ts: WV1 to WV3
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
