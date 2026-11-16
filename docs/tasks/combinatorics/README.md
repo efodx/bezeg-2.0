@@ -11,9 +11,9 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [01 Combinatorics kernel](01-combinatorics-kernel.md) | 0 | F1 | none | — | done |
 | [02 State model and graphs](02-graphs.md) | A–C | F2a | Controls step 5 | 01 | planned |
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11 ([evidence](../../reviews/feature-streams/families-prep/notes/f2b-circle-combinatorics.md)); split into 04–06 |
-| [04 Batch A: CB1–CB2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 done 2026-11-12 ([evidence](../../reviews/feature-streams/families-prep/notes/f3-comb-a.md)); F4–F6 next |
-| [05 Batch B: CB3–CB4 lessons](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | F3 done; F4–F6 next |
-| [06 Batch C: CB5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | F3 CB5 written and joined (handler 32); F4 card captured (handler 32); F5 and F6 next |
+| [04 Batch A: CB1–CB2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | done; F3 2026-11-12 ([evidence](../../reviews/feature-streams/families-prep/notes/f3-comb-a.md)); F4 cards, F5 clips (handlers 20, 23); F6 gate passed (handler 29) |
+| [05 Batch B: CB3–CB4 lessons](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | done; F3, F4 cards (handlers 15, 20); F6 gate passed (handler 29) |
+| [06 Batch C: CB5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | done 2026-11-16; F3 CB5, F4 card, row view legibility fixes (handler 32); F5 no new clip; F6 gate passed (handler 32) |
 
 ## Slovenian terms (F0 decision)
 
