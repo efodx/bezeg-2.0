@@ -27,3 +27,45 @@ Board in the host test is 600 x 400 (shim), not 1366 x 768; window per opening i
 - Probe board is the shim's 600 x 400, so the 1366 x 768 fit is not measured.
 - The probe prints board curve layers by name only (s_c ... s_i); the layer-to-caption mapping above is inferred from caption order and ranges, not read from the scene.
 - Not smoke-tested in a browser.
+
+## Slice 2 (LESSON): RS3
+
+### Written
+- `src/learning/content/randomnessAreaGuidedLessons.ts` (new): `rs3Lesson` (`prob-simulation`, 6 steps, sl + en), scene constants `RS3_EMPTY_SQUARE`, `RS3_HUNDRED_POINTS`, `RS3_ERROR_SCALE`, `RS3_TEN_THOUSAND_POINTS`, `RS3_WHOLE_CIRCLE_START`, `RS3_EXPLORE`; two formulas (`mc-share`, `mc-se`), one worked example (`rs3-se`, n = 100 only, so it does not give the step 3 answer). Imports `randomnessSceneActions` from `randomnessGuidedLessons.ts`; no shared file touched.
+- Probe 2 (temporary host test, deleted): `.command-logs/rand-b/probe2-rs3.txt` (sl + en).
+- Learner-set values are stated in the following step (the observation prompt is rendered before the change; `expectedObservations` are not rendered).
+
+### Numbers per step with source (P = probe.txt, P2 = probe2-rs3.txt)
+| Step | Opening (scene) | Learner change | Numbers quoted | Source |
+| --- | --- | --- | --- | --- |
+| 1 | area, seed 42, n 100, position 0 (readouts 0, "0 od 0") | Predvajaj / Naslednji korak to 100 od 100 | 76, 0,76, 3,04, -0,1016, +-0,1642 | P area 100; P "AFTER REPLAY", P2 pos0 |
+| 2 | n 100 all shown | Število točk = 10000 | 76, 3,04, -0,1016; then 7833, 0,7833, 3,1332, -0,0084, +-0,0164, 300 drawn | P; P n 10000 |
+| 3 | n 100 (+-0,1642) | n = 1000, then 10000 | worked: 4*sqrt(0,7854*0,2146/100) = 0,1642; 779, 3,116, +-0,0519; 3,1332, +-0,0164 | arithmetic (0,7854*0,2146 = 0,16855; sqrt(0,0016855) = 0,04105); P n 1000, 10000 |
+| 4 | seed 42, n 10000 | Ponovi, Predvajaj; seed 7, 43 | 0,1642/0,0164/0,0519; 3,1332; seed 7: 7858, 3,1432, +0,0016; seed 43: 7741, 3,0964, -0,0452, 2,8 x (0,0452/0,0164 = 2,76) | P seed 7/43 n 10000 |
+| 5 | seed 42, n 1000, quarter | Oblika = Cel krog v kvadratu | 779, 3,116, -0,0256, +-0,0519; whole-circle readouts equal | P n 1000, P disc n 1000, P2 |
+| 6 | seed 7, n 1000, disc | free | 774, 0,774, 3,096, -0,0456, +-0,0519 | P2 |
+
+Mechanics confirmed from code (`SimulationGraph.tsx` 478-565): typing n sets shown = n; changing the seed or the shape keeps shown; Ponovi sets shown 0 without playing; Predvajaj at shown = n restarts from 0.
+
+### Deviations
+- Step 5 opens on the quarter at n = 1000 (not n = 100) so that the learner-visible readouts are the ones the explore step later changes by seed only.
+- Step 3 asks two settings (1000 then 10000) in one prompt; step 4 asks replay, seed 7, seed 43 in one prompt.
+- The second shape sits in step 5 with the explanation of mirroring deferred to step 6 (the caption shows it at once).
+
+### Test design (for the tests worker)
+- Scenes: apply `randomnessSceneActions(id, spec)` for each step scene; check the state after the scene and after the learner action.
+- Opening states: step 1 `{mode area, seed 42, n 100, shown 0}`, readouts shown "0 od 100", inside "0 od 0", estimate 0. Step 2 and 3 `{n 100, shown 100}`: inside "76 od 100", estimate 3,04, error -0,1016, typical "± 0,1642". Step 4 `{n 10000, shown 10000}`: 7833 od 10000, 3,1332, -0,0084, ± 0,0164. Step 5 `{n 1000}`: 779 od 1000, 3,116, -0,0256, ± 0,0519. Step 6 `{seed 7, n 1000, areaShape disc}`: 774 od 1000, 3,096, -0,0456, ± 0,0519.
+- Learner actions to check: set n 10000 from step 2 (shown = n); n 1000 and 10000 from step 3; step 4 `set-position 0` then playback stops (0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000) and seed 7 (7858, 3,1432, +0,0016) and 43 (7741, 3,0964, -0,0452) with shown kept at 10000; step 5 `set-run areaShape disc` keeps all readouts.
+- Quote list: every number in the table above; en uses a decimal point (`3.04`).
+- `lessonMathNotation.test.ts`: needs `['randomnessAreaGuidedLessons', [rs3Lesson]]` in `lessonSets` and one more `'prob-simulation'` in the demonstration-id list (done temporarily, green, reverted).
+
+### Checks
+tsc `s2-tsc-rs3.log` clean; backslash `s2-backslash-rs3.txt` 0 singles; lint `s2-lint-rs3.log` clean; unit `src/graphs/random` green (`s2-unit-rs3.log`); notation green with the temporary list edit (`s2-notation-rs3.log`), file reverted (diff empty). Not run: browser smoke, screenshot at 310 px, tests for the lesson itself.
+
+### Still to do
+Registration in the chapter/registry/preview/test lists (slice 3); a content review of the Slovenian wording.
+
+### Doubts
+- Step 1 opening shows the pi/4 line from the first frame (always drawn), so the share is visible before the prediction; the prompt asks for the computation and the count, the line cannot be hidden.
+- "Metoda Monte Carlo, ocenjevanje z naključnimi poskusi" is my gloss, not from the spec Terms table.
+- The worked-example latex shows rounded intermediate values with `\approx`.
