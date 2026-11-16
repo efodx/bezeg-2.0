@@ -123,3 +123,10 @@ RS6 (randomnessIntervalGuidedLessons.ts)
 - Written: sections `markov-chain` and `confidence-intervals` in `randomnessChapter.ts` (sl and en, purpose and comment updated to six phenomena), registry rows, counts (authoredChapterCoverage 199, familyChapters randomness minimum 6, smoke minimum 6), notation-test sets and ids, preview `pending` ids, localization row, task status lines. Counts seen red first (`.command-logs/rand-c/s3-red.log`: 197 vs 199, 4 vs 6). No lesson file changed. Examples: a = 0,1, b = 0,4 (stationary (0,8; 0,2), eigenvalue 0,5, p1 = 0,9, p2 = 0,85); n = 64 half-width approx 7,0722, 40 intervals at q approx 0,05: about 2 misses, none with probability approx 0,1285. Formulas without `\text`.
 - Outcome: typecheck, lint, build, `smoke-lesson prob-simulation` passed (logs `s3-*.log`); backslash checks: no new singles outside String.raw.
 - Not verified: the chapter smoke minimum (full unified-learning spec) not run; coverage at n = 64 not computed (not stated).
+
+## Markov layout fix (handler 34)
+- Y tick numbers of the Markov plot show only within 0..1 (`SimulationGraph.tsx` `defaultAxesAttributes`, `labelOfY`); x numbers unchanged.
+- The y axis is clipped to the segment 0..1 (`clipYAxis`: axis `straightFirst/Last` false in Markov mode, restored in `disposeScene`), no host change.
+- State boxes are taller (`simulationScene.ts` `markovDiagram`: bottom -0.71, "(začetek)" at -0.58), so the marker keeps at least the room the name has above it.
+- Tests: `SimulationGraph.test.tsx` "Markov plot range and state boxes" at 840x520, 390x520, 330x520, sl and en; seen red (ticks/axis, then padding), green after.
+- jsdom's glyph box is shorter than a browser's; padding was judged on after-shots (`.command-logs/rand-c/layout/after-*.png`).

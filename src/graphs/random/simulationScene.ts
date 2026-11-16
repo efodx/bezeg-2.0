@@ -370,15 +370,15 @@ function markovDiagram(s: number, a: number, b: number, start: 0 | 1, drop: numb
     const arrowLeft = [{x: [0.66 * s, 0.34 * s], y: [-0.57 - drop, -0.57 - drop]}, {x: [0.38 * s, 0.34 * s, 0.38 * s], y: [-0.53 - drop, -0.57 - drop, -0.61 - drop]}];
     const loop = (x0: number, x1: number) => [{x: [x0, x0, x1, x1], y: [-0.35 - drop, -0.24 - drop, -0.24 - drop, -0.35 - drop]}, {x: [x1 - 0.015 * s, x1, x1 + 0.015 * s], y: [-0.31 - drop, -0.35 - drop, -0.31 - drop]}];
     return {
-        boxes: join([rectangle(0.03 * s, 0.34 * s, -0.65 - drop, -0.35 - drop), rectangle(0.66 * s, 0.97 * s, -0.65 - drop, -0.35 - drop)]),
+        boxes: join([rectangle(0.03 * s, 0.34 * s, -0.71 - drop, -0.35 - drop), rectangle(0.66 * s, 0.97 * s, -0.71 - drop, -0.35 - drop)]),
         arrows: join([...arrowRight, ...arrowLeft, ...loop(0.12 * s, 0.22 * s), ...loop(0.78 * s, 0.88 * s)]),
         captions: [
-            // The state name stands on the box's upper line and the start marker on a second one, so a narrow box holds both.
+            // The state name stands on the box's upper line and the start marker on a second one, so a narrow box holds both; the box is tall enough that the marker keeps the room the name has above it.
             {key: 'box', x: 0.05 * s, y: -0.44 - drop, values: [0]},
             {key: 'box', x: 0.68 * s, y: -0.44 - drop, values: [1]},
-            {key: 'boxStart', x: (start === 0 ? 0.05 : 0.68) * s, y: -0.57 - drop, values: [start]},
+            {key: 'boxStart', x: (start === 0 ? 0.05 : 0.68) * s, y: -0.58 - drop, values: [start]},
             cap(0, 1, a, 0.35 * s, -0.32 - drop),
-            cap(1, 0, b, 0.35 * s, -0.68 - drop),
+            cap(1, 0, b, 0.35 * s, -0.69 - drop),
             cap(0, 0, 100 - a, 0.04 * s, -0.12 - drop),
             cap(1, 1, 100 - b, 0.7 * s, -0.12 - drop),
         ],

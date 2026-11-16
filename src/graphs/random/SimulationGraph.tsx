@@ -343,6 +343,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         const withinShape = function (this: object, ...label: unknown[]): string {
             const tick = label[0] as {usrCoords?: number[]} | undefined;
             if (current().mode === "area" && tick?.usrCoords && Math.abs(tick.usrCoords[2]) > 1 + 1e-9) return "";
+            // The Markov plot ends at 0 and 1; the captions above it and the state diagram below it carry no numbers.
+            if (current().mode === "markov" && tick?.usrCoords && (tick.usrCoords[2] > 1 + 1e-9 || tick.usrCoords[2] < -1e-9)) return "";
             return labelOfY ? labelOfY.apply(this, label) : "";
         };
         return {
@@ -513,6 +515,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         const mode = this.state.mode;
         this.drawnMode = mode;
         this.drawnCompact = this.areaCompact();
+        this.clipYAxis(mode === "markov");
         const styles = LAYER_STYLES[mode];
         for (const name of Object.keys(styles)) {
             const curve = this.own(board.create("curve", [[], []], {
@@ -580,9 +583,16 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         return this.hasBoard && this.board.canvasWidth > 0 ? this.board.canvasWidth : 0;
     }
 
+    /** The y axis of the Markov plot is the segment from 0 to 1 (its points), not the infinite line that would cross the captions and the state diagram; every other mode has the whole line. */
+    private clipYAxis(clipped: boolean): void {
+        const axis = (this.board as unknown as {defaultAxes?: {y?: {setAttribute(attributes: {straightFirst: boolean; straightLast: boolean}): unknown}}}).defaultAxes?.y;
+        axis?.setAttribute({straightFirst: !clipped, straightLast: !clipped});
+    }
+
     private disposeScene(): void {
         if (this.hasBoard) {
             const board = this.board;
+            this.clipYAxis(false);
             const alive = this.objects.filter(object => board.objectsList.includes(object)).reverse();
             if (alive.length) board.removeObject(alive);
         }

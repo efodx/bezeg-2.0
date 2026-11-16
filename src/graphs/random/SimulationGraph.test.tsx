@@ -1062,3 +1062,45 @@ describe.each([[390, 520], [330, 520]])('Markov layout at a board of %i x %i px'
         expect(boxes.find(box => box.text.includes(t('random_graph_cap_log_axis_steps'))), 'axis title').toBeDefined();
     });
 });
+
+describe.each([[840, 520], [390, 520], [330, 520]])('Markov plot range and state boxes at a board of %i x %i px', (W, H) => {
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    test.each(['sl', 'en'] as const)('%s: y tick numbers and the y axis stay within 0..1, "(start)" sits inside box A with the padding of the state name', language => {
+        setLanguage(language);
+        const {graph} = mountGraph();
+        chooseMode('markov');
+        act(() => { graph.editTrials(100000); graph.editChain('markovA', 80); graph.editChain('markovB', 90); });
+        const board = graph.liveBoard() as unknown as {defaultAxes: {y: {evalVisProp(key: string): unknown; point1: {Y(): number}; point2: {Y(): number}}}; getBoundingBox(): number[]};
+        const [, boxTop, , boxBottom] = board.getBoundingBox();
+        const axis = board.defaultAxes.y;
+        const yTicks = (graph.liveBoard().objectsList as unknown as Array<{elType: string; line?: unknown; labels?: Array<{plaintext?: string; Y(): number}>}>)
+            .filter(o => o.elType === 'ticks' && o.line === axis).flatMap(o => o.labels ?? []).filter(l => (l.plaintext ?? '') !== '').filter(l => l.Y() >= boxBottom && l.Y() <= boxTop);
+        expect(yTicks.length, 'y tick numbers exist').toBeGreaterThan(0);
+        expect(yTicks.filter(l => l.Y() > 1 + 1e-6 || l.Y() < -1e-6).map(l => [l.plaintext, l.Y()])).toEqual([]);
+        expect([axis.evalVisProp('straightfirst'), axis.evalVisProp('straightlast')]).toEqual([false, false]);
+        expect(axis.point1.Y()).toBeGreaterThanOrEqual(-1e-9);
+        expect(axis.point2.Y()).toBeLessThanOrEqual(1 + 1e-9);
+        const {boxes, lines} = pixelLayout(graph);
+        const rect = lines.flat().filter(p => p.length === 5 && p[0][0] === p[4][0] && p[0][1] === p[4][1])
+            .map(p => ({x0: Math.min(...p.map(q => q[0])), x1: Math.max(...p.map(q => q[0])), y0: Math.min(...p.map(q => q[1])), y1: Math.max(...p.map(q => q[1]))}))
+            .sort((a, b) => a.x0 - b.x0)[0];
+        const inA = boxes.filter(box => box.x0 >= rect.x0 - 1 && box.x0 <= rect.x1 && (box.y0 + box.y1) / 2 >= rect.y0 && (box.y0 + box.y1) / 2 <= rect.y1);
+        const name = inA.find(box => box.text === t('random_graph_cap_box', {value0: 'A'}));
+        const start = inA.find(box => box.text === t('random_graph_cap_box_start'));
+        expect(name, 'state name in box A').toBeDefined();
+        expect(start, 'start marker in box A').toBeDefined();
+        const topPad = name!.y0 - rect.y0, bottomPad = rect.y1 - start!.y1;
+        expect(Math.abs(start!.x0 - name!.x0)).toBeLessThan(1e-6);
+        // A browser's glyph box is taller than this model's, so the marker keeps at least the room the state name has above it.
+        expect(bottomPad).toBeGreaterThanOrEqual(topPad - 1e-6);
+        expect(bottomPad).toBeGreaterThanOrEqual(4);
+    });
+});
