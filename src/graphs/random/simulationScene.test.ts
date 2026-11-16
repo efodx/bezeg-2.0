@@ -259,7 +259,7 @@ describe('markov', () => {
         const last = L.share.x.length - 1;
         if (sim.kind !== 'markov') throw new Error('kind');
         closeTo(L.share.y[last], sim.inA / 100);
-        expect(scene.captions.map(c => c.key)).toEqual(['share', 'exactA', 'stationary', 'logAxis', 'boxStart', 'box', 'move', 'move', 'move', 'move']);
+        expect(scene.captions.map(c => c.key)).toEqual(['share', 'exactA', 'stationary', 'logAxis', 'box', 'box', 'boxStart', 'move', 'move', 'move', 'move']);
     });
 
     test('0 % and 0 %: no unique stationary distribution, so no stationary line', () => {

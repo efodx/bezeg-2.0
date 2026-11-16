@@ -373,8 +373,10 @@ function markovDiagram(s: number, a: number, b: number, start: 0 | 1, drop: numb
         boxes: join([rectangle(0.03 * s, 0.34 * s, -0.65 - drop, -0.35 - drop), rectangle(0.66 * s, 0.97 * s, -0.65 - drop, -0.35 - drop)]),
         arrows: join([...arrowRight, ...arrowLeft, ...loop(0.12 * s, 0.22 * s), ...loop(0.78 * s, 0.88 * s)]),
         captions: [
-            {key: start === 0 ? 'boxStart' : 'box', x: 0.05 * s, y: -0.5 - drop, values: [0]},
-            {key: start === 1 ? 'boxStart' : 'box', x: 0.68 * s, y: -0.5 - drop, values: [1]},
+            // The state name stands on the box's upper line and the start marker on a second one, so a narrow box holds both.
+            {key: 'box', x: 0.05 * s, y: -0.44 - drop, values: [0]},
+            {key: 'box', x: 0.68 * s, y: -0.44 - drop, values: [1]},
+            {key: 'boxStart', x: (start === 0 ? 0.05 : 0.68) * s, y: -0.57 - drop, values: [start]},
             cap(0, 1, a, 0.35 * s, -0.32 - drop),
             cap(1, 0, b, 0.35 * s, -0.68 - drop),
             cap(0, 0, 100 - a, 0.04 * s, -0.12 - drop),
@@ -405,11 +407,12 @@ function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
             arrows: diagram.arrows,
         },
         captions: [
-            {key: 'share', x: 0.05 * xmax, y: bandRow(rows, 0), top: 0},
-            {key: 'exactA', x: 0.05 * xmax, y: bandRow(rows, 1), top: 1},
-            {key: 'stationary', x: 0.05 * xmax, y: bandRow(rows, 2), top: 2},
-            {key: 'logAxis', x: xmax * 0.25, y: LOG_TITLE_Y},
-            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW, 3),
+            // The rows stand `EDGE_PX` from the left edge and the graph stacks them by their wrapped height (a narrow board wraps the long ones).
+            {key: 'share', x: 0.05 * xmax, y: bandRow(rows, 0), top: 0, edge: true},
+            {key: 'exactA', x: 0.05 * xmax, y: bandRow(rows, 1), top: 1, edge: true},
+            {key: 'stationary', x: 0.05 * xmax, y: bandRow(rows, 2), top: 2, edge: true},
+            {key: 'logAxis', x: 0, y: LOG_TITLE_Y, edge: true},
+            ...seedCaptions(state, second, 0.05 * xmax, bandRow(rows, 3), CAPTION_ROW, 3).map(caption => ({...caption, edge: true as const})),
             ...diagram.captions,
         ],
     };

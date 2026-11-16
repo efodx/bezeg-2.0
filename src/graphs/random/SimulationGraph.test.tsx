@@ -604,14 +604,16 @@ describe('overlay, second seed, shape and the time between stops', () => {
         }
         const sl = [...seenIn.sl].join('\n');
         const en = [...seenIn.en].join('\n');
-        expect(sl).toContain('Zgrešenih med');
-        expect(sl).toContain('Stanje A (začetek)');
+        expect(sl).toContain('Zgrešenih po zakonu (intervalov:');
+        expect(sl).toContain('Stanje A');
+        expect(sl).toContain('(začetek)');
         expect(sl).toContain('Cel krog');
         expect(sl).toContain('Grbov več kot pol metov');
         expect(sl).toContain('Pikčasta črta: seme 43');
         expect(sl).toContain('Polna črta: seme 42');
-        expect(en).toContain('Misses among');
-        expect(en).toContain('State A (start)');
+        expect(en).toContain('Misses by the law (intervals:');
+        expect(en).toContain('State A');
+        expect(en).toContain('(start)');
         expect(en).toContain('Whole circle');
         expect(en).toContain('Dotted line: seed 43');
         expect(en).not.toContain('Zgrešenih');
@@ -934,5 +936,129 @@ describe.each([[330, 520], [900, 520]])('area and walk layout at a board of %i x
         const labels = (graph.liveBoard().objectsList as unknown as Array<{elType: string; labels?: Array<{plaintext?: string; X(): number; evalVisProp(name: string): unknown}>}>)
             .filter(o => o.elType === 'ticks').flatMap(o => o.labels ?? []).filter(l => (l.plaintext ?? '') !== '');
         expect(Math.max(...labels.map(l => l.X()))).toBeLessThanOrEqual(steps + 1e-6);
+    });
+});
+
+describe('Batch C readouts: interval coverage and the exact Markov probability (RS5, RS6)', () => {
+    const rowText = (id: string) => ({label: document.querySelector(`[data-readout="${id}"] dt`)?.textContent, value: readout(id)});
+
+    test.each([[16, '0,95083'], [36, '0,95030'], [100, '0,94999']])('interval: the exact coverage for samples of %i is written with 5 decimals (%s)', (size, value) => {
+        const {graph} = mountGraph();
+        chooseMode('interval');
+        act(() => { graph.editSampleSize(size); });
+        expect(rowText('exact-coverage')).toEqual({label: 'Verjetnost, da interval pokrije pravo sredino (točno)', value});
+        act(() => { setLanguage('en'); });
+        expect(rowText('exact-coverage')).toEqual({label: 'Probability that an interval covers the true mean (exact)', value: value.replace(',', '.')});
+    });
+
+    test('interval: the run and the law differ in the second decimal of a percent (5,24 % against 4,97 %, seed 42, 10 000 intervals)', () => {
+        const {graph} = mountGraph();
+        chooseMode('interval');
+        act(() => { graph.editTrials(10000); });
+        expect(readout('miss-share')).toBe('5,24 %');
+        expect(readout('exact-miss')).toBe('4,97 %');
+    });
+
+    test('count strings of the interval mode read correctly for every count', () => {
+        const {graph} = mountGraph();
+        chooseMode('interval');
+        for (const n of [1, 2, 3, 4, 5, 20, 100]) {
+            act(() => { graph.editTrials(n); });
+            const sl = captions(graph);
+            expect(sl.some(c => /^Ta poskus: zgrešenih je \d+ \(polna črta\)$/.test(c)), `sl n=${n} ${sl.join('|')}`).toBe(true);
+            expect(sl.some(c => /^Zgrešenih po zakonu \(intervalov: \d+; prikazano od \d+ do \d+; merilo: najvišji stolpec\)$/.test(c)), `sl law n=${n} ${sl.join('|')}`).toBe(true);
+            act(() => { setLanguage('en'); });
+            const en = captions(graph);
+            expect(en.some(c => /^This run: \d+ missed \(solid line\)$/.test(c)), `en n=${n} ${en.join('|')}`).toBe(true);
+            expect(en.some(c => /^Misses by the law \(intervals: \d+; shown for \d+ to \d+; scale: tallest bar\)$/.test(c)), `en law n=${n}`).toBe(true);
+            act(() => { setLanguage('sl'); });
+        }
+    });
+
+    test.each([[1, '0,7'], [2, '0,67'], [3, '0,667'], [4, '0,6667'], [5, '0,66667']])('Markov from A: the exact probability of state A after %i steps is %s', (k, value) => {
+        const {graph} = mountGraph();
+        chooseMode('markov');
+        act(() => { graph.editTrials(k); });
+        expect(rowText('exact-a')).toEqual({label: `Verjetnost stanja A po korakih (točno): k = ${k}`, value});
+        act(() => { setLanguage('en'); });
+        expect(rowText('exact-a')).toEqual({label: `Probability of state A after k steps (exact): k = ${k}`, value: value.replace(',', '.')});
+    });
+
+    test('Markov from B starts at 0,6, shows a dash at position 0, and alternates 0 and 1 for 100 % and 100 %', () => {
+        const {graph} = mountGraph();
+        chooseMode('markov');
+        act(() => { graph.editStart(1); });
+        act(() => { graph.editTrials(1); });
+        expect(readout('exact-a')).toBe('0,6');
+        press(t('replay'));
+        expect(readout('exact-a')).toBe('—');
+        act(() => { graph.editStart(0); });
+        act(() => { graph.editChain('markovA', 100); graph.editChain('markovB', 100); });
+        act(() => { graph.editTrials(1); });
+        expect(readout('exact-a')).toBe('0');
+        act(() => { graph.editTrials(2); });
+        expect(readout('exact-a')).toBe('1');
+        act(() => { graph.editChain('markovA', 0); graph.editChain('markovB', 0); });
+        expect(readout('exact-a')).toBe('1');
+    });
+
+    test('Markov: the axis counts steps, the other modes count trials, and the period note names period 2', () => {
+        const {graph} = mountGraph();
+        chooseMode('markov');
+        expect(captions(graph)).toContain('Število korakov (logaritemska os)');
+        act(() => { setLanguage('en'); });
+        expect(captions(graph)).toContain('Number of steps (logarithmic axis)');
+        act(() => { setLanguage('sl'); });
+        chooseMode('frequency');
+        expect(captions(graph)).toContain('Število poskusov (logaritemska os)');
+        chooseMode('markov');
+        act(() => { graph.editChain('markovA', 100); graph.editChain('markovB', 100); });
+        expect(document.querySelector('[data-random-note]')?.textContent).toBe('Veriga izmenjuje stanji, zato se delež časa ustali, verjetnost stanja A po k korakih pa ne (perioda 2).');
+        act(() => { setLanguage('en'); });
+        expect(document.querySelector('[data-random-note]')?.textContent).toBe('The chain alternates between the states, so the share of time settles but the probability of state A after k steps does not (period 2).');
+    });
+});
+
+describe.each([[390, 520], [330, 520]])('Markov layout at a board of %i x %i px', (W, H) => {
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    test.each([['sl', 100], ['sl', 10000], ['en', 100], ['en', 10000]] as const)('%s, %i steps: the state boxes hold their labels, the captions are disjoint, inside the board, and the axis title stays inside', (language, n) => {
+        setLanguage(language);
+        const {graph} = mountGraph();
+        chooseMode('markov');
+        act(() => { graph.editTrials(n); });
+        const {boxes, lines} = pixelLayout(graph);
+        expect([(graph.liveBoard() as unknown as {canvasWidth: number}).canvasWidth, (graph.liveBoard() as unknown as {canvasHeight: number}).canvasHeight]).toEqual([W, H]);
+        const problems: string[] = [];
+        for (const box of boxes) {
+            if (box.x0 < -1e-6 || box.x1 > W + 1e-6) problems.push(`"${box.text}" outside the board in x (${box.x0.toFixed(0)}..${box.x1.toFixed(0)})`);
+            if (box.y0 < 6 - 1e-6 || H - box.y1 < 6 - 1e-6) problems.push(`"${box.text}" too close to the top or bottom edge`);
+        }
+        boxes.forEach((box, i) => boxes.slice(i + 1).forEach(other => {
+            if (box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0) problems.push(`"${box.text}" overlaps "${other.text}"`);
+        }));
+        // The two state boxes are the closed five-point rectangles; each caption that starts inside one lies inside it.
+        const rectangles = lines.flat().filter(p => p.length === 5 && p[0][0] === p[4][0] && p[0][1] === p[4][1])
+            .map(p => ({x0: Math.min(...p.map(q => q[0])), x1: Math.max(...p.map(q => q[0])), y0: Math.min(...p.map(q => q[1])), y1: Math.max(...p.map(q => q[1]))}));
+        expect(rectangles.length).toBe(2);
+        let held = 0;
+        for (const rect of rectangles) {
+            for (const box of boxes) {
+                const cy = (box.y0 + box.y1) / 2;
+                if (box.x0 < rect.x0 - 1 || box.x0 > rect.x1 || cy < rect.y0 || cy > rect.y1) continue;
+                held++;
+                if (box.x1 > rect.x1 + 1e-6 || box.y1 > rect.y1 + 1e-6 || box.y0 < rect.y0 - 1e-6) problems.push(`"${box.text}" leaves its box (${box.x0.toFixed(0)}..${box.x1.toFixed(0)} of ${rect.x0.toFixed(0)}..${rect.x1.toFixed(0)})`);
+            }
+        }
+        expect(problems).toEqual([]);
+        expect(held, 'a label and the start marker in the boxes').toBeGreaterThanOrEqual(3);
+        expect(boxes.find(box => box.text.includes(t('random_graph_cap_log_axis_steps'))), 'axis title').toBeDefined();
     });
 });

@@ -2,7 +2,7 @@ import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
-import {formatNumber} from "../../analysis/format";
+import {formatNumber, withDecimalSeparator} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {NumberInput} from "../../inputs/NumberInput";
 import {BooleanField} from "../../inputs/BooleanField";
@@ -19,7 +19,7 @@ import {Preset} from "../base/presets/Presets";
 import {randomPresetCollection} from "./randomPresetCollection";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {
-    AREA_SHAPES, AreaShape, CHAIN_MAX, CHAIN_MIN, DEFAULT_RANDOM_STATE, exactFor, fairCoinBandHalfWidth, frequencySd, largestBarDifference, markovShareSd,
+    AREA_SHAPES, AreaShape, CHAIN_MAX, CHAIN_MIN, DEFAULT_RANDOM_STATE, exactFor, fairCoinBandHalfWidth, frequencySd, largestBarDifference, markovProbabilityA, markovShareSd,
     N_MAX, N_MIN, nextStop, playbackStops, OVERLAY_MODES, P_MAX, P_MIN, PERCENT_STEP, piStandardError, parseRandomState, RANDOM_MODES, RandomExact, RandomMode, RandomSim, RandomState,
     ROWS_MAX, ROWS_MIN, SAMPLE_SIZE_MAX, SAMPLE_SIZE_MIN, SEED_MAX, SEED_MIN, serializeRandomState, simulate, snapChainInput, snapPercentInput, snapRowsInput,
     snapSampleSizeInput, snapSeedInput, snapStopInput, snapTrialsInput, snapWalkStepsInput, STOP_MS_DEFAULT, STOP_MS_MAX, STOP_MS_MIN, STOP_MS_STEP, stopPosition,
@@ -83,7 +83,7 @@ const LAYER_STYLES: Readonly<Record<RandomMode, Readonly<Record<string, CurveSty
 };
 
 const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
-const percentText = (fraction: number): string => `${dec(fraction * 100, 1)} %`;
+const percentText = (fraction: number): string => `${dec(fraction * 100, 2)} %`;
 
 function modeName(mode: RandomMode): string {
     switch (mode) {
@@ -204,7 +204,7 @@ function captionText(caption: Caption, state: RandomState): string {
         case "running": return t("random_graph_cap_running");
         case "half": return t("random_graph_cap_half");
         case "band": return t("random_graph_cap_band");
-        case "logAxis": return t("random_graph_cap_log_axis");
+        case "logAxis": return state.mode === "markov" ? t("random_graph_cap_log_axis_steps") : t("random_graph_cap_log_axis");
         case "points": return t("random_graph_cap_points", {value0: count});
         case "circle": return t("random_graph_cap_circle");
         case "estimate": return t("random_graph_cap_estimate");
@@ -229,7 +229,7 @@ function captionText(caption: Caption, state: RandomState): string {
         case "seedOne": return t("random_graph_cap_seed_one", {value0: dec(values[0] ?? 0, 0)});
         case "seedTwo": return t("random_graph_cap_seed_two", {value0: dec(values[0] ?? 0, 0)});
         case "box": return t("random_graph_cap_box", {value0: stateName(values[0])});
-        case "boxStart": return t("random_graph_cap_box_start", {value0: stateName(values[0])});
+        case "boxStart": return t("random_graph_cap_box_start");
         case "move": return t("random_graph_cap_move", {
             value0: stateName(values[0]), value1: stateName(values[1]), value2: values[3] === 1 ? String(values[2]) : `${values[2]}/${values[3]}`});
         case "missLaw": return t("random_graph_cap_miss_law", {value0: dec(values[0] ?? 0, 0), value1: dec(values[1] ?? 0, 0), value2: dec(values[2] ?? 0, 0)});
@@ -483,7 +483,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
 
     /** The stacked rows of a compact area layout (undefined in the side layout and every other mode). */
     private plan(): StackPlan | undefined {
-        if (!this.areaCompact()) return undefined;
+        if (!this.areaCompact() && this.state.mode !== "markov") return undefined;
         const captions = this.view().scene.captions;
         return stackPlan(captions, captions.map(caption => this.textWidth(captionText(caption, this.state))), this.boardWidth());
     }
@@ -893,6 +893,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                     ? `${dec(exact.stationary[0], 4)}; ${dec(exact.stationary[1], 4)}` : t("random_graph_r_stationary_none")},
                 {id: "lambda", label: t("random_graph_r_lambda"), value: dec(exact.lambda, 4)},
                 {id: "typical", label: t("random_graph_r_share_sd"), value: sd === null ? "—" : `± ${dec(sd, 4)}`},
+                {id: "exact-a", label: t("random_graph_r_exact_a", {value0: shown}), value: shown > 0 ? dec(markovProbabilityA(state, shown), 5) : "—"},
             );
         } else if (sim.kind === "interval" && exact.kind === "interval") {
             const expected = exact.miss * shown;
@@ -900,6 +901,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                 {id: "misses", label: t("random_graph_r_misses"), value: t("random_graph_r_misses_value", {value0: sim.misses, value1: shown})},
                 {id: "miss-share", label: t("random_graph_r_miss_share"), value: percentText(shown > 0 ? sim.misses / shown : 0)},
                 {id: "exact-miss", label: t("random_graph_r_exact_miss"), value: percentText(exact.miss)},
+                {id: "exact-coverage", label: t("random_graph_r_exact_coverage"), value: withDecimalSeparator(exact.coverage.toFixed(5), currentLanguage())},
                 {id: "expected", label: t("random_graph_r_expected_misses"), value: t("random_graph_r_expected_misses_value", {
                     value0: dec(expected, 1), value1: dec(Math.sqrt(shown * exact.miss * (1 - exact.miss)), 1)})},
                 {id: "half-width", label: t("random_graph_r_half_width"), value: dec(intervalHalfWidth(state.sampleSize), 4)},

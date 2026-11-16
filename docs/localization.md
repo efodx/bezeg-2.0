@@ -114,6 +114,7 @@ The static document initially declares Slovenian, and runtime selection updates 
 | zrcalni zdrs | glide reflection (reflection and translation along the axis); L2 |
 | negibna točka | fixed point of a map; L2 |
 | središčni razteg | central dilation (homothety) with a centre and a ratio *k*; isometries L3. Not in the README term table: descriptive term chosen by the content worker, handler-unreviewed |
+| perioda 2; verjetnost, da interval pokrije pravo sredino (točno) | period 2 of a Markov chain that alternates between its states; exact coverage probability of a confidence interval (randomness graph readouts, Batch C), handler-unreviewed |
 | razmerje raztega | ratio *k* of a dilation (a multiple of 1/4 in the lesson); L3, handler-unreviewed |
 | podobnost | similarity, a dilation composed with an isometry (keeps angles and ratios of lengths); L3, handler-unreviewed |
 | razmerje dolžin; razmerje ploščin | ratio of lengths (|k|); ratio of areas (k squared) of image and motif; L3, handler-unreviewed |
