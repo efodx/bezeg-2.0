@@ -988,3 +988,57 @@ describe('the arrow tags keep clear of each other, of the arrowheads and of the 
         }
     }
 });
+
+describe('the captions follow a resize of the board (families-prep kinematics resize)', () => {
+    type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]; resizeContainer(w: number, h: number, dontset?: boolean): void};
+    type Shape = Probe & {X(): number; Y(): number; point2?: {X(): number; Y(): number}};
+    const sizeOf = (width: number, height: number) => ({clientWidth: width, offsetWidth: width, clientHeight: height, offsetHeight: height});
+    afterEach(() => {
+        for (const [name, size] of Object.entries(sizeOf(600, 400))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    test('build at 946 x 507, resize to 364 x 473 and back: rows disjoint and clear of the figure, no object rebuilt', () => {
+        const [width, height] = [946, 507];
+        for (const [name, size] of Object.entries(sizeOf(width, height))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as Board;
+        act(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, 'cycloid'), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
+        go(graph, 0.5);
+        const owned = graph.ownedObjectCount();
+        const check = (w: number, h: number) => {
+            expect([board.canvasWidth, board.canvasHeight]).toEqual([w, h]);
+            const [left, top] = board.getBoundingBox();
+            const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+            const placement = captionPlacement((0 - left) * board.unitX, w);
+            const type = captionMetrics(w);
+            const captions = (ofType(graph, 'text') as unknown as Shape[]).filter(o => o.plaintext !== '0,0' && visible(o) && o.evalVisProp('fixed') !== false
+                && Math.abs((o.X() - left) * board.unitX - placement.indent) < 1e-6).map(o => {
+                const [x0, y0] = px(o.X(), o.Y());
+                const text = o.plaintext ?? '';
+                return {x0, y0, x1: x0 + Math.min(text.length * type.charPx, placement.room), y1: y0 + captionLines(text, placement.room, type.charPx) * type.rowPx, text};
+            });
+            expect(captions.length).toBeGreaterThanOrEqual(8);
+            // The type size the rows are spaced for is the type size drawn.
+            for (const o of ofType(graph, 'text') as unknown as Shape[]) if (visible(o) && o.plaintext !== '0,0' && !(o.plaintext ?? '').startsWith('$$')) expect(o.evalVisProp('fontsize'), o.plaintext).toBe(type.fontSize);
+            expect(captions[0].y0).toBeGreaterThanOrEqual(0);
+            captions.slice(1).forEach((caption, index) => expect(caption.y0, caption.text).toBeGreaterThanOrEqual(captions[index].y1 - 1e-6));
+            const derived = deriveKinematics(graph.state);
+            const obstacles: [number, number][] = derived.pathX.map((x, i) => px(x, derived.pathY[i]));
+            obstacles.push(px(...graph.evaluation().point));
+            for (const arrow of arrows(graph) as unknown as Shape[]) if (visible(arrow)) obstacles.push(px(arrow.point2!.X(), arrow.point2!.Y()));
+            for (const [x, y] of obstacles.filter(([x, y]) => x >= 0 && x <= w && y >= 0 && y <= h)) {
+                for (const c of captions) expect(x >= c.x0 - 2 && x <= c.x1 + 2 && y >= c.y0 - 2 && y <= c.y1 + 2, `${c.text} covers ${x},${y}`).toBe(false);
+            }
+            expect(graph.ownedObjectCount()).toBe(owned);
+        };
+        check(946, 507);
+        for (const [w, h] of [[364, 473], [946, 507]] as const) {
+            // The container takes its new size (setBoundingBox reads it), then what the session's observer does.
+            for (const [name, size] of Object.entries(sizeOf(w, h))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+            act(() => { board.resizeContainer(w, h, true); });
+            check(w, h);
+        }
+    });
+});

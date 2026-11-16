@@ -289,6 +289,20 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         this.buildScene();
         const session = this.graphSession;
         if (session) {
+            // A resize of the board (the session's observer ends in `setBoundingBox`, which fires `boundingbox`): the caption type, the wrap and the
+            // caption room of the frame follow the new size, and the frame is drawn again once for it. Panning and zooming keep the size and are left alone.
+            let size = `${this.board.canvasWidth}x${this.board.canvasHeight}`;
+            const board = this.board;
+            const onBoundingBox = () => {
+                const now = `${board.canvasWidth}x${board.canvasHeight}`;
+                if (now === size) return;
+                size = now;
+                if (!this.hasBoard || !this.graphSession?.isAlive) return;
+                this.applyFrame();
+                this.boardUpdate();
+            };
+            board.on("boundingbox", onBoundingBox);
+            session.registerCleanup(() => board.off("boundingbox", onBoundingBox));
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => {
                 this.stopDriver();
