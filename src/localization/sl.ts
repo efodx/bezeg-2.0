@@ -3952,7 +3952,7 @@ export const sl = {
     "solids_graph_caption_corner": "Številke: oglišča telesa.",
     "solids_graph_caption_axial": "Trikotnik: osni presek piramide, ravnina skozi vrh in središče osnove.",
     "solids_graph_caption_straight": "Prvo telo: ravno.",
-    "solids_graph_caption_sheared": "Drugo telo: poševno, z enakimi rezinami.",
+    "solids_graph_caption_sheared": "Drugo telo: kopija, ki jo Strižba pomakne vstran.",
     "solids_graph_caption_cone": "Levo telo: stožec.",
     "solids_graph_caption_cylinder": "Desno telo: valj.",
     "solids_graph_caption_slabs": "Tanke črte: robovi plošč.",
