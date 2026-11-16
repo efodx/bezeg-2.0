@@ -45,6 +45,7 @@ export interface KinematicsSceneParams {
     readonly showAcceleration?: boolean;
     readonly split?: boolean;
     readonly trace?: boolean;
+    readonly osculating?: boolean;
 }
 
 /** What a kinematics scene sets: the motion (the Demonstration default is the cycloid), its parameters and switches, and the time in seconds. */

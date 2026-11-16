@@ -36,3 +36,59 @@ All of a_T, a_N, kappa, kappa v^2 and the status show at every t; with `osculati
 - The tangent and normal axes are no longer infinite lines: they are dashed curves cut off 4 px under the last caption row and at the board edges.
 - Tests: `KinematicsGraph.test.tsx`, "the captions with every switch on keep clear..." (364 x 473 and 946 x 507 boards, 5 cases each); red on the old code 16 of 20 (the 4 desktop caption-vs-figure cases already passed).
 - Not done: row counts are estimates (7.5 px per character), so a stack may leave a small gap; with the stack open the circular motion is small on desktop; a projectile at rest (v0 = 0) shows the cusp caption without a reserved row.
+
+## Slice 2 (KN5 lesson content)
+
+### Written
+- `src/learning/content/kinematicsDecompositionGuidedLessons.ts` (new): `kinematicsDecompositionLesson` (demonstrationId `curve-kinematics`, 7 steps, one formula block `tangential-normal` and one worked example `kn5-cycloid`, both on step 7 only so no earlier step shows its answer), exported `KN5_*` constants. Own `scene` helper over `kinematicsSceneActions`.
+- `kinematicsGuidedLessons.ts`: `osculating?: boolean` in `KinematicsSceneParams`.
+- Probe: `.command-logs/kin-c/probe2.txt` (sl and en, current frame); the temporary test is deleted.
+
+### Numbers per step (source: P = probe2.txt case, S = slice 1 probe.txt, A = stated arithmetic)
+1. Opening cycloid t = pi/2, no switches. a_T 0,707, speed 1,414 (P c1). Learner: time 3,14 -> speed 2, a_T 0,001, status "pospešuje" (P c1b; not "stationary": 3,14 < pi). a_T(pi) = 0 and pi = 3,1416 are the spec's closed form cos(t/2) and arithmetic.
+2. Opening t = 3,14, split off. Learner: split on -> velocity (2; 0,002), a (0,002; -1), a_T 0,001, a_N -1 (P c1b/c2). Caption "negativno, ko tir zavija desno" (sl.ts:3626).
+3. Opening t = pi/2, split on: a (1; 0), a_T 0,707, a_N -0,707 (P c3). Learner t = 2: a (0,909; -0,416), a_T 0,54, a_N -0,841 (P c7c); 0,54^2 + 0,841^2 = 0,2916 + 0,7073 = 1,0 and 0,909^2 + 0,416^2 = 0,826 + 0,173 = 1,0 (A).
+4. Opening t = 1, split on: speed 0,959, a_T 0,878, a_N -0,479 (P c4). Learner t = 1,1: speed 1,045, a_T 0,853 (P c4b). Estimate 0,959 + 0,1*0,878 = 1,047 (A).
+5. Opening t = 3,14, split on, circle off: kappa -0,25. Learner circle on: r 4,000, centre (3,142; -2,000) (P c5); radius 1/0,25 (A). Box at that frame [-8,43; 14,11; 14,71; -1,31] (left, top, right, bottom): the centre (y = -2) and the lower circle are BELOW the board in the jsdom frame, so the text says "lower part and centre may be outside the picture".
+6. Opening circular R 1, omega 1, t = 1, split and circle on: speed 1, kappa 1, a_N 1 (P c6). Learner omega 0,5: speed 0,5, kappa 1, a_N 0,25, kappa v^2 0,25, a_T 0 (P c6b). Time is not reset by a changed omega (`reconcileTime`, KinematicsGraph.tsx:692-708: only a changed motion resets, a shorter motion clamps).
+7. Opening cycloid t = 2, both switches on. Example: speed 1,683, kappa -0,297, a_T 0,54, a_N -0,841, a (0,909; -0,416) (P c7c); 1,683^2 = 2,832, 0,297*2,832 = 0,841 (A). t = 0 "ni določen" (P / S c7); t = 0,01: kappa -50, r 0,02 (P c7b). Cardioid t = 1: kappa 0,855, speed 1,755, a_N 2,633, a_T -0,479 (P c7f). Projectile (defaults v0 20, alpha 45; kinematicsModel.ts:85) t = 1,44: v_x 14,142, g 9,81, kappa -0,049, r 20,387 (P c7i); 9,81/200 = 0,049 (A).
+Sign convention: kappa < 0 for a right turn; the centre is point + n/kappa with n = (-v_y, v_x)/|v| (the left normal), KinematicsGraph.tsx:556-558.
+
+### Deviations from the outline
+- Step 3: the brief predicts a_T^2 + a_N^2 at pi/2, but a_T and a_N show on the first frame, so the prediction is "equal to |a|^2 at t = 2, and why"; the identity at pi/2 is given as context.
+- Step 1 quotes a_T = 0,001 and the status "pospešuje" at 3,14, not "stationary" (P c1b); the prompt also asks for a reason and the expected text explains pi.
+- Step 5: the centre is NOT at the board's lower edge: with the layout fix the box bottom is -1,31 and the centre y = -2 (P c5), so the text says only an arc is seen.
+- Step 6 circular opens with the circle on (the circle coincides with the path, probe c6).
+- Step 7 is on the cycloid at t = 2 (neutral, all arrows), not on a catalogue curve; the other curves are quoted as examples. The projectile status is not quoted.
+- Controls are named by label without "drsnik/polje" (the type was not verified per control).
+
+### Test design (for the tests worker)
+- Scene mechanics: every scene is `prepared-scene` (demonstration default), optional `set-motion` (only step 6, `circular`), optional `set-params`, then `set-time`; run in one synchronous sequence (see `KinematicsLessonActions.host.test.tsx`).
+- Openings (state after the scene) and post-change states:
+  1. cycloid, t = pi/2, split off, osc off -> t = 3,14 (a_T 0,001, status speeding).
+  2. cycloid, t = 3,14, split off -> split on (2 axis lines drawn, a_T 0,001, a_N -1).
+  3. cycloid, t = pi/2, split on (a (1; 0)) -> t = 2 (a_T 0,54, a_N -0,841).
+  4. cycloid, t = 1, split on -> t = 1,1 (speed 1,045, a_T 0,853).
+  5. cycloid, t = 3,14, split on, osc off -> osc on (centre (3,142; -2), r 4, kappa -0,25).
+  6. circular radius 1 omega 1, split and osc on, t = 1 -> omega 0,5 (a_N 0,25, kappa 1, kappa v^2 0,25).
+  7. cycloid, t = 2, split and osc on.
+- Readout rows: `time, speed, a-t, a-n, kappa, kappa-v2, acceleration`, status `[data-kinematics-status]`; compare sl and en.
+- Quote list (each with source above): every number in the expected observations and the scene `expectedState` texts; assert the opening never already holds the learner's change (split off in 1-2, circle off in 5, omega 1 in 6, time 1 in 4, time pi/2 in 1 and 3).
+
+### Still to do (slice 3, not touched)
+Chapter entry, registry, registration, preview copy, test lists, `lessonMathNotation.test.ts` lesson set (my own scan of the file found no bare math outside `\(...\)`), smoke specs, docs.
+
+### Checks
+tsc empty (`s2-tsc.log`); backslash/raw checks: 0 singles (`s2-backslash.txt`); `just unit src/graphs/curves/kinematics src/learning/content/kinematicsGuidedLessons.test.ts` passed (`s2-unit.log`); `just lint` on both files passed (`s2-lint.log`).
+
+### Doubts
+- The board frame depends on the real board size: "centre may be outside the picture" is from the jsdom frame; not seen in a browser.
+- The graph names (Tangentni pospešek aₜ, Kotna hitrost ω (rad/s)) are quoted with their symbols in plain text, so the math-notation test (slice 3) may flag them; no symbol-free label exists.
+- Slovenian and English were written by me without review.
+- Lesson not registered, so the lesson-catalog tests did not run on it.
+
+### Slice 2d
+
+- `src/learning/content/kinematicsDecompositionGuidedLessons.test.ts` (new). Part A: scenes on the real graph in sl and en, out of order and twice, restore, label strings, openings differ from the learner's change, learner actions give the quoted readouts, step 5 centre/radius against the closed form at t = 0,5 with the whole circle inside the board, no step shows its own answer. Part B: cycloid closed forms and a central finite difference of the speed (1e-5, 1e-8), cardioid, projectile apex (g/v_x^2), circular a_N = R omega^2, cusp "ni določen"/"not defined", every decimal of the lesson text in a reference set, no English decimals in sl (and no commas in en), "približno"/\approx before rounded numbers.
+- Green: `s2d-unit.log`; tsc empty; lint passed. Red: one sl number changed (a = (0,919; ...) in step 3), 2 tests failed (`s2d-red.log`), lesson restored byte for byte.
+- Not verified: the circle-inside-board check uses the jsdom frame only. No false claim found in the lesson text.
