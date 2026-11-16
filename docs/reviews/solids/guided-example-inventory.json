@@ -111,6 +111,139 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "solids.cavalieri.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.cavalieri.solids",
+      "sceneFingerprint": "53ec311d59ec8be7875b0756bd6d4a07c41937eb94cf38dc7bfbddef0d3fb446",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv3-stack-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv3-stack-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"stack\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"square-prism\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-shear\",\"shear\":0}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-cursor\",\"cursor\":20}"
+      ],
+      "expected": {
+        "surface": {
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 6.838743308742537,
+            "target": [
+              0,
+              0,
+              0
+            ]
+          },
+          "owners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  -1,
+                  1,
+                  -1.5
+                ],
+                [
+                  1,
+                  -1,
+                  -1.5
+                ],
+                [
+                  -1,
+                  1,
+                  -1.5
+                ]
+              ]
+            },
+            {
+              "id": "solid-1",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  -1,
+                  1,
+                  -1.5
+                ],
+                [
+                  1,
+                  -1,
+                  -1.5
+                ],
+                [
+                  -1,
+                  1,
+                  -1.5
+                ]
+              ]
+            }
+          ],
+          "geometryTolerance": 0.000001,
+          "cameraTolerance": 0.000001
+        }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "solids.pyramid-cone.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.pyramid-cone.solids",
+      "sceneFingerprint": "a768c1e39b4f8a125d9033ea5a170912438c960d9249875171f6dc2c1f81805f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv4-cube-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv4-cube-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"volume\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"cube\"}"
+      ],
+      "expected": {
+        "surface": {
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 2.8728468165035967,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "owners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ],
+          "geometryTolerance": 0.000001,
+          "cameraTolerance": 0.000001
+        }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

@@ -2799,6 +2799,40 @@ const solidsFrames = {
             owners: [{id: 'solid-0', kind: 'solid', geometrySamples: [[-1, 1, -1.5], [1, 1, -1.5], [1, 1, 0]]}],
             geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
     },
+    // SV3 step 1 (solidsVolumesGuidedLessons.ts SV3_STRAIGHT): stack mode, the square prism [-1, 1]^2 x [-1.5, 1.5], shear 0, cursor 20. Shear 0 leaves the sheared copy equal to the prism, so both owners are the same mesh. The camera is
+    // the one set-solid framed (az -0.9, el 0.5 kept; the shear and cursor actions reframe nothing): the bounding box of the straight prism and its copy, no cutting plane. Triangles of prism(): the bottom face [3,2,1,0] (two, the first
+    // starts at vertex 3 = (-1, 1, -1.5)), the top face (two), then the four side faces [i, i+1, 4+i+1, 4+i]; triangle 6 is the first of side face 1 = [1,2,6,5], starting at vertex 1 = (1, -1, -1.5); the last is the second of side
+    // face 3 = [3,0,4,7] = (3,4,7), starting at vertex 3 again.
+    'cavalieri': (id, step) => {
+        const lead = step.scene.actions.findIndex(item => item.kind !== 'prepared-scene');
+        const prepared = step.scene.actions.slice(0, lead < 0 ? 0 : lead), rest = step.scene.actions.slice(lead < 0 ? 0 : lead);
+        assert.ok(prepared.length >= 1 && prepared.every(item => item.source === 'demonstration-default'), `${id}: the opening scene must start with the Demonstration default`);
+        assert.deepEqual(rest.map(({kind, operation, mode, solid, shear, discs, cursor}) => ({kind, operation, mode, solid, shear, discs, cursor})), [
+            {kind: 'solids', operation: 'set-mode', mode: 'stack', solid: undefined, shear: undefined, discs: undefined, cursor: undefined},
+            {kind: 'solids', operation: 'set-solid', mode: undefined, solid: 'square-prism', shear: undefined, discs: undefined, cursor: undefined},
+            {kind: 'solids', operation: 'set-shear', mode: undefined, solid: undefined, shear: 0, discs: undefined, cursor: undefined},
+            {kind: 'solids', operation: 'set-cursor', mode: undefined, solid: undefined, shear: undefined, discs: undefined, cursor: 20},
+        ], `${id}: the opening scene is the square prism in stack mode at shear 0`);
+        const samples = [[-1, 1, -1.5], [1, -1, -1.5], [-1, 1, -1.5]];
+        return {surface: {camera: solidsFittedCamera([[-1, -1, -1.5], [1, 1, 1.5]]),
+            owners: [{id: 'solid-0', kind: 'solid', geometrySamples: samples}, {id: 'solid-1', kind: 'solid', geometrySamples: samples}],
+            geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
+    },
+    // SV4 step 1 (SV4_CUBE): volume mode, the unit cube, the pyramid switch off (the action is absent, so the stored default false stays). The camera is the one set-solid framed: the box [0, 1]^3, centre (1/2, 1/2, 1/2), no plane.
+    // Triangles of cube(): faces [0,2,3,1], [4,5,7,6], [0,1,5,4], [2,6,7,3], [0,4,6,2], [1,3,7,5], two each; the first starts at vertex 0 = (0, 0, 0); triangle 6 is the first of face 3 = (2,6,7), starting at vertex 2 = (0, 1, 0);
+    // the last is the second of face 5 = (1,7,5), starting at vertex 1 = (1, 0, 0) (vertex i = (i & 1, (i >> 1) & 1, (i >> 2) & 1)).
+    'pyramid-cone': (id, step) => {
+        const lead = step.scene.actions.findIndex(item => item.kind !== 'prepared-scene');
+        const prepared = step.scene.actions.slice(0, lead < 0 ? 0 : lead), rest = step.scene.actions.slice(lead < 0 ? 0 : lead);
+        assert.ok(prepared.length >= 1 && prepared.every(item => item.source === 'demonstration-default'), `${id}: the opening scene must start with the Demonstration default`);
+        assert.deepEqual(rest.map(({kind, operation, mode, solid, pyramids}) => ({kind, operation, mode, solid, pyramids})), [
+            {kind: 'solids', operation: 'set-mode', mode: 'volume', solid: undefined, pyramids: undefined},
+            {kind: 'solids', operation: 'set-solid', mode: undefined, solid: 'cube', pyramids: undefined},
+        ], `${id}: the opening scene is the cube in volume mode with the pyramid switch untouched`);
+        return {surface: {camera: solidsFittedCamera([[0, 0, 0], [1, 1, 1]]),
+            owners: [{id: 'solid-0', kind: 'solid', geometrySamples: [[0, 0, 0], [0, 1, 0], [1, 0, 0]]}],
+            geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
+    },
 };
 
 /** First-frame expectation of a solids lesson (keyed by the section in the example id). */

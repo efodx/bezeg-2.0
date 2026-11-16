@@ -18,3 +18,10 @@ Not done / not run (next worker)
 
 ## Closeout (continuation)
 - Preview test first failed (glob stale): real edit to the `chapterImageUrls` comment; then `just unit src/learning/chapter src/learning/content/familyChapters.test.ts` passed (`f5-unit.log`). node scope/evidence/inventory tests 0 fail (`f5-node.log`), tsc 0, lint 0, rawcheck 0 singles. Capture test: only the known exhaustive-recipe failure (`f5-capture.log`). Docs: commands.md line 70, closeout-card-images.md section 19, task status.
+
+## F4 cards (Batch B)
+- Inventory: `solidsFrames` gained `cavalieri` (stack mode, square prism, shear 0: camera by `solidsFittedCamera` of the prism box, distance 6.8387; owners solid-0 and solid-1, the same mesh) and `pyramid-cone` (volume mode, unit cube: fitted distance 2.8728, one owner) in `scripts/generate-guided-example-inventory.cjs`; samples hand-derived from `prism()`/`cube()` triangle order. Count rows [2,0] and [1,0] in `guidedExamplePreviews.test.ts`.
+- Red: `.command-logs/solids-b/f4/red.log` (ids mismatch before capture). Capture log `capture.log`; SV1/SV2 PNG sha256 identical before and after (`sha-before.txt`, `sha-after.txt`).
+- SV3 card viewed: tall orange square prism with green slab outlines and one blue slice outline; slab lines are partly hidden/broken where the two coincident prisms overlap (z-fighting look), cursor line broken at the back. Nothing cut. No caption in the image.
+- SV4 card viewed: one flat orange cube silhouette, three faces in the same shade, no edges, no label; readable but featureless (what the graph draws in volume mode).
+- Layout shots (route, 1366 and 390 full page): prism shear 3 with 60 slabs, cone/cylinder pair, cube with pyramids on, cone about y with 60 discs; all fit the host, no clipping or page errors.
