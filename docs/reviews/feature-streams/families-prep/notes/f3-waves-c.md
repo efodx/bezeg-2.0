@@ -249,3 +249,10 @@ Registration (section, id `waves-nyquist`), preview copy, test lists (`lessonMat
 Written: sections `aliasing` and `nyquist` (waves chapter, after `standing-waves`; `wavesChapter.ts` from line 79, formulas lines 87 and 100), registry rows, counts (coverage 200 to 202, familyChapters minimum waves 5, smoke minimum waves 5), `lessonMathNotation.test.ts` (import, set, 'waves' x2), `guidedExamplePreviews.test.ts` waves `pending`, `localization.md` row, task 06 and README status; comments in `familyChapters.ts` and `waves/registration.ts`. Chapter examples (lessons use 23/24, 25/24, 9/12, 13/24, 6/12, 5/12, 40/24, f=5 at 9 and 10): WV4 f=14, f_s=20 gives f_a=-6 (backwards); f=20, f_s=20 gives 0; WV5 f=4: f_s=9 determined, f_s=8 samples A cos phi (1,-1,1,...). No change to the lessons or their test.
 Outcome: count tests seen red first (s3-red.log: 200 vs 202; 3 vs 5). tsc, lint, `just unit src/learning src/graphs/functions` (248.6 s), build, `smoke-lesson waves`, node scope tests (58) pass; logs `.command-logs/waves-c/s3-*.log`.
 Not verified: rendered chapter look; smoke-lesson ran 7.8 s, so its coverage of the two new sections is unconfirmed; Slovenian chapter prose and new terms unreviewed by the handler.
+
+## Sampling layout fix (handler 36)
+
+- `WavesGraph.tsx`: in sampling mode the tick numbers and "t (s)" stand in a row under the strip (`rowY`, `STRIP_SQUARE_PX`), so no dot or stem crosses them; strip level stays in board units (cards need stable points). `frameFor` reserves `SAMPLING_BELOW_PX` (44 px) under the strip line, which also holds the two wheel names.
+- Test: "the sampling scene on desktop and narrow boards" (900x520, 390x520, 330x520; five (f, fs) pairs; sl, en); red 30 failed (`.command-logs/waves-c/layout/red.log`), green after.
+- Cards: windows of the two sampling cards changed to [-0.449, 8.4, 0.921, -2.1]; WV1 to WV3 byte-identical (`sha-before.txt`, `sha-after.txt`). Wheel names remain off the cards (text policy).
+- Not verified: 390 px after-shot was a tiny full-page capture; wheel names seen inside the board only coarsely.

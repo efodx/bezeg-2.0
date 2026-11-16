@@ -82,11 +82,10 @@ export function frameFor(derived: WavesDerived, captions?: {readonly roomPx: num
     // (with the "y" title above its top end) and give the rest of the board's height to the plot.
     if (captions && Number.isFinite(captions.heightPx)) {
         const need = Math.min(captions.roomPx + Y_TITLE_PX, captions.heightPx - MIN_PLOT_PX);
-        // The tick numbers and the axis title stand in a row under the plot (not in sampling mode): keep that row inside the board.
-        if (derived.mode !== "sampling") {
-            const plotPx = captions.heightPx - Math.max(need, 0);
-            bottom = Math.min(bottom, peak - (2 * peak) / (1 - TICK_ROW_PX / plotPx));
-        }
+        // The tick numbers and the axis title stand in a row under the plot (under the strip in sampling mode): keep that row inside the board.
+        const plotPx = captions.heightPx - Math.max(need, 0);
+        if (derived.mode === "sampling") bottom = Math.min(bottom, stripLevel(derived) - (2.55 * peak * SAMPLING_BELOW_PX) / (plotPx - SAMPLING_BELOW_PX));
+        else bottom = Math.min(bottom, peak - (2 * peak) / (1 - TICK_ROW_PX / plotPx));
         if (need > 0) top = Math.max(top, peak + (need * (peak - bottom)) / (captions.heightPx - need));
     }
     return [hasPanel ? -0.66 * span : -0.1 * span, top, 1.06 * span, bottom];
@@ -112,8 +111,14 @@ const NAME_GAP_PX = 24;
 const NAME_ROW_PX = 20;
 const MIN_PLOT_PX = 90;
 
-/** Where a strip of instants lies under the plot (sampling mode), in units of the vertical half extent. */
+/**
+ * Sampling mode, under the plot edge, top to bottom: the strip of instants (its line at `stripLevel`, in board units so that a card window keeps it), the
+ * hollow square (half STRIP_SQUARE_PX), the row of tick numbers and the axis title, and a margin. SAMPLING_BELOW_PX is the height under the strip line; it
+ * also holds the two wheel names (the circle is at most the plot half height, then 58 px of names).
+ */
 const stripLevel = (derived: WavesDerived): number => -1.55 * 1.1 * derived.yPeak;
+const STRIP_SQUARE_PX = 7;
+const SAMPLING_BELOW_PX = 44;
 
 /** A curve that is redrawn only when its source changes. */
 const ALWAYS = (): unknown => ({});
@@ -486,20 +491,18 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             for (const level of [-derived.yPeak, derived.yPeak]) piece(-0.012 * length, level, 0.012 * length, level);
             return [xs, ys];
         }, {strokeColor: GraphPalette.axis, strokeWidth: 1});
-        // Tick numbers and the axis title stand in one row under the plot (the curves never reach it) except in sampling mode, where the strip lies there.
-        const ticksBelow = mode !== "sampling";
-        const rowY = () => (ticksBelow ? -peak() - TICK_GAP_PX / this.scaleOf().uy : -4 / this.scaleOf().uy);
+        // Tick numbers and the axis title stand in one row under the plot (the curves never reach it); in sampling mode under the strip, so no dot or stem crosses them.
+        const rowY = () => (mode === "sampling" ? stripLevel(d()) - (STRIP_SQUARE_PX + TICK_GAP_PX) / this.scaleOf().uy : -peak() - TICK_GAP_PX / this.scaleOf().uy);
         const tickText = (k: number) => dec((span() * k) / 4, 2);
         const titleText = () => t(mode === "standing" ? "waves_graph_axis_x" : "waves_graph_axis_t");
         // The title takes the middle between the last two numbers; the number before it is left out when the board is too narrow to hold both.
-        const tickFits = (k: number) => !ticksBelow || k !== 3 || (span() * this.scaleOf().ux) / 8 >= (titleText().length * 7 + 4) / 2 + (tickText(3).length * 6.6) / 2 + 4;
+        const tickFits = (k: number) => k !== 3 || (span() * this.scaleOf().ux) / 8 >= (titleText().length * 7 + 4) / 2 + (tickText(3).length * 6.6) / 2 + 4;
         const xAxisLabel = (k: number) => text(() => (span() * k) / 4, rowY, () => tickText(k), {anchorX: "middle", anchorY: "top", fontSize: 12, visible: () => tickFits(k)});
         [0, 1, 2, 3, 4].forEach(xAxisLabel);
-        const yLabelGapPx = ticksBelow ? 12 : 6;
+        const yLabelGapPx = 12;
         text(() => -yLabelGapPx / this.scaleOf().ux, () => d().yPeak, () => dec(d().yPeak, 2), {anchorX: "right", anchorY: "middle", fontSize: 12});
         text(() => -yLabelGapPx / this.scaleOf().ux, () => -d().yPeak, () => `${dec(-d().yPeak, 2)}`, {anchorX: "right", anchorY: "middle", fontSize: 12});
-        if (ticksBelow) text(() => span() * 0.875, rowY, titleText, {anchorX: "middle", anchorY: "top"});
-        else text(() => span() - 4 / this.scaleOf().ux, () => 6 / this.scaleOf().uy, titleText, {anchorX: "right", anchorY: "bottom"});
+        text(() => span() * 0.875, rowY, titleText, {anchorX: "middle", anchorY: "top"});
         text(() => 6 / this.scaleOf().ux, () => Math.max(peak(), d().yPeak + Y_TITLE_CLEARANCE_PX / this.scaleOf().uy) + 2 / this.scaleOf().uy, () => t("waves_graph_axis_y"), {anchorX: "left", anchorY: "bottom"});
 
         const playhead = (): number => this.clock();

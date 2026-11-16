@@ -47,8 +47,8 @@ const wavesWindows = {
     'waves.beats.waves': [0.073, 7.03, 1.847, -2.09],
     'waves.standing-waves.waves': [0.073, 12.5, 1.847, -1.76],
     // The sampling cards (first guess, viewed after the capture): the sum card's x range, room under the plot for the strip of instants and the names under the wheel.
-    'waves.aliasing.waves': [-0.449, 7.06, 0.921, -1.06],
-    'waves.nyquist.waves': [-0.449, 7.06, 0.921, -1.06],
+    'waves.aliasing.waves': [-0.449, 8.4, 0.921, -2.1],
+    'waves.nyquist.waves': [-0.449, 8.4, 0.921, -2.1],
 };
 
 // The descent cards: the screen-anchored caption rows stack down the left of the 840x520 card (six or seven rows, the race rows reaching about 290 px down), so each card gets a window that sets its figure in the

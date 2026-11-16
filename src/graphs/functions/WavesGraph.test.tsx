@@ -938,3 +938,56 @@ describe('redraw timing (JSDOM PLACEHOLDER, not a browser measurement)', () => {
         writeFileSync('.command-logs/wav02b-redraw.log', `JSDOM PLACEHOLDER waves playback (browser measurement owed at F2b)\n${lines.join('\n')}\n`);
     });
 });
+
+describe('the sampling scene on desktop and narrow boards: wheel names, tick numbers, the strip', () => {
+    const SIZES: ReadonlyArray<readonly [number, number]> = [[900, 520], [390, 520], [330, 520]];
+    const PAIRS: ReadonlyArray<readonly [number, number]> = [[2, 24], [3, 12], [23, 24], [40, 64], [6, 12]];
+    const sizeBoard = (W: number, H: number) => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    };
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+    function sampling(W: number, H: number, f1: number, fs: number, language: 'sl' | 'en') {
+        sizeBoard(W, H);
+        setLanguage(language);
+        const {graph} = mountGraph();
+        choose('sampling');
+        set(graph, {f1, fs, showAlias: true, showJoin: true, showSinc: true});
+        const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
+        expect([board.canvasWidth, board.canvasHeight]).toEqual([W, H]);
+        return {graph, board};
+    }
+
+    for (const language of ['sl', 'en'] as const) {
+        for (const [W, H] of SIZES) {
+            for (const [f1, fs] of PAIRS) {
+                test(`wheel names inside the board, tick numbers and the axis title clear of every dot, stem and curve, the strip 4 px inside the bottom (${W} x ${H}, f = ${f1}, fs = ${fs}, ${language})`, () => {
+                    const {graph, board} = sampling(W, H, f1, fs, language);
+                    const boxes = textBoxes(graph);
+                    for (const key of ['waves_graph_tip_true', 'waves_graph_tip_film'] as const) {
+                        const name = boxes.find(b => b.text === t(key))!;
+                        expect(name.y1, `"${name.text}" bottom`).toBeLessThanOrEqual(H);
+                        expect(name.x0, `"${name.text}" left`).toBeGreaterThanOrEqual(0);
+                        expect(name.x1, `"${name.text}" right`).toBeLessThanOrEqual(W);
+                    }
+                    const title = boxes.find(b => b.text === t('waves_graph_axis_t'))!;
+                    expect(title, 'the axis title is drawn').toBeDefined();
+                    expect(boxes.filter(b => /^\d/.test(b.text)).length, 'tick numbers are drawn').toBeGreaterThanOrEqual(2);
+                    expectTextsClear(graph, `sampling ${W}x${H} f=${f1} fs=${fs}`);
+                    for (const box of boxes) expect(box.y1, `"${box.text}" bottom`).toBeLessThanOrEqual(H);
+                    // the strip line and its hollow square keep 4 px or more under them
+                    const [left, top] = board.getBoundingBox();
+                    const square = ofType(graph, 'point').filter(o => visible(o) && o.evalVisProp('size') === 6).map(o => (top - o.Y()) * board.unitY);
+                    expect(square.length).toBeGreaterThan(0);
+                    expect(Math.max(...square) + 7 + 4, 'the square').toBeLessThanOrEqual(H);
+                    const low = Math.max(...curves(graph).filter(visible).flatMap(c => c.dataY!.filter(Number.isFinite).map(y => (top - y) * board.unitY)));
+                    expect(low + 4, 'the lowest curve point').toBeLessThanOrEqual(H);
+                    expect(left).toBeLessThan(0);
+                });
+            }
+        }
+    }
+});

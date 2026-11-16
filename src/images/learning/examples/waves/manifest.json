@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+  "sourceRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+    "revision": "9941c53678bc32415f4346ebe0efda275e8e716b",
     "dirty": true,
-    "inputs": "049989b9ace1011e632e5279547cee75541297aef3b733652c2ac2b023f5dd60",
-    "output": "0ab603d9bf8f8ecf665d43a4b5a201eb2bd5799c5644c40f0caea82c392d12de"
+    "inputs": "1c34f9602154783c20e7504448eda4521ade732dbc10e5a73ba30613197f3583",
+    "output": "a296df1e323204a1c405dec3edfa50ae7a37eafe864a4104676d8940af88b89c"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
-    "stampRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+    "stampRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
     "stampDirty": true,
-    "localOutputHash": "0ab603d9bf8f8ecf665d43a4b5a201eb2bd5799c5644c40f0caea82c392d12de",
+    "localOutputHash": "a296df1e323204a1c405dec3edfa50ae7a37eafe864a4104676d8940af88b89c",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-aoqdCKE1.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-aoqdCKE1.js",
-        "sha256": "f40f0e0709c1f6608dc7965274c9a4c3e08eb521eb64c88ee97e5dd97488f919",
+        "name": "index-_AKhuhgZ.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-_AKhuhgZ.js",
+        "sha256": "c6a7722247551978195d021bdd681b3464f81a6925a89e2e3972cb4e446ab798",
         "matchesLocalBuild": true
       },
       {
@@ -63,9 +63,9 @@
       "waves.aliasing.waves": "f4723e0d4e51ee6b7e0464ab786a42e5a5608c773247dab6fe97d1a6d9b727e6",
       "waves.nyquist.waves": "b3906538536bb91f332da9cc3264880fd10cea3a23b735d76c8de3e2059d947f"
     },
-    "presentation": "815fe0c7d82f54bb91e72650ed839b2db81cf87e5953d67e3cce49ba918924de",
-    "buildOutput": "0ab603d9bf8f8ecf665d43a4b5a201eb2bd5799c5644c40f0caea82c392d12de",
-    "buildInputs": "049989b9ace1011e632e5279547cee75541297aef3b733652c2ac2b023f5dd60"
+    "presentation": "a6b3cd7113adc42a7524f76ced5a1598090098c6173ea5aacabcf7ed38096dd7",
+    "buildOutput": "a296df1e323204a1c405dec3edfa50ae7a37eafe864a4104676d8940af88b89c",
+    "buildInputs": "1c34f9602154783c20e7504448eda4521ade732dbc10e5a73ba30613197f3583"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -130,9 +130,9 @@
           "kind": "coordinate-window",
           "window": [
             -0.449,
-            7.06,
+            8.4,
             0.921,
-            -1.06
+            -2.1
           ]
         }
       },
@@ -143,9 +143,9 @@
           "kind": "coordinate-window",
           "window": [
             -0.449,
-            7.06,
+            8.4,
             0.921,
-            -1.06
+            -2.1
           ]
         }
       }
@@ -403,8 +403,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
-        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "buildRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
+        "sourceRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
         "pageErrors": []
       }
     },
@@ -625,8 +625,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
-        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "buildRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
+        "sourceRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
         "pageErrors": []
       }
     },
@@ -827,8 +827,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
-        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "buildRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
+        "sourceRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
         "pageErrors": []
       }
     },
@@ -852,12 +852,12 @@
       "file": "waves.aliasing.waves.png",
       "width": 840,
       "height": 520,
-      "sha256": "313a2c63f07b38d665a392412da4655d5d438463acdb1c74dbfe3520fb39d126",
+      "sha256": "47de9a64f9ff92695069902bf0463181245afb9ed97743b2e7375707e9b1e6b5",
       "scene": {
-        "visibleElementCount": 50,
+        "visibleElementCount": 49,
         "visibleElementTypes": {
           "curve": 6,
-          "text": 15,
+          "text": 14,
           "point": 27,
           "arrow": 2
         },
@@ -865,15 +865,15 @@
         "sampledVisibleCurves": [
           [
             [
-              -0.255555,
+              -0.279229,
               0
             ],
             [
-              -0.255667,
+              -0.279315,
               0.032702
             ],
             [
-              -0.255778,
+              -0.279402,
               0.065403
             ]
           ],
@@ -1074,12 +1074,12 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 15,
-        "finalLabelCount": 15,
+        "renderedLabelCount": 14,
+        "finalLabelCount": 14,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "curve": 6,
-          "text": 15,
+          "text": 14,
           "point": 27,
           "arrow": 2
         }
@@ -1087,8 +1087,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
-        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "buildRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
+        "sourceRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
         "pageErrors": []
       }
     },
@@ -1112,12 +1112,12 @@
       "file": "waves.nyquist.waves.png",
       "width": 840,
       "height": 520,
-      "sha256": "e8d2f8888a50eed6f7d188273838b3de5cfed8c179542493dfdd968ba4249e55",
+      "sha256": "8850ad1a5e5c851d44de7b1b0161be4ec1e318d834a6c5d0755110e1cb58beb3",
       "scene": {
-        "visibleElementCount": 38,
+        "visibleElementCount": 37,
         "visibleElementTypes": {
           "curve": 6,
-          "text": 15,
+          "text": 14,
           "point": 15,
           "arrow": 2
         },
@@ -1125,15 +1125,15 @@
         "sampledVisibleCurves": [
           [
             [
-              -0.255555,
+              -0.279229,
               0
             ],
             [
-              -0.255667,
+              -0.279315,
               0.032702
             ],
             [
-              -0.255778,
+              -0.279402,
               0.065403
             ]
           ],
@@ -1332,12 +1332,12 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 15,
-        "finalLabelCount": 15,
+        "renderedLabelCount": 14,
+        "finalLabelCount": 14,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "curve": 6,
-          "text": 15,
+          "text": 14,
           "point": 15,
           "arrow": 2
         }
@@ -1345,8 +1345,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
-        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "buildRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
+        "sourceRevision": "9941c53678bc32415f4346ebe0efda275e8e716b",
         "pageErrors": []
       }
     }
