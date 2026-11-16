@@ -175,3 +175,63 @@ Register `wavesAliasingLesson` (chapter section, lesson id `waves-aliasing`), pr
 - The arrow angles (30 and 15 degrees) come from the phasor formula, not from the drawn wheel on screen.
 - Step 1 cannot hide the row Navidezno gibanje (naprej 2 Hz) on the first frame; the prediction asked there is about the arrows, not the direction.
 - The Slovenian prose was not reviewed by a Slovenian reader.
+
+## Slice 2 (LESSON): WV5
+
+### Written
+
+`src/learning/content/wavesSamplingGuidedLessons.ts` (WV4 untouched; only additions, 188 lines): constants `WV5_START_TONE = 3`, `WV5_TONE = 5`, `WV5_RATE = 12`, `WV5_PHASE = 25`, `WV5_EXTRA = 12`, `WV5_EDGE_TONE = 6`, `WV5_ALIASED_TONE = 8` (unused in a scene, named for the step 5 learner change), formula `nyquist-rate` (attached to step 6 only), `wv5Steps` (6 steps), export `wavesNyquistLesson` (demonstrationId `waves`, id `waves-nyquist` is for the handler; no worked example). Reuses `wavesSamplingSceneActions`. Not registered. Checks: tsc empty (`s2-tsc-wv5.log`); backslash checks 0 singles (`s2-backslash-wv5.txt`); `just unit` of `src/graphs/functions`, `wavesGuidedLessons.test.ts` and a temporary copy of `lessonMathNotation.test.ts` with both lessons added: 1826 passed, only the chapter-count assertion failed (two unregistered lessons; `s2-unit-wv5.log`, copy deleted); `just lint` passed. Probe: `.command-logs/waves-c/probe2-wv5.txt` (sl, en; two temporary host tests, deleted).
+
+### Steps (opening, prediction, learner change)
+
+| Step | Opening scene | Prediction asked | Learner change |
+| --- | --- | --- | --- |
+| 1 wv5-dots | f 3, fs 12, phase 25, alias off | samples per period at f = 5; do the dots still show the tone | Frekvenca tona v Hz = 5 |
+| 2 wv5-join | f 5, fs 12, phase 25, extra 12, alias, join, sinc off | error of segments (few percent, half, nearly all); sinc error vs segments at 12, 48, 192 | Daljice med vzorci on; Rekonstrukcija s funkcijo sinc on; Dodatni vzorci 48, 192 |
+| 3 wv5-rate | f 5, fs 12, phase 25, alias on | Nyquist row, direction, apparent frequency at fs 11, 10, 9 | Frekvenca vzorčenja v Hz = 11, 10, 9 |
+| 4 wv5-edge | f 6, fs 12, phase 0, alias on | dots and apparent amplitude at phase 25, 90 | Faza tona v stopinjah = 25, 90 |
+| 5 wv5-alias | f 5, fs 12, phase 25, alias off | tone of lower frequency and direction giving the dots of f = 8; argument | f = 8; Pojav lažne frekvence on |
+| 6 wv5-explore | f 5, fs 12, phase 25, extra 48, alias, join, sinc on | decision and error comparison for own f, fs; find fs with join error below 0,1 | free |
+
+### Numbers per step with source
+
+| Quote | Value | Source |
+| --- | --- | --- |
+| step 1: 12/3 = 4; 12/5 = 2,4; Navidezna frekvenca 5 obr/s | as quoted | probe2 S1 (sl, en) |
+| step 2: join 0,731 (graph prints 0,731, i.e. 0,7310) "na 0 do 1 s"; sinc 0,0274 / 0,0093 / 0,0025 "na 0,4 do 0,6 s" | as quoted | probe2 S2 (sl, en); probe.txt |
+| step 3: fs 11 "je nad njo", naprej 5 Hz; fs 10 "je enaka njej", "ni določeno", no alias wave; fs 9 "je pod njo", nazaj 4 Hz, -4 obr/s; 5 - 9 = -4 | as quoted | probe2 S3 |
+| step 4: phase 0: "1 in −1 (navidezna amplituda 1)"; 25: "0,9063 in −0,9063 (… 0,9063)"; 90: "0 in 0 (… 0)"; cos 25 degrees = 0,9063; x_n = A cos(phi)(-1)^n | as quoted | probe2 S4; arithmetic |
+| step 5: f 8, fs 12: -4 obr/s, nazaj 4 Hz; 8 = -4 + 12; caption of the above case "Črtkano: ton skozi pike (natančna rekonstrukcija)" | as quoted | probe2 S5; `sl.ts:3704` |
+| step 6: f 2, fs 12: 6 vzorcev na periodo, join 0,1335, sinc 0,0015 (extra 48); f 5: fs 36 join 0,0937, fs 64 join 0,03 | as quoted | probe2 S6, S6b |
+
+### Deviations
+
+- Phase 25 degrees throughout (step 4 opens at 0 and the learner sets 25 and 90); the spec 0,4 rad values are not quoted. Join error 0,731 is the graph's own trimmed print of 0,7310.
+- The spec step 2 (join) also covers the sinc reconstruction and its three window values (not a separate spec step); the spec "exact reconstruction toggle" is the alias switch (caption "natančna rekonstrukcija" above 2f).
+- No worked example (the arithmetic is in each step's expected observations); formula `nyquist-rate` carries the sampling theorem without proof and is shown at step 6 only.
+- Step 3: fs = 11 is above 2f (11 > 10); the step says so rather than treating it as below.
+
+### Test design
+
+Scene mechanics: `prepared-scene`, `set-mode sampling`, `set-components {f1, p1: 25 (step 4: 0), a1: 1}`, `set-sampling {fs: 12, extra: 48 (step 2: 12), showAlias, showJoin: false, showSinc: false}` except step 6 (join and sinc true), `set-time 0`; one synchronous sequence via the exported `wavesSamplingSceneActions`. Readout keys: `samples-per-period`, `nyquist`, `alias`, `alias-frequency`, `ambiguous-samples` (2f = fs only), `join-error` (join on), `sinc-error` (sinc on). Expected (sl; en in probe2):
+
+| State | samples-per-period | nyquist | alias-frequency | other |
+| --- | --- | --- | --- | --- |
+| step 1 open f 3 / after f 5 | 4 / 2,4 | nad njo | 3 / 5 obr/s | |
+| step 2 open / join on / sinc on, extra 12, 48, 192 | 2,4 | nad njo | 5 | join 0,731 (na 0 do 1 s); sinc 0,0274, 0,0093, 0,0025 (na 0,4 do 0,6 s) |
+| step 3 open / fs 11 / 10 / 9 | 2,4 / 2,2 / 2 / 1,8 | nad / nad / enaka / pod | 5 / 5 / ni določeno / −4 | fs 10: ambiguous-samples 0,9063 in −0,9063; status "Pri 2f = fs smeri vrtenja ni mogoče določiti." |
+| step 4 open / 25 / 90 | 2 | enaka njej | ni določeno | ambiguous-samples "1 in −1 (navidezna amplituda 1)" / "0,9063 in −0,9063 (… 0,9063)" / "0 in 0 (… 0)" |
+| step 5 open / f 8 | 2,4 / 1,5 | nad / pod | 5 / −4 | status "… nazaj s frekvenco 4 Hz." |
+| step 6 open / f 2 | 2,4 / 6 | nad | 5 / 2 | join 0,731 / 0,1335; sinc 0,0093 / 0,0015; fs 36: 0,0937; fs 64: 0,03 (f 5) |
+
+Learner actions: as in the steps table (fields, switches and sliders named with their sl and en labels). Quote list: the table above; no Slovenian count-noun status string is quoted.
+
+### Still to do (handler)
+
+Registration (section, id `waves-nyquist`), preview copy, test lists (`lessonMathNotation.test.ts`, chapter count), scene and learner-change tests, smoke specs.
+
+### Doubts
+
+- Slovenian prose not read by a Slovenian reader; step 1 and 2 openings show the thin wave and dots, so "does it still show the tone" is answered only by the readout after the change.
+- Step 5 states that below fs/2 no other tone shares the dots: it is the theorem, given in an observation (collapsed), not proved.
+- Alias wave drawn at phase 25 is the apparent-frequency tone with the same phase; not viewed on screen.

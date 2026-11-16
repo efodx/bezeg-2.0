@@ -254,6 +254,169 @@ const wv4Steps: readonly GuidedLessonStep[] = [
     }),
 ];
 
+// ---- WV5 -------------------------------------------------------------------------------------------------------------------------
+// WV5 (Nyquist rate and reconstruction) uses the same scene helper. The phase is 25 degrees (the spec phase 0,4 rad is off the 5 degree grid; docs/specs/waves-sampling-lessons.md, F3 note).
+// Every predicting step opens on the state BEFORE the change it asks for; the join, the sinc reconstruction and the alias wave are hidden where their picture or error row would answer.
+
+/** The tone of step 1 before the change, in hertz; the learner raises it to WV5_TONE. */
+export const WV5_START_TONE = 3;
+/** The tone of steps 1 to 3 and 6 (2,4 samples per period at WV5_RATE), in hertz. */
+export const WV5_TONE = 5;
+/** The sampling rate of WV5, in hertz. */
+export const WV5_RATE = 12;
+/** The phase of the tone in degrees (the grid is 5 degrees; 0,4 rad is not reachable). */
+export const WV5_PHASE = 25;
+/** The extra samples of the sinc reconstruction in the opening of step 2 (the learner then sets 48 and 192). */
+export const WV5_EXTRA = 12;
+/** The tone of step 4: sampled at exactly twice its frequency by WV5_RATE. */
+export const WV5_EDGE_TONE = 6;
+/** The tone of step 5: above half the sampling rate, so it has an apparent frequency. */
+export const WV5_ALIASED_TONE = 8;
+
+const wv5Formulas: readonly FormulaBlock[] = [
+    {
+        id: 'nyquist-rate',
+        latex: 'x_n=A\\cos\\!\\left(2\\pi f\\tfrac{n}{f_s}+\\varphi\\right),\\quad f_s>2f',
+        notation: text(
+            '\\(x_n\\) je vzorec ob trenutku \\(\\tfrac{n}{f_s}\\), \\(A\\) amplituda, \\(f\\) frekvenca čistega tona v hercih, \\(\\varphi\\) faza in \\(f_s\\) frekvenca vzorčenja.',
+            '\\(x_n\\) is the sample at the instant \\(\\tfrac{n}{f_s}\\), \\(A\\) the amplitude, \\(f\\) the frequency of the pure tone in hertz, \\(\\varphi\\) the phase and \\(f_s\\) the sampling rate.',
+        ),
+        explanation: text(
+            'Izrek o vzorčenju, naveden brez dokaza: če je \\(f_s>2f\\), vzorci \\(x_n\\) določajo čisti ton med vsemi čistimi toni s frekvenco pod \\(\\tfrac{f_s}{2}\\) (amplitudo, fazo in frekvenco). Pri \\(f_s=2f\\) velja \\(x_n=A\\cos\\varphi\\cdot(-1)^n\\): vzorci razkrijejo le \\(A\\cos\\varphi\\), zato več tonov da iste pike. Pri \\(f_s<2f\\) ima vsak ton še nižje toni, ki dajo iste vzorce (pojav lažne frekvence). Odločitev je natančna primerjava celih števil \\(f_s\\) in \\(2f\\). Daljice in funkcija sinc sta približka, napaka na grafu je ponazoritev.',
+            'The sampling theorem, stated without proof: if \\(f_s>2f\\), the samples \\(x_n\\) determine the pure tone among all pure tones with a frequency below \\(\\tfrac{f_s}{2}\\) (the amplitude, the phase and the frequency). At \\(f_s=2f\\) we have \\(x_n=A\\cos\\varphi\\cdot(-1)^n\\): the samples reveal only \\(A\\cos\\varphi\\), so several tones give the same dots. At \\(f_s<2f\\) there are tones of lower frequency that give the same samples (aliasing). The decision is an exact comparison of the integers \\(f_s\\) and \\(2f\\). Segments and the sinc function are approximations, and the error on the graph is an illustration.',
+        ),
+    },
+];
+
+const wv5Steps: readonly GuidedLessonStep[] = [
+    step({
+        id: 'wv5-dots', order: 1,
+        title: text('Pike čistega tona', 'The dots of a pure tone'),
+        purpose: text('Napovedati število vzorcev na periodo pri višjem tonu in ali pike še kažejo isti ton.', 'Predicting the number of samples per period at a higher tone and whether the dots still show the same tone.'),
+        explanation: text(
+            'Čisti ton \\(\\cos(2\\pi ft+\\varphi)\\) vzorčimo ob trenutkih \\(\\tfrac{n}{f_s}\\); pike so njegove vrednosti ob njih, tanka krivulja pa pravi val. Slika kaže ton \\(f=3\\ \\mathrm{Hz}\\) s fazo \\(25^\\circ\\) in amplitudo \\(1\\) pri \\(f_s=12\\ \\mathrm{Hz}\\): odčitek Vzorcev na periodo je \\(\\tfrac{12}{3}=4\\). Napoved z razlogom: ton povišamo na \\(5\\ \\mathrm{Hz}\\), frekvenca vzorčenja ostane. Koliko vzorcev bo na periodo in ali bo iz pik še mogoče razbrati, kateri ton je bil vzorčen?',
+            'A pure tone \\(\\cos(2\\pi ft+\\varphi)\\) is sampled at the instants \\(\\tfrac{n}{f_s}\\); the dots are its values at them, and the thin curve is the true wave. The picture shows a tone \\(f=3\\ \\mathrm{Hz}\\) with phase \\(25^\\circ\\) and amplitude \\(1\\) at \\(f_s=12\\ \\mathrm{Hz}\\): the readout Samples per period is \\(\\tfrac{12}{3}=4\\). Prediction with a reason: the tone is raised to \\(5\\ \\mathrm{Hz}\\), the sampling rate stays. How many samples will there be per period, and will the dots still show which tone was sampled?',
+        ),
+        formulaIds: [],
+        observationPrompt: text(
+            'Zapiši napoved in razlog. Nato v polju Frekvenca tona v Hz nastavi \\(5\\) in preberi Vzorcev na periodo ter Navidezna frekvenca; primerjaj pike s tanko krivuljo.',
+            'Write down your prediction and the reason. Then set the field Frequency of the tone in Hz to \\(5\\) and read Samples per period and Apparent frequency; compare the dots with the thin curve.',
+        ),
+        expectedObservations: [text(
+            'Vzorcev na periodo je \\(\\tfrac{12}{5}=2{,}4\\): v vsaki periodi sta dve ali tri pike, krivulja pa se med njimi že precej ukrivi. Navidezna frekvenca \\(5\\) obr/s: pike ustrezajo tonu \\(5\\ \\mathrm{Hz}\\). Kako dobro pike določajo ton in kaj naredijo daljice med njimi, raziščeta naslednja koraka.',
+            'Samples per period is \\(\\tfrac{12}{5}=2.4\\): each period holds two or three dots, and the curve bends a lot between them. Apparent frequency \\(5\\) rev/s: the dots correspond to a tone of \\(5\\ \\mathrm{Hz}\\). How well the dots determine the tone and what the segments between them do is explored in the next two steps.',
+        )],
+        scene: samplingScene('wv5-dots-scene', {f: WV5_START_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: false, t: 0},
+            'Vzorčenje, ton \\(3\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias val, daljice in sinc skriti: \\(4\\) vzorci na periodo.',
+            'Sampling, tone \\(3\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias wave, segments and sinc hidden: \\(4\\) samples per period.'),
+    }),
+    step({
+        id: 'wv5-join', order: 2,
+        title: text('Daljice in sinc', 'Segments and sinc'),
+        purpose: text('Napovedati napako daljic in rekonstrukcije s funkcijo sinc ter primerjati z odčitkoma.', 'Predicting the error of the segments and of the sinc reconstruction and comparing with the readouts.'),
+        explanation: text(
+            'Pike lahko povežemo z daljicami ali pa val iz njih sestavimo s funkcijo sinc. Obe sta približka; odčitek pove največjo razliko od pravega vala v amplitudah (amplituda je \\(1\\)): za daljice na oknu od \\(0\\) do \\(1\\ \\mathrm{s}\\), za sinc le na sredini, od \\(0{,}4\\) do \\(0{,}6\\ \\mathrm{s}\\), ker je sinc okrnjen (sestavljen je le iz vzorcev v oknu in iz dodatnih vzorcev na obeh straneh). Slika kaže ton \\(5\\ \\mathrm{Hz}\\) s fazo \\(25^\\circ\\) pri \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev je \\(12\\). Napoved z razlogom: kolikšen del amplitude bodo daljice na najslabšem mestu zgrešile (nekaj odstotkov, približno polovico ali skoraj celo amplitudo)? Bo napaka sinca pri \\(12\\) dodatnih vzorcih manjša ali večja in kako se spremeni pri \\(48\\) in \\(192\\)?',
+            'The dots can be joined with segments, or a wave can be built from them with the sinc function. Both are approximations; the readout gives the largest difference from the true wave in amplitudes (the amplitude is \\(1\\)): for the segments on the window from \\(0\\) to \\(1\\ \\mathrm{s}\\), for sinc only in the middle, from \\(0.4\\) to \\(0.6\\ \\mathrm{s}\\), because sinc is truncated (it is built from the samples in the window and from extra samples on both sides). The picture shows a tone of \\(5\\ \\mathrm{Hz}\\) with phase \\(25^\\circ\\) at \\(12\\ \\mathrm{Hz}\\), with \\(12\\) extra samples. Prediction with a reason: what part of the amplitude will the segments miss at the worst place (a few percent, about half, or nearly the whole amplitude)? Will the error of sinc at \\(12\\) extra samples be smaller or larger, and how does it change at \\(48\\) and \\(192\\)?',
+        ),
+        formulaIds: [],
+        observationPrompt: text(
+            'Zapiši napoved in razlog. Nato vključi Daljice med vzorci in preberi Približna največja napaka daljic. Nato vključi Rekonstrukcija s funkcijo sinc, preberi Približna največja napaka rekonstrukcije in v polju Dodatni vzorci za rekonstrukcijo nastavi \\(48\\) in nato \\(192\\).',
+            'Write down your prediction and the reason. Then switch on Segments between samples and read Approximate largest error of the segments. Then switch on Sinc reconstruction, read Approximate largest error of the reconstruction, and set the field Extra samples for the reconstruction to \\(48\\) and then to \\(192\\).',
+        ),
+        expectedObservations: [text(
+            'Daljice: napaka približno \\(0{,}731\\) amplitude (na \\(0\\) do \\(1\\ \\mathrm{s}\\), izmerjeno na narisani mreži), torej skoraj tri četrtine: daljice med redkimi pikami ne dohitijo vrhov. Sinc: pri \\(12\\) dodatnih vzorcih približno \\(0{,}0274\\), pri \\(48\\) približno \\(0{,}0093\\), pri \\(192\\) približno \\(0{,}0025\\) (na \\(0{,}4\\) do \\(0{,}6\\ \\mathrm{s}\\)). Sinc je veliko boljši od daljic, napaka pa zaradi okrnitve pada počasi: še dodatni vzorci jo manjšajo, a je ne odpravijo. Vrednosti so ponazoritev za ta ton, ne dokaz.',
+            'Segments: an error of about \\(0.731\\) of the amplitude (on \\(0\\) to \\(1\\ \\mathrm{s}\\), measured on the drawn grid), that is nearly three quarters: the segments between sparse dots do not reach the peaks. Sinc: about \\(0.0274\\) at \\(12\\) extra samples, about \\(0.0093\\) at \\(48\\), about \\(0.0025\\) at \\(192\\) (on \\(0.4\\) to \\(0.6\\ \\mathrm{s}\\)). Sinc is much better than the segments, but the error falls slowly because of the truncation: more extra samples reduce it without removing it. The values illustrate this tone and are not a proof.',
+        )],
+        scene: samplingScene('wv5-join-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, extra: WV5_EXTRA, showAlias: false, t: 0},
+            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev \\(12\\), daljice, sinc in alias val skriti.',
+            'Sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), \\(12\\) extra samples, segments, sinc and alias wave hidden.'),
+    }),
+    step({
+        id: 'wv5-rate', order: 3,
+        title: text('Spreminjanje frekvence vzorčenja', 'Changing the sampling rate'),
+        purpose: text('Napovedati, pri katerih frekvencah vzorčenja ton še določajo pike, in primerjati z odčitkom Nyquistova frekvenca.', 'Predicting at which sampling rates the dots still determine the tone and comparing with the readout Nyquist rate.'),
+        explanation: text(
+            'Ton ostane \\(5\\ \\mathrm{Hz}\\) s fazo \\(25^\\circ\\), kot v prejšnjem koraku, spreminjamo pa frekvenco vzorčenja. Slika kaže \\(f_s=12\\ \\mathrm{Hz}\\), alias val je prikazan. Odčitek Nyquistova frekvenca primerja \\(f_s\\) z \\(2f\\) kot celi števili. Napoved z razlogom za \\(f_s=11\\), \\(10\\) in \\(9\\ \\mathrm{Hz}\\): kaj piše odčitek Nyquistova frekvenca (nad, enaka ali pod), ali se vrtenje še kaže naprej s \\(5\\ \\mathrm{Hz}\\) in kaj piše Navidezna frekvenca?',
+            'The tone stays \\(5\\ \\mathrm{Hz}\\) with phase \\(25^\\circ\\), as in the previous step, and the sampling rate is changed. The picture shows \\(f_s=12\\ \\mathrm{Hz}\\), the alias wave is shown. The readout Nyquist rate compares \\(f_s\\) with \\(2f\\) as two integers. Prediction with a reason for \\(f_s=11\\), \\(10\\) and \\(9\\ \\mathrm{Hz}\\): what does the readout Nyquist rate say (above, equal or below), does the rotation still seem to go forwards at \\(5\\ \\mathrm{Hz}\\), and what does Apparent frequency say?',
+        ),
+        formulaIds: [],
+        observationPrompt: text(
+            'Zapiši napoved in razlog za vse tri vrednosti. Nato v polju Frekvenca vzorčenja v Hz nastavi \\(11\\), \\(10\\) in \\(9\\); vsakič preberi Nyquistova frekvenca, Navidezno gibanje in Navidezna frekvenca ter opazuj črtkano krivuljo.',
+            'Write down your prediction and the reason for all three values. Then set the field Sampling rate in Hz to \\(11\\), \\(10\\) and \\(9\\); each time read Nyquist rate, Apparent motion and Apparent frequency and watch the dashed curve.',
+        ),
+        expectedObservations: [text(
+            '\\(f_s=11\\): \\(11>10\\), odčitek piše, da je \\(f_s\\) nad \\(2f=10\\ \\mathrm{Hz}\\); kolo se še navidezno vrti naprej s \\(5\\ \\mathrm{Hz}\\). \\(f_s=10\\): \\(f_s=2f\\), odčitek piše, da je enaka; Navidezna frekvenca ni določena, alias vala ne nariše. \\(f_s=9\\): \\(9<10\\), odčitek piše, da je pod (pojav lažne frekvence); vrtenje se kaže nazaj s \\(4\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-4\\) obr/s, ker je \\(5-9=-4\\). Meja je \\(f_s=2f\\), ne \\(f_s=12\\ \\mathrm{Hz}\\), s katere smo začeli.',
+            '\\(f_s=11\\): \\(11>10\\), the readout says \\(f_s\\) is above \\(2f=10\\ \\mathrm{Hz}\\); the wheel still seems to turn forwards at \\(5\\ \\mathrm{Hz}\\). \\(f_s=10\\): \\(f_s=2f\\), the readout says it equals it; Apparent frequency is not defined and no alias wave is drawn. \\(f_s=9\\): \\(9<10\\), the readout says it is below (aliasing); the rotation seems to go backwards at \\(4\\ \\mathrm{Hz}\\), Apparent frequency \\(-4\\) rev/s, because \\(5-9=-4\\). The border is \\(f_s=2f\\), not the \\(f_s=12\\ \\mathrm{Hz}\\) we started from.',
+        )],
+        scene: samplingScene('wv5-rate-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: true, t: 0},
+            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias val prikazan: Nyquistova frekvenca piše, da je \\(f_s\\) nad \\(2f\\), naprej \\(5\\ \\mathrm{Hz}\\).',
+            'Sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias wave shown: Nyquist rate says \\(f_s\\) is above \\(2f\\), forwards \\(5\\ \\mathrm{Hz}\\).'),
+    }),
+    step({
+        id: 'wv5-edge', order: 4,
+        title: text('Vzorčenje natanko dvakrat na periodo', 'Sampling exactly twice per period'),
+        purpose: text('Napovedati, kako se pike pri \\(f_s=2f\\) spreminjajo s fazo, in primerjati z odčitkom Vzorca pri 2f = fs.', 'Predicting how the dots at \\(f_s=2f\\) change with the phase and comparing with the readout Samples at 2f = fs.'),
+        explanation: text(
+            'Ton \\(6\\ \\mathrm{Hz}\\) vzorčimo z \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), na periodo sta natanko dva vzorca. Faza je zdaj \\(0^\\circ\\), amplituda \\(1\\); odčitek Vzorca pri 2f = fs piše vrednosti prvih dveh vzorcev in navidezno amplitudo. Napoved z razlogom: fazo spremenimo najprej na \\(25^\\circ\\), nato na \\(90^\\circ\\). Kam pridejo pike in kolikšna bo navidezna amplituda? Ali pike pri \\(90^\\circ\\) še kažejo, da je ton tam?',
+            'A tone of \\(6\\ \\mathrm{Hz}\\) is sampled at \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), exactly two samples per period. The phase is now \\(0^\\circ\\), the amplitude \\(1\\); the readout Samples at 2f = fs gives the values of the first two samples and the apparent amplitude. Prediction with a reason: the phase is changed first to \\(25^\\circ\\), then to \\(90^\\circ\\). Where do the dots go and what will the apparent amplitude be? Do the dots at \\(90^\\circ\\) still show that the tone is there?',
+        ),
+        formulaIds: [],
+        observationPrompt: text(
+            'Zapiši napoved in razlog. Nato v polju Faza tona v stopinjah nastavi \\(25\\) in nato \\(90\\); vsakič preberi Vzorca pri 2f = fs in primerjaj pike s tanko krivuljo.',
+            'Write down your prediction and the reason. Then set the field Phase of the tone in degrees to \\(25\\) and then to \\(90\\); each time read Samples at 2f = fs and compare the dots with the thin curve.',
+        ),
+        expectedObservations: [text(
+            'Pri \\(f_s=2f\\) je \\(x_n=A\\cos\\varphi\\cdot(-1)^n\\): pike si izmenično sledijo med \\(A\\cos\\varphi\\) in \\(-A\\cos\\varphi\\). Pri \\(0^\\circ\\) je vrednost \\(1\\) in \\(-1\\), pri \\(25^\\circ\\) je \\(\\cos25^\\circ\\approx0{,}9063\\) (odčitek \\(0{,}9063\\) in \\(-0{,}9063\\), navidezna amplituda \\(0{,}9063\\)), pri \\(90^\\circ\\) je \\(\\cos90^\\circ=0\\): vse pike so na osi, odčitek piše \\(0\\) in \\(0\\), ton pa je vseeno prisoten. Pri \\(f_s=2f\\) pike ne določajo ne faze ne amplitude tona: frekvenca vzorčenja \\(2f\\) ni dovolj.',
+            'At \\(f_s=2f\\) we have \\(x_n=A\\cos\\varphi\\cdot(-1)^n\\): the dots alternate between \\(A\\cos\\varphi\\) and \\(-A\\cos\\varphi\\). At \\(0^\\circ\\) the values are \\(1\\) and \\(-1\\), at \\(25^\\circ\\) we have \\(\\cos25^\\circ\\approx0.9063\\) (the readout \\(0.9063\\) and \\(-0.9063\\), apparent amplitude \\(0.9063\\)), at \\(90^\\circ\\) we have \\(\\cos90^\\circ=0\\): all dots are on the axis, the readout says \\(0\\) and \\(0\\), yet the tone is there. At \\(f_s=2f\\) alone the dots determine neither the phase nor the amplitude of the tone: the rate \\(2f\\) is not enough.',
+        )],
+        scene: samplingScene('wv5-edge-scene', {f: WV5_EDGE_TONE, fs: WV5_RATE, p: 0, showAlias: true, t: 0},
+            'Vzorčenje, ton \\(6\\ \\mathrm{Hz}\\), faza \\(0^\\circ\\), \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), Vzorca pri 2f = fs \\(1\\) in \\(-1\\), alias vala ni.',
+            'Sampling, tone \\(6\\ \\mathrm{Hz}\\), phase \\(0^\\circ\\), \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), Samples at 2f = fs \\(1\\) and \\(-1\\), no alias wave.'),
+    }),
+    step({
+        id: 'wv5-alias', order: 5,
+        title: text('Ton in njegov alias', 'A tone and its alias'),
+        purpose: text('Napovedati ton z nižjo frekvenco, ki da iste pike, in utemeljiti s periodičnostjo kosinusa.', 'Predicting the tone of lower frequency that gives the same dots and justifying it by the periodicity of the cosine.'),
+        explanation: text(
+            'Ton \\(5\\ \\mathrm{Hz}\\) pri \\(12\\ \\mathrm{Hz}\\) smo že videli. Zdaj ga zamenjamo z višjim. Napoved z razlogom: nastavimo \\(f=8\\ \\mathrm{Hz}\\) pri \\(f_s=12\\ \\mathrm{Hz}\\), faza ostane \\(25^\\circ\\). Kateri ton z nižjo frekvenco (in v katero smer) da natanko iste pike, in kaj to pove o pikah \\(8\\ \\mathrm{Hz}\\)? Utemelji z enačbo za vzorec \\(x_n\\) in periodičnostjo kosinusa.',
+            'We have already seen the tone \\(5\\ \\mathrm{Hz}\\) at \\(12\\ \\mathrm{Hz}\\). Now it is replaced by a higher one. Prediction with a reason: set \\(f=8\\ \\mathrm{Hz}\\) at \\(f_s=12\\ \\mathrm{Hz}\\), the phase stays \\(25^\\circ\\). Which tone of lower frequency (and in which direction) gives exactly the same dots, and what does this say about the dots of \\(8\\ \\mathrm{Hz}\\)? Justify with the equation of the sample \\(x_n\\) and the periodicity of the cosine.',
+        ),
+        formulaIds: [],
+        observationPrompt: text(
+            'Zapiši napoved in utemeljitev. Nato v polju Frekvenca tona v Hz nastavi \\(8\\), preberi Navidezna frekvenca, vključi Pojav lažne frekvence (aliasing) in preveri, ali črtkana krivulja gre skozi vse pike.',
+            'Write down your prediction and the justification. Then set the field Frequency of the tone in Hz to \\(8\\), read Apparent frequency, switch on Aliasing and check whether the dashed curve passes through all the dots.',
+        ),
+        expectedObservations: [text(
+            'Navidezna frekvenca \\(-4\\) obr/s, kolo se navidezno vrti nazaj s \\(4\\ \\mathrm{Hz}\\); črtkana krivulja gre skozi vse pike, tanka krivulja \\(8\\ \\mathrm{Hz}\\) pa le skozi pike, med njimi se obe razlikujeta. Utemeljitev (argument): \\(8=-4+12\\), zato se argumenta vzorcev \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) in \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) razlikujeta za \\(2\\pi n\\), kosinus pa ima periodo \\(2\\pi\\). To velja za vsak \\(n\\); slika to le ponazarja. Pri \\(f=5\\ \\mathrm{Hz}\\) je črtkana krivulja ton sam (napis Črtkano: ton skozi pike, natančna rekonstrukcija), ker pod \\(\\tfrac{f_s}{2}\\) drugega tona z istimi pikami ni.',
+            'Apparent frequency \\(-4\\) rev/s, the wheel seems to turn backwards at \\(4\\ \\mathrm{Hz}\\); the dashed curve passes through all the dots, while the thin curve of \\(8\\ \\mathrm{Hz}\\) passes only through the dots, and between them the two differ. The justification (an argument): \\(8=-4+12\\), so the arguments of the samples \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) and \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) differ by \\(2\\pi n\\), and the cosine has the period \\(2\\pi\\). This holds for every \\(n\\); the picture only illustrates it. At \\(f=5\\ \\mathrm{Hz}\\) the dashed curve is the tone itself (the caption Dashed: the tone through the dots, exact reconstruction), because below \\(\\tfrac{f_s}{2}\\) there is no other tone with the same dots.',
+        )],
+        scene: samplingScene('wv5-alias-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: false, t: 0},
+            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias val skrit: izhodišče, v katerem se frekvenca tona poveča na \\(8\\ \\mathrm{Hz}\\).',
+            'Sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias wave hidden: the starting point from which the frequency of the tone is raised to \\(8\\ \\mathrm{Hz}\\).'),
+    }),
+    step({
+        id: 'wv5-explore', order: 6,
+        title: text('Prosto raziskovanje', 'Free exploration'),
+        purpose: text('Napovedati napako daljic in sinca za lastne nastavitve ter preveriti izrek o vzorčenju.', 'Predicting the error of the segments and of sinc for settings of your own and checking the sampling theorem.'),
+        explanation: text(
+            'Izrek o vzorčenju spodaj je naveden brez dokaza. Slika kaže ton \\(5\\ \\mathrm{Hz}\\) pri \\(12\\ \\mathrm{Hz}\\) s fazo \\(25^\\circ\\), daljice in sinc (\\(48\\) dodatnih vzorcev) so prikazani. Izberi svoj \\(f\\) (od \\(1\\) do \\(40\\)) in \\(f_s\\) (od \\(2\\) do \\(64\\)). Napoved: najprej se odloči, ali je \\(f_s>2f\\), \\(f_s=2f\\) ali \\(f_s<2f\\), in oceni, ali bo napaka daljic večja ali manjša kot pri \\(f=5\\ \\mathrm{Hz}\\); nato primerjaj z odčitki. Poišči še frekvenco vzorčenja, pri kateri je napaka daljic za ton \\(5\\ \\mathrm{Hz}\\) pod \\(0{,}1\\).',
+            'The sampling theorem below is stated without proof. The picture shows a tone of \\(5\\ \\mathrm{Hz}\\) at \\(12\\ \\mathrm{Hz}\\) with phase \\(25^\\circ\\), the segments and sinc (\\(48\\) extra samples) are shown. Choose your own \\(f\\) (from \\(1\\) to \\(40\\)) and \\(f_s\\) (from \\(2\\) to \\(64\\)). Prediction: first decide whether \\(f_s>2f\\), \\(f_s=2f\\) or \\(f_s<2f\\), and estimate whether the error of the segments will be larger or smaller than at \\(f=5\\ \\mathrm{Hz}\\); then compare with the readouts. Also find a sampling rate at which the error of the segments for the \\(5\\ \\mathrm{Hz}\\) tone is below \\(0.1\\).',
+        ),
+        formulaIds: ['nyquist-rate'],
+        observationPrompt: text(
+            'Najprej napovej, nato primerjaj z odčitki Nyquistova frekvenca, Približna največja napaka daljic in Približna največja napaka rekonstrukcije; poišči frekvenco vzorčenja, pri kateri je napaka daljic za \\(5\\ \\mathrm{Hz}\\) pod \\(0{,}1\\).',
+            'First predict, then compare with the readouts Nyquist rate, Approximate largest error of the segments and Approximate largest error of the reconstruction; find a sampling rate at which the error of the segments for \\(5\\ \\mathrm{Hz}\\) is below \\(0.1\\).',
+        ),
+        expectedObservations: [text(
+            'Odločitev odčitka je primerjava \\(f_s\\) z \\(2f\\). Za \\(f=2\\ \\mathrm{Hz}\\) pri \\(12\\ \\mathrm{Hz}\\) (faza \\(25^\\circ\\)) je \\(6\\) vzorcev na periodo, napaka daljic približno \\(0{,}1335\\), sinc približno \\(0{,}0015\\); pri teh nastavitvah več vzorcev na periodo pomeni manjšo napako daljic. Za \\(f=5\\ \\mathrm{Hz}\\) je napaka daljic pri \\(f_s=36\\ \\mathrm{Hz}\\) približno \\(0{,}0937\\), pri \\(64\\ \\mathrm{Hz}\\) približno \\(0{,}03\\), torej pod \\(0{,}1\\). Pri \\(f_s\\le2f\\) pike ne določajo tona enolično, zato napaka tam ne pove, kako dobro rekonstruiramo ton.',
+            'The decision of the readout is a comparison of \\(f_s\\) with \\(2f\\). For \\(f=2\\ \\mathrm{Hz}\\) at \\(12\\ \\mathrm{Hz}\\) (phase \\(25^\\circ\\)) there are \\(6\\) samples per period, the error of the segments is about \\(0.1335\\), sinc about \\(0.0015\\); at these settings more samples per period mean a smaller error of the segments. For \\(f=5\\ \\mathrm{Hz}\\) the error of the segments is about \\(0.0937\\) at \\(f_s=36\\ \\mathrm{Hz}\\) and about \\(0.03\\) at \\(64\\ \\mathrm{Hz}\\), so below \\(0.1\\). At \\(f_s\\le2f\\) the dots do not determine the tone uniquely, so the error there does not say how well the tone is reconstructed.',
+        )],
+        scene: samplingScene('wv5-explore-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, extra: 48, showAlias: true, showJoin: true, showSinc: true, t: 0},
+            'Začetni primer: vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev \\(48\\), alias val, daljice in sinc prikazani.',
+            'The starting case: sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), \\(48\\) extra samples, alias wave, segments and sinc shown.'),
+    }),
+];
+
 // ---- Lessons ---------------------------------------------------------------------------------------------------------------------
 
 const sources: GuidedLesson['sources'] = [
@@ -285,6 +448,31 @@ export const wavesAliasingLesson: GuidedLesson = {
         text('Pri \\(2f=f_s\\) (in kadar je \\(2f\\) lih večkratnik \\(f_s\\)) navidezne frekvence ni mogoče določiti: graf piše ni določeno in alias vala ne nariše.', 'At \\(2f=f_s\\) (and when \\(2f\\) is an odd multiple of \\(f_s\\)) the apparent frequency cannot be determined: the graph writes not defined and draws no alias wave.'),
         text('Če je \\(f\\) večkratnik \\(f_s\\), je navidezna frekvenca \\(0\\) in kolo navidezno miruje.', 'If \\(f\\) is a multiple of \\(f_s\\), the apparent frequency is \\(0\\) and the wheel seems to stand still.'),
         text('Vzorčevalnik so trenutki \\(\\tfrac{n}{f_s}\\), ne osveževanje zaslona; navidezna frekvenca je izračunana z vsemi celimi števili, tanke krivulje pa so narisane z \\(2048\\) točkami na sekundo, kar do \\(40\\ \\mathrm{Hz}\\) risanja ne popači (napaka tetive največ \\(0{,}00188\\) amplitude).', 'The sampler is the instants \\(\\tfrac{n}{f_s}\\), not the screen refresh; the apparent frequency is computed in integers, and the thin curves are drawn with \\(2048\\) points per second, which up to \\(40\\ \\mathrm{Hz}\\) does not distort the drawing (chord error at most \\(0.00188\\) of the amplitude).'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const wavesNyquistLesson: GuidedLesson = {
+    demonstrationId: 'waves',
+    title: text('Nyquistova frekvenca in rekonstrukcija', 'The Nyquist rate and reconstruction'),
+    summary: text(
+        'Čisti ton vzorčimo in iz pik poskusimo sestaviti val. Z grafom raziščemo, kdaj pike ton določajo, kaj naredijo daljice med njimi in kdaj ton ni več določen.',
+        'A pure tone is sampled and we try to build a wave from the dots. With the graph we explore when the dots determine the tone, what the segments between them do, and when the tone is no longer determined.',
+    ),
+    prerequisites: [text('Lekcija Vzorčenje in pojav lažne frekvence (navidezna frekvenca \\(f_a=f-kf_s\\)).', 'The lesson Sampling and aliasing (the apparent frequency \\(f_a=f-kf_s\\)).')],
+    learningGoals: [
+        text('Znaš odločiti, ali je frekvenca vzorčenja nad, na ali pod \\(2f\\), s primerjavo celih števil \\(f_s\\) in \\(2f\\).', 'Can decide whether the sampling rate is above, at or below \\(2f\\), by comparing the integers \\(f_s\\) and \\(2f\\).'),
+        text('Veš, da daljice med vzorci čistega tona zgrešijo val in da sta napaka daljic in sinca približni ponazoritvi.', 'Know that segments between the samples of a pure tone miss the wave, and that the errors of the segments and of sinc are approximate illustrations.'),
+        text('Znaš utemeljiti, da ton in njegov alias dasta iste vzorce, s periodičnostjo kosinusa; izrek o vzorčenju poznaš kot trditev brez dokaza.', 'Can justify, by the periodicity of the cosine, that a tone and its alias give the same samples; know the sampling theorem as a statement without proof.'),
+    ],
+    formulaBlocks: wv5Formulas,
+    workedExamples: [],
+    steps: wv5Steps,
+    sources,
+    edgeCases: [
+        text('Pri \\(f_s=2f\\) so vzorci \\(A\\cos\\varphi\\cdot(-1)^n\\): faza \\(90^\\circ\\) da same ničle, navidezna amplituda je \\(A\\cos\\varphi\\) (za \\(25^\\circ\\) približno \\(0{,}9063A\\)).', 'At \\(f_s=2f\\) the samples are \\(A\\cos\\varphi\\cdot(-1)^n\\): the phase \\(90^\\circ\\) gives all zeros, and the apparent amplitude is \\(A\\cos\\varphi\\) (about \\(0.9063A\\) for \\(25^\\circ\\)).'),
+        text('Faza je na mreži \\(5^\\circ\\), zato spec primera s fazo \\(0{,}4\\ \\mathrm{rad}\\) (približno \\(22{,}9^\\circ\\)) ni mogoče nastaviti; lekcija uporablja \\(25^\\circ\\).', 'The phase is on a \\(5^\\circ\\) grid, so the spec example with phase \\(0.4\\ \\mathrm{rad}\\) (about \\(22.9^\\circ\\)) cannot be set; the lesson uses \\(25^\\circ\\).'),
+        text('Napaka daljic je izmerjena na narisani mreži na oknu od \\(0\\) do \\(1\\ \\mathrm{s}\\), napaka sinca na sredini od \\(0{,}4\\) do \\(0{,}6\\ \\mathrm{s}\\); obe sta približni.', 'The error of the segments is measured on the drawn grid on the window from \\(0\\) to \\(1\\ \\mathrm{s}\\), the error of sinc in the middle from \\(0.4\\) to \\(0.6\\ \\mathrm{s}\\); both are approximate.'),
     ],
     unresolvedQuestions: [],
 };
