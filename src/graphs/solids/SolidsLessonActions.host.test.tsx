@@ -28,7 +28,11 @@ const setPlane = (normal: readonly [number, number, number], offset?: number): L
     offset === undefined ? {kind: 'solids', operation: 'set-plane', normal} : {kind: 'solids', operation: 'set-plane', normal, offset};
 const setOffset = (offset: number): LessonAction => ({kind: 'solids', operation: 'set-offset', offset});
 const setCamera = (view: 'front' | 'top' | 'side' | 'isometric'): LessonAction => ({kind: 'solids', operation: 'set-camera', view});
-const stateOf = (graph: SolidsGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
+const setShear = (shear: number): LessonAction => ({kind: 'solids', operation: 'set-shear', shear});
+const setDiscs = (discs: number): LessonAction => ({kind: 'solids', operation: 'set-discs', discs});
+const setCursor = (cursor: number): LessonAction => ({kind: 'solids', operation: 'set-cursor', cursor});
+const setAxis = (axis: string): LessonAction => ({kind: 'solids', operation: 'set-axis', axis} as unknown as LessonAction);
+const stateOf =(graph: SolidsGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 
 /** The state and the readouts after running `edit` on a fresh graph and then unmounting it. */
@@ -84,6 +88,102 @@ test('set-camera equals the camera preset buttons', () => {
     const viaAction = after(graph => apply(graph, setCamera('top')));
     expect(viaAction).toEqual(after(graph => act(() => graph.applyCameraPreset('top'))));
     expect(viaAction.state).not.toEqual(after(() => undefined).state);
+});
+
+test('set-shear, set-cursor, set-discs and set-axis equal their controls and change neither mode nor solid', () => {
+    const viaAction = after(graph => {
+        apply(graph, setMode('stack'));
+        apply(graph, setShear(6));
+        apply(graph, setCursor(30));
+        apply(graph, setDiscs(12));
+    });
+    expect(viaAction).toEqual(after(graph => act(() => {
+        graph.setMode('stack');
+        graph.setShear(6);
+        graph.setCursor(30);
+        graph.setDiscs(12);
+    })));
+    expect(viaAction.state).toEqual(expect.objectContaining({mode: 'stack', solid: 'cube', shear: 6, cursor: 30, discs: 12}));
+    const revolve = after(graph => {
+        apply(graph, setMode('revolve'));
+        apply(graph, setAxis('y'));
+        apply(graph, setDiscs(7));
+    });
+    expect(revolve).toEqual(after(graph => act(() => { graph.setMode('revolve'); graph.setAxis('y'); graph.setDiscs(7); })));
+    expect(revolve.state).toEqual(expect.objectContaining({mode: 'revolve', solid: 'cone', axis: 'y', discs: 7}));
+    expect(after(graph => apply(graph, setShear(-12))).state).toEqual(expect.objectContaining({shear: -12, mode: 'section', solid: 'cube'}));
+});
+
+test('set-shear is refused for the cone and cylinder pair and set-axis for the sphere; nothing changes', () => {
+    const graph = mount();
+    apply(graph, setMode('stack'));
+    apply(graph, setSolid('cone'));
+    const failing = stateOf(graph);
+    expect(() => apply(graph, setShear(3))).toThrow(/^solids set-shear: the cone and the cylinder are not sheared/);
+    expect(stateOf(graph)).toEqual(failing);
+    apply(graph, setMode('volume'));
+    apply(graph, setSolid('sphere'));
+    apply(graph, setMode('revolve'));
+    const sphere = stateOf(graph);
+    expect(() => apply(graph, setAxis('y'))).toThrow(/^solids set-axis: axis inconsistent\./);
+    expect(stateOf(graph)).toEqual(sphere);
+});
+
+test('a stack and volume scene runs synchronously; the checkpoint restores the free state', () => {
+    const graph = mount();
+    const free = stateOf(graph);
+    act(() => {
+        const capabilities = graph.getLessonCapabilities();
+        capabilities.apply(setMode('stack'));
+        capabilities.apply(setSolid('square-prism'));
+        capabilities.apply(setShear(6));
+        capabilities.apply(setCursor(30));
+        capabilities.apply(setMode('volume'));
+        capabilities.apply(setDiscs(10));
+    });
+    expect(graph.state).toEqual(expect.objectContaining({mode: 'volume', solid: 'square-prism', shear: 6, cursor: 30, discs: 10}));
+    const here = {state: stateOf(graph), readouts: readouts()};
+    cleanup();
+    expect(after(graph => act(() => {
+        graph.setMode('stack');
+        graph.setSolid('square-prism');
+        graph.setShear(6);
+        graph.setCursor(30);
+        graph.setMode('volume');
+        graph.setDiscs(10);
+    }))).toEqual(here);
+    const again = mount();
+    const again0 = stateOf(again);
+    expect(again0).toEqual(free);
+    const cp = again.getLessonCapabilities().captureState();
+    apply(again, setMode('stack'));
+    apply(again, setShear(12));
+    apply(again, setCursor(5));
+    act(() => { again.getLessonCapabilities().restoreState(cp); });
+    expect(stateOf(again)).toEqual(free);
+});
+
+test('invalid shear, discs, cursor and axis payloads change nothing', () => {
+    const graph = mount();
+    apply(graph, setMode('stack'));
+    apply(graph, setShear(6));
+    const before = stateOf(graph);
+    const unknown = (action: object) => action as unknown as LessonAction;
+    const bad: [LessonAction, RegExp][] = [
+        [setShear(13), /^solids set-shear: shear out-of-range\./], [setShear(-13), /^solids set-shear: shear out-of-range\./], [setShear(2.5), /^solids set-shear: shear off-grid\./],
+        [setDiscs(0), /^solids set-discs: discs out-of-range\./], [setDiscs(61), /^solids set-discs: discs out-of-range\./], [setDiscs(2.5), /^solids set-discs: discs off-grid\./],
+        [setCursor(0), /^solids set-cursor: cursor out-of-range\./], [setCursor(40), /^solids set-cursor: cursor out-of-range\./], [setCursor(1.5), /^solids set-cursor: cursor off-grid\./],
+        [setAxis('z'), /^solids set-axis: axis unknown-value\./],
+        [setShear(Number.NaN), /^solids set-shear: shear not-finite\./],
+        [unknown({kind: 'solids', operation: 'set-shear', shear: 1, cursor: 3}), /^solids set-shear: no such field cursor\./],
+        [unknown({kind: 'solids', operation: 'set-discs', discs: 3, mode: 'revolve'}), /^solids set-discs: no such field mode\./],
+        [unknown({kind: 'solids', operation: 'set-cursor', cursor: 3, solid: 'cone'}), /^solids set-cursor: no such field solid\./],
+        [unknown({kind: 'solids', operation: 'set-axis', axis: 'x', discs: 3}), /^solids set-axis: no such field discs\./],
+    ];
+    for (const [action, message] of bad) {
+        expect(() => apply(graph, action), JSON.stringify(action)).toThrow(message);
+        expect(stateOf(graph), JSON.stringify(action)).toEqual(before);
+    }
 });
 
 test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', () => {
@@ -149,7 +249,7 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
         setPlane(JSON.parse('[1, 2]')), setPlane(JSON.parse('null')),
         setOffset(0.5), setOffset(Number.NaN), setOffset(Number.POSITIVE_INFINITY), setOffset(9999), setOffset(JSON.parse('"3"')), setOffset(JSON.parse('null')),
         setCamera(JSON.parse('"left"')), setCamera(JSON.parse('null')),
-        unknown({kind: 'solids', operation: 'set-shear', shear: 1}),
+        unknown({kind: 'solids', operation: 'set-twist', twist: 1}),
         unknown({kind: 'solids', operation: 'set-solid', solid: 'cube', mode: 'section'}),
         unknown({kind: 'solids', operation: 'set-mode', mode: 'section', offset: 1}),
         unknown({kind: 'solids', operation: 'set-plane', normal: [1, 0, 1], shear: 1}),

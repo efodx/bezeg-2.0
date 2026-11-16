@@ -2,7 +2,7 @@ import type React from 'react';
 import type {LessonAction} from '../../learning/model';
 import type {LessonActionRegistry} from '../base/lesson/LessonActionRegistry';
 import {
-    AXES, CURSOR_RANGE, DEFAULT_SOLIDS_STATE, DISC_RANGE, MODES, NORMAL_RANGE, OFFSET_RANGE, SHEAR_RANGE, SOLID_IDS, axisAccepts, parseSolidsState,
+    AXES, CURSOR_RANGE, DEFAULT_SOLIDS_STATE, DISC_RANGE, MODES, NORMAL_RANGE, OFFSET_RANGE, SHEAR_RANGE, SOLID_IDS, axisAccepts, parseSolidsState, stackPair,
     serializeSolidsState, withMode, withSolid, type IntegerRange, type SolidId, type SolidsAxis, type SolidsMode, type SolidsState,
 } from '../../solids/solidsModel';
 import type {PresetCollection} from '../base/presets/PresetCollection';
@@ -181,7 +181,8 @@ export default class SolidsGraph extends BaseSurfaceGraph<SolidsGraphState, Soli
 
     /**
      * Lesson actions (`solids`), each equal to the control of the same name: `set-solid` and `set-mode` go through `withSolid` / `withMode` (the other field falls back as the chooser
-     * does) and reframe the camera, `set-plane` writes the normal (and the offset if given), `set-offset` the offset, `set-camera` a camera preset. The merged state goes through
+     * does) and reframe the camera, `set-plane` writes the normal (and the offset if given), `set-offset` the offset, `set-camera` a camera preset, `set-shear` (units 1/4), `set-discs`, `set-cursor` (units 1/40) and `set-axis` the stored field of the same control (`set-axis` reframes; `set-shear`
+     * is refused for the cone and cylinder pair, `set-axis` for a solid without that axis); none changes the mode or solid and none snaps. The merged state goes through
      * `parseSolidsState` (strict, nothing snapped or clamped) before the write, so a bad value is a lesson-content error and nothing is written; unknown fields are refused.
      * A scene reads the state its earlier actions wrote.
      */
@@ -209,6 +210,23 @@ export default class SolidsGraph extends BaseSurfaceGraph<SolidsGraphState, Soli
                 this.refuseUnknown('set-offset', fields, ['offset']);
                 this.commitSolids('set-offset', {...state, offset: action.offset}, false);
                 return;
+            case 'set-shear':
+                this.refuseUnknown('set-shear', fields, ['shear']);
+                if (state.mode === 'stack' && stackPair(state.solid) === 'failing') throw new Error('solids set-shear: the cone and the cylinder are not sheared (the control is refused for this pair).');
+                this.commitSolids('set-shear', {...state, shear: action.shear}, false);
+                return;
+            case 'set-discs':
+                this.refuseUnknown('set-discs', fields, ['discs']);
+                this.commitSolids('set-discs', {...state, discs: action.discs}, false);
+                return;
+            case 'set-cursor':
+                this.refuseUnknown('set-cursor', fields, ['cursor']);
+                this.commitSolids('set-cursor', {...state, cursor: action.cursor}, false);
+                return;
+            case 'set-axis':
+                this.refuseUnknown('set-axis', fields, ['axis']);
+                this.commitSolids('set-axis', {...state, axis: action.axis}, true);
+                return;
             case 'set-camera':
                 this.refuseUnknown('set-camera', fields, ['view']);
                 if (!Object.keys(CAMERA_PRESETS).includes(action.view)) throw new Error(`solids set-camera: view is not one of ${Object.keys(CAMERA_PRESETS).join(', ')}.`);
@@ -235,6 +253,9 @@ export default class SolidsGraph extends BaseSurfaceGraph<SolidsGraphState, Soli
             ...(next.solid === this.state.solid ? {} : {solid: next.solid}),
             ...(next.mode === this.state.mode ? {} : {mode: next.mode}),
             ...(next.axis === this.state.axis ? {} : {axis: next.axis}),
+            ...(next.shear === this.state.shear ? {} : {shear: next.shear}),
+            ...(next.discs === this.state.discs ? {} : {discs: next.discs}),
+            ...(next.cursor === this.state.cursor ? {} : {cursor: next.cursor}),
             ...(next.offset === this.state.offset ? {} : {offset: next.offset}),
             ...(next.normal.every((c, i) => c === this.state.normal[i]) ? {} : {normal: [next.normal[0], next.normal[1], next.normal[2]] as [number, number, number]}),
         };
