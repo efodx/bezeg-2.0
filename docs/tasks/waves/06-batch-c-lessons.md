@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for WV4–WV5; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; the trigonometric function and Fourier routes behave as before.
 
-Status: F3 WV4 and WV5 written and joined (handler 36); F4 cards, F5 and F6 gate next.
+Status: F3 WV4 and WV5 written and joined (handler 36); F4 cards captured (handler 36); F5 and F6 gate next.

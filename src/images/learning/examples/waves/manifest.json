@@ -1,69 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+    "dirty": true,
+    "inputs": "049989b9ace1011e632e5279547cee75541297aef3b733652c2ac2b023f5dd60",
+    "output": "0ab603d9bf8f8ecf665d43a4b5a201eb2bd5799c5644c40f0caea82c392d12de"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
+    "stampRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+    "stampDirty": true,
+    "localOutputHash": "0ab603d9bf8f8ecf665d43a4b5a201eb2bd5799c5644c40f0caea82c392d12de",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-aoqdCKE1.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-aoqdCKE1.js",
+        "sha256": "f40f0e0709c1f6608dc7965274c9a4c3e08eb521eb64c88ee97e5dd97488f919",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-Bidq7HNX.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-Bidq7HNX.js",
+        "sha256": "0e932ec0ca46d0c520e320c2bbd044db8928cfd398eb1215ee5bdd785b77a4de",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-4cXNZtQ3.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-4cXNZtQ3.js",
+        "sha256": "0559e9265aebf80cad25ccc561ab36d496722fcd3d8ffce52b4e882dac1184c4",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4527/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "c7831aa5ab49c3035b12ea384f909d1ea00b3e8af99f94cc9cf1e9021c989c66",
+    "inventory": "e6fb596a879d85daf020574afecdd153ab04c4d9789db6c41e40bb807b9412b9",
     "entries": {
       "waves.superposition-and-phase.waves": "aec857b31615fa28bc75d2dc0fb2c58a3f189c5af2c69b76c97baaf20aea91d5",
       "waves.beats.waves": "9954844c3dc602ec983a677b1036cc5783c78f6a08bac3bb6822d68649d4b538",
-      "waves.standing-waves.waves": "c806f28651066b67570b49901d30ff19e54e67498ac44eebf82d01b1e90bde44"
+      "waves.standing-waves.waves": "c806f28651066b67570b49901d30ff19e54e67498ac44eebf82d01b1e90bde44",
+      "waves.aliasing.waves": "f4723e0d4e51ee6b7e0464ab786a42e5a5608c773247dab6fe97d1a6d9b727e6",
+      "waves.nyquist.waves": "b3906538536bb91f332da9cc3264880fd10cea3a23b735d76c8de3e2059d947f"
     },
-    "presentation": "2dee32d2feae151f15b69e23d9d7beffece9229f36688f629879f64a724954c6",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "815fe0c7d82f54bb91e72650ed839b2db81cf87e5953d67e3cce49ba918924de",
+    "buildOutput": "0ab603d9bf8f8ecf665d43a4b5a201eb2bd5799c5644c40f0caea82c392d12de",
+    "buildInputs": "049989b9ace1011e632e5279547cee75541297aef3b733652c2ac2b023f5dd60"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -118,6 +120,32 @@
             12.5,
             1.847,
             -1.76
+          ]
+        }
+      },
+      {
+        "id": "waves.aliasing.waves",
+        "demonstrationId": "waves",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.449,
+            7.06,
+            0.921,
+            -1.06
+          ]
+        }
+      },
+      {
+        "id": "waves.nyquist.waves",
+        "demonstrationId": "waves",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.449,
+            7.06,
+            0.921,
+            -1.06
           ]
         }
       }
@@ -375,8 +403,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
         "pageErrors": []
       }
     },
@@ -597,8 +625,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
         "pageErrors": []
       }
     },
@@ -799,8 +827,526 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "waves.aliasing.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.aliasing.waves",
+      "sceneFingerprint": "63be656de7974f21136cd1bb84804f9c95d95e4b36f6e1ba946dd11ed95c9fa4",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv4-slow-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv4-slow-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"sampling\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"f1\":2,\"p1\":0,\"a1\":1}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-sampling\",\"fs\":24,\"extra\":48,\"showAlias\":false,\"showJoin\":false,\"showSinc\":false}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "waves.aliasing.waves.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "313a2c63f07b38d665a392412da4655d5d438463acdb1c74dbfe3520fb39d126",
+      "scene": {
+        "visibleElementCount": 50,
+        "visibleElementTypes": {
+          "curve": 6,
+          "text": 15,
+          "point": 27,
+          "arrow": 2
+        },
+        "visiblePointCount": 27,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.255555,
+              0
+            ],
+            [
+              -0.255667,
+              0.032702
+            ],
+            [
+              -0.255778,
+              0.065403
+            ]
+          ],
+          [
+            [
+              0,
+              -1.1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.1
+            ]
+          ],
+          [
+            [
+              0,
+              -1.595
+            ],
+            [
+              0,
+              -0.2975
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              -1.705
+            ],
+            [
+              0.5,
+              -1.705
+            ],
+            [
+              1,
+              -1.705
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.000244,
+              0.999991
+            ],
+            [
+              0.000488,
+              0.999981
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:arrow",
+          "curve-count",
+          "point:0,1",
+          "point:1,1",
+          "point:0.25,-1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 52,
+          "visibleElementTypes": {
+            "curve": 6,
+            "text": 17,
+            "point": 27,
+            "arrow": 2
+          },
+          "visiblePointCount": 27,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.165198,
+                0
+              ],
+              [
+                -0.165407,
+                0.032702
+              ],
+              [
+                -0.165615,
+                0.065403
+              ]
+            ],
+            [
+              [
+                0,
+                -1.1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1.1
+              ]
+            ],
+            [
+              [
+                0,
+                -1.595
+              ],
+              [
+                0,
+                -0.2975
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                -1.705
+              ],
+              [
+                0.5,
+                -1.705
+              ],
+              [
+                1,
+                -1.705
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.000244,
+                0.999991
+              ],
+              [
+                0.000488,
+                0.999981
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:arrow",
+            "curve-count",
+            "point:0,1",
+            "point:1,1",
+            "point:0.25,-1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 15,
+        "finalLabelCount": 15,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 6,
+          "text": 15,
+          "point": 27,
+          "arrow": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "waves.nyquist.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.nyquist.waves",
+      "sceneFingerprint": "c70f3dd5b4703c35100e9d1df9f8941532aea9db8d559de685aa447614be7da9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv5-dots-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv5-dots-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"sampling\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"f1\":3,\"p1\":25,\"a1\":1}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-sampling\",\"fs\":12,\"extra\":48,\"showAlias\":false,\"showJoin\":false,\"showSinc\":false}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "waves.nyquist.waves.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e8d2f8888a50eed6f7d188273838b3de5cfed8c179542493dfdd968ba4249e55",
+      "scene": {
+        "visibleElementCount": 38,
+        "visibleElementTypes": {
+          "curve": 6,
+          "text": 15,
+          "point": 15,
+          "arrow": 2
+        },
+        "visiblePointCount": 15,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.255555,
+              0
+            ],
+            [
+              -0.255667,
+              0.032702
+            ],
+            [
+              -0.255778,
+              0.065403
+            ]
+          ],
+          [
+            [
+              0,
+              -1.1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.1
+            ]
+          ],
+          [
+            [
+              0,
+              -1.595
+            ],
+            [
+              0,
+              -0.344346
+            ],
+            [
+              0,
+              0.906308
+            ]
+          ],
+          [
+            [
+              0,
+              -1.705
+            ],
+            [
+              0.5,
+              -1.705
+            ],
+            [
+              1,
+              -1.705
+            ]
+          ],
+          [
+            [
+              0,
+              0.906308
+            ],
+            [
+              0.000244,
+              0.904344
+            ],
+            [
+              0.000488,
+              0.90238
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:arrow",
+          "curve-count",
+          "point:0,0.9063078",
+          "point:1,0.9063078"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "curve": 6,
+            "text": 17,
+            "point": 15,
+            "arrow": 2
+          },
+          "visiblePointCount": 15,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.165198,
+                0
+              ],
+              [
+                -0.165407,
+                0.032702
+              ],
+              [
+                -0.165615,
+                0.065403
+              ]
+            ],
+            [
+              [
+                0,
+                -1.1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1.1
+              ]
+            ],
+            [
+              [
+                0,
+                -1.595
+              ],
+              [
+                0,
+                -0.344346
+              ],
+              [
+                0,
+                0.906308
+              ]
+            ],
+            [
+              [
+                0,
+                -1.705
+              ],
+              [
+                0.5,
+                -1.705
+              ],
+              [
+                1,
+                -1.705
+              ]
+            ],
+            [
+              [
+                0,
+                0.906308
+              ],
+              [
+                0.000244,
+                0.904344
+              ],
+              [
+                0.000488,
+                0.90238
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:arrow",
+            "curve-count",
+            "point:0,0.9063078",
+            "point:1,0.9063078"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 15,
+        "finalLabelCount": 15,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 6,
+          "text": 15,
+          "point": 15,
+          "arrow": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
+        "sourceRevision": "a724bdd72c45a7e705f3a37cc92ce560d1ad78a8",
         "pageErrors": []
       }
     }

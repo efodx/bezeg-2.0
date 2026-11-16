@@ -40,10 +40,15 @@ const kinematicsCircleWindows = {
 // The waves cards: the board's screen-anchored caption rows take the top of the 840x520 card (about 250 px for the sum, 205 for the beats, 285 for the standing wave, whose last row is the long resolution note),
 // so each card gets a window that sets its plot (and, for the sum, the phasor circle) below them and fills the width. The capture widens a requested window by 28 percent about its centre; these are those windows shrunk back.
 const wavesSumCardId = 'waves.superposition-and-phase.waves';
+// The sampling cards draw the wheel circle about the same panel centre, so they take the same exemption.
+const wavesWheelCardIds = ['waves.aliasing.waves', 'waves.nyquist.waves'];
 const wavesWindows = {
     'waves.superposition-and-phase.waves': [-0.449, 5.89, 0.921, -1.0],
     'waves.beats.waves': [0.073, 7.03, 1.847, -2.09],
     'waves.standing-waves.waves': [0.073, 12.5, 1.847, -1.76],
+    // The sampling cards (first guess, viewed after the capture): the sum card's x range, room under the plot for the strip of instants and the names under the wheel.
+    'waves.aliasing.waves': [-0.449, 7.06, 0.921, -1.06],
+    'waves.nyquist.waves': [-0.449, 7.06, 0.921, -1.06],
 };
 
 // The descent cards: the screen-anchored caption rows stack down the left of the 840x520 card (six or seven rows, the race rows reaching about 290 px down), so each card gets a window that sets its figure in the
@@ -105,7 +110,12 @@ function captureRecipeForEntry(entry, recipe) {
     if (Object.hasOwn(recursionWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: recursionWindows[entry.id]}};
     if (Object.hasOwn(randomnessWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: randomnessWindows[entry.id]}};
     if (Object.hasOwn(descentWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: descentWindows[entry.id]}};
-    if (Object.hasOwn(wavesWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: wavesWindows[entry.id]}};
+    // The waves cards keep every line of the board's own text (caption rows, axis numbers, phasor and wheel names): the catalog poster policy of the waves Demonstration strips all of it, and the
+    // default length rule of a windowed card would hide the long wheel caption and leave its row empty.
+    // The sampling cards leave out the two wheel names (pravi, vzorec) that stand 113 px under the circle: with the caption rows above, they leave a plot of a quarter of the height, which the 28 px
+    // sample dots cover; the wheel caption row already names both arrows.
+    const wavesText = wavesWheelCardIds.includes(entry.id) ? {keep: [/^(?!(?:pravi|vzorec)$)[\s\S]/], strip: []} : {keep: [/[\s\S]/], strip: []};
+    if (Object.hasOwn(wavesWindows, entry.id)) return {...recipe, text: wavesText, framing: {kind: 'coordinate-window', window: wavesWindows[entry.id]}};
     if (Object.hasOwn(kinematicsCircleWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: kinematicsCircleWindows[entry.id]}};
     // The expansion card opens the fixed box of the lattice board (bars at y 10.5 to 17.5, labels from y 1.2, captions to y 24.5), which the shared paths window around (2, 2) leaves off the card.
     if (entry.id === binomialExpansionId) return {...recipe, framing: {kind: 'coordinate-window', window: [-1.5, 24.5, 37.6, 0.3]}};
@@ -421,7 +431,7 @@ function isViewportGeneratedInWindow(beforeData, afterData, boundingBox) {
     return afterData.points.length > 0 && afterData.points.every(([x, y]) => x >= left - slack && x <= right + slack && y >= bottom - slack && y <= top + slack);
 }
 
-// The phasor circle of the waves sum card is drawn about a fixed point of the board (the panel centre, x = -0.36 times the 1 s window, y = 0) with a radius in pixels, so the card, which is smaller than the
+// The phasor circle of the waves sum card (and the wheel circle of the sampling cards) is drawn about a fixed point of the board (the panel centre, x = -0.36 times the 1 s window, y = 0) with a radius in pixels, so the card, which is smaller than the
 // board it was opened on, redraws it smaller about the same centre. Accept it only when every sample keeps its direction from that centre and all offsets shrink by one common factor on both axes.
 const wavesPhasorCentre = [-0.36, 0];
 
@@ -456,7 +466,7 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
         const openingSweepLine = exampleId === fortuneCardId && isOpeningSweepLine(before, initial.points) && isOpeningSweepLine(after, presented.points);
         const cameraScaledConstruction = isCameraScaledCurve(before, after, initial.unitScale, presented.unitScale)
             || (exampleId.startsWith('recursion.') && isScreenAnchoredHorizontalSegment(before, after, initial.unitScale, presented.unitScale))
-            || (exampleId === wavesSumCardId && isCircleScaledAboutCentre(before, after, initial.unitScale, presented.unitScale, wavesPhasorCentre));
+            || ([wavesSumCardId, ...wavesWheelCardIds].includes(exampleId) && isCircleScaledAboutCentre(before, after, initial.unitScale, presented.unitScale, wavesPhasorCentre));
         const beforeData = initial.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(before));
         // Pair by board id: two curves with identical samples (a graph and its coinciding ghost) may swap places in the sorted order.
         const afterData = presented.curveData?.find(curve => beforeData && curve.id === beforeData.id)

@@ -2386,6 +2386,20 @@ function wavesOpening(id, step, mode) {
 
 const sameFields = (components, expected) => Object.keys(components).length === Object.keys(expected).length && Object.entries(expected).every(([key, value]) => components[key] === value);
 
+/** Asserts the opening scene of a sampling lesson: the Demonstration default, the sampling mode, the tone, the sampling options and the time in that order; returns the tone, the options and the time. */
+function wavesSamplingOpening(id, step) {
+    const all = step.scene.actions;
+    const prepared = all.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
+        `${id}: the opening scene must start with the Demonstration default`);
+    const own = all.slice(prepared.length);
+    const operations = ['set-mode', 'set-components', 'set-sampling', 'set-time'];
+    assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `waves:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
+    assert.equal(own[0].mode, 'sampling', `${id}: only the sampling mode is authored`);
+    const strip = ({kind: _kind, operation: _operation, ...fields}) => fields;
+    return {components: strip(own[1]), sampling: strip(own[2]), t: own[3].t};
+}
+
 // Authored from src/graphs/functions/WavesGraph.tsx (buildScene) and the defaults of src/waves/wavesModel.ts (a1 = 1, p1 = 0, f1 = f2 = 3 Hz, halfWaves 2, phasors and envelope switches on), not from a capture.
 // Every mode draws the axes as one curve; the sum and beats modes add the time cursor curve and the three wave curves, the standing wave draws its two travelling waves and their sum.
 const wavesFrames = {
@@ -2409,6 +2423,23 @@ const wavesFrames = {
         const {components, t} = wavesOpening(id, step, 'standing');
         assert.ok(sameFields(components, {halfWaves: 2, a1: 1}) && t === 0, `${id}: only the standing wave with two half waves and amplitude 1 at time 0 is authored`);
         return {types: {curve: 4, point: 5}, curveCount: 4, points: [[0, 0], [1, 0], [2, 0], [0.5, 2], [1.5, -2]]};
+    },
+    // WV4 step 1: the wheel of 2 Hz filmed 24 times a second, alias wave hidden, time 0. Authored from the sampling branch of WavesGraph.tsx buildScene, not from a capture. Visible curves: axes, time cursor,
+    // the true wave, the strip of instants, the stems and the wheel circle (the alias wave, the join and sinc are hidden): six. Points: 25 sample dots (instants n/24, n = 0 to 24), the square of the last instant
+    // and the dot of the true wave at the time cursor: 27. Arrows: the true and the film arrow. At t = 0 the wave is cos(0) = 1 and a sample at 0.25 s is cos(pi) = -1.
+    'aliasing': (id, step) => {
+        const {components, sampling, t} = wavesSamplingOpening(id, step);
+        assert.ok(sameFields(components, {f1: 2, p1: 0, a1: 1}) && sameFields(sampling, {fs: 24, extra: 48, showAlias: false, showJoin: false, showSinc: false}) && t === 0,
+            `${id}: only the wheel of 2 Hz at 24 samples per second, alias wave hidden, at time 0 is authored`);
+        return {types: {curve: 6, point: 27, arrow: 2}, curveCount: 6, points: [[0, 1], [1, 1], [0.25, -1]]};
+    },
+    // WV5 step 1: the tone 3 Hz, phase 25 degrees, 12 samples per second, alias wave, join and sinc hidden, time 0. The same elements: six curves, 13 sample dots (n = 0 to 12), the square and the tone dot (15 points),
+    // two arrows. Every sample at a multiple of 1/3 s is cos(25 degrees) = 0.9063078 (the dots at 0 and at 1 s).
+    'nyquist': (id, step) => {
+        const {components, sampling, t} = wavesSamplingOpening(id, step);
+        assert.ok(sameFields(components, {f1: 3, p1: 25, a1: 1}) && sameFields(sampling, {fs: 12, extra: 48, showAlias: false, showJoin: false, showSinc: false}) && t === 0,
+            `${id}: only the tone of 3 Hz with phase 25 degrees at 12 samples per second, alias wave, join and sinc hidden, at time 0 is authored`);
+        return {types: {curve: 6, point: 15, arrow: 2}, curveCount: 6, points: [[0, 0.9063078], [1, 0.9063078]]};
     },
 };
 

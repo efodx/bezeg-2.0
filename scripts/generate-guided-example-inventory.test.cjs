@@ -930,6 +930,12 @@ test('waves expectations are authored from the graph: the sum, beats and standin
     assert.deepEqual([standing.types, standing.points.length], [{curve: 4, point: 5}, 5]);
     assert.throws(() => wavesExpectedFor('w.superposition-and-phase.waves', open([components({a2: 0, p2: 0}), time(0.1)])), /only the sum/);
     assert.throws(() => wavesExpectedFor('w.beats.waves', open([components({f1: 10, f2: 12, showEnvelope: false}), time(0)])), /the opening scene is set-mode/);
+    const samplingOps = (f1, p1, fields) => [mode('sampling'), components({f1, p1, a1: 1}), {kind: 'waves', operation: 'set-sampling', extra: 48, showAlias: false, showJoin: false, showSinc: false, ...fields}, time(0)];
+    assert.deepEqual(wavesExpectedFor('w.aliasing.waves', open(samplingOps(2, 0, {fs: 24}))), {types: {curve: 6, point: 27, arrow: 2}, curveCount: 6, points: [[0, 1], [1, 1], [0.25, -1]]});
+    assert.deepEqual(wavesExpectedFor('w.nyquist.waves', open(samplingOps(3, 25, {fs: 12}))), {types: {curve: 6, point: 15, arrow: 2}, curveCount: 6, points: [[0, 0.9063078], [1, 0.9063078]]});
+    assert.throws(() => wavesExpectedFor('w.aliasing.waves', open(samplingOps(23, 0, {fs: 24}))), /only the wheel of 2 Hz/);
+    assert.throws(() => wavesExpectedFor('w.nyquist.waves', open(samplingOps(3, 25, {fs: 12, showJoin: true}))), /only the tone of 3 Hz/);
+    assert.throws(() => wavesExpectedFor('w.aliasing.waves', open([components({f1: 2}), time(0)])), /the opening scene is set-mode, set-components, set-sampling/);
     assert.throws(() => wavesExpectedFor('w.unknown.waves', open([])), /no authored waves/);
     assert.ok(chapterInventories.waves);
 });

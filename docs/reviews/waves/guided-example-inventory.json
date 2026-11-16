@@ -109,6 +109,82 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "waves.aliasing.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.aliasing.waves",
+      "sceneFingerprint": "63be656de7974f21136cd1bb84804f9c95d95e4b36f6e1ba946dd11ed95c9fa4",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv4-slow-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv4-slow-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"sampling\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"f1\":2,\"p1\":0,\"a1\":1}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-sampling\",\"fs\":24,\"extra\":48,\"showAlias\":false,\"showJoin\":false,\"showSinc\":false}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 6,
+          "point": 27,
+          "arrow": 2
+        },
+        "curveCount": 6,
+        "points": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0.25,
+            -1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "waves.nyquist.waves",
+      "demonstrationId": "waves",
+      "path": "/bezeg-2.0/functions/waves?example=lesson.waves.nyquist.waves",
+      "sceneFingerprint": "c70f3dd5b4703c35100e9d1df9f8941532aea9db8d559de685aa447614be7da9",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv5-dots-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wv5-dots-scene\",\"source\":\"demonstration-default\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-mode\",\"mode\":\"sampling\"}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-components\",\"f1\":3,\"p1\":25,\"a1\":1}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-sampling\",\"fs\":12,\"extra\":48,\"showAlias\":false,\"showJoin\":false,\"showSinc\":false}",
+        "waves: {\"kind\":\"waves\",\"operation\":\"set-time\",\"t\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 6,
+          "point": 15,
+          "arrow": 2
+        },
+        "curveCount": 6,
+        "points": [
+          [
+            0,
+            0.9063078
+          ],
+          [
+            1,
+            0.9063078
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
