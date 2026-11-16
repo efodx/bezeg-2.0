@@ -13,7 +13,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [03 Release batches A–C](03-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 02 | F2b done 2026-11-11; split into 04–06 |
 | [04 Batch A: KN1–KN2 lessons](04-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 03 | F3 done 2026-11-12 ([evidence](../../reviews/feature-streams/families-prep/notes/f3-kin-a.md)); F4–F6 open |
 | [05 Batch B: KN3–KN4 lessons](05-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 04 | F3 done 2026-11-13 (KN3, KN4); F4–F6 next |
-| [06 Batch C: KN5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | F3 KN5 written and joined (handler 35); F4 card, F5 and F6 gate next; F4 card captured (handler 35) |
+| [06 Batch C: KN5 lessons](06-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 05 | F3 KN5 written and joined, F4 card captured (KN1-KN4 recaptured), F5 no new clip, F6 gate passed (handler 35: `just check` green at 55489256, live smokes `.command-logs/kin-c/smoke/`, `kin-c/f6/`, layout fixes 2bb4848a, bf5ea795, 16d82050 rechecked live in `kin-c/recheck/`); kinematics family complete (A-C) |
 
 ## Slovenian terms (F0 decision)
 
