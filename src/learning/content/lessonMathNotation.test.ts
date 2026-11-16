@@ -51,6 +51,7 @@ import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebG
 import {recursionLogScaleLesson} from './recursionLogScaleGuidedLessons';
 import {bifurcationLesson, linearSystemLesson, logisticMapLesson, pendulumLesson} from './phasePortraitsGuidedLessons';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
+import {solidsCavalieriLesson, solidsPyramidConeLesson} from './solidsVolumesGuidedLessons';
 import {linearProgrammingLesson} from './levelSetsGuidedLessons';
 import {levelSetsGradientLesson, levelSetsSurfaceLesson} from './levelSetsContourGuidedLessons';
 import {levelSetsDescentLesson, levelSetsLagrangeLesson} from './levelSetsOptimizationGuidedLessons';
@@ -142,6 +143,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['complexEulerGuidedLessons', [complexEulerLesson]],
     ['phasePortraitsGuidedLessons', [linearSystemLesson, pendulumLesson, logisticMapLesson, bifurcationLesson]],
     ['solidsGuidedLessons', [cubeSectionsLesson, prismPyramidSectionsLesson]],
+    ['solidsVolumesGuidedLessons', [solidsCavalieriLesson, solidsPyramidConeLesson]],
     ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
     ['randomnessAreaGuidedLessons', [rs3Lesson]],
     ['randomnessWalkGuidedLessons', [rs4Lesson]],
@@ -295,6 +297,7 @@ test('scans every lesson module', () => {
             'prob-simulation', // randomnessIntervalGuidedLessons.ts: RS6
             'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
+            'solids', 'solids', // solidsVolumesGuidedLessons.ts: SV3 and SV4
             'linear-program', // levelSetsGuidedLessons.ts: LS5
             'contour-map', 'contour-map', // levelSetsContourGuidedLessons.ts: LS1 and LS2
             'contour-map', 'contour-map', // levelSetsOptimizationGuidedLessons.ts: LS3 and LS4

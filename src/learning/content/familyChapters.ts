@@ -400,7 +400,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
             ], undefined, ['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'fixed-point'], {investigationPrompts: analysisPrompts}),
         ],
     },
-    solidsChapter, // Solids batch A: SV1 and SV2 (solidsGuidedLessons.ts); directly after the analysis chapter, whose Darboux sums the volume sections of Batches B and C continue, and before recursion.
+    solidsChapter, // Solids batches A and B: SV1 to SV4 (solidsGuidedLessons.ts, solidsVolumesGuidedLessons.ts); directly after the analysis chapter, whose Darboux sums the volume sections of Batches B and C continue, and before recursion.
     recursionChapter, // Recursion batch A: RG1 and RG3 (recursionGuidedLessons.ts); directly after the analysis chapter, whose convergence section holds the sequence lessons these build on; the cobweb, logistic and growth-model sections join later.
     phasePortraitsChapter, // Phase portraits batch C: PP4 and PP5 (phasePortraitsGuidedLessons.ts); after the recursion chapter, whose iteration of a function the logistic map continues past r = 3, and before numerical methods.
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
