@@ -118,6 +118,35 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "kinematics.tangential-normal.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.tangential-normal.curve-kinematics",
+      "sceneFingerprint": "8b863b4c5abc55318e62b883072c26e16a43fe147d1632a0f820bc13ae72cf7f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn5-along-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn5-along-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":1.5707963267948966}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1,
+          "arrow": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0.5707963267948966,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

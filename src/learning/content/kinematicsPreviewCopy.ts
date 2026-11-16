@@ -7,7 +7,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 
 /**
  * Describes the prepared opening scene of each Kinematics lesson, keyed by example id: KN1 (the cycloid of a wheel of radius 1 m at time 0, no arrows), KN2 (the circle of radius 1 m with the
- * solid point and the square reference point at time 0), KN3 (the throw at 20 m/s and 45 degrees at time 0) and KN4 (the uniform circle of radius 2 m and angular velocity 1,5 rad/s at time 0).
+ * solid point and the square reference point at time 0), KN3 (the throw at 20 m/s and 45 degrees at time 0) and KN4 (the uniform circle of radius 2 m and angular velocity 1,5 rad/s at time 0) and KN5 (the cycloid of radius 1 m at time pi/2 with the velocity and acceleration arrows, the split and the osculating circle off).
  * The copy names the frame only and states none of the answers the first steps ask for (the way the point starts to move, which of the two points reaches the top first, when the ball is highest
  * and the flight time, the speed and the period). The position readouts, the flight time, the range and the speed stay out of it. Every scene is deterministic: no source draws random numbers.
  */
@@ -35,5 +35,11 @@ export const kinematicsPreviewCopy = {
         'Cream background without coordinate axes. A smaller grey circle stands in the lower half of the picture, with a dark green dot on its right edge and an orange square drawn over it. Five lines of text stand at the upper right: Točka, ki se giblje (the moving point); Pot (bleda črta) (the path, faint line); Prepotovani del poti (debela črta) (the part travelled, thick line); and in orange Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo (the reference point: uniform circular motion with the same angular velocity). There are no arrows.',
         'Kroženje s polmerom \\(1\\ \\mathrm{m}\\), \\(\\omega=1\\ \\mathrm{rad/s}\\) in \\(b=0{,}5\\), čas \\(0\\).',
         'Circular motion of radius \\(1\\ \\mathrm{m}\\), \\(\\omega=1\\ \\mathrm{rad/s}\\) and \\(b=0.5\\), time \\(0\\).',
+    ),
+    'kinematics.tangential-normal.curve-kinematics': copy(
+        'Krem ozadje brez koordinatnih osi. Zgoraj šest vrstic besedila: Točka, ki se giblje; Pot (bleda črta); Prepotovani del poti (debela črta); modro v (polna črta) z merilom puščice; prazna vrstica; oranžno a (črtkano) z merilom puščice. Pod njimi siv lok, en obok cikloide. Debela zelena črta pokriva levi del loka do temnozelene pike, od nje vodita dve puščici: modra polna z oznako v, ki sledi loku navzgor, in oranžna črtkana z oznako a, ki kaže vodoravno v desno.',
+        'Cream background without coordinate axes. At the top six lines of text: Točka, ki se giblje (the moving point); Pot (bleda črta) (the path, faint line); Prepotovani del poti (debela črta) (the part travelled, thick line); in blue v (polna črta) (v, solid line) with the arrow scale; a blank line; in orange a (črtkano) (a, dashed) with the arrow scale. Below them a grey arch, one hump of a cycloid. A thick green line covers the left part of the arch up to a dark green dot, and two arrows start at the dot: a solid blue one labelled v that follows the arch upwards and a dashed orange one labelled a that points horizontally to the right.',
+        'Cikloida točke na kolesu s polmerom \\(1\\ \\mathrm{m}\\), čas \\(t=\\pi/2\\ \\mathrm{s}\\), puščici hitrosti in pospeška.',
+        'The cycloid of a point on a wheel of radius \\(1\\ \\mathrm{m}\\), time \\(t=\\pi/2\\ \\mathrm{s}\\), the velocity and acceleration arrows.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

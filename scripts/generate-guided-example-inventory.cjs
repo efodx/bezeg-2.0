@@ -2306,17 +2306,17 @@ function combinatoricsExpectedFor(id, step) {
 // then `set-motion` (absent for the default cycloid), one `set-params` and `set-time`; nothing is random.
 
 /** Asserts the opening scene is the prepared default, the optional motion, the parameters and the time in that order; returns the motion, parameters and time. */
-function kinematicsOpening(id, step, motion) {
+function kinematicsOpening(id, step, motion, withParams = true) {
     const all = step.scene.actions;
     // The content scene lists its own prepared scene and the adapter prepends another: one or two leading entries.
     const prepared = all.filter(item => item.kind === 'prepared-scene');
     assert.ok(prepared.length >= 1 && prepared.length <= 2 && prepared.every(item => item.source === 'demonstration-default') && all.slice(0, prepared.length).every(item => item.kind === 'prepared-scene'),
         `${id}: the opening scene must start with the Demonstration default`);
     const own = all.slice(prepared.length);
-    const operations = [...(motion ? ['set-motion'] : []), 'set-params', 'set-time'];
+    const operations = [...(motion ? ['set-motion'] : []), ...(withParams ? ['set-params'] : []), 'set-time'];
     assert.deepEqual(own.map(item => `${item.kind}:${item.operation}`), operations.map(operation => `kinematics:${operation}`), `${id}: the opening scene is ${operations.join(', ')}`);
     if (motion) assert.equal(own[0].motion, motion, `${id}: only the ${motion} motion is authored`);
-    return {params: own.at(-2), t: own.at(-1).t};
+    return {params: withParams ? own.at(-2) : undefined, t: own.at(-1).t};
 }
 
 const kinematicsNoArrows = params => params.showVelocity === false && params.showAcceleration === false && params.split === undefined && params.trace === undefined;
@@ -2348,6 +2348,13 @@ const kinematicsFrames = {
         const {params, t} = kinematicsOpening(id, step, 'circular');
         assert.ok(kinematicsNoArrows(params) && params.radius === 2 && params.omega === 1.5 && params.b === undefined && t === 0, `${id}: only the circle (2 m, 1.5 rad/s) at time 0 without arrows is authored`);
         return {types: {curve: 2, point: 1}, curveCount: 2, points: [[2, 0]]};
+    },
+    // KN5 step 1: the Demonstration default (cycloid of radius 1 m, velocity and acceleration arrows on, split and osculating off, trace on) with only the time set to pi/2. The same two curves and the moving point
+    // as the first section plus the two arrows (the arrow ends are hidden anchors; the split and osculating layers are hidden). The point is at (t - sin t, 1 - cos t) = (pi/2 - 1, 1).
+    'tangential-normal': (id, step) => {
+        const {t} = kinematicsOpening(id, step, undefined, false);
+        assert.ok(Math.abs(t - Math.PI / 2) < 1e-9, `${id}: only the cycloid at time pi/2 with the default switches is authored`);
+        return {types: {curve: 2, point: 1, arrow: 2}, curveCount: 2, points: [[Math.PI / 2 - 1, 1]]};
     },
 };
 

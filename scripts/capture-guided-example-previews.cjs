@@ -33,6 +33,8 @@ const binomialExpansionId = 'combinatorics.binomial-theorem.lattice-paths';
 const kinematicsCircleWindows = {
     'kinematics.speed-and-parametrization.curve-kinematics': [-2.75, 2.7, 2.75, -0.7],
     'kinematics.circular-motion.curve-kinematics': [-3.77, 3.07, 3.77, -1.59],
+    // The decomposition card shows the velocity and acceleration captions (two more rows, one blank): the board frame reserves the room only for the live caption set, so the window sets the arch (y 0 to 2) below the sixth row at about 100 px a unit.
+    'kinematics.tangential-normal.curve-kinematics': [-0.2186, 3.88, 6.5018, -0.28],
 };
 
 // The waves cards: the board's screen-anchored caption rows take the top of the 840x520 card (about 250 px for the sum, 205 for the beats, 285 for the standing wave, whose last row is the long resolution note),
@@ -93,6 +95,11 @@ const trigonometryWindows = {
 };
 
 function captureRecipeForEntry(entry, recipe) {
+    // The kinematics chapter cards keep the graph's caption rows (the catalog poster recipe strips them): the board frame reserves room for them above the path, and they name the arrows.
+    if (entry.id.startsWith('kinematics.') && recipe.text) {
+        const {text: _poster, ...rest} = recipe;
+        return captureRecipeForEntry(entry, {...rest, annotations: 'hide-point-names-retain-concept-text'});
+    }
     if (Object.hasOwn(trigonometryWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: trigonometryWindows[entry.id]}};
     if (Object.hasOwn(levelSetsWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: levelSetsWindows[entry.id]}};
     if (Object.hasOwn(recursionWindows, entry.id)) return {...recipe, framing: {kind: 'coordinate-window', window: recursionWindows[entry.id]}};

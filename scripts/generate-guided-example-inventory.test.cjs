@@ -907,6 +907,9 @@ test('kinematics expectations are authored from the graph: two curves, the movin
     assert.deepEqual([throwing.types, throwing.points], [{curve: 2, point: 1}, [[0, 0]]]);
     const circle = kinematicsExpectedFor('k.circular-motion.curve-kinematics', open([motion('circular'), params({...off, radius: 2, omega: 1.5}), time(0)]));
     assert.deepEqual([circle.types, circle.points], [{curve: 2, point: 1}, [[2, 0]]]);
+    const decomposition = kinematicsExpectedFor('k.tangential-normal.curve-kinematics', open([time(Math.PI / 2)]));
+    assert.deepEqual([decomposition.types, decomposition.points], [{curve: 2, point: 1, arrow: 2}, [[Math.PI / 2 - 1, 1]]]);
+    assert.throws(() => kinematicsExpectedFor('k.tangential-normal.curve-kinematics', open([time(2)])), /only the cycloid at time pi\/2/);
     assert.throws(() => kinematicsExpectedFor('k.position-velocity-acceleration.curve-kinematics', open([params(off), time(1)])), /only the cycloid/);
     assert.throws(() => kinematicsExpectedFor('k.circular-motion.curve-kinematics', open([motion('circular'), params({...off, radius: 2, omega: 1.5, b: 0.5}), time(0)])), /only the circle/);
     assert.throws(() => kinematicsExpectedFor('k.projectile-motion.curve-kinematics', open([params(off), time(0)])), /the opening scene is/);

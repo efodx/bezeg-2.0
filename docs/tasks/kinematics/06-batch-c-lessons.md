@@ -6,4 +6,4 @@ Slices F3–F6 as in [04](04-batch-a-lessons.md); the lesson joins the chapter o
 
 Acceptance: the spec's acceptance for KN5; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; `curve-parametric` and `curve-curvature` behave as before.
 
-Status: F3 KN5 written and joined (handler 35); F4 card, F5 and F6 gate next.
+Status: F3 KN5 written and joined (handler 35); F4 card, F5 and F6 gate next; F4 card captured (handler 35).

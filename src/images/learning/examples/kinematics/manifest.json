@@ -1,70 +1,71 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+    "dirty": true,
+    "inputs": "c25a1098f8ce9d0893061bd390782b85603856e867a724746aeafb88e1f2a659",
+    "output": "73b9c54d7eb7f1a65ea7d44282f2fac7f2f4dfe72e28c3d360b9748d3a0d77ae"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
+    "stampRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+    "stampDirty": true,
+    "localOutputHash": "73b9c54d7eb7f1a65ea7d44282f2fac7f2f4dfe72e28c3d360b9748d3a0d77ae",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index--8VIB0CQ.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index--8VIB0CQ.js",
+        "sha256": "f19028db8e0a92dd86d0f87d528911ea975ca7acdc4c0615cbbc9da6e01cbca9",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-DdKA_P9f.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-DdKA_P9f.js",
+        "sha256": "37e0a75004576819be19cce7389bc5692ef38befa7201f1cc540eeff93ed569a",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-BA9Y4BVL.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-BA9Y4BVL.js",
+        "sha256": "9ce238c8f710882d08009415d7456cc3ce36a6d1c3797a46660d63b052f8ba1f",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4527/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "cbe720163f5f367624c64db3923b8d01726788631fcd5615b8c96d5526974e90",
+    "inventory": "6f808bff2c5a72a334d27fef528b9c8e079091fa5009bd9d79484b1867431b56",
     "entries": {
       "kinematics.position-velocity-acceleration.curve-kinematics": "889b76047074dfcaa643ef2a926d54f223935f998cb5998a58a858e6acb0ae05",
       "kinematics.speed-and-parametrization.curve-kinematics": "8f02dbb13ee5256971469cddf557be5997e1aeee9400835b40ac913e6889a6ef",
       "kinematics.projectile-motion.curve-kinematics": "92491c11c58e8f22ce98ce31e2c8bbdc9fdf5ed332373d96908f1e8c2e04b281",
-      "kinematics.circular-motion.curve-kinematics": "612405b41166c396df877e04a43c58ecc2c00b31e1484f0f0f8a4866ca57e4f1"
+      "kinematics.circular-motion.curve-kinematics": "612405b41166c396df877e04a43c58ecc2c00b31e1484f0f0f8a4866ca57e4f1",
+      "kinematics.tangential-normal.curve-kinematics": "e4d6374663d490da7b5c73d2802ee4768ceb85925dc97164835e3bac6a91256e"
     },
-    "presentation": "f9d18768ce04aa318f5ca044bc25903adaaea2b87ebf6a7425d8e80fabdfe69c",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "da3664c6122a625db9cdf0a1ab69376195175bf9fb8f84878e696d8693927440",
+    "buildOutput": "73b9c54d7eb7f1a65ea7d44282f2fac7f2f4dfe72e28c3d360b9748d3a0d77ae",
+    "buildInputs": "c25a1098f8ce9d0893061bd390782b85603856e867a724746aeafb88e1f2a659"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -122,6 +123,19 @@
             -1.59
           ]
         }
+      },
+      {
+        "id": "kinematics.tangential-normal.curve-kinematics",
+        "demonstrationId": "curve-kinematics",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.2186,
+            3.88,
+            6.5018,
+            -0.28
+          ]
+        }
       }
     ]
   },
@@ -144,7 +158,7 @@
       "file": "kinematics.position-velocity-acceleration.curve-kinematics.png",
       "width": 840,
       "height": 520,
-      "sha256": "b028235234c1d0c8c1a27be2dec363a19d4241c9a520605be2be969d5d2d31e7",
+      "sha256": "03a362d6c866acf3b7a9034d9931105df7a01e15254372c392ff709ba76f4509",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -195,11 +209,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 21,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 11,
+            "label": 18,
             "curve": 2,
             "point": 1,
             "text": 3
@@ -261,8 +275,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+        "sourceRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
         "pageErrors": []
       }
     },
@@ -285,7 +299,7 @@
       "file": "kinematics.speed-and-parametrization.curve-kinematics.png",
       "width": 840,
       "height": 520,
-      "sha256": "601b33d8d01233853c82aa7bec372bcfd28225907b5cc59902fbe14fbae3fb69",
+      "sha256": "12788804b5c9a0d5194a7308defe2ac68887a643a245a12893b65e6281599bd6",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -336,11 +350,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 27,
+          "visibleElementCount": 25,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 13,
             "curve": 2,
             "point": 2,
             "text": 4
@@ -402,8 +416,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+        "sourceRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
         "pageErrors": []
       }
     },
@@ -426,7 +440,7 @@
       "file": "kinematics.projectile-motion.curve-kinematics.png",
       "width": 840,
       "height": 520,
-      "sha256": "4b6f621711b57f6e6cf042dccc6df7676143a05ed7b948d085beb3d8fd505978",
+      "sha256": "abcc71ac861e942ac94293a88232c3cda1d48fd0fb423a673462f7517a07cf83",
       "scene": {
         "visibleElementCount": 7,
         "visibleElementTypes": {
@@ -477,11 +491,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 25,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 13,
             "curve": 2,
             "point": 1,
             "text": 4
@@ -543,8 +557,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+        "sourceRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
         "pageErrors": []
       }
     },
@@ -567,7 +581,7 @@
       "file": "kinematics.circular-motion.curve-kinematics.png",
       "width": 840,
       "height": 520,
-      "sha256": "6f90587d8c4adc1563cfe6abb015005450f014988cd21db67b5a211b9e82d672",
+      "sha256": "e972746cb35ca5bd864bfc2092d6bc35f3c967f41038dba08cc58d7cf2e14610",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -618,11 +632,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 25,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 16,
             "curve": 2,
             "point": 1,
             "text": 3
@@ -684,8 +698,152 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+        "sourceRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "kinematics.tangential-normal.curve-kinematics",
+      "demonstrationId": "curve-kinematics",
+      "path": "/bezeg-2.0/curve-geometry/kinematics?example=lesson.kinematics.tangential-normal.curve-kinematics",
+      "sceneFingerprint": "8b863b4c5abc55318e62b883072c26e16a43fe147d1632a0f820bc13ae72cf7f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn5-along-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"kn5-along-scene\",\"source\":\"demonstration-default\"}",
+        "kinematics: {\"kind\":\"kinematics\",\"operation\":\"set-time\",\"t\":1.5707963267948966}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "kinematics.tangential-normal.curve-kinematics.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "14634ce6770e591f95ce1422173a66da7c854e7bc2abaa1c7e8061b1154c7627",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 1,
+          "arrow": 2,
+          "text": 7
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.000019
+            ],
+            [
+              0,
+              0.000038
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.000019
+            ],
+            [
+              0,
+              0.000038
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:arrow",
+          "curve-count",
+          "point:0.5707963267948966,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 2,
+            "point": 1,
+            "arrow": 2,
+            "text": 7
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.000019
+              ],
+              [
+                0,
+                0.000038
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0.000019
+              ],
+              [
+                0,
+                0.000038
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:arrow",
+            "curve-count",
+            "point:0.5707963267948966,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 7,
+        "finalLabelCount": 7,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 1,
+          "arrow": 2,
+          "text": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
+        "sourceRevision": "d2f3dc795bf2f822b6e5d04769a68faf8204b02c",
         "pageErrors": []
       }
     }
