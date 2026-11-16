@@ -130,3 +130,9 @@ RS6 (randomnessIntervalGuidedLessons.ts)
 - State boxes are taller (`simulationScene.ts` `markovDiagram`: bottom -0.71, "(začetek)" at -0.58), so the marker keeps at least the room the name has above it.
 - Tests: `SimulationGraph.test.tsx` "Markov plot range and state boxes" at 840x520, 390x520, 330x520, sl and en; seen red (ticks/axis, then padding), green after.
 - jsdom's glyph box is shorter than a browser's; padding was judged on after-shots (`.command-logs/rand-c/layout/after-*.png`).
+
+## Interval layout fix (handler 34)
+- Interval mode: x tick numbers above `LAW_LEFT - 1` (99) are blank (`defaultAxesAttributes`, SimulationGraph.tsx:340); the x axis is clipped to the interval plot (`clipXAxis`, second point moved to 99, straightLast off), restored on scene disposal.
+- The `after` caption (run caption) height now uses the measured width times 1.06 (as `stackPlan`), not the 7.2 px glyph estimate (SimulationGraph.tsx:~565).
+- Tests: "Interval layout at a board of %i x %i px" (840/390/330 x 520, sl and en, n 20/100/10000, samples 16/36/100); red 9, green. Logs `.command-logs/rand-c/layout2/`.
+- Open: at n = 20 on 390 px the observed-count line (top at LAW_HEIGHT + 8) crosses the run caption; not in scope, not fixed.

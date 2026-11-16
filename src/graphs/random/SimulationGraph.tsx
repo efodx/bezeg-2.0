@@ -28,7 +28,7 @@ import {
 import {intervalHalfWidth} from "../../random/samplePaths";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {AREA_LAYOUT, Caption, CaptionKey, EMPTY_LAYER, Layer, POINTS_DRAWN, sceneFor, SceneData} from "./simulationScene";
+import {AREA_LAYOUT, Caption, CaptionKey, EMPTY_LAYER, Layer, LAW_LEFT, POINTS_DRAWN, sceneFor, SceneData} from "./simulationScene";
 
 /** The scene state: the stored simulation fields (`RandomState`), nothing derived. */
 export interface RandomGraphState extends BaseGraphState, RandomState {}
@@ -336,6 +336,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             const tick = label[0] as {usrCoords?: number[]} | undefined;
             if (current().mode === "walk" && tick?.usrCoords && tick.usrCoords[1] > current().walkSteps + 1e-9) return "";
             if (current().mode === "area" && tick?.usrCoords && Math.abs(tick.usrCoords[1]) > 1 + 1e-9) return "";
+            // The interval plot spans the population 0..99; right of it stands the law panel of the miss counts, which is not on that axis.
+            if (current().mode === "interval" && tick?.usrCoords && tick.usrCoords[1] > LAW_LEFT - 1 + 1e-9) return "";
             return labelOfX ? labelOfX.apply(this, label) : "";
         };
         // The y axis of the area picture has numbers only over the shape (|y| up to 1, likewise the x axis above): beyond it the stacked captions of a narrow board stand.
@@ -516,6 +518,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         this.drawnMode = mode;
         this.drawnCompact = this.areaCompact();
         this.clipYAxis(mode === "markov");
+        this.clipXAxis(mode === "interval");
         const styles = LAYER_STYLES[mode];
         for (const name of Object.keys(styles)) {
             const curve = this.own(board.create("curve", [[], []], {
@@ -561,7 +564,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             const words = previous ? captionText(this.view().scene.captions[index - 1], this.state) : "";
             const [, , right] = this.board.getBoundingBox();
             const room = previous ? Math.max((right - previous.X()) * this.board.unitX, 1) : 1;
-            const lines = Math.max(1, Math.ceil((words.length * GLYPH_PX) / room));
+            // A browser wraps words a little worse than the plain width ratio (as `stackPlan` allows).
+            const lines = Math.max(1, Math.ceil((this.textWidth(words) * 1.06) / room));
             const height = Math.max(previous?.getSize?.()[1] ?? 0, lines * (CAPTION_ROW_PX - 1));
             return (previous ? previous.Y() : caption.y) - (height + 2) / this.board.unitY;
         }
@@ -589,10 +593,19 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         axis?.setAttribute({straightFirst: !clipped, straightLast: !clipped});
     }
 
+    /** The x axis of the interval plot ends at the law panel (x = `LAW_LEFT`), whose bars count misses, not population values; every other mode has the whole line (second point back at x = 1). */
+    private clipXAxis(clipped: boolean): void {
+        const axis = (this.board as unknown as {defaultAxes?: {x?: {setAttribute(attributes: {straightLast: boolean}): unknown; point2?: {setPositionDirectly?(method: number, coords: number[], oldCoords: number[]): unknown; coords?: {usrCoords: number[]}; moveTo?(coords: number[]): unknown}}}}).defaultAxes?.x;
+        if (!axis) return;
+        axis.setAttribute({straightLast: !clipped});
+        axis.point2?.moveTo?.([clipped ? LAW_LEFT - 1 : 1, 0]);
+    }
+
     private disposeScene(): void {
         if (this.hasBoard) {
             const board = this.board;
             this.clipYAxis(false);
+            this.clipXAxis(false);
             const alive = this.objects.filter(object => board.objectsList.includes(object)).reverse();
             if (alive.length) board.removeObject(alive);
         }

@@ -1104,3 +1104,55 @@ describe.each([[840, 520], [390, 520], [330, 520]])('Markov plot range and state
         expect(bottomPad).toBeGreaterThanOrEqual(4);
     });
 });
+
+describe.each([[840, 520], [390, 520], [330, 520]])('Interval layout at a board of %i x %i px', (W, H) => {
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    test.each(['sl', 'en'] as const)('%s: x tick numbers stay within the population (0..99) and the x axis ends at the law panel', language => {
+        setLanguage(language);
+        const {graph} = mountGraph();
+        chooseMode('interval');
+        act(() => { graph.editTrials(10000); });
+        const board = graph.liveBoard() as unknown as {defaultAxes: {x: {evalVisProp(key: string): unknown; point1: {X(): number}; point2: {X(): number}}}; getBoundingBox(): number[]};
+        const [boxLeft, , boxRight] = board.getBoundingBox();
+        const axis = board.defaultAxes.x;
+        const xTicks = (graph.liveBoard().objectsList as unknown as Array<{elType: string; line?: unknown; labels?: Array<{plaintext?: string; X(): number}>}>)
+            .filter(o => o.elType === 'ticks' && o.line === axis).flatMap(o => o.labels ?? []).filter(l => (l.plaintext ?? '') !== '').filter(l => l.X() >= boxLeft && l.X() <= boxRight);
+        expect(xTicks.length, 'x tick numbers exist').toBeGreaterThan(0);
+        expect(xTicks.filter(l => l.X() > 99 + 1e-6).map(l => [l.plaintext, l.X()])).toEqual([]);
+        expect(axis.evalVisProp('straightlast')).toBe(false);
+        expect(axis.point2.X()).toBeLessThanOrEqual(100 + 1e-9);
+    });
+
+    test.each([['sl', 20, 36], ['sl', 100, 16], ['sl', 10000, 16], ['sl', 10000, 36], ['sl', 10000, 100], ['en', 100, 36], ['en', 10000, 36], ['en', 10000, 100]] as const)('%s, %i intervals of %i: the law caption and the run caption are disjoint and inside the board', (language, n, size) => {
+        setLanguage(language);
+        const {graph} = mountGraph();
+        chooseMode('interval');
+        act(() => { graph.editSampleSize(size); graph.editTrials(n); });
+        const {boxes} = pixelLayout(graph);
+        expect([(graph.liveBoard() as unknown as {canvasWidth: number}).canvasWidth, (graph.liveBoard() as unknown as {canvasHeight: number}).canvasHeight]).toEqual([W, H]);
+        const law = boxes.find(box => box.text.startsWith(t('random_graph_cap_miss_law', {value0: String(n), value1: '0', value2: '0'}).slice(0, 8)));
+        const run = boxes.find(box => box.text.startsWith(t('random_graph_cap_miss_run', {value0: '0'}).slice(0, 8)));
+        expect(law, 'law caption').toBeDefined();
+        expect(run, 'run caption').toBeDefined();
+        const problems: string[] = [];
+        for (const box of boxes) {
+            if (box.x0 < -1e-6 || box.x1 > W + 1e-6) problems.push(`"${box.text}" outside the board in x`);
+            if (box.y0 < 6 - 1e-6 || H - box.y1 < 6 - 1e-6) problems.push(`"${box.text}" too close to the top or bottom edge`);
+        }
+        boxes.forEach((box, i) => boxes.slice(i + 1).forEach(other => {
+            if (box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0) problems.push(`"${box.text}" overlaps "${other.text}"`);
+        }));
+        expect(problems).toEqual([]);
+        // The browser wraps words a little worse than the plain width ratio: the run caption starts a full wrapped law caption (plus a 6 % allowance) below its top.
+        const room = W - law!.x0, lines = Math.ceil((law!.x1 - law!.x0 > 0 ? (law!.text.length * 14 * 0.514 * 1.06) : 1) / Math.max(room, 1));
+        expect(run!.y0).toBeGreaterThanOrEqual(law!.y0 + lines * 17 - 1e-6);
+    });
+});
