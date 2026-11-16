@@ -35,17 +35,23 @@ const step = (content: StepContent): GuidedLessonStep => ({
     ],
 });
 
-/** The stored run fields a scene may set (the percent is a multiple of 5; setting `n` shows everything). */
+/** The stored run fields a scene may set (the percents are multiples of 5; setting `n` shows everything); the fields of `set-run`. */
 export interface RandomnessSceneRun {
     readonly seed?: number;
     readonly n?: number;
     readonly rows?: number;
     readonly pPercent?: number;
+    readonly walkSteps?: number;
+    readonly areaShape?: 'quarter' | 'disc';
+    readonly markovA?: number;
+    readonly markovB?: number;
+    readonly markovStart?: 0 | 1;
+    readonly sampleSize?: number;
 }
 
 /** What a simulation scene sets: the mode (the Demonstration default is the Galton board), the run fields, the second seed and the playback position (a stop of the playback). */
 export interface RandomnessSceneSpec {
-    readonly mode?: 'galton' | 'frequency';
+    readonly mode?: 'galton' | 'frequency' | 'area' | 'walk' | 'markov' | 'interval';
     readonly run?: RandomnessSceneRun;
     readonly overlay?: {readonly seed2?: number};
     readonly position?: number;
