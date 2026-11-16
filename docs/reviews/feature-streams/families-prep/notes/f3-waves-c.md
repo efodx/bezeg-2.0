@@ -235,3 +235,7 @@ Registration (section, id `waves-nyquist`), preview copy, test lists (`lessonMat
 - Slovenian prose not read by a Slovenian reader; step 1 and 2 openings show the thin wave and dots, so "does it still show the tone" is answered only by the readout after the change.
 - Step 5 states that below fs/2 no other tone shares the dots: it is the theorem, given in an observation (collapsed), not proved.
 - Alias wave drawn at phase 25 is the apparent-frequency tone with the same phase; not viewed on screen.
+
+### Slice 2d (WV4)
+
+`src/learning/content/wavesSamplingGuidedLessons.test.ts`, `describe('WV4')` (11 tests, lines 154 on): structure; scene sweep on a real `WavesGraph` (out of order, twice, sl and en, state, all readouts, status, restore); learner changes (state and readouts per prompt action); opening is not the asked state; labels named in prompts exist in sl/en and as readout `dt`; directions/magnitudes quoted vs integer alias; no answer leaked in predicting steps 1 to 6; alias by integer arithmetic for 9 pairs; samples agree to 1e-12 (4 phases); every quoted number reproduced in sl and en; no English decimals in sl, no `{,}` in en, rounded 0,0417/0,5417 follow `\approx`. Red: `=12{,}48` to `=12{,}49` in the sl step 4 text failed the quoted-numbers test (`s2d-red-wv4.log`), restored (git clean). Green: `s2d-unit-wv4.log`; tsc and lint empty/clean. No false claim found. Not verified: join/sinc rows (WV5), step 5 switch click through the UI (applied as a `set-sampling` action).
