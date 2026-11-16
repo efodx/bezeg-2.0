@@ -51,6 +51,8 @@ const COMPONENT_FIELDS = ["a1", "p1", "a2", "p2", "f1", "f2", "halfWaves", "show
 const SAMPLING_FIELDS = ["fs", "extra", "showAlias", "showJoin", "showSinc"] as const satisfies readonly (keyof WavesState)[];
 
 const dec = (value: number, digits = 3): string => formatNumber(value, currentLanguage(), digits);
+/** Rounded to four decimals, with -0 turned into 0. */
+const roundedFour = (value: number): number => Math.round(value * 1e4) / 1e4 + 0;
 /** Degrees on the phase fields' range, greater than -180 and at most 180. */
 const wrapDegrees = (degrees: number): number => {
     const wrapped = degrees - 360 * Math.round(degrees / 360);
@@ -648,7 +650,7 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
             caption(() => t("waves_graph_cap_dots"), GraphPalette.primaryCurve);
             caption(() => t("waves_graph_cap_strip"), GraphPalette.label);
             caption(() => t("waves_graph_cap_wheel"), GraphPalette.label);
-            caption(() => { const alias = f()?.alias; return t("waves_graph_cap_alias", {value0: dec(alias && !alias.ambiguous ? alias.signed : 0, 0)}); }, GraphPalette.constructionAccent,
+            caption(() => { const facts = f(); const alias = facts?.alias; return facts?.relation === "above" ? t("waves_graph_cap_alias_exact") : t("waves_graph_cap_alias", {value0: dec(alias && !alias.ambiguous ? alias.signed : 0, 0)}); }, GraphPalette.constructionAccent,
                 () => state().showAlias && f()?.aliasWave != null);
             caption(() => t("waves_graph_cap_join"), GraphPalette.additionalCurves[3], showing("showJoin"));
             caption(() => t("waves_graph_cap_sinc"), GraphPalette.additionalCurves[2], showing("showSinc"));
@@ -1036,7 +1038,11 @@ export class WavesGraph extends BaseGraph<WavesGraphState, WavesState> {
                 {id: "alias-frequency", label: t("waves_graph_r_alias_frequency"), value: sampling.alias.ambiguous ? none : this.quantity(sampling.alias.signed, "rev", 0)},
                 {id: "frame", label: t("waves_graph_r_frame"), value: t("waves_graph_frame_value", {value0: dec(frame, 0), value1: dec(state.fs, 0), value2: dec(instantOf(frame, state.fs), 4)})},
             );
-            if (state.showJoin) rows.push({id: "join-error", label: t("waves_graph_r_join_error"), value: dec(sampling.joinError, 4)});
+            if (sampling.alias.ambiguous) {
+                const first = roundedFour(state.a1 * Math.cos(state.p1 * Math.PI / 180));
+                rows.push({id: "ambiguous-samples", label: t("waves_graph_r_ambiguous_samples"), value: t("waves_graph_ambiguous_samples_value", {value0: dec(first, 4), value1: dec(roundedFour(-first), 4), value2: dec(Math.abs(first), 4)})});
+            }
+            if (state.showJoin) rows.push({id: "join-error", label: t("waves_graph_r_join_error"), value: t("waves_graph_join_error_value", {value0: dec(sampling.joinError, 4), value1: dec(windowOf(state), 0)})});
             if (sampling.sinc) rows.push({id: "sinc-error", label: t("waves_graph_r_sinc_error"), value: t("waves_graph_sinc_error_value", {value0: dec(sampling.sinc.error, 4), value1: dec(SINC_ERROR_FROM, 1), value2: dec(SINC_ERROR_TO, 1)})});
         }
         rows.push({id: "resolution", label: t("waves_graph_r_resolution"), value: t(state.mode === "standing" ? "waves_graph_resolution_space" : "waves_graph_resolution_time", {value0: POINTS_PER_SECOND})});

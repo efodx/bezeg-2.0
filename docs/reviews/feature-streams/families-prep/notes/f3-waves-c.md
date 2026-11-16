@@ -89,3 +89,11 @@ At the host test's 600 x 400 board and at 390 x 480 (sl and en, four openings): 
 - Arrow angles in the probe are in board units on non-isotropic scales, so I quote only the formula (`WavesGraph.tsx:634`) and which arrows coincide, not screen angles.
 - Probe covered phase 0 for all WV4 values; the wheel at non-zero phase was not dumped.
 - Speed of the 0,4 rad figures: the spec's checked values were not re-derived here; the kernel tests (`sampling.test.ts`) were not rerun.
+
+## Graph slice
+
+- `readoutRows()` in `WavesGraph.tsx`: row `ambiguous-samples` at 2f = fs, from `a1` and cos of the snapped `p1` (rounded to four decimals, -0 normalised): first sample, its negative, apparent amplitude (0,9063 at 25 degrees, 0 at 90).
+- Join row value is "{error} (na 0 do {window} s)" from `windowOf(state)` (the full window, 1 s); join and sinc row labels say approximate.
+- Caption for fs > 2f reads "Črtkano: ton skozi pike (natančna rekonstrukcija)"; the alias wording stays below 2f.
+- Tests: three new in `WavesGraph.test.tsx` (red in `.command-logs/waves-c/graph-red.log`, green in `graph-unit.log`/`graph-unit2.log`); one older assertion adjusted for the new join value format.
+- Not done: the `set-mode`-only "čas je vrnjen na 0" text (optional, left).

@@ -297,6 +297,46 @@ describe('sampling', () => {
         expect(withValue(graph, length, 150, tone)).toHaveLength(1);
     });
 
+    test('at 2f = fs the samples alternate plus and minus A cos(phase); the apparent amplitude is exact and never -0', () => {
+        const {graph} = mountGraph();
+        choose('sampling');
+        expect(document.querySelector('[data-readout="ambiguous-samples"]')).toBeNull();
+        set(graph, {f1: 6, fs: 12, a1: 1, p1: 0});
+        expect(labelOf('ambiguous-samples')).toBe(t('waves_graph_r_ambiguous_samples'));
+        const row = (first: string, negative: string, apparent: string) => t('waves_graph_ambiguous_samples_value', {value0: first, value1: negative, value2: apparent});
+        expect(readout('ambiguous-samples')).toBe(row('1', `${MINUS}1`, '1'));
+        set(graph, {p1: 25});
+        expect(readout('ambiguous-samples')).toBe(row('0,9063', `${MINUS}0,9063`, '0,9063'));
+        set(graph, {p1: 90});
+        expect(readout('ambiguous-samples')).toBe(row('0', '0', '0'));
+        set(graph, {p1: 180});
+        expect(readout('ambiguous-samples')).toBe(row(`${MINUS}1`, '1', '1'));
+        set(graph, {f1: 5, fs: 12});
+        expect(document.querySelector('[data-readout="ambiguous-samples"]')).toBeNull();
+        noBadText();
+    });
+
+    test('the join and sinc error rows are labelled approximate and name their window', () => {
+        const {graph} = mountGraph();
+        choose('sampling');
+        set(graph, {showJoin: true, showSinc: true});
+        expect(labelOf('join-error')).toBe(t('waves_graph_r_join_error'));
+        expect(labelOf('join-error')).toMatch(/pribli|približ/i);
+        expect(labelOf('sinc-error')).toMatch(/približ/i);
+        expect(readout('join-error')).toContain(t('waves_graph_join_error_value', {value0: readout('join-error')!.split(' ')[0], value1: '1'}));
+        expect(readout('join-error')).toMatch(/\(na 0 do 1 s\)$/);
+    });
+
+    test('above 2f the dashed tone is the exact reconstruction, below it is the alias', () => {
+        const {graph} = mountGraph();
+        choose('sampling');
+        set(graph, {showAlias: true});
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_alias_exact'));
+        set(graph, {f1: 23, fs: 24});
+        expect(captionTexts(graph)).not.toContain(t('waves_graph_cap_alias_exact'));
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_alias', {value0: `${MINUS}1`}));
+    });
+
     test('6 Hz sampled at 12 Hz is ambiguous (no alias tone drawn), 12 Hz at 12 Hz stands still, 5 Hz at 12 Hz turns forwards', () => {
         const {graph} = mountGraph();
         choose('sampling');
@@ -351,7 +391,7 @@ describe('sampling', () => {
         expect(readout('join-error')).toBeUndefined();
         expect(readout('sinc-error')).toBeUndefined();
         act(() => { fireEvent.click(field(t('waves_graph_show_join'))); });
-        expect(Number(readout('join-error')?.replace(',', '.'))).toBeGreaterThan(0);
+        expect(Number(readout('join-error')?.split(' ')[0].replace(',', '.'))).toBeGreaterThan(0);
         expect(captionTexts(graph)).toContain(t('waves_graph_cap_join'));
         act(() => { fireEvent.click(field(t('waves_graph_show_sinc'))); });
         expect(readout('sinc-error')).toMatch(/ \(na 0,4 do 0,6 s\)$/);
