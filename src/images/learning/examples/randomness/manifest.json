@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+  "sourceRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
-    "dirty": true,
-    "inputs": "8cab5ee56b1c085ed0a97db41ec9d24ae232c18ccf0a3c93595a2f5165eea6d6",
-    "output": "1be09a8122a5466c6f5a84b3a3b41b48cfd38c2fadac06aaf938ea6a3d204b06"
+    "revision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
+    "dirty": false,
+    "inputs": "e04f3ff962d97819a5dffedd5ab6289d147e77a1a7f216ce6d14e9e2633d4d63",
+    "output": "d428aae4960e1f2dee369a3336fad348309f9db098f880e841b14056ed76edc4"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
-    "stampRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
-    "stampDirty": true,
-    "localOutputHash": "1be09a8122a5466c6f5a84b3a3b41b48cfd38c2fadac06aaf938ea6a3d204b06",
+    "stampRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
+    "stampDirty": false,
+    "localOutputHash": "d428aae4960e1f2dee369a3336fad348309f9db098f880e841b14056ed76edc4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BBoD8J7N.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-BBoD8J7N.js",
-        "sha256": "e5a77b719f79386198df4d4ca1502dd51eb57a9a308b6f7375c462631a712737",
+        "name": "index-jwwz6Jxn.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-jwwz6Jxn.js",
+        "sha256": "7b46314e117b84ae3e05156a5b66c52d9e7c0234087a3a03946bfc9adbcd9a9c",
         "matchesLocalBuild": true
       },
       {
@@ -55,16 +55,16 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "64a5c3816519f8f1bd076117cf83241d3c0a8f5e93b538812a6879d812930370",
+    "inventory": "9a50e3fb57088626ed8a5a61cfc3b53fb5f34c15ee264624db3d19ba4aa7084c",
     "entries": {
       "randomness.galton-board.prob-simulation": "c6ea5225af9da4b75a666c729236d490a4e921fd345a9eac660f8c2a13ed2762",
       "randomness.law-of-large-numbers.prob-simulation": "7ebacb11410180de033cf9d81fb85928465c51c7bdbf0f8510001a17d4751e3e",
-      "randomness.monte-carlo.prob-simulation": "8911b12f765715e4d8d4938883b7040318b03ce10cfe8efcdf988f21f902acc7",
+      "randomness.monte-carlo.prob-simulation": "63d4d2b25f49a5b02a6d340892f9afe04056f7dbf90a8b28d0451225fc8423a7",
       "randomness.random-walk.prob-simulation": "2dc551155d0885d59e057366f1e276f7f6a90dfc669c5d0e7e4f85393404feeb"
     },
-    "presentation": "80651343367dac2f2d04f3339ae083a6558f6a2092f76de6f6bc5c9ee338d424",
-    "buildOutput": "1be09a8122a5466c6f5a84b3a3b41b48cfd38c2fadac06aaf938ea6a3d204b06",
-    "buildInputs": "8cab5ee56b1c085ed0a97db41ec9d24ae232c18ccf0a3c93595a2f5165eea6d6"
+    "presentation": "66dae182668ee19b91e03b5816f98a1ec746435e9c88059d5e1539773fffc64e",
+    "buildOutput": "d428aae4960e1f2dee369a3336fad348309f9db098f880e841b14056ed76edc4",
+    "buildInputs": "e04f3ff962d97819a5dffedd5ab6289d147e77a1a7f216ce6d14e9e2633d4d63"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -115,10 +115,10 @@
         "framing": {
           "kind": "coordinate-window",
           "window": [
-            0.156,
-            1.079,
-            2.124,
-            -0.139
+            0.246,
+            1.724,
+            2.855,
+            0.106
           ]
         }
       },
@@ -325,8 +325,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
-        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "buildRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
+        "sourceRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
         "pageErrors": []
       }
     },
@@ -572,8 +572,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
-        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "buildRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
+        "sourceRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
         "pageErrors": []
       }
     },
@@ -596,7 +596,7 @@
       "file": "randomness.monte-carlo.prob-simulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "2e56809bc4f185cf7503490551bf69a170937cbb19709abdd3102be79ff1c41b",
+      "sha256": "afe603fa8cfd6c00fa6b46476d3369d58dc7aaf37e86c512dd1c488a0ee40501",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -635,15 +635,15 @@
           ],
           [
             [
-              1.3,
+              1.2,
+              0.785398
+            ],
+            [
+              1.5,
               0.785398
             ],
             [
               1.8,
-              0.785398
-            ],
-            [
-              2.3,
               0.785398
             ]
           ]
@@ -651,7 +651,6 @@
         "checks": [
           "type:curve",
           "curve-count",
-          "curve-samples",
           "curve-samples",
           "curve-samples"
         ]
@@ -661,11 +660,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 16,
+            "label": 18,
             "curve": 3,
             "text": 7
           },
@@ -718,7 +717,6 @@
             "type:curve",
             "curve-count",
             "curve-samples",
-            "curve-samples",
             "curve-samples"
           ]
         }
@@ -740,8 +738,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
-        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "buildRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
+        "sourceRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
         "pageErrors": []
       }
     },
@@ -906,8 +904,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
-        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "buildRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
+        "sourceRevision": "2bb742b22f6e7d4e0b3f3108fb6336d8e98ba57a",
         "pageErrors": []
       }
     }

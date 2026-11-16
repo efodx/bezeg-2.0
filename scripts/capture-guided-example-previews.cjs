@@ -58,9 +58,9 @@ const descentWindows = {
 const randomnessWindows = {
     'randomness.galton-board.prob-simulation': [0.469, 1.252, 9.531, -0.918],
     'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.398, 1.008, -1.648],
-    // The area card takes the quarter-circle frame in x (-0.12 to 2.4: the square on the left, the pi/4 line, its captions and the error bar panel on the right) at one scale in x and y (the card is 840 x 520, so y runs from 1.25 to -0.31) so the arc stays a circle; the walk card the walk frame
+    // The 840 px card is a compact-layout board (captions stacked above and below the shape): the area card takes the compact quarter frame (y 1.95 to -0.12, the caption rows above the shape) at one scale (x -0.12 to 3.22 on the card) so the arc stays a circle; the walk card the walk frame
     // (x from -8 to 155, y from 39.6 to -39.6 for 100 steps: the axes, the funnel and the law panel at x = 106).
-    'randomness.monte-carlo.prob-simulation': [0.156, 1.079, 2.124, -0.139],
+    'randomness.monte-carlo.prob-simulation': [0.246, 1.724, 2.855, 0.106],
     'randomness.random-walk.prob-simulation': [9.828, 30.938, 137.172, -30.938],
 };
 

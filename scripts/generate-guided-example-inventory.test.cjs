@@ -958,7 +958,7 @@ test('randomness expectations are authored from the graph: the Galton board with
     assert.throws(() => randomnessExpectedFor('r.law-of-large-numbers.prob-simulation', open([mode('frequency'), run({n: 100})])), /only 10 tosses/);
     assert.throws(() => randomnessExpectedFor('r.law-of-large-numbers.prob-simulation', open([run({n: 10})])), /the opening scene is set-mode, set-run/);
     assert.throws(() => randomnessExpectedFor('r.unknown.prob-simulation', open([])), /no authored randomness/);
-    const area = {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0], [1, 0]], [[1, 0], [0.999829, 0.013088], [0.999657, 0.026177]], [[1.3, 0.785398], [1.8, 0.785398], [2.3, 0.785398]]]};
+    const area = {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0], [1, 0]], [[1, 0], [0.999829, 0.013088], [0.999657, 0.026177]]]};
     const walk = {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0.5], [1, 1]], [[106, -101], [106, -101], [106, -101]]]};
     assert.deepEqual(randomnessExpectedFor('r.monte-carlo.prob-simulation', open([mode('area'), run({n: 100}), position(0)])), area);
     assert.deepEqual(randomnessExpectedFor('r.random-walk.prob-simulation', open([mode('walk'), run({n: 1}), position(0)])), walk);

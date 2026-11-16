@@ -2502,8 +2502,8 @@ const randomnessFrames = {
         assert.deepEqual({...run, kind: undefined, operation: undefined}, {n: 100, kind: undefined, operation: undefined}, `${id}: only 100 points (seed and shape unchanged) are authored`);
         assert.equal(position.shown, 0, `${id}: only the square with no point thrown is authored`);
         // A data curve is read at 0, 1/2 and 1 between its first two points. The square starts (0, 0) -> (1, 0); the arc starts at angle 0 (1, 0) and its next point is at the angle (pi/2)/60, (cos, sin) = (0.999657, 0.026177);
-        // the pi/4 line of the quarter picture runs from x = 1.3 to 2.3 at the height pi/4 = 0.785398.
-        return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0], [1, 0]], [[1, 0], [0.999829, 0.013088], [0.999657, 0.026177]], [[1.3, 0.785398], [1.8, 0.785398], [2.3, 0.785398]]]};
+        // the pi/4 line is not checked: its x range depends on the layout (side column on the lesson board, compact stack on the 840 px card, simulationScene AREA_LAYOUT / AREA_COMPACT_LAYOUT), the curve count does.
+        return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0], [1, 0]], [[1, 0], [0.999829, 0.013088], [0.999657, 0.026177]]]};
     },
     // RS4 step 1: the walk mode with one walk of the default 100 steps, none drawn (position 0). Three curves: the funnel (+-sqrt(k)), the heap of the walks (zero-length bars, nothing counted yet) and the exact bars of the law;
     // the drawn walks are empty layers.

@@ -35,3 +35,13 @@
 - Layout check (not shipped; `layout.cjs`, `*-max-*.png` here): area n = 100000 (300 points drawn) and walk 400 steps x 1000 walks at 1366 and 390 px boards via the route; captions clear, at 390 the area captions wrap but do not touch lines. The card capture has no width option (card is always 840x520).
 - Copy: alt and caption for the two ids; no share, no end position, no run value.
 - Checks: script test, `just unit src/learning/chapter src/learning/content/familyChapters.test.ts`, scope tests, tsc (empty log), lint, rawcheck all green. Not run: smoke test, `demonstration-preview-capture.test.cjs`.
+
+## Card recapture after the layout fix (handler 34)
+
+- `4a620878` made the 840 px card board a compact-layout area board (captions stacked above and below the shape; the pi/4 line now runs x 1.2 to 1.8 there, 1.3 to 2.3 on the wide lesson board). The old window, written for the side layout, laid six caption rows over the square. Recaptured with `--chapter randomness` against `just preview 4527` (stopped afterwards); logs in `.command-logs/rand-b/f4b/`.
+- Capture changes: the RS3 expectation (`randomnessFrames`, and its script-test copy) no longer checks the pi/4 line's samples, because lesson board and card disagree on them (curve count still 3); the area window in `randomnessWindows` is now the compact frame at one scale: `[0.246, 1.724, 2.855, 0.106]` (order minX, maxY, maxX, minY; the capture widens it 28 percent).
+- RS1, RS2 and RS4 PNGs byte-identical (RS4 has no drawn walk, so one bar scale changes nothing at position 0). Only RS3 changed.
+- Viewed, area: six caption rows top left clear of the shape; square below with a round quarter arc (equal units); dashed pi/4 line right of the square, no panel overprinting; "Četrtina kroga" sits right under the bottom edge, close but not touching; everything inside the card.
+- Viewed, walk: four caption rows top left, dashed funnel from the left edge, green axis and the bell-shaped law bars right, inside the card, nothing overprinting.
+- Alt text of RS3 rewritten (captions now stacked above, line right of the square); RS4 alt unchanged. rawcheck clean.
+- Checks: script test, `just unit src/learning/chapter src/learning/content/familyChapters.test.ts`, lint, `just tooling-test` green. Not run: smoke test.
