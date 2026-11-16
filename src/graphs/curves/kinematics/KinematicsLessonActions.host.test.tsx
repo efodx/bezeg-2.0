@@ -145,3 +145,10 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
     expect(() => apply(graph, setParams({b: 0.5}))).toThrow();
     expect(stateOf(graph)).toEqual(onCardioid);
 });
+
+test('set-params osculating reaches the state, readouts and status of the osculating switch', () => {
+    const viaAction = after(graph => { apply(graph, setTime(3.14)); apply(graph, setParams({osculating: true})); });
+    const viaControl = after(() => { slide(3.14); toggle(t('kinematics_graph_osculating')); });
+    expect(viaAction).toEqual(viaControl);
+    expect(viaAction.state.osculating).toBe(true);
+});

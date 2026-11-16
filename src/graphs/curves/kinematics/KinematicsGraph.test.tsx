@@ -333,7 +333,7 @@ describe('rebuild and disposal', () => {
         // The axis ticks add and drop their own labels with the zoom; the graph's objects and every other kind stay.
         const count = () => probes(graph).filter(o => o.elType !== 'label').length;
         const total = count();
-        for (const motion of MOTION_IDS) { choose(motion); expect(count(), motion).toBe(total); expect(graph.ownedObjectCount(), motion).toBe(26); }
+        for (const motion of MOTION_IDS) { choose(motion); expect(count(), motion).toBe(total); expect(graph.ownedObjectCount(), motion).toBe(36); }
     });
 
     test('the path is resampled for another motion only; switches and the time reuse the derived data', () => {
@@ -733,5 +733,106 @@ describe('opening view and caption rows (families-prep F2b fix pass)', () => {
         expect((texts[v].Y() - texts[a].Y()) * scale).toBeGreaterThanOrEqual(40);
         // A short caption keeps its single row.
         expect((texts[point].Y() - texts[path].Y()) * scale).toBeCloseTo(20, 5);
+    });
+});
+
+describe('the osculating circle and the tangent and normal axes (KN5)', () => {
+    const lines = (graph: ObservedGraph) => ofType(graph, 'line');
+    const circleCurve = (graph: ObservedGraph) => ofType(graph, 'curve').find(o => o.evalVisProp('strokecolor') === '#6f9285');
+
+    test('an old Preset without the field reads as off, and the stored field round-trips', () => {
+        const {osculating: _omitted, ...old} = serializeKinematicsState(DEFAULT_KINEMATICS_STATE);
+        const parsed = parseKinematicsState(old);
+        expect(parsed.ok && parsed.value.osculating).toBe(false);
+        expect(parseKinematicsState({...old, osculating: 'yes'}).ok).toBe(false);
+        expect(parseKinematicsState(serializeKinematicsState({...DEFAULT_KINEMATICS_STATE, osculating: true}))).toMatchObject({ok: true, value: {osculating: true}});
+    });
+
+    test('the switch draws the circle of radius 1/|kappa| on the side of the turn, with its caption', () => {
+        const {graph} = mountGraph();
+        go(graph, Math.PI);
+        expect(graph.osculatingCircleNow()).toBeUndefined();
+        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        expect(graph.state.osculating).toBe(true);
+        const circle = graph.osculatingCircleNow()!;
+        expect(circle.radius).toBeCloseTo(4, 6);
+        expect(circle.centre[0]).toBeCloseTo(Math.PI, 6);
+        expect(circle.centre[1]).toBeCloseTo(-2, 6);
+        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_osculating'));
+        expect(circleCurve(graph) && visible(circleCurve(graph)!)).toBe(true);
+    });
+
+    test('the centre is a small fixed point and a thin segment of length 1/|kappa| joins it to the moving point; both hide with the circle', () => {
+        const {graph} = mountGraph();
+        const centre = () => ofType(graph, 'point').find(o => o.evalVisProp('strokecolor') === '#6f9285') as unknown as (Probe & {X(): number; Y(): number}) | undefined;
+        const radiusSegment = () => ofType(graph, 'segment')[0] as unknown as (Probe & {L(): number}) | undefined;
+        expect(centre() && visible(centre()!)).toBe(false);
+        expect(radiusSegment() && visible(radiusSegment()!)).toBe(false);
+        go(graph, Math.PI);
+        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        expect(visible(centre()!)).toBe(true);
+        expect(centre()!.X()).toBeCloseTo(Math.PI, 9);
+        expect(centre()!.Y()).toBeCloseTo(-2, 9);
+        expect(centre()!.evalVisProp('fixed')).toBe(true);
+        expect(centre()!.evalVisProp('showinfobox')).toBe(false);
+        expect(centre()!.evalVisProp('withlabel')).toBe(false);
+        expect(visible(radiusSegment()!)).toBe(true);
+        expect(radiusSegment()!.L()).toBeCloseTo(4, 9);
+        go(graph, 0);
+        expect(visible(centre()!)).toBe(false);
+        expect(visible(radiusSegment()!)).toBe(false);
+    });
+
+    test('the circle is not drawn at the cusp, and the caption says what is missing', () => {
+        const {graph} = mountGraph();
+        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        go(graph, 0);
+        expect(graph.osculatingCircleNow()).toBeUndefined();
+        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_osculating'));
+        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_cusp'));
+    });
+
+    test('a nearly straight stretch (a fast flat throw) draws no huge circle, says so, and prints no bad number', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.getLessonCapabilities().apply({kind: 'kinematics', operation: 'set-motion', motion: 'projectile'}); });
+        act(() => { graph.getLessonCapabilities().apply({kind: 'kinematics', operation: 'set-params', v0: 30, alpha: 5, osculating: true}); });
+        go(graph, 0.5);
+        expect(graph.osculatingCircleNow()).toBeUndefined();
+        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_osculating'));
+        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_osculating_far'));
+        noBadText();
+    });
+
+    test('the tangent and normal axes are drawn while the acceleration is split, and only at a regular point', () => {
+        const {graph} = mountGraph();
+        go(graph, 1);
+        expect(lines(graph)).toHaveLength(2);
+        expect(lines(graph).some(visible)).toBe(false);
+        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+        expect(lines(graph).every(visible)).toBe(true);
+        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_axes'));
+        go(graph, 0);
+        expect(lines(graph).some(visible)).toBe(false);
+        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_axes'));
+    });
+
+    test('stepping the time rebuilds nothing: the owned objects and the arrow markers stay the same', () => {
+        const {graph} = mountGraph();
+        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+        go(graph, 1);
+        const objects = graph.ownedObjectCount();
+        const ids = () => probes(graph).filter(o => o.elType !== 'label').map(o => o.id).join(',');
+        const markers = () => document.querySelectorAll('#jgbox svg marker').length;
+        const before = markers();
+        const idsBefore = ids();
+        expect(objects).toBeGreaterThan(0);
+        expect(before).toBeGreaterThan(0);
+        for (const time of [0.5, 2, Math.PI, 5, 6.2]) go(graph, time);
+        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        expect(graph.ownedObjectCount()).toBe(objects);
+        // The very same objects (not equal replacements) draw the new time, and the arrow markers are the ones that were there.
+        expect(ids()).toBe(idsBefore);
+        expect(markers()).toBe(before);
     });
 });

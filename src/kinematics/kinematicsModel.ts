@@ -58,7 +58,7 @@ export const NUMERIC_FIELDS = ['v0', 'alpha', 'radius', 'omega', 'b'] as const;
 export type NumericField = typeof NUMERIC_FIELDS[number];
 export const FIELD_RANGES: Readonly<Record<NumericField, FieldRange>> = {v0: V0_RANGE, alpha: ALPHA_RANGE, radius: RADIUS_RANGE, omega: OMEGA_RANGE, b: B_RANGE};
 
-export const TOGGLE_FIELDS = ['showVelocity', 'showAcceleration', 'split', 'trace'] as const;
+export const TOGGLE_FIELDS = ['showVelocity', 'showAcceleration', 'split', 'trace', 'osculating'] as const;
 export type ToggleField = typeof TOGGLE_FIELDS[number];
 
 export interface KinematicsState {
@@ -76,11 +76,13 @@ export interface KinematicsState {
     /** Shows the tangential and normal parts of the acceleration. */
     readonly split: boolean;
     readonly trace: boolean;
+    /** Draws the osculating circle at the point (radius 1/|kappa|, centre on the normal side). Absent in a Preset written before it existed: false. */
+    readonly osculating: boolean;
 }
 
 /** The default example: the cycloid of KN1 with both arrows, rolling radius 1 m. */
 export const DEFAULT_KINEMATICS_STATE: KinematicsState = {
-    motion: 'cycloid', v0: 20, alpha: 45, radius: 2, omega: 1, b: 0, showVelocity: true, showAcceleration: true, split: false, trace: true,
+    motion: 'cycloid', v0: 20, alpha: 45, radius: 2, omega: 1, b: 0, showVelocity: true, showAcceleration: true, split: false, trace: true, osculating: false,
 };
 
 const GRID_TOLERANCE = 1e-9;
@@ -126,20 +128,21 @@ export function parseKinematicsState(data: unknown): KinematicsResult<Kinematics
     }
     const toggles: Partial<Record<ToggleField, boolean>> = {};
     for (const field of TOGGLE_FIELDS) {
-        const parsed = parseToggle(data[field], field);
+        // A Preset written before the osculating circle existed has no such field: it reads as off.
+        const parsed = field === 'osculating' && data[field] === undefined ? ok(false) : parseToggle(data[field], field);
         if (!parsed.ok) return parsed;
         toggles[field] = parsed.value;
     }
     return ok({
         motion, v0: numbers.v0!, alpha: numbers.alpha!, radius: numbers.radius!, omega: numbers.omega!, b: numbers.b!,
-        showVelocity: toggles.showVelocity!, showAcceleration: toggles.showAcceleration!, split: toggles.split!, trace: toggles.trace!,
+        showVelocity: toggles.showVelocity!, showAcceleration: toggles.showAcceleration!, split: toggles.split!, trace: toggles.trace!, osculating: toggles.osculating!,
     });
 }
 
 /** The state to store in a Preset: only the stored fields, nothing derived and no time. */
 export const serializeKinematicsState = (s: KinematicsState): KinematicsState => ({
     motion: s.motion, v0: s.v0, alpha: s.alpha, radius: s.radius, omega: s.omega, b: s.b,
-    showVelocity: s.showVelocity, showAcceleration: s.showAcceleration, split: s.split, trace: s.trace,
+    showVelocity: s.showVelocity, showAcceleration: s.showAcceleration, split: s.split, trace: s.trace, osculating: s.osculating,
 });
 
 // ---- Typed input: rounded to the grid, never clamped ----

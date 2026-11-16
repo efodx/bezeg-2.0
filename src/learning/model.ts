@@ -504,7 +504,7 @@ export type LessonAction =
      * KinematicsGraph's scene actions (KN1 to KN5). `set-motion` picks the motion (the catalogue curves, the projectile or the uniform circular
      * motion): the time restarts at 0 and the speed variation b returns to 0 unless the motion is circular. `set-time` is the time slider: seconds in
      * [0, the length of the motion], and it pauses the playback. `set-params` sets any of the stored fields (launch speed and angle, radius, angular velocity,
-     * the speed variation b of the circular motion, the four display switches); the merged state must pass the model's strict parser (stepper grid and
+     * the speed variation b of the circular motion, the five display switches, the last being the osculating circle); the merged state must pass the model's strict parser (stepper grid and
      * ranges, b = 0 for any other motion) before the first write, otherwise the action throws and nothing is snapped. Playback is never part of a scene.
      */
     | {readonly kind: 'kinematics'; readonly operation: 'set-motion'; readonly motion: 'cycloid' | 'cardioid' | 'rose' | 'spiral' | 'projectile' | 'circular'}
@@ -512,7 +512,7 @@ export type LessonAction =
     | {
         readonly kind: 'kinematics'; readonly operation: 'set-params';
         readonly v0?: number; readonly alpha?: number; readonly radius?: number; readonly omega?: number; readonly b?: number;
-        readonly showVelocity?: boolean; readonly showAcceleration?: boolean; readonly split?: boolean; readonly trace?: boolean;
+        readonly showVelocity?: boolean; readonly showAcceleration?: boolean; readonly split?: boolean; readonly trace?: boolean; readonly osculating?: boolean;
     }
     /**
      * DescentGraph's scene actions (MC1 to MC3). `set-mode` picks the experiment (race, track, tautochrone): the elapsed time restarts at 0. `set-time` is the time

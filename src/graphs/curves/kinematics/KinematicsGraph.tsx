@@ -59,6 +59,10 @@ interface DrawnCurve {
 /** Room above the path for the captions, as a fraction of the path extent (about 100 px at the opening view on a desktop board); the captions stand in the top left corner, over the margin and this room. */
 const CAPTION_ROOM = 0.25;
 
+/** Points of the drawn osculating circle, and the largest radius drawn, in sizes of the board frame (above it the circle is not drawn). */
+const OSCULATING_SAMPLES = 180;
+const OSCULATING_RADIUS_FRAMES = 2;
+
 /** One text row of a caption, in pixels (14 px type), and the widest an average character of it is. */
 const CAPTION_ROW_PX = 20;
 const CAPTION_CHAR_PX = 7.5;
@@ -147,7 +151,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     override exportPreset(): Preset<KinematicsState> {
         const preset = super.exportPreset();
-        const {motion: _motion, v0: _v0, alpha: _alpha, radius: _radius, omega: _omega, b: _b, showVelocity: _showVelocity, showAcceleration: _showAcceleration, split: _split, trace: _trace, ...graphState} = preset.graphState as KinematicsGraphState;
+        const {motion: _motion, v0: _v0, alpha: _alpha, radius: _radius, omega: _omega, b: _b, showVelocity: _showVelocity, showAcceleration: _showAcceleration, split: _split, trace: _trace, osculating: _osculating, ...graphState} = preset.graphState as KinematicsGraphState;
         return {...preset, graphState};
     }
 
@@ -376,7 +380,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         };
         const accelerationShown = () => state().showAcceleration || state().split;
         // The velocity has no direction to draw: a zero or negligible speed (the cusp), for the arrows that need it.
-        const noDirection = () => (state().showVelocity && this.standstill()) || (state().split && !regular());
+        const noDirection = () => (state().showVelocity && this.standstill()) || ((state().split || state().osculating) && !regular());
         const arrows: readonly {name: keyof typeof vector; key: "tip_v" | "tip_a" | "tip_at" | "tip_an"; color: string; dash: number; width: number; shown: () => boolean}[] = [
             {name: "v", key: "tip_v", color: GraphPalette.comparisonCurve, dash: 0, width: 3, shown: () => state().showVelocity && regular()},
             {name: "a", key: "tip_a", color: GraphPalette.constructionAccent, dash: 2, width: 3, shown: () => state().showAcceleration},
@@ -397,6 +401,41 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             }) as JXG.Text);
         }
 
+        // The tangent and normal axes (thin lines through the point) while the acceleration is split, and the osculating circle: both need a direction.
+        const axisDot = (normal: boolean) => dot(() => {
+            const e = regularEv();
+            return e ? e.point[0] + (normal ? -e.velocity[1] : e.velocity[0]) / e.speed : 0;
+        }, () => {
+            const e = regularEv();
+            return e ? e.point[1] + (normal ? e.velocity[0] : e.velocity[1]) / e.speed : 0;
+        }, () => false);
+        for (const normal of [false, true]) {
+            this.own(board.create("line", [mover, axisDot(normal)], {
+                strokeColor: GraphPalette.label, strokeWidth: 1, dash: 3, straightFirst: true, straightLast: true,
+                fixed: true, highlight: false, withLabel: false, visible: watch(() => state().split && regular()),
+            }));
+        }
+        curve(() => {
+            const circle = this.osculatingCircleNow();
+            if (!circle) return [[], []];
+            const xs: number[] = [];
+            const ys: number[] = [];
+            for (let i = 0; i <= OSCULATING_SAMPLES; i++) {
+                const angle = (2 * Math.PI * i) / OSCULATING_SAMPLES;
+                xs.push(circle.centre[0] + circle.radius * Math.cos(angle));
+                ys.push(circle.centre[1] + circle.radius * Math.sin(angle));
+            }
+            return [xs, ys];
+        }, {strokeColor: GraphPalette.additionalCurves[0], strokeWidth: 2, visible: watch(() => this.osculatingCircleNow() !== undefined)});
+        // The centre (a small fixed point) and the radius: a thin segment from the moving point to the centre, in the circle's colour.
+        const circleShown = watch(() => this.osculatingCircleNow() !== undefined);
+        const centre = dot(() => this.osculatingCircleNow()?.centre[0] ?? 0, () => this.osculatingCircleNow()?.centre[1] ?? 0, circleShown, {
+            size: 3, showInfobox: false, strokeColor: GraphPalette.additionalCurves[0], fillColor: GraphPalette.additionalCurves[0],
+        });
+        this.own(board.create("segment", [mover, centre], {
+            strokeColor: GraphPalette.additionalCurves[0], strokeWidth: 1, fixed: true, highlight: false, withLabel: false, visible: circleShown,
+        }));
+
         // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
         const captions: readonly {text: () => string; visible: () => boolean; color: string}[] = [
             {text: () => t("kinematics_graph_cap_point"), visible: () => true, color: GraphPalette.primaryCurve},
@@ -406,6 +445,9 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             {text: () => this.scaleCaption("acceleration"), visible: () => accelerationShown(), color: GraphPalette.constructionAccent},
             {text: () => t("kinematics_graph_cap_components"), visible: () => state().split, color: GraphPalette.additionalCurves[3]},
             {text: () => t("kinematics_graph_cap_sign"), visible: () => state().split, color: GraphPalette.additionalCurves[2]},
+            {text: () => t("kinematics_graph_cap_axes"), visible: () => state().split && regular(), color: GraphPalette.label},
+            {text: () => t("kinematics_graph_cap_osculating"), visible: () => this.osculatingCircleNow() !== undefined, color: GraphPalette.additionalCurves[0]},
+            {text: () => t("kinematics_graph_cap_osculating_far"), visible: () => state().osculating && regular() && this.osculatingCircleNow() === undefined, color: GraphPalette.label},
             {text: () => t("kinematics_graph_cap_reference"), visible: referenceVisible, color: GraphPalette.constructionAccent},
             {text: () => t("kinematics_graph_cap_gravity", {value0: dec(GRAVITY, 2)}), visible: () => state().motion === "projectile", color: GraphPalette.label},
             {text: () => t("kinematics_graph_cap_cusp"), visible: () => noDirection(), color: GraphPalette.label},
@@ -421,6 +463,23 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                 () => caption.text(),
             ], {strokeColor: caption.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: watch(caption.visible)}));
         });
+    }
+
+    /**
+     * The osculating circle at the current time: radius 1/|kappa|, centre on the side the path turns to (the left normal for kappa > 0). Undefined when
+     * the switch is off, at a cusp, on a straight stretch, and when the radius exceeds OSCULATING_RADIUS_FRAMES board sizes (a circle that large is not a
+     * picture of the bend; the caption says so).
+     */
+    osculatingCircleNow(): {readonly centre: readonly [number, number]; readonly radius: number} | undefined {
+        if (!this.state.osculating) return undefined;
+        const e = this.evaluation();
+        if (e.kind !== "regular" || !Number.isFinite(e.kappa) || e.kappa === 0) return undefined;
+        const radius = 1 / Math.abs(e.kappa);
+        const [left, top, right, bottom] = frameFor(this.derived());
+        if (!(radius <= OSCULATING_RADIUS_FRAMES * Math.max(right - left, top - bottom))) return undefined;
+        const nx = -e.velocity[1] / e.speed;
+        const ny = e.velocity[0] / e.speed;
+        return {centre: [e.point[0] + nx / e.kappa, e.point[1] + ny / e.kappa], radius};
     }
 
     /** The unit of a scale in the current language, resolved when it is drawn (the derived data holds no language). */
@@ -740,6 +799,8 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                           checked={state.showAcceleration} onChange={on => this.editToggle("showAcceleration", on)}/>,
             <BooleanField key="split" variant="switch" label={t("kinematics_graph_split")} help={t("kinematics_graph_split_help")}
                           checked={state.split} onChange={on => this.editToggle("split", on)}/>,
+            <BooleanField key="osculating" variant="switch" label={t("kinematics_graph_osculating")} help={t("kinematics_graph_osculating_help")}
+                          checked={state.osculating} onChange={on => this.editToggle("osculating", on)}/>,
             <BooleanField key="trace" variant="switch" label={t("kinematics_graph_trace")} help={t("kinematics_graph_trace_help")}
                           checked={state.trace} onChange={on => this.editToggle("trace", on)}/>,
         );
