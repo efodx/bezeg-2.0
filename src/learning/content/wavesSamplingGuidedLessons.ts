@@ -84,7 +84,7 @@ const wv4Formulas: readonly FormulaBlock[] = [
             '\\(f\\) is the frequency of the rotation in hertz, \\(f_s\\) the sampling rate (samples per second), \\(f_a\\) the apparent frequency, and \\(k\\) an integer chosen so that \\(f_a\\) falls in the given interval. A negative \\(f_a\\) means turning backwards.',
         ),
         explanation: text(
-            'Vzorca \\(\\cos\\!\\left(2\\pi f\\tfrac{n}{f_s}+\\varphi\\right)\\) in \\(\\cos\\!\\left(2\\pi f_a\\tfrac{n}{f_s}+\\varphi\\right)\\) sta za vsako celo število \\(n\\) enaka: \\(f\\) in \\(f_a\\) se razlikujeta za \\(kf_s\\), zato se argumenta razlikujeta za \\(2\\pi kn\\), kosinus pa ima periodo \\(2\\pi\\). To je dokaz za vsak \\(f\\), \\(f_s\\) in \\(\\varphi\\); slike ponazarjajo posamezne primere. Če je \\(f\\) večkratnik \\(f_s\\), je \\(f_a=0\\) in kolo navidezno miruje. Če je \\(f-kf_s=\\pm\\tfrac{f_s}{2}\\) (kadar je \\(2f\\) lih večkratnik \\(f_s\\), na primer \\(2f=f_s\\)), interval ne določi \\(f_a\\) enolično: graf piše ni določeno in alias vala ne nariše.',
+            'Vzorca \\(\\cos\\!\\left(2\\pi f\\tfrac{n}{f_s}+\\varphi\\right)\\) in \\(\\cos\\!\\left(2\\pi f_a\\tfrac{n}{f_s}+\\varphi\\right)\\) sta za vsako celo število \\(n\\) enaka: \\(f\\) in \\(f_a\\) se razlikujeta za \\(kf_s\\), zato se argumenta razlikujeta za \\(2\\pi kn\\), kosinus pa ima periodo \\(2\\pi\\). To je dokaz za vsak \\(f\\), \\(f_s\\) in \\(\\varphi\\); slike ponazarjajo posamezne primere. Če je \\(f\\) večkratnik \\(f_s\\), je \\(f_a=0\\) in kolo navidezno miruje. Če je \\(f-kf_s=\\pm\\tfrac{f_s}{2}\\) (kadar je \\(2f\\) lih večkratnik \\(f_s\\), na primer \\(2f=f_s\\)), interval ne določi \\(f_a\\) enolično: graf piše ni določeno in vala z navidezno frekvenco ne nariše.',
             'The samples \\(\\cos\\!\\left(2\\pi f\\tfrac{n}{f_s}+\\varphi\\right)\\) and \\(\\cos\\!\\left(2\\pi f_a\\tfrac{n}{f_s}+\\varphi\\right)\\) are equal for every integer \\(n\\): \\(f\\) and \\(f_a\\) differ by \\(kf_s\\), so the arguments differ by \\(2\\pi kn\\), and the cosine has the period \\(2\\pi\\). This is a proof for every \\(f\\), \\(f_s\\) and \\(\\varphi\\); the pictures illustrate single cases. If \\(f\\) is a multiple of \\(f_s\\), then \\(f_a=0\\) and the wheel seems to stand still. If \\(f-kf_s=\\pm\\tfrac{f_s}{2}\\) (when \\(2f\\) is an odd multiple of \\(f_s\\), for example \\(2f=f_s\\)), the interval does not determine \\(f_a\\): the graph writes not defined and draws no alias wave.',
         ),
     },
@@ -109,8 +109,8 @@ const wv4Steps: readonly GuidedLessonStep[] = [
         title: text('Počasno kolo in kamera', 'A slow wheel and a camera'),
         purpose: text('Spoznati kolo, trenutke posnetkov in kazalca; napovedati, kdaj sta kazalca enaka.', 'Meeting the wheel, the instants of the samples and the two phasors; predicting when they coincide.'),
         explanation: text(
-            'Točka na obodu kolesa naredi \\(f=2\\) obrata na sekundo, kamera pa kolo posname \\(f_s=24\\)-krat na sekundo, ob trenutkih \\(\\tfrac{n}{f_s}\\) za \\(n=0,1,2,\\dots\\) Kolo je levo od časovne osi: črtkana puščica je pravi kazalec ob času \\(t\\), polna puščica pa kazalec ob zadnjem vzorcu (posnetku). Črtice pod grafom so trenutki posnetkov, pike so vrednosti vala ob njih, odčitek Zadnji vzorec pove, kateri posnetek je zadnji. Napoved: ob katerih časih \\(t\\) polna puščica leži točno na črtkani in za kolikšen del obrata se kazalec premakne od enega posnetka do naslednjega?',
-            'A point on the rim of a wheel makes \\(f=2\\) revolutions per second, and a camera takes \\(f_s=24\\) samples of the wheel per second, at the instants \\(\\tfrac{n}{f_s}\\) for \\(n=0,1,2,\\dots\\) The wheel is left of the time axis: the dashed arrow is the true phasor at time \\(t\\), and the solid arrow is the phasor at the last sample (a frame of the film). The ticks below the graph are the instants of the samples, the dots are the values of the wave at them, and the readout Last sample says which sample is the last one. Prediction: at which times \\(t\\) does the solid arrow lie exactly on the dashed one, and by what part of a turn does the phasor move from one sample to the next?',
+            'Točka na obodu kolesa naredi \\(f=2\\) obrata na sekundo, kamera pa kolo posname \\(f_s=24\\)-krat na sekundo, ob trenutkih \\(\\tfrac{n}{f_s}\\) za \\(n=0,1,2,\\dots\\) Kolo je levo od časovne osi: črtkana puščica je pravi kazalec ob času \\(t\\), polna puščica pa kazalec ob zadnjem vzorcu (posnetku). Črtice pod grafom so trenutki posnetkov, pike so vrednosti vala ob njih, odčitek Zadnji vzorec pove, kateri posnetek je zadnji. Napoved: ob katerih časih \\(t\\) poleg \\(t=0\\) polna puščica leži točno na črtkani in za kolikšen del obrata se kazalec premakne od enega posnetka do naslednjega?',
+            'A point on the rim of a wheel makes \\(f=2\\) revolutions per second, and a camera takes \\(f_s=24\\) samples of the wheel per second, at the instants \\(\\tfrac{n}{f_s}\\) for \\(n=0,1,2,\\dots\\) The wheel is left of the time axis: the dashed arrow is the true phasor at time \\(t\\), and the solid arrow is the phasor at the last sample (a frame of the film). The ticks below the graph are the instants of the samples, the dots are the values of the wave at them, and the readout Last sample says which sample is the last one. Prediction: at which times \\(t\\) besides \\(t=0\\) does the solid arrow lie exactly on the dashed one, and by what part of a turn does the phasor move from one sample to the next?',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -122,7 +122,7 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'At \\(t=0.25\\) the last sample is \\(n=6\\) (instant \\(\\tfrac{6}{24}=0.25\\ \\mathrm{s}\\)) and the arrows coincide; they coincide at every instant \\(\\tfrac{n}{24}\\). At \\(t=0.05\\) the last sample is still \\(n=1\\) (instant \\(\\tfrac{1}{24}\\approx0.0417\\ \\mathrm{s}\\)) and the solid arrow lags behind the dashed one. Between two samples the phasor turns by \\(\\tfrac{2}{24}=\\tfrac{1}{12}\\) of a turn, that is \\(30^\\circ\\). The film shows the wheel correctly: the readout Apparent motion says it turns forwards at \\(2\\ \\mathrm{Hz}\\).',
         )],
         scene: samplingScene('wv4-slow-scene', {f: WV4_SLOW, fs: WV4_RATE, showAlias: false, t: 0},
-            'Vzorčenje, kolo \\(2\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val skrit, čas \\(0\\): zadnji vzorec \\(n=0\\), navidezno vrtenje naprej \\(2\\ \\mathrm{Hz}\\).',
+            'Vzorčenje, kolo \\(2\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco skrit, čas \\(0\\): zadnji vzorec \\(n=0\\), navidezno vrtenje naprej \\(2\\ \\mathrm{Hz}\\).',
             'Sampling, wheel \\(2\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave hidden, time \\(0\\): last sample \\(n=0\\), apparent motion forwards \\(2\\ \\mathrm{Hz}\\).'),
     }),
     step({
@@ -139,11 +139,11 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'Write down your prediction and the reason. Then set the field Frequency of the tone in Hz to \\(23\\) and read the readout Apparent motion. Also set Time t to \\(0.05\\) and compare the solid arrow with its position at \\(t=0\\).',
         ),
         expectedObservations: [text(
-            'Navidezno gibanje: kolo se navidezno vrti nazaj s frekvenco \\(1\\ \\mathrm{Hz}\\); Navidezna frekvenca \\(-1\\) obr/s. Razlog: med dvema posnetkoma se kolo zavrti za \\(\\tfrac{23}{24}\\) obrata, kar je v posnetku enako kakor \\(\\tfrac{1}{24}\\) obrata nazaj, to je \\(15^\\circ\\). Ob \\(t=0{,}05\\) je zadnji vzorec \\(n=1\\) in polna puščica je za \\(15^\\circ\\) pred lego ob \\(t=0\\) v smeri nazaj, črtkana pa se je zavrtela za \\(23\\cdot0{,}05=1{,}15\\) obrata naprej.',
+            'Navidezno gibanje: kolo se navidezno vrti nazaj s frekvenco \\(1\\ \\mathrm{Hz}\\); Navidezna frekvenca \\(-1\\) obr/s. Razlog: med dvema posnetkoma se kolo zavrti za \\(\\tfrac{23}{24}\\) obrata, kar je v posnetku enako kakor \\(\\tfrac{1}{24}\\) obrata nazaj, to je \\(15^\\circ\\). Ob \\(t=0{,}05\\) je zadnji vzorec \\(n=1\\) in polna puščica se je od lege ob \\(t=0\\) zavrtela za \\(15^\\circ\\) nazaj, črtkana pa se je zavrtela za \\(23\\cdot0{,}05=1{,}15\\) obrata naprej.',
             'Apparent motion: the wheel seems to turn backwards at \\(1\\ \\mathrm{Hz}\\); Apparent frequency \\(-1\\) rev/s. The reason: between two samples the wheel turns by \\(\\tfrac{23}{24}\\) of a turn, which in the sample looks the same as \\(\\tfrac{1}{24}\\) of a turn backwards, that is \\(15^\\circ\\). At \\(t=0.05\\) the last sample is \\(n=1\\) and the solid arrow is \\(15^\\circ\\) back from its position at \\(t=0\\), while the dashed one has turned forwards by \\(23\\cdot0.05=1.15\\) turns.',
         )],
         scene: samplingScene('wv4-fast-scene', {f: WV4_SLOW, fs: WV4_RATE, showAlias: false, t: 0},
-            'Vzorčenje, kolo \\(2\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val skrit, čas \\(0\\): izhodišče, v katerem se frekvenca tona poveča na \\(23\\ \\mathrm{Hz}\\).',
+            'Vzorčenje, kolo \\(2\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco skrit, čas \\(0\\): izhodišče, v katerem se frekvenca tona poveča na \\(23\\ \\mathrm{Hz}\\).',
             'Sampling, wheel \\(2\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave hidden, time \\(0\\): the starting point from which the frequency of the tone is raised to \\(23\\ \\mathrm{Hz}\\).'),
     }),
     step({
@@ -164,7 +164,7 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'The wheel seems to turn forwards at \\(1\\ \\mathrm{Hz}\\); Apparent frequency \\(1\\) rev/s. Between two samples the wheel turns by \\(\\tfrac{25}{24}\\) of a turn, one whole turn and another \\(\\tfrac{1}{24}\\), that is \\(15^\\circ\\) forwards; at \\(t=0.05\\) the solid arrow is \\(15^\\circ\\) forwards from its position at \\(t=0\\). At \\(23\\ \\mathrm{Hz}\\) the wheel crawls backwards, at \\(25\\ \\mathrm{Hz}\\) forwards, each time at \\(1\\ \\mathrm{Hz}\\), although it really turns almost as fast as the camera takes samples.',
         )],
         scene: samplingScene('wv4-crawl-scene', {f: WV4_FAST, fs: WV4_RATE, showAlias: false, t: 0},
-            'Vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val skrit, čas \\(0\\): navidezno vrtenje nazaj \\(1\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-1\\) obr/s; izhodišče, v katerem se frekvenca tona poveča na \\(25\\ \\mathrm{Hz}\\).',
+            'Vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco skrit, čas \\(0\\): navidezno vrtenje nazaj \\(1\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-1\\) obr/s; izhodišče, v katerem se frekvenca tona poveča na \\(25\\ \\mathrm{Hz}\\).',
             'Sampling, wheel \\(23\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave hidden, time \\(0\\): apparent motion backwards \\(1\\ \\mathrm{Hz}\\), Apparent frequency \\(-1\\) rev/s; the starting point from which the frequency of the tone is raised to \\(25\\ \\mathrm{Hz}\\).'),
     }),
     step({
@@ -185,13 +185,13 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'At \\(t=0.5\\) the arrows coincide (\\(n=12\\)). At \\(0.52\\) the last sample is still \\(n=12\\) (\\(0.52\\cdot24=12.48\\)): the solid arrow stays, while the dashed one has turned forwards by \\(23\\cdot0.02=0.46\\) of a turn. At \\(0.55\\) the last sample is \\(n=13\\) (\\(0.55\\cdot24=13.2\\), instant \\(\\tfrac{13}{24}\\approx0.5417\\ \\mathrm{s}\\)) and the solid arrow jumps back by \\(15^\\circ\\). The sampler is the instants \\(\\tfrac{n}{24}\\), not the slider. The dots go up and down only once in the window, while the thin curve has \\(23\\) periods.',
         )],
         scene: samplingScene('wv4-instants-scene', {f: WV4_FAST, fs: WV4_RATE, showAlias: false, t: WV4_INSTANT_TIME},
-            'Vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val skrit, čas \\(0{,}5\\): zadnji vzorec \\(n=12\\), obe puščici sovpadata.',
+            'Vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco skrit, čas \\(0{,}5\\): zadnji vzorec \\(n=12\\), obe puščici sovpadata.',
             'Sampling, wheel \\(23\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave hidden, time \\(0.5\\): last sample \\(n=12\\), both arrows coincide.'),
     }),
     step({
         id: 'wv4-alias-wave', order: 5,
         title: text('Val skozi iste pike', 'A wave through the same dots'),
-        purpose: text('Napovedati, da val z navidezno frekvenco poteka skozi vse pike, in to utemeljiti.', 'Predicting that the wave with the apparent frequency passes through all the dots, and justifying it.'),
+        purpose: text('Napovedati, ali val z navidezno frekvenco poteka skozi pike, in to utemeljiti.', 'Predicting whether the wave with the apparent frequency passes through the dots, and justifying it.'),
         explanation: text(
             'Slika kaže pravi val s \\(23\\ \\mathrm{Hz}\\) in \\(25\\) pik ob trenutkih \\(\\tfrac{n}{24}\\) v oknu od \\(0\\) do \\(1\\ \\mathrm{s}\\). Odčitek Navidezna frekvenca kaže število iz prejšnjih korakov. Napoved z razlogom: ali gre kosinusni val s to navidezno frekvenco skozi vse pike, ne le skozi nekatere, čeprav ima med pikami popolnoma drugačno obliko kot pravi val?',
             'The picture shows the true wave of \\(23\\ \\mathrm{Hz}\\) and \\(25\\) dots at the instants \\(\\tfrac{n}{24}\\) in the window from \\(0\\) to \\(1\\ \\mathrm{s}\\). The readout Apparent frequency shows the number from the previous steps. Prediction with a reason: does a cosine wave with this apparent frequency pass through all the dots, not only through some of them, although between the dots it has a completely different shape from the true wave?',
@@ -202,11 +202,11 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'Write down your prediction and the reason. Then switch on the switch Aliasing and compare the dashed wave with the dots and with the thin curve.',
         ),
         expectedObservations: [text(
-            'Črtkani val z navidezno frekvenco \\(-1\\ \\mathrm{Hz}\\) gre skozi vseh \\(25\\) pik; med njimi se od tanke krivulje močno loči, saj ima ena perioda, tanka pa \\(23\\). Utemeljitev je periodičnost kosinusa: za celo število \\(n\\) je \\(\\tfrac{23n}{24}=n-\\tfrac{n}{24}\\), torej \\(\\cos\\!\\left(2\\pi\\tfrac{23n}{24}\\right)=\\cos\\!\\left(2\\pi n-2\\pi\\tfrac{n}{24}\\right)=\\cos\\!\\left(2\\pi\\cdot(-1)\\tfrac{n}{24}\\right)\\). Enako velja pri vsaki fazi. Graf obe krivulji izračuna ob istih trenutkih; kolo je ponazoritev, dokaz pa je periodičnost.',
+            'Črtkani val z navidezno frekvenco \\(-1\\ \\mathrm{Hz}\\) gre skozi vseh \\(25\\) pik; med njimi se od tanke krivulje močno loči, saj ima eno periodo, tanka pa \\(23\\). Utemeljitev je periodičnost kosinusa: za celo število \\(n\\) je \\(\\tfrac{23n}{24}=n-\\tfrac{n}{24}\\), torej \\(\\cos\\!\\left(2\\pi\\tfrac{23n}{24}\\right)=\\cos\\!\\left(2\\pi n-2\\pi\\tfrac{n}{24}\\right)=\\cos\\!\\left(2\\pi\\cdot(-1)\\tfrac{n}{24}\\right)\\). Enako velja pri vsaki fazi. Graf obe krivulji izračuna ob istih trenutkih; kolo je ponazoritev, dokaz pa je periodičnost.',
             'The dashed wave with the apparent frequency \\(-1\\ \\mathrm{Hz}\\) passes through all \\(25\\) dots; between them it differs strongly from the thin curve, as it has one period and the thin curve \\(23\\). The reason is the periodicity of the cosine: for an integer \\(n\\), \\(\\tfrac{23n}{24}=n-\\tfrac{n}{24}\\), so \\(\\cos\\!\\left(2\\pi\\tfrac{23n}{24}\\right)=\\cos\\!\\left(2\\pi n-2\\pi\\tfrac{n}{24}\\right)=\\cos\\!\\left(2\\pi\\cdot(-1)\\tfrac{n}{24}\\right)\\). The same holds at every phase. The graph evaluates both curves at the same instants; the wheel is an illustration, and the proof is the periodicity.',
         )],
         scene: samplingScene('wv4-alias-wave-scene', {f: WV4_FAST, fs: WV4_RATE, showAlias: false, t: 0},
-            'Vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val skrit, čas \\(0\\): navidezna frekvenca \\(-1\\) obr/s; izhodišče, v katerem se vklopi alias val.',
+            'Vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco skrit, čas \\(0\\): navidezna frekvenca \\(-1\\) obr/s; izhodišče, v katerem se vklopi val z navidezno frekvenco.',
             'Sampling, wheel \\(23\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave hidden, time \\(0\\): apparent frequency \\(-1\\) rev/s; the starting point from which the alias wave is switched on.'),
     }),
     step({
@@ -223,11 +223,11 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'Write down three predictions. Then set (a) Sampling rate in Hz to \\(12\\); (b) Frequency of the tone in Hz to \\(6\\); (c) Frequency of the tone in Hz to \\(13\\) and Sampling rate in Hz to \\(24\\). Each time read Apparent motion and Apparent frequency.',
         ),
         expectedObservations: [text(
-            '(a) Kolo se navidezno vrti nazaj s frekvenco \\(3\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-3\\) obr/s (\\(9-12=-3\\)). (b) Navidezna frekvenca ni določena, stanje piše, da pri \\(2f=f_s\\) smeri vrtenja ni mogoče določiti; alias val ni narisan, odčitek Vzorca pri 2f = fs pa piše \\(1\\) in \\(-1\\). (c) Kolo se navidezno vrti nazaj s frekvenco \\(11\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-11\\) obr/s (\\(13-24=-11\\)). V vseh treh primerih Nyquistova frekvenca piše, da je frekvenca vzorčenja pod \\(2f\\) ali enaka njej; obrazec v naslednjem koraku daje enake vrednosti.',
+            '(a) Kolo se navidezno vrti nazaj s frekvenco \\(3\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-3\\) obr/s (\\(9-12=-3\\)). (b) Navidezna frekvenca ni določena, stanje piše, da pri \\(2f=f_s\\) smeri vrtenja ni mogoče določiti; val z navidezno frekvenco ni narisan, odčitek Vzorca pri 2f = fs pa piše \\(1\\) in \\(-1\\). (c) Kolo se navidezno vrti nazaj s frekvenco \\(11\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-11\\) obr/s (\\(13-24=-11\\)). V vseh treh primerih Nyquistova frekvenca piše, da je frekvenca vzorčenja pod \\(2f\\) ali enaka njej; obrazec v naslednjem koraku daje enake vrednosti.',
             '(a) The wheel seems to turn backwards at \\(3\\ \\mathrm{Hz}\\), Apparent frequency \\(-3\\) rev/s (\\(9-12=-3\\)). (b) Apparent frequency is not defined, the status says that at \\(2f=f_s\\) the direction of turning cannot be determined; no alias wave is drawn, and the readout Samples at 2f = fs says \\(1\\) and \\(-1\\). (c) The wheel seems to turn backwards at \\(11\\ \\mathrm{Hz}\\), Apparent frequency \\(-11\\) rev/s (\\(13-24=-11\\)). In all three cases the Nyquist rate row says the sampling rate is below \\(2f\\) or equal to it; the formula in the next step gives the same values.',
         )],
         scene: samplingScene('wv4-change-fs-scene', {f: WV4_CHANGE_F, fs: WV4_RATE, showAlias: true, t: 0},
-            'Vzorčenje, kolo \\(9\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val prikazan, čas \\(0\\): kolo se navidezno vrti naprej z \\(9\\ \\mathrm{Hz}\\); izhodišče, v katerem se frekvenca vzorčenja zmanjša na \\(12\\ \\mathrm{Hz}\\).',
+            'Vzorčenje, kolo \\(9\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco prikazan, čas \\(0\\): kolo se navidezno vrti naprej z \\(9\\ \\mathrm{Hz}\\); izhodišče, v katerem se frekvenca vzorčenja zmanjša na \\(12\\ \\mathrm{Hz}\\).',
             'Sampling, wheel \\(9\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave shown, time \\(0\\): the wheel seems to turn forwards at \\(9\\ \\mathrm{Hz}\\); the starting point from which the sampling rate is lowered to \\(12\\ \\mathrm{Hz}\\).'),
     }),
     step({
@@ -235,7 +235,7 @@ const wv4Steps: readonly GuidedLessonStep[] = [
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Napovedati navidezno frekvenco po obrazcu za lastni nastavitvi in poiskati kolo, ki navidezno miruje.', 'Predicting the apparent frequency by the formula for settings of your own and finding a wheel that seems to stand still.'),
         explanation: text(
-            'Obrazec spodaj povzame korake; primer za \\(f=40\\ \\mathrm{Hz}\\) je izračunan. Slika kaže kolo z \\(23\\ \\mathrm{Hz}\\) ob \\(24\\) posnetkih na sekundo, alias val je prikazan. Izberi svoj \\(f\\) (od \\(1\\) do \\(40\\)) in \\(f_s\\) (od \\(2\\) do \\(64\\)), najprej po obrazcu izračunaj \\(f_a\\), nato primerjaj z odčitkom Navidezna frekvenca. Poišči še nastavitev, pri kateri kolo navidezno miruje, in nastavitev, pri kateri navidezne frekvence ni mogoče določiti. Krivulje so narisane z \\(2048\\) točkami na sekundo, kar piše odčitek Ločljivost risanja.',
+            'Obrazec spodaj povzame korake; primer za \\(f=40\\ \\mathrm{Hz}\\) je izračunan. Slika kaže kolo z \\(23\\ \\mathrm{Hz}\\) ob \\(24\\) posnetkih na sekundo, val z navidezno frekvenco je prikazan. Izberi svoj \\(f\\) (od \\(1\\) do \\(40\\)) in \\(f_s\\) (od \\(2\\) do \\(64\\)), najprej po obrazcu izračunaj \\(f_a\\), nato primerjaj z odčitkom Navidezna frekvenca. Poišči še nastavitev, pri kateri kolo navidezno miruje, in nastavitev, pri kateri navidezne frekvence ni mogoče določiti. Krivulje so narisane z \\(2048\\) točkami na sekundo, kar piše odčitek Ločljivost risanja.',
             'The formula below sums up the steps; the example for \\(f=40\\ \\mathrm{Hz}\\) is worked out. The picture shows the wheel at \\(23\\ \\mathrm{Hz}\\) with \\(24\\) samples per second, the alias wave is shown. Choose your own \\(f\\) (from \\(1\\) to \\(40\\)) and \\(f_s\\) (from \\(2\\) to \\(64\\)), first compute \\(f_a\\) by the formula, then compare with the readout Apparent frequency. Also find a setting at which the wheel seems to stand still and a setting at which the apparent frequency cannot be determined. The curves are drawn with \\(2048\\) points per second, as the readout Drawing resolution says.',
         ),
         formulaIds: ['alias-frequency'],
@@ -249,7 +249,7 @@ const wv4Steps: readonly GuidedLessonStep[] = [
             'The computation and the readout agree. The wheel seems to stand still when \\(f\\) is a multiple of \\(f_s\\), for example \\(f=24\\ \\mathrm{Hz}\\) at \\(f_s=24\\ \\mathrm{Hz}\\): Apparent frequency \\(0\\) rev/s, the status says the wheel seems to stand still. It is undetermined at \\(2f=f_s\\), for example \\(f=6\\ \\mathrm{Hz}\\) at \\(f_s=12\\ \\mathrm{Hz}\\). Example: \\(f=40\\ \\mathrm{Hz}\\) at \\(24\\ \\mathrm{Hz}\\) gives \\(-8\\) rev/s.',
         )],
         scene: samplingScene('wv4-explore-scene', {f: WV4_FAST, fs: WV4_RATE, showAlias: true, t: 0},
-            'Začetni primer: vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, alias val prikazan, čas \\(0\\).',
+            'Začetni primer: vzorčenje, kolo \\(23\\ \\mathrm{Hz}\\), \\(24\\) posnetkov na sekundo, val z navidezno frekvenco prikazan, čas \\(0\\).',
             'The starting case: sampling, wheel \\(23\\ \\mathrm{Hz}\\), \\(24\\) samples per second, alias wave shown, time \\(0\\).'),
     }),
 ];
@@ -307,7 +307,7 @@ const wv5Steps: readonly GuidedLessonStep[] = [
             'Samples per period is \\(\\tfrac{12}{5}=2.4\\): each period holds two or three dots, and the curve bends a lot between them. Apparent frequency \\(5\\) rev/s: the dots correspond to a tone of \\(5\\ \\mathrm{Hz}\\). How well the dots determine the tone and what the segments between them do is explored in the next two steps.',
         )],
         scene: samplingScene('wv5-dots-scene', {f: WV5_START_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: false, t: 0},
-            'Vzorčenje, ton \\(3\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias val, daljice in sinc skriti: \\(4\\) vzorci na periodo.',
+            'Vzorčenje, ton \\(3\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), val z navidezno frekvenco, daljice in sinc skriti: \\(4\\) vzorci na periodo.',
             'Sampling, tone \\(3\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias wave, segments and sinc hidden: \\(4\\) samples per period.'),
     }),
     step({
@@ -328,7 +328,7 @@ const wv5Steps: readonly GuidedLessonStep[] = [
             'Segments: an error of about \\(0.731\\) of the amplitude (on \\(0\\) to \\(1\\ \\mathrm{s}\\), measured on the drawn grid), that is nearly three quarters: the segments between sparse dots do not reach the peaks. Sinc: about \\(0.0274\\) at \\(12\\) extra samples, about \\(0.0093\\) at \\(48\\), about \\(0.0025\\) at \\(192\\) (on \\(0.4\\) to \\(0.6\\ \\mathrm{s}\\)). Sinc is much better than the segments, but the error falls slowly because of the truncation: more extra samples reduce it without removing it. The values illustrate this tone and are not a proof.',
         )],
         scene: samplingScene('wv5-join-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, extra: WV5_EXTRA, showAlias: false, t: 0},
-            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev \\(12\\), daljice, sinc in alias val skriti.',
+            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev \\(12\\), daljice, sinc in val z navidezno frekvenco skriti.',
             'Sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), \\(12\\) extra samples, segments, sinc and alias wave hidden.'),
     }),
     step({
@@ -336,7 +336,7 @@ const wv5Steps: readonly GuidedLessonStep[] = [
         title: text('Spreminjanje frekvence vzorčenja', 'Changing the sampling rate'),
         purpose: text('Napovedati, pri katerih frekvencah vzorčenja ton še določajo pike, in primerjati z odčitkom Nyquistova frekvenca.', 'Predicting at which sampling rates the dots still determine the tone and comparing with the readout Nyquist rate.'),
         explanation: text(
-            'Ton ostane \\(5\\ \\mathrm{Hz}\\) s fazo \\(25^\\circ\\), kot v prejšnjem koraku, spreminjamo pa frekvenco vzorčenja. Slika kaže \\(f_s=12\\ \\mathrm{Hz}\\), alias val je prikazan. Odčitek Nyquistova frekvenca primerja \\(f_s\\) z \\(2f\\) kot celi števili. Napoved z razlogom za \\(f_s=11\\), \\(10\\) in \\(9\\ \\mathrm{Hz}\\): kaj piše odčitek Nyquistova frekvenca (nad, enaka ali pod), ali se vrtenje še kaže naprej s \\(5\\ \\mathrm{Hz}\\) in kaj piše Navidezna frekvenca?',
+            'Ton ostane \\(5\\ \\mathrm{Hz}\\) s fazo \\(25^\\circ\\), kot v prejšnjem koraku, spreminjamo pa frekvenco vzorčenja. Slika kaže \\(f_s=12\\ \\mathrm{Hz}\\), val z navidezno frekvenco je prikazan. Odčitek Nyquistova frekvenca primerja \\(f_s\\) z \\(2f\\) kot celi števili. Napoved z razlogom za \\(f_s=11\\), \\(10\\) in \\(9\\ \\mathrm{Hz}\\): kaj piše odčitek Nyquistova frekvenca (nad, enaka ali pod), ali se vrtenje še kaže naprej s \\(5\\ \\mathrm{Hz}\\) in kaj piše Navidezna frekvenca?',
             'The tone stays \\(5\\ \\mathrm{Hz}\\) with phase \\(25^\\circ\\), as in the previous step, and the sampling rate is changed. The picture shows \\(f_s=12\\ \\mathrm{Hz}\\), the alias wave is shown. The readout Nyquist rate compares \\(f_s\\) with \\(2f\\) as two integers. Prediction with a reason for \\(f_s=11\\), \\(10\\) and \\(9\\ \\mathrm{Hz}\\): what does the readout Nyquist rate say (above, equal or below), does the rotation still seem to go forwards at \\(5\\ \\mathrm{Hz}\\), and what does Apparent frequency say?',
         ),
         formulaIds: [],
@@ -345,11 +345,11 @@ const wv5Steps: readonly GuidedLessonStep[] = [
             'Write down your prediction and the reason for all three values. Then set the field Sampling rate in Hz to \\(11\\), \\(10\\) and \\(9\\); each time read Nyquist rate, Apparent motion and Apparent frequency and watch the dashed curve.',
         ),
         expectedObservations: [text(
-            '\\(f_s=11\\): \\(11>10\\), odčitek piše, da je \\(f_s\\) nad \\(2f=10\\ \\mathrm{Hz}\\); kolo se še navidezno vrti naprej s \\(5\\ \\mathrm{Hz}\\). \\(f_s=10\\): \\(f_s=2f\\), odčitek piše, da je enaka; Navidezna frekvenca ni določena, alias vala ne nariše. \\(f_s=9\\): \\(9<10\\), odčitek piše, da je pod (pojav lažne frekvence); vrtenje se kaže nazaj s \\(4\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-4\\) obr/s, ker je \\(5-9=-4\\). Meja je \\(f_s=2f\\), ne \\(f_s=12\\ \\mathrm{Hz}\\), s katere smo začeli.',
+            '\\(f_s=11\\): \\(11>10\\), odčitek piše, da je \\(f_s\\) nad \\(2f=10\\ \\mathrm{Hz}\\); kolo se še navidezno vrti naprej s \\(5\\ \\mathrm{Hz}\\). \\(f_s=10\\): \\(f_s=2f\\), odčitek piše, da je enaka; Navidezna frekvenca ni določena, vala z navidezno frekvenco ne nariše. \\(f_s=9\\): \\(9<10\\), odčitek piše, da je pod (pojav lažne frekvence); vrtenje se kaže nazaj s \\(4\\ \\mathrm{Hz}\\), Navidezna frekvenca \\(-4\\) obr/s, ker je \\(5-9=-4\\). Meja je \\(f_s=2f\\), ne \\(f_s=12\\ \\mathrm{Hz}\\), s katere smo začeli.',
             '\\(f_s=11\\): \\(11>10\\), the readout says \\(f_s\\) is above \\(2f=10\\ \\mathrm{Hz}\\); the wheel still seems to turn forwards at \\(5\\ \\mathrm{Hz}\\). \\(f_s=10\\): \\(f_s=2f\\), the readout says it equals it; Apparent frequency is not defined and no alias wave is drawn. \\(f_s=9\\): \\(9<10\\), the readout says it is below (aliasing); the rotation seems to go backwards at \\(4\\ \\mathrm{Hz}\\), Apparent frequency \\(-4\\) rev/s, because \\(5-9=-4\\). The border is \\(f_s=2f\\), not the \\(f_s=12\\ \\mathrm{Hz}\\) we started from.',
         )],
         scene: samplingScene('wv5-rate-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: true, t: 0},
-            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias val prikazan: Nyquistova frekvenca piše, da je \\(f_s\\) nad \\(2f\\), naprej \\(5\\ \\mathrm{Hz}\\).',
+            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), val z navidezno frekvenco prikazan: Nyquistova frekvenca piše, da je \\(f_s\\) nad \\(2f\\), naprej \\(5\\ \\mathrm{Hz}\\).',
             'Sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias wave shown: Nyquist rate says \\(f_s\\) is above \\(2f\\), forwards \\(5\\ \\mathrm{Hz}\\).'),
     }),
     step({
@@ -370,7 +370,7 @@ const wv5Steps: readonly GuidedLessonStep[] = [
             'At \\(f_s=2f\\) we have \\(x_n=A\\cos\\varphi\\cdot(-1)^n\\): the dots alternate between \\(A\\cos\\varphi\\) and \\(-A\\cos\\varphi\\). At \\(0^\\circ\\) the values are \\(1\\) and \\(-1\\), at \\(25^\\circ\\) we have \\(\\cos25^\\circ\\approx0.9063\\) (the readout \\(0.9063\\) and \\(-0.9063\\), apparent amplitude \\(0.9063\\)), at \\(90^\\circ\\) we have \\(\\cos90^\\circ=0\\): all dots are on the axis, the readout says \\(0\\) and \\(0\\), yet the tone is there. At \\(f_s=2f\\) alone the dots determine neither the phase nor the amplitude of the tone: the rate \\(2f\\) is not enough.',
         )],
         scene: samplingScene('wv5-edge-scene', {f: WV5_EDGE_TONE, fs: WV5_RATE, p: 0, showAlias: true, t: 0},
-            'Vzorčenje, ton \\(6\\ \\mathrm{Hz}\\), faza \\(0^\\circ\\), \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), Vzorca pri 2f = fs \\(1\\) in \\(-1\\), alias vala ni.',
+            'Vzorčenje, ton \\(6\\ \\mathrm{Hz}\\), faza \\(0^\\circ\\), \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), Vzorca pri 2f = fs \\(1\\) in \\(-1\\), vala z navidezno frekvenco ni.',
             'Sampling, tone \\(6\\ \\mathrm{Hz}\\), phase \\(0^\\circ\\), \\(12\\ \\mathrm{Hz}\\): \\(f_s=2f\\), Samples at 2f = fs \\(1\\) and \\(-1\\), no alias wave.'),
     }),
     step({
@@ -391,7 +391,7 @@ const wv5Steps: readonly GuidedLessonStep[] = [
             'Apparent frequency \\(-4\\) rev/s, the wheel seems to turn backwards at \\(4\\ \\mathrm{Hz}\\); the dashed curve passes through all the dots, while the thin curve of \\(8\\ \\mathrm{Hz}\\) passes only through the dots, and between them the two differ. The justification (an argument): \\(8=-4+12\\), so the arguments of the samples \\(2\\pi\\cdot8\\cdot\\tfrac{n}{12}+\\varphi\\) and \\(2\\pi\\cdot(-4)\\cdot\\tfrac{n}{12}+\\varphi\\) differ by \\(2\\pi n\\), and the cosine has the period \\(2\\pi\\). This holds for every \\(n\\); the picture only illustrates it. At \\(f=5\\ \\mathrm{Hz}\\) the dashed curve is the tone itself (the caption Dashed: the tone through the dots, exact reconstruction), because below \\(\\tfrac{f_s}{2}\\) there is no other tone with the same dots.',
         )],
         scene: samplingScene('wv5-alias-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, showAlias: false, t: 0},
-            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias val skrit: izhodišče, v katerem se frekvenca tona poveča na \\(8\\ \\mathrm{Hz}\\).',
+            'Vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), val z navidezno frekvenco skrit: izhodišče, v katerem se frekvenca tona poveča na \\(8\\ \\mathrm{Hz}\\).',
             'Sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), alias wave hidden: the starting point from which the frequency of the tone is raised to \\(8\\ \\mathrm{Hz}\\).'),
     }),
     step({
@@ -412,7 +412,7 @@ const wv5Steps: readonly GuidedLessonStep[] = [
             'The decision of the readout is a comparison of \\(f_s\\) with \\(2f\\). For \\(f=2\\ \\mathrm{Hz}\\) at \\(12\\ \\mathrm{Hz}\\) (phase \\(25^\\circ\\)) there are \\(6\\) samples per period, the error of the segments is about \\(0.1335\\), sinc about \\(0.0015\\); at these settings more samples per period mean a smaller error of the segments. For \\(f=5\\ \\mathrm{Hz}\\) the error of the segments is about \\(0.0937\\) at \\(f_s=36\\ \\mathrm{Hz}\\) and about \\(0.03\\) at \\(64\\ \\mathrm{Hz}\\), so below \\(0.1\\). At \\(f_s\\le2f\\) the dots do not determine the tone uniquely, so the error there does not say how well the tone is reconstructed.',
         )],
         scene: samplingScene('wv5-explore-scene', {f: WV5_TONE, fs: WV5_RATE, p: WV5_PHASE, extra: 48, showAlias: true, showJoin: true, showSinc: true, t: 0},
-            'Začetni primer: vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev \\(48\\), alias val, daljice in sinc prikazani.',
+            'Začetni primer: vzorčenje, ton \\(5\\ \\mathrm{Hz}\\), faza \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), dodatnih vzorcev \\(48\\), val z navidezno frekvenco, daljice in sinc prikazani.',
             'The starting case: sampling, tone \\(5\\ \\mathrm{Hz}\\), phase \\(25^\\circ\\), \\(12\\ \\mathrm{Hz}\\), \\(48\\) extra samples, alias wave, segments and sinc shown.'),
     }),
 ];
@@ -445,7 +445,7 @@ export const wavesAliasingLesson: GuidedLesson = {
     steps: wv4Steps,
     sources,
     edgeCases: [
-        text('Pri \\(2f=f_s\\) (in kadar je \\(2f\\) lih večkratnik \\(f_s\\)) navidezne frekvence ni mogoče določiti: graf piše ni določeno in alias vala ne nariše.', 'At \\(2f=f_s\\) (and when \\(2f\\) is an odd multiple of \\(f_s\\)) the apparent frequency cannot be determined: the graph writes not defined and draws no alias wave.'),
+        text('Pri \\(2f=f_s\\) (in kadar je \\(2f\\) lih večkratnik \\(f_s\\)) navidezne frekvence ni mogoče določiti: graf piše ni določeno in vala z navidezno frekvenco ne nariše.', 'At \\(2f=f_s\\) (and when \\(2f\\) is an odd multiple of \\(f_s\\)) the apparent frequency cannot be determined: the graph writes not defined and draws no alias wave.'),
         text('Če je \\(f\\) večkratnik \\(f_s\\), je navidezna frekvenca \\(0\\) in kolo navidezno miruje.', 'If \\(f\\) is a multiple of \\(f_s\\), the apparent frequency is \\(0\\) and the wheel seems to stand still.'),
         text('Vzorčevalnik so trenutki \\(\\tfrac{n}{f_s}\\), ne osveževanje zaslona; navidezna frekvenca je izračunana z vsemi celimi števili, tanke krivulje pa so narisane z \\(2048\\) točkami na sekundo, kar do \\(40\\ \\mathrm{Hz}\\) risanja ne popači (napaka tetive največ \\(0{,}00188\\) amplitude).', 'The sampler is the instants \\(\\tfrac{n}{f_s}\\), not the screen refresh; the apparent frequency is computed in integers, and the thin curves are drawn with \\(2048\\) points per second, which up to \\(40\\ \\mathrm{Hz}\\) does not distort the drawing (chord error at most \\(0.00188\\) of the amplitude).'),
     ],
