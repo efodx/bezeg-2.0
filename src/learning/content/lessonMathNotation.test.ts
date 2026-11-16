@@ -55,6 +55,8 @@ import {levelSetsDescentLesson, levelSetsLagrangeLesson} from './levelSetsOptimi
 import {complexPowerLesson} from './complexPowerGuidedLessons';
 import {complexEulerLesson} from './complexEulerGuidedLessons';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
+import {rs3Lesson} from './randomnessAreaGuidedLessons';
+import {rs4Lesson} from './randomnessWalkGuidedLessons';
 import {epicyclesGuidedLessons} from './epicyclesGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
@@ -135,6 +137,8 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['phasePortraitsGuidedLessons', [linearSystemLesson, pendulumLesson, logisticMapLesson, bifurcationLesson]],
     ['solidsGuidedLessons', [cubeSectionsLesson, prismPyramidSectionsLesson]],
     ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
+    ['randomnessAreaGuidedLessons', [rs3Lesson]],
+    ['randomnessWalkGuidedLessons', [rs4Lesson]],
     ['epicyclesGuidedLessons', epicyclesGuidedLessons],
     ['probabilityGuidedLessons', probabilityGuidedLessons],
     ['patchGuidedExamplesBasics', Object.values(patchGuidedExamplesBasics)],
@@ -275,6 +279,8 @@ test('scans every lesson module', () => {
             'recursion-cobweb', 'recursion-cobweb', // recursionCobwebGuidedLessons.ts: RG2 and RG4
             'recursion-growth', // recursionLogScaleGuidedLessons.ts: RG5
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
+            'prob-simulation', // randomnessAreaGuidedLessons.ts: RS3
+            'prob-simulation', // randomnessWalkGuidedLessons.ts: RS4
             'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5

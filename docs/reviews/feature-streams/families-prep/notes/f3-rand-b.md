@@ -129,3 +129,9 @@ Registration in the chapter, registry, preview and test lists (slice 3); a conte
 - Green: `s2d-unit-rs4.log` (with `src/graphs/random`), `s2d-tsc-rs4.log`, `s2d-lint-rs4.log`. Red: `s2d-red-rs4.log` (explore quote seed changed 7 to 8 in the test copy, 1 failure, restored); the lesson file itself was not edited.
 - No false claim found. Step 6 has no answer-not-printed check (asks no number). Step 1 answer-not-printed covers only the end distance 10.
 - Not verified: browser, Play under real animation frames (fake clock only, n 1 stops [0, 1]).
+
+## Slice 3: chapter join
+
+Written: sections `monte-carlo` and `random-walk` in `randomnessChapter.ts` (sl and en, formulas without `\text`, purpose names four phenomena); registry rows and lesson ids `randomness-monte-carlo`, `randomness-random-walk`; counts (authoredChapterCoverage 197, familyChapters randomness minimum 4, smoke minimum 4), `lessonMathNotation.test.ts` imports, sets and `prob-simulation` ids, `guidedExamplePreviews.test.ts` pending ids (no preview copy row); comment in `registration.ts`; localization row; task README rows 05/06 and 06 status. Examples: RS3 n = 400 gives about 0,0821, n = 1600 about 0,0411; RS4 n = 16 gives sd 4 and P(S16 = 0) = 12 870/65 536 about 0,1964, n = 64 sd 8. No seed-42 values or forbidden step counts quoted. "Običajna širina sprehodov" follows graph label `random_graph_cap_funnel` (no "lijak"). The RS3/RS4 lesson files needed no change for `lessonMathNotation.test.ts`.
+Outcome: count tests red before the join (`.command-logs/rand-b/s3-red.log`, 2 failed), then `just typecheck`, `just unit src/learning src/graphs/random` (s3-unit.log), `just lint`, `just build`, `just smoke-lesson prob-simulation` all passed.
+Not verified: full `just smoke` and the Learn page in a browser (chapter rendering, screenshots); Slovenian wording by a native reviewer.

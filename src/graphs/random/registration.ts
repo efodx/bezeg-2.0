@@ -3,7 +3,7 @@ import type {Definition} from '../../demonstrations';
 /**
  * Cheap metadata of the simulation row of the probability family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The row has its guided lessons (RS1 and RS2, chapter-owned by the randomness chapter).
+ * live in `collections.ts`. The row has its guided lessons (RS1 to RS4, chapter-owned by the randomness chapter).
  */
 export const randomFamilyId = 'random';
 
