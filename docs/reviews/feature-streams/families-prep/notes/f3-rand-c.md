@@ -65,3 +65,45 @@ Measured as `SimulationGraph.test.tsx` does (glyph box estimate, canvas set thro
 - Layout (390x520, 330x520, sl/en, n 100/10 000): before, "Stanje A (začetek)" 130 px in a 99 px box (81 px at 330), axis title ended at x 352-361, caption rows overlapped; after, labels 58 px + marker 65 px on two lines inside the box, markov caption rows stand at the left edge and stack by wrapped height (`plan()` now also for markov), axis title at the left edge. Boxes unchanged (99 / 81 px). Measured by the glyph estimate only; no real browser render.
 - Existing tests changed: scene caption order (`box`,`box`,`boxStart`), two key-text asserts in SimulationGraph.test.tsx. Logs: `.command-logs/rand-c/graph/` (red.log, red-layout.log, unit.log, tsc.log, lint.log, build.log); probe: `.command-logs/rand-c/probe-after.txt`.
 - Not done: smoke in a real browser; `randomnessPreviewCopy.ts` markov description (not owned) may name the old box captions.
+
+## Slice 2 (LESSON): RS5 and RS6 (checked and repaired, slice 2b)
+
+### Written
+- `src/learning/content/randomnessMarkovGuidedLessons.ts`: `rs5Lesson`, constants `RS5_*`, 7 steps (two states; longer run; exact p_k with pi P = pi worked example; start in B; a, b and lambda; edge cases a=b=0 and a=b=100; explore seed 7, a 20, b 40, start B).
+- `src/learning/content/randomnessIntervalGuidedLessons.ts`: `rs6Lesson`, constants `RS6_*`, 6 steps (one interval; twenty; hundred with the binomial law; 10 000; sample size 16/100; explore seed 7, sample 25, n 100), worked example P(M<=2) = 0,1208.
+- Probe: temporary host test (deleted) wrote `.command-logs/rand-c/probe2.txt` (sl then en; every opening, every post-change state, playback stops 1/2/5, a/b/start/sample/n changes). Probe facts: changing a, b, start, sample size or seed keeps `shown`; typing n shows everything; the exact row `exact-a` reads k = shown (0,7 / 0,67 / 0,66667 at stops 1/2/5 from A, 0,6 at 1 from B, 0,2 / 0,76 / 0,45032 for a80 b90, 0 / 1 / 0 for a=b=100); interval exact rows (coverage, law share, half-width) are shown also at position 0.
+
+### NOT done (no check was run: tsc, backslash scripts, unit, lint, notation test, number table)
+- All six checks of the base brief are still to run on both files; the notation test was not run (known risk: any `k = number` or `a+b` outside math in prose; sources text was reworded to avoid them).
+- Numbers per step with source are not tabulated; sources are probe2.txt, probe-after.txt, probe.txt, the spec, and arithmetic (P(M<=2) terms 0,0061 / 0,0320 / 0,0827 computed by node, sum 0,1208; 1,96*28,866/6 = 9,4296; 524 is (524-497)/21,7 = 1,2 deviations).
+
+### Deviations and doubts
+- RS5 step 4 prompt asks Ponovi then Naslednji korak to show 0,6 at k = 1; RS5 steps 5 and 6 ask the same for the exact row (stops 1, 2, 5).
+- Exact row k follows Prikazano, whereas the run counts the start as step 1 (graph convention, not a lesson issue).
+- RS6 step 2 prompt suggests seeds 43 and 7 (3 and 1 misses of 20, probe.txt); not probed after a seed change at shown 20 (shown is kept by seed changes at other modes; assumed).
+- Step 3 and 4 openings of RS6 differ from the produced state as required; RS6 step 4 opens on the Demonstration default (n 100 shown).
+
+### Test design (for the tests worker)
+Scenes via `randomnessSceneActions`; openings: RS5 [markov, a50 b50 n100], [n100], [n100, position 0], [default n 10000], [n100], [n100], [seed 7 a20 b40 start B]; RS6 [n1 pos0], [n20 pos0], [n100 pos0], [default], [n10000], [seed 7 sample 25 n100]. Expected readouts are the `expectedState` texts and the probe2.txt blocks (headers `rs5.N`, `rs6 ...`); learner actions are in each step's observationPrompt. Quote list: every number in expectedObservations/expectedState, source probe2.txt / probe-after.txt.
+
+### Numbers per step with source
+Sources: P = `.command-logs/rand-c/probe.txt`, P2 = `probe2.txt`, PA = `probe-after.txt` (each number was found by search in these; the RS5/RS6 location is the step id in the lesson file, sl and en text, expectedObservations and expectedState). A = arithmetic (checked by node).
+
+RS5 (randomnessMarkovGuidedLessons.ts)
+- rs5-two-states: 0,71 and 0,0521 (100 steps, seed 42, a 30, b 60) P2; 0,6667 / 0,3333 A (2/3, 1/3); lambda 0,1 = 1-a-b A; a=b=50: 0,46 and lambda 0 P2; stay times 1/0,6 = 1,7 and 1/0,3 = 3,3 A.
+- rs5-longer: 0,6713, 0,0052 (10 000 steps), 0,66 and 0,0165 (1000 steps) P/P2.
+- rs5-exact: p_1 = 0,7, p_2 = 0,67, p_5 = 0,66667 from A P2; p_5 - 2/3 = (1/3)*0,1^5 = 3,3e-6 A.
+- rs5-start-b: 0,6712 (start B, 10 000 steps), 0,6 at k=1 from B P2; 2/3 - (2/3)*0,1 = 0,6 A.
+- rs5-rates: a=b=10: 0,5 / 0,5, lambda 0,8, 0,72 (100 steps), 0,5051 (10 000) P2/PA; a 80, b 90: 0,5294 / 0,4706, lambda -0,7, 0,5295 (10 000); exact row 0,2 / 0,76 / 0,45032 at stops 1/2/5 P2.
+- rs5-edges: a=b=0: share 1, lambda 1, not unique; a=b=100: share 0,5, lambda -1; exact row 0 / 1 / 0 P2.
+- rs5-explore: seed 7, a 20, b 40, start B: 0,6765 (10 000), 0,69 (100), lambda 0,4 = 1-0,6 A/P2.
+
+RS6 (randomnessIntervalGuidedLessons.ts)
+- rs6-one-interval: population 0..99, mean 49,5, variance (100^2-1)/12 = 833,25, sigma 28,866 A; half-width 1,96*28,866/6 = 9,4296 A (P readout); coverage 0,95030, law share 4,97 % P; interval covers 49,5 (green), 0 of 1 P. Covering test |S-1782| <= 339 (36*49,5 = 1782; 9,4296*36 = 339,47) A.
+- rs6-twenty: 0 of 20 (seed 42), 3 of 20 (seed 43), 1 of 20 (seed 7) P (state n=20 shown=20); 20*0,0497 = 0,99 A; expected 1 +- 1 P. Seed change: code (`editSeed` patches only the seed, `SimulationGraph.tsx:680`) keeps Prikazano, so from the step opening (position 0) a new seed shows the counts after Play; after Play the counts show at once. The text is right as written.
+- rs6-hundred: 2 of 100 (intervals 21 and 28), 2 %, 4,97 %, expected 5 +- 2,2 P (2,17 A); q = 1-0,95030 = 0,04970 A.
+- rs6-long: 524 of 10 000, 5,24 %, 497 +- 21,7 (sqrt(10000*0,0497*0,9503) = 21,73) A; 524 is (524-497)/21,7 = 1,2 deviations A.
+- rs6-sample-size: sample 16: half-width 14,1444, coverage 0,95083; sample 36: 9,4296; sample 100: 5,6577 (1,96*28,866/4, /6, /10) A and P; share by the law 4,97 % P.
+- rs6-explore: seed 7, sample 25, n 100 values are read by the learner; quoted ones P2.
+- Worked example P(M<=2): 0,0061 + 0,0320 + 0,0827 = 0,1208 (m=100, q=0,0497) A (node).
+- Untraced numbers: none.
