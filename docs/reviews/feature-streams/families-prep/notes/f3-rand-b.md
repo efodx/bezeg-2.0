@@ -112,3 +112,7 @@ Registration in the chapter, registry, preview and test lists (slice 3); a conte
 - "Povprečje razdalje od izhodišča" at n 1 is the distance of the end; the sign (+10) is only the drawn walk (curve end), not a readout.
 - Step 3 explanation uses "Konci torej niso blizu ±100" after ten walks (mean distance 9,4); a single run, stated as such.
 - Not smoke-tested in a browser; Play was not probed under a real clock (fake clock does not advance); the 1366 x 768 fit is not measured.
+
+### Handler 33: RS4 review applied (`.command-logs/rand-b/review-rs4.md`)
+- **Test design change:** worked example `rs4-zero` moved from step 3 to step 4 (its check text now in the present tense); step 3 asks to predict from the law about how many of 1000 walks end at 0 and whether the rms is exactly 10. Step 3 explanation adds: the mean distance is smaller than √n, by the law 7,9589 at 100 steps, about √(2n/π) ≈ 0,8√n.
+- Summary states the topic only; `walk-law` no longer hints parity ("če tak celi k obstaja" removed); step 2 says the "po zakonu" values are computed comparisons, write the prediction first; step 2 prompt "vsi blizu istega položaja".
