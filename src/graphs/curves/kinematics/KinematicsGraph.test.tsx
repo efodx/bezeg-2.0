@@ -9,7 +9,7 @@ import {enterNumber} from '../../../inputs/testEntry';
 import type {TransientState} from '../../base/BaseGraph';
 import type {AnimationScheduler} from '../../../learning/runtime/animation';
 import {DEFAULT_KINEMATICS_STATE, deriveKinematics, FIELD_RANGES, MOTION_IDS, parseKinematicsState, serializeKinematicsState, withMotion, type MotionChoice} from '../../../kinematics/kinematicsModel';
-import {frameFor, KinematicsGraph, MAX_FRAME_MS, TIME_STEP} from './KinematicsGraph';
+import {captionLines, captionMetrics, captionPlacement, frameFor, KinematicsGraph, MAX_FRAME_MS, TIME_STEP} from './KinematicsGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -333,7 +333,7 @@ describe('rebuild and disposal', () => {
         // The axis ticks add and drop their own labels with the zoom; the graph's objects and every other kind stay.
         const count = () => probes(graph).filter(o => o.elType !== 'label').length;
         const total = count();
-        for (const motion of MOTION_IDS) { choose(motion); expect(count(), motion).toBe(total); expect(graph.ownedObjectCount(), motion).toBe(36); }
+        for (const motion of MOTION_IDS) { choose(motion); expect(count(), motion).toBe(total); expect(graph.ownedObjectCount(), motion).toBe(34); }
     });
 
     test('the path is resampled for another motion only; switches and the time reuse the derived data', () => {
@@ -670,7 +670,8 @@ describe('a scene replacement (families-prep F2b registration)', () => {
         go(graph, 0.6);
         expect(fullUpdate).not.toHaveBeenCalled();
         act(() => { graph.setState({trace: false}); });
-        expect(fullUpdate).toHaveBeenCalledTimes(1);
+        // The trace caption leaves the stack, so the frame is reset as well: the switch may redraw more than once.
+        expect(fullUpdate).toHaveBeenCalled();
     });
 
     test('restoring a checkpoint keeps the stored view instead of refitting', () => {
@@ -720,7 +721,7 @@ describe('opening view and caption rows (families-prep F2b fix pass)', () => {
         expect(fill, motion).toBeGreaterThanOrEqual(0.45);
     });
 
-    test('a caption wider than the board takes two rows: the row below it starts at least 40 px lower', () => {
+    test('a caption wider than the board takes two rows: the row below it starts two row heights lower', () => {
         const {graph} = mountGraph();
         const board = graph.liveBoard();
         board.canvasWidth = 340;
@@ -730,14 +731,15 @@ describe('opening view and caption rows (families-prep F2b fix pass)', () => {
         const at = (prefix: string) => texts.findIndex(o => (o.plaintext ?? '').startsWith(prefix));
         const [point, path, v, a] = [t('kinematics_graph_cap_point'), t('kinematics_graph_cap_path'), 'v (polna', 'a (črtkano'].map(at);
         expect([point, path, v, a].every(i => i > -1)).toBe(true);
-        expect((texts[v].Y() - texts[a].Y()) * scale).toBeGreaterThanOrEqual(40);
+        expect((texts[v].Y() - texts[a].Y()) * scale).toBeGreaterThanOrEqual(2 * captionMetrics(340).rowPx - 1e-6);
         // A short caption keeps its single row.
-        expect((texts[point].Y() - texts[path].Y()) * scale).toBeCloseTo(20, 5);
+        expect((texts[point].Y() - texts[path].Y()) * scale).toBeCloseTo(captionMetrics(340).rowPx, 5);
     });
 });
 
 describe('the osculating circle and the tangent and normal axes (KN5)', () => {
-    const lines = (graph: ObservedGraph) => ofType(graph, 'line');
+    /** The axes are the two dashed curves of width 1 (clipped under the captions, so not infinite lines). */
+    const lines = (graph: ObservedGraph) => ofType(graph, 'curve').filter(o => o.evalVisProp('dash') === 3);
     const circleCurve = (graph: ObservedGraph) => ofType(graph, 'curve').find(o => o.evalVisProp('strokecolor') === '#6f9285');
 
     test('an old Preset without the field reads as off, and the stored field round-trips', () => {
@@ -835,4 +837,78 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         expect(ids()).toBe(idsBefore);
         expect(markers()).toBe(before);
     });
+});
+
+describe('the captions with every switch on keep clear of the figure and of the axes (families-prep KN5 layout fix)', () => {
+    // The shims give every element 600 x 400 px; these are the boards measured in the browser at 390 x 844 and at 1366 x 768 px.
+    const BOARDS = [{name: 'phone', width: 364, height: 473}, {name: 'desktop', width: 946, height: 507}] as const;
+    type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
+    type Shape = Probe & {X(): number; Y(): number; dataX?: number[]; dataY?: number[]; point2?: {X(): number; Y(): number}};
+    type Rect = {x0: number; y0: number; x1: number; y1: number; text: string};
+    const sizeOf = (width: number, height: number) => ({clientWidth: width, offsetWidth: width, clientHeight: height, offsetHeight: height});
+    const restore = () => {
+        for (const [name, size] of Object.entries(sizeOf(600, 400))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    };
+    afterEach(restore);
+
+    function scene(width: number, height: number, motion: MotionChoice, time: number) {
+        for (const [name, size] of Object.entries(sizeOf(width, height))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as Board;
+        expect([board.canvasWidth, board.canvasHeight]).toEqual([width, height]);
+        act(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, motion), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
+        go(graph, time);
+        const [left, top] = board.getBoundingBox();
+        const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+        // The caption rows in pixels: a row is 16 px high on the phone board and 20 on the desktop one and wraps at the room beside the y axis (the browser wraps the text at that edge).
+        const placement = captionPlacement((0 - left) * board.unitX, width);
+        const type = captionMetrics(width);
+        const captions: Rect[] = (ofType(graph, 'text') as unknown as Shape[]).filter(o => o.plaintext !== '0,0' && visible(o) && o.evalVisProp('fixed') !== false
+            && Math.abs((o.X() - left) * board.unitX - placement.indent) < 1e-6).map(o => {
+            const [x0, y0] = px(o.X(), o.Y());
+            const text = o.plaintext ?? '';
+            return {x0, y0, x1: x0 + Math.min(text.length * type.charPx, placement.room), y1: y0 + captionLines(text, placement.room, type.charPx) * type.rowPx, text};
+        });
+        return {graph, board, captions, px};
+    }
+
+    const inside = (rect: Rect, [x, y]: [number, number], pad = 0) => x >= rect.x0 - pad && x <= rect.x1 + pad && y >= rect.y0 - pad && y <= rect.y1 + pad;
+    const CASES: readonly [MotionChoice, number][] = [['cycloid', Math.PI / 2], ['cycloid', 3.14], ['cycloid', 1], ['circular', 1], ['projectile', 1]];
+
+    for (const board of BOARDS) {
+        for (const [motion, time] of CASES) {
+            test(`${board.name} ${board.width} x ${board.height}, ${motion} at t = ${time}: no caption covers the path, the point, an arrow or the centre, and none covers another`, () => {
+                const {graph, captions, px} = scene(board.width, board.height, motion, time);
+                expect(captions.length).toBeGreaterThanOrEqual(8);
+                captions.slice(1).forEach((caption, index) => expect(caption.y0, caption.text).toBeGreaterThanOrEqual(captions[index].y1 - 1e-6));
+                const derived = deriveKinematics(graph.state);
+                const obstacles: [number, number][] = derived.pathX.map((x, i) => px(x, derived.pathY[i]));
+                const e = graph.evaluation();
+                obstacles.push(px(e.point[0], e.point[1]));
+                for (const arrow of arrows(graph) as unknown as Shape[]) if (visible(arrow)) obstacles.push(px(arrow.point2!.X(), arrow.point2!.Y()));
+                const circle = graph.osculatingCircleNow();
+                if (circle) obstacles.push(px(circle.centre[0], circle.centre[1]));
+                const onBoard = obstacles.filter(([x, y]) => x >= 0 && x <= board.width && y >= 0 && y <= board.height);
+                for (const caption of captions) {
+                    const hit = onBoard.find(point => inside(caption, point, 2));
+                    expect(hit, `${caption.text} covers ${hit}`).toBeUndefined();
+                }
+            });
+
+            test(`${board.name} ${board.width} x ${board.height}, ${motion} at t = ${time}: the tangent and normal axes do not run through caption text`, () => {
+                const {graph, captions, px} = scene(board.width, board.height, motion, time);
+                const axes = (ofType(graph, 'curve') as unknown as Shape[]).filter(o => o.evalVisProp('dash') === 3 && visible(o));
+                expect(axes).toHaveLength(2);
+                for (const axis of axes) {
+                    const [xs, ys] = [axis.dataX!, axis.dataY!];
+                    for (let i = 0; i + 1 < xs.length; i++) for (let k = 0; k <= 50; k++) {
+                        const p = px(xs[i] + ((xs[i + 1] - xs[i]) * k) / 50, ys[i] + ((ys[i + 1] - ys[i]) * k) / 50);
+                        for (const caption of captions) expect(inside(caption, p), caption.text).toBe(false);
+                    }
+                }
+            });
+        }
+    }
 });

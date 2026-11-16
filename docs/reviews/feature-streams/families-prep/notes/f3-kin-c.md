@@ -28,3 +28,11 @@ All of a_T, a_N, kappa, kappa v^2 and the status show at every t; with `osculati
 - Marker test: markers are 4 in jsdom (not vacuous). Now also asserts the same object ids across five `set-time` calls and an `osculating` toggle; a temporary per-`set-time` object replacement fails it (`s1b-marker-red.log`), reverted.
 - Browser look (`s1b-shots/`): inspector is 310 px wide natively at 1366x768. Switch label on one line; "Razstavi pospešek..." on two. Captions cross the dashed normal axis at t = pi (desktop). On 390x844 the captions wrap and cover the arc and the point: the board is short there.
 - Checks: unit (kinematics, learning/content) passed, tsc empty, lint passed, build passed.
+
+## Layout fix (caption stack with every switch on)
+
+- `frameFor(derived, captions?)` (`KinematicsGraph.tsx`) now takes the caption stack height at the actual board size: the frame has the board's aspect and keeps the stack clear above the path box (at least 120 px stay for the path). The stack counts every caption the switches can show, so the time never reframes; a switch does. A stored view is kept as before; a new board and Reset reframe once the scene stands (`reframeOnBuild`, as in the waves graph).
+- Boards narrower than 500 px set the captions in 12 px type with 16 px rows (`captionMetrics`).
+- The tangent and normal axes are no longer infinite lines: they are dashed curves cut off 4 px under the last caption row and at the board edges.
+- Tests: `KinematicsGraph.test.tsx`, "the captions with every switch on keep clear..." (364 x 473 and 946 x 507 boards, 5 cases each); red on the old code 16 of 20 (the 4 desktop caption-vs-figure cases already passed).
+- Not done: row counts are estimates (7.5 px per character), so a stack may leave a small gap; with the stack open the circular motion is small on desktop; a projectile at rest (v0 = 0) shows the cusp caption without a reserved row.

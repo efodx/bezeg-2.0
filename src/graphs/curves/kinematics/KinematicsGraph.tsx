@@ -59,6 +59,9 @@ interface DrawnCurve {
 /** Room above the path for the captions, as a fraction of the path extent (about 100 px at the opening view on a desktop board); the captions stand in the top left corner, over the margin and this room. */
 const CAPTION_ROOM = 0.25;
 
+/** The least height in pixels the path box keeps under the captions, however many rows they take. */
+const MIN_PATH_PX = 120;
+
 /** Points of the drawn osculating circle, and the largest radius drawn, in sizes of the board frame (above it the circle is not drawn). */
 const OSCULATING_SAMPLES = 180;
 const OSCULATING_RADIUS_FRAMES = 2;
@@ -66,6 +69,14 @@ const OSCULATING_RADIUS_FRAMES = 2;
 /** One text row of a caption, in pixels (14 px type), and the widest an average character of it is. */
 const CAPTION_ROW_PX = 20;
 const CAPTION_CHAR_PX = 7.5;
+
+/** Boards narrower than this set the captions in a smaller type (12 px) so the stack leaves the path its room. */
+const COMPACT_BOARD_PX = 500;
+
+/** The type of the captions on a board `width` px wide: font size, row height and the widest an average character is, in pixels. */
+export function captionMetrics(width: number): {fontSize: number; rowPx: number; charPx: number} {
+    return width < COMPACT_BOARD_PX ? {fontSize: 12, rowPx: 16, charPx: 6.4} : {fontSize: 14, rowPx: CAPTION_ROW_PX, charPx: CAPTION_CHAR_PX};
+}
 
 /** The y-axis tick labels stand left of the axis: up to this many pixels (offset 10 px plus a label of up to four characters) must stay clear. */
 const AXIS_LABEL_PX = 60;
@@ -89,16 +100,29 @@ export function captionPlacement(axisPx: number, width: number): {indent: number
 }
 
 /** The lines a caption takes in `room` px: the browser wraps the text at the edge of the board. */
-export function captionLines(text: string, room: number): number {
-    return Math.max(1, Math.ceil((text.length * CAPTION_CHAR_PX) / Math.max(room, 100)));
+export function captionLines(text: string, room: number, charPx: number = CAPTION_CHAR_PX): number {
+    return Math.max(1, Math.ceil((text.length * charPx) / Math.max(room, 100)));
 }
 
-/** The board rectangle [left, top, right, bottom] for a motion: the path box, a margin of one full arrow, and room on top for the captions. */
-export function frameFor(derived: KinematicsDerived): [number, number, number, number] {
+/**
+ * The board rectangle [left, top, right, bottom] for a motion: the path box, a margin of one full arrow, and room on top for the captions. Without `captions`
+ * the room is a fixed share of the path. With them (`roomPx` of the caption stack on a board `widthPx` by `heightPx`) the frame has exactly the aspect of the
+ * board and keeps `roomPx` clear above the path box, so the path takes what is left of the board.
+ */
+export function frameFor(derived: KinematicsDerived, captions?: {readonly roomPx: number; readonly widthPx: number; readonly heightPx: number}): [number, number, number, number] {
     const [minX, maxX, minY, maxY] = derived.box;
     const extent = Math.max(maxX - minX, maxY - minY, 1e-6);
     const margin = derived.scales.unit + 0.05 * extent;
-    return [minX - margin, maxY + margin + CAPTION_ROOM * extent, maxX + margin, minY - margin];
+    if (!captions || !(captions.widthPx > 0) || !(captions.heightPx > 0)) return [minX - margin, maxY + margin + CAPTION_ROOM * extent, maxX + margin, minY - margin];
+    const width = maxX - minX + 2 * margin;
+    const height = maxY - minY + 2 * margin;
+    const room = Math.min(captions.roomPx, captions.heightPx - MIN_PATH_PX);
+    // Pixels per board unit: the path box with its margin must fit the width and the height left under the captions.
+    const scale = Math.min(captions.widthPx / width, (captions.heightPx - room) / height);
+    const bottom = minY - margin;
+    const middle = (minX + maxX) / 2;
+    const half = captions.widthPx / (2 * scale);
+    return [middle - half, bottom + captions.heightPx / scale, middle + half, bottom];
 }
 
 /**
@@ -115,6 +139,10 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     private derivedCache?: {state: KinematicsGraphState; key: string; value: KinematicsDerived};
     private evaluationCache?: {derived: KinematicsDerived; t: number; value: Evaluation};
     private drawnFrame = "";
+    /** The caption texts and the font size they are set in (a narrow board sets them smaller; the board width can change after the build). */
+    private captionTexts: JXG.Text[] = [];
+    private captionFontSize = 14;
+    private frameCache?: {derived: KinematicsDerived; key: string; value: [number, number, number, number]};
     /** The function-valued `visible` of the owned elements; JSXGraph's `update()` does not re-evaluate them, so a change of any result needs `fullUpdate()`. */
     private visibilityProbes: (() => boolean)[] = [];
     private visibilityKey = "";
@@ -173,7 +201,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     override importPresetData(data: KinematicsState): void {
         const imported = serializeKinematicsState(data);
-        if (this.keepImportedView) this.drawnFrame = frameFor(deriveKinematics(imported)).map(value => value.toFixed(4)).join(",");
+        if (this.keepImportedView) this.drawnFrame = this.frame(deriveKinematics(imported), imported).map(value => value.toFixed(4)).join(",");
         this.setState(imported);
     }
 
@@ -182,7 +210,11 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
+    private reframeOnBuild = false;
+
+    /** The bare frame; every use of the initial view (a new board, Reset, a Preset without a view) is framed again with the room of the captions once the scene stands. */
     protected override initialView(): [number, number, number, number] {
+        this.reframeOnBuild = true;
         return frameFor(deriveKinematics(DEFAULT_KINEMATICS_STATE));
     }
 
@@ -275,6 +307,11 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the frame as drawn so it is kept.
         if (this.hasBoard && this.graphSession?.isAlive) {
             if (this.objects.length === 0) this.buildScene();
+            if (this.reframeOnBuild) {
+                this.reframeOnBuild = false;
+                this.drawnFrame = "";
+                this.applyFrame();
+            }
             this.drawnFrame = this.frameKey();
         }
         this.syncBoard();
@@ -297,6 +334,12 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     /** Redraws; a change of what any element shows (a switch, the motion, an arrow shrinking to nothing) needs the full update. */
     override boardUpdate(): void {
         if (!this.graphSession?.isAlive || !this.hasBoard) return;
+        const {fontSize} = captionMetrics(this.board.canvasWidth);
+        if (fontSize !== this.captionFontSize) {
+            this.captionFontSize = fontSize;
+            const attributes: JXG.TextAttributes = {fontSize};
+            for (const text of this.captionTexts) text.setAttribute(attributes);
+        }
         const key = this.visibilityProbes.map(probe => probe() ? "1" : "0").join("");
         if (key !== this.visibilityKey) {
             this.visibilityKey = key;
@@ -305,13 +348,45 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     }
 
     private frameKey(): string {
-        return frameFor(this.derived()).map(value => value.toFixed(4)).join(",");
+        return this.frame().map(value => value.toFixed(4)).join(",");
+    }
+
+    /**
+     * The frame of the derived data with the room the caption stack of this board takes: every caption the switches can show (so the time never reframes),
+     * wrapped at the room the captions have beside the y axis of the frame. Captions only grow with the room narrowing, so a few passes settle it.
+     */
+    private frame(derived: KinematicsDerived = this.derived(), state: KinematicsState = this.state): [number, number, number, number] {
+        const key = `${state.motion}|${state.trace}|${state.showVelocity}|${state.showAcceleration}|${state.split}|${state.osculating}|${state.b}|${t("kinematics_graph_cap_point")}|${this.hasBoard ? this.board.canvasWidth : 0}|${this.hasBoard ? this.board.canvasHeight : 0}`;
+        const cached = this.frameCache;
+        if (cached && cached.derived === derived && cached.key === key) return cached.value;
+        const value = this.computeFrame(derived, state);
+        this.frameCache = {derived, key, value};
+        return value;
+    }
+
+    private computeFrame(derived: KinematicsDerived, state: KinematicsState): [number, number, number, number] {
+        const width = this.hasBoard ? this.board.canvasWidth : 0;
+        const height = this.hasBoard ? this.board.canvasHeight : 0;
+        if (!(width > 0) || !(height > 0)) return frameFor(derived);
+        const reserved = this.captionStack(state).filter(caption => caption.reserve());
+        const type = captionMetrics(width);
+        const rowsIn = (room: number) => reserved.reduce((sum, caption) => sum + Math.max(...caption.texts().map(text => captionLines(text, room, type.charPx))), 0);
+        let rows = rowsIn(Math.max(width - 20, 100));
+        let frame = frameFor(derived, {roomPx: 10 + rows * type.rowPx, widthPx: width, heightPx: height});
+        for (let pass = 0; pass < 4; pass++) {
+            const axisPx = ((0 - frame[0]) * width) / (frame[2] - frame[0]);
+            const next = rowsIn(captionPlacement(axisPx, width).room);
+            if (next <= rows) break;
+            rows = next;
+            frame = frameFor(derived, {roomPx: 10 + rows * type.rowPx, widthPx: width, heightPx: height});
+        }
+        return frame;
     }
 
     /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
-        const frame = frameFor(this.derived());
-        const key = this.frameKey();
+        const frame = this.frame();
+        const key = frame.map(value => value.toFixed(4)).join(",");
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
         this.board.setBoundingBox([...frame], true);
@@ -378,9 +453,6 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             const [vx, vy] = vector[name]();
             return Math.hypot(vx, vy) / step(name === "v" ? "velocity" : "acceleration") > MIN_ARROW;
         };
-        const accelerationShown = () => state().showAcceleration || state().split;
-        // The velocity has no direction to draw: a zero or negligible speed (the cusp), for the arrows that need it.
-        const noDirection = () => (state().showVelocity && this.standstill()) || ((state().split || state().osculating) && !regular());
         const arrows: readonly {name: keyof typeof vector; key: "tip_v" | "tip_a" | "tip_at" | "tip_an"; color: string; dash: number; width: number; shown: () => boolean}[] = [
             {name: "v", key: "tip_v", color: GraphPalette.comparisonCurve, dash: 0, width: 3, shown: () => state().showVelocity && regular()},
             {name: "a", key: "tip_a", color: GraphPalette.constructionAccent, dash: 2, width: 3, shown: () => state().showAcceleration},
@@ -401,20 +473,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             }) as JXG.Text);
         }
 
-        // The tangent and normal axes (thin lines through the point) while the acceleration is split, and the osculating circle: both need a direction.
-        const axisDot = (normal: boolean) => dot(() => {
-            const e = regularEv();
-            return e ? e.point[0] + (normal ? -e.velocity[1] : e.velocity[0]) / e.speed : 0;
-        }, () => {
-            const e = regularEv();
-            return e ? e.point[1] + (normal ? e.velocity[0] : e.velocity[1]) / e.speed : 0;
-        }, () => false);
-        for (const normal of [false, true]) {
-            this.own(board.create("line", [mover, axisDot(normal)], {
-                strokeColor: GraphPalette.label, strokeWidth: 1, dash: 3, straightFirst: true, straightLast: true,
-                fixed: true, highlight: false, withLabel: false, visible: watch(() => state().split && regular()),
-            }));
-        }
+        // The osculating circle needs a direction; the tangent and normal axes (below, after the captions) too.
         curve(() => {
             const circle = this.osculatingCircleNow();
             if (!circle) return [[], []];
@@ -437,32 +496,49 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         }));
 
         // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
-        const captions: readonly {text: () => string; visible: () => boolean; color: string}[] = [
-            {text: () => t("kinematics_graph_cap_point"), visible: () => true, color: GraphPalette.primaryCurve},
-            {text: () => t("kinematics_graph_cap_path"), visible: () => true, color: GraphPalette.label},
-            {text: () => t("kinematics_graph_cap_trace"), visible: () => state().trace, color: GraphPalette.primaryCurve},
-            {text: () => this.scaleCaption("velocity"), visible: () => state().showVelocity, color: GraphPalette.comparisonCurve},
-            {text: () => this.scaleCaption("acceleration"), visible: () => accelerationShown(), color: GraphPalette.constructionAccent},
-            {text: () => t("kinematics_graph_cap_components"), visible: () => state().split, color: GraphPalette.additionalCurves[3]},
-            {text: () => t("kinematics_graph_cap_sign"), visible: () => state().split, color: GraphPalette.additionalCurves[2]},
-            {text: () => t("kinematics_graph_cap_axes"), visible: () => state().split && regular(), color: GraphPalette.label},
-            {text: () => t("kinematics_graph_cap_osculating"), visible: () => this.osculatingCircleNow() !== undefined, color: GraphPalette.additionalCurves[0]},
-            {text: () => t("kinematics_graph_cap_osculating_far"), visible: () => state().osculating && regular() && this.osculatingCircleNow() === undefined, color: GraphPalette.label},
-            {text: () => t("kinematics_graph_cap_reference"), visible: referenceVisible, color: GraphPalette.constructionAccent},
-            {text: () => t("kinematics_graph_cap_gravity", {value0: dec(GRAVITY, 2)}), visible: () => state().motion === "projectile", color: GraphPalette.label},
-            {text: () => t("kinematics_graph_cap_cusp"), visible: () => noDirection(), color: GraphPalette.label},
-        ];
+        const captions = this.captionStack();
         // The captions stand clear of the y-axis tick labels (`captionPlacement`): right of the axis, or left of its labels on the wider side.
         const placement = () => { const {left, ux} = this.scaleOf(); return captionPlacement((0 - left) * ux, board.canvasWidth); };
+        const type = () => captionMetrics(board.canvasWidth);
+        this.captionTexts = [];
+        this.captionFontSize = type().fontSize;
         captions.forEach((caption, index) => {
             // A caption wider than its room wraps: the rows above add up the lines each takes, so none runs into the next.
-            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), placement().room), 0);
-            this.own(board.create("text", [
+            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), placement().room, type().charPx), 0);
+            const text = this.own(board.create("text", [
                 () => { const {left, ux} = this.scaleOf(); return left + placement().indent / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * CAPTION_ROW_PX) / uy; },
+                () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * type().rowPx) / uy; },
                 () => caption.text(),
-            ], {strokeColor: caption.color, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: watch(caption.visible)}));
+            ], {strokeColor: caption.color, fontSize: type().fontSize, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: watch(caption.visible)}) as JXG.Text);
+            this.captionTexts.push(text);
         });
+
+        // The tangent and normal axes: thin dashed lines through the point while the acceleration is split, cut off under the caption stack so that no
+        // axis runs through caption text. Each is the part of the line inside the board and below the last caption row.
+        const captionBottomPx = () => 10 + captions.filter(caption => caption.visible()).reduce((sum, caption) => sum + captionLines(caption.text(), placement().room, type().charPx), 0) * type().rowPx;
+        for (const normal of [false, true]) {
+            curve(() => {
+                const e = regularEv();
+                if (!e) return [[], []];
+                const {left, top, ux, uy} = this.scaleOf();
+                const right = left + board.canvasWidth / ux;
+                const bottom = top - board.canvasHeight / uy;
+                const limit = top - (captionBottomPx() + 4) / uy;
+                const dx = (normal ? -e.velocity[1] : e.velocity[0]) / e.speed;
+                const dy = (normal ? e.velocity[0] : e.velocity[1]) / e.speed;
+                // Clip the line point + s * (dx, dy) to left <= x <= right, bottom <= y <= limit.
+                let lo = -Infinity;
+                let hi = Infinity;
+                for (const [p, d, min, max] of [[e.point[0], dx, left, right], [e.point[1], dy, bottom, limit]] as const) {
+                    if (Math.abs(d) < 1e-12) { if (p < min || p > max) return [[], []]; continue; }
+                    const [s1, s2] = [(min - p) / d, (max - p) / d];
+                    lo = Math.max(lo, Math.min(s1, s2));
+                    hi = Math.min(hi, Math.max(s1, s2));
+                }
+                if (!(lo < hi) || !Number.isFinite(lo) || !Number.isFinite(hi)) return [[], []];
+                return [[e.point[0] + lo * dx, e.point[0] + hi * dx], [e.point[1] + lo * dy, e.point[1] + hi * dy]];
+            }, {strokeColor: GraphPalette.label, strokeWidth: 1, dash: 3, visible: watch(() => state().split && regular())});
+        }
     }
 
     /**
@@ -475,11 +551,41 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         const e = this.evaluation();
         if (e.kind !== "regular" || !Number.isFinite(e.kappa) || e.kappa === 0) return undefined;
         const radius = 1 / Math.abs(e.kappa);
-        const [left, top, right, bottom] = frameFor(this.derived());
+        const [left, top, right, bottom] = this.frame();
         if (!(radius <= OSCULATING_RADIUS_FRAMES * Math.max(right - left, top - bottom))) return undefined;
         const nx = -e.velocity[1] / e.speed;
         const ny = e.velocity[0] / e.speed;
         return {centre: [e.point[0] + nx / e.kappa, e.point[1] + ny / e.kappa], radius};
+    }
+
+    /**
+     * The caption rows, top to bottom. `visible` is what shows now; `reserve` is what the switches in `reserved` (the stored state) can show at some time, which is
+     * what the frame keeps room for. `texts` are the texts a row can take (the osculating row has two).
+     */
+    private captionStack(reserved: KinematicsState = this.state): readonly {text: () => string; texts: () => string[]; visible: () => boolean; reserve: () => boolean; color: string}[] {
+        const live = () => this.state;
+        const regular = () => this.evaluation().kind === "regular";
+        const referenceVisible = () => live().motion === "circular" && live().b > 0;
+        const row = (text: () => string, visible: () => boolean, color: string, reserve: boolean | (() => boolean) = visible, texts?: () => string[]) =>
+            ({text, texts: texts ?? (() => [text()]), visible, reserve: typeof reserve === "boolean" ? () => reserve : reserve, color});
+        const r = reserved;
+        return [
+            row(() => t("kinematics_graph_cap_point"), () => true, GraphPalette.primaryCurve, true),
+            row(() => t("kinematics_graph_cap_path"), () => true, GraphPalette.label, true),
+            row(() => t("kinematics_graph_cap_trace"), () => live().trace, GraphPalette.primaryCurve, r.trace),
+            row(() => this.scaleCaption("velocity"), () => live().showVelocity, GraphPalette.comparisonCurve, r.showVelocity),
+            row(() => this.scaleCaption("acceleration"), () => live().showAcceleration || live().split, GraphPalette.constructionAccent, r.showAcceleration || r.split),
+            row(() => t("kinematics_graph_cap_components"), () => live().split, GraphPalette.additionalCurves[3], r.split),
+            row(() => t("kinematics_graph_cap_sign"), () => live().split, GraphPalette.additionalCurves[2], r.split),
+            row(() => t("kinematics_graph_cap_axes"), () => live().split && regular(), GraphPalette.label, r.split),
+            row(() => t("kinematics_graph_cap_osculating"), () => this.osculatingCircleNow() !== undefined, GraphPalette.additionalCurves[0], r.osculating,
+                () => [t("kinematics_graph_cap_osculating"), t("kinematics_graph_cap_osculating_far")]),
+            row(() => t("kinematics_graph_cap_osculating_far"), () => live().osculating && regular() && this.osculatingCircleNow() === undefined, GraphPalette.label, false),
+            row(() => t("kinematics_graph_cap_reference"), referenceVisible, GraphPalette.constructionAccent, r.motion === "circular" && r.b > 0),
+            row(() => t("kinematics_graph_cap_gravity", {value0: dec(GRAVITY, 2)}), () => live().motion === "projectile", GraphPalette.label, r.motion === "projectile"),
+            row(() => t("kinematics_graph_cap_cusp"), () => (live().showVelocity && this.standstill()) || ((live().split || live().osculating) && !regular()), GraphPalette.label,
+                r.motion === "cycloid" && (r.showVelocity || r.split || r.osculating)),
+        ];
     }
 
     /** The unit of a scale in the current language, resolved when it is drawn (the derived data holds no language). */
@@ -500,6 +606,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             if (alive.length) board.removeObject(alive);
         }
         this.objects = [];
+        this.captionTexts = [];
         this.visibilityProbes = [];
         this.visibilityKey = "";
     }
