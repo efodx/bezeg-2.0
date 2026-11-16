@@ -69,7 +69,7 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'lattice-paths': ['view', 'a', 'b', 'route', 'showCounts', 'split', 'n', 'c'],
     'counting-tree': ['view', 'n', 'k', 'ordered', 'repetition', 'counts', 't'],
     'prob-simulation': ['generator', 'mode', 'seed', 'n', 'shown', 'rows', 'pPercent', 'walkSteps', 'markovA', 'markovB', 'markovStart', 'sampleSize', 'areaShape', 'overlay', 'seed2', 'stopMs'],
-    'curve-kinematics': ['motion', 'v0', 'alpha', 'radius', 'omega', 'b', 'showVelocity', 'showAcceleration', 'split', 'trace'],
+    'curve-kinematics': ['motion', 'v0', 'alpha', 'radius', 'omega', 'b', 'showVelocity', 'showAcceleration', 'split', 'trace', 'osculating'],
     'recursion-cobweb': ['map', 'M', 'C', 'R', 'X', 'step'],
     'recursion-growth': ['panel', 'kind', 'a1', 'd', 'q', 'n', 'capital', 'rate', 'years', 'parts', 'y0', 'logQ', 'logModel'],
     'mechanics-descent': ['mode', 'radius', 'endX', 'endY', 'p1x', 'p1y', 'p2x', 'p2y', 'theta1', 'theta2', 'theta3', 'showCycloid', 'showArc'],
