@@ -548,13 +548,17 @@ export type LessonAction =
     }
     | {readonly kind: 'waves'; readonly operation: 'set-time'; readonly t: number}
     /**
-     * SimulationGraph's scene actions (RS1, RS2; the other modes' fields are added by their batches). `set-mode` picks the mode and shows its default run. `set-run` sets
-     * the seed (0 to 999 999), the trial count (everything is shown, as typing it does), the rows of the Galton board and its right-bounce percent (a multiple of 5);
+     * SimulationGraph's scene actions (RS1 to RS4 and the Markov and interval chapters). `set-mode` picks the mode and shows its default run. `set-run` sets
+     * the seed (0 to 999 999), the trial count (everything is shown, as typing it does), the rows of the Galton board and its right-bounce percent (a multiple of 5),
+     * the walk steps (1 to 400), the area shape, the Markov percentages `markovA` and `markovB` (0 to 100, multiples of 5) and start state (0 = A, 1 = B), and the
+     * interval sample size (16 to 100); a field of another mode than the shown one is set too, as its control would;
      * `set-overlay` draws the run of `seed2` over the run (modes with a second run only); `set-position` moves the playback position to a stop of the playback. The merged
      * state must pass `parseRandomState` before the first write, otherwise the action throws and nothing is written; unknown fields are refused. A write halts the playback.
      */
     | {readonly kind: 'random'; readonly operation: 'set-mode'; readonly mode: 'galton' | 'frequency' | 'area' | 'walk' | 'markov' | 'interval'}
-    | {readonly kind: 'random'; readonly operation: 'set-run'; readonly seed?: number; readonly n?: number; readonly rows?: number; readonly pPercent?: number}
+    | {readonly kind: 'random'; readonly operation: 'set-run'; readonly seed?: number; readonly n?: number; readonly rows?: number; readonly pPercent?: number;
+        readonly walkSteps?: number; readonly areaShape?: 'quarter' | 'disc'; readonly markovA?: number; readonly markovB?: number; readonly markovStart?: 0 | 1;
+        readonly sampleSize?: number}
     | {readonly kind: 'random'; readonly operation: 'set-overlay'; readonly overlay: boolean; readonly seed2?: number}
     | {readonly kind: 'random'; readonly operation: 'set-position'; readonly shown: number}
     /**

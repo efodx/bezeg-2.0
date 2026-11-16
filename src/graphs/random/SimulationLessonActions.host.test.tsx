@@ -91,6 +91,90 @@ test('set-run reaches the state, readouts and drawing of typing into the fields'
     expect(frequency).toEqual(frequencyControl);
 });
 
+const choose = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
+
+test('set-run reaches the state, readouts, status and drawing of the area, walk, Markov and interval controls', () => {
+    const area = after(graph => { apply(graph, setMode('area')); apply(graph, setRun({seed: 43, n: 100, areaShape: 'disc'})); });
+    const areaControl = after(() => {
+        chooseMode('area');
+        type(t('random_graph_seed_label'), '43');
+        type(t('random_graph_n_area'), '100');
+        choose(t('random_graph_shape_label'), 'disc');
+    });
+    expect(area).toEqual(areaControl);
+    expect(area.state).toEqual(expect.objectContaining({mode: 'area', areaShape: 'disc', n: 100, shown: 100}));
+
+    const walk = after(graph => { apply(graph, setMode('walk')); apply(graph, setRun({walkSteps: 200, n: 10})); });
+    const walkControl = after(() => {
+        chooseMode('walk');
+        type(t('random_graph_steps_label'), '200');
+        type(t('random_graph_n_walk'), '10');
+    });
+    expect(walk).toEqual(walkControl);
+    expect(walk.state).toEqual(expect.objectContaining({mode: 'walk', walkSteps: 200, n: 10, shown: 10}));
+
+    const markov = after(graph => { apply(graph, setMode('markov')); apply(graph, setRun({markovA: 15, markovB: 90, markovStart: 1})); });
+    const markovControl = after(() => {
+        chooseMode('markov');
+        type(t('random_graph_a_label'), '15');
+        type(t('random_graph_b_label'), '90');
+        choose(t('random_graph_start_label'), '1');
+    });
+    expect(markov).toEqual(markovControl);
+    expect(markov.state).toEqual(expect.objectContaining({mode: 'markov', markovA: 15, markovB: 90, markovStart: 1}));
+
+    const interval = after(graph => { apply(graph, setMode('interval')); apply(graph, setRun({sampleSize: 50})); });
+    const intervalControl = after(() => { chooseMode('interval'); type(t('random_graph_sample_label'), '50'); });
+    expect(interval).toEqual(intervalControl);
+    expect(interval.state).toEqual(expect.objectContaining({mode: 'interval', sampleSize: 50}));
+
+    // a field of another mode is set as well, and the playback position stays where it was, as with the controls
+    const graph = mount();
+    apply(graph, setPosition(100));
+    apply(graph, setRun({walkSteps: 7, areaShape: 'disc', markovA: 5, markovB: 5, markovStart: 1, sampleSize: 20}));
+    expect(graph.state).toEqual(expect.objectContaining({mode: 'galton', shown: 100, walkSteps: 7, areaShape: 'disc', markovA: 5, markovB: 5, markovStart: 1, sampleSize: 20}));
+});
+
+test('a scene across the area and walk modes reads what its earlier actions wrote, and the checkpoint restores the free state', () => {
+    const graph = mount();
+    const capabilities = graph.getLessonCapabilities();
+    const free = stateOf(graph);
+    const freeReadouts = readouts();
+    const checkpoint = capabilities.captureState();
+    act(() => {
+        capabilities.apply(setMode('area'));
+        capabilities.apply(setRun({seed: 42, n: 100}));
+        capabilities.apply(setRun({areaShape: 'disc'}));
+        capabilities.apply(setMode('walk'));
+        capabilities.apply(setRun({walkSteps: 200, n: 10}));
+    });
+    expect(graph.state).toEqual(expect.objectContaining({mode: 'walk', seed: 42, areaShape: 'disc', walkSteps: 200, n: 10, shown: 10}));
+    act(() => { capabilities.restoreState(checkpoint); });
+    expect(stateOf(graph)).toEqual(free);
+    expect(readouts()).toEqual(freeReadouts);
+});
+
+test('invalid area, walk, Markov and interval fields throw a set-run error and change nothing', () => {
+    const graph = mount();
+    apply(graph, setMode('walk'));
+    const before = stateOf(graph);
+    const beforeReadouts = readouts();
+    const beforeStatus = status();
+    const bad: Array<[Omit<RunAction, 'kind' | 'operation'>, RegExp]> = [
+        [{walkSteps: 0}, /walkSteps/], [{walkSteps: 401}, /walkSteps/], [{walkSteps: 1.5}, /walkSteps/], [{walkSteps: 20, n: 0}, /n is outside/],
+        [JSON.parse('{"areaShape": "square"}'), /areaShape/], [{markovA: 12}, /markovA/], [{markovB: 105}, /markovB/], [{markovA: 2.5}, /markovA/],
+        [JSON.parse('{"markovStart": 2}'), /markovStart/], [{sampleSize: 15}, /sampleSize/], [{sampleSize: 101}, /sampleSize/], [{sampleSize: 20.5}, /sampleSize/],
+    ];
+    for (const [fields, message] of bad) {
+        const label = JSON.stringify(fields);
+        expect(() => apply(graph, setRun(fields)), label).toThrow(message);
+        expect(() => apply(graph, setRun(fields)), label).toThrow(/^random set-run: /);
+        expect(stateOf(graph), label).toEqual(before);
+        expect(readouts(), label).toEqual(beforeReadouts);
+        expect(status(), label).toEqual(beforeStatus);
+    }
+});
+
 test('set-overlay reaches the state, readouts and drawing of the switch and the second seed field', () => {
     const viaAction = after(graph => { apply(graph, setMode('frequency')); apply(graph, setOverlay({overlay: true, seed2: 99})); });
     const viaControl = after(() => {

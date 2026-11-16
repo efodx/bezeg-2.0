@@ -608,7 +608,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
 
     /**
      * Lesson actions (`random`): `set-mode` picks the mode (its default trial count, everything shown, as the mode list does), `set-run` sets the seed, the trial count
-     * (everything shown, as typing it does), the rows and the right-bounce percent, `set-overlay` the second run, `set-position` the playback position (a stop of the
+     * (everything shown, as typing it does), the rows and the right-bounce percent, the walk steps, the area shape, the Markov percentages and start state and the
+     * interval sample size (each as its control writes it: the playback position stays), `set-overlay` the second run, `set-position` the playback position (a stop of the
      * playback). The merged state goes through `parseRandomState` (strict, nothing snapped or clamped) before the first write, so a bad value is a lesson-content error
      * and nothing is written; unknown fields are refused. A write halts the playback. A scene reads the state its earlier actions wrote.
      */
@@ -621,9 +622,10 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                 this.commitRandom("set-mode", withMode(state, action.mode));
                 return;
             case "set-run": {
-                this.refuseUnknown("set-run", fields, ["seed", "n", "rows", "pPercent"]);
-                const {n, seed, rows, pPercent} = action;
-                const defined = Object.fromEntries(Object.entries({seed, rows, pPercent}).filter(([, value]) => value !== undefined));
+                this.refuseUnknown("set-run", fields, ["seed", "n", "rows", "pPercent", "walkSteps", "areaShape", "markovA", "markovB", "markovStart", "sampleSize"]);
+                const {n, seed, rows, pPercent, walkSteps, areaShape, markovA, markovB, markovStart, sampleSize} = action;
+                const defined = Object.fromEntries(Object.entries({seed, rows, pPercent, walkSteps, areaShape, markovA, markovB, markovStart, sampleSize})
+                    .filter(([, value]) => value !== undefined));
                 this.commitRandom("set-run", {...state, ...defined, ...(n !== undefined ? {n, shown: n} : {})});
                 return;
             }
