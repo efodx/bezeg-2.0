@@ -62,6 +62,9 @@ const randomnessWindows = {
     // (x from -8 to 155, y from 39.6 to -39.6 for 100 steps: the axes, the funnel and the law panel at x = 106).
     'randomness.monte-carlo.prob-simulation': [0.246, 1.724, 2.855, 0.106],
     'randomness.random-walk.prob-simulation': [9.828, 30.938, 137.172, -30.938],
+    // The markov card (span 2): the plot from y 1.12 and the box diagram to y -1.1 (x -0.34 to 2.2) and the interval card the board frame (x 15 to 190, y 112 to -6); first guesses, viewed after the capture.
+    'randomness.markov-chain.prob-simulation': [-0.2, 1.485, 2.1, -0.905],
+    'randomness.confidence-intervals.prob-simulation': [18, 110, 187, -4],
 };
 
 // The cobweb cards take the window of the map (affine [-10, 10]^2; logistic [-0.1, 1.1] x [-0.2, 1.15]) shrunk the same way.

@@ -964,6 +964,11 @@ test('randomness expectations are authored from the graph: the Galton board with
     assert.deepEqual(randomnessExpectedFor('r.random-walk.prob-simulation', open([mode('walk'), run({n: 1}), position(0)])), walk);
     assert.throws(() => randomnessExpectedFor('r.monte-carlo.prob-simulation', open([mode('area'), run({n: 100}), position(100)])), /no point thrown/);
     assert.throws(() => randomnessExpectedFor('r.random-walk.prob-simulation', open([mode('walk'), run({n: 10}), position(0)])), /only 1 walk/);
+    const markov = randomnessExpectedFor('r.markov-chain.prob-simulation', open([mode('markov'), run({markovA: 50, markovB: 50, n: 100})]));
+    assert.deepEqual([markov.types, markov.curveCount, markov.curves.length], [{curve: 5}, 5, 4]);
+    assert.deepEqual(randomnessExpectedFor('r.confidence-intervals.prob-simulation', open([mode('interval'), run({n: 1}), position(0)])), {types: {curve: 1}, curveCount: 1, points: [], curves: [[[49.5, 0], [49.5, 52], [49.5, 104]]]});
+    assert.throws(() => randomnessExpectedFor('r.markov-chain.prob-simulation', open([mode('markov'), run({markovA: 30, markovB: 60, n: 100})])), /a = b = 50 percent/);
+    assert.throws(() => randomnessExpectedFor('r.confidence-intervals.prob-simulation', open([mode('interval'), run({n: 1}), position(1)])), /no interval drawn/);
     assert.ok(chapterInventories.randomness);
 });
 

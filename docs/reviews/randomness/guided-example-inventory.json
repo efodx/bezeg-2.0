@@ -198,6 +198,127 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "randomness.markov-chain.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.markov-chain.prob-simulation",
+      "sceneFingerprint": "548f83b5a574431a94133c513e809cf65fbe1a714c56c17e0114b05c34cfb37e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs5-two-states-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs5-two-states-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"markov\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"markovA\":50,\"markovB\":50,\"n\":100}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5
+        },
+        "curveCount": 5,
+        "points": [],
+        "curves": [
+          [
+            [
+              0,
+              0.5
+            ],
+            [
+              0.150515,
+              0.5
+            ],
+            [
+              0.30103,
+              0.5
+            ]
+          ],
+          [
+            [
+              0,
+              0.5
+            ],
+            [
+              1,
+              0.5
+            ],
+            [
+              2,
+              0.5
+            ]
+          ],
+          [
+            [
+              0.06,
+              -0.85
+            ],
+            [
+              0.37,
+              -0.85
+            ],
+            [
+              0.68,
+              -0.85
+            ]
+          ],
+          [
+            [
+              0.68,
+              -0.63
+            ],
+            [
+              1,
+              -0.63
+            ],
+            [
+              1.32,
+              -0.63
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "randomness.confidence-intervals.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.confidence-intervals.prob-simulation",
+      "sceneFingerprint": "c9671f47bee718092cb4907b064b5d8949b2ff39e9975a486c257d720bd45f2e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs6-one-interval-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs6-one-interval-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"interval\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":1}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1
+        },
+        "curveCount": 1,
+        "points": [],
+        "curves": [
+          [
+            [
+              49.5,
+              0
+            ],
+            [
+              49.5,
+              52
+            ],
+            [
+              49.5,
+              104
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

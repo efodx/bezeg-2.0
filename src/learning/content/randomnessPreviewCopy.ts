@@ -6,6 +6,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 });
 
 /**
+ * Also RS5 (the Markov chain of two states with a = b = 50 percent, start in A, 100 steps all shown) and RS6 (confidence intervals of sample size 36, one interval, none drawn yet), described by their captions, curves and diagram only: no share of time, no stationary value, no miss count and no coverage is named.
  * Describes the prepared opening scene of each Randomness lesson, keyed by example id: RS1 (the Galton board of 10 rows, seed 42, with one ball shown of the 1000), RS2 (the fair coin, seed 42, 10 tosses), RS3 (the square with the quarter circle, 100 points, none thrown yet) and RS4 (the random walk of 100 steps, one walk, none drawn yet).
  * The copy names the frame only and states none of the answers the first steps ask for (which slot the ball lands in, where the frequency is after 100 tosses, how many points land in the circle, where a walk ends). No tally or readout value is named.
  * The runs are seeded, so the first frame is the same every time: no source draws unseeded random numbers.
@@ -34,5 +35,17 @@ export const randomnessPreviewCopy = {
         'Cream background. At the top left four lines of text: Drawn first walks: 0, Typical width of the walks, Where the walks end and Expected by the law. On the left a dashed blue outline of a funnel that widens to the right from a sharp tip at the left edge. On the right a thick green vertical line with, to its right, a dashed blue outline of horizontal bars of bell shape, longest in the middle and shorter towards both ends. No walk is drawn.',
         'Slučajni sprehod, seme \\(42\\), \\(100\\) korakov, \\(1\\) sprehod: še noben ni narisan.',
         'The random walk, seed \\(42\\), \\(100\\) steps, \\(1\\) walk: none drawn yet.',
+    ),
+    'randomness.markov-chain.prob-simulation': copy(
+        'Krem ozadje. Zgoraj tri vrstice besedila: Delež časa v stanju A, Verjetnost stanja A po k korakih, začetek v A in Stacionarna porazdelitev. Pod njimi debela zelena črta, ki se z levega roba spusti, nato pa se ob drobnih nihanjih dvigne proti desni, in vodoravna črtkana modra črta čez vso širino. Pod vodoravno osjo napis Število korakov (logaritemska os) in diagram dveh pravokotnih polj, Stanje A (začetek) in Stanje B, z dvema puščicama med njima, označenima A → B: 1/2 in B → A: 1/2, ter zankama nad poljema, označenima A → A: 1/2 in B → B: 1/2.',
+        'Cream background. At the top three lines of text: Share of time in state A, Probability of state A after k steps, starting in A and Stationary distribution. Below them a thick green line that falls from the left edge and then rises with small wiggles towards the right, and a horizontal dashed blue line across the whole width. Under the horizontal axis the label Number of steps (logarithmic axis) and a diagram of two rectangular boxes, State A (start) and State B, with two arrows between them labelled A → B: 1/2 and B → A: 1/2, and loops over the boxes labelled A → A: 1/2 and B → B: 1/2.',
+        'Markovska veriga z dvema stanjema, seme \\(42\\), \\(100\\) korakov, začetek v A, \\(a=b=50\\,\\%\\): vsi koraki prikazani.',
+        'The Markov chain with two states, seed \\(42\\), \\(100\\) steps, start in A, \\(a=b=50\\,\\%\\): all steps shown.',
+    ),
+    'randomness.confidence-intervals.prob-simulation': copy(
+        'Krem ozadje. Zgoraj besedilo Zgreši na levi in Prava sredina desno od njega, pod zadnjim navpična črtkana siva črta. Spodaj levo besedilo Narisani prvi intervali: 0. Noben interval ni narisan in ni nobenega stolpca zakona.',
+        'Cream background. At the top the text Misses on the left and True mean to the right of it, with a vertical dashed grey line under the latter. At the bottom left the text First intervals drawn: 0. No interval is drawn and there are no bars of the law.',
+        'Intervali zaupanja, seme \\(42\\), velikost vzorca \\(36\\), \\(1\\) interval: še noben ni narisan.',
+        'Confidence intervals, seed \\(42\\), sample size \\(36\\), \\(1\\) interval: none drawn yet.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

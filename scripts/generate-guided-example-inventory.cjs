@@ -2516,9 +2516,27 @@ const randomnessFrames = {
         // the heap bar has length 0 and the law's bar 2^-100 of the scale, which is 106 to six places.
         return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0.5], [1, 1]], [[106, -101], [106, -101], [106, -101]]]};
     },
+    // RS5 step 1: the Markov chain mode with a = b = 50 percent, start in A, 100 steps all shown (the Demonstration default is seed 42, start A). Five curves: the running share, the exact probability of A, the stationary line, the two boxes and the arrows
+    // (the second seed's share is empty). The running share is not checked: its first value is a seed-42 draw.
+    'markov-chain': (id, step) => {
+        const [mode, run] = randomnessOpening(id, step, ['set-mode', 'set-run']);
+        assert.equal(mode.mode, 'markov', `${id}: only the Markov chain mode is authored`);
+        assert.deepEqual({...run, kind: undefined, operation: undefined}, {markovA: 50, markovB: 50, n: 100, kind: undefined, operation: undefined}, `${id}: only a = b = 50 percent with 100 steps (start A, seed unchanged) is authored`);
+        // The exact P(A after k) from P(A after 0) = 1 is 1/2 after every step when a = b = 1/2: it runs from x = log10 1 = 0 to log10 2 = 0.30103 at y = 1/2. The stationary line is the segment x = 0 to log10 100 = 2 at y = 1/2.
+        // The boxes (span = 2, drop 0.2) start with box A: (0.03 span, -0.85) to (0.34 span, -0.85) = (0.06, -0.85) to (0.68, -0.85); the arrows with the right arrow (0.34 span, -0.63) to (0.66 span, -0.63) = (0.68, -0.63) to (1.32, -0.63).
+        return {types: {curve: 5}, curveCount: 5, points: [], curves: [[[0, 0.5], [0.150515, 0.5], [0.30103, 0.5]], [[0, 0.5], [1, 0.5], [2, 0.5]], [[0.06, -0.85], [0.37, -0.85], [0.68, -0.85]], [[0.68, -0.63], [1, -0.63], [1.32, -0.63]]]};
+    },
+    // RS6 step 1: the interval mode, one interval of the default sample size 36, none drawn (position 0). One curve: the line of the true mean 49.5 from y = 0 to 104; the hit, missed and flag layers, the law and the observed mark are empty.
+    'confidence-intervals': (id, step) => {
+        const [mode, run, position] = randomnessOpening(id, step, ['set-mode', 'set-run', 'set-position']);
+        assert.equal(mode.mode, 'interval', `${id}: only the interval mode is authored`);
+        assert.deepEqual({...run, kind: undefined, operation: undefined}, {n: 1, kind: undefined, operation: undefined}, `${id}: only 1 interval (sample size and seed unchanged) is authored`);
+        assert.equal(position.shown, 0, `${id}: only the board with no interval drawn is authored`);
+        return {types: {curve: 1}, curveCount: 1, points: [], curves: [[[49.5, 0], [49.5, 52], [49.5, 104]]]};
+    },
 };
 
-/** First-frame expectation of a randomness lesson (the two sections of the chapter, keyed by the section in the example id). */
+/** First-frame expectation of a randomness lesson (the sections of the chapter, keyed by the section in the example id). */
 function randomnessExpectedFor(id, step) {
     const section = id.split('.')[1];
     const author = Object.hasOwn(randomnessFrames, section) ? randomnessFrames[section] : undefined;

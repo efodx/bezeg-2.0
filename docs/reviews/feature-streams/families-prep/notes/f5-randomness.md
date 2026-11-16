@@ -45,3 +45,15 @@
 - Viewed, walk: four caption rows top left, dashed funnel from the left edge, green axis and the bell-shaped law bars right, inside the card, nothing overprinting.
 - Alt text of RS3 rewritten (captions now stacked above, line right of the square); RS4 alt unchanged. rawcheck clean.
 - Checks: script test, `just unit src/learning/chapter src/learning/content/familyChapters.test.ts`, lint, `just tooling-test` green. Not run: smoke test.
+
+## F4 cards (Batch C)
+
+- Added `randomness.markov-chain.prob-simulation` (RS5 step 1: markov, a = b = 50, 100 steps all shown, start A) and `randomness.confidence-intervals.prob-simulation` (RS6 step 1: interval, 1 interval, position 0). `randomnessFrames` authors both: markov five curves (share, exact P(A), stationary line, boxes, arrows; the share's first value is a seed draw and is not checked, the other four are) and interval one curve (the true-mean line; hits, misses, flags, law and observed mark are empty and skipped). Script test extended (41 green).
+- Windows (`randomnessWindows`): markov `[-0.2, 1.485, 2.1, -0.905]` (a first window with y = 1 near the card top let the running share strike through the third caption row; recaptured), interval `[18, 110, 187, -4]`.
+- Pre-PNG failure (`red.log`): the preview test expected 6 ids and the manifest listed 4. After capture the glob was stale (undefined previews); a real edit of the comment above `chapterImageUrls` refreshed it.
+- RS1 to RS4 PNGs byte-identical (`sha-before.txt`, `sha-after.txt` differ only by the two new files).
+- Viewed, markov card: three caption rows top left (Delež časa v stanju A, Verjetnost stanja A po k korakih, Stacionarna porazdelitev), clear of the curve; green share curve falling from the left edge then rising with wiggles, dashed blue line across (the exact curve lies on it at a = b = 50 and is not told apart); log-axis title above the box diagram; two boxes with "Stanje A (začetek)" and "Stanje B", both arrows and both loops with fractions 1/2, all inside the card. Close: "(začetek)" sits on the bottom edge of box A (the second label row fills the box at card text size); no overprinting.
+- Viewed, interval card: "Zgreši" top left, "Prava sredina" with the dashed vertical mean line below it, "Narisani prvi intervali: 0" bottom left; nothing else (no interval, no law panel); sparse but inside, nothing touching.
+- Layout check through the route (not shipped; `markov-max-*`, `interval-max-*` here). Markov n = 100 000, a = 80, b = 90: at 1366 the y tick labels ("1,2" and "-0,2") overprint the first caption row and the log-axis title, and at 390 the tick "1,4" overprints "Delež časa v stanju A"; graph layout, not owned, to the handler. Interval n = 10 000, sample size 100: captions clear at 1366 and 390 (law caption wraps to four lines at 390, clear of the bars).
+- Copy: alt and caption per new id; no share, stationary value, miss count or coverage.
+- Checks: script test, `just unit src/learning/chapter src/learning/content/familyChapters.test.ts`, lint, rawcheck green; tooling-test and tsc see the report. Not run: smoke test, `demonstration-preview-capture.test.cjs`.
