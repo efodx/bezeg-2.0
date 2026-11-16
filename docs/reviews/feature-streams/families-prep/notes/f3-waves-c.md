@@ -97,3 +97,81 @@ At the host test's 600 x 400 board and at 390 x 480 (sl and en, four openings): 
 - Caption for fs > 2f reads "Črtkano: ton skozi pike (natančna rekonstrukcija)"; the alias wording stays below 2f.
 - Tests: three new in `WavesGraph.test.tsx` (red in `.command-logs/waves-c/graph-red.log`, green in `graph-unit.log`/`graph-unit2.log`); one older assertion adjusted for the new join value format.
 - Not done: the `set-mode`-only "čas je vrnjen na 0" text (optional, left).
+
+## Slice 2 (LESSON): WV4
+
+### Written
+
+`src/learning/content/wavesSamplingGuidedLessons.ts` (new; only WV4): export `wavesAliasingLesson` (demonstrationId `waves`, 7 steps), exported scene helper `wavesSamplingSceneActions(id, spec)` (prepared-scene, set-mode sampling, set-components {f1, p1, a1}, set-sampling {fs, extra, showAlias, showJoin, showSinc}, set-time), constants `WV4_RATE = 24`, `WV4_SLOW = 2`, `WV4_FAST = 23`, `WV4_FASTER = 25`, `WV4_INSTANT_TIME = 0.5`, `WV4_CHANGE_F = 9`. Not registered anywhere (lesson id `waves-aliasing` is for the handler). Checks: tsc empty (`s2-tsc-wv4.log`); backslash checks 0 singles (`s2-backslash-wv4.txt`); `just unit src/graphs/functions src/learning/content/wavesGuidedLessons.test.ts` passed (`s2-unit-wv4.log`); `just lint` passed (`s2-lint-wv4.log`); a temporary copy of `lessonMathNotation.test.ts` with the lesson added: the two content-scanning tests passed, only the chapter-count assertion failed, as expected for an unregistered extra lesson (`s2-notation-wv4.log`; the copy was deleted). Probe: `.command-logs/waves-c/probe2-wv4.txt` (sl and en; the temporary host test was deleted).
+
+### Steps (opening, prediction, learner change)
+
+| Step | Opening scene (alias wave) | Prediction asked | Learner change |
+| --- | --- | --- | --- |
+| 1 wv4-slow | f 2, fs 24, t 0 (hidden) | when the arrows coincide; turn per frame | Čas t 0,05, then 0,25 |
+| 2 wv4-fast | f 2, fs 24, t 0 (hidden) | direction and frequency at f = 23 | Frekvenca tona v Hz = 23; t 0,05 |
+| 3 wv4-crawl | f 23, fs 24, t 0 (hidden) | direction and frequency at f = 25 | f = 25; t 0,05 |
+| 4 wv4-instants | f 23, fs 24, t 0,5 (hidden) | the arrows at t 0,52 and 0,55; last sample | t 0,52, 0,55; count the dot swings |
+| 5 wv4-alias-wave | f 23, fs 24, t 0 (hidden) | whether the wave with the apparent frequency passes through all dots | switch Pojav lažne frekvence (aliasing) on |
+| 6 wv4-change-fs | f 9, fs 24, t 0 (shown) | three settings: (a) fs 12, (b) f 6, (c) f 13 and fs 24 | the three settings |
+| 7 wv4-explore | f 23, fs 24, t 0 (shown) | f_a by the formula for own f, fs | free; find rest and undetermined |
+
+Formula `alias-frequency` and worked example `wv4-wheel-40` are attached to step 7 only, so no earlier explanation or calculation frame spoils a prediction; the periodicity argument is in the step 5 expected observations (collapsed) and in the formula explanation.
+
+### Numbers per step with source
+
+| Quote | Value | Source |
+| --- | --- | --- |
+| step 1: forward 2 Hz; n = 6, 6/24 = 0,25 s at t 0,25; n = 1, 1/24 = 0,0417 s at t 0,05 | as quoted | probe2 S1 (sl, en) |
+| step 1: 1/12 turn = 30 degrees per frame; solid lags dashed at 0,05 (30 vs 36 degrees) | 360*2/24; 360*2*0,05 | arithmetic |
+| step 2: nazaj 1 Hz, Navidezna frekvenca -1 obr/s; n = 1 at t 0,05 | as quoted | probe2 S3 open, S2 |
+| step 2: 23/24 turn = 1/24 backwards = 15 degrees; dashed 23*0,05 = 1,15 turns | arithmetic | arithmetic |
+| step 3: naprej 1 Hz, 1 obr/s; n = 1 at 0,05; 25/24 turn = 15 degrees forward | as quoted | probe2 S3 f=25; arithmetic |
+| step 4: n = 12 at 0,5 and at 0,52 (12,48); n = 13 at 0,55 (13,2), 13/24 = 0,5417 s; dashed 23*0,02 = 0,46 turn; 25 dots with one swing | as quoted | probe2 S4; arithmetic; probe.txt (dots of f 23, fs 24 are cos(2 pi n/24)) |
+| step 5: the alias wave (-1 Hz) through all 25 dots; 23n/24 = n - n/24 | identity | periodicity of the cosine; caption `waves_graph_cap_alias` |
+| step 6: (a) -3, nazaj 3 Hz; (b) ni določeno, status "Pri 2f = fs smeri vrtenja ni mogoče določiti.", row Vzorca pri 2f = fs "1 in -1"; (c) -11, nazaj 11 Hz; opening f 9 forward 9 Hz | as quoted | probe2 S6, S6a, S6b, S6c |
+| step 7: f 24, fs 24: 0 obr/s, "Kolo navidezno miruje."; f 40, fs 24: -8, nazaj 8 Hz; 2048/40 = 51,2; chord error 0,00188 | as quoted | probe2 S7; arithmetic; spec Correctness Notes |
+
+### Deviations
+
+- Phase is 0 in every scene (the helper takes `p`, default 0), so the spec 0,4 rad example and the 25 degree matter do not arise in WV4.
+- The spec f = 9, fs = 12 and f = 13, fs = 24 are step 6 (a) and (c); f = 5, fs = 12 (2,4 frames per revolution) is left to WV5.
+- Step 5 opens with the alias wave hidden and the learner switches it on; steps 1 to 4 hide it, steps 6 and 7 show it.
+- Step 4 opens on an instant (t 0,5) and asks about the times between instants, which the spec does not list.
+
+### Test design
+
+Scene mechanics: each scene is `prepared-scene`, `set-mode sampling`, `set-components {f1, p1: 0, a1: 1}`, `set-sampling {fs, extra: 48, showAlias, showJoin: false, showSinc: false}`, `set-time {t}`, run in one synchronous sequence from a restored checkpoint (as in `wavesGuidedLessons.test.ts`); use the exported `wavesSamplingSceneActions`. State after a scene: mode sampling, a1 1, p1 0, extra 48, join and sinc false, time t. With `set-components` after `set-mode`, the status does not carry "Prikaz je spremenjen, čas je vrnjen na 0." (probe2 S1 status).
+
+Readout keys: `frequency`, `rate`, `samples-per-period`, `nyquist`, `alias`, `alias-frequency`, `frame`, `ambiguous-samples` (only at 2f = fs), `resolution`; status in `data-waves-status`. Expected values (sl; `resolution` is always "2048 točk na sekundo", en "2048 points per second"):
+
+| Scene or learner state | alias | alias-frequency | frame | nyquist |
+| --- | --- | --- | --- | --- |
+| step 1 and 2 opening: f 2, fs 24, t 0 | Kolo se navidezno vrti naprej s frekvenco 2 Hz. | 2 obr/s | n = 0, trenutek n/fs = 0/24 = 0 s | nad njo |
+| step 1: t 0,05 / t 0,25 | same | same | n = 1, 1/24 = 0,0417 s / n = 6, 6/24 = 0,25 s | nad njo |
+| step 3, 4, 5, 7 openings: f 23, fs 24, t 0 | Kolo se navidezno vrti nazaj s frekvenco 1 Hz. | −1 obr/s | n = 0 | pod njo (pojav lažne frekvence) |
+| step 2: f 23, t 0,05 | nazaj 1 Hz | −1 obr/s | n = 1, 1/24 = 0,0417 s | pod njo |
+| step 3: f 25, t 0,05 | naprej 1 Hz | 1 obr/s | n = 1, 1/24 = 0,0417 s | pod njo |
+| step 4: t 0,5 / 0,52 / 0,55 (f 23) | nazaj 1 Hz | −1 obr/s | n = 12, 12/24 = 0,5 s / n = 12, 12/24 = 0,5 s / n = 13, 13/24 = 0,5417 s | pod njo |
+| step 6 opening: f 9, fs 24 | naprej 9 Hz | 9 obr/s | n = 0 | nad njo |
+| step 6 (a): fs 12 | nazaj 3 Hz | −3 obr/s | 0/12 | pod njo |
+| step 6 (b): f 6, fs 12 | Pri 2f = fs smeri vrtenja ni mogoče določiti. | ni določeno | 0/12; `ambiguous-samples` "1 in −1 (navidezna amplituda 1)" | enaka njej |
+| step 6 (c): f 13, fs 24 | nazaj 11 Hz | −11 obr/s | 0/24 | pod njo |
+| step 7: f 24, fs 24 | Kolo navidezno miruje. | 0 obr/s | n = 0 | pod njo |
+| step 7: f 40, fs 24 | nazaj 8 Hz | −8 obr/s | n = 0 | pod njo |
+
+English readouts are in probe2 (for example "The wheel seems to turn backwards at 1 Hz.", "−1 rev/s", "n = 13, instant n/fs = 13/24 = 0.5417 s", "The wheel seems to stand still.", "1 and −1 (apparent amplitude 1)").
+
+Learner actions per step (controls named in the prompts): step 1 slider Čas t 0,05 then 0,25; step 2 field Frekvenca tona v Hz = 23, then t 0,05; step 3 field = 25, then t 0,05; step 4 t 0,52 then 0,55; step 5 click the switch Pojav lažne frekvence (aliasing) (en Aliasing), which is off in the opening, and afterwards `showAlias` is true; step 6 fields as in the table ((c) is two entries); step 7 fields f 24 and f 40.
+
+Quote list: all numbers are in the table above; no quoted status string has a count before a Slovenian noun.
+
+### Still to do (handler)
+
+Register `wavesAliasingLesson` (chapter section, lesson id `waves-aliasing`), preview copy, test lists (`lessonMathNotation.test.ts` list and the chapter count), the scene and learner-change test, smoke specs. WV5 goes into the same file (the helper is reusable; `text`, `step` and `sources` are module-local).
+
+### Doubts
+
+- The arrow angles (30 and 15 degrees) come from the phasor formula, not from the drawn wheel on screen.
+- Step 1 cannot hide the row Navidezno gibanje (naprej 2 Hz) on the first frame; the prediction asked there is about the arrows, not the direction.
+- The Slovenian prose was not reviewed by a Slovenian reader.
