@@ -5,15 +5,19 @@ import {adaptGuidedLessonContent} from './catalogLessonAdapter';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
 import {rs3Lesson} from './randomnessAreaGuidedLessons';
 import {rs4Lesson} from './randomnessWalkGuidedLessons';
+import {rs5Lesson} from './randomnessMarkovGuidedLessons';
+import {rs6Lesson} from './randomnessIntervalGuidedLessons';
 
 export const RANDOMNESS_CHAPTER_ID = 'randomness';
 
-/** Section id to the Demonstration of its activity (spec RS1 to RS4: four sections on one Demonstration, in teaching order). Section ids are those of randomnessChapter.ts. */
+/** Section id to the Demonstration of its activity (spec RS1 to RS6: six sections on one Demonstration, in teaching order). Section ids are those of randomnessChapter.ts. */
 export const randomnessGuidedExampleDemonstrations = {
     'galton-board': 'prob-simulation',
     'law-of-large-numbers': 'prob-simulation',
     'monte-carlo': 'prob-simulation',
     'random-walk': 'prob-simulation',
+    'markov-chain': 'prob-simulation',
+    'confidence-intervals': 'prob-simulation',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type RandomnessSectionId = keyof typeof randomnessGuidedExampleDemonstrations;
@@ -24,6 +28,8 @@ const sectionContent = {
     'law-of-large-numbers': {id: 'randomness-large-numbers', content: () => randomnessLargeNumbersLesson},
     'monte-carlo': {id: 'randomness-monte-carlo', content: () => rs3Lesson},
     'random-walk': {id: 'randomness-random-walk', content: () => rs4Lesson},
+    'markov-chain': {id: 'randomness-markov-chain', content: () => rs5Lesson},
+    'confidence-intervals': {id: 'randomness-confidence-intervals', content: () => rs6Lesson},
 } as const;
 
 const adapted = new Map<RandomnessSectionId, LessonDefinition>();

@@ -57,6 +57,8 @@ import {complexEulerLesson} from './complexEulerGuidedLessons';
 import {randomnessGaltonLesson, randomnessLargeNumbersLesson} from './randomnessGuidedLessons';
 import {rs3Lesson} from './randomnessAreaGuidedLessons';
 import {rs4Lesson} from './randomnessWalkGuidedLessons';
+import {rs5Lesson} from './randomnessMarkovGuidedLessons';
+import {rs6Lesson} from './randomnessIntervalGuidedLessons';
 import {epicyclesGuidedLessons} from './epicyclesGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
@@ -139,6 +141,8 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['randomnessGuidedLessons', [randomnessGaltonLesson, randomnessLargeNumbersLesson]],
     ['randomnessAreaGuidedLessons', [rs3Lesson]],
     ['randomnessWalkGuidedLessons', [rs4Lesson]],
+    ['randomnessMarkovGuidedLessons', [rs5Lesson]],
+    ['randomnessIntervalGuidedLessons', [rs6Lesson]],
     ['epicyclesGuidedLessons', epicyclesGuidedLessons],
     ['probabilityGuidedLessons', probabilityGuidedLessons],
     ['patchGuidedExamplesBasics', Object.values(patchGuidedExamplesBasics)],
@@ -281,6 +285,8 @@ test('scans every lesson module', () => {
             'prob-simulation', 'prob-simulation', // randomnessGuidedLessons.ts: RS1 and RS2
             'prob-simulation', // randomnessAreaGuidedLessons.ts: RS3
             'prob-simulation', // randomnessWalkGuidedLessons.ts: RS4
+            'prob-simulation', // randomnessMarkovGuidedLessons.ts: RS5
+            'prob-simulation', // randomnessIntervalGuidedLessons.ts: RS6
             'phase-portrait', 'phase-portrait', 'logistic-map', 'logistic-map', // phasePortraitsGuidedLessons.ts: PP1, PP2, PP4 and PP5
             'solids', 'solids', // solidsGuidedLessons.ts: SV1 and SV2
             'linear-program', // levelSetsGuidedLessons.ts: LS5
