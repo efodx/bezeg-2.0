@@ -73,3 +73,42 @@ Registration in the chapter/registry/preview/test lists (slice 3); a content rev
 ### Handler 33: RS3 review applied (`.command-logs/rand-b/review-rs3.md`)
 - Summary states the topic only. Step 1 names the drawn "Prava vrednost π/4" line and asks to justify its value from areas, then predict the count of 100; readouts at position 0 are "0".
 - **Test design change:** step 2 (opening n = 100) now shows formula `mc-se` and worked example `rs3-se` and asks for the typical deviation at 10 000 (learner types 10000: 7833, 3,1332, −0,0084, ±0,0164). Step 3 opens at n = 10 000 (`RS3_ERROR_SCALE` = n 10000) and asks for 1000 (learner types 1000: 779, 3,116, ±0,0519, √10 ≈ 3,16). Step 4 asks replay and seed 7; seed 43 optional ("redek primer"). Step 5 explanation says the disc mirrors the same quarter sample.
+
+## Slice 2 (LESSON): RS4
+
+### Written
+- `src/learning/content/randomnessWalkGuidedLessons.ts` (new): `rs4Lesson` (`prob-simulation`, 6 steps, sl + en), scenes `RS4_ONE_WALK_NOT_DRAWN`, `RS4_ONE_WALK`, `RS4_TEN_WALKS`, `RS4_PARITY_START`, `RS4_DOUBLING_START`, `RS4_EXPLORE`; formulas `walk-sqrt` (variances add, sqrt n), `walk-law` (S = 2K - n, shifted binomial); worked example `rs4-zero` (P(S_100 = 0), 79,6, deviation 8,6; step 3). Imports `randomnessSceneActions` from `randomnessGuidedLessons.ts`; no shared file touched.
+- Probe 2 (temporary host test, deleted): `.command-logs/rand-b/probe2-rs4.txt` (sl + en): n 1 at position 0 (readouts 0 "po zakonu 10"; Naslednji korak gives shown 1; Predvajaj does not advance under the fake clock), n 1 to 10 typed, n 10 to 1000 typed, 1000 to 99 steps typed, 100 to 200 steps typed, seed 7 with 400 and with 100 steps. Typing n sets shown = n; typing steps keeps n and shown.
+- Checks (all `.command-logs/rand-b/s2-*-rs4.*`): typecheck, backslash checks (0 singles), lint, `just unit src/graphs/random`, notation test (temporary entry, green, `lessonMathNotation.test.ts` reverted, diff empty) all passed.
+
+### Numbers per step with source (P = probe.txt, P2 = probe2-rs4.txt)
+| Step | Opening (scene) | Learner change | Numbers quoted | Source |
+| --- | --- | --- | --- | --- |
+| 1 | walk, seed 42, 100 steps, n 1, position 0 (shown 0 of 1, readouts 0, "po zakonu 10", "7,9589") | Predvajaj / Naslednji korak | 1 walk ends +10, mean distance 10, rms 10, zeros 0 | P walk n 1; P2 |
+| 2 | n 1 shown | Število sprehodov = 10 | +10, 10; then rms 10,68 (10), mean 9,4 (7,9589), zeros 0 (0,8) | P walk n 10; P2 |
+| 3 | n 10 | n = 1000 | 10,68, 9,4; sd 100 -> 10 (arithmetic); C(100,50)/2^100 = 0,0796, 79,6, sqrt(1000*0,0796*0,9204) = 8,6 (arithmetic: 0,0796*0,9204 = 0,07327; *1000 = 73,3; sqrt 8,56); then 10,31 (10), 8,218 (7,9589), 68 (79,6) | P n 10, n 1000; spec 89 |
+| 4 | n 1000, 100 steps | Korakov na sprehod = 99 | 10,31, 8,218, 68, 79,6, 8 %; then 10,15 (9,95), 8,19 (7,9589), zeros 0 with odd-steps note | P n 1000, steps 99 |
+| 5 | n 1000, 100 steps | steps = 200 | 99 steps: 10,15, sqrt 99 ≈ 9,95; 10,31, 10; then 13,78 (14,14), 11,086 (11,2697), zeros 56 (56,3) | P steps 99, 200 |
+| 6 | seed 7, 400 steps, n 1000 | free | step 5 numbers; 13,78/10,31 ≈ 1,34 (arithmetic 1,3366); sqrt 2 ≈ 1,41; sqrt(200)/sqrt(100) = sqrt 2; opening 18,99 (20), 15,174 (15,9477), 45 (39,9) | P2 seed 7 steps 400 |
+
+### Deviations
+- Step 2 does not state the sqrt n argument (the brief puts it in step 2): the explanation of step 2 would give the answer to its own prediction, so the variance argument, the exact sd and the law sit in step 3 (explanation, formulas) and step 3 predicts the zero count and whether the rms is exactly 10. The funnel is named in step 2 only as "Običajna širina sprehodov"; the readouts "po zakonu 10" are on the first frame (settled by handler).
+- Step 3 predicts a range for the zero count (the worked example states the expectation 79,6 with deviation 8,6) and "exactly 10 or near 10", not a single number.
+- Parity: the formula `walk-law` omits the odd-n statement and step 4 shows no formula, so step 4's answer is not rendered before the prediction; the parity argument is in step 5's explanation.
+- The overlay (second seed) is not used. The 400-step run is only the exploration opening.
+- Step 2 explanation says "prvih nekaj sprehodov" (drawn), not 10; the probe prints the caption count only at n 1 and 10.
+
+### Test design (for the tests worker)
+- Scenes: `randomnessSceneActions(id, spec)`; check state and readouts after the scene and after the learner action. Add `['randomnessWalkGuidedLessons', [rs4Lesson]]` to `lessonSets` and one more `'prob-simulation'` in the demonstration-id list of `lessonMathNotation.test.ts` (done temporarily, green, reverted).
+- Openings (all seed 42, 100 steps, mode walk): step 1 `{n 1, shown 0}` readouts shown "0 od 1", rms "0, po zakonu 10", mean "0, po zakonu 7,9589", zeros "0, pričakovano 0"; step 2 `{n 1, shown 1}` rms "10, po zakonu 10", mean "10, po zakonu 7,9589", zeros "0, pričakovano 0,1"; step 3 `{n 10}` "10,68, po zakonu 10", "9,4, po zakonu 7,9589", "0, pričakovano 0,8"; steps 4 and 5 `{n 1000}` "10,31, po zakonu 10", "8,218, po zakonu 7,9589", "68, pričakovano 79,6"; step 6 `{seed 7, n 1000, walkSteps 400}` "18,99, po zakonu 20", "15,174, po zakonu 15,9477", "45, pričakovano 39,9".
+- Learner actions: step 1 `set-position 1` (shown 1, readouts as step 2 opening); step 2 `set-run n 10` (shown 10); step 3 `set-run n 1000`; step 4 `set-run walkSteps 99` (n and shown 1000; rms "10,15, po zakonu 9,95", mean "8,19, po zakonu 7,9589", zeros "0 (pri lihem številu korakov se ne morejo končati v izhodišču)"); step 5 `set-run walkSteps 200` ("13,78, po zakonu 14,14", "11,086, po zakonu 11,2697", "56, pričakovano 56,3"). en uses a decimal point and "by the law", "expected".
+- Quote list: every number in the table; the 8,6 and 8 % are arithmetic (0,0796 = 8 % rounded).
+
+### Still to do
+Registration in the chapter, registry, preview and test lists (slice 3); a content review of the Slovenian wording.
+
+### Doubts
+- Step 1 opening shows the funnel and the law readouts ("po zakonu 10") from the first frame, so step 1's answer is in the picture; the prompt asks for the prediction first (handler-settled).
+- "Povprečje razdalje od izhodišča" at n 1 is the distance of the end; the sign (+10) is only the drawn walk (curve end), not a readout.
+- Step 3 explanation uses "Konci torej niso blizu ±100" after ten walks (mean distance 9,4); a single run, stated as such.
+- Not smoke-tested in a browser; Play was not probed under a real clock (fake clock does not advance); the 1366 x 768 fit is not measured.
