@@ -6,4 +6,4 @@ Slices F3–F6 as in [05](05-batch-a-lessons.md); the lesson joins the chapter o
 
 Acceptance: the spec's acceptance for SV5; mesh volumes labelled as the mesh's; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: F3 SV5 written and joined (handler 37); F4 card, F5 and F6 gate next.
+Status: F3 SV5 written and joined (handler 37); F4 card captured (handler 38); F5 and F6 gate next.

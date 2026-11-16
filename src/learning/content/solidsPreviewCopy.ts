@@ -6,7 +6,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
 });
 
 /**
- * Describes the prepared opening scene of each Solids lesson, keyed by example id: SV1 (the cube cut by a horizontal plane at half its height), SV2 (the square prism cut by a horizontal plane through its middle), SV3 (the square prism cut into slabs in stack mode) and SV4 (the unit cube in volume mode).
+ * Describes the prepared opening scene of each Solids lesson, keyed by example id: SV1 (the cube cut by a horizontal plane at half its height), SV2 (the square prism cut by a horizontal plane through its middle), SV3 (the square prism cut into slabs in stack mode), SV4 (the unit cube in volume mode) and SV5 (the region under a line turned about the x axis, seen from the front).
  * The copy names the frame only and states none of the answers step 1 asks for (the shape, its side count and area, the volume): the graph's readouts beside the picture show those, the copy does not repeat them.
  */
 export const solidsPreviewCopy = {
@@ -33,5 +33,11 @@ export const solidsPreviewCopy = {
         'Cream background. In the middle of the picture is a single cube seen obliquely from above, in one flat orange shade. Three faces are visible; there are no edges or other markings.',
         'Enotska kocka z robom \\(1\\) v načinu prostornine.',
         'A unit cube of edge \\(1\\) in volume mode.',
+    ),
+    'solids.revolution.solids': copy(
+        'Krem ozadje. V sredini slike leži vodoravno oranžno telo, ki je na levem koncu ozko, na desnem pa najširše; pogled je od spredaj, zato se kaže kot trikotnik z ravnima robovoma. Čez telo so v enakih razmikih tanke zelene elipse, obroči, vodoravno po sredini pa teče rdeča os, ki na levi malo gleda iz telesa.',
+        'Cream background. In the middle of the picture a horizontal orange solid lies, narrow at its left end and widest at its right end; the view is from the front, so it looks like a triangle with straight edges. Thin green ellipses, rings, cross the solid at equal spacing, and a red axis runs horizontally through the middle and sticks out a little on the left.',
+        'Območje pod grafom funkcije \\(f(x)=\\tfrac{3x}{4}\\) na intervalu \\([0,4]\\), zavrteno okoli osi \\(x\\); pogled od spredaj, narisani so obroči.',
+        'The region under the graph of \\(f(x)=\\tfrac{3x}{4}\\) on \\([0,4]\\), turned about the \\(x\\) axis; front view, with rings drawn.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

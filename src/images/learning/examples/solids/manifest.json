@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+  "sourceRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+    "revision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
     "dirty": true,
-    "inputs": "4cf0316d8413a185f1b2ba1142d1f1b6439a11eb7d5e466e68b29cfbb84d95ac",
-    "output": "ff4b24addef40905664f6b0070d58a0d1ac5a4cd844edf1d595190bd911f1c1c"
+    "inputs": "6db3a269bf83da2c1e9b8fc89d11e259aaa85e2ef284387ddd17d522d5e5e9c8",
+    "output": "bb7457deb445651a985dddf88fca95dc424ef5c6bb0fdd0f8a6595fbd545751b"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
-    "stampRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+    "stampRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
     "stampDirty": true,
-    "localOutputHash": "ff4b24addef40905664f6b0070d58a0d1ac5a4cd844edf1d595190bd911f1c1c",
+    "localOutputHash": "bb7457deb445651a985dddf88fca95dc424ef5c6bb0fdd0f8a6595fbd545751b",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-HhOjWX8E.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-HhOjWX8E.js",
-        "sha256": "3d96cdb5e2e3317bc927b0fccf576c61bda89528da2be4b3ec2930ac2a2ce28e",
+        "name": "index-CjMsPknu.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-CjMsPknu.js",
+        "sha256": "5e9efafa624b306d5c0f9f0bfdbbbc1d7855d218bff78eb99096a0040fb91538",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-fCtEaWW5.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-fCtEaWW5.js",
-        "sha256": "519d012fbcb1cbbdaed87925ff76791b842523dc19879b3a6192da553fed13ad",
+        "name": "jsx-runtime-D5ThqnVU.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-D5ThqnVU.js",
+        "sha256": "c5857ad2095b963ddaf8d3a3bb879179b1381e064a5ec65e97daf3bd740291bc",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Ckdb_qBD.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-Ckdb_qBD.js",
-        "sha256": "6d50aab6ef7bfa7c36286655edd38d6152fcb0c895b681fec2a8b8d1f8729049",
+        "name": "react-dom-DF8DAcL0.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-DF8DAcL0.js",
+        "sha256": "cc0082cea2181f30f0bd941c9597d8e4ace22fddf4c8ec6babfff454930566b5",
         "matchesLocalBuild": true
       },
       {
@@ -55,16 +55,17 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "c122f64e22cd39b19849400248e930cc555e0eff6a68294c5ee19229246a6163",
+    "inventory": "afefe2c9a09befc0a0a68f276da31c96b2baae4ceeb7cfe389ce41881f3ad8e7",
     "entries": {
       "solids.cube-sections.solids": "831f1545bbefa77a9c5925f1f56f62daeda2b6c5a9b317a6979cbeb2354baef8",
       "solids.pyramid-sections.solids": "47c4313b955df9821a7acf6757aae8ef1b252146a8377e631a217efa2214c7da",
       "solids.cavalieri.solids": "b25a9dd8502caaea68f8f62bb37bb1eb514419f46dc7e2c2ea82ac33774c9789",
-      "solids.pyramid-cone.solids": "ea60b470087ea697dc63eadedfe577afe32f3d5a8c1a51df3964293ae5ad9eeb"
+      "solids.pyramid-cone.solids": "ea60b470087ea697dc63eadedfe577afe32f3d5a8c1a51df3964293ae5ad9eeb",
+      "solids.revolution.solids": "5a067c41c08ca304cd1bd2fa1b26ec930ab2369a9294071b25714f2b44bf3066"
     },
-    "presentation": "c02a5199009398e5a08fc5825cf693ce5b28e388c1c75f6b533f91568c3cd550",
-    "buildOutput": "ff4b24addef40905664f6b0070d58a0d1ac5a4cd844edf1d595190bd911f1c1c",
-    "buildInputs": "4cf0316d8413a185f1b2ba1142d1f1b6439a11eb7d5e466e68b29cfbb84d95ac"
+    "presentation": "ce06965bccf308d4a890536209a03c7a7abc22b2e233fdbb2833b4e3ac38d6fd",
+    "buildOutput": "bb7457deb445651a985dddf88fca95dc424ef5c6bb0fdd0f8a6595fbd545751b",
+    "buildInputs": "6db3a269bf83da2c1e9b8fc89d11e259aaa85e2ef284387ddd17d522d5e5e9c8"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -139,6 +140,24 @@
       },
       {
         "id": "solids.pyramid-cone.solids",
+        "demonstrationId": "solids",
+        "framing": {
+          "kind": "surface-view",
+          "camera": {
+            "az": -0.9,
+            "el": 0.5,
+            "distance": 5.149799955071211,
+            "target": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "controlPointCount": 0
+        }
+      },
+      {
+        "id": "solids.revolution.solids",
         "demonstrationId": "solids",
         "framing": {
           "kind": "surface-view",
@@ -403,8 +422,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
-        "sourceRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+        "buildRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
+        "sourceRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
         "pageErrors": []
       }
     },
@@ -653,8 +672,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
-        "sourceRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+        "buildRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
+        "sourceRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
         "pageErrors": []
       }
     },
@@ -849,8 +868,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
-        "sourceRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+        "buildRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
+        "sourceRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
         "pageErrors": []
       }
     },
@@ -998,8 +1017,158 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
-        "sourceRevision": "e741e1ec1cf9ef5b9d9ef2c0262b1a1d95749b5e",
+        "buildRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
+        "sourceRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "solids.revolution.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.revolution.solids",
+      "sceneFingerprint": "d9e03cd581bfc2d80d2f8867a4a1fe6bf15220e454cfee8cbbd5643e84407822",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv5-solid-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv5-solid-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"revolve\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"cone\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-camera\",\"view\":\"front\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "solids.revolution.solids.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "dbf05d52090efe44a10d237d03912067ca6d08722d53e5f2427690db4f2dd149",
+      "scene": {
+        "view": "surface",
+        "surfaceRenderer": "jsx-svg",
+        "frame": {
+          "width": 420,
+          "height": 260
+        },
+        "camera": {
+          "az": 0,
+          "el": 0,
+          "distance": 15.55941191194092,
+          "target": [
+            2,
+            0,
+            0
+          ]
+        },
+        "meshBounds": {
+          "left": 149.878,
+          "top": 39.817,
+          "right": 270.122,
+          "bottom": 220.183,
+          "inFrustum": true
+        },
+        "ownerIds": [
+          "solid-0"
+        ],
+        "renderedOwners": [
+          {
+            "id": "solid-0",
+            "kind": "solid",
+            "geometrySamples": [
+              [
+                4,
+                3,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ]
+          }
+        ],
+        "projectedControlPoints": [],
+        "visibleLabelBounds": []
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedSurfaceEvidence": {
+          "view": "surface",
+          "surfaceRenderer": "jsx-svg",
+          "frame": {
+            "width": 998,
+            "height": 607
+          },
+          "camera": {
+            "az": 0,
+            "el": 0,
+            "distance": 15.55941191194092,
+            "target": [
+              2,
+              0,
+              0
+            ]
+          },
+          "meshBounds": {
+            "left": 358.638,
+            "top": 92.957,
+            "right": 639.362,
+            "bottom": 514.043,
+            "inFrustum": true
+          },
+          "ownerIds": [
+            "solid-0"
+          ],
+          "renderedOwners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  4,
+                  3,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ],
+          "projectedControlPoints": []
+        }
+      },
+      "framing": {
+        "surfaceHostOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "guidedLessonOverlayHidden": true,
+        "authoredCameraPreserved": true,
+        "geometryOwners": [
+          "solid-0"
+        ],
+        "visibleLabelBounds": []
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
+        "sourceRevision": "ec2c211e7793eb36c699ccb5fe629c34f97d40bb",
         "pageErrors": []
       }
     }

@@ -25,3 +25,9 @@ Not done / not run (next worker)
 - SV3 card viewed: tall orange square prism with green slab outlines and one blue slice outline; slab lines are partly hidden/broken where the two coincident prisms overlap (z-fighting look), cursor line broken at the back. Nothing cut. No caption in the image.
 - SV4 card viewed: one flat orange cube silhouette, three faces in the same shade, no edges, no label; readable but featureless (what the graph draws in volume mode).
 - Layout shots (route, 1366 and 390 full page): prism shear 3 with 60 slabs, cone/cylinder pair, cube with pyramids on, cone about y with 60 discs; all fit the host, no clipping or page errors.
+
+## F4 card (Batch C)
+- Inventory: `solidsFrames` gained `revolution` (SV5 step 1: revolve, cone, stored default axis x and 10 discs, front camera). Camera is the fitted one of the box [0,4]x[-3,3]x[-3,3] with az 0, el 0; samples hand-derived from `revolve()` (apex first, 94 triangles: [4,3,0], apex, apex). Count row [1,0]; the id moved from `pending` to `ids` in `guidedExamplePreviews.test.ts`.
+- Red: `.command-logs/solids-c/f4/red.log` (ids mismatch before capture). SV1-SV4 PNG sha256 identical before and after (`sha-before.txt`, `sha-after.txt`). A first unit run after capture failed on a stale glob cache; touching the doc comment of `guidedExamplePreviews.ts` (as the previous batch did) fixed it.
+- Card viewed: an orange triangular solid lying horizontally (narrow left, widest right, front view), 11 thin green ring ellipses at equal spacing, a red axis through the middle sticking out slightly on the left. Nothing cut, no label. It shows the solid, not a flat graph, so the copy does not say "cone", disc sums or areas.
+- Layout shots (route, 1366 and 390): sphere 60 discs, parabola about y 60 discs (dense ring stripes, readable), sqrt at the front camera; no clipping, no page errors.

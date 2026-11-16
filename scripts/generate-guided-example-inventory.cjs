@@ -2833,6 +2833,23 @@ const solidsFrames = {
             owners: [{id: 'solid-0', kind: 'solid', geometrySamples: [[0, 0, 0], [0, 1, 0], [1, 0, 0]]}],
             geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
     },
+    // SV5 step 1 (solidsRevolutionGuidedLessons.ts SV5_PROFILE): revolve mode, the cone 3x/4 on [0, 4] about the x axis (the stored default axis x), the stored default 10 discs (no action), then the front camera preset. Set-solid framed
+    // the solid's box [0, 4] x [-3, 3] x [-3, 3] (rings of 48 points reach +-3 exactly), centre (2, 0, 0); set-camera front then writes az 0 and el 0 and keeps the target and distance. Mesh of revolve() for the profile [[0, 0], [4, 3]], k = 48:
+    // vertex 0 is the apex (0, 0, 0), vertices 1..48 the ring at x = 4 (vertex 1 = (4, 3, 0)). Faces: the apex end has none, the far end is one 48-gon (46 triangles, the first starts at vertex 1), then 48 side triangles [0, ring j+1, ring j].
+    // 94 triangles: the first starts at (4, 3, 0); triangle 47 is the second side triangle and the last (93) the 48th, both starting at the apex.
+    'revolution': (id, step) => {
+        const lead = step.scene.actions.findIndex(item => item.kind !== 'prepared-scene');
+        const prepared = step.scene.actions.slice(0, lead < 0 ? 0 : lead), rest = step.scene.actions.slice(lead < 0 ? 0 : lead);
+        assert.ok(prepared.length >= 1 && prepared.every(item => item.source === 'demonstration-default'), `${id}: the opening scene must start with the Demonstration default`);
+        assert.deepEqual(rest.map(({kind, operation, mode, solid, view, axis, discs}) => ({kind, operation, mode, solid, view, axis, discs})), [
+            {kind: 'solids', operation: 'set-mode', mode: 'revolve', solid: undefined, view: undefined, axis: undefined, discs: undefined},
+            {kind: 'solids', operation: 'set-solid', mode: undefined, solid: 'cone', view: undefined, axis: undefined, discs: undefined},
+            {kind: 'solids', operation: 'set-camera', mode: undefined, solid: undefined, view: 'front', axis: undefined, discs: undefined},
+        ], `${id}: the opening scene is the cone in revolve mode with the default axis and discs and the front view`);
+        return {surface: {camera: {...solidsFittedCamera([[0, -3, -3], [4, 3, 3]]), az: 0, el: 0},
+            owners: [{id: 'solid-0', kind: 'solid', geometrySamples: [[4, 3, 0], [0, 0, 0], [0, 0, 0]]}],
+            geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
+    },
 };
 
 /** First-frame expectation of a solids lesson (keyed by the section in the example id). */

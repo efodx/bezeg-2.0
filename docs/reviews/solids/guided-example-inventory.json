@@ -244,6 +244,62 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "solids.revolution.solids",
+      "demonstrationId": "solids",
+      "path": "/bezeg-2.0/analysis/solids?example=lesson.solids.revolution.solids",
+      "sceneFingerprint": "d9e03cd581bfc2d80d2f8867a4a1fe6bf15220e454cfee8cbbd5643e84407822",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv5-solid-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sv5-solid-scene\",\"source\":\"demonstration-default\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-mode\",\"mode\":\"revolve\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-solid\",\"solid\":\"cone\"}",
+        "solids: {\"kind\":\"solids\",\"operation\":\"set-camera\",\"view\":\"front\"}"
+      ],
+      "expected": {
+        "surface": {
+          "camera": {
+            "az": 0,
+            "el": 0,
+            "distance": 15.55941191194092,
+            "target": [
+              2,
+              0,
+              0
+            ]
+          },
+          "owners": [
+            {
+              "id": "solid-0",
+              "kind": "solid",
+              "geometrySamples": [
+                [
+                  4,
+                  3,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ],
+          "geometryTolerance": 0.000001,
+          "cameraTolerance": 0.000001
+        }
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
