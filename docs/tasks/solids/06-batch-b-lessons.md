@@ -6,4 +6,4 @@ Slices F3–F6 as in [05](05-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for SV3–SV4; the disc sums follow `riemann.ts` midpoint semantics; every number quoted in lesson text matches the scene; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass.
 
-Status: not started.
+Status: F3 slice 1 done (handler 36: actions `set-shear`, `set-discs`, `set-cursor`, `set-axis`; graph slice `set-pyramids` with the cube in three pyramids; stack note at shear 0 removed); lessons SV3, SV4 next.
