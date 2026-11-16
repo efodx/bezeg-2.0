@@ -123,3 +123,9 @@ Registration in the chapter, registry, preview and test lists (slice 3); a conte
 - Red on the lesson text itself was refused by the sandbox (editing the lesson file); not done.
 - No false claim found. Step 5 and 6 have no numeric answer-not-printed check (step 5 answer is sameness, which its explanation states by handler decision).
 - Not verified: browser, Play under real animation frames (fake clock only).
+
+### Slice 2d (LESSON): RS4 content test
+- `src/learning/content/randomnessWalkGuidedLessons.test.ts` (new, untracked; Part A scenes/labels/learner actions/answer-not-printed, Part B quotes from `runWalks`, `walkLaw` and BigInt arithmetic). Follows the Handler 33 text (worked example in step 4, step 3 predicts the zero count and whether the rms is exactly 10).
+- Green: `s2d-unit-rs4.log` (with `src/graphs/random`), `s2d-tsc-rs4.log`, `s2d-lint-rs4.log`. Red: `s2d-red-rs4.log` (explore quote seed changed 7 to 8 in the test copy, 1 failure, restored); the lesson file itself was not edited.
+- No false claim found. Step 6 has no answer-not-printed check (asks no number). Step 1 answer-not-printed covers only the end distance 10.
+- Not verified: browser, Play under real animation frames (fake clock only, n 1 stops [0, 1]).
