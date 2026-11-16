@@ -624,6 +624,7 @@ export type LessonAction =
     | {readonly kind: 'solids'; readonly operation: 'set-discs'; readonly discs: number}
     | {readonly kind: 'solids'; readonly operation: 'set-cursor'; readonly cursor: number}
     | {readonly kind: 'solids'; readonly operation: 'set-axis'; readonly axis: 'x' | 'y'}
+    | {readonly kind: 'solids'; readonly operation: 'set-pyramids'; readonly pyramids: boolean}
     /**
      * GrowthGraph's scene actions (RG1, RG3; the logarithm panel is for RG5). `set-map` picks the panel and the sequence kind. `set-params` sets the sequence fields
      * `a1`, `d`, `q` (stored integer, the ratio times 10) and `n`; `set-interest` the capital, the rate (stored integer, twice the percent), the years and the parts per

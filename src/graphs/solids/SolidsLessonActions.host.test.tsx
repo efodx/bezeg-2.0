@@ -31,6 +31,7 @@ const setCamera = (view: 'front' | 'top' | 'side' | 'isometric'): LessonAction =
 const setShear = (shear: number): LessonAction => ({kind: 'solids', operation: 'set-shear', shear});
 const setDiscs = (discs: number): LessonAction => ({kind: 'solids', operation: 'set-discs', discs});
 const setCursor = (cursor: number): LessonAction => ({kind: 'solids', operation: 'set-cursor', cursor});
+const setPyramids = (pyramids: boolean): LessonAction => ({kind: 'solids', operation: 'set-pyramids', pyramids});
 const setAxis = (axis: string): LessonAction => ({kind: 'solids', operation: 'set-axis', axis} as unknown as LessonAction);
 const stateOf =(graph: SolidsGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
@@ -161,6 +162,39 @@ test('a stack and volume scene runs synchronously; the checkpoint restores the f
     apply(again, setCursor(5));
     act(() => { again.getLessonCapabilities().restoreState(cp); });
     expect(stateOf(again)).toEqual(free);
+});
+
+test('set-pyramids equals the switch, is refused off the cube in volume mode, and the checkpoint restores the free state', () => {
+    const viaAction = after(graph => {
+        apply(graph, setMode('volume'));
+        apply(graph, setPyramids(true));
+    });
+    expect(viaAction).toEqual(after(graph => {
+        act(() => { graph.setMode('volume'); });
+        fireEvent.click(screen.getByLabelText(t('solids_graph_pyramids')));
+    }));
+    expect(viaAction.state).toEqual(expect.objectContaining({mode: 'volume', solid: 'cube', pyramids: true}));
+    expect(viaAction.readouts).toContain('pyramid-0=0,33333');
+    expect(viaAction.readouts).toContain('pyramids-sum=1');
+    const graph = mount();
+    const free = stateOf(graph);
+    expect(free.pyramids).toBe(false);
+    const sectionState = stateOf(graph);
+    expect(() => apply(graph, setPyramids(true))).toThrow(/^solids set-pyramids: the cube is cut into pyramids only for the cube in volume mode/);
+    expect(stateOf(graph)).toEqual(sectionState);
+    apply(graph, setMode('volume'));
+    apply(graph, setSolid('cone'));
+    const cone = stateOf(graph);
+    expect(() => apply(graph, setPyramids(true))).toThrow(/^solids set-pyramids:/);
+    expect(stateOf(graph)).toEqual(cone);
+    expect(() => apply(graph, {kind: 'solids', operation: 'set-pyramids', pyramids: 1} as unknown as LessonAction)).toThrow(/^solids set-pyramids:/);
+    expect(stateOf(graph)).toEqual(cone);
+    apply(graph, setSolid('cube'));
+    const checkpoint = graph.getLessonCapabilities().captureState();
+    apply(graph, setPyramids(true));
+    expect(graph.state.pyramids).toBe(true);
+    act(() => { graph.getLessonCapabilities().restoreState(checkpoint); });
+    expect(graph.state.pyramids).toBe(false);
 });
 
 test('invalid shear, discs, cursor and axis payloads change nothing', () => {

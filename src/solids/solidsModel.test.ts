@@ -20,6 +20,8 @@ describe('solids state: parse and round trip', () => {
             state({solid: 'parabola', mode: 'revolve', axis: 'y'}),
             state({solid: 'square-prism', mode: 'stack', shear: -12, discs: 1, cursor: 39}),
             state({solid: 'cone', mode: 'stack', cursor: 1}),
+            state({solid: 'cube', mode: 'volume', pyramids: true}),
+            state({solid: 'square-pyramid', mode: 'section', pyramids: true}),
         ];
         for (const s of states) {
             const parsed = parseSolidsState(JSON.parse(JSON.stringify(serializeSolidsState(s))));
@@ -30,7 +32,7 @@ describe('solids state: parse and round trip', () => {
     it('drops unknown fields and never shares arrays with the input', () => {
         const input = {...serializeSolidsState(DEFAULT_SOLIDS_STATE), area: 3, loop: [1, 2]};
         const parsed = parseSolidsState(input);
-        expect(parsed.ok && Object.keys(parsed.value).sort()).toEqual(['axis', 'camera', 'cursor', 'discs', 'mode', 'normal', 'offset', 'shear', 'solid']);
+        expect(parsed.ok && Object.keys(parsed.value).sort()).toEqual(['axis', 'camera', 'cursor', 'discs', 'mode', 'normal', 'offset', 'pyramids', 'shear', 'solid']);
         if (parsed.ok) expect(parsed.value.normal).not.toBe(input.normal);
     });
 
@@ -84,6 +86,17 @@ describe('solids state: rejections carry a field and a code', () => {
         expect(rejected(withField('axis', 'z'))).toEqual({field: 'axis', reason: 'unknown-value', choices: AXES});
         expect(rejected(withField('axis', null)).reason).toBe('missing');
         expect(rejected({...base, solid: 'sphere', mode: 'volume', axis: 'y'})).toEqual({field: 'axis', reason: 'inconsistent', choices: Y_AXIS_SOLIDS});
+    });
+
+    it('reads a missing pyramids as false and rejects anything but a boolean with the accepted values', () => {
+        const without = {...base} as Record<string, unknown>;
+        delete without.pyramids;
+        expect(DEFAULT_SOLIDS_STATE.pyramids).toBe(false);
+        expect(parseSolidsState(without)).toEqual({ok: true, value: DEFAULT_SOLIDS_STATE});
+        expect(parseSolidsState(withField('pyramids', true))).toMatchObject({ok: true, value: {pyramids: true}});
+        expect(rejected(withField('pyramids', 1))).toEqual({field: 'pyramids', reason: 'unknown-value', choices: ['false', 'true']});
+        expect(rejected(withField('pyramids', 'true')).field).toBe('pyramids');
+        expect(rejected(withField('pyramids', null)).reason).toBe('missing');
     });
 
     it('reads a missing cursor as the middle and rejects one outside the slice heights, without snapping', () => {

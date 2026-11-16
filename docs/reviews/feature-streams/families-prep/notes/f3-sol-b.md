@@ -27,3 +27,7 @@
 ## Doubts
 - The `live` status readout (data-solids-live) text lagged the mode in the probe (still showed the section text); likely a debounce, unconfirmed.
 - Probe test deleted; it was a temporary file.
+
+## Graph slice: three pyramids
+
+SV4 volume mode, cube only. New `pyramids` state (default false, strict boolean), kernel `src/solids/cubePyramids.ts`, scene `drawCubePyramids` in `solidsScene.ts`, switch in `SolidsPanels.tsx`, action `set-pyramids`. Each pyramid is pulled 1/4 along the outward normal of its base (the three stay disjoint: pyramid 1 lies on y-x >= 1/4, z-x >= 1/4 and so on, tested). The mesh renderer has one fill colour and `src/graphs/patches/` was out of scope, so the pyramids are told apart by edge colour (roles iso-v purple, iso-w amber, compare teal) and three apex markers; the fill is one colour. Term: "Razreži kocko na tri piramide" (recorded in docs/localization.md, handler-unreviewed). The switch shows only in volume mode; for a solid other than the cube it is unavailable with a reason. Evidence: `.command-logs/solids-b/graph/` (red.log, unit.log, tsc.log empty, lint.log, build.log, after-*.png).

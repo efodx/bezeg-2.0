@@ -118,6 +118,14 @@ export interface SolidsCamera {
     readonly target: Xyz;
 }
 
+function parseBoolean(value: unknown, field: string): SolidsResult<boolean> {
+    if (value === undefined || value === null) return fail({field, reason: 'missing', choices: ['false', 'true']});
+    return typeof value === 'boolean' ? ok(value) : fail({field, reason: 'unknown-value', choices: ['false', 'true']});
+}
+
+/** Whether the cube is cut into its three pyramids: the switch applies to the cube in volume mode only. */
+export const pyramidsApply = (s: Pick<SolidsState, 'solid' | 'mode'>): boolean => s.solid === 'cube' && s.mode === 'volume';
+
 function parseCamera(value: unknown): SolidsResult<SolidsCamera> {
     if (value === undefined || value === null) return fail({field: 'camera', reason: 'missing'});
     if (!isRecord(value)) return fail({field: 'camera', reason: 'not-an-object'});
@@ -149,12 +157,17 @@ export interface SolidsState {
     readonly axis: SolidsAxis;
     /** Stack mode: the height of the compared slices, 1 to 39 in units of 1/40 of the height. A Preset without it means 20 (the middle). */
     readonly cursor: number;
+    /**
+     * SV4: the cube cut into three pyramids (volume mode). Stored in every state but applied only to the cube in volume mode; a Preset
+     * without it means false.
+     */
+    readonly pyramids: boolean;
     readonly camera: SolidsCamera;
 }
 
 /** SV1, step 1: the cube cut by z = 1/2 (normal (0,0,1), D = 2). */
 export const DEFAULT_SOLIDS_STATE: SolidsState = {
-    solid: 'cube', mode: 'section', normal: [0, 0, 1], offset: 2, shear: 0, discs: 10, axis: 'x', cursor: DEFAULT_CURSOR,
+    solid: 'cube', mode: 'section', normal: [0, 0, 1], offset: 2, shear: 0, discs: 10, axis: 'x', cursor: DEFAULT_CURSOR, pyramids: false,
     camera: {az: -0.9, el: 0.5, distance: 9, projection: 'perspective', target: [0.5, 0.5, 0.5]},
 };
 
@@ -183,19 +196,21 @@ export function parseSolidsState(data: unknown): SolidsResult<SolidsState> {
     if (!axis.ok) return axis;
     const cursor = data.cursor === undefined ? ok(DEFAULT_CURSOR) : parseInteger(data.cursor, 'cursor', CURSOR_RANGE);
     if (!cursor.ok) return cursor;
+    const pyramids = data.pyramids === undefined ? ok(false) : parseBoolean(data.pyramids, 'pyramids');
+    if (!pyramids.ok) return pyramids;
     const camera = parseCamera(data.camera);
     if (!camera.ok) return camera;
     if (!modeAccepts(mode.value, solid.value)) return fail({field: 'mode', reason: 'inconsistent', choices: MODE_SOLIDS[mode.value]});
     if (!axisAccepts(solid.value, axis.value)) return fail({field: 'axis', reason: 'inconsistent', choices: Y_AXIS_SOLIDS});
     return ok({
         solid: solid.value, mode: mode.value, normal: [normal[0], normal[1], normal[2]], offset: offset.value,
-        shear: shear.value, discs: discs.value, axis: axis.value, cursor: cursor.value, camera: camera.value,
+        shear: shear.value, discs: discs.value, axis: axis.value, cursor: cursor.value, pyramids: pyramids.value, camera: camera.value,
     });
 }
 
 /** The state to store in a Preset: only the stored fields, arrays copied. */
 export const serializeSolidsState = (s: SolidsState): SolidsState => ({
-    solid: s.solid, mode: s.mode, normal: [s.normal[0], s.normal[1], s.normal[2]], offset: s.offset, shear: s.shear, discs: s.discs, axis: s.axis, cursor: s.cursor,
+    solid: s.solid, mode: s.mode, normal: [s.normal[0], s.normal[1], s.normal[2]], offset: s.offset, shear: s.shear, discs: s.discs, axis: s.axis, cursor: s.cursor, pyramids: s.pyramids,
     camera: {az: s.camera.az, el: s.camera.el, distance: s.camera.distance, projection: 'perspective', target: [s.camera.target[0], s.camera.target[1], s.camera.target[2]]},
 });
 

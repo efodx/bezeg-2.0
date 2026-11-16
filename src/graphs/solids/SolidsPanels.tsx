@@ -1,11 +1,12 @@
 import {Button} from 'react-bootstrap';
 import {formatNumber, NOT_A_NUMBER_TEXT} from '../../analysis/format';
 import {ChoiceSelect} from '../../inputs/ChoiceSelect';
+import {OnOffSwitch} from '../../inputs/OnOffSwitch';
 import Slider from '../../inputs/Slider';
 import {currentLanguage, useT} from '../../localization';
 import {
     AXES, CURSOR_RANGE, CURSOR_SCALE, DISC_RANGE, MODES, MODE_SOLIDS, NORMAL_RANGE, OFFSET_RANGE, OFFSET_SCALE, SHEAR_RANGE, SHEAR_SCALE,
-    axisAccepts, stackPair, type SolidId, type SolidsAxis, type SolidsMode, type SolidsState,
+    axisAccepts, pyramidsApply, stackPair, type SolidId, type SolidsAxis, type SolidsMode, type SolidsState,
 } from '../../solids/solidsModel';
 import {LiveReadout} from '../base/controls/LiveReadout';
 import {useStatusReadout} from '../base/controls/useStatusReadout';
@@ -25,9 +26,10 @@ export interface SolidsPanelActions extends SurfaceCameraActions {
     setCursor(units: number): void;
     setDiscs(count: number): void;
     setAxis(axis: SolidsAxis): void;
+    setPyramids(on: boolean): void;
 }
 
-export type SolidsPanelState = Pick<SolidsState, 'solid' | 'mode' | 'normal' | 'offset' | 'shear' | 'discs' | 'axis' | 'cursor' | 'camera'>;
+export type SolidsPanelState = Pick<SolidsState, 'solid' | 'mode' | 'normal' | 'offset' | 'shear' | 'discs' | 'axis' | 'cursor' | 'pyramids' | 'camera'>;
 
 const NORMAL_LETTERS = ['x', 'y', 'z'] as const;
 
@@ -68,6 +70,11 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
             <Slider customText={t('solids_graph_slabs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
                     onChange={value => { actions.setDiscs(value); }}/>
         </div>}
+        {state.mode === 'volume' && <div className="inspector-group"><h3>{t('solids_graph_volume_heading')}</h3>
+            <OnOffSwitch label={t('solids_graph_pyramids')} checked={state.pyramids && pyramidsApply(state)} help={t('solids_graph_pyramids_help')}
+                         unavailableReason={pyramidsApply(state) ? undefined : t('solids_graph_pyramids_unavailable')}
+                         onChange={actions.setPyramids}/>
+        </div>}
         {state.mode === 'revolve' && <div className="inspector-group"><h3>{t('solids_graph_revolve_heading')}</h3>
             <ChoiceSelect label={t('solids_graph_axis')} value={state.axis} options={axisOptions} help={t('solids_graph_axis_help')}
                           reason={state.solid === 'sphere' ? t('solids_graph_axis_sphere_only_x') : undefined}
@@ -82,7 +89,7 @@ const fmt = (value: number, digits: number) => formatNumber(value, currentLangua
 
 type CaptionKey = 'solids_graph_caption_kept' | 'solids_graph_caption_plane' | 'solids_graph_caption_section' | 'solids_graph_caption_cut' | 'solids_graph_caption_corner' | 'solids_graph_caption_axial'
     | 'solids_graph_caption_straight' | 'solids_graph_caption_sheared' | 'solids_graph_caption_cone' | 'solids_graph_caption_cylinder' | 'solids_graph_caption_slabs'
-    | 'solids_graph_caption_cursor' | 'solids_graph_caption_solid' | 'solids_graph_caption_profile' | 'solids_graph_caption_axis' | 'solids_graph_caption_discs';
+    | 'solids_graph_caption_cursor' | 'solids_graph_caption_solid' | 'solids_graph_caption_profile' | 'solids_graph_caption_axis' | 'solids_graph_caption_discs' | 'solids_graph_caption_pyramids';
 
 /** The axial triangle is drawn only for the pyramid (solidsScene `axialSection`), in every section state. */
 const axialCaption = (solid: SolidId): readonly CaptionKey[] => solid === 'square-pyramid' ? ['solids_graph_caption_axial'] : [];
@@ -96,7 +103,7 @@ function captionKeys(mode: SolidsMode, solid: SolidId, readouts: SolidsReadouts)
         case 'stack': return readouts.mode === 'stack' && readouts.pair === 'failing'
             ? ['solids_graph_caption_cone', 'solids_graph_caption_cylinder', 'solids_graph_caption_slabs', 'solids_graph_caption_cursor']
             : ['solids_graph_caption_straight', 'solids_graph_caption_sheared', 'solids_graph_caption_slabs', 'solids_graph_caption_cursor'];
-        case 'volume': return ['solids_graph_caption_solid'];
+        case 'volume': return readouts.mode === 'volume' && readouts.pyramids ? ['solids_graph_caption_pyramids'] : ['solids_graph_caption_solid'];
         case 'revolve': return ['solids_graph_caption_profile', 'solids_graph_caption_axis', 'solids_graph_caption_discs', 'solids_graph_caption_solid'];
     }
 }
@@ -152,7 +159,11 @@ export function SolidsReadoutPanel({mode, solid, readouts}: {mode: SolidsMode; s
         if (approximate(readouts.meshVolume, readouts.exact)) notes.push(t(meshNoteKey(solid, readouts.meshVolume, readouts.exact)));
         summary = t('solids_graph_summary_slices', {value0: fmt(readouts.sliceArea, 4), value1: fmt(readouts.otherSliceArea, 4)});
     } else if (readouts.mode === 'volume') {
-        rows.push(
+        if (readouts.pyramids) {
+            readouts.pyramids.forEach((volume, i) => rows.push({id: `pyramid-${i}`, label: t('solids_graph_row_pyramid', {value0: i + 1}), value: fmt(volume, 5)}));
+            rows.push({id: 'pyramids-sum', label: t('solids_graph_row_pyramids_sum'), value: fmt(readouts.meshVolume, 5)});
+            notes.push(t('solids_graph_pyramids_note'));
+        } else rows.push(
             {id: 'volume-mesh', label: t('solids_graph_row_mesh_volume'), value: fmt(readouts.meshVolume, 5)},
             {id: 'volume-exact', label: t('solids_graph_row_exact_volume'), value: fmt(readouts.exact, 5)},
         );

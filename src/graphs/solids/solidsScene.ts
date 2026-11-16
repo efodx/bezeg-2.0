@@ -2,8 +2,9 @@ import type {Solid, Vec3} from '../../solids/solid';
 import {isClosed, realCoords, toTriangles, vertexCount} from '../../solids/solid';
 import {clipSolid, sectionConvex, type CutPoint} from '../../solids/section';
 import {discVolume, meshVolume, sectionAreaFromLoop, sliceAreaAt} from '../../solids/volume';
+import {cubePyramids, CUBE_PYRAMID_NORMALS} from '../../solids/cubePyramids';
 import type {SolidsState} from '../../solids/solidsModel';
-import {cursorOf, offsetOf, shearOf, stackPair, type StackPair} from '../../solids/solidsModel';
+import {cursorOf, offsetOf, pyramidsApply, shearOf, stackPair, type StackPair} from '../../solids/solidsModel';
 import type {SceneLabel, SceneMeshOwner, ScenePlane, ScenePolyline, SceneMarker, SurfaceScene, Xyz} from '../patches/surface-view/surfaceScene';
 import {
     cylinderFootprint, CYLINDER_EXACT_VOLUME, exactVolume, footprint, gridSolid, isRevolveId, REVOLVE_PROFILES, revolveSolid, standingCone, standingCylinder,
@@ -48,7 +49,14 @@ export type SolidsReadouts =
         readonly sliceArea: number;
         readonly otherSliceArea: number;
     }
-    | {readonly mode: 'volume'; readonly meshVolume: number; readonly exact: number}
+    | {
+        readonly mode: 'volume';
+        /** The solid's volume from the mesh (with the cube cut: the sum of the three pyramids) and its exact value. */
+        readonly meshVolume: number;
+        readonly exact: number;
+        /** SV4, the cube cut into three pyramids: the mesh volume of each. Absent otherwise. */
+        readonly pyramids?: readonly number[];
+    }
     | {
         readonly mode: 'revolve';
         readonly axis: 'x' | 'y';
@@ -282,7 +290,47 @@ function volumeSolid(s: SolidsGeometry): Solid {
     throw new RangeError(`Unknown solid ${s.solid}`);
 }
 
+/** How far each pyramid is pulled out of the cube along the outward normal of its base. */
+export const PYRAMID_PULL = 0.25;
+
+/** The edge colour of each pyramid (roles of the surface palette: purple, amber, teal), so the three read apart. */
+const PYRAMID_ROLES = ['iso-v', 'iso-w', 'compare'] as const;
+
+/** The solid moved by `d` (a plain translation: volume and shape stay the same). */
+function translateBy(solid: Solid, d: Vec3): Solid {
+    const out = new Float64Array(solid.vertices.length);
+    for (let i = 0; i < vertexCount(solid); i++) {
+        const p = realCoords(solid, i);
+        out.set([p[0] + d[0], p[1] + d[1], p[2] + d[2]], 3 * i);
+    }
+    return {vertices: out, faces: solid.faces};
+}
+
+/** SV4: the unit cube as three pyramids with the common apex, each pulled out along the outward normal of its base. */
+function drawCubePyramids(): SolidsDrawing {
+    const pulled = cubePyramids().map((pyramid, k) => translateBy(pyramid, [
+        PYRAMID_PULL * CUBE_PYRAMID_NORMALS[k][0], PYRAMID_PULL * CUBE_PYRAMID_NORMALS[k][1], PYRAMID_PULL * CUBE_PYRAMID_NORMALS[k][2],
+    ]));
+    const polylines: ScenePolyline[] = [];
+    const markers: SceneMarker[] = [];
+    pulled.forEach((pyramid, k) => {
+        const role = PYRAMID_ROLES[k];
+        const corner = (i: number): Xyz => xyzOf(realCoords(pyramid, i));
+        // Vertices 0..3 are the base square in order, vertex 4 is the apex (see `cubePyramids`).
+        polylines.push({id: `pyramid-${k}-base`, role, points: [0, 1, 2, 3, 0].map(corner)});
+        for (let i = 0; i < 4; i++) polylines.push({id: `pyramid-${k}-edge-${i}`, role, points: [corner(i), corner(4)]});
+        markers.push({id: `pyramid-${k}-apex`, xyz: corner(4), role: 'construction'});
+    });
+    const volumes = pulled.map(meshVolume);
+    const all: Xyz[] = pulled.flatMap(pyramid => corners8(boundsOf(pyramid)));
+    return {
+        solids: pulled, scene: {points: [], polylines, ...meshOf(pulled), markers, labels: []},
+        readouts: {mode: 'volume', meshVolume: volumes[0] + volumes[1] + volumes[2], exact: 1, pyramids: volumes}, framed: all,
+    };
+}
+
 function drawVolume(s: SolidsGeometry): SolidsDrawing {
+    if (s.pyramids && pyramidsApply(s)) return drawCubePyramids();
     const solid = volumeSolid(s);
     const drawn = drawable(solid);
     const solids = drawn ? [drawn] : [];

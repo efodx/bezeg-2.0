@@ -4,7 +4,7 @@ import {REVOLVE_K, kgonFactor} from '../../solids/revolve';
 import {DEFAULT_SOLIDS_STATE, MODES, MODE_SOLIDS, type SolidsState} from '../../solids/solidsModel';
 import {buildSolidsScene, drawable, drawSolids, shearSolid, type SolidsReadouts} from './solidsScene';
 import {gridSolid, REVOLVE_PROFILES, washerSolid} from './solidsCatalog';
-import {vertexCount} from '../../solids/solid';
+import {realCoords, vertexCount} from '../../solids/solid';
 const gridVertexCount = (id: Parameters<typeof gridSolid>[0]): number => vertexCount(gridSolid(id)!);
 import {meshVolume, sliceAreaAt} from '../../solids/volume';
 
@@ -253,6 +253,74 @@ describe('section labels and the y-axis washer', () => {
             const volume = meshVolume(washerSolid(profile));
             expect(volume, id).toBeGreaterThan(0);
             expect(Math.abs(volume / profile.aboutY!.exact - 1), id).toBeLessThan(0.02);
+        }
+    });
+});
+
+describe('the cube cut into three pyramids (SV4)', () => {
+    const on = state({solid: 'cube', mode: 'volume', pyramids: true});
+    const camera = DEFAULT_SOLIDS_STATE.camera;
+
+    it('draws three closed meshes with the volumes 1/3, 1/3, 1/3 and the sum 1', () => {
+        const drawing = drawSolids(on);
+        expect(drawing.solids).toHaveLength(3);
+        for (const solid of drawing.solids) expect(isClosed(solid)).toBe(true);
+        const r = drawing.readouts;
+        if (r.mode !== 'volume') throw new Error('wrong mode');
+        expect(r.pyramids).toHaveLength(3);
+        for (const v of r.pyramids ?? []) expect(Math.abs(v - 1 / 3)).toBeLessThan(1e-12);
+        expect(Math.abs(r.meshVolume - 1)).toBeLessThan(1e-12);
+        expect(r.exact).toBe(1);
+        expect(drawing.scene.meshOwners).toHaveLength(3);
+    });
+
+    it('pulls each pyramid 1/4 along the outward normal of its base, so no two interpenetrate', () => {
+        const [a, b, c] = drawSolids(on).solids;
+        const range = (solid: typeof a, axis: number) => {
+            const values = Array.from({length: vertexCount(solid)}, (_, i) => realCoords(solid, i)[axis]);
+            return [Math.min(...values), Math.max(...values)];
+        };
+        expect(range(a, 0)).toEqual([-0.25, 0.75]);
+        expect(range(b, 1)).toEqual([-0.25, 0.75]);
+        expect(range(c, 2)).toEqual([-0.25, 0.75]);
+        // Pyramid 1 lies on y - x >= 1/4 and z - x >= 1/4 after the pull; pyramid 2 on x - y >= 1/4: the sets cannot meet.
+        for (let i = 0; i < vertexCount(a); i++) {
+            const [x, y, z] = realCoords(a, i);
+            expect(y - x >= 0.25 - 1e-12 && z - x >= 0.25 - 1e-12).toBe(true);
+        }
+        for (let i = 0; i < vertexCount(b); i++) {
+            const [x, y, z] = realCoords(b, i);
+            expect(x - y >= 0.25 - 1e-12 && z - y >= 0.25 - 1e-12).toBe(true);
+        }
+        for (let i = 0; i < vertexCount(c); i++) {
+            const [x, y, z] = realCoords(c, i);
+            expect(x - z >= 0.25 - 1e-12 && y - z >= 0.25 - 1e-12).toBe(true);
+        }
+    });
+
+    it('colours the three pyramids by three different edge roles and marks the three apexes', () => {
+        const {polylines, markers} = drawSolids(on).scene;
+        const roles = [0, 1, 2].map(k => new Set(polylines.filter(p => p.id.startsWith(`pyramid-${k}-`)).map(p => p.role)));
+        for (const set of roles) expect(set.size).toBe(1);
+        expect(new Set(roles.map(set => [...set][0])).size).toBe(3);
+        expect(markers).toHaveLength(3);
+    });
+
+    it('frames and stays finite, with the three pulled-apart pyramids inside the framed points', () => {
+        const drawing = drawSolids(on);
+        assertFiniteScene(buildSolidsScene({...on, camera}, 1));
+        const xs = drawing.framed.map(p => p[0]);
+        expect(Math.min(...xs)).toBeLessThanOrEqual(-0.25);
+        expect(Math.max(...drawing.framed.map(p => p[2]))).toBeGreaterThanOrEqual(1);
+    });
+
+    it('leaves the volume scene unchanged when off, and for another solid or mode', () => {
+        const off = drawSolids(state({solid: 'cube', mode: 'volume'}));
+        expect(off.solids).toHaveLength(1);
+        expect(off.readouts).toEqual({mode: 'volume', meshVolume: 1, exact: 1});
+        for (const patch of [{solid: 'square-pyramid'}, {solid: 'cone'}, {mode: 'section'}, {mode: 'stack'}] as const) {
+            const base = {solid: 'cube', mode: 'volume', ...patch} as const;
+            expect(drawSolids(state({...base, pyramids: true}))).toEqual(drawSolids(state({...base, pyramids: false})));
         }
     });
 });
