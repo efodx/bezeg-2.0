@@ -58,6 +58,10 @@ const descentWindows = {
 const randomnessWindows = {
     'randomness.galton-board.prob-simulation': [0.469, 1.252, 9.531, -0.918],
     'randomness.law-of-large-numbers.prob-simulation': [-0.008, 1.398, 1.008, -1.648],
+    // The area card takes the quarter-circle frame in x (-0.12 to 2.4: the square on the left, the pi/4 line, its captions and the error bar panel on the right) at one scale in x and y (the card is 840 x 520, so y runs from 1.25 to -0.31) so the arc stays a circle; the walk card the walk frame
+    // (x from -8 to 155, y from 39.6 to -39.6 for 100 steps: the axes, the funnel and the law panel at x = 106).
+    'randomness.monte-carlo.prob-simulation': [0.156, 1.079, 2.124, -0.139],
+    'randomness.random-walk.prob-simulation': [9.828, 30.938, 137.172, -30.938],
 };
 
 // The cobweb cards take the window of the map (affine [-10, 10]^2; logistic [-0.1, 1.1] x [-0.2, 1.15]) shrunk the same way.

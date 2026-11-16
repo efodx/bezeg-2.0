@@ -1,68 +1,70 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "revision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+    "dirty": true,
+    "inputs": "8cab5ee56b1c085ed0a97db41ec9d24ae232c18ccf0a3c93595a2f5165eea6d6",
+    "output": "1be09a8122a5466c6f5a84b3a3b41b48cfd38c2fadac06aaf938ea6a3d204b06"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-    "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
+    "stampRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+    "stampDirty": true,
+    "localOutputHash": "1be09a8122a5466c6f5a84b3a3b41b48cfd38c2fadac06aaf938ea6a3d204b06",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-BBoD8J7N.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-BBoD8J7N.js",
+        "sha256": "e5a77b719f79386198df4d4ca1502dd51eb57a9a308b6f7375c462631a712737",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-BLM3HMvQ.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-BLM3HMvQ.js",
+        "sha256": "028eb2923cf555ead7808a814990b00911b901563d2fe1afee673a25a82a008f",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-kovuQH2c.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-kovuQH2c.js",
+        "sha256": "c75cfd0114a8b712d0303806fd9eeac8e70ad8cc20335ab0161b65ce627cea77",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4527/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "44b37e302e1f6758666ee4cce3882fa9f94ded4b10bf65d1ee4cadb73b3187c0",
+    "inventory": "64a5c3816519f8f1bd076117cf83241d3c0a8f5e93b538812a6879d812930370",
     "entries": {
       "randomness.galton-board.prob-simulation": "c6ea5225af9da4b75a666c729236d490a4e921fd345a9eac660f8c2a13ed2762",
-      "randomness.law-of-large-numbers.prob-simulation": "7ebacb11410180de033cf9d81fb85928465c51c7bdbf0f8510001a17d4751e3e"
+      "randomness.law-of-large-numbers.prob-simulation": "7ebacb11410180de033cf9d81fb85928465c51c7bdbf0f8510001a17d4751e3e",
+      "randomness.monte-carlo.prob-simulation": "8911b12f765715e4d8d4938883b7040318b03ce10cfe8efcdf988f21f902acc7",
+      "randomness.random-walk.prob-simulation": "2dc551155d0885d59e057366f1e276f7f6a90dfc669c5d0e7e4f85393404feeb"
     },
-    "presentation": "4f29e551c05dcc6a65a102ec4646a37dc3d3d476f4e5dd5ac7d55118e6943b75",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "80651343367dac2f2d04f3339ae083a6558f6a2092f76de6f6bc5c9ee338d424",
+    "buildOutput": "1be09a8122a5466c6f5a84b3a3b41b48cfd38c2fadac06aaf938ea6a3d204b06",
+    "buildInputs": "8cab5ee56b1c085ed0a97db41ec9d24ae232c18ccf0a3c93595a2f5165eea6d6"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -106,6 +108,32 @@
             -1.648
           ]
         }
+      },
+      {
+        "id": "randomness.monte-carlo.prob-simulation",
+        "demonstrationId": "prob-simulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            0.156,
+            1.079,
+            2.124,
+            -0.139
+          ]
+        }
+      },
+      {
+        "id": "randomness.random-walk.prob-simulation",
+        "demonstrationId": "prob-simulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            9.828,
+            30.938,
+            137.172,
+            -30.938
+          ]
+        }
       }
     ]
   },
@@ -127,7 +155,7 @@
       "file": "randomness.galton-board.prob-simulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "772e006b7226e7e21e518aae97acfb3862aa2fe93effa057f4a0941dbc6d2063",
+      "sha256": "ee9b9c7e5f4b3eafa3be85a267994f18f0661b6515461862ff71f9d8ffff9d20",
       "scene": {
         "visibleElementCount": 7,
         "visibleElementTypes": {
@@ -297,8 +325,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
         "pageErrors": []
       }
     },
@@ -544,8 +572,342 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "randomness.monte-carlo.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.monte-carlo.prob-simulation",
+      "sceneFingerprint": "d70ca3dd96aca59758f06638e5661f6ba1c0e41e3d2082a16520490ad431b2d6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs3-square-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs3-square-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"area\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":100}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "randomness.monte-carlo.prob-simulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2e56809bc4f185cf7503490551bf69a170937cbb19709abdd3102be79ff1c41b",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "curve": 3,
+          "text": 7
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.999829,
+              0.013088
+            ],
+            [
+              0.999657,
+              0.026177
+            ]
+          ],
+          [
+            [
+              1.3,
+              0.785398
+            ],
+            [
+              1.8,
+              0.785398
+            ],
+            [
+              2.3,
+              0.785398
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 3,
+            "text": 7
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.999829,
+                0.013088
+              ],
+              [
+                0.999657,
+                0.026177
+              ]
+            ],
+            [
+              [
+                1.3,
+                0.785398
+              ],
+              [
+                1.8,
+                0.785398
+              ],
+              [
+                2.3,
+                0.785398
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 7,
+        "finalLabelCount": 7,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "text": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "randomness.random-walk.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.random-walk.prob-simulation",
+      "sceneFingerprint": "4eca220c128c516ef7944c2288d1581df3fd931fe2146fe5cc356b5bbed2685c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs4-one-walk-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs4-one-walk-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"walk\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":1}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "randomness.random-walk.prob-simulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0882e18e3293c595482b4bdb72f0527a6349b451119462a79b220b54c46e59b0",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "curve": 3,
+          "text": 4
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              106,
+              -101
+            ],
+            [
+              106,
+              -101
+            ],
+            [
+              106,
+              -101
+            ]
+          ],
+          [
+            [
+              106,
+              -101
+            ],
+            [
+              106,
+              -101
+            ],
+            [
+              106,
+              -101
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 24,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 13,
+            "curve": 3,
+            "text": 4
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                106,
+                -101
+              ],
+              [
+                106,
+                -101
+              ],
+              [
+                106,
+                -101
+              ]
+            ],
+            [
+              [
+                106,
+                -101
+              ],
+              [
+                106,
+                -101
+              ],
+              [
+                106,
+                -101
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
+        "sourceRevision": "9086be0627590b907f87e19c84be1444cb4b8b7b",
         "pageErrors": []
       }
     }

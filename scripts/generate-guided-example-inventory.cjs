@@ -2494,6 +2494,28 @@ const randomnessFrames = {
         // The line 1/2 runs from x = 0 to the end of the log axis, log10 of 10 tosses = 1, at the height 1/2.
         return {types: {curve: 6}, curveCount: 6, points: [], curves: [[[0, 0.5], [0.5, 0.5], [1, 0.5]]]};
     },
+    // RS3 step 1: the quarter circle in the unit square at n = 100, nothing thrown yet (position 0). Three curves: the square, the quarter circle and the pi/4 line; the thrown points, the error bar and the
+    // estimate mark are empty layers (no point is drawn and the estimate is NaN).
+    'monte-carlo': (id, step) => {
+        const [mode, run, position] = randomnessOpening(id, step, ['set-mode', 'set-run', 'set-position']);
+        assert.equal(mode.mode, 'area', `${id}: only the area mode is authored`);
+        assert.deepEqual({...run, kind: undefined, operation: undefined}, {n: 100, kind: undefined, operation: undefined}, `${id}: only 100 points (seed and shape unchanged) are authored`);
+        assert.equal(position.shown, 0, `${id}: only the square with no point thrown is authored`);
+        // A data curve is read at 0, 1/2 and 1 between its first two points. The square starts (0, 0) -> (1, 0); the arc starts at angle 0 (1, 0) and its next point is at the angle (pi/2)/60, (cos, sin) = (0.999657, 0.026177);
+        // the pi/4 line of the quarter picture runs from x = 1.3 to 2.3 at the height pi/4 = 0.785398.
+        return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0], [1, 0]], [[1, 0], [0.999829, 0.013088], [0.999657, 0.026177]], [[1.3, 0.785398], [1.8, 0.785398], [2.3, 0.785398]]]};
+    },
+    // RS4 step 1: the walk mode with one walk of the default 100 steps, none drawn (position 0). Three curves: the funnel (+-sqrt(k)), the heap of the walks (zero-length bars, nothing counted yet) and the exact bars of the law;
+    // the drawn walks are empty layers.
+    'random-walk': (id, step) => {
+        const [mode, run, position] = randomnessOpening(id, step, ['set-mode', 'set-run', 'set-position']);
+        assert.equal(mode.mode, 'walk', `${id}: only the walk mode is authored`);
+        assert.deepEqual({...run, kind: undefined, operation: undefined}, {n: 1, kind: undefined, operation: undefined}, `${id}: only 1 walk (100 steps, seed unchanged) is authored`);
+        assert.equal(position.shown, 0, `${id}: only the board with no walk drawn is authored`);
+        // The funnel's first piece is the line y = sqrt(k) from k = 0: (0, 0), (1, 1). The heap and the exact bars stand sideways on the line x = 1.06 * 100 = 106 and start with the bar of the position -100 (y from -101):
+        // the heap bar has length 0 and the law's bar 2^-100 of the scale, which is 106 to six places.
+        return {types: {curve: 3}, curveCount: 3, points: [], curves: [[[0, 0], [0.5, 0.5], [1, 1]], [[106, -101], [106, -101], [106, -101]]]};
+    },
 };
 
 /** First-frame expectation of a randomness lesson (the two sections of the chapter, keyed by the section in the example id). */

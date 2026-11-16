@@ -90,6 +90,128 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "randomness.monte-carlo.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.monte-carlo.prob-simulation",
+      "sceneFingerprint": "d70ca3dd96aca59758f06638e5661f6ba1c0e41e3d2082a16520490ad431b2d6",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs3-square-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs3-square-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"area\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":100}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3
+        },
+        "curveCount": 3,
+        "points": [],
+        "curves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.999829,
+              0.013088
+            ],
+            [
+              0.999657,
+              0.026177
+            ]
+          ],
+          [
+            [
+              1.3,
+              0.785398
+            ],
+            [
+              1.8,
+              0.785398
+            ],
+            [
+              2.3,
+              0.785398
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "randomness.random-walk.prob-simulation",
+      "demonstrationId": "prob-simulation",
+      "path": "/bezeg-2.0/probability/simulation?example=lesson.randomness.random-walk.prob-simulation",
+      "sceneFingerprint": "4eca220c128c516ef7944c2288d1581df3fd931fe2146fe5cc356b5bbed2685c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs4-one-walk-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs4-one-walk-scene\",\"source\":\"demonstration-default\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-mode\",\"mode\":\"walk\"}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-run\",\"n\":1}",
+        "random: {\"kind\":\"random\",\"operation\":\"set-position\",\"shown\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3
+        },
+        "curveCount": 3,
+        "points": [],
+        "curves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            [
+              106,
+              -101
+            ],
+            [
+              106,
+              -101
+            ],
+            [
+              106,
+              -101
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
