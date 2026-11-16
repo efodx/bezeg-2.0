@@ -36,6 +36,8 @@ export interface Caption {
     readonly bottom?: number;
     /** Pixels under the horizontal axis (y = 0): the caption stands there whatever the board size (the tick numbers take the first 24). */
     readonly axis?: number;
+    /** The caption stands `EDGE_PX` from the left edge of the board, whatever the data x (a compact layout stacks its captions full width). */
+    readonly edge?: true;
     /** The caption stands under the previous one, whose height (it wraps on a narrow board) the graph measures. */
     readonly after?: true;
     /**
@@ -117,11 +119,11 @@ function running(curve: {readonly at: readonly number[]; readonly tally: readonl
 }
 
 /** `sim2` is the run of `state.seed2` when a second seed is drawn over the first (modes galton, frequency, walk and markov). */
-export function sceneFor(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?: RandomSim): SceneData {
+export function sceneFor(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?: RandomSim, compact = false): SceneData {
     switch (state.mode) {
         case 'galton': return galtonScene(state, sim, exact, sim2);
         case 'frequency': return frequencyScene(state, sim, sim2);
-        case 'area': return areaScene(state, sim);
+        case 'area': return areaScene(state, sim, compact);
         case 'walk': return walkScene(state, sim, exact, sim2);
         case 'markov': return markovScene(state, sim, exact, sim2);
         case 'interval': return intervalScene(state, sim, exact);
@@ -239,16 +241,22 @@ function frequencyScene(state: RandomState, sim: RandomSim, sim2?: RandomSim): S
     };
 }
 
-interface AreaLayout {
+export interface AreaLayout {
     readonly frame: [number, number, number, number];
     /** Horizontal centre of the estimate panel and the ends of the true-value line. */
     readonly centre: number;
     readonly truth: [number, number];
     readonly mark: number;
 }
-const AREA_LAYOUT: Readonly<Record<RandomState['areaShape'], AreaLayout>> = {
+/** The side layout: the captions stand in a column right of the shape. */
+export const AREA_LAYOUT: Readonly<Record<RandomState['areaShape'], AreaLayout>> = {
     quarter: {frame: [-0.12, 1.12, 2.4, -0.12], centre: 1.8, truth: [1.3, 2.3], mark: 0.012},
     disc: {frame: [-1.12, 1.12, 3.4, -1.12], centre: 2.5, truth: [1.7, 3.3], mark: 0.024},
+};
+/** The compact layout of a narrow board: a thin estimate panel and the captions stacked above and below the shape, full width. */
+export const AREA_COMPACT_LAYOUT: Readonly<Record<RandomState['areaShape'], AreaLayout>> = {
+    quarter: {frame: [-0.12, 1.12, 1.95, -0.12], centre: 1.5, truth: [1.2, 1.8], mark: 0.012},
+    disc: {frame: [-1.12, 1.12, 1.95, -1.12], centre: 1.5, truth: [1.2, 1.8], mark: 0.024},
 };
 /** The whole-disc picture puts the i-th point of the stream into quadrant i mod 4: signs of x and y. */
 const QUADRANT_SIGNS: ReadonlyArray<readonly [number, number]> = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
@@ -256,10 +264,10 @@ const QUADRANT_SIGNS: ReadonlyArray<readonly [number, number]> = [[1, 1], [-1, 1
 /** Points outside the circle get plus marks this fraction of the size of those inside, so the two differ by shape size and not colour alone. */
 export const OUTSIDE_MARK = 0.5;
 
-function areaScene(state: RandomState, sim: RandomSim): SceneData {
+function areaScene(state: RandomState, sim: RandomSim, compact: boolean): SceneData {
     if (sim.kind !== 'area') throw new Error('area scene needs area data');
     const whole = state.areaShape === 'disc';
-    const layout = AREA_LAYOUT[state.areaShape];
+    const layout = (compact ? AREA_COMPACT_LAYOUT : AREA_LAYOUT)[state.areaShape];
     const drawn = Math.min(sim.trials, POINTS_DRAWN);
     const points = areaPoints(state.seed, 1, drawn);
     const xs = Array.from(points.x, (x, i) => (whole ? x * QUADRANT_SIGNS[i % 4][0] : x));
@@ -288,15 +296,25 @@ function areaScene(state: RandomState, sim: RandomSim): SceneData {
                 : EMPTY_LAYER,
             estimate: Number.isFinite(estimate) ? marks([centre], [estimate], [0], 0.05, 0.02) : EMPTY_LAYER,
         },
-        captions: [
-            {key: 'points', x: whole ? -1.08 : 0.02, y: top - 0.04, count: drawn},
-            whole ? {key: 'circleWhole', x: -1.08, y: bottom + 0.05} : {key: 'circle', x: 0.05, y: -0.07},
-            {key: 'estimate', x: left, y: top - 0.04},
-            {key: 'truth', x: left, y: Math.PI / 4 + 0.07},
-            {key: 'errorBar', x: left, y: Math.PI / 4 - 0.1},
-            {key: 'inside', x: left, y: 0.56},
-            {key: 'outside', x: left, y: 0.34},
-        ],
+        captions: compact
+            ? [
+                {key: 'points', x: 0, y: 0, count: drawn, top: 0, edge: true},
+                whole ? {key: 'circleWhole', x: 0, y: 0, bottom: 0, edge: true} : {key: 'circle', x: 0, y: 0, bottom: 0, edge: true},
+                {key: 'estimate', x: 0, y: 0, top: 1, edge: true},
+                {key: 'truth', x: 0, y: 0, top: 2, edge: true},
+                {key: 'errorBar', x: 0, y: 0, top: 3, edge: true},
+                {key: 'inside', x: 0, y: 0, top: 4, edge: true},
+                {key: 'outside', x: 0, y: 0, top: 5, edge: true},
+            ]
+            : [
+                {key: 'points', x: whole ? -1.08 : 0.02, y: top - 0.04, count: drawn},
+                whole ? {key: 'circleWhole', x: -1.08, y: bottom + 0.05} : {key: 'circle', x: 0.05, y: -0.07},
+                {key: 'estimate', x: left, y: top - 0.04},
+                {key: 'truth', x: left, y: Math.PI / 4 + 0.07},
+                {key: 'errorBar', x: left, y: Math.PI / 4 - 0.1},
+                {key: 'inside', x: left, y: 0.56},
+                {key: 'outside', x: left, y: 0.34},
+            ],
     };
 }
 
@@ -311,8 +329,10 @@ function walkScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?
     const earlier = Array.from({length: Math.max(drawn - 1, 0)}, (_, w) => polyline(w));
     const base = steps * 1.06;
     const maxMass = Math.max(...exact.masses);
-    const scale = (steps * 0.4) / maxMass;
     const freq = sim.counts.map(c => (sim.trials > 0 ? c / sim.trials : 0));
+    // One scale for the exact and the observed bars, from the tallest of them: a run of few walks has bars far above the exact ones and stays in the board.
+    const freq2 = sim2?.kind === 'walk' ? sim2.counts.map(c => (sim2.trials > 0 ? c / sim2.trials : 0)) : [];
+    const scale = (steps * 0.4) / Math.max(maxMass, ...freq, ...freq2);
     const heap2 = sim2?.kind === 'walk'
         ? horizontalBars(base, exact.positions, sim2.counts.map(c => (sim2.trials > 0 ? (c / sim2.trials) * scale : 0)), 1) : EMPTY_LAYER;
     return {

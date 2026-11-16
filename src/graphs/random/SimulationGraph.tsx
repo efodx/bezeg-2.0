@@ -28,7 +28,7 @@ import {
 import {intervalHalfWidth} from "../../random/samplePaths";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {Caption, CaptionKey, EMPTY_LAYER, Layer, sceneFor, SceneData} from "./simulationScene";
+import {AREA_LAYOUT, Caption, CaptionKey, EMPTY_LAYER, Layer, POINTS_DRAWN, sceneFor, SceneData} from "./simulationScene";
 
 /** The scene state: the stored simulation fields (`RandomState`), nothing derived. */
 export interface RandomGraphState extends BaseGraphState, RandomState {}
@@ -105,21 +105,78 @@ const DEFAULT_WIDTH_PX = 600;
 /** A generous width of one glyph of a 14 px caption, to estimate where a caption wraps. */
 const GLYPH_PX = 7.2;
 const LEFT_PX = 36;
+/** The smallest pixels per unit of the area picture that keeps the rows of the side column apart; below it the captions stack above and below the shape. */
+const MIN_COLUMN_UNIT_PX = 150;
+
+/** The pixel heights of the stacked caption rows of a compact layout (without `EDGE_PX` and the gap), and where each caption stands. */
+export interface StackPlan {
+    readonly top: number;
+    readonly bottom: number;
+    /** Per caption index: pixels from the top (`top`) or bottom (`bottom`) board edge to the caption's own top or bottom. */
+    readonly offsets: ReadonlyMap<number, {readonly from: "top" | "bottom"; readonly px: number}>;
+}
+
+/**
+ * Stacks the captions that have a `top` or `bottom` row one under the other, a caption as tall as its wrapped lines: `widths` are the measured text widths
+ * in pixels, a text wraps at the board's edges (`EDGE_PX` of air on each side). Rows count in order of their row number.
+ */
+export function stackPlan(captions: readonly Caption[], widths: readonly number[], boardWidth: number): StackPlan {
+    const room = Math.max(boardWidth - 2 * EDGE_PX, 1);
+    const offsets = new Map<number, {from: "top" | "bottom"; px: number}>();
+    const total = {top: 0, bottom: 0};
+    for (const from of ["top", "bottom"] as const) {
+        const rows = captions.map((caption, index) => ({index, row: caption[from]})).filter((entry): entry is {index: number; row: number} => entry.row !== undefined)
+            .sort((a, b) => a.row - b.row);
+        let used = 0;
+        for (const {index} of rows) {
+            offsets.set(index, {from, px: EDGE_PX + used});
+            // The wrap of words is a little worse than the plain width ratio.
+            const lines = Math.max(1, Math.ceil((widths[index] * 1.06) / room));
+            used += lines * (CAPTION_ROW_PX - 1) + 2;
+        }
+        total[from] = used;
+    }
+    return {...total, offsets};
+}
+
+/** A frame with equal units in x and y (a pixel per unit alike) that shows `frame` in a `w` x `h` board with `topPx` and `bottomPx` of captions: the left keeps `LEFT_PX` for the y tick numbers, spare width goes right, spare height above and below. */
+function equalFrame(frame: readonly [number, number, number, number], topPx: number, bottomPx: number, w: number, h: number): [number, number, number, number] {
+    const [left, top, right, bottom] = frame;
+    const plot = Math.max(h - topPx - bottomPx, h / 3);
+    const dy = top - bottom;
+    let unit = Math.min(w / (right - left), plot / dy);
+    let from = left;
+    if (left < 0 && right > 0 && -left * unit < LEFT_PX) {
+        unit = Math.min((w - LEFT_PX) / right, plot / dy);
+        from = -LEFT_PX / unit;
+    }
+    const extra = (plot / unit - dy) / 2;
+    return [from, top + extra + topPx / unit, from + w / unit, bottom - extra - bottomPx / unit];
+}
+
+/** Pixels per unit of the equal-unit frame of `frame` in a `w` x `h` board with `topPx` and `bottomPx` of captions. */
+export function equalUnit(frame: readonly [number, number, number, number], topPx: number, bottomPx: number, w: number, h: number): number {
+    const [left, , right] = equalFrame(frame, topPx, bottomPx, w, h);
+    return w / (right - left);
+}
 
 /**
  * The frame of a scene with room in pixels for its stacked caption rows (above and under the data) and `EDGE_PX` of air at the top and bottom edge,
- * for a board `height` px tall (0: unknown): the data keeps its place in the plot, whatever the board size.
+ * for a board `height` px tall (0: unknown): the data keeps its place in the plot, whatever the board size. `plan` (a compact layout) sets the rows' height,
+ * `equal` gives x and y the same pixels per unit (a picture of a square and a circle).
  */
-export function framedScene(scene: SceneData, height: number, width = 0): [number, number, number, number] {
+export function framedScene(scene: SceneData, height: number, width = 0, plan?: StackPlan, equal = false): [number, number, number, number] {
     const [left, top, right, bottom] = scene.frame;
     const rows = (key: "top" | "bottom") => scene.captions.reduce((most, caption) => Math.max(most, (caption[key] ?? -1) + 1), 0);
-    const topPx = EDGE_PX + (rows("top") > 0 ? CAPTION_ROW_PX * rows("top") + 2 : 0);
-    const bottomPx = EDGE_PX + (rows("bottom") > 0 ? CAPTION_ROW_PX * rows("bottom") + 2 : 0);
+    const reserved = (key: "top" | "bottom") => plan ? (plan[key] > 0 ? plan[key] : 0) : (rows(key) > 0 ? CAPTION_ROW_PX * rows(key) : 0);
+    const topPx = EDGE_PX + (reserved("top") > 0 ? reserved("top") + 2 : 0);
+    const bottomPx = EDGE_PX + (reserved("bottom") > 0 ? reserved("bottom") + 2 : 0);
     const h = height > 0 ? height : DEFAULT_HEIGHT_PX;
+    const w = width > 0 ? width : DEFAULT_WIDTH_PX;
+    if (equal) return equalFrame(scene.frame, topPx, bottomPx, w, h);
     const plot = Math.max(h - topPx - bottomPx, h / 3);
     const perPx = (top - bottom) / plot;
     // The y tick numbers stand left of the vertical axis: at least `LEFT_PX` between it and the left edge.
-    const w = width > 0 ? width : DEFAULT_WIDTH_PX;
     const wide = left < 0 && right > 0 && (-left * w) / (right - left) < LEFT_PX ? (-LEFT_PX * right) / (w - LEFT_PX) : left;
     return [wide, top + topPx * perPx, right, bottom - bottomPx * perPx];
 }
@@ -197,7 +254,9 @@ interface DrawnCurve {
 export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
     private objects: JXG.GeometryElement[] = [];
     private texts: JXG.Text[] = [];
-    private viewCache?: {state: RandomGraphState; key: string; view: RunView};
+    private viewCache?: {state: RandomGraphState; key: string; view: RunView; compact: boolean};
+    private drawnCompact = false;
+    private readonly widths = new Map<string, number>();
     private exactCache?: {key: string; exact: RandomExact};
     private drawnMode?: RandomMode;
     private drawnFrame = "";
@@ -268,24 +327,88 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         return framedScene(sceneFor(DEFAULT_RANDOM_STATE, simulate(DEFAULT_RANDOM_STATE), exactFor(DEFAULT_RANDOM_STATE)), this.boardHeight(), this.boardWidth());
     }
 
+    /** The x axis of the walk has no numbers past the last step (the histogram panel there is not on that axis); the axes of the area picture none beyond the shape. */
+    protected override defaultAxesAttributes() {
+        const axis = this.styles.axis;
+        const labelOfX = axis.defaultX.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const current = () => this.state;
+        const upToLastStep = function (this: object, ...label: unknown[]): string {
+            const tick = label[0] as {usrCoords?: number[]} | undefined;
+            if (current().mode === "walk" && tick?.usrCoords && tick.usrCoords[1] > current().walkSteps + 1e-9) return "";
+            if (current().mode === "area" && tick?.usrCoords && Math.abs(tick.usrCoords[1]) > 1 + 1e-9) return "";
+            return labelOfX ? labelOfX.apply(this, label) : "";
+        };
+        // The y axis of the area picture has numbers only over the shape (|y| up to 1, likewise the x axis above): beyond it the stacked captions of a narrow board stand.
+        const labelOfY = axis.defaultY.ticks?.generateLabelText as ((this: object, ...label: unknown[]) => string) | undefined;
+        const withinShape = function (this: object, ...label: unknown[]): string {
+            const tick = label[0] as {usrCoords?: number[]} | undefined;
+            if (current().mode === "area" && tick?.usrCoords && Math.abs(tick.usrCoords[2]) > 1 + 1e-9) return "";
+            return labelOfY ? labelOfY.apply(this, label) : "";
+        };
+        return {
+            x: {...axis.defaultX, ticks: {...axis.defaultX.ticks, generateLabelText: upToLastStep}},
+            y: {...axis.defaultY, ticks: {...axis.defaultY.ticks, generateLabelText: withinShape}},
+        };
+    }
+
+    /** The width of a caption in pixels as the board font sets it (a canvas measure; a generous per-glyph estimate where there is none). */
+    private textWidth(text: string): number {
+        const key = `${currentLanguage()}|${text}`;
+        const known = this.widths.get(key);
+        if (known !== undefined) return known;
+        let width = 0;
+        try {
+            const context = document.createElement("canvas").getContext("2d");
+            if (context) {
+                const family = this.hasBoard ? getComputedStyle(this.board.containerObj).fontFamily : "";
+                context.font = `14px ${family || "serif"}`;
+                width = context.measureText(text).width;
+            }
+        } catch {
+            width = 0;
+        }
+        if (!(width > 0)) width = text.length * GLYPH_PX;
+        this.widths.set(key, width);
+        return width;
+    }
+
+    /**
+     * Whether the area picture stacks its captions above and below the shape (compact) instead of in a column at its right: when the column cannot hold
+     * the longest caption on one line, a caption cannot stand on one line of the board, or the shape would be smaller than a row of the column needs.
+     */
+    private areaCompact(): boolean {
+        const width = this.boardWidth();
+        const height = this.boardHeight();
+        if (this.state.mode !== "area" || !(width > 0) || !(height > 0)) return false;
+        const layout = AREA_LAYOUT[this.state.areaShape];
+        const keys: CaptionKey[] = ["points", this.state.areaShape === "disc" ? "circleWhole" : "circle", "estimate", "truth", "errorBar", "inside", "outside"];
+        const widths = keys.map(key => this.textWidth(captionText({key, x: 0, y: 0, count: POINTS_DRAWN}, this.state)));
+        const column = Math.max(...widths.slice(2));
+        const unit = equalUnit(layout.frame, EDGE_PX, EDGE_PX, width, height);
+        return unit * (layout.frame[2] - layout.truth[0]) < column + 2 * EDGE_PX || Math.max(...widths) + 2 * EDGE_PX > width || unit < MIN_COLUMN_UNIT_PX;
+    }
+
     // ---- Derived numbers ------------------------------------------------------------------------------------------------
 
     /** Tallies, exact curves and polylines of the current state; a cache keyed on the state object, the exact part on the parameters only. */
     view(): RunView {
         const state = this.state;
-        if (this.viewCache && this.viewCache.state === state) return this.viewCache.view;
+        const compact = this.areaCompact();
+        if (this.viewCache && this.viewCache.state === state && this.viewCache.compact === compact) return this.viewCache.view;
         // The speed does not change the run: the tallies, curves and polylines are kept when only it changed.
         const key = JSON.stringify({...state, stopMs: 0, initialized: true});
         if (this.viewCache && this.viewCache.key === key) {
-            this.viewCache = {...this.viewCache, state};
-            return this.viewCache.view;
+            const cached = this.viewCache.view;
+            const view = this.viewCache.compact === compact ? cached : {...cached, scene: sceneFor(state, cached.sim, cached.exact, cached.sim2, compact)};
+            this.viewCache = {...this.viewCache, state, view, compact};
+            return view;
         }
         const exactKey = `${state.mode}/${state.rows}/${state.pPercent}/${state.walkSteps}/${state.markovA}/${state.markovB}/${state.markovStart}/${state.sampleSize}`;
         if (!this.exactCache || this.exactCache.key !== exactKey) this.exactCache = {key: exactKey, exact: exactFor(state)};
         const sim = simulate(state);
         const sim2 = state.overlay === 1 && OVERLAY_MODES.includes(state.mode) ? simulate({...state, seed: state.seed2}) : undefined;
-        const view: RunView = {sim, exact: this.exactCache.exact, sim2, scene: sceneFor(state, sim, this.exactCache.exact, sim2)};
-        this.viewCache = {state, key, view};
+        const view: RunView = {sim, exact: this.exactCache.exact, sim2, scene: sceneFor(state, sim, this.exactCache.exact, sim2, compact)};
+        this.viewCache = {state, key, view, compact};
         return view;
     }
 
@@ -329,7 +452,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         this.pausePlayback();
         // A replacement (checkpoint restore, Preset import) brings its own view: build a changed scene first, then mark its frame as drawn.
         if (this.hasBoard && this.graphSession?.isAlive) {
-            if (this.drawnMode !== this.state.mode || this.drawnCaptions !== this.view().scene.captions.length) this.buildScene();
+            if (this.needsBuild()) this.buildScene();
             this.drawnFrame = this.frameKey();
         }
         this.syncBoard();
@@ -342,19 +465,32 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
 
     private syncBoard(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
-        if (this.drawnMode !== this.state.mode || this.drawnCaptions !== this.view().scene.captions.length) this.buildScene();
+        if (this.needsBuild()) this.buildScene();
         this.applyFrame();
         this.board.update();
         this.status.report(this.statusText());
     }
 
+    /** Whether the drawn texts are not those of the scene (another mode, caption count or caption layout). */
+    private needsBuild(): boolean {
+        const view = this.view();
+        return this.drawnMode !== this.state.mode || this.drawnCaptions !== view.scene.captions.length || this.drawnCompact !== this.areaCompact();
+    }
+
     private frameKey(): string {
-        return `${this.state.mode}/${this.view().scene.frame.map(value => value.toFixed(4)).join(",")}/${this.boardHeight()}x${this.boardWidth()}`;
+        return `${this.state.mode}/${this.view().scene.frame.map(value => value.toFixed(4)).join(",")}/${this.boardHeight()}x${this.boardWidth()}/${this.plan()?.top ?? 0}/${this.plan()?.bottom ?? 0}`;
+    }
+
+    /** The stacked rows of a compact area layout (undefined in the side layout and every other mode). */
+    private plan(): StackPlan | undefined {
+        if (!this.areaCompact()) return undefined;
+        const captions = this.view().scene.captions;
+        return stackPlan(captions, captions.map(caption => this.textWidth(captionText(caption, this.state))), this.boardWidth());
     }
 
     /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
     private applyFrame(): void {
-        const frame = framedScene(this.view().scene, this.boardHeight(), this.boardWidth());
+        const frame = framedScene(this.view().scene, this.boardHeight(), this.boardWidth(), this.plan(), this.state.mode === "area");
         const key = this.frameKey();
         if (this.keepNextFrame) {
             this.keepNextFrame = false;
@@ -376,6 +512,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         const board = this.board;
         const mode = this.state.mode;
         this.drawnMode = mode;
+        this.drawnCompact = this.areaCompact();
         const styles = LAYER_STYLES[mode];
         for (const name of Object.keys(styles)) {
             const curve = this.own(board.create("curve", [[], []], {
@@ -395,12 +532,19 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             // A stacked caption is anchored at the edge it is stacked from, so a wrapped one grows away from the edge.
             const first = caption();
             const anchorY = first?.after || first?.top !== undefined ? "top" : first?.bottom !== undefined ? "bottom" : "middle";
-            this.texts[i] = this.own(board.create("text", [() => caption()?.x ?? 0, () => this.captionY(caption(), i), () => {
+            this.texts[i] = this.own(board.create("text", [() => this.captionX(caption()), () => this.captionY(caption(), i), () => {
                 const current = caption();
                 return current ? captionText(current, this.state) : "";
             }], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY, fixed: true, highlight: false, withLabel: false}));
         }
         this.drawnFrame = "";
+    }
+
+    /** The data x of a caption: a caption of the compact layout stands `EDGE_PX` from the left edge of the board. */
+    private captionX(caption: Caption | undefined): number {
+        if (!caption) return 0;
+        if (caption.edge && this.hasBoard && this.board.unitX > 0) return this.board.getBoundingBox()[0] + EDGE_PX / this.board.unitX;
+        return caption.x;
     }
 
     /** The data y of a caption: a stack row stands in pixels from the top or bottom edge of the window the board shows, any other caption at its scene y. */
@@ -421,6 +565,8 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         const row = caption.top ?? caption.bottom;
         if (row === undefined) return caption.y;
         const [, top, , bottom] = this.board.getBoundingBox();
+        const planned = this.plan()?.offsets.get(index);
+        if (planned) return planned.from === "top" ? top - planned.px / this.board.unitY : bottom + planned.px / this.board.unitY;
         const offset = (EDGE_PX + CAPTION_ROW_PX * row) / this.board.unitY;
         return caption.top !== undefined ? top - offset : bottom + offset;
     }
@@ -444,6 +590,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
         this.texts = [];
         this.drawnMode = undefined;
         this.drawnCaptions = 0;
+        this.drawnCompact = false;
         this.drawnFrame = "";
     }
 

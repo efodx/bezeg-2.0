@@ -783,11 +783,11 @@ function pixelLayout(graph: ObservedGraph) {
         const probe = o as Probe & {X(): number; Y(): number};
         const size = Number(o.evalVisProp('fontsize')) || 14;
         const [x, y] = toPx(probe.X(), probe.Y());
-        // A top-anchored (stacked) text wraps at the right edge of the board: its box is as wide as the room and as tall as its lines.
+        // A top- or bottom-anchored (stacked) text wraps at the right edge of the board: its box is as wide as the room and as tall as its lines.
         const room = Math.max(((board as unknown as {canvasWidth: number}).canvasWidth || 600) - x, 1);
         const full = text.length * size * 0.514;
         const ax = o.evalVisProp('anchorx'), ay = o.evalVisProp('anchory');
-        const wraps = ay === 'top' && full > room;
+        const wraps = (ay === 'top' || ay === 'bottom') && full > room;
         const w = wraps ? room : full, h = size * 1.15 * (wraps ? Math.ceil(full / room) : 1);
         const x0 = ax === 'right' ? x - w : ax === 'middle' ? x - w / 2 : x;
         const y0 = ay === 'bottom' ? y - h : ay === 'top' ? y : y - h / 2;
@@ -883,5 +883,56 @@ describe.each([[600, 400], [364, 440], [840, 520]])('board texts clear of curves
         chooseMode(mode);
         check(graph, mode);
         if (['walk', 'markov'].includes(mode)) { act(() => { graph.editOverlay(true); }); check(graph, `${mode} overlay`); }
+    });
+});
+
+describe.each([[330, 520], [900, 520]])('area and walk layout at a board of %i x %i px', (W, H) => {
+    beforeEach(() => {
+        for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: W, bottom: H, width: W, height: H, toJSON: () => ({})}) as DOMRect;
+    });
+    afterEach(() => {
+        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    test.each(['quarter', 'disc'] as const)('area %s: one unit is as many pixels in x as in y, the captions are disjoint and inside the board', shape => {
+        const {graph} = mountGraph();
+        chooseMode('area');
+        act(() => { graph.editShape(shape); });
+        act(() => { graph.editTrials(100000); });
+        const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number};
+        expect([board.canvasWidth, board.canvasHeight]).toEqual([W, H]);
+        expect(Math.abs(board.unitX / board.unitY - 1)).toBeLessThan(0.01);
+        const tickLabels = (graph.liveBoard().objectsList as unknown as Array<{elType: string; labels?: Array<{plaintext?: string; X(): number}>}>)
+            .filter(o => o.elType === 'ticks').flatMap(o => o.labels ?? []).filter(l => (l.plaintext ?? '') !== '');
+        expect(tickLabels.length).toBeGreaterThan(0);
+        const [boxLeft, , boxRight] = graph.liveBoard().getBoundingBox();
+        // A label left over from an earlier frame and outside the window the board shows is not drawn.
+        expect(tickLabels.filter(l => l.X() >= boxLeft && l.X() <= boxRight && Math.abs(l.X()) > 1 + 1e-6).map(l => [l.plaintext, l.X()])).toEqual([]);
+        const {boxes} = pixelLayout(graph);
+        expect(boxes.length).toBeGreaterThan(5);
+        const problems: string[] = [];
+        for (const box of boxes) {
+            if (box.x0 < -1e-6 || box.x1 > W + 1e-6 || box.y0 < -1e-6 || box.y1 > H + 1e-6) problems.push(`"${box.text}" outside the board`);
+        }
+        boxes.forEach((box, i) => boxes.slice(i + 1).forEach(other => {
+            if (box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0) problems.push(`"${box.text}" overlaps "${other.text}"`);
+        }));
+        expect(problems).toEqual([]);
+    });
+
+    test.each([[100, 1], [100, 1000], [200, 1000], [400, 1000], [400, 7]])('walk of %i steps, %i walks: the histogram stays inside the board and no tick number stands past the last step', (steps, walks) => {
+        const {graph} = mountGraph();
+        chooseMode('walk');
+        act(() => { graph.editWalkSteps(steps); });
+        act(() => { graph.editTrials(walks); });
+        const board = graph.liveBoard() as unknown as {unitX: number; getBoundingBox(): number[]; canvasWidth: number};
+        const [left] = board.getBoundingBox();
+        const widest = Math.max(...curves(graph).flatMap(c => (c.dataX ?? []).filter(Number.isFinite)));
+        expect((widest - left) * board.unitX).toBeLessThanOrEqual(W - 6);
+        const labels = (graph.liveBoard().objectsList as unknown as Array<{elType: string; labels?: Array<{plaintext?: string; X(): number; evalVisProp(name: string): unknown}>}>)
+            .filter(o => o.elType === 'ticks').flatMap(o => o.labels ?? []).filter(l => (l.plaintext ?? '') !== '');
+        expect(Math.max(...labels.map(l => l.X()))).toBeLessThanOrEqual(steps + 1e-6);
     });
 });
