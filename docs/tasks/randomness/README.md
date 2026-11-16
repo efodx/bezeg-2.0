@@ -13,7 +13,7 @@ F1 is ungated. F2a waits for Controls step 5, and F2b–F6 for Controls step 7 (
 | [03 State model and simulation graph](03-simulation-graph.md) | A–C | F2a | Controls step 5 | 02 | planned |
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b | Controls step 7 (accepted) | 03 | F2b done 2026-11-11; split into 05–07 |
 | [05 Batch A: RS1–RS2 lessons](05-batch-a-lessons.md) | A | F3–F6 | Controls step 7 (accepted) | 04 | done (F3–F6; F6 gate passed by handler 29) |
-| [06 Batch B: RS3–RS4 lessons](06-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 05 | F3 RS3 and RS4 written and joined (handler 33); F4 cards captured (handler 33); F5 and F6 next |
+| [06 Batch B: RS3–RS4 lessons](06-batch-b-lessons.md) | B | F3–F6 | Controls step 7 (accepted) | 05 | F3 RS3 and RS4 written and joined, F4 cards captured, F5 no new clip, F6 gate passed (handler 33: `just check` green at 040d4bd0, live smokes `.command-logs/rand-b/smoke/`, `rand-b/f6/`); layout fix 4a620878 needs a live recheck and the two new cards a recapture (their first frames changed) |
 | [07 Batch C: RS5–RS6 lessons](07-batch-c-lessons.md) | C | F3–F6 | Controls step 7 (accepted) | 06 | not started |
 
 ## Slovenian terms (F0 decision)

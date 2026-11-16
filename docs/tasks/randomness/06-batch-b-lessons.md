@@ -6,4 +6,4 @@ Slices F3–F6 as in [05](05-batch-a-lessons.md); the lessons join the chapter o
 
 Acceptance: the spec's acceptance for RS3–RS4; every number quoted in lesson text matches the scene for its stated seed; scene actions tested in one synchronous sequence and restore on exit returns the free state; notation test, `tsc`, scene sweeps and the production build pass; statistics are never presented as proof; the `binomial-normal-approximation` and `clt-standardized-sum` lessons behave as before.
 
-Status: F3 RS3 and RS4 written and joined (handler 33); F4 cards captured (handler 33); F5 and F6 next.
+Status: F3 RS3 and RS4 written and joined, F4 cards captured, F5 no new clip, F6 gate passed (handler 33: `just check` green at 040d4bd0, live smokes `.command-logs/rand-b/smoke/`, `rand-b/f6/`); layout fix 4a620878 needs a live recheck and the two new cards a recapture (their first frames changed).
