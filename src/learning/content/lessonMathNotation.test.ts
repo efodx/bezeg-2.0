@@ -45,6 +45,7 @@ import {bsplineBlossomGuidedLessons} from './bsplineBlossomGuidedLessons';
 import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
 import {wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson} from './wavesGuidedLessons';
+import {wavesAliasingLesson, wavesNyquistLesson} from './wavesSamplingGuidedLessons';
 import {recursionSequenceLesson, recursionInterestLesson} from './recursionGuidedLessons';
 import {recursionCobwebLesson, recursionLogisticLesson} from './recursionCobwebGuidedLessons';
 import {recursionLogScaleLesson} from './recursionLogScaleGuidedLessons';
@@ -130,6 +131,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['fourierSeriesGuidedLessons', fourierSeriesGuidedLessons],
     ['fourierCoefficientsGuidedLessons', fourierCoefficientsGuidedLessons],
     ['wavesGuidedLessons', [wavesSuperpositionLesson, wavesBeatsLesson, wavesStandingLesson]],
+    ['wavesSamplingGuidedLessons', [wavesAliasingLesson, wavesNyquistLesson]],
     ['recursionGuidedLessons', [recursionSequenceLesson, recursionInterestLesson]],
     ['recursionCobwebGuidedLessons', [recursionCobwebLesson, recursionLogisticLesson]],
     ['recursionLogScaleGuidedLessons', [recursionLogScaleLesson]],
@@ -282,6 +284,7 @@ test('scans every lesson module', () => {
             'curve-kinematics', // kinematicsDecompositionGuidedLessons.ts: KN5
             'mechanics-descent', 'mechanics-descent', 'mechanics-descent', // mechanicalCurvesGuidedLessons.ts: MC1 to MC3
             'waves', 'waves', 'waves', // wavesGuidedLessons.ts: WV1 to WV3
+            'waves', 'waves', // wavesSamplingGuidedLessons.ts: WV4 and WV5
             'recursion-growth', 'recursion-growth', // recursionGuidedLessons.ts: RG1 and RG3
             'recursion-cobweb', 'recursion-cobweb', // recursionCobwebGuidedLessons.ts: RG2 and RG4
             'recursion-growth', // recursionLogScaleGuidedLessons.ts: RG5
