@@ -14,7 +14,7 @@ F1 is ungated. F2a waits for Controls step 5 and the 3D measurement, and F2b–F
 | [04 Release batches A–C](04-release-batches.md) | A–C | F2b | Controls step 7 | 03 | done; split into 05–07 |
 | [05 Batch A: SV1–SV2](05-batch-a-lessons.md) | A | F3–F6 | — | 04 | F3 done; F4–F6 next |
 | [06 Batch B: SV3–SV4](06-batch-b-lessons.md) | B | F3–F6 | — | 05 | F3 SV3 and SV4 written and joined (handler 37); F4 cards captured (handler 37); F5 and F6 gate next |
-| [07 Batch C: SV5](07-batch-c-lessons.md) | C | F3–F6 | — | 06 | not started |
+| [07 Batch C: SV5](07-batch-c-lessons.md) | C | F3–F6 | — | 06 | F3 SV5 written and joined (handler 37); F4 card, F5 and F6 gate next |
 
 ## Slovenian terms (F0 decision)
 

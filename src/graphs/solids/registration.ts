@@ -3,7 +3,7 @@ import type {Definition} from '../../demonstrations';
 /**
  * Cheap metadata of the solids row of the analysis family (spec lesson-authoring-architecture R1). Imports no graph, React,
  * lesson provider or localization value. Executable surfaces live in `runtime.ts`, which this file never imports; preset collections
- * live in `collections.ts`. The row has its guided lessons (SV1 to SV4, chapter-owned by the solids chapter).
+ * live in `collections.ts`. The row has its guided lessons (SV1 to SV5, chapter-owned by the solids chapter).
  */
 export const solidsFamilyId = 'solids';
 

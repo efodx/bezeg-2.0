@@ -4,15 +4,17 @@ import type {LessonDefinition} from '../model';
 import {adaptGuidedLessonContent} from './catalogLessonAdapter';
 import {cubeSectionsLesson, prismPyramidSectionsLesson} from './solidsGuidedLessons';
 import {solidsCavalieriLesson, solidsPyramidConeLesson} from './solidsVolumesGuidedLessons';
+import {solidsRevolutionLesson} from './solidsRevolutionGuidedLessons';
 
 export const SOLIDS_CHAPTER_ID = 'solids';
 
-/** Section id to the Demonstration of its activity (spec SV1 to SV4: four sections on one Demonstration, in teaching order). Section ids are those of solidsChapter.ts; the remaining sections of Batches B and C join later. */
+/** Section id to the Demonstration of its activity (spec SV1 to SV5: five sections on one Demonstration, in teaching order). Section ids are those of solidsChapter.ts; Batch C joined, so the chapter is complete. */
 export const solidsGuidedExampleDemonstrations = {
     'cube-sections': 'solids',
     'pyramid-sections': 'solids',
     'cavalieri': 'solids',
     'pyramid-cone': 'solids',
+    'revolution': 'solids',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type SolidsSectionId = keyof typeof solidsGuidedExampleDemonstrations;
@@ -23,6 +25,7 @@ const sectionContent = {
     'pyramid-sections': {id: 'solids-pyramid-sections', content: () => prismPyramidSectionsLesson},
     'cavalieri': {id: 'solids-cavalieri', content: () => solidsCavalieriLesson},
     'pyramid-cone': {id: 'solids-pyramid-cone', content: () => solidsPyramidConeLesson},
+    'revolution': {id: 'solids-revolution', content: () => solidsRevolutionLesson},
 } as const;
 
 const adapted = new Map<SolidsSectionId, LessonDefinition>();

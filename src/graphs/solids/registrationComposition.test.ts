@@ -1,6 +1,6 @@
 // R5 composition of docs/specs/lesson-authoring-architecture.md for the solids row: every root references the
 // family export, so deleting registration.ts, collections.ts and runtime.ts removes the family (ADR 0059). The row has
-// its guided lessons (SV1 to SV4), chapter-owned by the solids chapter.
+// its guided lessons (SV1 to SV5), chapter-owned by the solids chapter.
 import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';

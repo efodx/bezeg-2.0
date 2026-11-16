@@ -333,7 +333,8 @@ const functionsCards: readonly FunctionsCard[] = [
     // Both solids cards are surface cards: the count row is the one rendered solid owner and no board points.
     {chapterId: 'solids', copy: solidsPreviewCopy,
         ids: ['solids.cavalieri.solids', 'solids.cube-sections.solids', 'solids.pyramid-cone.solids', 'solids.pyramid-sections.solids'],
-        counts: [[2, 0], [1, 0], [1, 0], [1, 0]]},
+        counts: [[2, 0], [1, 0], [1, 0], [1, 0]],
+        pending: ['solids.revolution.solids']},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

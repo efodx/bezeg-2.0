@@ -473,6 +473,6 @@ describe('the numbers each step quotes are those of its scene and prompts, in sl
         expect(new Set(allSteps().map(step => step.scene!.id)).size).toBe(12);
         expect(allSteps().every(step => step.scene)).toBe(true);
         expect(allSteps().map(step => step.id)).toEqual(stepIds);
-        expect(solidsChapter.sections.map(section => section.id)).toEqual(['cube-sections', 'pyramid-sections', 'cavalieri', 'pyramid-cone']);
+        expect(solidsChapter.sections.map(section => section.id)).toEqual(['cube-sections', 'pyramid-sections', 'cavalieri', 'pyramid-cone', 'revolution']);
     });
 });
