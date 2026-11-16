@@ -2523,8 +2523,8 @@ const randomnessFrames = {
         assert.equal(mode.mode, 'markov', `${id}: only the Markov chain mode is authored`);
         assert.deepEqual({...run, kind: undefined, operation: undefined}, {markovA: 50, markovB: 50, n: 100, kind: undefined, operation: undefined}, `${id}: only a = b = 50 percent with 100 steps (start A, seed unchanged) is authored`);
         // The exact P(A after k) from P(A after 0) = 1 is 1/2 after every step when a = b = 1/2: it runs from x = log10 1 = 0 to log10 2 = 0.30103 at y = 1/2. The stationary line is the segment x = 0 to log10 100 = 2 at y = 1/2.
-        // The boxes (span = 2, drop 0.2) start with box A: (0.03 span, -0.85) to (0.34 span, -0.85) = (0.06, -0.85) to (0.68, -0.85); the arrows with the right arrow (0.34 span, -0.63) to (0.66 span, -0.63) = (0.68, -0.63) to (1.32, -0.63).
-        return {types: {curve: 5}, curveCount: 5, points: [], curves: [[[0, 0.5], [0.150515, 0.5], [0.30103, 0.5]], [[0, 0.5], [1, 0.5], [2, 0.5]], [[0.06, -0.85], [0.37, -0.85], [0.68, -0.85]], [[0.68, -0.63], [1, -0.63], [1.32, -0.63]]]};
+        // The boxes (span = 2, drop 0.2) start with box A: (0.03 span, -0.91) to (0.34 span, -0.91) = (0.06, -0.91) to (0.68, -0.91); the arrows with the right arrow (0.34 span, -0.63) to (0.66 span, -0.63) = (0.68, -0.63) to (1.32, -0.63).
+        return {types: {curve: 5}, curveCount: 5, points: [], curves: [[[0, 0.5], [0.150515, 0.5], [0.30103, 0.5]], [[0, 0.5], [1, 0.5], [2, 0.5]], [[0.06, -0.91], [0.37, -0.91], [0.68, -0.91]], [[0.68, -0.63], [1, -0.63], [1.32, -0.63]]]};
     },
     // RS6 step 1: the interval mode, one interval of the default sample size 36, none drawn (position 0). One curve: the line of the true mean 49.5 from y = 0 to 104; the hit, missed and flag layers, the law and the observed mark are empty.
     'confidence-intervals': (id, step) => {

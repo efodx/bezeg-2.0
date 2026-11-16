@@ -57,3 +57,10 @@
 - Layout check through the route (not shipped; `markov-max-*`, `interval-max-*` here). Markov n = 100 000, a = 80, b = 90: at 1366 the y tick labels ("1,2" and "-0,2") overprint the first caption row and the log-axis title, and at 390 the tick "1,4" overprints "Delež časa v stanju A"; graph layout, not owned, to the handler. Interval n = 10 000, sample size 100: captions clear at 1366 and 390 (law caption wraps to four lines at 390, clear of the bars).
 - Copy: alt and caption per new id; no share, stationary value, miss count or coverage.
 - Checks: script test, `just unit src/learning/chapter src/learning/content/familyChapters.test.ts`, lint, rawcheck green; tooling-test and tsc see the report. Not run: smoke test, `demonstration-preview-capture.test.cjs`.
+
+## Markov card recapture (handler 34)
+
+- `74554ee2` made the state boxes taller (bottom y -0.91 instead of -0.85 at drop 0.2). The capture refused the frame (missing curve samples at y = -0.85); the box A expectation in `randomnessFrames` (generator, comment and samples) now reads -0.91. Window unchanged.
+- Recaptured with `--chapter randomness` / `--family randomness` against `just preview 4527` (stopped); logs and the PNG in `.command-logs/rand-c/f4b/`. Only the Markov PNG and manifest changed; the other five PNGs (interval card included) are byte-identical (`sha256` before/after).
+- Viewed: three caption rows, share curve and dashed line, axis title, box diagram with "(začetek)" inside box A with padding below it, arrows and loops clear, nothing overprinting. Alt unchanged (still accurate).
+- Checks: script test, `just unit src/learning/chapter`, lint, `just tooling-test` green. Not run: smoke test.

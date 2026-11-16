@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+  "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+    "revision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
     "dirty": true,
-    "inputs": "34933d38ddf5680cb69743996301b48782e5bdba864fb67d335de5fda7db6fc2",
-    "output": "f00842bc2dc77eefe90e59358514464173420873da3b136464125b6a7ebe14ea"
+    "inputs": "595369edd2ab84162fd0242c7fc28e7a09171958c349bdb04da7c714318f7acd",
+    "output": "83c0f8291d5e37d7a224623c53f7dd58b44f89f3c2b69cee42642de5e757e09f"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
-    "stampRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+    "stampRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
     "stampDirty": true,
-    "localOutputHash": "f00842bc2dc77eefe90e59358514464173420873da3b136464125b6a7ebe14ea",
+    "localOutputHash": "83c0f8291d5e37d7a224623c53f7dd58b44f89f3c2b69cee42642de5e757e09f",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Dr6vl6hZ.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-Dr6vl6hZ.js",
-        "sha256": "53c571d5b97eded375a43c5a7a9c8c7640fcd06a69d2cc764c6aa58fff809d1c",
+        "name": "index-CZaCnERU.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-CZaCnERU.js",
+        "sha256": "1f3d694db3330c5cf8392b80f778736d361b0b07c0cdba9e0be575b7ecb3c191",
         "matchesLocalBuild": true
       },
       {
@@ -55,18 +55,18 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "aaa309663742c44b7442c1d9fff653fceaa876e5700fa9ca8485e901ec05ad06",
+    "inventory": "a0bca22928cd838312ece294288ce0a1cd445eba98dbeb52771ab792b7802370",
     "entries": {
       "randomness.galton-board.prob-simulation": "c6ea5225af9da4b75a666c729236d490a4e921fd345a9eac660f8c2a13ed2762",
       "randomness.law-of-large-numbers.prob-simulation": "7ebacb11410180de033cf9d81fb85928465c51c7bdbf0f8510001a17d4751e3e",
       "randomness.monte-carlo.prob-simulation": "63d4d2b25f49a5b02a6d340892f9afe04056f7dbf90a8b28d0451225fc8423a7",
       "randomness.random-walk.prob-simulation": "2dc551155d0885d59e057366f1e276f7f6a90dfc669c5d0e7e4f85393404feeb",
-      "randomness.markov-chain.prob-simulation": "ab4daf3d86919fe80c87468ff06cb6b3258d7a0fed3791b7a4eb54104af53eb7",
+      "randomness.markov-chain.prob-simulation": "31e36a90890832c5710ee067512f69c0bc616d7938aa95e6b16dfde07777e78c",
       "randomness.confidence-intervals.prob-simulation": "781bbf79fe8cc90feb55293f5a855a2bc6d1c94618c4d55fb4044c921e237e47"
     },
     "presentation": "f8eee6ca0a2ff8c5deff8ebdf5469f712c439813d5489f47384aca787fd64bcb",
-    "buildOutput": "f00842bc2dc77eefe90e59358514464173420873da3b136464125b6a7ebe14ea",
-    "buildInputs": "34933d38ddf5680cb69743996301b48782e5bdba864fb67d335de5fda7db6fc2"
+    "buildOutput": "83c0f8291d5e37d7a224623c53f7dd58b44f89f3c2b69cee42642de5e757e09f",
+    "buildInputs": "595369edd2ab84162fd0242c7fc28e7a09171958c349bdb04da7c714318f7acd"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -353,8 +353,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
-        "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+        "buildRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
+        "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
         "pageErrors": []
       }
     },
@@ -600,8 +600,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
-        "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+        "buildRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
+        "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
         "pageErrors": []
       }
     },
@@ -766,8 +766,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
-        "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+        "buildRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
+        "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
         "pageErrors": []
       }
     },
@@ -932,8 +932,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
-        "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+        "buildRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
+        "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
         "pageErrors": []
       }
     },
@@ -955,7 +955,7 @@
       "file": "randomness.markov-chain.prob-simulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "6b1d18d16b6031aa960a642f3ce149c73d391e7a700c43a9edb2c3f5a90593ae",
+      "sha256": "ef0037fd67b3904893277d2db1f773ed0e1bc6307b4d3d0f119173f54fafdb84",
       "scene": {
         "visibleElementCount": 16,
         "visibleElementTypes": {
@@ -1009,15 +1009,15 @@
           [
             [
               0.06,
-              -0.85
+              -0.91
             ],
             [
               0.37,
-              -0.85
+              -0.91
             ],
             [
               0.68,
-              -0.85
+              -0.91
             ]
           ],
           [
@@ -1049,11 +1049,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 42,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 15,
             "curve": 5,
             "text": 11
           },
@@ -1104,15 +1104,15 @@
             [
               [
                 0.06,
-                -0.85
+                -0.91
               ],
               [
                 0.37,
-                -0.85
+                -0.91
               ],
               [
                 0.68,
-                -0.85
+                -0.91
               ]
             ],
             [
@@ -1157,8 +1157,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
-        "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+        "buildRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
+        "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
         "pageErrors": []
       }
     },
@@ -1265,8 +1265,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
-        "sourceRevision": "2ac3f6a072ca579b9a2b1b59031edfe5b69f31b0",
+        "buildRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
+        "sourceRevision": "74554ee211ae9e1b281a0bed8c5604aa7404a92b",
         "pageErrors": []
       }
     }
