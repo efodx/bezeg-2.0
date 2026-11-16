@@ -105,3 +105,9 @@ See the handler return for check results (`s3-*.log`).
 
 ### Not verified
 - Section text in a browser; Slovenian and English written without review.
+
+## Arrow tags
+
+- The tags of the arrows (`tip_v`, `tip_a`, `tip_at`, `tip_an`) are placed in pixels by `src/graphs/curves/kinematics/arrowTagPlacement.ts` (own bounded search, 6 rings x 8 directions per tag round its own tip; at most 4 tags). A spot is refused when it overlaps a placed tag, covers an arrowhead or the moving point, or lies nearer another tip than its own (unless the tips coincide); it costs extra on a shaft, over the captions, beyond the board, and (lightly) on the axis-number strips. The layout is cached by tips, point, board size and language, so a frame that moves no tip costs nothing; otherwise about 4 x 48 candidates x (4 tips + about 60 shaft samples). No object is rebuilt on a time step.
+- Tests: "the arrow tags keep clear ..." in `KinematicsGraph.test.tsx` (364 x 473 and 946 x 507; cycloid at 0,5, pi/2, 3,14; projectile 1,5; rose 1,2). Red on the old code in `.command-logs/kin-c/tags-red.log`, green in `tags-unit.log`. Shots in `.command-logs/kin-c/tags-shots/`.
+- Not fixed: tags may still sit on an axis number when the figure is crowded (rose at the origin, phone), because the number strips only cost a little (a heavier cost sent tags far from their tips); the tag size is an estimate, not measured text.

@@ -12,6 +12,8 @@ import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../../base/controls/reducedMotion";
 import {GraphPalette} from "../../styles/GraphPalette";
+import {sampleLine, type PxBox} from "../../legend/boardLabelPlacement";
+import {placeArrowTags, type TagItem} from "./arrowTagPlacement";
 import {pointLabelMath} from "../../styles/pointLabelMath";
 import {PresetCollection} from "../../base/presets/PresetCollection";
 import {Preset} from "../../base/presets/Presets";
@@ -72,6 +74,11 @@ const CAPTION_CHAR_PX = 7.5;
 
 /** Boards narrower than this set the captions in a smaller type (12 px) so the stack leaves the path its room. */
 const COMPACT_BOARD_PX = 500;
+
+/** The pixel size of an arrow tag, from its character count (a subscript letter is a narrow glyph) and the font size. */
+export function tagSize(text: string, fontSize: number): {w: number; h: number} {
+    return {w: Math.ceil(text.length * 0.6 * fontSize) + 4, h: Math.ceil(fontSize * 1.25) + 2};
+}
 
 /** The type of the captions on a board `width` px wide: font size, row height and the widest an average character is, in pixels. */
 export function captionMetrics(width: number): {fontSize: number; rowPx: number; charPx: number} {
@@ -459,16 +466,39 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             {name: "at", key: "tip_at", color: GraphPalette.additionalCurves[3], dash: 1, width: 2, shown: () => state().split && regular()},
             {name: "an", key: "tip_an", color: GraphPalette.additionalCurves[2], dash: 4, width: 2, shown: () => state().split && regular()},
         ];
+        // The tags stand at the arrow tips, placed in pixels by the shared label placer so that none runs into another, into an arrowhead,
+        // into the moving point or into a shaft. The layout is cached by its inputs: at most 4 tags x 48 candidates x (4 tips and about 60 shaft samples) per change, nothing on a frame that moves no tip.
+        let captionBlock: () => PxBox | undefined = () => undefined;
+        let tagCache: {key: string; boxes: Record<string, PxBox>} | undefined;
+        const tagLayout = (): Record<string, PxBox> => {
+            const {ux, uy, left, top} = this.scaleOf();
+            const width = board.canvasWidth, height = board.canvasHeight;
+            const toPx = (x: number, y: number): [number, number] => [(x - left) * ux, (top - y) * uy];
+            const fontSize = this.styles.point.namedLabel.fontSize();
+            const shown = arrows.filter(arrow => arrow.shown() && longEnough(arrow.name)());
+            const point = toPx(...ev().point);
+            const tips = shown.map(arrow => ({arrow, tip: toPx(...endOf(arrow.name)())}));
+            const block = captionBlock();
+            const key = [width, height, ux, uy, left, top, fontSize, currentLanguage(), point, block ? block.y1 : 0, tips.map(({arrow, tip}) => `${arrow.name}${tip}`)].join("|");
+            if (tagCache?.key === key) return tagCache.boxes;
+            const samples = tips.flatMap(({tip}) => sampleLine([point[0], tip[0]], [point[1], tip[1]], (x, y) => [x, y], width * 4, height * 4, 5, 60));
+            const items: TagItem[] = tips.map(({arrow, tip}) => ({id: arrow.name, tip, ...tagSize(t(`kinematics_graph_${arrow.key}`), fontSize)}));
+            const boxes = placeArrowTags(items, {width, height, point, samples, block, strips: [
+                {x0: 0, y0: top * uy, x1: width, y1: top * uy + 22}, {x0: (0 - left) * ux - 40, y0: 0, x1: (0 - left) * ux, y1: height}]});
+            tagCache = {key, boxes};
+            return boxes;
+        };
         for (const arrow of arrows) {
             const visible = watch(() => arrow.shown() && longEnough(arrow.name)());
             const end = dot(() => endOf(arrow.name)()[0], () => endOf(arrow.name)()[1], () => false);
             this.own(board.create("arrow", [mover, end], {
                 strokeColor: arrow.color, strokeWidth: arrow.width, dash: arrow.dash, fixed: true, highlight: false, withLabel: false, visible,
             }));
-            this.own(board.create("text", [() => endOf(arrow.name)()[0] + 6 / this.scaleOf().ux, () => endOf(arrow.name)()[1] + 6 / this.scaleOf().uy,
+            const corner = (): PxBox => tagLayout()[arrow.name] ?? {x0: 0, y0: 0, x1: 0, y1: 0};
+            this.own(board.create("text", [() => this.scaleOf().left + corner().x0 / this.scaleOf().ux, () => this.scaleOf().top - corner().y0 / this.scaleOf().uy,
                 // The name of the vector, typeset at the compact size of the named labels (M03).
                 () => pointLabelMath(t(`kinematics_graph_${arrow.key}`))], {
-                strokeColor: arrow.color, fontSize: this.styles.point.namedLabel.fontSize, useMathJax: true, parse: false, anchorX: "left",
+                strokeColor: arrow.color, fontSize: this.styles.point.namedLabel.fontSize, useMathJax: true, parse: false, anchorX: "left", anchorY: "top",
                 fixed: true, highlight: false, withLabel: false, visible,
             }) as JXG.Text);
         }
@@ -516,6 +546,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         // The tangent and normal axes: thin dashed lines through the point while the acceleration is split, cut off under the caption stack so that no
         // axis runs through caption text. Each is the part of the line inside the board and below the last caption row.
         const captionBottomPx = () => 10 + captions.filter(caption => caption.visible()).reduce((sum, caption) => sum + captionLines(caption.text(), placement().room, type().charPx), 0) * type().rowPx;
+        captionBlock = () => captions.some(caption => caption.visible()) ? {x0: 0, y0: 0, x1: placement().indent + placement().room, y1: captionBottomPx()} : undefined;
         for (const normal of [false, true]) {
             curve(() => {
                 const e = regularEv();

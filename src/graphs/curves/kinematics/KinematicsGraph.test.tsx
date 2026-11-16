@@ -9,7 +9,7 @@ import {enterNumber} from '../../../inputs/testEntry';
 import type {TransientState} from '../../base/BaseGraph';
 import type {AnimationScheduler} from '../../../learning/runtime/animation';
 import {DEFAULT_KINEMATICS_STATE, deriveKinematics, FIELD_RANGES, MOTION_IDS, parseKinematicsState, serializeKinematicsState, withMotion, type MotionChoice} from '../../../kinematics/kinematicsModel';
-import {captionLines, captionMetrics, captionPlacement, frameFor, KinematicsGraph, MAX_FRAME_MS, TIME_STEP} from './KinematicsGraph';
+import {captionLines, captionMetrics, captionPlacement, frameFor, KinematicsGraph, MAX_FRAME_MS, tagSize, TIME_STEP} from './KinematicsGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -907,6 +907,82 @@ describe('the captions with every switch on keep clear of the figure and of the 
                         const p = px(xs[i] + ((xs[i + 1] - xs[i]) * k) / 50, ys[i] + ((ys[i + 1] - ys[i]) * k) / 50);
                         for (const caption of captions) expect(inside(caption, p), caption.text).toBe(false);
                     }
+                }
+            });
+        }
+    }
+});
+
+describe('the arrow tags keep clear of each other, of the arrowheads and of the point (families-prep kinematics arrow tags)', () => {
+    const BOARDS = [{name: 'phone', width: 364, height: 473}, {name: 'desktop', width: 946, height: 507}] as const;
+    type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
+    type Shape = Probe & {X(): number; Y(): number; point2?: {X(): number; Y(): number}};
+    type Tag = {name: string; x0: number; y0: number; x1: number; y1: number; tip: [number, number]; head: [number, number][]};
+    const sizeOf = (width: number, height: number) => ({clientWidth: width, offsetWidth: width, clientHeight: height, offsetHeight: height});
+    afterEach(() => {
+        for (const [name, size] of Object.entries(sizeOf(600, 400))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
+    });
+
+    /** The visible tags as pixel boxes with their tips and the corners of their arrowheads (a triangle 8 px long and 8 px wide), the moving point in px. */
+    function tagScene(width: number, height: number, motion: MotionChoice, time: number) {
+        for (const [name, size] of Object.entries(sizeOf(width, height))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
+        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
+        const {graph} = mountGraph();
+        const board = graph.liveBoard() as unknown as Board;
+        act(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, motion), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
+        go(graph, time);
+        const [left, top] = board.getBoundingBox();
+        const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
+        const point = px(...graph.evaluation().point);
+        const names = ['v', 'a', 'aₜ', 'aₙ'];
+        const shapes = arrows(graph) as unknown as Shape[];
+        const texts = (ofType(graph, 'text') as unknown as Shape[]).filter(o => (o.plaintext ?? '').startsWith('$$'));
+        expect(texts).toHaveLength(4);
+        const found: Tag[] = [];
+        shapes.forEach((arrow, index) => {
+            if (!visible(arrow)) return;
+            const text = texts[index];
+            expect(visible(text)).toBe(true);
+            const {w, h} = tagSize(names[index], 14);
+            const [x, y] = px(text.X(), text.Y());
+            const anchor = text.evalVisProp('anchory');
+            const top0 = anchor === 'top' ? y : anchor === 'bottom' ? y - h : y - h / 2;
+            const tip = px(arrow.point2!.X(), arrow.point2!.Y());
+            const length = Math.hypot(tip[0] - point[0], tip[1] - point[1]);
+            const [ux, uy] = [(tip[0] - point[0]) / length, (tip[1] - point[1]) / length];
+            const base: [number, number] = [tip[0] - 8 * ux, tip[1] - 8 * uy];
+            const head: [number, number][] = [tip, [base[0] - 4 * uy, base[1] + 4 * ux], [base[0] + 4 * uy, base[1] - 4 * ux], base];
+            found.push({name: names[index], x0: x, y0: top0, x1: x + w, y1: top0 + h, tip, head});
+        });
+        return {point, tags: found, width, height};
+    }
+    const inBox = (box: Tag, [x, y]: [number, number]) => x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1;
+    const CASES: readonly [MotionChoice, number][] = [['cycloid', 0.5], ['cycloid', Math.PI / 2], ['cycloid', 3.14], ['projectile', 1.5], ['rose', 1.2]];
+
+    for (const board of BOARDS) {
+        for (const [motion, time] of CASES) {
+            test(`${board.name} ${board.width} x ${board.height}, ${motion} at t = ${time}: tags are disjoint, clear of arrowheads and the point, each nearest its own tip`, () => {
+                const {point, tags} = tagScene(board.width, board.height, motion, time);
+                expect(tags.length).toBeGreaterThanOrEqual(3);
+                tags.forEach((a, i) => tags.slice(i + 1).forEach(b => {
+                    const overlap = a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+                    expect(overlap, `${a.name} and ${b.name} overlap`).toBe(false);
+                }));
+                for (const tag of tags) {
+                    // No tag covers any arrowhead (corners, edge midpoints and centre of its triangle) or the moving point (radius 5 px).
+                    for (const other of tags) {
+                        const [p, q, r] = other.head;
+                        const samples: [number, number][] = [...other.head, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], [(p[0] + r[0]) / 2, (p[1] + r[1]) / 2], [(p[0] + q[0] + r[0]) / 3, (p[1] + q[1] + r[1]) / 3]];
+                        for (const sample of samples) expect(inBox(tag, sample), `${tag.name} covers the head of ${other.name}`).toBe(false);
+                    }
+                    const nearX = Math.max(tag.x0, Math.min(point[0], tag.x1)), nearY = Math.max(tag.y0, Math.min(point[1], tag.y1));
+                    expect(Math.hypot(nearX - point[0], nearY - point[1]), `${tag.name} covers the point`).toBeGreaterThan(5);
+                    // Nearest its own tip: the distance of the box to its tip beats the distance to every other tip.
+                    const gap = (t: [number, number]) => Math.hypot(Math.max(tag.x0 - t[0], 0, t[0] - tag.x1), Math.max(tag.y0 - t[1], 0, t[1] - tag.y1));
+                    for (const other of tags) if (other !== tag && Math.hypot(other.tip[0] - tag.tip[0], other.tip[1] - tag.tip[1]) > 1) expect(gap(tag.tip), `${tag.name} is nearer ${other.name}'s tip`).toBeLessThan(gap(other.tip));
+                    expect(tag.x0).toBeGreaterThanOrEqual(0);
+                    expect(tag.x1).toBeLessThanOrEqual(board.width);
                 }
             });
         }
