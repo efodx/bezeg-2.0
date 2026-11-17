@@ -134,7 +134,7 @@ function captureRecipeForEntry(entry, recipe) {
 function presentationHelpers() {
     return [presentBoard, inspectBoard, captureSurfaceExample, resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame,
         isViewportSpanningHorizontalCurve, isCameraScaledCurve, isOpeningSweepLine, isViewportGeneratedInWindow,
-        isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry,
+        isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, hideTickNumbers, captureRecipeForEntry,
         reachFrame, applyHighlightRecipe, readPublishedSurfaceEvidence, validateSurfaceEvidence, verifySurfaceHighlight, assertSurfaceRecipeSteps];
 }
 
@@ -479,6 +479,26 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
     }
 }
 
+/**
+ * Chapter cards hide the coordinate system (the catalog text policy), but the graphs place their own labels around
+ * the tick numbers their axis setting shows. So a card whose coordinate context is hidden first sets the graph's axis
+ * selection to "Brez" through the Prikaz tab, as a learner would, so the labels are placed with the numbers hidden.
+ */
+async function hideTickNumbers(page, demonstration) {
+    if (demonstrations.coordinateContextPolicy(demonstration) !== 'hide') return false;
+    if (await page.locator('.guided-lesson-hide').count() === 1) await applyExploreStep(page);
+    await applyControlStep(page, {kind: 'select-tab', tab: 'display'});
+    const inspector = page.locator('#inspector-content');
+    const select = inspector.getByLabel('Koordinatni sistem', {exact: true});
+    if (await select.count() !== 1) return false;
+    // The coordinate-system group is a collapsed disclosure: open it as a learner would.
+    if (!await select.isVisible()) await inspector.locator('summary', {hasText: 'Koordinatni sistem'}).click();
+    await select.selectOption('none');
+    assert.equal(await select.inputValue(), 'none', 'the axis selection did not become none');
+    await settle(page);
+    return true;
+}
+
 async function hideGuidedLessonOverlay(page) {
     return page.evaluate(() => {
         const layers = [...document.querySelectorAll('.guided-lesson-layer')];
@@ -709,6 +729,7 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
         highlight = verifyHighlight(entry, initial, highlighted);
     }
     await page.evaluate(async () => { await document.fonts.ready; });
+    await hideTickNumbers(page, demonstration);
     const guidedLessonOverlayHidden = await hideGuidedLessonOverlay(page);
     const scene = await presentBoard(board, demonstration, recipe, {frame});
     const presented = await inspectBoard(page);
@@ -798,7 +819,7 @@ async function main(argv = process.argv.slice(2)) {
 }
 
 module.exports = {loadFamilyIdentities, applyFamilyRoutes, chapterFamilies, reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, fingerprintEntries, inspectBoard, isViewportSpanningHorizontalCurve,
-    isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
+    isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, hideTickNumbers, entryBundles,
     verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
     prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample, assertSurfaceRecipeSteps};
 if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {assertPresentationGeometryStable, assertInventoryFamily, captureOutputPath, captureRecipeForEntry, destinationForFamily, parseArgs, presentationFingerprint, presentationHelpers,
-    resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame} = require('./capture-guided-example-previews.cjs');
+    resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame, hideTickNumbers} = require('./capture-guided-example-previews.cjs');
 const {loadFamilyIdentities, applyFamilyRoutes, chapterFamilies} = require('./capture-guided-example-previews.cjs');
 const {fakeSurfaceHost} = require('./surface-view-fixture.cjs');
 
@@ -407,4 +407,30 @@ test('accepts a view-clamped function graph and its coinciding ghost across capt
     changed.curves = changed.curveData.map(curve => curve.points);
     changed.curveData = changed.curveData.map(curve => ({...curve, samples: curve.points}));
     assert.throws(() => assertPresentationGeometryStable(initial, changed, 'function-transformation'), /curve geometry/);
+});
+
+test('chapter card capture sets the graph axis selection to none through the Prikaz tab, so label placement sees the tick numbers hidden', async () => {
+    const calls = [];
+    const state = {axis: 'all', explored: false};
+    const scope = {locator: (selector, {hasText}) => ({click: async () => { state.open = true; calls.push(['summary', selector, hasText]); }}),
+        getByLabel: (name, {exact}) => ({
+        count: async () => (exact && name === 'Koordinatni sistem' ? 1 : 0),
+        isVisible: async () => state.open === true,
+        selectOption: async value => { assert.ok(state.open, 'the disclosure was not opened'); calls.push(['select', value]); state.axis = value; },
+        inputValue: async () => state.axis})};
+    const locate = selector => {
+        if (selector === '.guided-lesson-hide') return {count: async () => (state.explored ? 0 : 1), click: async () => { state.explored = true; calls.push(['explore']); }};
+        if (selector === '.demonstration-workspace.lesson-explore') return {waitFor: async () => {}};
+        if (selector.startsWith('.inspector-tabs button')) return {count: async () => 1, click: async () => calls.push(['tab', selector]), getAttribute: async () => 'true'};
+        if (selector === '#inspector-content') return scope;
+        throw new Error(`unexpected selector ${selector}`);
+    };
+    const page = {locator: locate, waitForFunction: async () => {}, waitForTimeout: async () => {}, evaluate: async () => {}};
+    assert.equal(await hideTickNumbers(page, {id: 'isometry-dilation', family: 'isometries'}), true);
+    assert.equal(state.axis, 'none');
+    assert.ok(calls.some(call => call[0] === 'tab' && call[1].includes('inspector-display')), 'the Prikaz tab was not opened');
+    // A coordinate-retaining family keeps its numbers: no control is touched.
+    calls.length = 0;
+    assert.equal(await hideTickNumbers(page, {id: 'x', family: 'basics'}), false);
+    assert.deepEqual(calls, []);
 });
