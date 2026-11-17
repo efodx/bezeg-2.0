@@ -80,6 +80,26 @@ const CAPTION_HALF_PX = 7;
 const TICK_ROW_TOP_PX = 2;
 const TICK_ROW_DEPTH_PX = 20;
 
+/** Whether a polyline (user coordinates) crosses a pixel box: x measured from `xmin`, y from the axis (Liang-Barsky on each segment). */
+function crossesBox(line: Polyline, xmin: number, scale: CaptionScale, box: {left: number; right: number; bottom: number; top: number}): boolean {
+    for (let i = 0; i + 1 < line.x.length; i++) {
+        const x0 = (line.x[i] - xmin) * scale.unitX, y0 = line.y[i] * scale.unitY;
+        const dx = (line.x[i + 1] - xmin) * scale.unitX - x0, dy = line.y[i + 1] * scale.unitY - y0;
+        if (![x0, y0, dx, dy].every(Number.isFinite)) continue;
+        let t0 = 0, t1 = 1;
+        const edges: [number, number][] = [[-dx, x0 - box.left], [dx, box.right - x0], [-dy, y0 - box.bottom], [dy, box.top - y0]];
+        let inside = true;
+        for (const [p, q] of edges) {
+            if (p === 0) { if (q < 0) { inside = false; break; } continue; }
+            const r = q / p;
+            if (p < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+            if (t0 > t1) { inside = false; break; }
+        }
+        if (inside) return true;
+    }
+    return false;
+}
+
 /**
  * Where a board caption (anchored at its left end) stands, in user coordinates of the window of the map. The map and legend captions
  * have fixed places and the diagonal caption stands under the map caption (rows of `CAPTION_ROW_PX`, clear of the lines); on the
@@ -88,7 +108,7 @@ const TICK_ROW_DEPTH_PX = 20;
  * characters would run past the right edge of the board, in a fixed place near the bottom (the start lowest, then the fixed point, then
  * the iterate), moved left far enough to fit, so the caption is still on the board.
  */
-export function captionPlace(map: CobwebMap, role: CaptionRole, value = 0, chars = 0, scale?: CaptionScale): CaptionPlace {
+export function captionPlace(map: CobwebMap, role: CaptionRole, value = 0, chars = 0, scale?: CaptionScale, curve?: (x: number) => number): CaptionPlace {
     const [xmin, ymax, xmax, ymin] = VIEW_BOXES[map];
     const w = xmax - xmin;
     const h = ymax - ymin;
@@ -121,7 +141,31 @@ export function captionPlace(map: CobwebMap, role: CaptionRole, value = 0, chars
         case 'diagonal': return {x: nearAxis, y: ymax - 0.05 * h - row};
         case 'legend': return {x: xmin + 0.02 * w, y: ymin + 0.05 * h};
         case 'start': return place(beside(-dy), 0);
-        case 'fixed': return place(beside(dy), 1);
+        case 'fixed': {
+            const usual = place(beside(dy), 1);
+            if (!scale || !curve || !inView(map, value)) return usual;
+            const sc = scale;
+            const width = chars * CAPTION_CHAR_PX;
+            const gapX = CAPTION_GAP_PX / sc.unitX;
+            const lines = [mapSamples(curve, xmin, xmax), {x: [xmin, xmax], y: [xmin, xmax]}];
+            // above-right (the usual place), below-right, above-left, below-left of the marker; the first box clear of both lines and the number row, inside the board
+            const candidates: CaptionPlace[] = [
+                {x: value + gapX, y: value + dy}, {x: value + gapX, y: value - dy},
+                {x: value - textWidth / sc.unitX, y: value + dy}, {x: value - textWidth / sc.unitX, y: value - dy},
+            ];
+            // Where the map crosses the diagonal the other way (a falling map) those four sit in the lines' wedges: stand level with the marker, further out.
+            for (const out of [16, 28, 44, 64]) {
+                candidates.push({x: value + out / sc.unitX, y: value}, {x: value - (out + width) / sc.unitX, y: value});
+            }
+            for (const candidate of candidates) {
+                const near = clearOfTicks(candidate);
+                if (!fits(near) || near.x < xmin) continue;
+                const box = {left: (near.x - xmin) * sc.unitX, right: (near.x - xmin) * sc.unitX + width, bottom: near.y * sc.unitY - CAPTION_HALF_PX - 2, top: near.y * sc.unitY + CAPTION_HALF_PX + 2};
+                if (box.bottom < ymin * sc.unitY || box.top > ymax * sc.unitY) continue;
+                if (lines.every(line => !crossesBox(line, xmin, sc, box))) return near;
+            }
+            return usual;
+        }
         case 'iterate': return place(beside(-2.2 * dy), 2);
     }
 }

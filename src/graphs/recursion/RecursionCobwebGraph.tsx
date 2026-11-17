@@ -298,7 +298,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
             const star = fixed();
             if (star === null) return "";
             return t(inView(map(), star) ? "recursion_graph_cap_fixed" : "recursion_graph_cap_fixed_off", {value0: num(star)});
-        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale()), () => fixed() !== null);
+        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale(), this.derived().map), () => fixed() !== null);
         this.caption(() => t(inView(map(), iterate() ?? NaN) ? "recursion_graph_cap_iterate" : "recursion_graph_cap_iterate_off",
                 {value0: subscript(this.state.step), value1: num(iterate() ?? NaN)}),
             chars => captionPlace(map(), "iterate", iterate() ?? NaN, chars, this.captionScale()), () => this.state.step > 0);
