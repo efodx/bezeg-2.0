@@ -667,3 +667,16 @@ Split per step, sphere (ms, desktop / phone ×4): scene build (`drawSolids`, rev
 Cause: the surface view's `topologySignature` ([jsxSurfaceView.ts](../src/graphs/patches/surface-view/jsxSurfaceView.ts)) includes the polyline ids, so a disc-count change rebuilds the whole drawable pool. The mesh slots do not depend on the disc count (sphere 1119, parabola about y 919, cone 145) but are recreated on every step, beside 32 slots per ring. JSXGraph's own objects (805) all survive a step.
 
 Candidates (not implemented; phone sphere shares): (1) keep the mesh slots across a disc-count change and rebuild only the ring slots, an estimated 40 % (parabola 35 %, cone 8 %; regression estimate from the three solids, an upper bound); (2) fewer SVG pieces per ring, or fewer drawn rings on small screens while the sum keeps every disc, an estimated 35 % (cone 53 %; the 32 pieces exist for depth ordering, so occlusion needs a visual check); (3) skip JSXGraph label sizing when the labels did not move, measured by a runtime patch at 18 % (190 → 153 ms phone, 38 → 33 ms desktop). Caching the scene build is not worth it (under 0,3 %). Candidates 1 and 3 change only drawing bookkeeping, not what is drawn; each is to be measured against this table on the same build settings before it is kept.
+
+**Kept: candidate 1, slot reuse (2026-11-17).** A drawable rebuild (`rebuildDrawables` in [jsxSurfaceView.ts](../src/graphs/patches/surface-view/jsxSurfaceView.ts)) now keeps the existing slot nodes and their attribute caches, creating or removing only the difference; every surface graph shares it. Same method and build settings, revision `7b3c4ba4` plus the change. Node churn per sphere step fell from about 1 400–3 000 added and removed to 33 and 1 (or 1 and 33). Screenshots at 60 discs against the old build: 0 differing pixels for the sphere (desktop, 390 px) and the parabola about y (desktop); 11 anti-aliasing pixels at 390 px (none over 32/255).
+
+| Profile | Case | Step 1 → 60 before / after (median / p95) | Step 60 → 1 before / after |
+|---|---|---|---|
+| desktop | sphere | 38,4 / 65,7 → 32,7 / 39,1 | 34,3 / 57,4 → 32,4 / 37,7 |
+| desktop | parabola about y | 33,7 / 65,8 → 32,5 / 36,7 | 33,6 / 64,2 → 32,4 / 38,6 |
+| desktop | cone | 32,8 / 37,0 → 32,5 / 33,8 | 32,5 / 39,4 → 32,6 / 33,4 |
+| phone ×4 | sphere | 189,8 / 254,9 → 141,7 / 190,4 | 181,7 / 240,1 → 141,6 / 193,5 |
+| phone ×4 | parabola about y | 177,2 / 241,9 → 126,1 / 169,6 | 171,3 / 231,8 → 122,7 / 162,2 |
+| phone ×4 | cone | 124,2 / 179,8 → 90,0 / 129,9 | 116,3 / 189,8 → 88,5 / 120,9 |
+
+The phone step is still over budget (one long task per step); candidates 2 (fewer ring pieces) and 3 (JSXGraph label sizing) remain, each to be measured the same way. Not verified on a real phone.

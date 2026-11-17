@@ -597,7 +597,7 @@ export class JsxSurfaceView implements SurfaceView {
     }
 
     /** One slot per drawable (triangles, planes, segment pieces, in that order) plus the hidden tail slot. */
-    private createSlots(pool: Pool): Pick<Drawables, 'elements' | 'tail' | 'styles' | 'periods' | 'slotStyle' | 'slotFill' | 'slotWidth' | 'slotOffset' | 'slotShown'> {
+    private createSlots(pool: Pool, previous?: Drawables): Pick<Drawables, 'elements' | 'tail' | 'styles' | 'periods' | 'slotStyle' | 'slotFill' | 'slotWidth' | 'slotOffset' | 'slotShown'> {
         const styles: Style[] = [];
         for (let t = 0; t < pool.tris.length; t += 3) styles.push(MESH_STYLE);
         for (let q = 0; q < pool.planes.length; q += 4) styles.push(PLANE_STYLE);
@@ -607,15 +607,33 @@ export class JsxSurfaceView implements SurfaceView {
             styles.push(style);
             periods[s / 2] = dashPeriod(style);
         }
+        const n = styles.length;
         const elements: SVGElement[] = [];
-        for (let i = 0; i < styles.length; i++) elements.push(this.makeSlot());
-        const tail = this.makeSlot();
-        tail.setAttribute('display', 'none');
-        return {
-            elements, tail, styles, periods, slotStyle: styles.map(() => null), slotFill: styles.map(() => null),
-            slotWidth: new Float64Array(styles.length).fill(NaN), slotOffset: new Float64Array(styles.length).fill(NaN),
-            slotShown: new Uint8Array(styles.length).fill(1),
-        };
+        const slotStyle: (Style | null)[] = styles.map(() => null), slotFill: (Style | null)[] = styles.map(() => null);
+        const slotWidth = new Float64Array(n).fill(NaN), slotOffset = new Float64Array(n).fill(NaN);
+        const slotShown = new Uint8Array(n).fill(1);
+        // A rebuild keeps the nodes it already has, with the attributes they carry (the caches describe those), and only
+        // creates the missing ones or removes the surplus; `tail` is moved behind the last slot.
+        const keep = Math.min(previous?.elements.length ?? 0, n);
+        if (previous) {
+            for (let i = 0; i < keep; i++) {
+                elements.push(previous.elements[i]);
+                slotStyle[i] = previous.slotStyle[i];
+                slotFill[i] = previous.slotFill[i];
+                slotWidth[i] = previous.slotWidth[i];
+                slotOffset[i] = previous.slotOffset[i];
+                slotShown[i] = previous.slotShown[i];
+            }
+            for (let i = keep; i < previous.elements.length; i++) previous.elements[i].remove();
+        }
+        for (let i = keep; i < n; i++) elements.push(this.makeSlot());
+        let tail = previous?.tail;
+        if (tail) tail.parentNode?.appendChild(tail);
+        else {
+            tail = this.makeSlot();
+            tail.setAttribute('display', 'none');
+        }
+        return {elements, tail, styles, periods, slotStyle, slotFill, slotWidth, slotOffset, slotShown};
     }
 
     /**
@@ -630,9 +648,7 @@ export class JsxSurfaceView implements SurfaceView {
         this.detailReduced = false;
         this.setCameraOnView(scene.camera, pool);
         board.suspendUpdate();
-        for (const el of draw.elements) el.remove();
-        draw.tail.remove();
-        Object.assign(draw, this.createSlots(pool));
+        Object.assign(draw, this.createSlots(pool, draw));
         this.syncPoints(scene);
         board.unsuspendUpdate();
         this.stats.drawableRebuilds++;

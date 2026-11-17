@@ -313,3 +313,50 @@ describe('JsxSurfaceView reduced detail while orbiting', () => {
         expect(view.stats.frames).toBe(frames);
     });
 });
+
+describe('JsxSurfaceView drawable rebuild', () => {
+    const withLines = (count: number): SurfaceScene => {
+        const base = makeScene(2);
+        const polylines = Array.from({length: count}, (_, k) => ({
+            id: `ring-${k}`, role: (k % 2 ? 'iso' : 'net') as PolylineRole,
+            points: [[0, k * 0.1, 0.1], [2, k * 0.1, 0.3], [4, k * 0.1, 0.1]] as Xyz[],
+        }));
+        return {...base, polylines};
+    };
+    /**
+     * The slot polylines of the board's drawable layer in document order, as sorted attributes. A two-point slot has no
+     * interior, so its fill (left over from a frame where the slot showed a triangle) and its order of attributes do not
+     * draw anything and are not compared.
+     */
+    const slotMarkup = (view: JsxSurfaceView): string[] => {
+        const draw = view as unknown as {draw: {tail: SVGElement}};
+        const layer = draw.draw.tail.parentNode as Element;
+        return [...layer.children].filter(c => c.getAttribute('tabindex') === '-1' && c.tagName === 'polyline').map(c => {
+            const line = (c.getAttribute('points') ?? '').trim().split(/\s+/).length === 2;
+            return [...c.attributes].filter(at => !(line && (at.name === 'fill' || at.name === 'fill-opacity')))
+                .map(at => `${at.name}=${at.value}`).sort().join(' ');
+        });
+    };
+    const slots = (view: JsxSurfaceView): SVGElement[] => (view as unknown as {draw: {elements: SVGElement[]}}).draw.elements;
+
+    it('keeps the slot nodes across a polyline count change and draws what a fresh view draws', async () => {
+        const {view} = await mount(withLines(6));
+        const first = slots(view).slice();
+        const rebuilds = view.stats.drawableRebuilds;
+        view.reconcile(withLines(12));
+        view.flush();
+        expect(view.stats.drawableRebuilds).toBe(rebuilds + 1);
+        const grown = slots(view).slice();
+        expect(grown.length).toBeGreaterThan(first.length);
+        first.forEach((node, i) => expect(grown[i]).toBe(node));
+        view.reconcile(withLines(4));
+        view.flush();
+        expect(view.stats.drawableRebuilds).toBe(rebuilds + 2);
+        const shrunk = slots(view);
+        expect(shrunk.length).toBeLessThan(first.length);
+        shrunk.forEach((node, i) => expect(node).toBe(first[i]));
+        first.slice(shrunk.length).forEach(node => expect(node.isConnected).toBe(false));
+        const fresh = await mount(withLines(4));
+        expect(slotMarkup(view)).toEqual(slotMarkup(fresh.view));
+    });
+});
