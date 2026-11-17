@@ -294,7 +294,7 @@ const sv5EdgeCases: readonly LocalizedText[] = [
 
 const solidsRevolution: GuidedLesson = {
     demonstrationId: 'solids',
-    title: text('Vrtenine in prostornina \\(\\pi\\int f^2\\)', 'Solids of revolution and the volume \\(\\pi\\int f^2\\)'),
+    title: text('Vrtenine in njihova prostornina', 'Solids of revolution and their volume'),
     summary: text(
         'Območje pod grafom funkcije zavrtimo okoli osi, telo razrežemo na diske s ploščino \\(\\pi f(x)^2\\), vsoto diskov primerjamo z integralom in preizkusimo, kako izbira osi vrtenja spremeni telo.',
         'The region under the graph of a function is turned about an axis, the solid is cut into discs of area \\(\\pi f(x)^2\\), the sum of the discs is compared with the integral, and we try how the choice of the axis of rotation changes the solid.',

@@ -169,6 +169,10 @@ describe('SV5 (solids of revolution): scenes, prompted actions, labels and quote
         expect(Object.keys(PRODUCE)).toEqual(stepIds);
     });
 
+    test('the lesson title is plain text (the runtime reads it into aria-label and title attributes, where math is not typeset)', () => {
+        for (const title of [lesson.title.sl, lesson.title.en]) expect(title).not.toMatch(/\\[([]/);
+    });
+
     for (const language of LANGUAGES) {
         test(`${language}: every scene opens on the state and readouts the kernels give, in one synchronous act from a restored checkpoint, out of order and twice; leaving restores the free state`, () => {
             setLanguage(language);
