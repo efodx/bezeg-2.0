@@ -16,7 +16,7 @@ class Probe extends LineGeometryGraph {
 }
 
 type Shown = {elType: string; evalVisProp(name: string): unknown; plaintext?: string; visProp: Record<string, unknown>};
-type Scene = {mode: 'forms' | 'normal' | 'angle' | 'distance'; points: Partial<Record<PointField, [number, number]>>};
+type Scene = {mode: 'forms' | 'normal' | 'angle' | 'distance' | 'intersect'; target?: 'lines' | 'circle'; points: Partial<Record<PointField, [number, number]>>};
 
 /** The opening scene of each section of the analytic-lines chapter (the cards) and a few further scenes of the same modes. */
 const SCENES: Record<string, Scene> = {
@@ -36,6 +36,7 @@ function mountScene(scene: Scene) {
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     act(() => {
         graph.applyLinesAction({kind: 'lines', operation: 'set-mode', mode: scene.mode});
+        if (scene.target) graph.applyLinesAction({kind: 'lines', operation: 'set-target', target: scene.target});
         graph.applyLinesAction({kind: 'lines', operation: 'set-points', points: Object.fromEntries(Object.entries(scene.points).map(([k, [x, y]]) => [k, {x, y}]))});
     });
     act(() => { graph.liveBoard().update(); });
@@ -81,6 +82,40 @@ describe('LineGeometryGraph board text placement', () => {
                 expect(hit, `"${label.text}" lies on a drawn line`).toBeUndefined();
             }
             labels.forEach((a, i) => labels.slice(i + 1).forEach(b => expect(overlaps(a.box, b.box), `"${a.text}" and "${b.text}" overlap`).toBe(false)));
+        });
+    }
+});
+
+/** The boxes of the axis tick numbers (px from the top left corner, y down), from the tick label elements and their anchors. */
+function tickBoxes(graph: Probe): PxBox[] {
+    const board = graph.liveBoard();
+    const [left, top] = board.getBoundingBox();
+    const axes = (board as unknown as {defaultAxes: Record<'x' | 'y', {defaultTicks?: {labels?: Array<Shown & {plaintext: string; X(): number; Y(): number}>}}>}).defaultAxes;
+    return (['x', 'y'] as const).flatMap(k => (axes[k].defaultTicks?.labels ?? []).filter(l => Boolean(l.evalVisProp('visible'))).map(l => {
+        const [px, py] = [(l.X() - left) * board.unitX, (top - l.Y()) * board.unitY];
+        const w = l.plaintext.length * 7 + 2, h = 14;
+        return k === 'x' ? {x0: px - w / 2, y0: py, x1: px + w / 2, y1: py + h} : {x0: px - w, y0: py - h / 2, x1: px, y1: py + h / 2};
+    }));
+}
+
+/** Openings of the analytic-lines lessons (the intersections lesson's meeting and circle scenes, the forms and angle openings) and a few more. */
+const TICK_SCENES: Record<string, Scene> = {
+    ...SCENES,
+    meeting: {mode: 'intersect', target: 'lines', points: {P: [-4, 0], Q: [0, 2], R: [0, 0], S: [2, 2], O: [1, 0], B: [3, 2]}},
+    meetingMade: {mode: 'intersect', target: 'lines', points: {P: [-4, 0], Q: [0, 2], R: [2, 0], S: [0, 4], O: [1, 0], B: [3, 2]}},
+    circle: {mode: 'intersect', target: 'circle', points: {P: [-4, 0], Q: [0, 2], R: [2, 0], S: [0, 4], O: [1, 0], B: [3, 2]}},
+};
+
+describe('LineGeometryGraph labels and the axis tick numbers', () => {
+    for (const [name, scene] of Object.entries(TICK_SCENES)) {
+        it(`${name}: no placed text lies on a tick number (board 600x400)`, () => {
+            const graph = mountScene(scene);
+            const ticks = tickBoxes(graph);
+            expect(ticks.length).toBeGreaterThan(4);
+            for (const {text, box} of drawn(graph).labels) {
+                const hit = ticks.find(t => overlaps(box, t));
+                expect(hit, `"${text}" at ${JSON.stringify(box)} lies on a tick number ${JSON.stringify(hit)}`).toBeUndefined();
+            }
         });
     }
 });

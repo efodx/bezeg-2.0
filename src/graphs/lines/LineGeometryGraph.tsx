@@ -385,6 +385,39 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
     private layoutCache: {key: string; boxes: Record<string, PxBox>} = {key: "", boxes: {}};
 
     /**
+     * The boxes (px, y down) of the visible axis tick numbers, from the major tick spacing of the default axes (not from the tick label
+     * elements, which exist only after the first draw). Duplicated from `IsometryGraph.tickNumberBoxes`. Empty when the numbers are hidden.
+     */
+    private tickNumberBoxes(toPx: (x: number, y: number) => readonly [number, number], left: number, top: number, width: number, height: number): PxBox[] {
+        if (!this.displaySettings.tickNumbersVisible()) return [];
+        const axes = (this.board as unknown as {defaultAxes?: Record<"x" | "y", {defaultTicks?: {getDistanceMajorTicks?: () => number}} | undefined>}).defaultAxes;
+        const font = this.displaySettings.fontSize * 0.6;
+        const [origin0, origin1] = toPx(0, 0);
+        const [right, bottom] = [left + width / this.board.unitX, top - height / this.board.unitY];
+        const text = (v: number) => Number(v.toFixed(6)).toString();
+        const boxes: PxBox[] = [];
+        const along = (axis: "x" | "y", from: number, to: number, place: (v: number) => PxBox) => {
+            const distance = Number(axes?.[axis]?.defaultTicks?.getDistanceMajorTicks?.());
+            if (!(distance > 0) || (to - from) / distance > 200) return;
+            for (let k = Math.ceil(from / distance); k * distance <= to; k++) if (k !== 0) boxes.push(place(k * distance));
+        };
+        const wide = (v: number) => text(v).length * font * 0.55 + 2, high = font + 1;
+        if (origin1 > -high && origin1 < height) {
+            along("x", left, right, v => {
+                const [px] = toPx(v, 0);
+                return {x0: px - wide(v) / 2, x1: px + wide(v) / 2, y0: origin1 + 1, y1: origin1 + 3 + high};
+            });
+        }
+        if (origin0 > 0 && origin0 < width + 40) {
+            along("y", bottom, top, v => {
+                const [, py] = toPx(0, v);
+                return {x0: origin0 - 10 - wide(v), x1: origin0 - 8, y0: py + 5 - high / 2, y1: py + 5 + high / 2};
+            });
+        }
+        return boxes;
+    }
+
+    /**
      * The boxes (px from the board's top left corner, y down) of the board texts, each the free spot nearest to its anchor that clears the
      * handles and markers, the drawn lines, arrows and arc, and the texts placed before it (a bounded search, see `placeLpLabels`).
      */
@@ -394,7 +427,8 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
         const ux = Number.isFinite(this.board.unitX) && this.board.unitX > 0 ? this.board.unitX : 1;
         const uy = Number.isFinite(this.board.unitY) && this.board.unitY > 0 ? this.board.unitY : 1;
         const width = this.board.canvasWidth, height = this.board.canvasHeight;
-        const key = [ux, uy, left, top, width, height, this.stateKey(), currentLanguage()].join("|");
+        const key = [ux, uy, left, top, width, height, this.stateKey(), currentLanguage(),
+            this.displaySettings.tickNumbersVisible(), this.displaySettings.fontSize, this.tickNumberBoxes(() => [0, 0], left, top, width, height).length].join("|");
         if (key === this.layoutCache.key) return this.layoutCache.boxes;
         const state = this.state;
         const view = this.view();
@@ -462,7 +496,14 @@ export class LineGeometryGraph extends BaseGraph<LineGeometryGraphState, LineGeo
             ...markerPoints.map((p): readonly [number, number, number] => [...toPx(p), MARKER_RADIUS_PX]),
             ...headPoints.map((p): readonly [number, number, number] => [...toPx(p), ARROWHEAD_RADIUS_PX]),
         ];
-        const boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        const ticks = this.tickNumberBoxes((x, y) => toPx({x, y}), left, top, width, height);
+        let boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: ticks});
+        // A tick number costs a spot more than two texts on each other, so where the tick numbers crowd the texts into one another
+        // the texts are placed as before, clear of each other and over the tick numbers.
+        const placed = Object.values(boxes);
+        if (placed.some((a, i) => placed.slice(i + 1).some(b => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0))) {
+            boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        }
         this.layoutCache = {key, boxes};
         return boxes;
     }
