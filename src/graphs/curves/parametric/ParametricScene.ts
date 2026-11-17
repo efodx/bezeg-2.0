@@ -159,6 +159,12 @@ export class ParametricScene {
         this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
+        // JSXGraph's SVG renderer keeps an arrow's <marker> in <defs> after removeObject; the scene is rebuilt on every import.
+        const markers = present.flatMap(element => {
+            const nodes = element as unknown as {rendNodeTriangleStart?: Element | null; rendNodeTriangleEnd?: Element | null};
+            return [nodes.rendNodeTriangleStart, nodes.rendNodeTriangleEnd];
+        }).filter((node): node is Element => !!node);
         if (present.length) this.board.removeObject(present);
+        for (const marker of markers) marker.remove();
     }
 }

@@ -84,3 +84,24 @@ test('on a real board the partial trace ends at the marked point while rolling a
     expect(again[again.length - 1].usrCoords[1]).toBeCloseTo(2 * Math.PI, 6);
     view.unmount();
 });
+
+test('repeated scene imports leave no arrowhead markers or paths behind (JSXGraph keeps markers in <defs> after removeObject)', () => {
+    const graph = new ObservedParametricGraph();
+    const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const container = graph.liveBoard().containerObj;
+    const count = (selector: string) => container.querySelectorAll(selector).length;
+    const scenes = [{curve: 'cardioid' as const, radius: 1, parameter: 1}, {curve: 'cycloid' as const, radius: 1, parameter: 1}];
+    const sweep = () => scenes.forEach(scene => {
+        graph.importPresetData(scene);
+        act(() => graph.flushStateChanges());
+    });
+    sweep();
+    const markers = count('marker');
+    const paths = count('path');
+    expect(markers).toBeGreaterThanOrEqual(1);
+    sweep();
+    sweep();
+    sweep();
+    expect({markers: count('marker'), paths: count('path')}).toEqual({markers, paths});
+    view.unmount();
+});
