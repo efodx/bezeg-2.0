@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+  "sourceRevision": "592956c46c438e6352bb672a6599570e4790b16e",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "revision": "592956c46c438e6352bb672a6599570e4790b16e",
     "dirty": false,
-    "inputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d",
-    "output": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4"
+    "inputs": "96826c5c4f087fecd1a3e7512264bb4dbcf8798267f23d7bc69307a7f08f91fe",
+    "output": "7380e4b994c3f0bbe3f70bc1d00e63c543a2d66ddb58dd51dd062266725ae399"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4333/bezeg-2.0/",
-    "stampRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
+    "shellUrl": "http://127.0.0.1:4551/bezeg-2.0/",
+    "stampRevision": "592956c46c438e6352bb672a6599570e4790b16e",
     "stampDirty": false,
-    "localOutputHash": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
+    "localOutputHash": "7380e4b994c3f0bbe3f70bc1d00e63c543a2d66ddb58dd51dd062266725ae399",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Sav4vAtz.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-Sav4vAtz.js",
-        "sha256": "8de44664117b410cbd9d25d02f547c26c7d8024e6d53dc6ed22ee7b39df08728",
+        "name": "index-B2hpbrUj.js",
+        "url": "http://127.0.0.1:4551/bezeg-2.0/assets/index-B2hpbrUj.js",
+        "sha256": "a8be32ff64c252efeeb2318db99da89f39111c30d98174ca477af1ff3ff3fce1",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4551/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DhVB939A.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/jsx-runtime-DhVB939A.js",
-        "sha256": "8ebf1bf1b002fea4bc1612727a9d2cf72b3fa4675e59f71863b074f44dd091a1",
+        "name": "jsx-runtime-D5ThqnVU.js",
+        "url": "http://127.0.0.1:4551/bezeg-2.0/assets/jsx-runtime-D5ThqnVU.js",
+        "sha256": "c5857ad2095b963ddaf8d3a3bb879179b1381e064a5ec65e97daf3bd740291bc",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Bc8KfqSd.js",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/react-dom-Bc8KfqSd.js",
-        "sha256": "d73a833b28959e8b6033e179838b266746e5808b9139fd8d03ed30ef5f2d37b6",
+        "name": "react-dom-DF8DAcL0.js",
+        "url": "http://127.0.0.1:4551/bezeg-2.0/assets/react-dom-DF8DAcL0.js",
+        "sha256": "cc0082cea2181f30f0bd941c9597d8e4ace22fddf4c8ec6babfff454930566b5",
         "matchesLocalBuild": true
       },
       {
         "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4333/bezeg-2.0/assets/index-oyVtknyb.css",
+        "url": "http://127.0.0.1:4551/bezeg-2.0/assets/index-oyVtknyb.css",
         "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4333/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4551/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -63,9 +63,9 @@
       "phase-portraits.logistic-map.logistic-map": "02c46bb0e5fac05f936955fbed5e4844d327d6ac0198206b88e2cd1cf7925f30",
       "phase-portraits.bifurcation.logistic-map": "065e213b4c6df97b8bf14bae613571df899f64a8f0eb20b4a7d3b6d6b1fe5d07"
     },
-    "presentation": "ff364dba100bba4d8dc0cec4fc93a3bdc01ebe1092a3c1ebc345f0f72b24bf05",
-    "buildOutput": "1ef8565464f4202fa46875fedee427cc96c2aa90c4a4686c5cc1c18b584159f4",
-    "buildInputs": "dc2d8ed959ff1abef142bf4f0546e256483a479ec0b0c0ee003d5940b15ec13d"
+    "presentation": "0ad0d19c063ce984b54a1ef54bded28c0427bbeb8eba2fb2c2c4efcb2b4326bd",
+    "buildOutput": "7380e4b994c3f0bbe3f70bc1d00e63c543a2d66ddb58dd51dd062266725ae399",
+    "buildInputs": "96826c5c4f087fecd1a3e7512264bb4dbcf8798267f23d7bc69307a7f08f91fe"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -171,9 +171,9 @@
       "file": "phase-portraits.linear-system.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "7e75515ac20b4eee3d2e63a5be2e377a3acf317034be64fe73740e5ae2fdf456",
+      "sha256": "96cafa8eb66611164d466066f65f7650a8968b5e8fda4b1559f4c24a49a8900e",
       "scene": {
-        "visibleElementCount": 34,
+        "visibleElementCount": 26,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
@@ -181,7 +181,6 @@
           "curve": 3,
           "line": 2,
           "point": 5,
-          "text": 8,
           "segment": 2
         },
         "visiblePointCount": 5,
@@ -321,8 +320,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 8,
-        "finalLabelCount": 8,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -331,15 +330,14 @@
           "curve": 3,
           "line": 2,
           "point": 5,
-          "text": 8,
           "segment": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "592956c46c438e6352bb672a6599570e4790b16e",
+        "sourceRevision": "592956c46c438e6352bb672a6599570e4790b16e",
         "pageErrors": []
       }
     },
@@ -362,16 +360,15 @@
       "file": "phase-portraits.pendulum.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "9acaa158424b20522f712bc07bc2f982ded52a0eb9268a1112c80cc275811d7a",
+      "sha256": "e78722db66626c2b3b24ff73b346e69a82482352749009c2a3641c75a6f831a9",
       "scene": {
-        "visibleElementCount": 30,
+        "visibleElementCount": 24,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 10,
           "curve": 3,
           "point": 5,
-          "text": 6,
           "segment": 2
         },
         "visiblePointCount": 5,
@@ -510,8 +507,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 6,
-        "finalLabelCount": 6,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -519,15 +516,14 @@
           "label": 10,
           "curve": 3,
           "point": 5,
-          "text": 6,
           "segment": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "592956c46c438e6352bb672a6599570e4790b16e",
+        "sourceRevision": "592956c46c438e6352bb672a6599570e4790b16e",
         "pageErrors": []
       }
     },
@@ -547,9 +543,9 @@
       "file": "phase-portraits.linearization.phase-portrait.png",
       "width": 840,
       "height": 520,
-      "sha256": "5af462c1351686d5ed4374a39f34553f41adf2316916f2cf4cf77785c09a4742",
+      "sha256": "e9ac194082fbc81b1de224b09ebb60154bd998852631ca54c891fc9891628b82",
       "scene": {
-        "visibleElementCount": 34,
+        "visibleElementCount": 26,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
@@ -557,7 +553,6 @@
           "curve": 3,
           "line": 2,
           "point": 5,
-          "text": 8,
           "segment": 2
         },
         "visiblePointCount": 5,
@@ -697,8 +692,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 8,
-        "finalLabelCount": 8,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -707,15 +702,14 @@
           "curve": 3,
           "line": 2,
           "point": 5,
-          "text": 8,
           "segment": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "592956c46c438e6352bb672a6599570e4790b16e",
+        "sourceRevision": "592956c46c438e6352bb672a6599570e4790b16e",
         "pageErrors": []
       }
     },
@@ -737,16 +731,16 @@
       "file": "phase-portraits.logistic-map.logistic-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "5162676c3fa061fa3681f39ab1b7a8f0c5867b3fd1e0fb2e90ee7f3c01d976e2",
+      "sha256": "ed766c1be69164ae5a3f346a056a655362368966b31cb278560315e0bb26daa5",
       "scene": {
-        "visibleElementCount": 31,
+        "visibleElementCount": 23,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
           "curve": 7,
           "point": 3,
-          "text": 12
+          "text": 4
         },
         "visiblePointCount": 3,
         "sampledVisibleCurves": [
@@ -989,8 +983,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 12,
-        "finalLabelCount": 12,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -998,14 +992,14 @@
           "label": 5,
           "curve": 7,
           "point": 3,
-          "text": 12
+          "text": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "592956c46c438e6352bb672a6599570e4790b16e",
+        "sourceRevision": "592956c46c438e6352bb672a6599570e4790b16e",
         "pageErrors": []
       }
     },
@@ -1026,16 +1020,16 @@
       "file": "phase-portraits.bifurcation.logistic-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "d91cc74a17f1f39fbda81d87a1969180518ebb9d102284a1b0e470921156f5d7",
+      "sha256": "e3cd7f49305f2b81c42bbdd2ef3b549fd3c28d8c24dc83b21e1889a160252e9f",
       "scene": {
-        "visibleElementCount": 29,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
           "curve": 7,
           "point": 2,
-          "text": 11
+          "text": 4
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -1276,8 +1270,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 11,
-        "finalLabelCount": 11,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -1285,14 +1279,14 @@
           "label": 5,
           "curve": 7,
           "point": 2,
-          "text": 11
+          "text": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "52b7ecbdf487e6fee8c29f1ab8087671f77be3ec",
-        "sourceRevision": "f145fd0448809b04ac459a3cee7d6327bb0dfb71",
+        "buildRevision": "592956c46c438e6352bb672a6599570e4790b16e",
+        "sourceRevision": "592956c46c438e6352bb672a6599570e4790b16e",
         "pageErrors": []
       }
     }
