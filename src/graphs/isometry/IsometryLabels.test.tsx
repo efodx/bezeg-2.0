@@ -6,6 +6,7 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {sampleLine, type PxBox} from '../legend/boardLabelPlacement';
 import {CLASSIFY_EXAMPLES, DEFAULT_ISOMETRY_STATE, type IsometryState} from '../../isometry/isometryModel';
+import {AxisSelect} from '../base/DisplaySettings';
 import {IsometryGraph} from './IsometryGraph';
 
 beforeAll(installBoardShims);
@@ -157,6 +158,18 @@ describe('IsometryGraph name ownership and the coordinate infobox', () => {
         const r = centreGap(SCENES.rosette);
         expect(r.gap).toBeLessThanOrEqual(34);
         expect(r.owned).toBe(true);
+    });
+
+    it('the centre name of the two-mirrors card scene with the axis set to "Brez" sits beside the cross, not behind the image name', () => {
+        const graph = new Probe();
+        render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        act(() => { graph.setAxisSelect(AxisSelect.NONE); });
+        act(() => { graph.setState(SCENES.twoMirrors); });
+        act(() => { graph.liveBoard().update(); });
+        act(() => { graph.liveBoard().update(); });
+        const r = centreGap({}, graph);
+        expect(r.owned).toBe(true);
+        expect(r.gap, `the name is ${Math.round(r.gap)} px from its marker`).toBeLessThanOrEqual(34);
     });
 
     it('the centre name of a classified rotation is nearest to its own cross and no farther than before the pass (the figure is crowded there)', () => {

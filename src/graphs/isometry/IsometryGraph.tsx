@@ -419,6 +419,9 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const [first, ...rest] = c.anchors().filter(a => Number.isFinite(a[0]) && Number.isFinite(a[1])).map(a => toPx(a[0], a[1]));
             if (first) items.push({id: c.id, ax: first[0], ay: first[1], alts: rest, w: text.length * font * 0.55 + 8, h: font + 7});
         }
+        // Names of points are placed first, so a caption of a shape (which has room anywhere along its outline) cannot take the one clear spot
+        // beside a point (the two-mirrors card: "slika 1" took the spot under the centre and "središče" went 200 px away).
+        items.sort((a, b) => Number(ownedIds.has(b.id)) - Number(ownedIds.has(a.id)));
         const ticks = this.tickNumberBoxes(toPx, left, top, width, height);
         let boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: ticks});
         // A tick number costs a spot more than two texts on each other (the weights of `placeLpLabels`), so where the tick numbers crowd the texts
