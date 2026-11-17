@@ -648,3 +648,22 @@ Reading (no decision is taken here; misses are owed to the first release batch a
 - **Contour surface:** board 1 (the surface) is updated on level slider drags (66 updates) and on probe drags (56), contrary to the plan in ADR 0053 that it would not be.
 
 Limits: the 4× throttle is a desktop slowdown, not a phone; touch is synthetic CDP input and needs a 250 ms settle after touchStart at 4×; timer-driven input is lighter than a real finger or mouse; rAF intervals saturate at 16,7 ms; load from other sessions was not controlled; a real phone, memory and the unreachable settings above were not measured.
+
+## Solids revolve disc slider: where the step time goes — 2026-11-17
+
+Owed from the solids F6 gates (live sphere step p95 233 ms at 390×844 with CPU ×4). Measurement only; no code changed. Commit `ed122b62`, non-minified production build served statically, Chromium 156.0.8078.4 headless, 60 Hz. Revolve mode, front camera, "Število diskov" driven by keyboard (Home/End, then 59 arrow presses, each followed by a double rAF; "step" is keydown to the second rAF, so desktop has a 33 ms floor). 3 fresh contexts per case, sweeping 1 → 60 and 60 → 1; desktop 1280×800 unthrottled, phone 390×844 with CPU ×4 and touch emulation. CPU profiles (CDP `Profiler`, 200 µs) and one `devtools.timeline` trace per case. Raw data, scripts and the full note: `.command-logs/h38-revolve/` (untracked).
+
+| Profile | Case | Step median / p95 (1 → 60) | Step median / p95 (60 → 1) | Long tasks over 50 ms per sweep |
+|---|---|---|---|---|
+| desktop | sphere about x | 38,4 / 65,7 | 34,3 / 57,4 | 0–1 (max 65 ms) |
+| desktop | parabola about y | 33,7 / 65,8 | 33,6 / 64,2 | 0 |
+| desktop | cone | 32,8 / 37,0 | 32,5 / 39,4 | 0 |
+| phone ×4 | sphere about x | 189,8 / 254,9 | 181,7 / 240,1 | 59 (every step, max 249 ms) |
+| phone ×4 | parabola about y | 177,2 / 241,9 | 171,3 / 231,8 | 59 (max 225 ms) |
+| phone ×4 | cone | 124,2 / 179,8 | 116,3 / 189,8 | 51–56 (max 166 ms) |
+
+Split per step, sphere (ms, desktop / phone ×4): scene build (`drawSolids`, revolve, volumes) 0,1 / 0,5; surface view and JSXGraph, including DOM calls 24,2 / 126,4; React and the panel 1,4 / 6,4; native style, layout, paint and GC outside JS 11,8 / 56,8 (the phone trace: style recalculation 59,5, layout 6,0, paint 7,0 of 188). Top self time on the phone: `setAttribute` 37,4, JSXGraph `Text.updateSize` 37,1 (34 tick and axis labels re-measured on every step), `Element.remove` 7,7, the surface view's `writeDrawable` 5,9.
+
+Cause: the surface view's `topologySignature` ([jsxSurfaceView.ts](../src/graphs/patches/surface-view/jsxSurfaceView.ts)) includes the polyline ids, so a disc-count change rebuilds the whole drawable pool. The mesh slots do not depend on the disc count (sphere 1119, parabola about y 919, cone 145) but are recreated on every step, beside 32 slots per ring. JSXGraph's own objects (805) all survive a step.
+
+Candidates (not implemented; phone sphere shares): (1) keep the mesh slots across a disc-count change and rebuild only the ring slots, an estimated 40 % (parabola 35 %, cone 8 %; regression estimate from the three solids, an upper bound); (2) fewer SVG pieces per ring, or fewer drawn rings on small screens while the sum keeps every disc, an estimated 35 % (cone 53 %; the 32 pieces exist for depth ordering, so occlusion needs a visual check); (3) skip JSXGraph label sizing when the labels did not move, measured by a runtime patch at 18 % (190 → 153 ms phone, 38 → 33 ms desktop). Caching the scene build is not worth it (under 0,3 %). Candidates 1 and 3 change only drawing bookkeeping, not what is drawn; each is to be measured against this table on the same build settings before it is kept.

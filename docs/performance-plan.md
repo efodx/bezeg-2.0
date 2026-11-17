@@ -58,4 +58,6 @@ The function drag and slider baseline (integral, area-between, accumulation, dar
 
 The F2b geometry routes' drag baseline (unit circle, triangle solver, line geometry, isometries; desktop and 390×844 at 4× CPU with touch) is in [F2b geometry routes drag baseline](bezier-performance-results.md#f2b-geometry-routes-drag-baseline--2026-11-11).
 
+The solids revolve disc-slider split (desktop and 390×844 at 4× CPU; surface-view pool rebuild, label sizing) and its ranked candidates are in [Solids revolve disc slider: where the step time goes](bezier-performance-results.md#solids-revolve-disc-slider-where-the-step-time-goes--2026-11-17).
+
 For each experiment record: scene configuration, changed mechanism, baseline and new results, affected mathematical checks, device/input coverage, remaining limits, and the decision to keep or discard it. Retain comparable configurations so later changes can be assessed on the same work.
