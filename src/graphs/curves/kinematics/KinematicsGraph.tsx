@@ -426,6 +426,39 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return {ux, uy, left, top};
     }
 
+    /**
+     * The boxes (px, y down) of the visible axis tick numbers, from the major tick spacing of the default axes (not from the tick label
+     * elements, which exist only after the first draw). Same estimate as `IsometryGraph.tickNumberBoxes`. Empty when the numbers are hidden.
+     */
+    private tickNumberBoxes(toPx: (x: number, y: number) => readonly [number, number], left: number, top: number, width: number, height: number, ux = this.board.unitX, uy = this.board.unitY): PxBox[] {
+        if (!this.displaySettings.tickNumbersVisible()) return [];
+        const axes = (this.board as unknown as {defaultAxes?: Record<"x" | "y", {defaultTicks?: {getDistanceMajorTicks?: () => number}} | undefined>}).defaultAxes;
+        const font = this.displaySettings.fontSize * 0.6;
+        const [origin0, origin1] = toPx(0, 0);
+        const [right, bottom] = [left + width / ux, top - height / uy];
+        const text = (v: number) => Number(v.toFixed(6)).toString();
+        const boxes: PxBox[] = [];
+        const along = (axis: "x" | "y", from: number, to: number, place: (v: number) => PxBox) => {
+            const distance = Number(axes?.[axis]?.defaultTicks?.getDistanceMajorTicks?.());
+            if (!(distance > 0) || (to - from) / distance > 200) return;
+            for (let k = Math.ceil(from / distance); k * distance <= to; k++) if (k !== 0) boxes.push(place(k * distance));
+        };
+        const wide = (v: number) => text(v).length * font * 0.55 + 2, high = font + 1;
+        if (origin1 > -high && origin1 < height) {
+            along("x", left, right, v => {
+                const [px] = toPx(v, 0);
+                return {x0: px - wide(v) / 2, x1: px + wide(v) / 2, y0: origin1 + 1, y1: origin1 + 3 + high};
+            });
+        }
+        if (origin0 > 0 && origin0 < width + 40) {
+            along("y", bottom, top, v => {
+                const [, py] = toPx(0, v);
+                return {x0: origin0 - 10 - wide(v), x1: origin0 - 8, y0: py + 5 - high / 2, y1: py + 5 + high / 2};
+            });
+        }
+        return boxes;
+    }
+
     private buildScene(): void {
         this.disposeScene();
         const board = this.board;
@@ -493,12 +526,19 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             const point = toPx(...ev().point);
             const tips = shown.map(arrow => ({arrow, tip: toPx(...endOf(arrow.name)())}));
             const block = captionBlock();
-            const key = [width, height, ux, uy, left, top, fontSize, currentLanguage(), point, block ? block.y1 : 0, tips.map(({arrow, tip}) => `${arrow.name}${tip}`)].join("|");
+            const ticks = this.tickNumberBoxes(toPx, left, top, width, height, ux, uy);
+            const key = [width, height, ux, uy, left, top, fontSize, currentLanguage(), point, block ? block.y1 : 0,
+                this.displaySettings.tickNumbersVisible(), this.displaySettings.fontSize, ticks.length, tips.map(({arrow, tip}) => `${arrow.name}${tip}`)].join("|");
             if (tagCache?.key === key) return tagCache.boxes;
             const samples = tips.flatMap(({tip}) => sampleLine([point[0], tip[0]], [point[1], tip[1]], (x, y) => [x, y], width * 4, height * 4, 5, 60));
             const items: TagItem[] = tips.map(({arrow, tip}) => ({id: arrow.name, tip, ...tagSize(t(`kinematics_graph_${arrow.key}`), fontSize)}));
-            const boxes = placeArrowTags(items, {width, height, point, samples, block, strips: [
-                {x0: 0, y0: top * uy, x1: width, y1: top * uy + 22}, {x0: (0 - left) * ux - 40, y0: 0, x1: (0 - left) * ux, y1: height}]});
+            const strips = [{x0: 0, y0: top * uy, x1: width, y1: top * uy + 22}, {x0: (0 - left) * ux - 40, y0: 0, x1: (0 - left) * ux, y1: height}];
+            let boxes = placeArrowTags(items, {width, height, point, samples, block, strips, blocks: ticks});
+            // A tick number costs a spot more than a shaft, so where the numbers would force two tags onto each other the tags are placed as before.
+            const placed = Object.values(boxes);
+            if (placed.length < items.length || placed.some((a, i) => placed.slice(i + 1).some(b => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0))) {
+                boxes = placeArrowTags(items, {width, height, point, samples, block, strips});
+            }
             tagCache = {key, boxes};
             return boxes;
         };

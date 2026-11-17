@@ -955,7 +955,7 @@ describe('the arrow tags keep clear of each other, of the arrowheads and of the 
             const head: [number, number][] = [tip, [base[0] - 4 * uy, base[1] + 4 * ux], [base[0] + 4 * uy, base[1] - 4 * ux], base];
             found.push({name: names[index], x0: x, y0: top0, x1: x + w, y1: top0 + h, tip, head});
         });
-        return {point, tags: found, width, height};
+        return {point, tags: found, width, height, graph, board};
     }
     const inBox = (box: Tag, [x, y]: [number, number]) => x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1;
     const CASES: readonly [MotionChoice, number][] = [['cycloid', 0.5], ['cycloid', Math.PI / 2], ['cycloid', 3.14], ['projectile', 1.5], ['rose', 1.2]];
@@ -983,6 +983,34 @@ describe('the arrow tags keep clear of each other, of the arrowheads and of the 
                     for (const other of tags) if (other !== tag && Math.hypot(other.tip[0] - tag.tip[0], other.tip[1] - tag.tip[1]) > 1) expect(gap(tag.tip), `${tag.name} is nearer ${other.name}'s tip`).toBeLessThan(gap(other.tip));
                     expect(tag.x0).toBeGreaterThanOrEqual(0);
                     expect(tag.x1).toBeLessThanOrEqual(board.width);
+                }
+            });
+        }
+    }
+
+    /** The boxes of the axis tick numbers (px from the top left corner, y down), from the tick label elements and their anchors. */
+    function tickBoxes(board: Board): {x0: number; y0: number; x1: number; y1: number}[] {
+        const [left, top] = board.getBoundingBox();
+        type Label = Probe & {plaintext: string; X(): number; Y(): number};
+        const axes = (board as unknown as {defaultAxes: Record<'x' | 'y', {defaultTicks?: {labels?: Label[]}}>}).defaultAxes;
+        return (['x', 'y'] as const).flatMap(k => (axes[k].defaultTicks?.labels ?? []).filter(l => visible(l)).map(l => {
+            const [px, py] = [(l.X() - left) * board.unitX, (top - l.Y()) * board.unitY];
+            const w = l.plaintext.length * 7 + 2, h = 14;
+            return k === 'x' ? {x0: px - w / 2, y0: py, x1: px + w / 2, y1: py + h} : {x0: px - w, y0: py - h / 2, x1: px, y1: py + h / 2};
+        }));
+    }
+    const TICK_CASES: readonly [MotionChoice, number][] = [['projectile', 1.5], ['projectile', 0.7], ['projectile', 1.0], ['rose', 1.8], ['rose', 2.4], ['rose', 3.0], ['cycloid', 0.5]];
+    for (const board of [{width: 390, height: 500}, {width: 600, height: 400}]) {
+        for (const [motion, time] of TICK_CASES) {
+            test(`${board.width} x ${board.height}, ${motion} at t = ${time}: no tag lies on an axis tick number, and each is 4 px inside the board`, () => {
+                const {tags, board: live} = tagScene(board.width, board.height, motion, time);
+                const ticks = tickBoxes(live);
+                expect(ticks.length).toBeGreaterThan(4);
+                for (const tag of tags) {
+                    const hit = ticks.find(t => tag.x0 < t.x1 && tag.x1 > t.x0 && tag.y0 < t.y1 && tag.y1 > t.y0);
+                    expect(hit, `${tag.name} at ${JSON.stringify([tag.x0, tag.y0, tag.x1, tag.y1])} lies on a tick number ${JSON.stringify(hit)}`).toBeUndefined();
+                    expect(tag.y1).toBeLessThanOrEqual(board.height - 4);
+                    expect(tag.y0).toBeGreaterThanOrEqual(4);
                 }
             });
         }
