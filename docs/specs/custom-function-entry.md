@@ -2,6 +2,8 @@
 
 **Status** — specification. Bisection is the pilot. Newton and Secant are the second consumer on their shared route. See [sequencing](#sequencing).
 
+Implementation tasks are in the [custom-formula queue](../tasks/custom-function-entry/README.md), created on 2026-11-18 as part of the [master-review follow-ups](../tasks/master-review-followups-2026-11/README.md). The tasks retain this specification as their behavioral source of truth.
+
 ## Teaching workflow and scope
 
 A teacher opens the ordinary Bisection Demonstration at `/bezeg-2.0/analysis/bisection`, enters `cos(x) - x`, applies it, and sets the bracket to `[0, 1]`. They show the midpoint and the retained half using the existing step controls. They save the setup as a Preset, reopen it, and can export it to a file and import it on another browser. On `/bezeg-2.0/analysis/root-finding`, they use the same formula with a Newton starting point or two Secant starting points and show the corresponding tangent or secant steps. Both routes support teaching the mathematical idea directly in free exploration. Guided examples remain independently authored activities for students. See [independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).

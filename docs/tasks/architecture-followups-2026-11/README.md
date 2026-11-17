@@ -2,6 +2,8 @@
 
 Status: planned, 2026-11-10. Source: [assessment and bounded specification](../../specs/architecture-followups-2026-11.md). The owner requested judgment on the review and tasks for the recommendations worth doing; these are implementation tasks, not completed changes.
 
+The [18 November combined queue](../master-review-followups-2026-11/README.md) links these tasks alongside the new bug repairs and custom-formula work. This queue remains the source of truth for their status and acceptance; no duplicate tasks were created.
+
 | Order | Task | Size | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | 1 | [Board-unit projection](01-board-unit-projection.md) | M | None | planned |
