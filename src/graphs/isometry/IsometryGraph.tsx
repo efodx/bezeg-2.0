@@ -339,6 +339,40 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
     }
 
     /**
+     * The boxes (px, y down) of the visible axis tick numbers, from the major tick spacing of the default axes (not from the tick label
+     * elements, which exist only after the first draw): below the x axis, centred on the tick, and left of the y axis, centred on the tick
+     * (the offsets of `AxisStyles`). Empty when the numbers are hidden.
+     */
+    private tickNumberBoxes(toPx: (x: number, y: number) => readonly [number, number], left: number, top: number, width: number, height: number): PxBox[] {
+        if (!this.displaySettings.tickNumbersVisible()) return [];
+        const axes = (this.board as unknown as {defaultAxes?: Record<"x" | "y", {defaultTicks?: {getDistanceMajorTicks?: () => number}} | undefined>}).defaultAxes;
+        const font = this.displaySettings.fontSize * 0.6;
+        const [origin0, origin1] = toPx(0, 0);
+        const [right, bottom] = [left + width / this.board.unitX, top - height / this.board.unitY];
+        const text = (v: number) => Number(v.toFixed(6)).toString();
+        const boxes: PxBox[] = [];
+        const along = (axis: "x" | "y", from: number, to: number, place: (v: number) => PxBox) => {
+            const distance = Number(axes?.[axis]?.defaultTicks?.getDistanceMajorTicks?.());
+            if (!(distance > 0) || (to - from) / distance > 200) return;
+            for (let k = Math.ceil(from / distance); k * distance <= to; k++) if (k !== 0) boxes.push(place(k * distance));
+        };
+        const wide = (v: number) => text(v).length * font * 0.55 + 2, high = font + 1;
+        if (origin1 > -high && origin1 < height) {
+            along("x", left, right, v => {
+                const [px] = toPx(v, 0);
+                return {x0: px - wide(v) / 2, x1: px + wide(v) / 2, y0: origin1 + 1, y1: origin1 + 3 + high};
+            });
+        }
+        if (origin0 > 0 && origin0 < width + 40) {
+            along("y", bottom, top, v => {
+                const [, py] = toPx(0, v);
+                return {x0: origin0 - 10 - wide(v), x1: origin0 - 8, y0: py + 5 - high / 2, y1: py + 5 + high / 2};
+            });
+        }
+        return boxes;
+    }
+
+    /**
      * The boxes (px from the board's top left corner, y down) of the board texts: each takes the free spot nearest to its anchor that clears the
      * handles and markers, the drawn lines and curves and the texts placed before it (the bounded search of `placeLpLabels`).
      */
@@ -350,7 +384,8 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
         const uy = Number.isFinite(board.unitY) && board.unitY > 0 ? board.unitY : 1;
         const width = board.canvasWidth, height = board.canvasHeight;
         const handles = [...this.handleMap.values()].map(h => `${h.X()},${h.Y()}`).join(";");
-        const key = [ux, uy, left, top, width, height, this.builtKey, this.objects.length, handles, currentLanguage()].join("|");
+        const key = [ux, uy, left, top, width, height, this.builtKey, this.objects.length, handles, currentLanguage(),
+            this.displaySettings.tickNumbersVisible(), this.displaySettings.fontSize, this.tickNumberBoxes(() => [0, 0], left, top, width, height).length].join("|");
         if (this.layoutCache?.key === key && this.layoutCache.state === this.state) return this.layoutCache.boxes;
         const toPx = (x: number, y: number): readonly [number, number] => [(x - left) * ux, (top - y) * uy];
         type Drawn = {elType: string; evalVisProp(name: string): unknown; dataX?: number[]; dataY?: number[]; updateDataArray?: () => void};
@@ -384,7 +419,14 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
             const [first, ...rest] = c.anchors().filter(a => Number.isFinite(a[0]) && Number.isFinite(a[1])).map(a => toPx(a[0], a[1]));
             if (first) items.push({id: c.id, ax: first[0], ay: first[1], alts: rest, w: text.length * font * 0.55 + 8, h: font + 7});
         }
-        const boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        const ticks = this.tickNumberBoxes(toPx, left, top, width, height);
+        let boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: ticks});
+        // A tick number costs a spot more than two texts on each other (the weights of `placeLpLabels`), so where the tick numbers crowd the texts
+        // into one another the texts are placed as before, clear of each other and over the tick numbers.
+        const placedBoxes = Object.values(boxes);
+        if (placedBoxes.some((a, i) => placedBoxes.slice(i + 1).some(b => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0))) {
+            boxes = placeLpLabels(items, {width, height, markers, samples, strips: [], blocks: []});
+        }
         // A name of a point (the centre, a handle) lies nearer to its own marker than to any other marker, clear of what is drawn (the rule of the circle constructions):
         // a box that is not moves to the cheapest spot on rings round the point, up and to the right first.
         const overlap = (p: PxBox, q: PxBox) => p.x0 < q.x1 && p.x1 > q.x0 && p.y0 < q.y1 && p.y1 > q.y0;
@@ -402,6 +444,7 @@ export class IsometryGraph extends BaseGraph<IsometryGraphState, IsometryState> 
                 for (const [id, other] of Object.entries(boxes)) if (id !== item.id && overlap(c, other)) cost += 100;
                 for (const [mx, my, mr] of markers) if (mx + mr > c.x0 && mx - mr < c.x1 && my + mr > c.y0 && my - mr < c.y1) cost += 60;
                 for (const [x, y] of samples) if (x >= c.x0 + 2 && x <= c.x1 - 2 && y >= c.y0 + 2 && y <= c.y1 - 2) cost += 8;
+                for (const tick of ticks) if (overlap(c, tick)) cost += 50;
                 return cost;
             };
             const owned = nearest(box);

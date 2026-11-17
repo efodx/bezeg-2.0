@@ -93,6 +93,32 @@ describe('IsometryGraph board text placement', () => {
     }
 });
 
+/** The boxes of the axis tick numbers (px from the top left corner, y down), from the tick label elements and their anchors. */
+function tickBoxes(graph: Probe): PxBox[] {
+    const board = graph.liveBoard();
+    const [left, top] = board.getBoundingBox();
+    const axes = (board as unknown as {defaultAxes: Record<'x' | 'y', {defaultTicks?: {labels?: Array<Shown & {plaintext: string; X(): number; Y(): number}>}}>}).defaultAxes;
+    return (['x', 'y'] as const).flatMap(k => (axes[k].defaultTicks?.labels ?? []).filter(l => Boolean(l.evalVisProp('visible'))).map(l => {
+        const [px, py] = [(l.X() - left) * board.unitX, (top - l.Y()) * board.unitY];
+        const w = l.plaintext.length * 7 + 2, h = 14;
+        return k === 'x' ? {x0: px - w / 2, y0: py, x1: px + w / 2, y1: py + h} : {x0: px - w, y0: py - h / 2, x1: px, y1: py + h / 2};
+    }));
+}
+
+describe('IsometryGraph labels and the axis tick numbers', () => {
+    for (const name of ['rosette', 'frieze', 'dilation', 'twoMirrors', 'classifyRotation']) {
+        it(`${name}: no placed text lies on a tick number (board ${600}x${400})`, () => {
+            const graph = mountScene(SCENES[name]);
+            const ticks = tickBoxes(graph);
+            expect(ticks.length).toBeGreaterThan(4);
+            for (const {text, box} of drawn(graph).labels) {
+                const hit = ticks.find(t => overlaps(box, t));
+                expect(hit, `"${text}" at ${JSON.stringify(box)} lies on a tick number ${JSON.stringify(hit)}`).toBeUndefined();
+            }
+        });
+    }
+});
+
 describe('IsometryGraph name ownership and the coordinate infobox', () => {
     it('no point of any scene can raise the grey coordinate infobox (it lands on the texts near the origin)', () => {
         for (const [name, scene] of Object.entries(SCENES)) {
@@ -115,14 +141,14 @@ describe('IsometryGraph name ownership and the coordinate infobox', () => {
         return {gap: gapToBox(label.box, own.x, own.y), owned: ranked.filter(m => !tied.includes(m)).every(m => m.d > own.d), box: label.box, own};
     };
 
-    it('the centre name of the dilation stays within 34 px of its own marker, nearer to it than to the ratio handle, wherever the centre is', () => {
+    it('the centre name of the dilation stays within 38 px of its own marker (34 before the tick numbers became obstacles), nearer to it than to the ratio handle, wherever the centre is', () => {
         const worst: string[] = [];
         const graph = mountScene({mode: 'similarity'});
         for (const x of [-6, -2, 0, 3, 7]) for (const y of [-5, 0, 2, 6]) for (const k of [2, -0.5, 1]) {
             act(() => { graph.setState({dilationCentre: {x, y}, dilationK: k}); });
             act(() => { graph.liveBoard().update(); });
             const r = centreGap({}, graph);
-            if (r.gap > 34 || !r.owned) worst.push(`centre (${x}, ${y}) k ${k}: ${Math.round(r.gap)} px, owned ${r.owned}`);
+            if (r.gap > 38 || !r.owned) worst.push(`centre (${x}, ${y}) k ${k}: ${Math.round(r.gap)} px, owned ${r.owned}`);
         }
         expect(worst).toEqual([]);
     });
