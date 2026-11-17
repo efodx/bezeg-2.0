@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+  "sourceRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-    "dirty": true,
-    "inputs": "80c0f44b50eead8fbb3e82a11b911b4dff6eabbf3947a5b5418f3cef3792a139",
-    "output": "8b89b8bdb2224af8bab9cc5a3c0f16880e31a84e3635ca89eedd40d6a253137c"
+    "revision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+    "dirty": false,
+    "inputs": "809cb7c066d6528c61a8452fdfc693e2dfa10b5603e781ae33e8271a39dfebce",
+    "output": "f7b452f2d3250d59f4b15203a2de864bb94129b034da32e5ef7ceaee455a8f0d"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4527/bezeg-2.0/",
-    "stampRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-    "stampDirty": true,
-    "localOutputHash": "8b89b8bdb2224af8bab9cc5a3c0f16880e31a84e3635ca89eedd40d6a253137c",
+    "stampRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+    "stampDirty": false,
+    "localOutputHash": "f7b452f2d3250d59f4b15203a2de864bb94129b034da32e5ef7ceaee455a8f0d",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BNEMWeUY.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-BNEMWeUY.js",
-        "sha256": "32281ba6c225134f6a39312ea48eeeef91963ddac354221530d2eae5a6a03ce4",
+        "name": "index-D4YEWslQ.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/index-D4YEWslQ.js",
+        "sha256": "1931dec49e59c1663a566d4744582e5c067c438c092e9ef5ecbd02ea6a12c917",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BP8YOfqk.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-BP8YOfqk.js",
-        "sha256": "20da40124b04d30b818825dd4fcdb0e1d38de09e99289423f141195eb3bce2a3",
+        "name": "jsx-runtime-D5ThqnVU.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/jsx-runtime-D5ThqnVU.js",
+        "sha256": "c5857ad2095b963ddaf8d3a3bb879179b1381e064a5ec65e97daf3bd740291bc",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-BXDP_wDq.js",
-        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-BXDP_wDq.js",
-        "sha256": "b30c9c8e723878403a035b920c220c87a48c90c08ab43b1790f3c24545f6cf83",
+        "name": "react-dom-DF8DAcL0.js",
+        "url": "http://127.0.0.1:4527/bezeg-2.0/assets/react-dom-DF8DAcL0.js",
+        "sha256": "cc0082cea2181f30f0bd941c9597d8e4ace22fddf4c8ec6babfff454930566b5",
         "matchesLocalBuild": true
       },
       {
@@ -63,9 +63,9 @@
       "isometries.rosettes.isometries": "3915a7f848e71123063ceca8a06c272af5fdc0cabcad56c6d8518ddfa6cf0f98",
       "isometries.frieze-patterns.isometries": "c6200d8ee7a97b830e0084864d43f2537f664494fe85ffcc19db13733a1a980e"
     },
-    "presentation": "b4fe05cb191aeb36a24896c11bf46c144e8957252db4a135d0e563884a7df353",
-    "buildOutput": "8b89b8bdb2224af8bab9cc5a3c0f16880e31a84e3635ca89eedd40d6a253137c",
-    "buildInputs": "80c0f44b50eead8fbb3e82a11b911b4dff6eabbf3947a5b5418f3cef3792a139"
+    "presentation": "bc5877fa7e8b851aad2232a7dc7cf6377c79a1399d6ea425737a939602d18094",
+    "buildOutput": "f7b452f2d3250d59f4b15203a2de864bb94129b034da32e5ef7ceaee455a8f0d",
+    "buildInputs": "809cb7c066d6528c61a8452fdfc693e2dfa10b5603e781ae33e8271a39dfebce"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -170,7 +170,7 @@
       "file": "isometries.two-mirrors.isometries.png",
       "width": 840,
       "height": 520,
-      "sha256": "e4b305493cfcb4560a458b076f1aefb519745ea59b718b922e5fe34970610fb0",
+      "sha256": "cad4ef4a363e5876ac26210ca949ccda9e5fc8129d9c6f2f543ceb84687237c9",
       "scene": {
         "visibleElementCount": 16,
         "visibleElementTypes": {
@@ -326,8 +326,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "buildRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+        "sourceRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
         "pageErrors": []
       }
     },
@@ -350,7 +350,7 @@
       "file": "isometries.classifying-a-motion.isometries.png",
       "width": 840,
       "height": 520,
-      "sha256": "bd70f162f6689063b83bc5d9d5df1a492382cf2ce6889d8776811329e18c7ddb",
+      "sha256": "642b21d9c304727e6ae58613f8afbeadaa709965335f6e9b0d47008d4d671c6d",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -476,8 +476,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "buildRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+        "sourceRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
         "pageErrors": []
       }
     },
@@ -499,7 +499,7 @@
       "file": "isometries.dilation-similarity.isometries.png",
       "width": 840,
       "height": 520,
-      "sha256": "47417b058d5c44464e3cdd46bcce1015626d7c6991d0a3fe0e2f058a9fb5a4f4",
+      "sha256": "0bb7a154c5e493219c775d459190eaf374ac6bf3c7182943aeba3cb7f55f1b5b",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -625,8 +625,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "buildRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+        "sourceRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
         "pageErrors": []
       }
     },
@@ -648,7 +648,7 @@
       "file": "isometries.rosettes.isometries.png",
       "width": 840,
       "height": 520,
-      "sha256": "41a4b5aa1aff50f7b2e9f929892f312859eb8630660eb88494b8e060c31bb828",
+      "sha256": "a22729cbb2c9bdfbeb49231dad5a108f4f005a55a06b2053aee55fae4dd4da89",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -716,8 +716,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "buildRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+        "sourceRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
         "pageErrors": []
       }
     },
@@ -739,7 +739,7 @@
       "file": "isometries.frieze-patterns.isometries.png",
       "width": 840,
       "height": 520,
-      "sha256": "6c5185743ac6df919cb215de6a67cf862a5647da1f1543728e63951d788ddea9",
+      "sha256": "38b8b0dcaffa525fd740eaf094dde34f4aed534f47514d5d388f4bc4c1a8f2ea",
       "scene": {
         "visibleElementCount": 7,
         "visibleElementTypes": {
@@ -860,8 +860,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
-        "sourceRevision": "326c49de5864f4fedcc962a17c0d2274a9f41d39",
+        "buildRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
+        "sourceRevision": "5c95ac9cf50574af13ec4a151a695815b3268641",
         "pageErrors": []
       }
     }
