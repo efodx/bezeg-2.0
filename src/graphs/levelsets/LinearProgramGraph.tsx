@@ -23,6 +23,7 @@ import {emptyPoly, type Poly} from "./contourScene";
 import {LpReadout} from "./LpPanels";
 import {lpPresetCollection, type LpPresetData} from "./lpPresetCollection";
 import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
+import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
 import {Memo} from "./Memo";
 import {placeLpLabels, sampleLine, type LabelItem, type PxBox} from "../legend/boardLabelPlacement";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -71,7 +72,6 @@ const boardBox = (box: Box): [number, number, number, number] => {
 const LEGEND_CHAR_PX = 6.2;
 const LABEL_CHAR_PX = 6.6;
 const LABEL_HEIGHT_PX = 18;
-const LEGEND_BACKDROP = "background-color:rgba(255,253,246,0.88);padding:0 4px;margin-left:-4px;";
 
 /** One row of the legend: what an element of the board is, with its drawing style said in words. */
 export interface LegendRow {

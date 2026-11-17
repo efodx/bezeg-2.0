@@ -20,6 +20,7 @@ import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {GraphPalette} from "../styles/GraphPalette";
+import {LEGEND_BACKDROP} from "../legend/legendBackdrop";
 import {SceneObjects} from "../recursion/SceneObjects";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import type {Vec2} from "../../linear/matrix2";
@@ -598,7 +599,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {top, uy} = this.scaleOf(); return top - (10 + place() * legendPitchPx(this.compactLegend)) / uy; },
                 () => row.text(),
-            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
+            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: row.visible, cssStyle: LEGEND_BACKDROP}));
         });
         // The matrix columns' captions: a second stack from the bottom left corner up, the last column lowest.
         columnRows.forEach((row, index) => {
@@ -607,7 +608,7 @@ export class PhasePortraitGraph extends BaseGraph<PhasePortraitGraphState, Phase
                 () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
                 () => { const {bottom, uy} = this.scaleOf(); return bottom + (10 + place() * legendPitchPx(this.compactLegend)) / uy; },
                 () => row.text(),
-            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, withLabel: false, visible: row.visible}));
+            ], {strokeColor: row.color, fontSize: legendFontPx(this.compactLegend), anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, withLabel: false, visible: row.visible, cssStyle: LEGEND_BACKDROP}));
         });
     }
 

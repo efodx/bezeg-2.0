@@ -13,6 +13,7 @@ import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {classifyPlane} from '../../dynamics/classify2';
 import {DEFAULT_PHASE_STATE, entryOf, ORBIT_DURATION, type PhaseState} from '../../dynamics/phaseModel';
 import {RK4_STEP} from '../../dynamics/rk4';
+import {LEGEND_BACKDROP} from '../legend/legendBackdrop';
 import {formatNumber} from '../../analysis/format';
 import {
     HANDLE_TOUCH_RADIUS, HIT_SLACK, INSET_DELTA_MAX, INSET_TAU_MAX, legendLines, MAX_FRAME_MS, PhasePortraitGraph, STORED_FIELDS, TIME_STEP, typeLabel,
@@ -194,6 +195,17 @@ describe('stops are shown, never clipped silently', () => {
         expect(graph.derived().orbits[0].backwardStop).toBe('complete');
         expect(captionTexts(graph).some(text => text.includes(t('phase_graph_cap_stops', {value0: '0', value1: '2'})))).toBe(false);
         expect(readout('seed-1')).toContain(t('phase_graph_stop_complete', {value0: '10'}));
+    });
+
+    test('every legend and column caption text has the readable backdrop', () => {
+        const {graph} = mountGraph();
+        chooseSystem('pendulum');
+        const keys = ['phase_graph_cap_trajectories', 'phase_graph_cap_moving', 'phase_graph_cap_ring', 'phase_graph_cap_ring_linear',
+            'phase_graph_cap_separatrix', 'phase_graph_cap_frame'] as const;
+        const wanted = new Set<string>([...keys.map(key => t(key)), t('phase_graph_cap_column1', {value0: ''}).slice(0, 4)]);
+        const shown = ofType(graph, 'text').filter(visible).filter(o => [...wanted].some(w => (o.plaintext ?? '').startsWith(w)));
+        expect(shown.length).toBeGreaterThanOrEqual(keys.length);
+        for (const text of shown) expect(text.evalVisProp('cssstyle'), text.plaintext).toBe(LEGEND_BACKDROP);
     });
 
     test('the legend names every drawn element and each caption row is a board text', () => {
