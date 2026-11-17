@@ -7,7 +7,7 @@ import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {deriveCobweb} from '../../recursion/recursionModel';
-import {cobwebPath, mapSamples, VIEW_BOXES} from './cobwebScene';
+import {CAPTION_CHAR_PX, cobwebPath, mapSamples, VIEW_BOXES, wrapped} from './cobwebScene';
 import {RecursionCobwebGraph, SPEED_DEFAULT} from './RecursionCobwebGraph';
 
 beforeAll(installBoardShims);
@@ -691,7 +691,9 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
             const at = o as unknown as {X(): number; Y(): number};
             const left = (at.X() - xmin) * board.unitX;
             const y = (ymax - at.Y()) * board.unitY;
-            return {text, left, right: left + CHAR * text.length, bottom: y + 7, top: y - 7};
+            // the legend wraps at the board edge (rows of CAPTION_ROW_PX, centred on its place); the others stay on one row
+            const wrap = /^(Pajkova|Cobweb:)/.test(text) ? wrapped(text, CAPTION_CHAR_PX * text.length, WIDTH - left - 6) : {rows: 1, widest: CHAR * text.length};
+            return {text, left, right: left + wrap.widest, bottom: y + Math.max(7, wrap.rows * 10 - 3), top: y - Math.max(7, wrap.rows * 10 - 3)};
         });
     }
 

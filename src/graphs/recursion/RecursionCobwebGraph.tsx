@@ -292,7 +292,7 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         const map = () => this.state.map;
         this.caption(() => this.mapCaption(), () => captionPlace(map(), "map", 0, 0, this.captionScale()));
         this.caption(() => t("recursion_graph_cap_diagonal"), () => captionPlace(map(), "diagonal", 0, 0, this.captionScale()));
-        this.caption(() => t("fixed_point_legend_cobweb"), () => captionPlace(map(), "legend", 0, 0, this.captionScale()));
+        this.caption(() => t("fixed_point_legend_cobweb"), chars => captionPlace(map(), "legend", 0, chars, this.captionScale(), this.derived().map, t("fixed_point_legend_cobweb")));
         this.caption(() => t("recursion_graph_cap_start", {value0: num(startOf(this.state.X))}), chars => captionPlace(map(), "start", startOf(this.state.X), chars, this.captionScale()));
         this.caption(() => {
             const star = fixed();
