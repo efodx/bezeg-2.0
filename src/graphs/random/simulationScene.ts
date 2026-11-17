@@ -388,6 +388,20 @@ function markovDiagram(s: number, a: number, b: number, start: 0 | 1, drop: numb
 /** The diagram hangs this far below the axis title (it moved down to leave a row for it under the tick labels). */
 const DIAGRAM_DROP = 0.2;
 
+/**
+ * The exact P(A after k). With a + b > 1 the factor 1 - a - b is negative and the sequence alternates around the stationary value, so one
+ * polyline through every count would be a zigzag set by which counts are even; it is drawn as two branches instead, one through the even k
+ * and one through the odd k (each monotone), every count also getting its neighbour of the other parity so both branches span the range.
+ */
+function markovExactLayer(state: RandomState, ks: readonly number[]): Layer {
+    const piece = (counts: readonly number[]) => ({x: counts.map(k => Math.log10(k)), y: markovProbabilityCurve(state, counts)});
+    if (state.markovA + state.markovB <= 100) return piece(ks);
+    const all = new Set<number>(ks);
+    ks.forEach(k => { if (k + 1 <= state.n) all.add(k + 1); else if (k - 1 >= 1) all.add(k - 1); });
+    const sorted = [...all].sort((p, q) => p - q);
+    return join([piece(sorted.filter(k => k % 2 === 0)), piece(sorted.filter(k => k % 2 === 1))]);
+}
+
 function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim2?: RandomSim): SceneData {
     if (sim.kind !== 'markov' || exact.kind !== 'markov') throw new Error('markov scene needs markov data');
     const xmax = logAxis(state.n);
@@ -401,7 +415,7 @@ function markovScene(state: RandomState, sim: RandomSim, exact: RandomExact, sim
         layers: {
             share: running(sim.curve),
             share2: second ? running(second.curve) : EMPTY_LAYER,
-            exactA: {x: ks.map(k => Math.log10(k)), y: markovProbabilityCurve(state, ks)},
+            exactA: markovExactLayer(state, ks),
             stationary: exact.stationary ? {x: [0, xmax], y: [exact.stationary[0], exact.stationary[0]]} : EMPTY_LAYER,
             boxes: diagram.boxes,
             arrows: diagram.arrows,

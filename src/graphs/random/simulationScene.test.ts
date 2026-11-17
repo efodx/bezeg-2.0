@@ -1,5 +1,5 @@
 import {binomialMasses} from '../../analysis/distributions';
-import {DEFAULT_RANDOM_STATE, exactFor, simulate, type RandomState} from '../../random/randomModel';
+import {curveCounts, DEFAULT_RANDOM_STATE, exactFor, markovProbabilityCurve, simulate, type RandomState} from '../../random/randomModel';
 import {intervalHalfWidth} from '../../random/samplePaths';
 import {runFrequency, runGalton} from '../../random/runners';
 import {CAPTION_ROW, INTERVALS_DRAWN, LAW_HEIGHT, LAW_LEFT, LAW_WIDTH, OUTSIDE_MARK, PATHS_DRAWN, POINTS_DRAWN, sceneFor, type Layer, type SceneData} from './simulationScene';
@@ -260,6 +260,33 @@ describe('markov', () => {
         if (sim.kind !== 'markov') throw new Error('kind');
         closeTo(L.share.y[last], sim.inA / 100);
         expect(scene.captions.map(c => c.key)).toEqual(['share', 'exactA', 'stationary', 'logAxis', 'box', 'box', 'boxStart', 'move', 'move', 'move', 'move']);
+    });
+
+    test.each([[100, 100], [70, 80]])('a = %i %, b = %i % (a + b > 1): the exact law is two monotone branches, one through the even k, one through the odd k', (a, b) => {
+        const {scene, state} = build({mode: 'markov', n: 10000, markovA: a, markovB: b});
+        expectWellFormed(scene);
+        const layer = scene.layers.exactA;
+        expect(pieces(layer)).toBe(2);
+        const split = layer.x.findIndex(Number.isNaN);
+        [[0, split, 0], [split + 1, layer.x.length, 1]].forEach(([from, to, parity]) => {
+            const xs = layer.x.slice(from, to);
+            const ys = layer.y.slice(from, to);
+            const ks = xs.map(x => Math.round(10 ** x));
+            expect(ks.length).toBeGreaterThan(100);
+            ks.forEach(k => expect(k % 2).toBe(parity));
+            expect(ks[ks.length - 1]).toBeGreaterThan(9900);
+            const exact = markovProbabilityCurve(state, ks);
+            ys.forEach((y, i) => closeTo(y, exact[i], 1e-12));
+            const up = ys[ys.length - 1] >= ys[0];
+            ys.slice(1).forEach((y, i) => { if (up) expect(y).toBeGreaterThanOrEqual(ys[i] - 1e-12); else expect(y).toBeLessThanOrEqual(ys[i] + 1e-12); });
+        });
+    });
+
+    test('a = 10 %, b = 40 % (a + b < 1): one polyline through the plain curve counts, as before', () => {
+        const {scene, state} = build({mode: 'markov', n: 1000, markovA: 10, markovB: 40});
+        const ks = curveCounts(1000).filter(c => c >= 1);
+        expect(scene.layers.exactA.x).toEqual(ks.map(k => Math.log10(k)));
+        expect(scene.layers.exactA.y).toEqual(markovProbabilityCurve(state, ks));
     });
 
     test('0 % and 0 %: no unique stationary distribution, so no stationary line', () => {
