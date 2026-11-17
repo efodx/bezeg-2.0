@@ -680,3 +680,13 @@ Candidates (not implemented; phone sphere shares): (1) keep the mesh slots acros
 | phone ×4 | cone | 124,2 / 179,8 → 90,0 / 129,9 | 116,3 / 189,8 → 88,5 / 120,9 |
 
 The phone step is still over budget (one long task per step); candidates 2 (fewer ring pieces) and 3 (JSXGraph label sizing) remain, each to be measured the same way. Not verified on a real phone.
+
+**Kept: candidate 3, text sizing guard (2026-11-17).** The 34 texts sized on each disc step are all internal to the surface view's board: 30 empty labels of the hidden view3d helper points, the three hidden az/el/bank readouts and the infobox (the labels students read are DOM). `guardTextSizing` ([jsxTextSizing.ts](../src/graphs/patches/surface-view/jsxTextSizing.ts)), called before `unsuspendUpdate` in `rebuildDrawables`, gives each text its own `updateSize` that skips while its text, font size, CSS class, display and visibility are unchanged (no JSXGraph prototype patch). `updateSize` calls per step: 34 → 0. Same method, base re-measured on the slot-reuse build the same day (machine load differs from the table above):
+
+| Profile | Case | Step 1 → 60 before / after (median / p95) | Step 60 → 1 before / after |
+|---|---|---|---|
+| phone ×4 | sphere | 143,6 / 183,5 → 126,1 / 171,1 | 135,6 / 189,0 → 123,5 / 162,2 |
+| phone ×4 | parabola about y | 124,4 / 173,1 → 112,1 / 155,6 | 117,9 / 157,7 → 111,7 / 150,7 |
+| phone ×4 | cone | 91,0 / 121,3 → 85,9 / 119,7 | 84,7 / 125,7 → 83,8 / 118,1 |
+
+Desktop stays at the two-frame floor (about 32,5 ms). Screenshots: 0 differing pixels for the sphere at 60 discs (desktop, 390 px) and the tensor patch. Candidate 2 remains; the phone sphere step is still over budget. Not verified on a real phone.

@@ -2,6 +2,7 @@ import {JSXGraph} from 'jsxgraph';
 import {applyBoardTextDefaults} from '../../styles/BoardText';
 import {browserRasterServices, rasterizeBoard, type RasterServices} from './jsxCapture';
 import {meanTriangleEdge, orderBackToFront, pieceCountStale, segmentPieceCount} from './jsxDepthOrder';
+import {guardTextSizing} from './jsxTextSizing';
 import {JsxInteraction} from './jsxInteraction';
 import {computeLabelLayout, labelLayoutKey} from './jsxLabels';
 import {JsxCameraModel, makeCameraModel, newScreenPoint, projectToScreen} from './jsxProjection';
@@ -650,6 +651,8 @@ export class JsxSurfaceView implements SurfaceView {
         board.suspendUpdate();
         Object.assign(draw, this.createSlots(pool, draw));
         this.syncPoints(scene);
+        // The full update below would size every board text again; see jsxTextSizing.ts.
+        guardTextSizing(board.objectsList);
         board.unsuspendUpdate();
         this.stats.drawableRebuilds++;
         this.collectNodes();

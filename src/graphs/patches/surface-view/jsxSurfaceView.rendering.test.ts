@@ -1,4 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
+import JXG from 'jsxgraph';
 import {DisplaySettings} from '../../base/DisplaySettings';
 import {JsxSurfaceView} from './jsxSurfaceView';
 import {RENDERED_OWNERS_ATTRIBUTE} from './jsxMeshOwners';
@@ -358,5 +359,39 @@ describe('JsxSurfaceView drawable rebuild', () => {
         first.slice(shrunk.length).forEach(node => expect(node.isConnected).toBe(false));
         const fresh = await mount(withLines(4));
         expect(slotMarkup(view)).toEqual(slotMarkup(fresh.view));
+    });
+
+    describe('text sizing', () => {
+        interface SizedText {elementClass: number; plaintext: string; setText: (text: string) => void}
+        const texts = (view: JsxSurfaceView): SizedText[] => {
+            const board = (view as unknown as {board: {objectsList: SizedText[]}}).board;
+            return board.objectsList.filter(o => typeof o.setText === 'function' || o.elementClass === 7);
+        };
+
+        it('does not size the board texts again when a rebuild changed only polylines', async () => {
+            const {view} = await mount(withLines(6));
+            // Spied before the first rebuild installs its guards, which wrap whatever `updateSize` is then.
+            const spy = vi.spyOn(JXG.Text.prototype as unknown as {updateSize: () => unknown}, 'updateSize');
+            view.reconcile(withLines(8));
+            view.flush();
+            spy.mockClear();
+            view.reconcile(withLines(12));
+            view.flush();
+            view.reconcile(withLines(5));
+            view.flush();
+            expect(texts(view).length).toBeGreaterThan(0);
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it('still sizes a text whose content changes', async () => {
+            const {view} = await mount(withLines(6));
+            const spy = vi.spyOn(JXG.Text.prototype as unknown as {updateSize: () => unknown}, 'updateSize');
+            view.reconcile(withLines(8));
+            view.flush();
+            spy.mockClear();
+            const text = texts(view).find(t => String(t.plaintext).startsWith('az'))!;
+            text.setText('az changed');
+            expect(spy).toHaveBeenCalled();
+        });
     });
 });
