@@ -41,6 +41,8 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      # A documentation-only push skips the checks and the deploy only when the latest verified full run and the most recent
+      # successful deploy are both ancestors that differ from it in documentation only (scripts/ci-change-scope.cjs).
       - name: Decide verification scope
         id: scope
         run: node scripts/ci-change-scope.cjs

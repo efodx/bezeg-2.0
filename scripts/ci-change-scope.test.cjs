@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const test = require('node:test');
-const { determineScope, findLastFullRun, isDocumentationPath, main } = require('./ci-change-scope.cjs');
+const { determineScope, findLastFullRun, findLastDeployedRun, isDocumentationPath, main } = require('./ci-change-scope.cjs');
 
 function git(args, cwd) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8', windowsHide: true });
@@ -19,12 +19,15 @@ function withRepo(run) {
     git(['config', 'user.email', 'ci-scope@example.invalid'], root);
     run({ root, write, commit: (message) => { git(['add', '-A'], root); git(['commit', '-m', message], root); return git(['rev-parse', 'HEAD'], root); } });
   } finally {
-    try {
-      fs.rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
-    } catch (error) {
-      if (error.code !== 'EPERM') throw error;
-      fs.chmodSync(root, 0o700);
-      fs.rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
+    // Windows can hold a just-written .git file for a moment; cleanup is best effort and never fails a test.
+    for (let attempt = 0; attempt < 5 && fs.existsSync(root); attempt += 1) {
+      try {
+        fs.rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
+      } catch (error) {
+        if (error.code !== 'EPERM' && error.code !== 'EBUSY') throw error;
+        try { fs.chmodSync(root, 0o700); } catch { /* retried */ }
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 200);
+      }
     }
   }
 
@@ -158,84 +161,322 @@ test('unreadable event files fall back to full verification', () => {
   });
 });
 
+// Run-history fixtures: GitHub Actions run and job records, and a lookup pair built from them the way the scope job does.
+const JOB_NAMES = ['scope', 'checks', 'unit (1)', 'unit (2)', 'build', 'chromium (lessons-1)', 'chromium (other-specs)', 'smoke', 'deploy'];
+const jobSet = (overrides = {}) => JOB_NAMES.map((name) => ({ name, conclusion: name in overrides ? overrides[name] : 'success' }));
+const allSkipped = Object.fromEntries(JOB_NAMES.map((name) => [name, 'skipped']));
+const skippedExcept = (overrides) => jobSet({ ...allSkipped, ...overrides });
+const DOCS_ONLY_JOBS = skippedExcept({ scope: 'success', smoke: 'success' });
+const DEPLOYED_JOBS = jobSet();
+const NOT_DEPLOYED_JOBS = jobSet({ deploy: 'skipped' });
+const recordedRun = (id, headSha, jobs, o = {}) => ({
+  run: {
+    id,
+    head_sha: headSha,
+    head_branch: o.branch ?? 'master',
+    event: o.event ?? 'push',
+    status: o.status ?? 'completed',
+    conclusion: 'conclusion' in o ? o.conclusion : 'success',
+    run_attempt: o.attempt ?? 1,
+  },
+  jobs,
+});
+
+function lookupsFor(records, currentRunId = '999') {
+  const ordered = [...records].sort((a, b) => b.run.id - a.run.id);
+  const api = { listRuns: () => ordered.map((record) => record.run), listJobs: (id) => ordered.find((record) => record.run.id === id)?.jobs };
+  return {
+    lookupLastFullRun: () => findLastFullRun({ api, currentRunId }),
+    lookupLastDeployedRun: () => findLastDeployedRun({ api, currentRunId }),
+    lookupLastVerifiedRun: () => findLastFullRun({ api, currentRunId, skipCancelled: true }),
+  };
+}
+
+// base B, runtime R, an optional unverified input X (a verification input), then three documentation commits D1, D2, H.
+function standardHistory({ write, commit }, { afterRuntime } = {}) {
+  write('README.md', 'base\n');
+  write('src/app.ts', 'base\n');
+  const B = commit('base');
+  write('src/components/Unrelated.tsx', 'runtime\n');
+  const R = commit('runtime');
+  let X = R;
+  if (afterRuntime) {
+    write(afterRuntime, '{}\n');
+    X = commit('verification input');
+  }
+  write('docs/a.md', 'a\n');
+  const D1 = commit('docs 1');
+  write('docs/b.md', 'b\n');
+  const D2 = commit('docs 2');
+  write('docs/c.md', 'c\n');
+  const H = commit('docs 3');
+  return { B, R, X, D1, D2, H };
+}
+
+// The decision for the documentation-only master push D2..H, after the run history `runsFor(shas)`.
+function pushAfter(runsFor, { afterRuntime, extra, lookups } = {}) {
+  let decision;
+  let shas;
+  withRepo((repo) => {
+    shas = standardHistory(repo, { afterRuntime });
+    if (extra) extra(repo, shas);
+    const records = runsFor(shas);
+    decision = determineScope({
+      eventName: 'push', before: shas.D2, after: shas.H, cwd: repo.root, runNumber: 23, ...(lookups ? lookups(records) : lookupsFor(records)),
+    });
+  });
+  return { decision, shas };
+}
+
+// "Full + deploy": the decision is full verification, which on a master push reaches the deploy gate (the `deploy` job
+// requires scope.outputs.full_verification == 'true'; the workflow contract test below pins it), and no fast path.
+const deployGate = (decision) => decision.fullVerification === true;
+
+function assertFullAndDeploy({ decision }, reason) {
+  assert.equal(decision.fullVerification, true, decision.reason);
+  assert.equal(deployGate(decision), true);
+  if (reason) assert.match(decision.reason, reason);
+}
+
+function assertFastPath({ decision }) {
+  assert.equal(decision.fullVerification, false, decision.reason);
+  assert.equal(deployGate(decision), false);
+}
+
 test('uses the complete multi-commit push range', () => {
-  withRepo(({ root, write, commit }) => {
-    write('README.md', 'base\n');
-    const before = commit('before');
-    write('docs/one.md', 'first\n');
-    commit('first docs commit');
-    write('docs/two.md', 'second\n');
-    const after = commit('second docs commit');
-    const decision = determineScope({ eventName: 'push', before, after, cwd: root, lookupLastFullRun: greenLookup });
-    assert.equal(decision.fullVerification, false);
-    assert.deepEqual(decision.changedPaths.sort(), ['docs/one.md', 'docs/two.md']);
+  withRepo((repo) => {
+    const { R, H } = standardHistory(repo);
+    const records = [recordedRun(10, R, DEPLOYED_JOBS)];
+    const decision = determineScope({ eventName: 'push', before: R, after: H, cwd: repo.root, ...lookupsFor(records) });
+    assert.equal(decision.fullVerification, false, decision.reason);
+    assert.deepEqual(decision.changedPaths.sort(), ['docs/a.md', 'docs/b.md', 'docs/c.md']);
   });
 });
 
-const greenLookup = () => ({ id: 100, headSha: 'a'.repeat(40), conclusion: 'success' });
+test('matrix: verified and most recently deployed sources both cover the current inputs -> docs fast path', () => {
+  const result = pushAfter(({ R, D1, D2 }) => [
+    recordedRun(10, R, DEPLOYED_JOBS), recordedRun(11, D1, DOCS_ONLY_JOBS), recordedRun(12, D2, DOCS_ONLY_JOBS),
+  ]);
+  assertFastPath(result);
+  assert.equal(result.decision.provenance.verified.headSha, result.shas.R);
+  assert.equal(result.decision.provenance.deployed.headSha, result.shas.R);
+  assert.match(result.decision.reason, new RegExp(`Verified source ${result.shas.R} \\(run 10, attempt 1, push\\).*deployed source ${result.shas.R}`));
+});
 
-function docsPush(lookupLastFullRun, changed = 'docs/guide.md') {
+test('matrix: a scheduled green on the runtime plus a push deploy of it, a manual dispatch, or a docs source are all fast', () => {
+  assertFastPath(pushAfter(({ R, D1 }) => [
+    recordedRun(20, R, DEPLOYED_JOBS), recordedRun(30, R, NOT_DEPLOYED_JOBS, { event: 'schedule' }), recordedRun(31, D1, DOCS_ONLY_JOBS),
+  ]));
+  assertFastPath(pushAfter(({ R }) => [recordedRun(10, R, DEPLOYED_JOBS, { event: 'workflow_dispatch' })]));
+});
+
+test('matrix: a runtime change cancelled in scope, in checks or while unfinished, with only an older source green -> full + deploy', () => {
+  const older = ({ B }) => recordedRun(10, B, DEPLOYED_JOBS);
+  const cancelledScope = pushAfter((s) => [older(s), recordedRun(20, s.R, skippedExcept({ scope: 'cancelled' }), { conclusion: 'cancelled' }),
+    recordedRun(21, s.D1, DOCS_ONLY_JOBS)]);
+  assertFullAndDeploy(cancelledScope, /cancelled/);
+  assert.equal(cancelledScope.decision.lessons.all, true, 'a recovery run walks every lesson and sweep it cannot rule out');
+  assert.equal(cancelledScope.decision.sweeps.rotation, '');
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, skippedExcept({ scope: 'success', checks: 'cancelled', 'unit (1)': 'cancelled' }),
+    { conclusion: 'cancelled' })]), /cancelled/);
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, jobSet({ checks: null, 'unit (1)': null, build: null, deploy: null }),
+    { status: 'in_progress', conclusion: null })]), /in_progress/);
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, [{ name: 'scope', conclusion: null }], { status: 'in_progress', conclusion: null })]), /in_progress/);
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, [{ name: 'scope', conclusion: null }], { status: 'queued', conclusion: null })]), /queued/);
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, DEPLOYED_JOBS, { status: 'in_progress' })]), /in_progress/);
+});
+
+test('matrix: verified runtime whose deployment failed, was cancelled or is pending -> full + deploy', () => {
+  for (const [deploy, conclusion, status] of [['failure', 'failure', 'completed'], ['cancelled', 'cancelled', 'completed'], [null, null, 'in_progress']]) {
+    assertFullAndDeploy(pushAfter((s) => [recordedRun(10, s.B, DEPLOYED_JOBS), recordedRun(20, s.R, jobSet({ deploy }), { conclusion, status })]));
+  }
+});
+
+test('matrix: scheduled verification of the new runtime while Pages serves older runtime -> full + deploy, recovery scope covers the runtime', () => {
+  const result = pushAfter((s) => [recordedRun(10, s.B, DEPLOYED_JOBS), recordedRun(30, s.R, NOT_DEPLOYED_JOBS, { event: 'schedule' })]);
+  assertFullAndDeploy(result, /deployed source/);
+  assert.match(result.decision.reason, new RegExp(`Verified source ${result.shas.R}.*deployed source ${result.shas.B}`));
+  assert.ok(result.decision.changedPaths.includes('src/components/Unrelated.tsx'));
+  assert.equal(result.decision.lessons.all, false);
+  assert.deepEqual(result.decision.lessons.ids.slice(0, 3), REPRESENTATIVE_LESSON_IDS.slice(0, 3), 'the pending runtime path selects lesson rows');
+  assert.equal(result.decision.sweeps.rotation, '2/7');
+  assert.equal(result.decision.sweeps.base, result.shas.R, 'sweeps start from the proven verified source, not the docs diff');
+});
+
+test('matrix: documentation-only successes after uncovered runtime establish neither verification nor deployment', () => {
+  assertFullAndDeploy(pushAfter((s) => [recordedRun(10, s.B, DEPLOYED_JOBS), recordedRun(20, s.R, skippedExcept({ scope: 'cancelled' }), { conclusion: 'cancelled' }),
+    recordedRun(21, s.D1, DOCS_ONLY_JOBS), recordedRun(22, s.D2, DOCS_ONLY_JOBS)]));
+  assertFullAndDeploy(pushAfter((s) => [recordedRun(10, s.B, DEPLOYED_JOBS), recordedRun(30, s.R, NOT_DEPLOYED_JOBS, { event: 'schedule' }),
+    recordedRun(21, s.D1, DOCS_ONLY_JOBS), recordedRun(22, s.D2, DOCS_ONLY_JOBS)]), /deployed source/);
+});
+
+test('matrix: unchanged runtime but verification inputs changed since the proven run -> full + deploy', () => {
+  for (const file of ['package.json', '.github/workflows/browser-smoke.yml', 'tests/app.smoke.spec.cjs']) {
+    const result = pushAfter((s) => [recordedRun(10, s.R, DEPLOYED_JOBS)], { afterRuntime: file });
+    assertFullAndDeploy(result, new RegExp(file.replaceAll('.', '\\.')));
+    assert.deepEqual(result.decision.changedPaths.includes(file), true);
+  }
+});
+
+test('matrix: a red latest full run is not searched past for an older green', () => {
+  const result = pushAfter((s) => [recordedRun(10, s.R, DEPLOYED_JOBS), recordedRun(20, s.R, jobSet({ 'unit (2)': 'failure', 'chromium (lessons-1)': 'skipped', deploy: 'skipped' }),
+    { conclusion: 'failure' })]);
+  assertFullAndDeploy(result, /run 20.*failure/);
+  assert.doesNotMatch(result.decision.reason, /run 10/);
+});
+
+test('matrix: missing API, jobs or source commit -> full + deploy', () => {
+  const throwing = () => { throw new Error('API 500'); };
+  assertFullAndDeploy(pushAfter(() => [], { lookups: () => ({ lookupLastFullRun: throwing, lookupLastDeployedRun: throwing }) }));
+  assertFullAndDeploy(pushAfter(() => []));
+  assertFullAndDeploy(pushAfter((s) => [recordedRun(10, s.R, [])]));
+  assertFullAndDeploy(pushAfter((s) => [{ run: recordedRun(10, s.R, []).run, jobs: undefined }]));
+  const unknown = 'f'.repeat(40);
+  const record = { id: 10, headSha: unknown, attempt: 1, event: 'push' };
+  assertFullAndDeploy(pushAfter(() => [], { lookups: () => ({
+    lookupLastFullRun: () => ({ ...record, conclusion: 'success', verified: true }), lookupLastDeployedRun: () => record }) }), /could not be determined/);
+  const { decision } = pushAfter((s) => [recordedRun(10, s.R, DEPLOYED_JOBS)], { lookups: (records) => ({ ...lookupsFor(records), lookupLastDeployedRun: () => null }) });
+  assert.equal(decision.fullVerification, true);
+  assert.equal(pushAfter((s) => [recordedRun(10, s.R, DEPLOYED_JOBS)], { lookups: () => ({}) }).decision.fullVerification, true);
+});
+
+test('matrix: a non-ancestor verified or deployed source -> full + deploy', () => {
+  const side = ({ root, write, commit }, { B }) => {
+    git(['checkout', '-b', 'side', B], root);
+    write('docs/side.md', 'side\n');
+    const S = commit('side docs');
+    git(['checkout', 'main'], root);
+    return S;
+  };
+  let S;
+  const extra = (repo, shas) => { S = side(repo, shas); };
+  assertFullAndDeploy(pushAfter(() => [recordedRun(10, S, DEPLOYED_JOBS)], { extra }));
+  // A verified source on the side branch with a deployed source on the line of history, and the reverse.
+  for (const [verifiedOnSide, deployedOnSide] of [[true, false], [false, true]]) {
+    assertFullAndDeploy(pushAfter((s) => [recordedRun(10, deployedOnSide ? S : s.R, DEPLOYED_JOBS), recordedRun(20, verifiedOnSide ? S : s.R, NOT_DEPLOYED_JOBS, { event: 'schedule' })], { extra }));
+  }
+});
+
+test('matrix: success from another branch, a pull request or an unfinished attempt is not master evidence', () => {
+  const older = (s) => recordedRun(10, s.B, DEPLOYED_JOBS);
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, DEPLOYED_JOBS, { branch: 'feature' })]));
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, DEPLOYED_JOBS, { event: 'pull_request', branch: 'master' })]));
+  assertFullAndDeploy(pushAfter((s) => [older(s), recordedRun(20, s.R, DEPLOYED_JOBS, { status: 'in_progress', conclusion: 'success', attempt: 2 })]), /in_progress/);
+  // A green run only on another branch leaves the older source in force; that source cannot cover R.
+  assertFullAndDeploy(pushAfter((s) => [recordedRun(20, s.R, DEPLOYED_JOBS, { branch: 'feature' })]));
+});
+
+test('matrix: a source older than the runtime fails the verified comparison and the deployed comparison independently', () => {
+  // Verified source behind the runtime although the deployed source covers it: only the verified comparison can reject this.
+  const verifiedBehind = pushAfter((s) => [recordedRun(10, s.R, DEPLOYED_JOBS), recordedRun(20, s.B, NOT_DEPLOYED_JOBS, { event: 'schedule' })]);
+  assertFullAndDeploy(verifiedBehind, /verified source/);
+  // Deployed source behind the runtime although the verified source covers it: only the deployed comparison can reject this.
+  const deployedBehind = pushAfter((s) => [recordedRun(10, s.B, DEPLOYED_JOBS), recordedRun(20, s.R, NOT_DEPLOYED_JOBS, { event: 'schedule' })]);
+  assertFullAndDeploy(deployedBehind, /deployed source/);
+  assert.doesNotMatch(deployedBehind.decision.reason, new RegExp(`verified source ${deployedBehind.shas.R}`));
+});
+
+test('findLastDeployedRun needs a finished push or manual master run with deploy, build and smoke successful', () => {
+  const runs = [
+    recordedRun(60, 'sched', NOT_DEPLOYED_JOBS, { event: 'schedule' }),
+    recordedRun(50, 'failed', jobSet({ deploy: 'failure' }), { conclusion: 'failure' }),
+    recordedRun(40, 'pr', DEPLOYED_JOBS, { event: 'pull_request' }),
+    recordedRun(30, 'feature', DEPLOYED_JOBS, { branch: 'feature' }),
+    recordedRun(25, 'current', DEPLOYED_JOBS),
+    recordedRun(20, 'docs', DOCS_ONLY_JOBS),
+    recordedRun(10, 'served', DEPLOYED_JOBS, { attempt: 2 }),
+  ];
+  const api = { listRuns: () => runs.map((record) => record.run), listJobs: (id) => runs.find((record) => record.run.id === id).jobs };
+  assert.deepEqual(findLastDeployedRun({ api, currentRunId: '26' }), { id: 25, headSha: 'current', attempt: 1, event: 'push' });
+  assert.deepEqual(findLastDeployedRun({ api, currentRunId: '25' }), { id: 10, headSha: 'served', attempt: 2, event: 'push' });
+  assert.equal(findLastDeployedRun({ api, currentRunId: '25', limit: 1 }), null);
+});
+
+test('the scope summary names both proven revisions', () => {
+  withRepo((repo) => {
+    const { R, D2, H } = standardHistory(repo);
+    const records = [recordedRun(10, R, DEPLOYED_JOBS, { attempt: 3 })];
+    const { lookupLastFullRun, lookupLastDeployedRun, lookupLastVerifiedRun } = lookupsFor(records);
+    const dir = fs.mkdtempSync(path.join(repo.root, 'out-'));
+    const summary = path.join(dir, 'summary');
+    const cwd = process.cwd();
+    process.chdir(repo.root);
+    try {
+      const decision = main({ GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: D2, GITHUB_SHA: H, GITHUB_STEP_SUMMARY: summary, GITHUB_RUN_NUMBER: '8' },
+        lookupLastFullRun, lookupLastVerifiedRun, lookupLastDeployedRun);
+      assert.equal(decision.fullVerification, false);
+    } finally {
+      process.chdir(cwd);
+    }
+    const text = fs.readFileSync(summary, 'utf8');
+    assert.match(text, new RegExp(`Verified source: ${R} \\(run 10, attempt 3\\)`));
+    assert.match(text, new RegExp(`Deployed source: ${R} \\(run 10, attempt 3\\)`));
+  });
+});
+
+const coveredLookups = (sha) => ({
+  lookupLastFullRun: () => ({ id: 100, headSha: sha, attempt: 1, event: 'push', conclusion: 'success', verified: true }),
+  lookupLastDeployedRun: () => ({ id: 100, headSha: sha, attempt: 1, event: 'push' }),
+});
+
+function docsPush(makeLookups, changed = 'docs/guide.md') {
   let decision;
   withRepo(({ root, write, commit }) => {
     write('README.md', 'base\n');
     const before = commit('base');
     write(changed, 'change\n');
     const after = commit('change');
-    decision = determineScope({ eventName: 'push', before, after, cwd: root, lookupLastFullRun });
+    decision = determineScope({ eventName: 'push', before, after, cwd: root, ...(makeLookups ? makeLookups(before) : {}) });
   });
   return decision;
 }
 
-test('docs-only push is allowed when the previous full run succeeded', () => {
-  assert.equal(docsPush(greenLookup).fullVerification, false);
-});
-
-test('docs-only push selects full verification when the previous full run failed', () => {
-  const decision = docsPush(() => ({ id: 42475921993, headSha: 'b'.repeat(40), conclusion: 'failure' }));
-  assert.equal(decision.fullVerification, true);
-  assert.match(decision.reason, /42475921993/);
-  assert.match(decision.reason, new RegExp('b'.repeat(40)));
-  assert.match(decision.reason, /failure/);
+test('docs-only push is allowed when both proven sources are covered', () => {
+  assert.equal(docsPush(coveredLookups).fullVerification, false);
 });
 
 test('docs-only push selects full verification when the lookup fails or finds nothing', () => {
-  assert.equal(docsPush(() => { throw new Error('API 500'); }).fullVerification, true);
-  assert.equal(docsPush(() => null).fullVerification, true);
+  const none = () => ({ lookupLastFullRun: () => null, lookupLastDeployedRun: () => null });
+  const failing = () => ({ lookupLastFullRun: () => { throw new Error('API 500'); }, lookupLastDeployedRun: () => { throw new Error('API 500'); } });
+  assert.equal(docsPush(failing).fullVerification, true);
+  assert.equal(docsPush(none).fullVerification, true);
   assert.equal(docsPush(undefined).fullVerification, true);
 });
 
-test('non-docs push does not consult the lookup', () => {
-  const decision = docsPush(() => { throw new Error('must not be called'); }, 'src/app.js');
+test('non-docs push does not consult the lookups', () => {
+  const must = () => { throw new Error('must not be called'); };
+  const decision = docsPush(() => ({ lookupLastFullRun: must, lookupLastDeployedRun: must }), 'src/app.js');
   assert.equal(decision.fullVerification, true);
   assert.match(decision.reason, /src\/app\.js/);
 });
 
-test('findLastFullRun skips docs-only, in-progress and current runs', () => {
-  const skipped = [{ name: 'scope', conclusion: 'success' }, { name: 'checks', conclusion: 'skipped' }, { name: 'unit', conclusion: 'skipped' }];
-  const ran = [{ name: 'scope', conclusion: 'success' }, { name: 'checks', conclusion: 'success' }, { name: 'unit', conclusion: 'failure' }];
+test('findLastFullRun skips docs-only, in-progress-free and current runs but stops at an unfinished or red one', () => {
+  const ran = jobSet({ 'unit (2)': 'failure' });
   const runs = [
-    { id: 60, status: 'completed', conclusion: 'success', head_sha: 'current', event: 'push' },
-    { id: 50, status: 'in_progress', conclusion: null, head_sha: 'busy', event: 'push' },
-    { id: 40, status: 'completed', conclusion: 'success', head_sha: 'docs', event: 'push' },
-    { id: 35, status: 'completed', conclusion: 'cancelled', head_sha: 'cancelled-docs', event: 'push' },
-    { id: 20, status: 'completed', conclusion: 'failure', head_sha: 'red', event: 'push' },
-    { id: 10, status: 'completed', conclusion: 'success', head_sha: 'old', event: 'push' },
+    recordedRun(60, 'current', ran),
+    recordedRun(40, 'docs', DOCS_ONLY_JOBS),
+    recordedRun(20, 'red', ran, { conclusion: 'failure' }),
+    recordedRun(10, 'old', DEPLOYED_JOBS),
   ];
-  const jobs = { 60: ran, 50: ran, 40: skipped, 35: skipped, 20: ran, 10: ran };
-  const api = { listRuns: () => runs, listJobs: (id) => jobs[id] };
-  assert.deepEqual(findLastFullRun({ api, currentRunId: '60' }), { id: 20, headSha: 'red', conclusion: 'failure' });
-  assert.equal(findLastFullRun({ api, currentRunId: '60', limit: 3 }), null);
+  const api = { listRuns: () => runs.map((record) => record.run), listJobs: (id) => runs.find((record) => record.run.id === id).jobs };
+  assert.deepEqual(findLastFullRun({ api, currentRunId: '60' }), { id: 20, headSha: 'red', attempt: 1, event: 'push', conclusion: 'failure', verified: false });
+  assert.equal(findLastFullRun({ api, currentRunId: '60', limit: 1 }), null);
+  const green = findLastFullRun({ api: { ...api, listRuns: () => runs.slice(3).map((record) => record.run) }, currentRunId: '60' });
+  assert.equal(green.verified, true);
 });
 
-test('findLastFullRun returns a cancelled full run, so its unverified code selects full verification', () => {
-  const cancelledJobs = [{ name: 'scope', conclusion: 'success' }, { name: 'checks', conclusion: 'success' }, { name: 'unit', conclusion: 'cancelled' }];
-  const runs = [
-    { id: 30, status: 'completed', conclusion: 'cancelled', head_sha: 'cancel', event: 'push' },
-    { id: 10, status: 'completed', conclusion: 'success', head_sha: 'old', event: 'push' },
-  ];
-  const api = { listRuns: () => runs, listJobs: () => cancelledJobs };
-  assert.deepEqual(findLastFullRun({ api, currentRunId: '40' }), { id: 30, headSha: 'cancel', conclusion: 'cancelled' });
-  assert.equal(docsPush(() => findLastFullRun({ api, currentRunId: '40' })).fullVerification, true);
+test('findLastFullRun returns a cancelled or unfinished run, including one cancelled in scope, so no older green is borrowed', () => {
+  const cancelledJobs = jobSet({ 'unit (1)': 'cancelled' });
+  for (const [jobs, o, conclusion] of [
+    [cancelledJobs, { conclusion: 'cancelled' }, 'cancelled'],
+    [skippedExcept({ scope: 'cancelled' }), { conclusion: 'cancelled' }, 'cancelled'],
+    [[], { conclusion: 'success' }, 'unknown'],
+    [jobSet({ checks: null }), { status: 'in_progress', conclusion: null }, 'in_progress'],
+  ]) {
+    const records = [recordedRun(30, 'cancel', jobs, o), recordedRun(10, 'old', DEPLOYED_JOBS)];
+    const found = findLastFullRun({ api: { listRuns: () => records.map((record) => record.run), listJobs: (id) => records.find((record) => record.run.id === id).jobs }, currentRunId: '40' });
+    assert.deepEqual([found.id, found.conclusion, found.verified], [30, conclusion, false]);
+  }
 });
 
 test('manual dispatch, empty diffs, and unavailable comparison history select full verification', () => {
@@ -400,17 +641,20 @@ test('a pull request rotates from its merge base; docs-only, dispatch and the da
   assert.equal(daily.sweeps.rotation, '');
   assert.equal(daily.lessons.all, true);
   assert.equal(determineScope({ eventName: 'workflow_dispatch', runNumber: 3 }).sweeps.rotation, '');
-  assert.equal(docsPush(greenLookup).sweeps.rotation, '');
+  assert.equal(docsPush(coveredLookups).sweeps.rotation, '');
 });
 
-test('findLastFullRun with skipCancelled passes over cancelled runs to the latest finished one', () => {
-  const ran = [{ name: 'checks', conclusion: 'success' }, { name: 'unit', conclusion: 'cancelled' }];
-  const runs = [
-    { id: 30, status: 'completed', conclusion: 'cancelled', head_sha: 'cancel', event: 'push' },
-    { id: 20, status: 'completed', conclusion: 'success', head_sha: 'daily', event: 'schedule' },
+test('findLastFullRun with skipCancelled passes over cancelled and unfinished runs to the latest finished one', () => {
+  const ran = jobSet({ 'unit (1)': 'cancelled' });
+  const records = [
+    recordedRun(40, 'busy', jobSet({ checks: null }), { status: 'in_progress', conclusion: null }),
+    recordedRun(30, 'cancel', ran, { conclusion: 'cancelled' }),
+    recordedRun(25, 'scope-cancel', skippedExcept({ scope: 'cancelled' }), { conclusion: 'cancelled' }),
+    recordedRun(20, 'daily', NOT_DEPLOYED_JOBS, { event: 'schedule' }),
   ];
-  const api = { listRuns: () => runs, listJobs: () => ran };
-  assert.deepEqual(findLastFullRun({ api, currentRunId: '40', skipCancelled: true }), { id: 20, headSha: 'daily', conclusion: 'success' });
+  const api = { listRuns: () => records.map((record) => record.run), listJobs: (id) => records.find((record) => record.run.id === id).jobs };
+  assert.deepEqual(findLastFullRun({ api, currentRunId: '50', skipCancelled: true }),
+    { id: 20, headSha: 'daily', attempt: 1, event: 'schedule', conclusion: 'success', verified: true });
 });
 
 test('main writes the sweep outputs and a catalog sweep summary line', () => {
@@ -436,4 +680,38 @@ test('main writes the sweep outputs and a catalog sweep summary line', () => {
     assert.match(written, new RegExp(`^sweep_base=${base}$`, 'm'));
     assert.match(fs.readFileSync(summary, 'utf8'), /Catalog sweeps: sample, entries reached since [0-9a-f]{12}, rotation slice 1\/7\./);
   });
+});
+
+// Workflow contract: the decision's consequences are only real if browser-smoke.yml consumes them as the tests assume.
+const workflowText = fs.readFileSync(path.join(repoRoot, '.github/workflows/browser-smoke.yml'), 'utf8');
+const jobBlock = (name) => {
+  const start = workflowText.search(new RegExp(`^  ${name}:$`, 'm'));
+  assert.notEqual(start, -1, `job ${name}`);
+  const rest = workflowText.slice(start + 1);
+  const next = rest.search(/^ {2}[a-z]+:$/m);
+  return next === -1 ? rest : rest.slice(0, next);
+};
+
+test('workflow: full verification gates the runtime jobs and, with the smoke gate, the master deploy', () => {
+  for (const job of ['checks', 'unit', 'build']) {
+    assert.match(jobBlock(job), /needs: scope\n\s+if: needs\.scope\.outputs\.full_verification == 'true'/, job);
+  }
+  const deploy = jobBlock('deploy');
+  assert.match(deploy, /needs: \[scope, smoke\]/);
+  assert.match(deploy, /if: needs\.scope\.outputs\.full_verification == 'true' && github\.repository == 'efodx\/bezeg-2\.0' && github\.ref == 'refs\/heads\/master' && \(github\.event_name == 'push' \|\| github\.event_name == 'workflow_dispatch'\)/);
+  assert.doesNotMatch(deploy, /always\(\)|schedule/, 'no status function or scheduled deploy: a failed check keeps the deploy skipped');
+  assert.match(jobBlock('build'), /if: github\.repository == 'efodx\/bezeg-2\.0' && github\.ref == 'refs\/heads\/master' && \(github\.event_name == 'push' \|\| github\.event_name == 'workflow_dispatch'\)\n\s+uses: actions\/upload-pages-artifact/);
+});
+
+test('workflow: the scope job can read run history, and a skipped run proves nothing', () => {
+  const scope = jobBlock('scope');
+  assert.match(scope, /actions: read/);
+  assert.match(scope, /run: node scripts\/ci-change-scope\.cjs/);
+  assert.match(scope, /GH_TOKEN: \$\{\{ github\.token \}\}/);
+  assert.match(scope, /fetch-depth: 0/, 'ancestry and source comparisons need full history');
+  const smoke = jobBlock('smoke');
+  assert.match(smoke, /if \[ "\$FULL_VERIFICATION" = 'false' \] && \[ "\$\{RESULTS%% \*\}" = 'success' \]; then exit 0; fi/);
+  // The evidence readers rely on these job names: findLastFullRun on scope/checks/unit/build/chromium/smoke, findLastDeployedRun on deploy.
+  for (const name of ['scope', 'checks', 'unit', 'build', 'chromium', 'smoke', 'deploy']) assert.match(workflowText, new RegExp(`^  ${name}:$`, 'm'), name);
+  assert.match(workflowText, /^on:\n {2}pull_request:\n {4}branches: \[master\]\n {2}push:\n {4}branches: \[master\]\n {2}workflow_dispatch:/m);
 });

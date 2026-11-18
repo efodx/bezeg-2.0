@@ -180,21 +180,60 @@ function readPullRequestRange(eventPayload) {
 
 const MAX_RUNS_LOOKED_BACK = 50;
 const FULL_VERIFICATION_JOBS = ['checks', 'unit'];
+// Every job family that must succeed before a run counts as verified source; matrix shards are named `unit (1)`.
+const REQUIRED_RUNTIME_JOBS = ['scope', 'checks', 'unit', 'build', 'chromium', 'smoke'];
+// Master evidence comes from these events only: a pull request run is never trusted, whatever its branch name says.
+const VERIFIED_RUN_EVENTS = ['push', 'schedule', 'workflow_dispatch'];
+// A scheduled run never deploys, so it cannot prove what Pages serves.
+const DEPLOYED_RUN_EVENTS = ['push', 'workflow_dispatch'];
 
-// Walks completed master runs newest first and returns the latest one that ran full verification, or null.
-// `api.listRuns()` returns runs newest first; `api.listJobs(runId)` returns that run's jobs. `skipCancelled` passes over
-// cancelled runs (the catalog sweep base: a later diff still covers their code).
-function findLastFullRun({ api, currentRunId, limit = MAX_RUNS_LOOKED_BACK, skipCancelled = false }) {
+const jobFamily = (job) => String(job?.name ?? '').replace(/ \(.*\)$/, '');
+const jobsOf = (jobs, family) => jobs.filter((job) => jobFamily(job) === family);
+
+function trustedRuns(api, currentRunId, events, limit) {
   const current = Number(currentRunId);
-  const runs = api.listRuns()
-    .filter((run) => run.event !== 'pull_request' && (!current || run.id < current))
+  return api.listRuns()
+    .filter((run) => run.head_branch === 'master' && events.includes(run.event) && (!current || run.id < current))
     .slice(0, limit);
-  for (const run of runs) {
-    // A cancelled run that started checks or unit is returned: its code was never verified, so it selects full.
-    if (run.status !== 'completed' || (skipCancelled && run.conclusion === 'cancelled')) continue;
-    const jobs = api.listJobs(run.id);
-    const ran = jobs.some((job) => FULL_VERIFICATION_JOBS.includes(job.name) && job.conclusion !== 'skipped');
-    if (ran) return { id: run.id, headSha: run.head_sha, conclusion: run.conclusion };
+}
+
+const runIdentity = (run) => ({ id: run.id, headSha: run.head_sha, attempt: run.run_attempt ?? 1, event: run.event });
+
+// Walks master runs newest first and returns the latest one that ran, or may have run, full verification; null when none.
+// `api.listRuns()` returns runs newest first, any status; `api.listJobs(runId)` returns that run's jobs. The record carries
+// the run's identity, its conclusion (the run status while unfinished) and `verified`: finished, successful, and every
+// required job family successful. A run whose scope was cancelled or never finished, or whose jobs cannot be read, is
+// returned as unverified instead of being passed over, so no older green can stand in for it. Only a run whose scope
+// succeeded and skipped the checks (documentation-only) is passed over. `skipCancelled` is the catalog sweep base lookup:
+// it passes over cancelled and unfinished runs, because a later diff still covers their code.
+function findLastFullRun({ api, currentRunId, limit = MAX_RUNS_LOOKED_BACK, skipCancelled = false }) {
+  for (const run of trustedRuns(api, currentRunId, VERIFIED_RUN_EVENTS, limit)) {
+    const finished = run.status === 'completed';
+    if (skipCancelled && (!finished || run.conclusion === 'cancelled')) continue;
+    const jobs = api.listJobs(run.id) ?? [];
+    const ran = jobs.some((job) => FULL_VERIFICATION_JOBS.includes(jobFamily(job)) && job.conclusion !== 'skipped');
+    if (!ran) {
+      const docsOnly = jobsOf(jobs, 'scope').some((job) => job.conclusion === 'success')
+        && FULL_VERIFICATION_JOBS.every((family) => jobsOf(jobs, family).some((job) => job.conclusion === 'skipped'));
+      if (docsOnly || skipCancelled) continue;
+      return { ...runIdentity(run), conclusion: finished ? (run.conclusion === 'success' ? 'unknown' : run.conclusion) : run.status, verified: false };
+    }
+    const everyJobGreen = REQUIRED_RUNTIME_JOBS.every((family) => {
+      const familyJobs = jobsOf(jobs, family);
+      return familyJobs.length > 0 && familyJobs.every((job) => job.conclusion === 'success');
+    });
+    return { ...runIdentity(run), conclusion: finished ? run.conclusion : run.status, verified: finished && run.conclusion === 'success' && everyJobGreen };
+  }
+  return null;
+}
+
+// The most recent finished push or manual master run whose verification and `deploy` job both succeeded: what Pages serves.
+function findLastDeployedRun({ api, currentRunId, limit = MAX_RUNS_LOOKED_BACK }) {
+  for (const run of trustedRuns(api, currentRunId, DEPLOYED_RUN_EVENTS, limit)) {
+    if (run.status !== 'completed' || run.conclusion !== 'success') continue;
+    const jobs = api.listJobs(run.id) ?? [];
+    const green = (family) => jobsOf(jobs, family).some((job) => job.conclusion === 'success');
+    if (green('deploy') && green('smoke') && green('build')) return runIdentity(run);
   }
   return null;
 }
@@ -206,45 +245,86 @@ function ghJson(path, env) {
   return JSON.parse(result.stdout);
 }
 
-function lookupLastFullRunViaGh(env = process.env, { skipCancelled = false } = {}) {
+function ghApi(env) {
   if (!env.GH_TOKEN && !env.GITHUB_TOKEN) throw new Error('no GitHub token is available');
   if (!env.GITHUB_REPOSITORY) throw new Error('GITHUB_REPOSITORY is not set');
   const ghEnv = { ...env, GH_TOKEN: env.GH_TOKEN || env.GITHUB_TOKEN };
   const repo = env.GITHUB_REPOSITORY;
   const workflow = env.GITHUB_WORKFLOW_FILE || 'browser-smoke.yml';
-  return findLastFullRun({
-    skipCancelled,
-    currentRunId: env.GITHUB_RUN_ID,
-    api: {
-      listRuns: () => ghJson(
-        `repos/${repo}/actions/workflows/${workflow}/runs?branch=master&status=completed&per_page=${MAX_RUNS_LOOKED_BACK}`,
-        ghEnv,
-      ).workflow_runs,
-      listJobs: (runId) => ghJson(`repos/${repo}/actions/runs/${runId}/jobs?per_page=100`, ghEnv).jobs,
+  const jobs = new Map();
+  return {
+    // Every status, so an unfinished predecessor is seen instead of an older green run being borrowed.
+    listRuns: () => ghJson(`repos/${repo}/actions/workflows/${workflow}/runs?branch=master&per_page=${MAX_RUNS_LOOKED_BACK}`, ghEnv).workflow_runs,
+    listJobs: (runId) => {
+      if (!jobs.has(runId)) jobs.set(runId, ghJson(`repos/${repo}/actions/runs/${runId}/jobs?per_page=100`, ghEnv).jobs);
+      return jobs.get(runId);
     },
-  });
+  };
 }
 
-// A docs-only push must not hide a red master: it inherits the verdict of the latest full run.
-function guardDocumentationOnly(decision, lookupLastFullRun) {
+function lookupLastFullRunViaGh(env = process.env, { skipCancelled = false } = {}) {
+  return findLastFullRun({ skipCancelled, currentRunId: env.GITHUB_RUN_ID, api: ghApi(env) });
+}
+
+function lookupLastDeployedRunViaGh(env = process.env) {
+  return findLastDeployedRun({ currentRunId: env.GITHUB_RUN_ID, api: ghApi(env) });
+}
+
+const describeRun = (label, run) => `${label} ${run.headSha} (run ${run.id}, attempt ${run.attempt ?? 1}, ${run.event ?? 'unknown event'})`;
+
+// A docs-only push must not hide a red or unpublished master. It takes the fast path only when two independently proven
+// sources, the latest full verification run and the most recent successful Pages deploy, are both ancestors of HEAD
+// and differ from it in documentation only. Anything else runs full verification, which reaches the deploy gate on master;
+// the recovery run's lesson and sweep scope covers the runtime paths still pending since those sources.
+function guardDocumentationOnly(decision, { lookupLastFullRun, lookupLastDeployedRun, head, cwd, runNumber, lookupLastVerifiedRun }) {
   if (decision.fullVerification) return decision;
   try {
     if (typeof lookupLastFullRun !== 'function') throw new Error('no lookup is available');
-    const last = lookupLastFullRun();
-    if (!last) throw new Error(`no full verification run was found among the last ${MAX_RUNS_LOOKED_BACK} master runs`);
-    if (last.conclusion !== 'success') {
+    if (typeof lookupLastDeployedRun !== 'function') throw new Error('no lookup of the deployed run is available');
+    const verified = lookupLastFullRun();
+    if (!verified) throw new Error(`no full verification run was found among the last ${MAX_RUNS_LOOKED_BACK} master runs`);
+    if (!verified.verified) {
       return full(
-        `Full verification is required because the latest full verification run on master (run ${last.id}, commit ${last.headSha}) concluded ${last.conclusion}.`,
+        `Full verification is required because the latest full verification run on master (run ${verified.id}, commit ${verified.headSha}) concluded ${verified.conclusion}, not with every required job successful.`,
         decision.changedPaths,
       );
     }
-    return { ...decision, reason: `${decision.reason} The latest full verification run on master (run ${last.id}, commit ${last.headSha}) succeeded.` };
+    const deployed = lookupLastDeployedRun();
+    if (!deployed) throw new Error(`no successful Pages deploy was found among the last ${MAX_RUNS_LOOKED_BACK} master runs`);
+
+    const pending = new Set();
+    const stale = [];
+    for (const [label, source] of [['verified source', verified], ['deployed source', deployed]]) {
+      const sourceCommit = commit(source.headSha, cwd);
+      git(['merge-base', '--is-ancestor', sourceCommit, head], cwd);
+      const outside = diffPaths(sourceCommit, head, cwd).filter((filePath) => !isDocumentationPath(filePath));
+      if (outside.length > 0) stale.push(`${label} ${source.headSha}`);
+      outside.forEach((filePath) => pending.add(filePath));
+    }
+    const provenance = { verified, deployed };
+    if (stale.length === 0) {
+      return {
+        ...decision,
+        provenance,
+        reason: `${decision.reason} ${describeRun('Verified source', verified)} and ${describeRun('deployed source', deployed)} differ from this commit in documentation only.`,
+      };
+    }
+    const runtimePaths = [...pending];
+    return {
+      fullVerification: true,
+      provenance,
+      reason: `Full verification is required because runtime paths changed since the ${stale.join(' and ')}: ${runtimePaths.join(', ')}. `
+        + `${describeRun('Verified source', verified)}; ${describeRun('deployed source', deployed)}.`,
+      changedPaths: [...new Set([...decision.changedPaths, ...runtimePaths])],
+      lessons: lessonScope(runtimePaths, cwd),
+      sweeps: sweepScope({ eventName: 'push', base: null, head, runNumber, lookupLastVerifiedRun, cwd }),
+    };
   } catch (error) {
-    return full(`The previous full verification result could not be determined (${error.message}); running full verification.`, decision.changedPaths);
+    return full(`The previous full verification or deployment result could not be determined (${error.message.split('\n')[0]}); running full verification.`, decision.changedPaths);
   }
 }
 
-function determineScope({ eventName, eventPayload, before, after, cwd = process.cwd(), lookupLastFullRun, runNumber, lookupLastVerifiedRun }) {
+function determineScope({ eventName, eventPayload, before, after, cwd = process.cwd(), lookupLastFullRun, lookupLastDeployedRun, runNumber, lookupLastVerifiedRun }) {
   if (eventName === 'workflow_dispatch') return full('Manual dispatch always runs full verification.');
   if (eventName === 'schedule') return full('The daily scheduled run checks every catalog sweep entry and every lesson row.');
 
@@ -273,7 +353,9 @@ function determineScope({ eventName, eventPayload, before, after, cwd = process.
       decision.sweeps = sweepScope({ eventName, base, head, runNumber, lookupLastVerifiedRun, cwd });
     }
     // Applied to pushes only; pull requests do not change master's state.
-    return eventName === 'push' ? guardDocumentationOnly(decision, lookupLastFullRun) : decision;
+    return eventName === 'push'
+      ? guardDocumentationOnly(decision, { lookupLastFullRun, lookupLastDeployedRun, head, cwd, runNumber, lookupLastVerifiedRun })
+      : decision;
   } catch (error) {
     return full(`The change comparison could not be trusted (${error.message}); running full verification.`);
   }
@@ -297,14 +379,22 @@ function appendSummary(filePath, decision) {
     ? `\n\nChanged paths:\n${decision.changedPaths.map((item) => `- \`${item.replaceAll('`', '\\`')}\``).join('\n')}`
     : '';
   const sweeps = decision.sweeps.rotation ? `Catalog sweeps: ${decision.sweeps.reason}.` : `Catalog sweeps: every entry (${decision.sweeps.reason}).`;
+  const provenance = decision.provenance
+    ? `
+
+Verified source: ${decision.provenance.verified.headSha} (run ${decision.provenance.verified.id}, attempt ${decision.provenance.verified.attempt}).
+
+Deployed source: ${decision.provenance.deployed.headSha} (run ${decision.provenance.deployed.id}, attempt ${decision.provenance.deployed.attempt}).`
+    : '';
   const scoped = decision.fullVerification ? `\n\n${lessonSummary(decision.lessons)}\n\n${sweeps}` : '';
-  fs.appendFileSync(filePath, `## Browser smoke scope\n\n**${mode}.** ${decision.reason}${scoped}${paths}\n`);
+  fs.appendFileSync(filePath, `## Browser smoke scope\n\n**${mode}.** ${decision.reason}${provenance}${scoped}${paths}\n`);
 }
 
 function main(
   env = process.env,
   lookupLastFullRun = () => lookupLastFullRunViaGh(env),
   lookupLastVerifiedRun = () => lookupLastFullRunViaGh(env, { skipCancelled: true }),
+  lookupLastDeployedRun = () => lookupLastDeployedRunViaGh(env),
 ) {
   let eventPayload;
   let decision;
@@ -316,6 +406,7 @@ function main(
       before: env.GITHUB_EVENT_BEFORE,
       after: env.GITHUB_SHA,
       lookupLastFullRun,
+      lookupLastDeployedRun,
       runNumber: env.GITHUB_RUN_NUMBER,
       lookupLastVerifiedRun,
     });
@@ -338,4 +429,4 @@ if (require.main === module) {
   process.stdout.write(`${result.fullVerification ? 'full' : 'documentation-only'}: ${result.reason}\n`);
 }
 
-module.exports = { REPRESENTATIVE_LESSON_IDS, determineScope, sweepScope, findLastFullRun, isDocumentationPath, lessonScope, main, readPullRequestRange };
+module.exports = { REPRESENTATIVE_LESSON_IDS, determineScope, sweepScope, findLastFullRun, findLastDeployedRun, isDocumentationPath, lessonScope, main, readPullRequestRange };
