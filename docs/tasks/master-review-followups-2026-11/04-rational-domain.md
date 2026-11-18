@@ -14,6 +14,6 @@ Rational-function facts and their graph consumers distinguish zeros from exclude
 
 ## Verification and completion
 
-Cover RD1–RD3 with complete cancellation, excess numerator multiplicity, excess denominator multiplicity, distinct nearby allowed roots and ordinary uncancelled zeros. Assert actual board markers/readouts exist and agree after the edit, Reset, Preset reopen and lesson restore.
+Cover RD1–RD3 using the source specification's factor/zero/exclusion table, plus distinct nearby allowed roots. Assert zero lists, undefined evaluation at excluded points, and the expected hole height or pole together; merely removing the wrong zero label is insufficient. Verify a hole at height zero remains visible as a hole and is not presented as a zero of the rational function; preserve the distinct numerator/denominator factor-edit markers. Require the expected board objects/readouts to exist and agree after the edit, Reset, Preset reopen and lesson restore.
 
 Run focused `just unit` for the rational kernel/model/graph and `just check-changed`. Obtain mathematical review and `$smoke-tester` for Rational functions in both languages; inspect the readout at 310 px inspector width. Record a failing-before test and the verified revision.

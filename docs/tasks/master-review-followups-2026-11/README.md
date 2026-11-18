@@ -4,7 +4,9 @@ Status: planned, 2026-11-18. Source: [follow-up specification](../../specs/maste
 
 ## Work order and dependencies
 
-Start repairs 01–06. Their modules are independent, apart from task 01's shared workspace ownership: coordinate any control changes through that owner. Board-unit and collision work can proceed independently. Formula work runs evaluator → Bisection → Newton/Secant; the latter also requires the Secant repair. Chapter restoration remains lower priority.
+Prioritize 01 (Preset writes and lesson interaction), 02 (verification/deployment coverage) and 05 (a valid-input board crash). Repairs 03, 04 and 06 are small independent fixes that can land alongside them. Task numbers are stable identifiers, not a mandatory serial order. Do not make a bug repair wait for an optional architecture refactor or formula entry.
+
+Formula work runs Secant repair → evaluator/kernel adapters → Bisection → Newton/Secant. The evaluator already changes the root-finding kernel, so the Secant prerequisite applies there, not only at the final graph integration. Bisection also requires accepted user-action availability. Board-unit and collision work can proceed independently within their owned paths; chapter restoration remains lower priority.
 
 | Task | Findings / outcome | Size | Prerequisites | Status owner |
 | --- | --- | --- | --- | --- |
@@ -16,12 +18,19 @@ Start repairs 01–06. Their modules are independent, apart from task 01's share
 | [06 Empty Monte Carlo results](06-monte-carlo-empty-state.md) | M5 | S | None | This queue: planned |
 | [Board-unit projection](../architecture-followups-2026-11/01-board-unit-projection.md) | Dimensional conversion owner | M | Independent | [Existing queue](../architecture-followups-2026-11/README.md) |
 | [Applied collision settings](../architecture-followups-2026-11/02-applied-collision-settings.md) | One rebuild and identified command result | S–M | Independent | [Existing queue](../architecture-followups-2026-11/README.md) |
-| [Formula evaluator](../custom-function-entry/01-formula-evaluator.md) | Pure, domain-aware function interface | M | Existing accepted foundations; coordinate shared owners | [Formula queue](../custom-function-entry/README.md) |
+| [Formula evaluator](../custom-function-entry/01-formula-evaluator.md) | Pure, domain-aware function interface | M | 03 and existing accepted foundations | [Formula queue](../custom-function-entry/README.md) |
 | [Bisection pilot](../custom-function-entry/02-bisection-pilot.md) | First custom-formula consumer | M | Evaluator and 01 | [Formula queue](../custom-function-entry/README.md) |
 | [Newton/Secant](../custom-function-entry/03-newton-secant.md) | Optional derivative/reference-root capabilities | M | Bisection pilot and 03 | [Formula queue](../custom-function-entry/README.md) |
 | [Chapter reading restoration](../architecture-followups-2026-11/03-chapter-reading-restoration.md) | Shared restoration schedule | M | Independent; lower priority | [Existing queue](../architecture-followups-2026-11/README.md) |
 
-The linked existing queues own their task status; update those instead of duplicating state here. Task 01 owns shared action-availability changes. Formula tasks have one owner for the evaluator, model contracts and shared editor; migrate the two consumers sequentially. Check the current controls-visual and clip owners before editing their shared paths.
+The linked existing queues own their task status; update those instead of duplicating state here. Before starting any task, check its status and the current implementation revision; the reviewed SHA and planning date are historical evidence, not proof that a repair is still missing.
+
+| Shared write boundary | Integration order / coordination |
+| --- | --- |
+| `src/analysis/rootFinding.ts` and its regression tests | Repair 03, then formula evaluator/kernel adapters, then Newton/Secant graph integration. Retain the repair regression across both migrations. |
+| Workspace action availability and Preset command entry | Task 01 owns the decision; the Bisection pilot consumes the accepted interface. Other repairs retain existing control contracts. |
+| Formula evaluator, model contracts and shared editor | One owner; integrate the two consumers sequentially. Pure grammar investigation may start before 03, but kernel changes wait for its acceptance. |
+| Shared controls, language catalogs and captured route media | Coordinate the actual files with current owners before editing or capturing. Module independence does not authorize concurrent writes to these shared files. |
 
 ## Closeout
 
