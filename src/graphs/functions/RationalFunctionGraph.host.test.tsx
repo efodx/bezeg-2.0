@@ -117,6 +117,19 @@ test('both languages: labels and readouts follow a live language switch', () => 
     expect(document.body.textContent).not.toMatch(/Števec|luknj|večkratnost|asimptota/);
 });
 
+test('a hole at height 0 stays a hole and is not presented as a zero (RD1, RD3)', async () => {
+    const graph = mount();
+    const edited = {...rationalExampleModel('hole'), numerator: [{z: -1, m: 1}, {z: 1, m: 2}]};
+    act(() => { graph.importPreset({id: 'stored', data: edited, boardState: {boundingBox: [-6, 8, 6, -8]}}); });
+    expect(graph.modelNow()).toEqual(edited);
+    expect(readout('zeros')).toMatch(/x = −1/);
+    expect(readout('zeros')).not.toMatch(/x = 1/);
+    expect(readout('holes')).toMatch(/luknja/);
+    expect(readout('holes')).toMatch(/1;\s*0\)/);
+    await settle(() => graph.reset());
+    expect(readout('holes')).toMatch(/ni lukenj/);
+});
+
 test('Reset and an imported Preset restore controls and board objects', async () => {
     const graph = mount();
     const baseline = boardObjects(graph);

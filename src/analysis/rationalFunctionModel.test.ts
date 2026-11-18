@@ -10,6 +10,30 @@ const model = (k: number, numerator: number[], denominator: number[], probe = 10
     k, numerator: numerator.map(z => ({z, m: 1})), denominator: denominator.map(z => ({z, m: 1})), probe,
 });
 
+describe('rational zeros stay in the original domain (RD1, RD2)', () => {
+    const spec = (z: number, m: 1 | 2 | 3 = 1) => ({z, m});
+    const make = (num: {z: number; m: 1 | 2 | 3}[], den: {z: number; m: 1 | 2 | 3}[], probe = 1): RationalFunctionModel => ({k: 1, numerator: num, denominator: den, probe});
+    // (original numerator, original denominator, zeros, holes, pole x values)
+    const table: [string, RationalFunctionModel, {z: number; m: 1 | 2 | 3}[], {x: number; y: number}[], number[]][] = [
+        ['(x+1)(x-1)/(x-1)', make([spec(-1), spec(1)], [spec(1)]), [spec(-1)], [{x: 1, y: 2}], []],
+        ['(x+1)(x-1)^2/(x-1)', make([spec(-1), spec(1, 2)], [spec(1)]), [spec(-1)], [{x: 1, y: 0}], []],
+        ['(x+1)(x-1)/(x-1)^2', make([spec(-1), spec(1)], [spec(1, 2)]), [spec(-1)], [], [1]],
+        ['(x-1)/(x-1)', make([spec(1)], [spec(1)]), [], [{x: 1, y: 1}], []],
+        ['(x-1)^2/(x-1)^2', make([spec(1, 2)], [spec(1, 2)]), [], [{x: 1, y: 1}], []],
+        ['(x-1)^3/(x-1)', make([spec(1, 3)], [spec(1)]), [], [{x: 1, y: 0}], []],
+        ['(x-1)^2 over 1', make([spec(1, 2)], []), [spec(1, 2)], [], []],
+        ['(x+1)(x-1)^2/(x-1)(x-3)', make([spec(-1), spec(1, 2)], [spec(1), spec(3)]), [spec(-1)], [{x: 1, y: 0}], [3]],
+        ['distinct allowed root 3 stays: (x-1)(x-3)^2/(x-1)', make([spec(1), spec(3, 2)], [spec(1)]), [spec(3, 2)], [{x: 1, y: 4}], []],
+    ];
+    it.each(table)('%s', (_name, m, zeros, holes, poles) => {
+        const facts = rationalFacts(m);
+        expect(facts.zeros).toEqual(zeros);
+        expect(facts.analysis.holes.map(h => ({x: h.x, y: h.y}))).toEqual(holes);
+        expect(facts.poles.map(p => p.x)).toEqual(poles);
+        for (const x of [...holes.map(h => h.x), ...poles]) expect(rationalFacts({...m, probe: x}).probe.defined).toBe(false);
+    });
+});
+
 describe('rational function model facts', () => {
     it('reads the specification numbers of the oblique example', () => {
         const facts = rationalFacts(DEFAULT_RATIONAL_FUNCTION_MODEL);

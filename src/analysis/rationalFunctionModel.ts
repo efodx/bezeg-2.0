@@ -191,7 +191,7 @@ export interface RationalFacts {
     readonly analysis: RationalAnalysis;
     /** Whether a common factor was cancelled (a hole, or a pole of smaller multiplicity than in q). */
     readonly cancelled: boolean;
-    /** The zeros of f: the zeros of the reduced numerator, sorted. */
+    /** The zeros of f: the zeros of the reduced numerator that are not excluded holes, sorted. */
     readonly zeros: readonly { readonly z: number; readonly m: number }[];
     readonly poles: readonly PoleFact[];
     /** deg p and deg q of the reduced fraction. */
@@ -212,10 +212,12 @@ export function rationalFacts(model: RationalFunctionModel): RationalFacts {
     const analysis = analyzeRational(numerator, denominator);
     const excluded = new Set([...analysis.holes.map(h => h.x), ...analysis.poles.map(p => p.x)]);
     const defined = Number.isFinite(model.probe) && !excluded.has(model.probe);
+    // Zeros of the original function only: a remaining numerator zero at a hole is excluded from the domain (height 0 there).
+    const holeXs = new Set(analysis.holes.map(h => h.x));
     return {
         analysis,
         cancelled: polyDegree(analysis.reducedNumerator) < polyDegree(analysis.numerator),
-        zeros: [...analysis.reducedNumerator.zeros].sort((a, b) => a.z - b.z).map(e => ({z: e.z, m: e.m})),
+        zeros: analysis.reducedNumerator.zeros.filter(e => !holeXs.has(e.z)).sort((a, b) => a.z - b.z).map(e => ({z: e.z, m: e.m})),
         poles: analysis.poles.map(pole => ({
             x: pole.x, multiplicity: pole.multiplicity, signChanges: pole.multiplicity % 2 === 1, ...poleSides(analysis, pole.x),
         })),
