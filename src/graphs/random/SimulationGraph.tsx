@@ -852,6 +852,7 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             case "frequency":
                 return t("random_graph_status_frequency", {...of, value2: sim.heads, value3: dec(shown > 0 ? sim.heads / shown : 0, 4), value4: dec(sim.heads - shown / 2, 1)});
             case "area":
+                if (shown <= 0) return t("random_graph_status_area_none", of);
                 return t("random_graph_status_area", {...of, value2: sim.inside, value3: dec(shown > 0 ? (4 * sim.inside) / shown : 0, 4)});
             case "walk":
                 return t("random_graph_status_walk", {...of, value2: sim.zeros});
@@ -891,13 +892,14 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
                 {id: "typical", label: t("random_graph_r_typical"), value: `± ${dec(shown > 0 ? frequencySd(0.5, shown) : 0, 4)}`},
             );
         } else if (sim.kind === "area") {
-            const estimate = shown > 0 ? (4 * sim.inside) / shown : 0;
+            const estimate = (4 * sim.inside) / Math.max(shown, 1);
+            const none = t("random_graph_r_unavailable");
             rows.push(
                 {id: "inside", label: t("random_graph_r_inside"), value: t("random_graph_r_inside_value", {value0: sim.inside, value1: shown})},
-                {id: "share", label: t("random_graph_r_share_inside"), value: dec(shown > 0 ? sim.inside / shown : 0, 4)},
-                {id: "estimate", label: t("random_graph_r_pi_estimate"), value: dec(estimate, 4)},
-                {id: "error", label: t("random_graph_r_pi_error"), value: dec(shown > 0 ? estimate - Math.PI : 0, 4)},
-                {id: "typical", label: t("random_graph_r_se"), value: `± ${dec(shown > 0 ? piStandardError(shown) : 0, 4)}`},
+                {id: "share", label: t("random_graph_r_share_inside"), value: shown > 0 ? dec(sim.inside / shown, 4) : none},
+                {id: "estimate", label: t("random_graph_r_pi_estimate"), value: shown > 0 ? dec(estimate, 4) : none},
+                {id: "error", label: t("random_graph_r_pi_error"), value: shown > 0 ? dec(estimate - Math.PI, 4) : none},
+                {id: "typical", label: t("random_graph_r_se"), value: shown > 0 ? `± ${dec(piStandardError(shown), 4)}` : none},
             );
         } else if (sim.kind === "walk" && exact.kind === "walk") {
             rows.push(

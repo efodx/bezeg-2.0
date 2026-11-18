@@ -3547,6 +3547,8 @@ export const en: Record<keyof typeof sl, string> = {
     "random_graph_status_galton": "Balls {value0} of {value1}. Largest gap between share and law: {value2}.",
     "random_graph_status_frequency": "Tosses {value0} of {value1}, heads {value2}, relative frequency {value3}, heads above half the tosses {value4}.",
     "random_graph_status_area": "Points {value0} of {value1}, inside the circle {value2}, estimate of π {value3}.",
+    "random_graph_status_area_none": "Points {value0} of {value1}: no observations yet, so there is no estimate of π.",
+    "random_graph_r_unavailable": "unavailable",
     "random_graph_status_walk": "Walks {value0} of {value1}, ending at the origin {value2}.",
     "random_graph_status_markov": "Steps {value0} of {value1}, in state A {value2}, share {value3}.",
     "random_graph_status_interval": "Intervals {value0} of {value1}, missed {value2}.",

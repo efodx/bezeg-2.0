@@ -3546,6 +3546,8 @@ export const sl = {
     "random_graph_status_galton": "Kroglic {value0} od {value1}. Največji razmik med deležem in zakonom: {value2}.",
     "random_graph_status_frequency": "Metov {value0} od {value1}, grbov {value2}, relativna frekvenca {value3}, grbov več kot pol metov {value4}.",
     "random_graph_status_area": "Točk {value0} od {value1}, v krogu {value2}, ocena števila π {value3}.",
+    "random_graph_status_area_none": "Točk {value0} od {value1}: opazovanj še ni, zato ocene števila π ni.",
+    "random_graph_r_unavailable": "ni na voljo",
     "random_graph_status_walk": "Sprehodov {value0} od {value1}, končanih v izhodišču {value2}.",
     "random_graph_status_markov": "Korakov {value0} od {value1}, v stanju A {value2}, delež {value3}.",
     "random_graph_status_interval": "Intervalov {value0} od {value1}, zgrešenih {value2}.",

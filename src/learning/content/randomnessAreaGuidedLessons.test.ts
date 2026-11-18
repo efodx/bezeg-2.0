@@ -53,19 +53,21 @@ function areaRows(run: Run, language: Language): Record<string, string> {
     const inside = shown > 0 ? insideOf(seed, shown) : 0;
     const of = language === 'sl' ? 'od' : 'of';
     const estimate = shown > 0 ? 4 * inside / shown : 0;
+    const none = language === 'sl' ? 'ni na voljo' : 'unavailable';
     return {
         shown: `${shown} ${of} ${n}`,
         seed: String(seed),
         inside: `${inside} ${of} ${shown}`,
-        share: fmt(shown > 0 ? inside / shown : 0, 4, language),
-        estimate: fmt(estimate, 4, language),
-        error: fmt(shown > 0 ? estimate - Math.PI : 0, 4, language),
-        typical: `± ${fmt(standardError(shown), 4, language)}`,
+        share: shown > 0 ? fmt(inside / shown, 4, language) : none,
+        estimate: shown > 0 ? fmt(estimate, 4, language) : none,
+        error: shown > 0 ? fmt(estimate - Math.PI, 4, language) : none,
+        typical: shown > 0 ? `± ${fmt(standardError(shown), 4, language)}` : none,
     };
 }
 
 function areaStatus(run: Run, language: Language): string {
     const {seed, n, shown} = run;
+    if (shown <= 0) return language === 'sl' ? `Točk 0 od ${n}: opazovanj še ni, zato ocene števila π ni.` : `Points 0 of ${n}: no observations yet, so there is no estimate of π.`;
     const inside = shown > 0 ? insideOf(seed, shown) : 0;
     const estimate = fmt(shown > 0 ? 4 * inside / shown : 0, 4, language);
     return language === 'sl'

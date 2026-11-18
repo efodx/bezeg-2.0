@@ -6,7 +6,8 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
-import {DEFAULT_RANDOM_STATE, nextStop, RANDOM_MODES, serializeRandomState, type RandomMode} from '../../random/randomModel';
+import {DEFAULT_RANDOM_STATE, nextStop, piStandardError, RANDOM_MODES, simulate, serializeRandomState, type RandomMode} from '../../random/randomModel';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {PATHS_DRAWN, POINTS_DRAWN} from './simulationScene';
 import {PLAYBACK_STEP_MS, SimulationGraph} from './SimulationGraph';
 
@@ -1154,5 +1155,104 @@ describe.each([[840, 520], [390, 520], [330, 520]])('Interval layout at a board 
         // The browser wraps words a little worse than the plain width ratio: the run caption starts a full wrapped law caption (plus a 6 % allowance) below its top.
         const room = W - law!.x0, lines = Math.ceil((law!.x1 - law!.x0 > 0 ? (law!.text.length * 14 * 0.514 * 1.06) : 1) / Math.max(room, 1));
         expect(run!.y0).toBeGreaterThanOrEqual(law!.y0 + lines * 17 - 1e-6);
+    });
+});
+
+describe('area experiment with no observations (M5, MC1-MC3)', () => {
+    beforeEach(() => { vi.useFakeTimers(); });
+    afterEach(() => { vi.useRealTimers(); });
+    /** The announcement region, once the settling delay of the readout has passed. */
+    const live = () => { act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS + 1); }); return document.querySelector('[data-readout-live]')!.textContent; };
+    const status = () => document.querySelector('[data-random-status]')!.textContent;
+    /** A seed whose first point falls inside (1) or outside (0) the circle, found with the model itself. */
+    const seedWithFirst = (inside: 0 | 1) => {
+        for (let seed = 0; seed < 200; seed++) {
+            const sim = simulate({...DEFAULT_RANDOM_STATE, mode: 'area', n: 10, shown: 1, seed});
+            if (sim.kind === 'area' && sim.inside === inside) return seed;
+        }
+        throw new Error('no seed');
+    };
+    const markerYs = (graph: ObservedGraph) => Array.from(graph.view().scene.layers.estimate.y).filter(Number.isFinite);
+    const SE = 4 * Math.sqrt((Math.PI / 4) * (1 - Math.PI / 4));
+    const decimal = (value: string) => Number(value.replace('−', '-').replace('±', '').replace(',', '.').trim());
+
+    const expectUnavailable = (graph: ObservedGraph) => {
+        for (const id of ['share', 'estimate', 'error', 'typical']) {
+            expect(readout(id), id).toBeDefined();
+            expect(readout(id), id).toBe(t('random_graph_r_unavailable'));
+        }
+        expect(readout('inside')).toBe(t('random_graph_r_inside_value', {value0: 0, value1: 0}));
+        expect(status()).toBe(t('random_graph_status_area_none', {value0: 0, value1: graph.state.n}));
+        expect(live()).toBe(status());
+        expect(status()).not.toMatch(/0[,.]0+/);
+        expect(markerYs(graph)).toEqual([]);
+        noBadText();
+    };
+
+    test('Replay at shown count 0 shows every row and the status as unavailable, in both languages, with no marker', () => {
+        const {graph} = mountGraph();
+        chooseMode('area');
+        act(() => { graph.setState({seed: seedWithFirst(1), shown: 5}); });
+        expect(markerYs(graph).length).toBeGreaterThan(0);
+        press(t('replay'));
+        expect(graph.state.shown).toBe(0);
+        expectUnavailable(graph);
+        act(() => { setLanguage('en'); });
+        expectUnavailable(graph);
+        expect(status()).toMatch(/no observations/i);
+    });
+
+    test.each([[0, 0, -Math.PI], [1, 1, 4 - Math.PI]])('one point, %i inside: share %i, estimate and error are numbers, standard error is the theoretical one, marker at its measured place', (inside, share, error) => {
+        const {graph} = mountGraph();
+        chooseMode('area');
+        act(() => { graph.setState({seed: seedWithFirst(inside as 0 | 1), shown: 0}); });
+        expectUnavailable(graph);
+        act(() => { graph.setState({shown: 1}); });
+        expect(readout('inside')).toBe(t('random_graph_r_inside_value', {value0: inside, value1: 1}));
+        expect(decimal(readout('share')!)).toBeCloseTo(share, 4);
+        expect(decimal(readout('estimate')!)).toBeCloseTo(4 * inside, 4);
+        expect(decimal(readout('error')!)).toBeCloseTo(error, 4);
+        expect(decimal(readout('typical')!)).toBeCloseTo(SE, 4);
+        expect(piStandardError(1)).toBeCloseTo(SE, 12);
+        const ys = markerYs(graph);
+        expect(ys.length).toBeGreaterThan(0);
+        expect(Math.min(...ys)).toBeLessThanOrEqual(share + 1e-9);
+        expect(Math.max(...ys)).toBeGreaterThanOrEqual(share - 1e-9);
+        expect(ys.reduce((a, b) => a + b, 0) / ys.length).toBeCloseTo(share, 6);
+        expect(status()).toContain(`${inside}`);
+        expect(live()).toBe(status());
+        expect(status()).not.toBe(t('random_graph_status_area_none', {value0: 0, value1: graph.state.n}));
+    });
+
+    test('playback, stepping, a seed or experiment change and a restored scene return to or leave the unavailable state consistently', () => {
+        const {graph} = mountGraph();
+        chooseMode('area');
+        const capabilities = graph.getLessonCapabilities();
+        act(() => { graph.setState({shown: 0}); });
+        const empty = capabilities.captureState();
+        press(t('play'));
+        expect(graph.state.shown).toBe(0);
+        graph.clock.tick(1000);
+        graph.clock.tick(1000 + PLAYBACK_STEP_MS * 2);
+        expect(graph.state.shown).toBeGreaterThan(0);
+        press(t('replay'));
+        expectUnavailable(graph);
+        press(t('next_step'));
+        expect(graph.state.shown).toBe(1);
+        expect(readout('estimate')).not.toBe(t('random_graph_r_unavailable'));
+        act(() => { graph.setState({shown: 1}); });
+        const one = capabilities.captureState();
+        act(() => { capabilities.restoreState(empty); });
+        expectUnavailable(graph);
+        act(() => { capabilities.restoreState(one); });
+        expect(readout('estimate')).not.toBe(t('random_graph_r_unavailable'));
+        expect(markerYs(graph).length).toBeGreaterThan(0);
+        act(() => { graph.setState({shown: 0}); });
+        act(() => { graph.editSeed(7); });
+        expectUnavailable(graph);
+        chooseMode('frequency');
+        chooseMode('area');
+        act(() => { graph.setState({shown: 0}); });
+        expectUnavailable(graph);
     });
 });
