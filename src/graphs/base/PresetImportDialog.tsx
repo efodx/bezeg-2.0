@@ -1,5 +1,6 @@
 import {LocalizedError, useT} from "../../localization";
-import React, {useRef, useState} from "react";
+import React, {useContext, useRef, useState} from "react";
+import {PresetLockContext, presetWritesAllowed} from "../context/react/PresetLockContext";
 import {Alert, Button, Form, Modal} from "react-bootstrap";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {commitPresetImport, preflightPresetImport, PresetImportPlan} from "./presets/PresetImport";
@@ -8,6 +9,7 @@ import {appStorage} from "../../storage/appStorage";
 /** `unavailableReason` (e.g. a running lesson) keeps the trigger focusable but inert and states why. */
 export function PresetImportDialog({onImported, unavailableReason}: {onImported: () => void, unavailableReason?: string}) {
     const t = useT();
+    const policy = useContext(PresetLockContext);
     const [show, setShow] = useState(false);
     const [error, setError] = useState<Error | string>("");
     const [plan, setPlan] = useState<PresetImportPlan>();
@@ -45,6 +47,8 @@ export function PresetImportDialog({onImported, unavailableReason}: {onImported:
             </Modal.Body>
             <Modal.Footer><Button variant="outline-secondary" onClick={close}>{t("cancel")}</Button>
                 <Button disabled={!plan || reading} onClick={() => {
+                    // Decided at the press: a file validated before a lesson started is not written during it.
+                    if (!presetWritesAllowed(policy.current())) { setError(new LocalizedError({key: "presets_unavailable_during_lesson", params: {}})); return; }
                     try { if (plan) { commitPresetImport(plan, appStorage); close(); onImported(); } }
                     catch (failure) { setError(failure instanceof LocalizedError ? failure : new LocalizedError({key: "cannot_save_presets_free_browser_storage_space_and_try_again", params: {}})); }
                 }}>{plan?.replacements.length ? t("replace_collections_and_import") : t("import")}</Button></Modal.Footer>
