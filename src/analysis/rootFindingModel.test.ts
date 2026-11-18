@@ -97,6 +97,13 @@ describe('root-finding edits', () => {
 });
 
 describe('rootFindingHistoryOf: recomputed from the kernel', () => {
+    it('secant x^3 - x from 0 and 2 after one step is root-found at 0 (RF1, RF2)', () => {
+        const forward = rootFindingHistoryOf({method: 'secant', example: 'cubic-three-roots', x0: 0, x1: 2, step: 1});
+        expect([forward.iterates, forward.stepsTaken, forward.termination]).toEqual([[0, 2, 0], 1, 'root-found']);
+        const reversed = rootFindingHistoryOf({method: 'secant', example: 'cubic-three-roots', x0: 2, x1: 0, step: 1});
+        expect([reversed.iterates, reversed.stepsTaken, reversed.termination]).toEqual([[2, 0], 0, 'root-found']);
+    });
+
     it('Newton and secant models give the kernel histories of their fields', () => {
         expect(rootFindingHistoryOf(newton)).toEqual(newtonHistory('square-minus-two', 1, 3));
         expect(rootFindingHistoryOf(secant)).toEqual(secantHistory('square-minus-two', 1, 2, 3));

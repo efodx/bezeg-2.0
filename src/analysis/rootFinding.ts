@@ -175,6 +175,8 @@ export function secantHistory(id: RootFindingExampleId, first: number, second: n
         const again = repeats(iterates, next);
         iterates.push(next);
         if (converged(x, next)) return finish('root-found');
-        if (again) return finish('repeated-iterate');
+        // A newly evaluated exact root wins over recurrence: the secant update depends on two iterates, so a repeat of
+        // an earlier value that is itself a root is not a cycle.
+        if (again) return finish(example.value(next) === 0 ? 'root-found' : 'repeated-iterate');
     }
 }

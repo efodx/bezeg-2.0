@@ -169,6 +169,24 @@ describe('secant history (acceptance 5)', () => {
     });
 });
 
+describe('secant exact root precedence (RF1, RF2)', () => {
+    // x^3 - x from 0 and 2: f(2) = 6, next = 2 - 6 (2 - 0) / (6 - 0) = 0, and f(0) = 0 is a root equal to the first start.
+    it('reports a new exact root that equals an earlier iterate as root-found', () => {
+        const history = secantHistory('cubic-three-roots', 0, 2, 1);
+        expect(history.iterates).toEqual([0, 2, 0]);
+        expect(history.stepsTaken).toBe(1);
+        expect(history.termination).toBe('root-found');
+        expect(history.example.value(history.iterates[2])).toBe(0);
+    });
+
+    it('finds the root of the reversed starts at once without a synthetic step', () => {
+        const history = secantHistory('cubic-three-roots', 2, 0, 1);
+        expect(history.iterates).toEqual([2, 0]);
+        expect(history.stepsTaken).toBe(0);
+        expect(history.termination).toBe('root-found');
+    });
+});
+
 describe('validation (acceptance 6)', () => {
     it('rejects non-finite and out-of-range starts, bad step counts and unknown ids', () => {
         for (const bad of [Number.NaN, Infinity, -Infinity, ROOT_START_MIN - 0.01, ROOT_START_MAX + 0.01]) {

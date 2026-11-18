@@ -241,6 +241,20 @@ test('starts outside the range or equal for the secant method are rejected witho
     expect(controls(graph).found.Slider.length).toBe(1);
 });
 
+test('secant x^3 - x from 0 and 2: one step ends as root-found at the current iterate 0 (RF1-RF3)', () => {
+    const graph = makeGraph({method: 'secant', example: 'cubic-three-roots', x0: 0, x1: 2});
+    next(graph);
+    expect(graph.model.step).toBe(1);
+    expect(view(graph).history.iterates).toEqual([0, 2, 0]);
+    expect(statusId(graph)).toBe('root-found');
+    expect(graph.canAdvance()).toBe(false);
+    expect(graph.boardStatus(graph.model, 'sl')?.text).toMatch(/^ustalitev pri 0$/);
+    const reversed = makeGraph({method: 'secant', example: 'cubic-three-roots', x0: 2, x1: 0});
+    expect(view(reversed).history.iterates).toEqual([2, 0]);
+    expect(statusId(reversed)).toBe('root-found');
+    expect(reversed.canAdvance()).toBe(false);
+});
+
 test('every termination is stated in words and on the board', () => {
     const cases: Array<[Partial<RootFindingModel>, number, string, RegExp]> = [
         [{}, 20, 'root-found', /^ustalitev pri 1,41421/],
