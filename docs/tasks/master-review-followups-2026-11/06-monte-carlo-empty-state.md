@@ -1,6 +1,6 @@
 # 06 — Show unavailable Monte Carlo results before sampling
 
-Status: planned, 2026-11-18. Source: [specification](../../specs/master-review-followups-2026-11.md#empty-monte-carlo-readouts--m5), MC1–MC3. Finding M5. Dependencies: none.
+Status: done, 2026-11-19, commit 0aabeb22; mathematical review, verified by focused unit tests, `just check-changed` at bdb27583 and browser smoke, including keyboard Replay and the live status in sl and en. Source: [specification](../../specs/master-review-followups-2026-11.md#empty-monte-carlo-readouts--m5), MC1–MC3. Finding M5. Dependencies: none.
 
 ## Outcome and scope
 

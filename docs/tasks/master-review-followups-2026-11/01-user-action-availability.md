@@ -1,6 +1,6 @@
 # 01 — Enforce current user-action availability
 
-Status: planned, 2026-11-18. Source: [specification](../../specs/master-review-followups-2026-11.md#user-action-availability--r1-r2), UA1–UA5. Findings R1/R2. Dependencies: none.
+Status: done, 2026-11-19, commits 15b68050 and c6b20420 (import confirmation found in review); engineering and UI review, verified by focused unit tests, `just check-changed` at bdb27583 and browser smoke (all seven A2 viewports; observe mode only at 1280 px, 310 px inspector not checked). Source: [specification](../../specs/master-review-followups-2026-11.md#user-action-availability--r1-r2), UA1–UA5. Findings R1/R2. Dependencies: none.
 
 ## Outcome and scope
 

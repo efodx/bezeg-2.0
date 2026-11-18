@@ -1,6 +1,6 @@
 # 03 — Recognize exact Secant roots before recurrence
 
-Status: planned, 2026-11-18. Source: [specification](../../specs/master-review-followups-2026-11.md#secant-termination--m1), RF1–RF3. Finding M1. Dependencies: none; precedes the [formula evaluator's kernel adapters](../custom-function-entry/01-formula-evaluator.md) as well as Newton/Secant graph integration.
+Status: done, 2026-11-19, commit 63fcb48d; mathematical review, verified by focused unit tests, `just check-changed` at bdb27583 and browser smoke. Source: [specification](../../specs/master-review-followups-2026-11.md#secant-termination--m1), RF1–RF3. Finding M1. Dependencies: none; precedes the [formula evaluator's kernel adapters](../custom-function-entry/01-formula-evaluator.md) as well as Newton/Secant graph integration.
 
 ## Outcome and scope
 

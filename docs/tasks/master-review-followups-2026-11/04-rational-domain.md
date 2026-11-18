@@ -1,6 +1,6 @@
 # 04 — Restrict rational zeros to the original domain
 
-Status: planned, 2026-11-18. Source: [specification](../../specs/master-review-followups-2026-11.md#rational-function-domain--m2), RD1–RD3. Finding M2. Dependencies: none.
+Status: done, 2026-11-19, commit b651c7b4; mathematical review, verified by focused unit tests, `just check-changed` at bdb27583 and browser smoke (sl and en; 310 px readout not captured; the hole marker sits under the numerator-zero edit handle). Source: [specification](../../specs/master-review-followups-2026-11.md#rational-function-domain--m2), RD1–RD3. Finding M2. Dependencies: none.
 
 ## Outcome and scope
 

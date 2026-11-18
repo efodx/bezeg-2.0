@@ -1,6 +1,6 @@
 # 02 — Base CI skipping on verified and deployed source
 
-Status: planned, 2026-11-18. Source: [specification](../../specs/master-review-followups-2026-11.md#ci-source-and-deployment-coverage--r3), CI1–CI5. Finding R3. Dependencies: none.
+Status: done, 2026-11-19, commit bdb27583; deterministic matrix and omission tests (`just tooling-test`), job names checked against scheduled run 44297300317. The live `gh api` path is first observed on the next master push. Source: [specification](../../specs/master-review-followups-2026-11.md#ci-source-and-deployment-coverage--r3), CI1–CI5. Finding R3. Dependencies: none.
 
 ## Outcome and scope
 

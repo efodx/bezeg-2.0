@@ -1,6 +1,6 @@
 # 05 — Keep B-spline samples within the exact parameter domain
 
-Status: planned, 2026-11-18. Source: [specification](../../specs/master-review-followups-2026-11.md#b-spline-domain-safe-sampling--m3-m4), BS1–BS5. Findings M3/M4. Dependencies: none.
+Status: done, 2026-11-19, commit 48b768b1; mathematical review, verified by focused unit tests, `just check-changed` at bdb27583 and browser smoke. Lesson/checkpoint restoration not separately tested; the knot text field rejects typed `1e-10` (Preset import works). Source: [specification](../../specs/master-review-followups-2026-11.md#b-spline-domain-safe-sampling--m3-m4), BS1–BS5. Findings M3/M4. Dependencies: none.
 
 ## Outcome and scope
 
