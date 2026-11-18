@@ -7,7 +7,7 @@ import BSplineNurbsGraph, {errorText} from './BSplineNurbsGraph';
 import {GraphHost} from '../../base/GraphHost';
 import {LocalizedError, renderMessage, setLanguage} from '../../../localization';
 import {BSplinePresetData, bsplinePresetCollection} from './bsplinePresetCollection';
-import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt} from './bsplineNurbsModel';
+import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt, radialErrorParameters} from './bsplineNurbsModel';
 import {BSplineNurbsScene} from './BSplineNurbsScene';
 import {enterNumber} from '../../../inputs/testEntry';
 import {expectResetCycle} from '../../base/resetAvailabilityBehaviour';
@@ -96,6 +96,33 @@ describe('L5 acceptance 1: the radial error', () => {
         expect(readout()).toMatch(/(·10⁻¹[⁶⁷⁸⁹]|: 0)$/);
         act(() => graph.selectExample('unit'));
         expect(readout()).toMatch(/·10⁻[¹²]$/);
+        view.unmount();
+    });
+});
+
+describe('BS3: the affinely reparameterized exact circle', () => {
+    const knots = [-0.1, -0.1, -0.1, -0.025, -0.025, 0.05, 0.05, 0.125, 0.125, 0.2, 0.2, 0.2];
+    const circle = nurbsExample('circle');
+    const data = {...circle, knots};
+
+    test('the radial error is finite and below 1e-12, and the last sample is the stored endpoint', () => {
+        expect(maxRadialError(data)).toBeLessThan(1e-12);
+        const parameters = radialErrorParameters(-0.1, 0.2);
+        expect(parameters[0]).toBe(-0.1);
+        expect(parameters[parameters.length - 1]).toBe(0.2);
+        expect(parameters.every(v => v >= -0.1 && v <= 0.2)).toBe(true);
+    });
+
+    test('the graph readout is finite after a Preset import, not the placeholder', () => {
+        const {graph, view} = mount();
+        const preset = accepted(JSON.parse(JSON.stringify({degree: 2, knots, points: circle.points, weights: circle.weights})));
+        act(() => graph.importPresetData(preset));
+        expect(graph.state.knots).toEqual(knots);
+        expect(Number.isFinite(graph.radialError())).toBe(true);
+        expect(graph.radialError()).toBeLessThan(1e-12);
+        expect(errorText(graph.radialError())).not.toBe(errorText(NaN));
+        expect(graph.exportPresetData().knots).toEqual(knots);
+        act(() => { void graph.reset(); });
         view.unmount();
     });
 });

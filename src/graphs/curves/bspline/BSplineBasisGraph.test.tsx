@@ -416,6 +416,35 @@ describe('Presets, scenes and reset', () => {
         view.unmount();
     });
 
+    test('BS4: a Preset with a 1e-10 span is valid, draws in both parameter views, round-trips and resets', async () => {
+        const {graph, view} = mount();
+        const short = basisPresetData(2, [0, 0, 0, 1e-10, 2, 2, 2]);
+        const checked = graph['presetCollection']().check(JSON.parse(JSON.stringify(short)));
+        expect('data' in checked).toBe(true);
+        act(() => graph.importPresetData(short));
+        for (const normalized of [false, true]) {
+            act(() => graph.setNormalized(normalized));
+            for (let i = 0; i < 4; i++) {
+                const {x, y} = graph.plotted(i);
+                expect(x.length).toBeGreaterThan(400);
+                expect(x.every(Number.isFinite) && y.every(Number.isFinite)).toBe(true);
+                expect(x.every((v, j) => j === 0 || v > x[j - 1])).toBe(true);
+                expect([x[0], x[x.length - 1]]).toEqual(normalized ? [0, 1] : [0, 2]);
+            }
+            const {x} = graph.plotted(0);
+            expect(x.some(v => v > 0 && v < (normalized ? 5e-11 : 1e-10))).toBe(true);
+        }
+        const saved = graph.exportPreset();
+        act(() => graph.setNormalized(false));
+        act(() => graph.importPreset(saved));
+        expect(graph.state.knots).toEqual(short.knots);
+        expect(graph.state.normalized).toBe(true);
+        act(() => { void graph.reset(); });
+        await waitFor(() => expect(graph.state.knots).toEqual([0, 0, 0, 1, 2, 2, 2]));
+        expect(graph.plotted(0).x.every(Number.isFinite)).toBe(true);
+        view.unmount();
+    });
+
     test('reset restores the defaults, including the display toggle and the slider', async () => {
         const {graph, view} = mount();
         act(() => { graph.importPresetData(cubic); graph.setNormalized(true); graph.setDisplayedT(0.9); graph.dragKnot(5, 1.5); });

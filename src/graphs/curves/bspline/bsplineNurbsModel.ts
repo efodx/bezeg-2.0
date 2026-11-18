@@ -51,12 +51,16 @@ export const angleDegrees = (point: ControlPoint): number => {
     return wrapped > 360 - 1e-9 ? 0 : wrapped;
 };
 
+/** The radial-error sample parameters: {@link NURBS_ERROR_SAMPLES} uniform ones with the exact stored endpoints (interpolation can round past `b`). */
+export const radialErrorParameters = (a: number, b: number): number[] =>
+    Array.from({length: NURBS_ERROR_SAMPLES}, (_, i) => i === 0 ? a : i === NURBS_ERROR_SAMPLES - 1 ? b : Math.min(b, a + (b - a) * i / (NURBS_ERROR_SAMPLES - 1)));
+
 /** max |‖C(t)‖ − 1| over {@link NURBS_ERROR_SAMPLES} uniform samples of the domain. */
 export function maxRadialError(data: NurbsData): number {
     const [a, b] = domain(data.knots, data.degree, data.points.length - 1);
     let worst = 0;
-    for (let i = 0; i < NURBS_ERROR_SAMPLES; i++) {
-        const [x, y] = nurbsPointAt(data, a + (b - a) * i / (NURBS_ERROR_SAMPLES - 1));
+    for (const t of radialErrorParameters(a, b)) {
+        const [x, y] = nurbsPointAt(data, t);
         worst = Math.max(worst, Math.abs(Math.hypot(x, y) - 1));
     }
     return worst;

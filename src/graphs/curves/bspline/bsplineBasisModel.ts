@@ -136,7 +136,7 @@ export function allValuesAt(knots: readonly number[], degree: number, t: number)
 }
 
 export interface BasisSamples {
-    /** Raw parameter values, increasing: BASIS_SAMPLES + 1 uniform ones from the domain start to its end, plus each distinct interior knot and its left-limit sample. */
+    /** Raw parameter values, increasing: BASIS_SAMPLES + 1 uniform ones from the domain start to its end, plus each distinct interior knot and, when one fits strictly inside the preceding span, its left-limit sample. */
     t: number[];
     /** columns[i][j] = N_{i,k}(t[j]). */
     columns: number[][];
@@ -147,12 +147,20 @@ export function sampleBasis(knots: readonly number[], degree: number): BasisSamp
     const n = lastIndexOf(knots, degree);
     if (!isValid(knots, degree)) return {t: [], columns: Array.from({length: Math.max(0, n + 1)}, () => [])};
     const [start, end] = domain(knots, degree, n);
-    const grid = Array.from({length: BASIS_SAMPLES + 1}, (_, j) => j === BASIS_SAMPLES ? end : start + (end - start) * j / BASIS_SAMPLES);
+    const grid = Array.from({length: BASIS_SAMPLES + 1}, (_, j) => j === 0 ? start : j === BASIS_SAMPLES ? end : Math.min(end, start + (end - start) * j / BASIS_SAMPLES));
     // Every distinct interior knot is sampled exactly, and just before it (its left limit within KNOT_LEFT_LIMIT of the domain
     // length), so a jump at a knot of multiplicity k + 1 draws as a vertical step rather than a slanted segment.
-    const interior = knots.filter(u => u > start && u < end);
+    // The extra sample must lie strictly between the previous distinct knot p and the knot u: a span shorter than the offset takes
+    // the midpoint instead. Drawing limitation: when no double lies strictly between p and u (for example 1 and 1 + Number.EPSILON)
+    // only the exact knot samples remain; a rounded endpoint is never passed off as a left limit, and the kernel stays strict.
+    const interior = [...new Set(knots.filter(u => u > start && u < end))].sort((x, y) => x - y);
     const delta = (end - start) * KNOT_LEFT_LIMIT;
-    const t = [...new Set([...grid, ...interior, ...interior.map(u => u - delta)])].sort((a, b) => a - b);
+    const before = interior.flatMap((u, i) => {
+        const p = i === 0 ? start : interior[i - 1];
+        for (const candidate of [u - delta, p + (u - p) / 2]) if (candidate > p && candidate < u) return [candidate];
+        return [];
+    });
+    const t = [...new Set([...grid, ...interior, ...before])].sort((x, y) => x - y);
     const columns: number[][] = Array.from({length: n + 1}, () => []);
     for (const at of t) basisAll(knots, degree, at).forEach((value, i) => columns[i].push(value));
     return {t, columns};

@@ -3,6 +3,7 @@ import {
     BASIS_SAMPLES, dragKnotEdit, draggedKnots, editedKnots, isClamped, knotProblem, parameterView, readoutAt, rebuiltKnots, sampleBasis, snapKnot,
 } from './bsplineBasisModel';
 import {renderMessage, setLanguage} from '../../../localization';
+import {basisAll} from '../../../bezeg/impl/curve/bspline';
 
 describe('knot vector helpers', () => {
     test('isClamped looks at both ends only', () => {
@@ -141,5 +142,51 @@ describe('display mapping and samples', () => {
 
     test('a knot off the uniform grid is sampled exactly', () => {
         expect(sampleBasis([0, 0, 0, 0.123456, 2, 2, 2], 2).t).toContain(0.123456);
+    });
+
+    describe('samples stay in the exact domain (BS1, BS2)', () => {
+        const check = (knots: number[], degree: number) => {
+            const samples = sampleBasis(knots, degree);
+            const start = knots[degree], end = knots[knots.length - degree - 1];
+            expect(samples.t.length).toBeGreaterThan(0);
+            expect(samples.t[0]).toBe(start);
+            expect(samples.t[samples.t.length - 1]).toBe(end);
+            expect(samples.t.every((v, j) => v >= start && v <= end && (j === 0 || v > samples.t[j - 1]))).toBe(true);
+            expect(samples.columns).toHaveLength(knots.length - degree - 1);
+            for (const column of samples.columns) {
+                expect(column).toHaveLength(samples.t.length);
+                expect(column.every(Number.isFinite)).toBe(true);
+            }
+            return samples;
+        };
+
+        test('[0,0,0,1e-10,2,2,2] draws, with a sample strictly inside the short span and partition of unity', () => {
+            const a = 1e-10;
+            const samples = check([0, 0, 0, a, 2, 2, 2], 2);
+            const inside = samples.t.filter(v => v > 0 && v < a);
+            expect(inside.length).toBeGreaterThan(0);
+            samples.t.forEach((v, j) => expect(samples.columns.reduce((sum, c) => sum + c[j], 0)).toBeCloseTo(1, 12));
+            // Closed form on the short span: N_{0,2}(t) = ((a - t) / a)^2.
+            inside.forEach(v => expect(samples.columns[0][samples.t.indexOf(v)]).toBeCloseTo(((a - v) / a) ** 2, 9));
+        });
+
+        test('repeated, negative and non-unit domains stay ordered and in the domain', () => {
+            check([-3, -3, -3, -3, -2.5, -2.5, -1, -1, -1, -1], 3);
+            check([5, 5, 5, 5 + 1e-9, 7, 7, 7], 2);
+            check([-1e-6, -1e-6, -1e-6, -1e-6 + 1e-13, 1e-6, 1e-6, 1e-6], 2);
+        });
+
+        test('knots 1 and 1 + EPSILON have no interior value: exact boundaries only', () => {
+            const u = 1 + Number.EPSILON;
+            const samples = check([0, 0, 0, 1, u, 3, 3, 3], 2);
+            expect(samples.t).toContain(1);
+            expect(samples.t).toContain(u);
+            expect(samples.t.filter(v => v > 1 && v < u)).toEqual([]);
+        });
+
+        test('the kernel stays strict outside the domain', () => {
+            expect(() => basisAll([0, 0, 0, 1, 2, 2, 2], 2, -1e-3)).toThrow();
+            expect(() => basisAll([0, 0, 0, 1, 2, 2, 2], 2, 2 + 1e-3)).toThrow();
+        });
     });
 });
