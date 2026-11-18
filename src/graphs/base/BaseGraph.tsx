@@ -1,5 +1,6 @@
 import type {StoredGraphState} from "./presets/Presets";
 import {LocalizedError, message, Message, onLanguageChange, renderMessage, t} from "../../localization";
+import {presetWritesAllowed, type UserActionMode} from "../context/react/PresetLockContext";
 import React from 'react';
 
 
@@ -90,6 +91,8 @@ export interface GraphWorkspacePanels {
     /** Pauses graph-owned playback at its current frame. */
     pausePlayback: () => void;
     lessonCapabilities: LessonGraphCapabilities | undefined;
+    /** Lets the workspace hand over its current user-action decision (see {@link UserActionMode}). */
+    bindUserActions: (current: () => UserActionMode) => () => void;
 }
 
 /**
@@ -131,6 +134,24 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
     protected graphSession?: GraphSession;
     protected graphInteractionLocked = false;
+
+    /** The workspace's decision reader; absent (free exploration) when no workspace is mounted. */
+    private userActionDecision?: () => UserActionMode;
+    private readonly bindUserActions = (current: () => UserActionMode): (() => void) => {
+        this.userActionDecision = current;
+        return () => { if (this.userActionDecision === current) this.userActionDecision = undefined; };
+    };
+
+    /**
+     * Refuses a user Preset write (save, overwrite, rename, delete) while a lesson is active, deciding at the moment of the write.
+     * The notice is the existing localized feedback. Authored lesson actions never come through here.
+     */
+    private refusePresetWrite(): boolean {
+        if (presetWritesAllowed(this.userActionDecision?.() ?? "free")) return false;
+        this.presetNoticeValue = message("presets_unavailable_during_lesson");
+        this.requestRender();
+        return true;
+    }
 
     /** The standalone scene slot of the current session (see {@link sceneDeclaration}); replaced on every mount. */
     private sceneSlot?: SceneSlot<Scene>;
@@ -342,7 +363,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     /** Stores the current scene under `name` (the first unused `preset-N` when empty) and selects it. */
     saveCurrentPreset(name: string): void {
         const service = this.presetService;
-        if (!service) return;
+        if (!service || this.refusePresetWrite()) return;
         const id = name || firstUnusedPresetName(service.loadPresets().data);
         const outcome = service.savePreset({...this.exportPreset(), id});
         this.presetNoticeValue = outcome.problem;
@@ -354,7 +375,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     /** Renames a stored preset; a renamed selected preset stays selected. A refusal is shown as the notice. */
     renamePreset(id: string, newName: string): void {
         const service = this.presetService;
-        if (!service || this.exportBusy) return;
+        if (!service || this.exportBusy || this.refusePresetWrite()) return;
         const outcome = service.renamePreset(id, newName);
         this.presetNoticeValue = outcome.problem;
         if (!outcome.problem && this.selectedPresetIdValue === id) this.selectedPresetIdValue = newName.trim();
@@ -366,7 +387,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     deletePreset(id: string): Promise<void> {
         if (id === this.selectedPresetIdValue) return this.deleteSelectedPreset();
         const service = this.presetService;
-        if (!service || !id || this.exportBusy) return Promise.resolve();
+        if (!service || !id || this.exportBusy || this.refusePresetWrite()) return Promise.resolve();
         this.presetNoticeValue = service.removePreset(id).problem;
         this.presetListVersionValue++;
         this.requestRender();
@@ -376,7 +397,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     /** Deletes the selected preset and loads the first remaining one, or the default scene. */
     deleteSelectedPreset(): Promise<void> {
         const service = this.presetService;
-        if (!service || !this.selectedPresetIdValue || this.exportBusy) return Promise.resolve();
+        if (!service || !this.selectedPresetIdValue || this.exportBusy || this.refusePresetWrite()) return Promise.resolve();
         const remaining = service.removePreset(this.selectedPresetIdValue);
         this.presetNoticeValue = remaining.problem;
         if (remaining.problem) {
@@ -1035,6 +1056,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
             display: this.state.initialized ? this.withReplacementRevision(this.workspaceDisplay()) : null,
             save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureExports.batchActive,
             pickerUnavailable: this.pickerUnavailable, pausePlayback: () => this.pausePlayback(),
+            bindUserActions: this.bindUserActions,
             // A deep link can request a lesson before JSXGraph has created
             // its board. Do not mount the session until the graph-owned
             // capability is ready; otherwise captureState() fails once

@@ -2,7 +2,7 @@ import {useT} from "../../localization";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
-import {PresetLockContext} from "../context/react/PresetLockContext";
+import {PresetLockContext, type UserActionMode, type UserActionPolicy} from "../context/react/PresetLockContext";
 import {JGBox} from "../../JGBox";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
 import {DemonstrationPicker} from '../../DemonstrationPicker';
@@ -35,6 +35,8 @@ export function DemonstrationWorkspace(props: {
     graphBusy?: boolean, pickerUnavailable?: boolean, pausePlayback?: () => void, graphContainerRef?: React.Ref<HTMLDivElement>,
     beforeDispose?: React.MutableRefObject<(() => void) | undefined>,
     disposeFailedGraph?: () => void,
+    /** Gives the graph the workspace's decision reader, for commits that arrive through callbacks retained from an earlier render. Returns the release. */
+    bindUserActions?: (current: () => UserActionMode) => () => void,
 }) {
     const t = useT();
     const closeLesson = useRef<(() => void) | undefined>();
@@ -179,6 +181,14 @@ export function DemonstrationWorkspace(props: {
     // board. Keep the normal workspace interactive until the graph-owned
     // capability is available; BaseGraph will provide it on the next render.
     const lessonActive = lessonOpen && Boolean(lesson && props.lessonCapabilities);
+    // The one decision about user commands (Preset writes, playback), from the lesson state this workspace owns. The ref is what
+    // `current()` reads at the moment of a commit; the render value only drives what controls show.
+    const userActionMode: UserActionMode = !lessonActive ? 'free' : lessonMode === 'content' ? 'lesson-card' : 'lesson-observe';
+    const userActionModeRef = useRef(userActionMode);
+    useLayoutEffect(() => { userActionModeRef.current = userActionMode; }, [userActionMode]);
+    const userActions = useMemo<UserActionPolicy>(() => ({mode: userActionMode, current: () => userActionModeRef.current}), [userActionMode]);
+    const bindUserActions = props.bindUserActions;
+    useLayoutEffect(() => bindUserActions?.(() => userActionModeRef.current), [bindUserActions]);
     useEffect(() => {
         const element = inspector.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = lessonActive && lessonMode === 'content';
@@ -187,7 +197,7 @@ export function DemonstrationWorkspace(props: {
         const element = workspaceRoot.current as (HTMLElement & {inert?: boolean}) | null;
         if (element) element.inert = Boolean(props.graphBusy);
     }, [props.graphBusy]);
-    return <PresetLockContext.Provider value={lessonActive}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
+    return <PresetLockContext.Provider value={userActions}><PlaybackSlotContext.Provider value={playbackSlot}><main ref={workspaceRoot} aria-busy={props.graphBusy || undefined}
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header ref={headerElement} className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>

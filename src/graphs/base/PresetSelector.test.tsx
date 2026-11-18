@@ -2,7 +2,7 @@ import React from 'react';
 import {fireEvent, render, screen, within} from '@testing-library/react';
 import {PresetSelector} from './PresetSelector';
 import {PresetService} from './presets/Presets';
-import {PresetLockContext} from '../context/react/PresetLockContext';
+import {PresetLockContext, policyOf, type UserActionMode} from '../context/react/PresetLockContext';
 import {appStorage} from '../../storage/appStorage';
 
 beforeEach(() => {
@@ -12,7 +12,7 @@ beforeEach(() => {
 const handlers = () => ({onSelect: vi.fn(), onReset: vi.fn(), onSave: vi.fn(), onDelete: vi.fn(), onRename: vi.fn(), onImported: vi.fn()});
 
 function renderSelector(service: PresetService, selectedPresetId = '', locked = false, on = handlers()) {
-    render(<PresetLockContext.Provider value={locked}><PresetSelector presetService={service} selectedPresetId={selectedPresetId}
+    render(<PresetLockContext.Provider value={policyOf(locked ? "lesson-card" : "free")}><PresetSelector presetService={service} selectedPresetId={selectedPresetId}
         presetListVersion={0} {...on}/></PresetLockContext.Provider>);
     return on;
 }
@@ -181,4 +181,56 @@ test('under the lesson lock every state-changing control is unavailable but focu
     expect([selectOf('beta'), menuOf('beta'), screen.getByRole('button', {name: 'Ponastavi prednastavitev'}),
         document.querySelector<HTMLButtonElement>('button.preset-save')!, screen.getByRole('button', {name: 'Uvozi prednastavitve'})].every(unavailable)).toBe(true);
     expect(unavailable(screen.getByRole('button', {name: 'Izvozi prednastavitve'}))).toBe(false);
+});
+
+describe('Preset writes follow the lesson decision at commit time', () => {
+    function renderWithMutableMode(service: PresetService, selected = '') {
+        let mode: UserActionMode = 'free';
+        const on = handlers();
+        const view = (rendered: UserActionMode) => <PresetLockContext.Provider value={{mode: rendered, current: () => mode}}>
+            <PresetSelector presetService={service} selectedPresetId={selected} presetListVersion={0} {...on}/></PresetLockContext.Provider>;
+        const {rerender} = render(view('free'));
+        // The decision changes without the form's own render having seen it first (a retained form).
+        return {on, enter: (next: UserActionMode) => { mode = next; }, show: (next: UserActionMode) => rerender(view(next))};
+    }
+
+    test('a Save form opened in free exploration refuses Enter and the Save button after the lesson starts, and keeps its draft', () => {
+        const {on, enter, show} = renderWithMutableMode(withPresets('alpha'));
+        openSave();
+        fireEvent.change(nameField(), {target: {value: 'draft'}});
+        enter('lesson-card');
+        fireEvent.keyDown(nameField(), {key: 'Enter'});
+        expect(on.onSave).not.toHaveBeenCalled();
+        expect(nameField().value).toBe('draft');
+        expect(screen.getByRole('alert')).toHaveTextContent('Med lekcijo ni na voljo.');
+        show('lesson-card');
+        fireEvent.click(within(document.querySelector<HTMLElement>('.preset-save-form')!).getAllByRole('button')[0]);
+        expect(on.onSave).not.toHaveBeenCalled();
+    });
+
+    test('rename, overwrite and delete refuse once the mode changed, in hide mode as well, and work again in free exploration', () => {
+        const {on, enter} = renderWithMutableMode(withPresets('alpha'));
+        fireEvent.click(menuOf('alpha'));
+        fireEvent.click(screen.getByRole('button', {name: 'Preimenuj'}));
+        fireEvent.change(screen.getByLabelText('Preimenuj'), {target: {value: 'gamma'}});
+        enter('lesson-observe');
+        fireEvent.keyDown(screen.getByLabelText('Preimenuj'), {key: 'Enter'});
+        expect(on.onRename).not.toHaveBeenCalled();
+        expect((screen.getByLabelText('Preimenuj') as HTMLInputElement).value).toBe('gamma');
+        enter('free');
+        fireEvent.keyDown(screen.getByLabelText('Preimenuj'), {key: 'Enter'});
+        expect(on.onRename).toHaveBeenCalledWith('alpha', 'gamma');
+    });
+
+    test('a delete confirmation opened before the lesson does not delete during it', () => {
+        const {on, enter} = renderWithMutableMode(withPresets('alpha'));
+        fireEvent.click(menuOf('alpha'));
+        fireEvent.click(screen.getByRole('button', {name: 'Izbriši'}));
+        enter('lesson-card');
+        fireEvent.click(document.querySelector<HTMLElement>('.preset-action-danger')!);
+        expect(on.onDelete).not.toHaveBeenCalled();
+        enter('free');
+        fireEvent.click(document.querySelector<HTMLElement>('.preset-action-danger')!);
+        expect(on.onDelete).toHaveBeenCalledWith('alpha');
+    });
 });

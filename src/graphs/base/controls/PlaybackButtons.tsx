@@ -3,6 +3,7 @@ import {createPortal} from "react-dom";
 import {PlaybackSlotContext} from "../PlaybackSlotContext";
 import {useT} from "../../../localization";
 import {UnavailableButton} from "../../../inputs/UnavailableButton";
+import {PresetLockContext, playbackAllowed} from "../../context/react/PresetLockContext";
 import "../../../inputs/ControlRow.css";
 
 /** Why a playback button is unavailable; see docs/specs/playback-button-reasons.md. */
@@ -73,6 +74,9 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
                                     onNext, onPlayPause, onReset, leading, children}: PlaybackButtonsProps) {
     const t = useT();
     const slot = useContext(PlaybackSlotContext);
+    // The workspace's one decision about user commands: while a lesson card owns the graph no user playback runs, wherever the group sits.
+    const policy = useContext(PresetLockContext);
+    const locked = !playbackAllowed(policy.mode);
     const slotElement = placement === "graph" ? slot.element : null;
     // A one-flag store keeps the claim result out of effect-driven state; the claim itself is the workspace's.
     const [claimed] = useState(() => {
@@ -107,6 +111,11 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         if (!action || (document.activeElement && document.activeElement !== document.body)) return;
         group.current?.querySelector<HTMLElement>(`[data-action="${action}"]`)?.focus();
     }, [inSlot]);
+    // A group moved under the board is outside the inspector's inert region, so it is made inert here: no invisible keyboard command remains.
+    useLayoutEffect(() => {
+        const element = group.current as (HTMLElement & {inert?: boolean}) | null;
+        if (element) element.inert = locked;
+    }, [locked, inSlot]);
     const [pressed, setPressed] = useState<PlaybackAction>();
     const reasons: Record<PlaybackBlock, string> = {
         'no-more-steps': t("playback_block_no_more_steps"),
@@ -121,19 +130,28 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
         {action: 'reset', block: resetBlock, label: resetLabel ?? t("reset"), run: onReset},
     ];
     const buttons = all.flatMap(({run, ...rest}) => run ? [{...rest, run}] : []);
-    const shownBlock = buttons.find(button => button.action === pressed)?.block;
+    const lockReason = t("presets_unavailable_during_lesson");
+    const shownButton = buttons.find(button => button.action === pressed);
+    const shownBlock = shownButton?.block;
+    const shownReason = locked && shownButton ? lockReason : shownBlock && reasons[shownBlock];
     const content = <>
         <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel} ref={group}
              onFocus={event => { focusedAction.current = (event.target as HTMLElement).dataset.action; }}
              onBlur={event => { if (event.relatedTarget) focusedAction.current = undefined; }}>
             {leading}
             {buttons.map(({action, block, label, run}) =>
-                <UnavailableButton key={action} data-action={action} data-playing={action === 'play-pause' ? String(playing) : undefined} aria-describedby={describedBy?.[action]} reason={block && reasons[block]} onPress={() => { setPressed(undefined); run(); }}
+                <UnavailableButton key={action} data-action={action} data-playing={action === 'play-pause' ? String(playing) : undefined} aria-describedby={describedBy?.[action]} reason={locked ? lockReason : block && reasons[block]}
+                                   onPress={() => {
+                                       // Decided again at the press: a retained or relocated command obeys what holds now.
+                                       if (!playbackAllowed(policy.current())) { setPressed(action); return; }
+                                       setPressed(undefined);
+                                       run();
+                                   }}
                                    onBlockedPress={() => setPressed(action)}>{label}</UnavailableButton>)}
             {children}
         </div>
         <div role="status" aria-live="polite">
-            {shownBlock && <p className="inspector-help" data-playback-reason={shownBlock}>{reasons[shownBlock]}</p>}
+            {shownReason && <p className="inspector-help" data-playback-reason={locked ? "lesson" : shownBlock}>{shownReason}</p>}
         </div>
     </>;
     return inSlot && slotElement ? createPortal(content, slotElement) : content;

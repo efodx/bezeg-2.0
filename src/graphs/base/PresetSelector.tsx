@@ -2,7 +2,7 @@ import {Message, message, renderMessage, useT} from "../../localization";
 import {Preset, PresetService} from "./presets/Presets";
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
-import {PresetLockContext} from "../context/react/PresetLockContext";
+import {PresetLockContext, presetWritesAllowed} from "../context/react/PresetLockContext";
 import {PresetImportDialog} from "./PresetImportDialog";
 
 
@@ -34,13 +34,24 @@ function FieldMessage(props: { message?: Message, role?: "alert" | "status" }) {
  */
 function StateRow(props: {
     preset: Preset, selected: boolean, names: string[], reason?: string,
-    onSelect: () => void, onRename: (name: string) => void, onOverwrite: () => void, onDelete: () => void
+    onSelect: () => void, onRename: (name: string) => void, onOverwrite: () => void, onDelete: () => void,
+    /** The reason a Preset write is refused right now, read at the moment of the commit; undefined when it is allowed. */
+    refusal: () => Message | undefined
 }) {
     const t = useT();
     const {preset, reason} = props;
     const [mode, setMode] = useState<RowMode>("idle");
     const [draft, setDraft] = useState(preset.id);
     const [error, setError] = useState<Message | undefined>();
+    // A refused write keeps the open panel and its draft; the reason shows under the row, whatever panel is open.
+    const [refused, setRefused] = useState<Message | undefined>();
+    const commit = (write: () => void): boolean => {
+        const refusal = props.refusal();
+        setRefused(refusal);
+        if (refusal) return false;
+        write();
+        return true;
+    };
     const row = useRef<HTMLLIElement>(null);
     const focusNext = useRef<string | undefined>();
     useEffect(() => {
@@ -69,7 +80,7 @@ function StateRow(props: {
         if (name === "") return setError(message("state_name_required"));
         if (name === preset.id) return close();
         if (props.names.includes(name)) return setError(message("state_name_taken"));
-        props.onRename(name);
+        commit(() => props.onRename(name));
     };
 
     return <li ref={row} className="preset-row" data-preset-id={preset.id} data-selected={props.selected || undefined} onKeyDown={escape}>
@@ -86,7 +97,7 @@ function StateRow(props: {
         </div>
         {mode === "menu" && <div className="preset-row-panel preset-menu">
             <UnavailableButton className="preset-menu-item" reason={reason} onPress={() => { setDraft(preset.id); go("rename", ".preset-rename-input"); }}>{t("rename")}</UnavailableButton>
-            <UnavailableButton className="preset-menu-item" reason={reason} onPress={() => { props.onOverwrite(); close(); }}>{t("overwrite_with_current_state")}</UnavailableButton>
+            <UnavailableButton className="preset-menu-item" reason={reason} onPress={() => { if (commit(props.onOverwrite)) close(); }}>{t("overwrite_with_current_state")}</UnavailableButton>
             <UnavailableButton className="preset-menu-item" reason={reason} onPress={() => go("delete", ".preset-confirm-cancel")}>{t("delete")}</UnavailableButton>
         </div>}
         {mode === "rename" && <div className="preset-row-panel">
@@ -102,19 +113,21 @@ function StateRow(props: {
         {mode === "delete" && <div className="preset-row-panel" role="group" aria-label={t("delete_state_question", {value0: preset.id})}>
             <p className="preset-confirm-text">{t("delete_state_question", {value0: preset.id})}</p>
             <div className="preset-button-pair">
-                <button type="button" className="preset-action preset-action-danger" onClick={() => props.onDelete()}>{t("delete")}</button>
+                <button type="button" className="preset-action preset-action-danger" onClick={() => commit(props.onDelete)}>{t("delete")}</button>
                 <button type="button" className="preset-action preset-action-quiet preset-confirm-cancel" onClick={close}>{t("cancel")}</button>
             </div>
         </div>}
+        <FieldMessage message={refused}/>
     </li>;
 }
 
 /** The "save the current state" action: a button that opens a labelled name field in place (no dialog). */
-function SaveCurrentState(props: { initialName: string, names: string[], reason?: string, onSave: (name: string) => void }) {
+function SaveCurrentState(props: { initialName: string, names: string[], reason?: string, refusal: () => Message | undefined, onSave: (name: string) => void }) {
     const t = useT();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [attempted, setAttempted] = useState(false);
+    const [refused, setRefused] = useState<Message | undefined>();
     const box = useRef<HTMLDivElement>(null);
     const restoreFocus = useRef(false);
     const input = useRef<HTMLInputElement>(null);
@@ -127,19 +140,24 @@ function SaveCurrentState(props: { initialName: string, names: string[], reason?
     const close = () => { restoreFocus.current = true; setOpen(false); };
     const submit = () => {
         if (trimmed === "") return setAttempted(true);
+        // Decided now, not when the form opened: a refusal keeps the form and the typed name.
+        const refusal = props.refusal();
+        setRefused(refusal);
+        if (refusal) return;
         props.onSave(trimmed);
         close();
     };
 
     return <div ref={box} className="preset-save-box">
         {!open && <UnavailableButton className="preset-save preset-action preset-action-primary" reason={props.reason}
-                                     onPress={() => { setName(props.initialName); setAttempted(false); setOpen(true); }}>{t("save_current_state")}</UnavailableButton>}
+                                     onPress={() => { setName(props.initialName); setAttempted(false); setRefused(undefined); setOpen(true); }}>{t("save_current_state")}</UnavailableButton>}
         {open && <div className="preset-save-form"
                       onKeyDown={event => { if (event.key === "Escape") { event.preventDefault(); close(); } }}>
             <label id="preset-save-label" htmlFor="preset-save-name" className="preset-field-label">{t("state_name")}</label>
             <input id="preset-save-name" ref={input} className="preset-name-input" type="text" value={name} autoComplete="off"
                    onChange={event => { setName(event.target.value); setAttempted(false); }}
                    onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); submit(); } }}/>
+            <FieldMessage message={refused}/>
             {attempted && trimmed === "" && <FieldMessage message={message("state_name_required")}/>}
             {trimmed !== "" && props.names.includes(trimmed) && <p className="preset-field-message" role="status">{t("state_overwrite_notice", {value0: trimmed})}</p>}
             <div className="preset-button-pair">
@@ -170,7 +188,9 @@ export function PresetSelector(props: {
     onImported: () => void
 }) {
     const t = useT();
-    const lessonActive = useContext(PresetLockContext);
+    const policy = useContext(PresetLockContext);
+    const lessonActive = policy.mode !== "free";
+    const writeRefusal = () => presetWritesAllowed(policy.current()) ? undefined : message("presets_unavailable_during_lesson");
     const {presetService, selectedPresetId, presetListVersion} = props;
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const presets = useMemo(() => presetService.loadPresets(), [presetService, presetListVersion]);
@@ -205,7 +225,7 @@ export function PresetSelector(props: {
                 </div>
             </li>
             {presets.data.map(preset => <StateRow key={preset.id} preset={preset} selected={preset.id === selectedPreset?.id} names={names}
-                reason={lockReason}
+                reason={lockReason} refusal={writeRefusal}
                 onSelect={() => { if (preset.id !== selectedPreset?.id) props.onSelect(preset.id); }}
                 onRename={name => { focusRow.current = name; props.onRename(preset.id, name); }}
                 onOverwrite={() => props.onSave(preset.id)}
@@ -214,7 +234,7 @@ export function PresetSelector(props: {
         <div className="preset-quiet-actions">
             <UnavailableButton className="preset-action-quiet-link" aria-label={t("reset_preset")} reason={lockReason} onPress={props.onReset}>{t("reset")}</UnavailableButton>
         </div>
-        <SaveCurrentState initialName={selectedPreset?.id ?? ""} names={names} reason={writeReason} onSave={props.onSave}/>
+        <SaveCurrentState initialName={selectedPreset?.id ?? ""} names={names} reason={writeReason} refusal={writeRefusal} onSave={props.onSave}/>
         <section className="preset-backup" aria-labelledby="preset-backup-heading">
             <h4 id="preset-backup-heading" className="preset-subheading">{t("backup_heading")}</h4>
             <p className="inspector-help">{t("backup_help")}</p>
