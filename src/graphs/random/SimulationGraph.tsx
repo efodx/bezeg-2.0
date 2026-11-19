@@ -181,6 +181,18 @@ export function framedScene(scene: SceneData, height: number, width = 0, plan?: 
     return [wide, top + topPx * perPx, right, bottom - bottomPx * perPx];
 }
 
+const SEEDS_ID = "random-graph-seeds";
+
+/** The next value of the 1-2-5 ladder (..., 100, 200, 500, 1000, ...) above (`direction` 1) or below (-1) `n`, clamped to `min` and `max`. A value off the ladder goes to its nearest ladder neighbour in that direction. */
+export function ladderStep(n: number, direction: 1 | -1, min: number, max: number): number {
+    const ladder = (exponent: number) => [1, 2, 5].map(m => m * 10 ** exponent);
+    const start = Math.floor(Math.log10(Math.max(n, 1))) - 1;
+    const values: number[] = [];
+    for (let e = start; e <= start + 3; e++) values.push(...ladder(e));
+    const next = direction === 1 ? values.find(value => value > n) : [...values].reverse().find(value => value < n);
+    return Math.min(max, Math.max(min, next ?? n));
+}
+
 function trialsLabel(mode: RandomMode): string {
     switch (mode) {
         case "galton": return t("random_graph_n_galton");
@@ -986,21 +998,12 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             <ChoiceSelect key="mode" label={t("random_graph_mode_label")} value={state.mode}
                           options={RANDOM_MODES.map(value => ({value, text: modeName(value)}))}
                           onChange={value => { const mode = RANDOM_MODES.find(candidate => candidate === value); if (mode) this.editMode(mode); }}/>,
-            <NumberInput key="seed" label={t("random_graph_seed_label")} value={state.seed} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
-                         help={t("random_graph_seed_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
-                         {...whole} onChange={value => this.editSeed(value)}/>,
-            <NumberInput key="n" label={trialsLabel(state.mode)} value={state.n} step={1} bigStep={10} min={N_MIN} max={N_MAX[state.mode]}
-                         {...whole} onChange={value => this.editTrials(value)}/>,
+            <CountSetter key="n" label={trialsLabel(state.mode)} n={state.n} min={N_MIN} max={N_MAX[state.mode]}
+                         minusLabel={t("random_graph_n_previous")} plusLabel={t("random_graph_n_next")} describedBy={HELP_ID}
+                         onPlus={() => this.editTrials(ladderStep(state.n, 1, N_MIN, N_MAX[state.mode]))}
+                         onMinus={() => this.editTrials(ladderStep(state.n, -1, N_MIN, N_MAX[state.mode]))}
+                         onSet={value => this.editTrials(value)}/>,
         ];
-        if (OVERLAY_MODES.includes(state.mode)) {
-            commands.push(
-                <BooleanField key="overlay" variant="switch" label={t("random_graph_overlay_label")} checked={state.overlay === 1}
-                              describedBy={HELP_ID} onChange={on => this.editOverlay(on)}/>,
-                <NumberInput key="seed2" label={t("random_graph_seed2_label")} value={state.seed2} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
-                             help={t("random_graph_seed2_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
-                             {...whole} onChange={value => this.editSeed2(value)}/>,
-            );
-        }
         switch (state.mode) {
             case "galton":
                 commands.push(
@@ -1037,6 +1040,20 @@ export class SimulationGraph extends BaseGraph<RandomGraphState, RandomState> {
             default:
                 break;
         }
+        const second = OVERLAY_MODES.includes(state.mode) && state.overlay === 1;
+        commands.push(
+            <div key="seeds" className="inspector-group" role="group" aria-labelledby={SEEDS_ID}>
+                <h3 id={SEEDS_ID}>{t("random_graph_seeds_group")}</h3>
+                <NumberInput label={t("random_graph_seed_label")} value={state.seed} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
+                             help={t("random_graph_seed_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
+                             {...whole} onChange={value => this.editSeed(value)}/>
+                {OVERLAY_MODES.includes(state.mode) && <BooleanField variant="switch" label={t("random_graph_overlay_label")} checked={state.overlay === 1}
+                                                                       describedBy={HELP_ID} onChange={on => this.editOverlay(on)}/>}
+                {second && <NumberInput label={t("random_graph_seed2_label")} value={state.seed2} step={1} bigStep={100} min={SEED_MIN} max={SEED_MAX}
+                                        help={t("random_graph_seed2_help")} rejectedHint={t("random_graph_seed_rejected", {value0: dec(SEED_MIN, 0), value1: dec(SEED_MAX, 0)})}
+                                        {...whole} onChange={value => this.editSeed2(value)}/>}
+            </div>,
+        );
         commands.push(<p key="help" id={HELP_ID} className="form-text">{this.inputHelp()}</p>);
         return commands;
     }

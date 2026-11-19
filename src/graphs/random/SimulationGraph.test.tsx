@@ -6,10 +6,10 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
-import {DEFAULT_RANDOM_STATE, nextStop, piStandardError, RANDOM_MODES, simulate, serializeRandomState, type RandomMode} from '../../random/randomModel';
+import {DEFAULT_RANDOM_STATE, N_MAX, N_MIN, nextStop, piStandardError, RANDOM_MODES, simulate, serializeRandomState, type RandomMode} from '../../random/randomModel';
 import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {PATHS_DRAWN, POINTS_DRAWN} from './simulationScene';
-import {PLAYBACK_STEP_MS, SimulationGraph} from './SimulationGraph';
+import {ladderStep, PLAYBACK_STEP_MS, SimulationGraph} from './SimulationGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -440,17 +440,73 @@ describe('overlay, second seed, shape and the time between stops', () => {
     const turnOverlay = () => act(() => { fireEvent.click(overlaySwitch()); });
     const layerY = (graph: ObservedGraph, name: string) => JSON.stringify(Array.from(graph.view().scene.layers[name].y));
 
-    test('the overlay switch and the second seed exist in the overlay modes only, both linked to the help', () => {
-        mountGraph();
+    test('the overlay switch exists in the overlay modes only; the second seed only while comparing, and the state keeps it hidden', () => {
+        const {graph} = mountGraph();
+        act(() => { graph.setState({seed2: 77}); });
         for (const mode of RANDOM_MODES) {
             chooseMode(mode);
             const offered = ['galton', 'frequency', 'walk', 'markov'].includes(mode);
             expect(screen.queryAllByLabelText(t('random_graph_overlay_label')).length > 0, mode).toBe(offered);
-            expect(screen.queryAllByLabelText(t('random_graph_seed2_label')).length > 0, mode).toBe(offered);
+            expect(screen.queryAllByLabelText(t('random_graph_seed2_label')).length, mode).toBe(0);
+            expect(graph.state.seed2, mode).toBe(77);
             if (!offered) continue;
             expect(overlaySwitch().getAttribute('aria-describedby') ?? '', mode).toContain(HELP_ID);
+            turnOverlay();
+            expect(field(t('random_graph_seed2_label')).value, mode).toBe('77');
             expect(field(t('random_graph_seed2_label')).getAttribute('aria-describedby') ?? '', mode).toContain(HELP_ID);
+            turnOverlay();
+            expect(screen.queryAllByLabelText(t('random_graph_seed2_label')).length, mode).toBe(0);
+            expect(graph.state.seed2, mode).toBe(77);
         }
+    });
+
+    test('the controls run mode, trials, the mode parameters, then the Seeds group with the seed first', () => {
+        const {graph} = mountGraph();
+        const keys = graph.getGraphCommands().map(element => String(element.key));
+        expect(keys.slice(0, 5)).toEqual(['mode', 'n', 'rows', 'p', 'seeds']);
+        const group = screen.getByRole('group', {name: t('random_graph_seeds_group')});
+        expect(group.contains(field(t('random_graph_seed_label')))).toBe(true);
+        expect(group.contains(overlaySwitch())).toBe(true);
+        chooseMode('walk');
+        expect(graph.getGraphCommands().map(element => String(element.key)).slice(0, 4)).toEqual(['mode', 'n', 'steps', 'seeds']);
+    });
+
+    test('the trial buttons step the 1-2-5 ladder; at a fixed seed 1000 to 500 redraws the histogram and the deviation', () => {
+        const {graph} = mountGraph();
+        const before = {drawing: drawing(graph), largest: readout('largest'), counts: readout('counts')};
+        expect(graph.state.n).toBe(1000);
+        press(t('random_graph_n_previous'));
+        expect(graph.state.n).toBe(500);
+        expect(graph.state.seed).toBe(42);
+        expect(readout('shown')).toContain('500');
+        expect(readout('largest')).not.toBe(before.largest);
+        expect(readout('counts')).not.toBe(before.counts);
+        expect(drawing(graph)).not.toEqual(before.drawing);
+        press(t('random_graph_n_next'));
+        expect(graph.state.n).toBe(1000);
+        expect(drawing(graph)).toEqual(before.drawing);
+    });
+
+    test('ladderStep goes to the nearest 1-2-5 neighbour and stops at N_MIN and the mode maximum', () => {
+        expect([ladderStep(1000, -1, N_MIN, 100000), ladderStep(1000, 1, N_MIN, 100000)]).toEqual([500, 2000]);
+        expect([ladderStep(300, 1, N_MIN, 100000), ladderStep(300, -1, N_MIN, 100000)]).toEqual([500, 200]);
+        expect([ladderStep(100, -1, N_MIN, 100000), ladderStep(5, -1, N_MIN, 100000), ladderStep(2, -1, N_MIN, 100000)]).toEqual([50, 2, 1]);
+        expect(ladderStep(N_MIN, -1, N_MIN, 100000)).toBe(N_MIN);
+        expect(ladderStep(1, 1, N_MIN, 100000)).toBe(2);
+        expect(ladderStep(N_MAX.walk, 1, N_MIN, N_MAX.walk)).toBe(N_MAX.walk);
+        expect(ladderStep(700, 1, N_MIN, N_MAX.walk)).toBe(N_MAX.walk);
+        expect(ladderStep(50000, 1, N_MIN, 100000)).toBe(100000);
+    });
+
+    test('the trial buttons stop at the mode maximum and an off-ladder typed count steps to its neighbour', () => {
+        const {graph} = mountGraph();
+        chooseMode('walk');
+        enter(t('random_graph_n_walk'), '700');
+        press(t('random_graph_n_next'));
+        expect(graph.state.n).toBe(N_MAX.walk);
+        enter(t('random_graph_n_walk'), '300');
+        press(t('random_graph_n_previous'));
+        expect(graph.state.n).toBe(200);
     });
 
     test('the switch draws the second seed dotted with its two captions and a readout row; turning it off removes them', () => {
@@ -750,6 +806,8 @@ describe('review repairs', () => {
     });
 });
 
+const turnOverlayOn = () => act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('random_graph_overlay_label')})); });
+
 describe('a scene replacement (families-prep F2b registration)', () => {
     test('restoring a checkpoint taken before another mode keeps the stored view instead of refitting', () => {
         const {graph} = mountGraph();
@@ -762,6 +820,24 @@ describe('a scene replacement (families-prep F2b registration)', () => {
         expect(graph.state.mode).toBe('galton');
         const rounded = (box: number[]) => box.map(value => Math.round(value * 1e6) / 1e6);
         expect(rounded(graph.liveBoard().getBoundingBox())).toEqual(rounded(stored));
+    });
+
+    test('restoring a checkpoint reproduces the run and shows the seed and the second seed', () => {
+        const {graph} = mountGraph();
+        const capabilities = graph.getLessonCapabilities();
+        enter(t('random_graph_seed_label'), '7');
+        turnOverlayOn();
+        enter(t('random_graph_seed2_label'), '9');
+        const checkpoint = capabilities.captureState();
+        const run = drawing(graph);
+        enter(t('random_graph_seed_label'), '11');
+        enter(t('random_graph_seed2_label'), '13');
+        expect(drawing(graph)).not.toEqual(run);
+        act(() => { capabilities.restoreState(checkpoint); });
+        expect([graph.state.seed, graph.state.seed2, graph.state.overlay]).toEqual([7, 9, 1]);
+        expect(field(t('random_graph_seed_label')).value).toBe('7');
+        expect(field(t('random_graph_seed2_label')).value).toBe('9');
+        expect(drawing(graph)).toEqual(run);
     });
 
     test('importing a Preset without a stored view frames the scene of its mode as a switch does', () => {
