@@ -19,6 +19,8 @@ function ShowControlPolygons(props: { checked: boolean, onChange: (checked: bool
 }
 
 class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** The midpoint Subdivide operation leads Edit and stays while a curve is selected (graph-control first use). */
+    protected override workspaceConstructionFirst() { return true; }
     /** Typed coordinates for the draggable control points (shared edit-only list). */
     protected override workspaceTypedPoints() { return true; }
     /**

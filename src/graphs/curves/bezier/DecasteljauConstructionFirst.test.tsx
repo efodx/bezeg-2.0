@@ -9,6 +9,8 @@ import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {t} from '../../../localization';
+import ElevationGraph from './ElevationGraph';
+import BaseCurveGraph from '../../base/BaseCurveGraph';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -23,12 +25,20 @@ type Run = BaseGraph<BaseGraphState> & {
     jxgCurves: Array<{setAttributes(attributes: object): void}>;
 };
 
-function mountRun(key: 'decasteljau' | 'decasteljau-alternative' | 'bezier' | 'elevation') {
+/**
+ * Every curve graph with commands in this stream's batch opts in, so the control is a test-local subclass of the elevation
+ * graph that takes BaseCurveGraph's default instead of its own opt-in, so this test fails if that default turns true.
+ */
+class WithoutOptIn extends ElevationGraph {
+    protected override workspaceConstructionFirst() { return BaseCurveGraph.prototype['workspaceConstructionFirst'].call(this); }
+}
+
+function mountRun(key: 'decasteljau' | 'decasteljau-alternative' | 'bezier' | 'no-opt-in') {
     let time = 0;
     let pending: FrameRequestCallback[] = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending.push(callback); return pending.length; });
     vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => { pending = []; });
-    const graph = mountGraph(graphFactories[key]()).graph as Run;
+    const graph = mountGraph(key === 'no-opt-in' ? new WithoutOptIn() : graphFactories[key]()).graph as Run;
     const frames = (count: number) => {
         for (let i = 0; i < count; i++) {
             const due = pending;
@@ -129,8 +139,8 @@ describe('an ordinary Bezier graph', () => {
 });
 
 describe('a non-structured curve graph with commands but no opt-in', () => {
-    test('Elevation keeps its commands under the graph-commands heading and swaps them for the selected-curve area', () => {
-        const {graph} = mountRun('elevation');
+    test('A graph with commands and no opt-in keeps its commands under the graph-commands heading and swaps them for the selected-curve area', () => {
+        const {graph} = mountRun('no-opt-in');
         const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('.tools'));
         expect(inEdit(t('graph_commands')).length).toBe(1);
         expect(inEdit(t('construction'))).toEqual([]);

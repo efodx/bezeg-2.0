@@ -29,6 +29,8 @@ function AffineActionGroup(props: {title: string; children: React.ReactNode; cla
 }
 
 export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** The rotation leads Edit, then the other transformations, and stays while a curve is selected (graph-control first use). */
+    protected override workspaceConstructionFirst() { return true; }
     /** Typed coordinates for the draggable control points (shared edit-only list). */
     protected override workspaceTypedPoints() { return true; }
     /** The curve operations stay disabled on every imported curve; the adapter attributes are not in its DTO. */
@@ -72,6 +74,10 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
 
     override getGraphCommands(): JSX.Element[] {
         return super.getGraphCommands().concat([
+            <AffineActionGroup key="rotation" title={t("affine_rotation")}>
+                <AffineActionButton label={t("rotate_left")} detail="18°" symbol="↺" onClick={() => this.rotate(-0.10 * Math.PI)}/>
+                <AffineActionButton label={t("rotate_right")} detail="18°" symbol="↻" onClick={() => this.rotate(0.10 * Math.PI)}/>
+            </AffineActionGroup>,
             <AffineActionGroup key="position" title={t("affine_position")} className="affine-position-group">
                 <AffineActionButton label={t("left")} detail="−0.5" symbol="←" onClick={() => this.moveFor(-0.5, 0)}/>
                 <AffineActionButton label={t("right")} detail="+0.5" symbol="→" onClick={() => this.moveFor(0.5, 0)}/>
@@ -81,10 +87,6 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
             <AffineActionGroup key="scale" title={t("affine_scale")}>
                 <AffineActionButton label={t("scale_up")} detail="×1.2" symbol="＋" onClick={() => this.scale(1.2)}/>
                 <AffineActionButton label={t("scale_down")} detail="×0.8" symbol="−" onClick={() => this.scale(0.8)}/>
-            </AffineActionGroup>,
-            <AffineActionGroup key="rotation" title={t("affine_rotation")}>
-                <AffineActionButton label={t("rotate_left")} detail="18°" symbol="↺" onClick={() => this.rotate(-0.10 * Math.PI)}/>
-                <AffineActionButton label={t("rotate_right")} detail="18°" symbol="↻" onClick={() => this.rotate(0.10 * Math.PI)}/>
             </AffineActionGroup>,
             <AffineActionGroup key="reflection" title={t("affine_reflection")}>
                 <AffineActionButton label={t("reflect_across_y")} detail={t("affine_axis_y")} symbol="↔" onClick={() => this.flip(true, false)}/>

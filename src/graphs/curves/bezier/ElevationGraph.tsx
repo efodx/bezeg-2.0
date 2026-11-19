@@ -13,6 +13,8 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {elevationPresetCollection} from "./collections";
 
 class ElevationGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** The elevation preview and apply lead Edit and stay while a curve is selected (graph-control first use). */
+    protected override workspaceConstructionFirst() { return true; }
     /** Typed coordinates for the draggable control points (shared edit-only list). */
     protected override workspaceTypedPoints() { return true; }
     /** Transient switch; the overlay is on in a fresh scene and is not stored in presets. */

@@ -23,6 +23,8 @@ interface DecasteljauGraphStates extends BaseGraphStates {
 }
 
 class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
+    /** The split parameter and Subdivide lead Edit and stay while a curve is selected (graph-control first use). */
+    protected override workspaceConstructionFirst() { return true; }
     /** Typed coordinates for the draggable control points (shared edit-only list). */
     protected override workspaceTypedPoints() { return true; }
 

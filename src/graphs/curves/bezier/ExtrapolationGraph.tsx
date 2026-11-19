@@ -14,6 +14,8 @@ import {extrapolationPresetCollection} from "./collections";
 const MIN_EXTENSION = 1e-6;
 
 class GraphExtrapolation extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** The extrapolation parameter, preview and apply lead Edit and stay while a curve is selected (graph-control first use). */
+    protected override workspaceConstructionFirst() { return true; }
     /** The part of the curve beyond t = 1, parameters [1, extrapolationT]: its own element drawn over the curve's arc, so it has its own role (solid blue, covering the moss beneath it so the arc reads as one role). */
     private extensionCurve?: JXG.Curve;
     /** Typed coordinates for the draggable control points (shared edit-only list). */
