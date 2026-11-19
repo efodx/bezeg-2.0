@@ -1,45 +1,51 @@
 # Graph control first use: stream state
 
-**Updated 2026-11-19.** The only stream in progress for 2026-11-20. Source: [spec](../../specs/graph-control-first-use.md), [route plans](../../tasks/graph-control-first-use/README.md). Prepared inputs: [source triage](triage-source.md) (138 rows: edit-order owner, control types, label references, blockers) and [fresh-visit baseline](baseline-fresh-visit.md) (138 rows, published site `index-4YFBiBaU.js`, desktop with 310 px inspector and 390 × 844 phone). Each route's decisions are in its task-page entry, found by its id.
+**Updated 2026-11-19 by handler 1.** The only stream in progress. Branch `worktree-graph-control-plan-review` in `.claude/worktrees/graph-control-plan-review`. Source: [spec](../../specs/graph-control-first-use.md), [route plans](../../tasks/graph-control-first-use/README.md). Prepared inputs: [source triage](triage-source.md) (138 rows) and [fresh-visit baseline](baseline-fresh-visit.md). Each route's decisions are in its task-page entry, found by its id.
 
 ## For the owner
 
-- Nothing blocking. The daily scheduled run on 2026-11-19 passed.
-- **Overlap with the graph-character stream.** Its implementation was reverted on master in `9e3154b0` and is kept on the `codex/graph-character-pilots` branch, so lane D is not blocked on master. If that branch returns to master during this stream, apply the rule below. [Its handoff](https://github.com/efodx/bezeg-2.0/blob/codex/graph-character-pilots/docs/reviews/graph-character/handler-handoff-1.md) changes the de Casteljau board mark, Voronoi and fastest descent (`mechanics-descent`). It also asks Random experiments to coordinate with this pilot. If both streams run, lane D waits for that stream's de Casteljau slice to land, or each stream owns separate methods of `DecasteljauGraph.tsx`: this stream owns `getGraphCommands`/Edit, that stream owns board drawing. The Voronoi and descent route batches go after its slices.
-- Decisions settled on 2026-11-19 and recorded in the spec: the De Casteljau opt-in keeps the construction controls through curve selection, Simulation gets a `CountSetter` stepping 1–2–5 and a visible Seeds group, and Epicycles renames only the `epicycle_*` keys and rewrites `prompt_epicycles`.
+- **Wave 2 decision: a phone companion control.** After wave 1, the phone keeps Play/Pause in the graph slot on Epicycles and De Casteljau. The scrub sliders sit below the board: Epicycles “Čas t” at y1200, De Casteljau “Parameter t” at y1279 on 390 × 844. Scrubbing while watching the board therefore needs scrolling. The spec (Playback row) proposes that a graph supply one optional companion slider to the playback slot. That is a shared workspace change, with Bisection rechecked. Should it go ahead? Not started; wave 3 does not depend on it.
+- **Epicycles time slider label.** “Čas t (del obhoda)” / “Time t (fraction of a turn)” runs 0–6.28 (`EpicycleGraph.tsx:609`, radians). It predates this stream. Proposed fix: relabel the slider in radians, or scale it to 0–1. This is a small follow-up in lane E's file.
+- The daily scheduled run on 2026-11-19 passed.
+- **Overlap with graph-character** (unchanged): its implementation lives on `codex/graph-character-pilots`, not master. If it returns to master, it owns De Casteljau's board drawing and this stream owns `getGraphCommands`/Edit. The Voronoi and descent batches go after its slices.
 
-## Lanes
+## Accepted work
 
-The card limits a stream to two workers. Give shared files one owner. `sl.ts`/`en.ts` are touched by every lane: each lane edits only its own graph's key block, and pushes promptly after each accepted slice.
+Wave 1 is accepted and on master as `13dff3fa`, pushed 2026-11-19 20:18 UTC (hosted CI run 44607321004 was in progress at the time of writing; check `just ci 13dff3fa`).
 
-**Wave 1: pilots, start together**
+Batch 1, bezier.md family (`ced593df`, cherry-picked from worker commit `beaa16cb`): affine, repeated-subdivision, subdivision, extrapolation and elevation opt in, and affine's rotation group moves first. The routes' tests are in `BezierConstructionFirst.test.tsx`, with acceptance checks that each failed under mutation. The swap control in `DecasteljauConstructionFirst.test.tsx` now uses a test-local `ElevationGraph` subclass, because no curve graph outside the batch has commands on the non-structured branch. The fresh-visit rerun puts every first task in view on desktop: affine y1072→462, subdivision-2 y887→482, extrapolation y912→507. On the phone the first task is now the first Edit control, but it sits under the board at y908–959; the companion decision covers this too.
 
-| Lane | Owner | Owned paths | Acceptance |
-| --- | --- | --- | --- |
-| E · Epicycles | worker 1 | `EpicycleGraph.tsx`, its tests, `epicycle_*` and `prompt_epicycles` keys, the `epicycles` row of `scripts/demonstration-preview-recipes.cjs` (stable id for the cutoff slider) | [analysis.md#epicycles](../../tasks/graph-control-first-use/analysis.md#epicycles) and spec rollout row 1 |
-| S · Simulation | worker 2 | `SimulationGraph.tsx`, its tests, `random_graph_*` keys, the `prob-simulation` recipe row if a label it uses changes | [probability.md#prob-simulation](../../tasks/graph-control-first-use/probability.md#prob-simulation). The randomness lessons (`src/learning/content/randomness*GuidedLessons.ts`) that say “field Generator seed” still work |
-| D · De Casteljau | handler (shared base core) | `BaseCurveGraph.tsx` opt-in in its own commit, then `DecasteljauGraph.tsx` / `DecasteljauGraph2.tsx` | [bezier.md#decasteljau](../../tasks/graph-control-first-use/bezier.md#decasteljau). On ordinary Bézier, selection still leads to the point editor and curve operations. Hand D's tests to whichever worker frees first |
+- `85dfb608`: the `BaseCurveGraph.workspaceConstructionFirst()` opt-in (`BaseCurveGraph.tsx` ~171–188 and the two `workspaceEdit` branches). The graph's commands become the first Edit group, titled `construction`, and stay while a curve is selected. `getSelectableCurveArea()` follows.
+- `4d8cd334`: both De Casteljau variants opt in, and `DecasteljauLegacyPanel.test.tsx` names the subdivision slider.
+- `070b36f3`: Simulation (lane S). A `CountSetter` with the 1–2–5 `ladderStep`, an always-visible “Semena” group, and `seed2` shown only with comparison on.
+- `70cb594c`, `a6b1b0c6`: Epicycles (lane E). Play/time first, “Podrobnost sledi (N)” with the term count, and parametrization and terms/error disclosures. The prompt is rewritten and the recipe uses `[data-control="epicycle-cutoff"]`.
+- `e4fb610e`, `d0139bff`, `13dff3fa`: `DecasteljauConstructionFirst.test.tsx`. The control on `elevation` asserts that a graph **without** the opt-in keeps the swap. **When the curve batch opts `elevation` in, move that control to a graph that stays out of the batch.**
 
-**Wave 2: decide on the phone companion control.** Use E and D to decide whether a graph-supplied companion slider joins the playback slot on phones (spec, Playback row). It changes shared workspace code, so it goes in a separate commit with Bisection rechecked.
+Checks at 13dff3fa: focused `just unit` per lane, tsc, lint and build. The recipe and clip-row node tests passed 65/65. The fresh-visit rerun puts the first-task control in view on desktop for all four routes. Smoke covered 5 routes, desktop 310 px and phone, in sl and en, with no failures; its evidence is in `.command-logs/gcfu-smoke/`. Smoke gaps: interactive steps ran in Slovenian only, phone reduced motion was not checked, and De Casteljau 2 has no selectable curve.
 
-**Wave 3: batches by blocker** (from the triage)
+Known limit: `scripts/demonstration-previews/manifest.json` still records the old Epicycles recipe label. It is generated, so regenerate it at the next Epicycles capture (`just clip epicycles` or the recapture command in docs/commands.md).
 
-1. **Curve opt-in batch (20 routes)** after D lands: affine, repeated-subdivision, elevation, extrapolation, subdivision, uniform-parameterization, spline-parameterization, weighted-parameterization, rational-subdivision, rational-elevation, rational-decasteljau, circle, rational-extrapolation, farin, spline-g1, spline-g1-symmetric, spline-cn, ph-cubic, ph-quintic, rational. ph-cubic, ph-quintic and rational may keep selection first; decide per route from its plan. One worker, family by family.
-2. **Local reorders (106 routes, blocker none):** split by family page across the two workers, one family per slice. Do a route's catalogue fix (17 listed in the triage) in the same slice as its reorder, so each graph file has one owner. Some “count in Slider” items may be a deliberate density choice: check the catalogue row before converting.
-3. **Local selection or 3D condition (8 routes):** extrema, voronoi, point-set-triangulation, function-inverse, polynomial-zeros, patch-coons, patch-triangular, patch-tensor. The handler reviews each plan: the selection belongs in the task (README definition of done, step 1).
-4. **Already meeting the check (35 in the baseline):** record and keep the layout. 28 of them are drag-first and were judged only by board visibility. Before recording, confirm that a handle is identifiable and that keyboard point entry is adjacent.
-5. **rational/farin-points:** its Farin toggle is not in Edit on a fresh visit (baseline “No match”). Re-read its plan before batching.
+The bezier-family smoke at ced593df (Haiku, desktop and phone, sl, plus English labels) passed on all five routes with no console errors. Evidence is in `.command-logs/gcfu-smoke-b1/`. Gaps: the visual distinctness of the extrapolation extension and whether the curve keeps its shape after elevation were not judged in the browser; unit tests cover both.
 
-## Known gaps in the prepared inputs
+## Remaining steps, in order
 
-- The triage searched lesson prose only for labels that appear in preview recipes. Before a slice renames or moves a labelled control, grep that key's Slovenian and English text in `src/learning/content` and the host tests.
-- Baseline control matching is by label. For drag-first rows it checked only that the board is in view.
-- The baseline's raw JSON and screenshots were not kept. Regenerate them, or capture after a change, with `node scripts/controls-sweep/fresh-visit.cjs [ids|all] [--base <preview url>]`. Output goes to `.command-logs/fresh-visit/`.
+0. **Fix a pre-existing affine defect, test-first.** The point-coordinate fields keep their old values after Rotate, Move, Scale or Reflect. The cause is that `AffineTransformsBezierCurveGraph.tsx:98–116` calls `boardUpdate()` but not `refreshWorkspace()`. Smoke found it; it predates this stream.
 
-## Handler chain
+1. **Wave 3, batch 1 (curve opt-in, the remaining 15 routes)**, family by family, with one worker per family slice. The bezier.md family is done:
+   - param.md: uniform-, spline-, weighted-parameterization
+   - rational.md: rational-subdivision, rational-elevation, rational-decasteljau, circle, rational-extrapolation, farin, rational
+   - spline.md: spline-g1, spline-g1-symmetric, spline-cn
+   - ph.md: ph-cubic, ph-quintic
 
-The owner started this stream on 2026-11-19. Handler 1 begins with wave 1: lanes E and S as two `bezeg-worker` Sonnet `medium` workers in their own worktrees, and lane D's `BaseCurveGraph` opt-in kept by the handler. Each handler rewrites this note at handoff and starts its successor (AGENTS.md, handler budget). Owner decisions that the spec and route plans do not settle go under “For the owner”. Do not decide them silently.
+   ph-cubic, ph-quintic and rational may keep selection first; decide per route from its plan. Each route opts in with `workspaceConstructionFirst()` and orders its `getGraphCommands()` so the plan's first task leads.
+2. Wave 3, batch 2: local reorders (106 routes), split by family page across two workers.
+3. Wave 3, batches 3–5 as listed in the [previous plan](https://github.com/efodx/bezeg-2.0/blob/d67903a8/docs/reviews/graph-control-first-use/state.md#lanes): selection/3D routes, already-meeting rows, and rational/farin-points.
+4. Wave 2 once the owner decides.
 
 ## Next slice brief inputs
 
-Wave 1, lanes E and S: the owned paths and acceptance criteria above. Checks: focused `just unit` on the touched tests, `npx tsc --noEmit --pretty false`, `just build`, then a `bezeg-smoke` Haiku pass on the named route at desktop 310 px and 390 × 844, in Slovenian and English.
+Batch 1, param.md family (uniform-, spline- and weighted-parameterization), then rational.md, spline.md and ph.md. Reuse the bezier-family brief: the first task leads Edit, per each route's entry in its docs/tasks/graph-control-first-use page. Opt in with `workspaceConstructionFirst()` where the first task is in `getGraphCommands()`; otherwise report it rather than force it. Reorder and group only. Add one real-graph test per route (pattern: `src/graphs/curves/bezier/BezierConstructionFirst.test.tsx`) with a mutation-observed failure. The worker starts its worktree from the integration HEAD (`git reset --hard <sha>`). Checks: focused `just unit`, tsc, lint and build, then `node scripts/controls-sweep/fresh-visit.cjs <ids> --base <preview> --out .command-logs/fresh-visit-<family>` and a Haiku `bezeg-smoke` on the routes. Grep each relabelled control in `src/learning/content` and the preview recipes first.
+
+## Settings
+
+Handler: Opus, `bezeg-handler`. Workers: `bezeg-worker` Sonnet `medium`, each in its own worktree (`isolation: worktree`). The brief's first step makes a `node_modules` junction: `cmd //c "mklink /J node_modules C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\node_modules"`. Workers commit locally; the handler cherry-picks. Smoke: `bezeg-smoke`, Sonnet for new UI and Haiku for rechecks. At most two workers in this stream. Before removing a worker worktree, unlink its junction with PowerShell (`(Get-Item node_modules).Delete()`) first.
