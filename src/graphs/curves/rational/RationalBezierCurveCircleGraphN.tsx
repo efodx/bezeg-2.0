@@ -33,6 +33,9 @@ class RationalBezierCurveGraph extends BaseRationalCurveGraph<BaseGraphStates> {
         });
     }
 
+    /** The number of arcs is the first task: it leads the Edit tab and stays there while an arc is selected (graph-control first use, wave 3). */
+    protected override workspaceConstructionFirst() { return true; }
+
     override getGraphCommands(): JSX.Element[] {
         // The minimum is 3: for n = 2 the half-angle is pi/2, cos(pi/2) is about 0, so the middle weight vanishes
         // and the middle control point r / cos(alpha) lies at about 1e16 (a point at infinity).
