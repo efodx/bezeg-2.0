@@ -1,7 +1,7 @@
 /**
  * The legacy selected-curve panel on De Casteljau (decision 57): Apply of an operation pauses a running run, a preview
- * or an operation parameter does not. The panel renders in the Edit tab (`workspaceEdit` -> `getGraphCommandsArea`)
- * once a curve is selected, because De Casteljau does not use structured editing. Its own curve switches every
+ * or an operation parameter does not. The panel renders in the Edit tab (`workspaceEdit` -> `getSelectableCurveArea`)
+ * once a curve is selected, below the construction group that De Casteljau keeps first (`workspaceConstructionFirst`). Its own curve switches every
  * operation off (`Attributes.bezierDisabled`), so the panel lists none today; the test switches them on to pin the wiring.
  */
 import {act, fireEvent, screen} from '@testing-library/react';
@@ -54,7 +54,8 @@ describe('De Casteljau legacy selected-curve panel', () => {
     test('the operation parameter slider and its preview do not pause the run', () => {
         const graph = startRunWithSelectedCurve({allowSubdivision: true});
         fireEvent.click(screen.getByRole('button', {name: t('preview_subdivision')}));
-        fireEvent.change(screen.getAllByRole('slider')[0], {target: {value: '0.3'}});
+        // The construction group (Play, parameter, speed) leads Edit, so name the operation's own slider.
+        fireEvent.change(screen.getByRole('slider', {name: t('subdivision_parameter_t')}), {target: {value: '0.3'}});
         expect(graph.lessonAnimation.isRunning()).toBe(true);
     });
 });
