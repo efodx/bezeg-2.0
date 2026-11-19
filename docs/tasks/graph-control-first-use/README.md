@@ -4,6 +4,8 @@ These plans cover **138 public Demonstrations across 18 catalogue families** at 
 
 ## Start with three routes
 
+Start with the local Epicycles reorder. The source plan specifies when to introduce the curve-order option, how to verify an optional mobile scrubber on two graphs, and how to update preview selectors when wording changes. [Architecture and implementation sequence](../../specs/graph-control-first-use.md#fit-with-the-current-architecture)
+
 | Pilot | First experiment | What it tests |
 | --- | --- | --- |
 | [Epicycles](analysis.md#epicycles) | Press Play, then choose the diamond and change the harmonic cutoff. | Can a small panel make the first action obvious? Preserve the default circle and shared Play/Pause behaviour. |
