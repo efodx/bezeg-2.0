@@ -49,7 +49,7 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
             if (action.operation === 'rotate') curve.rotate(action.value);
             if (action.operation === 'reflect-x') curve.flip(false, true);
             if (action.operation === 'reflect-y') curve.flip(true, false);
-            this.boardUpdate();
+            this.transformed();
         });
     }
 
@@ -97,22 +97,28 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
 
     private moveFor(x: number, y: number) {
         this.getFirstCurve().moveFor(x, y);
-        this.boardUpdate();
+        this.transformed();
     }
 
     private scale(scale: number) {
         this.getFirstCurve().scale(scale);
-        this.boardUpdate();
+        this.transformed();
     }
 
     private rotate(number: number) {
         this.getFirstCurve().rotate(number);
-        this.boardUpdate();
+        this.transformed();
     }
 
     private flip(b: boolean, b2: boolean) {
         this.getFirstCurve().flip(b, b2);
+        this.transformed();
+    }
+
+    /** Redraw the board and refresh the workspace, so the typed point fields show the moved control points. */
+    private transformed() {
         this.boardUpdate();
+        this.refreshWorkspace();
     }
 
 
