@@ -184,7 +184,8 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     // Short on purpose: the live text changes only when the sign, the verdict or the vertex degrees change, not on every determinant value.
     const fourSign = status.fourPoint?.sign;
     const fourAnnouncement = four ? [fourSign === undefined ? four.incircle : t(fourSign === "inside" ? "deg_say_inside" : fourSign === "on" ? "deg_say_on" : "deg_say_outside"), four.verdict, four.vertices] : [];
-    const collinearAnnouncement = status.collinear && !refusal ? t("vor_collinear_note") : undefined;
+    const collinearAnnouncement = status.collinear && !refusal
+        ? t(counts.sites === 2 ? "vor_two_site_note" : "vor_collinear_note") : undefined;
     const overlayText = status.overlayShown ? t("vor_overlay_on") : t("vor_overlay_off");
     const playing = props.playing ?? false;
     const backUnavailable = !construction || construction.count <= 0;
@@ -212,7 +213,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         {pizzeria && queryControls}
         <div className="inspector-group" data-voronoi-status="">
             {refusalText && <p className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
-            {status.collinear && !refusal && <p className="inspector-help" data-voronoi="collinear">{t("vor_collinear_note")}</p>}
+            {collinearAnnouncement && <p className="inspector-help" data-voronoi="collinear">{collinearAnnouncement}</p>}
             {status.mode === "four-point" && <p className="inspector-help" data-voronoi="four-fixed">{t("deg_four_fixed")}</p>}
             {status.mode === "four-point" && status.counts.sites !== 4 && <p className="inspector-help" role="alert" data-voronoi="wrong-count">{t("deg_wrong_count", {value0: status.counts.sites})}</p>}
             {four && <div data-voronoi="four-point" role="group" aria-label={t("deg_readout_label")}>

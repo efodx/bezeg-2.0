@@ -508,6 +508,7 @@ test('pizzeria follows the customer and every added shop, with keyboard edits, a
     const {unmount} = mount(graph);
     chooseExample('pizzeria');
     expect(graph.model.points).toEqual([{x: 0, y: 0}, {x: 8, y: 0}]);
+    expect(part('collinear')).toContain('dve polravnini');
     expect(graph.drawingStats()).toMatchObject({lines: 1, segments: 0, rays: 0});
     expect(named(graph, 'voronoi-edges')[0].dataX).toEqual([4, 4]);
     expect(linkVertices(graph)).toEqual([[3, 1], [0, 0]]);
