@@ -1,17 +1,27 @@
 # Graph control first use: stream state
 
-**Updated 2026-11-19 by handler 1.** The only stream in progress. Branch `worktree-graph-control-plan-review` in `.claude/worktrees/graph-control-plan-review`. Source: [spec](../../specs/graph-control-first-use.md), [route plans](../../tasks/graph-control-first-use/README.md). Prepared inputs: [source triage](triage-source.md) (138 rows) and [fresh-visit baseline](baseline-fresh-visit.md). Each route's decisions are in its task-page entry, found by its id.
+**Updated 2026-11-19 by handler 2.** The only stream in progress. Branch `worktree-graph-control-plan-review` in `.claude/worktrees/graph-control-plan-review`. Source: [spec](../../specs/graph-control-first-use.md), [route plans](../../tasks/graph-control-first-use/README.md). Prepared inputs: [source triage](triage-source.md) (138 rows) and [fresh-visit baseline](baseline-fresh-visit.md). Each route's decisions are in its task-page entry, found by its id.
 
 ## For the owner
 
 - **Wave 2 decision: a phone companion control.** After wave 1, the phone keeps Play/Pause in the graph slot on Epicycles and De Casteljau. The scrub sliders sit below the board: Epicycles “Čas t” at y1200, De Casteljau “Parameter t” at y1279 on 390 × 844. Scrubbing while watching the board therefore needs scrolling. The spec (Playback row) proposes that a graph supply one optional companion slider to the playback slot. That is a shared workspace change, with Bisection rechecked. Should it go ahead? Not started; wave 3 does not depend on it.
 - **Epicycles time slider label.** “Čas t (del obhoda)” / “Time t (fraction of a turn)” runs 0–6.28 (`EpicycleGraph.tsx:609`, radians). It predates this stream. Proposed fix: relabel the slider in radians, or scale it to 0–1. This is a small follow-up in lane E's file.
-- The daily scheduled run on 2026-11-19 passed.
+- **Parametrization sample count.** On the three param routes, “Število točk” is a `Slider`; [the controls catalogue](../../controls.md) prescribes `CountSetter` for a count. Changing it is more than a reorder, so it was left. Should it become a `CountSetter` (route behaviour and the weighted recipe stay; only the control changes)?
+- **Affine reflection axis (found by smoke, predates this stream).** The affine buttons “Zrcali čez os X/Y” (detail “os x”/“os y”) mirror the curve about the horizontal/vertical line through the control points' centroid, not the coordinate axis (`abstract-point-controlled-curve.ts` `flip`; its test agrees). Is the centroid intended, with the label changed to say so, or should the reflection be about the axis itself? Not changed.
+- The daily scheduled run on 2026-11-19 passed. Hosted CI failed at 13dff3fa and 9a726e31 on the stale Epicycles manifest; repaired by the recapture `e46e2e5a` (pushed 20:41 UTC; check `just ci e46e2e5a`).
 - **Overlap with graph-character** (unchanged): its implementation lives on `codex/graph-character-pilots`, not master. If it returns to master, it owns De Casteljau's board drawing and this stream owns `getGraphCommands`/Edit. The Voronoi and descent batches go after its slices.
 
 ## Accepted work
 
-Wave 1 is accepted and on master as `13dff3fa`, pushed 2026-11-19 20:18 UTC (hosted CI run 44607321004 was in progress at the time of writing; check `just ci 13dff3fa`).
+Wave 1 is accepted and on master as `13dff3fa`. The bezier batch (`ced593df`, `9a726e31`), the affine fix and the recapture (`8ef718f8`, `e46e2e5a`) are pushed.
+
+Handler 2:
+
+- `8ef718f8`: affine Rotate/Move/Scale/Reflect (buttons and lesson action) now call `refreshWorkspace()`, so the typed point fields follow. `AffineTypedPoints.test.tsx` failed on all four before. Haiku smoke passed (`.command-logs/gcfu-smoke-affine-fix/`).
+- `e46e2e5a`: Epicycles preview recapture (`just clip epicycles` with `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1`; the only fingerprint change was the recipe's selector lookup).
+- `91bec105` (worker `c264ad9f`): param.md family. Spline and weighted α lead with the sample count second; uniform's chooser, count and α (weighted only) move from `workspaceBeforeHodograph` into `getGraphCommands()`. Weighted α gains the help line `parameter_alpha_point_spacing_help`; the label stays because `demonstration-preview-recipes.cjs:39-40` and `familyChapters.ts` name “Parameter α”. Tests: `ParamConstructionFirst.test.tsx`, each assertion mutation-checked. Fresh visit on desktop: α y1105→482 (spline), y887→482 (weighted), chooser y690→465, all in view; on the phone they are the first Edit controls but under the board (y908–971), as on the bezier routes. Haiku smoke passed in sl/en, desktop and phone (`.command-logs/gcfu-smoke-param/`); gaps: no keyboard pass, no English phone pass.
+
+Wave 1 detail:
 
 Batch 1, bezier.md family (`ced593df`, cherry-picked from worker commit `beaa16cb`): affine, repeated-subdivision, subdivision, extrapolation and elevation opt in, and affine's rotation group moves first. The routes' tests are in `BezierConstructionFirst.test.tsx`, with acceptance checks that each failed under mutation. The swap control in `DecasteljauConstructionFirst.test.tsx` now uses a test-local `ElevationGraph` subclass, because no curve graph outside the batch has commands on the non-structured branch. The fresh-visit rerun puts every first task in view on desktop: affine y1072→462, subdivision-2 y887→482, extrapolation y912→507. On the phone the first task is now the first Edit control, but it sits under the board at y908–959; the companion decision covers this too.
 
@@ -23,16 +33,11 @@ Batch 1, bezier.md family (`ced593df`, cherry-picked from worker commit `beaa16c
 
 Checks at 13dff3fa: focused `just unit` per lane, tsc, lint and build. The recipe and clip-row node tests passed 65/65. The fresh-visit rerun puts the first-task control in view on desktop for all four routes. Smoke covered 5 routes, desktop 310 px and phone, in sl and en, with no failures; its evidence is in `.command-logs/gcfu-smoke/`. Smoke gaps: interactive steps ran in Slovenian only, phone reduced motion was not checked, and De Casteljau 2 has no selectable curve.
 
-Known limit: `scripts/demonstration-previews/manifest.json` still records the old Epicycles recipe label. It is generated, so regenerate it at the next Epicycles capture (`just clip epicycles` or the recapture command in docs/commands.md).
-
 The bezier-family smoke at ced593df (Haiku, desktop and phone, sl, plus English labels) passed on all five routes with no console errors. Evidence is in `.command-logs/gcfu-smoke-b1/`. Gaps: the visual distinctness of the extrapolation extension and whether the curve keeps its shape after elevation were not judged in the browser; unit tests cover both.
 
 ## Remaining steps, in order
 
-0. **Fix a pre-existing affine defect, test-first.** The point-coordinate fields keep their old values after Rotate, Move, Scale or Reflect. The cause is that `AffineTransformsBezierCurveGraph.tsx:98–116` calls `boardUpdate()` but not `refreshWorkspace()`. Smoke found it; it predates this stream.
-
-1. **Wave 3, batch 1 (curve opt-in, the remaining 15 routes)**, family by family, with one worker per family slice. The bezier.md family is done:
-   - param.md: uniform-, spline-, weighted-parameterization
+1. **Wave 3, batch 1 (curve opt-in, the remaining 15 routes)**, family by family, with one worker per family slice. The bezier.md and param.md families are done:
    - rational.md: rational-subdivision, rational-elevation, rational-decasteljau, circle, rational-extrapolation, farin, rational
    - spline.md: spline-g1, spline-g1-symmetric, spline-cn
    - ph.md: ph-cubic, ph-quintic
@@ -44,7 +49,7 @@ The bezier-family smoke at ced593df (Haiku, desktop and phone, sl, plus English 
 
 ## Next slice brief inputs
 
-Batch 1, param.md family (uniform-, spline- and weighted-parameterization), then rational.md, spline.md and ph.md. Reuse the bezier-family brief: the first task leads Edit, per each route's entry in its docs/tasks/graph-control-first-use page. Opt in with `workspaceConstructionFirst()` where the first task is in `getGraphCommands()`; otherwise report it rather than force it. Reorder and group only. Add one real-graph test per route (pattern: `src/graphs/curves/bezier/BezierConstructionFirst.test.tsx`) with a mutation-observed failure. The worker starts its worktree from the integration HEAD (`git reset --hard <sha>`). Checks: focused `just unit`, tsc, lint and build, then `node scripts/controls-sweep/fresh-visit.cjs <ids> --base <preview> --out .command-logs/fresh-visit-<family>` and a Haiku `bezeg-smoke` on the routes. Grep each relabelled control in `src/learning/content` and the preview recipes first.
+Batch 1, rational.md family next (7 routes; consider splitting across the two worker slots), then spline.md and ph.md. Reuse the param-family brief: the first task leads Edit, per each route's entry in its docs/tasks/graph-control-first-use page. Opt in with `workspaceConstructionFirst()` where the first task is in `getGraphCommands()`; otherwise report it rather than force it. Reorder and group only. Add one real-graph test per route (pattern: `src/graphs/curves/bezier/BezierConstructionFirst.test.tsx`) with a mutation-observed failure. The worker starts its worktree from the integration HEAD (`git reset --hard <sha>`). Checks: focused `just unit`, tsc, lint and build, then `node scripts/controls-sweep/fresh-visit.cjs <ids> --base <preview> --out .command-logs/fresh-visit-<family>` and a Haiku `bezeg-smoke` on the routes. Grep each relabelled control in `src/learning/content` and the preview recipes first; when a label is referenced, add help text rather than relabel. A first task in the graph's own workspace hook (as uniform's `workspaceBeforeHodograph`) may move into `getGraphCommands()`. fresh-visit ids are route paths such as `param/param/alphaparam`. Any recipe change makes the preview manifest stale: recapture (`just clip <id>`) before publishing, or hosted CI fails.
 
 ## Settings
 
