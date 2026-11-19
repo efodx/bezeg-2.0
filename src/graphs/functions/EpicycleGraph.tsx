@@ -483,31 +483,35 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         const parametrizationText = {equal: t("epicycle_param_equal"), chord: t("epicycle_param_chord")};
         const analysis = this.analysisOf(state);
         return <>
+            <EpicyclePlayback graph={this}/>
             <div className="inspector-group">
                 <ChoiceSelect label={t("epicycle_example_label")} value={example ?? "custom"} options={options}
                               onChange={next => this.attempt(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
+            <div className="inspector-group" data-control="epicycle-cutoff">
                 <Slider customText={t("epicycle_n_label")} min={0} max={EPICYCLE_MAX_N} step={1} value={state.N}
                         rejectedHint={renderMessage(epicycleIssueMessage({kind: "n", min: 0, max: EPICYCLE_MAX_N}))}
                         onChange={(next: number) => this.attempt(() => this.setN(next))}
                         onTypedChange={(next: number) => guardField(this.refusals, () => this.setN(next))}/>
+                <p className="inspector-help" data-testid="epicycle-term-count">
+                    {t("epicycle_term_count", {value0: 2 * state.N + 1, value1: state.N})}</p>
                 {state.N >= EPICYCLE_MAX_N && <p className="inspector-help" data-testid="epicycle-n-cap">
                     {t("epicycle_n_cap", {value0: EPICYCLE_MAX_N, value1: 2 * EPICYCLE_MAX_N})}</p>}
             </div>
-            <div className="inspector-group">
-                <ChoiceSelect label={t("epicycle_param_label")} value={state.parametrization} help={t("epicycle_param_help")}
-                              options={EPICYCLE_PARAMETRIZATIONS.map(id => ({value: id, text: parametrizationText[id]}))}
-                              onChange={next => this.attempt(() => this.setParametrization(next))}/>
-                {state.parametrization === "chord" && analysis.fellBack
-                    && <ReadoutHelp hooks={{"data-testid": "epicycle-chord-fallback"}}>{t("epicycle_chord_fallback")}</ReadoutHelp>}
-            </div>
-            <EpicyclePlayback graph={this}/>
             {state.outline !== undefined
                 ? <p className="inspector-help" data-testid="epicycle-outline-fixed">{t("epicycle_outline_fixed_help")}</p>
                 : <InspectorDisclosure title={t("epicycle_handles_summary")}>
                     {this.renderHandleFields(state)}
                 </InspectorDisclosure>}
+            <InspectorDisclosure title={t("epicycle_param_summary")}>
+                <div className="inspector-group">
+                    <ChoiceSelect label={t("epicycle_param_label")} value={state.parametrization} help={t("epicycle_param_help")}
+                                  options={EPICYCLE_PARAMETRIZATIONS.map(id => ({value: id, text: parametrizationText[id]}))}
+                                  onChange={next => this.attempt(() => this.setParametrization(next))}/>
+                    {state.parametrization === "chord" && analysis.fellBack
+                        && <ReadoutHelp hooks={{"data-testid": "epicycle-chord-fallback"}}>{t("epicycle_chord_fallback")}</ReadoutHelp>}
+                </div>
+            </InspectorDisclosure>
         </>;
     }
 
@@ -545,7 +549,9 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                     value0: state.N, value1: rows.length, value2: largest.k, value3: this.number(largest.modulus, 4), value4: this.number(this.errorOf(state), 5),
                 })
                 : t("epicycle_status_no_rotating", {value0: state.N, value1: rows.length, value2: this.number(this.errorOf(state), 5)})}]}/>
-            <EpicycleTable rows={rows}/>
+            <InspectorDisclosure title={t("epicycle_terms_summary")}>
+                <EpicycleTable rows={rows}/>
+            </InspectorDisclosure>
         </>;
     }
 
@@ -595,6 +601,7 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
     useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const language = currentLanguage();
     return <div className="inspector-group">
+        <p className="inspector-help" data-testid="epicycle-play-instruction">{text("epicycle_play_instruction")}</p>
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("epicycle_playback_group")} playing={graph.playing}
                          playBlock={!graph.playing && graph.reducedMotion() ? "reduced-motion" : undefined}

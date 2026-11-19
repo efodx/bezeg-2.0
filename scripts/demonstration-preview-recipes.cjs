@@ -5,6 +5,8 @@ const {numberFieldLocator} = require('./number-field-locator.cjs');
 const button = (label, count = 1) => ({kind: 'button', label, count});
 const toggle = (label, value = true) => ({kind: 'toggle', label, value});
 const field = (label, value, kind = 'range', index = 0) => ({kind, label, value, index});
+// A range slider found by a stable graph-scoped selector (a `data-control` wrapper) instead of its visible label, so a relabelling cannot break the capture; `name` only words the failure messages.
+const sliderBy = (selector, name, value) => ({kind: 'range', selector, label: name, value, index: 0});
 const polygon = toggle('Kontrolni poligon');
 const targets = {
     bernstein: ['Four cubic Bernstein functions over the unit interval', [button('Povečaj število', 2)], [-0.12, 1.12, 1.12, -0.12]],
@@ -120,8 +122,8 @@ const targets = {
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with the blue mean triangle, the moss median square, the box plot and the mean +- sigma band (school rule)', [toggle('Pas okoli sredine (± standardni odklon)')], [2.4, 2.85, 11.2, -2.53]],
     'prob-correlation': ['Outlier example points (0,1), (1,2), (2,2), (3,8) with the regression line and the long residuals', [field('Primer', 'outlier', 'select')], [-1, 9, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
-    // The default circle is a single epicycle, so the poster takes an outline subject (Primer select) and a Število členov N slider value: the chain of circles with the tip and a trace that shows the subject but is not yet exact.
-    epicycles: ['Outline subject at N = 10: the chain of circles with the tip and the approximating trace, recognisably the subject but not yet exact', [field('Primer', 'slovenia', 'select'), field('Število členov N', 10)]],
+    // The default circle is a single epicycle, so the poster takes an outline subject (Primer select) and a cutoff (N) slider value: the chain of circles with the tip and a trace that shows the subject but is not yet exact.
+    epicycles: ['Outline subject at N = 10: the chain of circles with the tip and the approximating trace, recognisably the subject but not yet exact', [field('Primer', 'slovenia', 'select'), sliderBy('[data-control="epicycle-cutoff"]', 'Epicycles cutoff N', 10)]],
     'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-6.2, 3.8, 6.2, -3.8]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
@@ -412,7 +414,7 @@ async function settle(page) {
 async function applyAction(page, action) {
     // The contour board reframes itself to its size after every resize until the board is touched (ContourMapGraph framePending); a click on its empty corner ends that, so the camera of the poster holds.
     if (action.kind === 'touch-board') { await page.locator('#jgbox').click({position: {x: 2, y: 2}}); await settle(page); return; }
-    let control = action.kind === 'button' ? (action.group
+    let control = action.selector ? page.locator(action.selector).locator('input[type="range"]').nth(action.index || 0) : action.kind === 'button' ? (action.group
         ? page.getByRole('group',{name:action.group,exact:true,includeHidden:true}).getByRole('button',{name:action.label,exact:true,includeHidden:true})
         : page.getByRole('button', {name: action.label, exact: true, includeHidden: true}))
         // A CountSetter's group is named by its label too; only the input is the control to drive.
