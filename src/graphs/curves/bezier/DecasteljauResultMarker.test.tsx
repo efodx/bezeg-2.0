@@ -21,7 +21,7 @@ function expectMarkerAt(graph: DecasteljauGraph, t: number) {
     const marker = result(graph);
     const renderedTrace = trace(graph) as JXG.Curve & {points: JXG.Coords[]};
     const board = renderedTrace.board;
-    expect(board.objectsList.filter(object => object.elType === 'curve')).toEqual([renderedTrace]);
+    expect(board.objectsList.filter(object => object instanceof JXG.Curve && object.elType === 'curve')).toEqual([renderedTrace]);
     expect(board.objectsList.filter(object => JXG.isPoint(object) && object.rendNode?.getAttribute('stroke') === GraphPalette.emphasis)).toEqual([marker]);
     expect(marker.visPropCalc.visible).toBe(true);
     expect(marker.visProp.fixed).toBe(true);
