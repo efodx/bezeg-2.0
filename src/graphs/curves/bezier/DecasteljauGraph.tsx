@@ -1,5 +1,6 @@
 import {t} from "../../../localization";
 import React from 'react';
+import type {PointAttributes} from "jsxgraph";
 
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {TransientState} from "../../base/BaseGraph";
@@ -14,6 +15,9 @@ import {onlyParameterStateChanged, PARAMETER_PUBLISH_INTERVAL_MS, statusAfterSce
 import {skipRedundantHtmlTextClipping} from "../../base/htmlTextClipping";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {decasteljauPresetCollection} from "./collections";
+import {JXGBezierCurve} from "../object/JXGBezierCurve";
+import {dynamicAttributes} from "../../styles/dynamicAttributes";
+import {GraphPalette} from "../../styles/GraphPalette";
 
 type DecasteljauAnimationCommand = Extract<LessonAnimationCommand, 'play' | 'pause' | 'replay' | 'stop'>;
 const DECASTELJAU_ANIMATION_COMMANDS: readonly DecasteljauAnimationCommand[] = ['play', 'pause', 'replay', 'stop'];
@@ -151,6 +155,19 @@ class DecasteljauGraph extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         const curve = this.getFirstJxgCurve();
         curve.setIntervalEnd(() => this.state.wholeCurve ? 1 : this.parameter);
         curve.setAttributes(Attributes.bezierDisabled);
+        if (curve instanceof JXGBezierCurve) {
+            curve.setDecasteljauResultStyle(dynamicAttributes<PointAttributes>({
+                face: "diamond",
+                size: () => Math.max(7, this.displaySettings.pointSize + 4),
+                fillColor: GraphPalette.boardSurface,
+                strokeColor: GraphPalette.emphasis,
+                strokeWidth: 2.5,
+                fixed: true,
+                highlight: false,
+                // Keep coincident control handles visible and reachable inside the diamond.
+                layer: 8,
+            }));
+        }
         curve.showDecasteljauPoints();
     }
 

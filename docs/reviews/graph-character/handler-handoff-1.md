@@ -1,0 +1,19 @@
+# Graph character pilots — implementation handoff
+
+## Objective
+
+The owner wants the visual character, clear action and result, and real-world setups of the promotional Shorts incorporated into Bezeg without overloading the graphs. They chose **all three** next steps: the optional Voronoi pizzeria example, a wider design plan, and light changes to the default graphs. This is implementation authorization. Carry the release through focused checks, browser smoke, review, commits and a fast-forward push to origin/master.
+
+## Accepted scope and evidence
+
+- The [pilot specification and collection plan](../../specs/graph-character-pilots.md) is committed at `9303e828` on `master`, based on `32319449` from origin/master. The documentation diff passed `git diff --cached --check`. Implementation, runtime review, builds and browser checks remain outstanding. No product code was changed by the first handler.
+- The initial three routes are fastest descent, ordinary de Casteljau and ordinary Voronoi. Preserve classroom teaching, the default Slovenian and English, ordinary abstract setups, stored files, access by keyboard and touch, and the mathematical models. For changes to localization run both required compiler and production checks.
+- Source boards were inspected via the real, committed catalog images. The optional pizzeria drawing can begin with two sites; the existing exact Voronoi kernel supports two sites and their full perpendicular bisector. The main route already has exact nearest-site and ties in its panel and a reusable example selector currently offered on its degenerate-sites subclass. Use one query and the existing nearest answer. A 310 px inspector screenshot is needed if panel controls change.
+- In descent, the three existing tracks have distinct line patterns but the moving beads share a face. The board currently gives away the winner in a caption at time zero. Use computed first-arrival times, including rewinds, and restrict new race cues to race mode. In de Casteljau there is already a partial trace and a playback/scrub path; emphasize the final point without adding another trace and without altering other curves that use shared adapters.
+- The two exploratory images in chat showed the optional two-shop example with awnings and a nearest-site line, and a small finish cue on the descent graph. They are illustrative only. The app solver decides all geometry and positions. The approved direction and acceptance criteria are in the spec. The earlier video workspace is outside the repo under the desktop visualization folder for chat `01a1f4cd-cb9b-74a3-9271-5b65a74dd663`, subdirectory `shorts-round-three`.
+
+## Checkout and routing
+
+Read current Git state before editing. Preserve unrelated untracked `.claude/jobs/`, `.impeccable/critique/2026-11-12T20-19-27Z__efodx-github-io-bezeg-2-0-learn-sweep-algorithms.md`, `debug.log` and `docs/reviews/custom-function-entry-handoff.md`. No implementation workers, running previews, test servers or owned dirty product files carry over. The film workers finished in the previous turn. Permissions are workspace-write and auto-review; Git writes generally need escalation. The published owner workflow requires the primary handler to commit and push.
+
+Suggested independent slices are Voronoi example plus default query cues, descent, and de Casteljau. Assign localization ownership to avoid overlapping edits. Use AGENTS.md, the worker/review workflow, and the smoke-tester skill. Verify current project graph styling and the already-planned first-use work. Approval is already present; continue the implementation directly. No model was selected by the user. The local workflow's named Luna model was absent from the previous dispatcher; active-family Sol high was available. The Impeccable launcher reported a stale generated design sidecar; DESIGN.md was the visual authority, and no design-system regeneration is part of this work.

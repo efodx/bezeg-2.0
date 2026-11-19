@@ -62,6 +62,12 @@ const NAME_KEYS = {
     line: "descent_graph_name_line", arc: "descent_graph_name_arc", cycloid: "descent_graph_name_cycloid", track: "descent_graph_name_track",
 } as const;
 type TrackName = keyof typeof NAME_KEYS;
+const RACE_TRACKS = ["line", "arc", "cycloid"] as const;
+const RACE_MARKERS = {
+    line: {face: "[]", symbol: "■"},
+    arc: {face: "^", symbol: "▲"},
+    cycloid: {face: "o", symbol: "●"},
+} as const;
 
 const RESIZE_SETTLE_MS = 150;
 const REDUCED_REASON_ID = "descent-play-reduced-reason";
@@ -253,14 +259,17 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     private tEnd(): number { return this.derived().tEnd; }
 
+    private hasFirstArrival(race: RaceDerived): boolean {
+        return this.timeValue >= race.times[race.winner];
+    }
+
     /** The beads the mode shows, with the track and the start each runs from. */
     private beadSpecs(): readonly BeadSpec[] {
         const derived = this.derived();
         if (this.beadSpecCache?.derived === derived) return this.beadSpecCache.value;
         let value: BeadSpec[] = [];
         if (derived.mode === "race") {
-            const colors: Record<RaceTrackId, string> = {line: GraphPalette.comparisonCurve, arc: GraphPalette.additionalCurves[1], cycloid: GraphPalette.primaryCurve};
-            value = (["line", "arc", "cycloid"] as const).map(id => ({key: id, track: derived.tracks[id], tStart: 0, total: derived.times[id], color: colors[id], tag: 0}));
+            value = RACE_TRACKS.map(id => ({key: id, track: derived.tracks[id], tStart: 0, total: derived.times[id], color: this.trackColor(id), tag: 0}));
         } else if (derived.mode === "track") {
             if (derived.time !== undefined) value.push({key: "track", track: derived.track, tStart: 0, total: derived.time, color: GraphPalette.controlPoint, tag: 0});
             if (this.state.showCycloid) value.push({key: "cycloid", track: derived.cycloid.track, tStart: 0, total: derived.cycloid.time, color: GraphPalette.primaryCurve, tag: 0});
@@ -448,11 +457,12 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     }
 
     private text(content: () => string, x: () => number, y: () => number, color: string, visible: () => boolean,
-                 options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"; math?: boolean} = {}): void {
+                 options: {anchorX?: "left" | "middle" | "right"; anchorY?: "top" | "middle" | "bottom"; math?: boolean; cssStyle?: string} = {}): void {
+        const {anchorX = "left", anchorY = "middle", math: mathLabel, ...style} = options;
         // `math`: the content is only a point name, typeset with the display font size of the point labels.
-        const math = options.math ? {fontSize: (this.styles.point.namedLabel).fontSize, useMathJax: true, parse: false} : {};
-        this.own(this.board.create("text", [x, y, options.math ? () => pointLabelMath(content()) : content], {
-            strokeColor: color, fontSize: 14, ...math, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "middle", fixed: true, highlight: false, withLabel: false, visible,
+        const math = mathLabel ? {fontSize: (this.styles.point.namedLabel).fontSize, useMathJax: true, parse: false} : {};
+        this.own(this.board.create("text", [x, y, mathLabel ? () => pointLabelMath(content()) : content], {
+            strokeColor: color, fontSize: 14, ...math, ...style, anchorX, anchorY, fixed: true, highlight: false, withLabel: false, visible,
         }) as JXG.Text);
     }
 
@@ -513,10 +523,11 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
         // The names of the tracks, on the tracks.
         const onTrack = (track: Track | undefined, fraction: number): [number, number] => (track ? flip(track.point(track.t0 + fraction * (track.t1 - track.t0))) : [0, 0]);
-        this.tagText(() => t("descent_graph_name_line"), () => onTrack(lineTrack(), 0.7), GraphPalette.comparisonCurve, () => this.mode() !== "tautochrone", 6, 12);
-        this.tagText(() => t("descent_graph_name_arc"), () => { const centre = race()?.arcCentre ?? 0; return [centre, -centre]; }, GraphPalette.additionalCurves[1], () => this.mode() === "race", -34, -20);
+        const trackName = (id: RaceTrackId) => this.mode() === "race" ? `${RACE_MARKERS[id].symbol} ${t(NAME_KEYS[id])}` : t(NAME_KEYS[id]);
+        this.tagText(() => trackName("line"), () => onTrack(lineTrack(), 0.7), GraphPalette.comparisonCurve, () => this.mode() !== "tautochrone", 6, 12);
+        this.tagText(() => trackName("arc"), () => { const centre = race()?.arcCentre ?? 0; return [centre, -centre]; }, GraphPalette.additionalCurves[1], () => this.mode() === "race", -34, -20);
         this.tagText(() => t("descent_graph_name_arc"), () => onTrack(taut()?.arcGuide, 0.5), GraphPalette.additionalCurves[1], () => this.mode() === "tautochrone" && state().showArc, -64, -4);
-        this.tagText(() => t("descent_graph_name_cycloid"), () => onTrack(cycloidTrack(), 0.45), GraphPalette.primaryCurve, () => this.mode() !== "track" || state().showCycloid, 8, -14);
+        this.tagText(() => trackName("cycloid"), () => onTrack(cycloidTrack(), 0.45), GraphPalette.primaryCurve, () => this.mode() !== "track" || state().showCycloid, 8, -14);
         this.tagText(() => t("descent_graph_name_track"), () => onTrack(track()?.track, 0.5), GraphPalette.controlPoint, () => this.mode() === "track", 8, -14);
 
         // The fixed points: the start A (and in the race and tautochrone the computed end).
@@ -525,11 +536,20 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
             visible: () => this.mode() !== "tautochrone",
         }));
         this.tagText(() => t("descent_graph_name_a"), () => [0, 0], GraphPalette.label, () => this.mode() !== "tautochrone", 8, 8, true);
-        this.own(board.create("point", [() => (race() ? race()!.end[0] : 0), () => (race() ? -race()!.end[1] : 0)], {
+        const raceEndX = () => race()?.end[0] ?? 0;
+        const raceEndY = () => -(race()?.end[1] ?? 0);
+        this.own(board.create("point", [raceEndX, raceEndY], {
             name: "", withLabel: false, fixed: true, highlight: false, size: 4, face: "[]", fillColor: GraphPalette.label, strokeColor: GraphPalette.pointOutline,
             visible: () => this.mode() === "race",
         }));
-        this.tagText(() => t("descent_graph_name_b"), () => (race() ? [race()!.end[0], -race()!.end[1]] : [0, 0]), GraphPalette.label, () => this.mode() === "race", 8, 8, true);
+        this.tagText(() => t("descent_graph_name_b"), () => [raceEndX(), raceEndY()], GraphPalette.label, () => this.mode() === "race", 8, 8, true);
+        this.text(() => {
+            const d = race();
+            return d ? t("descent_graph_cap_first_arrival", {value0: t(NAME_KEYS[d.winner]), value1: seconds(d.times[d.winner])}) : "";
+        }, () => raceEndX() - 12 / (board.unitX || 1), () => raceEndY() + 18 / (board.unitY || 1), GraphPalette.label, () => {
+            const d = race();
+            return d !== undefined && this.hasFirstArrival(d);
+        }, {anchorX: "right", anchorY: "bottom", cssStyle: `background:${GraphPalette.boardSurface};border:1px solid ${GraphPalette.tick};border-radius:4px;padding:2px 6px;font-weight:600;pointer-events:none;`});
 
         // The handles: draggable, with touch-sized hit zones; the numeric fields are the keyboard path.
         this.handles = this.handleSpecs().map(spec => {
@@ -547,13 +567,19 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
             return {spec, point};
         });
 
-        // The beads: a pool, each reading its place at the elapsed time.
-        for (let i = 0; i < 6; i++) {
-            const color = () => this.beadSpecs()[i]?.color ?? GraphPalette.label;
+        // JSXGraph creates a different SVG element for each face. Keep both face variants in the pool when needed.
+        const bead = (i: number, face: NonNullable<JXG.PointAttributes["face"]>, visible: () => boolean) => {
             this.own(board.create("point", [() => this.beadPositions()[i]?.[0] ?? 0, () => this.beadPositions()[i]?.[1] ?? 0], {
-                name: "", withLabel: false, fixed: true, highlight: false, size: 5, face: "o", strokeColor: GraphPalette.label, strokeWidth: 1, fillColor: () => color(),
-                visible: () => this.beadSpecs()[i] !== undefined,
+                name: "", withLabel: false, fixed: true, highlight: false, size: 5, face, strokeColor: GraphPalette.label, strokeWidth: 1,
+                fillColor: () => this.beadSpecs()[i]?.color ?? GraphPalette.label, visible,
             }) as JXG.Point);
+        };
+        RACE_TRACKS.forEach((id, index) => {
+            const {face} = RACE_MARKERS[id];
+            if (face !== "o") bead(index, face, () => this.mode() === "race");
+        });
+        for (let i = 0; i < 6; i++) {
+            bead(i, "o", () => this.beadSpecs()[i] !== undefined && (this.mode() !== "race" || RACE_TRACKS[i] === "cycloid"));
             this.tagText(() => String(this.beadSpecs()[i]?.tag ?? ""), () => this.beadPositions()[i] ?? [0, 0], GraphPalette.label, () => (this.beadSpecs()[i]?.tag ?? 0) > 0, 8, -12);
         }
 
@@ -561,10 +587,9 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         const captions: readonly {text: () => string; visible: () => boolean; color: string}[] = [
             {text: () => t("descent_graph_cap_units", {value0: dec(G, 2)}), visible: () => true, color: GraphPalette.label},
             {text: () => t("descent_graph_cap_bead", {value0: seconds(Math.min(this.timeValue, this.tEnd()))}), visible: () => true, color: GraphPalette.label},
-            ...(["line", "arc", "cycloid"] as const).map(id => ({
+            ...RACE_TRACKS.map(id => ({
                 text: () => this.timeRow(id), visible: () => this.mode() === "race", color: this.trackColor(id),
             })),
-            {text: () => t("descent_graph_cap_winner", {value0: t(NAME_KEYS[race()?.winner ?? "cycloid"])}), visible: () => this.mode() === "race", color: GraphPalette.label},
             {text: () => t("descent_graph_cap_end_computed", {value0: metres(race()?.end[0] ?? 0), value1: metres(race()?.end[1] ?? 0)}), visible: () => this.mode() === "race", color: GraphPalette.label},
             {text: () => this.timeRow("track"), visible: () => this.mode() === "track", color: this.trackColor("track")},
             {text: () => this.timeRow("cycloid"), visible: () => this.mode() === "track" && state().showCycloid, color: this.trackColor("cycloid")},
@@ -873,7 +898,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         const d = this.derived();
         const parts: string[] = [];
         if (d.mode === "race") {
-            parts.push(t("descent_graph_sentence_race", {value0: t(NAME_KEYS[d.winner]), value1: seconds(d.times[d.winner]), value2: dec(d.lineSlowerPercent, 1)}));
+            if (this.hasFirstArrival(d)) parts.push(t("descent_graph_sentence_race", {value0: t(NAME_KEYS[d.winner]), value1: seconds(d.times[d.winner]), value2: dec(d.lineSlowerPercent, 1)}));
         } else if (d.mode === "track") {
             parts.push(d.status === "ok" && d.difference !== undefined && d.differencePercent !== undefined
                 ? t("descent_graph_sentence_track", {value0: seconds(d.time ?? 0), value1: seconds(d.difference), value2: dec(d.differencePercent, 1)})
@@ -918,10 +943,12 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
                 {id: "time-line", label: timeLabel("line"), value: seconds(d.times.line)},
                 {id: "time-arc", label: timeLabel("arc"), value: seconds(d.times.arc)},
                 {id: "time-cycloid", label: timeLabel("cycloid"), value: seconds(d.times.cycloid)},
+            );
+            if (this.hasFirstArrival(d)) rows.push(
                 {id: "winner", label: t("descent_graph_r_winner"), value: t(NAME_KEYS[d.winner])},
                 {id: "line-slower", label: t("descent_graph_r_line_slower"), value: `${dec(d.lineSlowerPercent, 1)} %`},
-                {id: "radius", label: t("descent_graph_r_radius"), value: `${dec(d.radius, 2)} ${t("descent_graph_unit_m")}`},
             );
+            rows.push({id: "radius", label: t("descent_graph_r_radius"), value: `${dec(d.radius, 2)} ${t("descent_graph_unit_m")}`});
         } else if (d.mode === "track") {
             const named = (name: "descent_graph_name_b" | "descent_graph_name_p1" | "descent_graph_name_p2", x: number, y: number, id: string) =>
                 ({id, label: t("descent_graph_r_point", {value0: t(name)}), value: pointText(x, y)});

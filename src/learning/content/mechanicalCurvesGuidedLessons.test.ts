@@ -136,7 +136,9 @@ function raceRows(r: number, elapsed: number): Record<string, string> {
     return {
         time: `${readoutNumber(Math.min(elapsed, ceilToCentisecond(Math.max(times.line, times.arc, times.cycloid))), 2)} s`,
         end: point(PI * r, 2 * r), 'time-line': s(times.line), 'time-arc': s(times.arc), 'time-cycloid': s(times.cycloid),
-        winner: 'Cikloida', 'line-slower': `${readoutNumber((times.line / times.cycloid - 1) * 100, 1)} %`, radius: `${readoutNumber(r, 2)} m`,
+        winner: elapsed >= times.cycloid ? 'Cikloida' : '',
+        'line-slower': elapsed >= times.cycloid ? `${readoutNumber((times.line / times.cycloid - 1) * 100, 1)} %` : '',
+        radius: `${readoutNumber(r, 2)} m`,
     };
 }
 interface Controls { readonly p1: V; readonly p2: V; readonly b: V }
@@ -403,8 +405,10 @@ test('MC1: the changes the text asks the learner to make (the time slider, every
         m.scene(mechanicalCurvesRaceLesson, 'mc1-explore');
         for (let quarter = 1; quarter <= 12; quarter++) {
             const r = quarter / 4;
-            m.learner(params({radius: r}));
-            const rows = raceRows(r, 0);
+            const times = raceTimes(r);
+            const end = ceilToCentisecond(Math.max(times.line, times.arc, times.cycloid));
+            m.learner(params({radius: r}), time(end));
+            const rows = raceRows(r, end);
             for (const row of ['end', 'time-line', 'time-arc', 'time-cycloid', 'winner', 'line-slower', 'radius']) expect({r, row, text: stripped(readout(row))}).toEqual({r, row, text: stripped(rows[row])});
             expect({r, order: raceTimes(r).cycloid < raceTimes(r).arc && raceTimes(r).arc < raceTimes(r).line}).toEqual({r, order: true});
             expect(Number((raceTimes(r).cycloid / raceTimes(1).cycloid).toFixed(9))).toBe(Number(Math.sqrt(r).toFixed(9))); // all times scale with sqrt(r)

@@ -87,6 +87,14 @@ const dragSite = (graph: Observed, index: number, x: number, y: number) => {
     const point = sitePoints(graph)[index] as unknown as JXG.Point;
     act(() => { point.moveTo([x, y], 0); trigger(point, 'drag'); });
 };
+const exampleSelect = () => screen.getByRole<HTMLSelectElement>('combobox', {name: t('deg_example_group')});
+const chooseExample = (value: 'abstract' | 'pizzeria') => fireEvent.change(exampleSelect(), {target: {value}});
+const queryLinks = (graph: Observed) => named(graph, 'voronoi-query-links')[0];
+const highlightedCells = (graph: Observed) => named(graph, 'voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.9);
+const linkVertices = (graph: Observed) => {
+    const {dataX, dataY} = queryLinks(graph);
+    return dataX!.flatMap((x, index) => Number.isNaN(x) ? [] : [[x, dataY![index]]]);
+};
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
     act(() => { pending = start(); });
@@ -215,11 +223,6 @@ test('the query point inside the p6 cell names P6 and highlights it; on seeded r
     let seed = 12345;
     const next = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
     const points = graph.model.points;
-    const highlightedSites = () => {
-        const cells = named(graph, 'voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.9);
-        expect(cells).toHaveLength(1);
-        return points.map((p, i) => ({p, i})).filter(({p}) => insideOrOn(cells[0].dataX!, cells[0].dataY!, p.x, p.y)).map(({i}) => i);
-    };
     for (let k = 0; k < 40; k++) {
         const qx4 = Math.round(next() * 56 - 16);
         const qy4 = Math.round(next() * 56 - 8);
@@ -227,8 +230,12 @@ test('the query point inside the p6 cell names P6 and highlights it; on seeded r
         act(() => { expect(graph.setQueryPoint(point)).toBe(true); });
         const brute = bruteNearest(points, qx4, qy4);
         expect(graph.queryNearest()).toEqual(brute);
-        expect(highlightedSites()).toContain(brute[0]);
-        if (brute.length === 1) expect(highlightedSites()).toEqual([brute[0]]);
+        const cells = highlightedCells(graph);
+        expect(cells).toHaveLength(brute.length === 1 ? 1 : 0);
+        if (brute.length === 1) {
+            const cell = cells[0];
+            expect(points.flatMap(({x, y}, i) => insideOrOn(cell.dataX!, cell.dataY!, x, y) ? [i] : [])).toEqual(brute);
+        }
         expect(part('query-nearest')).toContain(brute.length === 1 ? `P${brute[0] + 1}` : 'Točka leži na simetrali');
     }
     // a point exactly inside the p6 cell at a rational position
@@ -470,6 +477,125 @@ test('Reset example is available once any overlay differs from the example, incl
     click('reset-example');
     expect(graph.overlayShown('diagram')).toBe(true);
     expect(button('reset-example').getAttribute('aria-disabled')).toBe('true');
+});
+
+test('ordinary query links identify each exact nearest site and yield to hidden or specialized constructions', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(exampleSelect().value).toBe('abstract');
+    expect(named(graph, 'voronoi-pizzeria-marks')).toHaveLength(0);
+    expect(linkVertices(graph)).toEqual([[4, 2], [3, 3]]);
+    const curve = queryLinks(graph);
+    act(() => {
+        graph.loadModel({...VORONOI_EXAMPLE, points: [{x: 0, y: 0}, {x: 4, y: 0}, {x: 4, y: 4}, {x: 0, y: 4}]});
+        graph.setQueryText('2', '2');
+    });
+    expect(queryLinks(graph)).toBe(curve);
+    expect(linkVertices(graph)).toEqual([[2, 2], [0, 0], [2, 2], [4, 0], [2, 2], [4, 4], [2, 2], [0, 4]]);
+    expect(highlightedCells(graph)).toHaveLength(0);
+    act(() => { graph.setOverlay('diagram', false); });
+    expect(queryLinks(graph)).toBeUndefined();
+    act(() => { graph.setOverlay('diagram', true); graph.setOverlay('delaunay', true); });
+    expect(queryLinks(graph)).toBeUndefined();
+    act(() => { graph.setOverlay('delaunay', false); graph.selectSite(2); });
+    expect(queryLinks(graph)).toBeUndefined();
+    act(() => { graph.selectSite(null); });
+    expect(linkVertices(graph)).toHaveLength(8);
+});
+
+test('pizzeria follows the customer and every added shop, with keyboard edits, a bisector and exact ties', () => {
+    const graph = new Observed();
+    const {unmount} = mount(graph);
+    chooseExample('pizzeria');
+    expect(graph.model.points).toEqual([{x: 0, y: 0}, {x: 8, y: 0}]);
+    expect(part('collinear')).toContain('dve polravnini');
+    expect(graph.drawingStats()).toMatchObject({lines: 1, segments: 0, rays: 0});
+    expect(named(graph, 'voronoi-edges')[0].dataX).toEqual([4, 4]);
+    expect(linkVertices(graph)).toEqual([[3, 1], [0, 0]]);
+    const marks = named(graph, 'voronoi-pizzeria-marks')[0];
+    expect(marks.dataX!.filter(Number.isNaN)).toHaveLength(12);
+    expect(part('query-nearest')).toBe('Najbližja picerija je P1.');
+
+    click('query-right');
+    click('query-right');
+    expect(linkVertices(graph)).toEqual([[4, 1], [0, 0], [4, 1], [8, 0]]);
+    expect(highlightedCells(graph)).toHaveLength(0);
+    expect(part('query-nearest')).toBe('Do picerij P1, P2 je enako daleč.');
+    click('query-right');
+    expect(linkVertices(graph)).toEqual([[4.5, 1], [8, 0]]);
+    expect(part('query-nearest')).toBe('Najbližja picerija je P2.');
+
+    const query = named(graph, 'voronoi-query')[0] as unknown as JXG.Point;
+    act(() => { query.moveTo([4, 1], 0); trigger(query, 'drag'); });
+    act(() => { expect(graph.addPointAt({x: 4, y: 2})).toBe(true); });
+    expect(linkVertices(graph)).toEqual([[4, 1], [4, 2]]);
+    expect(part('query-nearest')).toBe('Najbližja picerija je P3.');
+    expect(named(graph, 'voronoi-pizzeria-marks')).toEqual([marks]);
+    expect(marks.dataX!.filter(Number.isNaN)).toHaveLength(17);
+    dragSite(graph, 2, 4, 4);
+    act(() => { enterNumber(queryField('y'), '0'); });
+    expect(linkVertices(graph)).toEqual([[4, 0], [0, 0], [4, 0], [8, 0], [4, 0], [4, 4]]);
+    expect(exampleSelect().value).toBe('pizzeria');
+    act(() => setLanguage('en'));
+    expect(part('query-nearest')).toBe('Pizzerias P1, P2, P3 are equally near.');
+    expect(screen.getByRole('group', {name: 'Customer'})).toBeDefined();
+
+    click('reset-example');
+    expect(linkVertices(graph)).toEqual([[3, 1], [0, 0]]);
+    expect(exampleSelect().value).toBe('pizzeria');
+    const board = graph.liveBoard();
+    unmount();
+    expect(board.objectsList).not.toEqual(expect.arrayContaining([marks]));
+});
+
+test('pizzeria context round-trips through Presets and scene checkpoints, and older Presets restore abstract mode', () => {
+    const graph = new Observed();
+    mount(graph);
+    const legacy = graph.exportPreset();
+    chooseExample('pizzeria');
+    act(() => { graph.addPointAt({x: 4, y: 3}); graph.setQueryText('4', '1'); });
+    const lessons = graph.getLessonCapabilities();
+    const checkpoint = lessons.captureState();
+    const stored = graph.exportPreset();
+    expect(stored.graphState).toMatchObject({example: 'pizzeria', query: {x: '4', y: '1'}});
+    expect(voronoiCollection.checkGraphState?.(stored.graphState)).toBeUndefined();
+    expect(voronoiCollection.checkGraphState?.({...stored.graphState, example: 'unrecognized'})).toBeDefined();
+
+    chooseExample('abstract');
+    expect(named(graph, 'voronoi-pizzeria-marks')).toHaveLength(0);
+    act(() => { graph.importPreset(stored); });
+    expect(exampleSelect().value).toBe('pizzeria');
+    expect(linkVertices(graph)).toEqual([[4, 1], [4, 3]]);
+    act(() => { graph.importPreset(legacy); });
+    expect(exampleSelect().value).toBe('abstract');
+    expect(named(graph, 'voronoi-pizzeria-marks')).toHaveLength(0);
+    act(() => { lessons.restoreState(checkpoint); });
+    expect(exampleSelect().value).toBe('pizzeria');
+    expect(linkVertices(graph)).toEqual([[4, 1], [4, 3]]);
+    expect(named(graph, 'voronoi-pizzeria-marks')).toHaveLength(1);
+});
+
+test('a bare model import clears the pizzeria context and omits it from the exported preset', () => {
+    const graph = new Observed();
+    mount(graph);
+    chooseExample('pizzeria');
+    expect(graph.exportPreset().graphState).toHaveProperty('example', 'pizzeria');
+    expect(named(graph, 'voronoi-pizzeria-marks')).toHaveLength(1);
+    act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
+    expect(exampleSelect().value).toBe('abstract');
+    expect(named(graph, 'voronoi-pizzeria-marks')).toHaveLength(0);
+    expect(graph.exportPreset().graphState).not.toHaveProperty('example');
+});
+
+test('activating a vertex places the query at its non-quarter coordinates and links the three exact ties', () => {
+    const graph = new Observed();
+    mount(graph);
+    const vertex = screen.getByRole('button', {name: /premakni.*\(1\/3, 8\/3\)/i});
+    fireEvent.click(vertex);
+    expect(graph.queryTextOf()).toEqual({x: '1/3', y: '8/3'});
+    expect(graph.queryNearest()).toEqual([0, 4, 5]);
+    expect(linkVertices(graph)).toEqual([[1 / 3, 8 / 3], [0, 0], [1 / 3, 8 / 3], [-1, 5], [1 / 3, 8 / 3], [3, 3]]);
+    expect(highlightedCells(graph)).toHaveLength(0);
 });
 
 test('duplicates and fewer than two sites refuse with a message and draw nothing; collinear sets are noted', () => {

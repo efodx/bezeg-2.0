@@ -1,7 +1,7 @@
 import type {GridPoint} from "../../compgeo/grid";
 import {PointSetModel, serializePointSetModel} from "../../compgeo/pointSetModel";
 import type {PresetCollection} from "../base/presets/PresetCollection";
-import type {VoronoiExampleId} from "./VoronoiControls";
+import type {DegenerateExampleId} from "./VoronoiControls";
 import {type VoronoiMode, voronoiPresetCollection} from "./voronoiPresetCollection";
 
 /** The file contract key of the degenerate-sites Preset collection (not yet listed in `presetCollections`: no route uses it). */
@@ -21,7 +21,7 @@ export interface DegenerateExample {
  *   the circle (determinant 0).
  * - `collinear`: five sites on the line y = x / 2, in `sites` mode.
  */
-export const DEGENERATE_EXAMPLES: Readonly<Record<VoronoiExampleId, DegenerateExample>> = Object.freeze({
+export const DEGENERATE_EXAMPLES: Readonly<Record<DegenerateExampleId, DegenerateExample>> = Object.freeze({
     square: {points: [{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1}], mode: "four-point"},
     trapezoid: {points: [{x: 0, y: 0}, {x: 8, y: 0}, {x: 9, y: 5}, {x: -1, y: 5}], mode: "four-point"},
     near: {points: [{x: 5, y: 0}, {x: 3, y: 4}, {x: -4, y: 3}, {x: 1, y: -5}], mode: "four-point"},
@@ -29,7 +29,7 @@ export const DEGENERATE_EXAMPLES: Readonly<Record<VoronoiExampleId, DegenerateEx
 });
 
 /** The Preset data of an example: sites on the unit grid, points mode. */
-export function degenerateExampleModel(id: VoronoiExampleId): PointSetModel {
+export function degenerateExampleModel(id: DegenerateExampleId): PointSetModel {
     return serializePointSetModel({mode: "points", points: DEGENERATE_EXAMPLES[id].points, closed: false, gridStepExponent: 0});
 }
 

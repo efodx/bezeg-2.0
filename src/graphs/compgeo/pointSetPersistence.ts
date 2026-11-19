@@ -199,6 +199,7 @@ export function pointSetPersistence(overlayIds: readonly string[], declared?: Po
             const fields: PointSetDataFields = part ? part.fromData(shown, data) : {};
             const kept: PointSetSceneState = {...defaults};
             if (part) for (const key of part.keys) Reflect.deleteProperty(kept, key);
+            if (extension) for (const field of extension.fields) Reflect.deleteProperty(kept, field.name);
             const scene: PointSetSceneState = {...kept, ...permittedInitialized(permittedState), ...permittedOverlays(permittedState, overlayIds), model: shown, ...fields};
             return extension ? {...scene, ...extrasOf(extension, shown, permittedState, fields)} : scene;
         },

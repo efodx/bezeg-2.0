@@ -5,7 +5,7 @@
 ## For the owner
 
 - Nothing blocking. The daily scheduled run on 2026-11-19 passed.
-- **Overlap with the graph-character stream.** [Its handoff](https://github.com/efodx/bezeg-2.0/blob/codex/graph-character-pilots/docs/reviews/graph-character/handler-handoff-1.md), committed `33a17547` and authorized for implementation, changes the de Casteljau board mark, Voronoi and fastest descent (`mechanics-descent`). It also asks Random experiments to coordinate with this pilot. If both streams run, lane D waits for that stream's de Casteljau slice to land, or each stream owns separate methods of `DecasteljauGraph.tsx`: this stream owns `getGraphCommands`/Edit, that stream owns board drawing. The Voronoi and descent route batches go after its slices.
+- **Overlap with the graph-character stream.** [Its handoff](../graph-character/handler-handoff-1.md), committed `33a17547` and authorized for implementation, changes the de Casteljau board mark, Voronoi and fastest descent (`mechanics-descent`). It also asks Random experiments to coordinate with this pilot. If both streams run, lane D waits for that stream's de Casteljau slice to land, or each stream owns separate methods of `DecasteljauGraph.tsx`: this stream owns `getGraphCommands`/Edit, that stream owns board drawing. The Voronoi and descent route batches go after its slices.
 - Decisions settled on 2026-11-19 and recorded in the spec: the De Casteljau opt-in keeps the construction controls through curve selection, Simulation gets a `CountSetter` stepping 1–2–5 and a visible Seeds group, and Epicycles renames only the `epicycle_*` keys and rewrites `prompt_epicycles`.
 
 ## Lanes
