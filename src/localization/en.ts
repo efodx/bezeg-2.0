@@ -3817,7 +3817,7 @@ export const en: Record<keyof typeof sl, string> = {
     "descent_graph_cap_bead": "Bead: {value0}",
     "descent_graph_cap_time_row": "{value0}: {value1}",
     "descent_graph_cap_no_time_row": "{value0}: no time",
-    "descent_graph_cap_winner": "Fastest: {value0}",
+    "descent_graph_cap_first_arrival": "First to finish · {value0}, {value1}",
     "descent_graph_cap_end_computed": "End B (computed): ({value0}, {value1})",
     "descent_graph_cap_point": "{value0} ({value1}, {value2})",
     "descent_graph_cap_difference": "Difference to the cycloid: {value0} ({value1} %)",

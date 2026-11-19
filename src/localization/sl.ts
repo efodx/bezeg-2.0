@@ -3816,7 +3816,7 @@ export const sl = {
     "descent_graph_cap_bead": "Kroglica: {value0}",
     "descent_graph_cap_time_row": "{value0}: {value1}",
     "descent_graph_cap_no_time_row": "{value0}: brez časa",
-    "descent_graph_cap_winner": "Najhitrejša: {value0}",
+    "descent_graph_cap_first_arrival": "Prvi prihod · {value0}, {value1}",
     "descent_graph_cap_end_computed": "Konec B (izračunan): ({value0}; {value1})",
     "descent_graph_cap_point": "{value0} ({value1}; {value2})",
     "descent_graph_cap_difference": "Razlika do cikloide: {value0} ({value1} %)",
